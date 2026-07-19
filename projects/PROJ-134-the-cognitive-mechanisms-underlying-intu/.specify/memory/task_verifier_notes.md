@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T004** — No `.gitignore` file or GitHub Actions workflow (e.g., `.github/workflows/ci.yml`) is presented in the evidence. The claim provides only task description and user stories, without the required repository artifacts, so the initialization of `.gitignore` and CI configuration is not demonstrated.
+- **T013** — The `simulation_mfq.py` file is present but its implementation is truncated (e.g., an unfinished conditional `if target_effect < mdes_value: l`) and does not contain the full data‑generation logic. Moreover, the required `state/mdes_report.yaml` file is missing, so the script cannot perform the mandated validation of `ground_truth_effect`. Both the missing MDES report and the incomplete script prevent the task from being genuinely fulfilled.
+- **T015a** — The `code/data/ingest.py` file does not contain any implemented logic that logs exclusion reasons for mismatched IDs, and the required `data/logs/exclusion.log` file is absent. Both the logging behavior and the output file mandated by the task are missing.
+- **T016** — The `code/data/preprocess.py` file is truncated and does not contain a complete implementation of the story‑to‑VR mapping or the logging logic, and the required `data/logs/vr_mapping.log` file is absent. Both the functional code and the log artifact needed by the task are missing.

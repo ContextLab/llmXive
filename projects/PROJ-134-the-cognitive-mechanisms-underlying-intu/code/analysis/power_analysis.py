@@ -1,123 +1,144 @@
-"""
-Power Analysis for Mixed-Effects Models
-
-Calculates the Minimum Detectable Effect Size (MDES) for a mixed-effects model
-given specific sample sizes and variance parameters. This ensures the simulation
-is statistically powered to recover the ground_truth_effect.
-
-Task: T045 [US3]
-"""
 import os
 import sys
 import math
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
+import yaml
 import numpy as np
 import pandas as pd
-import yaml
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
+project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from code.config import ensure_directories
-from code.utils.logging_utils import get_logger, log_pipeline_step
+from config import get_path, ensure_directories
 
-# Configure logger
-logger = get_logger("power_analysis")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Constants based on task description
+# Constants from plan.md
 N_PARTICIPANTS = 200
 N_VIGNETTES = 50
-STANDARD_DEVIATION = 1.0
-ALPHA = 0.05
-POWER_TARGET = 0.80
+SIGMA = 1.0  # Standard deviation
+ALPHA = 0.05  # Significance level
+POWER_TARGET = 0.80  # Target power (standard)
 
-def calculate_standard_error(
-    n_participants: int,
-    n_vignettes: int,
-    sigma: float,
-    intraclass_correlation: float = 0.0
-) -> float:
+def calculate_standard_error(n: int, m: int, sigma: float) -> float:
     """
-    Calculate the standard error of the fixed effect estimate in a mixed model.
-
-    Approximation for a balanced design:
-    SE(beta) ≈ sigma / sqrt(N * J * (1 - ICC))
-    Where:
-      N = number of participants
-      J = number of vignettes (observations per participant)
-      ICC = Intraclass Correlation Coefficient (assumed 0 for independence if not specified)
-
-    For a simple independent t-test equivalent (ICC=0):
-    SE = sigma / sqrt(N_total)
+    Calculate the standard error of the fixed effect estimate in a mixed-effects model.
+    
+    For a simple random intercept model with balanced design:
+    SE(beta) = sigma / sqrt(N * J) * sqrt(1 + (J * sigma_u^2) / sigma^2)
+    
+    For estimation purposes assuming negligible random slope variance and
+    focusing on the fixed effect of a binary predictor (salience) with equal groups:
+    SE ≈ sigma / sqrt(N * J / 2) * sqrt(2) = sigma * 2 / sqrt(N * J)
+    
+    However, a more robust approximation for the standard error of a fixed effect
+    in a mixed model with N subjects and J items is:
+    SE ≈ sigma / sqrt(N * J) * sqrt(2) (for binary predictor with 50/50 split)
+    
+    We use the simplified formula: SE = sigma * sqrt(2 / (N * J))
+    This assumes the variance is dominated by residual error and balanced design.
+    
+    Args:
+        n: Number of participants
+        m: Number of vignettes
+        sigma: Residual standard deviation
+        
+    Returns:
+        Standard error of the effect estimate
     """
-    total_observations = n_participants * n_vignettes
-    # If ICC is 0, effective sample size is total_observations
-    # If ICC > 0, effective sample size is reduced.
-    # Using a conservative effective sample size adjustment if ICC is provided.
-    if intraclass_correlation > 0:
-        # Effective sample size adjustment for clustered data
-        design_effect = 1 + (n_vignettes - 1) * intraclass_correlation
-        effective_n = total_observations / design_effect
-    else:
-        effective_n = total_observations
+    if n <= 0 or m <= 0:
+        raise ValueError("n and m must be positive")
+    if sigma <= 0:
+        raise ValueError("sigma must be positive")
+    
+    # Standard error for a fixed effect in a balanced mixed model
+    # SE = sigma * sqrt(2 / (N * J)) for a binary predictor
+    se = sigma * math.sqrt(2.0 / (n * m))
+    return se
 
-    return sigma / math.sqrt(effective_n)
-
-def calculate_mdes(
-    se: float,
-    alpha: float = 0.05,
-    power: float = 0.80
-) -> float:
+def calculate_mdes(se: float, alpha: float = 0.05, power: float = 0.80) -> float:
     """
     Calculate the Minimum Detectable Effect Size (MDES).
-
-    MDES = (Z_{1-alpha/2} + Z_{power}) * SE
-
-    For a two-tailed test with alpha=0.05 and power=0.80:
-    Z_{0.975} ≈ 1.96
-    Z_{0.80} ≈ 0.84
+    
+    MDES = (Z_(1-alpha/2) + Z_(power)) * SE
+    
+    Args:
+        se: Standard error of the estimate
+        alpha: Significance level
+        power: Target statistical power
+        
+    Returns:
+        Minimum Detectable Effect Size
     """
-    # Critical Z values
-    z_alpha = 1.96  # for alpha=0.05 two-tailed
-    z_power = 0.84  # for power=0.80
-
+    # Z-scores for standard normal distribution
+    z_alpha = 1.96  # Approximate Z for 0.05/2 two-tailed
+    z_power = 0.84  # Approximate Z for 0.80 power
+    
+    # More precise calculation using scipy if available, else use approximations
+    try:
+        from scipy.stats import norm
+        z_alpha = norm.ppf(1 - alpha / 2)
+        z_power = norm.ppf(power)
+    except ImportError:
+        logger.warning("scipy not available, using approximate Z-scores")
+    
     mdes = (z_alpha + z_power) * se
     return mdes
 
 def run_power_analysis(
-    n_participants: int = N_PARTICIPANTS,
-    n_vignettes: int = N_VIGNETTES,
-    sigma: float = STANDARD_DEVIATION,
+    n: int = N_PARTICIPANTS,
+    m: int = N_VIGNETTES,
+    sigma: float = SIGMA,
     alpha: float = ALPHA,
-    power: float = POWER_TARGET,
-    icc: float = 0.0
+    power: float = POWER_TARGET
 ) -> Dict[str, Any]:
     """
-    Perform the full power analysis calculation.
-
-    Returns a dictionary with the MDES and parameters used.
+    Run the full power analysis calculation.
+    
+    Args:
+        n: Number of participants
+        m: Number of vignettes
+        sigma: Residual standard deviation
+        alpha: Significance level
+        power: Target power
+        
+    Returns:
+        Dictionary containing analysis results
     """
-    se = calculate_standard_error(n_participants, n_vignettes, sigma, icc)
+    logger.info(f"Running power analysis with N={n}, M={m}, sigma={sigma}")
+    
+    se = calculate_standard_error(n, m, sigma)
     mdes = calculate_mdes(se, alpha, power)
-
+    
     result = {
-        "n_participants": n_participants,
-        "n_vignettes": n_vignettes,
-        "total_observations": n_participants * n_vignettes,
-        "standard_deviation": sigma,
-        "alpha": alpha,
-        "power_target": power,
-        "intraclass_correlation": icc,
-        "standard_error": se,
-        "minimum_detectable_effect_size": mdes,
-        "critical_z_alpha": 1.96,
-        "critical_z_power": 0.84
+        "parameters": {
+            "n_participants": n,
+            "n_vignettes": m,
+            "residual_sd": sigma,
+            "alpha": alpha,
+            "target_power": power
+        },
+        "results": {
+            "standard_error": se,
+            "minimum_detectable_effect_size": mdes,
+            "z_alpha": 1.96 if 'scipy' not in sys.modules else None, # Placeholder, updated in actual run
+            "z_power": 0.84 if 'scipy' not in sys.modules else None
+        },
+        "interpretation": {
+            "sample_size_adequate": mdes < 0.5, # Heuristic: MDES < 0.5 is often acceptable
+            "recommendation": "Proceed with simulation if ground_truth > MDES"
+        }
     }
-
+    
     return result
 
 def validate_ground_truth_effect(
@@ -125,103 +146,83 @@ def validate_ground_truth_effect(
     ground_truth_effect: float
 ) -> Tuple[bool, str]:
     """
-    Validate if the ground_truth_effect is above the MDES threshold.
+    Validate if the ground truth effect is above the MDES threshold.
+    
+    Args:
+        mdes: Minimum Detectable Effect Size
+        ground_truth_effect: The known effect size in the simulation
+        
+    Returns:
+        Tuple of (is_valid, message)
     """
-    if ground_truth_effect >= mdes:
-        return True, f"Ground truth effect ({ground_truth_effect:.4f}) is above MDES ({mdes:.4f}). Validation is statistically meaningful."
+    if ground_truth_effect > mdes:
+        return True, f"Ground truth effect ({ground_truth_effect:.4f}) > MDES ({mdes:.4f}). Validation is statistically meaningful."
     else:
-        return False, f"Ground truth effect ({ground_truth_effect:.4f}) is BELOW MDES ({mdes:.4f}). Validation may lack statistical power."
+        return False, f"Ground truth effect ({ground_truth_effect:.4f}) <= MDES ({mdes:.4f}). Validation may lack statistical power."
 
-def generate_report(
-    analysis_result: Dict[str, Any],
-    ground_truth_effect: float
-) -> str:
+def generate_report(results: Dict[str, Any], output_path: Path) -> None:
     """
-    Generate a human-readable report string.
+    Generate a YAML report of the power analysis.
+    
+    Args:
+        results: Dictionary containing analysis results
+        output_path: Path to write the report
     """
-    is_valid, message = validate_ground_truth_effect(
-        analysis_result["minimum_detectable_effect_size"],
-        ground_truth_effect
-    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Try to import scipy for precise Z values if not already done
+    z_alpha_val = 1.96
+    z_power_val = 0.84
+    try:
+        from scipy.stats import norm
+        z_alpha_val = norm.ppf(1 - 0.05 / 2)
+        z_power_val = norm.ppf(0.80)
+    except ImportError:
+        pass
+    
+    # Update results with precise Z values if available
+    results["results"]["z_alpha"] = z_alpha_val
+    results["results"]["z_power"] = z_power_val
+    
+    report_content = {
+        "title": "Power Analysis Report: Mixed-Effects Model",
+        "description": "Calculates MDES for N=200 participants, 50 vignettes, SD=1.0",
+        "methodology": "Standard error approximation for balanced mixed model with binary predictor",
+        **results
+    }
+    
+    with open(output_path, 'w') as f:
+        yaml.dump(report_content, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"Report written to {output_path}")
 
-    report_lines = [
-        "=" * 60,
-        "POWER ANALYSIS REPORT",
-        "Task: T045 - Minimum Detectable Effect Size Calculation",
-        "=" * 60,
-        "",
-        "PARAMETERS:",
-        f"  Participants (N): {analysis_result['n_participants']}",
-        f"  Vignettes (J): {analysis_result['n_vignettes']}",
-        f"  Total Observations: {analysis_result['total_observations']}",
-        f"  Standard Deviation (σ): {analysis_result['standard_deviation']}",
-        f"  Alpha (α): {analysis_result['alpha']}",
-        f"  Target Power (1-β): {analysis_result['power_target']}",
-        f"  Intraclass Correlation (ICC): {analysis_result['intraclass_correlation']}",
-        "",
-        "RESULTS:",
-        f"  Standard Error (SE): {analysis_result['standard_error']:.6f}",
-        f"  Minimum Detectable Effect Size (MDES): {analysis_result['minimum_detectable_effect_size']:.6f}",
-        "",
-        "VALIDATION:",
-        f"  Assumed Ground Truth Effect: {ground_truth_effect}",
-        f"  Status: {'PASS' if is_valid else 'FAIL'}",
-        f"  Message: {message}",
-        "",
-        "=" * 60
-    ]
-
-    return "\n".join(report_lines)
-
-def main() -> None:
-    """
-    Main entry point for the power analysis script.
-    Generates the report and saves it to data/reports/power_analysis_report.txt.
-    """
-    log_pipeline_step("power_analysis", "Starting power analysis calculation")
-
-    # Ensure output directories exist
+def main():
+    """Main entry point for power analysis."""
+    logger.info("Starting Power Analysis (Task T045)")
+    
+    # Ensure directories exist
     ensure_directories()
-
-    # Parameters
-    n_participants = N_PARTICIPANTS
-    n_vignettes = N_VIGNETTES
-    sigma = STANDARD_DEVIATION
-    alpha = ALPHA
-    power = POWER_TARGET
-
-    # For this specific task, we assume a ground truth effect of 0.5 based on
-    # typical simulation parameters in this project (e.g., T021 mentions 0.5).
-    # If a specific value is needed, it can be passed as an argument or config.
-    ground_truth_effect = 0.5
-
-    logger.info(f"Calculating MDES for N={n_participants}, J={n_vignettes}, σ={sigma}")
-
+    
     # Run analysis
-    analysis_result = run_power_analysis(
-        n_participants=n_participants,
-        n_vignettes=n_vignettes,
-        sigma=sigma,
-        alpha=alpha,
-        power=power
-    )
-
-    # Generate report
-    report_text = generate_report(analysis_result, ground_truth_effect)
-
+    results = run_power_analysis()
+    
     # Define output path
-    output_dir = project_root / "data" / "reports"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "power_analysis_report.txt"
-
-    # Write report to file
-    with open(output_path, "w") as f:
-        f.write(report_text)
-
-    logger.info(f"Power analysis report written to: {output_path}")
-    print(report_text)
-
-    log_pipeline_step("power_analysis", "Power analysis completed successfully")
+    output_path = get_path("state", "mdes_report.yaml")
+    
+    # Generate report
+    generate_report(results, output_path)
+    
+    # Print summary
+    print(f"\n=== Power Analysis Summary ===")
+    print(f"Participants (N): {results['parameters']['n_participants']}")
+    print(f"Vignettes (M): {results['parameters']['n_vignettes']}")
+    print(f"Residual SD (sigma): {results['parameters']['residual_sd']}")
+    print(f"Standard Error: {results['results']['standard_error']:.6f}")
+    print(f"Minimum Detectable Effect Size (MDES): {results['results']['minimum_detectable_effect_size']:.6f}")
+    print(f"Report saved to: {output_path}")
+    print("==============================\n")
+    
+    return results
 
 if __name__ == "__main__":
     main()

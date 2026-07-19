@@ -80,16 +80,42 @@ def validate_data_mode():
     
     return True
 
-def get_path(relative_path: str) -> Path:
+def get_path(*args, **kwargs) -> Path:
     """
     Resolve a relative path to an absolute path within the project root.
     
+    This function is overloaded to support multiple calling conventions found in the codebase:
+    
+    1. get_path("data/processed/output.csv") -> Returns PROJECT_ROOT / "data/processed/output.csv"
+    2. get_path("data", "logs/exclusion.log") -> Returns PROJECT_ROOT / "data" / "logs/exclusion.log"
+    3. get_path("", "data/raw/file.csv") -> Returns PROJECT_ROOT / "data/raw/file.csv"
+    
     Args:
-        relative_path: Path relative to PROJECT_ROOT (e.g., 'data/processed/output.csv')
+        *args: Path components. 
+               - If 1 arg: treated as a single relative path string.
+               - If 2+ args: treated as sequential path segments to join.
+        **kwargs: Unused, provided for future extensibility or ignored call sites.
     
     Returns:
-        Absolute Path object
+        Absolute Path object relative to PROJECT_ROOT.
+    
+    Raises:
+        ValueError: If no arguments are provided.
     """
+    if not args:
+        raise ValueError("get_path() requires at least one path argument")
+    
+    # If a single string argument is provided, treat it as the full relative path
+    if len(args) == 1 and isinstance(args[0], str):
+        relative_path = args[0]
+    else:
+        # If multiple arguments or non-string types, join them as path segments
+        # Convert all args to strings to ensure safe joining
+        relative_path = os.path.join(*[str(arg) for arg in args])
+    
+    # Handle the specific case where the first arg is an empty string (common in some calls)
+    # os.path.join("", "path") returns "path", which is correct behavior.
+    
     return PROJECT_ROOT / relative_path
 
 def load_yaml_config(file_path: str) -> dict:

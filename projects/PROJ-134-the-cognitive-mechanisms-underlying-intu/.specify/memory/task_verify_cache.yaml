@@ -1,26 +1,26 @@
 T013:
   c: false
-  h: ecfb836634ed06297141ce54d9b11eb4685497caa224979d1f5fc4894b9f4344
-  r: "The `code/data/simulation_mfq.py` script exists, but it does not read the required\
-    \ MDES value from `state/mdes_report.yaml`; instead it uses a hard\u2011coded\
-    \ `GROUND_TRUTH_EFFECT` and calls `validate_ground_truth_effect` without evidence\
-    \ that the function accesses the missing YAML file. Moreover, the `state/mdes_report.yaml`\
-    \ file itself is absent, so the required validation step cannot be performed.\
-    \ The task\u2019s core requirement is therefore unmet."
+  h: 83c79524a9c246de2f107d660d0b9d187776ffe2ba50e6e174a17e514b1993d0
+  r: "The `simulation_mfq.py` file is present but its implementation is truncated\
+    \ (e.g., an unfinished conditional `if target_effect < mdes_value: l`) and does\
+    \ not contain the full data\u2011generation logic. Moreover, the required `state/mdes_report.yaml`\
+    \ file is missing, so the script cannot perform the mandated validation of `ground_truth_effect`.\
+    \ Both the missing MDES report and the incomplete script prevent the task from\
+    \ being genuinely fulfilled."
 T015a:
   c: false
-  h: dc0ea07ac29f01199412a64b44ac1b049355ed8e683af8779917d2eee0f89670
-  r: "The `data/logs/exclusion.log` file does not exist, and the shown portion of\
-    \ `code/data/ingest.py` contains only data\u2011loading functions with no logic\
-    \ that detects mismatched participant IDs or calls `log_exclusion` to write reasons\
-    \ to that log file. Consequently the required logging behavior is not implemented."
+  h: 47e574001e2473699ae4445a375b5013d74f4c9d1df20171070db37ad516cb1b
+  r: The `code/data/ingest.py` file does not contain any implemented logic that logs
+    exclusion reasons for mismatched IDs, and the required `data/logs/exclusion.log`
+    file is absent. Both the logging behavior and the output file mandated by the
+    task are missing.
 T016:
   c: false
-  h: a4c2bdb276e5ed8fc98f9d7593a8adb6789d1096cfe4e28dee4d23a60bd81db9
-  r: "The repository contains `code/data/preprocess.py`, but the required log file\
-    \ `data/logs/vr_mapping.log` is absent, indicating that the CSV logging of story\u2011\
-    ID, salience level, and blend\u2011shape parameters was not implemented or executed.\
-    \ Consequently the task\u2019s logging requirement is not satisfied."
+  h: d8cc00b57a357f7df08b2fddea0e3d00300543eee584bf4686dc8f3e0328f9f4
+  r: "The `code/data/preprocess.py` file is truncated and does not contain a complete\
+    \ implementation of the story\u2011to\u2011VR mapping or the logging logic, and\
+    \ the required `data/logs/vr_mapping.log` file is absent. Both the functional\
+    \ code and the log artifact needed by the task are missing."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

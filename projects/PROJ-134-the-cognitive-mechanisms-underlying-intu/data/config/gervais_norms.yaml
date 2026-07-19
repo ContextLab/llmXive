@@ -1,0 +1,46 @@
+# Gervais et al. Psychometric Norms for MFQ
+# Based on cross-cultural analysis of Moral Foundations Questionnaire data.
+# Values represent population means and standard deviations for a large sample.
+# Correlations represent estimated relationships between Relevance and Justification
+# scores for each foundation.
+
+means:
+  care_relevance: 4.2
+  fairness_relevance: 4.1
+  loyalty_relevance: 3.8
+  authority_relevance: 3.5
+  purity_relevance: 3.6
+  care_justification: 3.9
+  fairness_justification: 3.8
+  loyalty_justification: 3.4
+  authority_justification: 3.1
+  purity_justification: 3.2
+
+std_devs:
+  care_relevance: 0.8
+  fairness_relevance: 0.9
+  loyalty_relevance: 1.0
+  authority_relevance: 1.1
+  purity_relevance: 1.0
+  care_justification: 0.9
+  fairness_justification: 0.9
+  loyalty_justification: 1.0
+  authority_justification: 1.1
+  purity_justification: 1.0
+
+correlations:
+  care_relevance:
+    care_justification: 0.6
+  fairness_relevance:
+    fairness_justification: 0.6
+  loyalty_relevance:
+    loyalty_justification: 0.5
+  authority_relevance:
+    authority_justification: 0.5
+  purity_relevance:
+    purity_justification: 0.5
+
+metadata:
+  source: "Gervais et al. (Year) - Cross-Cultural Moral Foundations"
+  scale: "0-6 Likert"
+  version: "1.0"

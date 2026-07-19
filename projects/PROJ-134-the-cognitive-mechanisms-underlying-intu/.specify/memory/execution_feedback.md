@@ -8,57 +8,134 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/analysis/model_comparison.py: self-declared fabricated metric — “…MODE: {run_mode}")          # Mock results for demonstration (in real f…”
+- code/analysis/model_comparison.py: self-declared fabricated metric — “…ion     # For this script, we simulate the results based on the data to ensure…”
+- code/analysis/model_comparison.py: self-declared fabricated metric — “…ment of the data,     # not a mock value.      # Baseline Model: Judgm…”
 - code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) — a reported value computed from no real input
+- code/analysis/model_comparison.py: synthetic/fake INPUT data not authorized by the spec — “…lated_data: DataFrame of simulated data from posterior.…”
+- code/analysis/model_comparison.py: synthetic/fake INPUT data not authorized by the spec — “…e)      # Perform PPC if simulated data is available (simulated…”
 - code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…Load MFQ data from the generated synthetic dataset or real source.…”
 - code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…al Stories data from the generated synthetic dataset.     """     dat…”
 - code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…nteraction logs from the generated synthetic dataset.     """     dat…”
-- code/data/preprocess.py: synthetic/fake INPUT data not authorized by the spec — “…s implementation assumes synthetic data is available as per the…”
-- code/data/simulation_mfq.py: synthetic/fake INPUT data not authorized by the spec — “…d.DataFrame:     """     Generate synthetic MFQ data based on Gervai…”
-- code/data/simulation_mfq.py: synthetic/fake INPUT data not authorized by the spec — “…s:         pd.DataFrame: Synthetic MFQ data with columns:…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 19 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/model_comparison.py: self-declared fabricated metric — “…MODE: {run_mode}")          # Mock results for demonstration (in real f…”; code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) — a reported value computed from no real input; code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…Load MFQ data from the generated synthetic dataset or real source.…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/simulation.py; 7 command(s) failed: python code/data/ingest.py (rc=1); python code/data/preprocess.py (rc=1); python code/models/bayesian.py (rc=1)
+**Summary**: 25 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/model_comparison.py: self-declared fabricated metric — “…ion     # For this script, we simulate the results based on the data to ensure…”; code/analysis/model_comparison.py: self-declared fabricated metric — “…ment of the data,     # not a mock value.      # Baseline Model: Judgm…”; code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) — a reported value computed from no real input; 8 command(s) failed: python code/data/ingest.py (rc=1); python code/data/simulation.py (rc=1); python code/data/preprocess.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/data/ingest.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/ingest.py", line 4, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'
-- python code/data/simulation.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation.py': [Errno 2] No such file or directory
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/ingest.py", line 9, in <module>
+    from utils.logging_utils import get_exclusion_log_path, log_exclusion, get_logger
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+- python code/data/simulation.py -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation.py", line 32, in <module>
+    from code.data.simulation_mfq import main as generate_mfq
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation_mfq.py", line 14, in <module>
+    from code.utils.logging_utils import log_pipeline_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'code.utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
 - python code/data/preprocess.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/preprocess.py", line 19, in <module>
-    import pandas as pd
-ModuleNotFoundError: No module named 'pandas'
+    ying-intu/code/data/preprocess.py", line 26, in <module>
+    from utils.logging_utils import log_vr_mapping, get_vr_mapping_log_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/preprocess.py", line 31, in <module>
+    from utils.logging_utils import log_vr_mapping, get_vr_mapping_log_path
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
 - python code/models/bayesian.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/models/bayesian.py", line 8, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+    /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/.venv/lib/python3.11/site-packages/arviz/__init__.py:50: FutureWarning: 
+ArviZ is undergoing a major refactor to improve flexibility and extensibility while maintaining a user-friendly interface.
+Some upcoming changes may be backward incompatible.
+For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
+  warn(
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/models/bayesian.py", line 19, in <module>
+    from sklearn.linear_model import LinearRegression
+ModuleNotFoundError: No module named 'sklearn'
 - python code/analysis/model_comparison.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/model_comparison.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/model_comparison.py", line 14, in <module>
+    from utils.logging_utils import get_logger, log_pipeline_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
 - python code/analysis/validation.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/validation.py", line 6, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/validation.py", line 19, in <module>
+    from utils.logging_utils import get_logger, log_pipeline_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
+    from .hashing import (
+ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
 - python code/utils/hashing.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 12, in <module>
-    import yaml
-ModuleNotFoundError: No module named 'yaml'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 168, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 159, in main
+    state_file = get_path("state", "pipeline_state.yaml")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: get_path() takes 1 positional argument but 2 were given
 - python code/reports/generate_report.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/reports/generate_report.py", line 14, in <module>
-    from config import ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/config.py", line 4, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+    2026-07-18 23:23:17,651 - __main__ - INFO - Starting report generation...
+2026-07-18 23:23:17,651 - __main__ - INFO - Running in True mode
+2026-07-18 23:23:17,651 - __main__ - WARNING - Result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json
+2026-07-18 23:23:17,651 - __main__ - ERROR - No result data found. Cannot generate report.
+2026-07-18 23:23:17,652 - __main__ - INFO - Failure report written to /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/reports/final_validation_report.txt
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `get_path` — defined in `code/config.py`; called 23 way(s):
+
+- code/config.py: full_path = get_path(file_path)
+- code/models/bayesian.py: data_path = get_path("data/processed/merged_data.csv")
+- code/models/bayesian.py: output_path = get_path("data/processed/model_result.json")
+- code/utils/hashing.py: state_file = str(get_path("state", "pipeline_state.yaml"))
+- code/utils/hashing.py: full_path = get_path("", rel_path)
+- code/utils/hashing.py: state_file = get_path("state", "pipeline_state.yaml")
+- code/reports/generate_report.py: logging.FileHandler(get_path('data/logs/report_generation.log'))
+- code/reports/generate_report.py: results_path = get_path('data/processed/model_results.json')
+- code/reports/generate_report.py: output_path = get_path('reports/final_validation_report.txt')
+- code/data/ingest_real.py: local_path = get_path("data/raw/osf_mfq_data.csv")
+- code/data/ingest_real.py: local_path = get_path("data/raw/hf_moral_stories.csv")
+- code/data/ingest_real.py: local_path = get_path("data/raw/vr_interaction_logs.csv")
+- code/data/simulation.py: get_path("data/raw/synthetic_mfq.csv"),
+- code/data/simulation.py: get_path("data/raw/synthetic_stories.csv"),
+- code/data/simulation.py: get_path("data/raw/synthetic_vr_logs.csv")
+- code/data/preprocess.py: config_path = get_path(CONFIG_PATH)
+- code/data/preprocess.py: data_path = get_path(MERGED_DATA_PATH)
+- code/data/preprocess.py: output_path = get_path(PREPROCESSED_OUTPUT_PATH)
+- code/analysis/validation.py: data_path = get_path("data/processed/merged_data.csv")
+- code/analysis/validation.py: model_results_path = get_path("data/processed/model_results.json")
+- code/analysis/validation.py: output_path = get_path("data/processed/validation_report.json")
+- code/analysis/model_comparison.py: data_path = get_path("data/processed/preprocessed_data.csv")
+- code/analysis/model_comparison.py: output_path = get_path("data/processed/model_comparison.json")
+
+Make `get_path` in `code/config.py` accept ALL of the above.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/reports/generate_report.py`, `code/analysis/validation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/reports/generate_report.py`, `code/analysis/validation.py`.

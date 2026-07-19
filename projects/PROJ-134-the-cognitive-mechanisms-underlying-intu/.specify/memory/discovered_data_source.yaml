@@ -1,16 +1,18 @@
 status: none
-intent: Moral Foundations Questionnaire OSF dataset Moral Stories HuggingFace python
-  package dataset
+intent: download MFQ dataset OSF and HuggingFace Moral Stories python package dataset
 required_fields:
 - participant_id
-- mfq_item_responses
+- mfq_item_1
+- mfq_item_2
+- mfq_item_3
+- mfq_item_4
+- mfq_item_5
+- mfq_total_score
 - story_id
 - story_text
 - salience_level
-- vr_response_time
-- gaze_coordinates
-- judgment_input
-- blend_shape_parameters
-cache_key: 1c9091cf9cd4f76544fc2ff3aea3f7b2e7ae79230c7cf380b5cd4ec8e5468fec
-searched_at: '2026-07-18T20:51:37.621604+00:00'
+- vr_scene_id
+- response_time_ms
+cache_key: 5733b9e109eace22fdf908919439c4344aa6025253cf03bdec9d0276d69b9b08
+searched_at: '2026-07-18T23:24:23.353596+00:00'
 retry_count: 1

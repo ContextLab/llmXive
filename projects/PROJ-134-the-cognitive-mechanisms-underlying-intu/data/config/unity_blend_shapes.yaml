@@ -25,7 +25,7 @@ mappings:
       eyeBlink: 0.20
       mouthCornerPull: 0.10
       noseSneer: 0.75
-  
+
   story_002:
     salience_level: "high"
     blend_shape_params:
@@ -34,7 +34,7 @@ mappings:
       eyeBlink: 0.15
       mouthCornerPull: 0.05
       noseSneer: 0.80
-  
+
   story_003:
     salience_level: "high"
     blend_shape_params:
@@ -43,7 +43,7 @@ mappings:
       eyeBlink: 0.25
       mouthCornerPull: 0.15
       noseSneer: 0.70
-  
+
   story_004:
     salience_level: "high"
     blend_shape_params:
@@ -52,7 +52,7 @@ mappings:
       eyeBlink: 0.10
       mouthCornerPull: 0.00
       noseSneer: 0.85
-  
+
   story_005:
     salience_level: "high"
     blend_shape_params:
@@ -61,7 +61,7 @@ mappings:
       eyeBlink: 0.30
       mouthCornerPull: 0.20
       noseSneer: 0.65
-  
+
   # Low Salience Stories (Visually Subtle)
   story_006:
     salience_level: "low"
@@ -71,7 +71,7 @@ mappings:
       eyeBlink: 0.50
       mouthCornerPull: 0.20
       noseSneer: 0.05
-  
+
   story_007:
     salience_level: "low"
     blend_shape_params:
@@ -80,7 +80,7 @@ mappings:
       eyeBlink: 0.45
       mouthCornerPull: 0.25
       noseSneer: 0.00
-  
+
   story_008:
     salience_level: "low"
     blend_shape_params:
@@ -89,7 +89,7 @@ mappings:
       eyeBlink: 0.55
       mouthCornerPull: 0.30
       noseSneer: 0.10
-  
+
   story_009:
     salience_level: "low"
     blend_shape_params:
@@ -98,7 +98,7 @@ mappings:
       eyeBlink: 0.48
       mouthCornerPull: 0.22
       noseSneer: 0.02
-  
+
   story_010:
     salience_level: "low"
     blend_shape_params:

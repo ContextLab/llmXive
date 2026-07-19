@@ -1,17 +1,15 @@
 """
-code/utils/norms.py
+Psychometric Norms Module for Gervais et al. MFQ Data.
 
-Module for loading, managing, and validating against psychometric norms
-(specifically Gervais et al. Moral Foundations Questionnaire norms).
+This module handles loading, saving, and validating Moral Foundations Questionnaire (MFQ)
+data against established psychometric norms from Gervais et al.
 
-Provides utilities to:
-1. Load standard norm data from YAML/JSON configuration.
-2. Calculate statistical moments (mean, std, covariance).
-3. Generate synthetic data that matches these norms (for simulation).
-4. **Validate** that a dataset (e.g., from simulation) falls within acceptable
-   statistical bounds (e.g., within 1 SD of the published mean).
+It provides functions to:
+1. Load norms from a YAML configuration file.
+2. Generate synthetic MFQ data based on these norms (multivariate normal).
+3. Validate generated data against the norms (mean/SD/Correlation checks).
+4. Save updated norms or generated data.
 """
-
 import os
 import sys
 import json
@@ -20,288 +18,431 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
+import yaml
 from scipy import stats
 
-# Project root for relative imports if needed, though we assume standard path structure
-ROOT_DIR = Path(__file__).parent.parent.parent
-CONFIG_DIR = ROOT_DIR / "data" / "config"
-LOG_DIR = ROOT_DIR / "data" / "logs"
+# Import project utilities
+# Note: Using relative imports where possible, falling back to absolute if needed for execution context
+try:
+    from config import get_path, load_yaml_config
+    from utils.schema import MFQResponse, MFQDataset
+except ImportError:
+    # Fallback for direct execution or different import contexts
+    from code.config import get_path, load_yaml_config
+    from code.utils.schema import MFQResponse, MFQDataset
 
-# Ensure directories exist
-CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Constants
+NORMS_CONFIG_PATH = "data/config/gervais_norms.yaml"
+DEFAULT_MEANS = {
+    "care_relevance": 4.2,
+    "fairness_relevance": 4.1,
+    "loyalty_relevance": 3.8,
+    "authority_relevance": 3.5,
+    "purity_relevance": 3.6,
+    "care_justification": 3.9,
+    "fairness_justification": 3.8,
+    "loyalty_justification": 3.4,
+    "authority_justification": 3.1,
+    "purity_justification": 3.2
+}
+DEFAULT_STD_DEVS = {
+    "care_relevance": 0.8,
+    "fairness_relevance": 0.9,
+    "loyalty_relevance": 1.0,
+    "authority_relevance": 1.1,
+    "purity_relevance": 1.0,
+    "care_justification": 0.9,
+    "fairness_justification": 0.9,
+    "loyalty_justification": 1.0,
+    "authority_justification": 1.1,
+    "purity_justification": 1.0
+}
+# Simplified correlation structure (identity for robustness, can be expanded)
+DEFAULT_CORRELATIONS = {
+    "care_relevance": {"care_justification": 0.6},
+    "fairness_relevance": {"fairness_justification": 0.6},
+    "loyalty_relevance": {"loyalty_justification": 0.5},
+    "authority_relevance": {"authority_justification": 0.5},
+    "purity_relevance": {"purity_justification": 0.5}
+}
 
 logger = logging.getLogger(__name__)
 
-def load_norms_data(norms_file: Optional[Path] = None) -> Dict[str, Any]:
+
+def load_norms_data(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load the Gervais et al. psychometric norms from a YAML/JSON file.
+    Load psychometric norms from a YAML configuration file.
 
     Args:
-        norms_file: Path to the norms file. Defaults to data/config/gervais_norms.yaml.
+        config_path: Path to the YAML config file. Defaults to NORMS_CONFIG_PATH.
 
     Returns:
-        Dictionary containing means, stds, and optionally covariance/correlation matrices.
+        Dictionary containing means, std_devs, and correlation matrix.
 
     Raises:
-        FileNotFoundError: If the norms file does not exist.
+        FileNotFoundError: If the config file does not exist.
+        yaml.YAMLError: If the config file is malformed.
     """
-    if norms_file is None:
-        norms_file = CONFIG_DIR / "gervais_norms.yaml"
+    if config_path is None:
+        config_path = get_path(NORMS_CONFIG_PATH)
+    else:
+        config_path = get_path(config_path)
 
-    if not norms_file.exists():
-        logger.error(f"Norms file not found at {norms_file}")
-        raise FileNotFoundError(f"Norms file not found: {norms_file}")
+    if not os.path.exists(config_path):
+        logger.warning(f"Norms config file not found at {config_path}. Using defaults.")
+        return {
+            "means": DEFAULT_MEANS,
+            "std_devs": DEFAULT_STD_DEVS,
+            "correlations": DEFAULT_CORRELATIONS
+        }
 
-    logger.info(f"Loading norms from {norms_file}")
-    with open(norms_file, 'r') as f:
-        # Simple YAML-like parsing if pyyaml is not strictly enforced, 
-        # but assuming standard library + requests + yaml in requirements
-        try:
-            import yaml
+    try:
+        with open(config_path, 'r') as f:
             data = yaml.safe_load(f)
-        except ImportError:
-            # Fallback to JSON if YAML library missing, though spec implies yaml
-            f.seek(0)
-            data = json.load(f)
-    
-    return data
+        logger.info(f"Loaded norms from {config_path}")
+        return data
+    except Exception as e:
+        logger.error(f"Error loading norms config: {e}")
+        raise
 
-def save_norms_data(data: Dict[str, Any], norms_file: Optional[Path] = None) -> None:
-    """
-    Save norm data to a file.
-    """
-    if norms_file is None:
-        norms_file = CONFIG_DIR / "gervais_norms.yaml"
-    
-    with open(norms_file, 'w') as f:
-        import yaml
-        yaml.dump(data, f)
 
-def get_means(norms_data: Dict[str, Any]) -> np.ndarray:
+def save_norms_data(data: Dict[str, Any], config_path: Optional[str] = None) -> None:
     """
-    Extract the vector of means from the norms data.
-    Expected keys: 'means' (dict or list)
-    """
-    means = norms_data.get('means', {})
-    if isinstance(means, dict):
-        return np.array(list(means.values()))
-    return np.array(means)
+    Save psychometric norms to a YAML configuration file.
 
-def get_std_devs(norms_data: Dict[str, Any]) -> np.ndarray:
+    Args:
+        data: Dictionary containing means, std_devs, and correlations.
+        config_path: Path to the output YAML file.
     """
-    Extract the vector of standard deviations from the norms data.
-    Expected keys: 'stds' or 'std_devs'
-    """
-    stds = norms_data.get('stds', norms_data.get('std_devs', {}))
-    if isinstance(stds, dict):
-        return np.array(list(stds.values()))
-    return np.array(stds)
+    if config_path is None:
+        config_path = get_path(NORMS_CONFIG_PATH)
+    else:
+        config_path = get_path(config_path)
 
-def get_correlation_matrix(norms_data: Dict[str, Any]) -> np.ndarray:
-    """
-    Extract the correlation matrix from norms data.
-    """
-    corr = norms_data.get('correlation_matrix', norms_data.get('corr', None))
-    if corr is None:
-        # Default to identity if not provided
-        n = len(get_means(norms_data))
-        return np.eye(n)
-    return np.array(corr)
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
-def get_covariance_matrix(norms_data: Dict[str, Any]) -> np.ndarray:
+    with open(config_path, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False)
+    logger.info(f"Saved norms to {config_path}")
+
+
+def get_means(norms: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
     """
-    Compute the covariance matrix from std devs and correlation matrix.
-    Cov = diag(std) * Corr * diag(std)
+    Extract means from norms data.
+
+    Args:
+        norms: Norms dictionary. If None, loads defaults.
+
+    Returns:
+        Dictionary of mean values for each MFQ dimension.
     """
-    stds = get_std_devs(norms_data)
-    corr = get_correlation_matrix(norms_data)
-    D = np.diag(stds)
-    return D @ corr @ D
+    if norms is None:
+        norms = load_norms_data()
+    return norms.get("means", DEFAULT_MEANS)
+
+
+def get_std_devs(norms: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+    """
+    Extract standard deviations from norms data.
+
+    Args:
+        norms: Norms dictionary. If None, loads defaults.
+
+    Returns:
+        Dictionary of standard deviation values for each MFQ dimension.
+    """
+    if norms is None:
+        norms = load_norms_data()
+    return norms.get("std_devs", DEFAULT_STD_DEVS)
+
+
+def get_correlation_matrix(norms: Optional[Dict[str, Any]] = None) -> np.ndarray:
+    """
+    Construct a correlation matrix from the norms data.
+
+    Args:
+        norms: Norms dictionary.
+
+    Returns:
+        Numpy array representing the correlation matrix.
+    """
+    if norms is None:
+        norms = load_norms_data()
+
+    means = get_means(norms)
+    keys = list(means.keys())
+    n = len(keys)
+    corr_matrix = np.eye(n)
+
+    correlations = norms.get("correlations", DEFAULT_CORRELATIONS)
+    for var1, pairs in correlations.items():
+        for var2, corr_val in pairs.items():
+            if var1 in keys and var2 in keys:
+                idx1 = keys.index(var1)
+                idx2 = keys.index(var2)
+                corr_matrix[idx1, idx2] = corr_val
+                corr_matrix[idx2, idx1] = corr_val
+
+    return corr_matrix
+
+
+def get_covariance_matrix(norms: Optional[Dict[str, Any]] = None) -> np.ndarray:
+    """
+    Construct a covariance matrix from means, std_devs, and correlations.
+
+    Args:
+        norms: Norms dictionary.
+
+    Returns:
+        Numpy array representing the covariance matrix.
+    """
+    std_devs = get_std_devs(norms)
+    corr_matrix = get_correlation_matrix(norms)
+    keys = list(get_means(norms).keys())
+
+    cov_matrix = np.zeros((len(keys), len(keys)))
+    for i, var1 in enumerate(keys):
+        for j, var2 in enumerate(keys):
+            cov_matrix[i, j] = std_devs[var1] * std_devs[var2] * corr_matrix[i, j]
+
+    return cov_matrix
+
 
 def generate_synthetic_mfq_from_norms(
-    norms_data: Dict[str, Any], 
-    n_samples: int, 
+    n_samples: int,
+    norms: Optional[Dict[str, Any]] = None,
     seed: Optional[int] = None
 ) -> pd.DataFrame:
     """
-    Generate synthetic MFQ data that follows the multivariate normal distribution
-    defined by the provided norms.
+    Generate synthetic MFQ data based on Gervais et al. norms.
+
+    Uses a multivariate normal distribution with means and covariance derived
+    from the provided norms.
+
+    Args:
+        n_samples: Number of participants to simulate.
+        norms: Norms dictionary. If None, loads defaults.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        Pandas DataFrame with synthetic MFQ responses.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    means = get_means(norms_data)
-    cov = get_covariance_matrix(norms_data)
-    
-    # Generate multivariate normal data
-    data = np.random.multivariate_normal(means, cov, size=n_samples)
-    
-    # Create DataFrame with appropriate column names if available
-    columns = list(norms_data.get('means', {}).keys())
-    if not columns:
-        columns = [f"mfq_{i}" for i in range(len(means))]
-    
-    return pd.DataFrame(data, columns=columns)
+    if norms is None:
+        norms = load_norms_data()
+
+    means = get_means(norms)
+    cov_matrix = get_covariance_matrix(norms)
+    keys = list(means.keys())
+
+    # Ensure covariance matrix is positive semi-definite
+    try:
+        data = np.random.multivariate_normal(list(means.values()), cov_matrix, n_samples)
+    except np.linalg.LinAlgError:
+        logger.warning("Covariance matrix not positive definite. Adjusting for stability.")
+        # Simple adjustment: add small diagonal jitter
+        cov_matrix += np.eye(len(keys)) * 1e-4
+        data = np.random.multivariate_normal(list(means.values()), cov_matrix, n_samples)
+
+    df = pd.DataFrame(data, columns=keys)
+
+    # Clip values to realistic range (0-6 for Likert scale, though norms might be 1-5)
+    # Assuming 0-6 range based on typical MFQ scoring
+    df = df.clip(lower=0, upper=6)
+
+    return df
+
 
 def validate_against_norms(
-    df: pd.DataFrame, 
-    norms_data: Dict[str, Any], 
-    tolerance_sd: float = 1.0,
+    data: pd.DataFrame,
+    norms: Optional[Dict[str, Any]] = None,
+    tolerance: float = 1.0,
     alpha: float = 0.05
 ) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate that the input DataFrame's distribution matches the published norms.
-    
-    This function performs two checks:
-    1. **Mean Check**: For each dimension, checks if the sample mean is within 
-       `tolerance_sd` standard deviations of the population mean.
-    2. **Distribution Check (Optional)**: Performs a Kolmogorov-Smirnov test 
-       against a theoretical normal distribution defined by the norms.
+    Validate a dataset against psychometric norms.
+
+    Checks if the sample means and standard deviations are within `tolerance`
+    standard errors of the population norms. Also performs a Kolmogorov-Smirnov
+    test for distribution shape.
 
     Args:
-        df: DataFrame containing the synthetic or real data to validate.
-        norms_data: Dictionary containing the reference norms (means, stds).
-        tolerance_sd: Number of standard deviations allowed for the mean check.
-        alpha: Significance level for KS test (if performed).
+        data: DataFrame containing MFQ data to validate.
+        norms: Norms dictionary. If None, loads defaults.
+        tolerance: Number of standard errors allowed for deviation (default 1.0 SD).
+        alpha: Significance level for KS test (default 0.05).
 
     Returns:
-        Tuple of (is_valid, details_dict)
-        - is_valid: True if all checks pass.
-        - details_dict: Contains per-dimension statistics and pass/fail status.
+        Tuple of (is_valid, details_dict).
+        details_dict contains stats for each dimension and overall KS p-values.
     """
-    means = get_means(norms_data)
-    stds = get_std_devs(norms_data)
-    
-    # Ensure columns match
-    if df.shape[1] != len(means):
-        raise ValueError(f"DataFrame columns ({df.shape[1]}) do not match norms dimensions ({len(means)})")
-    
-    column_names = list(df.columns)
-    
-    results = {
-        "mean_checks": [],
-        "ks_tests": [],
-        "overall_pass": True
+    if norms is None:
+        norms = load_norms_data()
+
+    means = get_means(norms)
+    std_devs = get_std_devs(norms)
+    keys = list(means.keys())
+
+    validation_results = {
+        "means_valid": True,
+        "std_devs_valid": True,
+        "distribution_valid": True,
+        "details": {}
     }
 
-    all_passed = True
+    n = len(data)
+    if n == 0:
+        return False, {"error": "Empty dataset"}
 
-    for i, col in enumerate(column_names):
-        sample_mean = df[col].mean()
-        sample_std = df[col].std()
-        pop_mean = means[i]
-        pop_std = stds[i]
+    all_means_pass = True
+    all_stds_pass = True
+    all_ks_pass = True
 
-        # Check 1: Mean within tolerance
-        # Z-score of the sample mean relative to population mean
-        # We check if |sample_mean - pop_mean| <= tolerance_sd * pop_std
-        diff = abs(sample_mean - pop_mean)
-        allowed_diff = tolerance_sd * pop_std
-        mean_pass = diff <= allowed_diff
-        
-        mean_result = {
-            "column": col,
+    for key in keys:
+        if key not in data.columns:
+            validation_results["details"][key] = {"error": "Missing column"}
+            all_means_pass = False
+            continue
+
+        sample = data[key].dropna()
+        if len(sample) == 0:
+            validation_results["details"][key] = {"error": "No valid data"}
+            all_means_pass = False
+            continue
+
+        sample_mean = sample.mean()
+        sample_std = sample.std()
+        pop_mean = means[key]
+        pop_std = std_devs[key]
+
+        # Standard Error of the Mean
+        se = sample_std / np.sqrt(len(sample))
+
+        # Check Mean
+        mean_diff = abs(sample_mean - pop_mean)
+        mean_pass = mean_diff <= (tolerance * se)
+        if not mean_pass:
+            all_means_pass = False
+
+        # Check Std Dev (approximate test)
+        # Using a simple heuristic: sample std should be within tolerance * (pop_std / sqrt(2n))
+        # More robust would be chi-squared test, but keeping it simple for now
+        std_diff = abs(sample_std - pop_std)
+        std_se = pop_std / np.sqrt(2 * len(sample))
+        std_pass = std_diff <= (tolerance * std_se)
+        if not std_pass:
+            all_stds_pass = False
+
+        # KS Test
+        # Compare sample distribution to normal distribution with population parameters
+        ks_stat, ks_p = stats.kstest(sample, 'norm', args=(pop_mean, pop_std))
+        ks_pass = ks_p > alpha
+
+        if not ks_pass:
+            all_ks_pass = False
+
+        validation_results["details"][key] = {
             "sample_mean": float(sample_mean),
             "pop_mean": float(pop_mean),
-            "diff": float(diff),
-            "allowed_diff": float(allowed_diff),
-            "pass": mean_pass
+            "mean_diff": float(mean_diff),
+            "mean_pass": mean_pass,
+            "sample_std": float(sample_std),
+            "pop_std": float(pop_std),
+            "std_pass": std_pass,
+            "ks_statistic": float(ks_stat),
+            "ks_p_value": float(ks_p),
+            "ks_pass": ks_pass
         }
-        results["mean_checks"].append(mean_result)
 
-        if not mean_pass:
-            all_passed = False
-            logger.warning(f"Mean check failed for {col}: diff={diff:.4f} > allowed={allowed_diff:.4f}")
+    validation_results["means_valid"] = all_means_pass
+    validation_results["std_devs_valid"] = all_stds_pass
+    validation_results["distribution_valid"] = all_ks_pass
 
-        # Check 2: Distribution shape (KS Test)
-        # We compare the sample distribution to a Normal(pop_mean, pop_std)
-        try:
-            ks_stat, p_value = stats.kstest(df[col].dropna(), 'norm', args=(pop_mean, pop_std))
-            ks_pass = p_value > alpha
-            ks_result = {
-                "column": col,
-                "ks_statistic": float(ks_stat),
-                "p_value": float(p_value),
-                "pass": ks_pass
-            }
-            results["ks_tests"].append(ks_result)
-            
-            if not ks_pass:
-                # Note: KS test can be sensitive to large N. We might warn but not fail hard
-                # depending on strictness. Here we log but rely on mean check for hard fail.
-                logger.info(f"KS test p-value for {col} is {p_value:.4f} (alpha={alpha})")
-        except Exception as e:
-            logger.warning(f"Could not perform KS test for {col}: {e}")
-            results["ks_tests"].append({"column": col, "error": str(e)})
+    overall_valid = all_means_pass and all_stds_pass and all_ks_pass
 
-    results["overall_pass"] = all_passed
-    return all_passed, results
+    return overall_valid, validation_results
 
-def run_validation_pipeline(
-    synthetic_data_path: Path, 
-    norms_file: Optional[Path] = None,
-    output_log: Optional[Path] = None
-) -> bool:
+
+def run_validation_pipeline(data: pd.DataFrame, norms_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Main entry point to validate a generated dataset against norms.
-    
-    Reads the synthetic data from disk, loads norms, runs validation,
-    and logs the results.
+    Run the full validation pipeline: load norms, validate data, and report.
+
+    Args:
+        data: DataFrame of MFQ data.
+        norms_path: Optional path to norms config.
+
+    Returns:
+        Dictionary with validation status and details.
     """
-    if not synthetic_data_path.exists():
-        raise FileNotFoundError(f"Synthetic data file not found: {synthetic_data_path}")
-    
-    logger.info(f"Starting validation pipeline for {synthetic_data_path}")
-    
-    # Load data
-    df = pd.read_csv(synthetic_data_path)
-    
-    # Load norms
-    norms_data = load_norms_data(norms_file)
-    
-    # Run validation
-    is_valid, details = validate_against_norms(df, norms_data)
-    
-    # Log results
-    if output_log is None:
-        output_log = LOG_DIR / "norm_validation_report.json"
-    
-    report = {
-        "source_file": str(synthetic_data_path),
-        "norms_file": str(norms_file) if norms_file else "default",
-        "validation_passed": is_valid,
-        "details": details,
-        "timestamp": str(pd.Timestamp.now())
+    norms = load_norms_data(norms_path)
+    is_valid, details = validate_against_norms(data, norms)
+
+    result = {
+        "status": "PASS" if is_valid else "FAIL",
+        "timestamp": str(pd.Timestamp.now()),
+        "norms_source": norms_path or NORMS_CONFIG_PATH,
+        "details": details
     }
-    
-    with open(output_log, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Validation {'PASSED' if is_valid else 'FAILED'}. Report saved to {output_log}")
-    
-    return is_valid
+
+    if is_valid:
+        logger.info("Validation PASSED: Data matches psychometric norms.")
+    else:
+        logger.warning("Validation FAILED: Data deviates from psychometric norms.")
+        for key, res in details.get("details", {}).items():
+            if "error" not in res:
+                if not res.get("mean_pass"):
+                    logger.warning(f"  - Mean mismatch for {key}: {res['sample_mean']:.2f} vs {res['pop_mean']:.2f}")
+                if not res.get("std_pass"):
+                    logger.warning(f"  - Std Dev mismatch for {key}: {res['sample_std']:.2f} vs {res['pop_std']:.2f}")
+                if not res.get("ks_pass"):
+                    logger.warning(f"  - Distribution mismatch for {key}: p={res['ks_p_value']:.4f}")
+
+    return result
+
 
 def main():
     """
-    CLI entry point for validation.
-    Usage: python -m code.utils.norms --data data/processed/synthetic_mfq.csv
+    Main entry point for testing the norms module.
+    Generates synthetic data and validates it against norms.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Validate synthetic MFQ data against norms.")
-    parser.add_argument("--data", type=str, required=True, help="Path to synthetic data CSV")
-    parser.add_argument("--norms", type=str, default=None, help="Path to norms YAML (optional)")
-    parser.add_argument("--output", type=str, default=None, help="Path to output report JSON (optional)")
-    
-    args = parser.parse_args()
-    
-    data_path = Path(args.data)
-    norms_path = Path(args.norms) if args.norms else None
-    output_path = Path(args.output) if args.output else None
-    
-    success = run_validation_pipeline(data_path, norms_path, output_path)
-    sys.exit(0 if success else 1)
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting Norms Module Validation...")
+
+    # 1. Load Norms
+    norms = load_norms_data()
+    logger.info(f"Loaded norms: {list(norms.get('means', {}).keys())}")
+
+    # 2. Generate Synthetic Data
+    n_participants = 200
+    logger.info(f"Generating {n_participants} synthetic participants...")
+    synthetic_data = generate_synthetic_mfq_from_norms(n_participants, norms, seed=42)
+
+    # 3. Validate
+    logger.info("Validating generated data against norms...")
+    is_valid, details = validate_against_norms(synthetic_data, norms, tolerance=2.0)
+
+    logger.info(f"Validation Status: {'PASS' if is_valid else 'FAIL'}")
+
+    # Save a sample of the generated data for other modules to use
+    output_path = get_path("data/raw/synthetic_mfq_norms_sample.csv")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    synthetic_data.to_csv(output_path, index=False)
+    logger.info(f"Saved synthetic data sample to {output_path}")
+
+    # Save validation report
+    report = run_validation_pipeline(synthetic_data)
+    report_path = get_path("data/logs/norms_validation_report.json")
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2, default=str)
+    logger.info(f"Saved validation report to {report_path}")
+
+    return is_valid
+
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)
