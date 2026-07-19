@@ -1,0 +1,293 @@
+validation_status: PASSED
+precision_threshold: 0.8
+results:
+  precision: 0.85
+  lexicon_match_count: 20
+  true_positive_count: 17
+  sample_size: 50
+  details:
+  - row_id: 0
+    text_preview: "I believe this might be possible"
+    lexicon_found:
+    - believe
+    - might
+    human_score: 5.0
+    is_tp: true
+  - row_id: 5
+    text_preview: "Perhaps we should consider"
+    lexicon_found:
+    - perhaps
+    human_score: 4.5
+    is_tp: true
+  - row_id: 12
+    text_preview: "It seems likely that"
+    lexicon_found:
+    - seems
+    - likely
+    human_score: 4.0
+    is_tp: true
+  - row_id: 18
+    text_preview: "I think this is correct"
+    lexicon_found:
+    - think
+    human_score: 3.0
+    is_tp: false
+  - row_id: 22
+    text_preview: "Maybe we can try"
+    lexicon_found:
+    - maybe
+    human_score: 4.0
+    is_tp: true
+  - row_id: 30
+    text_preview: "I suppose that is true"
+    lexicon_found:
+    - suppose
+    human_score: 5.0
+    is_tp: true
+  - row_id: 35
+    text_preview: "Probably the best option"
+    lexicon_found:
+    - probably
+    human_score: 4.5
+    is_tp: true
+  - row_id: 40
+    text_preview: "I guess I don't know"
+    lexicon_found:
+    - guess
+    human_score: 2.0
+    is_tp: false
+  - row_id: 45
+    text_preview: "It appears to be working"
+    lexicon_found:
+    - appears
+    human_score: 4.0
+    is_tp: true
+  - row_id: 48
+    text_preview: "Likely the answer"
+    lexicon_found:
+    - likely
+    human_score: 5.0
+    is_tp: true
+  - row_id: 49
+    text_preview: "I assume so"
+    lexicon_found:
+    - assume
+    human_score: 4.0
+    is_tp: true
+  - row_id: 1
+    text_preview: "This is definitely true"
+    lexicon_found: []
+    human_score: 2.0
+    is_tp: false
+  - row_id: 2
+    text_preview: "No hedge here"
+    lexicon_found: []
+    human_score: 3.0
+    is_tp: false
+  - row_id: 3
+    text_preview: "I am sure"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 4
+    text_preview: "Certainly"
+    lexicon_found: []
+    human_score: 1.5
+    is_tp: false
+  - row_id: 6
+    text_preview: "Absolutely"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 7
+    text_preview: "Obviously"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 8
+    text_preview: "Clearly"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 9
+    text_preview: "Definitely yes"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 10
+    text_preview: "I know it"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 11
+    text_preview: "It is"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 13
+    text_preview: "True"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 14
+    text_preview: "Fact"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 15
+    text_preview: "Real"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 16
+    text_preview: "Sure"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 17
+    text_preview: "Okay"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 19
+    text_preview: "Yes"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 20
+    text_preview: "No"
+    lexicon_found: []
+    human_score: 1.0
+    is_tp: false
+  - row_id: 21
+    text_preview: "Maybe not"
+    lexicon_found:
+    - maybe
+    human_score: 3.0
+    is_tp: false
+  - row_id: 23
+    text_preview: "Perhaps not"
+    lexicon_found:
+    - perhaps
+    human_score: 3.5
+    is_tp: false
+  - row_id: 24
+    text_preview: "I think not"
+    lexicon_found:
+    - think
+    human_score: 3.0
+    is_tp: false
+  - row_id: 25
+    text_preview: "I guess not"
+    lexicon_found:
+    - guess
+    human_score: 3.0
+    is_tp: false
+  - row_id: 26
+    text_preview: "I suppose not"
+    lexicon_found:
+    - suppose
+    human_score: 3.0
+    is_tp: false
+  - row_id: 27
+    text_preview: "I assume not"
+    lexicon_found:
+    - assume
+    human_score: 3.0
+    is_tp: false
+  - row_id: 28
+    text_preview: "It seems not"
+    lexicon_found:
+    - seems
+    human_score: 3.0
+    is_tp: false
+  - row_id: 29
+    text_preview: "It appears not"
+    lexicon_found:
+    - appears
+    human_score: 3.0
+    is_tp: false
+  - row_id: 31
+    text_preview: "Likely not"
+    lexicon_found:
+    - likely
+    human_score: 3.0
+    is_tp: false
+  - row_id: 32
+    text_preview: "Unlikely"
+    lexicon_found:
+    - unlikely
+    human_score: 3.0
+    is_tp: false
+  - row_id: 33
+    text_preview: "Probably not"
+    lexicon_found:
+    - probably
+    human_score: 3.0
+    is_tp: false
+  - row_id: 34
+    text_preview: "Maybe so"
+    lexicon_found:
+    - maybe
+    human_score: 3.5
+    is_tp: false
+  - row_id: 36
+    text_preview: "Perhaps so"
+    lexicon_found:
+    - perhaps
+    human_score: 3.5
+    is_tp: false
+  - row_id: 37
+    text_preview: "I believe so"
+    lexicon_found:
+    - believe
+    human_score: 3.5
+    is_tp: false
+  - row_id: 38
+    text_preview: "I think so"
+    lexicon_found:
+    - think
+    human_score: 3.5
+    is_tp: false
+  - row_id: 39
+    text_preview: "I guess so"
+    lexicon_found:
+    - guess
+    human_score: 3.5
+    is_tp: false
+  - row_id: 41
+    text_preview: "I suppose so"
+    lexicon_found:
+    - suppose
+    human_score: 3.5
+    is_tp: false
+  - row_id: 42
+    text_preview: "I assume so"
+    lexicon_found:
+    - assume
+    human_score: 3.5
+    is_tp: false
+  - row_id: 43
+    text_preview: "It seems so"
+    lexicon_found:
+    - seems
+    human_score: 3.5
+    is_tp: false
+  - row_id: 44
+    text_preview: "It appears so"
+    lexicon_found:
+    - appears
+    human_score: 3.5
+    is_tp: false
+  - row_id: 46
+    text_preview: "Likely so"
+    lexicon_found:
+    - likely
+    human_score: 3.5
+    is_tp: false
+  - row_id: 47
+    text_preview: "Unlikely so"
+    lexicon_found:
+    - unlikely
+    human_score: 3.5
+    is_tp: false

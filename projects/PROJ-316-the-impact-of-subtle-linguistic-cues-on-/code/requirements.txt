@@ -1,16 +1,25 @@
-nltk
-vaderSentiment
-pandas
-scikit-learn
-statsmodels
-scipy
-matplotlib
-seaborn
-pyyaml
-pytest
-datasets
-krippendorff
-spacy
-tqdm
-# Additional dependencies required by the project
-# (versions are intentionally left unpinned for flexibility)
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+pytest>=7.0.0
+pyyaml>=6.0
+
+# NLP and text processing
+nltk>=3.8.0
+spacy>=3.6.0
+vaderSentiment>=3.3.2
+
+# Statistical analysis
+scipy>=1.10.0
+scikit-learn>=1.2.0
+statsmodels>=0.14.0
+
+# Inter-rater reliability
+krippendorff>=0.6.0
+
+# HTTP requests
+requests>=2.28.0
+
+# Optional: ML framework GPU control (if needed)
+# tensorflow>=2.12.0  # Uncomment if TensorFlow is used
+# torch>=2.0.0  # Uncomment if PyTorch is used

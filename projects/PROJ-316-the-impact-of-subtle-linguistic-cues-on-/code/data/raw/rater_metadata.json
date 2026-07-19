@@ -1,0 +1,25 @@
+{
+  "rater_id": "rater_gold_001",
+  "rater_type": "simulated_human",
+  "scale": {
+    "type": "Likert",
+    "min": 1,
+    "max": 5,
+    "labels": {
+      "1": "Very Inauthentic",
+      "2": "Somewhat Inauthentic",
+      "3": "Neutral",
+      "4": "Somewhat Authentic",
+      "5": "Very Authentic"
+    }
+  },
+  "instructions": "Rate the perceived authenticity of the AI response on a 1-5 scale.",
+  "sample_size": 50,
+  "seed": 42,
+  "generation_method": "deterministic_simulation",
+  "timestamp": "2026-06-13T18:30:00.000000",
+  "inter_rater_reliability": {
+    "note": "Single rater; inter-rater reliability will be calculated when multiple raters are added.",
+    "status": "pending"
+  }
+}

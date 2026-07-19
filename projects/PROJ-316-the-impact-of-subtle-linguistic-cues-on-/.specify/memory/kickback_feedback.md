@@ -4,7 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001c` (rejected 1x): The `data/raw/rater_metadata.json` correctly contains the Cohen's Kappa metrics, but the required `data/processed/ratings.csv` file is missing, so the core deliverable of the task is not present. The pipeline cannot be considered complete until the ratings CSV with the specified columns is generated.
+- `T002` (rejected 1x): No directory structure or `__init__.py` files are presented in the provided evidence; the claim that the required folders (`src/`, `tests/`, `data/raw`, `data/processed`, `data/derived`, `code/`) and empty `__init__.py` files exist cannot be verified. The implementer must supply a concrete listing or screenshot showing these directories and files.
+- `T004` (rejected 1x): The repository contains a `pyproject.toml` with a valid Black configuration, but there is no `.flake8` configuration file present (and `setup.cfg` is also missing). The task explicitly required a `.flake8` config, so the deliverable is incomplete.
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/io.py, schema.yaml
+- `T005a` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/validation.py
+- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/config.py
+- `T007` (rejected 1x): The required file `src/utils/edge_case_handler.py` does not exist in the repository, so the implementation, logging, listwise deletion, and reporting behavior cannot be verified. The task’s deliverable is missing.
 
 ## Required change
 

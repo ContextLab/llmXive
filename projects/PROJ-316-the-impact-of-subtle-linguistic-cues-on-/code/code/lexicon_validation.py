@@ -1,315 +1,277 @@
-"""
-T001d: Pragmatic validation of the hedge lexicon (FR-010).
-
-This script validates the predefined hedge lexicon against a sample of annotated turns.
-It calculates precision: (Lexicon Matches ∩ Human Matches) / Lexicon Matches.
-If precision < 0.8, it flags the dataset in `data/derived/lexicon_validation_results.yaml`.
-
-Dependencies:
-- data/processed/ratings.csv (produced by T001c)
-- data/raw/conversations.jsonl (or equivalent corpus)
-- The hedge lexicon defined in src/extraction/hedge_extractor.py
-"""
-
 import argparse
-import json
 import logging
 import os
 import random
+import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any
-
+from typing import List, Set, Tuple
 import pandas as pd
 import yaml
 
-# Import the hedge lexicon from the extraction module to ensure consistency
-# The lexicon is defined as a constant or function in hedge_extractor.py
-# We need to import the actual list of hedges.
-# Based on the API surface, we import extract_hedge_features which likely uses the lexicon.
-# However, to get the raw list, we might need to access a module-level constant.
-# Let's assume the lexicon is defined in the hedge_extractor module.
-# If not, we will define it here based on the standard list mentioned in tasks.md (15-word hedge lexicon).
-# Since I cannot see the content of hedge_extractor.py, I will define the standard set here
-# to ensure the script runs, but in a real scenario, this should be imported.
-# Common hedges: perhaps, maybe, possibly, likely, unlikely, somewhat, rather, quite,
-# somewhat, kind of, sort of, I think, I believe, I guess, perhaps.
-# The task mentions a "predefined 15-word hedge lexicon".
-
-# Let's try to import the lexicon if it exists, otherwise define it.
-# Since I cannot see the file content, I will define a standard set.
-# In a real implementation, this would be: from src.extraction.hedge_extractor import HEDGE_LEXICON
+# Define the 15-word hedge lexicon as per task description
 HEDGE_LEXICON = {
-    "perhaps", "maybe", "possibly", "likely", "unlikely", 
-    "somewhat", "rather", "quite", "kind", "sort", 
-    "I think", "I believe", "I guess", "probably", "might"
+    "maybe", "perhaps", "possibly", "probably", "likely", "unlikely",
+    "seem", "seems", "appear", "appears", "believe", "think",
+    "guess", "suppose", "assume"
 }
-# Note: "kind" and "sort" are usually part of "kind of" / "sort of".
-# We will tokenize and check for these tokens or phrases.
-# For this validation, we will do a simple token match and phrase match.
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_conversations(data_path: Path) -> pd.DataFrame:
-    """Load conversations from JSONL file."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Conversations file not found: {data_path}")
+def load_conversations(file_path: Path) -> pd.DataFrame:
+    """Load conversations from a JSONL or CSV file.
     
-    records = []
-    with open(data_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                records.append(json.loads(line))
-    
-    df = pd.DataFrame(records)
+    Args:
+        file_path: Path to the input file.
+        
+    Returns:
+        DataFrame with 'conversation_id' and 'text_content' columns.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input file not found: {file_path}")
+        
+    if file_path.suffix.lower() == '.jsonl':
+        df = pd.read_json(file_path, lines=True)
+    elif file_path.suffix.lower() == '.csv':
+        df = pd.read_csv(file_path)
+    else:
+        raise ValueError(f"Unsupported file format: {file_path.suffix}")
+        
     # Ensure required columns exist
-    if 'conversation_id' not in df.columns or 'text_content' not in df.columns:
-        raise ValueError("Conversations file must contain 'conversation_id' and 'text_content' columns")
-    
+    required_cols = ['conversation_id', 'text_content']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+        
     return df
 
-def load_ratings(data_path: Path) -> pd.DataFrame:
-    """Load ratings from CSV file."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Ratings file not found: {data_path}")
+def load_ratings(file_path: Path) -> pd.DataFrame:
+    """Load ratings from a CSV file.
     
-    df = pd.read_csv(data_path)
-    if 'conversation_id' not in df.columns:
-        raise ValueError("Ratings file must contain 'conversation_id' column")
+    Args:
+        file_path: Path to the ratings CSV file.
+        
+    Returns:
+        DataFrame with rating information including 'gold_labels'.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"Ratings file not found: {file_path}")
+        
+    df = pd.read_csv(file_path)
     
+    # The task specifies 'gold_labels' as the source of human matches
+    # If the file uses 'authenticity_score' or similar, we map it
+    if 'gold_labels' not in df.columns:
+        if 'authenticity_score' in df.columns:
+            logger.warning("Column 'gold_labels' not found. Using 'authenticity_score' as gold_labels.")
+            df['gold_labels'] = df['authenticity_score']
+        else:
+            raise ValueError("Ratings file must contain 'gold_labels' or 'authenticity_score' column.")
+            
     return df
 
 def tokenize_text(text: str) -> List[str]:
-    """Simple tokenization: lowercase and split."""
-    return text.lower().split()
-
-def find_lexicon_matches(text: str) -> Set[str]:
-    """Find matches of hedge lexicon in text."""
-    tokens = tokenize_text(text)
-    matches = set()
+    """Tokenize text into lowercase words.
     
-    # Check for single-word hedges
-    for token in tokens:
-        if token in HEDGE_LEXICON:
-            matches.add(token)
-    
-    # Check for multi-word hedges (e.g., "I think", "kind of")
-    # This is a simplified check; a real implementation would use NLP
-    text_lower = text.lower()
-    for hedge in HEDGE_LEXICON:
-        if ' ' in hedge:
-            if hedge in text_lower:
-                matches.add(hedge)
-    
-    return matches
-
-def sample_turns(conversations_df: pd.DataFrame, ratings_df: pd.DataFrame, sample_size: int = 100, seed: int = 42) -> pd.DataFrame:
-    """Randomly select a sample of turns from the full corpus."""
-    random.seed(seed)
-    
-    # Merge conversations with ratings to ensure we have rated turns
-    merged_df = conversations_df.merge(ratings_df[['conversation_id']], on='conversation_id', how='inner')
-    
-    if len(merged_df) == 0:
-        raise ValueError("No overlapping conversations between ratings and conversations data")
-    
-    if len(merged_df) < sample_size:
-        logger.warning(f"Sample size {sample_size} larger than available turns {len(merged_df)}. Using all available.")
-        sample_size = len(merged_df)
-    
-    sample = merged_df.sample(n=sample_size, random_state=seed)
-    return sample
-
-def validate_lexicon_precision(sample_df: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
+    Args:
+        text: Input text string.
+        
+    Returns:
+        List of lowercase tokens.
     """
-    Calculate precision of the hedge lexicon.
+    if not isinstance(text, str):
+        return []
+    # Simple regex tokenization: split on non-alphanumeric
+    tokens = re.findall(r'\b\w+\b', text.lower())
+    return tokens
+
+def find_lexicon_matches(tokens: List[str], lexicon: Set[str] = None) -> Set[str]:
+    """Find which lexicon words appear in the token list.
+    
+    Args:
+        tokens: List of tokens from text.
+        lexicon: Set of words to match against (defaults to HEDGE_LEXICON).
+        
+    Returns:
+        Set of matched words found in the text.
+    """
+    if lexicon is None:
+        lexicon = HEDGE_LEXICON
+    return set(tokens).intersection(lexicon)
+
+def sample_turns(df: pd.DataFrame, n: int = 50) -> pd.DataFrame:
+    """Sample a subset of turns from the DataFrame.
+    
+    Args:
+        df: Input DataFrame.
+        n: Number of samples to return.
+        
+    Returns:
+        DataFrame with n randomly sampled rows.
+    """
+    if len(df) <= n:
+        return df.reset_index(drop=True)
+    return df.sample(n=n, random_state=42).reset_index(drop=True)
+
+def validate_lexicon_precision(gold_df: pd.DataFrame, lexicon: Set[str] = None) -> Tuple[float, dict]:
+    """Calculate precision of the lexicon against human gold labels.
+    
     Precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches
     
-    Note: Since we don't have human-annotated hedge matches in the data,
-    we assume that the 'human match' is represented by the presence of hedges
-    that are semantically appropriate. In this pragmatic validation, we are
-    checking if the lexicon captures hedges that are actually present in the text.
+    For this validation:
+    - 'Lexicon Matches' are words found in text using the hedge lexicon.
+    - 'Human Matches' are derived from 'gold_labels' column.
+      * We assume if a row has a high authenticity score (e.g., >= 4), 
+        it implies the presence of specific linguistic cues (hedges) 
+        that the human raters associated with authenticity.
+      * Alternatively, if 'gold_labels' contains the actual words, 
+        we intersect. Given the schema 'gold_labels' usually implies a score 
+        in this context unless specified as 'annotated_words', 
+        we interpret the task's "Human Matches" as:
+        Rows where the human rated the text as containing the cue (e.g. score >= 4).
+        
+    However, the task says: "Input: 'Human Matches' are derived from the `gold_labels` column".
+    If `gold_labels` is a numeric score (as in T001c), we need a threshold to define "Human Match".
+    Let's assume a high authenticity score (>= 4.0) indicates the presence of the cue 
+    (since the study is about cues affecting authenticity).
     
-    However, the task description says: "Calculate precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches"
-    This implies we need human annotations of hedges. Since we don't have that,
-    we will interpret this as: 
-    - Lexicon Matches: words/phrases from our lexicon found in text
-    - Human Matches: we assume that if a hedge is in the text, it's a valid hedge (human-validated)
-    So, Precision = Lexicon Matches / Lexicon Matches = 1.0 if we assume all lexicon matches are valid.
+    Logic:
+    1. For each row in gold_df:
+       - Extract text tokens.
+       - Find Lexicon Matches (words from HEDGE_LEXICON in text).
+       - Determine Human Match: If gold_labels >= 4.0 (or if gold_labels is a list of words, check intersection).
+         * Assumption based on T001c: gold_labels is likely a numeric score.
+         * Interpretation: If a human rated it high, they perceived the cue.
+         * Strictly speaking, "Human Matches" in the formula usually refers to the set of true positives.
+         * Let's assume the "Human Match" for a specific turn is a binary flag: Did the human see the hedge?
+         * If the column is numeric, we treat score >= 4 as "Human identified hedge".
     
-    But that's not useful. Let's re-read the task: "pragmatic validation of the hedge lexicon"
-    Perhaps the idea is to check if the lexicon is too broad or too narrow.
+    2. Precision = (Count of rows where Lexicon found hedge AND Human flagged hedge) 
+                   / (Count of rows where Lexicon found hedge).
     
-    Alternative interpretation: We are validating that the lexicon doesn't produce false positives.
-    We can't do that without human annotations.
-    
-    Given the constraints, we will:
-    1. Count how many times the lexicon matches appear in the sample.
-    2. Assume that if a match is found, it's a valid hedge (since we're using a curated lexicon).
-    3. Report the precision as 1.0 (since we're not detecting false positives without human labels).
-    4. Instead, we'll report the recall-like metric: how many texts contain at least one hedge.
-    
-    However, the task explicitly asks for precision calculation.
-    Let's assume that the "Human Matches" are the hedges that a human would identify.
-    Without human annotations, we cannot calculate true precision.
-    
-    Given the ambiguity, we will:
-    - Calculate the number of lexicon matches found.
-    - Assume that all lexicon matches are correct (precision = 1.0) for this pragmatic validation.
-    - If the lexicon is too broad, it would have low precision, but we can't measure that without human labels.
-    
-    We'll implement a check that if the lexicon matches are found, they are considered valid.
-    We'll report precision as 1.0 and note the limitation.
-    
-    But wait, the task says: "If precision < 0.8, flag dataset for manual review"
-    This implies we expect precision to be high.
-    
-    Let's implement a more realistic check:
-    We'll assume that the lexicon is correct, and we're validating that it's not too broad.
-    We'll check if the lexicon matches are common words that might be false positives.
-    For example, if "I" is in the lexicon, it would match everywhere, but it's not a hedge.
-    
-    Since we don't have human labels, we'll use a heuristic:
-    - If a lexicon match is a common word (e.g., "I", "the"), it might be a false positive.
-    - We'll check against a list of common words and flag if too many matches are common words.
-    
-    However, the task is about "pragmatic validation", which might mean checking if the lexicon
-    captures the intended hedges in context.
-    
-    Given the constraints, I will implement a simplified version:
-    - Count lexicon matches.
-    - Assume precision is 1.0 (since we're using a curated lexicon).
-    - If the number of matches is 0, precision is undefined (we'll set it to 1.0).
-    - Report the results and note the limitation.
-    
-    But to satisfy the task's requirement of calculating precision, I'll assume that
-    the "Human Matches" are the same as Lexicon Matches for this pragmatic validation,
-    since we don't have human annotations of hedges.
-    
-    This is a limitation, but it's the best we can do without human-labeled hedge data.
+    Args:
+        gold_df: DataFrame with 'text_content' and 'gold_labels'.
+        lexicon: Set of hedge words.
+        
+    Returns:
+        Tuple of (precision, detailed_stats_dict).
     """
-    
-    total_lexicon_matches = 0
-    total_human_matches = 0  # We'll assume human matches = lexicon matches for now
-    
-    details = []
-    
-    for _, row in sample_df.iterrows():
-        text = row['text_content']
-        lexicon_matches = find_lexicon_matches(text)
+    if lexicon is None:
+        lexicon = HEDGE_LEXICON
         
-        # For this pragmatic validation, we assume that if the lexicon matches,
-        # it's a valid hedge (i.e., human would agree).
-        # This is a strong assumption, but necessary without human annotations.
-        human_matches = lexicon_matches
+    if gold_df.empty:
+        return 0.0, {"error": "Empty dataframe"}
         
-        total_lexicon_matches += len(lexicon_matches)
-        total_human_matches += len(human_matches)
+    lexicon_match_count = 0
+    true_positive_count = 0
+    stats = []
+    
+    for idx, row in gold_df.iterrows():
+        text = str(row.get('text_content', ''))
+        tokens = tokenize_text(text)
+        found_lexicon_words = find_lexicon_matches(tokens, lexicon)
         
-        if len(lexicon_matches) > 0:
-            details.append({
-                "conversation_id": row['conversation_id'],
-                "text_preview": text[:100] + "..." if len(text) > 100 else text,
-                "lexicon_matches": list(lexicon_matches)
+        has_lexicon_match = len(found_lexicon_words) > 0
+        if has_lexicon_match:
+            lexicon_match_count += 1
+            
+            # Determine Human Match
+            # Assuming gold_labels is numeric. Threshold >= 4.0 for "Human detected cue"
+            # If gold_labels is a string/list, we would need different logic, but T001c implies score.
+            gold_val = row.get('gold_labels')
+            if isinstance(gold_val, (int, float)) and not pd.isna(gold_val):
+                is_human_match = gold_val >= 4.0
+            else:
+                # Fallback: if not numeric, assume no match or log warning
+                is_human_match = False
+                logger.warning(f"Non-numeric gold_labels at row {idx}: {gold_val}")
+                
+            if is_human_match:
+                true_positive_count += 1
+                
+            stats.append({
+                "row_id": idx,
+                "text_preview": text[:50],
+                "lexicon_found": list(found_lexicon_words),
+                "human_score": gold_val,
+                "is_tp": is_human_match
             })
     
-    if total_lexicon_matches == 0:
-        precision = 1.0  # No matches, so no false positives
+    if lexicon_match_count == 0:
+        precision = 0.0
     else:
-        precision = total_human_matches / total_lexicon_matches
-    
-    results = {
-        "total_lexicon_matches": total_lexicon_matches,
-        "total_human_matches": total_human_matches,
+        precision = true_positive_count / lexicon_match_count
+        
+    result = {
         "precision": precision,
-        "sample_size": len(sample_df),
-        "threshold": 0.8,
-        "passed": precision >= 0.8,
-        "note": "Precision calculated assuming all lexicon matches are valid (no human-annotated hedge labels available).",
-        "sample_details": details[:10]  # Include first 10 for inspection
+        "lexicon_match_count": lexicon_match_count,
+        "true_positive_count": true_positive_count,
+        "sample_size": len(gold_df),
+        "details": stats
     }
     
-    return precision, results
+    return precision, result
 
-def write_validation_results(results: Dict[str, Any], output_path: Path):
-    """Write validation results to YAML file."""
+def write_validation_results(results: dict, output_path: Path, precision_threshold: float = 0.8):
+    """Write validation results to a YAML file.
+    
+    Args:
+        results: Dictionary containing validation stats.
+        output_path: Path to the output YAML file.
+        precision_threshold: Threshold for passing validation.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(results, f, default_flow_style=False, sort_keys=False)
+    status = "PASSED" if results["precision"] >= precision_threshold else "FAILED"
     
+    output_data = {
+        "validation_status": status,
+        "precision_threshold": precision_threshold,
+        "results": results
+    }
+    
+    with open(output_path, 'w') as f:
+        yaml.dump(output_data, f, default_flow_style=False)
+        
     logger.info(f"Validation results written to {output_path}")
+    logger.info(f"Status: {status} (Precision: {results['precision']:.4f})")
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate hedge lexicon precision")
-    parser.add_argument("--conversations", type=str, default="data/raw/conversations.jsonl",
-                        help="Path to conversations JSONL file")
-    parser.add_argument("--ratings", type=str, default="data/processed/ratings.csv",
-                        help="Path to ratings CSV file")
-    parser.add_argument("--output", type=str, default="data/derived/lexicon_validation_results.yaml",
-                        help="Path to output results YAML file")
-    parser.add_argument("--sample-size", type=int, default=100,
-                        help="Number of turns to sample for validation")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for sampling")
+    """Main entry point for lexicon validation."""
+    parser = argparse.ArgumentParser(description="Validate hedge lexicon precision on gold standard data.")
+    parser.add_argument("--gold-standard", type=str, required=True, 
+                        help="Path to the gold standard CSV file (e.g., data/processed/gold_standard_50.csv)")
+    parser.add_argument("--output", type=str, required=True, 
+                        help="Path to output results YAML file (e.g., data/results/lexicon_validation_results.yaml)")
+    parser.add_argument("--threshold", type=float, default=0.8, 
+                        help="Precision threshold for passing validation (default: 0.8)")
     
     args = parser.parse_args()
     
-    logger.info("Starting hedge lexicon validation...")
+    gold_path = Path(args.gold_standard)
+    output_path = Path(args.output)
     
-    # Load data
     try:
-        conversations_df = load_conversations(Path(args.conversations))
-        ratings_df = load_ratings(Path(args.ratings))
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load data: {e}")
-        # Create a failure result
-        failure_result = {
-            "status": "failed",
-            "error": str(e),
-            "precision": None,
-            "passed": False,
-            "note": "Validation failed due to missing data. Please ensure data/processed/ratings.csv and data/raw/conversations.jsonl exist."
-        }
-        write_validation_results(failure_result, Path(args.output))
-        return 1
-    
-    # Sample turns
-    try:
-        sample_df = sample_turns(conversations_df, ratings_df, args.sample_size, args.seed)
-    except ValueError as e:
-        logger.error(f"Failed to sample turns: {e}")
-        failure_result = {
-            "status": "failed",
-            "error": str(e),
-            "precision": None,
-            "passed": False,
-            "note": "Validation failed due to sampling error."
-        }
-        write_validation_results(failure_result, Path(args.output))
-        return 1
-    
-    logger.info(f"Sampled {len(sample_df)} turns for validation")
-    
-    # Validate lexicon
-    precision, results = validate_lexicon_precision(sample_df)
-    
-    logger.info(f"Calculated precision: {precision:.4f}")
-    
-    if precision < 0.8:
-        logger.warning(f"Precision {precision:.4f} is below threshold 0.8. Dataset flagged for manual review.")
-        results["flagged_for_review"] = True
-    else:
-        logger.info(f"Precision {precision:.4f} meets threshold 0.8. Lexicon validation passed.")
-        results["flagged_for_review"] = False
-    
-    # Write results
-    write_validation_results(results, Path(args.output))
-    
-    return 0 if results["passed"] else 1
+        logger.info(f"Loading gold standard data from {gold_path}...")
+        gold_df = load_ratings(gold_path) # Reusing load_ratings as it handles the CSV structure
+        
+        logger.info(f"Validating lexicon precision...")
+        precision, stats = validate_lexicon_precision(gold_df)
+        
+        logger.info(f"Calculated Precision: {precision:.4f}")
+        
+        write_validation_results(stats, output_path, args.threshold)
+        
+        if precision < args.threshold:
+            logger.warning(f"Precision {precision:.4f} is below threshold {args.threshold}. Dataset flagged for review.")
+            return 1
+        else:
+            logger.info("Validation passed.")
+            return 0
+            
+    except Exception as e:
+        logger.error(f"Validation failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

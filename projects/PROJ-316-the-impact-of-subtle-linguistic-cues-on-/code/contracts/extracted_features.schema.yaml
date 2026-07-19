@@ -1,0 +1,31 @@
+# Schema for extracted linguistic features
+# Used by validate_schemas() in src/utils/io.py
+type: object
+required:
+  - conversation_id
+  - first_person_count
+  - hedge_count
+  - hedge_ratio
+  - sentiment_score
+properties:
+  conversation_id:
+    type: string
+    description: Unique identifier for the conversation turn
+  first_person_count:
+    type: integer
+    minimum: 0
+    description: Count of first-person pronouns (I, me, my, mine, we, us, our, ours)
+  hedge_count:
+    type: integer
+    minimum: 0
+    description: Count of hedge words from the predefined lexicon
+  hedge_ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Ratio of hedge count to total word count
+  sentiment_score:
+    type: number
+    minimum: -1.0
+    maximum: 1.0
+    description: VADER composite sentiment score

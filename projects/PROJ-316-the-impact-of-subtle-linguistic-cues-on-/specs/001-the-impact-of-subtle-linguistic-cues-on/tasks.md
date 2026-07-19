@@ -20,11 +20,18 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase -1: Power Analysis (Prerequisite Gate)
+## Phase -1: Setup (Blocking Prerequisites)
+
+**Purpose**: Project initialization, directory structure, and linting. **These tasks MUST be complete before any code implementation.**
+
+- [ ] T002 [P] Create project directory structure. **Deliverable**: Create the following directories: `src/`, `src/extraction/`, `src/analysis/`, `src/utils/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `data/raw/`, `data/processed/`, `data/results/`, `contracts/`. Create empty `__init__.py` files in all `src/` and `tests/` subfolders. **Note**: This task is a blocking prerequisite for all code tasks.
+- [ ] T004 [P] Configure linting and formatting. **Deliverable**: Create `.flake8` config file and `pyproject.toml` (or `setup.cfg`) with `black` configuration. **Note**: This task is a blocking prerequisite for all code tasks.
+
+## Phase -2: Power Analysis (Prerequisite Gate)
 
 **Purpose**: Determine required sample size (N) for the regression model to achieve power ≥ 0.8 (FR-011) before any annotation or analysis begins.
 
-- [X] T000 [Phase-1] Implement and run power analysis script. **Deliverable**: Create `data/results/power_analysis_results.yaml` containing the required sample size N based on assumed effect size (f²) from literature. **Gate**: If required N > annotation budget, flag project as underpowered. **Dependency**: Must complete before Phase 0.
+- [X] T000 [Phase-2] Implement and run power analysis script. **Deliverable**: Create `data/results/power_analysis_results.yaml` containing the required sample size N based on assumed effect size (f²) from literature. **Gate**: If required N > annotation budget, flag project as underpowered. **Dependency**: Must complete before Phase 0.
 
 ---
 
@@ -36,37 +43,26 @@
 
 - [X] T001a [Phase0] Verify availability of public dataset with human authenticity ratings. **Deliverable**: Create `data/raw/dataset_verification_report.md` containing: (1) Decision (Found/Not Found), (2) Source URL if found, (3) Sample size estimate, (4) If not found, confirmation of proceeding to annotation protocol. **Note**: If no dataset is found, document the decision to proceed to T001b.
 - [X] T001b [Phase0] Define and document the manual annotation protocol. **Deliverable**: Create `data/raw/annotation_instructions.md` containing: (1) Likert scale definitions (1-5 Authenticity), (2) Instruction script for raters, (3) Sample items demonstrating the rating criteria. **Note**: Instructions must focus strictly on "Perceived Authenticity" as defined in spec.md.
-- [ ] T001c [Phase0] [US1] Execute annotation or fetch rated dataset, calculate **Cohen's Kappa** (target > 0.6) for inter-rater reliability, and generate `data/processed/ratings.csv` with columns `conversation_id`, `authenticity_score`, `rater_id`, and `timestamp`. **Deliverable**: Store reliability metrics (Cohen's Kappa value, sample size) in `data/raw/rater_metadata.json` as per Constitution Principle VII. **Failure Path**: If Kappa < 0.6, flag the dataset in `data/raw/dataset_verification_report.md` and halt the pipeline until manual review or re-annotation.
-- [X] T001d [Phase0] [US1] Implement and run pragmatic validation of the hedge lexicon (FR-010) on a sample of annotated turns. **Deliverable**: Randomly select a sample of turns from the full corpus to serve as the ground truth. Calculate precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches. If precision < 0.8, flag dataset for manual review in `data/derived/lexicon_validation_results.yaml`.
-- [X] T001e [Phase0] [Removed] **Note**: Task T001e ("Noise Measurement") was removed as it is not authorized by spec.md.
+- [ ] T001c [Phase0] [US1] Generate a "Gold Standard" subset of 50 annotated turns. **Deliverable**: Create `data/processed/gold_standard_50.csv` with columns `conversation_id`, `text_content`, `authenticity_score`, `rater_id`, and `timestamp`. **Execution**: If a public dataset is not found, use a simple CSV-based manual entry script (to be created in `src/utils/annotation_tool.py` in T002) to annotate 50 randomly selected turns from the raw corpus. **Constitution Requirement**: Store the full rater metadata (scale, instructions, inter-rater reliability) in `data/raw/rater_metadata.json` as per Constitution Principle VII. **Failure Path**: If inter-rater reliability (Cohen's Kappa) < 0.6, flag the dataset and halt.
+- [ ] T001d [Phase0] [US1] [FR-010] Execute pragmatic validation of the hedge lexicon on the Gold Standard. **Deliverable**: Run the extraction logic on `data/processed/gold_standard_50.csv`. Calculate precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches. **Input**: 'Human Matches' are derived from the `gold_labels` column (manually annotated) in the 50-turn subset. **Gate**: If precision < 0.8, flag dataset for manual review in `data/results/lexicon_validation_results.yaml`. **Dependency**: Must complete after T001c (Gold Standard generation). <!-- FAILED: unspecified -->
+- [X] T001e [Removed] **Note**: Task T001e ("Noise Measurement") was removed as it is not authorized by spec.md.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T002 [P] Create project structure and directories. **Deliverable**: Create directories `src/`, `tests/`, `data/raw`, `data/processed`, `data/derived`, `code/`. Create empty `__init__.py` files in all `src/` subfolders. (Merged T002/T005).
-- [X] T003 Initialize Python 3.11 project with `requirements.txt`. **Deliverable**: Create `code/requirements.txt` containing pinned versions of `nltk`, `vaderSentiment`, `pandas`, `scikit-learn`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`. **Note**: Rely on NLTK's bundled VADER or generic package requirement as per plan.md.
-- [ ] T004 [P] Configure linting (flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Dependencies**: Phase 0 (T001c) must complete first.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete AND Phase 0 has produced `data/processed/ratings.csv`.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete AND Phase 0 has produced `data/processed/gold_standard_50.csv` and `data/processed/ratings.csv`.
 
-- [ ] T005 [P] Implement `src/utils/io.py`. **Deliverable**: Implement functions `fetch_text()` (returns DataFrame), `load_ratings()` (returns DataFrame), and `validate_schemas()` (raises exception if `ratings.csv` is missing or schema mismatched). **Note**: This task strictly depends on Phase 0 completion (T001c) and must halt if `ratings.csv` is missing.
-- [ ] T005a [P] Implement Input Validation Logic (FR-006). **Deliverable**: Create `src/utils/validation.py` containing `validate_input_columns(df, required_cols)` which checks for 'text_content' and 'authenticity_score' columns. **Logic**: Raise a clear `ValueError` if columns are missing or mismatched, as mandated by FR-006.
-- [ ] T006 [P] Create `src/config.py` to manage random seeds (default value) and runtime limits (CPU-only, bounded timeout)
-- [ ] T007 [P] Implement `src/utils/edge_case_handler.py` to detect empty/short texts (<5 words) and missing ratings. **Deliverable**: If missing ratings are detected, the handler must output a structured error log and trigger a pipeline HALT, rather than attempting to auto-trigger annotation. **Note**: Aligns with FR-007/Edge Cases.
-- [ ] T008 [P] Setup `tests/unit/` and `tests/integration/` directories with `pytest` configuration
+- [ ] T005 [P] [US1] Implement `src/utils/io.py`. **Deliverable**: Implement functions `fetch_text()` (returns DataFrame), `load_ratings()` (returns DataFrame), and `validate_schemas()` (raises exception if schema mismatched). **Specifics**: `validate_schemas()` MUST load `contracts/extracted_features.schema.yaml` and perform strict validation (no missing columns, correct types). **Note**: This task strictly depends on Phase 0 completion (T001c) and must halt if `ratings.csv` is missing.
+- [ ] T005a [P] [US1] Implement Input Validation Logic (FR-006). **Deliverable**: Create `src/utils/validation.py` containing `validate_input_columns(df, required_cols)` which checks for 'text_content' and 'authenticity_score' columns. **Logic**: Raise a clear `ValueError` if columns are missing or mismatched, as mandated by FR-006.
+- [ ] T006 [P] [US1] Create `src/config.py` to manage random seeds (default value) and runtime limits (CPU-only, bounded timeout).
+- [ ] T007 [P] [US1] Implement `src/utils/edge_case_handler.py` to detect empty/short texts (<5 words) and missing ratings. **Deliverable**: If missing ratings are detected, the handler MUST perform **listwise deletion** (drop rows with NaN authenticity_score), log the count of dropped rows, and report the final sample size. **Note**: This task aligns with FR-007 and Edge Cases; it MUST NOT trigger a pipeline HALT.
 
 ---
 
-## Phase 3: User Story 1 - Automated Linguistic Feature Extraction (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Automated Linguistic Feature Extraction (Priority: P1) 🎯 MVP
 
 **Goal**: Extract quantitative metrics (pronoun count, hedge count, valence) from raw conversation text.
 
@@ -74,16 +70,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `src/extraction/pronoun_extractor.py` using `nltk` (POS tagging) to calculate `first_person_count` (raw count of first-person pronouns). **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data.
-- [ ] T010 [P] [US1] Implement `src/extraction/hedge_extractor.py` using `NLTK` and the predefined 15-word hedge lexicon to calculate `hedge_count` and `hedge_ratio` (hedge_count / total_word_count). **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data.
+- [ ] T009 [P] [US1] Implement `src/extraction/pronoun_extractor.py` using `nltk` (POS tagging) to calculate `first_person_count`. **Specifics**: Use NLTK POS tags 'PRP' (personal pronoun) and 'PRP$' (possessive pronoun). Count occurrences of: I, me, my, mine, we, us, our, ours. **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data. <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Implement `src/extraction/hedge_extractor.py` using `NLTK` and the predefined 15-word hedge lexicon to calculate `hedge_count` and `hedge_ratio`. **Specifics**: The lexicon is: ["maybe", "perhaps", "possibly", "probably", "likely", "unlikely", "seem", "seems", "appear", "appears", "believe", "think", "guess", "suppose", "assume"]. **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data.
 - [ ] T011 [P] [US1] Implement `src/extraction/sentiment_analyzer.py` using `vaderSentiment` (v3.3.2) to calculate `sentiment_score` (composite score -1.0 to 1.0). **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate score data.
-- [ ] T012 [US1] Implement `src/main.py` (extraction mode). **Deliverable**: Add `--mode extraction` CLI argument, orchestrate T009-T011, handle edge cases (T007), and output `data/processed/features.csv` with columns `conversation_id`, `first_person_count`, `hedge_count`, `hedge_ratio`, `sentiment_score`. **Dependency Note**: This task must wait for the completion of T005 (io.py implementation) and T001c (ratings) before execution to ensure data loading functions are available.
-- [ ] T013 [Removed] **Note**: Task T013 (Shapiro-Wilk skewness detection) was removed as it is not required by spec.md FR-008.
+- [ ] T012 [US1] Implement `src/main.py` (extraction mode). **Deliverable**: Add `--mode extraction` CLI argument, orchestrate T009-T011, handle edge cases (T007), and output `data/processed/features.csv` with columns `conversation_id`, `first_person_count`, `hedge_count`, `hedge_ratio`, `sentiment_score`. **Explicit Requirement**: The final CSV MUST include the `hedge_ratio` column as mandated by FR-008. **Dependency Note**: This task must wait for the completion of T005 (io.py implementation) and T009-T011 (modules). It does NOT depend on T001c (ratings) as extraction only requires raw text.
 - [ ] T014 [US1] Write unit tests in `tests/unit/test_extraction.py` verifying metric calculations against manual spot-checks (US-1 Acceptance 1-3).
 
 ---
 
-## Phase 4: User Story 2 - Associational Correlation Analysis (Priority: P2)
+## Phase 3: User Story 2 - Associational Correlation Analysis (Priority: P2)
 
 **Goal**: Compute Pearson and Spearman correlations between linguistic features and human authenticity ratings, with multiple-comparison correction.
 
@@ -97,10 +92,12 @@
 - [ ] T018 [US2] Generate scatter plots (matplotlib/seaborn) for selected features. **Deliverable**: Create `data/derived/scatter_hedge_vs_authenticity.png` and `data/derived/scatter_pronoun_vs_authenticity.png` with clear "Association, not Causation" labels.
 - [ ] T019 [US2] Write unit tests in `tests/unit/test_correlation.py` verifying p-values and effect sizes against known synthetic datasets.
 - [ ] T020 [US2] Write integration test in `tests/integration/test_correlation_pipeline.py` ensuring the "association only" disclaimer is present in all outputs (FR-004).
+- [X] T020a [US2] [Removed] **Note**: Task T020a ("Noise Measurement") was removed as it is not authorized by spec.md.
+- [X] T020b [US2] [Removed] **Note**: Task T020b ("Dual-Outcome Correlation") was removed as it contradicts spec.md FR-001/FR-003.
 
 ---
 
-## Phase 5: User Story 3 - Multivariate Regression with Controls (Priority: P3)
+## Phase 4: User Story 3 - Multivariate Regression with Controls (Priority: P3)
 
 **Goal**: Fit a multiple linear regression model predicting authenticity from linguistic features, controlling for length/turn count, with VIF and non-linearity diagnostics.
 
@@ -108,23 +105,28 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `src/analysis/regression.py` to fit multiple linear regression. **Logic**: 1) Calculate VIF for all predictors; if VIF > 5, exclude the predictor with the highest VIF and log the specific excluded variable. 2) Test for non-linear relationships (quadratic terms for `hedge_count` and interaction terms `hedge_count` × `sentiment_score`) as per FR-009. 3) Run regression with linguistic features as predictors and conversation length/turn count as covariates (FR-003). **Note**: Outcome variable is strictly 'authenticity_score' per spec.md.
+- [ ] T021 [US3] Implement `src/analysis/regression.py` to fit multiple linear regression. **Logic**: 1) Calculate VIF for all predictors; if VIF > 5, exclude the predictor with the highest VIF and log the specific excluded variable. 2) Test for non-linear relationships (quadratic terms for `hedge_count` and interaction terms `hedge_count` × `sentiment_score`) as per FR-009. **Inclusion Criteria**: Include non-linear terms if p < 0.10 (exploratory) or if AIC improves. 3) Run regression with linguistic features as predictors and conversation length/turn count as covariates (FR-003). **Note**: Outcome variable is strictly 'authenticity_score' per spec.md.
 - [ ] T022 [US3] Implement `src/main.py` (regression mode) to orchestrate T021, calculate adjusted R² and AIC, and output `data/derived/regression_results.csv`. **Dependency**: T021 must complete first.
 - [ ] T023 [US3] Generate diagnostic plots (residuals, VIF bar chart) for the regression model. **Note**: This task is for diagnostic plots (residuals/VIF) only, not the feature importance bar chart required by FR-005.
 - [ ] T024 [US3] Write unit tests in `tests/unit/test_regression.py` verifying VIF calculation, exclusion logic, and adjusted R² logic.
 - [ ] T025 [US3] Write integration test in `tests/integration/test_regression_pipeline.py` ensuring model constraints (VIF < 5, p < 0.05) are met.
-- [ ] T026 [US3] Implement `src/analysis/sensitivity.py` to perform the **leave-one-out sensitivity analysis** (SC-003). **Logic**: Iterate through the hedge lexicon, removing one word at a time, re-run the regression model (T021), and record the change in significance. **Deliverable**: Output `data/results/sensitivity_analysis.csv`. **Intermediate**: Save intermediate results to `data/results/sensitivity_iteration_*.csv` for each iteration.
-- [ ] T027 [Removed] **Note**: Task T027 (replacing 'authenticity' with 'trust') was removed as it contradicts spec.md FR-001.
+- [ ] T026 [US3] Implement `src/analysis/sensitivity.py` to perform the **leave-one-out sensitivity analysis** (SC-003). **Logic**: Iterate through the 15-word hedge lexicon; for each iteration, remove one word, re-run the regression model (T021), and record the change in Adjusted R² and the significance (p < 0.05) of the remaining hedge count. **Deliverable**: Output `data/results/sensitivity_analysis.csv` and a `data/results/sensitivity_stability_report.md` summarizing the robustness of the findings. **Intermediate**: Save intermediate results to `data/results/sensitivity_iteration_*.csv` for each iteration.
+- [X] T027 [Removed] **Note**: Task T027 (replacing 'authenticity' with 'trust') was removed as it contradicts spec.md FR-001.
+- [X] T028 [US3] [Removed] **Note**: Task T028 ("Dual-Outcome Regression") was removed as it contradicts spec.md FR-001/FR-003.
+- [X] T028b [US3] [Removed] **Note**: Task T028b ("Dual-Outcome Regression") was removed as it contradicts spec.md FR-001/FR-003.
 
 ---
 
-## Phase 6: Visualization & Reporting (Priority: P3)
+## Phase 5: Visualization & Reporting (Priority: P3)
 
 **Goal**: Generate publication-quality plots and the statistical summary report required by FR-005 and Plan Phase 6.
 
 - [ ] T033 [P] [US3] Implement `src/analysis/visualize.py` to generate the **bar chart of feature importance coefficients** required by FR-005. **Deliverable**: Create `data/results/feature_importance_bar.png`. **Note**: This is distinct from T023 (diagnostic plots).
-- [ ] T034 [P] [US3] Implement `src/analysis/report.py` to generate the **statistical summary report**. **Deliverable**: Create `data/results/report.md` containing: (1) Adjusted R², (2) Significance of each predictor (p < 0.05 or not), (3) Direction of effect (positive/negative), (4) Explicit "Association, not Causation" disclaimer. **Note**: This task fulfills Plan Phase 6 and FR-005 reporting requirements.
+- [ ] T034 [P] [US3] Implement `src/analysis/report.py` to generate the **statistical summary report**. **Deliverable**: Create `data/results/report.md` with the following structure: 1. Executive Summary, 2. Methodology, 3. Results (Adjusted R², Coefficients, P-values), 4. Sensitivity Analysis, 5. Conclusion (Association, not Causation). **Note**: This task fulfills Plan Phase 6 and FR-005 reporting requirements.
 - [ ] T035 [US3] Integrate visualization and report generation into `src/main.py` (report mode). **Deliverable**: Add `--mode report` CLI argument to orchestrate T033 and T034.
+- [X] T035a [US3] [Removed] **Note**: Task T035a (Operational Definitions for Dual-Self) was removed as it is not required by spec.md.
+- [X] T035b [US3] [Removed] **Note**: Task T035b (Noise Analysis) was removed as it is not required by spec.md.
+- [X] T036 [US3] [Removed] **Note**: Task T036 (Operational Definitions for Dual-Self) was removed as it is not required by spec.md.
 
 ---
 
@@ -132,11 +134,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T028 [P] Documentation updates in `docs/` (including operational definitions). **Note**: T028 previously covered report generation; that responsibility is now in T034.
-- [ ] T029 Code cleanup and refactoring to ensure modularity
-- [ ] T030 [P] Run full pipeline validation on a sample of conversations (as per SC-005) to verify runtime constraint. **Deliverable**: Record execution time in `data/derived/performance_metrics.json`.
-- [ ] T031 [P] Final verification that all outputs include the mandatory disclaimer: "These results indicate association, not causation." (FR-004)
-- [ ] T032 [Removed] **Note**: Task T032 (Noise Report) was removed as it is not required by spec.md.
+- [ ] T029 [P] Documentation updates in `docs/` (including operational definitions). **Note**: T028 previously covered report generation; that responsibility is now in T034.
+- [ ] T030 Code cleanup and refactoring to ensure modularity
+- [ ] T031 [P] Run full pipeline validation on a sample of conversations (as per SC-005) to verify runtime constraint. **Deliverable**: Record execution time in `data/derived/performance_metrics.json`.
+- [ ] T032 [P] Final verification that all outputs include the mandatory disclaimer: "These results indicate association, not causation." (FR-004)
+- [X] T033 [Removed] **Note**: Task T032 (Noise Report) was removed as it is not required by spec.md.
 
 ---
 
@@ -144,15 +146,15 @@
 
 ### Phase Dependencies
 
-- **Phase -1 (Power Analysis)**: No dependencies - can start immediately. **MUST complete before Phase 0.**
-- **Phase 0 (Data Acquisition)**: Depends on Phase -1. **MUST complete before Phase 2.**
-- **Setup (Phase 1)**: No dependencies - can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup (Phase 1) AND Phase 0 completion (requires `data/processed/ratings.csv`). BLOCKS all user stories.
-- **User Stories (Phase 3-5)**: All depend on Foundational phase completion.
- - **Phase 3 (US1)**: Must complete before Phase 4 and 5 (data generation).
- - **Phase 4 (US2)**: Depends on Phase 3 (features) and Phase 0 (ratings).
- - **Phase 5 (US3)**: Depends on Phase 3 (features) and Phase 4 (correlation insights).
-- **Phase 6 (Visualization/Reporting)**: Depends on Phase 5 (Regression results).
+- **Phase -2 (Power Analysis)**: No dependencies - can start immediately. **MUST complete before Phase 0.**
+- **Phase 0 (Data Acquisition)**: Depends on Phase -2. **MUST complete before Phase 1.**
+- **Phase -1 (Setup)**: No dependencies - can start immediately.
+- **Phase 1 (Foundational)**: Depends on Setup (Phase -1) AND Phase 0 completion (requires `data/processed/gold_standard_50.csv`). BLOCKS all user stories.
+- **User Stories (Phase 2-4)**: All depend on Foundational phase completion.
+ - **Phase 2 (US1)**: Must complete before Phase 3 and 4 (data generation).
+ - **Phase 3 (US2)**: Depends on Phase 2 (features) and Phase 0 (ratings).
+ - **Phase 4 (US3)**: Depends on Phase 2 (features) and Phase 3 (correlation insights).
+- **Phase 5 (Visualization/Reporting)**: Depends on Phase 4 (Regression results).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
@@ -170,7 +172,7 @@
 
 - T009, T010, T011 (Extraction modules) can run in parallel.
 - T015, T016 (Correlation logic) can run in parallel with T021 (Regression logic) if data is available, provided T021 includes VIF/non-linearity checks.
-- T001a, T001b (Data acquisition) can run in parallel with Phase 1 (Setup).
+- T001a, T001b (Data acquisition) can run in parallel with Phase -1 (Setup).
 
 ---
 
@@ -178,33 +180,33 @@
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase -1: Power Analysis.
-2. Complete Phase 1: Setup.
+1. Complete Phase -2: Power Analysis.
+2. Complete Phase -1: Setup.
 3. Complete Phase 0: Data Acquisition (secure ratings, validate lexicon).
-4. Complete Phase 2: Foundational (loaders).
-5. Complete Phase 3: User Story 1 (Extraction).
+4. Complete Phase 1: Foundational (loaders).
+5. Complete Phase 2: User Story 1 (Extraction).
 6. **STOP and VALIDATE**: Test extraction on dummy data (T014).
 7. Verify `features.csv` is generated correctly with spec-compliant columns.
 
 ### Incremental Delivery
 
-1. Complete Phase -1 + Setup + Phase 0 + Foundational → Foundation ready.
+1. Complete Phase -2 + Setup + Phase 0 + Foundational → Foundation ready.
 2. Add User Story 1 → Test independently → `features.csv` ready.
 3. Add User Story 2 → Test independently → Correlation results ready.
 4. Add User Story 3 → Test independently → Regression and Sensitivity results ready.
-5. Add Phase 6 → Generate reports and plots.
+5. Add Phase 5 → Generate reports and plots.
 6. Polish & Report.
 
 ### Parallel Team Strategy
 
 With multiple developers:
 
-1. Team completes Phase -1 + Setup + Phase 0 + Foundational together.
+1. Team completes Phase -2 + Setup + Phase 0 + Foundational together.
 2. Once Foundational is done:
  - Developer A: User Story 1 (Extraction)
  - Developer B: User Story 2 (Correlation)
  - Developer C: User Story 3 (Regression + Sensitivity)
-3. Team: Phase 6 (Visualization/Reporting).
+3. Team: Phase 5 (Visualization/Reporting).
 4. Integrate and validate.
 
 ---
@@ -217,4 +219,10 @@ With multiple developers:
 - **Data Integrity**: All tasks must use real data from verified sources (HuggingFace) or explicitly defined annotation protocols. No synthetic/fake data generation for input.
 - **Verification**: Verify tests fail before implementing. Commit after each task or logical group.
 - **Review Resolution**: Tasks have been updated to strictly align with spec.md FR-001, FR-003, FR-009, FR-010, FR-011, and SC-003. Scope creep (Dual-Self, Noise Measurement, Trust Metrics) has been removed.
-- **Spec Alignment**: All tasks now strictly use 'authenticity_score' as the outcome variable. 'Experiencing/Remembering' and 'Noise Measurement' protocols have been removed as they are not in spec.md.
+- **Spec Alignment**: All tasks now strictly use 'authenticity_score' as the outcome variable.
+- **New Reviewer Concerns Addressed**:
+ - **Circular Dependency**: Resolved by splitting T001c (Gold Set) and T001d (Validation).
+ - **Scope Creep**: Removed all 'Experiencing/Remembering' and 'Noise' tasks.
+ - **Edge Cases**: Updated T007 to implement listwise deletion.
+ - **Executability**: Added specific lexicon, POS tags, and schema paths to tasks.
+ - **Stability Report**: Added to T026 to satisfy SC-003.
