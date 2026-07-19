@@ -1,64 +1,128 @@
-# Quickstart: Predicting Molecular Properties from Open Babel Fingerprints
+# Quickstart: Molecular Property Prediction Pipeline
 
 ## Prerequisites
 
-*   Python 3.10+
-*   `pip`
-*   `openbabel` (system package) or `pybel`
-*   `rdkit` (via conda or pip)
-*   Sufficient disk space (for raw data and derived artifacts)
+- Python 3.10+
+- Open Babel installed (CLI: `obabel`)
+- Git
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `openbabel` is installed on the system (e.g., `sudo apt-get install openbabel` on Linux).*
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd PROJ-324-predicting-molecular-properties-from-ope
+ ```
+
+2. **Create virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+4. **Install Open Babel** (if not already installed):
+ - Ubuntu/Debian: `sudo apt-get install openbabel`
+ - macOS: `brew install open-babel`
+ - Windows: Download from https://openbabel.org/
+
+## Directory Structure
+
+```text
+projects/PROJ-324-predicting-molecular-properties-from-ope/
+├── code/
+│ ├── data/
+│ │ ├── download.py
+│ │ ├── preprocess.py
+│ │ └── fingerprint.py
+│ ├── models/
+│ │ ├── baseline.py
+│ │ └── rf.py
+│ ├── analysis/
+│ │ ├── stats.py
+│ │ └── explainability.py
+│ └── main.py
+├── data/
+│ ├── raw/
+│ ├── processed/
+│ └── derived/
+├── tests/
+├── requirements.txt
+├── pyproject.toml
+└──.ruff.toml
+```
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`. It executes in the following order:
-1.  **Download**: Fetches verified datasets.
-2.  **Preprocess**: Cleans data, computes Crippen baseline.
-3.  **Fingerprint**: Generates MACCS, ECFP4, FP2 (priority order).
-4.  **Train**: Trains Random Forest with k-fold cross-validation..
-5.  **Analyze**: Computes SHAP interactions and statistical tests.
+1. **Download Data**:
+ ```bash
+ python code/data/download.py
+ ```
+ This fetches [deferred] molecules from PubChem and saves them to `data/raw/`.
 
-### Execute Full Run
+2. **Preprocess Data**:
+ ```bash
+ python code/data/preprocess.py
+ ```
+ This cleans data, handles missing values, and generates `data/derived/data_quality_report.csv`.
+
+3. **Generate Fingerprints**:
+ ```bash
+ python code/data/fingerprint.py
+ ```
+ This generates MACCS, ECFP4, and FP2 fingerprints and saves them to `data/processed/`.
+
+4. **Train Baseline Model**:
+ ```bash
+ python code/models/baseline.py
+ ```
+ This computes Crippen predictions and saves them to `data/derived/baseline_predictions.csv`.
+
+5. **Train Random Forest Model**:
+ ```bash
+ python code/models/rf.py
+ ```
+ This trains the RF model with nested CV and saves predictions to `data/derived/`.
+
+6. **Run Analysis**:
+ ```bash
+ python code/analysis/stats.py
+ ```
+ This computes metrics, performs Wilcoxon test, and generates plots.
+
+7. **Run Explainability**:
+ ```bash
+ python code/analysis/explainability.py
+ ```
+ This computes SHAP values and maps them to substructures.
+
+## Testing
+
+Run unit and integration tests:
 ```bash
-python code/main.py
+pytest tests/
 ```
 
-### Output Artifacts
-After completion, check the `data/` directory:
-*   `data/derived/predictions_baseline.csv`: Baseline errors.
-*   `data/derived/predictions_rf.csv`: RF errors.
-*   `data/derived/shap_interactions.parquet`: Interaction maps.
-*   `data/derived/interaction_contexts.csv`: Mapped chemical contexts.
-*   `data/quality_report.csv`: List of excluded molecules/missing variables.
+## Linting & Formatting
 
-## Verification
+Check code style:
+```bash
+ruff check code/
+black --check code/
+```
 
-To verify the run:
-1.  Check `data/quality_report.csv` for `missing_covariate` flags.
-2.  Run the unit tests:
-    ```bash
-    pytest tests/unit/
-    ```
-3.  Run contract tests (schema validation):
-    ```bash
-    pytest tests/contract/
-    ```
+Format code:
+```bash
+black code/
+ruff check --fix code/
+```
 
 ## Troubleshooting
 
-*   **Runtime Exceeded**: If the process hits the 6h limit, it will automatically skip lower-priority fingerprints (FP2) and reduce dataset size. Check `logs/runtime.log`.
-*   **Memory Error**: Reduce `n_estimators` in `code/config.py` or further sample the dataset.
-*   **Missing OpenBabel**: Ensure `obabel` is in your system PATH.
+- **Open Babel not found**: Ensure `obabel` is in your PATH.
+- **PubChem API errors**: Check network connectivity; PubChem may rate-limit requests.
+- **Memory errors**: Reduce the number of molecules or features in `code/models/rf.py`.

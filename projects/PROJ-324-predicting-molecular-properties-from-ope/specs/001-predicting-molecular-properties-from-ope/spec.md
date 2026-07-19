@@ -22,6 +22,6 @@
 - **Output**: Predictions CSV, residual plots, SHAP heatmaps, statistical reports.
 
 ## Validation Protocol
-- Data split: 80% train, 20% test (held out).
+- Data split: [deferred] train, [deferred] test (held out).
 - Metric: MAE, RMSE.
 - Statistical Test: Paired Wilcoxon signed-rank test on absolute errors.

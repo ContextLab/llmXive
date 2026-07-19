@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Dataset Schema"
+description: "Schema for raw molecular data downloaded from PubChem"
+type: object
+properties:
+  cid:
+    type: integer
+    description: "PubChem Compound ID"
+  smiles:
+    type: string
+    description: "Isomeric SMILES string"
+  logp:
+    type: number
+    description: "XLogP3 or Experimental value"
+    minimum: -10
+    maximum: 10
+  solubility:
+    type: number
+    description: "Aqueous solubility (logS)"
+    minimum: -10
+    maximum: 5
+  boiling_point:
+    type: number
+    description: "Boiling point (K)"
+    minimum: 200
+    maximum: 1000
+  molecular_weight:
+    type: number
+    description: "Molecular weight (g/mol)"
+    minimum: 10
+    maximum: 10000
+  property_type:
+    type: string
+    enum: ["Experimental", "Computed"]
+    description: "Whether the value is experimental or computed"
+  measurement_uncertainty:
+    type: ["number", "null"]
+    description: "Confidence score from PubChem (optional/derived)"
+    minimum: 0
+    maximum: 1
+  quantity_of_substance:
+    type: ["number", "null"]
+    description: "Amount (if available, optional/derived)"
+  source:
+    type: string
+    const: "PubChem"
+  confidence:
+    type: string
+    enum: ["High", "Medium", "Low"]
+required:
+  - cid
+  - smiles
+  - logp
+  - solubility
+  - boiling_point
+  - property_type
+  - source
+  - confidence

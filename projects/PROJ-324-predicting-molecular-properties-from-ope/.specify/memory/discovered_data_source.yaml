@@ -1,0 +1,35 @@
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\ncids = [2244, 3672, 5957]  # small set of\
+  \ example CIDs\nprops = ['MolecularWeight', 'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',\
+  \ 'TPSA', 'RotatableBondCount', 'ExactMass']\ncompounds = pcp.get_compounds(cids,\
+  \ 'cid', properties=props)\nrecords = len(compounds)\nprint(f'RECORDS={records}')\n\
+  # Map PubChem property names to required field names\nfield_map = {\n    'SMILES':\
+  \ 'isomeric_smiles',\n    'MolecularWeight': 'MolecularWeight',\n    'LogP': 'XLogP',\n\
+  \    'HBondDonors': 'HBondDonorCount',\n    'HBondAcceptors': 'HBondAcceptorCount',\n\
+  \    'TopologicalPolarSurfaceArea': 'TPSA',\n    'RotatableBonds': 'RotatableBondCount',\n\
+  \    'ExactMass': 'ExactMass'\n}\nfields = list(field_map.keys())\nprint('FIELDS='\
+  \ + ','.join(fields))"
+record_count: 3
+sample_fields:
+- SMILES
+- MolecularWeight
+- LogP
+- HBondDonors
+- HBondAcceptors
+- TopologicalPolarSurfaceArea
+- RotatableBonds
+- ExactMass
+field_coverage: 1.0
+required_fields:
+- SMILES
+- MolecularWeight
+- LogP
+- HBondDonors
+- HBondAcceptors
+- TopologicalPolarSurfaceArea
+- RotatableBonds
+- ExactMass
+intent: download SMILES and properties from ChEMBL, PubChem, ZINC python package dataset
+cache_key: 33dd1164e3c8c7e4e7de79a512b39e62ad6b347cbb98c02c90698515b4033db1
