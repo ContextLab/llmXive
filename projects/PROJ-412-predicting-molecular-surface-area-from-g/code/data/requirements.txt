@@ -1,0 +1,5 @@
+# Additional dependencies for molecular weight calculation
+# (These are already in the main requirements.txt but listed here for clarity if needed)
+# rdkit
+# pandas
+# pyarrow (for parquet support)

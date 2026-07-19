@@ -1,72 +1,79 @@
-"""
-Script to setup the project directory structure.
-Creates all required directories for code, data, and results.
-"""
 import os
 import sys
 from pathlib import Path
+import logging
+from utils.logging import get_logger
 
-def main():
-    """Create the project directory structure."""
-    # Define the project root (current directory)
-    project_root = Path.cwd()
-
-    # Define all required directories
-    directories = [
-        # Code directories
+def create_directories():
+    """
+    Create the required directory structure for the project.
+    
+    Creates the following directories relative to the project root:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/splits/
+    - results/
+    
+    Also ensures subdirectories for code (data, models, eval, utils) and
+    tests (contract, unit, integration) exist as per project structure.
+    """
+    logger = get_logger(__name__)
+    
+    # Determine project root (parent of the code/ directory)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
+    
+    # Define all required directories relative to project root
+    required_dirs = [
         "code",
         "code/data",
         "code/models",
         "code/eval",
         "code/utils",
-        
-        # Data directories
-        "data/raw",
-        "data/processed",
-        "data/splits",
-        
-        # Results directories
-        "results",
-        "results/reports",
-        "results/plots",
-        
-        # Test directories
-        "tests",
         "tests/contract",
         "tests/unit",
         "tests/integration",
+        "data/raw",
+        "data/processed",
+        "data/splits",
+        "results/reports",
+        "results/plots"
     ]
-
-    # Create directories
+    
     created_count = 0
-    for dir_path in directories:
+    skipped_count = 0
+    
+    for dir_path in required_dirs:
         full_path = project_root / dir_path
-        if not full_path.exists():
+        
+        if full_path.exists():
+            logger.debug(f"Directory already exists: {full_path}")
+            skipped_count += 1
+        else:
             full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
             created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+    
+    logger.info(f"Directory setup complete: {created_count} created, {skipped_count} already existed")
+    return True
 
-    print(f"\nSetup complete. Created {created_count} new directories.")
-    print(f"Project root: {project_root}")
-
-    # Verify structure
-    print("\nVerifying directory structure:")
-    all_exist = True
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            print(f"  ERROR: Missing {full_path}")
-            all_exist = False
-        else:
-            print(f"  OK: {full_path}")
-
-    if all_exist:
-        print("\nAll directories successfully created/verified.")
+def main():
+    """Main entry point for directory structure setup."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    logger = get_logger(__name__)
+    logger.info("Starting directory structure setup...")
+    
+    try:
+        create_directories()
+        logger.info("Directory structure setup completed successfully.")
         return 0
-    else:
-        print("\nSome directories are missing. Please check the output above.")
+    except Exception as e:
+        logger.error(f"Failed to setup directory structure: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":

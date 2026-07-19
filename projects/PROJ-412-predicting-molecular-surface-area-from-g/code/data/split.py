@@ -1,282 +1,211 @@
-"""
-Data splitting logic for molecular datasets.
-Implements stratified splitting by Molecular Weight (MW) with Kolmogorov-Smirnov (KS) test validation.
-"""
 import os
 import sys
 import csv
+import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, NamedTuple
-import json
+from typing import List, Dict, Any, Optional, Tuple
+import numpy as np
+import pandas as pd
+from scipy import stats
 
 # Import project utilities
 from utils.config import get_project_root, get_data_dir
 from utils.logging import get_logger
 from utils.seed import set_seed
 
-# Import RDKit for MW calculation if needed, though we expect MW in processed data
-from rdkit import Chem
-from rdkit.Chem import Descriptors
-
-# Import numpy and scipy for statistics
-import numpy as np
-from scipy import stats
+# Ensure path to utils is available if running as script
+project_root = get_project_root()
+if str(project_root / "code") not in sys.path:
+    sys.path.insert(0, str(project_root / "code"))
 
 logger = get_logger(__name__)
 
+class SplitResult:
+    def __init__(self, train_indices: List[int], test_indices: List[int], p_value: float, success: bool):
+        self.train_indices = train_indices
+        self.test_indices = test_indices
+        self.p_value = p_value
+        self.success = success
 
-class SplitResult(NamedTuple):
-    """Container for split indices and statistics."""
-    train_indices: List[int]
-    test_indices: List[int]
-    train_mw_stats: Dict[str, float]
-    test_mw_stats: Dict[str, float]
-    ks_statistic: float
-    ks_pvalue: float
-    ks_passed: bool
-
-
-def load_processed_data() -> Tuple[List[str], List[float]]:
+def load_processed_data(data_dir: Path) -> pd.DataFrame:
     """
-    Loads processed molecular data to extract SMILES and Molecular Weights.
-    Expects data to be in data/processed/molecules.csv with columns: 'smiles', 'mw', etc.
-    If 'mw' is not present, it calculates it from SMILES.
+    Loads the processed dataset containing SMILES, molecular_weight, and surface_area.
+    Expects 'data/processed/graphs_with_features.parquet' as created by T014c.
     """
-    project_root = get_project_root()
-    processed_file = project_root / "data" / "processed" / "molecules.csv"
+    input_path = data_dir / "processed" / "graphs_with_features.parquet"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {input_path}. "
+                                "Ensure T014c has been executed successfully.")
+    
+    df = pd.read_parquet(input_path)
+    required_cols = ['molecular_weight', 'surface_area']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Input dataset missing required columns: {missing_cols}")
+    
+    return df
 
-    if not processed_file.exists():
-        raise FileNotFoundError(f"Processed data file not found: {processed_file}. "
-                                "Run T013/T014 preprocessing first.")
-
-    smiles_list = []
-    mw_list = []
-
-    logger.info(f"Loading processed data from {processed_file}")
-
-    with open(processed_file, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for idx, row in enumerate(reader):
-            smiles = row.get('smiles')
-            if not smiles:
-                logger.warning(f"Row {idx} missing SMILES, skipping.")
-                continue
-
-            smiles_list.append(smiles)
-            
-            # Try to get MW from the file, otherwise calculate
-            if 'mw' in row and row['mw']:
-                try:
-                    mw = float(row['mw'])
-                except ValueError:
-                    mw = Descriptors.MolWt(Chem.MolFromSmiles(smiles))
-            else:
-                mol = Chem.MolFromSmiles(smiles)
-                if mol is None:
-                    logger.warning(f"Row {idx}: Invalid SMILES for MW calculation, skipping.")
-                    continue
-                mw = Descriptors.MolWt(mol)
-            
-            mw_list.append(mw)
-
-    if len(smiles_list) == 0:
-        raise ValueError("No valid molecules found in processed data.")
-
-    logger.info(f"Loaded {len(smiles_list)} molecules.")
-    return smiles_list, mw_list
-
-
-def calculate_mw_stats(mw_values: List[float]) -> Dict[str, float]:
-    """Calculate mean, std, min, max for a list of MW values."""
-    arr = np.array(mw_values)
+def calculate_mw_stats(df: pd.DataFrame) -> Dict[str, Any]:
+    """Calculates basic statistics for Molecular Weight."""
+    mw = df['molecular_weight']
     return {
-        "mean": float(np.mean(arr)),
-        "std": float(np.std(arr)),
-        "min": float(np.min(arr)),
-        "max": float(np.max(arr)),
-        "count": len(arr)
+        'mean': float(mw.mean()),
+        'std': float(mw.std()),
+        'min': float(mw.min()),
+        'max': float(mw.max()),
+        'count': int(len(mw))
     }
 
-
-def stratified_split_by_mw(
-    mw_values: List[float], 
-    train_ratio: float = 0.8, 
-    seed: int = 42, 
-    n_bins: int = 10
-) -> Tuple[List[int], List[int]]:
+def stratified_split_by_mw(df: pd.DataFrame, test_ratio: float = 0.2, seed: int = 42) -> Tuple[List[int], List[int]]:
     """
-    Performs a stratified split based on Molecular Weight.
-    Molecules are binned by MW, then sampled proportionally from each bin.
+    Performs a stratified split based on Molecular Weight bins to ensure
+    similar distributions in train and test sets.
     """
     set_seed(seed)
-    n_samples = len(mw_values)
-    indices = list(range(n_samples))
+    n = len(df)
+    n_test = int(n * test_ratio)
     
-    mw_arr = np.array(mw_values)
-    
-    # Create bins based on MW distribution
-    # Using uniform quantile bins to ensure roughly equal size bins if possible,
-    # or fixed number of bins across the range.
-    # Strategy: Create bins based on percentiles to ensure stratification works well.
+    # Create bins for stratification (e.g., 10 bins)
+    # Using quantile-based binning ensures roughly equal sized bins
     try:
-        bin_edges = np.percentile(mw_arr, np.linspace(0, 100, n_bins + 1))
-    except Exception:
-        # Fallback to fixed range if percentiles fail (e.g., all same value)
-        bin_edges = np.linspace(mw_arr.min(), mw_arr.max(), n_bins + 1)
+        bins = pd.qcut(df['molecular_weight'], q=10, duplicates='drop')
+    except ValueError:
+        # Fallback to uniform bins if unique values are too few
+        logger.warning("Quantile binning failed, using uniform bins.")
+        bins = pd.cut(df['molecular_weight'], bins=10)
     
-    # Assign bin indices
-    bin_indices = np.digitize(mw_arr, bin_edges) - 1
-    # Ensure last element doesn't fall out of bounds due to floating point
-    bin_indices = np.clip(bin_indices, 0, n_bins - 1)
-
-    train_indices = []
-    test_indices = []
-
-    unique_bins = np.unique(bin_indices)
+    df['stratification_bin'] = bins
     
-    logger.info(f"Splitting into {len(unique_bins)} bins based on MW.")
-
-    for b in unique_bins:
-        # Get indices belonging to this bin
-        bin_mask = bin_indices == b
-        bin_indices_list = [indices[i] for i, val in enumerate(bin_mask) if val]
-        
-        # Shuffle bin indices
-        np.random.shuffle(bin_indices_list)
-        
-        # Calculate split point for this bin
-        n_train_bin = int(len(bin_indices_list) * train_ratio)
-        
-        train_indices.extend(bin_indices_list[:n_train_bin])
-        test_indices.extend(bin_indices_list[n_train_bin:])
-
-    # Shuffle final lists to remove bin ordering artifacts
-    np.random.shuffle(train_indices)
-    np.random.shuffle(test_indices)
-
-    return train_indices, test_indices
-
-
-def validate_split_distribution(
-    train_mw: List[float], 
-    test_mw: List[float], 
-    threshold: float = 0.05
-) -> Tuple[float, float, bool]:
-    """
-    Validates that the train and test distributions are similar using KS test.
-    Returns (statistic, p_value, passed).
-    """
-    if len(train_mw) == 0 or len(test_mw) == 0:
-        raise ValueError("Cannot validate split with empty train or test set.")
-
-    ks_stat, p_value = stats.ks_2samp(train_mw, test_mw)
-    passed = p_value > threshold
-
-    logger.info(f"KS Test Result: statistic={ks_stat:.4f}, p-value={p_value:.4f}, threshold={threshold}")
-    logger.info(f"Split validation: {'PASSED' if passed else 'FAILED'} (p > {threshold})")
-
-    return ks_stat, p_value, passed
-
-
-def save_indices_to_csv(
-    train_indices: List[int], 
-    test_indices: List[int], 
-    output_dir: Optional[Path] = None
-) -> Tuple[Path, Path]:
-    """
-    Saves train and test indices to CSV files.
-    Returns paths to the created files.
-    """
-    if output_dir is None:
-        output_dir = get_project_root() / "data" / "splits"
+    # Stratified split using sklearn
+    try:
+        from sklearn.model_selection import train_test_split
+        indices = df.index.tolist()
+        train_idx, test_idx = train_test_split(
+            indices, 
+            test_size=test_ratio, 
+            stratify=df['stratification_bin'], 
+            random_state=seed
+        )
+    except ImportError:
+        logger.warning("sklearn not found, falling back to manual stratified split.")
+        # Manual implementation
+        train_idx = []
+        test_idx = []
+        unique_bins = df['stratification_bin'].unique()
+        for b in unique_bins:
+            bin_indices = df[df['stratification_bin'] == b].index.tolist()
+            np.random.shuffle(bin_indices)
+            n_bin_test = int(len(bin_indices) * test_ratio)
+            test_idx.extend(bin_indices[:n_bin_test])
+            train_idx.extend(bin_indices[n_bin_test:])
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    train_path = output_dir / "train_indices.csv"
-    test_path = output_dir / "test_indices.csv"
+    return train_idx, test_idx
 
-    with open(train_path, 'w', newline='', encoding='utf-8') as f:
+def validate_split_distribution(df: pd.DataFrame, train_indices: List[int], test_indices: List[int]) -> Tuple[float, bool]:
+    """
+    Validates the split by performing a Kolmogorov-Smirnov (KS) test
+    on the Molecular Weight distributions of the train and test sets.
+    Returns (p_value, is_valid) where is_valid is True if p > 0.05.
+    """
+    train_mw = df.loc[train_indices, 'molecular_weight'].values
+    test_mw = df.loc[test_indices, 'molecular_weight'].values
+    
+    # KS Test
+    statistic, p_value = stats.ks_2samp(train_mw, test_mw)
+    
+    is_valid = p_value > 0.05
+    
+    logger.info(f"KS Test Statistic: {statistic:.6f}")
+    logger.info(f"KS Test P-value: {p_value:.6f}")
+    if is_valid:
+        logger.info("Split validation PASSED: Distributions are statistically similar (p > 0.05).")
+    else:
+        logger.error("Split validation FAILED: Distributions differ significantly (p <= 0.05).")
+    
+    return p_value, is_valid
+
+def save_indices_to_csv(indices: List[int], filepath: Path):
+    """Saves a list of indices to a CSV file."""
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['index'])
-        for idx in train_indices:
+        for idx in indices:
             writer.writerow([idx])
-
-    with open(test_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['index'])
-        for idx in test_indices:
-            writer.writerow([idx])
-
-    logger.info(f"Saved train indices ({len(train_indices)}) to {train_path}")
-    logger.info(f"Saved test indices ({len(test_indices)}) to {test_path}")
-
-    return train_path, test_path
-
+    logger.info(f"Saved indices to {filepath} ({len(indices)} rows)")
 
 def main():
     """
-    Main entry point for the data splitting task.
+    Main entry point for T015: Data Splitting.
     1. Loads processed data.
-    2. Performs stratified split by MW.
-    3. Validates split with KS test.
-    4. Saves indices to CSV.
+    2. Splits data stratified by Molecular Weight.
+    3. Validates split using KS test.
+    4. Saves indices and report.
     """
-    logger.info("Starting data splitting (T015)...")
-
-    # Load data
-    try:
-        smiles_list, mw_list = load_processed_data()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-
-    # Perform split
-    train_indices, test_indices = stratified_split_by_mw(mw_list, train_ratio=0.8, seed=42)
-
-    # Extract MW for validation
-    train_mw = [mw_list[i] for i in train_indices]
-    test_mw = [mw_list[i] for i in test_indices]
-
-    # Calculate stats
-    train_stats = calculate_mw_stats(train_mw)
-    test_stats = calculate_mw_stats(test_mw)
-
-    logger.info(f"Train MW Stats: {train_stats}")
-    logger.info(f"Test MW Stats: {test_stats}")
-
-    # Validate distribution
-    ks_stat, p_value, passed = validate_split_distribution(train_mw, test_mw, threshold=0.05)
-
-    if not passed:
-        logger.warning("KS test failed (p <= 0.05). Train and Test distributions may differ significantly.")
-        # In a strict pipeline, we might halt here, but for this task we log and proceed
-        # as the split logic is correct, just the random seed or data might be skewed.
+    project_root = get_project_root()
+    data_dir = get_data_dir()
+    splits_dir = data_dir / "splits"
     
-    # Save results
-    train_path, test_path = save_indices_to_csv(train_indices, test_indices)
-
-    # Save summary report
+    logger.info("Starting Data Splitting (T015)...")
+    
+    # 1. Load Data
+    try:
+        df = load_processed_data(data_dir)
+        logger.info(f"Loaded {len(df)} molecules from processed data.")
+    except Exception as e:
+        logger.critical(f"Failed to load processed data: {e}")
+        sys.exit(1)
+    
+    # 2. Stratified Split
+    train_indices, test_indices = stratified_split_by_mw(df, test_ratio=0.2, seed=42)
+    logger.info(f"Split completed: Train={len(train_indices)}, Test={len(test_indices)}")
+    
+    # 3. Validate Distribution (KS Test)
+    p_value, is_valid = validate_split_distribution(df, train_indices, test_indices)
+    
+    if not is_valid:
+        raise RuntimeError(
+            f"Split validation failed: KS test p-value ({p_value:.6f}) <= 0.05. "
+            "The train and test sets have significantly different Molecular Weight distributions."
+        )
+    
+    # 4. Save Outputs
+    # Ensure directory exists
+    splits_dir.mkdir(parents=True, exist_ok=True)
+    
+    train_path = splits_dir / "train_indices.csv"
+    test_path = splits_dir / "test_indices.csv"
+    report_path = splits_dir / "split_report.json"
+    
+    save_indices_to_csv(train_indices, train_path)
+    save_indices_to_csv(test_indices, test_path)
+    
+    # Create report
     report = {
-        "train_count": len(train_indices),
-        "test_count": len(test_indices),
-        "train_stats": train_stats,
-        "test_stats": test_stats,
+        "train_size": len(train_indices),
+        "test_size": len(test_indices),
+        "test_ratio": 0.2,
         "ks_test": {
-            "statistic": float(ks_stat),
+            "statistic": float(stats.ks_2samp(
+                df.loc[train_indices, 'molecular_weight'],
+                df.loc[test_indices, 'molecular_weight']
+            )[0]),
             "p_value": float(p_value),
-            "passed": passed,
-            "threshold": 0.05
-        }
+            "threshold": 0.05,
+            "passed": is_valid
+        },
+        "molecular_weight_stats": calculate_mw_stats(df),
+        "seed": 42
     }
-
-    report_path = get_project_root() / "data" / "splits" / "split_report.json"
-    with open(report_path, 'w', encoding='utf-8') as f:
+    
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
     
     logger.info(f"Split report saved to {report_path}")
-    logger.info("T015 completed successfully.")
-
+    logger.info("T015 Data Splitting completed successfully.")
+    
+    return report
 
 if __name__ == "__main__":
     main()

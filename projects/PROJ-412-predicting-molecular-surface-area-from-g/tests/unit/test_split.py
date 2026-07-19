@@ -1,129 +1,74 @@
-"""
-Unit tests for data splitting logic (T015).
-"""
 import pytest
+import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
 from pathlib import Path
-import tempfile
-import csv
-import json
-
-# Mock the project root and data dir imports
-from utils.config import get_project_root, get_data_dir
-
-# Import functions to test
-# We need to import the logic, not necessarily the main() which does I/O
-# Assuming split.py is in code/data/split.py
 import sys
 import os
-# Ensure we can import code
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from data.split import (
-    calculate_mw_stats, 
-    stratified_split_by_mw, 
-    validate_split_distribution,
-    save_indices_to_csv,
-    SplitResult
-)
+# Add code to path for imports
+current_dir = Path(__file__).parent.parent
+code_dir = current_dir.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
+from data.split import stratified_split_by_mw, validate_split_distribution, load_processed_data
+from utils.seed import set_seed
 
-class TestCalculateMwStats:
-    def test_basic_stats(self):
-        data = [100.0, 200.0, 300.0]
-        stats = calculate_mw_stats(data)
-        assert stats["mean"] == 200.0
-        assert stats["std"] == pytest.approx(81.6496580927726)
-        assert stats["min"] == 100.0
-        assert stats["max"] == 300.0
-        assert stats["count"] == 3
+@pytest.fixture
+def sample_df():
+    """Creates a synthetic DataFrame mimicking the processed data structure."""
+    set_seed(42)
+    n = 1000
+    # Generate MW with a specific distribution (normal-ish)
+    mw = np.random.normal(loc=300, scale=50, size=n)
+    mw = np.abs(mw) # Ensure positive
+    # Generate random surface area
+    sa = np.random.normal(loc=100, scale=20, size=n)
+    sa = np.abs(sa)
+    
+    df = pd.DataFrame({
+        'molecular_weight': mw,
+        'surface_area': sa,
+        'smiles': ['CCO' for _ in range(n)] # Dummy smiles
+    })
+    return df
 
-    def test_single_value(self):
-        data = [50.0]
-        stats = calculate_mw_stats(data)
-        assert stats["mean"] == 50.0
-        assert stats["std"] == 0.0
-        assert stats["count"] == 1
+def test_stratified_split_by_mw(sample_df):
+    """Test that stratified split produces roughly equal sized sets."""
+    train_idx, test_idx = stratified_split_by_mw(sample_df, test_ratio=0.2, seed=42)
+    
+    assert len(train_idx) + len(test_idx) == len(sample_df)
+    assert len(test_idx) == int(len(sample_df) * 0.2)
+    assert len(train_idx) == len(sample_df) - len(test_idx)
+    
+    # Check no overlap
+    assert len(set(train_idx) & set(test_idx)) == 0
 
+def test_validate_split_distribution_success(sample_df):
+    """Test that a good split passes the KS test."""
+    train_idx, test_idx = stratified_split_by_mw(sample_df, test_ratio=0.2, seed=42)
+    p_val, is_valid = validate_split_distribution(sample_df, train_idx, test_idx)
+    
+    assert is_valid is True
+    assert p_val > 0.05
 
-class TestStratifiedSplitByMw:
-    def test_split_ratio(self):
-        # Create a synthetic distribution where we know the split
-        # 100 molecules, MW 100 to 200
-        mw_values = list(range(100, 200))
-        train_idx, test_idx = stratified_split_by_mw(mw_values, train_ratio=0.8, seed=42)
-        
-        total = len(train_idx) + len(test_idx)
-        assert total == 100
-        assert len(train_idx) == 80
-        assert len(test_idx) == 20
-
-    def test_no_overlap(self):
-        mw_values = [float(i) for i in range(100)]
-        train_idx, test_idx = stratified_split_by_mw(mw_values, seed=42)
-        
-        assert set(train_idx).isdisjoint(set(test_idx))
-        assert len(set(train_idx)) == len(train_idx)
-        assert len(set(test_idx)) == len(test_idx)
-
-    def test_seed_reproducibility(self):
-        mw_values = [float(i) for i in range(50)]
-        train1, test1 = stratified_split_by_mw(mw_values, seed=123)
-        train2, test2 = stratified_split_by_mw(mw_values, seed=123)
-        
-        assert train1 == train2
-        assert test1 == test2
-
-
-class TestValidateSplitDistribution:
-    def test_identical_distributions(self):
-        data = [100.0, 101.0, 102.0, 103.0, 104.0]
-        train, test = data[:3], data[3:] # Small sample, might be noisy but logic holds
-        # Actually, for KS test we need larger samples to be confident
-        # Let's create two identical large samples
-        large_data = np.random.normal(100, 10, 1000)
-        train = large_data[:500]
-        test = large_data[500:]
-        
-        stat, p_val, passed = validate_split_distribution(train, test, threshold=0.05)
-        # With identical distributions, p-value should be high
-        assert passed is True
-
-    def test_different_distributions(self):
-        # Create two distinct distributions
-        train = np.random.normal(100, 5, 1000)
-        test = np.random.normal(150, 5, 1000)
-        
-        stat, p_val, passed = validate_split_distribution(train, test, threshold=0.05)
-        # With very different means, p-value should be near 0
-        assert passed is False
-        assert stat > 0.5 # Expect high statistic
-
-
-class TestSaveIndicesToCsv:
-    def test_save_and_load(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir)
-            train_idx = [1, 2, 3]
-            test_idx = [4, 5]
-            
-            train_file, test_file = save_indices_to_csv(train_idx, test_idx, output_path)
-            
-            assert train_file.exists()
-            assert test_file.exists()
-            
-            # Verify content
-            with open(train_file, 'r') as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                assert header == ['index']
-                rows = [int(r[0]) for r in reader]
-                assert rows == train_idx
-            
-            with open(test_file, 'r') as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                assert header == ['index']
-                rows = [int(r[0]) for r in reader]
-                assert rows == test_idx
+def test_validate_split_distribution_failure():
+    """Test that a bad split (e.g. by value range) fails the KS test."""
+    # Create a dataset where we can easily create a bad split
+    mw = np.concatenate([np.random.normal(100, 5, 500), np.random.normal(500, 5, 500)])
+    df = pd.DataFrame({
+        'molecular_weight': mw,
+        'surface_area': np.random.normal(50, 10, 1000),
+        'smiles': ['CCO'] * 1000
+    })
+    
+    # Force a bad split: first half train, second half test
+    # Since the data is bimodal and sorted, this should fail KS
+    train_idx = list(range(500))
+    test_idx = list(range(500, 1000))
+    
+    p_val, is_valid = validate_split_distribution(df, train_idx, test_idx)
+    
+    # This should fail because the distributions are clearly different (100 vs 500)
+    assert is_valid is False
+    assert p_val <= 0.05

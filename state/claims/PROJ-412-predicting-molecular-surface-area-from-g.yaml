@@ -1,0 +1,94 @@
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: SMILES ingestion from ZINC15 filtered drug-like subset
+  claim_id: c_f05d6644
+  context: T012 [P] [US1] Implement SMILES ingestion from ZINC15 (fetch from 'https://zinc15.docking.org/subsets/filtered/drug_like/')
+    and validate syntax in 'code/data/ingest.py'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SMILES_ingestion_from_ZINC15_filtered_drug-like_subset
+  kind: entity_fact
+  raw_text: Implement SMILES ingestion from ZINC15 (fetch from 'https://zinc15.docking.org/subsets/filtered/drug_like/')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:45:36Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: KS test p-value > 0.05 for train/test MW distribution
+  claim_id: c_1c635fed
+  context: T015 [US1] ... Execute the Kolmogorov-Smirnov (KS) test comparing the MW
+    distributions of train/test sets. Verify p-value > 0.05; if p <= 0.05, raise an
+    error...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify p-value > 0.05 in the Kolmogorov-Smirnov (KS) test comparing the
+    MW distributions of train/test sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:45:36Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Random Forest Baseline on 2D topological descriptors
+  claim_id: c_1cd4e77b
+  context: T021 [US2] Implement Random Forest Baseline on 2D topological descriptors
+    (e.g., atom counts, ring counts, topological indices) in 'code/models/baseline.py'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_Baseline_on_2D_topological_descriptors
+  kind: entity_fact
+  raw_text: Train a Random Forest Baseline on 2D topological descriptors
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:46:04Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: "Absolute MAE thresholds 0.01, 0.05, 0.1 \xC5\xB2"
+  claim_id: c_7f83ecfa
+  context: "T028 [US3] Implement sensitivity analysis script sweeping absolute MAE\
+    \ thresholds {0.01, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006)..."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement sensitivity analysis sweeping absolute MAE thresholds {0.01,\
+    \ 0.05, 0.1} \xC5\xB2"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T19:46:04Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Relative MAE thresholds 1%, 5%, 10% of mean SASA
+  claim_id: c_dc367659
+  context: T028b [US3] Implement secondary sensitivity analysis sweeping relative
+    MAE thresholds {1%, 5%, 10%} of mean SASA...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement secondary sensitivity analysis sweeping relative MAE thresholds
+    {1%, 5%, 10%} of mean SASA
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:46:04Z'

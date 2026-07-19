@@ -1,3 +1,7 @@
+"""
+Molecule data model.
+Represents a molecule with its SMILES string, molecular weight, and 3D conformer data.
+"""
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 import json
@@ -6,49 +10,50 @@ import numpy as np
 @dataclass
 class Molecule:
     """
-    Data model representing a molecule with its SMILES string,
-    optional 3D conformer data, and computed properties.
+    Data model for a single molecule.
     
     Attributes:
-        smiles (str): Canonical SMILES string.
-        mol_id (str): Unique identifier for the molecule.
-        molecular_weight (float): Calculated molecular weight.
-        sasa (Optional[float]): Solvent Accessible Surface Area (Å²).
-        features (Optional[np.ndarray]): Pre-computed molecular features.
-        metadata (Dict[str, Any]): Additional metadata.
+        smiles: SMILES string representation of the molecule.
+        molecular_weight: Calculated molecular weight (g/mol).
+        surface_area: Solvent-accessible surface area (SASA) in Å².
+        conformer_3d: Optional 3D coordinates (N_atoms x 3 numpy array).
+        metadata: Additional metadata dictionary.
     """
     smiles: str
-    mol_id: str
-    molecular_weight: float = 0.0
-    sasa: Optional[float] = None
-    features: Optional[np.ndarray] = field(default=None)
+    molecular_weight: float
+    surface_area: Optional[float] = None
+    conformer_3d: Optional[np.ndarray] = field(default=None)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the Molecule instance to a dictionary."""
+        """Convert molecule to dictionary representation."""
         return {
             "smiles": self.smiles,
-            "mol_id": self.mol_id,
             "molecular_weight": self.molecular_weight,
-            "sasa": self.sasa,
+            "surface_area": self.surface_area,
+            "conformer_3d": self.conformer_3d.tolist() if self.conformer_3d is not None else None,
             "metadata": self.metadata
         }
 
     def to_json(self) -> str:
-        """Serialize the Molecule instance to a JSON string."""
-        return json.dumps(self.to_dict(), default=str)
+        """Convert molecule to JSON string."""
+        return json.dumps(self.to_dict())
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Molecule":
-        """Create a Molecule instance from a dictionary."""
-        features = data.get("features")
-        if isinstance(features, list):
-            features = np.array(features)
+        """Create Molecule from dictionary."""
+        conformer = data.get("conformer_3d")
+        if conformer is not None:
+            conformer = np.array(conformer)
         return cls(
             smiles=data["smiles"],
-            mol_id=data["mol_id"],
-            molecular_weight=data.get("molecular_weight", 0.0),
-            sasa=data.get("sasa"),
-            features=features,
+            molecular_weight=data["molecular_weight"],
+            surface_area=data.get("surface_area"),
+            conformer_3d=conformer,
             metadata=data.get("metadata", {})
         )
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "Molecule":
+        """Create Molecule from JSON string."""
+        return cls.from_dict(json.loads(json_str))

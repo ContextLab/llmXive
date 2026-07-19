@@ -1,192 +1,224 @@
 """
-Contract Test for Model Output Schema (T018)
+Contract test for model output schema (T018).
 
-Validates that model outputs produced by the training/evaluation pipeline
-conform to the schema defined in specs/model_schema.yaml.
-
-This test ensures:
-1. All required fields are present.
-2. Data types match the schema (e.g., predictions are floats, not strings).
-3. Metric values are within reasonable bounds (e.g., R2 <= 1.0).
-4. Arrays (predictions, targets) have matching lengths.
+Validates that model output artifacts (JSON) conform to the schema defined
+in data/schemas/model_schema.yaml.
 """
-
+import json
 import os
 import sys
-import json
-import pytest
-import numpy as np
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
+from datetime import datetime
+
+import pytest
 import yaml
 
 # Add project root to path for imports
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
-
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "model_schema.yaml"
-TEST_OUTPUT_PATH = PROJECT_ROOT / "results" / "reports" / "model_comparison.json"
+SCHEMA_PATH = PROJECT_ROOT / "data" / "schemas" / "model_schema.yaml"
+RESULTS_DIR = PROJECT_ROOT / "results" / "reports"
 
 def load_schema() -> Dict[str, Any]:
     """Load the model output schema from YAML."""
     if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
+        pytest.fail(f"Schema file not found: {SCHEMA_PATH}")
     with open(SCHEMA_PATH, "r") as f:
         return yaml.safe_load(f)
 
-def validate_type(value: Any, expected_type: str, field_path: str) -> None:
-    """Validate that a value matches the expected type."""
-    type_map = {
-        "string": str,
-        "number": (int, float),
-        "integer": int,
-        "boolean": bool,
-        "array": list,
-        "object": dict,
-    }
-
-    expected = type_map.get(expected_type)
-    if expected is None:
-        raise ValueError(f"Unknown type in schema: {expected_type}")
-
-    if not isinstance(value, expected):
-        raise TypeError(
-            f"Field '{field_path}' has type {type(value).__name__}, "
-            f"expected {expected_type}"
-        )
-
-def validate_object(obj: Dict[str, Any], schema: Dict[str, Any], path: str = "") -> None:
-    """Recursively validate an object against a schema."""
-    # Check required fields
+def validate_required_fields(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+    """Check that all required fields are present."""
     required = schema.get("required", [])
-    for field in required:
-        if field not in obj:
-            raise AssertionError(f"Missing required field: {path}.{field}")
+    missing = [field for field in required if field not in data]
+    return missing
 
-    # Validate properties
+def validate_type(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+    """Validate field types against schema definitions."""
+    errors = []
     properties = schema.get("properties", {})
-    for key, value in obj.items():
-        if key not in properties:
-            # Allow extra properties if not strictly forbidden, but warn
-            # For strict contract testing, we might want to raise:
-            # raise ValueError(f"Unexpected field: {path}.{key}")
+    
+    for field, expected_schema in properties.items():
+        if field not in data:
             continue
+        
+        value = data[field]
+        expected_type = expected_schema.get("type")
+        
+        if expected_type == "string":
+            if not isinstance(value, str):
+                errors.append(f"Field '{field}' expected string, got {type(value).__name__}")
+        elif expected_type == "number":
+            if not isinstance(value, (int, float)):
+                errors.append(f"Field '{field}' expected number, got {type(value).__name__}")
+        elif expected_type == "integer":
+            if not isinstance(value, int):
+                errors.append(f"Field '{field}' expected integer, got {type(value).__name__}")
+        elif expected_type == "object":
+            if not isinstance(value, dict):
+                errors.append(f"Field '{field}' expected object, got {type(value).__name__}")
+        elif expected_type == "array":
+            if not isinstance(value, list):
+                errors.append(f"Field '{field}' expected array, got {type(value).__name__}")
+        
+        # Validate nested objects recursively
+        if expected_type == "object" and isinstance(value, dict):
+            nested_errors = validate_type(value, expected_schema)
+            errors.extend([f"{field}.{err}" for err in nested_errors])
 
-        prop_schema = properties[key]
-        current_path = f"{path}.{key}" if path else key
+    return errors
 
-        # Validate type
-        if "type" in prop_schema:
-            validate_type(value, prop_schema["type"], current_path)
+def validate_enum(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+    """Validate enum constraints."""
+    errors = []
+    properties = schema.get("properties", {})
+    
+    for field, expected_schema in properties.items():
+        if field not in data:
+            continue
+        
+        value = data[field]
+        enum_values = expected_schema.get("enum")
+        
+        if enum_values and value not in enum_values:
+            errors.append(f"Field '{field}' value '{value}' not in allowed enum: {enum_values}")
+        
+        # Check nested enums
+        if expected_schema.get("type") == "object" and isinstance(value, dict):
+            nested_errors = validate_enum(value, expected_schema)
+            errors.extend([f"{field}.{err}" for err in nested_errors])
 
-        # Validate array items
-        if prop_schema["type"] == "array" and "items" in prop_schema:
-            item_schema = prop_schema["items"]
-            for i, item in enumerate(value):
-                validate_type(item, item_schema["type"], f"{current_path}[{i}]")
+def validate_additional_properties(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+    """Ensure no additional properties are present if forbidden."""
+    errors = []
+    properties = schema.get("properties", {})
+    additional_allowed = schema.get("additionalProperties", True)
+    
+    if not additional_allowed:
+        allowed_keys = set(properties.keys())
+        actual_keys = set(data.keys())
+        extra = actual_keys - allowed_keys
+        if extra:
+            errors.append(f"Additional properties not allowed: {extra}")
+    
+    return errors
 
-        # Validate nested objects
-        if prop_schema["type"] == "object" and "properties" in prop_schema:
-            validate_object(value, prop_schema, current_path)
+def validate_timestamp_format(data: Dict[str, Any]) -> List[str]:
+    """Validate ISO 8601 timestamp format."""
+    errors = []
+    if "timestamp" in data:
+        try:
+            # Try parsing ISO format
+            datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
+        except ValueError:
+            errors.append("Field 'timestamp' is not a valid ISO 8601 format")
+    return errors
 
-        # Validate enum
-        if "enum" in prop_schema:
-            if value not in prop_schema["enum"]:
-                raise AssertionError(
-                    f"Field '{current_path}' value '{value}' not in allowed values: {prop_schema['enum']}"
-                )
-
-        # Validate minimum (for numbers/ints)
-        if "minimum" in prop_schema:
-            if value < prop_schema["minimum"]:
-                raise AssertionError(
-                    f"Field '{current_path}' value {value} is less than minimum {prop_schema['minimum']}"
-                )
-
-        # Validate pattern (for strings)
-        if "pattern" in prop_schema and isinstance(value, str):
-            import re
-            if not re.match(prop_schema["pattern"], value):
-                raise AssertionError(
-                    f"Field '{current_path}' value '{value}' does not match pattern '{prop_schema['pattern']}'"
-                )
+def validate_metrics_structure(data: Dict[str, Any]) -> List[str]:
+    """Specific validation for the metrics nested object."""
+    errors = []
+    if "metrics" not in data:
+        return errors
+    
+    metrics = data["metrics"]
+    required_metrics = ["mae", "rmse", "r2"]
+    
+    for metric in required_metrics:
+        if metric not in metrics:
+            errors.append(f"Missing required metric: {metric}")
+        elif not isinstance(metrics[metric], (int, float)):
+            errors.append(f"Metric '{metric}' must be a number")
+        elif metrics[metric] < 0 and metric != "r2":
+            # MAE and RMSE should be non-negative
+            errors.append(f"Metric '{metric}' should be non-negative")
+    
+    return errors
 
 @pytest.fixture(scope="module")
-def schema() -> Dict[str, Any]:
-    """Load the schema once for the test module."""
+def schema():
     return load_schema()
 
-@pytest.fixture(scope="module")
-def test_output() -> Dict[str, Any]:
-    """
-    Load the test output file.
-    If the file doesn't exist, this test is skipped or marked as pending
-    depending on the CI configuration.
-    """
-    if not TEST_OUTPUT_PATH.exists():
-        pytest.skip(f"Test output file not found: {TEST_OUTPUT_PATH}. "
-                    "Run the training pipeline first to generate this file.")
+@pytest.mark.contract
+def test_schema_exists():
+    """Verify the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file missing at {SCHEMA_PATH}"
 
-    with open(TEST_OUTPUT_PATH, "r") as f:
-        return json.load(f)
+@pytest.mark.contract
+def test_schema_valid_yaml(schema):
+    """Verify the schema is valid YAML and has required root keys."""
+    assert isinstance(schema, dict)
+    assert "type" in schema
+    assert schema["type"] == "object"
 
-def test_model_output_schema_conformance(schema: Dict[str, Any], test_output: Dict[str, Any]):
-    """
-    Main contract test: Validates the structure and types of the model output.
-    """
-    try:
-        validate_object(test_output, schema)
-    except (TypeError, AssertionError, ValueError) as e:
-        pytest.fail(f"Schema validation failed: {e}")
+@pytest.mark.contract
+def test_sample_output_conforms(schema):
+    """Test a manually constructed valid sample against the schema."""
+    sample = {
+        "model_type": "GCN",
+        "metrics": {
+            "mae": 0.5,
+            "rmse": 0.7,
+            "r2": 0.85
+        },
+        "hyperparameters": {
+            "hidden_channels": 64,
+            "num_layers": 3
+        },
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "dataset_checksum": "abc123def456",
+        "split_info": {
+            "train_size": 100,
+            "test_size": 20
+        }
+    }
+    
+    # Run all validators
+    missing = validate_required_fields(sample, schema)
+    assert not missing, f"Missing required fields: {missing}"
+    
+    type_errors = validate_type(sample, schema)
+    assert not type_errors, f"Type errors: {type_errors}"
+    
+    enum_errors = validate_enum(sample, schema)
+    assert not enum_errors, f"Enum errors: {enum_errors}"
+    
+    add_errors = validate_additional_properties(sample, schema)
+    assert not add_errors, f"Additional property errors: {add_errors}"
+    
+    ts_errors = validate_timestamp_format(sample)
+    assert not ts_errors, f"Timestamp errors: {ts_errors}"
+    
+    metric_errors = validate_metrics_structure(sample)
+    assert not metric_errors, f"Metric structure errors: {metric_errors}"
 
-def test_predictions_and_targets_length_match(test_output: Dict[str, Any]):
+@pytest.mark.contract
+def test_actual_report_files(schema):
     """
-    Contract test: Ensures predictions and targets arrays have the same length.
+    If model comparison reports exist in results/reports, validate them.
+    This test is skipped if no reports are found (e.g., pipeline not run yet).
     """
-    preds = test_output.get("predictions", [])
-    targets = test_output.get("targets", [])
-
-    assert len(preds) == len(targets), (
-        f"Mismatch in array lengths: predictions ({len(preds)}) != targets ({len(targets)})"
-    )
-
-def test_metrics_reasonable_bounds(test_output: Dict[str, Any]):
-    """
-    Contract test: Validates that calculated metrics are physically/numerically reasonable.
-    - R2 should be <= 1.0 (can be negative for bad models, but usually > -inf)
-    - MAE and RMSE should be >= 0
-    """
-    metrics = test_output.get("metrics", {})
-
-    mae = metrics.get("mae", -1)
-    rmse = metrics.get("rmse", -1)
-    r2 = metrics.get("r2", 2.0)
-
-    assert mae >= 0, f"MAE must be non-negative, got {mae}"
-    assert rmse >= 0, f"RMSE must be non-negative, got {rmse}"
-    assert r2 <= 1.0, f"R2 cannot be greater than 1.0, got {r2}"
-
-def test_model_name_format(test_output: Dict[str, Any]):
-    """
-    Contract test: Validates model_name follows the allowed pattern.
-    """
-    import re
-    model_name = test_output.get("model_name", "")
-    pattern = r"^[A-Za-z0-9_]+$"
-    assert re.match(pattern, model_name), (
-        f"Model name '{model_name}' does not match pattern {pattern}"
-    )
-
-def test_metadata_timestamp_format(test_output: Dict[str, Any]):
-    """
-    Contract test: Validates timestamp is in ISO 8601 format.
-    """
-    from datetime import datetime
-    metadata = test_output.get("metadata", {})
-    timestamp_str = metadata.get("timestamp", "")
-
-    try:
-        # Attempt to parse ISO 8601
-        datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
-    except ValueError:
-        pytest.fail(f"Timestamp '{timestamp_str}' is not a valid ISO 8601 format")
+    if not RESULTS_DIR.exists():
+        pytest.skip("Results directory not found")
+    
+    report_files = list(RESULTS_DIR.glob("*.json"))
+    if not report_files:
+        pytest.skip("No JSON report files found in results/reports")
+    
+    for report_path in report_files:
+        with open(report_path, "r") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                pytest.fail(f"Invalid JSON in {report_path}")
+        
+        # Validate against schema
+        missing = validate_required_fields(data, schema)
+        if missing:
+            pytest.fail(f"File {report_path.name} missing required fields: {missing}")
+        
+        type_errors = validate_type(data, schema)
+        if type_errors:
+            pytest.fail(f"File {report_path.name} type errors: {type_errors}")
+        
+        metric_errors = validate_metrics_structure(data)
+        if metric_errors:
+            pytest.fail(f"File {report_path.name} metric errors: {metric_errors}")

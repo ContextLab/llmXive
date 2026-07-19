@@ -1,14 +1,9 @@
 """
-Models package for llmXive molecular surface area prediction project.
-
-Contains data models for Molecules, Graphs, and Evaluation results.
+Models package for molecular surface area prediction.
+Contains base data models: Molecule, Graph, EvaluationResult.
 """
 from .molecule import Molecule
 from .graph import Graph
-from .evaluation import EvaluationResult
+from .evaluation_result import EvaluationResult
 
-__all__ = [
-    "Molecule",
-    "Graph",
-    "EvaluationResult"
-]
+__all__ = ["Molecule", "Graph", "EvaluationResult"]

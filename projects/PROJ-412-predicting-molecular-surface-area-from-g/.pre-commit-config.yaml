@@ -1,3 +1,7 @@
+# Pre-commit configuration for automated linting and formatting
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -5,17 +9,19 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: check-json
       - id: check-added-large-files
         args: ['--maxkb=1024']
 
   - repo: https://github.com/psf/black
-    rev: 24.2.0
+    rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3
+        language_version: python3.9
+        args: [--line-length=100]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]

@@ -1,0 +1,59 @@
+# Static Schema for Processed Molecular Data
+# Generated for User Story 1: Data Ingestion and Preprocessing
+# Validates the output of the ingestion and preprocessing pipeline
+# before further processing or model training.
+
+type: object
+required:
+  - smiles
+  - node_features
+  - edge_features
+  - surface_area
+  - molecular_weight
+properties:
+  smiles:
+    type: string
+    description: Canonical SMILES string of the molecule
+    minLength: 1
+  node_features:
+    type: array
+    description: List of feature vectors for each atom in the molecule
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 1
+    minItems: 1
+  edge_features:
+    type: array
+    description: List of feature vectors for each bond in the molecule
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 1
+    minItems: 0
+  surface_area:
+    type: number
+    description: Solvent Accessible Surface Area (SASA) in Angstroms squared
+    minimum: 0
+    exclusiveMinimum: false
+  molecular_weight:
+    type: number
+    description: Molecular weight in Daltons
+    minimum: 0
+    exclusiveMinimum: false
+  metadata:
+    type: object
+    description: Optional metadata about the molecule processing
+    properties:
+      source:
+        type: string
+      processed_at:
+        type: string
+        format: date-time
+      rdkit_version:
+        type: string
+      conformer_method:
+        type: string
+additionalProperties: true

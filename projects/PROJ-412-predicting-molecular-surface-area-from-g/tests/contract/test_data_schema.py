@@ -1,270 +1,210 @@
 """
 Contract test for data schema validation.
 
-Validates that processed molecular data conforms to the static schema
-defined in data/schema.yaml before further processing or model training.
+This test validates that the processed dataset (Parquet/CSV) conforms to
+the expected schema defined in data/schemas/static_schema.yaml.
 
-This test ensures input format compliance as required by User Story 1 (US1).
+It ensures:
+1. All required fields are present (smiles, node_features, edge_features, 
+   surface_area, molecular_weight)
+2. Data types match the schema definitions
+3. Values satisfy constraints (e.g., surface_area >= 0)
+4. No missing values in critical columns for the training set
 """
-import json
-import yaml
+
 import os
 import sys
-import pytest
+import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Any, List, Optional
 
-# Add project root to path for imports if running directly
+import pandas as pd
+import numpy as np
+import yaml
+from jsonschema import validate, ValidationError, Draft7Validator
+
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-SCHEMA_PATH = project_root / "data" / "schema.yaml"
-SAMPLE_DATA_PATH = project_root / "data" / "processed" / "sample_processed_data.json"
+from utils.logging import get_logger
+from utils.config import get_data_dir
 
-def load_schema() -> Dict[str, Any]:
-    """Load the static schema from YAML file."""
-    if not SCHEMA_PATH.exists():
-        pytest.fail(f"Schema file not found: {SCHEMA_PATH}")
-    with open(SCHEMA_PATH, 'r') as f:
-        return yaml.safe_load(f)
+logger = get_logger(__name__)
 
-def validate_type(value: Any, expected_type: str, field_path: str) -> None:
-    """Validate that a value matches the expected type."""
-    type_map = {
-        "string": str,
-        "integer": int,
-        "float": (int, float),
-        "boolean": bool,
-        "list": list,
-        "object": dict
-    }
+# Path to the schema file
+SCHEMA_PATH = project_root / "data" / "schemas" / "static_schema.yaml"
+
+# Path to the processed data (output of T014)
+PROCESSED_DATA_PATH = project_root / "data" / "processed" / "graphs_with_features.parquet"
+
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the JSON/YAML schema from disk."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    expected_python_type = type_map.get(expected_type)
-    if expected_python_type is None:
-        raise ValueError(f"Unknown type: {expected_type}")
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
     
-    if not isinstance(value, expected_python_type):
-        raise TypeError(
-            f"Field '{field_path}' expected type '{expected_type}', "
-            f"got {type(value).__name__}"
-        )
-
-def validate_field_constraints(value: Any, field_def: Dict[str, Any], field_path: str) -> None:
-    """Validate field-specific constraints."""
-    constraints = field_def.get("constraints", {})
+    # Convert JSON Schema draft version if needed
+    # Ensure we have a valid JSON Schema
+    if '$schema' not in schema:
+        schema['$schema'] = 'http://json-schema.org/draft-07/schema#'
     
-    if "min" in constraints and isinstance(value, (int, float)):
-        if value < constraints["min"]:
-            raise ValueError(
-                f"Field '{field_path}' value {value} is below minimum {constraints['min']}"
-            )
-    
-    if "max" in constraints and isinstance(value, (int, float)):
-        if value > constraints["max"]:
-            raise ValueError(
-                f"Field '{field_path}' value {value} is above maximum {constraints['max']}"
-            )
+    return schema
 
-def validate_list_schema(value: List[Any], item_schema: Dict[str, Any], field_path: str) -> None:
-    """Validate a list against its item schema."""
-    if not isinstance(value, list):
-        raise TypeError(f"Field '{field_path}' expected list, got {type(value).__name__}")
-    
-    if "min_items" in item_schema:
-        if len(value) < item_schema["min_items"]:
-            raise ValueError(
-                f"Field '{field_path}' has {len(value)} items, "
-                f"minimum required is {item_schema['min_items']}"
-            )
-    
-    if "max_items" in item_schema:
-        if len(value) > item_schema["max_items"]:
-            raise ValueError(
-                f"Field '{field_path}' has {len(value)} items, "
-                f"maximum allowed is {item_schema['max_items']}"
-            )
-    
-    # Validate items if schema defines them
-    if "items" in item_schema:
-        item_def = item_schema["items"]
-        for idx, item in enumerate(value):
-            validate_type(item, item_def["type"], f"{field_path}[{idx}]")
-
-def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> None:
-    """Validate a single data record against the schema."""
-    fields = schema.get("fields", [])
-    field_map = {f["name"]: f for f in fields}
-    
-    # Check required fields
-    for field in fields:
-        field_name = field["name"]
-        if field.get("required", False) and field_name not in record:
-            raise KeyError(f"Required field missing: '{field_name}'")
-    
-    # Validate present fields
-    for field_name, value in record.items():
-        if field_name not in field_map:
-            # Unknown field - could be strict or lenient. 
-            # For contract tests, we flag unknown fields.
-            raise KeyError(f"Unknown field in record: '{field_name}'")
-        
-        field_def = field_map[field_name]
-        expected_type = field_def["type"]
-        
-        # Type validation
-        validate_type(value, expected_type, field_name)
-        
-        # List schema validation
-        if expected_type == "list" and "item_schema" in field_def:
-            validate_list_schema(value, field_def["item_schema"], field_name)
-        
-        # Constraint validation
-        validate_field_constraints(value, field_def, field_name)
-
-def validate_dataset(data: List[Dict[str, Any]], schema: Dict[str, Any]) -> None:
-    """Validate an entire dataset (list of records) against the schema."""
-    if not isinstance(data, list):
-        raise TypeError("Dataset must be a list of records")
-    
-    for idx, record in enumerate(data):
-        if not isinstance(record, dict):
-            raise TypeError(f"Record at index {idx} is not a dictionary")
-        try:
-            validate_record(record, schema)
-        except (KeyError, TypeError, ValueError) as e:
-            raise ValueError(f"Validation failed for record at index {idx}: {e}")
-
-@pytest.fixture
-def schema():
-    """Load the schema for tests."""
-    return load_schema()
-
-def test_schema_file_exists():
-    """Verify the schema file exists."""
-    assert SCHEMA_PATH.exists(), f"Schema file missing: {SCHEMA_PATH}"
-
-def test_schema_structure(schema):
-    """Verify the schema has the expected top-level structure."""
-    assert "version" in schema
-    assert "fields" in schema
-    assert isinstance(schema["fields"], list)
-    assert len(schema["fields"]) > 0
-
-def test_required_fields_defined(schema):
-    """Verify all critical required fields are defined in the schema."""
-    field_names = {f["name"] for f in schema["fields"]}
-    required_critical_fields = {"molecule_id", "smiles", "sasa", "atom_features", "edge_index"}
-    missing = required_critical_fields - field_names
-    assert not missing, f"Critical fields missing from schema: {missing}"
-
-def test_validate_valid_record(schema):
-    """Test validation passes for a correctly formatted record."""
-    valid_record = {
-        "molecule_id": "ZINC12345",
-        "smiles": "CCO",
-        "atom_features": [[6.0, 0.0, 0.0], [6.0, 0.0, 0.0], [8.0, 0.0, 0.0]],
-        "edge_index": [[0, 1, 1], [1, 0, 2]],
-        "sasa": 45.6,
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered"
-    }
-    validate_record(valid_record, schema)
-
-def test_validate_invalid_type(schema):
-    """Test validation fails for incorrect types."""
-    invalid_record = {
-        "molecule_id": 12345,  # Should be string
-        "smiles": "CCO",
-        "atom_features": [[6.0, 0.0, 0.0]],
-        "edge_index": [[0, 1], [1, 0]],
-        "sasa": 45.6,
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered"
-    }
-    with pytest.raises(TypeError):
-        validate_record(invalid_record, schema)
-
-def test_validate_missing_required_field(schema):
-    """Test validation fails when a required field is missing."""
-    invalid_record = {
-        "molecule_id": "ZINC12345",
-        "smiles": "CCO",
-        "atom_features": [[6.0, 0.0, 0.0]],
-        "edge_index": [[0, 1], [1, 0]],
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered"
-        # Missing 'sasa' which is required
-    }
-    with pytest.raises(KeyError):
-        validate_record(invalid_record, schema)
-
-def test_validate_sasa_constraints(schema):
-    """Test validation fails for SASA violating constraints."""
-    invalid_record = {
-        "molecule_id": "ZINC12345",
-        "smiles": "CCO",
-        "atom_features": [[6.0, 0.0, 0.0]],
-        "edge_index": [[0, 1], [1, 0]],
-        "sasa": -5.0,  # Negative SASA violates min: 0.0
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered"
-    }
-    with pytest.raises(ValueError):
-        validate_record(invalid_record, schema)
-
-def test_validate_empty_atom_features(schema):
-    """Test validation fails for empty atom features."""
-    invalid_record = {
-        "molecule_id": "ZINC12345",
-        "smiles": "CCO",
-        "atom_features": [],  # Empty list violates min_items: 1
-        "edge_index": [[0, 1], [1, 0]],
-        "sasa": 45.6,
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered"
-    }
-    with pytest.raises(ValueError):
-        validate_record(invalid_record, schema)
-
-def test_validate_unknown_field(schema):
-    """Test validation fails for unknown fields."""
-    invalid_record = {
-        "molecule_id": "ZINC12345",
-        "smiles": "CCO",
-        "atom_features": [[6.0, 0.0, 0.0]],
-        "edge_index": [[0, 1], [1, 0]],
-        "sasa": 45.6,
-        "num_atoms": 3,
-        "num_bonds": 2,
-        "source": "zinc15_filtered",
-        "unknown_field": "should_fail"
-    }
-    with pytest.raises(KeyError):
-        validate_record(invalid_record, schema)
-
-@pytest.mark.integration
-def test_validate_sample_processed_data(schema):
+def convert_row_to_dict(row: pd.Series) -> Dict[str, Any]:
     """
-    Integration test: Validate actual processed data if it exists.
-    This test will be skipped if no sample data is available yet.
+    Convert a pandas Series row to a dictionary suitable for JSON Schema validation.
+    Handles numpy types and converts arrays to lists.
     """
-    if not SAMPLE_DATA_PATH.exists():
-        pytest.skip(f"Sample data file not found: {SAMPLE_DATA_PATH}")
+    result = {}
+    for key, value in row.items():
+        if isinstance(value, np.ndarray):
+            result[key] = value.tolist()
+        elif isinstance(value, (np.int64, np.int32)):
+            result[key] = int(value)
+        elif isinstance(value, (np.float64, np.float32)):
+            result[key] = float(value)
+        elif pd.isna(value):
+            result[key] = None
+        else:
+            result[key] = value
+    return result
+
+def validate_schema_compliance(data_path: Path, schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that the dataset conforms to the schema.
     
-    with open(SAMPLE_DATA_PATH, 'r') as f:
-        data = json.load(f)
+    Returns a list of error messages if validation fails.
+    """
+    errors = []
     
-    # Data might be a list or a dict with a 'data' key
-    if isinstance(data, dict) and "data" in data:
-        data = data["data"]
+    if not data_path.exists():
+        errors.append(f"Data file not found: {data_path}")
+        return errors
     
-    assert isinstance(data, list), "Processed data must be a list of records"
-    validate_dataset(data, schema)
+    try:
+        # Load parquet file
+        df = pd.read_parquet(data_path)
+        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
+    except Exception as e:
+        errors.append(f"Failed to load data file: {str(e)}")
+        return errors
+    
+    # Check required columns
+    required_columns = ['smiles', 'node_features', 'edge_features', 'surface_area', 'molecular_weight']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        errors.append(f"Missing required columns: {missing_columns}")
+        return errors
+    
+    # Validate each row against the schema
+    validator = Draft7Validator(schema)
+    
+    for idx, row in df.iterrows():
+        row_dict = convert_row_to_dict(row)
+        validation_errors = list(validator.iter_errors(row_dict))
+        
+        if validation_errors:
+            for error in validation_errors:
+                error_msg = f"Row {idx}: {error.message} (path: {' -> '.join(map(str, error.path))})"
+                errors.append(error_msg)
+                # Limit error reporting to first 10 errors per row to avoid spam
+                if len(errors) > 10:
+                    break
+            if len(errors) > 10:
+                errors.append(f"... and more errors for row {idx}")
+                break
+    
+    # Check for missing values in critical columns
+    critical_columns = ['smiles', 'surface_area', 'molecular_weight']
+    for col in critical_columns:
+        missing_count = df[col].isna().sum()
+        if missing_count > 0:
+            errors.append(f"Column '{col}' has {missing_count} missing values")
+    
+    return errors
+
+def test_schema_exists():
+    """Test that the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
+    logger.info(f"Schema file found: {SCHEMA_PATH}")
+
+def test_schema_is_valid_json():
+    """Test that the schema file is valid JSON/YAML."""
+    try:
+        schema = load_schema(SCHEMA_PATH)
+        # Basic validation of schema structure
+        assert 'type' in schema, "Schema must have a 'type' field"
+        assert schema['type'] == 'object', "Schema type must be 'object'"
+        assert 'properties' in schema, "Schema must have 'properties'"
+        assert 'required' in schema, "Schema must have 'required' fields"
+        logger.info("Schema is valid JSON/YAML")
+    except Exception as e:
+        pytest.fail(f"Schema validation failed: {str(e)}")
+
+def test_data_conforms_to_schema():
+    """
+    Main contract test: Validate that the processed dataset conforms to the schema.
+    
+    This test will FAIL if:
+    1. The schema file is missing or invalid
+    2. The data file is missing
+    3. Required columns are missing
+    4. Data types don't match the schema
+    5. Values violate constraints (e.g., negative surface area)
+    6. Missing values exist in critical columns
+    """
+    if not PROCESSED_DATA_PATH.exists():
+        pytest.skip(f"Processed data file not found at {PROCESSED_DATA_PATH}. "
+                   "This test requires T014 to be completed first.")
+    
+    try:
+        schema = load_schema(SCHEMA_PATH)
+        errors = validate_schema_compliance(PROCESSED_DATA_PATH, schema)
+        
+        if errors:
+            logger.error("Schema validation failed with the following errors:")
+            for error in errors[:10]:  # Log first 10 errors
+                logger.error(f"  - {error}")
+            if len(errors) > 10:
+                logger.error(f"  ... and {len(errors) - 10} more errors")
+            
+            pytest.fail(f"Data schema validation failed: {len(errors)} errors found")
+        else:
+            logger.info("Data schema validation passed successfully")
+            assert True
+    
+    except Exception as e:
+        pytest.fail(f"Unexpected error during schema validation: {str(e)}")
+
+def test_no_missing_values_in_target():
+    """
+    Specific test for US1 requirement: No missing values in the target column 
+    (surface_area) for the training set.
+    
+    Note: This test assumes the full processed dataset is available.
+    In a real pipeline, this would be run after splitting.
+    """
+    if not PROCESSED_DATA_PATH.exists():
+        pytest.skip(f"Processed data file not found at {PROCESSED_DATA_PATH}.")
+    
+    try:
+        df = pd.read_parquet(PROCESSED_DATA_PATH)
+        missing_count = df['surface_area'].isna().sum()
+        
+        assert missing_count == 0, f"Found {missing_count} missing values in 'surface_area' column"
+        logger.info("No missing values in 'surface_area' column")
+    
+    except Exception as e:
+        pytest.fail(f"Error checking for missing values: {str(e)}")
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    import pytest
+    import sys
+    
+    # Run the tests
+    exit_code = pytest.main([__file__, "-v"])
+    sys.exit(exit_code)

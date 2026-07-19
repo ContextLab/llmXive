@@ -1,64 +1,60 @@
-"""
-Unit tests for the project structure setup script.
-Verifies that the expected directories are created.
-"""
 import os
+import sys
+from pathlib import Path
+import pytest
 import tempfile
 import shutil
-import pytest
 
-# Import the setup logic
-# We need to import the function logic, not just the script execution
-import sys
-import importlib.util
+# Add the project root to the path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# Load the setup script as a module
-spec = importlib.util.spec_from_file_location("setup_structure", "code/setup_structure.py")
-setup_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(setup_module)
+from code.setup_structure import create_directories
 
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as project root for testing."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    # Cleanup after test
+    shutil.rmtree(temp_dir)
 
-def test_directories_created():
-    """Test that the setup function creates the required directory structure."""
-    # Create a temporary directory to act as the root
-    with tempfile.TemporaryDirectory() as tmp_root:
-        # Mock the os.path.dirname logic by temporarily changing the working directory
-        # or by patching the paths. Since the script calculates root based on its own location,
-        # we will test the directory creation logic directly.
-        
-        # Define the relative paths expected
-        expected_dirs = [
-            "code/data",
-            "code/models",
-            "code/eval",
-            "code/utils",
-            "tests/contract",
-            "tests/unit",
-            "tests/integration",
-            "data/raw",
-            "data/processed",
-            "data/splits",
-            "results/reports",
-            "results/plots",
-        ]
+def test_create_directories(temp_project_root):
+    """Test that create_directories creates all required folders."""
+    required_dirs = [
+        "code/data",
+        "code/models",
+        "code/eval",
+        "code/utils",
+        "tests/contract",
+        "tests/unit",
+        "tests/integration",
+        "data/raw",
+        "data/processed",
+        "data/splits",
+        "results/reports",
+        "results/plots"
+    ]
+    
+    # Verify directories don't exist before creation (optional, just for cleanliness)
+    for d in required_dirs:
+        assert not (temp_project_root / d).exists(), f"Directory {d} already exists in temp root"
 
-        # Create directories manually to verify the logic matches the requirement
-        for rel_path in expected_dirs:
-            full_path = os.path.join(tmp_root, rel_path)
-            os.makedirs(full_path, exist_ok=True)
-            assert os.path.isdir(full_path), f"Failed to create {rel_path}"
-        
-        # Verify all exist
-        for rel_path in expected_dirs:
-            full_path = os.path.join(tmp_root, rel_path)
-            assert os.path.exists(full_path), f"Directory {rel_path} does not exist"
+    # Run the function
+    create_directories(temp_project_root)
 
-def test_nested_directories():
-    """Test that nested directories (e.g., code/data) are created correctly."""
-    with tempfile.TemporaryDirectory() as tmp_root:
-        nested_path = os.path.join(tmp_root, "code", "data")
-        os.makedirs(nested_path)
-        
-        assert os.path.isdir(nested_path)
-        assert os.path.exists(os.path.join(tmp_root, "code"))
-        assert os.path.exists(os.path.join(tmp_root, "code", "data"))
+    # Verify all directories exist
+    for d in required_dirs:
+        full_path = temp_project_root / d
+        assert full_path.exists(), f"Directory {d} was not created"
+        assert full_path.is_dir(), f"{d} exists but is not a directory"
+
+def test_create_directories_idempotent(temp_project_root):
+    """Test that running create_directories twice does not cause errors."""
+    create_directories(temp_project_root)
+    # Running again should not raise an exception
+    create_directories(temp_project_root)
+    
+    # Verify structure still intact
+    assert (temp_project_root / "code/data").exists()
+    assert (temp_project_root / "results/plots").exists()

@@ -6,237 +6,256 @@ import argparse
 from pathlib import Path
 
 # Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.logging import setup_logging, get_logger
-from utils.config import get_project_root, get_data_dir, get_results_dir
-from utils.seed import set_seed, get_seed_from_env
+from utils.logging import get_logger
+from utils.seed import set_seed
 from models.train import train_model, load_processed_graphs
-from models.baseline_3d import predict_baseline_sasa
-from eval.metrics import calculate_all_metrics, compare_models, calculate_mae
-from data.split import load_processed_data
-from data.logging_stats import log_dataset_statistics
+from models.baseline import train_baseline_model, load_processed_data_for_baseline
+from eval.metrics import (
+    calculate_mae, 
+    calculate_rmse, 
+    calculate_r2, 
+    calculate_all_metrics,
+    paired_ttest,
+    cohen_d
+)
+
+logger = get_logger(__name__)
+
+def load_predictions_from_file(path: Path) -> tuple:
+    """Load predictions and true values from a JSON file."""
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return data['true_values'], data['predictions']
+
+def run_comparison(args):
+    """
+    Integrate training and evaluation to produce final comparison report.
+    
+    This script:
+    1. Loads processed data
+    2. Trains the GCN model (if not already done)
+    3. Trains the Random Forest baseline (if not already done)
+    4. Evaluates both models on the test set
+    5. Performs statistical comparison (paired t-test, Cohen's d)
+    6. Generates a comprehensive report in results/reports/model_comparison.json
+    """
+    logger.info("Starting model comparison pipeline...")
+    
+    # Set seed for reproducibility
+    set_seed(args.seed)
+    
+    # Paths
+    processed_data_path = Path(args.data_path)
+    results_dir = Path(args.results_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    report_path = results_dir / "model_comparison.json"
+    gcn_preds_path = Path(args.gcn_predictions)
+    rf_preds_path = Path(args.rf_predictions)
+    
+    # Check if predictions exist, if not train and evaluate
+    gcn_metrics = None
+    rf_metrics = None
+    gcn_true = None
+    gcn_pred = None
+    rf_true = None
+    rf_pred = None
+    
+    # Try to load existing predictions
+    if gcn_preds_path.exists() and rf_preds_path.exists():
+        logger.info("Loading existing predictions...")
+        gcn_true, gcn_pred = load_predictions_from_file(gcn_preds_path)
+        rf_true, rf_pred = load_predictions_from_file(rf_preds_path)
+        
+        # Recalculate metrics from loaded predictions to ensure consistency
+        gcn_metrics = calculate_all_metrics(gcn_true, gcn_pred)
+        rf_metrics = calculate_all_metrics(rf_true, rf_pred)
+        logger.info("Loaded existing predictions and recalculated metrics.")
+    else:
+        logger.info("Predictions not found. Training and evaluating models...")
+        
+        # Load data for GCN
+        logger.info("Loading processed graphs for GCN...")
+        train_data, val_data, test_data = load_processed_graphs(
+            processed_data_path, 
+            args.train_split, 
+            args.test_split
+        )
+        
+        # Train GCN
+        logger.info("Training GCN model...")
+        gcn_model = train_model(
+            train_data, 
+            val_data, 
+            device=args.device, 
+            epochs=args.epochs, 
+            patience=args.patience,
+            learning_rate=args.learning_rate,
+            batch_size=args.batch_size
+        )
+        
+        # Evaluate GCN
+        logger.info("Evaluating GCN model on test set...")
+        gcn_true, gcn_pred = gcn_model.evaluate(test_data)
+        gcn_metrics = calculate_all_metrics(gcn_true, gcn_pred)
+        
+        # Save GCN predictions
+        with open(gcn_preds_path, 'w') as f:
+            json.dump({
+                'true_values': [float(x) for x in gcn_true],
+                'predictions': [float(x) for x in gcn_pred]
+            }, f, indent=2)
+        
+        # Load data for Baseline
+        logger.info("Loading processed data for Random Forest baseline...")
+        X_train, y_train, X_test, y_test = load_processed_data_for_baseline(
+            processed_data_path,
+            args.train_split,
+            args.test_split
+        )
+        
+        # Train Baseline
+        logger.info("Training Random Forest baseline...")
+        rf_model = train_baseline_model(X_train, y_train)
+        
+        # Evaluate Baseline
+        logger.info("Evaluating Random Forest baseline on test set...")
+        rf_pred, rf_true = evaluate_model(rf_model, X_test, y_test)
+        rf_metrics = calculate_all_metrics(rf_true, rf_pred)
+        
+        # Save RF predictions
+        with open(rf_preds_path, 'w') as f:
+            json.dump({
+                'true_values': [float(x) for x in rf_true],
+                'predictions': [float(x) for x in rf_pred]
+            }, f, indent=2)
+    
+    # Ensure we have aligned true values (should be the same for both models)
+    if gcn_true is not None and rf_true is not None:
+        # Convert to lists if they are numpy arrays
+        gcn_true = list(gcn_true)
+        rf_true = list(rf_true)
+        gcn_pred = list(gcn_pred)
+        rf_pred = list(rf_pred)
+        
+        # Statistical comparison
+        logger.info("Performing statistical comparison...")
+        
+        # Paired t-test
+        t_stat, p_value = paired_ttest(gcn_pred, rf_pred)
+        
+        # Cohen's d
+        cohens_d = cohen_d(gcn_pred, rf_pred)
+        
+        # Determine which model is better based on MAE
+        gcn_mae = gcn_metrics['mae']
+        rf_mae = rf_metrics['mae']
+        better_model = "GCN" if gcn_mae < rf_mae else "Random Forest"
+        if gcn_mae == rf_mae:
+            better_model = "Tie"
+        
+        # Construct report
+        report = {
+            "gcn_metrics": {
+                "mae": float(gcn_metrics['mae']),
+                "rmse": float(gcn_metrics['rmse']),
+                "r2": float(gcn_metrics['r2']),
+                "mae_std": float(gcn_metrics.get('mae_std', 0.0)),
+                "rmse_std": float(gcn_metrics.get('rmse_std', 0.0))
+            },
+            "rf_metrics": {
+                "mae": float(rf_metrics['mae']),
+                "rmse": float(rf_metrics['rmse']),
+                "r2": float(rf_metrics['r2']),
+                "mae_std": float(rf_metrics.get('mae_std', 0.0)),
+                "rmse_std": float(rf_metrics.get('rmse_std', 0.0))
+            },
+            "statistical_comparison": {
+                "paired_ttest": {
+                    "t_statistic": float(t_stat),
+                    "p_value": float(p_value),
+                    "significant_at_0.05": bool(p_value < 0.05)
+                },
+                "cohens_d": float(cohens_d),
+                "effect_size_interpretation": interpret_effect_size(cohens_d),
+                "better_model": better_model,
+                "mae_difference": float(abs(gcn_mae - rf_mae))
+            },
+            "metadata": {
+                "seed": args.seed,
+                "epochs": args.epochs,
+                "patience": args.patience,
+                "device": args.device,
+                "data_path": str(processed_data_path),
+                "timestamp": None  # Can be populated if needed
+            }
+        }
+        
+        # Write report
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Comparison report written to {report_path}")
+        logger.info(f"GCN MAE: {gcn_mae:.4f}, RF MAE: {rf_mae:.4f}")
+        logger.info(f"Better model: {better_model}")
+        logger.info(f"P-value: {p_value:.4f}, Cohen's d: {cohens_d:.4f}")
+        
+        return report
+    else:
+        logger.error("Could not obtain predictions for both models.")
+        raise RuntimeError("Failed to generate predictions for comparison.")
+
+def interpret_effect_size(d: float) -> str:
+    """Interpret Cohen's d effect size."""
+    abs_d = abs(d)
+    if abs_d < 0.2:
+        return "negligible"
+    elif abs_d < 0.5:
+        return "small"
+    elif abs_d < 0.8:
+        return "medium"
+    else:
+        return "large"
 
 def main():
-    parser = argparse.ArgumentParser(description="Run model comparison: GCN vs 3D Baseline")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
-    parser.add_argument("--epochs", type=int, default=50, help="Maximum training epochs")
-    parser.add_argument("--patience", type=int, default=5, help="Early stopping patience")
+    parser = argparse.ArgumentParser(description="Run model comparison between GCN and Random Forest")
+    parser.add_argument("--data_path", type=str, default="data/processed/graphs_with_features.parquet",
+                        help="Path to processed data file")
+    parser.add_argument("--train_split", type=str, default="data/splits/train_indices.csv",
+                        help="Path to training indices")
+    parser.add_argument("--test_split", type=str, default="data/splits/test_indices.csv",
+                        help="Path to test indices")
+    parser.add_argument("--results_dir", type=str, default="results/reports",
+                        help="Directory to save results")
+    parser.add_argument("--gcn_predictions", type=str, default="results/predictions/gcn_predictions.json",
+                        help="Path to save/load GCN predictions")
+    parser.add_argument("--rf_predictions", type=str, default="results/predictions/rf_predictions.json",
+                        help="Path to save/load RF predictions")
+    parser.add_argument("--device", type=str, default="cpu",
+                        help="Device to use for training (cpu or cuda)")
+    parser.add_argument("--epochs", type=int, default=50,
+                        help="Maximum number of training epochs")
+    parser.add_argument("--patience", type=int, default=5,
+                        help="Early stopping patience")
+    parser.add_argument("--learning_rate", type=float, default=0.001,
+                        help="Learning rate")
+    parser.add_argument("--batch_size", type=int, default=32,
+                        help="Batch size")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed")
+    
     args = parser.parse_args()
-
+    
     # Setup logging
-    setup_logging()
-    logger = get_logger(__name__)
-
-    # Setup seed
-    seed = args.seed if args.seed is not None else get_seed_from_env()
-    set_seed(seed)
-    logger.info(f"Using seed: {seed}")
-
-    project_root = get_project_root()
-    data_dir = get_data_dir()
-    results_dir = get_results_dir()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # Ensure results directory exists
-    results_dir.mkdir(parents=True, exist_ok=True)
-    report_path = results_dir / "reports" / "model_comparison.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Loading processed data from {data_dir / 'processed'}...")
-    
-    # Load processed data
-    # Assuming the processed data is in a standard location as per previous tasks
-    processed_data_path = data_dir / "processed" / "molecules.parquet"
-    if not processed_data_path.exists():
-        # Fallback to a generic path if specific one isn't found, 
-        # but in a real scenario, this should be strictly defined.
-        processed_data_path = data_dir / "processed" / "data.parquet"
-    
-    if not processed_data_path.exists():
-        logger.error(f"Processed data not found at {processed_data_path}. Run preprocessing first.")
-        sys.exit(1)
-
-    # Load train/test indices
-    train_indices_path = data_dir / "splits" / "train_indices.csv"
-    test_indices_path = data_dir / "splits" / "test_indices.csv"
-
-    if not train_indices_path.exists() or not test_indices_path.exists():
-        logger.error("Split indices not found. Run split task first.")
-        sys.exit(1)
-
-    # 1. Train GCN Model
-    logger.info("Starting GCN training...")
-    gcn_model_path = results_dir / "models" / "gcn_model.pt"
-    gcn_model_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # We need to load the data in a format suitable for training
-    # The train.py module handles loading processed graphs
-    # We assume load_processed_graphs reads from the parquet and splits
-    try:
-        # This call mimics the training script logic
-        # We pass the paths directly or rely on the module's internal logic
-        # Since train_model expects specific arguments, we construct them
-        
-        # Re-using the logic from train.py main but adapted for comparison
-        from models.train import load_processed_graphs, train_epoch, evaluate, early_stopping
-        
-        # Load data
-        train_graphs, test_graphs = load_processed_graphs(
-            data_path=str(processed_data_path),
-            train_indices_path=str(train_indices_path),
-            test_indices_path=str(test_indices_path)
-        )
-
-        if not train_graphs:
-            logger.error("No training graphs loaded.")
-            sys.exit(1)
-
-        # Train
-        gcn_model, train_history = train_model(
-            train_graphs=train_graphs,
-            test_graphs=test_graphs,
-            epochs=args.epochs,
-            patience=args.patience,
-            device="cpu", # Force CPU as per constraints
-            save_path=str(gcn_model_path)
-        )
-        
-        logger.info(f"GCN training complete. Model saved to {gcn_model_path}")
-    except Exception as e:
-        logger.error(f"GCN training failed: {e}", exc_info=True)
-        # If training fails, we cannot produce a valid comparison report
-        # We should exit with an error or produce a report indicating failure
-        sys.exit(1)
-
-    # 2. Evaluate GCN Model
-    logger.info("Evaluating GCN model...")
-    # We need to run inference on the test set
-    # Assuming we can load the model and run forward pass
-    # The train.py evaluate function returns metrics
-    # We need to re-evaluate on the test set to get predictions
-    
-    # Let's assume we have a function to get predictions
-    # Since the API surface doesn't explicitly show a 'predict' function,
-    # we will rely on the 'evaluate' function from train.py if it returns metrics
-    # or we implement a simple inference loop.
-    
-    # Re-implementing a simple evaluation loop based on typical GCN usage
-    # to ensure we get predictions for the comparison
-    from models.gcn import GCNModel
-    import torch
-    
-    # Load the model
-    model = GCNModel(input_dim=train_graphs[0].x.shape[1], hidden_dim=64, output_dim=1)
-    model.load_state_dict(torch.load(gcn_model_path))
-    model.eval()
-    
-    gcn_y_true = []
-    gcn_y_pred = []
-    
-    with torch.no_grad():
-        for graph in test_graphs:
-            # Move to CPU
-            graph = graph.to('cpu')
-            out = model(graph.x.float(), graph.edge_index, graph.batch)
-            # Assuming output is [N, 1], flatten
-            preds = out.squeeze().tolist()
-            targets = graph.y.squeeze().tolist()
-            
-            if isinstance(targets, list):
-                gcn_y_true.extend(targets)
-                gcn_y_pred.extend(preds)
-            else:
-                gcn_y_true.append(targets)
-                gcn_y_pred.append(preds)
-    
-    gcn_metrics = calculate_all_metrics(gcn_y_true, gcn_y_pred)
-    logger.info(f"GCN Metrics: {gcn_metrics}")
-
-    # 3. Run 3D Baseline
-    logger.info("Running 3D Baseline predictions...")
-    # The baseline_3d module has predict_baseline_sasa
-    # It likely takes the processed data or SMILES and returns predictions
-    # We need to load the SMILES for the test set to run the baseline
-    
-    # Re-load data to get SMILES for test set
-    # Assuming load_processed_data returns a dataframe or similar
-    import pandas as pd
-    df = pd.read_parquet(processed_data_path)
-    
-    # Filter for test indices
-    test_indices = pd.read_csv(test_indices_path, header=None)[0].tolist()
-    test_df = df.iloc[test_indices].reset_index(drop=True)
-    
-    if 'smiles' not in test_df.columns:
-        logger.error("SMILES column not found in processed data. Cannot run baseline.")
-        sys.exit(1)
-    
-    smiles_list = test_df['smiles'].tolist()
-    
-    baseline_y_true = []
-    baseline_y_pred = []
-    
-    # Run baseline prediction
-    # predict_baseline_sasa returns a list of predictions
-    try:
-        baseline_predictions = predict_baseline_sasa(smiles_list)
-        if len(baseline_predictions) != len(smiles_list):
-            logger.warning("Prediction count mismatch. Using available.")
-            baseline_predictions = baseline_predictions[:len(smiles_list)]
-        
-        # Get true values
-        true_values = test_df['sasa'].tolist()
-        
-        baseline_y_pred = baseline_predictions
-        baseline_y_true = true_values
-    except Exception as e:
-        logger.error(f"Baseline prediction failed: {e}", exc_info=True)
-        sys.exit(1)
-
-    baseline_metrics = calculate_all_metrics(baseline_y_true, baseline_y_pred)
-    logger.info(f"Baseline Metrics: {baseline_metrics}")
-
-    # 4. Compare Models
-    logger.info("Comparing models...")
-    
-    # Ensure lists are same length (they should be)
-    if len(gcn_y_true) != len(baseline_y_true):
-        logger.error("True value lists for GCN and Baseline are of different lengths.")
-        sys.exit(1)
-    
-    comparison = compare_models(gcn_y_true, gcn_y_pred, baseline_y_true, baseline_y_pred)
-    
-    # 5. Generate Report
-    report = {
-        "gcn": {
-            "mae": gcn_metrics['mae'],
-            "rmse": gcn_metrics['rmse'],
-            "r2": gcn_metrics['r2']
-        },
-        "baseline": {
-            "mae": baseline_metrics['mae'],
-            "rmse": baseline_metrics['rmse'],
-            "r2": baseline_metrics['r2']
-        },
-        "comparison": {
-            "p_value": comparison['p_value'],
-            "cohen_d": comparison['cohen_d'],
-            "winner": comparison['winner'] # 'gcn' or 'baseline' or 'tie'
-        },
-        "metadata": {
-            "seed": seed,
-            "epochs": args.epochs,
-            "patience": args.patience,
-            "test_size": len(gcn_y_true)
-        }
-    }
-
-    # Save report
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Comparison report saved to {report_path}")
-    print(json.dumps(report, indent=2))
+    run_comparison(args)
 
 if __name__ == "__main__":
     main()

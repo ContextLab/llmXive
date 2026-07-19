@@ -1,103 +1,151 @@
 import pytest
-import sys
-import os
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import tempfile
+import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.data.ingest import validate_smiles, process_smiles_file
-from code.data.preprocess import generate_conformers, process_molecule_chunk
-from code.utils.logging import get_logger
-
-logger = get_logger(__name__)
+from data.validation import (
+    validate_smiles_syntax,
+    process_single_molecule_with_validation,
+    validate_and_process_dataset,
+    FAILURE_THRESHOLD
+)
+from utils.conformer_config import generate_conformer_config
 
 class TestSMILESValidation:
+    """Tests for SMILES syntax validation."""
+    
     def test_valid_smiles(self):
-        assert validate_smiles("CCO") is True
-        assert validate_smiles("c1ccccc1") is True
-        assert validate_smiles("C1CCCCC1") is True
-
+        """Test that valid SMILES strings are accepted."""
+        valid_smiles = [
+            "CCO",  # Ethanol
+            "c1ccccc1",  # Benzene
+            "CC(=O)O",  # Acetic acid
+            "C1CCCCC1",  # Cyclohexane
+        ]
+        
+        for smiles in valid_smiles:
+            assert validate_smiles_syntax(smiles) is True, f"Failed for valid SMILES: {smiles}"
+    
     def test_invalid_smiles(self):
-        assert validate_smiles("") is False
-        assert validate_smiles("invalid_smiles_string") is False
-        assert validate_smiles("C(())") is False # Unmatched parens
-        assert validate_smiles("123") is False
-
-    def test_empty_molecule(self):
-        # A string that parses to an empty molecule (if possible in RDKit context)
-        # Usually returns None, so False
-        assert validate_smiles("[]") is False
+        """Test that invalid SMILES strings are rejected."""
+        invalid_smiles = [
+            "",  # Empty string
+            "INVALID",  # Invalid characters
+            "C((",  # Unmatched parentheses
+            "C1CC1CC1",  # Invalid ring numbering
+            "C#C#C",  # Invalid bond specification
+        ]
+        
+        for smiles in invalid_smiles:
+            assert validate_smiles_syntax(smiles) is False, f"Accepted invalid SMILES: {smiles}"
 
 class TestConformerGeneration:
-    def test_successful_generation(self):
-        config = {"max_iterations": 200}
-        sasa, success = generate_conformers("CCO", config)
-        assert success is True
-        assert sasa is not None
-        assert sasa > 0.0
-
-    def test_failed_generation(self):
-        # Test with a known problematic SMILES or random string
-        config = {"max_iterations": 200}
-        sasa, success = generate_conformers("invalid_smiles_123", config)
+    """Tests for conformer generation with error handling."""
+    
+    def test_successful_conformer_generation(self):
+        """Test successful conformer generation for a valid molecule."""
+        smiles = "CCO"  # Ethanol
+        mol_id = "test_mol_1"
+        
+        # Generate default config
+        config = generate_conformer_config()
+        
+        success, result, error = process_single_molecule_with_validation(smiles, mol_id, config)
+        
+        assert success is True, f"Conformer generation failed: {error}"
+        assert result is not None
+        assert result["mol_id"] == mol_id
+        assert result["smiles"] == smiles
+        assert "sasa" in result
+        assert result["sasa"] > 0
+        assert "molecular_weight" in result
+        assert result["molecular_weight"] > 0
+    
+    def test_failed_conformer_generation_invalid_smiles(self):
+        """Test that invalid SMILES results in failure."""
+        smiles = "INVALID_SMILES"
+        mol_id = "test_mol_2"
+        
+        config = generate_conformer_config()
+        
+        success, result, error = process_single_molecule_with_validation(smiles, mol_id, config)
+        
         assert success is False
-        assert sasa is None
+        assert result is None
+        assert error is not None
+        assert "Invalid SMILES" in error
 
-class TestFailureThresholds:
-    @patch('code.data.ingest.logger')
-    def test_halt_on_high_failure_rate_ingest(self, mock_logger):
-        """
-        Test that process_smiles_file raises RuntimeError if failure rate > 10%.
-        """
-        # Create a temporary file with mostly invalid SMILES
-        import tempfile
-        import gzip
+class TestFailureRateThreshold:
+    """Tests for failure rate threshold enforcement."""
+    
+    def test_halt_on_high_failure_rate(self):
+        """Test that processing halts when failure rate exceeds threshold."""
+        # Create a dataset with >10% invalid SMILES
+        test_data = [
+            {"mol_id": "valid_1", "smiles": "CCO"},
+            {"mol_id": "valid_2", "smiles": "c1ccccc1"},
+            {"mol_id": "invalid_1", "smiles": "INVALID"},
+            {"mol_id": "invalid_2", "smiles": "BAD"},
+            {"mol_id": "invalid_3", "smiles": "WRONG"},
+            {"mol_id": "invalid_4", "smiles": "ERROR"},
+            {"mol_id": "invalid_5", "smiles": "FAIL"},
+            {"mol_id": "invalid_6", "smiles": "STOP"},
+            {"mol_id": "invalid_7", "smiles": "HALT"},
+            {"mol_id": "invalid_8", "smiles": "QUIT"},
+            {"mol_id": "valid_3", "smiles": "CC(=O)O"},
+        ]
         
-        invalid_smiles = ["bad1", "bad2", "bad3", "bad4", "bad5", "bad6", "bad7", "bad8", "bad9", "bad10"]
-        valid_smiles = ["CCO"] # Only 1 valid out of 11 -> ~91% failure
+        # 8 invalid out of 11 = ~72% failure rate > 10%
+        with pytest.raises(RuntimeError, match="Failure rate.*exceeds threshold"):
+            validate_and_process_dataset(test_data)
+    
+    def test_continue_on_low_failure_rate(self):
+        """Test that processing continues when failure rate is below threshold."""
+        # Create a dataset with <10% invalid SMILES
+        test_data = [
+            {"mol_id": "valid_1", "smiles": "CCO"},
+            {"mol_id": "valid_2", "smiles": "c1ccccc1"},
+            {"mol_id": "valid_3", "smiles": "CC(=O)O"},
+            {"mol_id": "valid_4", "smiles": "C1CCCCC1"},
+            {"mol_id": "invalid_1", "smiles": "INVALID"},
+        ]
         
-        content = "\n".join(invalid_smiles + valid_smiles)
+        # 1 invalid out of 5 = 20% failure rate > 10%
+        # Let's make it 1 out of 11 = ~9%
+        test_data = [
+            {"mol_id": f"valid_{i}", "smiles": "CCO"} for i in range(10)
+        ] + [{"mol_id": "invalid_1", "smiles": "INVALID"}]
         
-        with tempfile.NamedTemporaryFile(mode='wt', suffix='.smiles.gz', delete=False) as tmp:
-            tmp_path = tmp.name
-        
-        # Write gzipped content
-        import gzip
-        with gzip.open(tmp_path, 'wt') as f:
-            f.write(content)
+        # Should not raise
+        result = validate_and_process_dataset(test_data)
+        assert result["statistics"]["failure_rate"] < FAILURE_THRESHOLD
+        assert result["statistics"]["halt_required"] is False
 
-        try:
-            with pytest.raises(RuntimeError) as excinfo:
-                process_smiles_file(Path(tmp_path))
+class TestOutputPersistence:
+    """Tests for output file persistence."""
+    
+    def test_output_file_created(self):
+        """Test that output file is created when path is specified."""
+        test_data = [
+            {"mol_id": "valid_1", "smiles": "CCO"},
+            {"mol_id": "valid_2", "smiles": "c1ccccc1"},
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "output.json"
             
-            assert "CRITICAL" in str(excinfo.value)
-            assert "failure rate" in str(excinfo.value).lower()
-        finally:
-            os.unlink(tmp_path)
-
-    @patch('code.data.preprocess.logger')
-    def test_halt_on_high_failure_rate_preprocess(self, mock_logger):
-        """
-        Test that process_molecule_chunk raises RuntimeError if failure rate > 10%.
-        Note: The main() function in preprocess.py checks the rate, 
-        but the chunk function returns counts. 
-        We verify the logic in the main entry point simulation.
-        """
-        # We test the logic in main() which calls process_molecule_chunk
-        # For this unit test, we verify that the chunk function correctly identifies failures
-        config = {"max_iterations": 200}
-        bad_smiles = ["invalid1", "invalid2", "invalid3", "invalid4", "invalid5", "invalid6", "invalid7", "invalid8", "invalid9", "invalid10"]
-        good_smiles = ["CCO"]
-        
-        processed, total, failures = process_molecule_chunk(bad_smiles + good_smiles, config)
-        
-        assert total == 11
-        assert failures == 10 # Only CCO works
-        assert len(processed) == 1
-        
-        # The threshold check happens in main(), but we can assert the counts are correct
-        failure_rate = failures / total
-        assert failure_rate > 0.10
-        assert failure_rate <= 1.0
+            result = validate_and_process_dataset(
+                test_data,
+                output_path=str(output_path)
+            )
+            
+            assert output_path.exists()
+            
+            with open(output_path, 'r') as f:
+                saved_data = json.load(f)
+            
+            assert "successful_results" in saved_data
+            assert "statistics" in saved_data
+            assert saved_data["statistics"]["successful"] == 2
+            assert saved_data["statistics"]["failed"] == 0
