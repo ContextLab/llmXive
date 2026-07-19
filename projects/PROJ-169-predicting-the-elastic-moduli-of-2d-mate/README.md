@@ -1,77 +1,86 @@
 # Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
+**WARNING: This project is a Surrogate Model.** It does NOT solve the Schrödinger equation or perform first-principles calculations. It is a statistical interpolator trained on pre-computed DFT data.
+
 > "Don't fool yourself — and you are the easiest person to fool." — Richard Feynman
 
 ## Project Overview
 
-This project implements a **Structure-Only Surrogate Model** to predict the elastic moduli (Young's, Shear, and Poisson's ratios) of two-dimensional materials.
+This project implements a lightweight Graph Neural Network (GNN) to predict the elastic moduli (Young's, Shear, Poisson) of 2D materials. The model is a **surrogate** that interpolates existing Density Functional Theory (DFT) results from public repositories (e.g., Materials Project, AFLOW).
 
-**Important Distinction**: This model is a statistical interpolator trained on pre-computed Density Functional Theory (DFT) data. It does **NOT** solve the Schrödinger equation, calculate electron density from the Hamiltonian, or perform first-principles calculations. It learns correlations between structural descriptors and DFT-computed properties to accelerate inference.
+**Key Distinction:**
+- **First-Principles (DFT):** Solves the Schrödinger equation to calculate electron density from the Hamiltonian. High computational cost.
+- **Surrogate (This Project):** Learns statistical correlations between structural descriptors and pre-computed DFT values. Low computational cost, but **cannot** discover new physics or extrapolate beyond the training distribution.
 
-## Key Features
+## Reproducibility & Data Hygiene
 
-- **Surrogate Modeling**: Predicts elastic properties orders of magnitude faster than DFT by interpolating learned patterns from existing datasets.
-- **Structure-Only**: Relies exclusively on crystallographic graph representations (nodes = atoms, edges = bonds) without electronic structure inputs.
-- **Family-Aware Splitting**: Evaluates generalization to unseen chemical families to prevent overfitting.
-- **Reproducibility**: All random seeds are pinned in `code/utils/config.py` to ensure deterministic results across runs.
-- **Data Hygiene**: External datasets are fetched from the same canonical source on every run, with SHA256 checksums recorded in `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`.
+To ensure scientific rigor and reproducibility (Constitution Principle I):
 
-## Quick Start
+- **Random seeds are pinned in `code/utils/config.py`.** This enforces consistent initialization for `torch`, `numpy`, and `random` across all modules.
+- **External datasets are fetched from the same canonical source on every run.** The data loader (`code/ingest/download.py`) abstracts over sources (Materials Project, AFLOW) but enforces a single source per execution to prevent data leakage and ensure traceability.
+- **Artifact Checksums:** All processed data and model weights are checksummed (SHA256) and recorded in `state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml`.
 
-### Prerequisites
+## Installation
 
-- Python 3.11+
-- pip
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+3. Set the data source environment variable (optional, defaults to `materials_project`):
+ ```bash
+ export DATA_SOURCE=materials_project
+ ```
 
-### Installation
+## Quickstart
+
+Run the full pipeline (Download -> Parse -> Filter -> Train -> Evaluate):
 
 ```bash
-pip install -r code/requirements.txt
+# 1. Ingest Data (Download, Parse, Filter, Save)
+python code/ingest/pipeline.py
+
+# 2. Train Model
+python code/model/train.py
+
+# 3. Evaluate Generalization
+python code/model/eval_runner.py
+
+# 4. Analyze Feature Importance
+python code/analysis/importance.py --model data/processed/model_v1.pt --data data/processed/graphs_v1.parquet --indices data/processed/split_indices.json --output data/results/feature_importance.json --descriptors composition topology
 ```
 
-### Running the Pipeline
+## Project Structure
 
-1. **Data Ingestion**: Download and process 2D material data
- ```bash
- python code/ingest/pipeline.py
- ```
- Output: `data/processed/graphs_v1.parquet`
-
-2. **Model Training**: Train the lightweight GNN
- ```bash
- python code/model/train.py
- ```
- Output: `data/results/training_logs.json`, `data/processed/test_indices.json`
-
-3. **Evaluation**: Assess generalization performance
- ```bash
- python code/model/generalization_test.py
- ```
- Output: `data/results/generalization_metrics.json`
-
-4. **Feature Importance**: Analyze descriptor contributions
- ```bash
- python code/analysis/aggregate.py
- python code/analysis/report_generator.py
- ```
- Output: `data/results/feature_importance_report.md`
-
-## Methodology
-
-The model uses a Graph Neural Network (GNN) architecture to map material structures to elastic moduli. The training data is derived from existing DFT calculations (e.g., Materials Project), and the model learns to approximate these values based on structural topology and composition.
-
-For a detailed explanation of the distinction between this surrogate approach and true first-principles methods, see `docs/methodology.md`.
+```
+.
+├── code/
+│ ├── ingest/ # Data download, parsing, filtering
+│ ├── model/ # GNN architecture, training, evaluation
+│ ├── analysis/ # SHAP, ablation, importance
+│ ├── utils/ # Config, logging, memory management
+│ └── data_models/ # MaterialGraph schema
+├── data/
+│ ├── raw/ # Downloaded CIFs and tensors
+│ ├── processed/ # Graphs, splits, model checkpoints
+│ └── results/ # Metrics, reports, logs
+├── docs/ # Methodology, contributing guidelines
+├── state/ # Project state and artifact hashes
+└── tests/ # Unit and integration tests
+```
 
 ## Limitations
 
-- **Extrapolation Failure**: The model cannot predict properties for materials significantly outside the chemical space of the training set.
-- **No Physics Discovery**: The model identifies statistical correlations, not fundamental physical laws.
-- **DFT Dependency**: Accuracy is bounded by the accuracy of the underlying DFT data used for training.
+- **Extrapolation Failure:** The model performs poorly on material families not represented in the training set.
+- **No Physics Discovery:** The model learns correlations, not causal physical laws. It cannot predict properties for structures outside the chemical space of the training data.
+- **Data Dependency:** Accuracy is limited by the quality and coverage of the underlying DFT dataset.
 
-## License
+## Compliance
 
-MIT License
+- **Constitution Principle I (Reproducibility):** Seeds pinned, single canonical source enforced.
+- **Constitution Principle V (Versioning Discipline):** Artifact timestamps and checksums tracked.
+- **Constitution Principle VI (DFT Ground-Truth Fidelity):** Only independent elastic tensor components are used.
 
-## Citation
+## Citing
 
-If you use this surrogate model in your research, please cite the underlying DFT datasets and acknowledge the limitation that this is an interpolative model, not a first-principles solver.
+If you use this surrogate model or its methodology, please cite the underlying DFT datasets (e.g., Materials Project) and acknowledge this work as a statistical interpolation tool.

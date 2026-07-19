@@ -10,4 +10,3 @@ black
 matminer
 pyarrow
 rich
-psutil

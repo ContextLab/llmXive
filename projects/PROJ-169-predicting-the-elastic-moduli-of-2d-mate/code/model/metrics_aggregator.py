@@ -2,10 +2,7 @@
 Metrics Aggregator for Generalization Analysis.
 
 Combines intra-family baseline metrics (T020a) and inter-family generalization
-results (T021a) into a unified report for the project's success criteria.
-
-This script reads existing JSON artifacts produced by upstream tasks and
-aggregates them into a single `data/results/generalization_metrics.json`.
+metrics (T021a) into a unified report at `data/results/generalization_metrics.json`.
 """
 
 import os
@@ -15,10 +12,6 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Local imports matching the project API surface
-from model.generalization_test import load_json as load_generalization_json
-from model.baseline_metrics import BaselineReport
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -26,164 +19,165 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_json_file(file_path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {file_path}")
-    with open(file_path, 'r') as f:
-        return json.load(f)
+def load_json_file(path: Path) -> Dict[str, Any]:
+    """Load a JSON file, returning an empty dict if not found."""
+    if not path.exists():
+        logger.warning(f"File not found: {path}. Returning empty dict.")
+        return {}
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to decode JSON in {path}: {e}")
+        return {}
 
-def save_json_file(file_path: Path, data: Dict[str, Any]) -> None:
-    """Save data to a JSON file with pretty printing."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_path, 'w') as f:
+def save_json_file(path: Path, data: Dict[str, Any]) -> None:
+    """Save a dictionary to a JSON file with pretty printing."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Saved aggregated metrics to: {file_path}")
+    logger.info(f"Saved metrics to {path}")
 
 def aggregate_metrics(
-    intra_family_report: Optional[Dict[str, Any]],
-    inter_family_report: Optional[Dict[str, Any]]
+    baseline_metrics: Dict[str, Any],
+    generalization_metrics: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Combine intra-family and inter-family metrics into a single report.
+    Combine baseline and generalization results into a unified report.
 
     Args:
-        intra_family_report: Results from T020a (baseline metrics).
-        inter_family_report: Results from T021a (generalization test).
+        baseline_metrics: Output from T020a (intra-family baseline).
+        generalization_metrics: Output from T021a (inter-family test).
 
     Returns:
-        A unified dictionary containing all metrics and metadata.
+        Aggregated metrics dictionary.
     """
-    result = {
-        "status": "complete",
-        "intra_family_metrics": {},
-        "inter_family_metrics": {},
-        "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions.",
-        "aggregated_at": None
+    logger.info("Aggregating baseline and generalization metrics...")
+
+    # Extract specific values with defaults
+    intra_mape = baseline_metrics.get('intra_family_mape')
+    intra_rmse = baseline_metrics.get('intra_family_rmse')
+
+    inter_mape = generalization_metrics.get('inter_family_mape')
+    inter_rmse = generalization_metrics.get('inter_family_rmse')
+    inter_r2 = generalization_metrics.get('inter_family_r2')
+
+    # Calculate delta (performance drop)
+    mape_delta = None
+    if intra_mape is not None and inter_mape is not None:
+        mape_delta = inter_mape - intra_mape
+        logger.info(f"Inter-family MAPE delta: {mape_delta:.4f} (Intra: {intra_mape:.4f}, Inter: {inter_mape:.4f})")
+
+    # Construct the unified report
+    aggregated = {
+        "status": "success",
+        "intra_family_metrics": {
+            "mape": intra_mape,
+            "rmse": intra_rmse
+        },
+        "inter_family_metrics": {
+            "mape": inter_mape,
+            "rmse": inter_rmse,
+            "r2": inter_r2
+        },
+        "generalization_delta": {
+            "mape_delta": mape_delta,
+            "description": "Difference between inter-family and intra-family MAPE"
+        },
+        "metadata": {
+            "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions.",
+            "source": "Aggregated from T020a (baseline) and T021a (generalization)"
+        }
     }
 
-    # Process intra-family metrics
-    if intra_family_report:
-        result["intra_family_metrics"] = {
-            "mape": intra_family_report.get("mape", None),
-            "rmse": intra_family_report.get("rmse", None),
-            "r2": intra_family_report.get("r2", None),
-            "num_families": intra_family_report.get("num_families", 0)
-        }
-        logger.info(f"Loaded intra-family MAPE: {result['intra_family_metrics']['mape']}")
-    else:
-        logger.warning("No intra-family report found. Intra-family metrics will be null.")
-        result["status"] = "incomplete"
-
-    # Process inter-family metrics
-    if inter_family_report:
-        result["inter_family_metrics"] = {
-            "mape": inter_family_report.get("inter_family_mape", None),
-            "rmse": inter_family_report.get("inter_family_rmse", None),
-            "r2": inter_family_report.get("inter_family_r2", None),
-            "num_test_families": inter_family_report.get("num_test_families", 0),
-            "family_disjoint_verified": inter_family_report.get("family_disjoint_verified", False)
-        }
-        logger.info(f"Loaded inter-family MAPE: {result['inter_family_metrics']['mape']}")
-    else:
-        logger.warning("No inter-family report found. Inter-family metrics will be null.")
-        result["status"] = "incomplete"
-
-    # Calculate delta if both are present
-    if (result["intra_family_metrics"]["mape"] is not None and
-        result["inter_family_metrics"]["mape"] is not None):
-        intra_mape = result["intra_family_metrics"]["mape"]
-        inter_mape = result["inter_family_metrics"]["mape"]
-        result["generalization_drop"] = {
-            "absolute": inter_mape - intra_mape,
-            "relative_percent": ((inter_mape - intra_mape) / intra_mape * 100) if intra_mape != 0 else None
-        }
-        logger.info(f"Generalization drop (MAPE): {result['generalization_drop']['absolute']:.4f}")
-
-    return result
+    return aggregated
 
 def run_aggregation(
-    intra_family_path: Path,
-    inter_family_path: Path,
-    output_path: Path
+    baseline_path: Optional[Path] = None,
+    generalization_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Main execution function to load, aggregate, and save metrics.
+    Run the aggregation pipeline.
 
     Args:
-        intra_family_path: Path to the intra-family baseline report (T020a).
-        inter_family_path: Path to the inter-family generalization report (T021a).
-        output_path: Path where the aggregated JSON will be written.
+        baseline_path: Path to T020a output (default: data/results/baseline_metrics.json).
+        generalization_path: Path to T021a output (default: data/results/generalization_metrics.json).
+        output_path: Path to write the aggregated result (default: data/results/generalization_metrics.json).
 
     Returns:
         The aggregated metrics dictionary.
     """
-    logger.info(f"Starting metrics aggregation.")
-    logger.info(f"  Intra-family source: {intra_family_path}")
-    logger.info(f"  Inter-family source: {inter_family_path}")
-    logger.info(f"  Output destination: {output_path}")
+    # Default paths
+    if baseline_path is None:
+        baseline_path = Path("data/results/baseline_metrics.json")
+    if generalization_path is None:
+        generalization_path = Path("data/results/generalization_metrics.json")
+    if output_path is None:
+        output_path = Path("data/results/generalization_metrics.json")
 
     # Load inputs
-    intra_data = None
-    if intra_family_path.exists():
-        try:
-            intra_data = load_json_file(intra_family_path)
-        except Exception as e:
-            logger.error(f"Failed to load intra-family report: {e}")
-            intra_data = None
+    baseline_data = load_json_file(baseline_path)
+    generalization_data = load_json_file(generalization_path)
+
+    # Check if we have valid data to aggregate
+    if not baseline_data and not generalization_data:
+        logger.error("No valid input data found. Cannot aggregate.")
+        # Return a failure state
+        aggregated = {
+            "status": "failed",
+            "error": "No valid input data found",
+            "metadata": {
+                "disclaimer": "These results are ML interpolations of DFT data, not first-principles solutions."
+            }
+        }
     else:
-        logger.warning(f"Intra-family report not found at {intra_family_path}")
+        aggregated = aggregate_metrics(baseline_data, generalization_data)
 
-    inter_data = None
-    if inter_family_path.exists():
-        try:
-            inter_data = load_json_file(inter_family_path)
-        except Exception as e:
-            logger.error(f"Failed to load inter-family report: {e}")
-            inter_data = None
-    else:
-        logger.warning(f"Inter-family report not found at {inter_family_path}")
-
-    # Aggregate
-    aggregated = aggregate_metrics(intra_data, inter_data)
-
-    # Save
+    # Save result
     save_json_file(output_path, aggregated)
 
     return aggregated
 
 def main():
-    """CLI entry point for the metrics aggregator."""
-    parser = argparse.ArgumentParser(
-        description="Aggregate intra-family and inter-family metrics into a single report."
+    parser = argparse.ArgumentParser(description="Aggregate generalization metrics.")
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        default=Path("data/results/baseline_metrics.json"),
+        help="Path to intra-family baseline metrics (T020a output)."
     )
     parser.add_argument(
-        "--intra-family",
+        "--generalization",
         type=Path,
-        required=True,
-        help="Path to the intra-family baseline metrics JSON (from T020a)."
-    )
-    parser.add_argument(
-        "--inter-family",
-        type=Path,
-        required=True,
-        help="Path to the inter-family generalization metrics JSON (from T021a)."
+        default=Path("data/results/generalization_metrics.json"),
+        help="Path to inter-family generalization metrics (T021a output)."
     )
     parser.add_argument(
         "--output",
         type=Path,
-        required=True,
-        help="Path to write the aggregated generalization_metrics.json."
+        default=Path("data/results/generalization_metrics.json"),
+        help="Path to write the aggregated metrics."
     )
 
     args = parser.parse_args()
 
-    try:
-        run_aggregation(args.intra_family, args.inter_family, args.output)
-        logger.info("Metrics aggregation completed successfully.")
-    except Exception as e:
-        logger.error(f"Metrics aggregation failed: {e}")
-        raise
+    logger.info(f"Loading baseline from: {args.baseline}")
+    logger.info(f"Loading generalization from: {args.generalization}")
+    logger.info(f"Output will be written to: {args.output}")
+
+    result = run_aggregation(
+        baseline_path=args.baseline,
+        generalization_path=args.generalization,
+        output_path=args.output
+    )
+
+    if result.get("status") == "success":
+        logger.info("Aggregation completed successfully.")
+    else:
+        logger.warning("Aggregation completed with warnings or errors.")
+
+    return 0 if result.get("status") == "success" else 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

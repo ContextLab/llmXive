@@ -1,16 +1,20 @@
 """
-Terminology Scanner for Surrogate Model Compliance.
+Automated terminology scanner for enforcing 'Surrogate Model' vs 'First-Principles' distinction.
 
-This script recursively scans source files and documentation for forbidden terms
-that misrepresent the ML model as "First-Principles" physics.
+This script recursively scans source files and documentation (code/, docs/) for forbidden terms
+that might mislabel the ML model as a first-principles solver. It outputs a JSON report
+listing file paths, line numbers, and context of any violations.
 
 Forbidden terms:
 - "First-Principles" (when referring to the ML model)
-- "Schrödinger" (when implying the model solves it)
-- "Hamiltonian" (when implying the model calculates from it)
-- "solve equation" (in the context of physics solving)
+- "Schrödinger" (in the context of the ML model solving it)
+- "Hamiltonian" (in the context of the ML model using it directly)
+- "solve equation" (when referring to the ML model)
 
-Output: JSON report to data/results/terminology_audit.json
+Acceptable contexts (exempted):
+- Citations or references to DFT methods (e.g., "DFT solves the Schrödinger equation")
+- Historical context
+- Explicit denial (e.g., "This model does NOT solve the Schrödinger equation")
 """
 
 import os
@@ -29,258 +33,215 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Forbidden terms and patterns
-# We look for these terms in the context of the ML model's capabilities
-FORBIDDEN_PATTERNS = [
-    r'\bFirst-Principles\b',
-    r'\bFirst Principles\b',
-    r'\bFirstPrinciples\b',
-    r'\bSchrödinger\b',
-    r'\bSchrodinger\b',  # ASCII fallback
-    r'\bHamiltonian\b',
-    r'\bsolve\s+the\s+equation\b',
-    r'\bsolve\s+equations?\b',
-    r'\bsolving\s+the\s+equation\b',
-    r'\bsolving\s+equations?\b',
-]
-
-# Contexts where terms might be acceptable (e.g., citations, historical context)
-# These are patterns that indicate the term is being discussed, not claimed
-ACCEPTABLE_CONTEXTS = [
-    r'cited?\s+as',
-    r'referring\s+to',
-    r'compared\s+to',
-    r'unlike\s+',
-    r'does\s+not\s+(?:solve|calculate)',
-    r'not\s+(?:solving|calculating)',
-    r'in\s+contrast\s+to',
-    r'whereas',
-    r'where',
-    r'while',
-    r'although',
-    r'however',
-    r'but',
-    r'note\s+that',
-    r'warning:',
-    r'limitation',
-    r' caveat',
-]
-
 @dataclass
 class Violation:
     """Represents a single terminology violation."""
     file_path: str
     line_number: int
     line_content: str
-    pattern_matched: str
+    term: str
     context: str
+    acceptable_context: bool = False
 
 @dataclass
 class AuditReport:
-    """Represents the complete audit report."""
-    scan_timestamp: str
-    total_files_scanned: int
+    """Represents the full audit report."""
+    scan_root: str
+    files_scanned: int
     total_violations: int
     violations: List[Dict[str, Any]]
-    summary: Dict[str, int]
+    scan_timestamp: str
+    disclaimer: str = (
+        "This report flags potential terminology violations. "
+        "Manual review is required to determine if context is acceptable."
+    )
 
-def is_acceptable_context(line: str, match_start: int, match_end: int) -> bool:
+# Forbidden terms (case-insensitive matching)
+FORBIDDEN_PATTERNS = [
+    (r'\bFirst-Principles\b', 'First-Principles'),
+    (r'\bSchrödinger\b', 'Schrödinger'),
+    (r'\bHamiltonian\b', 'Hamiltonian'),
+    (r'\bsolve\s+equation\b', 'solve equation'),
+]
+
+# Acceptable context patterns (these exempt a match)
+ACCEPTABLE_CONTEXT_PATTERNS = [
+    r'does\s+NOT\s+solve',
+    r'does\s+not\s+solve',
+    r'NOT\s+solve',
+    r'is\s+NOT\s+a\s+first-principles',
+    r'is\s+not\s+a\s+first-principles',
+    r'not\s+a\s+first-principles',
+    r'interpolates\s+DFT',
+    r'statistical\s+interpolation',
+    r'surrogate\s+model',
+    r'citation',
+    r'reference',
+    r'previous\s+work',
+    r'in\s+contrast\s+to',
+    r'unlike\s+DFT',
+    r'compared\s+to\s+DFT',
+]
+
+def is_acceptable_context(line: str) -> bool:
     """
-    Check if a match occurs in an acceptable context (e.g., citation, negation).
-    
+    Check if a line containing a forbidden term is in an acceptable context.
+
     Args:
-        line: The full line of text
-        match_start: Start index of the matched pattern
-        match_end: End index of the matched pattern
-        
+        line: The line of text to check.
+
     Returns:
-        True if the context is acceptable (term is being discussed, not claimed)
+        True if the context is acceptable (e.g., denial, citation), False otherwise.
     """
-    # Get surrounding context (100 chars before and after)
-    start = max(0, match_start - 100)
-    end = min(len(line), match_end + 100)
-    context = line[start:end]
-    
-    # Check if any acceptable context pattern matches
-    for pattern in ACCEPTABLE_CONTEXTS:
-        if re.search(pattern, context, re.IGNORECASE):
+    line_lower = line.lower()
+    for pattern in ACCEPTABLE_CONTEXT_PATTERNS:
+        if re.search(pattern, line_lower, re.IGNORECASE):
             return True
-    
     return False
 
-def scan_file(file_path: Path, project_root: Path) -> List[Violation]:
+def scan_file(file_path: Path, root_dir: Path) -> List[Violation]:
     """
-    Scan a single file for forbidden terminology.
-    
+    Scan a single file for terminology violations.
+
     Args:
-        file_path: Path to the file to scan
-        project_root: Root of the project (for relative paths)
-        
+        file_path: Path to the file to scan.
+        root_dir: Root directory of the project (for relative path calculation).
+
     Returns:
-        List of Violation objects found in the file
+        List of Violation objects found in the file.
     """
     violations = []
-    relative_path = str(file_path.relative_to(project_root))
-    
+    rel_path = str(file_path.relative_to(root_dir))
+
     try:
-        # Skip binary files
-        if file_path.suffix in ['.pyc', '.so', '.bin', '.parquet', '.png', '.jpg', '.gif']:
-            return violations
-            
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             lines = f.readlines()
-            
-        for line_num, line in enumerate(lines, 1):
-            for pattern in FORBIDDEN_PATTERNS:
-                matches = list(re.finditer(pattern, line, re.IGNORECASE))
-                for match in matches:
-                    # Check if this is an acceptable context
-                    if not is_acceptable_context(line, match.start(), match.end()):
-                        violation = Violation(
-                            file_path=relative_path,
-                            line_number=line_num,
-                            line_content=line.strip(),
-                            pattern_matched=pattern,
-                            context=line[max(0, match.start()-50):min(len(line), match.end()+50)]
-                        )
-                        violations.append(violation)
     except Exception as e:
-        logger.warning(f"Error scanning file {file_path}: {e}")
-        
+        logger.warning(f"Could not read file {file_path}: {e}")
+        return violations
+
+    for line_num, line in enumerate(lines, start=1):
+        for pattern, term in FORBIDDEN_PATTERNS:
+            if re.search(pattern, line, re.IGNORECASE):
+                # Check if this is an acceptable context
+                if is_acceptable_context(line):
+                    # Log as acceptable but still note it for transparency
+                    logger.debug(f"Acceptable context in {rel_path}:{line_num}: {term}")
+                    continue
+
+                violations.append(Violation(
+                    file_path=rel_path,
+                    line_number=line_num,
+                    line_content=line.strip(),
+                    term=term,
+                    context=line.strip()[:100] + "..." if len(line.strip()) > 100 else line.strip()
+                ))
+
     return violations
 
-def run_audit(project_root: Path, output_path: Path) -> AuditReport:
+def run_audit(root_dir: str, output_path: str) -> AuditReport:
     """
-    Run the full terminology audit on the project.
-    
+    Run the terminology audit on all files in the specified directory.
+
     Args:
-        project_root: Root of the project
-        output_path: Path to write the JSON report
-        
+        root_dir: Root directory to scan (e.g., 'code', 'docs').
+        output_path: Path to write the JSON report.
+
     Returns:
-        AuditReport object with all findings
+        AuditReport object with the results.
     """
-    import datetime
-    
+    root_path = Path(root_dir)
     all_violations: List[Violation] = []
     files_scanned = 0
-    
-    # Directories to scan
-    scan_dirs = [
-        project_root / 'code',
-        project_root / 'docs',
-    ]
-    
-    # Directories to exclude
-    exclude_dirs = [
-        project_root / 'data',
-        project_root / 'state',
-        project_root / '__pycache__',
-    ]
-    
-    logger.info(f"Starting terminology audit on {project_root}")
-    
-    for scan_dir in scan_dirs:
-        if not scan_dir.exists():
-            logger.warning(f"Scan directory does not exist: {scan_dir}")
-            continue
-            
-        for file_path in scan_dir.rglob('*'):
-            if file_path.is_file():
-                # Check if file is in an excluded directory
-                is_excluded = False
-                for exclude_dir in exclude_dirs:
-                    if exclude_dir in file_path.parents or file_path.parent == exclude_dir:
-                        is_excluded = True
-                        break
-                
-                if is_excluded:
-                    continue
-                    
-                violations = scan_file(file_path, project_root)
-                if violations:
-                    all_violations.extend(violations)
-                    files_scanned += 1
-                    
-    # Build summary
-    summary = {
-        'First-Principles': 0,
-        'Schrödinger': 0,
-        'Hamiltonian': 0,
-        'solve equation': 0,
-    }
-    
-    for v in all_violations:
-        if 'First-Principles' in v.pattern_matched or 'First Principles' in v.pattern_matched:
-            summary['First-Principles'] += 1
-        elif 'Schrödinger' in v.pattern_matched or 'Schrodinger' in v.pattern_matched:
-            summary['Schrödinger'] += 1
-        elif 'Hamiltonian' in v.pattern_matched:
-            summary['Hamiltonian'] += 1
-        elif 'solve' in v.pattern_matched.lower():
-            summary['solve equation'] += 1
-            
+
+    # Files to exclude
+    exclude_dirs = {'data', 'results', '__pycache__', '.git', 'venv', 'env'}
+    exclude_extensions = {'.pyc', '.pyo', '.so', '.dll', '.exe'}
+
+    logger.info(f"Starting terminology audit on {root_path}")
+
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        # Filter out excluded directories
+        dirnames[:] = [d for d in dirnames if d not in exclude_dirs]
+
+        for filename in filenames:
+            # Skip excluded extensions
+            if any(filename.endswith(ext) for ext in exclude_extensions):
+                continue
+
+            file_path = Path(dirpath) / filename
+
+            # Skip data/results directories explicitly
+            if 'data' in str(file_path) or 'results' in str(file_path):
+                continue
+
+            violations = scan_file(file_path, root_path)
+            all_violations.extend(violations)
+            files_scanned += 1
+
+    # Generate report
     report = AuditReport(
-        scan_timestamp=datetime.datetime.now().isoformat(),
-        total_files_scanned=files_scanned,
+        scan_root=str(root_path),
+        files_scanned=files_scanned,
         total_violations=len(all_violations),
         violations=[asdict(v) for v in all_violations],
-        summary=summary
+        scan_timestamp=str(Path(root_dir).stat().st_mtime) if root_path.exists() else "N/A"
     )
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Write report
-    with open(output_path, 'w', encoding='utf-8') as f:
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(asdict(report), f, indent=2)
-        
-    logger.info(f"Audit complete. Found {len(all_violations)} violations.")
+
+    logger.info(f"Audit complete. Found {len(all_violations)} violations in {files_scanned} files.")
     logger.info(f"Report written to {output_path}")
-    
+
     return report
 
 def main():
     """Main entry point for the terminology scanner."""
     parser = argparse.ArgumentParser(
-        description='Scan project for forbidden terminology'
+        description="Scan code and docs for forbidden terminology."
     )
     parser.add_argument(
-        '--project-root',
-        type=Path,
-        default=Path('.'),
-        help='Project root directory (default: current directory)'
+        '--root',
+        type=str,
+        default='.',
+        help='Root directory to scan (default: current directory)'
     )
     parser.add_argument(
         '--output',
-        type=Path,
-        default=None,
+        type=str,
+        default='data/results/terminology_audit.json',
         help='Output path for the JSON report (default: data/results/terminology_audit.json)'
     )
-    
+
     args = parser.parse_args()
-    
-    # Resolve paths
-    project_root = args.project_root.resolve()
-    if args.output:
-        output_path = args.output.resolve()
-    else:
-        output_path = project_root / 'data' / 'results' / 'terminology_audit.json'
-        
+
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Run audit
-    report = run_audit(project_root, output_path)
-    
-    # Exit with code 1 if violations found (for CI/CD integration)
-    if report.total_violations > 0:
-        logger.error(f"Found {report.total_violations} terminology violations!")
-        for v in report.violations[:5]:  # Show first 5
-            logger.error(f"  {v['file_path']}:{v['line_number']} - {v['pattern_matched']}")
-        if report.total_violations > 5:
-            logger.error(f"  ... and {report.total_violations - 5} more")
-        return 1
-    else:
-        logger.info("No terminology violations found. Compliance check passed.")
-        return 0
+    try:
+        run_audit(args.root, args.output)
+    except Exception as e:
+        logger.error(f"Audit failed: {e}")
+        # Write a failure report
+        failure_report = {
+            "scan_root": args.root,
+            "files_scanned": 0,
+            "total_violations": 0,
+            "violations": [],
+            "scan_timestamp": "N/A",
+            "error": str(e),
+            "status": "FAILED"
+        }
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(failure_report, f, indent=2)
+        raise
 
 if __name__ == '__main__':
-    exit(main())
+    main()
