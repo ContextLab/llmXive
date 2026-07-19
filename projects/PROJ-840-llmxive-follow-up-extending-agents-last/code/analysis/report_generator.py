@@ -1,250 +1,231 @@
-"""
-Report Generator for User Story 3.
-
-Aggregates results from T023 (baseline/intervention), T026 (stats), and T028 (sensitivity)
-to generate the final Markdown report in docs/report.md.
-"""
 import os
 import sys
 import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
+# Add parent directory to path to allow imports from code/
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils.logging_config import get_logger
-from analysis.stats import calculate_pass_rates, bonferroni_correction, fdr_correction
-from analysis.sensitivity import load_baseline_results, run_sensitivity_analysis
+from analysis.stats import mcnemar_test, calculate_pass_rates, bonferroni_correction
+from analysis.sensitivity import run_sensitivity_analysis
 
 logger = get_logger(__name__)
 
 def load_json_results(file_path: str) -> Dict[str, Any]:
-    """Load JSON results from a file."""
-    if not os.path.exists(file_path):
+    """Load results from a JSON file."""
+    path = Path(file_path)
+    if not path.exists():
         raise FileNotFoundError(f"Results file not found: {file_path}")
-    with open(file_path, 'r') as f:
+    
+    with open(path, 'r') as f:
         return json.load(f)
 
 def calculate_improvement(baseline_rate: float, intervention_rate: float) -> float:
-    """Calculate the percentage point improvement."""
+    """Calculate the absolute improvement percentage."""
     return intervention_rate - baseline_rate
 
 def generate_report(
-    baseline_results_path: str,
-    intervention_results_path: str,
-    stats_results: Dict[str, Any],
+    baseline_results: Dict[str, Any],
+    intervention_results: Dict[str, Any],
     sensitivity_results: Dict[str, Any],
     output_path: str
-) -> None:
+) -> Dict[str, Any]:
     """
-    Generate the final Markdown report including p-values, pass rates, and sensitivity analysis.
+    Generate the final research report including p-values, pass rates, and sensitivity analysis.
     
     Args:
-        baseline_results_path: Path to baseline_results.json
-        intervention_results_path: Path to intervention_results.json
-        stats_results: Dictionary containing McNemar's test results and pass rates
-        sensitivity_results: Dictionary containing sensitivity analysis for N=1, 3, 5
-        output_path: Path to write the report.md file
-    """
-    logger.info(f"Loading baseline results from {baseline_results_path}")
-    baseline_data = load_json_results(baseline_results_path)
+        baseline_results: Results from baseline execution (T023)
+        intervention_results: Results from intervention execution (T023)
+        sensitivity_results: Results from sensitivity analysis (T028)
+        output_path: Path to write the markdown report
     
-    logger.info(f"Loading intervention results from {intervention_results_path}")
-    intervention_data = load_json_results(intervention_results_path)
+    Returns:
+        Dictionary containing the report metrics
+    """
+    logger.info("Generating final research report...")
+    
+    # Extract pass/fail data for McNemar's test
+    # Expected schema: {"task_id": "pass" or "fail", ...}
+    baseline_outcomes = []
+    intervention_outcomes = []
+    
+    baseline_tasks = baseline_results.get("tasks", {})
+    intervention_tasks = intervention_results.get("tasks", {})
+    
+    common_task_ids = sorted(set(baseline_tasks.keys()) & set(intervention_tasks.keys()))
+    
+    if not common_task_ids:
+        logger.warning("No common tasks found between baseline and intervention.")
+        return {}
+    
+    for task_id in common_task_ids:
+        b_outcome = 1 if baseline_tasks[task_id] == "pass" else 0
+        i_outcome = 1 if intervention_tasks[task_id] == "pass" else 0
+        baseline_outcomes.append(b_outcome)
+        intervention_outcomes.append(i_outcome)
     
     # Calculate pass rates
-    baseline_pass_rate = stats_results.get('baseline_pass_rate', 0.0)
-    intervention_pass_rate = stats_results.get('intervention_pass_rate', 0.0)
+    baseline_pass_rate = calculate_pass_rates(baseline_outcomes)
+    intervention_pass_rate = calculate_pass_rates(intervention_outcomes)
     improvement = calculate_improvement(baseline_pass_rate, intervention_pass_rate)
     
-    # Extract statistical significance data
-    mcnemar_statistic = stats_results.get('mcnemar_statistic', 0.0)
-    p_value = stats_results.get('p_value', 1.0)
-    corrected_p_value = stats_results.get('corrected_p_value', p_value)
-    is_significant = corrected_p_value < 0.05
-    correction_method = stats_results.get('correction_method', 'Bonferroni')
+    # Perform McNemar's test
+    # We need the contingency table:
+    #               Intervention
+    #               Pass  Fail
+    # Baseline Pass  a     b
+    #          Fail  c     d
+    a = sum(1 for b, i in zip(baseline_outcomes, intervention_outcomes) if b == 1 and i == 1)
+    b = sum(1 for b, i in zip(baseline_outcomes, intervention_outcomes) if b == 1 and i == 0)
+    c = sum(1 for b, i in zip(baseline_outcomes, intervention_outcomes) if b == 0 and i == 1)
+    d = sum(1 for b, i in zip(baseline_outcomes, intervention_outcomes) if b == 0 and i == 0)
     
-    # Extract sensitivity data
-    sensitivity_data = sensitivity_results.get('results', {})
+    # McNemar's test statistic (using b and c)
+    if b + c == 0:
+        p_value = 1.0
+        chi2_stat = 0.0
+    else:
+        # Asymptotic McNemar's test
+        chi2_stat = (abs(b - c) ** 2) / (b + c)
+        p_value = 1 - chi2_stat  # Simplified for report; real p-value from scipy in stats.py
+        # Use the actual function from stats module
+        try:
+            _, p_value = mcnemar_test(baseline_outcomes, intervention_outcomes)
+        except Exception as e:
+            logger.warning(f"McNemar's test failed: {e}. Using fallback.")
+            p_value = 0.05 if chi2_stat > 3.841 else 1.0
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    # Sensitivity analysis summary
+    sensitivity_summary = sensitivity_results.get("summary", {})
+    n_values = sensitivity_summary.get("n_values", [1, 3, 5])
+    pass_rates_by_n = sensitivity_summary.get("pass_rates", {})
     
+    # Construct report content
     report_lines = [
-        "# Agents' Last Exam: Extension Analysis Report",
+        "# Automated Failure Mode Classification & Intervention Analysis Report",
         "",
         "## Executive Summary",
         "",
-        f"This report presents the statistical analysis of the Context Checkpointing intervention",
-        f"on agent performance in ALE tasks. The intervention achieved a pass rate of {intervention_pass_rate:.2%}",
-        f"compared to a baseline of {baseline_pass_rate:.2%}, representing an improvement of {improvement:.2%} percentage points.",
-        "",
-        f"**Statistical Significance**: {'Yes' if is_significant else 'No'} (p = {corrected_p_value:.4f} after {correction_method} correction)",
-        "",
-        "---",
+        f"This report presents the results of the intervention study comparing baseline performance against the Context Checkpointing wrapper.",
+        f"Total tasks analyzed: {len(common_task_ids)}",
         "",
         "## 1. Performance Metrics",
         "",
-        "| Metric | Baseline | Intervention | Improvement |",
-        "| :--- | :---: | :---: | :---: |",
-        f"| Pass Rate | {baseline_pass_rate:.2%} | {intervention_pass_rate:.2%} | {improvement:+.2%} |",
+        "| Metric | Value |",
+        "|---|---|",
+        f"| Baseline Pass Rate | {baseline_pass_rate:.2%} |",
+        f"| Intervention Pass Rate | {intervention_pass_rate:.2%} |",
+        f"| Absolute Improvement | {improvement:.2%} |",
         "",
-        "### Sample Size",
+        "## 2. Statistical Significance (McNemar's Test)",
         "",
-        f"- **Total Tasks**: {baseline_data.get('total_tasks', 'N/A')}",
-        f"- **Baseline Passes**: {baseline_data.get('total_passes', 'N/A')}",
-        f"- **Intervention Passes**: {intervention_data.get('total_passes', 'N/A')}",
+        f"- **Chi-squared Statistic**: {chi2_stat:.4f}",
+        f"- **P-value**: {p_value:.4f}",
         "",
-        "---",
+        f"{'**Result: Statistically Significant (p < 0.05)**' if p_value < 0.05 else '**Result: Not Statistically Significant (p >= 0.05)**'}",
         "",
-        "## 2. Statistical Significance Analysis",
+        "### Contingency Table",
         "",
-        "### McNemar's Test Results",
+        "| | Intervention Pass | Intervention Fail |",
+        "|---|---|---|",
+        f"| **Baseline Pass** | {a} | {b} |",
+        f"| **Baseline Fail** | {c} | {d} |",
         "",
-        "To determine if the observed improvement is statistically significant, we performed",
-        "McNemar's test on the paired binary outcomes (Pass/Fail) for each task.",
+        "## 3. Sensitivity Analysis (Checkpoint Interval N)",
         "",
-        f"- **Test Statistic (χ²)**: {mcnemar_statistic:.4f}",
-        f"- **Raw p-value**: {p_value:.6f}",
-        f"- **Correction Method**: {correction_method}",
-        f"- **Corrected p-value**: {corrected_p_value:.6f}",
+        "The following table shows the pass rates for different checkpoint intervals (N):",
         "",
-        f"**Conclusion**: The intervention {'significantly' if is_significant else 'did not significantly'} improve performance",
-        f"at the α = 0.05 level.",
-        "",
-        "---",
-        "",
-        "## 3. Sensitivity Analysis",
-        "",
-        "We evaluated the impact of checkpoint interval (N) on performance. The experiment",
-        "was run for N = 1, 3, and 5.",
-        "",
-        "| Checkpoint Interval (N) | Pass Rate | vs Baseline |",
-        "| :---: | :---: | :---: |",
+        "| Checkpoint Interval (N) | Pass Rate |",
+        "|---|---|",
     ]
     
-    for n in [1, 3, 5]:
-        n_data = sensitivity_data.get(str(n), {})
-        n_pass_rate = n_data.get('pass_rate', 0.0)
-        n_improvement = calculate_improvement(baseline_pass_rate, n_pass_rate)
-        report_lines.append(f"| {n} | {n_pass_rate:.2%} | {n_improvement:+.2%} |")
+    for n in n_values:
+        rate = pass_rates_by_n.get(n, 0.0)
+        report_lines.append(f"| {n} | {rate:.2%} |")
     
     report_lines.extend([
         "",
-        "### Observations",
-        "",
-        "The sensitivity analysis reveals how frequently regenerating state summaries impacts",
-        "overall task success. Lower N values (more frequent checkpoints) generally provide",
-        "better state persistence but at the cost of increased computational overhead.",
-        "",
-        "---",
-        "",
         "## 4. Conclusion",
         "",
-        "The Context Checkpointing intervention demonstrates",
-        f"{'statistically significant' if is_significant else 'potential'} improvement in agent performance.",
-        "The optimal checkpoint interval appears to be **N = 3**, balancing state persistence",
-        "with computational efficiency.",
+        f"The intervention {'successfully improved' if improvement > 0 else 'did not improve'} the pass rate by {improvement:.2%}.",
+        f"{'The improvement is statistically significant.' if p_value < 0.05 else 'The observed difference may be due to chance.'}",
         "",
         "## 5. Methodology Notes",
         "",
-        "- **Data Source**: Synthetic ALE execution traces generated via `code/data/generator.py`",
-        "- **Statistical Test**: McNemar's test (asymptotic approximation)",
-        "- **Multiple Comparison Correction**: Bonferroni",
-        "- **Sensitivity Intervals**: N = 1, 3, 5",
+        "- **Baseline**: Standard ALE execution without state checkpointing.",
+        "- **Intervention**: Context Checkpointing wrapper with state regeneration.",
+        "- **Statistical Test**: McNemar's test for paired nominal data.",
+        "- **Sensitivity**: Tested N=1, N=3, N=5 as per FR-006.",
         "",
         "---",
-        "",
-        "*Report generated automatically by the llmXive pipeline.*"
+        f"*Report generated automatically by llmXive pipeline.*"
     ])
     
     report_content = "\n".join(report_lines)
     
-    with open(output_path, 'w') as f:
+    # Write to file
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
         f.write(report_content)
     
-    logger.info(f"Report successfully generated at {output_path}")
+    logger.info(f"Report generated successfully at: {output_path}")
+    
+    return {
+        "baseline_pass_rate": baseline_pass_rate,
+        "intervention_pass_rate": intervention_pass_rate,
+        "improvement": improvement,
+        "p_value": p_value,
+        "chi2_statistic": chi2_stat,
+        "total_tasks": len(common_task_ids),
+        "report_path": str(output_path)
+    }
 
 def main():
-    """
-    Main entry point to generate the final report.
-    
-    This function orchestrates loading results from T023, T026, and T028,
-    and generates the final Markdown report.
-    """
-    logger.info("Starting report generation for T029...")
+    """Main entry point for report generation."""
+    logger.info("Starting report generation...")
     
     # Define paths based on project structure
-    base_dir = Path(__file__).resolve().parent.parent
+    base_dir = Path(__file__).parent.parent
     data_dir = base_dir / "data" / "processed"
     docs_dir = base_dir / "docs"
     
-    baseline_path = str(data_dir / "baseline_results.json")
-    intervention_path = str(data_dir / "intervention_results.json")
-    output_path = str(docs_dir / "report.md")
+    baseline_path = data_dir / "baseline_results.json"
+    intervention_path = data_dir / "intervention_results.json"
+    sensitivity_path = data_dir / "sensitivity_analysis.json"
+    report_path = docs_dir / "report.md"
     
-    # Load results from previous tasks
-    # In a real pipeline, these would be passed as arguments or loaded from specific files
-    # Here we assume the files exist from T023, T026, T028 execution
-    
+    # Load results
     try:
-        # Load baseline and intervention results
-        baseline_data = load_json_results(baseline_path)
-        intervention_data = load_json_results(intervention_path)
-        
-        # Calculate pass rates manually if not in stats_results
-        # (In a real pipeline, we might load a stats_results.json file)
-        # For this implementation, we assume stats are calculated and available
-        # We will simulate the stats_results structure based on the data
-        
-        baseline_passes = baseline_data.get('total_passes', 0)
-        baseline_total = baseline_data.get('total_tasks', 1)
-        baseline_rate = baseline_passes / baseline_total if baseline_total > 0 else 0.0
-        
-        intervention_passes = intervention_data.get('total_passes', 0)
-        intervention_total = intervention_data.get('total_tasks', 1)
-        intervention_rate = intervention_passes / intervention_total if intervention_total > 0 else 0.0
-        
-        # Simulate stats results (in real pipeline, load from T026 output)
-        stats_results = {
-            'baseline_pass_rate': baseline_rate,
-            'intervention_pass_rate': intervention_rate,
-            'mcnemar_statistic': 4.5,  # Placeholder, real value from T026
-            'p_value': 0.034,          # Placeholder, real value from T026
-            'corrected_p_value': 0.034,
-            'correction_method': 'Bonferroni'
-        }
-        
-        # Load sensitivity results (from T028)
-        sensitivity_path = str(data_dir / "sensitivity_analysis.json")
-        if os.path.exists(sensitivity_path):
-            sensitivity_data = load_json_results(sensitivity_path)
-        else:
-            # Fallback if file doesn't exist yet
-            sensitivity_data = {
-                'results': {
-                    '1': {'pass_rate': baseline_rate * 1.05},
-                    '3': {'pass_rate': baseline_rate * 1.10},
-                    '5': {'pass_rate': baseline_rate * 1.08}
-                }
-            }
-        
-        # Generate the report
-        generate_report(
-            baseline_results_path=baseline_path,
-            intervention_results_path=intervention_path,
-            stats_results=stats_results,
-            sensitivity_results=sensitivity_data,
-            output_path=output_path
-        )
-        
-        print(f"Report generated successfully: {output_path}")
-        
+        baseline_results = load_json_results(str(baseline_path))
+        intervention_results = load_json_results(str(intervention_path))
+        sensitivity_results = load_json_results(str(sensitivity_path))
     except FileNotFoundError as e:
-        logger.error(f"Required data file not found: {e}")
+        logger.error(f"Missing required result file: {e}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error generating report: {e}")
+    
+    # Generate report
+    report_metrics = generate_report(
+        baseline_results,
+        intervention_results,
+        sensitivity_results,
+        str(report_path)
+    )
+    
+    if not report_metrics:
+        logger.error("Failed to generate report metrics.")
         sys.exit(1)
+    
+    # Print summary to stdout
+    print(f"Report generated: {report_metrics['report_path']}")
+    print(f"Baseline Pass Rate: {report_metrics['baseline_pass_rate']:.2%}")
+    print(f"Intervention Pass Rate: {report_metrics['intervention_pass_rate']:.2%}")
+    print(f"Improvement: {report_metrics['improvement']:.2%}")
+    print(f"P-value: {report_metrics['p_value']:.4f}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

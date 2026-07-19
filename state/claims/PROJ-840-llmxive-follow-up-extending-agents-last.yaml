@@ -1,0 +1,618 @@
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Total failures count 124
+  claim_id: c_d86de5ee
+  context: 'The failure modes were classified into ''State Persistence Error'' and
+    ''Reasoning Deficit''. | Table: Total Failures | 124 | 100% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Failures were 124.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:15:14Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: State Persistence Errors count 78
+  claim_id: c_a5bd12c3
+  context: 'Table: State Persistence Errors | 78 | 62.9% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: State Persistence Errors accounted for 78 failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:15:51Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Reasoning Deficit count 46
+  claim_id: c_de4812d5
+  context: 'Table: Reasoning Deficit | 46 | 37.1% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reasoning Deficit accounted for 46 failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:16:25Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Mean Classification Confidence 0.88
+  claim_id: c_0e0eb6ec
+  context: 'Table: Mean Classification Confidence | 0.88 | - |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mean Classification Confidence was 0.88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:16:54Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Baseline Pass Rate N=1 0.42
+  claim_id: c_100c4ac2
+  context: 'Table: N = 1 (Every Step) | Baseline Pass Rate | 0.42 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Pass Rate for N=1 was 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:17:21Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Intervention Pass Rate N=1 0.68
+  claim_id: c_27e97d10
+  context: 'Table: N = 1 (Every Step) | Intervention Pass Rate | 0.68 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Intervention Pass Rate for N=1 was 0.68.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:18:00Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Absolute Improvement N=1 26.0%
+  claim_id: c_de94949e
+  context: 'Table: N = 1 (Every Step) | Absolute Improvement | +26.0% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Absolute Improvement for N=1 was 26.0%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:18:00Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Baseline Pass Rate N=3 0.42
+  claim_id: c_b407257c
+  context: 'Table: N = 3 (Every 3 Steps) | Baseline Pass Rate | 0.42 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Pass Rate for N=3 was 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:18:39Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Intervention Pass Rate N=3 0.61
+  claim_id: c_71260283
+  context: 'Table: N = 3 (Every 3 Steps) | Intervention Pass Rate | 0.61 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Intervention Pass Rate for N=3 was 0.61.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:19:25Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Absolute Improvement N=3 19.0%
+  claim_id: c_fa7f97d6
+  context: 'Table: N = 3 (Every 3 Steps) | Absolute Improvement | +19.0% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Absolute Improvement for N=3 was 19.0%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:19:25Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Baseline Pass Rate N=5 0.42
+  claim_id: c_a45402ce
+  context: 'Table: N = 5 (Every 5 Steps) | Baseline Pass Rate | 0.42 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Pass Rate for N=5 was 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:19:55Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Intervention Pass Rate N=5 0.55
+  claim_id: c_13855193
+  context: 'Table: N = 5 (Every 5 Steps) | Intervention Pass Rate | 0.55 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Intervention Pass Rate for N=5 was 0.55.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:20:28Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Absolute Improvement N=5 13.0%
+  claim_id: c_8c0f3ffc
+  context: 'Table: N = 5 (Every 5 Steps) | Absolute Improvement | +13.0% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Absolute Improvement for N=5 was 13.0%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:20:28Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar p-value N=1 0.003
+  claim_id: c_aa510fde
+  context: 'Table: Baseline vs. Intervention | N=1 | p-value (Asymptotic) | 0.003
+    |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's test p-value for N=1 was 0.003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:21:02Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Bonferroni p-value N=1 0.009
+  claim_id: c_b22a2209
+  context: 'Table: Baseline vs. Intervention | N=1 | Bonferroni Adjusted p-value |
+    0.009 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni Adjusted p-value for N=1 was 0.009.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:21:45Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar p-value N=3 0.012
+  claim_id: c_42121e9b
+  context: 'Table: Baseline vs. Intervention | N=3 | p-value (Asymptotic) | 0.012
+    |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's test p-value for N=3 was 0.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:23:00Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Bonferroni p-value N=3 0.036
+  claim_id: c_339df890
+  context: 'Table: Baseline vs. Intervention | N=3 | Bonferroni Adjusted p-value |
+    0.036 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni Adjusted p-value for N=3 was 0.036.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:23:36Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar p-value N=5 0.045
+  claim_id: c_c46e5345
+  context: 'Table: Baseline vs. Intervention | N=5 | p-value (Asymptotic) | 0.045
+    |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's test p-value for N=5 was 0.045.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:24:26Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Bonferroni p-value N=5 0.135
+  claim_id: c_b35ef366
+  context: 'Table: Baseline vs. Intervention | N=5 | Bonferroni Adjusted p-value |
+    0.135 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni Adjusted p-value for N=5 was 0.135.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:25:13Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Token count increase N=1 45%
+  claim_id: c_006f400d
+  context: 'N=1: Highest improvement but highest computational overhead (token count
+    increases by ~45%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Token count increases by approximately 45% at N=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:26:14Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Token count increase N=3 15%
+  claim_id: c_56195159
+  context: 'N=3: Optimal balance between performance gain (+19%) and overhead (~15%
+    token increase).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Token count increases by approximately 15% at N=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:26:51Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Golden subset contains traces labeled State Persistence Error and Reasoning
+    Deficit
+  claim_id: c_b21f08e8
+  context: 'The golden subset (data/raw/golden_subset.json) contains traces with known
+    ground truth labels for failure modes: ''State Persistence Error'' and ''Reasoning
+    Deficit''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Golden_subset_contains_traces_labeled_State_Persistence_Erro
+  kind: entity_fact
+  raw_text: 'The golden subset contains traces with known ground truth labels for
+    failure modes: ''State Persistence Error'' and ''Reasoning Deficit''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:31:27Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: State reconstruction validator achieved 0.97 accuracy
+  claim_id: c_e4a9fdbf
+  context: 'The state reconstruction validator achieved the following accuracy: Reconstruction
+    Accuracy 0.97.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The state reconstruction validator achieved a reconstruction accuracy
+    of 0.97.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:32:14Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: 42 State Persistence Error failures (68.9%)
+  claim_id: c_9652ebcb
+  context: 'Classification results from data/processed/classification_report.json:
+    State Persistence Error 42 68.9%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 42 failures were identified as State Persistence Error, representing 68.9%
+    of the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:32:53Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: 19 Reasoning Deficit failures (31.1%)
+  claim_id: c_a8527a1d
+  context: 'Classification results from data/processed/classification_report.json:
+    Reasoning Deficit 19 31.1%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 19 failures were identified as Reasoning Deficit, representing 31.1% of
+    the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:33:32Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Total 61 classified failure cases
+  claim_id: c_a3cbbb8c
+  context: 'Classification results from data/processed/classification_report.json:
+    Total 61 100%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A total of 61 failure cases were classified in the study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:34:23Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Baseline pass rate 0.64 on 100 tasks
+  claim_id: c_df10dfb2
+  context: 'Pass rates for baseline and intervention conditions: Baseline 0.64 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline condition achieved a pass rate of 0.64 across 100 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:35:15Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Intervention N=3 pass rate 0.78 on 100 tasks
+  claim_id: c_a3de7423
+  context: 'Pass rates for baseline and intervention conditions: Intervention (N=3)
+    0.78 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The intervention condition with N=3 achieved a pass rate of 0.78 across
+    100 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:35:58Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Intervention N=3 14 percentage point improvement over baseline
+  claim_id: c_a75448a4
+  context: 'Absolute improvement: +14 percentage points.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The intervention at N=3 resulted in a 14 percentage point absolute improvement
+    over the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:36:45Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar Asymptotic Chi-Square 5.42 p-value 0.020
+  claim_id: c_8ffd6b23
+  context: 'McNemar''s test results: McNemar''s Asymptotic 5.42 0.020.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's Asymptotic test yielded a Chi-Square value of 5.42 and a p-value
+    of 0.020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:37:25Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar Exact p-value 0.025
+  claim_id: c_6967c0a1
+  context: 'McNemar''s test results: McNemar''s Exact - 0.025.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's Exact test yielded a p-value of 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:38:03Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Bonferroni corrected p-value 0.060 for k=3
+  claim_id: c_ff12268d
+  context: 'After Bonferroni correction (k=3 comparisons): Adjusted p-value: 0.060.'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: After Bonferroni correction with k=3 comparisons, the adjusted p-value
+    was 0.060.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T03:38:03Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: FDR corrected p-value 0.030
+  claim_id: c_fe2c53f7
+  context: 'After FDR correction: Adjusted p-value: 0.030.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: After FDR correction, the adjusted p-value was 0.030.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:38:33Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: Baseline memory usage 3200 MB
+  claim_id: c_6877b7c7
+  context: 'Performance across different checkpoint intervals: Baseline 0.64 - 3200.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline configuration consumed 3200 MB of memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:39:05Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: N=1 memory usage 4800 MB
+  claim_id: c_d1967818
+  context: 'Performance across different checkpoint intervals: N=1 0.82 +18% 4800.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=1 checkpoint interval configuration consumed 4800 MB of memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:39:40Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: N=3 memory usage 3900 MB
+  claim_id: c_f5ee8a15
+  context: 'Performance across different checkpoint intervals: N=3 0.78 +14% 3900.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=3 checkpoint interval configuration consumed 3900 MB of memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:40:05Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: N=5 memory usage 3500 MB
+  claim_id: c_ab6c7aee
+  context: 'Performance across different checkpoint intervals: N=5 0.71 +7% 3500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=5 checkpoint interval configuration consumed 3500 MB of memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:40:31Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: N=1 pass rate 0.82
+  claim_id: c_e09c0d0f
+  context: 'Performance across different checkpoint intervals: N=1 0.82 +18% 4800.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=1 checkpoint interval achieved a pass rate of 0.82.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:41:06Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: N=5 pass rate 0.71
+  claim_id: c_c952f5a7
+  context: 'Performance across different checkpoint intervals: N=5 0.71 +7% 3500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=5 checkpoint interval achieved a pass rate of 0.71.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:41:42Z'
