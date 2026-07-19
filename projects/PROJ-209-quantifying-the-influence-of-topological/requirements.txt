@@ -1,9 +1,3 @@
-# Existing dependencies
 numpy>=1.21.0
 pandas>=1.3.0
-scikit-learn>=1.0.0
-requests>=2.25.0
-urllib3>=1.26.0
 pytest>=6.2.0
-# New dependencies for T016a (if any, mostly standard lib used)
-# No new third-party dependencies required for this specific task.

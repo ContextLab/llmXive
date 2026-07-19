@@ -121,7 +121,7 @@ tests/
 
 ### Phase 2: Modeling & Inference (US-2)
 *   **T020**: **Collinearity Check & Re-training**: Compute VIF. **While** VIF > 5 for any pair: exclude lower-importance feature (based on permutation stability), re-train model, re-calculate VIF. Log all iterations in `data/processed/feature_selection_log.json`.
-*   **T021**: Train Random Forest models (3 targets) with 5-fold CV. Report R², MAPE, CV std.
+*   **T021**: Train Random Forest models with multiple targets using 5-fold CV. Report R², MAPE, CV std.
 *   **T022**: **Stratification Logic**: If 'synthesis_method' or 'grain_size' is present and has >= 3 distinct values with sufficient sample size: train separate models per stratum and report metrics per stratum. Else: include as covariates.
 *   **T023**: Permutation Testing: Generate p-values for feature importance.
 *   **T024**: **FDR Correction**: Input: p-values from T023. Process: Apply Benjamini-Hochberg procedure to control FDR at q <= 0.05. Output: 'fdr_adjusted_p' and 'is_significant' in `data/processed/model_outputs.json`.

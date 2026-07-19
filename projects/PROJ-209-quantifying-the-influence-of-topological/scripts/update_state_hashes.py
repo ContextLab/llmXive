@@ -1,49 +1,42 @@
 #!/usr/bin/env python3
 """
-Update state file with SHA-256 checksums for raw/processed data and feature matrices.
+T017: Update State Hashes Integration
+Records SHA-256 checksums for all raw and processed data files,
+the synthetic generator version (git hash), and the data_source flag.
 
-This script computes SHA-256 hashes for all relevant data files in the project
-(raw data, processed features/targets, and model artifacts) and records them
-in a state file under state/projects/.
-
-It also records the git hash of the current code version to ensure reproducibility.
+Output: data/state/projects/PROJ-209-quantifying-the-influence-of-topological.yaml
 """
-
 import os
 import sys
 import hashlib
 import json
-from datetime import datetime
+import subprocess
 from pathlib import Path
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 
-# Project root is assumed to be the parent of the 'scripts' directory
+# Add project root to path to import shared utilities
+# Assuming script is run from project root or via python -m
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_VALIDATION_DIR = PROJECT_ROOT / "data" / "validation"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Ensure state directory exists
-STATE_DIR.mkdir(parents=True, exist_ok=True)
+from infrastructure.path_utils import get_project_root, ensure_dir, get_output_path
+from infrastructure.error_handler import retry_with_backoff
+
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        return "FILE_NOT_FOUND"
-    except Exception as e:
-        return f"ERROR: {str(e)}"
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def get_git_hash() -> Optional[str]:
+
+def get_git_hash() -> str:
     """Get the current git commit hash."""
     try:
-        import subprocess
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=PROJECT_ROOT,
@@ -53,111 +46,165 @@ def get_git_hash() -> Optional[str]:
         )
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
+        return "unknown"
+
+
+def load_json_file(file_path: Path) -> Optional[Dict]:
+    """Safely load a JSON file."""
+    if not file_path.exists():
+        return None
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
         return None
 
-def find_data_files(directory: Path, extensions: List[str] = None) -> List[Path]:
-    """Find all files with specified extensions in a directory (non-recursive)."""
+
+def scan_directory_for_checksums(
+    directory: Path,
+    extensions: List[str] = ['.csv', '.json', '.pkl', '.yaml', '.yml']
+) -> List[Dict[str, Any]]:
+    """Scan a directory for files and compute their checksums."""
+    checksums = []
     if not directory.exists():
-        return []
+        return checksums
     
-    files = []
-    for item in directory.iterdir():
-        if item.is_file():
-            if extensions is None or any(item.suffix == ext for ext in extensions):
-                files.append(item)
-    return sorted(files)
-
-def collect_checksums() -> Dict[str, Any]:
-    """Collect checksums for all relevant data files."""
-    checksums = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "git_hash": get_git_hash(),
-        "files": {}
-    }
-
-    # Process raw data files
-    if DATA_RAW_DIR.exists():
-        raw_files = find_data_files(DATA_RAW_DIR, [".csv", ".json", ".txt", ".parquet"])
-        for file_path in raw_files:
-            checksums["files"][f"raw/{file_path.name}"] = {
-                "path": str(file_path.relative_to(PROJECT_ROOT)),
-                "sha256": compute_sha256(file_path),
-                "size_bytes": file_path.stat().st_size
-            }
-
-    # Process processed data files
-    if DATA_PROCESSED_DIR.exists():
-        processed_files = find_data_files(DATA_PROCESSED_DIR, [".csv", ".json", ".parquet"])
-        for file_path in processed_files:
-            checksums["files"][f"processed/{file_path.name}"] = {
-                "path": str(file_path.relative_to(PROJECT_ROOT)),
-                "sha256": compute_sha256(file_path),
-                "size_bytes": file_path.stat().st_size
-            }
-
-    # Process validation data if exists
-    if DATA_VALIDATION_DIR.exists():
-        validation_files = find_data_files(DATA_VALIDATION_DIR, [".csv", ".json", ".parquet"])
-        for file_path in validation_files:
-            checksums["files"][f"validation/{file_path.name}"] = {
-                "path": str(file_path.relative_to(PROJECT_ROOT)),
-                "sha256": compute_sha256(file_path),
-                "size_bytes": file_path.stat().st_size
-            }
-
+    for file_path in directory.rglob('*'):
+        if file_path.is_file() and any(file_path.suffix == ext for ext in extensions):
+            try:
+                checksum = compute_sha256(file_path)
+                relative_path = file_path.relative_to(PROJECT_ROOT)
+                checksums.append({
+                    "path": str(relative_path),
+                    "sha256": checksum,
+                    "size_bytes": file_path.stat().st_size,
+                    "modified": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
+                })
+            except Exception as e:
+                print(f"Warning: Could not checksum {file_path}: {e}")
     return checksums
 
-def save_state_file(checksums: Dict[str, Any], project_id: str = "PROJ-209-quantifying-the-influence-of-topological") -> Path:
-    """Save checksums to the state file."""
-    state_file_path = STATE_DIR / f"{project_id}.yaml"
-    
-    # Convert to YAML-like format (simple key-value)
-    # Since we don't want to depend on PyYAML, we'll use a simple text format
-    lines = [
-        f"# State file for {project_id}",
-        f"# Generated: {checksums['timestamp']}",
-        f"# Git Hash: {checksums['git_hash'] or 'N/A'}",
-        "",
-        "metadata:",
-        f"  timestamp: {checksums['timestamp']}",
-        f"  git_hash: {checksums['git_hash'] or 'N/A'}",
-        "",
-        "files:"
-    ]
-    
-    for file_key, file_info in checksums["files"].items():
-        lines.append(f"  - key: {file_key}")
-        lines.append(f"    path: {file_info['path']}")
-        lines.append(f"    sha256: {file_info['sha256']}")
-        lines.append(f"    size_bytes: {file_info['size_bytes']}")
-        lines.append("")
-    
-    content = "\n".join(lines)
-    
-    with open(state_file_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    
-    return state_file_path
+
+def generate_project_state_yaml(
+    project_id: str,
+    raw_checksums: List[Dict],
+    processed_checksums: List[Dict],
+    synthetic_checksums: List[Dict],
+    git_hash: str,
+    data_source: str
+) -> Dict[str, Any]:
+    """Construct the state dictionary for the project."""
+    return {
+        "project_id": project_id,
+        "generated_at": datetime.now().isoformat(),
+        "git_hash": git_hash,
+        "data_source": data_source,
+        "checksums": {
+            "raw": raw_checksums,
+            "processed": processed_checksums,
+            "synthetic": synthetic_checksums
+        },
+        "summary": {
+            "total_raw_files": len(raw_checksums),
+            "total_processed_files": len(processed_checksums),
+            "total_synthetic_files": len(synthetic_checksums),
+            "total_files": len(raw_checksums) + len(processed_checksums) + len(synthetic_checksums)
+        }
+    }
+
+
+def save_yaml_file(data: Dict, output_path: Path) -> None:
+    """
+    Save data as a YAML file.
+    Since PyYAML might not be in strict requirements, we implement a simple serializer
+    or use json if yaml is not available. However, the spec asks for .yaml.
+    We will try to import yaml, fallback to a simple string representation if not.
+    """
+    try:
+        import yaml
+        with open(output_path, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    except ImportError:
+        # Fallback: write as JSON but with .yaml extension, or simple text
+        # For strict compliance, we try to mimic YAML structure manually or use json
+        # Given the constraint of "real data", we assume standard env might have pyyaml.
+        # If not, we write a JSON-compatible block which is valid YAML.
+        import json
+        with open(output_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        print(f"Warning: PyYAML not found. Saved as JSON-compatible YAML at {output_path}")
+
 
 def main():
-    """Main entry point."""
-    print("Collecting checksums for data files...")
-    checksums = collect_checksums()
-    
-    if not checksums["files"]:
-        print("Warning: No data files found to checksum.")
-        print("Ensure that data files exist in data/raw/, data/processed/, or data/validation/")
+    """Main entry point for T017."""
+    print("Starting T017: Update State Hashes...")
     
     project_id = "PROJ-209-quantifying-the-influence-of-topological"
-    state_file_path = save_state_file(checksums, project_id)
+    project_root = get_project_root()
     
-    print(f"State file updated: {state_file_path}")
-    print(f"Total files processed: {len(checksums['files'])}")
+    # Define paths
+    raw_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+    synthetic_dir = project_root / "data" / "raw" # Synthetic files are often in raw/ or a specific subfolder
+    state_dir = project_root / "data" / "state" / "projects"
+    output_file = state_dir / f"{project_id}.yaml"
     
-    # Print summary
-    for file_key, file_info in checksums["files"].items():
-        status = "OK" if file_info["sha256"] != "FILE_NOT_FOUND" and not file_info["sha256"].startswith("ERROR") else "FAILED"
-        print(f"  [{status}] {file_key}: {file_info['sha256'][:16]}...")
+    # Ensure output directory exists
+    ensure_dir(output_file.parent)
+    
+    # Load data source flag
+    data_source_file = project_root / "data" / "state" / "data_source.json"
+    data_source_info = load_json_file(data_source_file)
+    data_source = data_source_info.get("source", "unknown") if data_source_info else "unknown"
+    
+    print(f"Data Source Flag: {data_source}")
+    
+    # Scan directories
+    print("Scanning raw data...")
+    raw_checksums = scan_directory_for_checksums(raw_dir)
+    
+    print("Scanning processed data...")
+    processed_checksums = scan_directory_for_checksums(processed_dir)
+    
+    # Check for synthetic files specifically if needed, or just include them in raw if they are there
+    # The task mentions synthetic_train.csv and synthetic_holdout.csv in data/raw/
+    # We'll scan raw again or specifically look for synthetic if they are separate
+    synthetic_checksums = []
+    if (raw_dir / "synthetic_train.csv").exists():
+        synthetic_checksums.append({
+            "path": str((raw_dir / "synthetic_train.csv").relative_to(project_root)),
+            "sha256": compute_sha256(raw_dir / "synthetic_train.csv"),
+            "size_bytes": (raw_dir / "synthetic_train.csv").stat().st_size
+        })
+    if (raw_dir / "synthetic_holdout.csv").exists():
+        synthetic_checksums.append({
+            "path": str((raw_dir / "synthetic_holdout.csv").relative_to(project_root)),
+            "sha256": compute_sha256(raw_dir / "synthetic_holdout.csv"),
+            "size_bytes": (raw_dir / "synthetic_holdout.csv").stat().st_size
+        })
+    
+    # Get git hash
+    git_hash = get_git_hash()
+    print(f"Git Hash: {git_hash}")
+    
+    # Generate state
+    state_data = generate_project_state_yaml(
+        project_id=project_id,
+        raw_checksums=raw_checksums,
+        processed_checksums=processed_checksums,
+        synthetic_checksums=synthetic_checksums,
+        git_hash=git_hash,
+        data_source=data_source
+    )
+    
+    # Save output
+    save_yaml_file(state_data, output_file)
+    
+    print(f"State file successfully written to: {output_file}")
+    print(f"Summary: {state_data['summary']['total_files']} files checksummed.")
+    
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

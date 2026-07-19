@@ -1,3 +1,11 @@
+T016b:
+  c: false
+  h: 8512bcb7c8b206671cac84bd42ff4fe60c335b62604f30ab4c5c4720ce8e730d
+  r: The repository lacks the three required output files (`data/processed/mock_dftb_results.csv`,
+    `data/state/mock_dftb_exclusions.json`, `data/state/fallback_verification.json`).
+    Moreover, the provided `code/01_data_acquisition.py` is truncated and contains
+    no logic for detecting missing `fracture_energy` in synthetic data or invoking
+    the T013 synthetic generator, so the specified step is not implemented.
 T020:
   c: false
   h: a2acae030db14c32f296237f2252d23727022d67491a3742aee895cac7e10509
