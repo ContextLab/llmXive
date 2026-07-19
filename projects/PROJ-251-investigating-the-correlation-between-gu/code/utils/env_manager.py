@@ -1,103 +1,106 @@
+"""
+Environment configuration management for llmXive project.
+Handles .env file loading, API key validation, and environment setup.
+"""
 import os
 from pathlib import Path
 from typing import List, Optional
 import logging
+
 from dotenv import load_dotenv
 
-# Import project root and token getters from config to ensure consistent path resolution
-# Note: We assume config.py is in the same directory or accessible via relative import
-try:
-    from .config import _PROJECT_ROOT, get_hf_token, get_ncbi_api_key
-except ImportError:
-    # Fallback for direct execution or different import context
-    from code.utils.config import _PROJECT_ROOT, get_hf_token, get_ncbi_api_key
+from .logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
+ENV_FILE_PATH = Path(".env")
+REQUIRED_KEYS: List[str] = []  # No API keys required for this specific project yet, but framework is ready
 
 def load_dotenv_file(env_path: Optional[Path] = None) -> bool:
     """
-    Loads the .env file from the project root.
-    
-    Args:
-        env_path: Optional explicit path to .env file. If None, defaults to 
-                  {_PROJECT_ROOT}/.env
-    
-    Returns:
-        True if the file was loaded successfully, False otherwise.
-    """
-    if env_path is None:
-        env_path = _PROJECT_ROOT / ".env"
-    
-    if not env_path.exists():
-        logger.warning(f"No .env file found at {env_path}. API keys will be read from OS environment variables.")
-        return False
-    
-    logger.info(f"Loading environment variables from {env_path}")
-    success = load_dotenv(dotenv_path=env_path)
-    if success:
-        logger.info("Environment variables loaded successfully.")
-    else:
-        logger.warning("Failed to load .env file (file might be empty or malformed).")
-    return success
+    Load environment variables from a .env file.
 
-def validate_api_keys(required_keys: Optional[List[str]] = None) -> bool:
-    """
-    Validates that required API keys are present in the environment.
-    
     Args:
-        required_keys: List of environment variable names to check. 
-                       Defaults to ['HF_TOKEN', 'NCBI_API_KEY'] if None.
-    
+        env_path: Path to the .env file. Defaults to project root .env.
+
     Returns:
-        True if all required keys are present and non-empty, False otherwise.
+        True if the file was found and loaded successfully, False otherwise.
     """
-    if required_keys is None:
-        required_keys = ['HF_TOKEN', 'NCBI_API_KEY']
-    
+    target_path = env_path if env_path else ENV_FILE_PATH
+
+    if not target_path.exists():
+        logger.warning(f"Environment file not found at {target_path}. "
+                       "Proceeding with system environment variables only.")
+        return False
+
+    try:
+        loaded = load_dotenv(target_path, override=True)
+        if loaded:
+            logger.info(f"Successfully loaded environment variables from {target_path}")
+        else:
+            logger.warning(f"No variables loaded from {target_path} (file might be empty)")
+        return loaded
+    except Exception as e:
+        logger.error(f"Failed to load environment file {target_path}: {e}")
+        return False
+
+def validate_api_keys(required_keys: Optional[List[str]] = None) -> List[str]:
+    """
+    Validate that all required API keys are present in the environment.
+
+    Args:
+        required_keys: List of environment variable names that must be set.
+                       Defaults to REQUIRED_KEYS constant.
+
+    Returns:
+        List of missing key names. Empty list if all keys are present.
+    """
+    keys_to_check = required_keys if required_keys else REQUIRED_KEYS
     missing = []
-    for key in required_keys:
-        value = os.getenv(key)
-        if not value:
-            missing.append(key)
-    
-    if missing:
-        logger.error(f"Missing required API keys in environment: {missing}. "
-                     f"Please set them in .env or export them.")
-        return False
-    
-    logger.info("All required API keys are present.")
-    return True
 
-def setup_environment() -> bool:
+    for key in keys_to_check:
+        if not os.getenv(key):
+            missing.append(key)
+            logger.warning(f"Missing required environment variable: {key}")
+
+    if missing:
+        logger.error(f"Missing API keys: {', '.join(missing)}. "
+                     "Please set them in your .env file or system environment.")
+    else:
+        logger.info("All required API keys are present.")
+
+    return missing
+
+def setup_environment(env_path: Optional[Path] = None,
+                      validate: bool = True,
+                      required_keys: Optional[List[str]] = None) -> bool:
     """
-    Orchestrates the full environment setup:
-    1. Loads .env file if it exists.
-    2. Validates that critical API keys are available.
-    
+    Main entry point for setting up the environment.
+
+    This function:
+    1. Loads the .env file from the specified path (or default).
+    2. Validates that all required API keys are present.
+
+    Args:
+        env_path: Optional path to the .env file.
+        validate: If True, validate required keys after loading.
+        required_keys: Optional list of keys to validate (overrides default).
+
     Returns:
-        True if setup is successful and keys are valid, False otherwise.
+        True if setup was successful (file loaded and keys valid if required).
+        False if file loading failed or validation failed.
     """
     logger.info("Starting environment setup...")
-    
-    # 1. Load .env
-    load_dotenv_file()
-    
-    # 2. Validate keys
-    # We check the specific keys used by the project based on config.py
-    is_valid = validate_api_keys(['HF_TOKEN', 'NCBI_API_KEY'])
-    
-    if not is_valid:
-        logger.error("Environment setup failed due to missing API keys.")
-        return False
-    
-    # 3. Optional: Log masked key presence for debugging (never log full values)
-    hf_token = get_hf_token()
-    ncbi_key = get_ncbi_api_key()
-    
-    if hf_token:
-        logger.debug("HF_TOKEN is configured.")
-    if ncbi_key:
-        logger.debug("NCBI_API_KEY is configured.")
-    
+
+    # Load .env file
+    loaded = load_dotenv_file(env_path)
+
+    # Validate keys if requested
+    if validate:
+        missing = validate_api_keys(required_keys)
+        if missing:
+            logger.error("Environment setup failed due to missing API keys.")
+            return False
+
     logger.info("Environment setup completed successfully.")
     return True

@@ -117,7 +117,7 @@ projects/PROJ-251-investigating-the-correlation-between-gu/
   - *Output*: `data/processed/filtered_no_zero_var.csv`.
 - **T020-A**: Implement CLR Transformation (Default Pseudocount).
   - *Input*: `filtered_no_zero_var.csv`.
-  - *Logic*: Relative abundance -> CLR (add 1e-6).
+  - *Logic*: Relative abundance -> CLR (add small pseudocount).
   - *Output*: `data/processed/cleared_default.csv`.
 - **T020-B**: Implement Pseudocount Sensitivity Analysis.
   - *Input*: `filtered_no_zero_var.csv`.

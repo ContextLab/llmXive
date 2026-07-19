@@ -6,83 +6,82 @@ from typing import Optional, Tuple, Dict, Any, List
 import pandas as pd
 import numpy as np
 
-from .config import _PROJECT_ROOT, get_min_sample_size
-from .logging_config import get_logger, log_error_context
+from .logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def load_csv_file(file_path: Path) -> pd.DataFrame:
+def load_csv_file(path: Path) -> pd.DataFrame:
     """Load a CSV file into a DataFrame."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    return pd.read_csv(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    logger.info(f"Loading CSV from {path}")
+    return pd.read_csv(path)
 
-def load_otu_table(file_path: Path) -> pd.DataFrame:
-    """Load an OTU table CSV."""
-    return load_csv_file(file_path)
+def load_otu_table(path: Path) -> pd.DataFrame:
+    """Load OTU table, handling potential index columns."""
+    df = load_csv_file(path)
+    # Basic validation
+    if df.empty:
+        raise ValueError(f"OTU table is empty: {path}")
+    return df
 
-def filter_complete_records(df: pd.DataFrame, required_columns: Optional[List[str]] = None) -> pd.DataFrame:
+def filter_complete_records(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter out rows with missing values in required columns or any column if not specified.
+    Filter out rows with any missing values in critical columns.
+    This implements T012 logic (exclude subjects missing baseline or post titers).
     """
-    if required_columns:
-        # Drop rows where any of the required columns are NA
-        df_filtered = df.dropna(subset=required_columns)
-    else:
-        # Drop rows with any NA
-        df_filtered = df.dropna()
+    critical_cols = ['subject_id', 'titer_baseline', 'titer_post']
+    missing_cols = [c for c in critical_cols if c not in df.columns]
     
-    excluded_count = len(df) - len(df_filtered)
-    if excluded_count > 0:
-        logger.info(f"Filtered out {excluded_count} rows with missing values.")
-    return df_filtered
-
-def validate_titer_values(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validate titer columns exist and are numeric.
-    Filters out rows where titers are non-numeric or invalid (e.g., < 1:10 if that's a hard rule, 
-    though task T013 handles specific LOD logic later, this ensures basic validity).
-    """
-    # Check for presence of expected titer columns if they exist in the dataset
-    titer_cols = [c for c in df.columns if 'titer' in c.lower()]
+    if missing_cols:
+        # If critical columns are missing, we can't filter properly.
+        # Depending on strictness, we might raise or just drop rows with any NaN.
+        # For now, drop any row with any NaN to be safe.
+        logger.warning(f"Missing critical columns {missing_cols}. Dropping all rows with any NaN.")
+        return df.dropna()
     
-    for col in titer_cols:
+    initial_count = len(df)
+    # Keep rows where critical columns are not null
+    df_clean = df.dropna(subset=critical_cols)
+    dropped = initial_count - len(df_clean)
+    
+    if dropped > 0:
+        logger.info(f"Dropped {dropped} rows due to missing critical data.")
+    
+    return df_clean
+
+def validate_titer_values(df: pd.DataFrame, col_names: List[str] = None) -> pd.DataFrame:
+    """
+    Validate that titer values are numeric and positive (or zero).
+    Returns the dataframe, potentially with warnings.
+    """
+    if col_names is None:
+        col_names = ['titer_baseline', 'titer_post']
+    
+    for col in col_names:
         if col not in df.columns:
             continue
         
-        # Ensure numeric
-        original_len = len(df)
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-        dropped = original_len - len(df.dropna(subset=[col]))
-        
-        if dropped > 0:
-            logger.warning(f"Dropped {dropped} rows due to non-numeric values in {col}")
+        # Check for non-numeric
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            logger.warning(f"Column {col} is not numeric. Attempting conversion.")
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
     return df
 
 def ensure_minimum_sample_size(df: pd.DataFrame, min_size: int = 50) -> None:
     """
-    Ensure the dataframe has at least min_size rows.
+    Check if the dataframe meets the minimum sample size.
     Raises ValueError if not.
     """
-    n = len(df)
-    if n < min_size:
-        raise ValueError(f"ERR_NO_DATA: Insufficient Sample Size (N={n} < {min_size})")
+    if len(df) < min_size:
+        raise ValueError(f"ERR_NO_DATA: Insufficient Sample Size (N={len(df)} < {min_size})")
 
-def load_and_preprocess_data(otu_path: Path, meta_path: Path) -> pd.DataFrame:
+def load_and_preprocess_data(raw_path: Path) -> pd.DataFrame:
     """
-    Load OTU and metadata, merge, and perform basic cleaning.
-    This is a helper for cases where Strategy A/B logic is abstracted differently,
-    but T011a implements specific logic in 01_ingest.py.
+    Load raw data and perform basic preprocessing.
     """
-    otu_df = load_otu_table(otu_path)
-    meta_df = load_csv_file(meta_path)
-    
-    # Merge logic (simplified)
-    common_cols = set(otu_df.columns) & set(meta_df.columns)
-    if not common_cols:
-        raise ValueError("No common columns to merge OTU and metadata.")
-    
-    merge_key = list(common_cols)[0]
-    merged = pd.merge(otu_df, meta_df, on=merge_key, how='inner')
-    return merged
+    df = load_csv_file(raw_path)
+    df = validate_titer_values(df)
+    df = filter_complete_records(df)
+    return df

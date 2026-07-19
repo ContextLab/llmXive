@@ -4,10 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listings or other evidence were provided showing that the required folders (code/, data/raw, data/processed, data/results, specs/contracts/) actually exist; without such artifacts the claim cannot be verified. The implementer must create and show these directories (e.g., via a file tree or `ls` output) to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml with black settings) are present in the provided evidence, so the task of configuring ruff/flake8 and black is not demonstrated.
-- `T008` (rejected 1x): No `.env` file, configuration script, or documentation for loading API keys was provided. The claim lacks any tangible artifact demonstrating environment configuration management, so the requirement is not satisfied.
-- `T011a` (rejected 1x): No `otutable.csv` or `metadata.csv` files from the HuggingFace dataset `biothings/srp053178_processed` are present, nor any script/code that performs the fetch. The required artifacts to demonstrate that Strategy A was implemented are missing.
+- `T011b` (rejected 1x): No script, command log, or list of downloaded FASTQ files is present; the implementer provided no artifact showing that they fetched run IDs for SRP053178 or actually downloaded the raw FASTQ data from NCBI SRA. Consequently the requirement to implement Strategy B is not satisfied.
+- `T011c` (rejected 1x): The claim provides only the task description and project specifications; there is no Docker command, script, log, or generated OTU table presented. No evidence of running QIIME2/DADA2 with the required parameters or of producing a non‑empty OTU table is available, so the required artifact is missing.
+- `T011d` (rejected 1x): No merged OTU‑serology dataset (e.g., a CSV file) or script implementing the merge by `subject_id` is present; the evidence consists only of the task description, so the required artifact is missing.
 
 ## Required change
 

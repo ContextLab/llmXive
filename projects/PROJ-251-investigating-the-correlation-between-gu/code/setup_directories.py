@@ -4,45 +4,43 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the project directory structure required for the llmXive pipeline.
+    Create the project directory structure explicitly.
     
     Creates:
-      - code/
-      - data/raw
-      - data/processed
-      - data/results
-      - specs/contracts/
+    - code/
+    - data/raw
+    - data/processed
+    - data/results
+    - specs/001-investigating-the-correlation-between-gu/contracts/
     
-    Returns a list of created paths for verification.
+    Returns:
+        dict: A summary of created directories and their absolute paths.
     """
-    project_root = Path(__file__).resolve().parent.parent
+    base_dir = Path(__file__).resolve().parent.parent
     
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "specs/contracts"
+        base_dir / "code",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "results",
+        base_dir / "specs" / "001-investigating-the-correlation-between-gu" / "contracts",
     ]
     
-    created_paths = []
-    
+    created = []
     for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
         else:
-            created_paths.append(str(full_path))
-            # Optional: log that it already exists if needed
+            print(f"Directory already exists: {dir_path}")
     
-    # Print summary for verification
-    print(f"Directory creation complete for project: {project_root}")
-    print("Created/Verified directories:")
-    for p in created_paths:
-        print(f"  - {p}")
-    
-    return created_paths
+    return {
+        "created": created,
+        "total_created": len(created),
+        "base_directory": str(base_dir)
+    }
 
 if __name__ == "__main__":
-    create_directories()
+    result = create_directories()
+    print(f"Directory creation summary: {result}")
