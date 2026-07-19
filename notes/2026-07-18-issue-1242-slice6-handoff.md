@@ -13,8 +13,16 @@ offline suite **6939 passed / 17 skipped / 0 failed** (`tests/unit tests/contrac
 -m "not slow"`); ruff clean on all 35 changed files; `git diff --check` clean; migration manifest
 current (frozen-drift test green). Design + plan committed under `notes/2026-07-18-issue-1242-slice6-{design,plan}.md`.
 
-### Commit stack (base = Slice-6 start `447ba83824`; re-fetch + rebase onto origin/main BEFORE any PR — local main lags ~655 commits)
+**Post-final-review fix (maintainer 2026-07-18, Low):** `record()` + `record_offload()` re-read prior
+`fix_rounds`/`model_tier` with a bool-permissive `isinstance(x, int)` and wrote them back (a corrupt
+`"model_tier": true` → rewritten tier 1; `"fix_rounds": true` → 2 on next failure), partially defeating
+the read-path bool-safety fix. Both write paths now route through `_nonneg_int` + a read→record→read
+regression test (`test_record_bool_safety_read_write_cycle`). Commit `efc5dba55d`. Maintainer verdict:
+"After replacing those two conversions … I'd consider Slice 6 ready." → **DONE, Slice 6 READY.**
+
+### Commit stack (base = Slice-6 start `447ba83824`; re-fetch + rebase onto origin/main BEFORE any PR — local main lags ~785 commits)
 ```
+efc5dba55d fix(026 Slice-6): bool-safe counters on the record() write path too              (post-review)
 4f040256af docs(026 Slice-6): FR-003 require_paid + US6/SC-007 migration delta + per-tier golden   (Task 8)
 c415188066 feat(026 Slice-6): graph dispatch threads tier overrides into SlashCommandContext        (Task 7)
 276872f0ad feat(026 Slice-6): thread requirement_overrides through speckit + convergence panel       (Task 6)
