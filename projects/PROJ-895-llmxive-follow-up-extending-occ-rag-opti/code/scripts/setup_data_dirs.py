@@ -5,23 +5,23 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 def ensure_dir(path: str) -> Path:
-    """Ensure the directory for a given path exists."""
-    p = Path(path)
-    p.mkdir(parents=True, exist_ok=True)
-    return p
+    """Ensure a directory exists, creating it if necessary."""
+    dir_path = Path(path)
+    dir_path.mkdir(parents=True, exist_ok=True)
+    return dir_path
 
 def compute_sha256(file_path: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def init_checksums(checksum_file_path: str) -> Dict[str, Any]:
+def init_checksums(checksum_file: str) -> Dict[str, Any]:
     """Initialize or load the checksums.json file."""
-    if os.path.exists(checksum_file_path):
-        with open(checksum_file_path, "r") as f:
+    if os.path.exists(checksum_file):
+        with open(checksum_file, "r") as f:
             return json.load(f)
     return {
         "version": "1.0",
@@ -30,48 +30,54 @@ def init_checksums(checksum_file_path: str) -> Dict[str, Any]:
 
 def register_artifact(
     checksums: Dict[str, Any],
-    artifact_path: str,
     artifact_name: str,
-    description: Optional[str] = None
-) -> None:
+    path: str,
+    source: str,
+    checksum: Optional[str] = None
+) -> Dict[str, Any]:
     """Register an artifact in the checksums dictionary."""
-    if not os.path.exists(artifact_path):
-        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
-    
-    checksum = compute_sha256(artifact_path)
-    size_bytes = os.path.getsize(artifact_path)
-    
     checksums["artifacts"][artifact_name] = {
-        "path": artifact_path,
+        "path": path,
+        "source": source,
+        "status": "verified" if checksum else "pending",
         "checksum": checksum,
-        "size_bytes": size_bytes,
-        "description": description or "No description provided",
-        "version": "1.0"
+        "timestamp": None
     }
+    return checksums
 
 def main():
     """Main entry point to setup data directories and initialize checksums."""
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    data_raw_dir = project_root / "data" / "raw"
-    checksums_file = project_root / "data" / "checksums.json"
+    # Ensure required directories exist
+    ensure_dir("data/raw")
+    ensure_dir("data/processed")
     
-    # Ensure directories exist
-    ensure_dir(str(data_raw_dir))
+    # Initialize or update checksums file
+    checksums_file = "data/checksums.json"
+    checksums = init_checksums(checksums_file)
     
-    # Initialize checksums
-    checksums = init_checksums(str(checksums_file))
+    # Register expected artifacts (placeholders for now)
+    # These will be populated by T004 and T004.1 when datasets are fetched
+    if "occ_rag_corpus" not in checksums["artifacts"]:
+        checksums = register_artifact(
+            checksums,
+            "occ_rag_corpus",
+            "data/raw/occ_rag_corpus.jsonl",
+            "nlp4research/occ-rag-synthetic-corpus"
+        )
     
-    # Register the raw data directory placeholder if needed (optional)
-    # Note: T004 creates the actual corpus file, so we don't register it here yet.
-    # This script ensures the structure is ready for T004.
+    if "occ_rag_model_weights" not in checksums["artifacts"]:
+        checksums = register_artifact(
+            checksums,
+            "occ_rag_model_weights",
+            "data/raw/occ-rag-1.7b-frozen",
+            "nlp4research/occ-rag-1.7b-frozen"
+        )
     
     # Save updated checksums
     with open(checksums_file, "w") as f:
         json.dump(checksums, f, indent=2)
     
-    print(f"Data directories created: {data_raw_dir}")
-    print(f"Checksums file initialized: {checksums_file}")
+    print(f"Data directories setup complete. Checksums file: {checksums_file}")
 
 if __name__ == "__main__":
     main()

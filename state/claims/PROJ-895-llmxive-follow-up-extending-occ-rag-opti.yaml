@@ -1,0 +1,229 @@
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific CPU-only libraries
+  claim_id: c_de6c3f9d
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with torch (CPU-only wheel), transformers,
+    scikit-learn, pandas, numpy, datasets in code/requirements.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:06:42Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Dataset nlp4research/occ-rag-synthetic-corpus fetched from HuggingFace
+    with checksum verification
+  claim_id: c_1b097591
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_nlp4research/occ-rag-synthetic-corpus_fetched_from_H
+  kind: entity_fact
+  raw_text: Fetch the specific dataset nlp4research/occ-rag-synthetic-corpus from
+    HuggingFace Datasets, ensuring checksum verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:05Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Model weights nlp4research/occ-rag-1.7b-frozen downloaded from HuggingFace
+  claim_id: c_d9506e0c
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download, verify checksum, and cache the frozen OCC-RAG model weights
+    from nlp4research/occ-rag-1.7b-frozen (HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:19Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: 500 examples sampled if raw dataset exceeds memory threshold
+  claim_id: c_8ef8d00f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004.1 Note'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the raw dataset size (row count) exceeds CONFIG.MAX_RAM_THRESHOLD,
+    sample exactly 500 examples using CONFIG.SAMPLE_SEED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:07:48Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Context Faithfulness Score calculated as weighted ConFiQA accuracy plus
+    citation precision
+  claim_id: c_b5a03505
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Context_Faithfulness_Score_calculated_as_weighted_ConFiQA_ac
+  kind: entity_fact
+  raw_text: Implement code/utils/faithfulness_score.py to calculate the Context Faithfulness
+    Score (weighted ConFiQA accuracy + citation precision) on CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:08:08Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Pilot sensitivity analysis run with mask fraction 0.5 and retention percent
+    50
+  claim_id: c_cccd1398
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T008.2'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Run a single preliminary sensitivity analysis with fixed MASK_FRACTION=0.5
+    and RETENTION_PCT=50.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T17:08:08Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: OCC-RAG-1.7B model loaded within 7 GB RAM using layer-wise loading
+  claim_id: c_7b174a6e
+  context: 'Phase 3: User Story 1 - Task T012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure code/01_sensitivity_analysis.py loads the frozen OCC-RAG-1.7B model
+    using layer-wise loading to stay within 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:08:30Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Peak resident set size measured during sensitivity loop
+  claim_id: c_e7d27260
+  context: 'Phase 3: User Story 1 - Task T012.1'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_resident_set_size_measured_during_sensitivity_loop
+  kind: entity_fact
+  raw_text: Measure the peak resident set size (RSS) of the Python process during
+    the sensitivity loop.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:09:37Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Script fails if peak RSS exceeds 7 GB
+  claim_id: c_32c745ea
+  context: 'Phase 3: User Story 1 - Task T012.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak RSS > 7 GB, the script MUST fail hard with an error message.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:09:37Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Inference run on original unpruned OCC-RAG-1.7B model on held-out test
+    set
+  claim_id: c_f0eae5f9
+  context: 'Phase 3: User Story 1 - Task T013.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run inference on the original (unpruned) OCC-RAG-1.7B model on the held-out
+    test set to generate per-sample faithfulness scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:09:57Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Fine-tuning runs on CPU within 4 hours
+  claim_id: c_265125c3
+  context: 'Phase 4: User Story 2 - Task T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure code/03_finetune_pruned.py runs entirely on CPU within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:10:14Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Early stopping triggered when gradient magnitude is less than 1e-4 for
+    3 consecutive epochs
+  claim_id: c_368ecd22
+  context: 'Phase 4: User Story 2 - Task T020'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Implement early stopping in code/03_finetune_pruned.py based on gradient
+    magnitude < 1e-4 for 3 consecutive epochs.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T17:10:14Z'
+- artifact_path: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged if Pearson correlation exceeds 0.2
+  claim_id: c_cc6edc6e
+  context: 'Phase 5: User Story 3 - Task T026'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if correlation > 0.2 between sensitivity scores of the selected sub-network
+    and the random subset of the EXACT SAME SIZE.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T17:10:14Z'

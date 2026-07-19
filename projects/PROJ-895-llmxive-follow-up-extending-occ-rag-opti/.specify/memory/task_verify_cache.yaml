@@ -4,6 +4,13 @@ T012:
   r: "The required artifact `code/01_sensitivity_analysis.py` does not exist, so the\
     \ script cannot be verified to load the model layer\u2011wise or stay within the\
     \ 7\u202FGB RAM limit. The task\u2019s core deliverable is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data artifact was provided that implements the required\
+    \ sorting logic, applies `CONFIG.RETENTION_PCT` to select the cutoff, or produces\
+    \ the \u201CCritical Sub-network\u201D candidate list. The evidence lacks any\
+    \ implementation or output file, so the task\u2019s requirement is not satisfied."
 T021:
   c: false
   h: 53751451cf9dfe2cda663aff41efc2025a573d15b58c0836d7f7615c4f5365c4

@@ -1,4 +1,19 @@
 {
   "version": "1.0",
-  "artifacts": {}
+  "artifacts": {
+    "occ_rag_corpus": {
+      "path": "data/raw/occ_rag_corpus.jsonl",
+      "source": "nlp4research/occ-rag-synthetic-corpus",
+      "status": "pending_fetch",
+      "checksum": null,
+      "timestamp": null
+    },
+    "occ_rag_model_weights": {
+      "path": "data/raw/occ-rag-1.7b-frozen",
+      "source": "nlp4research/occ-rag-1.7b-frozen",
+      "status": "pending_fetch",
+      "checksum": null,
+      "timestamp": null
+    }
+  }
 }
