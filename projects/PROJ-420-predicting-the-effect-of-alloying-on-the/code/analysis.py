@@ -4,116 +4,145 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from config import get_config
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-
-def load_trained_model(model_path: Path) -> Any:
+def load_trained_model(model_path: str) -> RandomForestRegressor:
     """Load the trained Random Forest model from disk."""
-    logger.info(f"Loading model from {model_path}")
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
-    return model
+    path = Path(model_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    with open(path, 'rb') as f:
+        return pickle.load(f)
 
-
-def extract_feature_importance(model: Any, feature_names: List[str]) -> Dict[str, float]:
+def extract_feature_importance(model: RandomForestRegressor, feature_names: List[str]) -> Dict[str, float]:
     """Extract feature importance scores from the trained model."""
     importances = model.feature_importances_
-    importance_dict = {name: float(imp) for name, imp in zip(feature_names, importances)}
-    logger.info(f"Extracted importance for {len(importance_dict)} features")
-    return importance_dict
+    return {name: float(imp) for name, imp in zip(feature_names, importances)}
 
-
-def save_importance_results(importance_dict: Dict[str, float], output_path: Path) -> None:
+def save_importance_results(results: Dict[str, Any], output_path: str) -> None:
     """Save feature importance results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(importance_dict, f, indent=2)
-    logger.info(f"Saved importance results to {output_path}")
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Feature importance results saved to {output_path}")
 
+def run_permutation_importance(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray, 
+                               feature_names: List[str], n_repeats: int = 10, 
+                               random_state: int = 42) -> Dict[str, float]:
+    """Run permutation importance on the model."""
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, 
+                                    random_state=random_state, n_jobs=-1)
+    importance_scores = {}
+    for name, score in zip(feature_names, result.importances_mean):
+        importance_scores[name] = float(score)
+    return importance_scores
 
-def run_permutation_importance(model: Any, X: np.ndarray, y: np.ndarray, feature_names: List[str], n_repeats: int = 10, random_state: int = 42) -> Dict[str, float]:
-    """Run permutation importance to validate feature importance."""
-    logger.info("Running permutation importance")
-    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state, scoring='neg_mean_absolute_error')
-    perm_importance = result.importances_mean
-    perm_dict = {name: float(imp) for name, imp in zip(feature_names, perm_importance)}
-    logger.info(f"Permutation importance calculated for {len(perm_dict)} features")
-    return perm_dict
-
-
-def run_importance_analysis(model: Any, X: np.ndarray, y: np.ndarray, feature_names: List[str], output_dir: Path) -> Dict[str, Any]:
-    """Run full importance analysis including extraction and permutation."""
-    model_importance = extract_feature_importance(model, feature_names)
-    perm_importance = run_permutation_importance(model, X, y, feature_names)
-
-    save_importance_results(model_importance, output_dir / "model_importance.json")
-    save_importance_results(perm_importance, output_dir / "permutation_importance.json")
-
-    return {
-        "model_importance": model_importance,
-        "permutation_importance": perm_importance
+def run_importance_analysis(model_path: str, data_path: str, output_path: str) -> Dict[str, Any]:
+    """Run full importance analysis including model extraction and permutation importance."""
+    config = get_config()
+    model = load_trained_model(model_path)
+    
+    # Load data
+    df = pd.read_csv(data_path)
+    # Assuming ILR transformed columns are present
+    ilr_cols = [col for col in df.columns if col.startswith('ilr_')]
+    X = df[ilr_cols].values
+    y = df['poissons_ratio'].values
+    
+    model_importance = extract_feature_importance(model, ilr_cols)
+    perm_importance = run_permutation_importance(model, X, y, ilr_cols)
+    
+    results = {
+        'model_importance': model_importance,
+        'permutation_importance': perm_importance,
+        'feature_names': ilr_cols
     }
+    
+    save_importance_results(results, output_path)
+    return results
 
-
-def calculate_vif(X: np.ndarray, feature_names: List[str]) -> Dict[str, float]:
-    """Calculate Variance Inflation Factor for each feature."""
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    logger.info("Calculating VIF for raw predictors")
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
+    """Calculate Variance Inflation Factor for given features."""
     vif_data = {}
-    for i, name in enumerate(feature_names):
-        vif = variance_inflation_factor(X, i)
-        vif_data[name] = float(vif)
-        if vif > 5:
-            logger.warning(f"High VIF detected for {name}: {vif:.2f}")
+    for col in feature_cols:
+        if col in df.columns:
+            vif = variance_inflation_factor(df[feature_cols].values, feature_cols.index(col))
+            vif_data[col] = float(vif)
+        else:
+            logger.warning(f"Column {col} not found in dataframe for VIF calculation")
     return vif_data
 
-
-def save_vif_results(vif_dict: Dict[str, float], output_path: Path) -> None:
+def save_vif_results(vif_results: Dict[str, float], output_path: str) -> None:
     """Save VIF results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(vif_dict, f, indent=2)
-    logger.info(f"Saved VIF results to {output_path}")
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(vif_results, f, indent=2)
+    logger.info(f"VIF results saved to {output_path}")
 
-
-def rank_and_compare_importance(importance_dict: Dict[str, float]) -> List[Tuple[str, float]]:
-    """Rank features by importance and return sorted list."""
-    ranked = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-    logger.info(f"Ranked {len(ranked)} features by importance")
+def rank_and_compare_importance(importance_results: Dict[str, Any]) -> List[Tuple[str, float, float]]:
+    """Rank features by importance and compare model vs permutation importance."""
+    model_imp = importance_results['model_importance']
+    perm_imp = importance_results['permutation_importance']
+    
+    ranked = []
+    for feature in model_imp.keys():
+        ranked.append((feature, model_imp[feature], perm_imp.get(feature, 0.0)))
+    
+    # Sort by model importance descending
+    ranked.sort(key=lambda x: x[1], reverse=True)
     return ranked
 
-
-def save_ranking_results(ranked_list: List[Tuple[str, float]], output_path: Path) -> None:
+def save_ranking_results(ranked: List[Tuple[str, float, float]], output_path: str) -> None:
     """Save ranked importance results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump([{"feature": name, "importance": imp} for name, imp in ranked_list], f, indent=2)
-    logger.info(f"Saved ranking results to {output_path}")
-
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = [{'feature': f, 'model_importance': m, 'permutation_importance': p} for f, m, p in ranked]
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Ranked importance results saved to {output_path}")
 
 def main():
-    """Main entry point for importance analysis."""
+    """Main entry point for running the analysis pipeline."""
     config = get_config()
-    model_path = config.models_dir / "rf_model.pkl"
-    output_dir = config.output_dir
-
-    logger.info("Starting feature importance analysis")
-
-    try:
-        model = load_trained_model(model_path)
-        # Assuming features and target are loaded from processed data
-        # This would typically be passed in or loaded from a file
-        # For now, we assume the caller handles data loading
-        logger.warning("Data loading for importance analysis not implemented in this module. Ensure X and y are provided.")
-    except FileNotFoundError:
-        logger.error(f"Model not found at {model_path}")
-        raise
-
+    model_path = config.models_dir / 'rf_model.pkl'
+    data_path = config.data_dir / 'processed' / 'filtered_alloys.csv'
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Required data file not found: {data_path}")
+    
+    if not model_path.exists():
+        raise FileNotFoundError(f"Required model file not found: {model_path}")
+    
+    # Run importance analysis
+    importance_path = config.data_dir / 'outputs' / 'feature_importance.json'
+    importance_results = run_importance_analysis(str(model_path), str(data_path), str(importance_path))
+    
+    # Calculate VIF
+    df = pd.read_csv(data_path)
+    raw_features = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    vif_results = calculate_vif(df, raw_features)
+    vif_path = config.data_dir / 'outputs' / 'vif_results.json'
+    save_vif_results(vif_results, str(vif_path))
+    
+    # Rank and compare
+    ranked = rank_and_compare_importance(importance_results)
+    ranking_path = config.data_dir / 'outputs' / 'importance_ranking.json'
+    save_ranking_results(ranked, str(ranking_path))
+    
+    logger.info("Analysis pipeline completed successfully")
+    print(f"Feature importance saved to: {importance_path}")
+    print(f"VIF results saved to: {vif_path}")
+    print(f"Ranked results saved to: {ranking_path}")
 
 if __name__ == "__main__":
     main()

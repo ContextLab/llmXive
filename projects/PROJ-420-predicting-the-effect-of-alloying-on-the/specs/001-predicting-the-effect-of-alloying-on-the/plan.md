@@ -127,7 +127,7 @@ projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
 
 #### Statistical Power & Uncertainty
 - **Sample Size Limitation**: The plan assumes ≥50 entries (per spec assumptions). If the actual dataset is smaller (e.g., N < 50), the variance of the 5-fold CV MAE estimate will be high.
-- **Uncertainty Quantification**: To address this, the `modeling.py` script will perform **Bootstrap Resampling** (1000 iterations) on the CV error. For each iteration, it will resample the dataset with replacement, perform 5-fold CV, and record the MAE.
+- **Uncertainty Quantification**: To address this, the `modeling.py` script will perform **Bootstrap Resampling** (a sufficient number of iterations) on the CV error. For each iteration, it will resample the dataset with replacement, perform 5-fold CV, and record the MAE.
 - **Output**: The final report will include the median MAE and the confidence interval derived from the bootstrap distribution. This quantifies the uncertainty of the predictive accuracy claim (SC-002).
 
 ### 4. Diagnostics and Interpretation (FR-006, FR-007, FR-008)

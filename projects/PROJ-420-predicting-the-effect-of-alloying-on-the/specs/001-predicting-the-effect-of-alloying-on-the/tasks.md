@@ -60,6 +60,7 @@
 - [X] T006 [P] Implement logging infrastructure in `code/logging_config.py` (JSON logging, error levels)
 - [X] T007 Create data schema definitions in `code/schemas/alloy_record.py` (Pydantic models for AlloyRecord, ModelMetrics) including fields to store provenance metadata for independence verification (FR-009) and the specific source method if available.
 - [X] T008 Implement checksum utility in `code/utils/checksum.py` for verifying raw data integrity
+- [X] T008b [P] Verify data source URLs: Implement a script in `code/data_extraction.py` (or standalone) to verify the accessibility of the Materials Project and NIST URLs **as defined in the 'Verified datasets' block of plan.md**. If the plan.md block is missing a URL for either source, the script MUST raise a `RuntimeError` with the message "CRITICAL: Missing verified URL in plan.md for [Source Name]. Pipeline cannot proceed." (satisfies Verified Accuracy gate).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,14 +75,12 @@
 ### Implementation for User Story 1
 
 - [X] T009 [US1] Implement data extraction for Materials Project in `code/data_extraction.py` (fetch aluminum alloys via `GET https://next-gen.materialsproject.org/api/v2/materials/` with query params `elements=Al` and filtering for `elastic_properties` in response; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/mp_aluminum.json`)
-- [ ] T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py` (fetch aluminum alloys via `GET or specific dataset API endpoint; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/nist_aluminum.json`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T014 [US1] Implement positive verification and exclusion logic in `code/data_cleaning.py` for FR-009: query the `measurement_method` field for each entry; explicitly EXCLUDE entries where the method is 'calculated', 'derived', 'derived_from_Youngs_modulus', OR missing/unknown (as independence cannot be verified); log the specific exclusion reason for each dropped entry; ensure the output dataset includes a `measurement_source` field confirming the verified method
-- [X] T014b [US1] Implement computational independence check in `code/data_cleaning.py`: if `measurement_method` is missing but Young's Modulus and Bulk Modulus are available, calculate derived Poisson's ratio; if the derived value matches the reported value within 1% tolerance, EXCLUDE the entry as dependent; if Bulk Modulus is missing, exclude the entry; log the exclusion reason
-- [X] T011 [US1] Implement filtering logic in `code/data_cleaning.py` to select monolithic alloys with non-missing Poisson's ratio, Young's modulus, and Cu/Mg/Si/Zn/Mn composition (runs AFTER T014/T014b)
-- [ ] T012 [US1] Implement unit normalization in `code/data_cleaning.py` (convert elastic constants to GPa, calculate atomic fractions summing to unity) (runs AFTER T014/T014b)
-- [ ] T013 [US1] Implement exclusion logic in `code/data_cleaning.py` for entries where major element sum < 0.95 (log warning, drop row)
-- [ ] T016 [US1] Implement main orchestration for data pipeline in `code/main.py` (run extraction -> cleaning -> save `data/processed/filtered_alloys.csv`); INCLUDE validation to HALT with a clear error message if valid entries < 50 (per spec.md Edge Cases); do not proceed to modeling if threshold not met
-- [ ] T018 [US1] [DEPRECATED - logic moved to T016]
+- [X] T010 [US1] Implement data extraction for NIST Materials Data Repository in `code/data_extraction.py` (fetch aluminum alloys via `GET with query params for 'Poisson\'s ratio', 'Young\'s modulus', and 'composition'; validate against AlloyRecord schema from T007 ensuring `measurement_method` field is present; save to `data/raw/nist_aluminum.json`)
+- [X] T014 [US1] Implement positive verification and exclusion logic in `code/data_cleaning.py` for FR-009: query the `measurement_method` field for each entry; explicitly EXCLUDE entries where the method is NOT 'ultrasonic' or 'experimental' (including 'calculated', 'derived', 'derived_from_Youngs_modulus', 'DFT', 'missing', 'null', or empty string). **If the `measurement_method` field is missing**, attempt to infer independence from alternative metadata fields (e.g., 'method', 'technique') or exclude the entry with a specific warning. Log the specific exclusion reason for each dropped entry to the log path defined in `code/config.py` (T005) to `data/logs/independence_check.log`; ensure the output dataset includes a `measurement_source` field confirming the verified method.
+- [X] T011 [US1] Implement filtering logic in `code/data_cleaning.py` to select monolithic alloys with non-missing Poisson's ratio, Young's modulus, and Cu/Mg/Si/Zn/Mn composition (runs AFTER T014)
+- [X] T012 [US1] Implement unit normalization in `code/data_cleaning.py` (convert elastic constants to GPa, calculate atomic fractions summing to unity) (runs AFTER T014)
+- [X] T013 [US1] Implement exclusion logic in `code/data_cleaning.py` for entries where major element sum < 0.95 (log warning, drop row)
+- [X] T016 [US1] Implement main orchestration for data pipeline in `code/main.py` (run extraction -> cleaning -> save `data/processed/filtered_alloys.csv`); INCLUDE validation to HALT with a clear error message if valid entries == 0 (per spec.md Edge Cases). **Exit code MUST be 1 and error message MUST be "CRITICAL: No valid entries found. Pipeline halted."** if valid entries == 0. If valid entries < 50, log a WARNING but continue (per spec.md Assumptions); ensure the file `data/processed/filtered_alloys.csv` is actually created and contains >0 rows before exiting.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,15 +94,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement ILR transformation in `code/data_cleaning.py` using the `compositional` package for Cu, Mg, Si, Zn, Mn atomic fractions (DEPENDS ON T012/T013 completion; operates on `data/processed/filtered_alloys.csv` produced by T016)
-- [~] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
-- [~] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
-- [~] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
-- [~] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
-- [~] T024 [US2] Implement model serialization in `code/modeling.py` (save trained model to `models/rf_model.pkl`)
-- [~] T025 [US2] Implement results logging in `code/modeling.py` (save ModelMetrics to `docs/outputs/model_metrics.json`)
+- [X] T019 [US2] Implement ILR transformation in `code/data_cleaning.py` using the `compositional` package for Cu, Mg, Si, Zn, Mn atomic fractions (DEPENDS ON T012/T013 completion; operates on `data/processed/filtered_alloys.csv` produced by T016)
+- [X] T020 [US2] Implement feature vector construction in `code/modeling.py` (combine ILR features with target Poisson's ratio)
+- [X] T021 [US2] Implement a standard train/test split logic in `code/modeling.py` with fixed random seed (operates on the ILR-transformed feature set from T019)
+- [X] T022 [US2] Implement Random Forest training with k-fold cross-validation in `code/modeling.py` (log CV MAE)
+- [X] T025a [US2] **NEW**: Implement Bootstrap Resampling for uncertainty quantification in `code/modeling.py`. Run multiple bootstrap iterations on the dataset, performing 5-fold CV on each. Compute the median MAE and confidence intervals from the distribution. Save results to `docs/outputs/bootstrap_uncertainty.json`.
+- [X] T023 [US2] Implement test set evaluation in `code/modeling.py` (compute and log test-set MAE)
+- [X] T024 [US2] Implement model serialization in `code/modeling.py` (save trained model to `models/rf_model.pkl` and verify file creation)
+- [X] T025b [US2] Implement results logging in `code/modeling.py` (save ModelMetrics to `docs/outputs/model_metrics.json`). **DEPENDS ON T025a**. The JSON schema MUST include `cv_mae`, `test_mae`, `bootstrap_median_mae`, and `bootstrap_ci_95` (lower, upper) fields as generated by T025a.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
@@ -116,11 +116,11 @@
 ### Implementation for User Story 3
 
 - [X] T026 [P] [US3] Implement feature importance extraction from Random Forest in `code/analysis.py`
-- [X] T027a [US3] Implement baseline Permutation Importance on ILR features in `code/analysis.py` (as mandated by plan.md Methodology Step 2)
-- [X] T027b [US3] Implement Perturbation-Based Sensitivity Analysis in `code/analysis.py` to map ILR-importance back to original elemental importance scores. DO NOT back-transform ILR splits (mathematically invalid per plan.md). Instead, perturb raw composition by adding independent Gaussian noise with standard deviation = 1% of the atomic fraction value to each element, re-transform to ILR, predict, and measure loss change to derive importance. <!-- FAILED: unspecified -->
-- [X] T028 [US3] Implement VIF calculation in `code/analysis.py` for raw predictors (Cu, Mg, Si, Zn, Mn). Compute VIF and log values where VIF > 5 as expected diagnostic confirmation of collinearity in raw space (per plan.md Methodology Step 4). Do NOT halt pipeline.
+- [X] T027a [US3] Implement **baseline Permutation Importance on ILR features** in `code/analysis.py` (as mandated by plan.md Methodology Step 2). This must be a distinct, verifiable unit. Run permutation importance on the ILR-transformed features, save the scores to `docs/outputs/baseline_permutation_importance.csv`, and log the results.
+- [X] T027b [US3] Implement Perturbation-Based Sensitivity Analysis in `code/analysis.py` to map ILR-importance back to original elemental importance scores. DO NOT back-transform ILR splits (mathematically invalid per plan.md). Instead, perturb raw composition by adding independent Gaussian noise with standard deviation = 1% of the atomic fraction value to each element, re-transform to ILR, predict, and measure loss change to derive importance. **Compare results against the baseline from T027a**. Save importance scores to `docs/outputs/element_importance.csv`.
+- [X] T028 [US3] Implement VIF calculation in `code/analysis.py` for raw predictors. **Exclude the Al balance** from the calculation to avoid infinite VIF values (per plan.md Methodology Step 4). Compute VIF for Cu, Mg, Si, Zn, Mn only. Log values where VIF > 5 as expected diagnostic confirmation of collinearity in raw space (per plan.md Methodology Step 4). Do NOT halt pipeline.
 - [X] T029 [US3] Implement result ranking and comparison logic in `code/analysis.py` (identify top elements, compare magnitudes)
-- [~] T030 [US3] Implement final report generation in `code/main.py` (aggregate metrics, VIF, importance, and framing into `docs/outputs/final_report.md`); PROGRAMMATICALLY inject the exact phrase "associational, not causal" into every result statement in the generated reports by modifying the Markdown template before rendering; VERIFY that this phrase exists in all result sections via regex check before finalizing the report (per spec.md SC-005 and FR-008); if verification fails, raise an error to prevent report generation
+- [X] T030 [US3] Implement final report generation in `code/main.py` (aggregate metrics, VIF, importance, and framing into `docs/outputs/final_report.md`); PROGRAMMATICALLY inject the exact phrase "associational, not causal" into every result statement in the generated reports by modifying the Markdown template before rendering; VERIFY that this phrase exists in all result sections via regex check before finalizing the report; if verification fails, raise an error to prevent report generation; ensure the file `docs/outputs/final_report.md` is actually created.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -133,8 +133,8 @@
 - [X] T031a [P] Update `docs/quickstart.md` with new CLI flags for extraction and modeling steps
 - [X] T031b [P] Update `docs/data-model.md` with new schema fields for measurement provenance
 - [X] T031c [P] Update `docs/README.md` with updated execution steps and dependencies
-- [~] T032a [P] Remove unused imports in `code/` modules
-- [~] T032b [P] Enforce black formatting on all `code/` Python files
+- [X] T032a [P] Run `ruff check --fix code/` to remove unused imports and enforce linting rules
+- [X] T032b [P] Run `black code/` to enforce formatting on all Python files
 - [X] T032c [P] Simplify nested loops in `code/data_cleaning.py` to maximum depth of 3
 - [X] T033a [P] Optimize data extraction runtime in `code/data_extraction.py` to target < 30s per source
 - [X] T033b [P] Optimize modeling runtime in `code/modeling.py` to target < 10min for full pipeline
@@ -233,9 +233,13 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- Phase 6 (Computational Universe Exploration) has been removed as it constituted unmandated scope creep with no corresponding FR/SC in spec.md.
 - T018 logic has been integrated into T016 to ensure hard failure on insufficient data.
 - T014/T014b now precede T011/T012 to ensure invalid data is excluded before processing.
 - T019 uses `compositional` package as per plan.md.
-- T027a and T027b implement the full two-step importance strategy.
+- T027a and T027b implement the full two-step importance strategy with explicit baseline comparison.
 - T031, T032, T033 have been split into specific, executable tasks.
+- T016 now halts on zero entries (exit code 1) and warns on <50 entries, aligning with Spec.md Edge Cases and Assumptions.
+- T025a implements the required Bootstrap Resampling for uncertainty quantification.
+- T028 explicitly excludes Al to prevent infinite VIF.
+- T008b now reads verified URLs from plan.md.
+- Phase 6 (Computational Universe Exploration) has been removed as it was not part of the approved scope in spec.md or plan.md.

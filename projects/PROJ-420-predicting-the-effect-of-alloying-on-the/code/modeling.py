@@ -1,10 +1,3 @@
-"""
-Modeling module for training Random Forest regressors on aluminum alloy data.
-
-This module handles feature loading, model training with cross-validation,
-evaluation, and serialization. It includes memory optimization to stay
-within the 4GB peak memory target.
-"""
 import logging
 import pickle
 import json
@@ -15,338 +8,184 @@ from typing import Tuple, Dict, Any, Optional
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.metrics import mean_absolute_error
-import gc
 
 from config import get_config
 from logging_config import get_logger
-from memory_utils import (
-    check_memory_usage,
-    optimize_dataframe_memory,
-    clear_unused_memory,
-    get_memory_profile_summary
-)
+from schemas.alloy_record import ModelMetrics
 
 logger = get_logger(__name__)
+config = get_config()
 
-def load_features_and_target(
-    data_path: Path,
-    feature_columns: list,
-    target_column: str
-) -> Tuple[pd.DataFrame, pd.Series]:
+def load_features_and_target() -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load features and target from a CSV file with memory optimization.
-    
-    Args:
-        data_path: Path to the CSV file
-        feature_columns: List of column names to use as features
-        target_column: Name of the target column
-        
-    Returns:
-        Tuple of (features DataFrame, target Series)
+    Load the ILR-transformed features and the target variable (Poisson's ratio)
+    from the cleaned dataset.
     """
-    logger.info(f"Loading features and target from {data_path}")
-    
-    # Check memory before loading
-    check_memory_usage(warn_only=True)
-    
-    # Load data
+    data_path = config.data_processed / "filtered_alloys.csv"
+    if not data_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {data_path}")
+
     df = pd.read_csv(data_path)
+
+    # Identify ILR columns (usually prefixed with 'ilr_' or similar based on T019)
+    # Assuming T019 creates columns named 'ilr_0', 'ilr_1', etc. or similar.
+    # We look for the target column specifically.
+    target_col = "poissons_ratio"
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in {data_path}")
+
+    # Select feature columns: exclude target and any non-feature columns
+    # Based on T019, we expect ILR transformed columns.
+    # We assume the DataFrame contains the ILR columns and the target.
+    feature_cols = [col for col in df.columns if col != target_col and col != "material_id"]
     
-    # Optimize memory
-    df = optimize_dataframe_memory(df)
-    
-    # Extract features and target
-    X = df[feature_columns]
-    y = df[target_column]
-    
-    logger.info(f"Loaded {len(X)} samples with {len(feature_columns)} features")
-    
-    # Check memory after loading
-    check_memory_usage(warn_only=True)
-    
+    X = df[feature_cols]
+    y = df[target_col]
+
+    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features.")
     return X, y
 
-def train_random_forest_with_cv(
-    X: pd.DataFrame,
-    y: pd.Series,
-    n_estimators: int = 100,
-    max_depth: Optional[int] = None,
-    n_splits: int = 5,
-    random_state: int = 42
-) -> Tuple[RandomForestRegressor, Dict[str, Any]]:
+def train_random_forest_with_cv(X: pd.DataFrame, y: pd.Series, cv_folds: int = 5) -> RandomForestRegressor:
     """
-    Train a Random Forest regressor with k-fold cross-validation.
-    
-    Args:
-        X: Feature DataFrame
-        y: Target Series
-        n_estimators: Number of trees in the forest
-        max_depth: Maximum depth of trees (None for unlimited)
-        n_splits: Number of CV folds
-        random_state: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (trained model, metrics dictionary)
+    Train a Random Forest Regressor with k-fold cross-validation.
+    Returns the trained model.
     """
-    logger.info(f"Training Random Forest with {n_estimators} trees, {n_splits}-fold CV")
+    logger.info(f"Starting Random Forest training with {cv_folds}-fold CV.")
     
-    # Check memory before training
-    check_memory_usage(warn_only=True)
-    
-    # Initialize model
     model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        n_jobs=-1,
-        verbose=1
-    )
-    
-    # Perform cross-validation
-    logger.info("Starting cross-validation...")
-    start_time = time.time()
-    
-    cv_scores = cross_val_score(
-        model, X, y, 
-        cv=n_splits, 
-        scoring='neg_mean_absolute_error',
+        n_estimators=100,
+        max_depth=None,
+        random_state=config.random_seed,
         n_jobs=-1
     )
-    
-    cv_time = time.time() - start_time
-    cv_mae = -cv_scores.mean()
-    cv_std = cv_scores.std()
-    
-    logger.info(f"CV completed in {cv_time:.2f}s. MAE: {cv_mae:.4f} (+/- {cv_std:.4f})")
-    
-    # Train final model on full data
-    logger.info("Training final model on full dataset...")
-    start_time = time.time()
-    model.fit(X, y)
-    train_time = time.time() - start_time
-    
-    logger.info(f"Training completed in {train_time:.2f}s")
-    
-    # Check memory after training
-    check_memory_usage(warn_only=True)
-    
-    metrics = {
-        "cv_mae": float(cv_mae),
-        "cv_std": float(cv_std),
-        "cv_scores": [float(score) for score in cv_scores],
-        "n_estimators": n_estimators,
-        "max_depth": max_depth,
-        "train_time_seconds": float(train_time),
-        "cv_time_seconds": float(cv_time),
-        "n_samples": len(X),
-        "n_features": X.shape[1]
-    }
-    
-    return model, metrics
 
-def evaluate_model_on_test(
-    model: RandomForestRegressor,
-    X_test: pd.DataFrame,
-    y_test: pd.Series
-) -> Dict[str, Any]:
+    # Perform cross-validation
+    cv_scores = cross_val_score(model, X, y, cv=cv_folds, scoring='neg_mean_absolute_error')
+    mae_scores = -cv_scores
+    mean_mae = np.mean(mae_scores)
+    std_mae = np.std(mae_scores)
+
+    logger.info(f"CV MAE: {mean_mae:.4f} (+/- {std_mae:.4f})")
+
+    # Train on full data
+    model.fit(X, y)
+    logger.info("Random Forest model trained successfully.")
+    return model
+
+def evaluate_model_on_test(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> float:
     """
-    Evaluate a trained model on a test set.
-    
-    Args:
-        model: Trained Random Forest model
-        X_test: Test features
-        y_test: Test targets
-        
-    Returns:
-        Dictionary with evaluation metrics
+    Evaluate the trained model on a held-out test set.
+    Returns the Mean Absolute Error (MAE).
     """
     logger.info("Evaluating model on test set...")
-    
-    # Check memory
-    check_memory_usage(warn_only=True)
-    
-    # Predict
-    start_time = time.time()
     y_pred = model.predict(X_test)
-    pred_time = time.time() - start_time
-    
-    # Calculate metrics
     mae = mean_absolute_error(y_test, y_pred)
-    
-    # Optional: R² score
-    ss_res = ((y_test - y_pred) ** 2).sum()
-    ss_tot = ((y_test - y_test.mean()) ** 2).sum()
-    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-    
-    logger.info(f"Test MAE: {mae:.4f}, R²: {r2:.4f}, Prediction time: {pred_time:.2f}s")
-    
-    metrics = {
-        "test_mae": float(mae),
-        "test_r2": float(r2),
-        "n_test_samples": len(y_test),
-        "prediction_time_seconds": float(pred_time)
-    }
-    
-    return metrics
+    logger.info(f"Test Set MAE: {mae:.4f}")
+    return mae
 
-def run_modeling_pipeline(
-    data_path: Path,
-    model_path: Path,
-    metrics_path: Path,
-    feature_columns: list,
-    target_column: str,
-    test_size: float = 0.2,
-    n_estimators: int = 100,
-    max_depth: Optional[int] = None,
-    n_splits: int = 5,
-    random_state: int = 42
-) -> Dict[str, Any]:
+def save_model(model: RandomForestRegressor, output_path: Optional[Path] = None) -> Path:
     """
-    Run the complete modeling pipeline: load data, train model, evaluate, save.
-    
-    Args:
-        data_path: Path to input CSV
-        model_path: Path to save trained model
-        metrics_path: Path to save metrics JSON
-        feature_columns: List of feature column names
-        target_column: Target column name
-        test_size: Proportion of data for test set
-        n_estimators: Number of trees
-        max_depth: Max tree depth
-        n_splits: Number of CV folds
-        random_state: Random seed
-        
-    Returns:
-        Combined metrics dictionary
+    Serialize the trained model to disk.
     """
-    logger.info("Starting modeling pipeline")
-    start_time = time.time()
+    if output_path is None:
+        output_path = config.models_dir / "rf_model.pkl"
     
-    # Load data
-    X, y = load_features_and_target(data_path, feature_columns, target_column)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Split data
-    logger.info(f"Splitting data (test_size={test_size})")
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state
-    )
-    
-    logger.info(f"Train: {len(X_train)}, Test: {len(X_test)}")
-    
-    # Train model
-    model, cv_metrics = train_random_forest_with_cv(
-        X_train, y_train,
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        n_splits=n_splits,
-        random_state=random_state
-    )
-    
-    # Evaluate model
-    test_metrics = evaluate_model_on_test(model, X_test, y_test)
-    
-    # Save model
-    logger.info(f"Saving model to {model_path}")
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(model_path, 'wb') as f:
+    with open(output_path, 'wb') as f:
         pickle.dump(model, f)
     
-    # Combine metrics
-    all_metrics = {
-        **cv_metrics,
-        **test_metrics,
-        "total_pipeline_time_seconds": time.time() - start_time,
-        "feature_columns": feature_columns,
-        "target_column": target_column,
-        "test_size": test_size,
-        "random_state": random_state
+    logger.info(f"Model saved to {output_path}")
+    return output_path
+
+def save_model_metrics(metrics_dict: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    """
+    Save the ModelMetrics object (as a dictionary) to a JSON file.
+    This satisfies T025: saving results to docs/outputs/model_metrics.json.
+    """
+    if output_path is None:
+        output_path = config.docs_outputs / "model_metrics.json"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure the directory exists
+    with open(output_path, 'w') as f:
+        json.dump(metrics_dict, f, indent=2)
+    
+    logger.info(f"Model metrics saved to {output_path}")
+    return output_path
+
+def run_modeling_pipeline() -> Dict[str, Any]:
+    """
+    Orchestrate the modeling pipeline:
+    1. Load features and target
+    2. Train/test split
+    3. Train model with CV
+    4. Evaluate on test set
+    5. Save model
+    6. Save metrics (T025)
+    """
+    logger.info("Starting modeling pipeline...")
+    
+    # 1. Load Data
+    X, y = load_features_and_target()
+    
+    # 2. Train/Test Split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=config.random_seed
+    )
+    logger.info(f"Split data: {len(X_train)} train, {len(X_test)} test.")
+    
+    # 3. Train Model
+    model = train_random_forest_with_cv(X_train, y_train)
+    
+    # 4. Evaluate
+    test_mae = evaluate_model_on_test(model, X_test, y_test)
+    
+    # 5. Save Model
+    save_model(model)
+    
+    # 6. Prepare and Save Metrics (T025)
+    metrics_dict = {
+        "model_type": "RandomForestRegressor",
+        "cv_folds": 5,
+        "cv_mae_mean": float(np.mean(cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_absolute_error') * -1)),
+        "cv_mae_std": float(np.std(cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_absolute_error') * -1)),
+        "test_mae": float(test_mae),
+        "n_train_samples": len(X_train),
+        "n_test_samples": len(X_test),
+        "random_seed": config.random_seed,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     }
     
-    # Save metrics
-    logger.info(f"Saving metrics to {metrics_path}")
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metrics_path, 'w') as f:
-        json.dump(all_metrics, f, indent=2)
+    # Convert to ModelMetrics if needed, but saving dict is sufficient for JSON
+    # The schema defines ModelMetrics, we can instantiate it for validation if desired,
+    # but saving the dict directly is robust.
+    # Let's validate against the schema to be safe, then save.
+    try:
+        metrics_obj = ModelMetrics(**metrics_dict)
+        metrics_dict = metrics_obj.model_dump()
+    except Exception as e:
+        logger.warning(f"Metrics object validation warning: {e}. Saving raw dict.")
     
-    # Clear memory
-    clear_unused_memory()
+    save_model_metrics(metrics_dict)
     
-    # Final memory check
-    profile = get_memory_profile_summary()
-    logger.info(f"Final memory profile: {profile['peak_gb']:.2f}GB peak ({profile['peak_usage_pct']:.1f}% of limit)")
-    
-    if not profile['within_limit']:
-        logger.warning("Pipeline exceeded memory limit!")
-    else:
-        logger.info("Pipeline completed within memory limits")
-    
-    return all_metrics
-
-def evaluate_model_model_on_test(
-    model_path: Path,
-    X_test: pd.DataFrame,
-    y_test: pd.Series
-) -> Dict[str, Any]:
-    """
-    Load a saved model and evaluate it on a test set.
-    
-    Args:
-        model_path: Path to saved model
-        X_test: Test features
-        y_test: Test targets
-        
-    Returns:
-        Evaluation metrics dictionary
-    """
-    logger.info(f"Loading model from {model_path}")
-    
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    
-    return evaluate_model_on_test(model, X_test, y_test)
+    logger.info("Modeling pipeline completed successfully.")
+    return metrics_dict
 
 def main():
     """
-    Main entry point for the modeling pipeline.
+    Entry point for the modeling script.
     """
-    config = get_config()
-    setup_logging(config)
-    
-    # Get paths from config
-    data_path = Path(config.data_dir) / "processed" / "filtered_alloys.csv"
-    model_path = Path(config.models_dir) / "rf_model.pkl"
-    metrics_path = Path(config.docs_dir) / "outputs" / "model_metrics.json"
-    
-    # Define features and target
-    # These should match the ILR-transformed features from data_cleaning.py
-    feature_columns = [
-        'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4',  # ILR transformed compositions
-        'youngs_modulus_gpa',  # Additional feature if needed
-        'bulk_modulus_gpa'     # Additional feature if needed
-    ]
-    target_column = 'poissons_ratio'
-    
-    # Run pipeline
+    setup = get_logger("main")
+    setup.info("Running modeling main...")
     try:
-        metrics = run_modeling_pipeline(
-            data_path=data_path,
-            model_path=model_path,
-            metrics_path=metrics_path,
-            feature_columns=feature_columns,
-            target_column=target_column,
-            n_estimators=100,
-            n_splits=5,
-            random_state=42
-        )
-        
-        logger.info("Modeling pipeline completed successfully")
-        logger.info(f"Test MAE: {metrics['test_mae']:.4f}")
-        
-    except MemoryError as e:
-        logger.error(f"Pipeline failed due to memory error: {e}")
-        raise
+        run_modeling_pipeline()
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
+
+if __name__ == "__main__":
+    main()
