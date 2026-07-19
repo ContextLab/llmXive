@@ -1,17 +1,19 @@
 {
   "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
   "ok": false,
-  "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=1)",
+  "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=2); 1 declared deliverable(s) absent: data/raw/checksums.json",
   "artifacts": [],
   "failures": [
-    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 18, in <module>\n    logging.FileHandler('output/logs/loader.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1213, in _open",
-    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py\", line 16, in <module>\n    from loaders import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 18, in <module>\n    logging.FileHandler('output/logs/loader.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHa"
+    "python code/loaders.py --output data/processed/ -> rc=1\n    .edu/ml/machine-learning-databases/isolet/isolet1_train_data\n2026-07-19 12:28:10,664 - loaders - ERROR - Failed to download isolet1_train_data: 404 Client Error: Not Found for url: https://archive.ics.uci.edu/ml/machine-learning-databases/isolet/isolet1_train_data\n2026-07-19 12:28:10,664 - loaders - ERROR - Failed to load fallback dataset isolet: 404 Client Error: Not Found for url: https://archive.ics.uci.edu/ml/machine-learning-databases/isolet/isolet1_train_data\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/l",
+    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=2\n    usage: main.py [-h] [--permutations PERMUTATIONS] [--threshold THRESHOLD]\n               [--sweep] [--output OUTPUT]\nmain.py: error: argument --permutations: invalid int value: '[variable]'"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
-  "evidence": [],
-  "updated_at": "2026-07-17T12:37:53Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/loaders.py --output data/processed/"
+  ],
+  "updated_at": "2026-07-19T12:28:13Z"
 }

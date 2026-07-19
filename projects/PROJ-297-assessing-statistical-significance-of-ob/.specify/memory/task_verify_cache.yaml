@@ -12,19 +12,11 @@ T032:
     \ the implementer could not execute the pytest command nor provide an exit code\
     \ confirming successful completion. Without this artifact, the task\u2019s validation\
     \ step is not satisfied."
-T035:
+T060:
   c: false
-  h: 685abb020e9e14d65ed67db18b3961218f405dcdd69b72e5723567e7bd2737b8
-  r: The `code/loaders.py` file only defines checksum helper functions but does not
-    show any logic that uses them to verify downloaded files against known UCI checksums
-    or to write SHA256 hashes to `data/raw/checksums.json`. Moreover, the required
-    `data/raw/checksums.json` file is absent from the repository. Both the integration
-    and the persisted checksum artifact are missing.
-T041:
-  c: false
-  h: 24f48b16fbe712c133cd5e4ccdfd508c52579efe6d35b8229a1aa3510afd42a2
-  r: "The repository lacks the required `output/reports/runtime_log.json` file, and\
-    \ the provided `code/main.py` does not contain code that records the total pipeline\
-    \ runtime, writes the JSON with the specified keys, or exits with code\u202F1\
-    \ when the 6\u2011hour limit is exceeded. The timer and logging functionality\
-    \ are therefore missing."
+  h: 559e96db4e13b997f6114111aeb585e0bbc63c4c7223355374d8dc96b88ad6b3
+  r: "The repository contains a `profiler_context` that writes generic function\u2011\
+    level stats to a JSON file, but no `output/reports/profiling_log.json` exists,\
+    \ and the JSON schema does not match the required `{total_time, breakdown:{load,\
+    \ perm, corr, viz}}` format nor logs the per\u2011phase breakdown or the >50%\
+    \ check. The task\u2019s profiling step and output file are therefore missing."

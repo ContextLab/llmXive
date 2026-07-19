@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T041** — The repository lacks the required `output/reports/runtime_log.json` file, and the shown portion of `code/main.py` contains no implementation of runtime measurement, limit checking, or a SIGTERM/SIGINT handler that writes a partial log. Consequently the task’s specifications are not satisfied.
+- **T035** — The provided `code/loaders.py` shows only import statements and dataset metadata; there is no code that computes SHA‑256 hashes, compares them to known UCI checksums, or writes/reads `data/raw/checksums.json`. Moreover, `data/raw/checksums.json` is an empty `{}` file, indicating no hashes have been stored. Consequently, the required checksumming functionality and persistent checksum storage are missing.
+- **T060** — The repository contains a `profiler_context` that writes generic function‑level stats to a JSON file, but no `output/reports/profiling_log.json` exists, and the JSON schema does not match the required `{total_time, breakdown:{load, perm, corr, viz}}` format nor logs the per‑phase breakdown or the >50% check. The task’s profiling step and output file are therefore missing.
