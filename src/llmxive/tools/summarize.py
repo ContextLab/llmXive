@@ -40,16 +40,8 @@ CHARS_PER_TOKEN = 4  # heuristic, consistent with paper_reviewer.py ("180KB ~= 4
 # envelope estimate that left ~87% of the context unused. The numbers
 # below are the ``max_input_tokens`` reported by the API; subtract the
 # completion reserve below to leave room for output + reasoning.
-DEFAULT_MODEL_BUDGET = 128_000  # safe fallback for any unknown model
+DEFAULT_MODEL_BUDGET = 128_000  # safe fallback for any unresolvable model family
 COMPLETION_RESERVE = 0.25  # leave headroom for the model's own output
-# Spec 026 slice 7: keyed by raw model id (Task 8 re-keys this by capability
-# PROFILE — out of scope here). Both current entries already equal
-# ``DEFAULT_MODEL_BUDGET``, so a profile-keyed lookup miss below falls back to
-# the identical value; Task 8 owns re-keying this table itself.
-_MODEL_BUDGETS: dict[str, int] = {
-    "openai.gpt-oss-120b": 128_000,
-    "meta.llama-3.2-11b-vision-instruct": 128_000,
-}
 _MARKER = "[[LLMXIVE-SUMMARY v1]]"
 _SCHEMA = "llmxive-summary/1"
 
@@ -59,11 +51,38 @@ def estimate_tokens(text: str) -> int:
     return (len(text) + CHARS_PER_TOKEN - 1) // CHARS_PER_TOKEN
 
 
-def _usable_budget(profile: str, token_budget: int | None) -> int:
+def usable_budget_for(model_id: str, token_budget: int | None = None) -> int:
+    """The usable context budget for ``model_id``, minus the completion reserve.
+
+    Spec 026 Slice 7 / Constitution I (Single Source of Truth): per-model context
+    limits used to live TWICE — once in the capability policy's
+    ``max_context_tokens`` (``model_selection/policy.py``) and once in this
+    module's now-deleted ``_MODEL_BUDGETS`` table, which could silently drift
+    from the policy. The family is resolved with the same ``_vendor_of`` /
+    ``_family_of`` helpers the selection engine itself uses
+    (``model_selection/snapshot.py``). ``summarize()``'s call sites actually pass
+    a capability-*profile* name (e.g. ``"cheap_structured"``), not a raw model
+    id; that never resolves to a policy family either, so it falls back to
+    ``DEFAULT_MODEL_BUDGET`` — the exact same fallback the old table's
+    ``dict.get(profile, DEFAULT_MODEL_BUDGET)`` produced for every real call site
+    (verified equivalent for the two models the old table covered, in
+    ``tests/unit/test_summarize_budget_from_policy.py``).
+    """
     if token_budget is not None:
         return max(1, int(token_budget))
-    raw = _MODEL_BUDGETS.get(profile, DEFAULT_MODEL_BUDGET)
+    from llmxive.model_selection.policy import CAPABILITY_POLICY
+    from llmxive.model_selection.snapshot import _family_of, _vendor_of
+
+    vendor = _vendor_of(model_id)
+    family = _family_of(model_id, vendor)
+    raw = CAPABILITY_POLICY.max_context_tokens(family)
+    if raw is None:
+        raw = DEFAULT_MODEL_BUDGET
     return max(1, int(raw * (1.0 - COMPLETION_RESERVE)))
+
+
+def _usable_budget(profile: str, token_budget: int | None) -> int:
+    return usable_budget_for(profile, token_budget)
 
 
 # --- deterministic extraction of check-critical elements ------------------

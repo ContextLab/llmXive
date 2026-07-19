@@ -144,18 +144,6 @@
       "symbol": "entries"
     },
     {
-      "category": "migration_target",
-      "file": "src/llmxive/tools/summarize.py",
-      "kind": "module_constant",
-      "line": 49,
-      "models": [
-        "meta.llama-3.2-11b-vision-instruct",
-        "openai.gpt-oss-120b"
-      ],
-      "owning_slice": 7,
-      "symbol": "_MODEL_BUDGETS"
-    },
-    {
       "category": "test_double",
       "file": "tests/conftest.py",
       "kind": "module_constant",
@@ -3157,6 +3145,28 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_runlog_attribution.py",
+      "kind": "model_id_literal",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_runlog_attribution.py",
+      "kind": "model_id_literal",
+      "line": 38,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_with_both_is_valid"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_runlog_producer.py",
       "kind": "model_id_literal",
       "line": 43,
@@ -3187,6 +3197,62 @@
       ],
       "owning_slice": null,
       "symbol": "model_name"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 9,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 10,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 12,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "model_id_literal",
+      "line": 13,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_budget_comes_from_the_capability_policy"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_summarize_budget_from_policy.py",
+      "kind": "module_constant",
+      "line": 31,
+      "models": [
+        "meta.llama-3.2-11b-vision-instruct",
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "old_model_budgets"
     },
     {
       "category": "test_double",
