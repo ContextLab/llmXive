@@ -54,16 +54,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Create `code/requirements.txt` with pinned dependencies (pandas, numpy, scikit-learn, scipy, opencv-python-headless, ultralytics, matplotlib, seaborn, Pillow, pytest, statsmodels)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools. **Verification**: Run linting on all code files; ensure no errors.
-- [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`) and results directory (`results/statistics`, `results/plots`, `results/sensitivity`). **Note**: Aligned strictly with plan.md 'Project Structure'; methodology artifacts will be placed in `results/statistics` or `results/report.md`.
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools. **Verification**: Run linting on all code files; ensure no errors.
+- [X] T004 [P] Setup data directory structure (`data/raw`, `data/processed`) and results directory (`results/statistics`, `results/plots`, `results/sensitivity`). **Note**: Aligned strictly with plan.md 'Project Structure'; methodology artifacts will be placed in `results/statistics` or `results/report.md`.
 - [X] T005 [P] Implement logging infrastructure in `code/utils.py` (handlers, formatters)
 - [X] T006 [P] Implement checksumming logic (sha256) in `code/utils.py`
 - [X] T007 [P] Implement global random seed management (pinned seeds) in `code/utils.py`
 - [X] T008 [P] Implement error handler in `code/utils.py` to log specific errors: 'unmatched_participant_ids' and 'image_processing_failures' with structured JSON messages as per Edge Cases in spec.md
 - [X] T009 [P] Implement contract test in `tests/contract/test_error_logging.py` to verify that `code/utils.py` logs the specific keys 'unmatched_participant_ids' and 'image_processing_failures` when triggered
-- [ ] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`. **Verification**: Validate against sample data.
-- [ ] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`. **Verification**: Validate against sample output.
-- [ ] T012 [P] Implement contract tests in `tests/contract/` to validate JSON/CSV outputs against schemas. **Verification**: Run tests; ensure they pass.
+- [X] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`. **Verification**: Validate against sample data.
+- [X] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`. **Verification**: Validate against sample output.
+- [X] T012 [P] Implement contract tests in `tests/contract/` to validate JSON/CSV outputs against schemas. **Verification**: Run tests; ensure they pass.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,8 +86,9 @@
 
 - [X] T015 [US1] Implement `code/01_data_acquisition.py` to: (1) Attempt download of Stroop/Flanker data from HuggingFace (specific IDs: `StroopTaskDataset`, `FlankerDataset`) or OpenML; (2) If a linked dataset with participant-level image paths is found and successfully downloaded, use it; (3) If download fails or NO linked dataset exists (verified by check), set a `synthetic_fallback` flag. **CRITICAL: This task MUST NOT generate synthetic data. It only attempts download and sets the flag.**
 - [X] T015b [US1] Implement `code/01_data_acquisition.py` (fallback block) to: (1) Execute ONLY if `synthetic_fallback` flag is set; (2) Generate synthetic participant records (N ≥ 100) simulating the negative correlation structure described in literature using a configurable `target_correlation` parameter (default a negative value) and a `literature_source` parameter; (3) Simultaneously generate corresponding synthetic workspace images (using Pillow) with linked metadata (lighting, room type, demographic) in a single execution step. **CRITICAL: Ensure participant IDs in the CSV match the filenames of the generated images exactly. The correlation structure must be derived from the `target_correlation` parameter, not hardcoded. The generation of participants and images must be atomic.**
+ - **Verification Step**: Immediately after generation, compute edge density on a sample of generated images. **If** the standard deviation of edge density is 0 (no variance), the script MUST raise a `ValueError` and halt execution to prevent generating invalid synthetic data.
 - [X] T018 [US1] Implement data validation step in `code/01_data_acquisition.py` to: (1) Raise `ValueError` if N < 100; (2) Log warning if missing values > 5%; (3) Log specific error message format: `ERROR: Data validation failed. Missing: {count}%, N: {n}`.
-- [X] T019 [US1] Implement power analysis calculation in `code/01_data_acquisition.py` (or `code/utils.py` called by it) to: (1) Use a configurable power analysis method (e.g., Cohen's guidelines, statsmodels.stats.power.tt_solve_power) with configurable `target_effect_size` (default not hardcoded, specified as a parameter); (2) Calculate power for the specified effect size; (3) Generate report documenting method and assumptions to satisfy SC-004. **Output**: Save report to `results/statistics/power_analysis_report.md` with fields: `effect_size`, `power`, `alpha`, `sample_size`, `method`. **Note**: Empirical values (effect size) are deferred; the method must be specified.
+- [X] T019 [US1] Implement power analysis calculation in `code/01_data_acquisition.py` (or `code/utils.py` called by it) to: (1) Use a configurable power analysis method (e.g., Cohen's guidelines, statsmodels.stats.power.tt_solve_power) with configurable `target_effect_size` (default not hardcoded, specified as a parameter); (2) Calculate power for the specified effect size; (3) **Explicitly document the chosen default effect size value and the rationale for that choice** in a dedicated section titled 'Power Analysis Methodology' in the generated report. **Output**: Save report to `results/statistics/power_analysis_report.md` with fields: `effect_size`, `power`, `alpha`, `sample_size`, `method`, `rationale`. **Note**: Empirical values (effect size) are deferred; the method must be specified.
 - [X] T020 [US1] Save processed merged dataset to `data/processed/merged_data.csv` and raw artifacts to `data/raw/`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -113,7 +114,7 @@
 - [X] T025 [P] [US2] Implement color entropy calculation in `code/02_visual_metrics.py` using histogram-based color distribution analysis.
 - [X] T026 [US2] Implement object count calculation in `code/02_visual_metrics.py` using `ultralytics` YOLOv5n/tiny (CPU mode). **CRITICAL: If the model fails, times out, or returns no objects for an image, assign NaN to the object count for that image. DO NOT impute a proxy value, do NOT use edge density as a fallback. The analysis script must later exclude records with NaN object count from object-count-based analyses.**
 - [X] T027 [US2] Create `code/02_visual_metrics.py` main execution block to: (1) Iterate over all images in `data/raw/`; (2) Handle missing images by logging error and skipping; (3) Compute metrics; (4) Save to `data/processed/visual_metrics_intermediate.csv`. **Depends on T020 completion.**
-- [X] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to: (1) Join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) using `inner join on participant_id`; (2) Log count of unmatched records; (3) Save to `data/processed/final_analysis_data.csv`. **Depends on T027 completion.**
+- [X] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to: (1) Join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) using `inner join on participant_id`; (2) **CRITICAL: Explicitly filter out (drop) any records where `object_count` is NaN before saving.** (3) Log the count of unmatched records and the count of records excluded due to NaN object count; (4) Save the cleaned dataset to `data/processed/final_analysis_data.csv`. **Depends on T027 completion.** **Verification**: Run a quick check to ensure `final_analysis_data.csv` contains no NaN values in the `object_count` column.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (US2 fully functional after T027/T028 completion)
 
@@ -132,16 +133,18 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement Pearson correlation and linear regression in `code/03_analysis.py` for each predictor-outcome pair (A series of tests will be conducted.).
+- [X] T031 [US3] Implement Pearson correlation and linear regression in `code/03_analysis.py` for each predictor-outcome pair. **Note**: This task operates on the dataset `data/processed/final_analysis_data.csv`. **CRITICAL: Even though T028 filters NaN, this script MUST explicitly perform `df.dropna(subset=['object_count'])` as a defensive safety net before any statistical calculation to prevent runtime errors if upstream filtering failed.**
 - [X] T032 [US3] Implement Variance Inflation Factor (VIF) calculation in the analysis script to diagnose collinearity among the three visual complexity metrics. **Output**: Save VIF scores to `results/statistics/vif_report.json`.
 - [X] T033 [US3] Implement PCA generation in `code/03_analysis.py` to: (1) Fit PCA on visual complexity metrics; (2) Extract `pca_component_1`; (3) Save results to `data/processed/pca_results.json`. **Trigger**: Execute if VIF ≥ 5 for any predictor.
-- [X] T034 [US3] Implement conditional regression logic in `code/03_analysis.py` to: (1) Read VIF status; (2) **CRITICAL**: If VIF ≥ 5, re-run Pearson correlation (FR-006) and bootstrap resampling (FR-009) using `pca_component_1` as the predictor; (3) Overwrite the primary results in `results/statistics/statistics.json` with these new PCA-based statistics; (4) Else use raw metrics. **Depends on T032, T033.**
-- [X] T034a [US3] **Critical Addition**: If VIF ≥ 5, explicitly re-run Pearson correlation (FR-006) and bootstrap resampling (FR-009) using `pca_component_1` as the predictor, and update `results/statistics/statistics.json` to reflect these as the primary results. **This ensures the 'primary predictor' is used across all primary statistics.**
+- [X] T034 [US3] Implement conditional regression logic in `code/03_analysis.py` to: (1) Read VIF status; (2) **CRITICAL**: If VIF ≥ 5, re-run Pearson correlation (FR-006), bootstrap resampling (FR-009), AND **LINEAR REGRESSION (FR-007)** using `pca_component_1` as the predictor. This step MUST generate new β-coefficients and 95% confidence intervals specifically for the PCA component. (3) Overwrite the primary results in `results/statistics/statistics.json` with these new PCA-based statistics (including new beta-coefficients and CIs); (4) Else use raw metrics. **Depends on T032, T033.**
 - [X] T035 [US3] Implement Holm-Bonferroni family-wise error correction in `code/03_analysis.py` using `scipy.stats.multitest.multipletests(method=holm)`.
-- [X] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`. **CRITICAL**: Ensure this table is embedded as a Markdown table in the final `results/report.md` under a "Threshold Justification" section and explicitly cited as the evidence for the p<0.05 threshold justification to satisfy SC-005. **Note**: `results/report.md` is the final output file defined in T045.
-- [X] T037 [US3] Implement logic in `code/03_analysis.py` to: (1) Frame all findings as associational (no causal claims) in output documentation; (2) Generate a dedicated text justification for the p<0.05 significance threshold as a community-standard convention, citing 'Wilkinson, L., & Task Force on Statistical Inference. (1999)' or equivalent standard. **Output**: Save justification to `results/statistics/alpha_threshold_justification.md`. **Template**: The justification must include: (a) Introduction to the p-value concept, (b) Explanation of the 0.05 threshold as a community standard, (c) Citation of the standard source, (d) Conclusion. **Minimum length**: 150 words. Include citations for OpenCV edge detection and color entropy formulas directly in the final `results/statistics/statistics.json` and `results/report.md`.
+- [X] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`. **CRITICAL**: Within this task, convert this CSV to a Markdown table and **explicitly insert it into `results/report.md`** under a "Threshold Justification" section. This table serves as the evidence for the p<0.05 threshold justification to satisfy SC-005. **Note**: `results/report.md` is the final output file defined in T045.
+- [X] T036b [US3] **Markdown Table Embedding**: Explicitly generate the Markdown table from the CSV in T036 and insert it into `results/report.md`. **Verification**: Check that `results/report.md` contains the rendered Markdown table with headers and data rows.
+- [X] T037 [US3] Implement logic in `code/03_analysis.py` to: (1) Frame all findings as associational (no causal claims) in output documentation; (2) Generate a dedicated text justification for the p<0.05 significance threshold as a community-standard convention, citing 'Wilkinson, L., & Task Force on Statistical Inference. (1999)' or equivalent standard. **Output**: Save justification to `results/statistics/alpha_threshold_justification.md`. **Template**: The justification must include: (a) Introduction to the p-value concept, (b) Explanation of the 0.05 threshold as a community standard, (c) Citation of the standard source, (d) Conclusion. **Minimum length**: 150 words.
+- [X] T037b [US3] **Citations Task**: Generate `results/statistics/methods_citations.md` containing specific citations for the visual complexity metric methods: OpenCV edge detection (with URL/reference), Color Entropy formula (with reference), and YOLOv5 model architecture (with reference). **Output**: Save to `results/statistics/methods_citations.md`.
 - [X] T038 [US3] Implement scatter plot generation in `code/04_visualization.py` with trend lines for significant correlations (p<0.05) and save to `results/plots/`. **Depends on T031-T037 completion.**
-- [X] T039 [US3] Save final statistics to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present. <!-- ATOMIZE: requested -->
+- [X] T039a [US3] Save primary statistics (r, p, beta, CI) for raw metrics to `results/statistics/statistics.json`.
+- [X] T039b [US3] Save final statistics (including PCA results if applicable) to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -163,7 +166,7 @@
 - [X] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations.
 - [X] T043 [US4] Generate `results/sensitivity/binning_results.csv` with columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value` (satisfies FR-010).
 - [X] T044 [US4] Save bootstrap confidence intervals to `results/sensitivity/bootstrap_results.json`.
-- [X] T045 [US4] Add final report generation step that summarizes sensitivity analysis findings, confirms robustness, and **includes the citations, associational framing, and alpha threshold justification** in the final `results/report.md` document. **Dependencies**: T039 (US3), T044 (US4), T037 (Alpha justification). **Note**: `results/report.md` is the canonical final report file, defined here.
+- [X] T045 [US4] Add final report generation step that summarizes sensitivity analysis findings, confirms robustness, and **explicitly reads** `results/statistics/methods_citations.md` (from T037b), `results/statistics/alpha_threshold_justification.md` (from T037), and the **Markdown table embedded in `results/report.md`** (from T036b) to include all citations, associational framing, and alpha threshold justification in the final `results/report.md` document. **CRITICAL**: The report generation logic MUST **embed the full text content** of `methods_citations.md` into `results/report.md` under a dedicated "Methods Citations" section, and MUST include the justification text from `alpha_threshold_justification.md`. **Dependencies**: T039 (US3), T044 (US4), T037 (Alpha justification), T037b (Citations), T036b (Multiplicity table). **Note**: `results/report.md` is the canonical final report file, defined here.
 
 ---
 
@@ -171,13 +174,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T046 [P] Documentation updates: Ensure `quickstart.md` explains the synthetic data fallback and associational framing. **Requirement**: Add a "Data Source Selection" section explaining how to switch between real and synthetic data, and an "Interpretation of Results" section explaining the associational framing. **Specific Content**: 
-  - **Data Source Selection**: 
-    - Header: `## Data Source Selection`
-    - Content: Explain the logic for choosing between real and synthetic data. Include a subsection `### Real Dataset Path` detailing the verification steps and fallback mechanism if a real dataset is found. Include a subsection `### Synthetic Data Path` detailing the generation process.
-  - **Interpretation of Results**: 
-    - Header: `## Interpretation of Results`
-    - Content: Explain the associational nature of the findings, emphasizing that no causal claims are made. Include a subsection `### Real Dataset Interpretation` and `### Synthetic Data Interpretation` if applicable.
+- [ ] T046 [P] Documentation updates: Ensure `quickstart.md` explains the synthetic data fallback and associational framing. **Requirement**: Add a "Data Source Selection" section explaining how to switch between real and synthetic data, and an "Interpretation of Results" section explaining the associational framing. **Specific Content**:
+ - **Data Source Selection**:
+ - Header: `## Data Source Selection`
+ - Content: Explain the logic for choosing between real and synthetic data. Include a subsection `### Real Dataset Path` detailing the verification steps and fallback mechanism if a real dataset is found. Include a subsection `### Synthetic Data Path` detailing the generation process.
+ - **Interpretation of Results**:
+ - Header: `## Interpretation of Results`
+ - Content: Explain the associational nature of the findings, emphasizing that no causal claims are made. Include a subsection `### Real Dataset Interpretation` and `### Synthetic Data Interpretation` if applicable.
 - [ ] T047 Code cleanup and refactoring to ensure PEP8 compliance. **Verification**: Run PEP8 linter; ensure no errors.
 - [ ] T048 Performance optimization: Verify total runtime ≤ 6 hours on CPU cores (profile `01_data_acquisition.py` and `02_visual_metrics.py`).
 - [ ] T049 [P] Additional unit tests for edge cases (image failure, zero variance) in `tests/unit/`.
@@ -280,12 +283,19 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (cores, limited RAM). No GPU models, no 8-bit quantization, no large LLMs.
 - **Critical Constraint**: Synthetic data must use real distributions exhibiting a negative correlation, and real image generation logic (Pillow), not hardcoded placeholders. The generation of participants and images must be atomic within T015b.
-- **Critical Constraint**: VIF/PCA logic MUST occur in the Analysis phase (T032-T034a), not Metric Extraction, to satisfy FR-012.
+- **Critical Constraint**: VIF/PCA logic MUST occur in the Analysis phase (T032-T034), not Metric Extraction, to satisfy FR-012.
 - **Critical Constraint**: Summary table of p-values (T036) and binning results (T043) must be generated as explicit CSV artifacts with specified columns (including `binning_strategy`) and merged into the final statistics output.
 - **Critical Constraint**: Data acquisition (T015) MUST transition to synthetic generation (T015b) ONLY if no linked public dataset exists; it must NOT raise an exception.
 - **Critical Constraint**: Object counting (T026) must use the real model but assign NaN on failure, NOT impute a proxy value.
-- **Critical Constraint**: Power analysis (T019) must be implemented and reported to satisfy SC-004, with empirical values deferred.
+- **Critical Constraint**: Power analysis (T019) must be implemented and reported to satisfy SC-004, with empirical values deferred and rationale documented.
 - **Critical Constraint**: Alpha threshold justification (T037) must be explicitly generated in the report with a specific template and minimum word count.
 - **Critical Constraint**: Parallel opportunities section updated to reflect US2 dependency on US1.
 - **Critical Constraint**: `results/report.md` is the canonical final report file, defined in T045.
+- **Critical Constraint**: T034 now explicitly includes LINEAR REGRESSION (FR-007) for the PCA path.
+- **Critical Constraint**: T028 explicitly filters NaN object counts; T031 relies on this filtered dataset but includes a defensive dropna.
+- **Critical Constraint**: T036 explicitly generates the Markdown table and inserts it into `results/report.md`.
+- **Critical Constraint**: T037b generates `methods_citations.md`; T045 explicitly reads this file to embed the full text content.
+- **Critical Constraint**: T019 explicitly documents the rationale in a 'Power Analysis Methodology' section.
+- **Critical Constraint**: T015b raises ValueError if synthetic data variance is zero.
+- **Critical Constraint**: T010 and T011 are marked as Complete [X].
 - **Constitution Check Note**: Tasks T003, T010, T011, T014, T021-T023, T046, T047 are now defined and actionable. The "Constitution Check PASS" in plan.md is contingent on these tasks being completed and verified.
