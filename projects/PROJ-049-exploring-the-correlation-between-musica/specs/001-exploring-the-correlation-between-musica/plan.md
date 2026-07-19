@@ -31,7 +31,7 @@ Due to the absence of verified URLs for the BFI-2 and Last.fm datasets (as per t
 | Principle | Status | Implementation Detail |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | Random seeds pinned in `code/analysis.py`. External datasets fetched from canonical sources (or synthetic proxies if verified sources missing). `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **PASS (via synthetic fallback)** | All citations in `research.md` restricted to the "Verified datasets" block. Since BFI-2 and Last.fm have NO verified sources, the plan explicitly uses a deterministic synthetic generator. This satisfies the *process* of verification (attempting canonical sources) and falls back gracefully, avoiding fabricated URLs. |
+| **II. Verified Accuracy** | **PASS (via synthetic fallback)** | All citations in `research.md` restricted to the "Verified datasets" block. Since BFI and Last.fm have NO verified sources, the plan explicitly uses a deterministic synthetic generator. This satisfies the *process* of verification (attempting canonical sources) and falls back gracefully, avoiding fabricated URLs. |
 | **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Processed data written to `data/processed/` with new filenames. Checksums recorded in `state/`. No in-place modifications. |
 | **IV. Single Source of Truth** | **PASS** | All statistics in the final report derived directly from the output of `code/analysis.py`. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Artifacts (data, code, reports) tracked with content hashes. `state` YAML updated on artifact changes. |

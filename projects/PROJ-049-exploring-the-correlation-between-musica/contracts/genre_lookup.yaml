@@ -1,67 +1,35 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Genre Lookup Mapping
-description: >
-  Mapping from raw genre tags (from Last.fm or other sources) to 
-  standardized categories for analysis.
-type: object
-properties:
-  mapping:
-    type: object
-    description: Key-value pairs where key is a standardized genre and value is a list of raw tags
-    additionalProperties:
-      type: array
-      items:
-        type: string
-examples:
-  - mapping:
-      Rock:
-        - rock
-        - alt
-        - alternative
-        - indie
-      Pop:
-        - pop
-        - top40
-        - chart
-      Hip-Hop:
-        - hip hop
-        - rap
-        - hiphop
-      Electronic:
-        - electronic
-        - edm
-        - house
-        - techno
-      Jazz:
-        - jazz
-        - blues
-      Classical:
-        - classical
-        - opera
-      Metal:
-        - metal
-        - heavy metal
-        - doom
-      Country:
-        - country
-        - folk
-      R&B:
-        - r&b
-        - soul
-        - funk
-      Other:
-        - other
-        - unknown
-        - misc
-        - experimental
-standard_categories:
-  - Rock
-  - Pop
-  - Hip-Hop
-  - Electronic
-  - Jazz
-  - Classical
-  - Metal
-  - Country
-  - R&B
-  - Other
+mapping:
+  alt: Rock
+  rock: Rock
+  indie: Rock
+  grunge: Rock
+  shoegaze: Rock
+  pop: Pop
+  hiphop: Hip Hop
+  rap: Hip Hop
+  jazz: Jazz
+  blues: Other
+  classical: Classical
+  opera: Other
+  electronic: Electronic
+  edm: Electronic
+  house: Electronic
+  techno: Electronic
+  metal: Metal
+  punk: Rock
+  metalcore: Metal
+  folk: Folk
+  country: Country
+  rnb: R&B
+  soul: Other
+  latin: Other
+  reggae: Other
+  world: World
+  ambient: Other
+  noise: Other
+  experimental: Other
+  soundtrack: Other
+  kpop: Other
+  jpop: Other
+  lo-fi: Other
+  dream pop: Other

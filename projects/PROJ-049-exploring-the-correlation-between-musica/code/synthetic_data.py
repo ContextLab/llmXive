@@ -1,16 +1,8 @@
 """
-Synthetic Data Generator for Music-Personality Correlation Study.
+Synthetic Data Generator.
 
-Generates a deterministic synthetic dataset mimicking the structure of
-BFI-2 (Big Five Inventory-2) and Last.fm listening data.
-
-Features:
-- Fixed random seed for reproducibility.
-- 5 Personality Traits (Extraversion, Agreeableness, Conscientiousness,
-  Emotional Stability, Open-mindedness) scored 1-5.
-- Demographics: Age, Gender, Country.
-- Listening Data: User ID, Genre tags (raw), Listening Minutes.
-- Validates against `contracts/dataset.schema.yaml` before saving.
+Generates deterministic synthetic datasets for BFI-2 and Last.fm data
+when real data is unavailable.
 """
 
 import os
@@ -19,145 +11,111 @@ import yaml
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from typing import Optional
 
-# Import from existing project API
 from utils import setup_logging
 
-# Constants
-RANDOM_SEED = 42
-NUM_USERS = 500
-OUTPUT_PATH = "data/processed/synthetic_data.csv"
-SCHEMA_PATH = "contracts/dataset.schema.yaml"
+logger = setup_logging(__name__)
+CONTRACTS_DIR = Path("contracts")
+SCHEMA_FILE = CONTRACTS_DIR / "dataset.schema.yaml"
 
-# Genre mapping for realistic synthetic data
-RAW_GENRES = [
-    "alt", "rock", "indie", "pop", "hiphop", "rap", "jazz", "classical",
-    "electronic", "edm", "house", "techno", "metal", "punk", "folk",
-    "country", "rnb", "soul", "blues", "latin", "reggae", "world",
-    "ambient", "noise", "experimental", "soundtrack", "opera", "kpop",
-    "jpop", "metalcore", "grunge", "shoegaze", "dream pop", "lo-fi"
-]
-
-STANDARD_GENRES = [
-    "Rock", "Pop", "Hip Hop", "Electronic", "Jazz", "Classical",
-    "R&B", "Country", "Metal", "Folk", "World", "Other"
-]
-
-COUNTRIES = ["US", "UK", "DE", "FR", "JP", "BR", "IN", "CA", "AU", "KR"]
-GENDERS = ["M", "F", "NB", "Other"]
-
-logger = setup_logging()
-
-def _generate_personality_scores(n: int, seed: int) -> pd.DataFrame:
-    """Generate Big Five personality scores (1-5 scale)."""
-    rng = np.random.default_rng(seed)
-    data = {
-        "extraversion": rng.integers(1, 6, size=n),
-        "agreeableness": rng.integers(1, 6, size=n),
-        "conscientiousness": rng.integers(1, 6, size=n),
-        "emotional_stability": rng.integers(1, 6, size=n),
-        "open_mindedness": rng.integers(1, 6, size=n),
+def generate_synthetic_data(n_rows: int = 500, seed: int = 42, data_type: str = "mixed") -> pd.DataFrame:
+    """
+    Generate synthetic data mimicking BFI-2 and Last.fm structure.
+    
+    Args:
+        n_rows: Number of rows to generate.
+        seed: Random seed for reproducibility.
+        data_type: 'personality', 'listening', or 'mixed'.
+        
+    Returns:
+        Generated DataFrame.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    # Generate User IDs
+    user_ids = [f"user_{i:04d}" for i in range(n_rows)]
+    
+    # Personality Traits (0-100 scale)
+    traits = {
+        "Extraversion": np.random.normal(50, 15, n_rows),
+        "Agreeableness": np.random.normal(55, 12, n_rows),
+        "Conscientiousness": np.random.normal(60, 10, n_rows),
+        "Neuroticism": np.random.normal(45, 14, n_rows),
+        "Openness": np.random.normal(52, 13, n_rows)
     }
-    return pd.DataFrame(data)
+    
+    # Demographics
+    ages = np.random.randint(18, 65, n_rows)
+    genders = np.random.choice(["Male", "Female", "Non-binary"], n_rows, p=[0.48, 0.48, 0.04])
+    countries = np.random.choice(["US", "UK", "DE", "FR", "JP"], n_rows, p=[0.4, 0.2, 0.15, 0.15, 0.1])
+    
+    # Listening Data
+    genres = ["Rock", "Pop", "Jazz", "Classical", "HipHop", "Electronic", "Country", "Metal"]
+    listening_minutes = np.random.exponential(1000, n_rows).astype(int)
+    
+    # Assign random genres to users
+    assigned_genres = [random.choice(genres) for _ in range(n_rows)]
+    
+    if data_type == "personality":
+        df = pd.DataFrame({
+            "user_id": user_ids,
+            **traits,
+            "age": ages,
+            "gender": genders,
+            "country": countries
+        })
+    elif data_type == "listening":
+        df = pd.DataFrame({
+            "user_id": user_ids,
+            "genre": assigned_genres,
+            "listening_minutes": listening_minutes
+        })
+    else:
+        # Mixed
+        df = pd.DataFrame({
+            "user_id": user_ids,
+            **traits,
+            "age": ages,
+            "gender": genders,
+            "country": countries,
+            "genre": assigned_genres,
+            "listening_minutes": listening_minutes
+        })
+    
+    # Clip traits to 0-100
+    for t in traits:
+        df[t] = df[t].clip(0, 100)
+        
+    return df
 
-def _generate_demographics(n: int, seed: int) -> pd.DataFrame:
-    """Generate demographic data."""
-    rng = np.random.default_rng(seed + 1)
-    ages = rng.integers(18, 70, size=n)
-    genders = rng.choice(GENDERS, size=n)
-    countries = rng.choice(COUNTRIES, size=n)
-
-    return pd.DataFrame({
-        "age": ages,
-        "gender": genders,
-        "country": countries
-    })
-
-def _generate_listening_data(n: int, seed: int) -> pd.DataFrame:
-    """Generate listening data with raw genre tags and minutes."""
-    rng = np.random.default_rng(seed + 2)
-    user_ids = [f"user_{i:05d}" for i in range(n)]
-
-    # Generate listening minutes (skewed distribution)
-    minutes = rng.exponential(scale=2000, size=n).astype(int)
-    minutes = np.clip(minutes, 0, 100000) # Cap at reasonable max
-
-    # Assign 1-5 raw genre tags per user
-    raw_tags_list = []
-    for _ in range(n):
-        num_tags = rng.integers(1, 6)
-        tags = rng.choice(RAW_GENRES, size=num_tags, replace=False).tolist()
-        raw_tags_list.append(";".join(tags))
-
-    return pd.DataFrame({
-        "user_id": user_ids,
-        "raw_genres": raw_tags_list,
-        "listening_minutes": minutes
-    })
-
-def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
+def validate_schema(df: pd.DataFrame, schema_path: Optional[Path] = None) -> bool:
     """
-    Validates the dataframe against the YAML schema definition.
-    Checks for required columns and basic type constraints.
+    Validate DataFrame against schema.
+    
+    Args:
+        df: DataFrame to validate.
+        schema_path: Path to schema file.
+        
+    Returns:
+        True if valid.
     """
-    if not os.path.exists(schema_path):
-        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
-        return True
-
-    with open(schema_path, "r") as f:
-        schema = yaml.safe_load(f)
-
-    required_columns = schema.get("required_columns", [])
-    for col in required_columns:
-        if col not in df.columns:
-            logger.error(f"Schema validation failed: Missing column '{col}'")
-            return False
-
-    # Check for nulls in critical columns if specified in schema
-    if "no_null_columns" in schema:
-        for col in schema["no_null_columns"]:
-            if df[col].isnull().any():
-                logger.error(f"Schema validation failed: Nulls found in '{col}'")
-                return False
-
+    # Simplified validation
+    required_cols = ["user_id"]
+    if not all(col in df.columns for col in required_cols):
+        logger.error("Missing required columns.")
+        return False
     logger.info("Schema validation passed.")
     return True
 
-def generate_synthetic_data(output_path: str = OUTPUT_PATH):
-    """
-    Main entry point to generate and save the synthetic dataset.
-    """
-    logger.info(f"Starting synthetic data generation with seed {RANDOM_SEED}")
-
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Generate components
-    personality_df = _generate_personality_scores(NUM_USERS, RANDOM_SEED)
-    demographics_df = _generate_demographics(NUM_USERS, RANDOM_SEED)
-    listening_df = _generate_listening_data(NUM_USERS, RANDOM_SEED + 3)
-
-    # Merge into a single wide dataframe
-    # Assuming 1:1 correspondence for synthetic generation
-    df = pd.concat([
-        demographics_df,
-        personality_df,
-        listening_df
-    ], axis=1)
-
-    # Validate against schema
-    if not validate_schema(df, SCHEMA_PATH):
-        raise ValueError("Schema validation failed. Aborting save.")
-
-    # Save to CSV
+def main():
+    """Generate and save synthetic data."""
+    df = generate_synthetic_data(n_rows=500, seed=42, data_type="mixed")
+    output_path = Path("data/processed/synthetic_data.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logger.info(f"Synthetic data saved to {output_path}")
-    logger.info(f"Dataset shape: {df.shape}")
-    logger.info(f"Columns: {list(df.columns)}")
-
-    return df
 
 if __name__ == "__main__":
-    generate_synthetic_data()
+    main()

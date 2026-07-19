@@ -13,10 +13,32 @@ T017:
     \ verification and checksum logging cannot be performed. The implementer must\
     \ provide the CSV file (non\u2011empty with the correct columns) and the corresponding\
     \ verification/log output."
-T020:
+T026:
   c: false
-  h: 46127b1d05b4afa565c5455c7f53b45bdc14b3f6290998a79ca541ed5c79c76d
-  r: The repository contains a partially implemented `code/analysis.py` but it never
-    writes the computed Spearman results to `data/processed/correlation_results.csv`,
-    and that CSV file is missing entirely. Consequently the required artifact is absent,
-    so the task is not fulfilled.
+  h: fafc73f6c7a17f9392b75e6bd4efaa486747e86f80f5817500e3167816703003
+  r: The repository contains `code/analysis.py`, but the shown code does not include
+    any logic that reads `data/processed/analysis_results.csv` and creates a seaborn
+    heatmap saved as `results/correlation_heatmap.png` with the specified dimensions
+    and DPI. Moreover, the expected output file `results/correlation_heatmap.png`
+    is absent. The task therefore remains unfinished.
+T028:
+  c: false
+  h: f99d34409557014b1e1c71353064000b6962db0fbc3c616c4984f909279b1e69
+  r: The `results/results_report.csv` file does not exist, and the provided `code/analysis.py`
+    is incomplete (truncated and lacking the logic to compute effect sizes, confidence
+    intervals, and write the required CSV). Consequently the required output artifact
+    is missing and the implementation does not fulfill the specification.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md file or excerpt was presented, and there is no evidence that execution
+    instructions or an explanation of the synthetic data were added. The required
+    documentation artifact is missing, so the task is not satisfied.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff, or documentation showing that the `code/` directory has\
+    \ been cleaned up or refactored were provided. Without any tangible artifacts\
+    \ (e.g., updated scripts, commit logs, or before\u2011after comparisons), we cannot\
+    \ confirm that the required code cleanup task was performed. The implementer must\
+    \ supply the revised codebase (or a clear summary of changes) to satisfy the task."

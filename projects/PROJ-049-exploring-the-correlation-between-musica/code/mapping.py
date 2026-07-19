@@ -1,9 +1,7 @@
 """
-Genre Mapping Module (T014).
+Genre Mapping Module.
 
-Loads a lookup table from `contracts/genre_lookup.yaml` and provides
-functionality to map raw genre tags to standard categories.
-Unmapped tags are categorized as 'Other'.
+Loads a lookup table and maps raw genre tags to standard categories.
 """
 
 import os
@@ -11,108 +9,71 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Import logging setup from existing utils module
 from utils import setup_logging
 
-logger = setup_logging()
+logger = setup_logging(__name__)
+CONTRACTS_DIR = Path("contracts")
+LOOKUP_FILE = CONTRACTS_DIR / "genre_lookup.yaml"
 
-
-def load_genre_lookup(lookup_path: str = "contracts/genre_lookup.yaml") -> Dict[str, str]:
+def load_genre_lookup() -> Dict[str, str]:
     """
-    Load the genre mapping lookup table from a YAML file.
-
-    Args:
-        lookup_path: Relative path to the YAML file containing the mapping.
-
-    Returns:
-        A dictionary mapping raw genre tags (lowercase) to standard categories.
-
-    Raises:
-        FileNotFoundError: If the lookup file does not exist.
-        yaml.YAMLError: If the file contains invalid YAML.
-    """
-    path = Path(lookup_path)
+    Load genre lookup table from YAML.
     
-    if not path.exists():
-        raise FileNotFoundError(f"Genre lookup file not found at: {lookup_path}")
-
-    with open(path, 'r', encoding='utf-8') as f:
+    Returns:
+        Dictionary mapping raw tags to standard genres.
+    """
+    if not LOOKUP_FILE.exists():
+        logger.warning(f"Lookup file {LOOKUP_FILE} not found. Returning empty mapping.")
+        return {}
+    
+    with open(LOOKUP_FILE, 'r') as f:
         data = yaml.safe_load(f)
+        return data.get('mapping', {})
 
-    if not isinstance(data, dict):
-        raise ValueError(f"Expected genre_lookup.yaml to contain a mapping, got {type(data)}")
-
-    # Normalize keys to lowercase for case-insensitive matching
-    normalized_map = {str(k).lower(): str(v) for k, v in data.items()}
-    
-    logger.info(f"Loaded {len(normalized_map)} genre mappings from {lookup_path}")
-    return normalized_map
-
-
-def map_genre(raw_tag: str, lookup: Dict[str, str]) -> str:
+def map_genre(raw_tag: str, mapping: Dict[str, str]) -> str:
     """
-    Map a single raw genre tag to a standard category.
-
+    Map a single raw tag to a standard genre.
+    
     Args:
-        raw_tag: The raw genre string from the dataset.
-        lookup: The dictionary of mappings loaded via `load_genre_lookup`.
-
+        raw_tag: Raw genre tag.
+        mapping: Lookup dictionary.
+        
     Returns:
-        The mapped standard category, or 'Other' if no match is found.
+        Standard genre or 'Other'.
     """
-    if not isinstance(raw_tag, str):
-        raw_tag = str(raw_tag)
-    
-    key = raw_tag.strip().lower()
-    
-    if not key:
+    if not raw_tag or not isinstance(raw_tag, str):
         return "Other"
-    
-    return lookup.get(key, "Other")
+    return mapping.get(raw_tag.lower().strip(), "Other")
 
-
-def map_genres_batch(raw_tags: List[str], lookup: Dict[str, str]) -> List[str]:
+def map_genres_batch(tags: List[str], mapping: Dict[str, str]) -> List[str]:
     """
-    Map a list of raw genre tags to standard categories.
-
+    Map a list of raw tags to standard genres.
+    
     Args:
-        raw_tags: A list of raw genre strings.
-        lookup: The dictionary of mappings.
-
+        tags: List of raw genre tags.
+        mapping: Lookup dictionary.
+        
     Returns:
-        A list of mapped standard categories.
+        List of standard genres.
     """
-    return [map_genre(tag, lookup) for tag in raw_tags]
+    return [map_genre(tag, mapping) for tag in tags]
 
-
-def apply_genre_mapping(df: Any, raw_column: str = "raw_genre", target_column: str = "standard_genre", lookup_path: str = "contracts/genre_lookup.yaml") -> Any:
+def apply_genre_mapping(series: Any) -> Any:
     """
-    Apply genre mapping to a pandas DataFrame column.
-
+    Apply genre mapping to a pandas Series or single value.
+    
     Args:
-        df: The pandas DataFrame.
-        raw_column: The name of the column containing raw genre tags.
-        target_column: The name of the new column to create.
-        lookup_path: Path to the genre lookup YAML file.
-
+        series: Input data (string, list, or Series).
+        
     Returns:
-        The DataFrame with the new mapped column added.
+        Mapped data.
     """
-    try:
-        import pandas as pd
-        if not isinstance(df, pd.DataFrame):
-            raise TypeError("apply_genre_mapping requires a pandas DataFrame")
-    except ImportError:
-        raise ImportError("pandas is required to use apply_genre_mapping")
-
-    lookup = load_genre_lookup(lookup_path)
+    mapping = load_genre_lookup()
     
-    logger.info(f"Mapping column '{raw_column}' to '{target_column}' using {len(lookup)} rules")
-    
-    df[target_column] = df[raw_column].apply(lambda x: map_genre(x, lookup))
-    
-    # Log distribution summary
-    distribution = df[target_column].value_counts()
-    logger.debug(f"Mapping distribution:\n{distribution}")
-    
-    return df
+    if isinstance(series, str):
+        return map_genre(series, mapping)
+    elif isinstance(series, list):
+        return map_genres_batch(series, mapping)
+    else:
+        # Assume it's a pandas Series or iterable
+        return [map_genre(str(x), mapping) for x in series]

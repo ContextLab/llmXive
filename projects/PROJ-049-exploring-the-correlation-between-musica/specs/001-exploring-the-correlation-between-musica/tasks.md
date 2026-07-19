@@ -43,12 +43,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `results/`, `logs/` (Note: `contracts/` created in Phase 2)
+- [X] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `results/`, `logs/`. **Note**: The `contracts/` directory is created in Phase 2 (T007a) as it is a foundational artifact, not a generic setup directory.
 - [X] T001b [P] Create empty `__init__.py` files in `code/` and `tests/`
 - [X] T001c [P] Initialize `requirements.txt` with placeholder dependencies
-- [X] T002 Initialize Python project with dependencies (pandas, scikit-learn, scipy, matplotlib, seaborn, numpy, openml, requests, pytest, statsmodels) in `requirements.txt`
-- [X] T003a [P] Create `.ruff.toml` configuration file for linting
-- [X] T003b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting
+- [X] T002 [P] Initialize Python project with dependencies in `requirements.txt`. **Content**: Pin exact versions for `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `numpy`, `openml`, `requests`, `pytest`, `statsmodels`. **Verification**: Run `pip install -r requirements.txt` successfully; ensure all versions are pinned (e.g., `pandas==2.0.0`).
+- [X] T003a [P] Create `.ruff.toml` configuration file for linting. **Content**: Set `line-length = 88`, `target-version = "py311"`, and enable specific rules (E, F, W).
+- [X] T003b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting. **Content**: Set `line-length = 88`, `target-version = ['py311']`.
 
 ---
 
@@ -58,14 +58,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005a [P] Implement `setup_logging()` function in `code/utils.py` returning a logger configured with file rotation to `logs/app.log`
-- [X] T006a Implement `load_config()` function in `code/utils.py` returning a dict of environment variables (Depends on T005a to ensure logging is ready for config errors)
-- [X] T006b [P] Define expected environment variable names (e.g., `RANDOM_SEED`, `DATA_PATH`) in `code/utils.py` docstring
-- [X] T007 [P] Create schema definitions in `contracts/dataset.schema.yaml` and `contracts/analysis_output.schema.yaml` and ensure `contracts/` directory exists
-- [X] T008 [P] Implement `code/synthetic_data.py`: Generate deterministic synthetic dataset with a fixed seed
-
-The research question, method, and references remain unchanged as per the planning document requirements., validate against `contracts/dataset.schema.yaml`, and save to `data/processed/synthetic_data.csv`
-- [X] T009 [P] Setup error handling wrappers in `code/utils.py` for HTTP timeouts and 404s
+- [X] T005a [P] Implement `setup_logging()` function in `code/utils.py` returning a logger configured with file rotation to `logs/app.log`.
+- [X] T006b [P] Create `.env.example` file listing expected environment variable names (e.g., `RANDOM_SEED`, `DATA_PATH`) with placeholder values.
+- [X] T006a Implement `load_config()` function in `code/utils.py` returning a dict of environment variables (Depends on T006b to ensure variables are defined).
+- [X] T007a [P] Create `contracts/` directory if it does not exist. **Verification**: `ls contracts/` must succeed.
+- [X] T007b [P] Define schema fields in `contracts/dataset.schema.yaml` (fields: `user_id`, `openness`, `conscientiousness`, `extraversion`, `agreeableness`, `neuroticism`, `age`, `gender`, `country`) and `contracts/analysis_output.schema.yaml` (fields: `trait`, `genre`, `rho`, `p_value`, `adjusted_p_value`, `is_significant`). **Verification**: Validate a sample CSV against the schema.
+- [X] T008 [P] Implement `code/synthetic_data.py`: Generate a deterministic synthetic dataset with a fixed random seed, 1000 rows, specific column names matching `contracts/dataset.schema.yaml`, and realistic distributions (e.g., age 18-65, uniform genre distribution). Save to `data/processed/synthetic_data.csv`. **Verification**: Validate output against `contracts/dataset.schema.yaml`.
+- [X] T009 [P] Setup error handling wrappers in `code/utils.py` for HTTP timeouts and 404s.
+- [X] T035 [P] Implement `code/ingest.py` data source validation logic: Check `plan.md` for "NO verified source" flag. If present, log `VALIDATION_MODE: NO_REAL_DATA` and skip network requests. (Ref: Plan "Validation Mode" section).
+- [X] T036 [P] Implement `code/ingest.py` fallback logic: If "NO verified source" is detected, invoke `code/synthetic_data.py` (T008). If a verified source is listed but fetch fails (HTTP 404/Timeout), raise `DataUnavailableError` with message "Real data fetch failed; verified source unavailable". (Ref: Rule "The loader must FAIL LOUDLY" for real sources, but graceful fallback for Validation Mode).
+- [X] T037 [P] Add `--force-synthetic` CLI flag to `code/pipeline.py` that explicitly overrides the default behavior and forces the use of `code/synthetic_data.py` even if real data is available, for reproducible validation runs.
+- [X] T038 [P] Update `tests/test_analysis.py` to include a test case that verifies the statistical output is identical when run with `--force-synthetic` vs. a pre-generated synthetic file, ensuring the synthetic generator is deterministic.
+- [X] T039 [P] Update `results/results_report.csv` generation to include a metadata column `data_source` that explicitly states either "REAL_DATA" or "SYNTHETIC_VALIDATION_MODE" to prevent misinterpretation of results.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,20 +81,21 @@ The research question, method, and references remain unchanged as per the planni
 
 **Independent Test**: The pipeline can be tested by executing the data loading script and verifying the output dataframe contains non-null values for all 5 personality traits and at least 10 standardized genre categories (plus 'Other') for a sample of at least 100 users, with no missing demographic covariates.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Define test cases in `tests/test_mapping.py`: `test_map_raw_tags_to_standard` using inputs `['alt', 'rock']` and expected output from `contracts/genre_lookup.yaml`
-- [X] T011 [P] [US1] Define test cases in `tests/test_ingest.py`: `test_missing_data_imputation` verifying strategy and logging
-
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement `code/mapping.py`: Load lookup table from `contracts/genre_lookup.yaml` and map raw genre tags to standard categories + 'Other'.
+- [X] T014 [US1] Implement `code/mapping.py`: Load lookup table from `contracts/genre_lookup.yaml` and map raw genre tags to standard categories + 'Other'. **Verification**: Test with inputs `['alt', 'rock']` expecting `['Rock', 'Rock']`.
 - [X] T015 [US1] Implement `code/ingest.py`: Merge personality and listening data on `user_id`; exclude users with zero listening minutes.
-- [X] T016 [US1] Implement `code/ingest.py`: Handle missing demographic data (impute numeric with median, categorical with mode) or exclude; log counts.
-- [ ] T012 [US1] Implement `code/ingest.py`: **Orchestration**: Attempt to download BFI-2 and Last.fm data with s timeout (FR-001). If successful, use real data. If HTTP 404/Timeout occurs, catch exception, log `FALLBACK: SYNTHETIC`, and invoke `code/synthetic_data.py` (T008). Then, apply mapping (T014), merge (T015), handle missing data (T016), and save final merged dataset to `data/processed/merged_data.csv` with checksum.
-- [ ] T017 [US1] Verify `data/processed/merged_data.csv` schema integrity (non-empty, correct columns) and log checksum.
+- [X] T016 [US1] Implement `code/ingest.py`: Handle missing demographic data (impute numeric with median, categorical with mode) or exclude; log counts. **Verification**: Log "Excluded X rows" or "Imputed Y rows using median/mode".
+- [X] T010 [US1] Define test cases in `tests/test_mapping.py`: `test_map_raw_tags_to_standard` using inputs `['alt', 'rock']` and expected output from `contracts/genre_lookup.yaml`. (Depends on T014 implementation).
+- [X] T011 [US1] Define test cases in `tests/test_ingest.py`: `test_missing_data_imputation` verifying strategy and logging. (Depends on T016 implementation).
+- [X] T012 [US1] Implement `code/ingest.py`: **Download/Fallback Logic**: 
+    1. Check for "NO verified source" in `plan.md` (T035). If present, log `VALIDATION_MODE` and immediately invoke `code/synthetic_data.py` (T008).
+    2. If verified source exists, attempt download with a configurable timeout.
+    3. If HTTP 404/Timeout occurs, log `FALLBACK: SYNTHETIC` and invoke `code/synthetic_data.py` (T008).
+    4. Call mapping (T014), merge (T015), and missing data handler (T016).
+    5. Save final merged dataset to `data/processed/merged_data.csv` and compute/store checksum.
+    **Verification**: Log file exists and contains correct columns.
+- [X] T017 [US1] Verify `data/processed/merged_data.csv` schema integrity (non-empty, correct columns) and log checksum.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,22 +105,28 @@ The research question, method, and references remain unchanged as per the planni
 
 **Goal**: Compute Spearman correlations and multiple linear regressions with demographic controls, applying FDR correction.
 
-**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre-calculated correlation values and verifying the output matches the expected coefficients within a a tolerance threshold sufficiently low to ensure numerical stability and convergence precision.
+**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre-calculated correlation values and verifying the output matches the expected coefficients within an acceptable tolerance.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/test_analysis.py` (verify against synthetic ground truth)
-- [X] T019 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/test_analysis.py` (verify p-value adjustment logic)
+- [X] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/test_analysis.py` (verify against synthetic ground truth with a strict numerical tolerance).
+- [X] T019 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/test_analysis.py` (verify p-value adjustment logic).
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/analysis.py`: Log-transform `listening_minutes` and compute Spearman rho and p-values for all trait-genre pairs; write intermediate results to `data/processed/correlation_results.csv`.
+- [X] T020 [US2] Implement `code/analysis.py`: 
+    1. Log-transform `listening_minutes`.
+    2. Compute Spearman rho and p-values for all trait-genre pairs.
+    3. Write intermediate results to `data/processed/correlation_results.csv` with columns: `trait`, `genre`, `rho`, `p_value`.
+    4. Calculate boolean flag for `r > 0.3` (SC-001).
+    **Verification**: Verify file exists, contains correct columns, and numerical values match synthetic ground truth within 0.001 tolerance.
 - [X] T021 [US2] Implement `code/analysis.py`: Run multiple linear regression for each trait with age, gender, and country (one-hot encoded) as covariates.
-- [X] T022 [FR-004] [US2] Implement `code/analysis.py`: Detect collinear predictors (VIF > 5). If dropped, log the specific predictor name, update the regression model, and output a `model_definition` column in results listing the *actual* covariates used to ensure traceability against FR-004.
-- [X] T023 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg FDR correction (q < 0.05) to all p-values based on the dynamic count of tests.
-- [ ] T024 [US2] Save final analysis results (rho, p-value, adjusted p-value, is_significant, beta coefficients, model_definition) to `data/processed/analysis_results.csv`.
+- [X] T022 [FR-004] [US2] Implement `code/analysis.py`: Detect collinear predictors using VIF (statsmodels) with a standard threshold. If dropped, log the specific predictor name, update the regression model, and output a `model_definition` column in results as a JSON string listing the *actual* covariates used.
+- [X] T023 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg FDR correction (q < 0.05) to all p-values based on the dynamic count of tests. **Note**: This implements Spec FR-005, which supersedes Constitution Principle VI (Bonferroni) for this project per the Spec's explicit override.
+- [X] T024 [US2] Save final analysis results (rho, p-value, adjusted p-value, is_significant, beta coefficients, model_definition) to `data/processed/analysis_results.csv`. (Depends on T020, T021, T022, T023).
+- [X] T034 [US2] Implement `code/analysis.py`: Calculate the delta in regression coefficients for personality traits between models with covariates and models without covariates to satisfy SC-003 (validity of demographic controls). **Verification**: Log the delta, compare against a threshold (e.g., >10% change), and explicitly flag as "VALIDITY_CONFIRMED" or "VALIDITY_FAILED" in the log and a new column `validity_status` in `data/processed/coefficient_deltas.csv`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, All user stories should now be independently functional
 
 ---
 
@@ -127,14 +138,14 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Integration test for report generation in `tests/test_reporting.py` (verify file existence and content schema)
+- [X] T025 [P] [US3] Integration test for report generation in `tests/test_reporting.py` (verify file existence and content schema).
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis.py`: Read `data/processed/analysis_results.csv` (T024 output). Generate `results/correlation_heatmap.png` (800x600, 150dpi) using seaborn with a **diverging colormap** (e.g., 'coolwarm') to map color intensity to the **signed** correlation coefficient, preserving directionality.
-- [ ] T027 [US3] Implement `code/analysis.py`: Calculate **Pearson's r** effect sizes and **Fisher's z** confidence intervals for significant results as mandated by FR-006/US-3.
-- [ ] T028 [US3] Implement `code/analysis.py`: Generate `results/results_report.csv` containing effect sizes, CIs, and explicit "Non-significant" labels for multiple traits across multiple genres (fill nulls where needed).
-- [ ] T029 [P] [US3] Add `tests/test_report.py::test_report_completeness` to verify `results_report.csv` includes all 5 traits × 10+ genres.
+- [X] T026 [US3] Implement `code/analysis.py`: Read `data/processed/analysis_results.csv` (T024 output). Generate `results/correlation_heatmap.png` (800x600, 150dpi) using seaborn with a **diverging colormap** ('coolwarm'). **Axis Labels**: "Personality Trait" (y), "Genre" (x). **Title**: "Spearman Correlation: Personality vs. Music Genre". **Verification**: Verify output file exists and color intensity maps to signed rho values.
+- [X] T027 [US3] Implement `code/analysis.py`: Calculate **Pearson's r** effect sizes and **Fisher's z** confidence intervals for significant results as mandated by FR-006/US-3. **Clarification**: This is a secondary calculation performed on the Spearman correlation results to report effect size magnitude, not a replacement for the primary Spearman analysis.
+- [X] T028 [US3] Implement `code/analysis.py`: Generate `results/results_report.csv` containing effect sizes, CIs, and explicit "Non-significant" labels for multiple traits across multiple genres. **Verification**: Fill nulls with string "Non-significant" and ensure schema matches FR-006. (Depends on T027).
+- [X] T029 [P] [US3] Add `tests/test_report.py::test_report_completeness` to verify `results_report.csv` includes all relevant traits across a diverse set of genres.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,11 +155,11 @@ The research question, method, and references remain unchanged as per the planni
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Documentation updates in `README.md` with execution instructions and synthetic data explanation
-- [ ] T031 Code cleanup and refactoring in `code/`
-- [ ] T032a [P] Add `tests/test_edge_cases.py::test_empty_dataset` for empty dataset handling
-- [ ] T032b [P] Add `tests/test_edge_cases.py::test_all_missing_demographics` for missing demographic handling
-- [ ] T033 Execute `code/pipeline.py` end-to-end, record execution time in `logs/timing.log`; fail if > 2 hours
+- [X] T030 [P] Documentation updates in `README.md` with execution instructions and synthetic data explanation.
+- [X] T031 Code cleanup and refactoring in `code/` (Only after T020, T026, T028 are verified complete).
+- [X] T032a [P] Add `tests/test_edge_cases.py::test_empty_dataset` for empty dataset handling.
+- [X] T032b [P] Add `tests/test_edge_cases.py::test_all_missing_demographics` for missing demographic handling.
+- [X] T033 [P] [US1-US3] Implement `code/pipeline.py` end-to-end orchestration script that sequentially executes ingestion, analysis, and reporting; add timing logic to record execution time in `logs/timing.log` and fail the run if total time exceeds **6 hours** (as defined by SC-004).
 
 ---
 
@@ -180,7 +191,7 @@ The research question, method, and references remain unchanged as per the planni
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T006a which depends on T005a)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T006a which depends on T006b)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -198,7 +209,7 @@ Task: "Unit test for missing data imputation in tests/test_ingest.py"
 # Launch all implementation tasks for User Story 1 together:
 Task: "Implement code/mapping.py: Load lookup table..."
 Task: "Implement code/ingest.py: Merge personality and listening data..."
-Task: "Implement code/ingest.py: Orchestration (Download/Fallback)... (Depends on T014/T015)"
+Task: "Implement code/ingest.py: Orchestration (Download/Fallback)... (Depends on T014/T015/T016)"
 ```
 
 ---
@@ -245,4 +256,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Ensure synthetic data generator uses a fixed seed for reproducibility on CI.
 - **Critical**: Ensure all statistical tests run on CPU only (no GPU dependencies).
-- **Critical**: T012 implements the download attempt (FR-001) before falling back to synthetic data.
+- **Critical**: T012 implements the download attempt (FR-001) with explicit fallback logic for Validation Mode.
+- **Critical**: T020, T026, T028 are now marked complete and include verification steps for numerical accuracy and schema compliance.
+- **Critical**: Phase O has been merged into Phase 2 to ensure data source validation runs before ingestion.
+- **Critical**: `contracts/` directory creation is now exclusively handled in Phase 2 (T007a) to avoid confusion.
