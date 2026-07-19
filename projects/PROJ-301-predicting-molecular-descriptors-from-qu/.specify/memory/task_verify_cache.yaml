@@ -19,3 +19,17 @@ T033:
     \ execution logs, output files, or screenshots showing the pipeline completing\
     \ end\u2011to\u2011end. The required artifact (a successful validation of the\
     \ quickstart guide) is missing, so the task is not satisfied."
+T035:
+  c: false
+  h: c1a75504844d98541625d5f4b6a576d0c45b3885d3b6a0fee14a3b9f58f63612
+  r: "The wrapper `code/train.py` imports `code_04_model_training`, but the required\
+    \ implementation file `code/04_model_training.py` is absent, so the code\u2011\
+    side reconciliation is not actually completed. The missing script must be provided\
+    \ (or the import corrected) for the task to be satisfied."
+T035#1:
+  c: false
+  h: c1a75504844d98541625d5f4b6a576d0c45b3885d3b6a0fee14a3b9f58f63612
+  r: "The wrapper `code/train.py` exists, but it imports `code_04_model_training`\
+    \ and the required implementation file `code/04_model_training.py` is missing,\
+    \ so the reconciliation is not functional. The task\u2019s requirement of having\
+    \ a working implementation that the run\u2011book can invoke is not satisfied."

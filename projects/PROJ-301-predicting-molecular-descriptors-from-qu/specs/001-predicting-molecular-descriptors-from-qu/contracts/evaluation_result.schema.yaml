@@ -44,6 +44,15 @@ properties:
       - mae
       - rmse
       - std_mae
+  baseline:
+    type: "object"
+    description: "Mean Predictor (Zero-Order) Baseline metrics."
+    properties:
+      mae:
+        type: "number"
+        description: "MAE of the mean predictor."
+    required:
+      - mae
   comparative:
     type: "object"
     description: "Comparative metrics."
@@ -51,16 +60,23 @@ properties:
       relative_error_increase:
         type: "number"
         description: "Relative increase in error for 2D vs 3D (MAE_2D - MAE_3D) / MAE_3D."
+      absolute_error_difference:
+        type: "number"
+        description: "Absolute difference in error (MAE_2D - MAE_3D) used if REI is unstable."
       p_value:
         type: "number"
         description: "P-value from Wilcoxon signed-rank test or paired t-test on per-molecule errors."
       is_significant:
         type: "boolean"
         description: "True if p_value < 0.0167 (Bonferroni adjusted) AND relative_error_increase >= 0.10."
+      test_used:
+        type: "string"
+        description: "The statistical test used ('t-test' or 'wilcoxon')."
     required:
       - relative_error_increase
       - p_value
       - is_significant
+      - test_used
   failure_boundary:
     type: "object"
     description: "Definition of the failure boundary threshold."
@@ -73,7 +89,7 @@ properties:
         description: "The p-value threshold for failure (Bonferroni adjusted, e.g., 0.0167)."
       logic:
         type: "string"
-        description: "The logic used: 'OR' (REI >= threshold OR p < alpha)."
+        description: "The logic used: 'AND' (REI >= threshold AND p < alpha)."
       source_spec_reference:
         type: "string"
         description: "Reference to the spec requirement (e.g., 'US-3 Acceptance Scenario 3')."
@@ -136,11 +152,12 @@ properties:
       - error_3d
   scope_qualification:
     type: "string"
-    description: "Note on the scope of the failure boundary (e.g., 'Specific to DFT-optimized geometries')."
+    description: "Note on the scope of the failure boundary (e.g., 'Specific to DFT-optimized geometries; theoretical lower bound')."
 required:
   - descriptor
   - model_2d
   - model_3d
+  - baseline
   - comparative
   - failure_boundary
   - cv_stability

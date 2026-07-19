@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T034** — The provided `code/extract.py` is a wrapper that imports `code_02_feature_extraction`, but the task required the run‑book to be updated to call `code/03_feature_extraction.py` and the code‑side reconciliation to reference that file. The expected `code/03_feature_extraction.py` is missing, and there is no evidence that the run‑book was changed accordingly. The required artifact is absent, so the task is not completed.
+- **T037** — declared artifact(s) missing/empty/invalid: code/analyze.py
+- **T039** — The required `code/analyze.py` entry point is missing, so the integration test cannot be executed. Additionally, the provided `tests/integration/test_analyze_wrapper.py` is truncated and does not show the actual invocation of the script, indicating the test is not fully implemented. The task therefore lacks the essential script and a complete end‑to‑end test.
+- **T034#1** — The provided `code/extract.py` is a wrapper that imports `code_02_feature_extraction`, but the task required the run‑book to be updated to call `code/03_feature_extraction.py` and the code‑side reconciliation to reference that file. The expected `code/03_feature_extraction.py` is missing, and there is no evidence that the run‑book was changed accordingly. The required artifact is absent, so the task is not completed.

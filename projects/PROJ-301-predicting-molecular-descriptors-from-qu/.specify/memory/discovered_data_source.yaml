@@ -1,16 +1,12 @@
 status: none
-intent: download QM9 dataset Harvard Dataverse doi 10.7910/DVN/28075 python package
-  dataset
+intent: QM9 dataset Harvard Dataverse doi 10.7910/DVN/28075 python package dataset
 required_fields:
-- molecule_id
-- atom_index
-- atomic_number
-- x
-- y
-- z
-- dipole_moment
-- homo_energy
-- lumo_energy
-cache_key: f1a1bf8c40699c1af66b8294cb785d8e2951b785abc3d29cdc248eb4247fe786
-searched_at: '2026-07-18T21:54:27.812794+00:00'
+- dipole
+- homo
+- lumo
+- geometry_3d_coordinates
+- atom_types
+- smiles
+cache_key: 527fd30d8d15d57079d47fe81837e1aba8496597e3a118ed89ee3f3c2e813a9f
+searched_at: '2026-07-19T01:06:56.762199+00:00'
 retry_count: 1

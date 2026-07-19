@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Set Schema"
+description: "Schema for the extracted 2D and 3D feature matrices."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  features_2d:
+    type: "array"
+    description: "Morgan fingerprint vector (2048 bits)."
+    items:
+      type: "integer"
+      minimum: 0
+      maximum: 1
+    minItems: 2048
+    maxItems: 2048
+  features_3d:
+    type: "object"
+    description: "3D graph features (node and edge features)."
+    properties:
+      node_features:
+        type: "array"
+        description: "Atomic number and hybridization for each atom."
+        items:
+          type: "array"
+          items:
+            type: "number"
+      edge_features:
+        type: "array"
+        description: "Distance, angle, and dihedral features for bonds."
+        items:
+          type: "array"
+          items:
+            type: "number"
+    required:
+      - node_features
+      - edge_features
+  labels:
+    type: "object"
+    description: "Target values for prediction."
+    properties:
+      mu:
+        type: "number"
+      homo:
+        type: "number"
+      lumo:
+        type: "number"
+    required:
+      - mu
+      - homo
+      - lumo
+required:
+  - molecule_id
+  - features_2d
+  - features_3d
+  - labels
+additionalProperties: false
