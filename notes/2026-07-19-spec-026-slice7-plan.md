@@ -1725,4 +1725,3 @@ complete code.
 **Ordering constraint.** T3 must precede T4 (the vision call needs `ImagePart`). T5 must precede
 T6 (consumers need `entry.profile`). T1 must precede T4 (the real-call test uses `exclude_leader`).
 T2's layer-1 test xfails until T5.
-
