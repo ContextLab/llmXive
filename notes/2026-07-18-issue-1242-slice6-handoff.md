@@ -104,6 +104,10 @@ fc9ae88ea1 feat(026 Slice-6): thread RequirementOverrides through the router wal
 3. Optionally land the Task-2 one-line precedence test before merge.
 
 ## RESUME AT (next work)
+- **Fresh session implementing Slices 7 & 8 → start at
+  [2026-07-18-issue-1242-slices-7-8-kickoff.md](2026-07-18-issue-1242-slices-7-8-kickoff.md)** — a
+  self-contained kickoff (read-first sources, the as-built mechanism, per-slice scope + the 136-row
+  manifest work-list + gotchas + conventions + recommended brainstorm→plan→SDD approach).
 - PR/merge decision for Slice 6 (after rebase) — MAINTAINER's call.
 - **Slice 7**: per-agent requirement PROFILES via the `AgentRegistryEntry` schema migration (lands US5's
   schema-dependent ACs: AC1 all-agents fixed-snapshot primary preservation + AC4 `test_config_consistency`
