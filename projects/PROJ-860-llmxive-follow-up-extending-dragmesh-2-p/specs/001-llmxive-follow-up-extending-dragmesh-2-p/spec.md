@@ -77,7 +77,7 @@ A researcher runs the full training and inference pipeline on a standard GitHub 
 
 - **VirtualTactileEstimator**: A non-neural module that ingests torque and velocity time-series and outputs a scalar stiffness proxy.
 - **AdaptiveRewardScheduler**: A heuristic component that maps stiffness proxies to reward weight multipliers.
-- **NovelObjectSet**: A collection of 30 generated articulated object geometries with randomized friction properties, distinct from the training set.
+- **NovelObjectSet**: A collection of generated articulated object geometries with randomized friction properties, distinct from the training set.
 - **SimulationEnvironment**: A CPU-based physics engine instance (e.g., PyBullet) configured for dexterous hand manipulation.
 
 ## Success Criteria

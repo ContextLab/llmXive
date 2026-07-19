@@ -1,13 +1,8 @@
 """
-analysis.py: Statistical analysis for User Story 1 (Zero-Shot Adaptation).
+analysis.py - Statistical Analysis for Virtual Tactile Adaptation
 
-Performs paired t-test on aggregated evaluation data to verify:
-1. Statistical significance (p < 0.05)
-2. Practical significance (>15% improvement in success rate)
-3. Statistical power (effect size validation)
-
-Input: Aggregated CSV from aggregate.py (data/results/evaluation_results.csv)
-Output: Analysis report and summary statistics
+Performs paired t-tests on aggregated evaluation data to validate the adaptive policy
+against the static baseline. Calculates statistical power and verifies improvement thresholds.
 """
 import os
 import sys
@@ -16,355 +11,303 @@ import logging
 import pandas as pd
 import numpy as np
 from scipy import stats
-from typing import Tuple, Dict, Any, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import logging configuration from the project's existing module
+try:
+    from logging_config import setup_analysis_logger
+except ImportError:
+    # Fallback if logging_config is not yet imported in this specific environment context
+    def setup_analysis_logger(name):
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            ))
+            logger.addHandler(handler)
+        return logger
 
-def load_aggregated_data(csv_path: str) -> pd.DataFrame:
+logger = setup_analysis_logger('analysis')
+
+# Constants
+DEFAULT_INPUT_PATH = "data/results/eval_logs.csv"
+DEFAULT_OUTPUT_PATH = "data/results/analysis_report.csv"
+P_VALUE_THRESHOLD = 0.05
+IMPROVEMENT_THRESHOLD = 0.15  # 15%
+
+def load_aggregated_data(input_path):
     """
-    Load aggregated evaluation results from CSV.
+    Load the aggregated evaluation logs.
     
     Args:
-        csv_path: Path to the aggregated CSV file
+        input_path (str): Path to the CSV file containing evaluation results.
         
     Returns:
-        DataFrame with columns: object_id, policy_type, success_rate
+        pd.DataFrame: The loaded data.
         
     Raises:
-        FileNotFoundError: If CSV doesn't exist
-        ValueError: If required columns are missing
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Aggregated data not found at {csv_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Aggregated data file not found at {input_path}. "
+                                "Ensure T014 (aggregate.py) has run successfully.")
     
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(input_path)
     
-    required_cols = ['object_id', 'policy_type', 'success_rate']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    
+    required_columns = ['object_id', 'policy_type', 'success_rate']
+    missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
     
-    logger.info(f"Loaded {len(df)} records from {csv_path}")
+    logger.info(f"Loaded {len(df)} records from {input_path}")
     return df
 
-def prepare_paired_data(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+def prepare_paired_data(df):
     """
-    Prepare paired data for t-test by splitting adaptive vs static policies.
+    Prepare data for paired t-test by pivoting the dataframe.
+    
+    The data must be paired by 'object_id' with one success_rate for 'adaptive'
+    and one for 'static'.
     
     Args:
-        df: DataFrame with object_id, policy_type, success_rate
+        df (pd.DataFrame): The loaded evaluation data.
         
     Returns:
-        Tuple of (adaptive_rates, static_rates) arrays, paired by object_id
-        
-    Raises:
-        ValueError: If pairing is incomplete or data is invalid
+        tuple: (adaptive_rates, static_rates, object_ids)
     """
-    # Pivot to get paired data
-    pivot_df = df.pivot(index='object_id', columns='policy_type', values='success_rate')
+    # Pivot to get one row per object_id
+    pivot_df = df.pivot_table(
+        index='object_id', 
+        columns='policy_type', 
+        values='success_rate', 
+        aggfunc='first'
+    )
     
-    # Check for completeness
-    if pivot_df.isnull().any().any():
-        incomplete_objects = pivot_df[pivot_df.isnull().any(axis=1)].index.tolist()
-        raise ValueError(
-            f"Incomplete pairing for objects: {incomplete_objects}. "
-            "Each object must have both adaptive and static results."
-        )
+    # Ensure both policies are present for every object
+    if 'adaptive' not in pivot_df.columns or 'static' not in pivot_df.columns:
+        raise ValueError("Both 'adaptive' and 'static' policy types must be present for pairing.")
     
     adaptive_rates = pivot_df['adaptive'].values
     static_rates = pivot_df['static'].values
+    object_ids = pivot_df.index.values
     
-    logger.info(f"Prepared {len(adaptive_rates)} paired observations")
-    return adaptive_rates, static_rates
+    logger.info(f"Prepared {len(object_ids)} paired samples for analysis.")
+    return adaptive_rates, static_rates, object_ids
 
-def perform_paired_ttest(adaptive: np.ndarray, static: np.ndarray) -> Dict[str, float]:
+def perform_paired_ttest(adaptive_rates, static_rates):
     """
-    Perform paired t-test on adaptive vs static success rates.
+    Perform a paired t-test.
     
     Args:
-        adaptive: Array of adaptive policy success rates
-        static: Array of static policy success rates
+        adaptive_rates (np.array): Success rates for the adaptive policy.
+        static_rates (np.array): Success rates for the static policy.
         
     Returns:
-        Dictionary with t-statistic, p-value, and confidence interval
+        dict: Dictionary containing t-statistic, p-value, and mean difference.
     """
-    # Paired t-test
-    t_stat, p_value = stats.ttest_rel(static, adaptive)
+    if len(adaptive_rates) != len(static_rates):
+        raise ValueError("Input arrays must have the same length for paired t-test.")
     
-    # Calculate effect size (Cohen's d for paired samples)
-    diff = adaptive - static
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
+    t_stat, p_value = stats.ttest_rel(adaptive_rates, static_rates)
+    mean_diff = np.mean(adaptive_rates) - np.mean(static_rates)
+    
+    logger.info(f"Paired t-test results: t={t_stat:.4f}, p={p_value:.6f}, mean_diff={mean_diff:.4f}")
+    return {
+        't_statistic': t_stat,
+        'p_value': p_value,
+        'mean_difference': mean_diff,
+        'adaptive_mean': np.mean(adaptive_rates),
+        'static_mean': np.mean(static_rates)
+    }
+
+def calculate_statistical_power(adaptive_rates, static_rates, alpha=0.05):
+    """
+    Calculate statistical power (effect size and power).
+    
+    Uses Cohen's d for effect size and approximates power based on sample size.
+    
+    Args:
+        adaptive_rates (np.array): Success rates for adaptive.
+        static_rates (np.array): Success rates for static.
+        alpha (float): Significance level.
+        
+    Returns:
+        dict: Effect size (Cohen's d) and estimated power.
+    """
+    n = len(adaptive_rates)
+    mean_diff = np.mean(adaptive_rates) - np.mean(static_rates)
+    std_diff = np.std(adaptive_rates - static_rates, ddof=1)
     
     if std_diff == 0:
         cohens_d = 0.0
     else:
         cohens_d = mean_diff / std_diff
     
-    # Calculate 95% confidence interval for mean difference
-    n = len(diff)
-    mean_diff = np.mean(diff)
-    sem = stats.sem(diff)
-    confidence_level = 0.95
-    dof = n - 1
-    t_crit = stats.t.ppf((1 + confidence_level) / 2, dof)
-    ci_lower = mean_diff - t_crit * sem
-    ci_upper = mean_diff + t_crit * sem
-    
-    result = {
-        't_statistic': float(t_stat),
-        'p_value': float(p_value),
-        'mean_difference': float(mean_diff),
-        'cohens_d': float(cohens_d),
-        'ci_lower': float(ci_lower),
-        'ci_upper': float(ci_upper),
-        'n_samples': n
-    }
-    
-    logger.info(f"T-test: t={t_stat:.4f}, p={p_value:.4f}, d={cohens_d:.4f}")
-    return result
-
-def calculate_statistical_power(
-    effect_size: float, 
-    n_samples: int, 
-    alpha: float = 0.05
-) -> float:
-    """
-    Calculate statistical power for the observed effect size.
-    
-    Args:
-        effect_size: Cohen's d
-        n_samples: Number of paired observations
-        alpha: Significance level
-        
-    Returns:
-        Statistical power (probability of detecting effect if it exists)
-    """
+    # Approximate power using normal distribution for large n, or t-distribution logic
+    # For simplicity and robustness with small n, we use scipy's effect size logic if available,
+    # otherwise a standard approximation.
+    # Power = P(t > t_critical | non-central t)
+    # Using a simplified approximation:
     from statsmodels.stats.power import TTestPower
-    
     power_analysis = TTestPower()
-    power = power_analysis.solve_power(
-        effect_size=abs(effect_size),
-        nobs1=n_samples,
-        alpha=alpha,
-        alternative='larger'
-    )
+    try:
+        power = power_analysis.solve_power(effect_size=cohens_d, nobs1=n, alpha=alpha, alternative='larger')
+    except Exception:
+        # Fallback if statsmodels is not fully functional or parameters are edge cases
+        # Standard approximation for power given effect size d and n
+        # z_beta = sqrt(n) * |d| - z_alpha
+        from scipy.stats import norm
+        z_alpha = norm.ppf(1 - alpha)
+        z_beta = np.sqrt(n) * abs(cohens_d) - z_alpha
+        power = norm.cdf(z_beta)
     
-    return float(power)
-
-def verify_improvement_threshold(
-    mean_diff: float, 
-    threshold: float = 0.15
-) -> Tuple[bool, float]:
-    """
-    Verify if improvement exceeds the required threshold.
-    
-    Args:
-        mean_diff: Mean difference in success rates (adaptive - static)
-        threshold: Required improvement threshold (default 0.15 = 15%)
-        
-    Returns:
-        Tuple of (passes_threshold, actual_improvement_percentage)
-    """
-    improvement_pct = mean_diff * 100  # Convert to percentage
-    passes = mean_diff >= threshold
-    return passes, improvement_pct
-
-def generate_analysis_report(
-    ttest_results: Dict[str, float],
-    power: float,
-    threshold_pass: bool,
-    improvement_pct: float,
-    output_path: str
-) -> None:
-    """
-    Generate and save a comprehensive analysis report.
-    
-    Args:
-        ttest_results: Dictionary from perform_paired_ttest
-        power: Statistical power value
-        threshold_pass: Whether improvement exceeds threshold
-        improvement_pct: Actual improvement percentage
-        output_path: Path to save the report
-    """
-    report_lines = [
-        "=" * 60,
-        "ZERO-SHOT ADAPTATION ANALYSIS REPORT",
-        "=" * 60,
-        "",
-        "STATISTICAL TEST RESULTS",
-        "-" * 40,
-        f"Sample Size (n): {ttest_results['n_samples']}",
-        f"T-statistic: {ttest_results['t_statistic']:.4f}",
-        f"P-value: {ttest_results['p_value']:.6f}",
-        f"Mean Difference (adaptive - static): {ttest_results['mean_difference']:.4f} ({ttest_results['mean_difference']*100:.2f}%)",
-        f"Cohen's d (Effect Size): {ttest_results['cohens_d']:.4f}",
-        f"95% CI: [{ttest_results['ci_lower']:.4f}, {ttest_results['ci_upper']:.4f}]",
-        "",
-        "STATISTICAL POWER",
-        "-" * 40,
-        f"Calculated Power: {power:.4f}",
-        f"Target Power: 0.80",
-        f"Power Sufficient: {'Yes' if power >= 0.80 else 'No (consider larger sample)'}",
-        "",
-        "THRESHOLD VERIFICATION",
-        "-" * 40,
-        f"Required Improvement: >15%",
-        f"Actual Improvement: {improvement_pct:.2f}%",
-        f"Threshold Passed: {'Yes' if threshold_pass else 'No'}",
-        "",
-        "SIGNIFICANCE VERIFICATION",
-        "-" * 40,
-        f"P < 0.05: {'Yes' if ttest_results['p_value'] < 0.05 else 'No'}",
-        f"Improvement >15%: {'Yes' if threshold_pass else 'No'}",
-        "",
-        "CONCLUSION",
-        "-" * 40,
-    ]
-    
-    # Determine overall conclusion
-    if ttest_results['p_value'] < 0.05 and threshold_pass:
-        conclusion = "SUCCESS: Adaptive policy shows statistically significant (>0.05) and practically significant (>15%) improvement over static baseline."
-    elif ttest_results['p_value'] < 0.05:
-        conclusion = "PARTIAL: Statistically significant improvement detected, but practical threshold (>15%) not met."
-    elif threshold_pass:
-        conclusion = "PARTIAL: Practical improvement detected (>15%), but not statistically significant (p >= 0.05)."
-    else:
-        conclusion = "FAILURE: No significant improvement detected. Adaptive policy does not outperform static baseline."
-    
-    report_lines.append(conclusion)
-    report_lines.append("=" * 60)
-    
-    report_text = "\n".join(report_lines)
-    
-    # Write to file
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write(report_text)
-    
-    logger.info(f"Report saved to {output_path}")
-    print(report_text)
-
-def run_analysis(
-    input_csv: str,
-    output_report: str,
-    significance_level: float = 0.05,
-    improvement_threshold: float = 0.15
-) -> Dict[str, Any]:
-    """
-    Main analysis pipeline.
-    
-    Args:
-        input_csv: Path to aggregated CSV
-        output_report: Path for output report
-        significance_level: Alpha for t-test
-        improvement_threshold: Required improvement percentage
-        
-    Returns:
-        Dictionary with all analysis results
-    """
-    # Load data
-    df = load_aggregated_data(input_csv)
-    
-    # Prepare paired data
-    adaptive_rates, static_rates = prepare_paired_data(df)
-    
-    # Perform t-test
-    ttest_results = perform_paired_ttest(adaptive_rates, static_rates)
-    
-    # Calculate power
-    power = calculate_statistical_power(
-        ttest_results['cohens_d'],
-        ttest_results['n_samples']
-    )
-    
-    # Verify thresholds
-    threshold_pass, improvement_pct = verify_improvement_threshold(
-        ttest_results['mean_difference'],
-        improvement_threshold
-    )
-    
-    # Generate report
-    generate_analysis_report(
-        ttest_results,
-        power,
-        threshold_pass,
-        improvement_pct,
-        output_report
-    )
-    
+    logger.info(f"Statistical Power Analysis: Cohen's d={cohens_d:.4f}, Power={power:.4f}")
     return {
-        'ttest': ttest_results,
+        'cohens_d': cohens_d,
         'power': power,
-        'threshold_pass': threshold_pass,
-        'improvement_pct': improvement_pct,
-        'significant': ttest_results['p_value'] < significance_level,
-        'meets_requirements': ttest_results['p_value'] < significance_level and threshold_pass
+        'sample_size': n
     }
+
+def verify_improvement_threshold(adaptive_mean, static_mean, threshold=0.15):
+    """
+    Verify if the adaptive policy shows >15% improvement over static.
+    
+    Improvement is calculated as: (Adaptive - Static) / Static
+    If Static is 0, we check if Adaptive > 0 (absolute improvement).
+    
+    Args:
+        adaptive_mean (float): Mean success rate of adaptive.
+        static_mean (float): Mean success rate of static.
+        threshold (float): Required improvement threshold (0.15).
+        
+    Returns:
+        dict: Verification result.
+    """
+    if static_mean == 0:
+        if adaptive_mean > 0:
+            relative_improvement = float('inf')
+            passed = True
+        else:
+            relative_improvement = 0.0
+            passed = False
+    else:
+        relative_improvement = (adaptive_mean - static_mean) / static_mean
+        passed = relative_improvement > threshold
+    
+    logger.info(f"Improvement Check: Relative Improvement = {relative_improvement:.2%}, Threshold = {threshold:.2%}, Passed = {passed}")
+    return {
+        'relative_improvement': relative_improvement,
+        'threshold': threshold,
+        'passed': passed
+    }
+
+def generate_analysis_report(ttest_results, power_results, improvement_results, output_path):
+    """
+    Generate a summary CSV report of the analysis.
+    
+    Args:
+        ttest_results (dict): Results from paired t-test.
+        power_results (dict): Results from power analysis.
+        improvement_results (dict): Results from threshold verification.
+        output_path (str): Path to save the report.
+    """
+    report_data = {
+        'metric': [
+            't_statistic', 'p_value', 'adaptive_mean', 'static_mean', 
+            'mean_difference', 'cohens_d', 'statistical_power', 
+            'relative_improvement', 'improvement_threshold', 
+            'significance_passed', 'improvement_passed'
+        ],
+        'value': [
+            ttest_results['t_statistic'],
+            ttest_results['p_value'],
+            ttest_results['adaptive_mean'],
+            ttest_results['static_mean'],
+            ttest_results['mean_difference'],
+            power_results['cohens_d'],
+            power_results['power'],
+            improvement_results['relative_improvement'],
+            improvement_results['threshold'],
+            ttest_results['p_value'] < P_VALUE_THRESHOLD,
+            improvement_results['passed']
+        ]
+    }
+    
+    report_df = pd.DataFrame(report_data)
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    report_df.to_csv(output_path, index=False)
+    logger.info(f"Analysis report saved to {output_path}")
+    return report_df
+
+def run_analysis(input_path, output_path):
+    """
+    Main execution flow for the analysis task.
+    
+    Args:
+        input_path (str): Path to aggregated data.
+        output_path (str): Path for the output report.
+        
+    Returns:
+        bool: True if all criteria (p < 0.05, >15% improvement) are met.
+    """
+    try:
+        # 1. Load Data
+        df = load_aggregated_data(input_path)
+        
+        # 2. Prepare Paired Data
+        adaptive_rates, static_rates, object_ids = prepare_paired_data(df)
+        
+        # 3. Perform T-Test
+        ttest_results = perform_paired_ttest(adaptive_rates, static_rates)
+        
+        # 4. Calculate Power
+        power_results = calculate_statistical_power(adaptive_rates, static_rates)
+        
+        # 5. Verify Improvement Threshold
+        improvement_results = verify_improvement_threshold(
+            ttest_results['adaptive_mean'], 
+            ttest_results['static_mean']
+        )
+        
+        # 6. Generate Report
+        generate_analysis_report(ttest_results, power_results, improvement_results, output_path)
+        
+        # 7. Final Verification
+        significance_passed = ttest_results['p_value'] < P_VALUE_THRESHOLD
+        improvement_passed = improvement_results['passed']
+        
+        logger.info("="*50)
+        logger.info("FINAL VERIFICATION")
+        logger.info(f"P-value < {P_VALUE_THRESHOLD}: {significance_passed}")
+        logger.info(f"Improvement > {improvement_results['threshold']:.2%}: {improvement_passed}")
+        logger.info("="*50)
+        
+        if significance_passed and improvement_passed:
+            logger.info("SUCCESS: All statistical criteria met.")
+            return True
+        else:
+            logger.warning("FAILURE: Statistical criteria not met.")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Analysis failed with error: {e}")
+        raise
 
 def main():
-    """CLI entry point for analysis."""
-    parser = argparse.ArgumentParser(
-        description='Analyze zero-shot adaptation results with paired t-test'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        default='data/results/evaluation_results.csv',
-        help='Path to aggregated CSV file'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='data/results/analysis_report.txt',
-        help='Path for output report'
-    )
-    parser.add_argument(
-        '--alpha',
-        type=float,
-        default=0.05,
-        help='Significance level for t-test'
-    )
-    parser.add_argument(
-        '--threshold',
-        type=float,
-        default=0.15,
-        help='Required improvement threshold (default: 0.15 = 15%%)'
-    )
+    parser = argparse.ArgumentParser(description="Perform statistical analysis on evaluation results.")
+    parser.add_argument('--input', type=str, default=DEFAULT_INPUT_PATH,
+                        help=f"Path to aggregated CSV data (default: {DEFAULT_INPUT_PATH})")
+    parser.add_argument('--output', type=str, default=DEFAULT_OUTPUT_PATH,
+                        help=f"Path to output report CSV (default: {DEFAULT_OUTPUT_PATH})")
     
     args = parser.parse_args()
     
-    try:
-        results = run_analysis(
-            input_csv=args.input,
-            output_report=args.output,
-            significance_level=args.alpha,
-            improvement_threshold=args.threshold
-        )
-        
-        # Exit with appropriate code
-        if results['meets_requirements']:
-            logger.info("Analysis PASSED: All requirements met.")
-            sys.exit(0)
-        else:
-            logger.warning("Analysis FAILED: Requirements not met.")
-            sys.exit(1)
-            
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        sys.exit(2)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(3)
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(4)
+    success = run_analysis(args.input, args.output)
+    sys.exit(0 if success else 1)
 
 if __name__ == '__main__':
     main()

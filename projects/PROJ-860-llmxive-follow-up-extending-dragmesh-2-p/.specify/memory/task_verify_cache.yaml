@@ -1,3 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code`, `tests`, `data/raw`, `data/generated`,\
+    \ `state/projects`) or the `README.md` and `.gitignore` files is provided. The\
+    \ implementer\u2019s claim cannot be verified because the actual artifacts are\
+    \ missing from the submission."
+T002:
+  c: false
+  h: f7a726971168646f73bd68a88123ae6f35328b9e94928ed71566bc8b7bba9c30
+  r: The required file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/requirements.txt`
+    does not exist, so the specified dependencies are not initialized at the correct
+    location. The existing `code/requirements.txt` is irrelevant to the task.
+T003:
+  c: false
+  h: 439f68ef5e31ea90fb5545e2014cafe37b7cb248d2e407ea1f81b9c60ba87a00
+  r: "The required file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini`\
+    \ does not exist, so the configuration cannot be verified despite a similarly\u2011\
+    named `code/pytest.ini` being present elsewhere. The task\u2019s specified artifact\
+    \ is missing."
 T024:
   c: false
   h: f3685779d0ac6aa46131840d3578e1ce36108930e3c0213bbb65e10b0a76f1e2

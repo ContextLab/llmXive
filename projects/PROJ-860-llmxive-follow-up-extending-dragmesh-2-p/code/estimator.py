@@ -80,7 +80,8 @@ class VirtualTactileEstimator:
         abs_torque = abs(float(torque))
         abs_velocity = abs(float(velocity))
 
-        # Prevent division by zero using epsilon
+        # Prevent division by zero using epsilon (Stiction Handling)
+        # This ensures k_est remains finite but high when velocity is near zero (stiction)
         instantaneous_k = abs_torque / (abs_velocity + self.epsilon)
 
         # Update moving average buffer (FR-006)

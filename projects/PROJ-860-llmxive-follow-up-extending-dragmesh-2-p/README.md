@@ -1,93 +1,29 @@
-# PROJ-860: llmXive Follow-up - Extending DragMesh-2-P
+# llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
 
-## Virtual Tactile Zero-Shot Adaptation
+**Project ID**: PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
 
-This project implements a virtual tactile sensing system for robotic manipulation
-that adapts to unseen friction conditions using zero-shot learning techniques.
+## Overview
+This project implements a virtual tactile adaptation pipeline for zero-shot
+generalization to unseen damping and friction conditions using PyBullet physics
+simulations.
 
-## Quick Links
-
-- [Full Documentation](docs/README.md)
-- [API Reference](docs/API.md)
-- [User Stories](docs/US1.md, docs/US2.md, docs/US3.md)
+## Structure
+- `code/`: Source code for simulation, estimation, and training
+- `data/`: Raw and generated data assets
+- `tests/`: Unit and integration tests
+- `state/`: Project state tracking and artifact hashes
 
 ## Installation
-
 ```bash
-# Install dependencies
-pip install -r code/requirements.txt
-
-# Run tests
-pytest code/tests/ -v
+cd code
+pip install -r requirements.txt
 ```
 
 ## Usage
-
-### Generate Training Objects
-```bash
-python code/generator.py --output data/generated/ --count 30
-```
-
-### Train Adaptive Policy
-```bash
-python code/train.py --objects data/generated/ --epochs 100
-```
-
-### Evaluate and Compare
-```bash
-python code/evaluate.py --objects data/generated/ --output data/results/eval.csv
-```
-
-### Analyze Results
-```bash
-python code/aggregate.py --logs data/results/ --output data/results/aggregated.csv
-python code/analysis.py --input data/results/aggregated.csv
-```
-
-## Key Features
-
-- **Real-time Friction Estimation**: Virtual tactile sensing via torque/velocity ratios
-- **Adaptive Reward Scheduling**: Dynamic reward adjustment based on estimated friction
-- **Novel Object Generation**: Procedural generation of randomized geometries
-- **CPU-Optimized**: Runs within 7GB RAM and 6 hours on CPU-only hardware
-
-## Validation
-
-- **Statistical Significance**: Paired t-tests with p < 0.05
-- **Performance Threshold**: >15% improvement over static baseline
-- **Reproducibility**: Fixed seeds across all random operations
-- **Data Integrity**: SHA-256 checksums for all data artifacts
-
-## Project Structure
-
-```
-.
-├── code/ # Source code
-│ ├── environment.py # Physics simulation
-│ ├── estimator.py # Tactile estimation
-│ ├── scheduler.py # Reward scheduling
-│ ├── generator.py # Object generation
-│ ├── train.py # Training loop
-│ ├── evaluate.py # Evaluation
-│ ├── aggregate.py # Log aggregation
-│ ├── analysis.py # Statistical analysis
-│ └──... # Additional modules
-├── data/ # Data artifacts
-│ ├── raw/ # Raw data
-│ ├── generated/ # Generated geometries
-│ └── results/ # Analysis results
-├── tests/ # Test suite
-├── docs/ # Documentation
-├── state/ # Artifact tracking
-├── requirements.txt # Dependencies
-└── README.md # This file
-```
-
-## Contributing
-
-Please read the [contributing guidelines](CONTRIBUTING.md) before submitting
-pull requests.
+See individual scripts for CLI usage:
+- `python code/generator.py --help`
+- `python code/train.py --help`
+- `python code/evaluate.py --help`
 
 ## License
-
-[License to be specified]
+MIT

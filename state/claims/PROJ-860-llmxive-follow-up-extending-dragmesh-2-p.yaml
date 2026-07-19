@@ -1,0 +1,506 @@
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: paired t-test p-value less than 0.05 and success rate improvement greater
+    than 15% for high-friction cases
+  claim_id: c_d4a495b1
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_p-value_less_than_0.05_and_success_rate_improv
+  kind: magnitude
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:54:59Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: if k_est greater than 1.0 increase r_detach by at least 20 percent; if
+    k_est less than 0.2 decrease r_contact by at most 15 percent
+  claim_id: c_3b30e289
+  context: "Implement `AdaptiveRewardScheduler` class ... mapping $k_{est}$ to reward\
+    \ weights with EXPLICIT logic: if $k_{est} > 1.0$, increase $r_{detach}$ by \u2265\
+    20%; if $k_{est} < 0.2$, decrease $r_{contact}$ by \u226415% (FR-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_k_est_greater_than_1.0_increase_r_detach_by_at_least_20_p
+  kind: magnitude
+  raw_text: "if $k_{est} > 1.0$, increase $r_{detach}$ by \u226520%; if $k_{est} <\
+    \ 0.2$, decrease $r_{contact}$ by \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:55:20Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: execute full pipeline on GitHub Actions free-tier runner
+  claim_id: c_e1ca57f4
+  context: 'Independent Test: Execute full pipeline on GitHub Actions free-tier runner
+    with limited CPU and memory resources. Measure wall-clock time and peak memory.
+    Verify no CUDA errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_full_pipeline_on_GitHub_Actions_free-tier_runner
+  kind: entity_fact
+  raw_text: Execute full pipeline on GitHub Actions free-tier runner with limited
+    CPU and memory resources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:56:01Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: wall-clock time less than or equal to 6 hours and peak memory less than
+    or equal to 7 GB
+  claim_id: c_c20ca0dd
+  context: 'Verify Success Criteria: Read `data/results/benchmark_metrics.json` and
+    assert that wall-clock time <= 6h and peak memory <= 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wall-clock_time_less_than_or_equal_to_6_hours_and_peak_memor
+  kind: magnitude
+  raw_text: Verify that wall-clock time <= 6h and peak memory <= 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:56:15Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: baseline loaded from HuggingFace dataset ID dragmesh/pica-baseline-v
+  claim_id: c_410bf816
+  context: The baseline MUST be loaded from the canonical HuggingFace dataset ID `dragmesh/pica-baseline-v`
+    with a specific checkpoint hash
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_loaded_from_HuggingFace_dataset_ID_dragmesh/pica-ba
+  kind: entity_fact
+  raw_text: The baseline MUST be loaded from the canonical HuggingFace dataset ID
+    `dragmesh/pica-baseline-v`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:56:35Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: pin pybullet version 3.2.14 and numpy version 1.24.0
+  claim_id: c_f889aebb
+  context: 'Initialize Python project with `pybullet`, `numpy`, `scipy`, `pandas`,
+    `datasets`, `pytest`, `statsmodels` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/requirements.txt`:
+    Pin versions (e.g., `pybullet>=3.2.14`, `numpy>=1.24.0`).'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin versions (e.g., `pybullet>=3.2.14`, `numpy>=1.24.0`).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T12:56:35Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: set pytest-timeout to 3600 for unit tests and 21600 for integration tests
+  claim_id: c_e39262e0
+  context: 'Configure `pytest-timeout` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini`:
+    Set `timeout=3600` for unit tests and `timeout=21600` for integration tests to
+    enforce the 6h limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `timeout=3600` for unit tests and `timeout=21600` for integration
+    tests to enforce the 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:56:50Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: estimator applies epsilon of 10 to the power of negative 4 to denominator
+  claim_id: c_02d0e4b0
+  context: "Ensure the estimator applies a small epsilon ($\epsilon = 10^{-4}$) to\
+    \ the denominator to prevent division by zero, ensuring $k_{est}$ remains finite\
+    \ but high, triggering high detachment penalties."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the estimator applies a small epsilon ($\epsilon = 10^{-4}$) to\
+    \ the denominator to prevent division by zero"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:57:10Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: friction coefficients uniformly distributed across a broad range
+  claim_id: c_f6ce6223
+  context: Create `NovelObjectSet` generator class ... to produce a set of randomized
+    articulated geometries with friction coefficients uniformly distributed across
+    a broad range (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Friction_coefficients_uniformly_distributed_across_a_broad_r
+  kind: entity_fact
+  raw_text: friction coefficients uniformly distributed across a broad range
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:57:29Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 2
+  canonical: friction coefficients uniformly sampled from 0.0 to 2.5
+  claim_id: c_f740df8e
+  context: Execute a sweep of **multiple randomized trials** with friction coefficients
+    uniformly sampled from **[0.0, 2.5]** to verify linear correlation as per US2
+    Independent Test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: friction coefficients uniformly sampled from [0.0, 2.5]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:57:30Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: success rate improvement greater than 15% with p-value less than 0.05
+  claim_id: c_b349df92
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_rate_improvement_greater_than_15%25_with_p-value_less
+  kind: magnitude
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:59:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 2
+  canonical: verify no CUDA errors
+  claim_id: c_3682bfe1
+  context: 'Independent Test: Execute full pipeline on GitHub Actions free-tier runner
+    with limited CPU and memory resources. Measure wall-clock time and peak memory.
+    Verify no CUDA errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_no_CUDA_errors
+  kind: entity_fact
+  raw_text: Verify no CUDA errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:59:08Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: baseline loaded from HuggingFace dataset ID dragmesh/pica-baseline-v
+  claim_id: c_bdac2d53
+  context: T012c [US1] ... The baseline MUST be loaded from the canonical HuggingFace
+    dataset ID dragmesh/pica-baseline-v with a specific checkpoint hash...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_loaded_from_HuggingFace_dataset_ID_dragmesh/pica-ba
+  kind: entity_fact
+  raw_text: The baseline MUST be loaded from the canonical HuggingFace dataset ID
+    dragmesh/pica-baseline-v.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:59:09Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: execute full pipeline on GitHub Actions free-tier runner
+  claim_id: c_e396bc50
+  context: 'Independent Test: Execute full pipeline on GitHub Actions free-tier runner
+    with limited CPU and memory resources. Measure wall-clock time and peak memory.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_full_pipeline_on_GitHub_Actions_free-tier_runner
+  kind: entity_fact
+  raw_text: Execute full pipeline on GitHub Actions free-tier runner with limited
+    CPU and memory resources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:59:10Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: baseline loaded from HuggingFace dataset ID dragmesh/pica-baseline-v
+    with checkpoint hash
+  claim_id: c_cfae91fc
+  context: T012c [US1] ... The baseline MUST be loaded from the canonical HuggingFace
+    dataset ID dragmesh/pica-baseline-v with a specific checkpoint hash (e.g., sha256:PLACEHOLDER_HASH_UPDATE_AT_RUNTIME).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_loaded_from_HuggingFace_dataset_ID_dragmesh/pica-ba
+  kind: entity_fact
+  raw_text: The baseline MUST be loaded from the canonical HuggingFace dataset ID
+    dragmesh/pica-baseline-v with a specific checkpoint hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T12:59:29Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: success rate improvement greater than 15% for high-friction cases
+  claim_id: c_34ea14a7
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_rate_improvement_greater_than_15%25_for_high-friction
+  kind: magnitude
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:17Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: experiment runs within 6 hours and 7GB RAM on CPU-only runner
+  claim_id: c_f6ca6db5
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:50Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: increase r_detach by 20% if k_est greater than 1.0
+  claim_id: c_e85f11bf
+  context: "Implement `AdaptiveRewardScheduler` class... mapping $k_{est}$ to reward\
+    \ weights with EXPLICIT logic: if $k_{est} > 1.0$, increase $r_{detach}$ by \u2265\
+    20%; if $k_{est} < 0.2$, decrease $r_{contact}$ by \u226415% (FR-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Increase_r_detach_by_20%25_if_k_est_greater_than_1.0
+  kind: magnitude
+  raw_text: "if $k_{est} > 1.0$, increase $r_{detach}$ by \u226520%; if $k_{est} <\
+    \ 0.2$, decrease $r_{contact}$ by \u226415%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: estimator applies epsilon of 10 to the power of negative 4 to denominator
+  claim_id: c_8199cd50
+  context: "Requirement: Add explicit 'Stiction Handling' verification: Ensure the\
+    \ estimator applies a small epsilon ($\epsilon = 10^{-4}$) to the denominator\
+    \ to prevent division by zero, ensuring $k_{est}$ remains finite but high, triggering\
+    \ high detachment penalties."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the estimator applies a small epsilon ($\epsilon = 10^{-4}$) to\
+    \ the denominator to prevent division by zero"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: baseline loaded from HuggingFace dataset ID dragmesh/pica-baseline-v
+  claim_id: c_7390c767
+  context: The baseline MUST be loaded from the canonical HuggingFace dataset ID `dragmesh/pica-baseline-v`
+    with a specific checkpoint hash (e.g., `sha256:PLACEHOLDER_HASH_UPDATE_AT_RUNTIME`).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_loaded_from_HuggingFace_dataset_ID_dragmesh/pica-ba
+  kind: entity_fact
+  raw_text: The baseline MUST be loaded from the canonical HuggingFace dataset ID
+    `dragmesh/pica-baseline-v`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:54Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: VirtualTactileEstimator uses moving average filter with window size 5
+  claim_id: c_c1a88321
+  context: Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`
+    with moving average filter (window=5) and epsilon clamping (FR-001, FR-006, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `VirtualTactileEstimator` class... with moving average filter
+    (window=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:03:56Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset ID dragmesh/pica-baseline-v
+  claim_id: c_1c965d7b
+  context: T012c [US1] Implement `baseline_runner.py` to load and execute the static
+    PICA baseline policy for comparison...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_dragmesh/pica-baseline-v
+  kind: entity_fact
+  raw_text: The baseline MUST be loaded from the canonical HuggingFace dataset ID
+    `dragmesh/pica-baseline-v` with a specific checkpoint hash (e.g., `sha256:PLACEHOLDER_HASH_UPDATE_AT_RUNTIME`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: success rate improvement >15% with p-value < 0.05
+  claim_id: c_6537838a
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify paired t-test p-value < 0.05 and success rate improvement >15%
+    for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: experiment runs within 6 hours and 7GB RAM on CPU-only runner
+  claim_id: c_5064821c
+  context: 'Phase 5: User Story 3 - CPU-Tractable Inference Pipeline (Priority: P3)
+    Goal: Ensure the entire experiment...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire experiment (data gen, training, eval, analysis) runs
+    within 6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: epsilon value 10^-4 for denominator clamping
+  claim_id: c_b05be07b
+  context: T005 [P] Implement `VirtualTactileEstimator` class... Add explicit 'Stiction
+    Handling' verification...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the estimator applies a small epsilon ($\epsilon = 10^{-4}$) to\
+    \ the denominator to prevent division by zero..."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: moving average filter window size 5
+  claim_id: c_fa33d0e9
+  context: T005 [P] Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `VirtualTactileEstimator` class... with moving average filter
+    (window=5)...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:07Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: unit test timeout 3600 seconds; integration test timeout 21600 seconds
+  claim_id: c_23d5a788
+  context: T003 [P] Configure `pytest-timeout` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `timeout=3600` for unit tests and `timeout=21600` for integration
+    tests to enforce the 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T13:07:07Z'

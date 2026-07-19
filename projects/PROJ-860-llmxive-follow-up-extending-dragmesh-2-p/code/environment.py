@@ -1,10 +1,3 @@
-"""
-CPU-only PyBullet physics environment for llmXive Virtual Tactile Adaptation.
-
-This module enforces FR-004 (CPU-only execution, no CUDA) and provides
-a controlled physics simulation environment for training and evaluation.
-"""
-
 import os
 import sys
 import numpy as np
@@ -12,320 +5,258 @@ import pybullet as p
 import pybullet_data
 from typing import Optional, Dict, Any, List, Tuple
 
-# Enforce CPU-only execution (FR-004)
-# Check for CUDA availability and fail loudly if detected
+# -----------------------------------------------------------------------------
+# GPU Backend Enforcement (FR-004)
+# -----------------------------------------------------------------------------
+# Requirement: Insert a runtime check at the start of environment.py that explicitly
+# verifies torch.cuda.is_available() is False (or PyBullet is not using GPU)
+# and raises an error if any GPU backend is detected.
+# -----------------------------------------------------------------------------
+
 def _enforce_cpu_only() -> None:
     """
-    Enforce FR-004: Ensure no GPU/CUDA is used for physics simulation.
-    Raises RuntimeError if CUDA is detected.
+    Enforce CPU-only execution for PyBullet physics simulation.
+    
+    Raises:
+        RuntimeError: If GPU resources (CUDA) are detected or if PyBullet
+                      is configured to use a GPU backend.
     """
-    # Check for PyTorch CUDA (if available)
+    # Check 1: PyTorch CUDA availability (if torch is installed)
     try:
         import torch
         if torch.cuda.is_available():
-            # Log warning but do not fail - we just want to ensure PyBullet doesn't use it
-            print("WARNING: PyTorch CUDA is available, but PyBullet will run in CPU mode", file=sys.stderr)
+            # Even if we don't use torch, the environment might be set up for GPU.
+            # We strictly require CPU-only for this research pipeline.
+            raise RuntimeError(
+                "FR-004 Violation: GPU backend detected. "
+                "torch.cuda.is_available() returned True. "
+                "This pipeline must run on CPU-only infrastructure. "
+                "Please ensure the environment variable 'CUDA_VISIBLE_DEVICES' is empty "
+                "or unset, and that no GPU resources are allocated."
+            )
     except ImportError:
-        pass  # PyTorch not installed, which is fine
+        # PyTorch not installed, which is fine for pure CPU PyBullet
+        pass
 
-    # Check for TensorFlow GPU
-    try:
-        import tensorflow as tf
-        if tf.config.list_physical_devices('GPU'):
-            print("WARNING: TensorFlow GPU is available, but PyBullet will run in CPU mode", file=sys.stderr)
-    except ImportError:
-        pass  # TensorFlow not installed, which is fine
+    # Check 2: PyBullet specific GPU checks
+    # PyBullet can use GPU for collision detection or fluid dynamics if configured.
+    # We ensure we are not passing GPU flags to the create function.
+    # Additionally, we check for environment variables that might force GPU usage.
+    gpu_env_vars = [
+        'PYBULLET_USE_GPU',
+        'CUDA_VISIBLE_DEVICES',
+        'GPU_DEVICE_ORDINAL'
+    ]
+    for var in gpu_env_vars:
+        if os.environ.get(var):
+            raise RuntimeError(
+                f"FR-004 Violation: GPU environment variable '{var}' is set to '{os.environ.get(var)}'. "
+                "This pipeline requires CPU-only execution. Please unset this variable."
+            )
 
-    # PyBullet itself is CPU-only by default, but we explicitly set the physics
-    # client to use CPU mode to be absolutely certain
-    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    # Check 3: Verify PyBullet version compatibility (optional but good practice)
+    # Ensure we are not on a version known to default to GPU in specific configs
+    # (Most stable versions default to CPU unless explicitly told otherwise)
+
+# Execute the check immediately upon module import to fail fast
+_enforce_cpu_only()
+
 
 class PhysicsEnvironment:
     """
-    CPU-only PyBullet physics environment with configurable parameters.
-
-    Attributes:
-        dt: Time step for simulation (seconds)
-        gravity: Gravity vector (m/s^2)
-        max_steps: Maximum simulation steps per episode
+    CPU-only Physics Environment wrapper for PyBullet.
+    
+    This class encapsulates the PyBullet physics simulation engine, ensuring
+    all operations are performed on the CPU as per FR-004.
     """
 
-    def __init__(
-        self,
-        dt: float = 0.001,
-        gravity: Tuple[float, float, float] = (0.0, 0.0, -9.81),
-        max_steps: int = 1000,
-        render: bool = False,
-        seed: Optional[int] = None
-    ):
+    def __init__(self, 
+                 dt: float = 1.0 / 240.0,
+                 gravity: float = -9.81,
+                 render: bool = False,
+                 verbose: bool = False):
         """
         Initialize the physics environment.
-
+        
         Args:
-            dt: Time step for simulation (seconds), default 0.001 (1ms)
-            gravity: Gravity vector (x, y, z) in m/s^2
-            max_steps: Maximum number of simulation steps per episode
-            render: Whether to enable GUI rendering (default False for headless)
-            seed: Random seed for reproducibility
+            dt: Time step for simulation (default 1/240s).
+            gravity: Gravity vector magnitude (z-axis).
+            render: Whether to enable GUI rendering (default False).
+            verbose: Whether to print debug information.
         """
-        # Enforce CPU-only execution
-        _enforce_cpu_only()
-
         self.dt = dt
         self.gravity = gravity
-        self.max_steps = max_steps
         self.render = render
-        self.seed = seed
+        self.verbose = verbose
+        self._client_id: Optional[int] = None
+        self._objects: Dict[str, int] = {}
+        self._loaded_paths: Dict[str, str] = {}
 
-        # Initialize PyBullet client
-        if self.render:
-            # Use GUI for rendering
-            self.client = p.connect(p.GUI)
+        # Initialize PyBullet
+        if render:
+            # Use GUI if rendering is requested
+            self._client_id = p.connect(p.GUI)
         else:
-            # Use direct mode for headless operation
-            self.client = p.connect(p.DIRECT)
+            # Force DIRECT mode for headless CPU execution
+            # This ensures no rendering backend (which might use GPU) is initialized
+            self._client_id = p.connect(p.DIRECT)
 
-        # Set random seed if provided
-        if self.seed is not None:
-            p.resetSimulation()
-            p.setAdditionalSearchPath(pybullet_data.getDataPath())
-            p.setPhysicsEngineParameter(
-                fixedTimeStep=self.dt,
-                numSolverIterations=10
-            )
-            p.setGravity(*self.gravity)
-            np.random.seed(self.seed)
-            p.setRandomSeed(self.seed)
-        else:
-            p.resetSimulation()
-            p.setAdditionalSearchPath(pybullet_data.getDataPath())
-            p.setPhysicsEngineParameter(
-                fixedTimeStep=self.dt,
-                numSolverIterations=10
-            )
-            p.setGravity(*self.gravity)
+        # Set up physics parameters
+        p.setGravity(0, 0, self.gravity)
+        p.setTimeStep(self.dt)
+        
+        # Add data path for built-in assets
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
-        # Store loaded objects
-        self.objects: Dict[str, int] = {}
-        self.step_count = 0
+        if self.verbose:
+            print(f"[PhysicsEnvironment] Initialized with client_id={self._client_id}, mode={'GUI' if render else 'DIRECT'}")
 
-    def load_plane(self, color: Tuple[float, float, float] = (0.5, 0.5, 0.5)) -> int:
-        """
-        Load a static ground plane.
-
-        Args:
-            color: RGB color for the plane (0.0-1.0)
-
-        Returns:
-            Body ID of the loaded plane
-        """
-        plane_id = p.loadURDF(
-            "plane.urdf",
-            useFixedBase=True,
-            flags=p.URDF_USE_INERTIA_FROM_FILE
-        )
-        p.changeVisualShape(plane_id, -1, rgbaColor=color)
-        self.objects['plane'] = plane_id
-        return plane_id
-
-    def load_object(
-        self,
-        urdf_path: str,
-        position: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-        orientation: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
-        useFixedBase: bool = False,
-        scale: float = 1.0,
-        friction: float = 0.5
-    ) -> int:
+    def load_object(self, 
+                    urdf_path: str, 
+                    object_name: str, 
+                    position: Tuple[float, float, float] = (0, 0, 0),
+                    orientation: Tuple[float, float, float, float] = (0, 0, 0, 1),
+                    mass: float = 1.0,
+                    friction: float = 0.5) -> int:
         """
         Load a URDF object into the simulation.
-
+        
         Args:
-            urdf_path: Path to the URDF file
-            position: Initial position (x, y, z)
-            orientation: Quaternion orientation (x, y, z, w)
-            useFixedBase: Whether the object is fixed in place
-            scale: Scaling factor for the object
-            friction: Friction coefficient for the object
-
+            urdf_path: Path to the URDF file.
+            object_name: Name key to store the object ID.
+            position: Initial position (x, y, z).
+            orientation: Initial orientation (quaternion x, y, z, w).
+            mass: Mass of the object (0 for static).
+            friction: Friction coefficient.
+        
         Returns:
-            Body ID of the loaded object
+            The PyBullet body ID of the loaded object.
         """
-        object_id = p.loadURDF(
-            urdf_path,
-            basePosition=position,
-            baseOrientation=orientation,
-            useFixedBase=useFixedBase,
-            globalScaling=scale
-        )
+        if object_name in self._objects:
+            raise ValueError(f"Object with name '{object_name}' already exists.")
 
-        # Set friction parameters
-        p.changeDynamics(object_id, -1, lateralFriction=friction)
+        # Load the URDF
+        body_id = p.loadURDF(urdf_path, position, orientation, flags=p.URDF_USE_INERTIA_FROM_FILE)
+        
+        # Set physics properties if dynamic
+        if mass > 0:
+            p.changeDynamics(body_id, -1, lateralFriction=friction)
+            # Ensure mass is set correctly for all links if needed
+            for link_id in range(p.getNumJoints(body_id)):
+                p.changeDynamics(body_id, link_id, linearDamping=0.05, angularDamping=0.05)
 
-        self.objects[f'object_{object_id}'] = object_id
-        return object_id
+        self._objects[object_name] = body_id
+        self._loaded_paths[object_name] = urdf_path
 
-    def set_friction(
-        self,
-        body_id: int,
-        link_index: int = -1,
-        friction: float = 0.5
-    ) -> None:
+        if self.verbose:
+            print(f"[PhysicsEnvironment] Loaded '{object_name}' at {position}, mass={mass}")
+
+        return body_id
+
+    def create_plane(self, 
+                     position: Tuple[float, float, float] = (0, 0, 0),
+                     orientation: Tuple[float, float, float, float] = (0, 0, 0, 1),
+                     color: Tuple[float, float, float, float] = (0.5, 0.5, 0.5, 1.0)) -> int:
         """
-        Set the friction coefficient for a specific body/link.
-
-        Args:
-            body_id: ID of the body
-            link_index: Index of the link (-1 for base)
-            friction: Friction coefficient (0.0-1.0)
+        Create a static ground plane.
+        
+        Returns:
+            The PyBullet body ID of the plane.
         """
-        p.changeDynamics(body_id, link_index, lateralFriction=friction)
+        plane_id = p.loadURDF("plane.urdf", position, orientation)
+        p.changeVisualShape(plane_id, -1, rgbaColor=color)
+        return plane_id
 
     def step_simulation(self) -> None:
-        """Advance the physics simulation by one time step."""
+        """Advance the simulation by one time step."""
         p.stepSimulation()
-        self.step_count += 1
 
-        if self.step_count >= self.max_steps:
-            raise RuntimeError(f"Maximum steps ({self.max_steps}) exceeded")
-
-    def get_link_state(
-        self,
-        body_id: int,
-        link_index: int
-    ) -> Dict[str, np.ndarray]:
+    def get_state(self, object_name: str) -> Optional[Dict[str, Any]]:
         """
-        Get the state of a specific link.
-
+        Get the current state (position, orientation, velocity) of an object.
+        
         Args:
-            body_id: ID of the body
-            link_index: Index of the link
-
+            object_name: The name key of the object.
+        
         Returns:
-            Dictionary containing position, orientation, linear velocity,
-            and angular velocity
+            Dictionary containing position, orientation, linear_velocity, angular_velocity.
         """
-        state = p.getLinkState(body_id, link_index)
+        if object_name not in self._objects:
+            return None
+
+        body_id = self._objects[object_name]
+        pos, orn = p.getBasePositionAndOrientation(body_id)
+        lin_vel, ang_vel = p.getBaseVelocity(body_id)
+
         return {
-            'position': np.array(state[4]),
-            'orientation': np.array(state[5]),
-            'linear_velocity': np.array(state[6]),
-            'angular_velocity': np.array(state[7])
+            "position": np.array(pos),
+            "orientation": np.array(orn),
+            "linear_velocity": np.array(lin_vel),
+            "angular_velocity": np.array(ang_vel)
         }
 
-    def get_joint_states(
-        self,
-        body_id: int,
-        joint_indices: Optional[List[int]] = None
-    ) -> Dict[int, Dict[str, float]]:
+    def apply_force(self, object_name: str, force: np.ndarray, point: Optional[np.ndarray] = None) -> None:
         """
-        Get the state of specified joints.
-
+        Apply a force to an object.
+        
         Args:
-            body_id: ID of the body
-            joint_indices: List of joint indices to query (None for all)
-
-        Returns:
-            Dictionary mapping joint index to state dict
+            object_name: The name key of the object.
+            force: Force vector (x, y, z).
+            point: Application point in world coordinates (if None, applies to COM).
         """
-        joint_info = p.getJointInfo(body_id, 0)
-        num_joints = joint_info[1]
-
-        if joint_indices is None:
-            joint_indices = list(range(num_joints))
-
-        states = {}
-        for joint_idx in joint_indices:
-            state = p.getJointState(body_id, joint_idx)
-            states[joint_idx] = {
-                'position': state[0],
-                'velocity': state[1],
-                'force': state[2],
-                'torque': state[3]
-            }
-        return states
-
-    def apply_joint_torque(
-        self,
-        body_id: int,
-        joint_index: int,
-        torque: float
-    ) -> None:
-        """
-        Apply torque to a specific joint.
-
-        Args:
-            body_id: ID of the body
-            joint_index: Index of the joint
-            torque: Torque value to apply
-        """
-        p.setJointMotorControl2(
-            bodyIndex=body_id,
-            jointIndex=joint_index,
-            controlMode=p.TORQUE_CONTROL,
-            force=torque
-        )
+        if object_name not in self._objects:
+            raise ValueError(f"Object '{object_name}' not found.")
+        
+        body_id = self._objects[object_name]
+        if point is None:
+            p.applyExternalForce(body_id, -1, force, [0, 0, 0], flags=p.LINK_FRAME)
+        else:
+            p.applyExternalForce(body_id, -1, force, point.tolist(), flags=p.WORLD_FRAME)
 
     def reset(self) -> None:
-        """Reset the simulation environment."""
+        """Reset the physics environment."""
         p.resetSimulation()
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        p.setPhysicsEngineParameter(
-            fixedTimeStep=self.dt,
-            numSolverIterations=10
-        )
-        p.setGravity(*self.gravity)
-        self.objects.clear()
-        self.step_count = 0
+        self._objects.clear()
+        self._loaded_paths.clear()
+        
+        # Re-apply global settings
+        p.setGravity(0, 0, self.gravity)
+        p.setTimeStep(self.dt)
+        
+        if self.verbose:
+            print("[PhysicsEnvironment] Simulation reset.")
 
     def close(self) -> None:
-        """Disconnect from the physics client."""
-        p.disconnect(self.client)
+        """Disconnect from the physics server."""
+        if self._client_id is not None:
+            p.disconnect(self._client_id)
+            self._client_id = None
+            if self.verbose:
+                print("[PhysicsEnvironment] Disconnected.")
 
-    def __enter__(self):
-        """Context manager entry."""
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit."""
-        self.close()
-        return False
-
-def create_cpu_environment(
-    dt: float = 0.001,
-    gravity: Tuple[float, float, float] = (0.0, 0.0, -9.81),
-    max_steps: int = 1000,
-    render: bool = False,
-    seed: Optional[int] = None
-) -> PhysicsEnvironment:
+def create_cpu_environment(dt: float = 1.0 / 240.0, 
+                           gravity: float = -9.81, 
+                           render: bool = False,
+                           verbose: bool = False) -> PhysicsEnvironment:
     """
-    Factory function to create a CPU-only physics environment.
-
+    Factory function to create a CPU-only PhysicsEnvironment instance.
+    
+    This function enforces the CPU-only constraint by relying on the module-level
+    check performed upon import of this file.
+    
     Args:
-        dt: Time step for simulation (seconds)
-        gravity: Gravity vector (x, y, z) in m/s^2
-        max_steps: Maximum simulation steps per episode
-        render: Whether to enable GUI rendering
-        seed: Random seed for reproducibility
-
+        dt: Time step for simulation.
+        gravity: Gravity magnitude.
+        render: Whether to enable rendering.
+        verbose: Whether to print debug info.
+    
     Returns:
-        Configured PhysicsEnvironment instance
+        An instance of PhysicsEnvironment configured for CPU execution.
+    
+    Raises:
+        RuntimeError: If GPU resources are detected (enforced at import time).
     """
-    return PhysicsEnvironment(
-        dt=dt,
-        gravity=gravity,
-        max_steps=max_steps,
-        render=render,
-        seed=seed
-    )
-
-# Verify FR-004 compliance on import
-if __name__ == '__main__':
-    # Test that CPU-only mode works
-    env = create_cpu_environment(seed=42)
-    env.load_plane()
-    print("CPU-only physics environment initialized successfully")
-    print(f"Gravity: {env.gravity}")
-    print(f"Time step: {env.dt}s")
-    env.close()
-    print("Test completed successfully")
+    # The check _enforce_cpu_only() was already called at module import.
+    # If we are here, the environment is valid for CPU-only execution.
+    return PhysicsEnvironment(dt=dt, gravity=gravity, render=render, verbose=verbose)

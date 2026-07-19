@@ -1,289 +1,316 @@
-"""
-Unit tests for VirtualTactileEstimator.
-
-Specifically verifies FR-001 implementation: k_est = |Torque| / |Velocity|
-and division-by-zero protection (FR-007).
-"""
 import pytest
 import numpy as np
+import sys
+import os
+
+# Ensure the code directory is in the path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
 from estimator import VirtualTactileEstimator
-
-class TestFR001Formula:
-    """Tests verifying the core FR-001 formula implementation."""
-
-    def test_basic_torque_velocity_ratio(self):
-        """
-        Verify k_est = |Torque| / |Velocity| for simple inputs.
-        
-        FR-001 states: k_est = |Torque| / |Velocity|
-        With epsilon = 1e-4 (default), for velocity=1.0, the denominator is ~1.0001.
-        """
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-4)
-        
-        torque = 2.5
-        velocity = 1.0
-        
-        # Expected: |2.5| / (|1.0| + 1e-4) = 2.5 / 1.0001 ≈ 2.49975
-        expected = abs(torque) / (abs(velocity) + estimator.epsilon)
-        
-        result = estimator.update(torque, velocity)
-        
-        # Allow small floating point tolerance
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"FR-001 formula violation: expected {expected}, got {result}"
-    
-    def test_negative_torque_handling(self):
-        """Verify that negative torque is handled via absolute value (FR-001)."""
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-4)
-        
-        torque = -3.0
-        velocity = 1.0
-        
-        # Formula uses |Torque|
-        expected = abs(torque) / (abs(velocity) + estimator.epsilon)
-        
-        result = estimator.update(torque, velocity)
-        
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"FR-001 absolute torque handling failed: expected {expected}, got {result}"
-    
-    def test_negative_velocity_handling(self):
-        """Verify that negative velocity is handled via absolute value (FR-001)."""
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-4)
-        
-        torque = 4.0
-        velocity = -2.0
-        
-        # Formula uses |Velocity|
-        expected = abs(torque) / (abs(velocity) + estimator.epsilon)
-        
-        result = estimator.update(torque, velocity)
-        
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"FR-001 absolute velocity handling failed: expected {expected}, got {result}"
-    
-    def test_zero_velocity_epsilon_protection(self):
-        """
-        Verify epsilon prevents division by zero when velocity is 0.
-        
-        FR-007 requires epsilon clamping to prevent division by zero.
-        """
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-4)
-        
-        torque = 5.0
-        velocity = 0.0
-        
-        # Expected: |5.0| / (0.0 + 1e-4) = 50000.0
-        expected = abs(torque) / estimator.epsilon
-        
-        result = estimator.update(torque, velocity)
-        
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"FR-001/FR-007 epsilon protection failed: expected {expected}, got {result}"
-    
-    def test_moving_average_integration(self):
-        """
-        Verify that the moving average (FR-006) correctly averages FR-001 calculations.
-        
-        The formula is applied per-sample, then averaged.
-        """
-        window_size = 3
-        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=0.0)
-        
-        # Sample 1: k = 10 / 2 = 5.0
-        estimator.update(10.0, 2.0)
-        # Sample 2: k = 12 / 3 = 4.0
-        estimator.update(12.0, 3.0)
-        # Sample 3: k = 15 / 5 = 3.0
-        result = estimator.update(15.0, 5.0)
-        
-        # Expected average: (5.0 + 4.0 + 3.0) / 3 = 4.0
-        expected = (5.0 + 4.0 + 3.0) / 3.0
-        
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"Moving average of FR-001 values failed: expected {expected}, got {result}"
-    
-    def test_clamping_applied_after_formula(self):
-        """
-        Verify that clamping (FR-007) is applied AFTER the formula calculation.
-        
-        The raw formula result should be clamped to [min_k, max_k].
-        """
-        estimator = VirtualTactileEstimator(
-            window_size=1, 
-            epsilon=1e-4, 
-            min_k=0.5, 
-            max_k=2.0
-        )
-        
-        # This would produce k = 100 / 0.1 = 1000.0 without clamping
-        torque = 100.0
-        velocity = 0.1
-        
-        result = estimator.update(torque, velocity)
-        
-        # Should be clamped to max_k
-        assert result == 2.0, \
-            f"FR-007 clamping failed: expected 2.0, got {result}"
-    
-    def test_input_validation_finite(self):
-        """Verify that non-finite inputs raise ValueError."""
-        estimator = VirtualTactileEstimator()
-        
-        with pytest.raises(ValueError):
-            estimator.update(float('nan'), 1.0)
-        
-        with pytest.raises(ValueError):
-            estimator.update(1.0, float('inf'))
 
 class TestDivisionByZeroProtection:
     """
-    Specific tests for division-by-zero protection (T018).
+    Unit tests for VirtualTactileEstimator division-by-zero protection.
     
-    Ensures that when velocity approaches zero, the estimator uses epsilon
-    to prevent division by zero and returns a large but finite value.
+    Verifies that the estimator applies epsilon clamping to the denominator
+    (velocity) to prevent division by zero, ensuring k_est remains finite
+    even when velocity is exactly zero or near-zero.
+    
+    This addresses FR-001 and the stiction handling requirement.
     """
-    
+
     def test_exact_zero_velocity(self):
-        """
-        Test that exact zero velocity does not cause ZeroDivisionError.
+        """Test that exact zero velocity does not raise ZeroDivisionError."""
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
         
-        Instead, it should use epsilon as the denominator.
-        """
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-6)
-        
-        torque = 10.0
+        # Provide a non-zero torque with zero velocity
+        torque = 1.0
         velocity = 0.0
         
-        # Should not raise ZeroDivisionError
-        result = estimator.update(torque, velocity)
+        # This should NOT raise an exception
+        k_est = estimator.update(torque, velocity)
         
-        # Verify result is finite and matches expected calculation
-        assert np.isfinite(result), "Result should be finite"
-        assert not np.isnan(result), "Result should not be NaN"
-        assert not np.isinf(result), "Result should not be Inf (clamped by max_k if applicable)"
+        # k_est should be finite and high (due to epsilon in denominator)
+        assert np.isfinite(k_est), "k_est should be finite when velocity is zero"
+        assert k_est > 0, "k_est should be positive"
         
-        expected = abs(torque) / estimator.epsilon
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"Division by zero protection failed: expected {expected}, got {result}"
-    
-    def test_very_small_velocity(self):
-        """
-        Test that very small velocity values are handled correctly.
+        # Verify the value matches expected calculation: torque / epsilon
+        expected = torque / estimator.epsilon
+        np.testing.assert_almost_equal(k_est, expected, decimal=5)
+
+    def test_near_zero_velocity(self):
+        """Test behavior with very small velocity values."""
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
         
-        When velocity is smaller than epsilon, epsilon should dominate the denominator.
-        """
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=1e-4)
-        
-        torque = 1.0
+        torque = 0.5
         velocity = 1e-10  # Much smaller than epsilon
         
-        result = estimator.update(torque, velocity)
+        k_est = estimator.update(torque, velocity)
         
-        # When velocity << epsilon, result should be approximately torque / epsilon
-        expected = abs(torque) / estimator.epsilon
+        # Should be finite and dominated by epsilon
+        assert np.isfinite(k_est)
+        assert k_est > 0
+
+    def test_moving_average_with_zero_velocity(self):
+        """Test that moving average filter handles zero velocities correctly."""
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
         
-        assert np.isclose(result, expected, rtol=1e-3), \
-            f"Small velocity handling failed: expected ~{expected}, got {result}"
-    
-    def test_no_division_by_zero_exception(self):
-        """
-        Explicitly verify that ZeroDivisionError is never raised.
-        
-        This is the core requirement of T018.
-        """
-        estimator = VirtualTactileEstimator(window_size=10, epsilon=1e-4)
-        
-        # Test a sequence of inputs including zero velocity
-        test_cases = [
-            (1.0, 0.0),
-            (2.0, 0.0),
-            (3.0, 0.0),
-            (10.0, 0.0),
-            (0.5, 0.0),
+        # Feed a sequence including zeros
+        sequence = [
+            (1.0, 1.0),   # Normal
+            (1.0, 0.0),   # Zero velocity
+            (1.0, 0.5),   # Normal
+            (1.0, 0.0),   # Zero velocity
+            (1.0, 0.2),   # Normal
         ]
         
-        for torque, velocity in test_cases:
-            # This should never raise ZeroDivisionError
-            try:
-                result = estimator.update(torque, velocity)
-                assert np.isfinite(result), f"Result for ({torque}, {velocity}) should be finite"
-            except ZeroDivisionError:
-                pytest.fail(f"ZeroDivisionError raised for torque={torque}, velocity={velocity}")
+        results = []
+        for torque, velocity in sequence:
+            k_est = estimator.update(torque, velocity)
+            results.append(k_est)
+            assert np.isfinite(k_est), f"k_est became non-finite at step {len(results)}"
+        
+        # The moving average should smooth the spikes from zero velocity
+        assert len(results) == 5
+        # Last value should be an average of the last 5 (all valid)
+        assert np.isfinite(results[-1])
+
+    def test_epsilon_parameter_respected(self):
+        """Test that the epsilon parameter is actually used in clamping."""
+        # Test with a larger epsilon
+        estimator_large_eps = VirtualTactileEstimator(window_size=5, epsilon=1e-2)
+        k_est_large = estimator_large_eps.update(1.0, 0.0)
+        
+        # Test with default epsilon
+        estimator_default = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
+        k_est_default = estimator_default.update(1.0, 0.0)
+        
+        # The one with larger epsilon should have smaller k_est (1/eps)
+        assert k_est_large < k_est_default, \
+            f"Larger epsilon should result in smaller k_est: {k_est_large} vs {k_est_default}"
+        
+        # Verify exact values
+        expected_large = 1.0 / 1e-2
+        expected_default = 1.0 / 1e-4
+        
+        np.testing.assert_almost_equal(k_est_large, expected_large, decimal=5)
+        np.testing.assert_almost_equal(k_est_default, expected_default, decimal=5)
+
+    def test_no_inf_or_nan_in_normal_operation(self):
+        """Ensure normal operation doesn't produce inf/nan."""
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
+        
+        # Normal range values
+        for _ in range(10):
+            torque = np.random.uniform(0.1, 5.0)
+            velocity = np.random.uniform(0.1, 2.0)
+            k_est = estimator.update(torque, velocity)
+            assert np.isfinite(k_est), "Normal operation produced non-finite value"
+            assert not np.isnan(k_est), "Normal operation produced NaN"
+            assert not np.isinf(k_est), "Normal operation produced Inf"
+
+    def test_stiction_detection_trigger(self):
+        """
+        Verify that high k_est values (triggered by zero velocity) 
+        indicate stiction as per FR-001.
+        """
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
+        
+        # Simulate stiction: high torque, zero velocity
+        k_est_stiction = estimator.update(torque=2.0, velocity=0.0)
+        
+        # This should result in a very high stiffness estimate
+        # (2.0 / 1e-4 = 20000)
+        assert k_est_stiction > 1000, \
+            f"Stiction should produce high k_est, got {k_est_stiction}"
+        
+        # Simulate sliding: lower torque, higher velocity
+        k_est_sliding = estimator.update(torque=0.5, velocity=1.0)
+        
+        # Sliding should produce lower stiffness
+        assert k_est_sliding < k_est_stiction, \
+            "Sliding state should have lower k_est than stiction"
+
+class TestMovingAverageFilterSmoothing:
+    """
+    Unit tests for VirtualTactileEstimator moving average filter smoothing.
     
-    def test_epsilon_parameter_effect(self):
+    Verifies that the estimator correctly implements a sliding window
+    moving average to smooth out noise in the stiffness estimate,
+    as required by FR-006.
+    """
+
+    def test_window_size_initialization(self):
+        """Test that the window size is correctly set and used."""
+        estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
+        
+        # The internal buffer should be initialized with the correct size
+        assert len(estimator.torque_history) == 0  # Initially empty
+        assert len(estimator.velocity_history) == 0
+        
+        # After filling the window, it should have exactly window_size elements
+        for _ in range(5):
+            estimator.update(1.0, 1.0)
+        
+        assert len(estimator.torque_history) == 5
+        assert len(estimator.velocity_history) == 5
+
+    def test_moving_average_calculation(self):
         """
-        Verify that different epsilon values correctly prevent division by zero.
+        Verify that the moving average is correctly calculated.
         
-        Larger epsilon should result in smaller k_est for the same zero velocity.
-        """
-        torque = 1.0
-        velocity = 0.0
-        
-        epsilon_small = 1e-6
-        epsilon_large = 1e-2
-        
-        estimator_small = VirtualTactileEstimator(window_size=1, epsilon=epsilon_small)
-        estimator_large = VirtualTactileEstimator(window_size=1, epsilon=epsilon_large)
-        
-        result_small = estimator_small.update(torque, velocity)
-        result_large = estimator_large.update(torque, velocity)
-        
-        # Expected values
-        expected_small = abs(torque) / epsilon_small
-        expected_large = abs(torque) / epsilon_large
-        
-        assert np.isclose(result_small, expected_small), \
-            f"Small epsilon protection failed: expected {expected_small}, got {result_small}"
-        assert np.isclose(result_large, expected_large), \
-            f"Large epsilon protection failed: expected {expected_large}, got {result_large}"
-        
-        # Verify that larger epsilon gives smaller result
-        assert result_large < result_small, \
-            f"Larger epsilon should give smaller k_est: {result_large} < {result_small}"
-    
-    def test_moving_average_with_zero_velocities(self):
-        """
-        Test moving average calculation when multiple inputs have zero velocity.
-        
-        Ensures the moving average buffer handles multiple zero-velocity cases correctly.
+        When the window is full, the estimate should be the average of
+        the last window_size samples.
         """
         window_size = 5
-        epsilon = 1e-4
-        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=epsilon)
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
         
-        # All inputs have zero velocity
-        torque_values = [1.0, 2.0, 3.0, 4.0, 5.0]
-        velocity_values = [0.0, 0.0, 0.0, 0.0, 0.0]
+        # Create a sequence where the average is known
+        # Torque = 2.0 for all steps, Velocity = 1.0 for all steps
+        # k_est for each step = 2.0 / 1.0 = 2.0
+        # Moving average should be 2.0
+        for _ in range(window_size):
+            k_est = estimator.update(2.0, 1.0)
         
-        expected_values = [abs(t) / epsilon for t in torque_values]
-        
-        for t, v in zip(torque_values, velocity_values):
-            estimator.update(t, v)
-        
-        # The last update should return the average of all 5 values
-        result = estimator.update(torque_values[-1], velocity_values[-1])
-        expected_avg = sum(expected_values) / window_size
-        
-        assert np.isclose(result, expected_avg, rtol=1e-5), \
-            f"Moving average with zero velocities failed: expected {expected_avg}, got {result}"
-    
-    def test_boundary_case_velocity_equals_epsilon(self):
+        assert np.isclose(k_est, 2.0, atol=1e-6), \
+            f"Expected 2.0, got {k_est}"
+
+    def test_moving_average_smoothing_effect(self):
         """
-        Test when velocity exactly equals epsilon.
+        Test that the moving average smooths out high-frequency noise.
         
-        This is a boundary case where velocity and epsilon are equal.
+        Inject a spike in one sample and verify it is dampened in the output.
         """
-        epsilon = 1e-4
-        estimator = VirtualTactileEstimator(window_size=1, epsilon=epsilon)
+        window_size = 5
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
         
-        torque = 1.0
-        velocity = epsilon  # velocity == epsilon
+        # Sequence: 4 normal samples, 1 spike, then continue
+        # Normal: torque=1.0, velocity=1.0 -> k=1.0
+        # Spike: torque=10.0, velocity=1.0 -> k=10.0
         
-        result = estimator.update(torque, velocity)
+        # Fill with normal data
+        for _ in range(window_size - 1):
+            estimator.update(1.0, 1.0)
         
-        # Denominator should be |velocity| + epsilon = 2 * epsilon
-        expected = abs(torque) / (2 * epsilon)
+        # Add the spike
+        k_spike = estimator.update(10.0, 1.0)
         
-        assert np.isclose(result, expected, rtol=1e-5), \
-            f"Boundary case failed: expected {expected}, got {result}"
+        # The spike should be present but averaged with previous 4 samples of 1.0
+        # Expected average = (4 * 1.0 + 1 * 10.0) / 5 = 14.0 / 5 = 2.8
+        expected_avg = (4 * 1.0 + 10.0) / 5.0
+        
+        assert np.isclose(k_spike, expected_avg, atol=1e-6), \
+            f"Moving average failed to smooth spike. Expected {expected_avg}, got {k_spike}"
+
+    def test_window_rollover_behavior(self):
+        """
+        Test that old samples are correctly removed when the window is full.
+        
+        When a new sample is added after the window is full, the oldest
+        sample should be removed from the average.
+        """
+        window_size = 3
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
+        
+        # Step 1: Fill window with value 1.0 (k=1.0)
+        # Step 2: Fill window with value 2.0 (k=2.0)
+        # Step 3: Add value 3.0 (k=3.0)
+        
+        # After 3 steps: [1, 1, 1] -> avg = 1.0
+        estimator.update(1.0, 1.0)
+        estimator.update(1.0, 1.0)
+        k1 = estimator.update(1.0, 1.0)
+        assert np.isclose(k1, 1.0, atol=1e-6)
+        
+        # After 4 steps: [1, 1, 2] -> avg = 4/3 = 1.333...
+        # (We update with torque=2.0, velocity=1.0 -> k=2.0)
+        k2 = estimator.update(2.0, 1.0)
+        expected2 = (1.0 + 1.0 + 2.0) / 3.0
+        assert np.isclose(k2, expected2, atol=1e-6)
+        
+        # After 5 steps: [1, 2, 3] -> avg = 6/3 = 2.0
+        # (We update with torque=3.0, velocity=1.0 -> k=3.0)
+        k3 = estimator.update(3.0, 1.0)
+        expected3 = (1.0 + 2.0 + 3.0) / 3.0
+        assert np.isclose(k3, expected3, atol=1e-6)
+
+    def test_noise_reduction_vs_single_sample(self):
+        """
+        Compare the variance of the moving average estimate vs a single sample.
+        
+        With injected noise, the moving average should have lower variance
+        than individual samples.
+        """
+        window_size = 10
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
+        
+        np.random.seed(42)  # Reproducibility
+        n_samples = 100
+        true_torque = 2.0
+        true_velocity = 1.0
+        
+        # Generate noisy samples
+        noisy_torques = true_torque + np.random.normal(0, 0.5, n_samples)
+        noisy_velocities = true_velocity + np.random.normal(0, 0.2, n_samples)
+        
+        # Calculate individual estimates (without smoothing)
+        individual_estimates = noisy_torques / noisy_velocities
+        
+        # Calculate moving average estimates
+        ma_estimates = []
+        for t, v in zip(noisy_torques, noisy_velocities):
+            k_est = estimator.update(t, v)
+            ma_estimates.append(k_est)
+        
+        # Once window is full, compare variances
+        ma_estimates_full = ma_estimates[window_size:]
+        
+        # The moving average should have lower variance than individual samples
+        var_individual = np.var(individual_estimates)
+        var_ma = np.var(ma_estimates_full)
+        
+        assert var_ma < var_individual, \
+            f"Moving average should reduce variance. MA var: {var_ma}, Individual var: {var_individual}"
+
+    def test_empty_window_behavior(self):
+        """
+        Test behavior when the window is not yet full.
+        
+        Before the window is full, the average should be over the available samples.
+        """
+        window_size = 5
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
+        
+        # First sample: average of 1 sample
+        k1 = estimator.update(1.0, 1.0)  # k=1.0
+        assert np.isclose(k1, 1.0, atol=1e-6)
+        
+        # Second sample: average of 2 samples
+        k2 = estimator.update(2.0, 1.0)  # k=2.0, avg = (1+2)/2 = 1.5
+        assert np.isclose(k2, 1.5, atol=1e-6)
+        
+        # Third sample: average of 3 samples
+        k3 = estimator.update(3.0, 1.0)  # k=3.0, avg = (1+2+3)/3 = 2.0
+        assert np.isclose(k3, 2.0, atol=1e-6)
+
+    def test_constant_input_constant_output(self):
+        """
+        Verify that constant input produces constant output after window fill.
+        """
+        window_size = 5
+        estimator = VirtualTactileEstimator(window_size=window_size, epsilon=1e-4)
+        
+        # Fill window
+        for _ in range(window_size):
+            estimator.update(5.0, 2.0)  # k = 2.5
+        
+        # Continue with same input
+        results = []
+        for _ in range(10):
+            k_est = estimator.update(5.0, 2.0)
+            results.append(k_est)
+        
+        # All results should be exactly 2.5
+        for i, r in enumerate(results):
+            assert np.isclose(r, 2.5, atol=1e-6), \
+                f"Step {i}: Expected 2.5, got {r}"

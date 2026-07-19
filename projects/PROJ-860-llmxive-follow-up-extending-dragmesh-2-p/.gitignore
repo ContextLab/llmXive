@@ -20,10 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
-env/
 ENV/
+env/
 
 # IDE
 .idea/
@@ -31,26 +31,15 @@ ENV/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Data (large artifacts)
-data/raw/*
-!data/raw/.gitkeep
-data/generated/*
-!data/generated/.gitkeep
-
-# State (sensitive or large)
-state/*
-!state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml
-!state/.gitkeep
+# Data and State (generated artifacts)
+data/generated/*.urdf
+data/results/*.csv
+data/results/*.json
+state/projects/*.yaml
 
 # Logs
 *.log
-logs/
 
-# pytest
-.pytest_cache/
-.coverage
-htmlcov/
+# OS
+.DS_Store
+Thumbs.db

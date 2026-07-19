@@ -7,8 +7,8 @@ are cited correctly and that their versions match the verified specifications.
 
 It checks:
 1. The existence and validity of the requirements.txt file.
-2. The presence of a CITATIONS.md file (or equivalent documentation) listing sources.
-3. (Optional) Verification of specific dataset versions if metadata is available.
+2. The presence of a CITATIONS.md file listing sources.
+3. Verification of specific dataset versions if metadata is available.
 
 Exit codes:
 0: All citations and sources are valid and verified.
@@ -31,14 +31,14 @@ def check_requirements_file() -> bool:
     if not REQUIREMENTS_PATH.exists():
         print(f"[FAIL] Requirements file not found at: {REQUIREMENTS_PATH}")
         return False
-    
+
     with open(REQUIREMENTS_PATH, 'r') as f:
         content = f.read().strip()
-    
+
     if not content:
         print(f"[FAIL] Requirements file is empty: {REQUIREMENTS_PATH}")
         return False
-    
+
     # Basic sanity check: ensure it contains expected core dependencies
     # based on T002 (pybullet, numpy, scipy, pandas, datasets, pytest, statsmodels)
     expected_packages = ['pybullet', 'numpy', 'scipy', 'pandas', 'datasets', 'pytest', 'statsmodels']
@@ -47,12 +47,12 @@ def check_requirements_file() -> bool:
     for pkg in expected_packages:
         if pkg not in content_lower:
             missing.append(pkg)
-    
+
     if missing:
         print(f"[WARN] Expected packages missing from requirements.txt: {missing}")
         # We treat this as a warning for now, but strict mode might fail.
         # For Constitution Principle II, we ensure the file exists and has content.
-        return True 
+        return True
 
     print(f"[PASS] Requirements file valid: {REQUIREMENTS_PATH}")
     return True
@@ -68,17 +68,17 @@ def check_citations_documentation() -> bool:
 
     with open(CITATIONS_PATH, 'r') as f:
         content = f.read()
-    
+
     # Check for common citation patterns (DOI, arXiv, URL, BibTeX keys)
     has_doi = bool(re.search(r'doi:\s*\S+', content, re.IGNORECASE))
     has_url = bool(re.search(r'https?://\S+', content))
     has_bibtex = '@' in content and ('article' in content or 'inproceedings' in content)
-    
+
     if not (has_doi or has_url or has_bibtex):
         print(f"[WARN] Citations file exists but lacks identifiable references (DOI, URL, or BibTeX).")
         print("       Ensure all external datasets and algorithms are properly cited.")
         return True # Still return True as the file exists, just warn
-    
+
     print(f"[PASS] Citations documentation valid: {CITATIONS_PATH}")
     return True
 
@@ -87,13 +87,13 @@ def check_spec_citations() -> bool:
     if not SPEC_PATH.exists():
         print(f"[WARN] Spec directory not found: {SPEC_PATH}")
         return True # Non-fatal if specs are elsewhere, but expected here
-    
+
     # Look for any markdown files in specs
     spec_files = list(SPEC_PATH.glob("*.md"))
     if not spec_files:
         print(f"[WARN] No markdown files found in spec directory: {SPEC_PATH}")
         return True
-    
+
     found_reference = False
     for f in spec_files:
         with open(f, 'r') as file:
@@ -101,12 +101,12 @@ def check_spec_citations() -> bool:
             if 'dragmesh' in content.lower() or 'citation' in content.lower():
                 found_reference = True
                 break
-    
+
     if not found_reference:
         print(f"[WARN] No explicit reference to 'DragMesh' or 'Citation' found in spec files.")
         print("       Ensure the origin of the baseline methodology is cited in the design docs.")
         return True # Warning only
-    
+
     print(f"[PASS] Spec files contain necessary references.")
     return True
 
@@ -117,7 +117,7 @@ def main():
     print()
 
     results = []
-    
+
     results.append(check_requirements_file())
     results.append(check_citations_documentation())
     results.append(check_spec_citations())
