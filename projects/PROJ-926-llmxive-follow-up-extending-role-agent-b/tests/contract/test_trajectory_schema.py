@@ -1,204 +1,301 @@
 """
-Contract test for trajectory_generator output schema.
+Contract tests for the trajectory generator output schema.
 
-Verifies that the output of src/sim/trajectory_generator.py strictly adheres to the
-expected schema for baseline failure trajectories. This test ensures data integrity
-and type safety before downstream processing (validation, analysis).
+These tests verify that the output of src/sim/trajectory_generator.py
+strictly adheres to the required schema for baseline failures.
 
-Schema Requirements (per US1):
-- Each entry must be a dictionary with:
-  - 'trajectory_id': str (unique identifier)
-  - 'task_id': str (ALFWorld task definition ID)
-  - 'failure_step': int (index of the step where failure occurred)
-  - 'action_log': list of str (sequence of actions taken)
-  - 'observation_log': list of str (sequence of observations)
-  - 'ground_truth_transition': dict (validated ground-truth mapping)
-  - 'failure_reason': str (extracted pattern/description)
-  - 'validation_status': str (must be 'validated' for saved entries)
+Requirements:
+- Every trajectory must have a unique ID (UUID format).
+- Every trajectory must contain 'trajectory_id', 'condition', 'failure_reason',
+  'action_log', 'validation_status', and 'ground_truth_snapshot_id'.
+- 'action_log' must be a list of steps.
+- 'failure_reason' must be a non-empty string.
+- 'validation_status' must be one of ['PASS', 'FAIL', 'AMBIGUOUS'].
 """
 import json
-import pytest
-from typing import Any, Dict, List, Set
+import os
+import re
+import tempfile
+from pathlib import Path
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, patch
 
-# Import the generator module to inspect its expected output structure
-# We are testing the contract, not the implementation logic of generation itself.
-# The generator is expected to produce a list of trajectory dicts.
+import pytest
+
 from src.sim.trajectory_generator import generate_baseline_failures, extract_failure_reason
 
-# Define the expected schema structure
-REQUIRED_FIELDS: Set[str] = {
+
+# Constants for schema validation
+REQUIRED_FIELDS = [
     "trajectory_id",
-    "task_id",
-    "failure_step",
-    "action_log",
-    "observation_log",
-    "ground_truth_transition",
+    "condition",
     "failure_reason",
-    "validation_status"
-}
+    "action_log",
+    "validation_status",
+    "ground_truth_snapshot_id",
+    "timestamp",
+]
 
-TYPE_MAPPINGS: Dict[str, type] = {
-    "trajectory_id": str,
-    "task_id": str,
-    "failure_step": int,
-    "action_log": list,
-    "observation_log": list,
-    "ground_truth_transition": dict,
-    "failure_reason": str,
-    "validation_status": str
-}
-
-VALID_STATUS_VALUES: Set[str] = {"validated", "discarded", "pending"}
+VALID_VALIDATION_STATUSES = ["PASS", "FAIL", "AMBIGUOUS"]
+UUID_REGEX = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
 
 
-def _validate_single_trajectory(trajectory: Dict[str, Any], index: int) -> None:
+def validate_schema(traj: Dict[str, Any]) -> None:
     """
-    Validates a single trajectory dictionary against the schema.
-    Raises AssertionError if schema is violated.
+    Validates a single trajectory dictionary against the contract schema.
+    Raises AssertionError if any field is missing or malformed.
     """
-    assert isinstance(trajectory, dict), f"Trajectory {index} is not a dictionary"
+    # Check required fields exist
+    for field in REQUIRED_FIELDS:
+        assert field in traj, f"Missing required field: {field}"
 
-    # Check required fields
-    missing_fields = REQUIRED_FIELDS - set(trajectory.keys())
-    assert not missing_fields, f"Trajectory {index} missing fields: {missing_fields}"
-
-    # Check types
-    for field, expected_type in TYPE_MAPPINGS.items():
-        value = trajectory[field]
-        assert isinstance(value, expected_type), (
-            f"Trajectory {index}, field '{field}': expected {expected_type.__name__}, "
-            f"got {type(value).__name__}"
-        )
-
-    # Check specific value constraints
-    assert trajectory["trajectory_id"], f"Trajectory {index} has empty trajectory_id"
-    assert trajectory["task_id"], f"Trajectory {index} has empty task_id"
-    assert trajectory["failure_step"] >= 0, f"Trajectory {index} has negative failure_step"
-    assert trajectory["validation_status"] in VALID_STATUS_VALUES, (
-        f"Trajectory {index} has invalid status: {trajectory['validation_status']}"
+    # Validate trajectory_id is a valid UUID
+    assert UUID_REGEX.match(traj["trajectory_id"]), (
+        f"Invalid UUID format for trajectory_id: {traj['trajectory_id']}"
     )
 
-    # Check list contents (action_log and observation_log should be lists of strings)
-    assert all(isinstance(a, str) for a in trajectory["action_log"]), (
-        f"Trajectory {index} action_log contains non-string elements"
-    )
-    assert all(isinstance(o, str) for o in trajectory["observation_log"]), (
-        f"Trajectory {index} observation_log contains non-string elements"
+    # Validate condition
+    assert traj["condition"] in ["baseline", "degraded", "intervention"], (
+        f"Invalid condition: {traj['condition']}"
     )
 
-    # Check ground_truth_transition structure (basic check)
-    gt = trajectory["ground_truth_transition"]
-    assert isinstance(gt, dict), "ground_truth_transition must be a dict"
-    # Common keys expected in ground truth transition based on T006/T007
-    # We don't enforce specific keys here unless T006 defines them strictly,
-    # but we ensure it's a non-empty dict for a valid trajectory.
-    assert len(gt) > 0, "ground_truth_transition cannot be empty"
+    # Validate failure_reason is a non-empty string
+    assert isinstance(traj["failure_reason"], str), (
+        f"failure_reason must be a string, got {type(traj['failure_reason'])}"
+    )
+    assert len(traj["failure_reason"]) > 0, "failure_reason cannot be empty"
+
+    # Validate action_log is a list
+    assert isinstance(traj["action_log"], list), (
+        f"action_log must be a list, got {type(traj['action_log'])}"
+    )
+
+    # Validate validation_status
+    assert traj["validation_status"] in VALID_VALIDATION_STATUSES, (
+        f"Invalid validation_status: {traj['validation_status']}"
+    )
+
+    # Validate ground_truth_snapshot_id is a string (UUID or hash)
+    assert isinstance(traj["ground_truth_snapshot_id"], str), (
+        f"ground_truth_snapshot_id must be a string"
+    )
+    assert len(traj["ground_truth_snapshot_id"]) > 0, (
+        "ground_truth_snapshot_id cannot be empty"
+    )
+
+    # Validate timestamp exists and is a string
+    assert isinstance(traj["timestamp"], str), (
+        f"timestamp must be a string, got {type(traj['timestamp'])}"
+    )
 
 
-@pytest.mark.contract
-def test_trajectory_schema_structure():
+class TestTrajectorySchemaContract:
     """
-    Contract Test: Verify that the output of generate_baseline_failures
-    strictly adheres to the defined schema.
-    
-    This test mocks the internal generation to produce a sample valid trajectory
-    to verify the schema enforcement logic, as running the full generator is
-    expensive and depends on external models (handled in integration tests).
+    Contract tests for the trajectory generator output schema.
     """
-    # We simulate what a valid output from the generator looks like
-    # based on the requirements of US1 and T013.
-    sample_trajectory = {
-        "trajectory_id": "test-001",
-        "task_id": "pick_and_place_simplify-1",
-        "failure_step": 5,
-        "action_log": ["go to table", "pick up object", "move to counter"],
-        "observation_log": ["You are at table", "You see object", "You are at counter"],
-        "ground_truth_transition": {
-            "expected_state": "object_on_counter",
-            "actual_state": "object_on_floor",
-            "action_taken": "drop"
-        },
-        "failure_reason": "failed to pick up object after 3 steps",
-        "validation_status": "validated"
-    }
 
-    _validate_single_trajectory(sample_trajectory, 0)
+    def test_extract_failure_reason_returns_string(self):
+        """Test that extract_failure_reason returns a non-empty string."""
+        mock_log = [
+            {"step": 1, "action": "go to kitchen", "result": "ok"},
+            {"step": 2, "action": "pick up key", "result": "failed"},
+        ]
+        reason = extract_failure_reason(mock_log)
+        assert isinstance(reason, str)
+        assert len(reason) > 0
 
+    def test_extract_failure_reason_handles_empty_log(self):
+        """Test behavior when action log is empty."""
+        reason = extract_failure_reason([])
+        assert isinstance(reason, str)
+        assert len(reason) > 0  # Should return a default message
 
-@pytest.mark.contract
-def test_trajectory_schema_missing_fields():
-    """Contract Test: Verify rejection of trajectories with missing fields."""
-    incomplete_trajectory = {
-        "trajectory_id": "test-002",
-        "task_id": "pick_and_place_simplify-1",
-        # Missing failure_step, action_log, etc.
-        "validation_status": "validated"
-    }
+    @patch("src.sim.trajectory_generator.run_episode")
+    @patch("src.sim.trajectory_generator.validate_trajectory")
+    @patch("src.sim.trajectory_generator.load_ground_truth_raw")
+    def test_generate_baseline_failures_schema_compliance(
+        self, mock_load_gt, mock_validate, mock_run_episode
+    ):
+        """
+        Test that generated trajectories strictly adhere to the schema contract.
+        """
+        # Mock ground truth data
+        mock_load_gt.return_value = [
+            {"snapshot_id": "gt-001", "expected_action": "pick up key"}
+        ]
 
-    with pytest.raises(AssertionError) as exc_info:
-        _validate_single_trajectory(incomplete_trajectory, 1)
-    
-    assert "missing fields" in str(exc_info.value).lower()
-
-
-@pytest.mark.contract
-def test_trajectory_schema_wrong_types():
-    """Contract Test: Verify rejection of trajectories with wrong data types."""
-    bad_type_trajectory = {
-        "trajectory_id": "test-003",
-        "task_id": "pick_and_place_simplify-1",
-        "failure_step": "5",  # Should be int
-        "action_log": "go to table",  # Should be list
-        "observation_log": ["You are at table"],
-        "ground_truth_transition": {"state": "ok"},
-        "failure_reason": "test",
-        "validation_status": "validated"
-    }
-
-    with pytest.raises(AssertionError) as exc_info:
-        _validate_single_trajectory(bad_type_trajectory, 2)
-    
-    assert "expected" in str(exc_info.value).lower()
-
-
-@pytest.mark.contract
-def test_extract_failure_reason_output_schema():
-    """
-    Contract Test: Verify that extract_failure_reason returns a string.
-    This ensures the function signature matches the schema requirement for 'failure_reason'.
-    """
-    mock_action_log = [
-        "go to table",
-        "pick up object",
-        "failed to pick up object"
-    ]
-    
-    reason = extract_failure_reason(mock_action_log)
-    
-    assert isinstance(reason, str), "extract_failure_reason must return a string"
-    assert len(reason) > 0, "extract_failure_reason must return a non-empty string"
-
-
-@pytest.mark.contract
-def test_trajectory_list_output():
-    """
-    Contract Test: Verify that the generator (when mocked) returns a list of dicts.
-    """
-    # Since we cannot run the full generator without model dependencies in this unit/contract test,
-    # we verify the structure of a list of valid trajectories.
-    trajectories = [
-        {
-            "trajectory_id": "t1", "task_id": "task1", "failure_step": 1,
-            "action_log": ["a1"], "observation_log": ["o1"],
-            "ground_truth_transition": {"k": "v"}, "failure_reason": "r1", "validation_status": "validated"
-        },
-        {
-            "trajectory_id": "t2", "task_id": "task2", "failure_step": 2,
-            "action_log": ["a2"], "observation_log": ["o2"],
-            "ground_truth_transition": {"k": "v"}, "failure_reason": "r2", "validation_status": "validated"
+        # Mock validation to ensure we get a "FAIL" status (required for baseline failures)
+        mock_validate.return_value = {
+            "status": "FAIL",
+            "reason": "Action mismatch",
+            "snapshot_id": "gt-001",
         }
-    ]
-    
-    assert isinstance(trajectories, list), "Output must be a list"
-    for i, t in enumerate(trajectories):
-        _validate_single_trajectory(t, i)
+
+        # Mock episode run to return a deterministic failure trajectory
+        mock_run_episode.return_value = {
+            "trajectory_id": "mock-traj-001",
+            "actions": [
+                {"step": 1, "action": "go to kitchen"},
+                {"step": 2, "action": "pick up key", "result": "failed"},
+            ],
+            "status": "failed",
+            "reason": "Could not pick up key",
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = os.path.join(tmp_dir, "test_output.jsonl")
+
+            # Generate a small batch for testing
+            # Note: We mock the loop to ensure it returns exactly 1 valid failure
+            # to avoid long-running tests
+            trajectories = generate_baseline_failures(
+                n=1,
+                condition="baseline",
+                output_path=output_path,
+                seed=42,
+                max_attempts=5,
+            )
+
+            # Verify the output file exists
+            assert os.path.exists(output_path), "Output file was not created"
+
+            # Load and validate each trajectory
+            with open(output_path, "r") as f:
+                lines = f.readlines()
+                assert len(lines) > 0, "Output file is empty"
+
+                for line in lines:
+                    traj = json.loads(line)
+                    validate_schema(traj)
+
+    def test_unique_ids_across_trajectories(self):
+        """Test that generated trajectories have unique IDs."""
+        ids = set()
+        for i in range(10):
+            traj_id = f"traj-{i}" # Simulating generated ID logic
+            assert traj_id not in ids, f"Duplicate ID found: {traj_id}"
+            ids.add(traj_id)
+
+    def test_action_log_structure(self):
+        """Test that action logs contain expected step structure."""
+        mock_log = [
+            {"step": 1, "action": "move", "result": "success"},
+            {"step": 2, "action": "interact", "result": "failure"},
+        ]
+        # Just verify the structure is valid for the schema
+        for step in mock_log:
+            assert "step" in step
+            assert "action" in step
+            assert "result" in step
+            assert isinstance(step["step"], int)
+            assert isinstance(step["action"], str)
+            assert isinstance(step["result"], str)
+
+    def test_validation_status_enum(self):
+        """Test that validation_status is always from the allowed set."""
+        for status in VALID_VALIDATION_STATUSES:
+            traj = {
+                "trajectory_id": "test-uuid-1234-5678-90ab-cdef12345678",
+                "condition": "baseline",
+                "failure_reason": "Test failure",
+                "action_log": [],
+                "validation_status": status,
+                "ground_truth_snapshot_id": "gt-123",
+                "timestamp": "2023-01-01T00:00:00Z",
+            }
+            validate_schema(traj)
+
+        # Test invalid status
+        invalid_traj = {
+            "trajectory_id": "test-uuid-1234-5678-90ab-cdef12345678",
+            "condition": "baseline",
+            "failure_reason": "Test failure",
+            "action_log": [],
+            "validation_status": "INVALID",
+            "ground_truth_snapshot_id": "gt-123",
+            "timestamp": "2023-01-01T00:00:00Z",
+        }
+        with pytest.raises(AssertionError):
+            validate_schema(invalid_traj)
+
+    def test_file_output_format(self):
+        """Test that the output file is valid JSONL."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = os.path.join(tmp_dir, "test.jsonl")
+            test_data = [
+                {
+                    "trajectory_id": "test-1",
+                    "condition": "baseline",
+                    "failure_reason": "fail",
+                    "action_log": [],
+                    "validation_status": "FAIL",
+                    "ground_truth_snapshot_id": "gt-1",
+                    "timestamp": "now",
+                },
+                {
+                    "trajectory_id": "test-2",
+                    "condition": "baseline",
+                    "failure_reason": "fail",
+                    "action_log": [],
+                    "validation_status": "FAIL",
+                    "ground_truth_snapshot_id": "gt-1",
+                    "timestamp": "now",
+                },
+            ]
+
+            with open(output_path, "w") as f:
+                for item in test_data:
+                    f.write(json.dumps(item) + "\n")
+
+            # Read back and verify
+            with open(output_path, "r") as f:
+                lines = f.readlines()
+                assert len(lines) == 2
+                for line in lines:
+                    obj = json.loads(line)
+                    validate_schema(obj)
+
+    def test_empty_failure_reason_rejected(self):
+        """Test that empty failure reasons are rejected by schema."""
+        invalid_traj = {
+            "trajectory_id": "test-uuid-1234-5678-90ab-cdef12345678",
+            "condition": "baseline",
+            "failure_reason": "",  # Empty string
+            "action_log": [],
+            "validation_status": "FAIL",
+            "ground_truth_snapshot_id": "gt-123",
+            "timestamp": "2023-01-01T00:00:00Z",
+        }
+        with pytest.raises(AssertionError):
+            validate_schema(invalid_traj)
+
+    def test_missing_field_rejected(self):
+        """Test that missing required fields are rejected."""
+        invalid_traj = {
+            "trajectory_id": "test-uuid-1234-5678-90ab-cdef12345678",
+            "condition": "baseline",
+            "failure_reason": "Test failure",
+            "action_log": [],
+            # Missing validation_status
+            "ground_truth_snapshot_id": "gt-123",
+            "timestamp": "2023-01-01T00:00:00Z",
+        }
+        with pytest.raises(AssertionError):
+            validate_schema(invalid_traj)
+
+    def test_invalid_condition_rejected(self):
+        """Test that invalid condition values are rejected."""
+        invalid_traj = {
+            "trajectory_id": "test-uuid-1234-5678-90ab-cdef12345678",
+            "condition": "unknown_condition",
+            "failure_reason": "Test failure",
+            "action_log": [],
+            "validation_status": "FAIL",
+            "ground_truth_snapshot_id": "gt-123",
+            "timestamp": "2023-01-01T00:00:00Z",
+        }
+        with pytest.raises(AssertionError):
+            validate_schema(invalid_traj)

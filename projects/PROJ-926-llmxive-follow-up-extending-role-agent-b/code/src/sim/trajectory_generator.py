@@ -1,215 +1,285 @@
 """
-Trajectory Generator Module for llmXive.
+Trajectory Generator for llmXive Follow-up Study.
 
-Implements baseline failure trajectory generation with explicit discard/retry logic
-to ensure FR-002 compliance (only validated trajectories are saved).
+Generates and validates agent trajectories in ALFWorld environment.
+Implements strict validation against ground-truth data before saving.
 """
+import argparse
 import json
 import os
 import re
 import uuid
+import sys
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import from local project modules
-from src.config.config import SEED, DATA_PATH, MODEL_ID
-from src.sim.alfworld_runner import run_episode
-from src.sim.validation import validate_trajectory
-from src.sim.exclusion_logger import log_excluded_trajectory, set_exclusion_path
-from src.sim.task_bank import get_task_definition  # Assuming T008 created this helper or we import directly
-from src.data.stream_utils import save_streamed_trajectories
+# Configuration imports
+from src.config.config import SEED, DATA_PATH, MODEL_ID, CPU_DEVICE
+from src.sim.alfworld_runner import run_episode, verify_alfworld_health
+from src.sim.validation import validate_trajectory, load_ground_truth_raw
+from src.sim.exclusion_logger import set_exclusion_path, log_excluded_trajectory, log_excluded_trajectories
+from src.data.stream_utils import load_trajectory_dataset
 
+# Set float32 precision for CPU execution as per spec
+import torch
+if CPU_DEVICE:
+    torch.set_float32_matmul_precision('high')
 
-def extract_failure_reason(action_log: List[Dict[str, Any]]) -> str:
+# Constants
+MAX_ATTEMPTS = 1000
+TARGET_FAILURES = 500
+VALIDATION_TIMEOUT = 300  # seconds
+
+def load_model_and_tokenizer():
     """
-    Detect failure states and extract patterns from an action log.
-    
-    Args:
-        action_log: List of action dictionaries from the episode.
+    Load the Mistral-7B model and tokenizer in float32 CPU mode.
+    Raises OSError if model is not accessible.
+    """
+    try:
+        from transformers import AutoModelForCausalLM, AutoTokenizer
         
-    Returns:
-        A string describing the failure reason.
+        tokenizer = AutoTokenizer.from_pretrained(
+            MODEL_ID,
+            trust_remote_code=True,
+            local_files_only=False
+        )
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_ID,
+            torch_dtype=torch.float32,
+            use_cache=False,
+            device_map="cpu" if CPU_DEVICE else None,
+            trust_remote_code=True,
+            local_files_only=False
+        )
+        
+        return model, tokenizer
+    except Exception as e:
+        raise OSError(f"Failed to load model {MODEL_ID}: {str(e)}")
+
+def extract_failure_reason(action_log: List[Dict]) -> str:
+    """
+    Extract failure reason from action log.
     """
     if not action_log:
-        return "Empty trajectory"
+        return "Unknown: Empty action log"
     
-    last_action = action_log[-1]
-    last_obs = last_action.get("observation", "")
-    last_act = last_action.get("action", "")
+    # Look for common failure patterns
+    failure_patterns = [
+        r"failed to pick up (object|item) (.*?) after (\d+) steps",
+        r"cannot (open|close|put|take) (.*?)",
+        r"task (?:failed|terminated|aborted)",
+        r"invalid action: (.*?)",
+        r"timeout: (.*?)"
+    ]
     
-    # Heuristic patterns for ALFWorld failures
-    if "failed" in last_obs.lower() or "error" in last_obs.lower():
-        return f"Environment error: {last_obs}"
+    combined_text = " ".join(str(step) for step in action_log)
     
-    if "timeout" in last_obs.lower():
-        return "Episode timeout"
+    for pattern in failure_patterns:
+        match = re.search(pattern, combined_text, re.IGNORECASE)
+        if match:
+            return f"Pattern match: {match.group(0)[:100]}"
     
-    if "no object" in last_obs.lower() or "nothing" in last_obs.lower():
-        return f"Failed to locate object: {last_act}"
-    
-    if last_act == "invalid":
-        return "Invalid action issued"
-        
-    return f"Generic failure at step {len(action_log)}: {last_act}"
+    # Return last few steps if no pattern found
+    if len(action_log) >= 3:
+        return f"Last actions: {action_log[-3:]}"
+    return f"Last actions: {action_log}"
 
-
-def generate_baseline_failures(
-    target_count: int = 500,
-    max_retries_per_task: int = 5,
-    output_path: str = "data/raw/baseline_failures.json",
-    exclusion_path: str = "data/raw/excluded_log.json"
-) -> List[Dict[str, Any]]:
+def validate_and_filter_trajectories(
+    trajectories: List[Dict],
+    ground_truth_data: Dict
+) -> Tuple[List[Dict], List[Dict]]:
     """
-    Generate a dataset of failed agent trajectories with explicit discard/retry logic.
-    
-    This function ensures FR-002 compliance by:
-    1. Generating trajectories until a valid failure is found or max retries hit.
-    2. Discarding any trajectory that does not validate against ground truth.
-    3. Logging excluded trajectories with reasons.
+    Validate trajectories against ground-truth and filter out invalid ones.
     
     Args:
-        target_count: Number of validated failures to collect.
-        max_retries_per_task: Max attempts per task ID before giving up on that task.
-        output_path: Path to save the final JSON.
-        exclusion_path: Path to log excluded trajectories.
+        trajectories: List of trajectory dictionaries to validate
+        ground_truth_data: Ground-truth validation data from T007a/T007b
         
     Returns:
-        List of validated failure trajectory dictionaries.
+        Tuple of (valid_trajectories, excluded_trajectories)
     """
-    set_exclusion_path(exclusion_path)
+    valid_trajectories = []
+    excluded_trajectories = []
     
-    validated_failures = []
-    total_attempts = 0
-    unique_task_ids = set()
-    
-    # Load task definitions (simulated loading from T008)
-    # In a real scenario, this would load from the SQLite/JSON task bank
-    # For this implementation, we assume we have a list of task IDs or definitions
-    # Since T008 is marked complete, we assume a way to get tasks exists.
-    # We will simulate a task list for the loop if not provided, 
-    # but in production, this comes from the task bank.
-    # Assuming a function or list exists. Let's assume we iterate a known set of task IDs.
-    # For the sake of this script, we will generate task IDs if the bank isn't loaded yet,
-    # but the logic relies on run_episode returning a result.
-    
-    task_ids_to_try = [f"task_{i}" for i in range(1, 101)] # Placeholder for real task bank
-    
-    while len(validated_failures) < target_count:
-        if not task_ids_to_try:
-            # If we run out of tasks, we might need to regenerate or fail
-            break
-            
-        task_id = task_ids_to_try[0]
+    for trajectory in trajectories:
+        traj_id = trajectory.get('trajectory_id', str(uuid.uuid4()))
+        action_log = trajectory.get('action_log', [])
         
-        success_on_task = False
-        retries = 0
+        # Validate against ground-truth
+        validation_result = validate_trajectory(action_log, ground_truth_data)
         
-        while retries < max_retries_per_task and not success_on_task:
-            retries += 1
-            total_attempts += 1
-            
-            try:
-                # Run the episode
-                result = run_episode(task_id=task_id, seed=SEED + total_attempts)
-                
-                if not result or "action_log" not in result:
-                    raise ValueError("Invalid result from ALFWorld runner")
-                    
-                action_log = result["action_log"]
-                ground_truth_log = result.get("ground_truth_log", [])
-                
-                # Validate against ground truth
-                is_valid, reason = validate_trajectory(action_log, ground_truth_log)
-                
-                if not is_valid:
-                    # Discard and retry logic for invalid trajectories
-                    exclusion_reason = f"Validation failed: {reason}"
-                    log_excluded_trajectory(
-                        task_id=task_id,
-                        attempt=retries,
-                        reason=exclusion_reason,
-                        trajectory_id=str(uuid.uuid4())
-                    )
-                    continue
-                    
-                # If we are here, it is valid. Check if it's a failure.
-                # The task is to generate FAILURES. 
-                # If the trajectory is valid but successful, we might need to discard it too
-                # depending on the definition of "failure trajectory".
-                # Assuming run_episode returns a status or we check the last state.
-                
-                # Check if it's actually a failure state
-                is_failure = False
-                if "status" in result:
-                    is_failure = result["status"] == "failed"
-                else:
-                    # Heuristic: if action_log is short or ends in error
-                    is_failure = len(action_log) < 5 or "failed" in str(action_log[-1]).lower()
-                
-                if not is_failure:
-                    # Discard successful trajectories
-                    log_excluded_trajectory(
-                        task_id=task_id,
-                        attempt=retries,
-                        reason="Trajectory was successful, expected failure",
-                        trajectory_id=str(uuid.uuid4())
-                    )
-                    continue
-                    
-                # Extract failure reason
-                failure_reason = extract_failure_reason(action_log)
-                
-                # Create the validated failure entry
-                failure_entry = {
-                    "id": str(uuid.uuid4()),
-                    "task_id": task_id,
-                    "attempt": retries,
-                    "timestamp": datetime.now().isoformat(),
-                    "action_log": action_log,
-                    "ground_truth_log": ground_truth_log,
-                    "failure_reason": failure_reason,
-                    "validated": True
-                }
-                
-                validated_failures.append(failure_entry)
-                success_on_task = True
-                
-            except Exception as e:
-                # Log runtime errors and retry
-                log_excluded_trajectory(
-                    task_id=task_id,
-                    attempt=retries,
-                    reason=f"Runtime error: {str(e)}",
-                    trajectory_id=str(uuid.uuid4())
-                )
-                continue
+        if validation_result.get('status') == 'PASS':
+            # Add validation metadata to trajectory
+            trajectory['validation_status'] = 'PASS'
+            trajectory['validation_timestamp'] = datetime.now().isoformat()
+            trajectory['failure_reason'] = extract_failure_reason(action_log)
+            valid_trajectories.append(trajectory)
+        else:
+            # Log excluded trajectory with reason
+            exclusion_entry = {
+                'trajectory_id': traj_id,
+                'exclusion_reason': validation_result.get('reason', 'Validation failed'),
+                'validation_status': validation_result.get('status', 'UNKNOWN'),
+                'timestamp': datetime.now().isoformat()
+            }
+            excluded_trajectories.append(exclusion_entry)
+    
+    return valid_trajectories, excluded_trajectories
+
+def generate_trajectory_batch(
+    model,
+    tokenizer,
+    task_bank,
+    n_trajectories: int,
+    condition: str = 'baseline'
+) -> List[Dict]:
+    """
+    Generate a batch of trajectories for the specified condition.
+    
+    Args:
+        model: Pre-loaded LLM model
+        tokenizer: Pre-loaded tokenizer
+        task_bank: Task bank definitions
+        n_trajectories: Number of trajectories to generate
+        condition: Condition type (baseline, degraded, intervention)
         
-        if not success_on_task:
-            # If we exhausted retries for this task, remove it from the list
-            task_ids_to_try.pop(0)
-            # Optional: Log that we gave up on this task
-            log_excluded_trajectory(
+    Returns:
+        List of generated trajectory dictionaries
+    """
+    trajectories = []
+    attempts = 0
+    
+    print(f"Starting trajectory generation for {n_trajectories} {condition} trajectories...")
+    
+    while len(trajectories) < n_trajectories and attempts < MAX_ATTEMPTS:
+        attempts += 1
+        
+        # Select random task from task bank
+        task_id = f"task_{attempts % len(task_bank)}"
+        task_def = task_bank.get(task_id, {})
+        
+        if not task_def:
+            continue
+        
+        try:
+            # Run episode in ALFWorld
+            episode_result = run_episode(
                 task_id=task_id,
-                attempt=max_retries_per_task,
-                reason="Max retries exceeded without valid failure",
-                trajectory_id=str(uuid.uuid4())
+                seed=SEED + attempts,
+                condition=condition
             )
+            
+            if episode_result and episode_result.get('success') == False:
+                # This is a failure trajectory - keep it
+                trajectory = {
+                    'trajectory_id': str(uuid.uuid4()),
+                    'task_id': task_id,
+                    'condition': condition,
+                    'action_log': episode_result.get('action_log', []),
+                    'state_transitions': episode_result.get('state_transitions', []),
+                    'generation_timestamp': datetime.now().isoformat(),
+                    'attempts': attempts
+                }
+                trajectories.append(trajectory)
+                
+                if len(trajectories) % 50 == 0:
+                    print(f"Generated {len(trajectories)} failure trajectories...")
+            else:
+                # Success trajectory - discard for failure generation
+                pass
+                
+        except Exception as e:
+            print(f"Error generating trajectory {attempts}: {str(e)}")
+            continue
     
-    # Save to disk
+    return trajectories
+
+def run(args: argparse.Namespace) -> None:
+    """
+    Main execution function for trajectory generation.
+    
+    Args:
+        args: Command line arguments
+    """
+    # Verify ALFWorld environment health
+    print("Verifying ALFWorld environment health...")
+    verify_alfworld_health()
+    
+    # Load ground-truth data for validation
+    print("Loading ground-truth data...")
+    ground_truth_data = load_ground_truth_raw()
+    
+    if not ground_truth_data:
+        raise RuntimeError("Failed to load ground-truth data. Ensure T007a has completed.")
+    
+    # Load task bank
+    from src.retrieval.task_bank import get_task_definition
+    task_bank = {}
+    for i in range(100):  # Load sample task bank
+        task_def = get_task_definition(f"task_{i}")
+        if task_def:
+            task_bank[f"task_{i}"] = task_def
+    
+    if not task_bank:
+        raise RuntimeError("Failed to load task bank. Ensure T008 has completed.")
+    
+    # Load model
+    print(f"Loading model {MODEL_ID}...")
+    model, tokenizer = load_model_and_tokenizer()
+    
+    # Generate trajectories
+    trajectories = generate_trajectory_batch(
+        model=model,
+        tokenizer=tokenizer,
+        task_bank=task_bank,
+        n_trajectories=args.n,
+        condition=args.condition
+    )
+    
+    # Validate and filter trajectories
+    print(f"Validating {len(trajectories)} trajectories...")
+    valid_trajectories, excluded_trajectories = validate_and_filter_trajectories(
+        trajectories,
+        ground_truth_data
+    )
+    
+    # Log excluded trajectories
+    if excluded_trajectories:
+        exclusion_path = os.path.join(DATA_PATH, 'raw', 'excluded_log.json')
+        set_exclusion_path(exclusion_path)
+        log_excluded_trajectories(excluded_trajectories)
+        print(f"Logged {len(excluded_trajectories)} excluded trajectories to {exclusion_path}")
+    
+    # Save validated trajectories
+    output_path = args.output
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(validated_failures, f, indent=2)
-        
-    print(f"Generated {len(validated_failures)} validated failures.")
-    print(f"Total attempts: {total_attempts}")
     
-    return validated_failures
+    with open(output_path, 'w') as f:
+        for traj in valid_trajectories:
+            f.write(json.dumps(traj) + '\n')
+    
+    print(f"Saved {len(valid_trajectories)} validated trajectories to {output_path}")
+    
+    # Verify count
+    if len(valid_trajectories) < args.n:
+        raise RuntimeError(
+            f"Generated only {len(valid_trajectories)} valid trajectories, "
+            f"but {args.n} were requested. Check ground-truth validation and ALFWorld configuration."
+        )
 
+def main():
+    """Command line entry point."""
+    parser = argparse.ArgumentParser(description='Generate and validate ALFWorld trajectories')
+    parser.add_argument('--n', type=int, default=500, help='Number of trajectories to generate')
+    parser.add_argument('--condition', type=str, default='baseline', 
+                      choices=['baseline', 'degraded', 'intervention'],
+                      help='Condition type')
+    parser.add_argument('--output', type=str, required=True, 
+                      help='Output file path for trajectories')
+    
+    args = parser.parse_args()
+    run(args)
 
-def run():
-    """Entry point for script execution."""
-    generate_baseline_failures()
-
-
-if __name__ == "__main__":
-    run()
+if __name__ == '__main__':
+    main()

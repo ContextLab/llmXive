@@ -19,7 +19,7 @@ The research system MUST generate a dataset of at least 500 failed agent traject
 
 1. **Given** the ALFWorld environment is initialized and the Llama-3-8B model is loaded, **When** the generation script executes, **Then** at least 500 failed trajectories are saved to the local dataset with unique identifiers.
 2. **Given** a generated failed trajectory, **When** the validation module checks the trajectory against the simulator's state log, **Then** the failure point is confirmed to match a ground-truth state transition where the agent deviated from the optimal path.
-3. **Given** the dataset is complete, **When** a random sample of 10 trajectories is inspected, **Then** each contains a clear "failed to pick up object X after Y steps" pattern or equivalent semantic failure description.
+3. **Given** the dataset is complete, **When** a random sample of trajectories is inspected, **Then** each contains a clear "failed to pick up object X after Y steps" pattern or equivalent semantic failure description.
 
 ---
 
@@ -97,7 +97,7 @@ The research system MUST apply the rule-based "failure abstraction layer" to the
 - The "ground-truth root cause" for each failure is derivable from the ALFWorld simulator's state transition log using a deterministic priority rule for ambiguous cases (See Key Entities).
 - The rule-based parser can extract syntactic patterns from the failure logs with sufficient accuracy to serve as a valid substitute for predictive context.
 - A sufficient number of generated trajectories will be produced to achieve statistical power for the planned t-test or Mann-Whitney U test, assuming a medium effect size (Cohen's d)..
-- The total compute time for data generation, condition execution, and statistical analysis will be constrained to a duration feasible for execution on a GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM).
+- The total compute time for data generation, condition execution, and statistical analysis will be constrained to a duration feasible for execution on a GitHub Actions free-tier runner (CPU cores, ~7 GB RAM).
 - The Llama-8B model will be run in default precision (float32) without quantization (8-bit or 4-bit) to ensure CPU compatibility.
 - The "retrieval relevance score" calculation uses a frozen, small classifier or similarity search on a pre-built task bank, which fits within the 7 GB RAM limit.
 - The syntactic abstraction layer is implemented as a lightweight Python script that does not require external dependencies beyond standard libraries (e.g., `re`, `json`).

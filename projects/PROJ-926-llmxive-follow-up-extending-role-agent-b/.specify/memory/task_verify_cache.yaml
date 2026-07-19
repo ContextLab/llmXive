@@ -1,3 +1,10 @@
+T011:
+  c: false
+  h: 3b0476ebf164ff161a97b8dbf4304ad961171eb142e5486d8fa1a5029243490b
+  r: "The provided `tests/contract/test_trajectory_schema.py` is truncated (ends with\
+    \ \u201Cclass Te\u201D) and does not contain a complete test implementation, and\
+    \ the required module `src/sim/trajectory_generator.py` is missing entirely, so\
+    \ the contract test cannot be executed or validate the schema."
 T018:
   c: false
   h: 976bd86c32e2957a29db084a27e157ed97005b13527aa8ffa902933a65fcd13e
@@ -21,3 +28,11 @@ T023:
   r: The required file `src/retrieval/relevance_scorer.py` does not exist in the repository,
     so the integration cannot be verified. The task demands a concrete implementation
     that calculates relevance scores, which is missing.
+T049:
+  c: false
+  h: c056a0b80d044aaac2e8be2c47c8558a39c5adeeed7037e1ed73d3e3490ab2e6
+  r: "The provided `src/sim/validation.py` does not contain any code that detects\
+    \ ambiguous failure trajectories, marks them as `EXCLUDED`, or writes entries\
+    \ with an `ambiguity_reason` to `data/raw/excluded_log.json`. Moreover, the required\
+    \ `data/raw/excluded_log.json` file is absent from the repository. These missing\
+    \ components mean the task\u2019s specification is not satisfied."

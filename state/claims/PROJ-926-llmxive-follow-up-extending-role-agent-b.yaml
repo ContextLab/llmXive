@@ -424,3 +424,146 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T18:58:42Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 0
+  canonical: 'requirements.txt versions: transformers 4.35.0, torch 2.1.0, scipy 1.11.0,
+    datasets 2.14.0, alfworld 1.1.0, pandas 2.1.0, pytest 7.4.0, ruff 0.1.0, black
+    23.0.0'
+  claim_id: c_98112086
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with requirements.txt containing pinned versions:
+    transformers==4.35.0, torch==2.1.0, scipy==1.11.0, datasets==2.14.0, alfworld==1.1.0,
+    pandas==2.1.0, pytest==7.4.0, ruff==0.1.0, black==23.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T03:23:46Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: SEED defined as 42 in config
+  claim_id: c_f2256670
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/config.py with pinned random seeds, paths, and ALFWorld
+    hyperparameters. Define SEED=42, DATA_PATH, MODEL_ID.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:24:29Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Pre-experimental power analysis for N=500 with target power 0.8
+  claim_id: c_14483289
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T036a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement src/analysis/power_analysis.py to perform pre-experimental\
+    \ power analysis for N=500 (single dataset processed into 3 conditions) with target\
+    \ power \u22650.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:25:32Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis assumptions: Cohen''s d 0.5, alpha 0.05'
+  claim_id: c_700fc5eb
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T036a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly assume Cohen's d=0.5 and alpha=0.05 for power analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:27:59Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Model ID updated from Llama-8B to Mistral-7B
+  claim_id: c_4139c106
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T046'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_ID_updated_from_Llama-8B_to_Mistral-7B
+  kind: entity_fact
+  raw_text: Model ID updated from Llama-8B to Mistral-7B to ensure public accessibility
+    on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:28:47Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Generate at least 500 failed agent trajectories using Mistral-7B
+  claim_id: c_e099018a
+  context: 'Phase 3: User Story 1 - Generate and Validate Baseline Failure Trajectories'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_500_failed_agent_trajectories_using_Mistra
+  kind: magnitude
+  raw_text: Generate a dataset of at least 500 failed agent trajectories in ALFWorld
+    using Mistral-7B.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:29:36Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: 'CPU-only execution constraint: MAX_RAM_GB 7'
+  claim_id: c_d15d37cc
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T009'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/config/cpu_config.yaml with CPU_DEVICE=true and MAX_RAM_GB=7
+    to enforce CPU-only execution constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:30:09Z'
+- artifact_path: projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md
+  attempts: 1
+  canonical: Final power calculation halts if power is less than 0.8
+  claim_id: c_b248dfdd
+  context: 'Phase 6: Statistical Analysis & Power Validation - Task T036b'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_power_calculation_halts_if_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Implement src/analysis/power_analysis.py to perform the final power calculation
+    using the actual generated N. If power < 0.8, raise a RuntimeError and halt immediately.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T03:31:55Z'
