@@ -1,64 +1,95 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: StudyRecord
+title: Study Record Schema
 description: >
-  Schema for a single study record extracted during the data extraction phase.
-  Represents one row from the input CSV/JSON containing effect sizes and qualitative descriptors.
+  Schema defining the structure of a single study record extracted from
+  literature regarding the correlation between structural brain connectivity
+  and individual music preferences. This schema is used for validation of
+  extracted data before meta-analysis.
 type: object
 required:
   - study_id
-  - tract_name
-  - effect_size_r
-  - sample_size_n
-  - extraction_timestamp
-  - extraction_source
+  - author
+  - year
+  - tract
+  - r
+  - n
 properties:
   study_id:
     type: string
-    description: Unique identifier for the study (e.g., "Author_Year_ID").
-    minLength: 1
-  tract_name:
+    description: Unique identifier for the study (e.g., "Author_Year_Tract").
+    pattern: "^[A-Za-z0-9_]+$"
+    
+  author:
     type: string
-    description: Name of the brain tract (harmonized via tract_mapping.py).
+    description: Last name of the first author.
     minLength: 1
-  effect_size_r:
+    
+  year:
+    type: integer
+    description: Publication year.
+    minimum: 1900
+    maximum: 2100
+    
+  tract:
+    type: string
+    description: >
+      Name of the white matter tract investigated. 
+      Should be harmonized against the JHU Atlas standard names 
+      (see analysis.tract_mapping).
+    minLength: 1
+    
+  r:
     type: number
-    description: Pearson correlation coefficient (r).
+    description: >
+      Pearson correlation coefficient (effect size).
+      Must be between -1.0 and 1.0.
     minimum: -1.0
     maximum: 1.0
-  effect_size_se:
-    type: number
-    description: Standard error of the effect size (calculated or provided).
-    minimum: 0.0
-  sample_size_n:
+    
+  n:
     type: integer
-    description: Number of participants in the study.
+    description: Sample size (number of participants).
     minimum: 1
-  qualitative_notes:
+    
+  p_value:
+    type: number
+    description: >
+      Reported p-value. Optional if r and n are provided, 
+      but useful for verification or Fisher's Z conversion if r is missing.
+    minimum: 0.0
+    maximum: 1.0
+    
+  qualitative_desc:
     type: string
-    description: Extracted qualitative descriptors (e.g., "increased connectivity associated with jazz preference").
+    description: >
+      Qualitative description or narrative finding extracted from the text
+      (e.g., "positive correlation", "no significant association").
+      Used when quantitative metrics are missing or for narrative synthesis.
     default: ""
-  preference_descriptor:
+    
+  notes:
     type: string
-    description: Specific music preference mentioned (e.g., "jazz", "classical").
+    description: Additional notes, limitations, or context extracted from the study.
     default: ""
-  neural_circuitry_descriptor:
+    
+  source_file:
     type: string
-    description: Specific neural circuitry mentioned (e.g., "arcuate fasciculus").
-    default: ""
-  no_qualitative_data:
+    description: Filename of the source document from which this record was extracted.
+    
+  extraction_confidence:
+    type: number
+    description: >
+      Confidence score of the extraction (0.0 to 1.0). 
+      1.0 indicates direct numerical extraction; lower values indicate NLP inference.
+    minimum: 0.0
+    maximum: 1.0
+    default: 1.0
+    
+  is_narrative_pool:
     type: boolean
-    description: Flag indicating if no specific qualitative data was found for this study.
+    description: >
+      Flag indicating if this study is included in the narrative pool 
+      (qualitative synthesis) due to lack of quantitative data.
     default: false
-  extraction_source:
-    type: string
-    description: Source file or URL where this study was found.
-    minLength: 1
-  extraction_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of extraction.
-  raw_data:
-    type: object
-    description: Original raw data row for reference/debugging.
-    additionalProperties: true
+    
 additionalProperties: false

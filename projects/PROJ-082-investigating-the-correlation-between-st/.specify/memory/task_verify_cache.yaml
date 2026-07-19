@@ -1,17 +1,42 @@
-T001:
+T008c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `code/`, `tests/`, `data/`, or `docs/` directories\
-    \ being created is present; the artifact list is empty, so the directory structure\
-    \ initialization cannot be confirmed. The implementer must provide a view of the\
-    \ project root showing these four non\u2011empty directories."
-T003:
+  h: b638115c02b4625f8abbaf5cb247d7e26b3e2101225a22d235d017a5562de83f
+  r: The repository lacks the required `data/processed/extracted_studies.csv` input
+    file and the `data/processed/tract_count.json` output file, so the script cannot
+    be executed or verified. Moreover, the provided `tract_counting.py` is truncated
+    and does not contain the full implementation (e.g., applying harmonization and
+    writing the JSON result). The task therefore remains unfinished.
+T013:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings) or CI integration scripts are present in
-    the provided evidence, so the task of configuring ruff/flake8 and Black has not
-    been demonstrated. The required artifacts are missing.
+  h: ceb7aa02d69b89e7c1a10aaa98e9ecbd7d28255167fdabdfcfd8faa9e8325b08
+  r: "The repository contains a partially shown `parser.py`, but the file is truncated\
+    \ and does not demonstrate writing to `data/logs/exclusion_log.csv` or creating\
+    \ `data/processed/extracted_studies.csv`. Both required output artifacts are missing,\
+    \ so the task\u2019s output requirements are not satisfied."
+T014:
+  c: false
+  h: 879a512788cc41a099841278fd7cf7a5ce85294fda569144b584f7e730339e55
+  r: "The provided `meta_analysis.py` is incomplete (truncated) and does not implement\
+    \ the required gate logic, nor does it use `statsmodels` for the random\u2011\
+    effects model. Moreover, the expected output files `data/processed/meta_status.json`\
+    \ and `data/derived/results_quant.json` are absent. The task therefore remains\
+    \ unfinished."
+T014a:
+  c: false
+  h: d0207a37f8699165f12d6e8b127e435e2e339ca8d6524325d9052a035b8a87f7
+  r: "The `study_counter.py` file is truncated (e.g., `run_study_counter` ends abruptly\
+    \ with \u201Cro\u201D) and does not contain a complete implementation, and the\
+    \ required input CSV (`data/processed/extracted_studies.csv`) and output JSON\
+    \ (`data/processed/study_count.json`) are absent. The task\u2019s core functionality\
+    \ cannot be verified or executed."
+T015:
+  c: false
+  h: 4f2e85e1baaa1517dc4aedb002783f7ed1d3caeaff43357556b7a06c9e22d3c3
+  r: The required input files `data/processed/study_count.json` and `data/processed/extracted_studies.csv`
+    are absent, and the expected output `data/derived/narrative_summary.md` was not
+    created. Moreover, the provided `code/analysis/narrative.py` is truncated and
+    lacks a runnable entry point that reads the inputs and writes the markdown summary.
+    The implementation therefore does not fulfill the task.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,3 +51,10 @@ T018:
     \ empty CSV and outputs a \u201CNo studies found\u201D summary is provided. The\
     \ required artifact is missing, so the zero\u2011studies edge case has not been\
     \ demonstrated as handled."
+T040:
+  c: false
+  h: 700ff3073523883b151d62faa43c6878ac79333e20bab7d3d0d2139d20d41f0c
+  r: The `p_value_converter.py` module exists and contains conversion logic, but the
+    required artifact `data/logs/conversion_log.csv` is not present on disk; the task
+    explicitly demanded that conversion results be logged to this file. Without the
+    log file, the implementation does not satisfy the artifact requirement.

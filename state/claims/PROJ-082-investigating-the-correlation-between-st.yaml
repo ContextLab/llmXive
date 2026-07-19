@@ -156,3 +156,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T07:57:33Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: 'python requirements: pandas, numpy, scipy, statsmodels, matplotlib,
+    seaborn, pyyaml'
+  claim_id: c_3aad8377
+  context: Initialize a Python 3.x project with `requirements.txt` dependencies (pandas,
+    numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize a Python 3.x project with `requirements.txt` dependencies (pandas,
+    numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:38:32Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: study record schema definition
+  claim_id: c_b537ded8
+  context: 'Create `contracts/study_record.schema.yaml`: Define schema for study metadata,
+    tract, r, n, and qualitative descriptors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_record_schema_definition
+  kind: entity_fact
+  raw_text: Define schema for study metadata, tract, r, and n
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:39:42Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: meta analysis result schema definition
+  claim_id: c_7413edb6
+  context: 'Create `contracts/meta_analysis_result.schema.yaml`: Define schema for
+    pooled effect, CI, heterogeneity, and bias metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Meta_analysis_result_schema_definition
+  kind: entity_fact
+  raw_text: Define schema for pooled effect, CI, heterogeneity, and bias metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:40:01Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: checksum utility implementation
+  claim_id: c_72e124f8
+  context: 'Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256
+    for input validation)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checksum_utility_implementation
+  kind: entity_fact
+  raw_text: 'Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256
+    for input validation)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:40:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: weighted mean test precision
+  claim_id: c_b1d28888
+  context: Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py`
+    (verify weighted mean within 0.001 tolerance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify weighted mean within 0.001 tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:40:43Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: i squared precision requirement
+  claim_id: c_1f8dfc3f
+  context: "Implement `code/analysis/heterogeneity.py` I\xB2 calculation. Precision\
+    \ Requirement: The output MUST report the I\xB2 statistic with **exactly two decimal\
+    \ places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I_squared_precision_requirement
+  kind: entity_fact
+  raw_text: "The output MUST report the I\xB2 statistic with **exactly two decimal\
+    \ places**"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:41:03Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: png file size limit
+  claim_id: c_df3ce685
+  context: PNG compression settings (optimize=True, dpi=150) to ensure file size <
+    5MB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Png_file_size_limit
+  kind: entity_fact
+  raw_text: file size < 5MB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:41:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: memory usage monitoring
+  claim_id: c_de2912a6
+  context: wrap plot generation with `tracemalloc` and abort if peak memory exceeds
+    a predefined safe threshold, logging the specific plot causing the overflow.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_monitoring
+  kind: entity_fact
+  raw_text: peak memory exceeds a predefined safe threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T14:41:36Z'

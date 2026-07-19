@@ -3,76 +3,104 @@ import sys
 from pathlib import Path
 from utils.logger import get_logger
 
-def create_directories():
+def create_directories(root_path: Path) -> None:
     """
-    Initialize project directory structure.
-    Creates: code/, tests/, data/, docs/
+    Initialize the project directory structure.
+    
+    Creates the following directories relative to root_path:
+    - code/
+    - tests/
+    - data/ (including subdirectories: raw, processed, derived, config, logs)
+    - docs/
+    
+    Args:
+        root_path: The project root directory path.
     """
     logger = get_logger(__name__)
-    project_root = Path(__file__).resolve().parent.parent
-
+    
+    # Define the directories to create
     directories = [
         "code",
         "tests",
-        "data",
-        "docs"
+        "docs",
+        "data/raw",
+        "data/processed",
+        "data/derived",
+        "data/config",
+        "data/logs",
+        "figures"
     ]
-
-    created_count = 0
+    
     for dir_name in directories:
-        dir_path = project_root / dir_name
+        dir_path = root_path / dir_name
         try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Directory created/verified: {dir_path}")
-            created_count += 1
+            logger.info(f"Directory created: {dir_path}")
         except OSError as e:
             logger.error(f"Failed to create directory {dir_path}: {e}")
             raise
 
-    logger.info(f"Successfully initialized {created_count} project directories.")
-    return created_count
-
-def verify_structure():
+def verify_structure(root_path: Path) -> bool:
     """
-    Verify that the required project directories exist.
+    Verify that the required directory structure exists.
+    
+    Args:
+        root_path: The project root directory path.
+        
+    Returns:
+        True if all required directories exist, False otherwise.
     """
-    logger = get_logger(__name__)
-    project_root = Path(__file__).resolve().parent.parent
-
-    required_dirs = ["code", "tests", "data", "docs"]
-    missing = []
-
+    required_dirs = [
+        "code",
+        "tests",
+        "docs",
+        "data/raw",
+        "data/processed",
+        "data/derived",
+        "data/config",
+        "data/logs",
+        "figures"
+    ]
+    
+    missing_dirs = []
     for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if not dir_path.is_dir():
-            missing.append(dir_name)
-        else:
-            logger.debug(f"Verified existence: {dir_path}")
-
-    if missing:
-        logger.error(f"Missing required directories: {missing}")
+        dir_path = root_path / dir_name
+        if not dir_path.exists() or not dir_path.is_dir():
+            missing_dirs.append(dir_name)
+    
+    if missing_dirs:
+        logger = get_logger(__name__)
+        logger.warning(f"Missing directories: {missing_dirs}")
         return False
-
-    logger.info("Project directory structure verified successfully.")
+    
     return True
 
-def main():
+def main() -> int:
     """
-    Entry point for directory initialization script.
+    Main entry point for directory initialization.
+    
+    Returns:
+        0 on success, 1 on failure.
     """
     logger = get_logger(__name__)
-    logger.info("Starting project directory initialization...")
-
+    logger.info("Starting directory initialization...")
+    
+    # Determine project root (assuming script is in code/ directory)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
     try:
-        create_directories()
-        if verify_structure():
-            logger.info("Initialization complete.")
+        create_directories(project_root)
+        
+        if verify_structure(project_root):
+            logger.info("Directory initialization completed successfully.")
             return 0
         else:
-            logger.error("Verification failed.")
+            logger.error("Directory verification failed.")
             return 1
+            
     except Exception as e:
-        logger.error(f"Initialization failed: {e}")
+        logger.error(f"Error during directory initialization: {e}")
         return 1
 
 if __name__ == "__main__":

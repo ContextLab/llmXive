@@ -1,0 +1,2 @@
+# Docs package initialization
+pass

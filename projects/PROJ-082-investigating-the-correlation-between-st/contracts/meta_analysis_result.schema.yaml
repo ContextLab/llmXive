@@ -1,168 +1,151 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: MetaAnalysisResult
 description: >
-  Schema for the aggregated results of the meta-analysis pipeline.
-  Contains quantitative results, heterogeneity metrics, bias assessment, and narrative summaries.
+  Schema for the final meta-analysis result JSON artifact.
+  Contains pooled effect sizes, confidence intervals, heterogeneity metrics,
+  and bias assessment results.
 type: object
 required:
-  - analysis_id
-  - analysis_timestamp
+  - metadata
+  - pooled_effect
+  - heterogeneity
+  - bias_assessment
   - synthesis_mode
-  - study_count
-  - results
-properties:
-  analysis_id:
-    type: string
-    description: Unique identifier for this analysis run.
-  analysis_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the analysis completion.
-  synthesis_mode:
-    type: string
-    enum:
-      - quantitative
-      - narrative
-      - none
-    description: Mode of synthesis based on study count (N >= 10: quantitative, N < 10: narrative).
-  study_count:
-    type: integer
-    description: Total number of eligible studies included in the analysis.
-    minimum: 0
-  results:
-    type: object
-    description: Container for specific analysis results based on synthesis_mode.
-    properties:
-      quantitative:
-        type: object
-        description: Results when synthesis_mode is 'quantitative'.
-        required:
-          - pooled_effect_size
-          - confidence_interval
-          - heterogeneity
-          - bias_assessment
-        properties:
-          pooled_effect_size:
-            type: object
-            description: Random-effects model results.
-            required:
-              - weighted_mean_r
-              - z_statistic
-              - p_value
-            properties:
-              weighted_mean_r:
-                type: number
-                description: Weighted mean correlation coefficient.
-              z_statistic:
-                type: number
-                description: Z-statistic for the pooled effect.
-              p_value:
-                type: number
-                description: Two-tailed p-value.
-              confidence_interval_95:
-                type: array
-                description: 95% Confidence Interval [lower, upper].
-                items:
-                  type: number
-                minItems: 2
-                maxItems: 2
-          heterogeneity:
-            type: object
-            description: Heterogeneity statistics (I², Q, etc.).
-            required:
-              - i_squared
-              - q_statistic
-              - q_p_value
-            properties:
-              i_squared:
-                type: number
-                description: I² statistic (percentage of variation due to heterogeneity).
-                minimum: 0.0
-                maximum: 100.0
-              q_statistic:
-                type: number
-                description: Cochran's Q statistic.
-              q_p_value:
-                type: number
-                description: P-value for Cochran's Q test.
-              tau_squared:
-                type: number
-                description: Estimated between-study variance (tau²).
-          bias_assessment:
-            type: object
-            description: Results of Egger's regression test.
-            required:
-              - egger_skipped_reason
-            properties:
-              egger_skipped_reason:
-                type: string
-                description: Reason for skipping Egger's test (if applicable).
-              intercept:
-                type: number
-                description: Intercept of Egger's regression.
-              p_value:
-                type: number
-                description: P-value of Egger's regression intercept.
-          correction:
-            type: object
-            description: Multiple comparison correction results.
-            required:
-              - method
-              - adjusted_threshold
-            properties:
-              method:
-                type: string
-                enum:
-                  - bonferroni
-                  - none
-                description: Correction method applied.
-              adjusted_threshold:
-                type: number
-                description: Adjusted significance threshold.
-              limitations:
-                type: string
-                description: Note about limitations of the correction method.
-      narrative:
-        type: object
-        description: Results when synthesis_mode is 'narrative'.
-        required:
-          - overview
-          - themes
-          - limitations
-          - metadata
-        properties:
-          overview:
-            type: string
-            description: Structured study overview text.
-          themes:
-            type: string
-            description: Structured qualitative themes text.
-          limitations:
-            type: string
-            description: Structured limitations text.
-          metadata:
-            type: object
-            description: JSON metadata block for the narrative.
-            required:
-              - study_count
-              - synthesis_mode
-              - timestamp
-            properties:
-              study_count:
-                type: integer
-              synthesis_mode:
-                type: string
-              timestamp:
-                type: string
-                format: date-time
-  input_files:
-    type: array
-    description: List of input files processed.
-    items:
-      type: string
-  processing_log:
-    type: array
-    description: List of processing events/warnings.
-    items:
-      type: string
 additionalProperties: false
+
+properties:
+  metadata:
+    type: object
+    description: Metadata about the analysis run.
+    required:
+      - timestamp
+      - pipeline_version
+      - synthesis_mode
+    additionalProperties: false
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of the analysis execution.
+      pipeline_version:
+        type: string
+        description: Version identifier of the pipeline used.
+      synthesis_mode:
+        type: string
+        enum:
+          - quantitative
+          - narrative
+        description: Indicates whether the result is from a quantitative model or narrative fallback.
+      input_studies_count:
+        type: integer
+        minimum: 0
+        description: Number of studies included in the analysis (N).
+      unique_tracts_count:
+        type: integer
+        minimum: 0
+        description: Number of unique tracts analyzed (k).
+
+  pooled_effect:
+    type: object
+    description: Results of the pooled effect size calculation.
+    required:
+      - weighted_mean_r
+      - ci_lower
+      - ci_upper
+      - model_type
+    additionalProperties: false
+    properties:
+      weighted_mean_r:
+        type: number
+        description: The pooled correlation coefficient (r) after Fisher's z transformation and back-transformation.
+      ci_lower:
+        type: number
+        description: Lower bound of the 95% confidence interval for the pooled r.
+      ci_upper:
+        type: number
+        description: Upper bound of the 95% confidence interval for the pooled r.
+      model_type:
+        type: string
+        enum:
+          - random_effects
+          - fixed_effects
+        description: The statistical model used (Random-Effects is default, Fixed-Effects if fallback).
+      k_studies:
+        type: integer
+        minimum: 1
+        description: Number of studies contributing to the pooled effect.
+
+  heterogeneity:
+    type: object
+    description: Metrics describing the variability between study results.
+    required:
+      - i_squared
+      - q_statistic
+      - q_p_value
+      - tau_squared
+    additionalProperties: false
+    properties:
+      i_squared:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: I² statistic indicating the percentage of variation across studies due to heterogeneity rather than chance. Reported to two decimal places.
+      q_statistic:
+        type: number
+        description: Cochran's Q statistic.
+      q_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value associated with Cochran's Q test.
+      tau_squared:
+        type: number
+        minimum: 0
+        description: Estimated between-study variance (Tau²).
+
+  bias_assessment:
+    type: object
+    description: Results of publication bias and small-study effect tests.
+    required:
+      - egger_test
+      - funnel_plot_symmetry
+    additionalProperties: false
+    properties:
+      egger_test:
+        type: object
+        description: Results of Egger's linear regression test.
+        required:
+          - intercept
+          - p_value
+          - skipped
+          - skip_reason
+        additionalProperties: false
+        properties:
+          intercept:
+            type: number
+            description: Intercept of the Egger's regression line.
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: P-value for the Egger's test intercept.
+          skipped:
+            type: boolean
+            description: True if the test was skipped due to insufficient studies (N < 10).
+          skip_reason:
+            type: string
+            description: Reason for skipping if applicable.
+      funnel_plot_symmetry:
+        type: string
+        enum:
+          - symmetric
+          - asymmetric
+          - inconclusive
+        description: Qualitative assessment of funnel plot symmetry.
+
+  limitations:
+    type: array
+    description: List of limitations or notes regarding the analysis (e.g., Bonferroni conservatism).
+    items:
+      type: string
+    minItems: 0
