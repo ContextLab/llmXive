@@ -34,12 +34,12 @@ Checked artifact: regenerate with `python -m llmxive.model_selection.inventory` 
 |-|-|-|-|-|
 |src/llmxive/backends/dartmouth.py|112|module_constant|_REASONING_MODELS|gpt-oss, qwen3, qwen3.5|
 |src/llmxive/backends/local.py|38|model_id_literal|list_models|Qwen/Qwen2.5-3B-Instruct|
-|src/llmxive/model_selection/policy.py|128|model_id_literal|entries|qwen3.5|
-|src/llmxive/model_selection/policy.py|134|model_id_literal|entries|gemma-4|
-|src/llmxive/model_selection/policy.py|140|model_id_literal|entries|gpt-oss|
-|src/llmxive/model_selection/policy.py|146|model_id_literal|entries|claude-haiku-4-5|
-|src/llmxive/model_selection/policy.py|152|model_id_literal|entries|qwen3-vl|
-|src/llmxive/model_selection/policy.py|158|model_id_literal|entries|qwen2.5|
+|src/llmxive/model_selection/policy.py|133|model_id_literal|entries|qwen3.5|
+|src/llmxive/model_selection/policy.py|139|model_id_literal|entries|gemma-4|
+|src/llmxive/model_selection/policy.py|145|model_id_literal|entries|gpt-oss|
+|src/llmxive/model_selection/policy.py|151|model_id_literal|entries|claude-haiku-4-5|
+|src/llmxive/model_selection/policy.py|157|model_id_literal|entries|qwen3-vl|
+|src/llmxive/model_selection/policy.py|163|model_id_literal|entries|qwen2.5|
 
 ## test_double (315 entries — per-file rollup; see JSON for line detail)
 

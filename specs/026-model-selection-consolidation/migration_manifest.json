@@ -81,7 +81,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 128,
+      "line": 133,
       "models": [
         "qwen3.5"
       ],
@@ -92,7 +92,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 134,
+      "line": 139,
       "models": [
         "gemma-4"
       ],
@@ -103,7 +103,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 140,
+      "line": 145,
       "models": [
         "gpt-oss"
       ],
@@ -114,7 +114,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 146,
+      "line": 151,
       "models": [
         "claude-haiku-4-5"
       ],
@@ -125,7 +125,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 152,
+      "line": 157,
       "models": [
         "qwen3-vl"
       ],
@@ -136,7 +136,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 158,
+      "line": 163,
       "models": [
         "qwen2.5"
       ],
