@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project quantifies the sensitivity loss and computational savings achieved by down-sampling gravitational wave (GW) strain data. The technical approach involves generating non-spinning Binary Black Hole (BBH) waveforms at a high native sampling rate., applying anti-aliasing FIR filters with explicit amplitude correction, and systematically down-sampling to multiple frequencies including, 512, and 256 Hz. These signals are injected into real LIGO/Virgo noise segments from GWOSC. The pipeline computes matched-filter SNR and re-weighted SNR ($\hat{\rho}$) for each injection using resolution-matched template banks and Power Spectral Densities (PSDs). The analysis calculates detection probabilities and profiles CPU/memory usage. Statistical significance of SNR degradation is assessed primarily via the Jonckheere-Terpstra test for monotonic trends, with Welch's t-tests (adjacent pairs only) or Mann-Whitney U tests as secondary checks.
+This project quantifies the sensitivity loss and computational savings achieved by down-sampling gravitational wave (GW) strain data. The technical approach involves generating non-spinning Binary Black Hole (BBH) waveforms at a high native sampling rate., applying anti-aliasing FIR filters with explicit amplitude correction, and systematically down-sampling to multiple frequencies including 256 Hz and other representative rates. These signals are injected into real LIGO/Virgo noise segments from GWOSC. The pipeline computes matched-filter SNR and re-weighted SNR ($\hat{\rho}$) for each injection using resolution-matched template banks and Power Spectral Densities (PSDs). The analysis calculates detection probabilities and profiles CPU/memory usage. Statistical significance of SNR degradation is assessed primarily via the Jonckheere-Terpstra test for monotonic trends, with Welch's t-tests (adjacent pairs only) or Mann-Whitney U tests as secondary checks.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project quantifies the sensitivity loss and computational savings achieved 
 **Project Type**: CLI / Research Pipeline  
 **Performance Goals**: Complete injection/analysis of a statistically powered subset within 6 hours; memory < 6GB.  
 **Constraints**: No GPU acceleration; strict anti-aliasing; statistical power ≥ 0.8 for [deferred] SNR degradation (via pilot); Bonferroni correction for adjacent pairwise comparisons only.
-**Scale/Scope**: resolution levels; component masses in the stellar-mass range (M⊙); distances –500 Mpc; sample size determined by a two-stage pilot study.
+**Scale/Scope**: resolution levels; component masses in the stellar-mass range (M⊙); distances – Mpc; sample size determined by a two-stage pilot study.
 
 > **Compute Feasibility Note**: The plan explicitly avoids GPU dependencies. `pycbc` will be configured to use CPU vectorization only. Data loading is streamed or chunked to respect the available RAM limit.
 

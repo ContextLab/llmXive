@@ -1,111 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Detection Metric Results
-description: >
-  Schema for detection metric results computed after signal injection and matched filtering.
-  Contains SNR values, re-weighted SNR, detection decisions, and resource metrics.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Detection Metric Aggregation
+description: Schema for aggregated detection probability metrics per resolution level.
 type: object
 required:
-  - injection_id
+  - p_value
+  - method
+  - detection_probability
   - resolution
-  - matched_filter_snr
-  - reweighted_snr
-  - detection_decision
-  - chi2
-  - degrees_of_freedom
-  - psd_estimation_method
-  - template_bank_id
+  - n_injections
 properties:
-  injection_id:
+  p_value:
+    type: number
+    description: Statistical p-value from the hypothesis test (e.g., Welch's t-test).
+    minimum: 0
+    maximum: 1
+  method:
     type: string
-    description: Reference to the injection realization
-    pattern: "^inj_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: Name of the statistical method used for the test (e.g., "Welch t-test", "Mann-Whitney U").
+    enum:
+      - "Welch t-test"
+      - "Mann-Whitney U"
+      - "Jonckheere-Terpstra"
+      - "Linear Regression"
+  detection_probability:
+    type: number
+    description: Fraction of injections where re_weighted_snr > 8.
+    minimum: 0
+    maximum: 1
   resolution:
     type: integer
-    description: Sampling rate of the data used for matched filtering
-    enum: [4096, 2048, 1024, 512, 256]
-  matched_filter_snr:
-    type: number
-    description: Raw matched-filter signal-to-noise ratio
-    minimum: 0
-  reweighted_snr:
-    type: number
-    description: Re-weighted SNR (rho-hat) accounting for chi2 consistency
-    minimum: 0
-  detection_decision:
-    type: boolean
-    description: Whether the injection was detected (reweighted_snr > threshold)
-  detection_threshold:
-    type: number
-    description: Threshold used for detection decision (default 8.0)
-    enum: [8.0]
-  chi2:
-    type: number
-    description: Chi-squared consistency test value
-    minimum: 0
-  degrees_of_freedom:
-    type: integer
-    description: Degrees of freedom for chi-squared test
+    description: Sampling frequency in Hz for this aggregated metric.
     minimum: 1
-    enum: [16]
-  chi2_bins:
+  n_injections:
     type: integer
-    description: Number of frequency bins used for chi-squared test
+    description: Total number of injections included in this aggregation.
     minimum: 1
-    enum: [16]
-  psd_estimation_method:
-    type: string
-    description: Method used for PSD estimation
-    enum: ["Welch", "Median"]
-  psd_segment_duration:
-    type: number
-    description: Duration of segments used for PSD estimation in seconds
-    minimum: 0.1
-  template_bank_id:
-    type: string
-    description: Identifier for the resolution-matched template bank
-    pattern: "^bank_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-  template_bank_params:
-    type: object
-    description: Parameters of the template bank used
-    required:
-      - min_mass
-      - max_mass
-      - mass_step
-      - snr_threshold
-    properties:
-      min_mass:
-        type: number
-        description: Minimum component mass in solar masses
-      max_mass:
-        type: number
-        description: Maximum component mass in solar masses
-      mass_step:
-        type: number
-        description: Mass step size in solar masses
-      snr_threshold:
-        type: number
-        description: SNR threshold for template bank generation
-  resource_metrics:
-    type: object
-    description: Resource usage metrics for this injection
-    required:
-      - cpu_time_seconds
-      - peak_memory_mb
-    properties:
-      cpu_time_seconds:
-        type: number
-        description: CPU time consumed in seconds
-        minimum: 0
-      peak_memory_mb:
-        type: number
-        description: Peak memory usage in megabytes
-        minimum: 0
-      wall_clock_seconds:
-        type: number
-        description: Wall clock time in seconds
-        minimum: 0
-  analysis_timestamp:
+  comparison_resolution:
+    type: integer
+    description: The resolution level this metric is being compared against (for pairwise tests).
+    optional: true
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: 95% confidence interval [lower, upper] for the detection probability.
+    optional: true
+  timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp when analysis was performed
+    description: Timestamp of the analysis run.
+    optional: true
 additionalProperties: false

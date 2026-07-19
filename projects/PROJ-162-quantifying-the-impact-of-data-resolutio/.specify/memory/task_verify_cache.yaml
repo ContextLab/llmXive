@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or file list showing the required folders (`src`, `tests`,\
+    \ `data/raw`, `data/processed`, `data/profiling`, `contracts`, `state`) was provided;\
+    \ therefore the claimed creation of the project structure cannot be verified.\
+    \ The implementer must supply evidence (e.g., a directory listing or screenshots)\
+    \ that these directories exist and are non\u2011empty where appropriate."
 T010:
   c: false
   h: e50b2305939213a7f6baf86a4c02fb249ac622a09137c751ee88008375141295

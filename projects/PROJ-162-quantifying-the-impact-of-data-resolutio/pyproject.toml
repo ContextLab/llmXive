@@ -1,31 +1,58 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantifying-the-impact-of-data-resolution"
+version = "0.1.0"
+description = "Quantifying the impact of data resolution on gravitational wave signal detection"
+requires-python = ">=3.10"
+dependencies = [
+    "pycbc",
+    "scipy",
+    "numpy",
+    "pandas",
+    "gwosc",
+    "pytest",
+    "memory-profiler",
+    "scikit-learn",
+    "statsmodels",
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.bzr
+    | \.direnv
+    | \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
+    | \.nox
+    | \.pants.d
+    | \.ruff_cache
+    | \.svn
     | \.tox
     | \.venv
+    | __pypackages__
     | _build
     | buck-out
     | build
     | dist
+    | node_modules
+    | venv
 )/
 '''
 
-[tool.ruff]
-line-length = 100
-target-version = "py310"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E203", "E501", "W503"]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.setuptools]
+packages = ["src", "scripts", "tests"]

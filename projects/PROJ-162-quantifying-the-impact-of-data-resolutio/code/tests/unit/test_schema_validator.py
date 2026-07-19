@@ -1,6 +1,7 @@
 """
-Unit tests for the schema validator module.
+Unit tests for src/schema_validator.py
 """
+
 import json
 import os
 import tempfile
@@ -8,205 +9,198 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+# Adjust import path based on project structure
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
 from src.schema_validator import (
+    validate_json,
+    validate_file,
     SchemaValidationError,
-    SchemaValidator,
-    get_validator,
-    validate_data,
-    validate_and_save
+    _load_schema
 )
-from src.config import get_contract_path
 
 
 class TestSchemaValidator:
-    """Tests for the SchemaValidator class."""
+    """Tests for schema validation logic."""
 
-    def test_schema_not_found(self):
-        """Test that SchemaValidationError is raised when schema file doesn't exist."""
-        with pytest.raises(SchemaValidationError, match="Schema file not found"):
-            SchemaValidator("nonexistent_schema")
+    def test_valid_json_against_schema(self):
+        """Test that valid data passes validation."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "value": {"type": "number"}
+            },
+            "required": ["id", "value"]
+        }
 
-    def test_valid_json_schema(self):
-        """Test loading a valid JSON schema."""
-        # Create a temporary schema file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            schema_path = Path(tmpdir) / "test_schema.json"
-            schema_content = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "age": {"type": "integer"}
-                },
-                "required": ["name"]
+        valid_data = {"id": "test-123", "value": 42.5}
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(schema, f)
+            schema_path = f.name
+
+        try:
+            result = validate_json(valid_data, schema_path)
+            assert result is True
+        finally:
+            os.unlink(schema_path)
+
+    def test_invalid_json_missing_required_field(self):
+        """Test that data missing a required field fails."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"}
+            },
+            "required": ["id"]
+        }
+
+        invalid_data = {"other_field": "value"}
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(schema, f)
+            schema_path = f.name
+
+        try:
+            with pytest.raises(SchemaValidationError):
+                validate_json(invalid_data, schema_path)
+        finally:
+            os.unlink(schema_path)
+
+    def test_invalid_json_wrong_type(self):
+        """Test that data with wrong type fails."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "count": {"type": "integer"}
             }
+        }
 
-            with open(schema_path, 'w') as f:
-                json.dump(schema_content, f)
+        invalid_data = {"count": "not_an_integer"}
 
-            # Mock get_contract_path to return our temp file
-            with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-                validator = SchemaValidator("test_schema")
-                assert validator.schema == schema_content
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(schema, f)
+            schema_path = f.name
 
-    def test_validate_valid_data(self):
-        """Test validation of data that conforms to schema."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            schema_path = Path(tmpdir) / "test_schema.json"
-            schema_content = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "age": {"type": "integer"}
-                },
-                "required": ["name"]
+        try:
+            with pytest.raises(SchemaValidationError):
+                validate_json(invalid_data, schema_path)
+        finally:
+            os.unlink(schema_path)
+
+    def test_load_yaml_schema(self):
+        """Test loading a schema from a YAML file."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"}
             }
+        }
 
-            with open(schema_path, 'w') as f:
-                json.dump(schema_content, f)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            import yaml
+            yaml.dump(schema, f)
+            schema_path = f.name
 
-            with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-                validator = SchemaValidator("test_schema")
-                valid_data = {"name": "John", "age": 30}
-                assert validator.validate(valid_data) is True
+        try:
+            loaded = _load_schema(schema_path)
+            assert loaded == schema
+        finally:
+            os.unlink(schema_path)
 
-    def test_validate_invalid_data(self):
-        """Test validation of data that violates schema."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            schema_path = Path(tmpdir) / "test_schema.json"
-            schema_content = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"},
-                    "age": {"type": "integer"}
-                },
-                "required": ["name"]
-            }
+    def test_file_not_found_schema(self):
+        """Test error when schema file is missing."""
+        with pytest.raises(FileNotFoundError):
+            _load_schema("/nonexistent/path/schema.json")
 
-            with open(schema_path, 'w') as f:
-                json.dump(schema_content, f)
+    def test_file_not_found_data(self):
+        """Test error when data file is missing."""
+        schema = {"type": "object"}
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(schema, f)
+            schema_path = f.name
 
-            with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-                validator = SchemaValidator("test_schema")
-                # Missing required 'name' field
-                invalid_data = {"age": 30}
-                with pytest.raises(SchemaValidationError, match="Schema validation failed"):
-                    validator.validate(invalid_data)
+        try:
+            with pytest.raises(FileNotFoundError):
+                validate_file("/nonexistent/data.json", schema_path)
+        finally:
+            os.unlink(schema_path)
 
-    def test_validate_list_of_records(self):
-        """Test validation of a list of records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            schema_path = Path(tmpdir) / "test_schema.json"
-            schema_content = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"}
-                },
-                "required": ["name"]
-            }
+    def test_validate_file_json(self):
+        """Test validate_file with a JSON data file."""
+        schema = {
+            "type": "object",
+            "properties": {"status": {"type": "string"}},
+            "required": ["status"]
+        }
+        data = {"status": "ok"}
 
-            with open(schema_path, 'w') as f:
-                json.dump(schema_content, f)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as sf:
+            json.dump(schema, sf)
+            schema_path = sf.name
 
-            with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-                validator = SchemaValidator("test_schema")
-                valid_data = [
-                    {"name": "John"},
-                    {"name": "Jane"}
-                ]
-                assert validator.validate(valid_data) is True
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as df:
+            json.dump(data, df)
+            data_path = df.name
 
-    def test_validate_list_with_invalid_record(self):
-        """Test validation fails if any record in list is invalid."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            schema_path = Path(tmpdir) / "test_schema.json"
-            schema_content = {
-                "type": "object",
-                "properties": {
-                    "name": {"type": "string"}
-                },
-                "required": ["name"]
-            }
+        try:
+            assert validate_file(data_path, schema_path) is True
+        finally:
+            os.unlink(schema_path)
+            os.unlink(data_path)
 
-            with open(schema_path, 'w') as f:
-                json.dump(schema_content, f)
+    def test_validate_file_yaml(self):
+        """Test validate_file with a YAML data file."""
+        schema = {
+            "type": "object",
+            "properties": {"active": {"type": "boolean"}},
+            "required": ["active"]
+        }
+        data = {"active": True}
 
-            with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-                validator = SchemaValidator("test_schema")
-                # One record missing 'name'
-                invalid_data = [
-                    {"name": "John"},
-                    {"age": 30}
-                ]
-                with pytest.raises(SchemaValidationError, match="Schema validation failed"):
-                    validator.validate(invalid_data)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as sf:
+            json.dump(schema, sf)
+            schema_path = sf.name
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as df:
+            import yaml
+            yaml.dump(data, df)
+            data_path = df.name
+
+        try:
+            assert validate_file(data_path, schema_path) is True
+        finally:
+            os.unlink(schema_path)
+            os.unlink(data_path)
 
 
 def test_convenience_functions():
-    """Test the convenience functions get_validator, validate_data, validate_and_save."""
+    """Integration test for the public API."""
+    schema = {
+        "type": "object",
+        "properties": {
+            "resolution": {"type": "integer", "minimum": 100},
+            "snr": {"type": "number"}
+        },
+        "required": ["resolution", "snr"]
+    }
 
-    # Test get_validator
-    with tempfile.TemporaryDirectory() as tmpdir:
-        schema_path = Path(tmpdir) / "test_schema.json"
-        schema_content = {
-            "type": "object",
-            "properties": {
-                "value": {"type": "number"}
-            },
-            "required": ["value"]
-        }
+    valid_data = {"resolution": 1024, "snr": 8.5}
+    invalid_data = {"resolution": "high", "snr": 8.5}
 
-        with open(schema_path, 'w') as f:
-            json.dump(schema_content, f)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(schema, f)
+        schema_path = f.name
 
-        with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-            # Test get_validator
-            validator = get_validator("test_schema")
-            assert isinstance(validator, SchemaValidator)
+    try:
+        # Test valid
+        assert validate_json(valid_data, schema_path) is True
 
-            # Test validate_data
-            assert validate_data({"value": 42}, "test_schema") is True
-            with pytest.raises(SchemaValidationError):
-                validate_data({"value": "not_a_number"}, "test_schema")
+        # Test invalid
+        with pytest.raises(SchemaValidationError):
+            validate_json(invalid_data, schema_path)
 
-            # Test validate_and_save
-            output_path = Path(tmpdir) / "output.json"
-            result_path = validate_and_save(
-                {"value": 100},
-                output_path,
-                "test_schema"
-            )
-            assert result_path.exists()
-            assert result_path == output_path
-
-            # Verify content
-            with open(result_path, 'r') as f:
-                saved_data = json.load(f)
-            assert saved_data == {"value": 100}
-
-    # Test validate_and_save with CSV
-    with tempfile.TemporaryDirectory() as tmpdir:
-        schema_path = Path(tmpdir) / "test_schema.json"
-        schema_content = {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "value": {"type": "number"}
-            },
-            "required": ["name", "value"]
-        }
-
-        with open(schema_path, 'w') as f:
-            json.dump(schema_content, f)
-
-        with patch('src.schema_validator.get_contract_path', return_value=schema_path):
-            output_path = Path(tmpdir) / "output.csv"
-            result_path = validate_and_save(
-                [
-                    {"name": "Item1", "value": 10},
-                    {"name": "Item2", "value": 20}
-                ],
-                output_path,
-                "test_schema"
-            )
-            assert result_path.exists()
-            assert result_path.suffix == '.csv'
+    finally:
+        os.unlink(schema_path)

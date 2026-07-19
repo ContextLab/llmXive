@@ -1,284 +1,300 @@
 """
-Resource profiling module for monitoring memory and CPU usage.
+Memory and CPU profiling utilities for the gravitational wave analysis pipeline.
 
-Implements FR-006: Memory monitoring (hard limit) and wall-clock tracking.
+Implements FR-006: Hard memory limit enforcement with logging and abort mechanisms.
 """
 import os
 import sys
 import time
-import resource
 import json
 import threading
+import resource
+import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, Callable, TypeVar, Union
+from typing import Optional, Callable, Dict, Any, List
 from dataclasses import dataclass, asdict
 from contextlib import contextmanager
 
-# Unit conversion constants
-MB = 1024 * 1024
-KB = 1024
+# Configure logging for profiling events
+PROFILER_LOGGER = logging.getLogger("llmXive.profiler")
+if not PROFILER_LOGGER.handlers:
+    handler = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    PROFILER_LOGGER.addHandler(handler)
+    PROFILER_LOGGER.setLevel(logging.INFO)
+
+# Project paths relative to root
+# We assume this file is at code/src/profiler.py, so data/ is at ../../data/
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_PROFILING_DIR = _PROJECT_ROOT / "data" / "profiling"
+_MEMORY_ERROR_LOG = _PROFILING_DIR / "memory_error.log"
+
+# Hard memory limit in GB (FR-006 requirement)
+MEMORY_LIMIT_GB = 6.0
+MEMORY_LIMIT_BYTES = int(MEMORY_LIMIT_GB * 1024 ** 3)
 
 class ProfilerError(Exception):
     """Base exception for profiler errors."""
     pass
 
 class MemoryLimitExceededError(ProfilerError):
-    """Raised when memory usage exceeds the configured hard limit."""
-    pass
+    """Raised when memory usage exceeds the hard limit."""
+    def __init__(self, current_mb: float, limit_mb: float):
+        self.current_mb = current_mb
+        self.limit_mb = limit_mb
+        super().__init__(
+            f"Memory limit exceeded: {current_mb:.2f} MB > {limit_mb:.2f} MB"
+        )
 
 @dataclass
 class ResourceMetrics:
     """Container for resource usage metrics."""
-    wall_clock_seconds: float
-    cpu_user_seconds: float
-    cpu_system_seconds: float
     peak_memory_mb: float
-    memory_limit_mb: Optional[float] = None
-    exceeded_limit: bool = False
-    timestamp: float = 0.0
-    block_name: Optional[str] = None
+    current_memory_mb: float
+    cpu_time_seconds: float
+    timestamp: str
+    batch_id: Optional[str] = None
+    error_message: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert metrics to dictionary for JSON serialization."""
         return asdict(self)
 
 class Profiler:
     """
-    Context manager and utility class for profiling code blocks and functions.
-    
-    Tracks wall-clock time, CPU usage, and memory consumption with optional
-    hard memory limits.
+    Context manager and utility class for monitoring resource usage.
+    Enforces hard memory limits and logs violations.
     """
-    
-    def __init__(self, memory_limit_mb: Optional[float] = None, 
-                 output_path: Optional[Union[str, Path]] = None):
-        """
-        Initialize the profiler.
-        
-        Args:
-            memory_limit_mb: Hard memory limit in MB. If exceeded, raises MemoryLimitExceededError.
-            output_path: Optional path to write metrics JSON after profiling.
-        """
-        self.memory_limit_mb = memory_limit_mb
-        self.output_path = Path(output_path) if output_path else None
-        self._start_time: float = 0.0
-        self._start_cpu_user: float = 0.0
-        self._start_cpu_sys: float = 0.0
-        self._peak_memory: float = 0.0
-        self._active: bool = False
-        self._lock = threading.Lock()
 
-    def _get_peak_memory_mb(self) -> float:
-        """
-        Get the peak memory usage of the current process in MB.
-        
-        Uses resource.getrusage for cross-platform compatibility.
-        """
-        # getrusage returns memory in KB on most Unix systems, bytes on macOS
+    def __init__(self, batch_id: Optional[str] = None, limit_gb: float = MEMORY_LIMIT_GB):
+        self.batch_id = batch_id
+        self.limit_bytes = int(limit_gb * 1024 ** 3)
+        self.limit_mb = limit_gb
+        self.start_time: Optional[float] = None
+        self.start_memory: float = 0.0
+        self.peak_memory: float = 0.0
+        self._monitoring = False
+        self._monitor_thread: Optional[threading.Thread] = None
+        self._stop_monitoring = threading.Event()
+
+    def _get_current_memory_mb(self) -> float:
+        """Get current process memory usage in MB."""
         usage = resource.getrusage(resource.RUSAGE_SELF)
-        mem_kb = usage.ru_maxrss
-        
-        # Handle platform differences: macOS reports in bytes, Linux in KB
-        if sys.platform == 'darwin':
-            return mem_kb / MB
+        # ru_maxrss is in KB on Linux, bytes on macOS. Detect platform.
+        if sys.platform == "darwin":
+            return usage.ru_maxrss / (1024 * 1024)
         else:
-            return mem_kb / KB
+            return usage.ru_maxrss / 1024.0
 
-    def start(self) -> None:
-        """Start profiling."""
-        with self._lock:
-            if self._active:
-                raise ProfilerError("Profiler is already active")
+    def _monitor_loop(self):
+        """Background thread to monitor memory usage periodically."""
+        while not self._stop_monitoring.is_set():
+            current_mb = self._get_current_memory_mb()
+            if current_mb > self.peak_memory:
+                self.peak_memory = current_mb
             
-            self._start_time = time.perf_counter()
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            self._start_cpu_user = usage.ru_utime
-            self._start_cpu_sys = usage.ru_stime
-            self._peak_memory = self._get_peak_memory_mb()
-            self._active = True
+            if current_mb > self.limit_mb:
+                self._handle_limit_exceeded(current_mb)
+                break
+            time.sleep(0.1)  # Check every 100ms
 
-    def stop(self, block_name: Optional[str] = None) -> ResourceMetrics:
-        """
-        Stop profiling and return metrics.
+    def _handle_limit_exceeded(self, current_mb: float):
+        """Handle memory limit violation: log, record, and raise."""
+        self._stop_monitoring.set()
+        if self._monitor_thread:
+            self._monitor_thread.join(timeout=1.0)
         
-        Args:
-            block_name: Optional name for the profiled block.
+        # Ensure profiling directory exists
+        _PROFILING_DIR.mkdir(parents=True, exist_ok=True)
         
-        Returns:
-            ResourceMetrics containing the measured values.
+        error_msg = f"BATCH {self.batch_id}: Memory limit exceeded. Peak: {current_mb:.2f} MB. Limit: {self.limit_mb:.2f} MB. Timestamp: {time.strftime('%Y-%m-%dT%H:%M:%S')}"
         
-        Raises:
-            ProfilerError: If profiler was not started.
-        """
-        with self._lock:
-            if not self._active:
-                raise ProfilerError("Profiler was not started")
-            
-            end_time = time.perf_counter()
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            
-            wall_clock = end_time - self._start_time
-            cpu_user = usage.ru_utime - self._start_cpu_user
-            cpu_sys = usage.ru_stime - self._start_cpu_sys
-            current_peak = self._get_peak_memory_mb()
-            peak_memory = max(self._peak_memory, current_peak)
-            
-            exceeded = False
-            if self.memory_limit_mb is not None and peak_memory > self.memory_limit_mb:
-                exceeded = True
-                raise MemoryLimitExceededError(
-                    f"Memory limit exceeded: {peak_memory:.2f} MB > {self.memory_limit_mb} MB"
-                )
-            
-            metrics = ResourceMetrics(
-                wall_clock_seconds=round(wall_clock, 4),
-                cpu_user_seconds=round(cpu_user, 4),
-                cpu_system_seconds=round(cpu_sys, 4),
-                peak_memory_mb=round(peak_memory, 2),
-                memory_limit_mb=self.memory_limit_mb,
-                exceeded_limit=exceeded,
-                timestamp=time.time(),
-                block_name=block_name
-            )
-            
-            self._active = False
-            
-            if self.output_path:
-                self._save_metrics(metrics)
-            
-            return metrics
+        # Write detailed log to memory_error.log
+        try:
+            with open(_MEMORY_ERROR_LOG, "a") as f:
+                f.write(f"{error_msg}\n")
+                f.write("-" * 80 + "\n")
+                # Dump additional context if available
+                f.write(f"Peak memory recorded: {self.peak_memory:.2f} MB\n")
+                f.write(f"Current process ID: {os.getpid()}\n")
+                f.write("-" * 80 + "\n\n")
+        except IOError as e:
+            PROFILER_LOGGER.error(f"Failed to write memory error log: {e}")
+        
+        PROFILER_LOGGER.critical(error_msg)
+        raise MemoryLimitExceededError(current_mb, self.limit_mb)
 
-    def _save_metrics(self, metrics: ResourceMetrics) -> None:
-        """Save metrics to the configured output path."""
-        self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.output_path, 'w') as f:
-            json.dump(metrics.to_dict(), f, indent=2)
+    def start(self):
+        """Start memory monitoring."""
+        self.start_time = time.time()
+        self.start_memory = self._get_current_memory_mb()
+        self.peak_memory = self.start_memory
+        self._stop_monitoring.clear()
+        self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self._monitor_thread.start()
+        self._monitoring = True
+        PROFILER_LOGGER.info(f"Profiler started for batch {self.batch_id}. Limit: {self.limit_mb:.2f} MB")
 
-    def __enter__(self) -> 'Profiler':
-        self.start()
-        return self
+    def stop(self) -> ResourceMetrics:
+        """Stop monitoring and return metrics."""
+        if self._monitoring:
+            self._stop_monitoring.set()
+            if self._monitor_thread:
+                self._monitor_thread.join(timeout=1.0)
+            self._monitoring = False
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        if exc_type is None:
-            self.stop()
-        # If an exception occurred (other than MemoryLimitExceededError),
-        # we still want to stop cleanly if possible, but don't overwrite the exception
-        elif exc_type is not MemoryLimitExceededError:
-            try:
-                self.stop()
-            except ProfilerError:
-                pass
+        current_mb = self._get_current_memory_mb()
+        if current_mb > self.peak_memory:
+            self.peak_memory = current_mb
 
-@contextmanager
-def profile_block(name: str, memory_limit_mb: Optional[float] = None):
+        cpu_time = time.time() - (self.start_time or time.time())
+        
+        metrics = ResourceMetrics(
+            peak_memory_mb=self.peak_memory,
+            current_memory_mb=current_mb,
+            cpu_time_seconds=cpu_time,
+            timestamp=time.strftime("%Y-%m-%dT%H:%M:%S"),
+            batch_id=self.batch_id
+        )
+        
+        PROFILER_LOGGER.info(
+            f"Profiler stopped. Batch {self.batch_id}: Peak {self.peak_memory:.2f} MB, "
+            f"Current {current_mb:.2f} MB, CPU {cpu_time:.2f}s"
+        )
+        return metrics
+
+    @contextmanager
+    def __call__(self, batch_id: Optional[str] = None):
+        """Context manager usage: with profiler() as p: ..."""
+        ctx_batch_id = batch_id or self.batch_id
+        p = Profiler(batch_id=ctx_batch_id, limit_gb=self.limit_mb / 1024 ** 3 * 1024 ** 3) # Keep same limit
+        p.start()
+        try:
+            yield p
+        finally:
+            p.stop()
+
+def get_peak_memory_mb() -> float:
+    """Get the current peak memory usage for the process in MB."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    if sys.platform == "darwin":
+        return usage.ru_maxrss / (1024 * 1024)
+    else:
+        return usage.ru_maxrss / 1024.0
+
+def check_memory_limit(limit_mb: float = MEMORY_LIMIT_GB * 1024) -> None:
     """
-    Context manager to profile a specific code block.
-    
-    Args:
-        name: Identifier for the block being profiled.
-        memory_limit_mb: Optional hard memory limit for this block.
-    
-    Yields:
-        None
-    
-    Raises:
-        MemoryLimitExceededError: If memory limit is exceeded.
-    
-    Usage:
-        with profile_block("data_processing", memory_limit_mb=4096):
-            heavy_computation()
-    """
-    profiler = Profiler(memory_limit_mb=memory_limit_mb)
-    profiler.start()
-    try:
-        yield
-    finally:
-        profiler.stop(block_name=name)
-
-def profile_function(memory_limit_mb: Optional[float] = None):
-    """
-    Decorator to profile a function's resource usage.
-    
-    Args:
-        memory_limit_mb: Optional hard memory limit for the function execution.
-    
-    Returns:
-        Decorated function that returns the function's result and prints metrics.
-    
-    Usage:
-        @profile_function(memory_limit_mb=2048)
-        def my_function():
-            return result
-    """
-    def decorator(func: Callable) -> Callable:
-        def wrapper(*args, **kwargs):
-            profiler = Profiler(memory_limit_mb=memory_limit_mb)
-            profiler.start()
-            try:
-                result = func(*args, **kwargs)
-                metrics = profiler.stop(block_name=func.__name__)
-                print(f"Profiled '{func.__name__}': "
-                      f"Wall={metrics.wall_clock_seconds:.3f}s, "
-                      f"CPU={metrics.cpu_user_seconds + metrics.cpu_system_seconds:.3f}s, "
-                      f"PeakMem={metrics.peak_memory_mb:.2f}MB")
-                return result
-            except MemoryLimitExceededError:
-                raise
-        return wrapper
-    return decorator
-
-def check_memory_limit(limit_mb: float) -> None:
-    """
-    Check if current memory usage exceeds a limit.
-    
-    Args:
-        limit_mb: Memory limit in MB.
-    
-    Raises:
-        MemoryLimitExceededError: If limit is exceeded.
+    Check if current memory usage exceeds the limit.
+    Raises MemoryLimitExceededError if violated.
     """
     current = get_peak_memory_mb()
     if current > limit_mb:
-        raise MemoryLimitExceededError(
-            f"Memory limit exceeded: {current:.2f} MB > {limit_mb} MB"
+        # Ensure directory exists before logging
+        _PROFILING_DIR.mkdir(parents=True, exist_ok=True)
+        error_msg = f"Memory limit exceeded: {current:.2f} MB > {limit_mb:.2f} MB"
+        try:
+            with open(_MEMORY_ERROR_LOG, "a") as f:
+                f.write(f"{error_msg} (Check called at {time.strftime('%Y-%m-%dT%H:%M:%S')})\n")
+        except IOError:
+            pass
+        raise MemoryLimitExceededError(current, limit_mb)
+
+@contextmanager
+def profile_block(block_name: str, limit_mb: float = MEMORY_LIMIT_GB * 1024):
+    """
+    Context manager to profile a specific code block.
+    Checks memory limit at entry and exit.
+    """
+    start_mem = get_peak_memory_mb()
+    start_time = time.time()
+    PROFILER_LOGGER.debug(f"Entering block: {block_name}, Start Mem: {start_mem:.2f} MB")
+    try:
+        yield
+    finally:
+        end_mem = get_peak_memory_mb()
+        elapsed = time.time() - start_time
+        PROFILER_LOGGER.debug(
+            f"Exited block: {block_name}, End Mem: {end_mem:.2f} MB, "
+            f"Delta: {end_mem - start_mem:.2f} MB, Time: {elapsed:.3f}s"
         )
+        check_memory_limit(limit_mb)
 
-def get_peak_memory_mb() -> float:
+@contextmanager
+def profile_function(func: Callable, limit_mb: float = MEMORY_LIMIT_GB * 1024):
     """
-    Get the current peak memory usage of the process in MB.
-    
-    Returns:
-        Peak memory usage in MB.
+    Decorator-like context manager to profile a function call.
     """
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    mem_kb = usage.ru_maxrss
-    
-    if sys.platform == 'darwin':
-        return mem_kb / MB
-    else:
-        return mem_kb / KB
+    start_mem = get_peak_memory_mb()
+    start_time = time.time()
+    func_name = func.__name__
+    try:
+        result = func()
+        return result
+    finally:
+        end_mem = get_peak_memory_mb()
+        elapsed = time.time() - start_time
+        PROFILER_LOGGER.info(
+            f"Function {func_name} completed. Peak Mem: {end_mem:.2f} MB, "
+            f"Duration: {elapsed:.3f}s"
+        )
+        check_memory_limit(limit_mb)
 
-def profile(func: Callable) -> Callable:
-    """
-    Simple decorator to profile a function and return metrics.
-    
-    Returns a tuple of (result, metrics_dict).
-    
-    Usage:
-        @profile
-        def my_func():
-            return 42
-        
-        result, metrics = my_func()
-    """
+def profile(func: Callable, limit_mb: float = MEMORY_LIMIT_GB * 1024) -> Callable:
+    """Decorator to profile a function with memory limit enforcement."""
     def wrapper(*args, **kwargs):
-        profiler = Profiler()
-        profiler.start()
+        start_mem = get_peak_memory_mb()
+        start_time = time.time()
         try:
             result = func(*args, **kwargs)
-            metrics = profiler.stop(block_name=func.__name__)
-            return result, metrics.to_dict()
-        except Exception as e:
-            profiler.stop(block_name=func.__name__)
-            raise
+            return result
+        finally:
+            end_mem = get_peak_memory_mb()
+            elapsed = time.time() - start_time
+            PROFILER_LOGGER.info(
+                f"Function {func.__name__} executed. Peak Mem: {end_mem:.2f} MB, "
+                f"Duration: {elapsed:.3f}s"
+            )
+            check_memory_limit(limit_mb)
     return wrapper
+
+def main():
+    """CLI entry point for basic profiler testing."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Memory Profiler CLI")
+    parser.add_argument("--limit", type=float, default=MEMORY_LIMIT_GB, help="Memory limit in GB")
+    parser.add_argument("--batch", type=str, default=None, help="Batch ID for logging")
+    args = parser.parse_args()
+
+    try:
+        profiler = Profiler(batch_id=args.batch, limit_gb=args.limit)
+        with profiler():
+            # Simulate some work
+            data = []
+            for i in range(1000000):
+                data.append([i] * 100)
+            # Force garbage collection to see real peak
+            import gc
+            gc.collect()
+            
+            metrics = profiler.stop()
+            print(f"Profiling complete. Peak Memory: {metrics.peak_memory_mb:.2f} MB")
+            print(f"CPU Time: {metrics.cpu_time_seconds:.2f} s")
+            
+            # Save metrics to a file for verification
+            metrics_path = _PROFILING_DIR / "last_run_metrics.json"
+            with open(metrics_path, "w") as f:
+                json.dump(metrics.to_dict(), f, indent=2)
+            print(f"Metrics saved to {metrics_path}")
+            
+    except MemoryLimitExceededError as e:
+        print(f"FATAL: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
