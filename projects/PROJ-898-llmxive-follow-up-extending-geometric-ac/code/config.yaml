@@ -1,0 +1,36 @@
+# Experiment Configuration for llmXive Geometric Action Model Extension
+# Generated for task T007a
+
+# Topology generation parameters
+topology_counts:
+  min_hinges: 2
+  max_hinges: 8
+  min_deformable_segments: 3
+  max_deformable_segments: 15
+  chain_variations: 5
+  deformable_variations: 5
+
+# Execution limits
+timeout_limits:
+  solver_step_seconds: 300
+  total_trial_seconds: 3600
+  simulation_step_seconds: 5
+
+# Randomness control
+seed: 42
+
+# Experiment scale
+trial_count: 50
+
+# Hardware constraints (FR-004)
+hardware:
+  cpu_only: true
+  max_cores: 2
+  memory_limit_gb: 7
+
+# Paths
+paths:
+  raw_data: "data/raw"
+  generated_data: "data/generated"
+  results: "data/results"
+  baseline_metadata: "data/raw/gam_baseline_metadata.json"

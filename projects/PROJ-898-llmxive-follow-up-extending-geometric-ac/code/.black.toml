@@ -1,0 +1,23 @@
+# Black configuration for llmXive project
+# Enforces consistent code formatting
+
+# Target line length (matches Ruff setting)
+line-length = 88
+
+# Python version target
+target-version = ["py311"]
+
+# Skip magic trailing comma (optional, can be enabled if preferred)
+# skip-magic-trailing-comma = false
+
+# Exclude generated or third-party directories
+exclude = '''
+(
+  \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+  | __pycache__
+)
+'''

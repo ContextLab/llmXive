@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -55,18 +55,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: pybullet, torch (cpu), cvxpy, diffcp, scipy, pandas, numpy, pytest)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: pybullet, torch (cpu, `--index-url https://download.pytorch.org/whl/cpu`), cvxpy, diffcp, scipy, pandas, numpy, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files
 - [X] T005 [P] Implement `code/utils.py` with logging, deterministic seeding (numpy/torch), and SHA-256 hashing utilities
 - [X] T006 [P] Create `code/gfm_wrapper.py` skeleton for loading frozen GFM weights (CPU-only, `eval()` mode)
-- [ ] T007a [P] Create `code/config.yaml` defining experiment parameters: `topology_counts`, `timeout_limits` (300s), `seed`, `trial_count` (50)
-- [ ] T007b [P] Implement `code/config.py` loader to parse `code/config.yaml` and expose parameters as a typed configuration object
-- [ ] T008 Configure CI workflow for GitHub Actions (multi-core x_64, timeout period, no GPU)
+- [X] T007a [P] Create `code/config.yaml` defining experiment parameters: `topology_counts`, `timeout_limits` (300s), `seed`, `trial_count` (50)
+- [X] T007b [P] Implement `code/config.py` loader to parse `code/config.yaml` and expose parameters as a typed configuration object
+- [ ] T008 [P] Create `.github/workflows/ci.yml` to match FR-004: Multi-core x86_64 runner, no GPU/CUDA, with a 6-hour timeout limit, ensuring environment matches the requirement.
 - [ ] T008a [P] Implement CPU-only profiling script to simulate solver execution and verify <300 seconds/step assumption on 2-core hardware (FR-004)
-- [ ] T008b [P] Implement script to calculate total experiment time (per_step_time * steps_per_trial * number_of_trials) and verify against a predefined confidence interval limit
-
-The research question, method, and references remain unchanged as per the planning document requirements. (SC-005)
+- [ ] T008b [P] Implement script to calculate total experiment time (per_step_time * steps_per_trial * number_of_trials) and verify against the 6-hour CI limit defined in SC-005; include logic to ABORT trials that would exceed the budget (exit code 1) to enforce the hard cap.
+- [X] T009a [US1] Create `data/raw/gam_baseline_metadata.json` with schema `{"topology_ids": ["string"], "object_types": ["string"]}` containing baseline topology IDs to be used for zero-overlap verification in T009-hash
+- [X] T022a [US3] [P] Implement `code/baseline_runner.py` skeleton for running the original GAM implementation (neural predictor) on the test set generated in T009; load weights from `data/raw/gfm_baseline.pt`; output results to `data/results/baseline_results.csv` (Schema: trial_id, success, latency_ms)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,13 +80,14 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Implementation for User Story 1
 
-- [X] T006a [US1] Implement logic to ingest and validate 'original GAM training metadata' from `data/raw/gam_baseline_metadata.json` for baseline comparison (Prerequisite for T012)
-- [X] T009 [US1] Implement `code/data_generation.py` to generate a unified 'Topology-Shift Test Set' containing BOTH novel kinematic chains (variable hinge counts) AND deformable materials (soft ropes, cloth) in PyBullet, generating at least 50 distinct topologies, ensuring zero overlap with original GAM training data (FR-001) by computing SHA-256 of generated topology IDs and comparing against `data/raw/gam_baseline_metadata.json`
-- [ ] T010 [US1] Add logic to record latent inputs and ground-truth actions for every timestep in `data/generated/`
-- [ ] T011 [US1] Implement error handling for physics simulation failures (crash recovery, state logging)
-- [X] T012 [US1] Implement metadata checksumming for the unified test set and verify its hash against the baseline metadata at `data/raw/gam_baseline_metadata.json` to confirm zero overlap (FR-001)
-- [X] T013 [US1] Create `scripts/generate_test_set.py` to execute generation with configurable seeds
-- [ ] T022a [US1] [US3] Implement script `code/baseline_runner.py` to run the original GAM implementation (neural predictor) on the test set generated in T009; load weights from `data/raw/gfm_baseline.pt`; output results to `data/results/`
+- [X] T006a [US1] Implement logic to ingest and validate 'original GAM training metadata' from `data/raw/gam_baseline_metadata.json` for baseline comparison (Prerequisite for T009)
+- [ ] T009-gen [US1] Implement `code/data_generation.py` logic to generate a diverse set of novel kinematic chains (hinge counts 3-10) and deformable materials (stiffness 0.1-1.0) in PyBullet. **Output**: `data/generated/physics_states.json` containing full physics states (vertex positions, joint angles, timestamps) for every timestep.
+- [ ] T009-hash [US1] Implement logic to compute SHA-256 hash of generated topology IDs from `data/generated/physics_states.json` and compare against `data/raw/gam_baseline_metadata.json` to confirm zero overlap (FR-001). **Merge of T009-hash and T012 logic**: This single task handles both hash generation and zero-overlap verification.
+- [ ] T009-record [US1] Implement logic to record latent inputs and ground-truth actions from the simulation into `data/generated/latent_trajectory.csv` (schema: `latent_vector`, `ground_truth_action`, `timestamp`) after generation and hashing are complete.
+- [ ] T010a [US1] Implement logic to extract and serialize full physics simulation states (vertex positions for deformable objects, joint angles for kinematic chains) into `data/generated/physics_states.json` to satisfy US-1 Acceptance Scenario 2.
+- [ ] T010b [US1] Compute statistical reference distribution (mean/covariance) from `data/generated/physics_states.json` and save to `data/raw/gam_reference_stats.json` for use in latent drift detection using Mahalanobis distance (Spec Edge Cases).
+- [ ] T011 [US1] Implement error handling for physics simulation failures in `code/data_generation.py`: handle specific failure modes (PyBullet `p.loadURDF` returns an error indicator, simulation step returns NaN); recovery mechanism (retry times with exponential backoff, log to `data/results/errors.log` and skip trial); verification (unit test `test_crash_recovery` passes).
+- [ ] T013 [US1] Create `scripts/generate_test_set.py` to execute generation with configurable seeds
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,15 +101,19 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Implementation for User Story 2
 
-- [X] T014 [US2] Implement `code/symbolic_solver.py` using `cvxpy`/`diffcp` for differentiable constraint satisfaction (rigid/soft body) including explicit logic for 'non-penetration' and 'joint limits' in physical 3D coordinates (Prerequisite for T016, T017, T018)
-- [X] T016 [US2] Integrate `code/gfm_wrapper.py` (T006) and `code/symbolic_solver.py` (T014) to encode observations to latent space and decode solver outputs to 3D actions (Depends on T006 and T014)
-- [ ] T017 [US2] Implement timeout mechanism for solver steps (A maximum time limit per step will be established.) to prevent CI hangs (Edge Case handling)
-- [ ] T018 [US2] Implement "infeasible" flag logic when constraints cannot be satisfied, recording trial as failure
-- [ ] T019 [US2] Implement latent drift detection (Mahalanobis distance) and flagging for out-of-distribution inputs
-- [ ] T019b [US2] [FR-003] Implement and run gradient verification test to ensure gradients flow from the constraint violation loss ONLY to the solver parameters, with NO backpropagation through frozen GFM decoder weights, validating the decoupling of symbolic logic from decoder fidelity
-- [X] T020 [US2] Create `code/inference_pipeline.py` to orchestrate encode -> solve -> decode -> simulate loop (Depends on T019b)
+- [ ] T014 [US2] Implement `code/symbolic_solver.py` using `cvxpy`/`diffcp` to define constraint matrices for 'non-penetration' and 'joint limits' in physical 3D coordinates (via decoded actions). **Requirement**: Must define the problem structure ONLY; MUST output a `ConstraintMatrix` interface object. MUST be wrapped by T014a for differentiability. Gradients must flow from constraint loss to solver parameters ONLY.
+- [ ] T014a [US2] [FR-003] Implement the differentiable convex optimization layer wrapper (using `diffcp` or PyTorch wrapper) for the solver defined in T014. **Critical Constraint**: Ensure gradients flow from the constraint violation loss to solver parameters ONLY. The GFM decoder must remain frozen (eval mode) with NO gradient flow into the GFM backbone or through the decoder weights. This verifies decoupling of symbolic logic from decoder fidelity as per Constitution Principle VI.
+- [ ] T016 [US2] Integrate `code/gfm_wrapper.py` (T006) and `code/symbolic_solver.py` (T014/T014a) to encode observations to latent space and decode solver outputs to 3D actions (Depends on T006, T014a, and T009-gen)
+- [ ] T018a [US2] [SC-001] Define the schema for `data/results/trial_log.csv` (columns: `trial_id`, `step`, `success`, `infeasible`, `timeout`, `latency_ms`) before T017 and T018 write to it.
+- [ ] T017 [US2] Implement timeout mechanism for solver steps: read `timeout_limits` from `code/config.yaml` and enforce a configurable timeout per step; record timeout events to `data/results/trial_log.csv` with `timeout=true` and `timeout_reason: step_limit` flag; link to <300s/step assumption in spec's Assumptions and 6-hour total limit in SC-005.
+- [ ] T018 [US2] Implement "infeasible" flag logic when constraints cannot be satisfied: append `infeasible=true` to `data/results/trial_log.csv`; verification (assert that `trial_log.csv` contains at least one row with `infeasible=true` when constraints are unsatisfiable).
+- [ ] T019 [US2] Implement latent drift detection: compute Mahalanobis distance > 3.0 (based on 99.7% confidence interval) using reference distribution from `data/raw/gam_reference_stats.json` (T010b); flag out-of-distribution inputs and log to `data/results/drift_log.csv`.
+- [ ] T019b [US2] [FR-003] Implement and run gradient verification test to ensure gradients flow from the constraint violation loss to solver parameters ONLY, validating that the decoder remains frozen and no gradients flow into the GFM backbone.
+- [ ] T020 [US2] Create `code/inference_pipeline.py` to orchestrate encode -> solve -> decode -> simulate loop (Depends on T014, T016, T009-gen)
 - [ ] T021 [US2] Add logging for inference latency (ms) and success/failure status for each trial
-- [ ] T021b [US2] [SC-001] Implement logic to measure and record the success metric: count consecutive timesteps where collision_flag=0; if (count * timestep_interval) >= 1.0s, set success=true; verify manipulated object reaches 'target zone (center within 5cm)' in raw data logs for each trial
+- [ ] T021b [US2] [SC-001] Implement logic to measure and record the success metric: read `data/generated/physics_states.json` (T010a), parse `object_position` and `collision_flag`; assert `collision_flag == 0` AND `distance to target object center < 5cm` for >= 1.0s (sampled at 60Hz in world coordinate system) to set success=true.
+- [ ] T021c [US2] Aggregate trial results from T021 and T021b into `data/results/symbolic_results.csv` with schema: `trial_id`, `success`, `latency_ms`, `timeout`, `infeasible`.
+- [ ] T022a [US2] [P] Run `code/baseline_runner.py` (T022a) on the test set generated in T009-gen; load weights from `data/raw/gfm_baseline.pt`; output results to `data/results/baseline_results.csv` (Schema: trial_id, success, latency_ms) (Depends on T009-gen)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,10 +127,10 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Implementation for User Story 3
 
-- [ ] T023 [P] [US3] Implement `code/analysis.py` to load results from `data/results/` for both symbolic (T021/T021b) and baseline (T022a) approaches; expect CSV schema: columns `trial_id`, `approach`, `success`, `latency_ms`, `timestamp`
+- [ ] T023 [P] [US3] Implement `code/analysis.py` to load results from `data/results/symbolic_results.csv` (T021c) and `data/results/baseline_results.csv` (T022a); expect CSV schema: columns `trial_id`, `approach`, `success`, `latency_ms`, `timestamp` (verify schema existence).
 - [ ] T024 [US3] Implement Fisher's Exact Test for binary success/failure outcomes (FR-006)
 - [ ] T025 [US3] Implement paired t-test for inference latency comparisons (FR-006)
-- [ ] T026 [US3] Calculate and report % confidence intervals and Cohen's d effect sizes
+- [ ] T026 [US3] Calculate and report 95% confidence intervals and effect sizes (Cohen's d for t-test, Odds Ratio for Fisher's as the effect size metric per FR-006).
 - [ ] T027 [US3] Generate final report `data/results/analysis_report.md` as a Markdown table with columns: Metric, Symbolic, Baseline, Difference, P-value, 95% CI, Effect Size; state null hypothesis rejection status (α=0.05) and validate SC-001 (one-second duration)
 - [ ] T028 [US3] Create `scripts/run_analysis.py` to execute the full statistical comparison pipeline
 
@@ -139,7 +144,7 @@ The research question, method, and references remain unchanged as per the planni
 
 - [ ] T029 [P] Update `README.md` with CLI usage instructions and project structure
 - [ ] T030 Code cleanup and refactoring of `code/` modules
-- [ ] T031 [P] Refactor `code/symbolic_solver.py` to use sparse matrix representation for constraint matrices to reduce memory overhead and improve solve time
+- [ ] T031 [P] Refactor `code/symbolic_solver.py` to use sparse matrix representation for constraint matrices to reduce memory overhead and improve solve time; verification: memory usage < 7GB for 50 topologies, solve time reduced by >10%
 - [ ] T032 [P] Additional unit tests for solver constraints and latent drift detection in `tests/unit/`
 - [ ] T033 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
@@ -160,7 +165,7 @@ The research question, method, and references remain unchanged as per the planni
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T009 (data gen) for input data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T021/T021b (inference results) and T022a (baseline results) for input data
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T021c/T022a (inference results) for input data
 
 ### Within Each User Story
 

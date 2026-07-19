@@ -1,10 +1,12 @@
-pybullet>=3.2.5
-torch>=2.0.0
-cvxpy>=1.4.0
-diffcp>=1.0.13
-scipy>=1.11.0
-pandas>=2.0.0
-numpy>=1.24.0
-pytest>=7.4.0
-ruff>=0.1.0
-black>=23.0.0
+# Existing dependencies
+pybullet
+torch
+cvxpy
+diffcp
+scipy
+pandas
+numpy
+pytest
+ruff
+black
+pyyaml

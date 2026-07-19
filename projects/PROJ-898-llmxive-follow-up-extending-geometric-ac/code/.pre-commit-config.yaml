@@ -1,0 +1,18 @@
+# Pre-commit configuration to run Black and Ruff before commits
+# Install with: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--config=code/.black.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.8
+    hooks:
+      - id: ruff
+        args: [--config=code/.ruff.toml, --fix]
+      - id: ruff-format
+        args: [--config=code/.black.toml] # Ruff can format as a black replacement if desired, but here we use black hook

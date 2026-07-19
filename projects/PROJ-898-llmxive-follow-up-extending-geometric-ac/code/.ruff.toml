@@ -1,20 +1,36 @@
+# Ruff configuration for llmXive project
+# Follows strict linting rules to ensure code quality and consistency
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
 ignore = [
-    "E501",  # line too long (black handles this)
-    "C901",  # too complex
+  "E501", # Line too long (handled by black)
+  "B008", # Do not perform function call in argument defaults (common in dataclasses)
 ]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few generated files or directories
+exclude = [
+  ".git",
+  "__pycache__",
+  ".venv",
+  "venv",
+  "build",
+  "dist",
+]
+
+# Same as Black
+line-length = 88
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+# Ignore specific rules for test files if needed
+"tests/*" = ["S101"] # Allow assert in tests
 
 [lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
+known-first-party = ["code", "scripts"]
+force-single-line = false
+lines-after-imports = 2

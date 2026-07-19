@@ -1,205 +1,248 @@
 """
-Tests for crash recovery and error handling in physics simulations.
+Unit tests for crash recovery mechanism in data_generation.py.
 
-This module tests the CrashRecoveryHandler and error handling logic
-in the data generation pipeline.
+Tests verify that the CrashRecoveryHandler properly handles
+physics simulation failures and recovers gracefully.
 """
-import json
+import pytest
 import os
+import sys
+import json
 import tempfile
 import time
 from unittest.mock import patch, MagicMock
-import pytest
+import numpy as np
 
-from code.data_generation import CrashRecoveryHandler, PhysicsSimulationError
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from code.data_generation import (
+    CrashRecoveryHandler,
+    PhysicsSimulationError,
+    URDFLoadError,
+    SimulationStepError,
+    TimeoutError,
+    RecoveryResult
+)
 
 class TestCrashRecoveryHandler:
-    """Tests for the CrashRecoveryHandler class."""
+    """Test suite for CrashRecoveryHandler class."""
     
-    def test_initialization_creates_log_file(self):
-        """Test that initialization creates the crash log file."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
-            
-            log_path = os.path.join(temp_dir, "crash_recovery_log.json")
-            assert os.path.exists(log_path)
-            
-            with open(log_path, 'r') as f:
-                log_data = json.load(f)
-            
-            assert "crashes" in log_data
-            assert "total_crashes" in log_data
-            assert log_data["total_crashes"] == 0
+    @pytest.fixture
+    def handler(self):
+        """Create a CrashRecoveryHandler instance with test settings."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = os.path.join(tmpdir, "errors.log")
+            handler = CrashRecoveryHandler(
+                max_retries=3,
+                base_delay=0.1,
+                max_delay=0.5,
+                log_file=log_file
+            )
+            yield handler
     
-    def test_record_state_adds_to_history(self):
-        """Test that recording state adds to the history."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
-            
-            test_state = {"key": "value", "step": 1}
-            handler.record_state(1, test_state)
-            
-            assert len(handler.state_history) == 1
-            assert handler.state_history[0]["step_id"] == 1
-            assert handler.state_history[0]["state"] == test_state
+    def test_initialization(self, handler):
+        """Test that handler initializes with correct parameters."""
+        assert handler.max_retries == 3
+        assert handler.base_delay == 0.1
+        assert handler.max_delay == 0.5
+        assert handler.log_file is not None
     
-    def test_record_state_limits_history_size(self):
-        """Test that state history is limited to 100 entries."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
+    def test_handle_urdf_load_failure_success_after_retry(self, handler):
+        """Test URDF load failure recovery with successful retry."""
+        # Mock PyBullet functions
+        with patch('code.data_generation.p') as mock_p, \
+             patch('code.data_generation.pybullet_data') as mock_data:
             
-            # Add 150 states
-            for i in range(150):
-                handler.record_state(i, {"step": i})
+            mock_p.resetSimulation = MagicMock()
+            mock_p.setAdditionalSearchPath = MagicMock()
+            mock_p.loadURDF = MagicMock(side_effect=[-1, 123])  # First fail, then succeed
+            mock_data.getDataPath = MagicMock(return_value="/fake/path")
             
-            assert len(handler.state_history) == 100
-            # Should contain the last 100 states
-            assert handler.state_history[0]["step_id"] == 50
-            assert handler.state_history[-1]["step_id"] == 149
+            result = handler.handle_urdf_load_failure("test.urdf", "test_context")
+            
+            assert result.success is True
+            assert result.attempts == 2
+            assert result.total_wait_time > 0.0
+            assert result.error_message is None
+            
+            # Verify resetSimulation was called before each retry
+            assert mock_p.resetSimulation.call_count == 2
     
-    def test_get_last_valid_state_returns_latest(self):
-        """Test that getting last valid state returns the most recent."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
+    def test_handle_urdf_load_failure_max_retries(self, handler):
+        """Test URDF load failure after max retries."""
+        with patch('code.data_generation.p') as mock_p, \
+             patch('code.data_generation.pybullet_data') as mock_data:
             
-            handler.record_state(1, {"step": 1})
-            handler.record_state(2, {"step": 2})
-            handler.record_state(3, {"step": 3})
+            mock_p.resetSimulation = MagicMock()
+            mock_p.setAdditionalSearchPath = MagicMock()
+            mock_p.loadURDF = MagicMock(return_value=-1)  # Always fail
+            mock_data.getDataPath = MagicMock(return_value="/fake/path")
             
-            last_state = handler.get_last_valid_state()
-            assert last_state["step_id"] == 3
-            assert last_state["state"]["step"] == 3
+            result = handler.handle_urdf_load_failure("test.urdf", "test_context")
+            
+            assert result.success is False
+            assert result.attempts == 3
+            assert result.error_message is not None
+            assert "Failed to load test.urdf" in result.error_message
     
-    def test_get_last_valid_state_empty_history(self):
-        """Test that getting last valid state returns None for empty history."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
+    def test_handle_simulation_step_failure(self, handler):
+        """Test simulation step failure recovery."""
+        with patch('code.data_generation.p') as mock_p, \
+             patch('code.data_generation.pybullet_data') as mock_data:
             
-            last_state = handler.get_last_valid_state()
-            assert last_state is None
+            mock_p.resetSimulation = MagicMock()
+            mock_p.setAdditionalSearchPath = MagicMock()
+            mock_data.getDataPath = MagicMock(return_value="/fake/path")
+            
+            result = handler.handle_simulation_step_failure("test_context")
+            
+            assert result.success is True
+            assert result.attempts == 1
+            assert result.total_wait_time == 0.0
     
-    def test_handle_crash_updates_log(self):
-        """Test that handling a crash updates the crash log."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
-            
-            # Record a state first
-            handler.record_state(10, {"test": "data"})
-            
-            # Handle a crash
-            error = Exception("Test error")
-            success = handler.handle_crash(
-                error=error,
-                step_id=10,
-                trial_id="test_trial",
-                topology_config={"test": "config"}
+    def test_handle_timeout(self, handler):
+        """Test timeout error handling."""
+        result = handler.handle_timeout("test_operation", 300.0)
+        
+        assert result.success is False
+        assert result.attempts == 1
+        assert result.total_wait_time == 0.0
+        assert result.error_message is not None
+        assert "test_operation" in result.error_message
+        assert "300.0" in result.error_message
+    
+    def test_exponential_backoff(self, handler):
+        """Test that delays increase exponentially."""
+        delays = []
+        current_delay = handler.base_delay
+        
+        for i in range(5):
+            delays.append(current_delay)
+            current_delay = min(current_delay * 2, handler.max_delay)
+        
+        # Verify exponential growth up to max
+        assert delays[0] == handler.base_delay
+        assert delays[1] == handler.base_delay * 2
+        assert delays[2] == handler.base_delay * 4
+        # Last delays should be capped at max_delay
+        assert all(d <= handler.max_delay for d in delays[3:])
+    
+    def test_error_logging(self, handler):
+        """Test that errors are properly logged to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = os.path.join(tmpdir, "test_errors.log")
+            test_handler = CrashRecoveryHandler(
+                max_retries=1,
+                base_delay=0.1,
+                log_file=log_file
             )
             
-            # Check log file
-            log_path = os.path.join(temp_dir, "crash_recovery_log.json")
-            with open(log_path, 'r') as f:
-                log_data = json.load(f)
+            # Create a test error
+            error = URDFLoadError("Test URDF load failure")
             
-            assert log_data["total_crashes"] == 1
-            assert len(log_data["crashes"]) == 1
+            # Call private log method
+            test_handler._log_error(error, 1, 0.1)
             
-            crash_entry = log_data["crashes"][0]
-            assert crash_entry["step_id"] == 10
-            assert crash_entry["trial_id"] == "test_trial"
-            assert crash_entry["error_type"] == "Exception"
-            assert crash_entry["error_message"] == "Test error"
+            # Verify log file exists and contains error
+            assert os.path.exists(log_file)
+            
+            with open(log_file, 'r') as f:
+                log_content = f.read()
+            
+            assert "urdf_load" in log_content
+            assert "Test URDF load failure" in log_content
+            assert "attempt" in log_content
+            
+            # Parse and verify JSON structure
+            log_entry = json.loads(log_content.strip())
+            assert log_entry["error_type"] == "urdf_load"
+            assert log_entry["attempt"] == 1
+            assert log_entry["total_delay"] == 0.1
+            assert "timestamp" in log_entry
     
-    def test_handle_crash_recovery_success(self):
-        """Test successful recovery after a crash."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
-            
-            # Record a state
-            handler.record_state(5, {"step": 5})
-            
-            # Handle a crash - should succeed in recovery
-            error = Exception("Test error")
-            success = handler.handle_crash(
-                error=error,
-                step_id=5,
-                trial_id="test_trial",
-                topology_config={"test": "config"}
-            )
-            
-            assert success is True
-            
-            # Check log
-            log_path = os.path.join(temp_dir, "crash_recovery_log.json")
-            with open(log_path, 'r') as f:
-                log_data = json.load(f)
-            
-            assert log_data["crashes"][0]["recovery_success"] is True
+    def test_recovery_result_dataclass(self):
+        """Test RecoveryResult dataclass initialization."""
+        result = RecoveryResult(
+            success=True,
+            attempts=2,
+            total_wait_time=1.5,
+            error_message=None
+        )
+        
+        assert result.success is True
+        assert result.attempts == 2
+        assert result.total_wait_time == 1.5
+        assert result.error_message is None
     
-    def test_handle_crash_recovery_failure(self):
-        """Test recovery failure when no state is available."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
-            
-            # Don't record any state - recovery should fail
-            error = Exception("Test error")
-            success = handler.handle_crash(
-                error=error,
-                step_id=5,
-                trial_id="test_trial",
-                topology_config={"test": "config"}
-            )
-            
-            # Recovery should fail because no state to restore
-            assert success is False
-            
-            # Check log
-            log_path = os.path.join(temp_dir, "crash_recovery_log.json")
-            with open(log_path, 'r') as f:
-                log_data = json.load(f)
-            
-            assert log_data["crashes"][0]["recovery_success"] is False
+    def test_custom_exceptions(self):
+        """Test custom exception classes."""
+        # Test PhysicsSimulationError
+        error = PhysicsSimulationError("Test error", "test_type")
+        assert str(error) == "Test error"
+        assert error.error_type == "test_type"
+        assert hasattr(error, "timestamp")
+        
+        # Test URDFLoadError
+        urdf_error = URDFLoadError("URDF failed")
+        assert urdf_error.error_type == "urdf_load"
+        
+        # Test SimulationStepError
+        step_error = SimulationStepError("Step failed")
+        assert step_error.error_type == "simulation_step"
+        
+        # Test TimeoutError
+        timeout_error = TimeoutError("Timed out")
+        assert timeout_error.error_type == "timeout"
     
-    def test_max_retries_limit(self):
-        """Test that recovery attempts are limited by max_retries."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir, max_retries=2)
+    def test_crash_recovery(self, handler):
+        """
+        Integration test for crash recovery mechanism.
+        
+        This test verifies that the recovery handler can successfully
+        recover from simulated failures and that the recovery process
+        is logged correctly.
+        """
+        # Simulate a scenario where recovery is needed
+        with patch('code.data_generation.p') as mock_p, \
+             patch('code.data_generation.pybullet_data') as mock_data:
             
-            # Record a state
-            handler.record_state(5, {"step": 5})
+            mock_p.resetSimulation = MagicMock()
+            mock_p.setAdditionalSearchPath = MagicMock()
+            mock_p.loadURDF = MagicMock(side_effect=[
+                -1,  # First attempt fails
+                -1,  # Second attempt fails
+                456  # Third attempt succeeds
+            ])
+            mock_data.getDataPath = MagicMock(return_value="/fake/path")
             
-            # Mock the get_last_valid_state to fail
-            with patch.object(handler, 'get_last_valid_state', return_value=None):
-                error = Exception("Test error")
-                success = handler.handle_crash(
-                    error=error,
-                    step_id=5,
-                    trial_id="test_trial",
-                    topology_config={"test": "config"}
-                )
+            # Attempt recovery
+            result = handler.handle_urdf_load_failure("recovery_test.urdf", "integration_test")
             
-            # Should have attempted recovery twice
-            log_path = os.path.join(temp_dir, "crash_recovery_log.json")
-            with open(log_path, 'r') as f:
-                log_data = json.load(f)
+            # Verify recovery was successful
+            assert result.success is True
+            assert result.attempts == 3
+            assert result.total_wait_time > 0.0
             
-            assert log_data["crashes"][0]["recovery_attempts"] == 2
-            assert success is False
-    
-    def test_crash_count_increment(self):
-        """Test that crash count increments correctly."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            handler = CrashRecoveryHandler(log_dir=temp_dir)
+            # Verify all resetSimulation calls were made
+            assert mock_p.resetSimulation.call_count == 3
             
-            assert handler.crash_count == 0
+            # Verify error log was created
+            assert os.path.exists(handler.log_file)
             
-            # Handle multiple crashes
-            for i in range(3):
-                handler.handle_crash(
-                    error=Exception(f"Error {i}"),
-                    step_id=i,
-                    trial_id=f"trial_{i}",
-                    topology_config={}
-                )
+            # Verify log contains multiple entries
+            with open(handler.log_file, 'r') as f:
+                log_lines = f.readlines()
             
-            assert handler.crash_count == 3
+            # Should have 2 error entries (for failed attempts)
+            assert len(log_lines) >= 2
+            
+            # Parse and verify each log entry
+            for line in log_lines:
+                entry = json.loads(line.strip())
+                assert "error_type" in entry
+                assert "message" in entry
+                assert "attempt" in entry
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

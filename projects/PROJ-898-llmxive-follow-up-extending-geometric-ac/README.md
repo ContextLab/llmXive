@@ -1,33 +1,20 @@
-# llmXive Follow-up: Extending "Geometric Action Model for Robot Policy Learning"
+# llmXive: Extending Geometric Action Model for Robot Policy Learning
 
 ## Project Structure
 
-This project implements a symbolic-latent planner to extend the Geometric Action Model (GFM) for robot policy learning.
-
-### Directory Layout
-
-- `code/`: Core Python modules (GFM wrapper, symbolic solver, analysis, etc.)
-- `data/`: Data storage
- - `raw/`: Original datasets and baseline metadata
- - `generated/`: Synthetic test sets and intermediate simulation data
- - `results/`: Final experiment results and statistical reports
-- `tests/`: Unit and integration tests
-- `scripts/`: Executable scripts for generation, inference, and analysis
-- `specs/`: Feature specifications and design documents
-- `projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/`: This project root
+- `code/`: Source code modules
+- `data/`: Data storage (raw, generated, results)
+- `tests/`: Test suite
+- `specs/`: Design documents and requirements
 
 ## Setup
 
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run tests: `pytest tests/`
+3. Generate test set: `python scripts/generate_test_set.py`
+4. Run inference: `python scripts/run_inference.py`
+5. Run analysis: `python scripts/run_analysis.py`
 
-## Usage
+## License
 
-Refer to individual scripts in the `scripts/` directory for usage instructions.
+MIT License
