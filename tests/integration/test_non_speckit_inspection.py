@@ -14,6 +14,7 @@ Verifies the new ``_capture_non_speckit_inspection`` hook in
 
 from __future__ import annotations
 
+import io
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +23,17 @@ import pytest
 
 from llmxive.agents.base import Agent, AgentContext
 from llmxive.backends.base import ChatMessage, ChatResponse, ImagePart, TextPart
+
+
+def _real_png(w: int, h: int) -> bytes:
+    """A REAL encoded PNG at exactly (w, h) — ImagePart now derives its
+    canonical dimensions from the bytes (spec 026), so a fake stub header no
+    longer constructs."""
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (w, h), (10, 20, 30)).save(buf, format="PNG")
+    return buf.getvalue()
 
 # --- Test doubles ---------------------------------------------------------
 
@@ -49,7 +61,7 @@ class _FakeAgent(Agent):
         return ["projects/PROJ-001-test/output.md"]
 
 
-_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 512
+_PNG = _real_png(64, 32)
 
 
 class _MultimodalFakeAgent(Agent):

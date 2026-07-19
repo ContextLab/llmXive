@@ -9,6 +9,7 @@ render as a metadata-only placeholder and the record is written correctly.
 from __future__ import annotations
 
 import base64
+import io
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,7 +18,19 @@ from llmxive.backends.base import ChatMessage, ImagePart, TextPart
 from llmxive.speckit.slash_command import SlashCommandContext, _maybe_write_inspection
 from llmxive.types import BackendName, Outcome
 
-_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 512
+
+def _real_png(w: int, h: int) -> bytes:
+    """A REAL encoded PNG at exactly (w, h) — ImagePart now derives its
+    canonical dimensions from the bytes (spec 026), so a fake stub header no
+    longer constructs."""
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (w, h), (10, 20, 30)).save(buf, format="PNG")
+    return buf.getvalue()
+
+
+_PNG = _real_png(64, 32)
 
 
 def _ctx(spec_root: Path) -> SlashCommandContext:

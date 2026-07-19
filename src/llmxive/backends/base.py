@@ -20,6 +20,129 @@ from typing import TypeVar
 #: Allowed image MIME types (Dartmouth's OpenAI-compatible vision endpoint).
 _IMAGE_MIMES = frozenset({"image/png", "image/jpeg", "image/webp"})
 
+#: JPEG Start-Of-Frame markers that carry dimensions (0xC0-0xCF minus the
+#: non-SOF markers DHT/JPG/DAC that share that range).
+_JPEG_SOF_MARKERS = frozenset(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC}
+
+
+def _parse_png_dimensions(data: bytes) -> tuple[int, int]:
+    """Parse ``(width, height)`` from a PNG's IHDR chunk (fixed offset: 8-byte
+    signature, 4-byte chunk length, 4-byte ``IHDR`` type, then 4+4 bytes of
+    width/height, big-endian). Raises :class:`ValueError` for anything that
+    isn't a well-formed PNG header — never guesses."""
+    if not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("ImagePart: not a PNG (bad signature)")
+    if len(data) < 24 or data[12:16] != b"IHDR":
+        raise ValueError("ImagePart: truncated/invalid PNG (missing IHDR chunk)")
+    width = int.from_bytes(data[16:20], "big")
+    height = int.from_bytes(data[20:24], "big")
+    if width <= 0 or height <= 0:
+        raise ValueError(f"ImagePart: invalid PNG dimensions {width}x{height}")
+    return width, height
+
+
+def _parse_jpeg_dimensions(data: bytes) -> tuple[int, int]:
+    """Parse ``(width, height)`` by scanning JPEG markers for the first
+    Start-Of-Frame (SOF0/SOF2/...) segment, which carries the real decoded
+    dimensions. Raises :class:`ValueError` on anything truncated, malformed,
+    or lacking a SOF segment — never guesses."""
+    if len(data) < 4 or data[0:2] != b"\xff\xd8":
+        raise ValueError("ImagePart: not a JPEG (bad SOI marker)")
+    i, n = 2, len(data)
+    while i < n:
+        if data[i] != 0xFF:
+            i += 1  # resync: not a marker byte
+            continue
+        j = i
+        while j < n and data[j] == 0xFF:  # skip 0xFF fill bytes
+            j += 1
+        if j >= n:
+            break
+        marker = data[j]
+        i = j + 1
+        if marker == 0x00 or marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+            continue  # standalone / stuffing marker: no length field
+        if marker == 0xD9:  # EOI
+            break
+        if i + 2 > n:
+            raise ValueError("ImagePart: truncated JPEG segment")
+        seg_len = int.from_bytes(data[i : i + 2], "big")
+        if seg_len < 2 or i + seg_len > n:
+            raise ValueError("ImagePart: truncated/invalid JPEG segment")
+        if marker in _JPEG_SOF_MARKERS:
+            if seg_len < 7:
+                raise ValueError("ImagePart: truncated JPEG SOF segment")
+            height = int.from_bytes(data[i + 3 : i + 5], "big")
+            width = int.from_bytes(data[i + 5 : i + 7], "big")
+            if width <= 0 or height <= 0:
+                raise ValueError(f"ImagePart: invalid JPEG dimensions {width}x{height}")
+            return width, height
+        i += seg_len
+        if marker == 0xDA:  # SOS: entropy-coded scan data follows, stop scanning
+            break
+    raise ValueError("ImagePart: JPEG has no SOF marker (truncated or unsupported)")
+
+
+def _parse_webp_dimensions(data: bytes) -> tuple[int, int]:
+    """Parse ``(width, height)`` from a WebP RIFF container: VP8 (lossy),
+    VP8L (lossless), or VP8X (extended) chunk layouts. Raises
+    :class:`ValueError` on anything truncated, malformed, or an unrecognized
+    chunk type — never guesses."""
+    if len(data) < 16 or data[0:4] != b"RIFF" or data[8:12] != b"WEBP":
+        raise ValueError("ImagePart: not a WebP (bad RIFF/WEBP header)")
+    fourcc = data[12:16]
+    if fourcc == b"VP8X":
+        if len(data) < 30:
+            raise ValueError("ImagePart: truncated WebP VP8X chunk")
+        payload = data[20:30]
+        width = int.from_bytes(payload[4:7], "little") + 1
+        height = int.from_bytes(payload[7:10], "little") + 1
+        return width, height
+    if fourcc == b"VP8 ":
+        if len(data) < 30:
+            raise ValueError("ImagePart: truncated WebP VP8 chunk")
+        chunk = data[20:30]
+        if chunk[3:6] != b"\x9d\x01\x2a":
+            raise ValueError("ImagePart: WebP VP8 chunk has a bad start code")
+        width = int.from_bytes(chunk[6:8], "little") & 0x3FFF
+        height = int.from_bytes(chunk[8:10], "little") & 0x3FFF
+        if width <= 0 or height <= 0:
+            raise ValueError(f"ImagePart: invalid WebP dimensions {width}x{height}")
+        return width, height
+    if fourcc == b"VP8L":
+        if len(data) < 25:
+            raise ValueError("ImagePart: truncated WebP VP8L chunk")
+        chunk = data[20:25]
+        if chunk[0] != 0x2F:
+            raise ValueError("ImagePart: WebP VP8L chunk has a bad signature")
+        bits = int.from_bytes(chunk[1:5], "little")
+        width = (bits & 0x3FFF) + 1
+        height = ((bits >> 14) & 0x3FFF) + 1
+        return width, height
+    raise ValueError(f"ImagePart: unrecognized WebP chunk type {fourcc!r}")
+
+
+def parse_image_dimensions(mime: str, data: bytes) -> tuple[int, int]:
+    """Parse ``(width, height)`` CANONICALLY from encoded image bytes for one
+    of the three allowed mimes — the provider processes the BYTES, not any
+    caller-supplied metadata, so this is the only trustworthy source of
+    dimensions. A defensive, total function per allowed mime: well-formed
+    input returns real dimensions; anything unparseable, truncated, or whose
+    content doesn't match ``mime`` (each parser checks the format's own
+    magic/signature bytes) raises :class:`ValueError` — it never silently
+    passes through a guess.
+
+    Deliberately dependency-free (stdlib only, no PIL): this module is
+    imported everywhere, so it must not gain a hard imaging dependency.
+    """
+    if mime == "image/png":
+        return _parse_png_dimensions(data)
+    if mime == "image/jpeg":
+        return _parse_jpeg_dimensions(data)
+    if mime == "image/webp":
+        return _parse_webp_dimensions(data)
+    raise ValueError(f"ImagePart: unsupported mime {mime!r} (allowed: {sorted(_IMAGE_MIMES)})")
+
 
 @dataclass(frozen=True)
 class TextPart:
@@ -32,10 +155,18 @@ class TextPart:
 class ImagePart:
     """An image inside a multimodal message.
 
-    Dimensions and payload size are BOUNDED and validated here so the token
+    Dimensions and payload size are BOUNDED and VERIFIED here so the token
     estimator's per-image charge is a true UPPER bound (FR-003/FR-010): an
-    unbounded payload priced at a fixed constant would invalidate the cost bound
-    ``select()`` reserves against.
+    unbounded payload priced at a fixed constant would invalidate the cost
+    bound ``select()`` reserves against.
+
+    ``width``/``height`` are kept as explicit fields (useful for audit
+    rendering — see ``render_text_content``) but they are NOT trusted: the
+    provider processes ``data``'s BYTES, not this metadata, so
+    :meth:`__post_init__` parses the CANONICAL dimensions from ``data`` itself
+    (:func:`parse_image_dimensions`) and rejects any mismatch. Prefer
+    :meth:`from_bytes`, which derives them for you instead of requiring the
+    caller to get them right.
     """
 
     mime: str
@@ -43,25 +174,59 @@ class ImagePart:
     width: int
     height: int
 
+    @classmethod
+    def from_bytes(cls, mime: str, data: bytes) -> "ImagePart":
+        """Preferred constructor: derive ``width``/``height`` from the encoded
+        ``data`` instead of asking the caller to compute (and possibly get
+        wrong, or lie about) them."""
+        width, height = parse_image_dimensions(mime, data)
+        return cls(mime=mime, data=data, width=width, height=height)
+
     def __post_init__(self) -> None:
         # Function-local: backends.base must not import model_selection at module scope.
-        from llmxive.model_selection.tokens import MAX_IMAGE_BYTES, MAX_IMAGE_DIMENSION_PX
+        from llmxive.model_selection.tokens import (
+            MAX_IMAGE_BYTES,
+            MAX_IMAGE_DIMENSION_PX,
+            MAX_IMAGE_PIXELS,
+        )
 
         if self.mime not in _IMAGE_MIMES:
             raise ValueError(
                 f"ImagePart: unsupported mime {self.mime!r} (allowed: {sorted(_IMAGE_MIMES)})"
             )
         if self.width <= 0 or self.height <= 0:
-            raise ValueError("ImagePart: dimension must be positive")
-        if self.width > MAX_IMAGE_DIMENSION_PX or self.height > MAX_IMAGE_DIMENSION_PX:
-            raise ValueError(
-                f"ImagePart: dimension {self.width}x{self.height} exceeds the estimator's "
-                f"supported maximum {MAX_IMAGE_DIMENSION_PX}px — downscale before selection "
-                f"(the token upper bound is derived from it)"
-            )
+            raise ValueError("ImagePart: declared dimension must be positive")
+        if not self.data:
+            raise ValueError("ImagePart: empty image payload")
         if len(self.data) > MAX_IMAGE_BYTES:
             raise ValueError(
                 f"ImagePart: {len(self.data)} bytes exceeds MAX_IMAGE_BYTES={MAX_IMAGE_BYTES}"
+            )
+        # CANONICAL dimensions come from the encoded bytes, never the caller's
+        # claim — a caller could declare 1x1 for a 4000x4000 payload and this
+        # is the ONLY check standing between that and an invalid cost bound.
+        # This also catches a mime/content mismatch: each per-format parser
+        # checks the format's own magic/signature bytes first.
+        parsed_width, parsed_height = parse_image_dimensions(self.mime, self.data)
+        if (parsed_width, parsed_height) != (self.width, self.height):
+            raise ValueError(
+                f"ImagePart: declared dimensions {self.width}x{self.height} do not match "
+                f"the encoded {self.mime} data's actual dimensions "
+                f"{parsed_width}x{parsed_height} — use ImagePart.from_bytes() instead of "
+                "supplying width/height by hand"
+            )
+        if parsed_width > MAX_IMAGE_DIMENSION_PX or parsed_height > MAX_IMAGE_DIMENSION_PX:
+            raise ValueError(
+                f"ImagePart: dimension {parsed_width}x{parsed_height} exceeds the estimator's "
+                f"supported maximum {MAX_IMAGE_DIMENSION_PX}px — downscale before selection "
+                f"(the token upper bound is derived from it)"
+            )
+        if parsed_width * parsed_height > MAX_IMAGE_PIXELS:
+            raise ValueError(
+                f"ImagePart: {parsed_width}x{parsed_height} = "
+                f"{parsed_width * parsed_height} pixels exceeds MAX_IMAGE_PIXELS="
+                f"{MAX_IMAGE_PIXELS} — satisfying the per-side bound alone does not cap the "
+                "decoded pixel count for every aspect ratio (e.g. a maximal square)"
             )
 
 
@@ -288,5 +453,6 @@ __all__ = [
     "TransientBackendError",
     "UnsupportedFeatureError",
     "invoke_with_deadline",
+    "parse_image_dimensions",
     "render_text_content",
 ]

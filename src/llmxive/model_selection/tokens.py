@@ -27,6 +27,7 @@ from llmxive.tools.summarize import estimate_tokens
 __all__ = [
     "MAX_IMAGE_BYTES",
     "MAX_IMAGE_DIMENSION_PX",
+    "MAX_IMAGE_PIXELS",
     "TOKENS_PER_IMAGE",
     "call_budget_for",
     "estimate_message_tokens",
@@ -39,6 +40,20 @@ __all__ = [
 #: upper bound. Callers downscale to fit; an oversize ImagePart is REJECTED.
 MAX_IMAGE_DIMENSION_PX = 1536
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
+
+#: Independent pixel-COUNT ceiling — defense in depth alongside the per-side
+#: MAX_IMAGE_DIMENSION_PX check above. Two images can each individually
+#: satisfy the per-side bound (<=1536px on both axes) yet differ enormously in
+#: decode/memory cost by aspect ratio; the per-side check alone bounds neither
+#: the total pixel count nor the eventual decoded-bitmap footprint. Derivation:
+#: 2**21 (2,097,152 px, ~2.1 megapixels) is an ~8 MiB budget for the decoded
+#: RGBA bitmap at 4 bytes/px — deliberately BELOW the 1536x1536 = 2,359,296 px
+#: literal worst case the per-side check alone would admit, so this is a
+#: genuine additional bound (a maximal 1536x1536 square is pixel-capped even
+#: though it satisfies the per-side check). Downstream producers that
+#: downscale to fit MAX_IMAGE_DIMENSION_PX (e.g.
+#: paper_reprocess.preprint_figures._render_png) must apply BOTH bounds.
+MAX_IMAGE_PIXELS = 2**21
 
 #: Documented worst case for ONE image at MAX_IMAGE_DIMENSION_PX in high-detail
 #: mode. Derivation (OpenAI-compatible vision tiling, which Dartmouth serves):

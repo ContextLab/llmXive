@@ -2843,7 +2843,7 @@
       "category": "test_double",
       "file": "tests/unit/test_multimodal_content.py",
       "kind": "model_id_literal",
-      "line": 91,
+      "line": 218,
       "models": [
         "Qwen/Qwen2.5-3B-Instruct"
       ],

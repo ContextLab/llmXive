@@ -31,7 +31,7 @@ from pathlib import Path
 from llmxive.backends.base import ChatMessage, ImagePart, TextPart
 from llmxive.config import repo_root as _repo_root
 from llmxive.model_selection.route import route_chat
-from llmxive.model_selection.tokens import MAX_IMAGE_DIMENSION_PX
+from llmxive.model_selection.tokens import MAX_IMAGE_DIMENSION_PX, MAX_IMAGE_PIXELS
 from llmxive.types import Project
 
 _MAX_FIGURES = 12  # cap the number of per-figure review calls per paper
@@ -89,11 +89,15 @@ def _resolve_graphic(source: Path, ref: str) -> Path | None:
 def _render_png(path: Path) -> tuple[bytes, int, int] | None:
     """Render one figure file to PNG bytes (PDF via pdf2image, raster via PIL).
 
-    Downscales so neither dimension exceeds ``MAX_IMAGE_DIMENSION_PX`` — the
-    hard limit :class:`~llmxive.backends.base.ImagePart` validates and REJECTS
-    a render for — rather than letting a legitimately large figure raise.
-    Returns ``(png_bytes, width, height)`` — the REAL post-downscale
-    dimensions ``ImagePart`` needs — or ``None`` on any render failure.
+    Downscales so neither dimension exceeds ``MAX_IMAGE_DIMENSION_PX`` AND the
+    total pixel count doesn't exceed ``MAX_IMAGE_PIXELS`` — the two
+    independent hard limits :class:`~llmxive.backends.base.ImagePart` VERIFIES
+    against the encoded bytes and REJECTS a render for (a per-side bound alone
+    doesn't cap the pixel count for every aspect ratio, e.g. a maximal square)
+    — rather than letting a legitimately large figure raise. Returns
+    ``(png_bytes, width, height)`` — the REAL post-downscale dimensions,
+    always consistent with ``png_bytes`` itself — or ``None`` on any render
+    failure.
     """
     try:
         if path.suffix.lower() == ".pdf":
@@ -109,6 +113,12 @@ def _render_png(path: Path) -> tuple[bytes, int, int] | None:
             img = Image.open(path).convert("RGB")
         if max(img.size) > MAX_IMAGE_DIMENSION_PX:
             scale = MAX_IMAGE_DIMENSION_PX / max(img.size)
+            img = img.resize((
+                max(1, int(img.size[0] * scale)),
+                max(1, int(img.size[1] * scale)),
+            ))
+        if img.size[0] * img.size[1] > MAX_IMAGE_PIXELS:
+            scale = (MAX_IMAGE_PIXELS / (img.size[0] * img.size[1])) ** 0.5
             img = img.resize((
                 max(1, int(img.size[0] * scale)),
                 max(1, int(img.size[1] * scale)),
@@ -191,7 +201,7 @@ _SYSTEM = (
 
 
 def _review_one_figure(
-    index: int, caption: str, png: bytes, width: int, height: int, *,
+    index: int, caption: str, png: bytes, *,
     all_captions: str, title: str,
 ) -> tuple[str, str]:
     """Review a SINGLE figure (its image) with the FULL labeled caption set for
@@ -229,7 +239,7 @@ def _review_one_figure(
             ChatMessage(role="system", content=_SYSTEM),
             ChatMessage(role="user", content=(
                 TextPart(prompt_text),
-                ImagePart(mime="image/png", data=png, width=width, height=height),
+                ImagePart.from_bytes(mime="image/png", data=png),
             )),
         ],
         profile="vision",
@@ -323,10 +333,10 @@ def vision_figure_review(
     body_parts: list[str] = []
     seen: set[str] = set()
     any_ok = False
-    for i, (caption, png, width, height) in enumerate(figs, 1):
+    for i, (caption, png, _width, _height) in enumerate(figs, 1):
         try:
             text, used_model = _review_one_figure(
-                i, caption, png, width, height,
+                i, caption, png,
                 all_captions=all_captions, title=project.title,
             )
         except Exception as exc:  # best-effort per figure (route_chat auth/breaker/
