@@ -42,3 +42,14 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64d18c89bc6c9c8bc0737b3f/f6cfd6730deb2fbb76385f3e80b4b3d28216641b506f8380089f005166e9c67f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-0f55ec16e93d84a6.parquet%3B+filename%3D%22train-00000-of-00001-0f55ec16e93d84a6.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783376903&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRkMThjODliYzZjOWM4YmMwNzM3YjNmL2Y2Y2ZkNjczMGRlYjJmYmI3NjM4NWYzZTgwYjRiM2QyODIxNjY0MWI1MDZmODM4MDA4OWYwMDUxNjZlOWM2N2ZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMGY1NWVjMTZlOTNkODRhNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMGY1NWVjMTZlOTNkODRhNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzNzY5MDN9fX1dfQ__&Signature=MEUCIQDg0Ncw2K18Yed4sfKKJQF8FXbNFDprDoToAEecj4T-XAIgC7P9RyhqL5d66cG-TVH5Agmfl%7EUwQtUyWYospVzy4Iw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-06T21:28:23.155690Z'
+- artifact_hash: c8b46297d69efe03ec05695f749093dc4f0819115d60a432ccb216e6598a748b
+  artifact_path: projects/PROJ-474-neural-correlates-of-simulated-social-ex/specs/001-neural-correlates-of-simulated-social-ex/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000030/versions/1.0.0/download`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000030/versions/1.0.0/download
+  verified_at: '2026-07-19T06:54:27.888536Z'

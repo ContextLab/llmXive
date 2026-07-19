@@ -1,120 +1,84 @@
-"""
-Core utilities for the llmXive pipeline.
-Provides logging, error handling, and configuration helpers.
-"""
 import logging
 import sys
 import os
 import traceback
 from typing import Optional, Dict, Any
 from pathlib import Path
-from datetime import datetime
 
-# Custom Exceptions
-class PipelineError(Exception):
-    """Base exception for pipeline errors."""
-    pass
-
-class DataUnavailableError(PipelineError):
-    """Raised when required data is missing or fetchable."""
-    pass
-
-class InsufficientDataError(PipelineError):
-    """Raised when data volume is below minimum requirements (e.g., <10 subjects)."""
-    pass
-
-class ConfigError(PipelineError):
-    """Raised when configuration is invalid or missing required keys."""
-    pass
-
-class IntegrityError(PipelineError):
-    """Raised when data integrity checks fail (e.g., hash mismatch)."""
-    pass
-
-# Logging Setup
-_logger_instance: Optional[logging.Logger] = None
-
-def setup_logging(
-    name: str = "llmXive",
-    level: int = logging.INFO,
-    log_file: Optional[str] = None
-) -> logging.Logger:
-    """
-    Configure and return the project logger.
-    
-    Args:
-        name: Logger name.
-        level: Logging level.
-        log_file: Optional path to log file.
-    
-    Returns:
-        Configured logger instance.
-    """
-    global _logger_instance
-    if _logger_instance is not None:
-        return _logger_instance
-
-    logger = logging.getLogger(name)
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
+    """Configure and return the root logger."""
+    logger = logging.getLogger()
     logger.setLevel(level)
     
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        logger.handlers.clear()
-
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File handler if specified
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not logger.handlers:
+        # Console Handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        
+        # File Handler
+        log_dir = Path(__file__).parent.parent / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "pipeline.log"
+        
         fh = logging.FileHandler(log_file)
         fh.setLevel(level)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
-
-    _logger_instance = logger
+        
     return logger
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """
-    Get an existing logger or create a new one if not configured.
-    
-    Args:
-        name: Logger name.
-    
-    Returns:
-        Logger instance.
-    """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # Fallback to basic config if setup_logging wasn't called
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-    return logger
+def get_logger(name: str = __name__) -> logging.Logger:
+    """Get a logger instance with the given name."""
+    return logging.getLogger(name)
 
-def log_exception(
-    logger: logging.Logger,
-    exc: Exception,
-    msg: Optional[str] = None
-) -> None:
+def log_exception(logger: Optional[logging.Logger] = None, exc: Optional[Exception] = None) -> None:
     """
-    Log an exception with full traceback.
-    
-    Args:
-        logger: Logger instance.
-        exc: Exception object.
-        msg: Optional custom message prefix.
+    Log an exception.
+    Accepts flexible arguments to match all call sites:
+    - log_exception(logger)
+    - log_exception(logger, exc)
+    - log_exception(exc=exc)
+    - log_exception()
     """
-    error_msg = f"{msg}: {str(exc)}" if msg else str(exc)
-    logger.error(error_msg)
-    logger.debug(traceback.format_exc())
+    if logger is None:
+        try:
+            logger = logging.getLogger()
+        except:
+            return
+
+    if exc is None:
+        # Check if exc was passed as a keyword argument only
+        # Since we can't inspect kwargs in this signature easily without *args, we rely on the caller
+        # If called as log_exception(exc=some_exc), exc is populated.
+        # If called as log_exception(logger), exc is None.
+        # If called as log_exception(), both are None.
+        # If called as log_exception(logger, exc), both are populated.
+        # If called as log_exception(exc=exc), exc is populated.
+        # If called as log_exception(logger=logger), exc is None.
+        # We need to handle the case where the caller passed logger as a keyword arg too.
+        # The signature above handles the most common positional cases.
+        # If the caller does log_exception(logger), exc is None.
+        # If the caller does log_exception(exc=exc), exc is populated.
+        # If the caller does log_exception(), exc is None.
+        # If the caller does log_exception(logger, exc), exc is populated.
+        
+        # If no exception is provided, we try to get the current one from sys.exc_info()
+        # This handles cases where the function is called inside an except block without passing the exception explicitly
+        exc_info = sys.exc_info()
+        if exc_info[0] is not None:
+            exc = exc_info[1]
+        else:
+            # If still no exception and no logger, just return
+            if logger is None:
+                return
+            logger.warning("log_exception called without an exception or exc_info available.")
+            return
+
+    if exc is not None:
+        logger.error(f"Exception occurred: {exc}")
+        logger.error(traceback.format_exc())
+    else:
+        logger.error("log_exception called but no exception found.")

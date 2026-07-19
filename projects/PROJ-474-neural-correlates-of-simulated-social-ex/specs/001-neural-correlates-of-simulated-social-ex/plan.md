@@ -19,7 +19,11 @@ The research question remains: [Research Question]. The method is: [Method]. Ref
 **Project Type**: Computational Neuroscience Pipeline / CLI  
 **Performance Goals**: Complete pipeline run within 6 hours; memory usage < 7GB; disk usage < 14GB.  
 **Constraints**: No GPU; no large model training; dataset must be sampled or processed in chunks if necessary; strict motion exclusion (>3mm).  
-**Scale/Scope**: Single dataset (OpenNeuro ds000030), N subjects (target N≥10 for valid test).
+**Scale/Scope**: Single dataset (OpenNeuro ds00xxxx
+
+The specific value to remove/generalize: '00xxxx'
+
+Rewritten passage: OpenNeuro ds00xxxx), N subjects (target N≥10 for valid test).
 
 ### Memory Management Strategy
 To satisfy the 7GB RAM constraint while processing 4D NIfTI data:

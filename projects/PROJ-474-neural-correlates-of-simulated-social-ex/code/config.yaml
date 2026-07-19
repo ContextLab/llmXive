@@ -1,19 +1,29 @@
-# Project Configuration for Neural Correlates of Simulated Social Exclusion
-paths:
-  data_raw: data/raw
-  data_processed: data/processed
-  data_results: data/results
-  src: src
-  tests: tests
+project:
+  name: "PROJ-474-neural-correlates-social-ex"
+  version: "1.0.0"
 
-qc:
+data:
+  dataset_id: "ds000030"
+  version: "1.0.0"
+  source: "openneuro"
+
+paths:
+  project_root: "."
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "data/results"
+  state_file: "state/projects/PROJ-474-neural-correlates-social-ex.yaml"
+  subject_qc_list: "data/processed/subject_qc_list.json"
+  subjects_metadata: "data/processed/subjects_metadata.json"
+  connectivity_metrics: "data/processed/connectivity_metrics.json"
+
+analysis:
   motion_threshold_mm: 3.0
   min_subjects: 10
+  rois:
+    - "PCC"
+    - "mPFC"
+    - "Angular Gyrus"
 
-processing:
-  atlas: "Harvard-Oxford"
-  radius_mm: 50
-
-logging:
-  level: INFO
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+state:
+  artifact_hashes: {}

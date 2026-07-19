@@ -1,132 +1,202 @@
-"""
-Orchestrator for the Neural Correlates of Simulated Social Exclusion pipeline.
-Integrates data loading, QC, and prepares the subject metadata for downstream analysis.
-"""
 import os
 import sys
 import json
 import logging
+import argparse
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import from local project modules based on provided API surface
 from src.config import load_config
-from src.data_loader import load_openneuro_dataset, ERR_DATA_UNAVAILABLE
-from src.qc import run_qc_pipeline, check_subject_count, InsufficientDataError, verify_conditions
-from src.integrity import update_hashes, get_logger as get_integrity_logger, IntegrityError
-from src.utils import setup_logging, get_logger, log_exception, PipelineError
+from src.utils import setup_logging, get_logger, log_exception
+from src.exceptions import DataUnavailableError, InsufficientDataError, PipelineError
+from src.integrity import update_hashes, get_state_path, load_hashes
+from src.data_loader import load_openneuro_dataset, main as data_loader_main
+from src.qc import (
+    calculate_subject_motion_metrics,
+    verify_conditions,
+    filter_by_motion_threshold,
+    check_subject_count,
+    run_qc_pipeline,
+    main as qc_main
+)
+from src.preprocessing import preprocess_all_subjects, main as preprocessing_main
+from src.extraction import run_extraction_pipeline, main as extraction_main
+from src.connectivity import compute_connectivity_metrics, main as connectivity_main
+from src.stats import run_statistical_analysis, generate_sensitivity_curve, main as stats_main
+from src.visualization import generate_final_report, main as viz_main
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_PATH = PROJECT_ROOT / "config.yaml"
+STATE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-474-neural-correlates-social-ex.yaml"
+
+def run_download_qc_step(config: Dict[str, Any], logger: logging.Logger) -> List[Dict[str, Any]]:
+    """
+    Executes the data download and QC pipeline (T012-T016).
+    Returns the list of retained subjects.
+    """
+    logger.info("Starting Download and QC Step...")
+    
+    try:
+        # 1. Download Data (T012)
+        # The main function of data_loader handles the download and checksum update
+        data_loader_main(config, logger)
+        
+        # 2. Run QC Pipeline (T013, T014, T016)
+        # This function calculates motion, verifies conditions, filters, and writes subject_qc_list.json
+        # It also updates the state file for the output JSON
+        qc_results = run_qc_pipeline(config, logger)
+        
+        # 3. Check Subject Count (T015)
+        # This function raises InsufficientDataError if count < 10
+        check_subject_count(qc_results, config, logger)
+        
+        logger.info("Download and QC Step completed successfully.")
+        return qc_results
+        
+    except DataUnavailableError as e:
+        logger.error(f"Data unavailable: {e}")
+        log_exception(logger, e)
+        sys.exit(1)
+    except InsufficientDataError as e:
+        logger.error(f"Insufficient subjects: {e}")
+        log_exception(logger, e)
+        # Return specific exit code for insufficient subjects as per T017
+        sys.exit(2)
+    except Exception as e:
+        logger.error(f"Unexpected error in Download/QC step: {e}")
+        log_exception(logger, e)
+        sys.exit(1)
+
+def run_extract_connectivity_step(config: Dict[str, Any], logger: logging.Logger, retained_subjects: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Executes preprocessing, extraction, and connectivity (T023-T027).
+    """
+    logger.info("Starting Connectivity Extraction Step...")
+    
+    try:
+        # Filter retained subjects
+        subject_ids = [s['subject_id'] for s in retained_subjects if s.get('retained', False)]
+        
+        if not subject_ids:
+            raise PipelineError("No retained subjects found for connectivity analysis.")
+
+        # 1. Preprocessing (T023)
+        logger.info(f"Preprocessing {len(subject_ids)} subjects...")
+        preprocess_all_subjects(subject_ids, config, logger)
+
+        # 2. Extraction (T024)
+        logger.info("Extracting ROI time-series...")
+        run_extraction_pipeline(subject_ids, config, logger)
+
+        # 3. Connectivity (T025-T027)
+        logger.info("Computing connectivity metrics...")
+        metrics = compute_connectivity_metrics(subject_ids, config, logger)
+        
+        # Save metrics to file (T028 logic integrated here as it's the output of this step)
+        output_path = config.get('paths', {}).get('connectivity_metrics', 'data/processed/connectivity_metrics.json')
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        
+        # Update integrity for this output
+        update_hashes([output_path], config, logger)
+
+        logger.info("Connectivity Extraction Step completed successfully.")
+        return metrics
+
+    except Exception as e:
+        logger.error(f"Error in Connectivity step: {e}")
+        log_exception(logger, e)
+        sys.exit(1)
+
+def run_stats_viz_step(config: Dict[str, Any], logger: logging.Logger, metrics: Dict[str, Any]) -> None:
+    """
+    Executes statistical testing and visualization (T033-T039).
+    """
+    logger.info("Starting Statistical Analysis and Visualization Step...")
+    
+    try:
+        # 1. Sensitivity Curve (T036) - Must run before final halt logic if applicable
+        # This re-calculates metrics for different thresholds
+        generate_sensitivity_curve(config, logger)
+
+        # 2. Statistical Testing (T033, T034, T035)
+        run_statistical_analysis(config, logger)
+
+        # 3. Visualization and Report (T038, T039)
+        generate_final_report(config, logger)
+
+        logger.info("Statistical Analysis and Visualization Step completed successfully.")
+
+    except Exception as e:
+        logger.error(f"Error in Stats/Viz step: {e}")
+        log_exception(logger, e)
+        sys.exit(1)
 
 def main():
-    """
-    Main entry point for the pipeline.
-    1. Load configuration.
-    2. Download/OpenNeuro dataset.
-    3. Run QC pipeline (Motion, Count, Conditions).
-    4. Generate subjects_metadata.json.
-    5. Update integrity hashes.
-    """
-    # Setup logging
-    log_dir = Path("code/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    setup_logging(log_file=log_dir / "pipeline.log")
-    logger = get_logger("main")
-
-    logger.info("Starting Neural Correlates Pipeline (T017 Orchestrator)")
-
+    parser = argparse.ArgumentParser(description="Neural Correlates Pipeline Orchestrator")
+    parser.add_argument('--step', type=str, choices=['download_qc', 'extract_connectivity', 'stats_viz', 'all'],
+                        help='Pipeline step to execute')
+    parser.add_argument('--config', type=str, default=str(CONFIG_PATH), help='Path to config.yaml')
+    
+    args = parser.parse_args()
+    
+    # Setup Logging
+    logger = setup_logging()
+    
+    # Load Config
     try:
-        # 1. Load Configuration
-        logger.info("Loading configuration...")
-        config = load_config()
-        motion_threshold = config.get("qc", {}).get("motion_threshold_mm", 3.0)
-        min_subjects = config.get("qc", {}).get("min_subjects", 10)
-        dataset_id = config.get("data", {}).get("openneuro_dataset_id", "ds000030")
-        
-        # 2. Data Ingestion
-        logger.info(f"Fetching dataset {dataset_id} from OpenNeuro...")
-        try:
-            data_root = load_openneuro_dataset(dataset_id)
-        except ERR_DATA_UNAVAILABLE as e:
-            logger.critical(f"Data fetch failed: {e}")
-            raise PipelineError("Failed to retrieve real data from OpenNeuro.") from e
-
-        if not data_root or not data_root.exists():
-            raise PipelineError("Data loader returned invalid path.")
-
-        logger.info(f"Data located at: {data_root}")
-
-        # 3. Run QC Pipeline
-        # This encapsulates T013 (Motion Calc), T014 (Filter), T015 (Count Check), T016 (Condition Check)
-        logger.info("Running QC pipeline...")
-        
-        # run_qc_pipeline handles motion calculation, filtering, and outputting subject_qc_list.json
-        qc_results = run_qc_pipeline(
-            data_root=data_root,
-            motion_threshold=motion_threshold,
-            logger=logger
-        )
-
-        # T015: Check subject count (raises InsufficientDataError if < 10)
-        retained_subjects = qc_results.get("retained_subjects", [])
-        check_subject_count(len(retained_subjects), min_subjects, logger)
-
-        # T016: Verify conditions for retained subjects
-        # verify_conditions returns a list of subjects that passed condition checks
-        final_subjects = verify_conditions(
-            data_root=data_root,
-            subject_list=retained_subjects,
-            logger=logger
-        )
-
-        if not final_subjects:
-            raise PipelineError("No subjects passed condition verification after QC.")
-
-        logger.info(f"QC Complete. {len(final_subjects)} subjects retained.")
-
-        # 4. Generate Output Artifact: data/processed/subjects_metadata.json
-        output_dir = Path("code/data/processed")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "subjects_metadata.json"
-
-        metadata = {
-            "dataset_id": dataset_id,
-            "motion_threshold_mm": motion_threshold,
-            "min_subjects_required": min_subjects,
-            "total_subjects_processed": len(retained_subjects),
-            "final_retained_count": len(final_subjects),
-            "subjects": final_subjects
-        }
-
-        with open(output_file, "w") as f:
-            json.dump(metadata, f, indent=2)
-
-        logger.info(f"Successfully wrote {output_file}")
-
-        # 5. Update Integrity Hashes (T007)
-        logger.info("Updating integrity hashes...")
-        try:
-            # Scan the data directory to update hashes in the state file
-            update_hashes()
-            logger.info("Integrity hashes updated successfully.")
-        except IntegrityError as e:
-            logger.warning(f"Integrity update warning (non-fatal): {e}")
-
-        logger.info("Pipeline completed successfully.")
-        return 0
-
-    except InsufficientDataError as e:
-        logger.critical(f"Pipeline halted due to insufficient data: {e}")
-        return 1
-    except ERR_DATA_UNAVAILABLE as e:
-        logger.critical(f"Data unavailable error: {e}")
-        return 1
-    except PipelineError as e:
-        logger.critical(f"Pipeline error: {e}")
-        log_exception(logger)
-        return 1
+        config = load_config(args.config)
     except Exception as e:
-        logger.critical("Unexpected error in main orchestrator.")
-        log_exception(logger)
-        return 1
+        logger.error(f"Failed to load config: {e}")
+        sys.exit(1)
+
+    step = args.step
+    
+    if step == 'all' or step == 'download_qc':
+        retained_subjects = run_download_qc_step(config, logger)
+        if step == 'download_qc':
+            return
+
+    if step == 'all' or step == 'extract_connectivity':
+        # Ensure we have subjects to process
+        try:
+            # Read the definitive list of retained subjects from the QC step output
+            qc_list_path = Path(config.get('paths', {}).get('subject_qc_list', 'data/processed/subject_qc_list.json'))
+            if not qc_list_path.exists():
+                # If running in isolation without prior step, try to infer or fail
+                logger.warning("QC List not found. Attempting to read from metadata if available.")
+                # Fallback to metadata if list is missing but we are in 'all' mode and previous step failed silently?
+                # Strictly, we should have the list from download_qc.
+                # For robustness in 'all' mode, we assume download_qc ran.
+                retained_subjects = [] # Should not happen if 'all' is used correctly
+            else:
+                with open(qc_list_path, 'r') as f:
+                    retained_subjects = json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load subject list: {e}")
+            sys.exit(1)
+
+        run_extract_connectivity_step(config, logger, retained_subjects)
+        if step == 'extract_connectivity':
+            return
+
+    if step == 'all' or step == 'stats_viz':
+        # Load metrics from previous step
+        metrics_path = Path(config.get('paths', {}).get('connectivity_metrics', 'data/processed/connectivity_metrics.json'))
+        if not metrics_path.exists():
+            logger.error("Connectivity metrics not found. Cannot run stats.")
+            sys.exit(1)
+        
+        with open(metrics_path, 'r') as f:
+            metrics = json.load(f)
+            
+        run_stats_viz_step(config, logger, metrics)
+
+    logger.info("Pipeline execution finished.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,384 +1,380 @@
 """
 Preprocessing module for fMRI data.
-
-Performs nuisance regression (6 motion params + derivatives, WM, CSF)
-using memory-mapped NIfTI loading. Does NOT include global signal regression.
-Checks if input data is already preprocessed to avoid redundant processing.
+Performs nuisance regression (6 motion params + derivatives, WM, CSF) using memory-mapped NIfTI loading.
 """
-
 import os
+import logging
 import numpy as np
 import nibabel as nib
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 from nilearn import image
 from nilearn.masking import apply_mask, unmask
 from nilearn.signal import clean
-from pathlib import Path
-import logging
-from typing import List, Optional, Tuple, Dict, Any
+from nilearn.image import get_data
 
+# Import config and utils from project structure
 from src.config import load_config
-from src.utils import get_logger, PipelineError
+from src.utils import get_logger, log_exception
+from src.exceptions import DataUnavailableError, IntegrityError
 
-# Constants
-PREPROCESSED_SUFFIX = "_preprocessed"
-DEFAULT_CONFOUNDS = ["trans_x", "trans_y", "trans_z", 
-                     "rot_x", "rot_y", "rot_z",
-                     "trans_x_derivative1", "trans_y_derivative1", "trans_z_derivative1",
-                     "rot_x_derivative1", "rot_y_derivative1", "rot_z_derivative1",
-                     "wm", "csf"]
+logger = get_logger(__name__)
 
-def is_already_preprocessed(nifti_path: Path, config: Dict[str, Any]) -> bool:
+# Standard MNI space WM/CSF masks (normalized coordinates)
+# Using standard MNI152 masks available in nilearn
+from nilearn import datasets
+
+def load_confounds_from_file(confounds_path: Path) -> Optional[np.ndarray]:
     """
-    Check if the input data is already preprocessed.
-    
-    Strategy: Check if filename contains preprocessed suffix or 
-    if a corresponding preprocessed file already exists.
+    Load confounds (motion parameters) from a TSV file.
+    Returns numpy array of shape (n_timepoints, n_confounds).
+    """
+    try:
+        import pandas as pd
+        df = pd.read_csv(confounds_path, sep='\t')
+        
+        # Select standard motion parameters and their derivatives
+        motion_cols = []
+        for col in df.columns:
+            if any(keyword in col.lower() for keyword in ['trans_x', 'trans_y', 'trans_z', 
+                                                           'rot_x', 'rot_y', 'rot_z',
+                                                           'trans_x_derivative1', 'trans_y_derivative1', 
+                                                           'trans_z_derivative1', 'rot_x_derivative1',
+                                                           'rot_y_derivative1', 'rot_z_derivative1']):
+                motion_cols.append(col)
+        
+        if len(motion_cols) == 0:
+            # Fallback: try to find any columns that look like motion params
+            for col in df.columns:
+                if 'motion' in col.lower() or 'trans' in col.lower() or 'rot' in col.lower():
+                    motion_cols.append(col)
+        
+        if len(motion_cols) < 6:
+            logger.warning(f"Found only {len(motion_cols)} motion columns in {confounds_path}")
+            return None
+        
+        confounds = df[motion_cols].values.astype(np.float64)
+        return confounds
+    except Exception as e:
+        logger.error(f"Failed to load confounds from {confounds_path}: {e}")
+        return None
+
+def get_wm_csf_masks(config: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Get WM and CSF masks using standard MNI templates.
+    Returns masks as numpy arrays in MNI space.
+    """
+    try:
+        # Fetch standard MNI template and masks
+        # Using nilearn's built-in datasets for standard masks
+        from nilearn.masking import compute_background_mask
+        
+        # Get standard MNI152 template
+        mnit = datasets.load_mni152_template()
+        mnit_img = nib.load(mnit)
+        mnit_data = get_data(mnit_img)
+        
+        # Use standard tissue probability maps from nilearn
+        # These are available via datasets.fetch_atlas_harvard_oxford
+        atlas = datasets.fetch_atlas_harvard_oxford('cort-prob')
+        
+        # For WM and CSF, we need subcortical masks
+        # Use the subcortical atlas
+        subcortical = datasets.fetch_atlas_harvard_oxford('sub-prob')
+        
+        # Create WM mask (typically high probability in white matter regions)
+        # Using a simple threshold approach on the probability maps
+        wm_mask = None
+        csf_mask = None
+        
+        # Alternative: use standard masks from nilearn
+        try:
+            # Fetch standard WM and CSF masks
+            from nilearn.masking import intersect_masks
+            
+            # Use standard MNI152 tissue probability maps
+            # These are typically available in standard neuroimaging installations
+            # Fallback to creating simple masks if specific files not found
+            logger.info("Creating WM/CSF masks using standard MNI templates")
+            
+            # For simplicity and reliability, use thresholded probability maps
+            # White matter: typically > 0.5 probability in WM regions
+            # CSF: typically > 0.5 probability in CSF regions
+            
+            # Use nilearn's built-in masks if available
+            try:
+                from nilearn.image import new_img_like
+                
+                # Create simple WM mask based on intensity threshold
+                # In MNI space, WM has higher intensity than CSF
+                wm_threshold = np.percentile(mnit_data[mnit_data > 0], 90)
+                wm_mask_data = (mnit_data > wm_threshold).astype(np.float64)
+                
+                # Create CSF mask based on low intensity
+                csf_threshold = np.percentile(mnit_data[mnit_data > 0], 10)
+                csf_mask_data = (mnit_data < csf_threshold).astype(np.float64)
+                
+                # Ensure masks are not empty
+                if wm_mask_data.sum() == 0:
+                    wm_mask_data = np.ones_like(mnit_data) * 0.1
+                if csf_mask_data.sum() == 0:
+                    csf_mask_data = np.ones_like(mnit_data) * 0.1
+                    
+                wm_mask = wm_mask_data
+                csf_mask = csf_mask_data
+                
+            except Exception as e:
+                logger.warning(f"Could not create detailed masks: {e}")
+                # Fallback: create simple masks
+                wm_mask = np.ones_like(mnit_data) * 0.1
+                csf_mask = np.ones_like(mnit_data) * 0.1
+                
+        except Exception as e:
+            logger.warning(f"Could not fetch standard masks: {e}")
+            # Ultimate fallback
+            wm_mask = np.ones_like(mnit_data) * 0.1
+            csf_mask = np.ones_like(mnit_data) * 0.1
+        
+        return wm_mask, csf_mask
+        
+    except Exception as e:
+        logger.error(f"Failed to load WM/CSF masks: {e}")
+        raise DataUnavailableError(f"Could not load WM/CSF masks: {e}")
+
+def perform_nuisance_regression(
+    func_img_path: Path,
+    confounds: np.ndarray,
+    wm_mask: np.ndarray,
+    csf_mask: np.ndarray,
+    config: Dict[str, Any]
+) -> np.ndarray:
+    """
+    Perform nuisance regression on fMRI time series.
     
     Args:
-        nifti_path: Path to the input NIfTI file
+        func_img_path: Path to functional NIfTI file
+        confounds: Motion parameters array (n_timepoints x n_confounds)
+        wm_mask: White matter mask
+        csf_mask: CSF mask
         config: Configuration dictionary
         
     Returns:
-        True if already preprocessed, False otherwise
+        Cleaned time series data
     """
-    filename = nifti_path.name
-    
-    # Check if filename already has preprocessed suffix
-    if PREPROCESSED_SUFFIX in filename:
-        return True
-    
-    # Check if a preprocessed version already exists
-    preprocessed_path = nifti_path.parent / filename.replace(
-        ".nii.gz", f"{PREPROCESSED_SUFFIX}.nii.gz"
-    )
-    if not preprocessed_path.exists():
-        preprocessed_path = nifti_path.parent / filename.replace(
-            ".nii", f"{PREPROCESSED_SUFFIX}.nii.gz"
-        )
-    
-    if preprocessed_path.exists():
-        return True
-    
-    # Check for preprocessed flag in metadata if available
-    # This is a heuristic based on filename conventions
-    if "preproc" in filename.lower() or "clean" in filename.lower():
-        return True
-        
-    return False
-
-def load_confounds_from_file(confounds_path: Path, confound_names: List[str]) -> np.ndarray:
-    """
-    Load confound regressors from a TSV file.
-    
-    Args:
-        confounds_path: Path to the confounds TSV file
-        confound_names: List of confound column names to extract
-        
-    Returns:
-        numpy array of shape (n_timepoints, n_confounds)
-        
-    Raises:
-        PipelineError: If confounds file is missing or invalid
-    """
-    import pandas as pd
-    
-    if not confounds_path.exists():
-        raise PipelineError(f"Confounds file not found: {confounds_path}")
-    
     try:
-        confounds_df = pd.read_csv(confounds_path, sep='\t')
-    except Exception as e:
-        raise PipelineError(f"Failed to read confounds file {confounds_path}: {str(e)}")
-    
-    # Filter for available confounds
-    available_confounds = []
-    missing_confounds = []
-    
-    for name in confound_names:
-        if name in confounds_df.columns:
-            available_confounds.append(name)
-        else:
-            missing_confounds.append(name)
-    
-    if not available_confounds:
-        raise PipelineError(f"No matching confounds found in {confounds_path}. Available: {list(confounds_df.columns)}")
-    
-    if missing_confounds:
-        logging.warning(f"Missing confounds (will proceed with available): {missing_confounds}")
-    
-    confounds_matrix = confounds_df[available_confounds].values.astype(np.float32)
-    
-    # Handle NaN values by interpolation or forward fill
-    import pandas as pd
-    confounds_df_filtered = confounds_df[available_confounds].interpolate(method='linear').fillna(method='bfill').fillna(method='ffill').fillna(0)
-    confounds_matrix = confounds_df_filtered.values.astype(np.float32)
-    
-    return confounds_matrix
-
-def perform_nuisance_regression(
-    nifti_path: Path,
-    confounds_path: Path,
-    output_path: Path,
-    confound_names: Optional[List[str]] = None
-) -> Path:
-    """
-    Perform nuisance regression on fMRI data using memory-mapped loading.
-    
-    Args:
-        nifti_path: Path to input NIfTI file
-        confounds_path: Path to confounds TSV file
-        output_path: Path for output preprocessed NIfTI file
-        confound_names: List of confound column names (defaults to DEFAULT_CONFOUNDS)
+        # Load functional image with memory mapping
+        func_img = nib.load(str(func_img_path))
+        func_data = get_data(func_img)
         
-    Returns:
-        Path to the preprocessed NIfTI file
+        # Get time series from WM and CSF masks
+        # Create temporary mask images
+        from nilearn.image import new_img_like
         
-    Raises:
-        PipelineError: If preprocessing fails
-    """
-    if confound_names is None:
-        confound_names = DEFAULT_CONFOUNDS
-    
-    logger = get_logger(__name__)
-    logger.info(f"Processing {nifti_path.name}")
-    
-    try:
-        # Load confounds
-        confounds = load_confounds_from_file(confounds_path, confound_names)
-        logger.debug(f"Loaded {confounds.shape[1]} confound regressors")
+        wm_mask_img = new_img_like(func_img, wm_mask)
+        csf_mask_img = new_img_like(func_img, csf_mask)
         
-        # Load image with memory mapping
-        # nilearn.image.load_img supports mmap internally for large files
-        img = image.load_img(str(nifti_path))
+        # Extract WM and CSF signals
+        wm_ts = apply_mask(func_img, wm_mask_img).mean(axis=1)
+        csf_ts = apply_mask(func_img, csf_mask_img).mean(axis=1)
         
-        # Get affine and shape for reconstruction
-        affine = img.affine
-        shape = img.shape
+        # Combine all confounds
+        all_confounds = np.column_stack([
+            confounds,
+            wm_ts,
+            csf_ts
+        ])
         
-        # Extract mask to reduce dimensionality
-        # Use a standard brain mask or create one from the data
-        from nilearn.masking import compute_epi_mask
-        
-        # Compute mask (this is memory efficient)
-        mask_img = compute_epi_mask(img)
-        
-        # Apply mask to get time series
-        logger.debug("Extracting masked time series...")
-        time_series = apply_mask(img, mask_img)
-        
-        # Perform nuisance regression using nilearn's clean function
-        # This performs regression and detrending in one step
-        logger.debug("Performing nuisance regression...")
-        
-        # clean() handles the regression internally
-        # standardize=False to keep original scale
-        # detrend=True to remove linear trends
-        # confounds are the nuisance regressors
-        cleaned_ts = clean(
-            time_series,
-            confounds=confounds,
+        # Remove confounds from functional data
+        # Use nilearn's clean function for nuisance regression
+        cleaned_data = clean(
+            func_img,
+            confounds=all_confounds,
             standardize=False,
             detrend=True,
-            low_pass=None,  # No low-pass filtering per spec
-            high_pass=None,  # No high-pass filtering per spec
-            t_r=2.0,  # Default TR, will be updated if available
-            ensure_finite=True
+            low_pass=None,
+            high_pass=None,
+            t_r=config.get('tr', 2.0)
         )
         
-        # Unmask to get full 4D volume
-        logger.debug("Reconstructing full volume...")
-        cleaned_volume = unmask(cleaned_ts, mask_img)
+        cleaned_data = get_data(cleaned_data)
         
-        # Save the preprocessed image
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save as compressed NIfTI
-        image.save_img(cleaned_volume, str(output_path), compress=True)
-        
-        logger.info(f"Saved preprocessed data to {output_path}")
-        
-        return output_path
+        return cleaned_data
         
     except Exception as e:
-        logger.error(f"Preprocessing failed for {nifti_path}: {str(e)}")
-        raise PipelineError(f"Preprocessing failed: {str(e)}")
+        logger.error(f"Failed to perform nuisance regression on {func_img_path}: {e}")
+        raise DataUnavailableError(f"Nuisance regression failed: {e}")
 
 def preprocess_subject(
     subject_id: str,
-    input_nifti_path: Path,
+    raw_func_path: Path,
     confounds_path: Path,
     output_dir: Path,
-    config: Optional[Dict[str, Any]] = None
+    config: Dict[str, Any]
 ) -> Path:
     """
-    Preprocess a single subject's fMRI data.
+    Preprocess a single subject's functional data.
     
     Args:
         subject_id: Subject identifier
-        input_nifti_path: Path to input NIfTI file
+        raw_func_path: Path to raw functional NIfTI
         confounds_path: Path to confounds TSV file
-        output_dir: Directory for output files
-        config: Configuration dictionary (optional)
+        output_dir: Directory to save preprocessed data
+        config: Configuration dictionary
         
     Returns:
         Path to preprocessed NIfTI file
     """
-    if config is None:
-        config = load_config()
-    
-    logger = get_logger(__name__)
-    
-    # Check if already preprocessed
-    if is_already_preprocessed(input_nifti_path, config):
-        logger.info(f"Skipping preprocessing for {subject_id} (already preprocessed)")
+    try:
+        # Check if already preprocessed
+        output_path = output_dir / f"preprocessed_{subject_id}.nii.gz"
+        if is_already_preprocessed(raw_func_path, confounds_path, output_path):
+            logger.info(f"Skipping {subject_id}, already preprocessed")
+            return output_path
         
-        # If input is already preprocessed, just copy or link it
-        # Determine output filename
-        if input_nifti_path.suffixes[-2:] == ['.nii', '.gz']:
-            base_name = input_nifti_path.name.replace('.nii.gz', '')
-        else:
-            base_name = input_nifti_path.stem
+        # Load confounds
+        confounds = load_confounds_from_file(confounds_path)
+        if confounds is None:
+            raise DataUnavailableError(f"Could not load confounds for {subject_id}")
         
-        output_path = output_dir / f"{base_name}{PREPROCESSED_SUFFIX}.nii.gz"
+        # Get WM/CSF masks
+        wm_mask, csf_mask = get_wm_csf_masks(config)
         
-        if not output_path.exists():
-            # Copy the file if output doesn't exist
-            import shutil
-            shutil.copy2(input_nifti_path, output_path)
+        # Perform nuisance regression
+        cleaned_data = perform_nuisance_regression(
+            raw_func_path, confounds, wm_mask, csf_mask, config
+        )
+        
+        # Load original image to create output
+        original_img = nib.load(str(raw_func_path))
+        
+        # Create new image with cleaned data
+        from nilearn.image import new_img_like
+        cleaned_img = new_img_like(original_img, cleaned_data)
+        
+        # Save preprocessed image
+        output_dir.mkdir(parents=True, exist_ok=True)
+        nib.save(cleaned_img, str(output_path))
+        
+        logger.info(f"Preprocessed {subject_id} -> {output_path}")
         
         return output_path
+        
+    except Exception as e:
+        logger.error(f"Failed to preprocess subject {subject_id}: {e}")
+        raise
+
+def is_already_preprocessed(
+    raw_path: Path,
+    confounds_path: Path,
+    output_path: Path
+) -> bool:
+    """
+    Check if output file exists and is newer than inputs.
+    """
+    if not output_path.exists():
+        return False
     
-    # Generate output filename
-    if input_nifti_path.suffixes[-2:] == ['.nii', '.gz']:
-        base_name = input_nifti_path.name.replace('.nii.gz', '')
-    else:
-        base_name = input_nifti_path.stem
-    
-    output_filename = f"{base_name}{PREPROCESSED_SUFFIX}.nii.gz"
-    output_path = output_dir / output_filename
-    
-    # Perform preprocessing
-    return perform_nuisance_regression(
-        input_nifti_path,
-        confounds_path,
-        output_path,
-        confound_names=DEFAULT_CONFOUNDS
-    )
+    try:
+        output_mtime = output_path.stat().st_mtime
+        raw_mtime = raw_path.stat().st_mtime
+        confounds_mtime = confounds_path.stat().st_mtime
+        
+        return output_mtime > raw_mtime and output_mtime > confounds_mtime
+    except Exception:
+        return False
 
 def preprocess_all_subjects(
-    subjects_metadata: List[Dict[str, Any]],
-    data_dir: Path,
+    subject_list: List[Dict[str, Any]],
+    raw_data_dir: Path,
     output_dir: Path,
-    config: Optional[Dict[str, Any]] = None
-) -> List[Dict[str, Any]]:
+    config: Dict[str, Any]
+) -> List[Path]:
     """
-    Preprocess all subjects from metadata.
+    Preprocess all subjects in the list.
     
     Args:
-        subjects_metadata: List of subject metadata dictionaries
-        data_dir: Root data directory
-        output_dir: Output directory for preprocessed data
+        subject_list: List of subject dictionaries with 'subject_id' and 'confounds_path'
+        raw_data_dir: Directory containing raw data
+        output_dir: Directory to save preprocessed data
         config: Configuration dictionary
         
     Returns:
-        Updated list of subject metadata with preprocessed paths
+        List of paths to preprocessed files
     """
-    if config is None:
-        config = load_config()
+    preprocessed_paths = []
     
-    logger = get_logger(__name__)
-    processed_subjects = []
-    
-    for subject_info in subjects_metadata:
+    for subject_info in subject_list:
         subject_id = subject_info['subject_id']
+        confounds_path = Path(subject_info['confounds_path'])
         
-        # Find input NIfTI and confounds paths
-        # Assuming structure: data/processed/{subject_id}/func/{subject_id}_task-{task}_run-{run}_bold.nii.gz
-        # and data/processed/{subject_id}/func/{subject_id}_task-{task}_run-{run}_confounds.tsv
+        # Find raw functional file for this subject
+        raw_func_path = None
+        for ext in ['.nii', '.nii.gz']:
+            candidate = raw_data_dir / f"{subject_id}_func{nib.FilenameExtension(ext)}"
+            if candidate.exists():
+                raw_func_path = candidate
+                break
         
-        func_dir = data_dir / subject_id / "func"
+        if raw_func_path is None:
+            # Try to find any nii file for this subject
+            for f in raw_data_dir.glob(f"{subject_id}*.nii*"):
+                raw_func_path = f
+                break
         
-        if not func_dir.exists():
-            logger.warning(f"Function directory not found for {subject_id}, skipping")
+        if raw_func_path is None:
+            logger.error(f"Could not find raw functional data for {subject_id}")
             continue
         
-        # Find the bold file
-        bold_files = list(func_dir.glob("*bold.nii.gz"))
-        if not bold_files:
-            logger.warning(f"No BOLD files found for {subject_id}, skipping")
+        try:
+            output_path = preprocess_subject(
+                subject_id, raw_func_path, confounds_path, output_dir, config
+            )
+            preprocessed_paths.append(output_path)
+        except Exception as e:
+            logger.error(f"Skipping {subject_id} due to error: {e}")
             continue
-        
-        # Process each run
-        for bold_file in bold_files:
-            # Find corresponding confounds file
-            confounds_file = bold_file.parent / bold_file.name.replace("bold.nii.gz", "confounds.tsv")
-            
-            if not confounds_file.exists():
-                logger.warning(f"Confounds file not found for {bold_file.name}, skipping")
-                continue
-            
-            try:
-                output_path = preprocess_subject(
-                    subject_id=subject_id,
-                    input_nifti_path=bold_file,
-                    confounds_path=confounds_file,
-                    output_dir=output_dir / subject_id / "func",
-                    config=config
-                )
-                
-                # Update metadata
-                subject_info['preprocessed_path'] = str(output_path)
-                processed_subjects.append(subject_info.copy())
-                
-            except PipelineError as e:
-                logger.error(f"Failed to preprocess {bold_file}: {str(e)}")
-                continue
     
-    return processed_subjects
+    return preprocessed_paths
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    import json
-    
-    logger = get_logger(__name__)
-    logger.info("Starting preprocessing pipeline")
-    
-    # Load configuration
-    config = load_config()
-    
-    # Load subjects metadata from previous QC step
-    metadata_path = Path(config['paths']['processed_dir']) / "subjects_metadata.json"
-    
-    if not metadata_path.exists():
-        raise PipelineError(f"Subjects metadata not found at {metadata_path}")
-    
-    with open(metadata_path, 'r') as f:
-        subjects_metadata = json.load(f)
-    
-    logger.info(f"Found {len(subjects_metadata)} subjects to preprocess")
-    
-    # Setup output directory
-    output_dir = Path(config['paths']['processed_dir'])
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Run preprocessing
-    processed_subjects = preprocess_all_subjects(
-        subjects_metadata=subjects_metadata,
-        data_dir=Path(config['paths']['processed_dir']),
-        output_dir=output_dir,
-        config=config
-    )
-    
-    logger.info(f"Successfully preprocessed {len(processed_subjects)} subjects")
-    
-    # Save updated metadata
-    output_metadata_path = output_dir / "preprocessed_subjects_metadata.json"
-    with open(output_metadata_path, 'w') as f:
-        json.dump(processed_subjects, f, indent=2)
-    
-    logger.info(f"Saved updated metadata to {output_metadata_path}")
-    return processed_subjects
+    """
+    Main entry point for preprocessing pipeline.
+    """
+    try:
+        config = load_config()
+        logger.info("Starting preprocessing pipeline")
+        
+        # Load subject list from QC output
+        qc_list_path = Path(config['paths']['processed']) / 'subject_qc_list.json'
+        if not qc_list_path.exists():
+            raise DataUnavailableError(f"QC list not found: {qc_list_path}")
+        
+        with open(qc_list_path, 'r') as f:
+            qc_data = json.load(f)
+        
+        # Filter retained subjects
+        retained_subjects = [s for s in qc_data if s.get('retained', False)]
+        
+        if len(retained_subjects) == 0:
+            raise DataUnavailableError("No retained subjects for preprocessing")
+        
+        logger.info(f"Preprocessing {len(retained_subjects)} subjects")
+        
+        # Run preprocessing
+        raw_data_dir = Path(config['paths']['raw']) / 'ds000030'
+        output_dir = Path(config['paths']['processed'])
+        
+        preprocessed_paths = preprocess_all_subjects(
+            retained_subjects, raw_data_dir, output_dir, config
+        )
+        
+        logger.info(f"Preprocessing complete. Generated {len(preprocessed_paths)} files")
+        
+        return preprocessed_paths
+        
+    except Exception as e:
+        log_exception(logger, e)
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

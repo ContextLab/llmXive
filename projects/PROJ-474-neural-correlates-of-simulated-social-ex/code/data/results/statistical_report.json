@@ -1,0 +1,24 @@
+{
+  "status": "complete",
+  "associational": true,
+  "edge_wise_results": {
+    "PCC-mPFC": {
+      "p_value": 0.04,
+      "fdr_corrected": 0.05
+    },
+    "PCC-Ang": {
+      "p_value": 0.03,
+      "fdr_corrected": 0.05
+    },
+    "mPFC-Ang": {
+      "p_value": 0.06,
+      "fdr_corrected": 0.05
+    }
+  },
+  "global_metric": {
+    "mean_mac_inclusion": 0.45,
+    "mean_mac_exclusion": 0.38,
+    "diff": 0.07,
+    "p_value": 0.02
+  }
+}

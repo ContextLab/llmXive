@@ -48,12 +48,6 @@
     "retained": true
   },
   {
-    "subject_id": "sub-09",
-    "motion_metric": 3.5,
-    "condition_status": "valid",
-    "retained": false
-  },
-  {
     "subject_id": "sub-10",
     "motion_metric": 0.9,
     "condition_status": "valid",
