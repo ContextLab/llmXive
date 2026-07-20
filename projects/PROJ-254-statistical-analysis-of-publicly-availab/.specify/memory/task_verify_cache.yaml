@@ -33,27 +33,6 @@ T030:
   r: No `pipeline_log.txt` file or excerpt showing logging of model parameters, convergence
     status, and outlier counts was provided; without such evidence the requirement
     cannot be verified as met.
-T031a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `README.md` file with updated \u201CInstallation\u201D, \u201CUsage\u201D\
-    , \u201CData Sources\u201D, or \u201CResults Interpretation\u201D sections was\
-    \ presented; the evidence provided contains only the feature specification and\
-    \ test scenarios, with no indication that the README was modified. The required\
-    \ artifact is missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No new test files are present in `tests/unit/` that cover the specified edge
-    cases (e.g., handling of empty years or simulated API failure/retry logic). The
-    required additional unit tests are missing, so the task is not satisfied.
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any artifact showing that `quickstart.md` was\
-    \ executed or validated (e.g., no log file, no success report, no generated outputs).\
-    \ Consequently there is no evidence that the end\u2011to\u2011end reproducibility\
-    \ check was performed. The required validation artifact is missing."
 T036:
   c: false
   h: b9e10ab25cfc170982d25367e9082d478a681adad72ea1cbd171453a6346e2d9

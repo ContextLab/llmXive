@@ -71,7 +71,7 @@ A researcher wants to assess whether the observed similarity trend is statistica
 - **FR-007**: The system MUST generate visualisations: (a) a line plot of mean similarity over years with 95 % CI bands, and (b) a yearly similarity heatmap, exporting them as PNG and interactive HTML respectively. *(See US-2)*  
 - **FR-008**: The system MUST log all pipeline stages, parameters, and any warnings/errors to `pipeline_log.txt` to ensure reproducibility. *(General)*  
 - **FR-009**: The system MUST join Last.fm data with MusicBrainz metadata to resolve release years; tracks that cannot be matched to a release year in MusicBrainz after a reasonable number of retry attempts are excluded. from the temporal analysis. *(See US-1)*  
-- **FR-010**: The system MUST implement a fuzzy-matching fallback for missing MusicBrainz IDs: if a direct ID is missing, the system attempts to match by (artist, track title, album) tuple; if no match is found after 3 attempts, the track is excluded, and the exclusion rate is logged (warning if >20%). *(See US-1)*  
+- **FR-010**: The system MUST implement a fuzzy-matching fallback for missing MusicBrainz IDs: if a direct ID is missing, the system attempts to match by (artist, track title, album) tuple; if no match is found after a limited number of attempts, the track is excluded, and the exclusion rate is logged (warning if >20%). *(See US-1)*  
 - **FR-011**: The system MUST enforce a maximum RAM usage of ≤ 6 GB by implementing batched vector loading and discarding intermediate vectors immediately after aggregation; if memory usage approaches a critical threshold, the system MUST trigger a garbage collection cycle and log a warning. *(See US-1)*  
 
 ### Key Entities  
@@ -85,14 +85,14 @@ A researcher wants to assess whether the observed similarity trend is statistica
 
 - **SC-001**: ≥ 90 % of tracks that possess a MusicBrainz genre tag are successfully represented in the yearly embedding matrices (See US-1).  
 - **SC-002**: The linear regression model converges and reports a slope estimate with 95 % CI and an uncorrected p-value for the year effect (See US-3).  
-- **SC-003**: The sensitivity analysis reports p-values for all three thresholds {0.005, 0.01, 0.02} in `sensitivity_report.csv` (See US-3).  
+- **SC-003**: The sensitivity analysis reports p-values for all three thresholds including a stringent low-value threshold in `sensitivity_report.csv` (See US-3).  
 - **SC-004**: All visual artefacts (`similarity_trend.png`, `genre_similarity_heatmap.html`) are generated without runtime errors and match the schema defined in the documentation (See US-2).  
 
 ## Assumptions  
 
 - The MPD and Last.fm datasets contain reliable release‑year metadata for the majority of tracks; tracks lacking a year are excluded.  
 - MusicBrainz provides a stable, curated genre taxonomy that can be treated as the ground‑truth categorical variable.  
-- Listening‑event logs span a multi-year period from the mid‑2000s to 2024. with sufficient density to train Word2Vec models on a sampled subset of ≤ 1 M sequences per year, keeping compute within free‑CPU limits.  
+- Listening‑event logs span a multi-year period from the mid‑s to 2024. with sufficient density to train Word2Vec models on a sampled subset of ≤ 1 M sequences per year, keeping compute within free‑CPU limits.  
 - All statistical inference is observational; therefore, findings are framed as **associational** (no causal language).  
 - No GPU or CUDA libraries are used; all model training and inference rely on CPU‑only implementations (gensim, statsmodels).  
 - The cosine‑similarity threshold for “meaningful change” is justified by prior music‑information‑retrieval literature that treats a Δcosine ≥ 0.01 as a perceptible shift; the sensitivity sweep (0.005‑0.02) tests robustness around this community‑standard.  

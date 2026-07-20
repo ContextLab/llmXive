@@ -145,3 +145,94 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T17:49:28Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Million Playlist Dataset subset contains 100,000 playlists
+  claim_id: c_0b353740
+  context: 'Source: [MLP Datasets](https://mlp-datasets.s3.amazonaws.com/mpd_subset_100k.parquet)
+    Description: A subset of 100,000 playlists used for track ingestion and sequence
+    generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A subset of 100,000 playlists used for track ingestion and sequence generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T05:18:25Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Years with fewer than 1,000 unique tracks are flagged
+  claim_id: c_eacc4681
+  context: 'Low Coverage Years: Years with fewer than 1,000 unique tracks are flagged
+    in `low_coverage_years.json`. These years may have unreliable similarity estimates
+    and are excluded from regression analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Years_with_fewer_than_1,000_unique_tracks_are_flagged
+  kind: magnitude
+  raw_text: Years with fewer than 1,000 unique tracks are flagged in `low_coverage_years.json`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T05:19:15Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Million Playlist Dataset subset contains 100000 playlists
+  claim_id: c_b5386082
+  context: '- Description: A subset of the Spotify Million Playlist Dataset containing
+    100,000 playlists.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A subset of the Spotify Million Playlist Dataset containing 100,000 playlists.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T05:28:03Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Years with fewer than 1000 unique tracks excluded from regression analysis
+  claim_id: c_299f810e
+  context: '- Low Coverage: Years with fewer than 1,000 unique tracks are flagged
+    in `data/derived/low_coverage_years.json` and excluded from regression analysis
+    to ensure statistical robustness.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Years_with_fewer_than_1000_unique_tracks_excluded_from_regre
+  kind: magnitude
+  raw_text: Years with fewer than 1,000 unique tracks are flagged in `data/derived/low_coverage_years.json`
+    and excluded from regression analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T05:29:06Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: Pipeline memory limit is 6GB
+  claim_id: c_d0376a88
+  context: '- Memory Management: The pipeline monitors RAM usage and triggers garbage
+    collection to stay within a 6GB limit, preventing OOM errors on large datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_is_6GB
+  kind: entity_fact
+  raw_text: The pipeline monitors RAM usage and triggers garbage collection to stay
+    within a 6GB limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T05:30:03Z'
