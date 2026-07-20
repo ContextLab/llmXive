@@ -1,3 +1,31 @@
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`tests` and `state/projects` inside
+    `projects/PROJ-096-exploring-the-role-of-network-topology-o/`) is provided; the
+    artifact list is empty, so we cannot confirm the `mkdir -p` command was executed.
+    The implementer must supply a directory listing or screenshots showing the created
+    folders.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting output, log file, or any evidence that `black --check` and `flake8`
+    were executed and passed without errors is present. The required artifact (a linting
+    verification report or command output) is missing, so the task is not demonstrably
+    completed.
+T013a:
+  c: false
+  h: e42325bbf58c2b913631a71ee76a5ac899bac62dc2c343c1dfe8c5cc59ac827b
+  r: "The required artifact `data/raw/ca-AstroPh.txt` is missing; no dataset was downloaded,\
+    \ so the task\u2019s core requirement is not met. The implementer must ensure\
+    \ the file is present at the specified path, containing the full ca-AstroPh dataset."
+T013b:
+  c: false
+  h: 3a2877b93f7b4ce2dbb4a04ec158b42fa39b75aaf41905b499dd64dd13d724de
+  r: "The required `data/raw/ca-AstroPh.txt` file is absent, so no checksum can be\
+    \ computed, and `data/checksums.txt` contains only placeholder comments with no\
+    \ actual checksum entry. Both the verification step and the record\u2011keeping\
+    \ step are missing."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

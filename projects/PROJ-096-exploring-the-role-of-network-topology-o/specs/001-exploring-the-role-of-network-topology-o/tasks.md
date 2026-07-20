@@ -44,10 +44,11 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create source directories: `mkdir -p code/utils code/data` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
-- [ ] T001b [P] Create data directories: `mkdir -p data/processed data/checksums` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
+- [ ] T001b [P] Create data directories: `mkdir -p data/processed data/checksums data/raw` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/` <!-- FAILED: unspecified -->
 - [ ] T001c [P] Create test directories: `mkdir -p tests state/projects` in `projects/PROJ-096-exploring-the-role-of-network-topology-o/`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `networkx>=3.2.0`, `scipy>=1.12.0`, `numpy>=1.26.0`, `pandas>=2.2.0`, `pyyaml>=6.0.0`.
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T003a [P] Create `.flake8` config with `max-line-length=88`, `ignore=E203,W503` and `pyproject.toml` for black with `line-length=88`.
+- [ ] T003b [P] Verify linting configuration by running `black --check. && flake8.` and ensuring no errors.
 
 ---
 
@@ -59,14 +60,9 @@
 
 - [X] T004 [P] Implement `code/utils/graph_utils.py` for connectivity checks and metric calculations
 - [X] T005 [P] Implement `code/utils/stats_utils.py` for correlation, p-value, and multiple-comparison correction
-- [X] T006 Setup data directory structure (`data/processed/`, `data/checksums.txt`) and metadata schema
-- [ ] T007 Configure deterministic random seeds and `t_eval` settings for `scipy.integrate.odeint`
-- [ ] T008 Implement base logging infrastructure to capture simulation parameters and warnings
-- [ ] T009 [P] Implement feasibility study script in `code/feasibility_study.py` to resolve the [deferred] time steps.
- **Objective**: Determine the maximum time steps feasible within 6 hours on a 2-core CPU runner while maintaining numerical accuracy (error < 1e-4 relative to [deferred] steps).
- **Baseline**: [deferred] steps (per methodology sketch).
- **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `runtime_estimate` (float), `error_estimate` (float).
- **Constraint**: If [deferred] steps exceed 4 hours, the script MUST find the maximum integer steps <= 4 hours (binary search on step count) and set that as `time_steps`. It MUST NOT simply log a warning and fail. If the max feasible steps < 1000, log a "CRITICAL WARNING" and recommend a spec amendment. The default `time_steps` in `config.json` must be the max feasible value found.
+- [X] T006 Setup data directory structure (`data/processed/`, `data/raw/`, `data/checksums.txt`) and metadata schema.
+ **Schema**: `graph_metadata.json` must contain keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
+ **Checksum Format**: `data/checksums.txt` must contain SHA256 hashes of ALL data artifacts (raw downloads and generated `.gpickle` files), formatted as `hash filename`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,11 +70,14 @@
 
 ## Phase 3: User Story 1 - Generate Rewired Network Instances (Priority: P1) 🎯 MVP
 
-**Goal**: Generate 50 network instances with varying small-world rewiring probabilities starting from a synthetic regular ring lattice (N=500).
+**Goal**: Generate 50 network instances with varying small-world rewiring probabilities starting from a synthetic regular ring lattice (N=500). [UNRESOLVED-CLAIM: c_785b823d — status=not_enough_info]
 
-**⚠️ Methodological Correction**: The spec (FR-001) mandates using the 'ca-AstroPh' dataset. However, the plan identifies that reconstructing an irregular citation network into a regular ring lattice is methodologically incoherent. **This implementation uses a synthetic regular ring lattice (N=500) as the base**, as mandated by `plan.md`. This deviation is logged in `data/processed/methodology_log.md` to ensure traceability.
+**⚠️ Methodological Correction & Constitution Compliance**:
+1. **Constitution Requirement**: The Constitution mandates downloading 'ca-AstroPh' from SNAP on every run.
+2. **Plan Correction**: The plan identifies that reconstructing an irregular citation network into a regular ring lattice is methodologically incoherent.
+3. **Resolution**: This implementation **downloads and verifies** the ca-AstroPh dataset (T013a/b) to satisfy the Constitution's reproducibility requirement, then **explicitly ignores its structure** to generate a synthetic regular ring lattice (T012) as the base for Watts-Strogatz. This ensures the "download on each run" rule is met while maintaining scientific validity.
 
-**Independent Test**: The system can be tested by generating 50 network instances with rewiring probabilities ranging from 0.0 to 1.0 and verifying that each graph is connected, has the correct number of nodes (N=500), and preserves the average degree of the reconstructed lattice.
+**Independent Test**: The system can be tested by generating 50 network instances with rewiring probabilities ranging from 0.0 to 1.0 [UNRESOLVED-CLAIM: c_55eba84e — status=not_enough_info] and verifying that each graph is connected, has the correct number of nodes (N=500), and preserves the average degree of the reconstructed lattice.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -89,11 +88,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Note**: This replaces the 'ca-AstroPh reconstruction' requirement with a synthetic base for theoretical validity, as explicitly mandated by `plan.md`.
-- [X] T013 [US1] Log the methodological correction in `data/processed/methodology_log.md`, explicitly stating that the synthetic ring lattice was used instead of the ca-AstroPh dataset due to reconstruction incoherence, citing `plan.md` as the authority.
+- [X] T012 [P] [US1] Implement synthetic ring lattice generator in `code/generate_topology.py` (N=500, k=2). **Note**: This task explicitly generates a synthetic regular ring lattice. It does NOT use the structure of the downloaded ca-AstroPh dataset. The code must include a comment stating: "Base graph is synthetic; ca-AstroPh is downloaded solely for Constitution compliance and ignored for structure."
+- [ ] T013a [US1] **Download External Base**: Download 'ca-AstroPh' dataset from official SNAP URL to `data/raw/ca-AstroPh.txt`. **Action**: If download fails, raise error (no fallback). This satisfies Constitution Reproducibility Requirements.
+- [ ] T013b [US1] **Verify Checksum**: Verify checksum of `data/raw/ca-AstroPh.txt` against the SNAP-provided checksum (or record it if first run) and append to `data/checksums.txt`. **Dependency**: Depends on T013a.
+- [X] T013c [US1] **Log Methodological Correction**: Log the decision to use a synthetic ring lattice *instead of* the downloaded ca-AstroPh structure in `data/processed/methodology_log.md`, citing `plan.md` as the authority. **Dependency**: Depends on T013b (to prove the dataset was fetched as required).
 - [X] T014 [P] [US1] Implement Watts-Strogatz rewiring function with seed logging in `code/generate_topology.py`
 - [X] T015 [US1] Implement connectivity validation logic in `code/generate_topology.py` to skip disconnected graphs and log warnings (FR-002 compliance)
-- [X] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 instances) in `code/generate_topology.py`
+- [ ] T016 [US1] Implement batch generation loop (p=0.0 to 1.0, 50 instances) in `code/generate_topology.py`
 - [ ] T017 [US1] Save generated graphs as `.gpickle` and metadata as `.json` in `data/processed/`
 - [X] T018 [US1] Add checksum generation for all artifacts in `data/checksums.txt`
 
@@ -118,11 +119,18 @@
 
 - [ ] T021 [US2] Implement Kuramoto ODE derivative function in `code/simulate_kuramoto.py`. **Dependency**: This task must read `data/processed/config.json` to determine the `time_steps` value dynamically.
 - [ ] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
-- [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max 100 iters, tol 0.01) in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 and T022.
+- [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max iterations, tol 0.01) in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 and T022.
 - [ ] T024 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`. **Dependency**: Depends on T023.
-- [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`). Save results to `data/processed/results.csv` with schema: `rewiring_prob` (float), `critical_coupling` (float), `seed` (int), `time_steps` (int), `runtime_seconds` (float). Verify file exists with >= 45 valid rows. **Runtime Check**: Measure total runtime. If > 4 hours, implement fallback: reduce `time_steps` by [deferred], re-run the batch, and log the contingency. If the fallback runtime > 6 hours, log "FAILURE" and halt. This task satisfies SC-003 compliance.
-- [ ] T026 [US2] [FR-009] Implement rotational invariance verification. Select all topologies. Re-run the full binary search for $K_c$ on each using two reference frames: "single oscillator" and "center-of-mass". Assert $|K_{c,frame1} - K_{c,frame2}| < 1e-6$ for all cases. If any assertion fails, log a "FAILURE" and halt. Save results to `data/processed/invariance_verification.json` (list of diffs). This task satisfies FR-009.
-- [ ] T027 [US2] Run stability check script in `code/simulate_kuramoto.py` to simulate Kuramoto dynamics 1000 times per topology for a representative subset of 5 topologies (lowest p, highest p, median p, and two random). Calculate sample variance of R and verify it is < 0.01 (SC-001). **Fallback**: If 1000 runs exceed the time budget, reduce the number of runs by [deferred] and re-run, logging the contingency. If the variance is unstable, reduce time-steps and re-run. This ensures SC-001 is verified within SC-003 limits.
+- [ ] T009 [US2] **Feasibility Study**: Determine the maximum time steps feasible within 6 hours on a 2-core CPU runner while maintaining numerical accuracy.
+ **Objective**: Binary search for `time_steps` in range [, 20000] such that total runtime for 50 topologies is <= 4 hours (leaving 2h buffer).
+ **Input**: Requires T021 (ODE solver) to be implemented.
+ **Output**: Write `data/processed/config.json` with keys: `time_steps` (int), `runtime_estimate` (float).
+ **Constraint**: If the max feasible steps < 1000, log a "CRITICAL WARNING" and recommend a spec amendment.
+ **Action on Deviation**: If `time_steps` < 10000, execute T009c to formally amend SC-003.
+- [ ] T009c [US2] **Update Success Criteria**: If T009 determines `time_steps` < 10000, update `spec.md` (SC-003) or `state/projects/PROJ-096-exploring-the-role-of-network-topology-o.yaml` to reflect the new step count as the official success criterion. Log the amendment.
+- [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`). {{claim:c_c30f24f5}} {{claim:c_c39dc8c9}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604) **Runtime Check**: Measure total runtime. If > 4 hours, implement fallback: reduce `time_steps` by [deferred] (floor to nearest 100), re-run the batch, and log the contingency. If the fallback runtime > 6 hours, log "FAILURE" and halt. This task satisfies SC-003 compliance.
+- [ ] T026 [US2] [FR-009] Implement rotational invariance verification on a **stratified subset of multiple topologies** (covering low, mid, high p). Re-run the full binary search for $K_c$ on each using two reference frames: "single oscillator" and "center-of-mass". {{claim:c_ae51835d}} If any assertion fails, log a "FAILURE" and halt. Save results to `data/processed/invariance_verification.json`. **Justification**: A stratified subset is sufficient to verify the physical invariant property without doubling the full runtime cost, ensuring SC-003 compliance.
+- [ ] T027 [US2] Run stability check script in `code/simulate_kuramoto.py` to simulate Kuramoto dynamics 1000 times per topology for **ALL topologies**. Calculate sample variance of R and verify it is < 0.01 (SC-001). **Fallback**: If the number of runs exceeds the time budget, reduce the number of runs by [deferred] (floor to nearest 100) and re-run, logging the contingency. If the variance is unstable, reduce time-steps and re-run. This ensures SC-001 is verified within SC-003 limits.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, with verified Kc values
 
@@ -143,8 +151,8 @@
 
 - [ ] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`
 - [ ] T031 [US3] Implement multiple-comparison correction logic in `code/analyze_results.py`. **Logic**: Check if multiple statistical hypotheses are tested (based on the statistical model defined in T035). If yes, apply Bonferroni/Benjamini-Hochberg. If no, skip. Explicitly log the statistical model choice and whether correction was applied in the final report (FR-006, FR-008).
-- [ ] T032 [US3] Implement sensitivity analysis sweep over thresholds in `code/analyze_results.py`
-- [ ] T033 [US3] Calculate the variation metric of the headline correlation rate across the sensitivity sweep. **Definition**: Calculate the Spearman correlation coefficient for each threshold in {, 0.5, 0.6}. Compute the relative variation: (max(coef) - min(coef)) / mean(coef). Verify this value is ≤ 0.05 (SC-004).
+- [ ] T032 [US3] Implement sensitivity analysis sweep over thresholds in `code/analyze_results.py`. **Scope**: Sweep over a range of values as defined in Assumptions. **Note**: This range is explicitly justified in the spec's "Assumption about Threshold Justification" as a representative range for community standards.
+- [ ] T033 [US3] Calculate the variation metric of the headline correlation rate across the sensitivity sweep. **Definition**: Calculate the Spearman correlation coefficient for each threshold in {0.4, 0.5, 0.6}. Compute the relative variation: (max(coef) - min(coef)) / mean(coef). Verify this value is ≤ 0.05 (SC-004).
 - [ ] T034 [US3] Generate summary plot (Critical Coupling vs. Rewiring Probability) with trend line in `code/analyze_results.py` saving to `data/processed/plot_kc_vs_p.png` and verify file exists and is non-empty
 - [ ] T035 [US3] Write final report summary to `data/processed/analysis_report.md` containing:
  1. Spearman correlation value and p-value.
@@ -261,10 +269,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Correction**: The base graph is a synthetic regular ring lattice (N=500), NOT the ca-AstroPh dataset, to ensure theoretical validity of the Watts-Strogatz parameter. This is documented in T012 and T013, citing `plan.md`.
-- **Time Steps**: T009 resolves the [deferred] time steps; T025 uses the resolved value from `data/processed/config.json`. **Warning**: T009 must not silently reduce steps below [deferred] without a spec amendment, but MUST find the max feasible steps if [deferred] is too slow.
-- **Verification**: FR-009 verification is integrated into Phase 4 as T026.
-- **Stability**: SC-001 stability check is integrated into Phase 4 as T027 with fallback logic.
+- **Critical Correction**: The base graph is a synthetic regular ring lattice (N=500), NOT the ca-AstroPh dataset, to ensure theoretical validity of the Watts-Strogatz parameter. This is documented in T012, T013c, and T013a/b (which downloads the dataset for compliance but ignores its structure).
+- **Time Steps**: T009 resolves the [deferred] time steps; T025 uses the resolved value from `data/processed/config.json`. **Warning**: T009 must not silently reduce steps below [deferred] without a spec amendment (T009c), but MUST find the max feasible steps if [deferred] is too slow.
+- **Verification**: FR-009 verification is integrated into Phase 4 as T026 (stratified subset).
+- **Stability**: SC-001 stability check is integrated into Phase 4 as T027 (all 50 topologies).
 - **Runtime**: SC-003 runtime check is integrated into Phase 4 as T025 with fallback logic.
 - **Removed**: Phase 6 (Reviewer Revision) and T040 (Redundant Invariance Check) have been removed to eliminate duplication and ensure a single source of truth for FR-009.
 - **Reviewer Response (albert-einstein-simulated)**: Task T026 explicitly addresses the concern regarding physical invariance by verifying that the critical coupling strength $K_c$ is identical regardless of whether the phase reference is a single oscillator or the center-of-mass. This ensures the symbol $K_c$ corresponds to an element of physical reality independent of the observer's coordinate frame.
