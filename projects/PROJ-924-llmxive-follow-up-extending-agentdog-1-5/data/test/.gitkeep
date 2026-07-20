@@ -1,1 +1,3 @@
-# This directory is for test fixtures and mock data.
+# This directory contains test fixtures and mock data for unit and integration tests.
+# It is created to satisfy the project structure requirements for T001e.
+# Do not commit large binary files here; use .gitkeep to ensure the directory persists in version control.

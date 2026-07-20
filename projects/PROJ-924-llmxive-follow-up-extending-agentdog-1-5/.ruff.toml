@@ -1,45 +1,63 @@
 # Ruff Configuration for llmXive Project
 # Linter rules and settings
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "ARG", "SIM"]
-ignore = ["E501", "F403", "F405"] # Ignore line-too-long (handled by black), and wildcard import warnings for dynamic loading
-
-# Allow autofix for all enabled rules (if `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/folders
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM"]
+ignore = [
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D107", # Missing docstring in __init__
 ]
 
-# Same as Black
-line-length = 88
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+unfixable = []
 
-# Assume Python 3.11
-target-version = "py311"
+# Exclude a few specific files from linting.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
 
-# Per-file ignores (optional)
+# Same as `--line-length`.
+line-length = 100
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
 [lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
+"tests/*" = ["D101", "D102", "D103"]
+"code/*" = ["D103"]
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

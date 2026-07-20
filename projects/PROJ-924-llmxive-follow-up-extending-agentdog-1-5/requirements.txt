@@ -8,5 +8,4 @@ statsmodels
 pytest
 transformers
 accelerate
-pyarrow
-tracemalloc
+openai

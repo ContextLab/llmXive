@@ -1,40 +1,39 @@
 """
-Configuration management for the llmXive AgentDoG drift detection pipeline.
+Configuration management for llmXive automated science pipeline.
 
-Handles random seeds, file paths, batch sizes, and memory limits.
+Handles random seeds, path resolution, batch sizes, and memory limits.
 """
 import os
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional, List
-
+from typing import Any, Dict, Optional
 import numpy as np
 
-# Project Root (assumed to be the parent of the 'code' directory)
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_CONFIG = {
+# Project Root
+_PROJECT_ROOT = Path(__file__).parent.parent.parent
+_CONFIG: Dict[str, Any] = {
     "seed": 42,
     "batch_size": 32,
     "max_memory_gb": 7,
-    "drift_threshold": 1.5,
+    "drift_threshold": 0.5,
     "centroid_model": "all-MiniLM-L6-v2",
-    "data_dir": "data",
-    "code_dir": "code",
-    "test_dir": "tests",
-    "specs_dir": "specs",
-    "docs_dir": "docs",
-    "raw_data_dir": "data/raw",
-    "processed_data_dir": "data/processed",
-    "test_data_dir": "data/test",
-    "figures_dir": "figures",
+    "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
+        "data_test": "data/test",
+        "specs": "specs",
+        "docs": "docs",
+        "code": "code",
+        "tests": "tests"
+    }
 }
 
-def set_seed(seed: Optional[int] = None) -> None:
+def set_seed(seed: int = 42) -> None:
     """
-    Set the random seed for reproducibility across numpy, random, and torch (if available).
+    Set random seeds for reproducibility across numpy, python random, and torch (if available).
     
     Args:
-        seed: The integer seed value. Defaults to _CONFIG['seed'] if None.
+        seed: Integer seed value.
     """
     if seed is None:
         seed = _CONFIG["seed"]
@@ -48,55 +47,72 @@ def set_seed(seed: Optional[int] = None) -> None:
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass  # torch not installed, ignore
+        pass
 
 def get_config() -> Dict[str, Any]:
-    """Return a copy of the current configuration dictionary."""
+    """Return the current configuration dictionary."""
     return _CONFIG.copy()
 
-def update_config(updates: Dict[str, Any]) -> None:
+def update_config(key: str, value: Any) -> None:
     """
-    Update the global configuration with provided key-value pairs.
+    Update a specific configuration value.
     
     Args:
-        updates: Dictionary of configuration overrides.
+        key: Configuration key (e.g., 'batch_size', 'seed').
+        value: New value to set.
     """
-    _CONFIG.update(updates)
+    if key in _CONFIG:
+        _CONFIG[key] = value
+    else:
+        # Allow dynamic keys if needed, but warn in production
+        _CONFIG[key] = value
 
-def get_path(key: str) -> Path:
+def get_config_summary() -> Dict[str, Any]:
+    """Return a summary of the current configuration."""
+    return {
+        "seed": _CONFIG["seed"],
+        "batch_size": _CONFIG["batch_size"],
+        "max_memory_gb": _CONFIG["max_memory_gb"],
+        "drift_threshold": _CONFIG["drift_threshold"],
+        "centroid_model": _CONFIG["centroid_model"]
+    }
+
+def get_path(path_type: str) -> Path:
     """
-    Resolve a project-relative path based on the configuration key.
+    Resolve a project-relative path to an absolute Path object.
     
     Args:
-        key: The key in _CONFIG corresponding to a relative path.
-    
+        path_type: Key in _CONFIG['paths'] (e.g., 'data_raw', 'specs').
+        
     Returns:
         Absolute Path object.
-    
+        
     Raises:
-        KeyError: If the key is not found in configuration.
+        KeyError: If path_type is not found in configuration.
     """
-    if key not in _CONFIG:
-        raise KeyError(f"Configuration key '{key}' not found.")
-    
-    relative_path = _CONFIG[key]
-    return _PROJECT_ROOT / relative_path
+    if path_type not in _CONFIG["paths"]:
+        raise KeyError(f"Path type '{path_type}' not found in configuration.")
+    return _PROJECT_ROOT / _CONFIG["paths"][path_type]
 
-def get_output_path(filename: str, subdir: Optional[str] = None) -> Path:
+def get_output_path(path_type: str, filename: str) -> Path:
     """
-    Construct a path for an output file within the processed data directory.
+    Resolve a full output path including filename.
     
     Args:
-        filename: The name of the file.
-        subdir: Optional subdirectory within the processed data dir.
-    
+        path_type: Key in _CONFIG['paths'].
+        filename: Name of the file.
+        
     Returns:
-        Absolute Path object for the output file.
+        Absolute Path object to the file.
     """
-    base = get_path("processed_data_dir")
-    if subdir:
-        base = base / subdir
-    return base / filename
+    base_dir = get_path(path_type)
+    return base_dir / filename
+
+def ensure_directories() -> None:
+    """Create all configured directories if they do not exist."""
+    for path_key in _CONFIG["paths"].values():
+        full_path = _PROJECT_ROOT / path_key
+        full_path.mkdir(parents=True, exist_ok=True)
 
 def get_batch_size() -> int:
     """Return the configured batch size."""
@@ -107,39 +123,9 @@ def get_max_memory_gb() -> int:
     return _CONFIG["max_memory_gb"]
 
 def get_drift_threshold() -> float:
-    """Return the configured drift threshold."""
+    """Return the configured drift score threshold."""
     return _CONFIG["drift_threshold"]
 
 def get_centroid_model() -> str:
     """Return the configured centroid model name."""
     return _CONFIG["centroid_model"]
-
-def ensure_directories() -> None:
-    """Create all directories defined in the configuration if they don't exist."""
-    dirs_to_create = [
-        "data_dir",
-        "code_dir",
-        "test_dir",
-        "specs_dir",
-        "docs_dir",
-        "raw_data_dir",
-        "processed_data_dir",
-        "test_data_dir",
-        "figures_dir",
-    ]
-    for key in dirs_to_create:
-        path = get_path(key)
-        path.mkdir(parents=True, exist_ok=True)
-
-def get_config_summary() -> str:
-    """Return a string summary of the current configuration for logging."""
-    summary_lines = [
-        "--- Configuration Summary ---",
-        f"Seed: {_CONFIG['seed']}",
-        f"Batch Size: {_CONFIG['batch_size']}",
-        f"Max Memory (GB): {_CONFIG['max_memory_gb']}",
-        f"Drift Threshold: {_CONFIG['drift_threshold']}",
-        f"Centroid Model: {_CONFIG['centroid_model']}",
-        f"Project Root: {_PROJECT_ROOT}",
-    ]
-    return "\n".join(summary_lines)

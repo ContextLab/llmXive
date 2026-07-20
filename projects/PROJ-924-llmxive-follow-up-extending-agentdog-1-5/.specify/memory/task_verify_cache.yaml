@@ -1,11 +1,52 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/`\
-    \ directory or any of the required sub\u2011folders/files (e.g., `plan.md`, `data/raw/`,\
-    \ `data/processed/`) is provided. Without these artifacts, we cannot confirm that\
-    \ the project structure was created as specified. The implementer must add the\
-    \ actual directory tree and files to satisfy the task."
+  r: No evidence of the required directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`
+    being present (or any listing of its contents) is provided; thus we cannot confirm
+    the task was completed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/`\
+    \ directory is present; the implementer\u2019s claim indicates failure and no\
+    \ artifact is provided to confirm its creation."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/raw/`
+    actually exists; the implementer did not supply a filesystem listing or any proof
+    of its creation. The required artifact is missing.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence (e.g., directory listing, screenshot, or file system output) was\
+    \ provided to confirm that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/`\
+    \ actually exists and is non\u2011empty. The implementer\u2019s claim cannot be\
+    \ verified without concrete artifacts."
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., a directory listing, screenshot, or file manifest) was provided
+    to confirm that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/test/`
+    actually exists; the claim is unsubstantiated.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/`\
+    \ actually exists (or even that any attempt was made to create it). The implementer\u2019\
+    s claim is unsubstantiated, so the required artifact is missing."
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/docs/`
+    actually exists (or contains any files). The implementer must supply a proof (e.g.,
+    a directory listing or screenshot) that the required folder has been created.
+T001h:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/`\
+    \ is presented; without a visible folder or listing, the task\u2019s primary artifact\
+    \ is missing."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,19 +54,34 @@ T006:
     validation helpers or JSON/CSV schema\u2011loading functions in the required directory.\
     \ Without the actual artifact, the claim cannot be verified as fulfilled. The\
     \ implementer must add a non\u2011empty `utils.py` at `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`\
-    \ containing the specified helper functions."
+    \ containing the specified helper utilities."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `checksums.json` file was found in the required `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/`
-    directory, nor any evidence of its contents, so the raw data integrity tracking
-    artifact is missing.
+    directory, nor any evidence (e.g., file listing, content excerpt) that such a
+    file was created and populated for raw data integrity tracking. The task therefore
+    remains unfulfilled.
 T010:
   c: false
   h: 791f84e7142e8619c0977cd8c2f220fcce7266da15732c91902013e6a5bd57a7
-  r: The test implementation is present, but the required schema file `contracts/drift_result.schema.yaml`
-    does not exist, so the test cannot actually validate against the schema as required.
-    The missing schema must be added for the task to be complete.
+  r: The test implementation `test_drift_score_schema_matches_drift_result_yaml` is
+    present, but the required schema file `contracts/drift_result.schema.yaml` does
+    not exist, causing the test to fail its own existence check. Without the schema
+    file, the contract validation cannot be performed, so the task is not fully satisfied.
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `drift_scoring.py` file or `batch_process_logs` function was provided for\
+    \ inspection, so we cannot verify that the function exists, respects the 7\u202F\
+    GB RAM limit, or meets the specified behavior. The required code artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV output, code, or any other artifact was provided showing that empty/whitespace\
+    \ logs are assigned a drift_score of\u202F2.0 and a review_flag of\u202Ftrue.\
+    \ Without concrete files or code changes, the requirement cannot be verified as\
+    \ met."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

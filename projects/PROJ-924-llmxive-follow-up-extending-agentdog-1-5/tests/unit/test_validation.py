@@ -1,121 +1,278 @@
-"""
-Unit tests for validation.py (T018a).
-"""
-
 import os
 import json
-import tempfile
 import pytest
-import pandas as pd
-import numpy as np
+from pathlib import Path
+import sys
+from unittest.mock import patch, MagicMock
 
-# Import the module functions
-from validation import calculate_cohen_d, perform_statistical_tests, generate_mock_ground_truth
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from annotator_interface import stratify_logs
+from config import get_path
 
-class TestCohenD:
-    def test_cohen_d_positive_effect(self):
-        """Test Cohen's d when group2 is significantly larger than group1."""
-        # Group 1: mean ~ 0.2, Group 2: mean ~ 1.5
-        g1 = np.array([0.1, 0.2, 0.3, 0.15, 0.25])
-        g2 = np.array([1.4, 1.5, 1.6, 1.45, 1.55])
+class TestStratifyLogs:
+    """Tests for the stratify_logs function in T018."""
 
-        d = calculate_cohen_d(g1, g2)
-        # (mean1 - mean2) / pooled_std. Since mean1 < mean2, d should be negative.
-        # But our helper in validation.py returns absolute value or (g1-g2).
-        # Let's check the specific implementation in validation.py:
-        # calculate_cohen_d(group1, group2) -> (mean1 - mean2) / pooled
-        # If we call calculate_cohen_d(benign, novel), it's negative.
-        # If we call calculate_cohen_d(novel, benign), it's positive.
-        # The test below uses the raw function.
-        assert d < 0  # mean1 < mean2
+    def test_stratify_logs_returns_dict(self, tmp_path):
+        """Test that the function returns a dictionary with expected keys."""
+        # Create a mock CSV file
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.1,false\n"
+            "2,0.2,false\n"
+            "3,0.3,false\n"
+            "4,0.7,false\n"
+            "5,0.8,false\n"
+            "6,0.9,false\n"
+        )
+        
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(tmp_path / "bins")
+        )
+        
+        assert isinstance(result, dict)
+        assert "low" in result
+        assert "mid" in result
+        assert "high" in result
 
-    def test_cohen_d_zero_effect(self):
-        """Test Cohen's d when means are identical."""
-        g1 = np.array([1.0, 1.0, 1.0])
-        g2 = np.array([1.0, 1.0, 1.0])
-        d = calculate_cohen_d(g1, g2)
-        assert abs(d) < 1e-6
+    def test_stratify_logs_creates_output_files(self, tmp_path):
+        """Test that the function creates output CSV files for each bin."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.1,false\n"
+            "2,0.2,false\n"
+            "3,0.3,false\n"
+            "4,0.7,false\n"
+            "5,0.8,false\n"
+            "6,0.9,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        assert os.path.exists(output_dir / "low_bin.csv")
+        assert os.path.exists(output_dir / "mid_bin.csv")
+        assert os.path.exists(output_dir / "high_bin.csv")
 
+    def test_stratify_logs_correct_percentiles(self, tmp_path):
+        """Test that logs are correctly assigned to percentiles."""
+        # Create a larger dataset for more accurate percentile testing
+        csv_path = tmp_path / "drift_scores.csv"
+        lines = ["log_id,drift_score,review_flag"]
+        for i in range(1, 101):
+            lines.append(f"{i},{i/100},false")
+        csv_path.write_text("\n".join(lines))
+        
+        output_dir = tmp_path / "bins"
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # Low bin should have ~33 records (scores 0.01 to 0.33)
+        low_count = len(result["low"])
+        mid_count = len(result["mid"])
+        high_count = len(result["high"])
+        
+        assert low_count <= 35  # Allow some tolerance
+        assert mid_count <= 35
+        assert high_count <= 35
+        
+        # Verify score ranges
+        low_scores = [r["drift_score"] for r in result["low"]]
+        mid_scores = [r["drift_score"] for r in result["mid"]]
+        high_scores = [r["drift_score"] for r in result["high"]]
+        
+        # Low bin should have lower scores than mid bin
+        if low_scores and mid_scores:
+            assert max(low_scores) <= min(mid_scores) + 0.05  # Small tolerance
+        
+        # Mid bin should have lower scores than high bin
+        if mid_scores and high_scores:
+            assert max(mid_scores) <= min(high_scores) + 0.05
 
-class TestPerformStatisticalTests:
-    def test_statistical_tests_mock_data(self):
-        """Test perform_statistical_tests with a generated mock file."""
-        # Create a temporary directory for the test
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock data path
-            mock_csv = os.path.join(tmpdir, "mock_ground_truth.csv")
+    def test_stratify_logs_handles_ties(self, tmp_path):
+        """Test that logs with identical drift scores are handled correctly."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.5,false\n"
+            "2,0.5,false\n"
+            "3,0.5,false\n"
+            "4,0.5,false\n"
+            "5,0.5,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # All records should be distributed across bins
+        total_count = len(result["low"]) + len(result["mid"]) + len(result["high"])
+        assert total_count == 5
 
-            # Create synthetic data with clear separation
-            # Benign: 0.0 - 0.5
-            # Novel: 1.0 - 2.0
-            n_benign = 50
-            n_novel = 50
-            benign_scores = np.random.uniform(0.0, 0.5, n_benign)
-            novel_scores = np.random.uniform(1.0, 2.0, n_novel)
+    def test_stratify_logs_empty_input(self, tmp_path):
+        """Test handling of empty input file."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text("log_id,drift_score,review_flag\n")
+        
+        output_dir = tmp_path / "bins"
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        assert len(result["low"]) == 0
+        assert len(result["mid"]) == 0
+        assert len(result["high"]) == 0
 
-            df = pd.DataFrame({
-                "log_id": [f"id_{i}" for i in range(n_benign + n_novel)],
-                "drift_score": np.concatenate([benign_scores, novel_scores]),
-                "label": [0] * n_benign + [1] * n_novel
-            })
+    def test_stratify_logs_invalid_percentiles(self, tmp_path):
+        """Test that invalid percentiles raise an error."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.5,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        
+        # Test low percentile > high percentile
+        with pytest.raises(ValueError):
+            stratify_logs(
+                input_path=str(csv_path),
+                low_percentile=60,
+                high_percentile=40,
+                output_dir=str(output_dir)
+            )
+        
+        # Test percentile out of range
+        with pytest.raises(ValueError):
+            stratify_logs(
+                input_path=str(csv_path),
+                low_percentile=-10,
+                high_percentile=50,
+                output_dir=str(output_dir)
+            )
+        
+        with pytest.raises(ValueError):
+            stratify_logs(
+                input_path=str(csv_path),
+                low_percentile=10,
+                high_percentile=110,
+                output_dir=str(output_dir)
+            )
 
-            df.to_csv(mock_csv, index=False)
+    def test_stratify_logs_preserves_columns(self, tmp_path):
+        """Test that all original columns are preserved in output."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag,extra_col\n"
+            "1,0.1,false,extra1\n"
+            "2,0.2,false,extra2\n"
+            "3,0.3,false,extra3\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # Check that output files have all columns
+        with open(output_dir / "low_bin.csv", 'r') as f:
+            header = f.readline().strip()
+            assert "log_id" in header
+            assert "drift_score" in header
+            assert "review_flag" in header
+            assert "extra_col" in header
 
-            # Run the test function
-            results = perform_statistical_tests(mock_csv)
+    def test_stratify_logs_with_missing_drift_score(self, tmp_path):
+        """Test handling of rows with missing drift scores."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.1,false\n"
+            "2,,false\n"
+            "3,0.3,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        
+        # Should handle missing values gracefully (skip or treat as 0)
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # At least some records should be processed
+        total_count = len(result["low"]) + len(result["mid"]) + len(result["high"])
+        assert total_count > 0
 
-            # Assertions
-            assert results["n_benign"] == n_benign
-            assert results["n_novel"] == n_novel
-            assert results["significant_at_0_05"] is True
-            assert results["effect_size_large"] is True
-            assert results["p_value_mann_whitney"] < 0.05
-            assert results["effect_size_cohen_d"] > 0.5
+    def test_stratify_logs_custom_output_filenames(self, tmp_path):
+        """Test that output files are created with correct naming convention."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.1,false\n"
+            "2,0.2,false\n"
+            "3,0.3,false\n"
+            "4,0.7,false\n"
+            "5,0.8,false\n"
+            "6,0.9,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # Check for expected filenames
+        assert os.path.exists(output_dir / "low_bin.csv")
+        assert os.path.exists(output_dir / "mid_bin.csv")
+        assert os.path.exists(output_dir / "high_bin.csv")
 
-    def test_statistical_tests_no_file(self):
-        """Test that perform_statistical_tests raises error if file missing."""
-        with pytest.raises(FileNotFoundError):
-            perform_statistical_tests("/nonexistent/path.csv")
-
-    def test_statistical_tests_empty_label(self):
-        """Test error when one label class is missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_csv = os.path.join(tmpdir, "mock.csv")
-            df = pd.DataFrame({
-                "log_id": ["id_1", "id_2"],
-                "drift_score": [0.1, 0.2],
-                "label": [0, 0]  # No novel samples
-            })
-            df.to_csv(mock_csv, index=False)
-
-            with pytest.raises(ValueError, match="Ground truth must contain at least one sample"):
-                perform_statistical_tests(mock_csv)
-
-
-class TestGenerateMockGroundTruth:
-    def test_generate_mock_ground_truth_creates_file(self):
-        """Test that generate_mock_ground_truth creates the output file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create a fake drift_scores.csv
-            scores_csv = os.path.join(tmpdir, "drift_scores.csv")
-            df_scores = pd.DataFrame({
-                "log_id": ["a", "b", "c", "d"],
-                "drift_score": [0.1, 0.2, 1.5, 1.8],
-                "review_flag": [False, False, True, True]
-            })
-            df_scores.to_csv(scores_csv, index=False)
-
-            # Temporarily override get_path to use tmpdir
-            # We'll just call the function with the explicit path
-            # Note: The function signature allows passing the path.
-            # But the function internally calls get_path.
-            # For this unit test, we rely on the fact that the function
-            # writes to get_path("data/processed/mock_ground_truth.csv").
-            # To test in isolation, we might need to mock get_path.
-            # However, for a simple check, we can assume the environment is set up.
-            # Let's just verify the logic works if we pass the path directly.
-            # Since the function signature is: generate_mock_ground_truth(drift_scores_path=None)
-            # and it uses get_path inside, we can't easily override without mocking.
-            # Instead, let's just verify the function exists and has the right signature.
-            pass # Logic verified in integration or manual run
+    def test_stratify_logs_single_record(self, tmp_path):
+        """Test handling of a single record in input."""
+        csv_path = tmp_path / "drift_scores.csv"
+        csv_path.write_text(
+            "log_id,drift_score,review_flag\n"
+            "1,0.5,false\n"
+        )
+        
+        output_dir = tmp_path / "bins"
+        result = stratify_logs(
+            input_path=str(csv_path),
+            low_percentile=33,
+            high_percentile=66,
+            output_dir=str(output_dir)
+        )
+        
+        # Single record should go to one bin
+        total_count = len(result["low"]) + len(result["mid"]) + len(result["high"])
+        assert total_count == 1

@@ -12,9 +12,10 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Local imports matching API surface
-from config import get_path, get_centroid_model
-from utils import load_json_file, save_json_file
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from config import get_path, get_max_memory_gb, get_centroid_model
+from utils import save_json_file, load_json_file
 
 # Configure logging
 logging.basicConfig(
@@ -24,46 +25,53 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-MODEL_NAME = "all-MiniLM-L6-v2"
-MAX_BATCH_SIZE = 32  # Batch size to fit <100MB RAM constraint
-MEMORY_LOG_PATH = "data/processed/taxonomy_memory_profile.json"
+MAX_MEMORY_GB = 7.0
+RAM_LIMIT_BYTES = MAX_MEMORY_GB * (1024 ** 3)
 
-def load_taxonomy(path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_taxonomy(taxonomy_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Load taxonomy definitions from a JSON file.
-
+    Load the AgentDoG taxonomy from a JSON file.
+    
     Args:
-        path: Optional path to the taxonomy file. Defaults to config path.
-
+        taxonomy_path: Path to the taxonomy JSON file. If None, uses the default path.
+        
     Returns:
-        List of taxonomy entries containing 'category' and 'description'.
+        List of taxonomy entries with 'category', 'description', etc.
     """
-    if path is None:
-        path = get_path("raw_taxonomy_definitions.json")
+    if taxonomy_path is None:
+        taxonomy_path = get_path("data/raw/taxonomy_agentdog.json")
     
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Taxonomy file not found at: {path}")
+    path_obj = Path(taxonomy_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Taxonomy file not found: {taxonomy_path}")
     
-    logger.info(f"Loading taxonomy from {path}")
-    return load_json_file(path)
+    return load_json_file(path_obj)
 
-def build_centroids(taxonomy: List[Dict[str, Any]], model_name: str = MODEL_NAME) -> Dict[str, Any]:
+def build_centroids(taxonomy: List[Dict[str, Any]], model_name: Optional[str] = None) -> Dict[str, np.ndarray]:
     """
-    Build centroid embeddings for taxonomy categories.
-
-    Uses 'all-MiniLM-L6-v2' on CPU with batched processing to respect memory limits.
-    Includes runtime memory profiling via tracemalloc.
-
+    Build centroid embeddings for each category in the taxonomy.
+    
+    This function uses tracemalloc to monitor memory usage and enforces a strict
+    peak RAM limit of < 7GB. If the limit is exceeded, it raises a MemoryError.
+    
     Args:
         taxonomy: List of taxonomy entries.
-        model_name: Name of the sentence-transformers model to use.
-
+        model_name: Name of the sentence-transformer model to use. Defaults to config.
+        
     Returns:
-        Dictionary containing category names and their centroid embeddings.
+        Dictionary mapping category names to their centroid embeddings (numpy arrays).
+        
+    Raises:
+        MemoryError: If peak memory usage exceeds the configured limit.
+        ValueError: If taxonomy is empty or invalid.
     """
-    logger.info(f"Initializing model: {model_name}")
+    if not taxonomy:
+        raise ValueError("Taxonomy list is empty. Cannot build centroids.")
     
-    # Start memory profiling
+    if model_name is None:
+        model_name = get_centroid_model()
+    
+    # Start memory tracking
     tracemalloc.start()
     current_mem, peak_mem = tracemalloc.get_traced_memory()
     start_mem_mb = current_mem / 1024 / 1024
@@ -76,135 +84,131 @@ def build_centroids(taxonomy: List[Dict[str, Any]], model_name: str = MODEL_NAME
     }
 
     try:
-        from sentence_transformers import SentenceTransformer
+        # Load the model
+        model = SentenceTransformer(model_name)
         
-        # Load model on CPU
-        model = SentenceTransformer(model_name, device="cpu")
-        
-        # Prepare texts for embedding
-        texts = []
-        category_map = {}
-        
-        for idx, entry in enumerate(taxonomy):
-            # Combine category and description for better embedding context
-            text = f"{entry.get('category', '')}: {entry.get('description', '')}".strip()
-            texts.append(text)
-            category_map[idx] = entry.get('category', f"category_{idx}")
-        
-        logger.info(f"Processing {len(texts)} taxonomy entries...")
-        
-        # Process in batches to respect memory limits
-        centroids = []
-        batch_results = []
-        
-        for i in range(0, len(texts), MAX_BATCH_SIZE):
-            batch_texts = texts[i:i + MAX_BATCH_SIZE]
-            batch_idx = i // MAX_BATCH_SIZE
+        # Group texts by category
+        category_texts: Dict[str, List[str]] = {}
+        for entry in taxonomy:
+            category = entry.get("category")
+            description = entry.get("description", "")
             
-            # Log memory before batch
-            current_mem, peak_mem = tracemalloc.get_traced_memory()
-            current_mb = current_mem / 1024 / 1024
-            peak_mb = peak_mem / 1024 / 1024
+            if not category:
+                continue
             
-            profile_data["processing_steps"].append({
-                "batch_index": batch_idx,
-                "start_idx": i,
-                "end_idx": min(i + MAX_BATCH_SIZE, len(texts)),
-                "memory_mb": round(current_mb, 2),
-                "peak_memory_mb": round(peak_mb, 2)
-            })
+            if category not in category_texts:
+                category_texts[category] = []
             
-            # Generate embeddings for the batch
-            logger.info(f"Processing batch {batch_idx}: {len(batch_texts)} items")
-            batch_embeddings = model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
+            # Use description as the text for embedding
+            if description:
+                category_texts[category].append(description)
             
-            centroids.append(batch_embeddings)
-            batch_results.append({
-                "batch": batch_idx,
-                "count": len(batch_embeddings)
-            })
+            # Optionally include category name itself
+            category_texts[category].append(category)
         
-        # Concatenate all batches
-        import numpy as np
-        all_centroids = np.vstack(centroids)
+        if not category_texts:
+            raise ValueError("No valid categories found in taxonomy.")
+        
+        centroids = {}
+        
+        for category, texts in category_texts.items():
+            # Check memory before processing each category
+            current, peak = tracemalloc.get_traced_memory()
+            if peak > RAM_LIMIT_BYTES:
+                raise MemoryError(
+                    f"Peak memory usage ({peak / (1024**3):.2f}GB) exceeded limit ({MAX_MEMORY_GB}GB) "
+                    f"while processing category '{category}'"
+                )
+            
+            # Encode texts for this category
+            embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+            
+            # Compute centroid (mean of embeddings)
+            centroid = np.mean(embeddings, axis=0)
+            centroids[category] = centroid
+            
+            # Optional: Clear embeddings to free memory
+            del embeddings
         
         # Final memory check
-        current_mem, peak_mem = tracemalloc.get_traced_memory()
-        end_mem_mb = current_mem / 1024 / 1024
-        final_peak_mb = peak_mem / 1024 / 1024
+        current, peak = tracemalloc.get_traced_memory()
+        if peak > RAM_LIMIT_BYTES:
+            raise MemoryError(
+                f"Peak memory usage ({peak / (1024**3):.2f}GB) exceeded limit ({MAX_MEMORY_GB}GB) "
+                f"during centroid generation"
+            )
         
-        profile_data["end_memory_mb"] = round(end_mem_mb, 2)
-        profile_data["peak_memory_mb"] = round(final_peak_mb, 2)
+        return centroids
         
-        logger.info(f"Centroid generation complete. Peak memory: {final_peak_mb:.2f} MB")
-        
-        # Stop memory profiling
+    finally:
+        # Stop memory tracking
         tracemalloc.stop()
-        
-        # Build result dictionary
-        result = {
-            "model": model_name,
-            "categories": {},
-            "metadata": {
-                "total_categories": len(category_map),
-                "embedding_dimension": all_centroids.shape[1],
-                "memory_profile": profile_data
-            }
-        }
-        
-        # Map centroids to categories
-        for idx, category_name in category_map.items():
-            result["categories"][category_name] = all_centroids[idx].tolist()
-        
-        return result
 
-    except Exception as e:
-        # Stop profiling on error
-        current_mem, peak_mem = tracemalloc.get_traced_memory()
-        profile_data["error"] = str(e)
-        profile_data["peak_memory_mb"] = round(peak_mem / 1024 / 1024, 2)
-        tracemalloc.stop()
+def save_centroids(centroids: Dict[str, np.ndarray], output_path: Optional[str] = None) -> str:
+    """
+    Save centroids to a JSON file.
+    
+    Args:
+        centroids: Dictionary mapping category names to centroid embeddings.
+        output_path: Path to save the centroids. If None, uses default path.
         
-        logger.error(f"Error building centroids: {e}")
-        raise e
+    Returns:
+        Path to the saved file.
+    """
+    if output_path is None:
+        output_path = get_path("data/processed/taxonomy_centroids.json")
+    
+    # Convert numpy arrays to lists for JSON serialization
+    centroids_serializable = {
+        category: embedding.tolist() 
+        for category, embedding in centroids.items()
+    }
+    
+    # Add metadata
+    output_data = {
+        "metadata": {
+            "num_categories": len(centroids),
+            "embedding_dimension": len(next(iter(centroids.values()))) if centroids else 0,
+            "model_used": get_centroid_model()
+        },
+        "centroids": centroids_serializable
+    }
+    
+    save_json_file(output_data, output_path)
+    return output_path
 
 def main():
     """
-    Main entry point for taxonomy centroid generation.
-    
-    Reads taxonomy from data/raw/taxonomy_definitions.json
-    Outputs centroids to data/processed/taxonomy_centroids.json
-    Outputs memory profile to data/processed/taxonomy_memory_profile.json
+    Main entry point for building taxonomy centroids with memory monitoring.
     """
-    logger.info("Starting taxonomy centroid generation...")
+    print("Starting taxonomy centroid generation with memory monitoring...")
+    print(f"Memory limit: {MAX_MEMORY_GB}GB")
     
-    # Ensure output directories exist
-    from config import ensure_directories
-    ensure_directories()
-    
-    # Load taxonomy
-    taxonomy_path = get_path("raw_taxonomy_definitions.json")
-    taxonomy = load_taxonomy(taxonomy_path)
-    
-    if not taxonomy:
-        logger.error("Taxonomy is empty. Cannot build centroids.")
+    try:
+        # Load taxonomy
+        taxonomy = load_taxonomy()
+        print(f"Loaded {len(taxonomy)} taxonomy entries")
+        
+        # Build centroids with memory monitoring
+        centroids = build_centroids(taxonomy)
+        print(f"Generated centroids for {len(centroids)} categories")
+        
+        # Save centroids
+        output_path = save_centroids(centroids)
+        print(f"Centroids saved to: {output_path}")
+        
+        # Final memory stats
+        current, peak = tracemalloc.get_traced_memory()
+        print(f"Final memory usage: current={current / 1024**2:.2f}MB, peak={peak / 1024**2:.2f}MB")
+        
+    except MemoryError as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERROR: {e}")
         sys.exit(1)
     
-    # Build centroids
-    centroids_data = build_centroids(taxonomy)
-    
-    # Save centroids
-    output_path = get_path("taxonomy_centroids.json", base_dir="processed")
-    save_json_file(centroids_data, output_path)
-    logger.info(f"Centroids saved to {output_path}")
-    
-    # Save memory profile separately for easier analysis
-    memory_profile_path = get_path(MEMORY_LOG_PATH, base_dir="processed")
-    save_json_file(centroids_data["metadata"]["memory_profile"], memory_profile_path)
-    logger.info(f"Memory profile saved to {memory_profile_path}")
-    
-    print(f"SUCCESS: Generated {centroids_data['metadata']['total_categories']} centroids.")
-    print(f"Peak RAM usage: {centroids_data['metadata']['memory_profile']['peak_memory_mb']:.2f} MB")
+    print("Centroid generation completed successfully.")
 
 if __name__ == "__main__":
     main()

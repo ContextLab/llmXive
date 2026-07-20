@@ -1,6 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Drift Result Schema
-description: Schema for the output of the drift scoring pipeline (drift_scoring.py).
+# Schema for Drift Scoring Results
+# This schema validates the output of drift_scoring.py
 type: object
 required:
   - log_id
@@ -9,14 +8,14 @@ required:
 properties:
   log_id:
     type: string
-    description: Unique identifier for the log entry.
-    minLength: 1
+    description: Unique identifier for the log entry
+    pattern: "^log_[0-9]+$"
   drift_score:
     type: number
-    description: Cosine distance between the log embedding and the nearest taxonomy centroid.
     minimum: 0.0
     maximum: 2.0
+    description: Cosine distance to nearest taxonomy centroid (0=identical, 2=opposite)
   review_flag:
     type: boolean
-    description: Indicates if the log requires human review (e.g., empty log or high drift).
+    description: True if log requires human review (e.g., empty log or high drift)
 additionalProperties: false

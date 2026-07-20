@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-agentdog"
-version = "1.5.0"
-description = "llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection"
+name = "llmxive-drift-detection"
+version = "0.1.0"
+description = "Zero-shot drift detection for LLM safety logs"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
@@ -23,6 +23,7 @@ dependencies = [
     "pytest",
     "transformers",
     "accelerate",
+    "openai",
     "ruff",
     "black"
 ]
@@ -31,42 +32,31 @@ dependencies = [
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.eggs
     | \.git
-    | \.hg
     | \.mypy_cache
-    | \.nox
-    | \.pants.d
-    | \.pytype
-    | \.ruff_cache
-    | \.svn
-    | \.tox
     | \.venv
-    | __pypackages__
-    | _build
-    | buck-out
     | build
     | dist
-    | node_modules
-    | venv
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
 ]
 
 [tool.ruff]
-# Ruff is configured in .ruff.toml, but we ensure the path is recognized here if needed
-# or we can duplicate settings if the project prefers a single file.
-# Per task requirement, we use .ruff.toml for lint rules, but pyproject.toml for project metadata.
-# This section is kept minimal to avoid conflict with .ruff.toml.
-line-length = 88
-target-version = "py311"
+# Explicitly point to the .ruff.toml if needed, though usually auto-discovered.
+# The configuration is primarily in .ruff.toml, but this ensures pyproject.toml
+# acts as the entry point for tool discovery.
+extend = ".ruff.toml"
