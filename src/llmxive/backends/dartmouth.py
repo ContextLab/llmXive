@@ -12,6 +12,7 @@ import os
 import random
 import time
 from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
@@ -527,6 +528,64 @@ def _ensure_api_key_env() -> None:
 
 
 _FREE_MODELS_CACHE: frozenset[str] | None = None
+#: ``time.monotonic()`` timestamp of the last successful ``_FREE_MODELS_CACHE``
+#: fill; ``None`` means "no cache yet". Monotonic (not wall-clock) so a system
+#: clock adjustment can't extend or shrink the TTL. See ``free_chat_models``.
+_FREE_MODELS_CACHE_AT: float | None = None
+
+#: Fallback spend-authorization freshness bound (seconds), used ONLY if the
+#: canonical ``model_selection.profiles`` constant cannot be imported (should
+#: not happen in production; see ``_free_model_freshness_bound_s``). Mirrors
+#: ``profiles.PROFILES["independent_review"].max_catalog_age_s`` at time of
+#: writing — kept as a literal safety net, never the primary source
+#: (Constitution I: single source of truth for the real bound).
+_FALLBACK_FREE_MODEL_FRESHNESS_BOUND_S = 900.0
+
+
+def _free_model_freshness_bound_s() -> float:
+    """Max age (seconds) a "free" classification may be before it must be
+    reconfirmed — bounds BOTH the in-process ``free_chat_models`` cache TTL
+    and the LKG "catalog" observation's staleness cutoff (review Finding 2).
+
+    ``is_free_model`` gates whether ``DartmouthBackend.chat()`` even calls
+    ``paid_call_allowed`` — a stale "free" verdict bypasses the credit guard
+    entirely, so this sits directly on the spend-authorization boundary and
+    is treated as HIGH-STAKES. Rather than duplicate a literal, this derives
+    the bound from ``model_selection.profiles``' ``independent_review``
+    profile: the SAME tight 900s bound spec 026 already reserves for
+    high-stakes calls (FR-007), not the default ``max_catalog_age_s=3600``.
+    Function-local import: ``backends`` must not import ``model_selection``
+    at module scope — the established cycle guard, see ``_lkg_free_models``
+    below. Any failure (import error, missing profile key, ...) falls back
+    to the literal mirror above; this must never raise into the chat() path.
+    """
+    try:
+        from llmxive.model_selection.profiles import PROFILES
+
+        return float(PROFILES["independent_review"].max_catalog_age_s)
+    except Exception:
+        return _FALLBACK_FREE_MODEL_FRESHNESS_BOUND_S
+
+
+def _is_fresh_enough(observed_at: datetime, *, max_age_s: float | None = None) -> bool:
+    """True if ``observed_at`` is within the spend-authorization freshness
+    bound of "now".
+
+    ``observed_at`` may be tz-naive or tz-aware depending on how it was
+    persisted (``LKGStore`` always writes UTC-aware today via
+    ``datetime.now(UTC).isoformat()``, but this stays defensive against any
+    other producer) — a naive value is treated as UTC rather than raising.
+    ANY failure (not a real datetime, arithmetic error, ...) returns
+    ``False`` — fail closed, never raise. This sits on the call path of
+    every LLM request via ``_lkg_free_models``.
+    """
+    bound = _free_model_freshness_bound_s() if max_age_s is None else max_age_s
+    try:
+        ts = observed_at if observed_at.tzinfo is not None else observed_at.replace(tzinfo=UTC)
+        age_s = (datetime.now(UTC) - ts).total_seconds()
+        return age_s <= bound
+    except Exception:
+        return False
 
 
 def _cloud_models_url() -> str:
@@ -598,11 +657,23 @@ def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
 
     Authoritative source: the live chat catalog's explicit per-model pricing.
     Returns ``None`` when the catalog is unreachable so callers (``is_free_model``)
-    fall back to the last-known-good LKG catalog observation. Cached for the
-    process lifetime.
+    fall back to the last-known-good LKG catalog observation.
+
+    Cached for a BOUNDED TTL (:func:`_free_model_freshness_bound_s`) — NOT the
+    process lifetime (review Finding 2: an unbounded cache in a long-running
+    cron worker never re-confirms a "free" verdict, which bypasses the paid
+    guard). Once the TTL elapses the next call refetches; a refetch FAILURE
+    returns ``None`` rather than re-serving the (now expired) cache, so
+    ``is_free_model`` falls through to the LKG step instead of silently
+    trusting an unboundedly old "free" verdict.
     """
-    global _FREE_MODELS_CACHE
-    if _FREE_MODELS_CACHE is not None and not force_refresh:
+    global _FREE_MODELS_CACHE, _FREE_MODELS_CACHE_AT
+    now = time.monotonic()
+    cache_is_fresh = (
+        _FREE_MODELS_CACHE_AT is not None
+        and (now - _FREE_MODELS_CACHE_AT) < _free_model_freshness_bound_s()
+    )
+    if _FREE_MODELS_CACHE is not None and cache_is_fresh and not force_refresh:
         return _FREE_MODELS_CACHE
     try:
         models = _fetch_cloud_models()
@@ -617,6 +688,7 @@ def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
         if in_cost == 0 and out_cost == 0:
             free.add(str(mid))
     _FREE_MODELS_CACHE = frozenset(free)
+    _FREE_MODELS_CACHE_AT = now
     return _FREE_MODELS_CACHE
 
 
@@ -661,6 +733,13 @@ def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | N
     ``None`` rather than raising. This sits on the call path of every LLM
     request, so it must never crash a chat call just because the LKG cache is
     unusable; the caller treats ``None`` the same as "no LKG data available".
+
+    A "catalog" entry older than :func:`_free_model_freshness_bound_s` is
+    ALSO treated as absent (review Finding 2): an aged-but-real observation
+    is fine for display/reporting, but not for authorizing spend — this is
+    the same freshness bound spec 026 reserves for high-stakes calls, and
+    SC-003 requires stale/unknown pricing to fail closed rather than trust an
+    arbitrarily old "free" verdict.
     """
     try:
         from llmxive.model_selection.lkg import LKGStore as _LKGStore
@@ -668,6 +747,8 @@ def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | N
 
         entry = (lkg_store or _LKGStore()).load().get("catalog")
         if entry is None:
+            return None
+        if not _is_fresh_enough(entry.observed_at):
             return None
         _refs, pricing = _models_from_payload(entry.payload)
         return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
@@ -683,13 +764,20 @@ def is_free_model(model: str) -> bool:
     1. The LIVE catalog (:func:`free_chat_models`) when reachable — authoritative.
     2. On a live-catalog outage, the last-known-good LKG catalog observation
        (:func:`_lkg_free_models`) — an aged but REAL timestamped pricing
-       snapshot. This is what keeps a transient Dartmouth catalog-listing blip
-       from denying every free model: ``chat()`` treats a non-free model as
-       paid and requires the credit-guard opt-in (off by default), so without
-       this fallback a bare outage would make every candidate look paid and
-       every call would be refused while the models themselves are up and free.
-    3. If NEITHER is available (cold start, no LKG observation yet), fail
-       CLOSED: an unknown-priced model is never treated as free (SC-003).
+       snapshot, bounded by :func:`_free_model_freshness_bound_s`. This is
+       what keeps a transient Dartmouth catalog-listing blip from denying
+       every free model: ``chat()`` treats a non-free model as paid and
+       requires the credit-guard opt-in (off by default), so without this
+       fallback a bare outage would make every candidate look paid and every
+       call would be refused while the models themselves are up and free.
+       Both steps of this ladder are freshness-bounded (review Finding 2): a
+       stale "free" verdict — from either the in-process cache outliving its
+       TTL or an old LKG observation — bypasses ``paid_call_allowed`` at the
+       spend-authorization boundary, so neither is allowed to serve data
+       older than the bound.
+    3. If NEITHER is available (cold start, no LKG observation yet, or the
+       only LKG record is too stale), fail CLOSED: an unknown-priced model is
+       never treated as free (SC-003).
     """
     live = free_chat_models()
     if live is not None:
