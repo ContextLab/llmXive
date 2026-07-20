@@ -1,32 +1,8 @@
-# Core dependencies for Neuro-Symbolic Learning Networks Project
-# Generated for PROJ-559-neuro-symbolic-learning-networks-bridgin
-
-# Machine Learning & NLP
-torch>=2.0.0,<3.0.0  # CPU-only by default, default precision
-transformers>=4.35.0,<5.0.0  # For TinyLlama and other HuggingFace models
-accelerate>=0.20.0,<1.0.0  # Model acceleration utilities
-
-# Data Processing & Analysis
-pandas>=2.0.0,<3.0.0  # Data manipulation
-numpy>=1.24.0,<2.0.0  # Numerical operations
-
-# Statistical Analysis
-statsmodels>=0.14.0,<1.0.0  # Mixed-effects models and regression
-
-# Configuration & Utilities
-pyyaml>=6.0.0,<7.0.0  # YAML configuration files
-scikit-learn>=1.3.0,<2.0.0  # Machine learning utilities
-
-# Testing
-pytest>=7.4.0,<8.0.0  # Testing framework
-pytest-cov>=4.1.0,<5.0.0  # Coverage reporting
-
-# Linting & Formatting
-ruff>=0.1.0,<1.0.0  # Fast Python linter
-black>=23.0.0,<25.0.0  # Code formatter
-
-# HTTP & Download
-requests>=2.31.0,<3.0.0  # HTTP requests for data fetching
-
-# Note: For CPU-only deployment, install torch without CUDA:
-# pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers
+scikit-learn
+pandas
+statsmodels
+pyyaml
+pytest
+requests

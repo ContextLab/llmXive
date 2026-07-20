@@ -1,101 +1,150 @@
-"""
-Schema validation utilities for the neuro-symbolic learning networks project.
-
-This module provides functions to validate data against the JSON Schema
-definitions located in the `contracts/` directory.
-"""
 import json
 import os
 from typing import Any, Dict, List, Tuple
 
-try:
-    import jsonschema
-    from jsonschema import validate, ValidationError, Draft7Validator
-except ImportError:
-    raise ImportError(
-        "The 'jsonschema' package is required for validation. "
-        "Install it via: pip install jsonschema"
-    )
+# Schema definitions for validation
+EXPLANATION_SCHEMA = {
+    "required": ["explanation_id", "problem_id", "condition", "text"],
+    "types": {
+        "explanation_id": str,
+        "problem_id": str,
+        "condition": str,
+        "text": str,
+        "symbolic_trace": list,
+        "neural_narrative": str,
+        "generated_at": str
+    }
+}
 
-# Base path for schema files relative to project root
-# Project structure: code/utils/validation.py -> ../../contracts/
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SCHEMAS_PATH = os.path.join(PROJECT_ROOT, "contracts")
+PROBLEM_SCHEMA = {
+    "required": ["problem_id", "subject", "topic", "difficulty", "question_text", "correct_answer"],
+    "types": {
+        "problem_id": str,
+        "subject": str,
+        "topic": str,
+        "difficulty": int,
+        "question_text": str,
+        "correct_answer": str
+    }
+}
 
-def _load_schema(schema_name: str) -> Dict[str, Any]:
-    """Load a JSON schema from the contracts directory."""
-    schema_path = os.path.join(SCHEMAS_PATH, schema_name)
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+SIMULATION_LOG_SCHEMA = {
+    "required": [
+        "student_id", "condition", "problem_id", "attempt", "timestamp",
+        "knowledge_state", "correct", "rt_seconds", "comprehension_rating", "data_source"
+    ],
+    "types": {
+        "student_id": str,
+        "condition": str,
+        "problem_id": str,
+        "attempt": int,
+        "timestamp": str,
+        "knowledge_state": float,
+        "correct": bool,
+        "rt_seconds": float,
+        "comprehension_rating": int,
+        "data_source": str
+    }
+}
 
-def validate_problem(data: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_explanation(data: Dict[str, Any]) -> bool:
     """
-    Validate a problem record against problem.schema.yaml.
-    
-    Args:
-        data: The problem dictionary to validate.
-    
-    Returns:
-        Tuple of (is_valid: bool, error_message: str).
-        If valid, error_message is empty.
-    """
-    try:
-        schema = _load_schema("problem.schema.yaml")
-        validate(instance=data, schema=schema)
-        return True, ""
-    except ValidationError as e:
-        return False, str(e.message)
-
-def validate_explanation(data: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Validate an explanation record against explanation.schema.yaml.
+    Validate an explanation object against the schema.
     
     Args:
         data: The explanation dictionary to validate.
     
     Returns:
-        Tuple of (is_valid: bool, error_message: str).
+        True if valid, False otherwise.
     """
-    try:
-        schema = _load_schema("explanation.schema.yaml")
-        validate(instance=data, schema=schema)
-        return True, ""
-    except ValidationError as e:
-        return False, str(e.message)
+    if not isinstance(data, dict):
+        return False
+    
+    # Check required fields
+    for field in EXPLANATION_SCHEMA["required"]:
+        if field not in data:
+            return False
+    
+    # Check types
+    for field, expected_type in EXPLANATION_SCHEMA["types"].items():
+        if field in data and not isinstance(data[field], expected_type):
+            return False
+    
+    return True
 
-def validate_simulation_log(data: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_problem(data: Dict[str, Any]) -> bool:
     """
-    Validate a simulation log record against simulation_log.schema.yaml.
+    Validate a problem object against the schema.
     
     Args:
-        data: The log record dictionary to validate.
+        data: The problem dictionary to validate.
     
     Returns:
-        Tuple of (is_valid: bool, error_message: str).
+        True if valid, False otherwise.
     """
-    try:
-        schema = _load_schema("simulation_log.schema.yaml")
-        validate(instance=data, schema=schema)
-        return True, ""
-    except ValidationError as e:
-        return False, str(e.message)
+    if not isinstance(data, dict):
+        return False
+    
+    for field in PROBLEM_SCHEMA["required"]:
+        if field not in data:
+            return False
+    
+    for field, expected_type in PROBLEM_SCHEMA["types"].items():
+        if field in data and not isinstance(data[field], expected_type):
+            return False
+    
+    return True
 
-def validate_batch(data_list: List[Dict[str, Any]], validator_func) -> List[Tuple[int, bool, str]]:
+def validate_simulation_log(data: Dict[str, Any]) -> bool:
     """
-    Validate a list of records using a specific validator function.
+    Validate a simulation log entry against the schema.
     
     Args:
-        data_list: List of records to validate.
-        validator_func: Function like validate_problem that takes a dict and returns (bool, str).
+        data: The log entry dictionary to validate.
     
     Returns:
-        List of tuples (index, is_valid, error_message).
+        True if valid, False otherwise.
     """
-    results = []
+    if not isinstance(data, dict):
+        return False
+    
+    for field in SIMULATION_LOG_SCHEMA["required"]:
+        if field not in data:
+            return False
+    
+    for field, expected_type in SIMULATION_LOG_SCHEMA["types"].items():
+        if field in data and not isinstance(data[field], expected_type):
+            return False
+    
+    return True
+
+def validate_batch(data_list: List[Dict[str, Any]], schema_type: str) -> Tuple[int, List[str]]:
+    """
+    Validate a batch of data items.
+    
+    Args:
+        data_list: List of dictionaries to validate.
+        schema_type: One of 'explanation', 'problem', 'simulation_log'.
+    
+    Returns:
+        Tuple of (count_valid, list_of_errors)
+    """
+    valid_count = 0
+    errors = []
+    
+    if schema_type == "explanation":
+        validator = validate_explanation
+    elif schema_type == "problem":
+        validator = validate_problem
+    elif schema_type == "simulation_log":
+        validator = validate_simulation_log
+    else:
+        raise ValueError(f"Unknown schema type: {schema_type}")
+    
     for i, item in enumerate(data_list):
-        is_valid, msg = validator_func(item)
-        results.append((i, is_valid, msg))
-    return results
+        if validator(item):
+            valid_count += 1
+        else:
+            errors.append(f"Item {i} failed validation")
+    
+    return valid_count, errors

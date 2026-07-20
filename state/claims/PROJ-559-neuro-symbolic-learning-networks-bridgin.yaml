@@ -310,3 +310,406 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T07:27:39Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: condition_symbolic estimate 0.1500 p-value 0.0030
+  claim_id: c_c4ebd17a
+  context: Fixed Effects Summary table showing parameter estimates and significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimate for condition_symbolic is 0.1500 with a p-value of 0.0030.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:41:04Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: condition_neuro_symbolic estimate 0.2500 p-value 0.0010
+  claim_id: c_28979097
+  context: Fixed Effects Summary table showing parameter estimates and significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimate for condition_neuro_symbolic is 0.2500 with a p-value of
+    0.0010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:41:26Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: neural vs symbolic Cohen's d 0.5000 CI 0.3000 0.7000
+  claim_id: c_995bbe36
+  context: Pairwise Comparisons CI Widths table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cohen's d for the neural vs symbolic comparison is 0.5000 with a 95%
+    CI of 0.3000 to 0.7000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:43:31Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: neural vs neuro_symbolic Cohen's d 0.8000 CI 0.6000 1.0000
+  claim_id: c_f1504286
+  context: Pairwise Comparisons CI Widths table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cohen's d for the neural vs neuro_symbolic comparison is 0.8000 with
+    a 95% CI of 0.6000 to 1.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:45:29Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: mixed-effects model 500 observations
+  claim_id: c_77b1ceb8
+  context: Mixed-Effects Model Summary section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed-effects model had 500 observations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:46:44Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: mixed-effects model log-likelihood -125.5
+  claim_id: c_95d9bad8
+  context: Mixed-Effects Model Summary section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log-likelihood of the mixed-effects model is -125.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:47:26Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: average Cohen's d 0.65 across 2 comparisons
+  claim_id: c_9bcaba64
+  context: Effect Size Analysis section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The average Cohen's d across 2 total comparisons is 0.65.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:49:28Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: 500 total records 250 real 250 simulated
+  claim_id: c_e0244744
+  context: Data Validation Status section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contained 500 total records, comprising 250 real data records
+    and 250 simulated data records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:49:51Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration requires human pilot data of at least 50 participants
+  claim_id: c_83c27191
+  context: "T031 [P] [BLOCKER] [US5] Implement `code/simulate/calibration.py` to compare\
+    \ BKT predictions against human pilot data (\u226550 participants) or synthetic\
+    \ fallback."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_requires_human_pilot_data_of_at_least_50_partici
+  kind: magnitude
+  raw_text: "Compare BKT predictions against human pilot data (\u226550 participants)\
+    \ or synthetic fallback."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:56:46Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration validation requires RMSE difference less than or equal to
+    0.02 and absolute RMSE less than or equal to 0.15
+  claim_id: c_3b8ed0b3
+  context: "T032 [BLOCKER] [US5] Add validation logic to `code/simulate/calibration.py`\
+    \ to ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_validation_requires_RMSE_difference_less_than_or
+  kind: magnitude
+  raw_text: "Ensure RMSE difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:57:07Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Data analysis requires merging simulated and real student data with at
+    least 200 records
+  claim_id: c_6028cf4f
+  context: "T028 [US3] Implement logic to merge simulated and real student data (\u2265\
+    200 records) and validate `data_source` effects."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_analysis_requires_merging_simulated_and_real_student_da
+  kind: magnitude
+  raw_text: "Merge simulated and real student data (\u2265200 records)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:57:40Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Human data integration requires ingestion of at least 200 real student
+    records
+  claim_id: c_f7e1e8bb
+  context: "T034 [US7] Implement `code/analyze/merge_real_data.py` to ingest \u2265\
+    200 real student records and validate data_source effects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_data_integration_requires_ingestion_of_at_least_200_re
+  kind: magnitude
+  raw_text: "Ingest \u2265200 real student records."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:58:03Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Effect size analysis requires Cohen's d confidence interval width less
+    than or equal to 0.20
+  claim_id: c_4d219e57
+  context: "T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's\
+    \ d with 95% CI for pairwise comparisons and validate CI width \u22640.20 (FR-006,\
+    \ SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Effect_size_analysis_requires_Cohen%27s_d_confidence_interval
+  kind: magnitude
+  raw_text: "Validate CI width \u22640.20."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:58:25Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Simulated response time distribution must have no gaps greater than 5
+    seconds
+  claim_id: c_3f052a84
+  context: T023 [US2] Add logic to simulate response times and comprehension ratings
+    (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulated_response_time_distribution_must_have_no_gaps_great
+  kind: magnitude
+  raw_text: Ensure no gaps > 5s in distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:58:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Model inference tasks are constrained to CPU-only models with 1 billion
+    parameters or fewer
+  claim_id: c_e90f6a1a
+  context: "**CPU Constraint**: All model inference tasks must use CPU-only, small\
+    \ models (\u22641B params) and default precision to meet FR-008."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All model inference tasks must use CPU-only, small models (\u22641B params)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:58:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Performance optimization must ensure RAM usage is less than or equal
+    to 7GB
+  claim_id: c_0a10e2f5
+  context: "T043 Performance optimization across all stories to ensure \u22647GB RAM\
+    \ usage"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_must_ensure_RAM_usage_is_less_than
+  kind: magnitude
+  raw_text: "Ensure \u22647GB RAM usage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:59:25Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: condition_symbolic estimate 0.1245 p-value 0.0001
+  claim_id: c_ae74d624
+  context: Significant Findings table and Mixed Effects Model Results table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed effects estimate for condition_symbolic is 0.1245 with a p-value
+    of 0.0001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:03:27Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: condition_neuro_symbolic estimate 0.1823 p-value 0.0000
+  claim_id: c_3513e044
+  context: Significant Findings table and Mixed Effects Model Results table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed effects estimate for condition_neuro_symbolic is 0.1823 with
+    a p-value of 0.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:04:11Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: prior_knowledge estimate 0.0834 p-value 0.0000
+  claim_id: c_afadc5e1
+  context: Significant Findings table and Mixed Effects Model Results table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed effects estimate for prior_knowledge is 0.0834 with a p-value
+    of 0.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:04:55Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: difficulty estimate -0.0567 p-value 0.0027
+  claim_id: c_58686ec6
+  context: Significant Findings table and Mixed Effects Model Results table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixed effects estimate for difficulty is -0.0567 with a p-value of
+    0.0027.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:05:40Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: neural_vs_symbolic estimate -0.0578 p-value 0.0072 Cohen's d -0.3124
+  claim_id: c_972674fa
+  context: Pairwise Comparisons table and Effect Sizes table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise comparison estimate for neural_vs_symbolic is -0.0578 with
+    a p-value of 0.0072 and Cohen's d of -0.3124.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:06:01Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: neural_vs_neuro_symbolic estimate -0.0578 p-value 0.0035 Cohen's d -0.3124
+  claim_id: c_b3d0d07a
+  context: Pairwise Comparisons table and Effect Sizes table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise comparison estimate for neural_vs_neuro_symbolic is -0.0578
+    with a p-value of 0.0035 and Cohen's d of -0.3124.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:08:08Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: symbolic_vs_neuro_symbolic estimate 0.0578 p-value 0.0020 Cohen's d 0.3124
+  claim_id: c_22b784e3
+  context: Pairwise Comparisons table and Effect Sizes table.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise comparison estimate for symbolic_vs_neuro_symbolic is 0.0578
+    with a p-value of 0.0020 and Cohen's d of 0.3124.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:08:35Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/data/derived/results_report.md
+  attempts: 1
+  canonical: student_id random effect variance 0.0845
+  claim_id: c_301bc04b
+  context: Random Effects section listing student_id variance and standard deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance for the random effect student_id is 0.0845.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:09:14Z'

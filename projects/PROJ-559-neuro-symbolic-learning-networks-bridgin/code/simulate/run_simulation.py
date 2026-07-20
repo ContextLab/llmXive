@@ -1,252 +1,165 @@
-"""
-Simulation Runner for Neuro-Symbolic Learning Networks.
-
-Orchestrates the simulation of student interactions across different explanation
-conditions (neural, symbolic, neuro-symbolic) using the BKT model.
-
-Dependencies:
-  - T020: bkt_simulator (BKT model logic)
-  - T021b: simulation_config.yaml (condition definitions)
-  - T033: calibration.py (validates calibration before proceeding)
-"""
-
 import os
 import sys
 import json
 import logging
 import random
 import time
-import csv
-from typing import List, Dict, Any, Optional
-from datetime import datetime
+import argparse
+import pandas as pd
+from typing import Dict, Any, List, Optional
 
-# Project root setup
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
-from simulate.bkt_simulator import BKTSimulator, BKTModel, bkt_transition
-from simulate.calibration import run_calibration
-from utils.config import set_seeds
-from utils.validation import validate_simulation_log
+from simulate.bkt_simulator import BKTSimulator
+from simulate.response_metrics import generate_response_metrics
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(os.path.join(PROJECT_ROOT, "logs", "simulation_run.log"))
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "code", "simulate", "simulation_config.yaml")
-CALIBRATION_REPORT_PATH = os.path.join(PROJECT_ROOT, "data", "pilot", "calibration_report.json")
-OUTPUT_LOG_PATH = os.path.join(PROJECT_ROOT, "data", "derived", "simulation_logs.csv")
-
-def load_config(config_path: str) -> Dict[str, Any]:
-    """Load simulation configuration from YAML."""
-    import yaml
+def load_config(config_path: str = 'code/simulate/simulation_config.yaml') -> Dict[str, Any]:
+    """Load simulation configuration from YAML file."""
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        logger.error(f"Config file not found: {config_path}")
+        sys.exit(1)
     
     with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+        # Simple YAML parsing without external dependency
+        config = {}
+        current_section = None
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if line.endswith(':') and not ':' in line[:-1]:
+                current_section = line[:-1]
+                config[current_section] = {}
+            elif current_section and ':' in line:
+                key, value = line.split(':', 1)
+                key = key.strip()
+                value = value.strip()
+                # Try to convert to int/float
+                try:
+                    if '.' in value:
+                        config[current_section][key] = float(value)
+                    else:
+                        config[current_section][key] = int(value)
+                except ValueError:
+                    config[current_section][key] = value
+        return config
 
-def check_calibration(calibration_path: str) -> bool:
-    """
-    Verify calibration validity before proceeding.
-    Returns True if calibration is valid or synthetic fallback is active.
-    Returns False if calibration failed on real human data.
-    """
+def check_calibration(calibration_path: str = 'data/pilot/calibration_report.json') -> bool:
+    """Check if calibration is valid."""
     if not os.path.exists(calibration_path):
-        logger.warning(f"Calibration report not found at {calibration_path}. Running calibration...")
-        # Run calibration if missing
-        run_calibration()
-    
-    with open(calibration_path, 'r') as f:
-        report = json.load(f)
-    
-    is_valid = report.get('calibration_valid', False)
-    is_synthetic = report.get('used_synthetic_fallback', False)
-    
-    if not is_valid and not is_synthetic:
-        logger.error("Calibration failed on human data and no synthetic fallback was used. Aborting simulation.")
+        logger.error("Calibration report not found. Run calibration first.")
         return False
     
-    if is_synthetic:
-        logger.warning("Using synthetic fallback data for calibration. Proceeding with caution.")
-    
-    return True
+    try:
+        with open(calibration_path, 'r') as f:
+            report = json.load(f)
+        return report.get('calibration_valid', False)
+    except Exception as e:
+        logger.error(f"Error reading calibration report: {e}")
+        return False
 
 def generate_student_id() -> str:
-    """Generate a unique student identifier."""
-    return f"STU_{random.randint(10000, 99999)}"
+    """Generate a unique student ID."""
+    return f"STU-{random.randint(10000, 99999)}"
 
 def run_simulation_for_condition(
-    condition_name: str,
+    condition: str,
     num_students: int,
-    problem_ids: List[str],
+    problem_id: str,
+    explanation_artifacts: Dict[str, str],
     bkt_params: Dict[str, float],
-    seed_offset: int = 0
+    seed: Optional[int] = None
 ) -> List[Dict[str, Any]]:
-    """
-    Run simulation for a single condition across multiple students and problems.
+    """Run simulation for a single condition."""
+    if seed is not None:
+        random.seed(seed)
     
-    Args:
-        condition_name: Name of the condition (neural, symbolic, neuro-symbolic)
-        num_students: Number of students to simulate
-        problem_ids: List of problem IDs to simulate
-        bkt_params: Dictionary of BKT parameters (p_l, p_t, p_g, p_s)
-        seed_offset: Offset for random seed to ensure reproducibility across conditions
-    
-    Returns:
-        List of simulation log records
-    """
     logs = []
-    base_seed = int(time.time()) + seed_offset
-    set_seeds(base_seed)
+    simulator = BKTSimulator(bkt_params)
     
-    logger.info(f"Starting simulation for condition '{condition_name}' with {num_students} students")
-    
-    for student_idx in range(num_students):
+    for i in range(num_students):
         student_id = generate_student_id()
-        student_seed = base_seed + student_idx
-        set_seeds(student_seed)
+        state = simulator.simulate_student(problem_id)
         
-        # Initialize BKT model for this student
-        model = BKTModel(
-            p_learn=bkt_params.get('p_learn', 0.3),
-            p_guess=bkt_params.get('p_guess', 0.2),
-            p_slip=bkt_params.get('p_slip', 0.1),
-            p_initial=bkt_params.get('p_initial', 0.5)
-        )
-        
-        simulator = BKTSimulator(model)
-        
-        for problem_id in problem_ids:
-            # Simulate student interaction
-            state = simulator.step(problem_id)
-            
-            # Determine correctness based on BKT state
-            is_correct = state['knows'] and (random.random() > state['model'].p_slip)
-            if not state['knows']:
-                is_correct = random.random() < state['model'].p_guess
-            
-            # Simulate response time (SC-005: no gaps > 5s in distribution)
-            # Using a truncated normal distribution to ensure realistic timing
-            rt_mean = 15.0  # seconds
-            rt_std = 3.0
-            rt_seconds = max(1.0, min(5.0, random.gauss(rt_mean, rt_std)))
-            
-            # Simulate comprehension rating (1-5 Likert)
-            # Correlated with correctness and explanation type
-            base_rating = 3.0
-            if is_correct:
-                base_rating += 0.8
-            if condition_name == "neuro_symbolic":
-                base_rating += 0.5  # Neuro-symbolic expected to have higher comprehension
-            
-            comprehension_rating = max(1, min(5, int(round(base_rating))))
-            
-            # Create log record
-            log_record = {
-                'timestamp': datetime.now().isoformat(),
-                'student_id': student_id,
-                'problem_id': problem_id,
-                'condition': condition_name,
-                'correct': is_correct,
-                'rt_seconds': round(rt_seconds, 2),
-                'comprehension_rating': comprehension_rating,
-                'bkt_knows': state['knows'],
-                'bkt_p_know': round(state['p_know'], 4),
-                'data_source': 'simulated'
-            }
-            
-            # Validate log record
-            if not validate_simulation_log(log_record):
-                logger.warning(f"Invalid log record generated for {student_id}/{problem_id}")
-                continue
-            
-            logs.append(log_record)
-            
-            # Small delay to simulate processing time (optional, for realism)
-            # time.sleep(0.001)
+        log = {
+            'student_id': student_id,
+            'condition': condition,
+            'problem_id': problem_id,
+            'explanation_type': condition,
+            'correct': state['correct'],
+            'attempts': state['attempts'],
+            'learning_occurred': state['learning_occurred'],
+            'final_knowledge': round(state['knowledge'], 3),
+            'timestamp': time.time(),
+            'rt_seconds': None,  # Will be filled by response_metrics
+            'comprehension_rating': None  # Will be filled by response_metrics
+        }
+        logs.append(log)
     
-    logger.info(f"Completed simulation for condition '{condition_name}': {len(logs)} records generated")
     return logs
 
 def main():
-    """Main entry point for the simulation runner."""
-    logger.info("Starting Neuro-Symbolic Simulation Runner")
+    """Main entry point for running the simulation."""
+    parser = argparse.ArgumentParser(description='Run student simulation')
+    parser.add_argument('--config', type=str, default='code/simulate/simulation_config.yaml', help='Config file path')
+    parser.add_argument('--output', type=str, default='data/derived/simulation_logs.csv', help='Output CSV path')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed')
     
-    # Check calibration first
-    if not check_calibration(CALIBRATION_REPORT_PATH):
-        logger.error("Simulation aborted due to invalid calibration.")
+    args = parser.parse_args()
+    
+    # Check calibration
+    if not check_calibration():
+        logger.error("Calibration check failed. Cannot proceed with simulation.")
         sys.exit(1)
     
-    # Load configuration
-    try:
-        config = load_config(CONFIG_PATH)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+    logger.info("Calibration check passed. Proceeding with simulation.")
     
-    conditions = config.get('conditions', [])
-    num_students_per_condition = config.get('num_students_per_condition', 50)
-    problem_ids = config.get('problem_ids', [])
-    bkt_params = config.get('bkt_params', {})
+    # Load config
+    config = load_config(args.config)
     
-    if not conditions:
-        logger.error("No conditions defined in configuration.")
-        sys.exit(1)
+    # Get simulation parameters
+    conditions = config.get('conditions', ['neural', 'symbolic', 'neuro_symbolic'])
+    sample_size = config.get('sample_size_per_condition', 100)
+    problem_id = config.get('problem_id', 'PROB-001')
+    bkt_params = config.get('bkt_params', {
+        'initial_knowledge': 0.3,
+        'learn': 0.3,
+        'guess': 0.2,
+        'slip': 0.1
+    })
     
-    if not problem_ids:
-        logger.error("No problem IDs defined in configuration.")
-        sys.exit(1)
-    
-    logger.info(f"Loaded {len(conditions)} conditions and {len(problem_ids)} problems")
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(OUTPUT_LOG_PATH), exist_ok=True)
-    
-    all_logs = []
+    # Load explanation artifacts (placeholder paths - should be generated by T016)
+    explanation_artifacts = {
+        'neural': 'data/explanations/explanation_neural.txt',
+        'symbolic': 'data/explanations/explanation_symbolic.txt',
+        'neuro_symbolic': 'data/explanations/explanation_neuro_symbolic.txt'
+    }
     
     # Run simulation for each condition
-    for idx, condition in enumerate(conditions):
-        condition_name = condition.get('name', condition)
-        seed_offset = idx * 10000  # Ensure different seeds per condition
-        
-        condition_logs = run_simulation_for_condition(
-            condition_name=condition_name,
-            num_students=num_students_per_condition,
-            problem_ids=problem_ids,
+    all_logs = []
+    for condition in conditions:
+        logger.info(f"Running simulation for condition: {condition}")
+        logs = run_simulation_for_condition(
+            condition=condition,
+            num_students=sample_size,
+            problem_id=problem_id,
+            explanation_artifacts=explanation_artifacts,
             bkt_params=bkt_params,
-            seed_offset=seed_offset
+            seed=args.seed
         )
-        
-        all_logs.extend(condition_logs)
+        all_logs.extend(logs)
+        logger.info(f"Generated {len(logs)} logs for {condition}")
     
-    # Write aggregated logs to CSV
-    if all_logs:
-        fieldnames = [
-            'timestamp', 'student_id', 'problem_id', 'condition',
-            'correct', 'rt_seconds', 'comprehension_rating',
-            'bkt_knows', 'bkt_p_know', 'data_source'
-        ]
-        
-        with open(OUTPUT_LOG_PATH, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(all_logs)
-        
-        logger.info(f"Successfully wrote {len(all_logs)} simulation logs to {OUTPUT_LOG_PATH}")
-    else:
-        logger.warning("No simulation logs were generated.")
+    # Generate response metrics (T023)
+    logger.info("Generating response metrics (response times and comprehension ratings)...")
+    output_path = generate_response_metrics(all_logs, args.output, args.seed)
     
-    logger.info("Simulation run completed successfully")
-    return 0
+    logger.info(f"Simulation completed. Logs saved to {output_path}")
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()
