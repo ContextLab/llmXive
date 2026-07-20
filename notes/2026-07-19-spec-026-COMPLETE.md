@@ -1,7 +1,7 @@
 # spec 026 — COMPLETE (slices 0–8), ready for whole-spec review
 
 **Tracking** [#1285](https://github.com/ContextLab/llmXive/issues/1285) · **Branch**
-`026-model-selection-consolidation` — 111 commits ahead of `origin/main`, **NOT pushed** ·
+`026-model-selection-consolidation` — 115 commits ahead of `origin/main`, **NOT pushed** ·
 **Date** 2026-07-19
 
 ## Final gate
@@ -9,8 +9,8 @@
 |check|result|
 |-|-|
 |Full non-slow suite|**7108 passed, 17 skipped, 0 failed**|
-|Manifest migration rows|**0** — only `canonical_layer` (8) + `test_double` (294) remain|
-|`enforcement.py` guard|9 passed, still green AFTER the deletions|
+|Manifest migration rows|**0** — only `canonical_layer` (8) + `test_double` (292) remain|
+|`enforcement.py` guard|12 passed, green AFTER the deletions AND after the round-5 hardening|
 |Real calls|vision 2/2 + dartmouth chat, live|
 |ruff (slice-8 files) / `git diff --check`|clean|
 
@@ -47,9 +47,11 @@ LKG catalog pricing -> aged but a REAL timestamped observation, not "unknown"
 False               -> fail closed; unknown cost is never free (SC-003)
 ```
 
-Verified empirically: outage **with** LKG keeps `qwen.qwen3.5-122b` free (platform stays up); outage
-**without** LKG returns False (SC-003 honored). `backends` reaches `model_selection` through a
-function-local import — the cycle guarded all through spec 026.
+Verified empirically: outage **with a FRESH LKG** keeps `qwen.qwen3.5-122b` free (platform stays up);
+outage without LKG — or with one older than the freshness bound — returns False (SC-003 honored).
+`backends` reaches `model_selection` through a function-local import — the cycle guarded all through
+spec 026. **Note the qualifier**: as first built this ladder had NO age bound at all, which review
+round 5 correctly flagged as a spend-authorization hole; see R2 below and the open judgment call.
 
 **T3 — selection-pin deletion (`cfa8dbfc1e`).** The three router tables plus the legacy paid-tiers
 shim and its `_LEGACY_WARNED` latch. `LLMXIVE_EXECUTION_PAID_ESCALATION` (the boolean) stays.
