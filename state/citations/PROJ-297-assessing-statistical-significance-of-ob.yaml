@@ -86,7 +86,7 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-15T17:45:23.375176Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -96,8 +96,8 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
-  verified_at: '2026-07-19T21:30:01.392504Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -107,8 +107,8 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
-  verified_at: '2026-07-19T21:30:01.392504Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -118,19 +118,19 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data
-  verified_at: '2026-07-19T21:30:01.392504Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: student.zip
   kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00350/student%20performance.zip`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00350/student%20performance.zip
-  verified_at: '2026-07-19T21:30:01.392504Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00320/student.zip`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00320/student.zip
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -140,8 +140,8 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip
-  verified_at: '2026-07-19T21:30:01.392504Z'
-- artifact_hash: 08e89911bc12bc169c2e58895899b2e3bcf380ef523c0bc798db8f46cb74e4a9
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
   artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -151,4 +151,15 @@
   value: https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls`
   verification_status: pending
   verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls
-  verified_at: '2026-07-19T21:30:01.392504Z'
+  verified_at: '2026-07-20T15:59:13.350949Z'
+- artifact_hash: 40610a7db9e64fe9147abfd9df4f70feafe1bf12bfe99e265fc07cbceabb5a25
+  artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases
+  verified_at: '2026-07-20T15:59:13.350949Z'

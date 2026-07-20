@@ -1,3 +1,11 @@
+T007b:
+  c: false
+  h: cd506aed1fae7124038ea0a45cc1d114c3caadca58026559ae3e6b63c0e6759c
+  r: The required state file `state/projects/PROJ-297-assessing-statistical-significance-of-ob.yaml`
+    is missing, so the gate cannot read the amendment status. Moreover, `code/main.py`
+    never imports or calls `check_by_amendment_ratification` from `code/constitution.py`,
+    so the pipeline is not actually blocked even if the file existed. Both the missing
+    artifact and lack of integration mean the task is not fulfilled.
 T023:
   c: false
   h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd
@@ -12,11 +20,18 @@ T032:
     \ the implementer could not execute the pytest command nor provide an exit code\
     \ confirming successful completion. Without this artifact, the task\u2019s validation\
     \ step is not satisfied."
+T041:
+  c: false
+  h: 398dba6fdf245c7142c83add8d8fc8bc3d8f02595954a5dc490886b4255c047b
+  r: "The repository contains a `write_runtime_log` helper that would create the required\
+    \ JSON, but the file `output/reports/runtime_log.json` does not exist, and the\
+    \ provided excerpt shows no code that actually measures the pipeline\u2019s total\
+    \ runtime or invokes `write_runtime_log` after completion. Consequently the required\
+    \ output artifact is missing and the timer functionality is not demonstrably implemented."
 T060:
   c: false
-  h: 559e96db4e13b997f6114111aeb585e0bbc63c4c7223355374d8dc96b88ad6b3
-  r: "The repository contains a `profiler_context` that writes generic function\u2011\
-    level stats to a JSON file, but no `output/reports/profiling_log.json` exists,\
-    \ and the JSON schema does not match the required `{total_time, breakdown:{load,\
-    \ perm, corr, viz}}` format nor logs the per\u2011phase breakdown or the >50%\
-    \ check. The task\u2019s profiling step and output file are therefore missing."
+  h: 14b7899eea4d704cf98862da254dcc0a4d75744ce86a34c09efbccc93f80d824
+  r: "The repository lacks the required `output/reports/profiling_log.json` file,\
+    \ and the shown `code/main.py` contains no logic that measures per\u2011phase\
+    \ timings, writes a JSON with the specified schema, or checks the >50\u202F% condition.\
+    \ Consequently the profiling step demanded by T060 is not implemented."

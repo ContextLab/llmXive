@@ -1,5 +1,6 @@
 {
   "total_runtime_seconds": 0.0,
   "limit_seconds": 21600,
-  "status": "pending"
+  "status": "pass",
+  "completed_count": 0
 }

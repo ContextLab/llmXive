@@ -1,19 +1,8 @@
 status: none
-intent: OpenML python package download UCI Wine Abalone Breast Cancer Student Performance
-  Air Quality Concrete python package dataset
+intent: UCI Machine Learning Repository Wine Abalone BreastCancer StudentPerformance
+  AirQuality ConcreteStrength python package dataset
 required_fields:
-- continuous_feature_1
-- continuous_feature_2
-- continuous_feature_3
-- continuous_feature_4
-- continuous_feature_5
-- continuous_feature_6
-- continuous_feature_7
-- continuous_feature_8
-- continuous_feature_9
-- continuous_feature_10
-- continuous_feature_11
-- continuous_feature_12
-cache_key: 4909c370deda2288f7a9e2b933acf565248c55507faddd977da6871982d4e46d
-searched_at: '2026-07-19T12:29:09.770663+00:00'
+- "continuous numeric feature columns (\u226520)"
+cache_key: 7e2926318bf384421f8d5adbf26979430f54753df0fc484a77820e17f29043e6
+searched_at: '2026-07-20T14:51:28.647095+00:00'
 retry_count: 1
