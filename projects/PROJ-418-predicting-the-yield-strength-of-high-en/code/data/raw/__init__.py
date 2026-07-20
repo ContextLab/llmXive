@@ -1,3 +1,3 @@
 """
-Raw data storage.
+Package for raw data storage.
 """

@@ -1,3 +1,3 @@
 """
-Integration tests for full pipeline workflows.
+Integration tests package.
 """

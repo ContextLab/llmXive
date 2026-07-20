@@ -1,38 +1,60 @@
 import os
 import sys
+from pathlib import Path
 
-def create_init_files():
+
+def create_init_files(root_dir: str = ".") -> None:
     """
-    Creates __init__.py files in all code/ and tests/ subdirectories
-    to ensure they are recognized as Python packages.
+    Create __init__.py files in all Python package directories.
+
+    Args:
+        root_dir: Root directory to scan for packages (default: current directory)
     """
-    # Define the root directories to scan
-    root_dirs = ['code', 'tests']
-    
-    # Directories that should NOT have __init__.py (data storage, output)
-    skip_dirs = {
-        'data/raw', 'data/processed', 'output', 'output/plots',
-        'data/raw/*', 'data/processed/*', 'output/*', 'output/plots/*'
-    }
+    path = Path(root_dir)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory {root_dir} does not exist")
 
-    for root_dir in root_dirs:
-        if not os.path.exists(root_dir):
-            print(f"Warning: Directory {root_dir} does not exist. Skipping.")
-            continue
+    # Define package directories that need __init__.py
+    package_dirs = [
+        "code",
+        "code/data",
+        "code/models",
+        "code/utils",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+    ]
 
-        for dirpath, dirnames, filenames in os.walk(root_dir):
-            # Create __init__.py in the current directory if it doesn't exist
-            init_path = os.path.join(dirpath, '__init__.py')
-            if not os.path.exists(init_path):
-                with open(init_path, 'w') as f:
-                    f.write('"""\n')
-                    f.write(f'{dirpath} module.\n')
-                    f.write('"""\n')
-                print(f"Created: {init_path}")
-            else:
-                print(f"Exists: {init_path}")
+    created_count = 0
+    for pkg_dir in package_dirs:
+        full_path = path / pkg_dir
+        if full_path.exists() and full_path.is_dir():
+          init_file = full_path / "__init__.py"
+          if not init_file.exists():
+              # Create a basic docstring for the package
+              init_file.write_text(
+                  f'"""\n{pkg_dir.replace("/", ".")} package.\n"""\n'
+              )
+              print(f"Created: {init_file}")
+              created_count += 1
+          else:
+              print(f"Exists:  {init_file}")
+        else:
+          print(f"Skipped (missing): {full_path}")
 
-    print("Initialization complete.")
+    print(f"\nTotal __init__.py files created/verified: {created_count}")
+
+
+def main() -> None:
+    """Main entry point for init file creation."""
+    root = os.getenv("PROJECT_ROOT", ".")
+    try:
+        create_init_files(root)
+    except Exception as e:
+        print(f"Error creating init files: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    create_init_files()
+    main()

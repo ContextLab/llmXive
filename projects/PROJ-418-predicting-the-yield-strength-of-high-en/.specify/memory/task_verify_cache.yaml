@@ -1,0 +1,34 @@
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/metrics.json` file (or its contents) is present in the provided evidence,\
+    \ so the required writer and recorded metrics for the random forest, gradient\
+    \ boosting, and linear models are not demonstrated. The task\u2019s core deliverable\
+    \ is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/report.md` file or its contents were provided, so there is no evidence\
+    \ that a statistical report generator was created, nor that it includes the required\
+    \ p\u2011values, confidence intervals, VIF flags, or the integrated T029a/T029b\
+    \ disclaimers. The task\u2019s deliverable is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/power_analysis.json` file containing the required `status: 'insufficient_power'`\
+    \ entry is present, and there is no evidence of a log message at WARNING level\
+    \ for the N\u202F<\u202F50 case. The implementer provided no code, test, or output\
+    \ artifacts demonstrating that the edge\u2011case handling was added."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `ruff` linting run, its output, or any modifications to files\
+    \ in the `code/` directory is provided; the required artifact (lint\u2011error\u2011\
+    free code) is missing."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `black` run or of Python files in a `code/` directory being
+    formatted is present; the provided information contains only the task description
+    and feature specification, with no formatted files, logs, or diff showing that
+    `black` was applied. The required artifact (formatted Python code) is missing.

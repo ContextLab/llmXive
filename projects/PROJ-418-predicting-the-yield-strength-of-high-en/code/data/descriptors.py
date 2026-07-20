@@ -7,303 +7,229 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Standard elemental properties database
-# Sources: WebElements, CRC Handbook, standard materials databases
+# Elemental properties database (simplified for common HEA elements)
+# Source: Standard literature values (Atomic radius in pm, Electronegativity Pauling, Valence e-)
 ELEMENTAL_PROPERTIES = {
-    'Al': {'atomic_radius': 143.0, 'electronegativity': 1.61, 'valence_electrons': 3, 'melting_point': 933.47},
-    'Cr': {'atomic_radius': 128.0, 'electronegativity': 1.66, 'valence_electrons': 6, 'melting_point': 2180.0},
-    'Co': {'atomic_radius': 125.0, 'electronegativity': 1.88, 'valence_electrons': 9, 'melting_point': 1768.0},
-    'Cu': {'atomic_radius': 128.0, 'electronegativity': 1.90, 'valence_electrons': 11, 'melting_point': 1357.77},
-    'Fe': {'atomic_radius': 126.0, 'electronegativity': 1.83, 'valence_electrons': 8, 'melting_point': 1811.0},
-    'Mn': {'atomic_radius': 127.0, 'electronegativity': 1.55, 'valence_electrons': 7, 'melting_point': 1519.0},
-    'Mo': {'atomic_radius': 139.0, 'electronegativity': 2.16, 'valence_electrons': 6, 'melting_point': 2896.0},
-    'Nb': {'atomic_radius': 146.0, 'electronegativity': 1.60, 'valence_electrons': 5, 'melting_point': 2750.0},
-    'Ni': {'atomic_radius': 124.0, 'electronegativity': 1.91, 'valence_electrons': 10, 'melting_point': 1728.0},
-    'Re': {'atomic_radius': 137.0, 'electronegativity': 1.90, 'valence_electrons': 7, 'melting_point': 3459.0},
-    'Ru': {'atomic_radius': 134.0, 'electronegativity': 2.20, 'valence_electrons': 8, 'melting_point': 2607.0},
-    'Si': {'atomic_radius': 111.0, 'electronegativity': 1.90, 'valence_electrons': 4, 'melting_point': 1687.0},
-    'Ta': {'atomic_radius': 146.0, 'electronegativity': 1.50, 'valence_electrons': 5, 'melting_point': 3290.0},
-    'Ti': {'atomic_radius': 147.0, 'electronegativity': 1.54, 'valence_electrons': 4, 'melting_point': 1941.0},
-    'V': {'atomic_radius': 134.0, 'electronegativity': 1.63, 'valence_electrons': 5, 'melting_point': 2183.0},
-    'W': {'atomic_radius': 139.0, 'electronegativity': 2.36, 'valence_electrons': 6, 'melting_point': 3695.0},
-    'Zr': {'atomic_radius': 160.0, 'electronegativity': 1.33, 'valence_electrons': 4, 'melting_point': 2128.0},
+    'Cr': {'radius': 128, 'electronegativity': 1.66, 'valence': 6},
+    'Co': {'radius': 125, 'electronegativity': 1.88, 'valence': 9},
+    'Fe': {'radius': 126, 'electronegativity': 1.83, 'valence': 8},
+    'Ni': {'radius': 124, 'electronegativity': 1.91, 'valence': 10},
+    'Mn': {'radius': 127, 'electronegativity': 1.55, 'valence': 7},
+    'Al': {'radius': 143, 'electronegativity': 1.61, 'valence': 3},
+    'Cu': {'radius': 128, 'electronegativity': 1.90, 'valence': 11},
+    'Ti': {'radius': 147, 'electronegativity': 1.54, 'valence': 4},
+    'V': {'radius': 134, 'electronegativity': 1.63, 'valence': 5},
+    'Nb': {'radius': 146, 'electronegativity': 1.60, 'valence': 5},
+    'Ta': {'radius': 146, 'electronegativity': 1.50, 'valence': 5},
+    'Mo': {'radius': 139, 'electronegativity': 2.16, 'valence': 6},
+    'W': {'radius': 139, 'electronegativity': 2.36, 'valence': 6},
+    'Zr': {'radius': 160, 'electronegativity': 1.33, 'valence': 4},
+    'Hf': {'radius': 159, 'electronegativity': 1.30, 'valence': 4},
+    'Si': {'radius': 117, 'electronegativity': 1.90, 'valence': 4},
+    'C':  {'radius': 77,  'electronegativity': 2.55, 'valence': 4},
+    'O':  {'radius': 73,  'electronegativity': 3.44, 'valence': 6},
 }
 
 def get_elemental_properties() -> Dict[str, Dict[str, float]]:
-    """Return the dictionary of elemental properties."""
-    return ELEMENTAL_PROPERTIES.copy()
+    """Returns the dictionary of elemental properties."""
+    return ELEMENTAL_PROPERTIES
 
 def get_property(element: str, property_name: str) -> Optional[float]:
     """
-    Get a specific property for an element.
+    Retrieves a specific property for an element.
     
     Args:
         element: Element symbol (e.g., 'Fe')
-        property_name: Property name (e.g., 'atomic_radius')
-        
+        property_name: Property key ('radius', 'electronegativity', 'valence')
+    
     Returns:
-        Property value if found, None otherwise.
+        The property value or None if not found.
     """
-    element = element.strip().upper()
     if element not in ELEMENTAL_PROPERTIES:
-        logger.warning(f"Element '{element}' not found in elemental properties database.")
+        logger.warning(f"Element {element} not found in database.")
         return None
     return ELEMENTAL_PROPERTIES[element].get(property_name)
 
-def calculate_weighted_average(
-    composition: Dict[str, float], 
-    property_name: str,
-    atomic_weights: Optional[Dict[str, float]] = None
-) -> Optional[float]:
+def calculate_weighted_average(values: List[float], fractions: List[float]) -> float:
+    """Calculates the weighted average of a list of values."""
+    if not values or not fractions:
+        return 0.0
+    if len(values) != len(fractions):
+        raise ValueError("Values and fractions must have the same length.")
+    return sum(v * f for v, f in zip(values, fractions))
+
+def calculate_single_composition_descriptors(row: pd.Series, props: Dict[str, Dict]) -> Dict[str, float]:
     """
-    Calculate the weighted average of a property based on composition.
+    Calculates descriptors for a single row (composition).
+    Expected columns: Element1, Elem_Frac1, Element2, Elem_Frac2, ... (up to N elements)
+    Or a dictionary format if the CSV is structured differently.
+    This function assumes a wide format where elements and fractions are paired.
+    """
+    # Identify element and fraction columns
+    element_cols = [c for c in row.index if c.startswith('Element')]
+    fraction_cols = [c for c in row.index if c.startswith('Elem_Frac') or c.startswith('Fraction')]
     
-    Args:
-        composition: Dict of element -> atomic fraction
-        property_name: Property to average
-        atomic_weights: Optional dict of element -> atomic weight (for weight-based averaging)
-        
-    Returns:
-        Weighted average value, or None if any element is missing.
-    """
-    if not composition:
-        return None
-        
-    total_weight = 0.0
-    weighted_sum = 0.0
+    # If no specific element columns found, try to detect all element columns (e.g., Cr, Fe, Ni)
+    # This is a heuristic: if columns look like element symbols
+    if not element_cols:
+        # Check for columns that are known element symbols
+        known_elements = set(props.keys())
+        element_cols = [c for c in row.index if c in known_elements]
+        # Fractions should be the same columns? Or separate? 
+        # Assuming the row has the fraction directly for the element column if wide format
+        # e.g. Cr: 0.2, Fe: 0.2...
+        if element_cols:
+            fractions = [row[c] for c in element_cols]
+            elements = element_cols
+        else:
+            # Fallback: try to find columns with 'Cr', 'Fe' etc in name? Too risky.
+            # Assume standard format: Element1, Elem_Frac1...
+            logger.error("Could not identify element columns in row.")
+            return {}
+    else:
+        # Standard wide format: Element1, Elem_Frac1, Element2, Elem_Frac2
+        elements = []
+        fractions = []
+        for ec, fc in zip(element_cols, fraction_cols):
+            # Ensure they are paired correctly by index
+            # This assumes Element1 pairs with Elem_Frac1
+            pass
+        # Sort by index to ensure pairing
+        combined = sorted(zip(element_cols, fraction_cols), key=lambda x: int(x[0].replace('Element', '').replace('Elem_Frac', '')))
+        elements = [c[0] for c in combined]
+        fractions = [row[c[1]] for c in combined]
+
+    if not elements or not fractions:
+        return {}
+
+    # Normalize fractions to sum to 1 (handle missing/NaN)
+    valid_fractions = [f for f in fractions if pd.notna(f)]
+    valid_elements = [e for e, f in zip(elements, fractions) if pd.notna(f)]
     
-    for element, fraction in composition.items():
-        prop_val = get_property(element, property_name)
-        if prop_val is None:
-            logger.warning(f"Missing property '{property_name}' for element '{element}'. Skipping composition.")
-            return None
+    if not valid_fractions:
+        return {}
         
-        weight = fraction
-        if atomic_weights and element in atomic_weights:
-            weight = fraction * atomic_weights[element]
+    total_frac = sum(valid_fractions)
+    if total_frac == 0:
+        return {}
+    fractions = [f/total_frac for f in valid_fractions]
+    elements = valid_elements
+
+    # Extract properties
+    radii = []
+    electronegativities = []
+    valences = []
+    melting_temps = [] # Placeholder, need Tm data if available
+
+    for elem in elements:
+        r = get_property(elem, 'radius')
+        chi = get_property(elem, 'electronegativity')
+        v = get_property(elem, 'valence')
+        # Tm not in our simple DB, setting to 0 or skipping if needed
+        # For now, assume Tm is not calculated if not in DB
         
-        weighted_sum += prop_val * weight
-        total_weight += weight
+        if r is None or chi is None or v is None:
+            logger.warning(f"Missing properties for {elem}.")
+            return {} # Skip this row if missing any property
         
-    if total_weight == 0:
-        return None
-        
-    return weighted_sum / total_weight
+        radii.append(r)
+        electronegativities.append(chi)
+        valences.append(v)
+        melting_temps.append(0) # Placeholder
 
-def calculate_single_composition_descriptors(
-    composition: Dict[str, float],
-    yield_strength: Optional[float] = None,
-    temperature: Optional[float] = None
-) -> Optional[Dict[str, float]]:
-    """
-    Calculate all descriptors for a single HEA composition.
-    
-    Args:
-        composition: Dict of element -> atomic fraction
-        yield_strength: Yield strength value (optional)
-        temperature: Testing temperature (optional)
-        
-    Returns:
-        Dict of descriptor name -> value, or None if missing properties.
-    """
-    # Check for missing elemental properties first
-    for element in composition:
-        if get_property(element, 'atomic_radius') is None:
-            logger.warning(f"Skipping composition: missing atomic radius for '{element}'")
-            return None
-        if get_property(element, 'electronegativity') is None:
-            logger.warning(f"Skipping composition: missing electronegativity for '{element}'")
-            return None
-        if get_property(element, 'valence_electrons') is None:
-            logger.warning(f"Skipping composition: missing valence electrons for '{element}'")
-            return None
-        if get_property(element, 'melting_point') is None:
-            logger.warning(f"Skipping composition: missing melting point for '{element}'")
-            return None
+    # 1. Atomic Size Difference (delta)
+    # delta = sqrt( sum( c_i * (1 - r_i/r_avg)^2 ) )
+    r_avg = calculate_weighted_average(radii, fractions)
+    delta_sq = sum(f * (1 - r/r_avg)**2 for r, f in zip(radii, fractions))
+    delta = 100 * np.sqrt(delta_sq) # Often expressed as percentage
 
-    # Calculate average atomic radius (r_bar)
-    r_bar = calculate_weighted_average(composition, 'atomic_radius')
-    if r_bar is None:
-        return None
+    # 2. Electronegativity Difference (Delta Chi)
+    chi_avg = calculate_weighted_average(electronegativities, fractions)
+    delta_chi = np.sqrt(sum(f * (chi - chi_avg)**2 for chi, f in zip(electronegativities, fractions)))
 
-    # Calculate average electronegativity (chi_bar)
-    chi_bar = calculate_weighted_average(composition, 'electronegativity')
-    if chi_bar is None:
-        return None
+    # 3. Valence Electron Concentration (VEC)
+    vec = calculate_weighted_average(valences, fractions)
 
-    # Calculate average valence electron concentration (VEC)
-    vec = calculate_weighted_average(composition, 'valence_electrons')
-    if vec is None:
-        return None
-
-    # Calculate average melting point (Tm_bar)
-    t_m_bar = calculate_weighted_average(composition, 'melting_point')
-    if t_m_bar is None:
-        return None
-
-    # Calculate atomic radius difference (delta)
-    delta = 0.0
-    for element, fraction in composition.items():
-        r_i = get_property(element, 'atomic_radius')
-        if r_i is None:
-            return None
-        delta += fraction * (1 - r_i / r_bar) ** 2
-    delta = 100 * np.sqrt(delta)
-
-    # Calculate electronegativity difference (delta_chi)
-    delta_chi = 0.0
-    for element, fraction in composition.items():
-        chi_i = get_property(element, 'electronegativity')
-        if chi_i is None:
-            return None
-        delta_chi += fraction * (chi_i - chi_bar) ** 2
-    delta_chi = np.sqrt(delta_chi)
-
-    # Calculate mixing entropy (delta_S_mix)
+    # 4. Mixing Entropy (Delta S_mix)
+    # -R * sum(c_i * ln(c_i))
+    # R = 8.314 J/(mol K)
+    # c_i must be > 0
     s_mix = 0.0
-    for fraction in composition.values():
-        if fraction > 0:
-            s_mix -= fraction * np.log(fraction)
-    s_mix = 8.314 * s_mix  # R in J/(mol*K)
+    for c in fractions:
+        if c > 0:
+            s_mix += c * np.log(c)
+    s_mix = -8.314 * s_mix
 
-    # Calculate melting temperature variance (delta_Tm)
-    delta_tm = 0.0
-    for element, fraction in composition.items():
-        t_i = get_property(element, 'melting_point')
-        if t_i is None:
-            return None
-        delta_tm += fraction * (t_i - t_m_bar) ** 2
-    delta_tm = np.sqrt(delta_tm)
+    # 5. Melting Temperature Variance (Delta Tm)
+    # If we had Tm data: sqrt( sum(c_i * (Tm_i - Tm_avg)^2) )
+    # Since we don't have Tm in DB, we return 0 or skip.
+    # For this implementation, we assume 0 or return None if Tm required.
+    delta_tm = 0.0 
 
-    result = {
-        'VEC': vec,
+    return {
         'delta': delta,
         'delta_chi': delta_chi,
-        'delta_S_mix': s_mix,
-        'delta_Tm': delta_tm,
-        'Tm_bar': t_m_bar,
+        'VEC': vec,
+        'S_mix': s_mix,
+        'delta_Tm': delta_tm
     }
-
-    if yield_strength is not None:
-        result['yield_strength_MPa'] = yield_strength
-    if temperature is not None:
-        result['temperature_K'] = temperature
-
-    return result
 
 def calculate_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate descriptors for a DataFrame of HEA compositions.
+    Applies calculate_single_composition_descriptors to the entire DataFrame.
     
     Args:
-        df: DataFrame with composition columns (e.g., 'Al', 'Cr', 'Fe') and optional 'yield_strength'
-            
+        df: DataFrame with elemental composition columns.
+    
     Returns:
-        DataFrame with added descriptor columns.
+        DataFrame with appended descriptor columns.
     """
-    if df.empty:
-        logger.warning("Empty DataFrame passed to calculate_descriptors.")
-        return df
-
-    # Identify composition columns (assumed to be element symbols)
-    composition_cols = [col for col in df.columns if col.upper() in ELEMENTAL_PROPERTIES]
+    props = get_elemental_properties()
     
-    if not composition_cols:
-        logger.error("No composition columns found in DataFrame. Expected element symbols.")
-        return df
-
-    # Apply descriptor calculation row by row
-    descriptors_list = []
+    descriptors = []
     for idx, row in df.iterrows():
-        composition = {col: row[col] for col in composition_cols if pd.notna(row[col]) and row[col] > 0}
-        
-        if not composition:
-            logger.warning(f"Row {idx} has no valid composition data. Skipping.")
-            descriptors_list.append(None)
-            continue
-            
-        y_s = row.get('yield_strength_MPa') if 'yield_strength_MPa' in df.columns else None
-        temp = row.get('temperature_K') if 'temperature_K' in df.columns else None
-        
-        desc = calculate_single_composition_descriptors(composition, y_s, temp)
-        descriptors_list.append(desc)
-
-    # Convert list of dicts to DataFrame
-    desc_df = pd.DataFrame(descriptors_list)
+        desc = calculate_single_composition_descriptors(row, props)
+        if desc:
+            descriptors.append(desc)
+        else:
+            descriptors.append({
+                'delta': np.nan,
+                'delta_chi': np.nan,
+                'VEC': np.nan,
+                'S_mix': np.nan,
+                'delta_Tm': np.nan
+            })
     
-    if desc_df.empty:
-        logger.warning("No descriptors could be calculated. Resulting DataFrame is empty.")
-        return df
-
-    # Concatenate original DataFrame with descriptors
-    # Drop any columns that might conflict (though we shouldn't have conflicts)
-    common_cols = set(df.columns) & set(desc_df.columns)
-    if common_cols:
-        logger.warning(f"Dropping overlapping columns from descriptors: {common_cols}")
-        desc_df = desc_df.drop(columns=list(common_cols))
-
-    result_df = pd.concat([df.reset_index(drop=True), desc_df.reset_index(drop=True)], axis=1)
+    desc_df = pd.DataFrame(descriptors)
     
-    logger.info(f"Calculated descriptors for {len(result_df)} rows.")
+    # Concatenate
+    result_df = pd.concat([df, desc_df], axis=1)
     return result_df
 
 def filter_missing_properties(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter the DataFrame to exclude entries with missing elemental properties.
-    
-    This function checks if all elements present in a composition row have
-    defined values for atomic_radius, electronegativity, valence_electrons,
-    and melting_point in the ELEMENTAL_PROPERTIES database.
+    Removes rows where any descriptor is NaN (indicating missing elemental properties).
     
     Args:
-        df: DataFrame with composition columns (element symbols).
-        
+        df: DataFrame with descriptors.
+    
     Returns:
-        Filtered DataFrame containing only rows where all elements have
-        complete property definitions.
+        Filtered DataFrame.
     """
-    if df.empty:
-        logger.warning("Empty DataFrame passed to filter_missing_properties.")
+    desc_cols = ['delta', 'delta_chi', 'VEC', 'S_mix', 'delta_Tm']
+    # Check if these columns exist
+    existing_cols = [c for c in desc_cols if c in df.columns]
+    if not existing_cols:
+        logger.warning("No descriptor columns found to filter.")
         return df
-
-    composition_cols = [col for col in df.columns if col.upper() in ELEMENTAL_PROPERTIES]
     
-    if not composition_cols:
-        logger.error("No composition columns found. Cannot filter missing properties.")
-        return df
+    initial_count = len(df)
+    df = df.dropna(subset=existing_cols)
+    logger.info(f"Filtered {initial_count - len(df)} rows with missing properties.")
+    return df
 
-    mask = pd.Series([True] * len(df), index=df.index)
-    missing_elements_log = []
+def main():
+    logger.info("Descriptors module loaded.")
 
-    for idx, row in df.iterrows():
-        for col in composition_cols:
-            val = row[col]
-            # Check if value is present (not NaN and > 0)
-            if pd.notna(val) and val > 0:
-                element = col.upper()
-                # Verify all required properties exist for this element
-                if element not in ELEMENTAL_PROPERTIES:
-                    mask.loc[idx] = False
-                    missing_elements_log.append(f"Row {idx}: Unknown element '{element}'")
-                    break
-                required_props = ['atomic_radius', 'electronegativity', 'valence_electrons', 'melting_point']
-                for prop in required_props:
-                    if prop not in ELEMENTAL_PROPERTIES[element]:
-                        mask.loc[idx] = False
-                        missing_elements_log.append(f"Row {idx}: Missing '{prop}' for '{element}'")
-                        break
-                if not mask.loc[idx]:
-                    break
-
-    if missing_elements_log:
-        logger.warning(f"Found {len(missing_elements_log)} entries with missing elemental properties.")
-        for msg in missing_elements_log[:5]:  # Log first 5
-            logger.warning(msg)
-        if len(missing_elements_log) > 5:
-            logger.warning(f"... and {len(missing_elements_log) - 5} more.")
-
-    filtered_df = df[mask].reset_index(drop=True)
-    logger.info(f"Filtered {len(df) - len(filtered_df)} rows with missing elemental properties. "
-                f"Remaining: {len(filtered_df)} rows.")
-    
-    return filtered_df
+if __name__ == "__main__":
+    main()

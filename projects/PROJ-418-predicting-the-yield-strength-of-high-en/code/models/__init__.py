@@ -1,3 +1,4 @@
 """
-Machine learning model training and evaluation modules.
+Machine learning models module for HEA yield strength prediction.
+Includes training, evaluation, and statistical validation.
 """

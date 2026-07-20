@@ -1,94 +1,77 @@
-# Quick Start Guide: HEA Yield Strength Prediction
+# Quickstart Guide: Predicting HEA Yield Strength
 
-This guide walks you through the execution of the HEA yield strength prediction pipeline, from environment setup to final report generation.
+This guide provides a step-by-step walkthrough to execute the full research pipeline for predicting the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors.
 
-## 1. Environment Setup
+## Prerequisites
+
+- Python 3.9+
+- `pip` package manager
+- Access to the verified dataset URL (configured in `code/utils/config.py` or via environment variables)
+
+## 1. Installation
+
+Clone the repository and install dependencies:
 
 ```bash
-# Ensure Python 3.9+ is installed
-python --version
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate # Windows: venv\Scripts\activate
+# Navigate to project root
+cd PROJ-418-predicting-the-yield-strength-of-high-en
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-## 2. Configuration
+## 2. Verify Data Source Configuration
 
-Before running the pipeline, you must configure the verified dataset URL.
+Before running the pipeline, ensure the verified dataset URL is configured. The pipeline will fail immediately if the URL is missing to prevent accidental use of unverified data.
 
-1. Open `code/utils/config.py`.
-2. Locate the `RESEARCH_VERIFIED_DATASETS` dictionary.
-3. Add or update the `hea_compositions` key with a valid, accessible URL to the HEA dataset (e.g., a CSV file hosted on a secure server or a direct download link).
-
-**Note:** The pipeline will terminate immediately with error code `DATA_SOURCE_MISSING` if this URL is not configured or unreachable.
-
-## 3. Running the Pipeline
-
-The pipeline executes in three main phases corresponding to the User Stories.
-
-### Phase 1: Data Acquisition & Descriptor Engineering (US1)
-
-This phase downloads the raw data, filters for single-phase room-temperature alloys, normalizes units, and calculates compositional descriptors.
-
+Check `code/utils/config.py` or set the environment variable:
 ```bash
-# Run the pipeline orchestrator
-python code/data/pipeline.py
+export HEA_DATASET_URL="your_verified_url_here"
 ```
 
-**Outputs:**
-- `data/processed/hea_descriptors.csv`: The processed dataset with all descriptors.
-- `output/data_status.json`: Status report including sample count and power warnings.
+## 3. Execute the Full Pipeline
 
-### Phase 2: Model Training & Evaluation (US2)
-
-This phase trains Linear Regression, Random Forest, and Gradient Boosting models with hyperparameter tuning and evaluates them on a hold-out test set.
+The entire research workflow is orchestrated by the `profiler.py` script, which runs the data acquisition, model training, and statistical validation stages sequentially.
 
 ```bash
-# Run the training pipeline
-python code/models/train.py
-
-# Run the evaluation pipeline
-python code/models/evaluate.py
+# Run the full pipeline
+python code/profiler.py
 ```
 
-**Outputs:**
-- `output/metrics.json`: R², MAE, RMSE for all models.
-- `output/power_analysis.json`: Sample size and power status.
+**What this command does:**
+1. **Data Acquisition (US1):** Downloads the HEA dataset, filters for single-phase room-temperature alloys, calculates descriptors (δ, Δχ, VEC, etc.), and saves `data/processed/hea_descriptors.csv`.
+2. **Model Training (US2):** Splits data, trains Linear Regression, Random Forest, and Gradient Boosting models with 5-fold CV, and saves `output/metrics.json`.
+3. **Statistical Validation (US3):** Performs power analysis, VIF diagnostics, permutation testing, bootstrap resampling, and sensitivity analysis, generating `output/report.md`.
 
-### Phase 3: Statistical Validation & Reporting (US3)
+*Note: The pipeline respects the runtime limit of 3 hours for training (T022) and skips heavy statistical tests if sample size is insufficient (T030).*
 
-This phase performs permutation testing, bootstrap resampling, VIF diagnostics, and generates the final research report.
+## 4. Review Results
+
+Upon successful completion, the following artifacts will be available:
+
+- **Processed Data:** `data/processed/hea_descriptors.csv`
+- **Data Status:** `output/data_status.json` (includes sample count and power status)
+- **Model Metrics:** `output/metrics.json` (R², MAE, RMSE for all models)
+- **Statistical Report:** `output/report.md` (includes disclaimers and validation results)
+- **Validation Artifacts:**
+ - `output/power_analysis.json`
+ - `output/vif_results.json`
+ - `output/permutation_results.json`
+ - `output/bootstrap_results.json`
+ - `output/sensitivity_results.json`
+
+## 5. Validate Execution
+
+To ensure the pipeline ran correctly and all expected outputs were generated, run the validation script:
 
 ```bash
-# Run the evaluation pipeline (includes validation steps)
-python code/models/evaluate.py
-
-# Generate the final report
-python code/models/report_generator.py
+python code/validate_quickstart.py
 ```
 
-**Outputs:**
-- `output/report.md`: Comprehensive research report with all statistical results and disclaimers.
-- `output/plots/`: Generated figures with disclaimers.
-
-## 4. Verification
-
-After running the pipeline, verify the outputs:
-
-1. Check `output/metrics.json` for model performance.
-2. Check `output/power_analysis.json` to ensure sample size is sufficient (N ≥ 50).
-3. Review `output/report.md` for the final analysis and mandatory disclaimers.
+This script checks for the existence of all required output files and verifies that the report contains mandatory disclaimers.
 
 ## Troubleshooting
 
-- **Error: DATA_SOURCE_MISSING**: The verified dataset URL is missing in `code/utils/config.py`.
-- **Error: ImportError**: Ensure all `__init__.py` files are present and dependencies are installed.
-- **Low Power Warning**: If `N < 50`, statistical tests (permutation, bootstrap) will be skipped, and `output/power_analysis.json` will reflect `status: 'insufficient_power'`.
-
-## Next Steps
-
-For detailed API documentation, refer to the docstrings in the `code/` modules. For development tasks, see `tasks.md`.
+- **Missing Dataset URL:** If you see `DATA_SOURCE_MISSING`, verify your `code/utils/config.py` or environment variables.
+- **Low Power Warning:** If the dataset count is < 50, statistical tests (permutation, bootstrap) will be skipped automatically. Check `output/data_status.json` for the count.
+- **Runtime Errors:** Check `output/logs/pipeline.log` for detailed error traces.

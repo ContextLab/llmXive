@@ -1,3 +1,3 @@
 """
-Processed data storage.
+Package for processed data storage.
 """

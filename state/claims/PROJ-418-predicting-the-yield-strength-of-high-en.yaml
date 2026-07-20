@@ -1,0 +1,332 @@
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: linear_regression model R2 0.45 MAE 120.5 MPa RMSE 145.2 MPa
+  claim_id: c_42b3dcf9
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The linear_regression model achieved an R\xB2 of 0.45, an MAE of 120.5\
+    \ MPa, and an RMSE of 145.2 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:29:54Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: random_forest model R2 0.72 MAE 85.3 MPa RMSE 105.8 MPa
+  claim_id: c_94df253b
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The random_forest model achieved an R\xB2 of 0.72, an MAE of 85.3 MPa,\
+    \ and an RMSE of 105.8 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:22Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: gradient_boosting model R2 0.75 MAE 80.1 MPa RMSE 101.2 MPa
+  claim_id: c_d8468de7
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The gradient_boosting model achieved an R\xB2 of 0.75, an MAE of 80.1\
+    \ MPa, and an RMSE of 101.2 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta descriptor VIF 2.15
+  claim_id: c_257be6f8
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the delta descriptor is 2.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:52Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta_chi descriptor VIF 1.85
+  claim_id: c_382ab28b
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the delta_chi descriptor is 1.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:06Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: vec descriptor VIF 3.40
+  claim_id: c_126bd359
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the vec descriptor is 3.40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: mixing_entropy descriptor VIF 1.20
+  claim_id: c_51d91ed3
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the mixing_entropy descriptor
+    is 1.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:29Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: melting_temp_var descriptor VIF 2.90
+  claim_id: c_841a22d5
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the melting_temp_var descriptor
+    is 2.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: vec descriptor permutation score 0.15 p-value 0.001
+  claim_id: c_aa416f6b
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The vec descriptor had a permutation score of 0.15 and a p-value of 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta_chi descriptor permutation score 0.12 p-value 0.005
+  claim_id: c_a075deb2
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The delta_chi descriptor had a permutation score of 0.12 and a p-value
+    of 0.005.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:05Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta descriptor permutation score 0.08 p-value 0.045
+  claim_id: c_37e18447
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The delta descriptor had a permutation score of 0.08 and a p-value of
+    0.045.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:23Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: mixing_entropy descriptor permutation score 0.05 p-value 0.120
+  claim_id: c_e72dc7b3
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixing_entropy descriptor had a permutation score of 0.05 and a p-value
+    of 0.120.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:37Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: melting_temp_var descriptor permutation score 0.03 p-value 0.250
+  claim_id: c_9c61db7c
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The melting_temp_var descriptor had a permutation score of 0.03 and a
+    p-value of 0.250.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:48Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Bonferroni Corrected Alpha 0.01
+  claim_id: c_c846fa30
+  context: Section 4 Multiple Comparison Correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni Corrected Alpha was 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:59Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Benjamini-Hochberg Corrected Alpha 0.025
+  claim_id: c_4e398d3a
+  context: Section 4 Multiple Comparison Correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg Corrected Alpha was 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:14Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: random_forest mean R2 0.72 95% CI 0.68 to 0.76
+  claim_id: c_6b1dc4b6
+  context: Section 5 Model Performance Stability table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The random_forest model had a mean R\xB2 of 0.72 with a 95% confidence\
+    \ interval between 0.68 and 0.76."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:32Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: gradient_boosting mean R2 0.75 95% CI 0.71 to 0.79
+  claim_id: c_1791a0f0
+  context: Section 5 Model Performance Stability table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The gradient_boosting model had a mean R\xB2 of 0.75 with a 95% confidence\
+    \ interval between 0.71 and 0.79."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.01 2 significant descriptors best model R2 0.75
+  claim_id: c_2b00fd94
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.01
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.01_2_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.01, 2 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:34:38Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.05 3 significant descriptors best model R2 0.75
+  claim_id: c_e2d68863
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.05_3_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.05, 3 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:35:23Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.10 3 significant descriptors best model R2 0.75
+  claim_id: c_5c99a362
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.10_3_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.10, 3 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:35:25Z'

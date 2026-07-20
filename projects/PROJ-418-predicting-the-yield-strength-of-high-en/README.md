@@ -1,83 +1,154 @@
 # Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
 
-**Project ID:** PROJ-418
-**Status:** Research Implementation Pipeline
+This project implements an automated scientific pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors (δ, Δχ, VEC, mixing entropy, etc.). The pipeline follows a strict data-driven approach, ensuring all results are derived from real, verified datasets with appropriate statistical validation and disclaimers.
 
-## Overview
+## Features
 
-This project implements an automated scientific research pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using compositional descriptors (δ, Δχ, VEC, entropy, melting variance). The pipeline follows a strict research methodology: data acquisition, descriptor engineering, model training (Random Forest, Gradient Boosting, Linear Regression), and rigorous statistical validation (permutation testing, bootstrapping, VIF diagnostics).
+- **Data Acquisition**: Downloads verified HEA composition datasets from pre-configured URLs.
+- **Descriptor Engineering**: Calculates atomic-level descriptors (δ, Δχ, VEC, entropy, melting variance).
+- **Model Training**: Trains and tunes Random Forest, Gradient Boosting, and Linear Regression baselines.
+- **Statistical Validation**: Performs permutation testing, bootstrap resampling, VIF diagnostics, and sensitivity analysis.
+- **Reporting**: Generates comprehensive reports with mandatory associational disclaimers.
 
 ## Prerequisites
 
 - Python 3.9+
 - pip
-- A verified dataset URL for HEA compositions (configured in `code/utils/config.py`)
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone <repo-url>
-cd PROJ-418-predicting-the-yield-strength-of-high-en
-```
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-418-predicting-the-yield-strength-of-high-en
+ ```
 
-2. Create a virtual environment and activate it:
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-## Directory Structure
-
-```
-.
-├── code/ # Source code modules
-│ ├── data/ # Data acquisition and processing
-│ ├── models/ # Model training and evaluation
-│ ├── utils/ # Utilities (logging, config, plots)
-│ └──...
-├── data/
-│ ├── raw/ # Raw downloaded datasets
-│ └── processed/ # Processed data with descriptors
-├── output/
-│ ├── plots/ # Generated visualizations
-│ ├── metrics.json # Model performance metrics
-│ ├── power_analysis.json # Power analysis results
-│ └── report.md # Final research report
-├── tests/ # Test suites
-├── requirements.txt
-├── quickstart.md
-└── README.md
-```
-
-## Quick Start
-
-See [quickstart.md](./quickstart.md) for step-by-step instructions to run the full pipeline.
-
-### Running the Pipeline
-
-The pipeline is designed to be executed in stages. Ensure all prerequisites (Phase 1 & 2) are met before running user story tasks.
-
-```bash
-# Run the full pipeline (requires Phase 1-3 completion)
-python code/models/train.py
-python code/models/evaluate.py
-python code/models/report_generator.py
-```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Configuration
 
-Dataset URLs must be configured in `code/utils/config.py`. The system will fail immediately with `DATA_SOURCE_MISSING` if a verified URL is not found. Do not use placeholder URLs.
+Before running the pipeline, you must ensure the verified dataset URL is configured.
+
+1. Check `code/utils/config.py` or the project's configuration file for `research.verified_datasets['hea_compositions']`.
+2. If the URL is missing, the pipeline will terminate immediately with `DATA_SOURCE_MISSING` error code.
+3. **Do not** attempt to run the pipeline without a valid, verified data source URL.
+
+## Usage
+
+### Full Pipeline Execution
+
+Run the entire pipeline from data download to report generation:
+
+```bash
+python code/profiler.py
+```
+
+This script will:
+1. Download the dataset (if not cached).
+2. Preprocess and calculate descriptors.
+3. Train models and evaluate performance.
+4. Run statistical validation tests.
+5. Generate `output/report.md` and other artifacts.
+
+### Individual Stages
+
+You can run specific stages of the pipeline independently:
+
+- **Data Pipeline**:
+ ```bash
+ python code/data/pipeline.py
+ ```
+
+- **Model Training**:
+ ```bash
+ python code/models/train.py
+ ```
+
+- **Evaluation & Validation**:
+ ```bash
+ python code/models/evaluate.py
+ ```
+
+### Output Artifacts
+
+Upon successful execution, the following files will be generated:
+
+- `data/processed/hea_descriptors.csv`: Processed dataset with calculated descriptors.
+- `output/data_status.json`: Data count and power status.
+- `output/metrics.json`: Model performance metrics (R², MAE, RMSE).
+- `output/power_analysis.json`: Sample size power analysis results.
+- `output/permutation_results.json`: Permutation importance p-values.
+- `output/bootstrap_results.json`: Bootstrap confidence intervals.
+- `output/sensitivity_results.json`: Sensitivity analysis across α levels.
+- `output/report.md`: Final statistical report with disclaimers.
+
+## Data Source Requirements
+
+This project relies on **real, verified datasets** for scientific validity.
+
+- **No Synthetic Data**: The pipeline strictly forbids synthetic or placeholder data.
+- **Verified URL**: The dataset URL must be defined in `code/utils/config.py` under `research.verified_datasets['hea_compositions']`.
+- **Failure Policy**: If the verified URL is missing or the download fails, the pipeline terminates with a clear error. No fallback to public/unverified sources is permitted.
+
+## Testing
+
+Run the test suite to verify implementation:
+
+```bash
+pytest tests/
+```
+
+- **Unit Tests**: `tests/unit/test_descriptors.py`
+- **Integration Tests**: `tests/integration/test_pipeline.py`
+
+## Project Structure
+
+```
+.
+├── code/
+│ ├── data/
+│ │ ├── download.py
+│ │ ├── preprocess.py
+│ │ ├── descriptors.py
+│ │ ├── pipeline.py
+│ │ └── status_writer.py
+│ ├── models/
+│ │ ├── train.py
+│ │ ├── evaluate.py
+│ │ ├── metrics_writer.py
+│ │ ├── power_analysis.py
+│ │ └── report_generator.py
+│ ├── utils/
+│ │ ├── config.py
+│ │ ├── logging.py
+│ │ ├── unit_utils.py
+│ │ ├── plot_utils.py
+│ │ └── report_utils.py
+│ ├── profiler.py
+│ └──...
+├── data/
+│ ├── raw/
+│ └── processed/
+├── output/
+│ ├── plots/
+│ └──...
+├── tests/
+│ ├── unit/
+│ └── integration/
+├── requirements.txt
+└── README.md
+```
 
 ## Disclaimer
 
-This project is for research purposes only. All analyses are associational; no causal inference should be drawn. See generated `output/report.md` for specific disclaimers on all visualizations and conclusions.
-
-## License
-
-Research Implementation - Internal Use Only
+**Associational analysis only; no causal inference.**
+All results generated by this pipeline are based on correlational data and statistical modeling. No causal relationships between compositional descriptors and yield strength are claimed or implied.

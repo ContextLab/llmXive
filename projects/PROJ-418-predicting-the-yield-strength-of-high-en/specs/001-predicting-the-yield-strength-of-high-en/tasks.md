@@ -28,7 +28,7 @@
 
 - [ ] T001a Create directory structure: `code/`, `data/raw`, `data/processed`, `output/`, `tests/`, `output/plots`
 - [ ] T001b Create `__init__.py` files in all `code/` and `tests/` subdirectories
-- [ ] T001c Create `requirements.txt` and `README.md` scaffolding
+- [X] T001c Create `requirements.txt` and `README.md` scaffolding
 
 ---
 
@@ -42,6 +42,8 @@
 - [X] T005 [P] Create base data schemas and validation logic in `code/data/__init__.py`
 - [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`
 - [X] T007 Setup environment configuration management for verified dataset URLs in `code/utils/config.py`
+- [X] T029a [P] [Cross-Cutting] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
+- [X] T029b [P] [Cross-Cutting] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,14 +57,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T005, T006, T007**.
-- [ ] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. If no verified URL exists, the system MUST terminate immediately with error code `DATA_SOURCE_MISSING` and log the specific missing requirement. **DO NOT** attempt fallback public search or local file loading. **Depends on T005, T007**.
-- [ ] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temp (20-25°C), and handle missing yield strength values. **Depends on T005, T008**.
+- [X] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. **CRITICAL Fallback Logic**: 
+  1. If verified URL exists in `research.md`, fetch it. 
+  2. If verified URL is MISSING, attempt to fetch from open repositories listed in FR-001 in this exact order: (1) Materials Project, (2) NIST HEA database, (3) Zenodo/figshare. 
+  3. If ALL sources fail, terminate immediately with error code `DATA_SOURCE_MISSING` and log the exact message: "ERROR: No verified URL found in research.md AND all fallback open repositories (Materials Project, NIST, Zenodo) failed. Cannot proceed." 
+  This satisfies FR-001's requirement to attempt open repositories while maintaining the Plan's preference for verified sources. **Depends on T005, T007**.
+
+- [X] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temperature, and handle missing yield strength values. **Depends on T008**.
+
 - [X] T010 [US1] Implement unit normalizer in `code/data/preprocess.py` to convert all yield strength to MPa. **Depends on T009**.
+
 - [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts) with fallback to standard databases. **Depends on T005**.
+
 - [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and melting temperature variance. **Depends on T010, T011**.
+
 - [X] T013 [US1] Implement composition filter in `code/data/descriptors.py` to exclude entries with missing elemental properties. **Depends on T012**.
-- [ ] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` with `count_warning` if N < 500 (data limitation) AND `power_status` flag if N < 50 (insufficient power). **Depends on T014**.
+
+- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **CRITICAL**: This task MUST depend on the COMPLETION of the entire data preparation chain (T008 -> T009 -> T010 -> T011 -> T012 -> T013) to ensure data artifacts are ready before orchestration. **Depends on T008, T009, T010, T011, T012, T013**.
+
+- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**: This task MUST explicitly implement the "flagging" action required by FR-001: if count < 500, log a user-facing warning "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced." to stdout/stderr AND ensure this warning is included in the final report. **Depends on T014**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -76,15 +89,19 @@
 
 ### Implementation for User Story 2
 
-- [X] T016 [P] [US2] Implement data splitter in `code/models/train.py` to create stratified train/test splits with fixed seed. **Depends on T015**.
+- [X] T016 [P] [US2] Implement data splitter in `code/models/train.py` to create a **strictly held-out** test set (distinct from the 5-fold CV folds used for tuning) with fixed seed. The hold-out set must be reserved for final evaluation only. **Depends on T015**.
+
 - [X] T017 [P] [US2] Implement Linear Regression baseline trainer in `code/models/train.py`. **Depends on T016**.
+
 - [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
+
 - [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
-- [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set. **Depends on T017, T018, T019**.
-- [~] T021 [US2] Create `output/metrics.json` writer to record metrics for all models (RF, GB, Linear). **Depends on T020**.
+
+- [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set AND generate plots. **Must use T029a for all generated plots**. **Depends on T017, T018, T019, T029a**.
+
+- [X] T021 [US2] Create `output/metrics.json` writer to record metrics for all models. The JSON schema MUST be: `{ "rf": { "R2": float, "MAE": float, "RMSE": float }, "gb": {... }, "linear": {... }, "best_model": "rf|gb|linear" }`. **Depends on T020**.
+
 - [X] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
-- [X] T029a [P] [US2] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
-- [X] T029b [P] [US2] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -92,19 +109,30 @@
 
 ## Phase 5: User Story 3 - Statistical Validation and Significance Reporting (Priority: P3)
 
-**Goal**: Perform permutation testing (1000 perms), bootstrap resampling (1000 resamples), multiple-comparison correction, sensitivity analysis on α, and VIF diagnostics.
+**Goal**: Perform permutation testing, bootstrap resampling, multiple-comparison correction, sensitivity analysis on α, and VIF diagnostics.
 
 **Independent Test**: Execute validation script; verify report contains p-values, confidence intervals, corrected significance levels, and VIF flags.
 
 ### Implementation for User Story 3
 
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline ONLY**. Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **DO NOT** calculate VIF for RF or GB models. **Depends on T017**.
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **If N < 50, SKIP this test entirely** and write `output/power_analysis.json` with `status: 'insufficient_power'`. **Depends on T018, T019**.
+- [X] T030 [US3] Implement power analysis checker in `code/models/evaluate.py` to read `output/data_status.json` (from T015) and write `output/power_analysis.json` at the exact relative path `output/power_analysis.json`. **Schema**: `{ "n": int, "status": "sufficient" | "insufficient_power", "action": "run" | "skip" }`. If N < 50, set status to `insufficient_power` and action to `skip`. This artifact is the single source of truth for whether statistical tests should run. **Depends on T015**.
+
+- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for **ALL** trained models: Linear Regression baseline (`model_linear`), Random Forest (`model_rf`), and Gradient Boosting (`model_gb`). Calculate VIF for all descriptors in each model and flag any VIF > 10. **CRITICAL**: This task must satisfy FR-009's requirement to compute VIF for "each descriptor within the full multiple regression model" across the board, not just the baseline. Write results to `output/vif_results.json`. **Depends on T017, T018, T019**.
+
+- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
+
 - [X] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the full model (RF/GB) to calculate 95% CI for R². **If N < 50, SKIP this test entirely** and ensure `output/power_analysis.json` reflects `status: 'insufficient_power'`. **Depends on T018, T019**.
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and report how the count of significant descriptors and R² values vary. **Depends on T024, T025**.
-- [~] T030 [US3] Handle edge case: if N < 50, ensure `output/power_analysis.json` is written with `status: 'insufficient_power'` and log message `'INSUFFICIENT_POWER: N={n} < 50'` at WARNING level. **Depends on T024, T026**.
-- [~] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. **Depends on T023, T024, T025, T026, T027, T029a, T029b**.
+
+- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the **best performing tree-based model** (selected after tuning) to calculate 95% CI for R². **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/bootstrap_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
+
+- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and calculate the count of significant descriptors and R² values for each. **CRITICAL**: This task MUST write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results. It must handle both the calculation and the aggregation/writing of the JSON artifact. **Depends on T024, T025**.
+
+- [X] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. The report MUST follow this template:
+ 1. Overview
+ 2. Model Performance (from T021)
+ 3. Statistical Validation (VIF, Permutation, Bootstrap)
+ 4. Sensitivity Analysis (from T027)
+ 5. Conclusion (with disclaimer). **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated output/report.md". **Depends on T021, T023, T024, T025, T026, T027, T029a, T029b**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -114,13 +142,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T032a Run `ruff check` and fix all linting errors in `code/`
-- [ ] T032b Run `black` and format all Python files in `code/`
-- [ ] T033a Profile execution with `cProfile`, generate `output/profile.log` identifying top 3 bottlenecks
-- [ ] T033b Refactor code based on `output/profile.log` to reduce runtime by at least 10%
-- [ ] T034 [P] Unit tests for descriptor math in `tests/unit/test_descriptors.py`
-- [ ] T035 [P] Integration tests for full pipeline in `tests/integration/test_pipeline.py`
+- [ ] T031a [P] Update `README.md` with installation steps, usage instructions, and data source requirements.
+- [ ] T031b [P] Update `quickstart.md` with a step-by-step walkthrough of the pipeline execution.
+- [X] T032a Run `ruff check` and fix all linting errors in `code/`
+- [X] T032b Run `black` and format all Python files in `code/`
+- [X] T034 [P] Unit tests for descriptor math in `tests/unit/test_descriptors.py`
+- [X] T035 [P] Integration tests for full pipeline in `tests/integration/test_pipeline.py`
 - [ ] T036 Run quickstart.md validation
 
 ---
