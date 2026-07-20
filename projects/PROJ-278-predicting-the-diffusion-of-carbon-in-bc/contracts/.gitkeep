@@ -1,2 +1,1 @@
-# This directory stores schema definitions (YAML/JSON) for data contracts.
-# Ensure .gitkeep is present to track the directory in version control.
+# This directory stores schema definitions (YAML)

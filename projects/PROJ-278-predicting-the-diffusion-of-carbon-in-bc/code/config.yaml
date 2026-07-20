@@ -1,0 +1,24 @@
+# Configuration for PROJ-278: Predicting Carbon Diffusion in BCC Metals
+# This file is referenced by code/05_validate.py for path resolution
+
+random_seed: 42
+
+paths:
+  # Input/Output Directories
+  base_dir: "data"
+  raw_data: "data/raw/Melidc.parquet"
+  checksums: "data/raw/Melidc.parquet.sha256"
+  
+  # Processed Data
+  cleaned_data: "data/processed/dataset_cleaned.csv"
+  
+  # Model Outputs
+  model_results: "data/outputs/model_results.json"
+  feature_importance: "data/outputs/feature_importance.json"
+  variance_partition: "data/outputs/variance_partition.csv"
+  
+  # Contract Schemas
+  dataset_schema: "contracts/dataset.schema.yaml"
+  model_schema: "contracts/model_output.schema.yaml"
+  feature_schema: "contracts/model_output.schema.yaml" # Feature importance shares model schema structure generally
+# Note: Ensure these paths match the actual output locations of T009-T023

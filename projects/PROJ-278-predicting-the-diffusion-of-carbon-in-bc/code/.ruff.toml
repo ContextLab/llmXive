@@ -1,17 +1,35 @@
+# Ruff configuration for PROJ-278
+# Linting rules aligned with scientific Python standards
+
 [lint]
-select = [
-  "E",   # pycodestyle errors
-  "W",   # pycodestyle warnings
-  "F",   # pyflakes
-  "I",   # isort
-  "C",   # flake8-comprehensions
-  "B",   # flake8-bugbear
-]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
+  "E501",  # Line too long (handled by Black)
+  "F403",  # 'from module import *' used; unable to detect undefined names (allowed in specific utils)
+  "N806",  # Variable in function should be lowercase (relaxed for scientific notation)
 ]
 
-[format]
-line-length = 88
-indent-width = 4
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/folders
+exclude = [
+  ".git",
+  "__pycache__",
+  "data",
+  "contracts",
+  "docs",
+  "build",
+  "dist",
+]
+
+[lint.per-file-ignores]
+# Allow specific patterns in __init__.py if needed
+"code/__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["config", "exceptions", "logging_config", "memory_monitor", "utils", "01_download", "02_preprocess", "03_train", "04_evaluate", "05_validate", "quickstart_runner", "refactor_utils"]
+force-single-line = false
+lines-after-imports = 2

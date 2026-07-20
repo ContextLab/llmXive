@@ -1,0 +1,5 @@
+{
+    "seed": 42,
+    "data_root": "data",
+    "description": "Default configuration for the Carbon Diffusion in BCC Metals project."
+}

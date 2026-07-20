@@ -1,26 +1,72 @@
 # Predicting the Diffusion of Carbon in BCC Metals
 
-This project implements a machine learning pipeline to predict carbon diffusion coefficients in BCC metals based on compositional data.
+This project implements a machine learning pipeline to predict carbon diffusion coefficients in Body-Centered Cubic (BCC) metals based on compositional data.
 
 ## Project Structure
 
-- `code/`: Python source code for scripts and utilities.
-- `data/`: Raw, processed, and output data files.
+- `code/`: Python source code for the pipeline (download, preprocess, train, evaluate, validate).
+- `data/`:
+ - `raw/`: Original downloaded datasets (e.g., MeLiDC).
+ - `processed/`: Cleaned and feature-engineered datasets.
+ - `outputs/`: Model artifacts, predictions, and analysis results.
+- `contracts/`: Schema definitions for data validation.
 - `tests/`: Unit and integration tests.
-- `contracts/`: Data schema definitions.
-- `docs/`: Documentation.
+- `docs/`: Documentation (README, quickstart, etc.).
+- `specs/`: Feature specifications and design documents.
 
-## Setup
+## Prerequisites
+
+- Python 3.11+
+- `pip`
+
+## Installation
 
 1. Create a virtual environment:
- `python -m venv venv && source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
 2. Install dependencies:
- `pip install -r code/requirements.txt`
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Usage
 
-Run the pipeline scripts in order:
-1. `python code/01_download.py`
-2. `python code/02_preprocess.py`
-3. `python code/03_train.py`
-4. `python code/04_evaluate.py`
+Run the pipeline sequentially:
+
+1. **Download Data**:
+ ```bash
+ python code/01_download.py
+ ```
+
+2. **Preprocess Data**:
+ ```bash
+ python code/02_preprocess.py
+ ```
+
+3. **Train Models**:
+ ```bash
+ python code/03_train.py
+ ```
+
+4. **Evaluate Models**:
+ ```bash
+ python code/04_evaluate.py
+ ```
+
+5. **Validate Outputs**:
+ ```bash
+ python code/05_validate.py
+ ```
+
+## Running Tests
+
+```bash
+pytest tests/
+```
+
+## License
+
+MIT

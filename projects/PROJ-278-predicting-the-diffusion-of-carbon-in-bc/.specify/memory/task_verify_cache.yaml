@@ -1,0 +1,28 @@
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated documentation files (README, quickstart guide, or data provenance
+    notes) are present in a `docs/` directory, nor any evidence that such files were
+    created or modified. The required artifacts are missing, so the documentation
+    update task is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, commit history, or refactored scripts were presented; there is\
+    \ no evidence of any cleanup or readability improvements for the diffusion\u2011\
+    prediction project. Consequently the required artifact (refactored, readable code)\
+    \ is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a final validation artifact (e.g., a checksum report, contract
+    verification script, or log confirming all contracts and checksums have been validated)
+    is present; the implementer provided only the feature specification without any
+    concrete validation output.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` validation artifact (e.g., a log, report, or script output)\
+    \ is present; the implementer provided no evidence that the quickstart guide was\
+    \ executed and verified end\u2011to\u2011end reproducibility. The required validation\
+    \ output is missing."

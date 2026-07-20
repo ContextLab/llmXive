@@ -1,12 +1,2 @@
-pandas
-numpy
-scikit-learn
-xgboost
-shap
-pymatgen
-requests
-pyarrow
-pytest
-psutil
-ruff
-black
+# This file is a symlink or copy to code/requirements.txt for root convenience
+-r code/requirements.txt

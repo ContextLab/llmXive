@@ -1,2 +1,1 @@
-# This directory stores model outputs, results, and figures.
-# Ensure .gitkeep is present to track the directory in version control.
+# This directory stores model outputs, SHAP values, and results

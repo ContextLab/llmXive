@@ -18,26 +18,6 @@
   updated_at: '2026-07-13T11:16:15Z'
 - artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
   attempts: 1
-  canonical: Permutation test with 10000 iterations comparing best ML model vs Elastic
-    Net baseline
-  claim_id: c_de629b63
-  context: Perform a permutation test with 10,000 iterations comparing best ML model
-    vs. the Elastic Net baseline
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations_comparing_best_ML_mod
-  kind: magnitude
-  raw_text: A permutation test with 10,000 iterations will be performed comparing
-    the best ML model vs. the Elastic Net baseline.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T11:17:03Z'
-- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
-  attempts: 1
   canonical: Linear baseline for permutation tests is Elastic Net model
   claim_id: c_9d26ec74
   context: The 'linear baseline' for permutation tests is explicitly an Elastic Net
@@ -130,3 +110,365 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T11:18:59Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Elastic Net used as linear baseline for permutation testing
+  claim_id: c_06b36c45
+  context: 'Implement code/03_train.py to: ... Train an Elastic Net model explicitly
+    as the ''linear baseline'' for permutation testing (per FR-005 and Plan Phase
+    2)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elastic_Net_used_as_linear_baseline_for_permutation_testing
+  kind: entity_fact
+  raw_text: Train an Elastic Net model explicitly as the 'linear baseline' for permutation
+    testing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:53:18Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 2
+  canonical: Permutation test with 10000 iterations comparing best ML model vs Elastic
+    Net baseline
+  claim_id: c_de629b63
+  context: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Elastic Net baseline
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations_comparing_best_ML_mod
+  kind: magnitude
+  raw_text: A permutation test with 10,000 iterations will be performed comparing
+    the best ML model vs. the Elastic Net baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:54:03Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 iterations comparing best ML model vs Elastic
+    Net baseline
+  claim_id: c_d067979c
+  context: Select best ML model based on cross-validated R^2. Calculate R^2, RMSE,
+    MAE on test set. Perform a permutation test with 10,000 iterations comparing best
+    ML model vs. the Elastic Net baseline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations_comparing_best_ML_mod
+  kind: magnitude
+  raw_text: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Elastic Net baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:56:32Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: System emits PowerWarning and executes LOOCV if BCC+Carbon count is less
+    than 30
+  claim_id: c_fd56093d
+  context: T011 [P] [US1] Implement tests/test_preprocess.py to verify that if BCC+Carbon
+    count < 30, the system emits a PowerWarning and successfully executes LOOCV (fallback
+    behavior) during the training phase, rather than raising DataInsufficientError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_emits_PowerWarning_and_executes_LOOCV_if_BCC+Carbon_c
+  kind: magnitude
+  raw_text: The system emits a PowerWarning and successfully executes LOOCV (fallback
+    behavior) during the training phase if BCC+Carbon count < 30, rather than raising
+    DataInsufficientError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:59:21Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test performed with 10000 iterations comparing best ML model
+    vs Elastic Net baseline
+  claim_id: c_659d8fa4
+  context: 'T015 [US2] Implement code/03_train.py to: ... Perform a permutation test
+    with 10,000 iterations comparing best ML model vs. the Elastic Net baseline'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_performed_with_10000_iterations_comparing_b
+  kind: magnitude
+  raw_text: The model training phase performs a permutation test with 10,000 iterations
+    comparing the best ML model vs. the Elastic Net baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:00:07Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Model training runtime is less than 6 hours on CPU-only CI
+  claim_id: c_5c078bb5
+  context: 'Independent Test: model_results.json contains R^2, RMSE, MAE, and p-value;
+    runtime < 6 hours on CPU-only CI; memory < 6 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_training_runtime_is_less_than_6_hours_on_CPU-only_CI
+  kind: magnitude
+  raw_text: The Independent Test for User Story 2 requires runtime to be less than
+    6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:00:52Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Peak memory usage is less than 6 GB
+  claim_id: c_58be534d
+  context: 'Independent Test: model_results.json contains R^2, RMSE, MAE, and p-value;
+    runtime < 6 hours on CPU-only CI; memory < 6 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: The Independent Test for User Story 2 requires peak memory usage to be
+    less than 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:01:17Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Dataset size is assumed to be less than 10000 rows
+  claim_id: c_c228f230
+  context: 'Constraint Reminder: All models MUST run on CPU-only CI (no CUDA, no 8-bit
+    quantization). Dataset size is assumed < 10k rows to fit in available RAM.'
+  evidence:
+    entailment_evidence: Dataset size is assumed to be less than 10000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_assumed_to_be_less_than_10000_rows
+  kind: magnitude
+  raw_text: The dataset size is assumed to be less than 10,000 rows to fit in available
+    RAM.
+  resolved_value: Dataset size is assumed to be less than 10000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T15:01:18Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test with 10,000 iterations comparing best ML model vs Elastic
+    Net baseline
+  claim_id: c_2b168eb0
+  context: Select best ML model based on cross-validated R^2. Calculate R^2, RMSE,
+    MAE on test set. Perform a permutation test with 10,000 iterations comparing best
+    ML model vs. the Elastic Net baseline
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10,000_iterations_comparing_best_ML_mo
+  kind: magnitude
+  raw_text: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Elastic Net baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:02:00Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 iterations comparing best ML model vs Elastic
+    Net baseline
+  claim_id: c_bf446cd6
+  context: 'T015 [US2] Implement code/03_train.py to: ... Perform a permutation test
+    with 10,000 iterations comparing best ML model vs. the Elastic Net baseline'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations_comparing_best_ML_mod
+  kind: magnitude
+  raw_text: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Elastic Net baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:15:47Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset hosted on HuggingFace
+  claim_id: c_0a084005
+  context: This project utilizes the **MeLiDC** (Metal Diffusion in Carbon) dataset,
+    hosted on HuggingFace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_dataset_hosted_on_HuggingFace
+  kind: entity_fact
+  raw_text: The MeLiDC dataset is hosted on HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:22:01Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset identifier materials_project/MeLiDC
+  claim_id: c_b480d72c
+  context: '- **Dataset Identifier**: `materials_project/MeLiDC` (or equivalent verified
+    ID)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_dataset_identifier_materials_project/MeLiDC
+  kind: entity_fact
+  raw_text: The dataset identifier for MeLiDC is materials_project/MeLiDC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:22:20Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset access URL https://huggingface.co/datasets/materials_project/MeLiDC
+  claim_id: c_4c692870
+  context: '- **Access URL**: `https://huggingface.co/datasets/materials_project/MeLiDC`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_dataset_access_URL_https://huggingface.co/datasets/ma
+  kind: entity_fact
+  raw_text: The access URL for the MeLiDC dataset is https://huggingface.co/datasets/materials_project/MeLiDC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:22:42Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset CC-BY-4.0 license
+  claim_id: c_7fdd86b5
+  context: '- **License**: CC-BY-4.0 (Check specific license on HuggingFace page)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MeLiDC dataset has a CC-BY-4.0 license.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:23:02Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset contains experimental and computational diffusion coefficient
+    measurements
+  claim_id: c_98632d9d
+  context: The dataset contains experimental and computational measurements of diffusion
+    coefficients for various solutes in different metal lattices.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_dataset_contains_experimental_and_computational_diffu
+  kind: entity_fact
+  raw_text: The MeLiDC dataset contains experimental and computational measurements
+    of diffusion coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:23:20Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC diffusion_coefficient unit m2/s
+  claim_id: c_8d39d6ca
+  context: "- `diffusion_coefficient`: The target variable (m\xB2/s)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_diffusion_coefficient_unit_m2/s
+  kind: entity_fact
+  raw_text: "The unit for the diffusion_coefficient column in the MeLiDC dataset is\
+    \ m\xB2/s."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:23:37Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC atomic fractions normalized to sum to 1.0
+  claim_id: c_dcb94a80
+  context: '1. **Normalization**: Atomic fractions are normalized to sum to 1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Atomic fractions in the MeLiDC dataset are normalized to sum to 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:23:58Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC diffusion_coefficient log10-transformed
+  claim_id: c_d112ab99
+  context: '3. **Transformation**: The target variable `diffusion_coefficient` is
+    log10-transformed to handle the wide dynamic range of diffusion data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_diffusion_coefficient_log10-transformed
+  kind: entity_fact
+  raw_text: The target variable diffusion_coefficient in the MeLiDC dataset is log10-transformed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:24:15Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/docs/data_provenance.md
+  attempts: 1
+  canonical: MeLiDC dataset published in 2023
+  claim_id: c_16af610a
+  context: year = {2023},
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '2023'
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/MeLiDC_dataset_published_in_2023
+    source_value: https://en.wikipedia.org/wiki/MeLiDC_dataset_published_in_2023
+    subject: MeLiDC dataset
+  kind: relational
+  raw_text: The MeLiDC dataset was published in 2023.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:24:36Z'
