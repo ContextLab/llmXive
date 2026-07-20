@@ -1,124 +1,112 @@
-"""
-Main orchestrator for the llmXive code style diversity evaluation pipeline.
-
-Executes the full workflow:
-1. Setup: Ensure directories and configuration
-2. Generation: Download HumanEval, generate samples, test, and filter
-3. Metrics: Compute AST distance and n-gram entropy for all and valid samples
-4. Stats: Perform statistical comparison (Kruskal-Wallis, Dunn's test)
-5. Sensitivity: Run alpha sweep analysis
-6. Report: Generate final HTML/PDF report with all findings
-7. Hygiene: Record checksums and update state
-"""
 import sys
 import logging
 import argparse
 from pathlib import Path
 from datetime import datetime
-
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
 from config.loader import load_config
-from utils.logger import initialize_memory_log, log_generation_error
-from generation.directories import ensure_output_dirs, run_directory_validation
-from generation.loader import download_humaneval
+from generation.loader import download_humaneval, get_humaneval_tasks
 from generation.generator import run_generation_pipeline
 from generation.tester import run_tester_pipeline
-from generation.pipeline import run_pipeline
+from generation.pipeline import run_pipeline, ensure_output_dirs
 from analysis.metrics import run_metrics_pipeline
 from analysis.stats import run_stats_pipeline
-from analysis.sensitivity import run_sensitivity_pipeline
+from analysis.sensitivity import run_sensitivity_analysis
 from analysis.reporter import run_reporter_pipeline
 from hygiene.checksums import run_checksum_pipeline
 from state.status_manager import run_status_update_pipeline
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'logs' / 'pipeline_execution.log')
+        logging.StreamHandler(),
+        logging.FileHandler('data/logs/pipeline.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description='Run the full code style diversity evaluation pipeline.')
+    parser = argparse.ArgumentParser(description='llmXive Automated Science Pipeline')
     parser.add_argument('--config', type=str, default='config/analysis.yaml', help='Path to config file')
-    parser.add_argument('--skip-generation', action='store_true', help='Skip generation phase (assume samples exist)')
-    parser.add_argument('--skip-metrics', action='store_true', help='Skip metrics phase (assume metrics exist)')
-    parser.add_argument('--skip-stats', action='store_true', help='Skip stats phase (assume stats exist)')
-    parser.add_argument('--verbose', action='store_true', help='Enable verbose logging')
+    parser.add_argument('--skip-generation', action='store_true', help='Skip generation step')
+    parser.add_argument('--skip-metrics', action='store_true', help='Skip metrics computation')
+    parser.add_argument('--skip-stats', action='store_true', help='Skip statistical analysis')
     args = parser.parse_args()
 
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-
-    start_time = datetime.now()
-    logger.info(f"Starting pipeline execution at {start_time}")
+    logger.info(f"Starting pipeline at {datetime.now()}")
+    logger.info(f"Config: {args.config}")
 
     try:
-        # 1. Setup
-        logger.info("Phase 1: Setup - Ensuring directories and configuration")
+        # Load configuration
         config = load_config(args.config)
-        ensure_output_dirs(config)
-        run_directory_validation(config)
+        logger.info("Configuration loaded successfully")
 
-        # 2. Generation
+        # Ensure output directories
+        ensure_output_dirs()
+
+        # Step 1: Download HumanEval (if not skipped)
         if not args.skip_generation:
-            logger.info("Phase 2: Generation - Downloading data and generating samples")
-            download_humaneval(config)
-            run_generation_pipeline(config)
-            run_tester_pipeline(config)
-            run_pipeline(config)
-            logger.info("Generation phase completed successfully")
-        else:
-            logger.info("Skipping generation phase as requested")
+            logger.info("Step 1: Downloading HumanEval dataset")
+            download_humaneval()
+            tasks = get_humaneval_tasks()
+            logger.info(f"Loaded {len(tasks)} HumanEval tasks")
 
-        # 3. Metrics
-        if not args.skip_metrics:
-            logger.info("Phase 3: Metrics - Computing structural diversity metrics")
-            run_metrics_pipeline(config)
-            logger.info("Metrics phase completed successfully")
-        else:
-            logger.info("Skipping metrics phase as requested")
+            # Step 2: Generate samples
+            logger.info("Step 2: Generating samples")
+            generation_buffer = run_generation_pipeline(tasks, config)
+            logger.info(f"Generated {len(generation_buffer)} samples")
 
-        # 4. Statistics
+            # Step 3: Test samples
+            logger.info("Step 3: Testing samples")
+            test_results = run_tester_pipeline(generation_buffer)
+            logger.info(f"Tested {len(test_results)} samples")
+
+            # Step 4: Write and filter samples (T016a, T017a)
+            logger.info("Step 4: Writing and filtering samples")
+            samples_all_path = 'data/processed/samples_all.csv'
+            samples_valid_path = 'data/processed/samples_valid.csv'
+            
+            pipeline_result = run_pipeline(generation_buffer, samples_all_path, samples_valid_path)
+            logger.info(f"Pipeline result: {pipeline_result}")
+
+            # Step 5: Compute metrics (T024a, T017b)
+            if not args.skip_metrics:
+                logger.info("Step 5: Computing metrics")
+                run_metrics_pipeline(samples_all_path, samples_valid_path)
+                logger.info("Metrics computation completed")
+
+        # Step 6: Statistical analysis (if not skipped)
         if not args.skip_stats:
-            logger.info("Phase 4: Statistics - Performing statistical comparison")
-            run_stats_pipeline(config)
-            logger.info("Statistics phase completed successfully")
-        else:
-            logger.info("Skipping statistics phase as requested")
+            logger.info("Step 6: Running statistical analysis")
+            run_stats_pipeline()
+            logger.info("Statistical analysis completed")
 
-        # 5. Sensitivity Analysis
-        logger.info("Phase 5: Sensitivity Analysis - Running alpha sweep")
-        run_sensitivity_pipeline(config)
-        logger.info("Sensitivity analysis completed successfully")
+            # Step 7: Sensitivity analysis
+            logger.info("Step 7: Running sensitivity analysis")
+            run_sensitivity_analysis()
+            logger.info("Sensitivity analysis completed")
 
-        # 6. Report Generation
-        logger.info("Phase 6: Report Generation - Creating final report")
-        run_reporter_pipeline(config)
-        logger.info("Report generation completed successfully")
+            # Step 8: Generate report
+            logger.info("Step 8: Generating report")
+            run_reporter_pipeline()
+            logger.info("Report generation completed")
 
-        # 7. Hygiene and State Update
-        logger.info("Phase 7: Hygiene - Recording checksums and updating state")
-        run_checksum_pipeline(config)
-        run_status_update_pipeline(config)
-        logger.info("Hygiene and state update completed successfully")
+        # Step 9: Checksums
+        logger.info("Step 9: Computing checksums")
+        run_checksum_pipeline()
+        logger.info("Checksums computed")
 
-        end_time = datetime.now()
-        duration = end_time - start_time
-        logger.info(f"Pipeline execution completed successfully in {duration}")
+        # Step 10: Update status
+        logger.info("Step 10: Updating status")
+        run_status_update_pipeline()
+        logger.info("Status updated")
 
-        return 0
+        logger.info(f"Pipeline completed successfully at {datetime.now()}")
 
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
-        log_generation_error("Pipeline orchestration", str(e))
-        return 1
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

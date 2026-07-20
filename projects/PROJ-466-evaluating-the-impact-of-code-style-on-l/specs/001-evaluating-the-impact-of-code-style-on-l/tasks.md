@@ -60,7 +60,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Write failing unit test for prompt loading and validation in `tests/unit/test_prompts.py`
-- [ ] T012 [P] [US1] **Write** failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`. **Note**: This task is strictly to **write the test file only** (parallel with T010). The *execution* of this test occurs after T013-T016 implementation.
+- [X] T012 [P] [US1] **Write** failing integration test for generation loop with timeout and memory probing in `tests/integration/test_generation.py`. **Note**: This task is strictly to **write the test file only** (parallel with T010). The *execution* of this test occurs after T013-T016 implementation.
 
 ### Implementation for User Story 1
 
@@ -68,10 +68,10 @@
 - [X] T014 [US1] Implement `code/generation/generator.py` generation loop: generate **20** samples per task per style (T=0.7, seed=42). **Dependency**: T013.
 - [X] T015 [US1] Implement `code/generation/generator.py` timeout integration using `code/utils/timeout_decorator.py` to enforce a **5-minute** timeout per task. **Log timeout errors** to `data/logs/pipeline.log` with format `ERROR [TIMEOUT] Task {task_id} timed out after 5m` and skip the task. **Dependency**: T008, T014.
 - [X] T015a [US1] Implement `code/generation/tester.py` to execute generated code against HumanEval unit tests and capture pass/fail status. **Dependency**: T014.
-- [X] T016a [US1] Implement `code/generation/pipeline.py` to atomically write the raw samples from the buffer to `data/processed/samples_all.csv`. **Implementation Detail**: Write to a temporary file (e.g., `samples_all.tmp.csv`), then rename to `samples_all.csv` to ensure atomicity. **This task creates the final `samples_all.csv` artifact.** **Dependency**: T015a.
-- [X] T017a [US1] Implement `code/generation/pipeline.py` to create a **new file** `data/processed/samples_valid.csv` by filtering `data/processed/samples_all.csv`. **Implementation Detail**: Read `samples_all.csv`, filter rows where `pass_status` is True, write to `samples_valid.csv`. **Do NOT modify `samples_all.csv` in place.** **Dependency**: T016a.
-- [X] T024a [US1] **Compute Pre-Filter Metrics**: Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** by reading `data/processed/samples_all.csv` (ignoring `pass_status` column) and saving to `data/processed/metrics_all.csv`. **Dependency**: T016a. **Note**: This runs BEFORE the pass rate check to ensure survivorship bias data is available.
-- [X] T017b [US1] **Compute Valid Metrics**: Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** by reading `data/processed/samples_valid.csv` produced by T017a and saving to `data/processed/metrics_valid.csv`. **Dependency**: T017a. **Note**: This runs BEFORE the pass rate check to ensure survivorship bias data is available.
+- [ ] T016a [US1] Implement `code/generation/pipeline.py` to atomically write the raw samples from the buffer to `data/processed/samples_all.csv`. **Implementation Detail**: Write to a temporary file (e.g., `samples_all.tmp.csv`), then rename to `samples_all.csv` to ensure atomicity. **This task creates the final `samples_all.csv` artifact.** **Dependency**: T015a.
+- [ ] T017a [US1] Implement `code/generation/pipeline.py` to create a **new file** `data/processed/samples_valid.csv` by filtering `data/processed/samples_all.csv`. **Implementation Detail**: Read `samples_all.csv`, filter rows where `pass_status` is True, write to `samples_valid.csv`. **Do NOT modify `samples_all.csv` in place.** **Dependency**: T016a.
+- [ ] T024a [US1] **Compute Pre-Filter Metrics**: Implement `code/analysis/metrics.py` to compute metrics for **ALL generated samples** by reading `data/processed/samples_all.csv` (ignoring `pass_status` column) and saving to `data/processed/metrics_all.csv`. **Dependency**: T016a. **Note**: This runs BEFORE the pass rate check to ensure survivorship bias data is available.
+- [ ] T017b [US1] **Compute Valid Metrics**: Implement `code/analysis/metrics.py` to compute metrics for **VALID samples only** by reading `data/processed/samples_valid.csv` produced by T017a and saving to `data/processed/metrics_valid.csv`. **Dependency**: T017a. **Note**: This runs BEFORE the pass rate check to ensure survivorship bias data is available.
 - [X] T018 [US1] **Check Pass Rate**: Implement `code/generation/pipeline.py` to calculate pass rates. **Logic**: Calculate `pass_rate` for each style group (count_passed / count_generated). If **any** style group has `pass_rate < 0.01`, **LOG** "Model Incapability: Pass rate < 1%" to `data/logs/pipeline.log`, **SET** a "Model Incapability" flag in the report metadata, and **CONTINUE** the pipeline (do NOT halt). **Verification**: Verify that the process continues to the next phase, the log contains the specific error string "Model Incapability: Pass rate < 1%", and the report metadata contains the "Model Incapability" flag. **This task MUST execute after T017a, T017b, and T024a**. **Dependency**: T017a, T017b, T024a. **Note**: This task flags the issue but allows the *survivorship bias* calculation (T032a) to proceed if data exists.
 - [X] T019 [US1] **Flag Bias**: Implement `code/generation/pipeline.py` to calculate pass rates; if the difference between any two style groups exceeds a substantial threshold (**0.10** or 10 percentage points), write the flag string "Potentially Biased" to the final report metadata and the output CSV. **Dependency**: T018 (Status=OK or Flagged). **Note**: T019 runs after T018.
 
@@ -119,8 +119,8 @@
 - [X] T030a [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
 - [X] T031a [US3] Implement sensitivity analysis: sweep α over the set **[0.01, 0.05, 0.1]** and record the count of significant tasks for each. **Output**: Write results to `data/processed/sensitivity_results.json`. **MUST WRITE FILE IN ALL CASES** (even if analysis fails, write error status). **Dependency**: T029a.
 - [X] T032a [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T017b) vs 'All Generated' (from T024a) results and quantify difference. **Dependency**: T017b, T024a.
-- [X] T033a [US3] **Implement Power Analysis Calculation**: Implement a script in `code/analysis/power.py` that calculates the required sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, effect_size=0.25) using `statsmodels.stats.power`. **Deliverable**: Log the calculation steps and the result "Power analysis confirmed: N={calculated_value} tasks is sufficient" to `data/logs/power_analysis.log`. **Dependency**: T006, T007.
-- [X] T034 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold) saved as image (matplotlib/seaborn)**, survivorship bias section, **bias flag ("Potentially Biased")**, **model incapability flag**, and **collinearity suggestion text**. **Input**: Read `code/analysis/collinearity_flag.json` from T025a. **Verification**: Verify `collinearity_flag.json` exists and contains keys `flag` and `suggestion`. If `flag` is true, inject "Suggestion: Use AST Distance only" into the report. **Dependencies**: T025a, T029a, T030a, T031a, T032a. **Input files**: metrics_valid.csv, sensitivity_results.json, collinearity_flag.json.
+- [X] T033a [US3] **Implement Power Analysis Calculation**: Implement a script in `code/analysis/power.py` that calculates the required sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, effect_size=0.25 [UNRESOLVED-CLAIM: c_6dc65994 — status=not_enough_info]) using `statsmodels.stats.power`. **Deliverable**: Log the calculation steps and the result "Power analysis confirmed: N={calculated_value} tasks is sufficient" to `data/logs/power_analysis.log`. **Dependency**: T006, T007.
+- [ ] T034 [US3] Implement `code/analysis/reporter.py` to generate PDF/HTML report with H-statistic, p-value, post-hoc results, **specific sensitivity plot (count vs threshold) saved as image (matplotlib/seaborn)**, survivorship bias section, **bias flag ("Potentially Biased")**, **model incapability flag**, and **collinearity suggestion text**. **Input**: Read `code/analysis/collinearity_flag.json` from T025a. **Verification**: Verify `collinearity_flag.json` exists and contains keys `flag` and `suggestion`. If `flag` is true, inject "Suggestion: Use AST Distance only" into the report. **Dependencies**: T025a, T029a, T030a, T031a, T032a. **Input files**: metrics_valid.csv, sensitivity_results.json, collinearity_flag.json.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -130,13 +130,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T035 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
+- [ ] T035 [P] Create `code/main.py` orchestrator to run full pipeline (Setup → Gen → Metrics → Stats → Report)
 - [X] T036 [P] Implement `data/processed/` directory structure and ensure all CSVs (samples_all, samples_valid, metrics_all, metrics_valid) are written correctly
 - [X] T037 [P] Add SHA256 checksumming for **HumanEval downloaded cached file in `data/raw/`, all processed CSVs (samples_all, samples_valid, metrics_all, metrics_valid), and raw generated code samples (stored in `data/processed/raw_samples/` or equivalent intermediate storage)** and record in `state/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l.yaml` under `artifact_hashes` (Data Hygiene). **Clarification**: Checksum the local cached file in `data/raw/`, not the remote source.
 - [X] T038 [P] Update `state/` file with execution status, memory logs, and final report path
 - [X] T039 [P] Documentation updates in `specs/001-evaluating-the-impact-of-code-style-on-l/quickstart.md`
 - [X] T040a [P] Run `pytest` suite and generate JUnit XML report to `tests/results/junit.xml`. **Dependency**: T010, T020, T021, T027, T028.
-- [ ] T040b [P] **Verify** `tests/results/junit.xml` exists and contains no failures; **Attach** file as completion evidence. **Dependency**: T040a.
+- [X] T040b [P] **Verify** `tests/results/junit.xml` exists and contains no failures; **Attach** file as completion evidence. **Dependency**: T040a.
 - [X] T041a [P] Run pipeline subset and log execution duration to `data/logs/timing.log`. **Dependency**: T035.
 - [X] T041b [P] **Verify** `data/logs/timing.log` exists and contains duration < 6 hours; **Attach** file as completion evidence. **Dependency**: T041a.
 - [X] T042 [P] [Review Concern] **Implement** dynamic batch sizing logic in `code/generation/generator.py` that probes memory usage and reduces batch size iteratively until RAM limit is respected, logging each reduction step to `data/logs/memory_log.json`. **Dependency**: T014.
@@ -154,8 +154,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -223,9 +223,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-  - Developer A: User Story 1 (Generation & Filtering)
-  - Developer B: Prepare US2 code (write tests, skeleton) but **WAIT for US1 completion**
-  - Developer C: Prepare US3 code (write tests, skeleton) but **WAIT for US2 completion**
+ - Developer A: User Story 1 (Generation & Filtering)
+ - Developer B: Prepare US2 code (write tests, skeleton) but **WAIT for US1 completion**
+ - Developer C: Prepare US3 code (write tests, skeleton) but **WAIT for US2 completion**
 3. Stories complete and integrate independently
 
 ---
@@ -245,4 +245,4 @@ With multiple developers:
 - **Review Concerns Addressed**: Tasks T042-T046 explicitly address edge cases (memory, timeout, AST errors, zero variance, data source failure, sensitivity reporting) to ensure robust execution on the free-tier runner.
 - **Spec Alignment**: Phase 0 (T001a-c) removed. Spec is immutable.
 - **Data Flow**: T025a writes `collinearity_flag.json`; T034 reads it. T017b and T024a are parallel; T018 runs after T017b/T024a.
-- **Statistical Power**: N=164 is mandatory. No subset fallback is permitted.
+- **Statistical Power**: N=164 is mandatory [UNRESOLVED-CLAIM: c_bf6b0ba2 — status=not_enough_info]. No subset fallback is permitted.

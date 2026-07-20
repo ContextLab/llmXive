@@ -1,0 +1,33 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  ds_dict = datasets.load_dataset("openai/openai_humaneval")
+
+  total_records = sum(len(split) for split in ds_dict.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  first_split = next(iter(ds_dict.values()))
+
+  sample_record = first_split[0]
+
+  print("FIELDS=" + ",".join(sample_record.keys()))'
+record_count: 164
+sample_fields:
+- task_id
+- prompt
+- canonical_solution
+- test
+- entry_point
+field_coverage: 0.75
+required_fields:
+- Task ID
+- Prompt Template
+- Unit Test Code
+- Expected Output
+intent: HumanEval dataset download Hugging Face python package dataset
+cache_key: 6b0103d9f9d1c645e0f351ecd5c92131822d90936f20223cfbab11e8d7ced6f6

@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/generation/tester.py: self-declared fabricated metric \u2014 \u201c\u2026ts     # For now, we return a placeholder result     # NOTE: This is a stub -\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/metrics_all.csv; data/processed/metrics_valid.csv; data/processed/samples_all.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/code/main.py\", line 23, in <module>\n    from config.loader import load_config\nModuleNotFoundError: No module named 'config.loader'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-20T18:57:48Z"
+}

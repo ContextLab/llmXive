@@ -4,221 +4,231 @@ import logging
 from typing import List, Dict, Any, Tuple, Optional
 from collections import Counter
 from pathlib import Path
+import csv
+import json
 
-import pandas as pd
-import networkx as nx
-from difflib import SequenceMatcher
-
-# Re-exporting existing names for compatibility
-__all__ = [
-    "tokenize_code",
-    "calculate_ngram_entropy",
-    "calculate_pairwise_ngram_entropy",
-    "ast_to_graph",
-    "calculate_ast_edit_distance",
-    "calculate_pairwise_ast_distances",
-    "compute_metrics_for_group",
-    "compute_metrics_for_valid_samples",
-    "run_metrics_pipeline"
-]
-
-logger = logging.getLogger(__name__)
-
+# --- Tokenization ---
 def tokenize_code(code: str) -> List[str]:
     """
-    Simple tokenizer that splits code by whitespace and punctuation.
-    Returns a list of tokens.
+    Simple tokenizer: splits on whitespace and basic punctuation.
+    Handles multi-character tokens like '==', '!=', etc.
     """
     if not code or not isinstance(code, str):
         return []
-    # Basic tokenization: split by whitespace, keep punctuation attached to words or separate
-    # For entropy calculation, simple whitespace splitting is often sufficient
-    return code.split()
+    
+    # Basic replacement of punctuation with spaces to isolate tokens
+    # Keep alphanumeric and underscore
+    tokens = []
+    current_token = []
+    i = 0
+    while i < len(code):
+        char = code[i]
+        if char.isalnum() or char == '_':
+            current_token.append(char)
+        else:
+            if current_token:
+                tokens.append("".join(current_token))
+                current_token = []
+            
+            # Handle specific multi-char operators if needed, or treat as single token
+            if char not in (' ', '\t', '\n', '\r'):
+                # Check for common operators
+                if i + 1 < len(code):
+                    next_char = code[i+1]
+                    two_char = char + next_char
+                    if two_char in ('==', '!=', '<=', '>=', '&&', '||', '->'):
+                        tokens.append(two_char)
+                        i += 1
+                    else:
+                        tokens.append(char)
+                else:
+                    tokens.append(char)
+        i += 1
+    
+    if current_token:
+        tokens.append("".join(current_token))
+    
+    return tokens
 
-def calculate_ngram_entropy(tokens: List[str], n: int = 2) -> float:
+def calculate_ngram_entropy(tokens: List[str], n: int = 3) -> float:
     """
-    Calculate n-gram entropy for a list of tokens.
-    H = -sum(p(x) * log2(p(x)))
+    Calculates the n-gram entropy of a sequence of tokens.
+    H = - sum(p(x) * log2(p(x)))
     """
     if not tokens or len(tokens) < n:
         return 0.0
-
+    
     ngrams = []
     for i in range(len(tokens) - n + 1):
         ngram = tuple(tokens[i:i+n])
         ngrams.append(ngram)
-
+    
     if not ngrams:
         return 0.0
-
+    
     counts = Counter(ngrams)
     total = len(ngrams)
+    
     entropy = 0.0
-
     for count in counts.values():
         p = count / total
         if p > 0:
             entropy -= p * math.log2(p)
-
+    
     return entropy
 
-def calculate_pairwise_ngram_entropy(samples: List[str], n: int = 2) -> float:
+def calculate_pairwise_ngram_entropy(samples: List[str], n: int = 3) -> float:
     """
-    Calculate average n-gram entropy across multiple samples.
+    Calculates the average n-gram entropy across a list of code samples.
     """
     if not samples:
         return 0.0
-
-    total_entropy = 0.0
-    count = 0
-
-    for sample in samples:
-        tokens = tokenize_code(sample)
-        entropy = calculate_ngram_entropy(tokens, n)
-        total_entropy += entropy
-        count += 1
-
-    return total_entropy / count if count > 0 else 0.0
-
-def ast_to_graph(node: ast.AST) -> nx.DiGraph:
-    """
-    Convert an AST node to a NetworkX DiGraph for edit distance calculation.
-    Nodes are labeled with node type and optional key attributes.
-    Edges represent parent-child relationships.
-    """
-    G = nx.DiGraph()
     
-    def _add_node(n, parent=None, edge_label=None):
-        node_id = id(n)
-        # Create a unique identifier for this node instance
-        node_label = f"{n.__class__.__name__}"
-        if hasattr(n, 'name') and n.name:
-            node_label += f":{n.name}"
-        elif hasattr(n, 'arg') and n.arg:
-            node_label += f":{n.arg}"
-        
-        G.add_node(node_id, label=node_label)
-        
-        if parent is not None:
-            G.add_edge(parent, node_id, label=edge_label)
-        
-        for field, value in ast.iter_fields(n):
-            if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, ast.AST):
-                        _add_node(item, node_id, field)
-            elif isinstance(value, ast.AST):
-                _add_node(value, node_id, field)
+    entropies = []
+    for code in samples:
+        if not code:
+            continue
+        tokens = tokenize_code(code)
+        if tokens:
+            entropies.append(calculate_ngram_entropy(tokens, n))
+    
+    if not entropies:
+        return 0.0
+    
+    return sum(entropies) / len(entropies)
+
+# --- AST Graphs ---
+def ast_to_graph(code: str) -> Optional[Dict[str, Any]]:
+    """
+    Converts Python code to a simplified graph representation (adjacency list).
+    Nodes are node types; edges are parent-child relationships.
+    """
+    if not code:
+        return None
     
     try:
-        _add_node(node)
-    except Exception as e:
-        logger.warning(f"Failed to convert AST to graph: {e}")
-        # Return a minimal graph if conversion fails
-        G.add_node(0, label="Error")
+        tree = ast.parse(code)
+    except SyntaxError:
+        return None
     
-    return G
+    graph = {"nodes": [], "edges": []}
+    node_map = {}
+    
+    def traverse(node, parent_id=None):
+        node_id = id(node)
+        node_type = node.__class__.__name__
+        
+        # Store node info
+        node_info = {"id": node_id, "type": node_type}
+        graph["nodes"].append(node_info)
+        
+        # Store edge
+        if parent_id is not None:
+            graph["edges"].append({"source": parent_id, "target": node_id})
+        
+        # Traverse children
+        for child in ast.iter_child_nodes(node):
+            traverse(child, node_id)
+    
+    traverse(tree)
+    return graph
 
-def calculate_ast_edit_distance(graph1: nx.DiGraph, graph2: nx.DiGraph) -> float:
+def calculate_ast_edit_distance(graph1: Optional[Dict[str, Any]], graph2: Optional[Dict[str, Any]]) -> float:
     """
-    Calculate a simplified AST edit distance between two graphs.
-    Uses a heuristic based on node similarity and structure matching.
-    Note: Full Zhang-Shasha is complex; this uses a normalized similarity metric.
+    Calculates a simplified edit distance between two AST graphs.
+    Since full tree edit distance is complex, we use a heuristic based on:
+    1. Difference in node counts
+    2. Difference in edge counts
+    3. Difference in node type distribution
     """
-    if graph1.number_of_nodes() == 0 and graph2.number_of_nodes() == 0:
+    if graph1 is None and graph2 is None:
+        return 0.0
+    if graph1 is None or graph2 is None:
+        return 1.0 # Max distance if one is invalid
+    
+    nodes1 = graph1.get("nodes", [])
+    nodes2 = graph2.get("nodes", [])
+    edges1 = graph1.get("edges", [])
+    edges2 = graph2.get("edges", [])
+    
+    # Node count difference (normalized)
+    n1, n2 = len(nodes1), len(nodes2)
+    max_nodes = max(n1, n2)
+    if max_nodes == 0:
         return 0.0
     
-    if graph1.number_of_nodes() == 0 or graph2.number_of_nodes() == 0:
-        return max(graph1.number_of_nodes(), graph2.number_of_nodes())
-
-    # Normalize by total nodes
-    max_nodes = max(graph1.number_of_nodes(), graph2.number_of_nodes())
-    min_nodes = min(graph1.number_of_nodes(), graph2.number_of_nodes())
+    node_diff = abs(n1 - n2) / max_nodes
     
-    # Count matching node labels
-    labels1 = [d['label'] for _, d in graph1.nodes(data=True)]
-    labels2 = [d['label'] for _, d in graph2.nodes(data=True)]
+    # Edge count difference (normalized)
+    e1, e2 = len(edges1), len(edges2)
+    max_edges = max(e1, e2)
+    edge_diff = abs(e1 - e2) / max_edges if max_edges > 0 else 0.0
     
-    # Simple similarity: intersection over union of labels
-    set1 = Counter(labels1)
-    set2 = Counter(labels2)
+    # Type distribution difference
+    types1 = Counter([n["type"] for n in nodes1])
+    types2 = Counter([n["type"] for n in nodes2])
     
-    intersection = sum((set1 & set2).values())
-    union = sum((set1 | set2).values())
+    all_types = set(types1.keys()) | set(types2.keys())
+    type_diff = 0.0
+    for t in all_types:
+        c1 = types1.get(t, 0)
+        c2 = types2.get(t, 0)
+        type_diff += abs(c1 - c2)
     
-    if union == 0:
-        return 0.0
+    # Normalize type diff by total nodes
+    type_diff = type_diff / (n1 + n2) if (n1 + n2) > 0 else 0.0
     
-    similarity = intersection / union
-    
-    # Edit distance heuristic: (1 - similarity) * max_nodes
-    distance = (1 - similarity) * max_nodes
-    
+    # Weighted sum
+    distance = 0.4 * node_diff + 0.4 * edge_diff + 0.2 * type_diff
     return distance
 
-def calculate_pairwise_ast_distances(samples: List[str]) -> float:
+def calculate_pairwise_ast_distances(samples: List[str]) -> List[float]:
     """
-    Calculate average pairwise AST edit distance for a list of code samples.
+    Calculates pairwise AST edit distances for a list of code samples.
+    Returns a list of distances for all unique pairs.
     """
-    if len(samples) < 2:
-        return 0.0
-
     graphs = []
-    for sample in samples:
-        try:
-            tree = ast.parse(sample)
-            graph = ast_to_graph(tree)
-            graphs.append(graph)
-        except SyntaxError as e:
-            logger.warning(f"Syntax error in sample: {e}")
-            continue
-        except Exception as e:
-            logger.warning(f"Error parsing AST: {e}")
-            continue
-
-    if len(graphs) < 2:
-        return 0.0
-
-    total_distance = 0.0
-    count = 0
-
+    for code in samples:
+        g = ast_to_graph(code)
+        if g is not None:
+            graphs.append(g)
+    
+    distances = []
     for i in range(len(graphs)):
         for j in range(i + 1, len(graphs)):
             dist = calculate_ast_edit_distance(graphs[i], graphs[j])
-            total_distance += dist
-            count += 1
+            distances.append(dist)
+    
+    return distances
 
-    return total_distance / count if count > 0 else 0.0
-
+# --- Metrics Computation ---
 def compute_metrics_for_group(samples: List[str]) -> Dict[str, float]:
     """
-    Compute all metrics for a group of samples.
-    Returns a dictionary with entropy and AST distance.
+    Computes all metrics for a group of samples.
     """
     if not samples:
         return {
-            "ngram_entropy": 0.0,
-            "ast_edit_distance": 0.0
+            "avg_ngram_entropy": 0.0,
+            "avg_ast_edit_distance": 0.0,
+            "sample_count": 0
         }
-
-    entropy = calculate_pairwise_ngram_entropy(samples)
-    ast_dist = calculate_pairwise_ast_distances(samples)
-
+    
+    avg_entropy = calculate_pairwise_ngram_entropy(samples)
+    pairwise_dists = calculate_pairwise_ast_distances(samples)
+    avg_dist = sum(pairwise_dists) / len(pairwise_dists) if pairwise_dists else 0.0
+    
     return {
-        "ngram_entropy": entropy,
-        "ast_edit_distance": ast_dist
+        "avg_ngram_entropy": avg_entropy,
+        "avg_ast_edit_distance": avg_dist,
+        "sample_count": len(samples)
     }
 
 def compute_metrics_for_valid_samples(input_path: str, output_path: str) -> None:
     """
-    T025 Implementation: Compute metrics for VALID samples only.
-    Reads from data/processed/samples_valid.csv and writes to data/processed/metrics_valid.csv.
+    Reads samples_valid.csv, computes metrics per (task_id, style) group,
+    and writes to metrics_valid.csv.
     
-    This function:
-    1. Loads valid samples from the CSV produced by T017b.
-    2. Groups samples by task_id and style.
-    3. Computes pairwise n-gram entropy and AST edit distance for each group.
-    4. Writes the results to the output CSV.
+    Dependency: T017a (samples_valid.csv must exist)
     """
     input_file = Path(input_path)
     output_file = Path(output_path)
@@ -226,72 +236,57 @@ def compute_metrics_for_valid_samples(input_path: str, output_path: str) -> None
     if not input_file.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    logger.info(f"Loading valid samples from {input_path}")
-    
-    # Read valid samples
-    df = pd.read_csv(input_file)
-    
-    if df.empty:
-        logger.warning("No valid samples found in input file. Creating empty output.")
-        df_metrics = pd.DataFrame(columns=["task_id", "style", "ngram_entropy", "ast_edit_distance", "sample_count"])
-        df_metrics.to_csv(output_file, index=False)
-        return
-
-    # Group by task_id and style
-    groups = df.groupby(["task_id", "style"])
-    
-    results = []
-    
-    for (task_id, style), group_df in groups:
-        samples = group_df["code"].dropna().tolist()
-        
-        if not samples:
-            logger.warning(f"No samples found for task {task_id}, style {style}")
-            continue
-        
-        metrics = compute_metrics_for_group(samples)
-        
-        results.append({
-            "task_id": task_id,
-            "style": style,
-            "ngram_entropy": metrics["ngram_entropy"],
-            "ast_edit_distance": metrics["ast_edit_distance"],
-            "sample_count": len(samples)
-        })
-        
-        logger.debug(f"Computed metrics for task {task_id}, style {style}: "
-                     f"entropy={metrics['ngram_entropy']:.4f}, "
-                     f"ast_dist={metrics['ast_edit_distance']:.4f}")
-    
-    # Create output DataFrame
-    df_metrics = pd.DataFrame(results)
-    
-    if df_metrics.empty:
-        logger.warning("No metrics computed. Creating empty output.")
-        df_metrics = pd.DataFrame(columns=["task_id", "style", "ngram_entropy", "ast_edit_distance", "sample_count"])
-    
     # Ensure output directory exists
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write to CSV
-    df_metrics.to_csv(output_file, index=False)
+    # Read samples
+    groups = {} # key: (task_id, style), value: list of code
     
-    logger.info(f"Metrics for valid samples saved to {output_path}")
-    logger.info(f"Total groups processed: {len(df_metrics)}")
+    with open(input_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            task_id = row.get('task_id', '')
+            style = row.get('style', '')
+            code = row.get('code', '')
+            
+            if not code:
+                continue
+            
+            key = (task_id, style)
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(code)
+    
+    # Compute metrics
+    results = []
+    for (task_id, style), samples in groups.items():
+        metrics = compute_metrics_for_group(samples)
+        results.append({
+            "task_id": task_id,
+            "style": style,
+            "avg_ngram_entropy": metrics["avg_ngram_entropy"],
+            "avg_ast_edit_distance": metrics["avg_ast_edit_distance"],
+            "sample_count": metrics["sample_count"]
+        })
+    
+    # Write results
+    fieldnames = ["task_id", "style", "avg_ngram_entropy", "avg_ast_edit_distance", "sample_count"]
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+    
+    logging.info(f"Metrics for valid samples written to {output_path}")
 
-def run_metrics_pipeline() -> None:
+def run_metrics_pipeline(config: Dict[str, Any]) -> None:
     """
-    Main entry point for the metrics pipeline.
-    Executes T025: Compute metrics for valid samples.
+    Orchestrates the metrics computation pipeline.
     """
-    input_path = "data/processed/samples_valid.csv"
-    output_path = "data/processed/metrics_valid.csv"
+    # Read config for paths
+    data_dir = Path(config.get('data_dir', 'data'))
+    processed_dir = data_dir / 'processed'
     
-    try:
-        compute_metrics_for_valid_samples(input_path, output_path)
-    except FileNotFoundError as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Pipeline failed with unexpected error: {e}")
-        raise
+    samples_valid_path = processed_dir / 'samples_valid.csv'
+    metrics_valid_path = processed_dir / 'metrics_valid.csv'
+    
+    compute_metrics_for_valid_samples(str(samples_valid_path), str(metrics_valid_path))
