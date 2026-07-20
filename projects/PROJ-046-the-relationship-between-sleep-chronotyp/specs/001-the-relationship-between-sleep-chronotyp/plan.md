@@ -81,7 +81,7 @@ projects/PROJ-046-the-relationship-between-sleep-chronotyp/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | The scope is strictly defined by the spec (MANCOVA, 5 ANCOVAs, 1 report). | N/A |
+| None | The scope is strictly defined by the spec (MANCOVA, multiple ANCOVAs, 1 report). | N/A |
 
 ## Implementation Phases
 
@@ -105,7 +105,7 @@ projects/PROJ-046-the-relationship-between-sleep-chronotyp/
 - **Task**: `02_mancova_ancova.R`:
   - **Data Check**: If `cleaned_data.csv` is missing or empty, skip analysis (CI will pass but report will note "No Data").
   - Run MANCOVA (Hotelling's Trace) for overall pattern.
-  - If MANCOVA significant, run 5 univariate ANCOVAs with Bonferroni correction.
+  - If MANCOVA significant, run multiple univariate ANCOVAs with Bonferroni correction.
   - Calculate VIF (must be < 2).
   - Calculate Cohen's d and confidence intervals for significant contrasts.
   - Perform Sensitivity Analysis (alpha: a range of small significance levels).

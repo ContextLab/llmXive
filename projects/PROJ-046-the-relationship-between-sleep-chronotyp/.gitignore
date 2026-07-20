@@ -2,41 +2,49 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
 
 # R
+.Rproj.user/
 .Rhistory
-.RData
-.Rproj.user
-renv/activate.R
-renv/profiles/*/activate.R
+.Rdata
+.Renviron
+.Rprofile
+renv/
+renv.lock
 
-# Data (Keep raw, ignore derived if large, keep logs)
-data/raw/*
-!data/raw/.gitkeep
+# Data
+data/raw/study_data.csv
 data/processed/*.csv
 data/derived/*.csv
 data/derived/*.json
-data/derived/*.log
+data/derived/*.txt
 logs/*.log
-logs/*.flag
 
 # Reports
 reports/*.html
 reports/*.pdf
-reports/*.docx
+reports/*.png
+reports/*.txt
 
-# Figures
-figures/*.png
-figures/*.jpg
-figures/*.pdf
+# Test Data (CI Smoke Tests only)
+# These files are required for CI but should not be used in production analysis
+tests/testdata/schema_check.csv
+tests/testdata/missing_columns.csv
+tests/testdata/high_exclusion_meq.csv
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -427,3 +427,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T15:37:31Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: ANCOVA p-values match reference within 0.01 tolerance
+  claim_id: c_88940428
+  context: "Action: If data/raw/reference_data.csv exists, run the ANCOVA model on\
+    \ it and compare p-values with the pipeline output (T019). Verify tolerance \u2264\
+    0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify tolerance \u22640.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:13:24Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha threshold is 0.01 for 5 tests
+  claim_id: c_532207ca
+  context: "Apply Bonferroni correction (\u03B1 = 0.05/5 = 0.01) to p-values atomically\
+    \ within this step (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.05/5 = 0.01) to p-values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:13:39Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor flag threshold is 2
+  claim_id: c_2bb190f1
+  context: 'Calculate Variance Inflation Factors (VIF). If any VIF > 2: Log warning
+    to logs/vif_warnings.log, write ''Invalid'' flag to data/derived/vif_flag.csv,
+    and DO NOT ABORT the pipeline (per FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If any VIF > 2: Log warning... and DO NOT ABORT.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:13:39Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis alpha thresholds are 0.01, 0.0125, and 0.015
+  claim_id: c_146f5659
+  context: Iterate over each unique contrast_label... and recalculate significance
+    status for each alpha threshold {0.01, 0.0125, 0.015} (explicitly defined as a
+    constant vector) without re-fitting models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly listed alpha thresholds {0.01, 0.0125, 0.015}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:13:49Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Low balance alert triggers when intermediate chronotype proportion exceeds
+    70 percent
+  claim_id: c_3503af80
+  context: 'Logic: Read data/derived/classified_data.csv. Calculate the proportion
+    of participants in the ''intermediate'' chronotype group. Action: If proportion
+    > 0.70, generate a warning file data/derived/low_balance_alert.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If proportion > 0.70, generate a warning file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:13:49Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity limit is 10
+  claim_id: c_e159e71c
+  context: 'Code cleanup and refactoring: Run `lintr::lint_dir(''code/'', linters
+    = list(cyclocomp_linter(limit = 10)))` to ensure cyclomatic complexity < 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `lintr::lint_dir(..., cyclocomp_linter(limit = 10))` to ensure cyclomatic
+    complexity < 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:14:04Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Exclusion rate calculation divides invalid row count by original row
+    count
+  claim_id: c_e8fc488f
+  context: 'Calculation: Calculate exclusion rate = (Count of Invalid MEQ/MFQ rows)
+    / (Original Row Count). DO NOT include rows missing acute_sleepiness in the numerator
+    or denominator for this specific abort check.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclusion_rate_calculation_divides_invalid_row_count_by_orig
+  kind: entity_fact
+  raw_text: Calculate exclusion rate = (Count of Invalid MEQ/MFQ rows) / (Original
+    Row Count).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:14:17Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if exclusion rate exceeds 20 percent
+  claim_id: c_945977ad
+  context: 'Action: If rate > 20%, ABORT immediately with a clear error message.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rate > 20%, ABORT immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:14:17Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Synthetic MEQ score generation uses mean 50 and standard deviation 10
+  claim_id: c_9ce38b22
+  context: 'Method: Generate data using `rnorm(n=100, mean=50, sd=10)` for `MEQ_score`
+    to mimic real MEQ ranges.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `rnorm(n=100, mean=50, sd=10)` for `MEQ_score`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:14:49Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Chronotype classification thresholds are 59 for morning and 41 for evening
+  claim_id: c_f50fc02a
+  context: 'Apply thresholds: `MEQ >= 59` -> ''morning'', `MEQ <= 41` -> ''evening'',
+    else ''intermediate''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply thresholds: `MEQ >= 59` -> ''morning'', `MEQ <= 41` -> ''evening'',
+    else ''intermediate''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:15:18Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Benchmark label mapping uses 59 and 41 thresholds
+  claim_id: c_a3d3f0b0
+  context: 'Explicit Mapping: Generate `MEQ_score` such that the known label is deterministically
+    derived using the exact same thresholds as FR-002 (`>=59` -> morning, `<=41` ->
+    evening).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MEQ >= 59 -> morning, <=41 -> evening.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:15:21Z'

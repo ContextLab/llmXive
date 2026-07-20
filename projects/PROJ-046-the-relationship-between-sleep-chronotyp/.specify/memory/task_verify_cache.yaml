@@ -4,3 +4,17 @@ T025:
   r: "The required artifact `tests/test-report.R` does not exist on disk, so the validation\
     \ test for report structure cannot be present or evaluated. The task\u2019s core\
     \ deliverable is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file or updated content was provided; therefore the required\
+    \ \u201CTroubleshooting\u201D section describing the abort conditions (missing\
+    \ columns, >20% exclusion) and remediation steps is absent. The implementer must\
+    \ add and commit the updated markdown file."
+T046:
+  c: false
+  h: 6d1baab9d790c8d1ddb94f51521b7e3b6c77443f56c00750c46a6abeffff03df
+  r: "The provided `tests/test-classify.R` is truncated (ends mid\u2011line with an\
+    \ unfinished `expect_true(`), so the test code is incomplete and cannot actually\
+    \ run to verify the abort behavior. The missing remainder of the file must be\
+    \ added and the script saved in full for the task to be satisfied."
