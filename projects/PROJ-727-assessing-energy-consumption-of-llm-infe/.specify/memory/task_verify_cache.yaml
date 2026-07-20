@@ -5,23 +5,6 @@ T027:
     \ function reads exclusively from `data/processed/energy_results_aggregated.csv`\
     \ and performs metric calculations without referencing any raw data. No placeholder\
     \ or stub code is present."
-T028:
-  c: false
-  h: 6b23d1736943c65e19f6fa8ded1b13423576a43525d744f253a6a56cdffea77a
-  r: "The required output file `data/processed/energy_bar.png` does not exist, and\
-    \ `code/visualization.py` lacks any command\u2011line interface (e.g., `--mock`)\
-    \ or code to generate a synthetic CSV and invoke the plotting function, so the\
-    \ verification steps cannot be performed. The implementation must add a runnable\
-    \ entry point that creates a mock dataset, calls `plot_energy_bar`, and produces\
-    \ the PNG file."
-T029:
-  c: false
-  h: 79aa2ecc5d2e70a66ee6bed9dd8a6aa69b823e7a17f2d181f0b2493b39f39114
-  r: "The required output file `data/processed/tradeoff_scatter.png` does not exist,\
-    \ and the `visualization.py` script is truncated before the implementation of\
-    \ `plot_tradeoff_scatter` (no code to compute the metrics, create the plot, add\
-    \ legend/title/labels, or handle the `--mock` flag). Consequently the task\u2019\
-    s deliverables are missing."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

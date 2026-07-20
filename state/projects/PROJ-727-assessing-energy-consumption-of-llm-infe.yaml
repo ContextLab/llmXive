@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-727-assessing-energy-consumption-of-llm-infe
-last_run_id: 05c48e15-46af-46a1-9599-f8ab96c2a10e
+last_run_id: f1941163-a551-4731-a70c-e9f83bcbf39b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe
 title: Assessing Energy Consumption of LLM Inference for Code Completion
-updated_at: '2026-07-20T02:18:42.720765Z'
+updated_at: '2026-07-20T03:30:16.363358Z'

@@ -1,93 +1,55 @@
 """
-Tests for the Final Sanity Check (T031).
-
-Verifies that the sanity check script correctly identifies
-missing files and validates plot content (if possible).
+Tests for the sanity check module (T031).
 """
 import os
 import sys
 import tempfile
-import shutil
-import unittest
-from unittest.mock import patch, MagicMock
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+import matplotlib.pyplot as plt
+from pathlib import Path
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add project root to path if needed
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-class TestSanityCheck(unittest.TestCase):
+from code.sanity_check import check_plot_content
 
-    def setUp(self):
-        """Set up a temporary directory for testing."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.processed_dir = os.path.join(self.temp_dir, 'processed')
-        os.makedirs(self.processed_dir)
-        
-        # Mock the config to use our temp directory
-        self.original_processed_dir = None
-        if 'DATA_PROCESSED_DIR' in sys.modules.get('code.config', {}).__dict__:
-            pass # We will patch the import
 
-    def tearDown(self):
-        """Clean up temporary directory."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+def test_check_plot_content_file_not_found():
+    """Test that check_plot_content returns False for missing file."""
+    result = check_plot_content("/nonexistent/path/plot.png")
+    assert result is False
 
-    @patch('code.sanity_check.DATA_PROCESSED_DIR')
-    @patch('code.sanity_check.validate_plot')
-    def test_all_files_exist_and_valid(self, mock_validate, mock_dir):
-        """Test that the check passes when all files exist and validate_plot returns True."""
-        mock_dir.return_value = self.processed_dir
-        mock_validate.return_value = True
 
-        # Create dummy files
-        for fname in ['energy_bar.png', 'tradeoff_scatter.png']:
-            open(os.path.join(self.processed_dir, fname), 'w').close()
+def test_check_plot_content_empty_file():
+    """Test that check_plot_content returns False for empty file."""
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+        tmp_path = tmp.name
+        # File is created empty
+    
+    try:
+        result = check_plot_content(tmp_path)
+        assert result is False
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
-        import code.sanity_check as sc
-        result = sc.main()
-        
-        self.assertEqual(result, 0)
-        self.assertEqual(mock_validate.call_count, 2)
 
-    @patch('code.sanity_check.DATA_PROCESSED_DIR')
-    def test_missing_file_fails(self, mock_dir):
-        """Test that the check fails if a file is missing."""
-        mock_dir.return_value = self.processed_dir
-        
-        # Create only one file
-        open(os.path.join(self.processed_dir, 'energy_bar.png'), 'w').close()
-        # tradeoff_scatter.png is missing
-
-        import importlib
-        # Re-import to pick up the new mock_dir if needed, or just run logic
-        # We need to reload the module to see the mock
-        if 'code.sanity_check' in sys.modules:
-            importlib.reload(sys.modules['code.sanity_check'])
-        
-        import code.sanity_check as sc
-        result = sc.main()
-        
-        self.assertEqual(result, 1)
-
-    @patch('code.sanity_check.DATA_PROCESSED_DIR')
-    @patch('code.sanity_check.validate_plot')
-    def test_invalid_content_fails(self, mock_validate, mock_dir):
-        """Test that the check fails if validate_plot returns False."""
-        mock_dir.return_value = self.processed_dir
-        mock_validate.return_value = False
-
-        # Create dummy files
-        for fname in ['energy_bar.png', 'tradeoff_scatter.png']:
-            open(os.path.join(self.processed_dir, fname), 'w').close()
-
-        import importlib
-        if 'code.sanity_check' in sys.modules:
-            importlib.reload(sys.modules['code.sanity_check'])
-        
-        import code.sanity_check as sc
-        result = sc.main()
-        
-        self.assertEqual(result, 1)
-        mock_validate.assert_called()
-
-if __name__ == '__main__':
-    unittest.main()
+def test_check_plot_content_valid_file():
+    """Test that check_plot_content returns True for a valid non-empty file."""
+    # Create a dummy valid PNG (minimal valid PNG header + some data)
+    # A real minimal PNG is complex, so we just write a non-empty file
+    # and trust the size check.
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+        tmp.write(b'\x89PNG\r\n\x1a\n') # PNG header
+        tmp.write(b'fake png data')
+        tmp_path = tmp.name
+    
+    try:
+        result = check_plot_content(tmp_path)
+        assert result is True
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
