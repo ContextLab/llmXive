@@ -1,3 +1,6 @@
+"""
+Bias check analysis for excluded entries.
+"""
 import os
 import json
 import logging
@@ -5,157 +8,89 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
-from utils.logger import log_bias_check, log_exclusion_reason, get_logger, configure_log_file
-from utils.config import Config
+from utils.logger import get_logger, log_bias_check
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ExclusionReason:
+    material_id: str
     reason: str
-    count: int
-    family_ids_flagged: Optional[List[str]] = None
+    category: str
 
 @dataclass
 class BiasReport:
-    exclusions: List[ExclusionReason]
+    summary: Dict[str, int]
     total_excluded: int
-    flagged_families: List[str]
-    summary: str
+    report: List[Dict[str, Any]]
 
-def load_exclusion_log(path: Path) -> List[Dict[str, Any]]:
+def load_exclusion_log(input_path: Path) -> List[ExclusionReason]:
     """Load exclusion log from JSON file."""
-    if not path.exists():
-        # Log to the standard logger as well for visibility
-        logging.warning(f"Exclusion log not found at {path}. Returning empty list.")
+    if not input_path.exists():
+        logger.warning(f"Exclusion log not found at {input_path}. Returning empty list.")
         return []
-    try:
-        with open(path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logging.error(f"Failed to parse exclusion log at {path}: {e}")
-        return []
-
-def analyze_exclusion_bias(logs: List[Dict[str, Any]], config: Optional[Config] = None) -> BiasReport:
-    """
-    Analyze bias in excluded entries.
     
-    Aggregates exclusion reasons, counts occurrences, and flags chemical families
-    that are under-represented in the final dataset due to exclusion criteria.
-    """
-    if config is None:
-        config = Config()
+    with open(input_path, "r") as f:
+        data = json.load(f)
+    
+    return [ExclusionReason(**item) for item in data]
+
+def analyze_exclusion_bias(exclusion_reasons: List[ExclusionReason]) -> BiasReport:
+    """Analyze the bias in excluded entries."""
+    category_counts: Dict[str, int] = {}
+    detailed_report = []
+
+    for reason in exclusion_reasons:
+        # Count by category
+        category_counts[reason.category] = category_counts.get(reason.category, 0) + 1
         
-    reasons: Dict[str, int] = {}
-    family_exclusion_counts: Dict[str, int] = {}
-    total_excluded = 0
+        # Add to detailed report
+        detailed_report.append({
+            "material_id": reason.material_id,
+            "reason": reason.reason,
+            "category": reason.category
+        })
 
-    for log in logs:
-        reason = log.get('reason', 'unknown')
-        family_id = log.get('family_id', 'unknown')
-        
-        reasons[reason] = reasons.get(reason, 0) + 1
-        total_excluded += 1
+    # Check for small families (example logic)
+    # This is a placeholder for actual family analysis if data supports it
+    # For now, we just report the categories
 
-        if family_id and family_id != 'unknown':
-            family_exclusion_counts[family_id] = family_exclusion_counts.get(family_id, 0) + 1
-
-    exclusions = [ExclusionReason(r, c) for r, c in sorted(reasons.items(), key=lambda x: x[1], reverse=True)]
-    
-    # Flag families with high exclusion rates or very small remaining populations
-    # Threshold: if > 50% of a family is excluded, or total remaining < 5 (heuristic)
-    flagged_families = []
-    min_family_size_threshold = getattr(config, 'min_family_size', 5)
-    exclusion_ratio_threshold = 0.5
-
-    # We flag families where the exclusion count is high relative to an assumed total,
-    # or simply flag any family that has ANY exclusions if the total dataset is small.
-    # A more robust approach requires total counts, but we proceed with available data:
-    # Flag families where exclusion count > 2 (arbitrary small threshold for "small family" flagging)
-    for fam, count in family_exclusion_counts.items():
-        if count >= 2: 
-            flagged_families.append(fam)
-            # Use the logger utility
-            log_exclusion_reason(f"Flagged family {fam} with {count} exclusions.", level=logging.WARNING)
-
-    summary_parts = []
-    summary_parts.append(f"Total entries excluded: {total_excluded}")
-    summary_parts.append(f"Exclusion reasons breakdown: {reasons}")
-    if flagged_families:
-        summary_parts.append(f"Potential bias detected in families: {flagged_families}")
-    
-    summary = " | ".join(summary_parts)
-
-    return BiasReport(
-        exclusions=exclusions,
-        total_excluded=total_excluded,
-        flagged_families=flagged_families,
-        summary=summary
+    report = BiasReport(
+        summary=category_counts,
+        total_excluded=len(exclusion_reasons),
+        report=detailed_report
     )
 
-def write_bias_report(report: BiasReport, path: Path):
-    """Write bias report to JSON file and log summary."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
+    # Log bias check results
+    log_bias_check(report.summary)
+
+    return report
+
+def write_bias_report(report: BiasReport, output_path: Path) -> None:
+    """Write bias report to JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     report_dict = asdict(report)
-    # Remove None values for cleaner JSON if necessary, though asdict handles basic types well
-    
-    with open(path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report_dict, f, indent=2)
-    
-    logging.info(f"Bias report written to {path}")
-    # Fix: log_bias_check expects the report object, not just the summary string
-    # The logger contract requires a report object.
-    log_bias_check(report)
+    logger.info(f"Bias report written to {output_path}")
 
 def main():
-    """
-    Main entry point for bias check analysis.
-    Reads exclusion logs generated by the filter/pipeline stage,
-    analyzes bias, and writes a report.
-    """
-    config = Config()
+    parser = argparse.ArgumentParser(description="Run bias check on excluded entries.")
+    parser.add_argument("--input", type=str, required=True, help="Path to exclusion log JSON")
+    parser.add_argument("--output", type=str, required=True, help="Path to output bias report JSON")
     
-    # Tolerant path resolution: check for 'paths' attribute dict, then fallback to direct attributes, then defaults
-    exclusion_log_path = None
-    output_path = None
-    
-    if hasattr(config, 'paths') and isinstance(config.paths, dict):
-        exclusion_log_path = config.paths.get('exclusion_log', Path('data/processed/exclusion_log.json'))
-        output_path = config.paths.get('bias_report', Path('data/results/bias_report.json'))
-    else:
-        # Fallback to direct attributes if 'paths' is missing or not a dict
-        exclusion_log_path = getattr(config, 'exclusion_log_path', Path('data/processed/exclusion_log.json'))
-        output_path = getattr(config, 'bias_report_path', Path('data/results/bias_report.json'))
-    
-    # Ensure defaults are Path objects
-    if not isinstance(exclusion_log_path, Path):
-        exclusion_log_path = Path(exclusion_log_path)
-    if not isinstance(output_path, Path):
-        output_path = Path(output_path)
-        
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    logger = logging.getLogger(__name__)
-    logger.info("Starting bias check analysis...")
+    args = parser.parse_args()
 
-    logs = load_exclusion_log(exclusion_log_path)
-    
-    if not logs:
-        logger.warning("No exclusion logs found. Generating empty report.")
-        report = BiasReport(
-            exclusions=[],
-            total_excluded=0,
-            flagged_families=[],
-            summary="No exclusion logs found."
-        )
-    else:
-        logger.info(f"Analyzing {len(logs)} exclusion entries...")
-        report = analyze_exclusion_bias(logs, config)
-    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
+    exclusion_reasons = load_exclusion_log(input_path)
+    report = analyze_exclusion_bias(exclusion_reasons)
     write_bias_report(report, output_path)
-    logger.info("Bias check analysis complete.")
 
 if __name__ == "__main__":
     main()

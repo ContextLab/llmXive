@@ -11,29 +11,132 @@ from typing import Dict, Any, List, Optional
 
 from utils.logger import get_logger, log_operation
 
-# Mandatory disclaimer for all ML surrogate outputs
-DISCLAIMER = (
+logger = get_logger(__name__)
+
+SURROGATE_DISCLAIMER = (
     "These results are derived from a machine learning surrogate model "
     "interpolating pre-computed DFT data. They do not represent first-principles "
     "calculations or solutions to the Schrödinger equation."
 )
 
-def load_json_file(path: str) -> Dict[str, Any]:
-    """Load a JSON file."""
+SCIENTIFIC_INTEGRITY_STATEMENT = (
+    "Scientific Integrity Statement: This model is a statistical surrogate "
+    "trained on existing Density Functional Theory (DFT) datasets. It is designed "
+    "for rapid interpolation within the chemical space covered by the training data. "
+    "It does NOT solve the Schrödinger equation, does NOT perform new quantum "
+    "mechanical calculations, and its predictions are not guaranteed outside the "
+    "domain of the training distribution."
+)
+
+# Success criteria threshold for inter-family generalization (MAPE %)
+GENERALIZATION_MAPE_THRESHOLD = 15.0
+
+def load_json_file(path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents as a dictionary."""
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_json_file(path: str, data: Dict[str, Any]) -> None:
-    """Save a dictionary to a JSON file with the disclaimer."""
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    # Ensure disclaimer is in the root metadata or top level
+def save_json_file(path: Path, data: Dict[str, Any]) -> None:
+    """Save a dictionary to a JSON file with pretty formatting."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved JSON to {path}")
+
+def run_success_criteria_assertion(
+    training_logs_path: Optional[Path] = None,
+    generalization_metrics_path: Optional[Path] = None,
+) -> None:
+    """
+    Validate success criteria against generalization metrics and log pass/fail status.
+    
+    Ensures the surrogate disclaimer and integrity statement are present in the output.
+    """
+    if generalization_metrics_path is None:
+        generalization_metrics_path = Path("data/results/generalization_metrics.json")
+
+    if not generalization_metrics_path.exists():
+        logger.warning(f"Generalization metrics file not found at {generalization_metrics_path}")
+        failure_report = {
+            "status": "failed",
+            "reason": "generalization_metrics_file_not_found",
+            "message": f"File not found: {generalization_metrics_path}",
+            "metadata": {
+                "surrogate_disclaimer": SURROGATE_DISCLAIMER,
+                "integrity_statement": SCIENTIFIC_INTEGRITY_STATEMENT
+            }
+        }
+        save_json_file(generalization_metrics_path, failure_report)
+        logger.error("Generalization metrics file not found. Created failure report.")
+        return
+
+    try:
+        data = load_json_file(generalization_metrics_path)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON in {generalization_metrics_path}: {e}")
+        failure_report = {
+            "status": "failed",
+            "reason": "invalid_json",
+            "message": str(e),
+            "metadata": {
+                "surrogate_disclaimer": SURROGATE_DISCLAIMER,
+                "integrity_statement": SCIENTIFIC_INTEGRITY_STATEMENT
+            }
+        }
+        save_json_file(generalization_metrics_path, failure_report)
+        return
+
+    # Extract metrics
+    intra_mape = data.get("intra_family_mape")
+    inter_mape = data.get("inter_family_mape")
+
+    pass_status = False
+    reason = "unknown"
+
+    if inter_mape is None:
+        reason = "inter_family_mape_missing"
+        logger.warning("inter_family_mape not found in metrics")
+    elif intra_mape is None:
+        reason = "intra_family_mape_missing"
+        logger.warning("intra_family_mape not found in metrics")
+    elif inter_mape <= GENERALIZATION_MAPE_THRESHOLD:
+        pass_status = True
+        reason = "threshold_met"
+        logger.info(f"Success criteria PASSED: Inter-family MAPE ({inter_mape:.2f}%) <= Threshold ({GENERALIZATION_MAPE_THRESHOLD}%)")
+    else:
+        reason = "threshold_exceeded"
+        logger.warning(f"Success criteria FAILED: Inter-family MAPE ({inter_mape:.2f}%) > Threshold ({GENERALIZATION_MAPE_THRESHOLD}%)")
+
+    data["validation"] = {
+        "status": "pass" if pass_status else "fail",
+        "threshold_mape": GENERALIZATION_MAPE_THRESHOLD,
+        "reason": reason,
+        "intra_family_mape": intra_mape,
+        "inter_family_mape": inter_mape
+    }
+
     if "metadata" not in data:
         data["metadata"] = {}
-    data["metadata"]["disclaimer"] = DISCLAIMER
-    data["metadata"]["scientific_integrity_statement"] = (
-        "This project implements a machine learning surrogate model "
-        "to interpolate pre-computed DFT results. It does NOT solve "
-        "the Schrödinger equation or perform first-principles calculations."
+    
+    # Ensure disclaimers are present
+    data["metadata"]["surrogate_disclaimer"] = SURROGATE_DISCLAIMER
+    data["metadata"]["integrity_statement"] = SCIENTIFIC_INTEGRITY_STATEMENT
+
+    save_json_file(generalization_metrics_path, data)
+    logger.info(f"Validation results written to {generalization_metrics_path}")
+
+def main():
+    """Entry point for validating success criteria and logging results."""
+    parser = argparse.ArgumentParser(
+        description="Validate success criteria against generalization metrics and log results."
+    )
+    parser.add_argument(
+        "--generalization-metrics",
+        type=Path,
+        default=None,
+        help="Path to generalization metrics JSON file (default: data/results/generalization_metrics.json)"
     )
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)

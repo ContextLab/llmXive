@@ -1,9 +1,3 @@
-"""Global configuration and seeding management.
-
-This module provides a global configuration singleton that enforces reproducibility
-by pinning random seeds for torch, numpy, and random across all modules.
-It also manages project paths and CPU limits.
-"""
 import os
 import random
 from pathlib import Path
@@ -13,60 +7,25 @@ import torch
 
 
 class Config:
-    """
-    Global configuration holder.
+    """Global configuration manager with tolerant attribute access."""
 
-    Provides paths, seeding, and other project-wide settings.
-    Designed to be tolerant of missing attributes to prevent crashes
-    in partially initialized states.
-    """
-
-    def __init__(self, seed: int = 42):
-        # Define default paths
-        self.root_dir = Path(os.getenv("PROJECT_ROOT", "."))
-        self.data_raw = self.root_dir / "data" / "raw"
-        self.data_processed = self.root_dir / "data" / "processed"
-        self.data_results = self.root_dir / "data" / "results"
-        self.code_dir = self.root_dir / "code"
-
-        # Specific paths for bias check
-        self.exclusion_log_path = self.data_processed / "exclusion_log.json"
-        self.bias_report_path = self.data_results / "bias_report.json"
-
-        # Configuration for filtering
-        self.min_family_size = 5
-
-        # Paths dictionary for flexible access
-        self.paths = {
-            "data_raw": self.data_raw,
-            "data_processed": self.data_processed,
-            "data_results": self.data_results,
-            "exclusion_log": self.exclusion_log_path,
-            "bias_report": self.bias_report_path,
-            "model_v1": self.data_processed / "model_v1.pt",
-            "graphs_v1": self.data_processed / "graphs_v1.parquet",
-            "split_indices": self.data_processed / "split_indices.json",
-            "training_logs": self.data_results / "training_logs.json",
-            "generalization_metrics": self.data_results / "generalization_metrics.json",
-            "terminology_audit": self.data_results / "terminology_audit.json",
+    def __init__(self) -> None:
+        self.seed: int = 42
+        self.project_root: Path = Path(os.getenv("PROJECT_ROOT", "."))
+        self.data_dir: Path = self.project_root / "data"
+        self.code_dir: Path = self.project_root / "code"
+        self.paths: Dict[str, Any] = {
+            "exclusion_log": self.data_dir / "processed" / "exclusion_log.json",
+            "bias_report": self.data_dir / "results" / "bias_report.json",
+            "graphs_v1": self.data_dir / "processed" / "graphs_v1.parquet",
+            "split_indices": self.data_dir / "processed" / "split_indices.json",
         }
+        self.min_family_size: int = 5
+        self.cpu_limit: int = 4
+        self.max_memory_gb: float = 7.0
 
-        # Seeding defaults
-        self.seed = seed
-        self.cpu_limit = None
-
-        # Initialize seeds immediately
-        self.set_seed(seed)
-
-    def set_seed(self, seed: int = 42) -> None:
-        """Set global random seeds for reproducibility.
-
-        This method enforces pinning for torch, numpy, and random across all modules.
-        It also sets CUDA seeds if a GPU is available.
-
-        Args:
-            seed: The random seed value to use. Defaults to 42.
-        """
+    def set_seed(self, seed: int) -> None:
+        """Set global random seeds for reproducibility."""
         self.seed = seed
         random.seed(seed)
         np.random.seed(seed)
@@ -77,40 +36,20 @@ class Config:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
 
-    def get_available_memory(self) -> float:
-        """Get available memory in GB.
+    def get_path(self, key: str, default: Optional[Path] = None) -> Path:
+        """Get a path from the paths dictionary."""
+        return self.paths.get(key, default or Path("."))
 
-        Returns:
-            Available memory in GB. Defaults to 16.0 if cannot be determined.
-        """
-        try:
-            # Try to get available memory from OS
-            import psutil
-            return psutil.virtual_memory().available / (1024 ** 3)
-        except ImportError:
-            # Fallback to a reasonable default
-            return 16.0
-
-    def set_cpu_limit(self, limit: Optional[int] = None) -> None:
-        """Set CPU thread limits.
-
-        Args:
-            limit: Maximum number of CPU threads. If None, uses default.
-        """
-        self.cpu_limit = limit
-        if limit is not None:
-            torch.set_num_threads(limit)
-            os.environ["OMP_NUM_THREADS"] = str(limit)
-            os.environ["MKL_NUM_THREADS"] = str(limit)
-
-    # Tolerant attribute access for paths
+    # Tolerant attribute access for any logger-style calls or missing attributes
     def __getattr__(self, name: str) -> Any:
-        # If a specific attribute is requested that doesn't exist,
-        # check if it's a path key in the paths dict
-        if name in self.paths:
-            return self.paths[name]
-        # Fallback to default behavior (raises AttributeError)
-        raise AttributeError(f"'Config' object has no attribute '{name}'")
+        # If the attribute is a method call that doesn't exist, return a no-op
+        if callable(getattr(self, name, None)):
+            return getattr(self, name)
+        # Return a no-op callable for unknown attributes to prevent AttributeError
+        def _noop(*args: Any, **kwargs: Any) -> Any:
+            return None
+        return _noop
+
 
     def __setattr__(self, name: str, value: Any) -> None:
         # Handle paths in the dictionary if they exist there

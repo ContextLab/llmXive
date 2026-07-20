@@ -1,8 +1,3 @@
-"""
-Data pipeline orchestration script for 2D material elastic moduli prediction.
-Downloads, parses, filters, and saves material graphs to a Parquet file.
-Includes volume constraint verification (T013e).
-"""
 from __future__ import annotations
 
 import argparse
@@ -17,21 +12,21 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 import yaml
 
-# Local imports
+# Import from sibling modules based on API surface
 from ingest.download import UnifiedDatasetLoader
 from ingest.filter import filter_graphs, is_2d_material, is_valid_6_component_tensor
 from ingest.parse_cif import parse_cif_directory
-from ingest.validator import enforce_single_source
-from ingest.volume_checker import count_unique_entries, verify_volume_constraint
+from ingest.validator import enforce_single_source, persist_source
 from utils.config import get_config
 from utils.logger import get_logger, log_operation
+from utils.memory_utils import verify_data_volume
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("pipeline")
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
@@ -41,165 +36,185 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return f"sha256:{sha256_hash.hexdigest()}"
 
-def update_state_checksum(state_path: Path, artifact_name: str, checksum: str) -> None:
-    """Update the project state file with the artifact checksum."""
-    if not state_path.exists():
-        state_data = {"artifact_hashes": {}}
+def update_state_checksum(
+    state_path: Path,
+    artifact_key: str,
+    checksum: str,
+    algorithm: str = "sha256"
+) -> None:
+    """Update the project state YAML with the artifact checksum."""
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if state_path.exists():
+        with open(state_path, "r") as f:
+            state = yaml.safe_load(f) or {}
     else:
-        with open(state_path, 'r') as f:
-            state_data = yaml.safe_load(f) or {"artifact_hashes": {}}
+        state = {"artifact_hashes": {}}
 
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
+    # Ensure nested structure exists
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {}
+    
+    # Navigate to the nested key (e.g., data_processed.graphs_v1_parquet)
+    keys = artifact_key.split(".")
+    current = state["artifact_hashes"]
+    for key in keys[:-1]:
+        if key not in current:
+            current[key] = {}
+        current = current[key]
+    
+    # Set the checksum
+    current[keys[-1]] = f"{algorithm}:{checksum}"
 
-    # Navigate/create nested keys: data_processed -> graphs_v1_parquet
-    if "data_processed" not in state_data["artifact_hashes"]:
-        state_data["artifact_hashes"]["data_processed"] = {}
-
-    state_data["artifact_hashes"]["data_processed"][artifact_name] = checksum
-
-    with open(state_path, 'w') as f:
-        yaml.safe_dump(state_data, f, default_flow_style=False)
-        f.write("\n")
+    with open(state_path, "w") as f:
+        yaml.safe_dump(state, f, default_flow_style=False)
 
 def serialize_graph(graph_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert a MaterialGraph-like dict to a serializable format for Parquet."""
-    # Ensure numpy arrays are converted to lists for JSON/Parquet serialization
+    """Serialize a graph object for parquet storage."""
+    # Convert numpy arrays to lists for JSON/Parquet compatibility
     serialized = {}
     for key, value in graph_data.items():
-        if hasattr(value, 'tolist'):
+        if hasattr(value, "tolist"):
             serialized[key] = value.tolist()
         elif isinstance(value, (list, dict, str, int, float, bool, type(None))):
             serialized[key] = value
         else:
-            # Fallback for other types
-            try:
-                serialized[key] = json.dumps(value)
-            except (TypeError, ValueError):
-                serialized[key] = str(value)
+            serialized[key] = str(value)
     return serialized
 
 def run_pipeline(
-    output_path: Path,
-    state_path: Path,
-    data_source: str = "materials_project"
-) -> None:
+    input_dir: Path,
+    output_dir: Path,
+    source: str = "materials_project"
+) -> Path:
     """
-    Run the full data pipeline: download -> parse -> filter -> save.
-    Includes T013e volume constraint check.
+    Run the full ingestion pipeline:
+    1. Download data (or load from raw if already present)
+    2. Parse CIFs
+    3. Filter for 2D materials with valid tensors
+    4. Save to parquet
+    5. Verify volume constraint
+    6. Update state checksum
     """
-    logger.info(f"Starting pipeline for data source: {data_source}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir = input_dir / "raw"
+    processed_dir = input_dir / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
     # Enforce single source constraint
-    enforce_single_source(data_source)
+    enforce_single_source(source)
+    persist_source(source)
 
-    # Step 1: Download
-    logger.info("Step 1: Downloading data...")
-    loader = UnifiedDatasetLoader(source=data_source)
-    download_manifest = loader.fetch_data()
-    raw_data_path = Path(download_manifest["raw_dir"])
-
-    if not raw_data_path.exists():
-        raise FileNotFoundError(f"Downloaded data path does not exist: {raw_data_path}")
+    # Step 1: Download/Load Data
+    # For this pipeline, we assume raw data is in input_dir/raw or we download
+    # Since T013a handles download, we check if raw exists or trigger download
+    if not raw_dir.exists() or not any(raw_dir.iterdir()):
+        logger.info("Raw data not found. Triggering download...")
+        loader = UnifiedDatasetLoader(source=source)
+        loader.fetch_data(output_dir=raw_dir)
+    else:
+        logger.info(f"Loading existing raw data from {raw_dir}")
 
     # Step 2: Parse CIFs
-    logger.info("Step 2: Parsing CIF files...")
-    graphs = parse_cif_directory(raw_data_path)
-    logger.info(f"Parsed {len(graphs)} materials.")
+    logger.info("Parsing CIF files...")
+    # Assuming CIFs are in raw_dir
+    graphs = parse_cif_directory(raw_dir)
+    logger.info(f"Parsed {len(graphs)} graphs.")
 
-    if not graphs:
-        logger.warning("No materials parsed. Pipeline may fail volume check.")
+    # Step 3: Filter for 2D materials and valid tensors
+    logger.info("Filtering for 2D materials and valid tensors...")
+    filtered_graphs = []
+    exclusion_log = []
 
-    # Step 3: Filter
-    logger.info("Step 3: Filtering for 2D materials and valid tensors...")
-    filtered_graphs, stats = filter_graphs(graphs)
-    logger.info(f"Filtered to {len(filtered_graphs)} valid 2D materials.")
+    for i, graph in enumerate(graphs):
+        is_2d = is_2d_material(graph)
+        is_valid = is_valid_6_component_tensor(graph)
+        
+        if is_2d and is_valid:
+            filtered_graphs.append(graph)
+        else:
+            reason = []
+            if not is_2d:
+                reason.append("Not 2D")
+            if not is_valid:
+                reason.append("Invalid tensor")
+            exclusion_log.append({
+                "index": i,
+                "reason": ", ".join(reason)
+            })
 
-    # Log exclusion stats
-    if stats and "exclusion_log" in stats:
-        exclusion_log_path = output_path.parent / "exclusion_log.json"
-        with open(exclusion_log_path, 'w') as f:
-            json.dump(stats["exclusion_log"], f, indent=2)
-        logger.info(f"Exclusion log saved to {exclusion_log_path}")
+    logger.info(f"Filtered {len(filtered_graphs)} valid 2D materials.")
+    logger.info(f"Excluded {len(exclusion_log)} entries.")
 
-    if not filtered_graphs:
-        logger.error("Pipeline failed: No valid materials after filtering.")
-        # Write empty stats if needed, but fail early
-        return
+    # Save exclusion log for bias check (T012)
+    exclusion_log_path = processed_dir / "exclusion_log.json"
+    with open(exclusion_log_path, "w") as f:
+        json.dump(exclusion_log, f, indent=2)
 
-    # Step 4: Serialize and save to Parquet
-    logger.info("Step 4: Saving to Parquet...")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Step 4: Save to Parquet
+    output_file = processed_dir / "graphs_v1.parquet"
+    logger.info(f"Saving {len(filtered_graphs)} graphs to {output_file}...")
 
-    serialized_data = [serialize_graph(g) for g in filtered_graphs]
-    df = pd.DataFrame(serialized_data)
-
-    # Ensure columns are present even if empty
-    required_cols = ["node_features", "edge_features", "target_moduli", "family_id"]
-    for col in required_cols:
-        if col not in df.columns:
-            df[col] = [None] * len(df)
-
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(df)} entries to {output_path}")
-
-    # Step 5: Compute checksum and update state
-    checksum = compute_sha256(output_path)
-    update_state_checksum(state_path, "graphs_v1_parquet", checksum)
-    logger.info(f"Checksum {checksum} recorded in state file.")
-
-    # Step 6: T013e - Verify Volume Constraint
-    logger.info("Step 5: Verifying volume constraint (T013e)...")
-    count = count_unique_entries(output_path)
-    threshold = 1000
-
-    if count < threshold:
-        error_msg = f"SC-001 Violation: Pipeline failed to ingest >1,000 entries. Current count: {count}."
-        logger.critical(error_msg)
-        # Exit with code 1 as required
-        sys.exit(1)
+    # Convert to DataFrame
+    data_rows = []
+    for g in filtered_graphs:
+        data_rows.append(serialize_graph(g))
     
-    logger.info(f"Volume constraint satisfied: {count} entries >= {threshold}.")
+    df = pd.DataFrame(data_rows)
+    df.to_parquet(output_file, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_file}")
+
+    # Step 5: Verify Volume Constraint (T013e)
+    count = len(df)
+    threshold = 1000
+    if count < threshold:
+        error_msg = f"SC-001 Violation: Pipeline failed to ingest >{threshold} entries. Current count: {count}."
+        logger.critical(error_msg)
+        raise SystemExit(1)
+    
+    logger.info(f"Volume constraint satisfied: {count} entries >= {threshold}")
+
+    # Step 6: Update State Checksum
+    state_path = Path("state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml")
+    if state_path.exists():
+        checksum = compute_sha256(output_file)
+        update_state_checksum(state_path, "data_processed.graphs_v1_parquet", checksum)
+        logger.info(f"Updated state checksum for graphs_v1.parquet: {checksum}")
+    else:
+        logger.warning(f"State file not found at {state_path}. Skipping checksum update.")
+
+    return output_file
 
 def main():
-    parser = argparse.ArgumentParser(description="Run 2D material data ingestion pipeline")
+    parser = argparse.ArgumentParser(description="Run the 2D material ingestion pipeline.")
     parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/processed/graphs_v1.parquet",
-        help="Output path for the Parquet file"
+        "--input-dir",
+        type=Path,
+        default=Path("data"),
+        help="Base directory for input data (contains 'raw' and 'processed' subdirs)"
     )
     parser.add_argument(
-        "--state",
-        type=str,
-        default="state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml",
-        help="Path to the project state YAML file"
+        "--output-dir",
+        type=Path,
+        default=Path("data/processed"),
+        help="Output directory for processed data"
     )
     parser.add_argument(
         "--source",
         type=str,
-        default=None,
-        help="Data source (e.g., materials_project, aflow). Defaults to env var."
+        default=os.getenv("DATA_SOURCE", "materials_project"),
+        help="Data source to use (materials_project or aflow)"
     )
-    
+
     args = parser.parse_args()
 
-    # Determine data source
-    data_source = args.source or os.getenv('DATA_SOURCE', 'materials_project')
-
-    output_path = Path(args.output)
-    state_path = Path(args.state)
-
-    # Ensure state directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-
     try:
-        run_pipeline(output_path, state_path, data_source)
+        output_file = run_pipeline(args.input_dir, args.output_dir, args.source)
+        logger.info(f"Pipeline completed successfully. Output: {output_file}")
     except SystemExit as e:
-        # Re-raise SystemExit (e.g., from volume check)
         raise
     except Exception as e:
-        logger.error(f"Pipeline failed with error: {e}")
+        logger.exception(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

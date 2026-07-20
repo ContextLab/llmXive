@@ -1,111 +1,75 @@
 """
-Runtime source enforcement for single canonical data source.
-
-This module ensures that only one data source (Materials Project or AFLOW)
-is active per run, satisfying Constitution Principle I.
+Runtime source enforcement to ensure single canonical source per run.
 """
+from __future__ import annotations
+
 import os
 import sys
-import fcntl
-import time
+import json
 from pathlib import Path
+from typing import Optional
 
-STATE_FILE = Path("data/.source_state")
-LOCK_FILE = Path("data/.source_state.lock")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_DIR = PROJECT_ROOT / "state" / "projects" / "PROJ-169-predicting-the-elastic-moduli-of-2d-mate"
+SOURCE_STATE_FILE = PROJECT_ROOT / "data" / ".source_state"
 
-def _acquire_lock(lock_path: Path, timeout: float = 10.0) -> bool:
-    """Attempt to acquire a file lock with a timeout."""
-    if not lock_path.parent.exists():
-        lock_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    start_time = time.time()
-    while True:
+def get_project_root() -> Path:
+    return PROJECT_ROOT
+
+def get_active_source() -> Optional[str]:
+    """Get the active source from the state file."""
+    if SOURCE_STATE_FILE.exists():
         try:
-            fd = os.open(str(lock_path), os.O_CREAT | os.O_RDWR)
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            return fd
-        except (IOError, OSError):
-            if time.time() - start_time > timeout:
-                return -1
-            time.sleep(0.1)
+            with open(SOURCE_STATE_FILE, "r") as f:
+                state = json.load(f)
+            return state.get("active_source")
+        except (json.JSONDecodeError, IOError) as e:
+            raise RuntimeError(f"Error reading source state: {e}")
+    return None
 
-def _release_lock(fd: int, lock_path: Path) -> None:
-    """Release a file lock and close the descriptor."""
-    try:
-        fcntl.flock(fd, fcntl.LOCK_UN)
-        os.close(fd)
-        if lock_path.exists():
-            lock_path.unlink()
-    except Exception:
-        pass
+def persist_source(source: str) -> None:
+    """Persist the source identity to the state file."""
+    SOURCE_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    state = {"active_source": source}
+    with open(SOURCE_STATE_FILE, "w") as f:
+        json.dump(state, f)
 
 def enforce_single_source(source: str) -> None:
     """
     Enforce that only one data source is active per run.
-    
-    This function uses a lock file to prevent concurrent access and a state
-    file to persist the source identity across runs.
-    
-    Args:
-        source: The requested source ('materials_project' or 'aflow').
-    
-    Raises:
-        SystemExit: If a different source was previously recorded, if multiple
-                    sources are detected, or if the source is invalid.
+    Checks the state file and raises an error if there's a mismatch.
     """
-    if not source:
-        raise ValueError("Source cannot be empty.")
+    # Check if a source is already active
+    active_source = get_active_source()
     
-    valid_sources = {'materials_project', 'aflow'}
-    if source not in valid_sources:
-        error_msg = f"Invalid source '{source}'. Must be one of: {', '.join(valid_sources)}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
+    if active_source is not None and active_source != source:
+        error_msg = f"Source mismatch: State file indicates {active_source}, but DATA_SOURCE={source}"
+        print(error_msg, file=sys.stderr)
         raise SystemExit(1)
-
-    # Ensure data directory exists
-    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
     
-    # Acquire lock to prevent concurrent/mixed source activation
-    lock_fd = _acquire_lock(LOCK_FILE, timeout=10.0)
-    if lock_fd == -1:
-        print("ERROR: Could not acquire lock on source state file. Another process may be running.", file=sys.stderr)
-        raise SystemExit(1)
+    # If no source is active, persist the current one
+    if active_source is None:
+        persist_source(source)
+        logging.info(f"Source {source} persisted.")
+    else:
+        logging.info(f"Source {source} is already active.")
 
+def reset_source_lock() -> None:
+    """Reset the source lock (for testing or cleanup)."""
+    if SOURCE_STATE_FILE.exists():
+        SOURCE_STATE_FILE.unlink()
+
+# Import logging here to avoid circular import if needed
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    # Example usage for testing
+    source = os.getenv("DATA_SOURCE", "materials_project")
     try:
-        # Check for existing state
-        if STATE_FILE.exists():
-            try:
-                with open(STATE_FILE, "r") as f:
-                    state_content = f.read().strip()
-                # Parse state: expected format "source:timestamp" or just "source"
-                state_source = state_content.split(":")[0] if ":" in state_content else state_content
-                
-                if state_source != source:
-                    error_msg = f"Source mismatch: State file indicates {state_source}, but DATA_SOURCE={source}"
-                    print(f"ERROR: {error_msg}", file=sys.stderr)
-                    raise SystemExit(1)
-                
-                # Source matches, update timestamp to indicate active run
-                with open(STATE_FILE, "w") as f:
-                    f.write(f"{source}:{time.time()}")
-            except Exception as e:
-                print(f"ERROR: Failed to read/write state file: {e}", file=sys.stderr)
-                raise SystemExit(1)
-        else:
-            # Create state file for first run
-            with open(STATE_FILE, "w") as f:
-                f.write(f"{source}:{time.time()}")
-            
-            print(f"INFO: Source state initialized to {source}")
-    finally:
-        _release_lock(lock_fd, LOCK_FILE)
-
-def clear_source_state() -> None:
-    """Clear the source state file (for testing/resetting)."""
-    if STATE_FILE.exists():
-        STATE_FILE.unlink()
-    if LOCK_FILE.exists():
-        try:
-            LOCK_FILE.unlink()
-        except Exception:
-            pass
+        enforce_single_source(source)
+        print(f"Source {source} enforced.")
+    except SystemExit:
+        print("Source enforcement failed.")
+        sys.exit(1)

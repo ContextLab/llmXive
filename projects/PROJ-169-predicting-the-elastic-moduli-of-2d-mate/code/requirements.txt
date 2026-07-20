@@ -1,16 +1,14 @@
-# Core Data & Scientific Computing
-pymatgen>=2023.1.28
+pymatgen>=2024.0.0
+torch>=2.0.0
+torch-geometric>=2.3.0
+shap>=0.44.0
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
-
-# Deep Learning Frameworks (CPU compatible)
-torch>=2.0.0
-torch-geometric>=2.3.0
-
-# Explainability
-shap>=0.42.0
-
-# Code Quality & Formatting
 ruff>=0.1.0
 black>=23.0.0
+matminer>=0.9.0
+pyarrow>=14.0.0
+rich>=13.0.0
+psutil>=5.9.0
+pyyaml>=6.0.0

@@ -1,12 +1,12 @@
-"""Lightweight GNN architecture for 2D material elastic moduli prediction.
+"""Lightweight GNN architecture for elastic moduli prediction.
 
-This module defines a surrogate model that interpolates pre-computed DFT data.
-It does NOT solve the Schrödinger equation or perform first-principles calculations.
+This module defines a CPU-optimized Graph Neural Network surrogate model
+that interpolates pre-computed DFT data.
 
-Architecture Constraints (CPU-optimized):
-- 2-3 GCN layers
-- Hidden dimension ≤ 64
-- No GPU-specific operations
+IMPORTANT DISCLAIMER:
+This model is a SURROGATE for DFT calculations, interpolating pre-computed
+elastic tensor data. It does NOT solve the Schrödinger equation or perform
+first-principles calculations. It is a machine learning curve-fitter.
 """
 import torch
 import torch.nn as nn
@@ -18,24 +18,24 @@ from typing import Tuple, Optional
 class LightweightGNN(nn.Module):
     """Lightweight GNN for elastic moduli prediction.
 
-    This model is a SURROGATE for DFT calculations, interpolating pre-computed
-    elastic tensor data. It does NOT solve the Schrödinger equation or perform
-    first-principles calculations.
-
-    Architecture:
+    Architecture constraints (CPU-optimized):
     - 2-3 GCN layers
-    - Hidden dimension ≤ 64 (CPU-optimized)
-    - Global mean pooling for graph-level representation
-    - Output: 6-component elastic tensor (Voigt notation)
+    - Hidden dimension ≤ 64
+    - No GPU-specific optimizations (e.g., mixed precision, large batches)
+
+    Output: 6-component elastic tensor (Voigt notation: [C11, C12, C13, C22, C23, C33])
     """
 
     def __init__(self, node_dim: int, hidden_dim: int = 64, num_layers: int = 2):
         """Initialize the lightweight GNN.
 
         Args:
-            node_dim: Dimension of node features
+            node_dim: Dimension of node features (e.g., atomic number, electronegativity)
             hidden_dim: Hidden layer dimension (default 64, CPU-optimized)
             num_layers: Number of GCN layers (default 2, range 2-3)
+
+        Raises:
+            ValueError: If constraints are violated
         """
         if num_layers < 2 or num_layers > 3:
             raise ValueError("num_layers must be 2 or 3 for lightweight architecture")

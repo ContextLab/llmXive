@@ -5,45 +5,53 @@ select = ["E", "F", "W", "I"]
 # Ignore specific rules if needed (none for strict mode)
 ignore = []
 
-# Allow autofix for all enabled rules
+# Allow autofix for all enabled rules (if `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude files from linting
+# A list of rule names to ignore.
+# You can add specific rules here if needed.
+extend-ignore = []
+
+# Exclude a list of directories or files from linting.
 exclude = [
     ".git",
     "__pycache__",
-    ".venv",
+    "data",
     "venv",
-    "env",
-    ".eggs",
-    "*.egg",
+    ".venv",
     "build",
     "dist",
-    "data",
-    "docs",
-    "state"
+    ".eggs",
+    "*.egg-info",
 ]
 
-# Per-file ignores
-per-file-ignores = {}
+# Same as `--force-exclude`.
+force-exclude = false
 
-# Line length configuration
+# A list of file patterns to include.
+extend-include = []
+
+# The line length to use for linting messages and autofixes.
 line-length = 88
 
-# Target Python version
+# The indentation width to use for linting messages.
+indent-width = 4
+
+# Target version of Python.
 target-version = "py311"
 
-# Allow unused variables for test files
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.per-file-ignores]
+# Ignore specific rules for specific files if necessary.
+# Example: "tests/*" = ["S101"]
 
 [lint.isort]
-# Isort configuration for import sorting
+# Configuration for import sorting (I rules)
 known-first-party = ["code"]
+known-third-party = ["pymatgen", "torch", "torch_geometric", "shap", "pandas", "numpy", "sklearn", "yaml", "psutil"]
 force-single-line = false
 force-sort-within-sections = false
-case-sensitive = false
+lines-after-imports = 2
+no-lines-before = []
 order-by-type = true
 relative-imports-order = "closest-to-furthest"
-extra-standard-library = []
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

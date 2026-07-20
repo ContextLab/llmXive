@@ -1,11 +1,10 @@
 T008a:
   c: false
-  h: 2944a4e112b8cae3fac654fac7dddf9f1f2646af01feff97aafeb3e3a7b14bdd
-  r: "The repository contains `tests/integration/test_memory_full_pipeline.py`, but\
-    \ the file is truncated and the core function (`simulate_pipeline_processing`)\
-    \ is incomplete, so it does not actually run the full data\u2011loading pipeline\
-    \ or write memory stats. Moreover, the required output file `data/results/memory_test.log`\
-    \ is absent. The task\u2019s requirements are therefore not satisfied."
+  h: 7ddef3ce65613e32eb4ffe707a76a590228c412d247290fdb851eb79e6d25fad
+  r: The provided test file generates a synthetic dataset instead of loading the first
+    50 entries from `graphs_v1.parquet` and does not read `split_indices.json`. Moreover,
+    the required output file `data/results/memory_test.log` is missing. The implementation
+    therefore does not satisfy the stated requirements.
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -16,39 +15,45 @@ T009a:
     \ runtime source\u2011enforcement logic is not fully implemented."
 T013d:
   c: false
-  h: 556206fdba903df52c1f1fb80c82ef1699a961032f198ebff73e76fe0671344e
-  r: "The pipeline script is present but only a fragment is shown; there is no evidence\
-    \ that it actually creates `data/processed/graphs_v1.parquet`, includes the required\
-    \ schema fields, handles missing tensors, or writes the SHA256 checksum into the\
-    \ state YAML. Moreover, the expected parquet file is missing and the state file\
-    \ still contains an empty `artifact_hashes` mapping. The task\u2019s core outputs\
-    \ are therefore not satisfied."
+  h: a13946f2a54c3a8a41e14c3ed980a3fd8945d462272d44cf3fb14a63af15cd04
+  r: 'The pipeline script is only partially shown and does not demonstrate saving
+    a Parquet file with the required columns, nor does it record a SHA256 checksum
+    in the YAML state file. Moreover, `data/processed/graphs_v1.parquet` is absent
+    and the YAML file remains empty (`artifact_hashes: {}`), so the core outputs and
+    checksum update are missing.'
 T013e:
   c: false
-  h: 50bb5e487d108eb892553948e3418cf2d59de1d3fb13c0d3885d762199121144
-  r: "The provided `pipeline.py` only shows imports for the volume\u2011checking utilities\
-    \ and does not contain the actual post\u2011processing logic that counts entries,\
-    \ logs a critical error, and exits with code\u202F1. Moreover, the required `data/processed/graphs_v1.parquet`\
-    \ file is missing, so the check cannot even be exercised. The task\u2019s core\
-    \ requirement is therefore not satisfied."
+  h: aa0ee4bcca8144c981a013a3d6b0e83ee67db2f6f0efcd0e2ef486ba5a0f9a00
+  r: "The pipeline file never shows the required post\u2011processing check (reading\
+    \ `data/processed/graphs_v1.parquet`, counting unique 2D entries, logging a critical\
+    \ error, and exiting with code\u202F1). Moreover, the referenced `graphs_v1.parquet`\
+    \ file is missing, so the check cannot even be performed. The task\u2019s volume\u2011\
+    constraint verification is not implemented."
 T013f:
   c: false
-  h: 4aa36af3977f344d251fc53a2bff575116c10833df903c88904338512417d3ba
-  r: The `split_generator.py` script is present and appears to implement the required
-    logic, but the expected output file `data/processed/split_indices.json` is missing,
-    and the `save_split_manifest` function is truncated, indicating the script may
-    not actually write the JSON file. The task is not fully satisfied until the script
-    correctly creates/overwrites `split_indices.json` with the mock split and disclaimer.
+  h: 760e33614acf5eaafcb9aedaf3a0c0a18df7d0e1b2848df312a736aa19bbbd45
+  r: "The script `code/ingest/split_generator.py` exists and uses the correct `train_test_split`\
+    \ with `random_state=42` and stratification on `family_id`, but the required output\
+    \ file `data/processed/split_indices.json` is missing and the provided code snippet\
+    \ is truncated before any JSON\u2011writing logic, so we cannot verify that the\
+    \ script actually overwrites the file with the disclaimer. The implementation\
+    \ must include the code to dump the split dictionary to `split_indices.json` and\
+    \ the file should be present."
+T017:
+  c: false
+  h: e894ef91677b94ed33386b75f94dccb055f29ddbb74b3fee902a5f80238ae170
+  r: "The repository contains a partially\u2011implemented `splitter.py`, but it does\
+    \ not include the required runtime assertion to abort on family overlap, nor does\
+    \ it write the resulting split to `data/processed/split_indices.json` (the file\
+    \ is missing). Consequently the task\u2019s core requirements are not fulfilled."
 T018b:
   c: false
-  h: 6d54266854510b078bcba62aa5f29ad5d02a63408662f82547e9993274a5733e
-  r: "The repository contains a partially shown `code/model/train.py`, but the required\
-    \ output artifacts are absent: `data/processed/model_v1.pt` does not exist, and\
-    \ there is no `predictions.json` file. Moreover, the script is truncated before\
-    \ any logic that enforces CPU\u2011only execution, logs `memory_peak` per epoch,\
-    \ or handles the exit\u2011on\u2011failure behavior, so we cannot verify those\
-    \ requirements. The missing model checkpoint and predictions file mean the task\
-    \ is not genuinely completed."
+  h: b08e02aacff7d76db70551c6ec1002869a25b72b084bb848013a910d55469a16
+  r: "The provided `train.py` is truncated and shows no code that reads `split_indices.json`,\
+    \ logs `memory_peak` per epoch, checks the 7\u202FGB limit, saves weights to `data/processed/model_v1.pt`,\
+    \ or writes `predictions.json`. Additionally, the required `model_v1.pt` file\
+    \ is missing, indicating the training loop has not been executed or implemented\
+    \ fully. The missing functionality must be added to satisfy all task requirements."
 T021a:
   c: false
   h: 5c187d17c9ab7680f2f97aeb57f3c614ae26aaa6caf3c7a35acfcc96d0218234

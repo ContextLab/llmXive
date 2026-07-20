@@ -32,6 +32,18 @@ class DataLoader(ABC):
         self.source = source
         logger.info(f"Initializing DataLoader for source: {source}")
 
+    def __init__(self, source: str, output_dir: Optional[str] = None):
+        """
+        Initialize the loader.
+
+        Args:
+            source: The data source identifier (e.g., 'materials_project', 'aflow').
+            output_dir: Directory to save data.
+        """
+        self.source = source
+        self.output_dir = output_dir
+        logger.info(f"Initialized {self.__class__.__name__} for source: {source}")
+
     @abstractmethod
     def fetch_data(self, output_dir, limit: Optional[int] = None) -> Any:
         """
@@ -76,29 +88,3 @@ class DataLoader(ABC):
             NotImplementedError: If the method is not implemented by a subclass.
         """
         pass
-
-    def _check_source_env(self) -> None:
-        """
-        Helper to verify the source matches the environment configuration.
-        
-        This ensures that the loader is not instantiated with a source that
-        conflicts with the global DATA_SOURCE environment variable if set.
-        """
-        env_source = os.getenv('DATA_SOURCE')
-        if env_source and env_source != self.source:
-            logger.warning(
-                f"Source mismatch: Environment variable DATA_SOURCE={env_source} "
-                f"but loader initialized with source={self.source}. "
-                f"This may indicate a configuration error."
-            )
-
-    def _ensure_output_dir(self, output_dir) -> None:
-        """
-        Ensure the output directory exists.
-        
-        Args:
-            output_dir: Path to the output directory.
-        """
-        path = output_dir if isinstance(output_dir, str) else str(output_dir)
-        os.makedirs(path, exist_ok=True)
-        logger.debug(f"Ensured output directory exists: {path}")

@@ -34,3 +34,159 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T22:50:57Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Random split generated with random_state=42
+  claim_id: c_66d0b973
+  context: 'T013f [US1] Generate MVP Split: Create code/ingest/split_generator.py
+    to generate a random/mock split for MVP testing. Requirement: Use sklearn.model_selection.train_test_split
+    with random_state=42 and stratify based on family_id to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.model_selection.train_test_split with random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:24:22Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Full pipeline memory usage must be less than 7GB
+  claim_id: c_7e56e32a
+  context: 'T008a [US1] Implement integration test for full-pipeline memory usage:
+    Create tests/integration/test_memory_full_pipeline.py that runs the actual data
+    loading pipeline (T013d) with a representative sample of real data to verify peak
+    memory < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_memory_usage_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak memory < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:24:40Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Integration test uses first 50 entries for memory verification
+  claim_id: c_d7e16444
+  context: 'T008a [US1] Implement integration test for full-pipeline memory usage:
+    Create tests/integration/test_memory_full_pipeline.py that runs the actual data
+    loading pipeline (T013d) with a representative sample of real data to verify peak
+    memory < 7GB. Requirement: Use the first 50 entries from graphs_v1.parquet as
+    the representative sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the first 50 entries from graphs_v1.parquet as the representative
+    sample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:25:02Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: GNN architecture has 3 layers and hidden dimension 64
+  claim_id: c_7c299b38
+  context: "T016 [P] [US2] Define lightweight GNN architecture in code/model/gnn.py\
+    \ (-3 layers, hidden dim \u226464, CPU-only torch_geometric)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define lightweight GNN architecture in code/model/gnn.py (-3 layers,\
+    \ hidden dim \u226464, CPU-only torch_geometric)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:25:14Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Training exits if peak memory exceeds 7GB
+  claim_id: c_3a730922
+  context: 'T018b [US2] Implement training loop in code/model/train.py: Train the
+    GNN on the dataset. Requirement: Consume split_indices.json from T017. Requirement:
+    Enforce CPU-only execution. Requirement: Log memory_peak at each epoch. Requirement:
+    If memory_peak > 7GB, exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory_peak > 7GB, exit with code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:25:15Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Training log schema includes epoch, loss, metrics (mape, rmse), and memory_peak
+  claim_id: c_9258bdb5
+  context: 'T018c [US2] Implement training logging and checkpointing in code/model/train_logger.py:
+    Log metrics to data/results/training_logs.json. Requirement: Log schema MUST include
+    epoch: int, loss: float, metrics: {mape, rmse}, memory_peak: float.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_log_schema_includes_epoch,_loss,_metrics_(mape,_rms
+  kind: entity_fact
+  raw_text: 'Log schema MUST include epoch: int, loss: float, metrics: {mape, rmse},
+    memory_peak: float'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:26:04Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: SHAP p-values calculated with 95% confidence interval
+  claim_id: c_f63bbf44
+  context: 'T023 [US3] Implement SHAP interaction value calculation in code/analysis/importance.py:
+    Dependency: T018b (produces trained model weights artifact), T017. Requirement:
+    Calculate and output p-values for each descriptor based on the SHAP values using
+    a bootstrap method with a sufficient number of iterations and a confidence interval
+    of 95%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate and output p-values for each descriptor based on the SHAP values
+    using a bootstrap method with a sufficient number of iterations and a confidence
+    interval of 95%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:26:04Z'
+- artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/tasks.md
+  attempts: 1
+  canonical: Inference time must be less than 100ms
+  claim_id: c_cf1f8a9f
+  context: 'T036 [US2] Verify inference time constraint (SC-003): Implement code/model/inference_benchmark.py
+    to measure latency per material on CPU. Requirement: Measure latency averaged
+    over multiple runs on the available CPU environment. Requirement: Detect and log
+    the specific CPU model (e.g. via psutil or lscpu) to ensure portability. Ensure
+    the output in data/results/generalization_metrics.json includes inference_time_ms,
+    cpu_model, and confirms it is < 100ms.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_time_must_be_less_than_100ms
+  kind: magnitude
+  raw_text: Ensure the output in data/results/generalization_metrics.json includes
+    inference_time_ms, cpu_model, and confirms it is < 100ms
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:26:39Z'

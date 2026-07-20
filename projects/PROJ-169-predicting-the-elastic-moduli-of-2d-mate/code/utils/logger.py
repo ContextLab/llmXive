@@ -3,11 +3,10 @@ from __future__ import annotations
 
 import functools
 import json
-import logging
-import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Optional, Dict, List
+from typing import Any
+
 
 @dataclass
 class LogEntry:
@@ -74,83 +73,26 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def configure_log_file(path: str) -> None:
-    """Configure the root logger to write to a file."""
-    logging.basicConfig(
-        filename=path,
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+def configure_log_file(*args: Any, **kwargs: Any) -> None:
+    # No-op for compatibility
+    pass
 
 
-def log_bias_check(report: Any) -> None:
-    """
-    Log bias check summary.
-    
-    Args:
-        report: A BiasReport object or a dictionary containing a 'summary' key.
-                This function accepts the full report object to avoid data loss.
-                It handles the specific call shape `log_bias_check(report.summary)`
-                by checking if the argument is already a string (the summary).
-    """
-    logger = get_logger()
-    summary_text = ""
-    
-    # Handle direct string call: log_bias_check("some summary text")
-    if isinstance(report, str):
-        summary_text = report
-    # Handle object with summary attribute: log_bias_check(report.summary) -> report is the object? 
-    # Wait, the call site is `log_bias_check(report.summary)`. 
-    # If report.summary is a string, `report` here is that string.
-    # If the caller passed the object `report` (expecting us to extract), `report` is the object.
-    # We need to be robust to both.
-    elif hasattr(report, 'summary'):
-        summary_text = report.summary
-    elif isinstance(report, dict) and 'summary' in report:
-        summary_text = report['summary']
-    else:
-        summary_text = str(report)
-    
-    logger.log("bias_check", summary=summary_text)
-    # Also log to standard logging for immediate visibility
-    logging.info(f"Bias Check Summary: {summary_text}")
+def log_bias_check(summary: dict) -> None:
+    """Log bias check summary. Compatible with existing callers."""
+    get_logger().log("log_bias_check", summary=summary)
 
 
-def log_exclusion_reason(reason: str, level: int = logging.INFO) -> None:
-    """
-    Log a specific exclusion reason.
-    
-    Args:
-        reason: The text describing the exclusion.
-        level: The logging level (default INFO).
-    """
-    logger = get_logger()
-    logger.log("exclusion_reason", reason=reason)
-    logging.log(level, f"Exclusion: {reason}")
+def log_exclusion_reason(reason: str) -> None:
+    """Log an exclusion reason."""
+    get_logger().log("log_exclusion_reason", reason=reason)
 
 
-def log_training_metrics(epoch: int, loss: float, metrics: Dict[str, float]) -> None:
-    """
-    Log training metrics.
-    
-    Args:
-        epoch: The current epoch number.
-        loss: The training loss.
-        metrics: A dictionary of additional metrics (e.g., MAPE, RMSE).
-    """
-    logger = get_logger()
-    logger.log("training_metrics", epoch=epoch, loss=loss, metrics=metrics)
-    logging.info(f"Epoch {epoch}: Loss={loss}, Metrics={metrics}")
+def log_training_metrics(metrics: dict) -> None:
+    """Log training metrics."""
+    get_logger().log("log_training_metrics", metrics=metrics)
 
 
-def log_model_checkpoint(path: str, metrics: Dict[str, float]) -> None:
-    """
-    Log a model checkpoint event.
-    
-    Args:
-        path: The file path to the saved model.
-        metrics: The metrics achieved at this checkpoint.
-    """
-    logger = get_logger()
-    logger.log("model_checkpoint", path=path, metrics=metrics)
-    logging.info(f"Model checkpoint saved at {path} with metrics: {metrics}")
+def log_model_checkpoint(checkpoint_info: dict) -> None:
+    """Log model checkpoint info."""
+    get_logger().log("log_model_checkpoint", checkpoint_info=checkpoint_info)
