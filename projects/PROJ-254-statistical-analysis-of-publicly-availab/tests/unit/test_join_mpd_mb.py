@@ -1,107 +1,87 @@
-"""
-Unit tests for join_mpd_mb function.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import tempfile
+import sys
 import os
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from ingest import join_mpd_mb
 
-def test_join_mpd_mb_basic():
-    """Test basic join and year filtering."""
-    # Create mock MPD data
-    mpd_data = {
-        'track_id': ['1', '2', '3', '4'],
-        'year': [2020, 2021, np.nan, 2022], # MPD year
-        'playlist_id': ['p1', 'p1', 'p2', 'p2']
+@pytest.fixture
+def sample_mpd_df():
+    data = {
+        'track_name': ['Song A', 'Song B', 'Song C', 'Song D'],
+        'artist_name': ['Artist X', 'Artist Y', 'Artist Z', 'Artist W'],
+        'album_name': ['Album 1', 'Album 2', 'Album 3', 'Album 4'],
+        'track_id': ['id1', 'id2', 'id3', 'id4'],
+        'playlist_id': ['p1', 'p2', 'p3', 'p4']
     }
-    mpd_df = pd.DataFrame(mpd_data)
+    return pd.DataFrame(data)
 
-    # Create mock MB data
-    mb_data = {
-        'track_id': ['1', '2', '3', '5'],
-        'artist': ['A', 'B', 'C', 'D'],
-        'title': ['T1', 'T2', 'T3', 'T5'],
-        'year': [2020, np.nan, 2023, 2024], # MB year
-        'genre': ['Rock', 'Pop', 'Jazz', 'Classical']
+@pytest.fixture
+def sample_mb_df():
+    data = {
+        'track_name': ['Song A', 'Song B', 'Song C', 'Song D'],
+        'artist_name': ['Artist X', 'Artist Y', 'Artist Z', 'Artist W'],
+        'year': [2020, 2021, None, 2023], # One missing year
+        'genre': ['Pop', 'Rock', 'Jazz', 'Pop'],
+        'match_type': ['mb_search'] * 4
     }
-    mb_df = pd.DataFrame(mb_data)
+    return pd.DataFrame(data)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "metadata_mpd.parquet"
-        
-        result = join_mpd_mb(mpd_df, mb_df, output_path)
-        
-        # Check file exists
-        assert output_path.exists()
-        
-        # Check rows: 
-        # Track 1: MPD 2020, MB 2020 -> Keep (2020)
-        # Track 2: MPD 2021, MB NaN -> Keep (2021)
-        # Track 3: MPD NaN, MB 2023 -> Keep (2023)
-        # Track 4: MPD 2022, MB NaN -> Keep (2022) - Wait, MB has no 4, so join is left.
-        # Track 5: Not in MPD (left join on MPD), so not in result.
-        
-        # Expected tracks: 1, 2, 3, 4
-        assert len(result) == 4
-        
-        # Check years
-        assert result.loc[result['track_id'] == '1', 'year'].iloc[0] == 2020
-        assert result.loc[result['track_id'] == '2', 'year'].iloc[0] == 2021
-        assert result.loc[result['track_id'] == '3', 'year'].iloc[0] == 2023
-        assert result.loc[result['track_id'] == '4', 'year'].iloc[0] == 2022
+@pytest.fixture
+def empty_lastfm_df():
+    return pd.DataFrame()
 
-def test_join_mpd_mb_all_missing_years():
-    """Test filtering when all years are missing."""
-    mpd_data = {
-        'track_id': ['1', '2'],
-        'year': [np.nan, np.nan],
-        'playlist_id': ['p1', 'p1']
-    }
-    mpd_df = pd.DataFrame(mpd_data)
+def test_join_mpd_mb_filters_missing_years(sample_mpd_df, sample_mb_df, empty_lastfm_df):
+    """
+    Test that join_mpd_mb correctly joins data and filters out tracks with missing years.
+    """
+    result = join_mpd_mb(sample_mpd_df, sample_mb_df, empty_lastfm_df)
+    
+    # Check row count: 4 total, 1 missing year -> 3 expected
+    assert len(result) == 3, f"Expected 3 rows after filtering missing years, got {len(result)}"
+    
+    # Check that no rows have NaN in 'year'
+    assert result['year'].isna().sum() == 0, "Found rows with missing years in result"
+    
+    # Check specific content
+    # 'Song C' had year None, so it should be dropped
+    assert 'Song C' not in result['track_name'].values, "Song C (missing year) should be filtered"
+    
+    # Check that other columns are preserved
+    assert 'genre' in result.columns
+    assert 'album_name' in result.columns
 
-    mb_data = {
-        'track_id': ['1', '2'],
-        'artist': ['A', 'B'],
-        'title': ['T1', 'T2'],
-        'year': [np.nan, np.nan],
-        'genre': ['Rock', 'Pop']
-    }
-    mb_df = pd.DataFrame(mb_data)
+def test_join_mpd_mb_handles_empty_lastfm(sample_mpd_df, sample_mb_df, empty_lastfm_df):
+    """
+    Test that the function handles empty Last.fm dataframe gracefully.
+    """
+    result = join_mpd_mb(sample_mpd_df, sample_mb_df, empty_lastfm_df)
+    assert len(result) == 3
+    assert 'year' in result.columns
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "metadata_mpd.parquet"
+def test_join_mpd_mb_output_file_creation(tmp_path, sample_mpd_df, sample_mb_df, empty_lastfm_df, monkeypatch):
+    """
+    Test that the function saves the output to the correct file path.
+    """
+    # Mock the DERIVED_DIR to use a temp directory
+    import ingest
+    original_derived = ingest.DERIVED_DIR
+    ingest.DERIVED_DIR = tmp_path / "data" / "derived"
+    ingest.DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        result = join_mpd_mb(sample_mpd_df, sample_mb_df, empty_lastfm_df)
         
-        result = join_mpd_mb(mpd_df, mb_df, output_path)
+        output_file = ingest.DERIVED_DIR / "metadata_mpd.parquet"
+        assert output_file.exists(), "Output parquet file was not created"
         
-        # Should be empty
-        assert len(result) == 0
-
-def test_join_mpd_mb_output_schema():
-    """Test output schema."""
-    mpd_data = {
-        'track_id': ['1'],
-        'year': [2020],
-        'playlist_id': ['p1']
-    }
-    mpd_df = pd.DataFrame(mpd_data)
-
-    mb_data = {
-        'track_id': ['1'],
-        'artist': ['A'],
-        'title': ['T1'],
-        'year': [2020],
-        'genre': ['Rock']
-    }
-    mb_df = pd.DataFrame(mb_data)
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "metadata_mpd.parquet"
-        
-        result = join_mpd_mb(mpd_df, mb_df, output_path)
-        
-        required_cols = {'track_id', 'year', 'artist', 'title', 'genre', 'playlist_id'}
-        assert set(result.columns) == required_cols
+        # Verify content
+        loaded_df = pd.read_parquet(output_file)
+        assert len(loaded_df) == 3
+    finally:
+        ingest.DERIVED_DIR = original_derived

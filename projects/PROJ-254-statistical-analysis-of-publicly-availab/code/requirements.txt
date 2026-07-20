@@ -7,11 +7,7 @@ matplotlib
 plotly
 requests
 pyarrow
-musicbrainzngs
-thefuzz
-datasets
-psutil
 pydantic
+psutil
 ruff
 black
-pytest

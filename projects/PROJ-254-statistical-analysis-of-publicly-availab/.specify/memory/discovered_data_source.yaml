@@ -1,0 +1,13 @@
+status: none
+intent: yearly genre embeddings from Million Playlist Dataset, Last.fm 1B events,
+  MusicBrainz python package dataset
+required_fields:
+- track_id
+- timestamp
+- release_year
+- musicbrainz_genre
+- artist_id
+- track_name
+cache_key: 6324201aadcc953debb5ca7cbaab2f72317a8bd6dc745112db790fa5b2af3462
+searched_at: '2026-07-20T20:36:35.116137+00:00'
+retry_count: 1

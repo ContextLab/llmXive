@@ -2,197 +2,335 @@ import os
 import logging
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Set, Any
-
+from typing import Dict, List, Tuple, Set, Any, Optional
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-from statsmodels.stats.outliers_influence import OLSInfluence
+from statsmodels.stats.stattools import durbin_watson
+from statsmodels.stats.sandwich_covariance import cov_hac
 
 from utils import get_logger, setup_logging, set_deterministic_seed
+from memory_utils import check_memory_checkpoint, trigger_garbage_collection
 
-# Setup logging to file as per FR-008
-LOG_FILE = "pipeline_log.txt"
-setup_logging(log_file=LOG_FILE)
-logger = get_logger()
+# Ensure deterministic behavior
+set_deterministic_seed(42)
 
-def flag_low_coverage(df: pd.DataFrame, min_tracks: int = 1000, max_missing_rate: float = 0.2) -> Tuple[pd.DataFrame, Set[int]]:
+def prepare_exclusions() -> List[int]:
     """
-    Identify years with <1,000 unique tracks (flag for exclusion)
-    and years with >20% missing genre tags (log warning).
+    Read low coverage years and metadata to generate the list of excluded years.
+    
+    Logic:
+    - Exclude years with < 1,000 unique tracks (from low_coverage_years.json).
+    - Flag years with > 20% missing genre tags (log warning, add to low_coverage list with reason, 
+      but DO NOT exclude from regression per Spec Edge Cases).
     
     Returns:
-        filtered_df: DataFrame with rows kept for regression (missing genres handled)
-        flagged_years: Set of years to exclude from regression due to low coverage
+        List[int]: List of years to exclude from regression analysis.
     """
-    logger.info("Starting low coverage flagging process.")
+    logger = get_logger()
+    low_coverage_path = Path("data/derived/low_coverage_years.json")
+    metadata_path = Path("data/derived/metadata_mpd.parquet")
+    excluded_years_path = Path("data/derived/excluded_years.json")
     
-    # Check for missing genre tags in the source if available, 
-    # but here we assume df contains 'year' and 'mean_off_diagonal_similarity'
-    # If 'missing_genre_rate' column exists, we use it, otherwise we log based on track counts if available.
-    # Assuming df comes from similarity output which might not have raw track counts.
-    # However, T014/T029 logic implies we might need to cross-reference or assume the input df
-    # already represents the aggregated state.
+    excluded_years: List[int] = []
     
-    # For T030 context, we focus on the regression input df.
-    # We need to check track counts if they are available in the df or derived from context.
-    # Since the input to regression is yearly_similarity.csv, it likely only has year and similarity.
-    # We must rely on the 'flagged' logic from T029 if passed, or re-calculate if we have track counts.
-    # Given the constraint, we assume the input df might have a 'unique_track_count' column 
-    # or we rely on the fact that T029 already filtered.
-    # To be robust: if 'unique_track_count' exists, use it.
-    
-    flagged_years: Set[int] = set()
-    
-    if 'unique_track_count' in df.columns:
-        low_coverage_mask = df['unique_track_count'] < min_tracks
-        flagged_years = set(df.loc[low_coverage_mask, 'year'].tolist())
-        logger.warning(f"Flagging {len(flagged_years)} years with < {min_tracks} unique tracks for regression exclusion.")
+    # Load low coverage years
+    if low_coverage_path.exists():
+        with open(low_coverage_path, 'r') as f:
+            low_coverage_data = json.load(f)
+        
+        for item in low_coverage_data:
+            if isinstance(item, int):
+                excluded_years.append(item)
+            elif isinstance(item, dict) and 'year' in item:
+                excluded_years.append(item['year'])
     else:
-        logger.info("No 'unique_track_count' column found in similarity data; skipping track count check.")
-
-    if 'missing_genre_rate' in df.columns:
-        high_missing_mask = df['missing_genre_rate'] > max_missing_rate
-        if high_missing_mask.any():
-            high_missing_years = df.loc[high_missing_mask, 'year'].tolist()
-            logger.warning(f"Years with > {max_missing_rate*100}% missing genre tags: {high_missing_years}")
+        logger.warning(f"Low coverage years file not found: {low_coverage_path}")
     
-    # Filter out flagged years for the regression input
-    filtered_df = df[~df['year'].isin(flagged_years)].copy()
-    logger.info(f"Regression will proceed with {len(filtered_df)} years after filtering {len(flagged_years)} low-coverage years.")
+    # Check metadata for missing genre tags (if available)
+    if metadata_path.exists():
+        try:
+            df = pd.read_parquet(metadata_path)
+            if 'release_year' in df.columns and 'genre_tag' in df.columns:
+                # Calculate missing genre tag percentage per year
+                total_per_year = df.groupby('release_year').size()
+                missing_per_year = df[df['genre_tag'].isna()].groupby('release_year').size()
+                
+                missing_pct = (missing_per_year / total_per_year * 100).fillna(0)
+                
+                for year, pct in missing_pct.items():
+                    if pct > 20.0:
+                        logger.warning(f"Year {year} has {pct:.1f}% missing genre tags. Flagged as LOW_COVERAGE but NOT excluded.")
+                        # Update low_coverage_years.json if we were modifying it, 
+                        # but per spec we just log and do not exclude.
+            else:
+                logger.warning("Metadata file missing required columns for coverage check.")
+        except Exception as e:
+            logger.error(f"Error reading metadata for coverage check: {e}")
+    else:
+        logger.warning(f"Metadata file not found: {metadata_path}")
     
-    return filtered_df, flagged_years
+    # Deduplicate and sort
+    excluded_years = sorted(list(set(excluded_years)))
+    
+    # Save excluded years
+    with open(excluded_years_path, 'w') as f:
+        json.dump(excluded_years, f, indent=2)
+    
+    logger.info(f"Prepared exclusions: {len(excluded_years)} years excluded.")
+    return excluded_years
 
-def get_filtered_years_for_regression(df: pd.DataFrame) -> List[int]:
-    """Helper to get list of years used in regression."""
-    filtered_df, _ = flag_low_coverage(df)
-    return sorted(filtered_df['year'].tolist())
-
-def fit_linear_regression(df: pd.DataFrame) -> Tuple[Any, Dict[str, Any]]:
+def flag_low_coverage(year: int, reason: str) -> None:
     """
-    Fit linear regression: year vs. mean_off_diagonal_similarity.
-    Uses statsmodels with robust standard errors.
-    Returns model object and summary stats.
+    Log a warning for a low coverage year and optionally update low_coverage_years.json.
+    (Note: Per Spec, this does NOT exclude the year from regression).
     """
-    logger.info("Fitting linear regression model...")
+    logger = get_logger()
+    low_coverage_path = Path("data/derived/low_coverage_years.json")
     
-    filtered_df, _ = flag_low_coverage(df)
+    data = []
+    if low_coverage_path.exists():
+        with open(low_coverage_path, 'r') as f:
+            data = json.load(f)
+    
+    # Check if year already exists
+    year_exists = False
+    for item in data:
+        if (isinstance(item, int) and item == year) or (isinstance(item, dict) and item.get('year') == year):
+            year_exists = True
+            break
+    
+    if not year_exists:
+        data.append({"year": year, "reason": reason})
+        with open(low_coverage_path, 'w') as f:
+            json.dump(data, f, indent=2)
+    
+    logger.warning(f"Year {year} flagged as LOW_COVERAGE: {reason}")
+
+def get_filtered_years_for_regression(excluded_years: List[int]) -> List[int]:
+    """
+    Load similarity data and filter out excluded years.
+    
+    Args:
+        excluded_years: List of years to exclude.
+        
+    Returns:
+        List of years remaining for regression.
+    """
+    logger = get_logger()
+    similarity_path = Path("data/derived/yearly_similarity.csv")
+    
+    if not similarity_path.exists():
+        raise FileNotFoundError(f"Similarity data not found: {similarity_path}")
+    
+    df = pd.read_csv(similarity_path)
+    if 'year' not in df.columns:
+        raise ValueError("Similarity CSV missing 'year' column.")
+    
+    excluded_set = set(excluded_years)
+    filtered_df = df[~df['year'].isin(excluded_set)]
+    
+    logger.info(f"Filtered years: {len(df)} total -> {len(filtered_df)} after excluding {len(excluded_set)}.")
+    return filtered_df['year'].tolist()
+
+def fit_linear_regression() -> Dict[str, Any]:
+    """
+    Fit a linear regression model (year vs. mean_off_diagonal_similarity) 
+    using statsmodels with Newey-West HAC standard errors.
+    
+    Returns:
+        Dict containing slope, intercept, p-value, confidence interval, and r-squared.
+    """
+    logger = get_logger()
+    similarity_path = Path("data/derived/yearly_similarity.csv")
+    excluded_path = Path("data/derived/excluded_years.json")
+    
+    # Load data
+    if not similarity_path.exists():
+        raise FileNotFoundError(f"Similarity data not found: {similarity_path}")
+    
+    df = pd.read_csv(similarity_path)
+    if 'year' not in df.columns or 'mean_off_diagonal_similarity' not in df.columns:
+        raise ValueError("Similarity CSV missing required columns.")
+    
+    # Load exclusions
+    excluded_years = []
+    if excluded_path.exists():
+        with open(excluded_path, 'r') as f:
+            excluded_years = json.load(f)
+    else:
+        logger.warning(f"Excluded years file not found: {excluded_path}. Proceeding without exclusions.")
+    
+    # Filter data
+    excluded_set = set(excluded_years)
+    filtered_df = df[~df['year'].isin(excluded_set)]
     
     if len(filtered_df) < 2:
         raise ValueError("Insufficient data points for regression after filtering.")
     
-    X = sm.add_constant(filtered_df['year'])
-    y = filtered_df['mean_off_diagonal_similarity']
+    X = filtered_df['year'].values
+    y = filtered_df['mean_off_diagonal_similarity'].values
     
-    model = sm.WLS(y, X, weights=1/filtered_df['year']) # Simple weighting or OLS
-    # Using OLS with robust cov_type as per FR-005
-    ols_model = sm.OLS(y, X)
-    results = ols_model.fit(cov_type='HC3') # Robust standard errors
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
     
-    logger.info(f"Regression fit complete. R-squared: {results.rsquared:.4f}")
-    logger.info(f"Convergence status: {results.converged if hasattr(results, 'converged') else 'N/A (OLS)'}")
+    # Fit OLS
+    model = sm.OLS(y, X_with_const)
+    results = model.fit()
     
-    return results, {
-        "slope": float(results.params['year']),
-        "intercept": float(results.params['const']),
-        "p_value": float(results.pvalues['year']),
-        "rsquared": float(results.rsquared),
-        "std_err": float(results.bse['year']),
-        "ci_lower": float(results.conf_int().loc['year', 0]),
-        "ci_upper": float(results.conf_int().loc['year', 1])
+    # Calculate HAC standard errors (Newey-West)
+    # Note: statsmodels' cov_hac requires specific inputs, often used with results.get_robustcov_results
+    # Using a simpler approach for HAC if available, or fallback to standard errors if not
+    try:
+        # Attempt to get HAC robust covariance
+        # lag is the number of lags to consider; for time series, often floor(n^(1/3)) or similar
+        # Here we use a default or estimate based on data length
+        n_obs = len(y)
+        lag = max(1, int(n_obs ** (1/3)))
+        robust_results = results.get_robustcov_results(cov_type='HAC', maxlags=lag)
+        
+        slope = robust_results.params[1]
+        intercept = robust_results.params[0]
+        p_value = robust_results.pvalues[1]
+        conf_int = robust_results.conf_int(alpha=0.05)[1] # 95% CI for slope
+        r_squared = robust_results.rsquared
+    except Exception as e:
+        logger.warning(f"HAC robust covariance calculation failed: {e}. Falling back to OLS standard errors.")
+        slope = results.params[1]
+        intercept = results.params[0]
+        p_value = results.pvalues[1]
+        conf_int = results.conf_int(alpha=0.05)[1]
+        r_squared = results.rsquared
+    
+    # Durbin-Watson test for autocorrelation
+    try:
+        dw_stat = durbin_watson(results.resid)
+    except Exception:
+        dw_stat = None
+    
+    # Log completion
+    logger.info("Regression fit complete.")
+    
+    return {
+        "slope": float(slope),
+        "intercept": float(intercept),
+        "p_value": float(p_value),
+        "ci_lower": float(conf_int[0]),
+        "ci_upper": float(conf_int[1]),
+        "r_squared": float(r_squared),
+        "durbin_watson": float(dw_stat) if dw_stat is not None else None,
+        "n_observations": int(n_obs),
+        "excluded_years": excluded_years
     }
 
-def calculate_cooks_distance(results: Any, df: pd.DataFrame) -> pd.DataFrame:
+def calculate_cooks_distance(results_dict: Dict[str, Any]) -> pd.DataFrame:
     """
     Calculate Cook's Distance for outliers using the regression model.
-    Returns a DataFrame with year and Cook's Distance.
+    (Note: This is a placeholder implementation as the actual model object is not returned by fit_linear_regression.
+     In a full pipeline, we would pass the fitted model object or re-fit here).
     """
-    logger.info("Calculating Cook's Distance for robustness check...")
+    logger = get_logger()
+    similarity_path = Path("data/derived/yearly_similarity.csv")
+    excluded_path = Path("data/derived/excluded_years.json")
     
-    filtered_df, _ = flag_low_coverage(df)
-    X = sm.add_constant(filtered_df['year'])
-    y = filtered_df['mean_off_diagonal_similarity']
+    if not similarity_path.exists():
+        raise FileNotFoundError(f"Similarity data not found: {similarity_path}")
     
-    influence = OLSInfluence(results)
-    cooks_d = influence.cooks_distance[0]
+    df = pd.read_csv(similarity_path)
+    excluded_years = []
+    if excluded_path.exists():
+        with open(excluded_path, 'r') as f:
+            excluded_years = json.load(f)
     
-    report_df = pd.DataFrame({
-        'year': filtered_df['year'].values,
-        'cooks_distance': cooks_d
-    })
+    excluded_set = set(excluded_years)
+    filtered_df = df[~df['year'].isin(excluded_set)]
     
-    # Sort by distance descending
-    report_df = report_df.sort_values(by='cooks_distance', ascending=False)
+    if len(filtered_df) < 4:
+        logger.warning("Not enough data points to calculate Cook's Distance.")
+        return pd.DataFrame()
     
-    outlier_count = (cooks_d > 4/len(filtered_df)).sum()
-    logger.info(f"Cook's Distance calculation complete. Identified {outlier_count} potential outliers (threshold: 4/n).")
+    X = filtered_df['year'].values
+    y = filtered_df['mean_off_diagonal_similarity'].values
+    X_with_const = sm.add_constant(X)
     
-    return report_df, outlier_count
-
-def output_regression_results(results: Any, stats: Dict[str, Any], outlier_count: int, output_path: Path):
-    """
-    Output regression results to console and JSON file.
-    Logs comprehensive model parameters and convergence status to pipeline_log.txt.
-    """
-    logger.info("=" * 50)
-    logger.info("REGRESSION ANALYSIS RESULTS")
-    logger.info("=" * 50)
-    
-    # Log Model Parameters
-    logger.info(f"Slope: {stats['slope']:.6f}")
-    logger.info(f"Intercept: {stats['intercept']:.6f}")
-    logger.info(f"Standard Error: {stats['std_err']:.6f}")
-    logger.info(f"P-value: {stats['p_value']:.6e}")
-    logger.info(f"R-squared: {stats['rsquared']:.6f}")
-    logger.info(f"95% CI Lower: {stats['ci_lower']:.6f}")
-    logger.info(f"95% CI Upper: {stats['ci_upper']:.6f}")
-    
-    # Log Convergence Status
-    logger.info(f"Convergence Status: True (OLS converged)")
-    
-    # Log Outlier Counts
-    logger.info(f"Outlier Count (Cook's Distance > 4/n): {outlier_count}")
-    
-    logger.info("=" * 50)
-    
-    # Save to JSON
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    
-    logger.info(f"Regression results saved to {output_path}")
-
-def main():
-    """Main entry point for regression analysis."""
-    logger.info("Starting regression analysis pipeline.")
-    
-    # Paths
-    input_path = Path("data/derived/yearly_similarity.csv")
-    output_json_path = Path("data/derived/regression_results.json")
-    output_cooks_path = Path("data/derived/cooks_distance_report.csv")
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        return
-    
-    # Load data
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    
-    # Fit model
-    results, stats = fit_linear_regression(df)
+    model = sm.OLS(y, X_with_const)
+    results = model.fit()
     
     # Calculate Cook's Distance
-    cooks_df, outlier_count = calculate_cooks_distance(results, df)
+    # Formula: D_i = (r_i^2 / (p * MSE)) * (h_ii / (1 - h_ii)^2)
+    # where r_i is residual, p is number of parameters, MSE is mean squared error, h_ii is leverage
     
-    # Output results
-    output_regression_results(results, stats, outlier_count, output_json_path)
+    residuals = results.resid
+    leverage = results.get_influence().hat_matrix_diag
+    mse = results.mse_resid
+    p = results.df_model + 1  # number of parameters (intercept + slope)
     
-    # Save Cook's Distance report
-    cooks_df.to_csv(output_cooks_path, index=False)
-    logger.info(f"Cook's Distance report saved to {output_cooks_path}")
+    cooks_d = (residuals**2 / (p * mse)) * (leverage / (1 - leverage)**2)
     
-    logger.info("Regression analysis pipeline completed successfully.")
+    report_df = pd.DataFrame({
+        "year": filtered_df['year'],
+        "similarity": filtered_df['mean_off_diagonal_similarity'],
+        "residual": residuals,
+        "leverage": leverage,
+        "cooks_distance": cooks_d
+    })
+    
+    # Sort by Cook's Distance descending
+    report_df = report_df.sort_values(by='cooks_distance', ascending=False)
+    
+    return report_df
+
+def output_regression_results(results_dict: Dict[str, Any]) -> None:
+    """
+    Save regression results to JSON and print to console.
+    """
+    logger = get_logger()
+    output_path = Path("data/derived/regression_results.json")
+    
+    # Save to JSON
+    with open(output_path, 'w') as f:
+        json.dump(results_dict, f, indent=2)
+    
+    # Print to console
+    print(f"Regression Results:")
+    print(f"  Slope: {results_dict['slope']:.6f}")
+    print(f"  Intercept: {results_dict['intercept']:.6f}")
+    print(f"  P-value: {results_dict['p_value']:.6f}")
+    print(f"  95% CI: [{results_dict['ci_lower']:.6f}, {results_dict['ci_upper']:.6f}]")
+    print(f"  R-squared: {results_dict['r_squared']:.6f}")
+    print(f"  Durbin-Watson: {results_dict['durbin_watson']:.4f if results_dict['durbin_watson'] else 'N/A'}")
+    print(f"  Observations: {results_dict['n_observations']}")
+    print(f"  Excluded Years: {results_dict['excluded_years']}")
+
+def main() -> None:
+    """
+    Main entry point for the regression pipeline.
+    """
+    logger = setup_logging()
+    logger.info("Starting regression analysis.")
+    
+    try:
+        # 1. Prepare exclusions
+        excluded_years = prepare_exclusions()
+        
+        # 2. Fit linear regression
+        results = fit_linear_regression()
+        
+        # 3. Output results
+        output_regression_results(results)
+        
+        # 4. Calculate Cook's Distance
+        cooks_df = calculate_cooks_distance(results)
+        if not cooks_df.empty:
+            cooks_path = Path("data/derived/cooks_distance_report.csv")
+            cooks_df.to_csv(cooks_path, index=False)
+            logger.info(f"Cook's Distance report saved to {cooks_path}")
+        
+        logger.info("Regression analysis complete.")
+        
+    except Exception as e:
+        logger.error(f"Regression analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

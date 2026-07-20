@@ -1,17 +1,18 @@
-T012:
-  c: false
-  h: 6f6c8cb87d4fde2aa27453f04e6b61c4fa3542cd2232670d21389392c396bded
-  r: The repository lacks a `join_mpd_mb` implementation in `src/code/ingest.py` (the
-    file is truncated and does not define the required function), and the expected
-    output file `data/derived/metadata_mpd.parquet` is absent. Both the core function
-    and its resulting artifact are missing, so the task is not satisfied.
 T017:
   c: false
-  h: 216fe701b4e05c518a15974eaf6b8fe4d8f3240a2e8279fac114362b248bc5d7
-  r: The required test file `tests/contract/test_similarity_schema.py` does not exist,
-    so no function `test_similarity_schema_validation` is present to validate `yearly_similarity.csv`
-    against the provided schema. Without this artifact, the contract test cannot be
-    run.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-genre-evolution/spec_amendment_request.md` file was provided,\
+    \ and thus there is no evidence that it contains the required statement about\
+    \ blocking Last.fm ingestion and proceeding with MPD\u2011only. The task\u2019\
+    s core deliverable is missing."
+T023:
+  c: false
+  h: 430d9689ccbd22fceef5fffbc578143417cc9de5db64d6ceb14f074b583c5179
+  r: "The provided `src/code/embeddings.py` does not contain an `aggregate_yearly_embeddings`\
+    \ implementation (the visible code only defines loading, sequence generation,\
+    \ and Word2Vec training functions), and the required output file `data/derived/low_coverage_years.json`\
+    \ is absent. Consequently the task\u2019s core functionality and its side\u2011\
+    effect file are not satisfied."
 T025:
   c: false
   h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443
@@ -27,16 +28,17 @@ T026:
     \ truncated and does not contain the full logic for loading the CSV, applying\
     \ the low\u2011coverage year filter, or fitting a robust linear regression model.\
     \ Both the data artifact and a complete function implementation are missing."
+T029:
+  c: false
+  h: fc48f0a62e77f822c1b5edacc0394962e9e67c5eaa591796f895b3aaab40b741
+  r: The repository lacks `data/derived/low_coverage_years.json` and `data/derived/excluded_years.json`,
+    and `src/code/regression.py` does not contain an implemented `prepare_exclusions`
+    function (the shown code only defines `flag_low_coverage` and `fit_linear_regression`).
+    Consequently the required logic and output files are absent.
 T030:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `pipeline_log.txt` file or excerpt showing logging of model parameters, convergence
-    status, and outlier counts was provided; without such evidence the requirement
-    cannot be verified as met.
-T036:
-  c: false
-  h: b9e10ab25cfc170982d25367e9082d478a681adad72ea1cbd171453a6346e2d9
-  r: The repository lacks a `calculate_cooks_distance` implementation in `src/code/regression.py`
-    (the shown code never defines it) and the required `data/derived/cooks_distance_report.csv`
-    file does not exist. Both the function and its output report are missing, so the
-    task is not satisfied.
+  h: 3aca295dc610c9980227232e9013bda67f55aa28c2ba72a8962fc30f2f03ff48
+  r: "The `fit_linear_regression` function is truncated and never loads `excluded_years.json`,\
+    \ applies the Newey\u2011West HAC errors, or logs \u201CRegression fit complete\u201D\
+    \ to `pipeline_log.txt`. Moreover, the required `data/derived/excluded_years.json`\
+    \ file is missing entirely. These gaps prevent the task from being fulfilled."

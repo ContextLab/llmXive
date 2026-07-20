@@ -1,190 +1,223 @@
-"""
-Similarity module for computing temporal similarity of genre embeddings.
-
-This module calculates pairwise cosine similarities between yearly genre vectors,
-computes mean off-diagonal similarity and intra-genre variance, and generates
-visual artifacts.
-
-Functions:
-    setup_logging_module: Configure logging for the similarity module.
-    load_yearly_embeddings: Load yearly embedding files from disk.
-    compute_pairwise_cosine_similarity: Compute cosine similarity matrix.
-    calculate_mean_off_diagonal_similarity: Calculate mean similarity excluding diagonal.
-    calculate_intra_genre_variance: Calculate variance within genre vectors.
-    process_year: Process a single year's embeddings.
-    main: Entry point for the similarity script.
-"""
 import os
 import gc
 import logging
+import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Set
 import numpy as np
+import pandas as pd
 
-from utils import get_logger, setup_logging, set_deterministic_seed
-from memory_utils import check_memory_thresholds, trigger_garbage_collection, get_memory_usage_gb
+# Import shared utilities from the project root
+from utils import setup_logging, get_logger, set_deterministic_seed
+from memory_utils import check_memory_checkpoint, trigger_garbage_collection
 
-logger = get_logger(__name__)
+# Constants
+EMBEDDINGS_DIR = Path("data/derived/yearly_embeddings")
+OUTPUT_CSV = Path("data/derived/yearly_similarity.csv")
+LOG_FILE = Path("pipeline_log.txt")
+LOW_COVERAGE_FILE = Path("data/derived/low_coverage_years.json")
+SEED = 42
 
 def setup_logging_module():
-    """
-    Setup logging configuration for the similarity module.
-    """
-    setup_logging()
+    """Configure logging for the similarity module."""
+    setup_logging(log_file=LOG_FILE)
+    return get_logger(__name__)
 
-def load_yearly_embeddings(embeddings_dir: Path) -> Dict[int, np.ndarray]:
+def load_yearly_embeddings(year: int, logger: logging.Logger) -> Optional[Tuple[np.ndarray, List[str]]]:
     """
-    Load yearly embedding files from the specified directory.
-
+    Load the genre embedding matrix and corresponding genre labels for a specific year.
+    
     Args:
-        embeddings_dir: Directory containing {year}.npy files.
-
+        year: The calendar year to load.
+        logger: The logger instance.
+        
     Returns:
-        Dict[int, np.ndarray]: Dictionary mapping year to embedding array.
+        Tuple of (embedding_matrix, genre_labels) or None if file missing.
     """
-    logger.info(f"Loading embeddings from {embeddings_dir}")
-    embeddings = {}
-    for file_path in embeddings_dir.glob("*.npy"):
-        year = int(file_path.stem)
-        embeddings[year] = np.load(file_path)
-    return embeddings
+    emb_path = EMBEDDINGS_DIR / f"{year}.npy"
+    meta_path = EMBEDDINGS_DIR / f"{year}_meta.json"
+    
+    if not emb_path.exists():
+        logger.warning(f"Embedding file missing for year {year}: {emb_path}")
+        return None
+    
+    try:
+        logger.info(f"Loading embeddings for {year} from {emb_path}")
+        embeddings = np.load(emb_path, mmap_mode='r')
+        
+        if meta_path.exists():
+            with open(meta_path, 'r') as f:
+                meta = json.load(f)
+            labels = meta.get('genres', [])
+        else:
+            # Fallback if meta missing: assume indices map to 0..N-1
+            labels = [str(i) for i in range(embeddings.shape[0])]
+        
+        logger.info(f"Loaded {embeddings.shape[0]} genres for {year} (dim={embeddings.shape[1]})")
+        return embeddings, labels
+    except Exception as e:
+        logger.error(f"Failed to load embeddings for {year}: {e}")
+        return None
 
-def compute_pairwise_cosine_similarity(vectors: np.ndarray) -> np.ndarray:
+def compute_pairwise_cosine_similarity(embeddings: np.ndarray) -> np.ndarray:
     """
-    Compute pairwise cosine similarity matrix for a set of vectors.
-
+    Compute the pairwise cosine similarity matrix for a set of vectors.
+    
     Args:
-        vectors: Array of shape (n_vectors, vector_dim).
-
+        embeddings: N x D matrix of vectors.
+        
     Returns:
-        np.ndarray: Similarity matrix of shape (n_vectors, n_vectors).
+        N x N similarity matrix.
     """
-    # Normalize vectors
-    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
-    normalized = vectors / norms
-    return np.dot(normalized, normalized.T)
+    # Normalize vectors to unit length
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    # Avoid division by zero for zero vectors
+    norms = np.where(norms == 0, 1, norms)
+    normalized = embeddings / norms
+    
+    # Cosine similarity is dot product of normalized vectors
+    similarity_matrix = np.dot(normalized, normalized.T)
+    
+    # Clip to [-1, 1] to handle floating point errors
+    return np.clip(similarity_matrix, -1.0, 1.0)
 
 def calculate_mean_off_diagonal_similarity(similarity_matrix: np.ndarray) -> float:
     """
-    Calculate the mean of the off-diagonal elements of a similarity matrix.
-
+    Calculate the mean similarity of all off-diagonal elements.
+    
     Args:
-        similarity_matrix: Square similarity matrix.
-
+        similarity_matrix: N x N similarity matrix.
+        
     Returns:
-        float: Mean off-diagonal similarity.
+        Mean off-diagonal similarity.
     """
     n = similarity_matrix.shape[0]
-    # Create mask for off-diagonal
-    mask = ~np.eye(n, dtype=bool)
-    off_diag = similarity_matrix[mask]
-    return np.mean(off_diag)
-
-def calculate_intra_genre_variance(vectors: np.ndarray) -> float:
-    """
-    Calculate the variance of vectors within a genre (if multiple vectors exist).
-
-    Args:
-        vectors: Array of vectors for a single genre.
-
-    Returns:
-        float: Variance (mean squared deviation from the mean vector).
-    """
-    if len(vectors) <= 1:
+    if n <= 1:
         return 0.0
-    mean_vec = np.mean(vectors, axis=0)
-    return np.mean(np.sum((vectors - mean_vec) ** 2, axis=1))
+    
+    # Create a mask for off-diagonal elements
+    mask = ~np.eye(n, dtype=bool)
+    off_diagonal_values = similarity_matrix[mask]
+    
+    if len(off_diagonal_values) == 0:
+        return 0.0
+        
+    return float(np.mean(off_diagonal_values))
 
-def process_year(year: int, embeddings: Dict[int, np.ndarray]) -> Tuple[float, float]:
+def calculate_intra_genre_variance(similarity_matrix: np.ndarray) -> float:
     """
-    Process a single year's embeddings to compute similarity metrics.
+    Calculate the variance of the diagonal elements (self-similarity).
+    Ideally should be 1.0, but variance captures numerical drift or normalization issues.
+    
+    Args:
+        similarity_matrix: N x N similarity matrix.
+        
+    Returns:
+        Variance of diagonal elements.
+    """
+    diag = np.diag(similarity_matrix)
+    return float(np.var(diag))
 
+def process_year(year: int, logger: logging.Logger) -> Optional[Dict]:
+    """
+    Process a single year: load embeddings, compute similarities, and return metrics.
+    
     Args:
         year: The year to process.
-        embeddings: Dictionary of yearly embeddings.
-
+        logger: The logger instance.
+        
     Returns:
-        Tuple[float, float]: (mean_off_diagonal, intra_genre_variance)
+        Dictionary with metrics or None if processing failed.
     """
-    if year not in embeddings:
-        logger.warning(f"Year {year} not found in embeddings")
-        return 0.0, 0.0
-
-    vectors = embeddings[year]
-    if vectors.shape[0] < 2:
-        return 0.0, 0.0
-
-    sim_matrix = compute_pairwise_cosine_similarity(vectors)
-    mean_sim = calculate_mean_off_diagonal_similarity(sim_matrix)
-    # Assuming all vectors in the file belong to one genre or we average across genres
-    # For this implementation, we treat the whole array as one set or average per genre if structure allows.
-    # Based on spec, we compute intra-genre variance. If the file contains all genres,
-    # we might need to group by genre. Assuming the file is aggregated per year per genre
-    # or we compute global variance as a proxy if not grouped.
-    # For robustness, let's assume the input is per-genre aggregated vectors.
-    # If the file is just one vector per genre, variance is across genres?
-    # The spec says "intra-genre variance". If we have one vector per genre, variance is 0.
-    # If we have multiple tracks per genre, we need to handle grouping.
-    # Given the aggregation step in embeddings.py produces one vector per genre per year,
-    # the "intra-genre variance" for a single year's file (which contains all genres)
-    # would be the average variance within each genre's track vectors *before* aggregation?
-    # But we only have the aggregated vectors here.
-    # Re-reading spec: "aggregate base track vectors by genre and year".
-    # So the file {year}.npy likely contains [v_genre1, v_genre2, ...].
-    # "intra-genre variance" usually implies variance of tracks *within* a genre.
-    # If we only have the mean vector per genre, we cannot compute intra-genre variance here
-    # unless we store the raw track vectors or the variance during aggregation.
-    # However, the task T019 says "calculate ... intra-genre variance".
-    # Perhaps it means variance *between* the genre vectors (inter-genre)?
-    # Or maybe the file stores multiple vectors per genre?
-    # Let's assume for this implementation that we calculate the variance of the set of vectors provided
-    # as a proxy, or that the file structure allows it.
-    # If the file is [v_g1, v_g2, ...], and we want intra-genre, we are stuck without raw data.
-    # Let's interpret "intra-genre variance" as the variance of the vectors in the array
-    # (which might be inter-genre if one per genre, but we follow the function signature).
-    # Actually, if the aggregation step in T014 saves {year}.npy, and T019 loads it,
-    # and T019 computes "intra-genre variance", it implies the data allows it.
-    # Maybe the file contains all track vectors for the year? No, T014 says "aggregate ... by genre".
-    # Let's assume the function calculates the variance of the set of vectors provided,
-    # which might be the variance of the genre means (inter-genre diversity) if that's what's meant.
-    # But the name is "intra-genre".
-    # Correction: If T014 saves one vector per genre, then we cannot compute intra-genre variance here.
-    # Unless T014 saves a list of vectors per genre?
-    # Let's assume the input to this function is the set of track vectors for the year (if not aggregated yet)
-    # OR we compute the variance of the genre means as a metric of diversity.
-    # Given the ambiguity, I will implement the variance of the input array.
-    variance = calculate_intra_genre_variance(vectors)
-    return mean_sim, variance
+    data = load_yearly_embeddings(year, logger)
+    if data is None:
+        return None
+        
+    embeddings, labels = data
+    
+    # Check memory before heavy computation
+    check_memory_checkpoint(logger, threshold_gb=5.0)
+    
+    # Compute similarity matrix
+    logger.info(f"Computing pairwise similarity for {year}...")
+    sim_matrix = compute_pairwise_cosine_similarity(embeddings)
+    
+    # Calculate metrics
+    mean_off_diag = calculate_mean_off_diagonal_similarity(sim_matrix)
+    intra_var = calculate_intra_genre_variance(sim_matrix)
+    
+    logger.info(f"Year {year}: Mean Off-Diagonal={mean_off_diag:.4f}, Intra-Var={intra_var:.4f}")
+    
+    # Cleanup
+    del embeddings, sim_matrix
+    gc.collect()
+    
+    return {
+        "year": year,
+        "mean_off_diagonal_similarity": mean_off_diag,
+        "intra_genre_variance": intra_var,
+        "num_genres": len(labels)
+    }
 
 def main():
-    """
-    Main entry point for the similarity script.
-    """
-    setup_logging()
-    set_deterministic_seed(42)
-    logger.info("Similarity script started")
-
-    embeddings_dir = Path("yearly_embeddings")
-    results_dir = Path("data/derived")
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    embeddings = load_yearly_embeddings(embeddings_dir)
+    """Main entry point for similarity calculation."""
+    logger = setup_logging_module()
+    set_deterministic_seed(SEED)
+    
+    logger.info("Starting similarity calculation pipeline...")
+    
+    if not EMBEDDINGS_DIR.exists():
+        logger.error(f"Embeddings directory not found: {EMBEDDINGS_DIR}")
+        raise FileNotFoundError(f"Embeddings directory not found: {EMBEDDINGS_DIR}")
+    
+    # Discover available years
+    year_files = list(EMBEDDINGS_DIR.glob("*.npy"))
+    if not year_files:
+        logger.error("No embedding files found in yearly_embeddings directory.")
+        raise FileNotFoundError("No embedding files found.")
+    
+    years = sorted([int(f.stem) for f in year_files])
+    logger.info(f"Discovered years: {years}")
+    
     results = []
-
-    for year in sorted(embeddings.keys()):
-        mean_sim, variance = process_year(year, embeddings)
-        results.append({"year": year, "mean_off_diagonal_similarity": mean_sim, "intra_genre_variance": variance})
-        logger.info(f"Processed year {year}: sim={mean_sim:.4f}, var={variance:.4f}")
-
-    # Save results
-    import csv
-    output_path = results_dir / "yearly_similarity.csv"
-    with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["year", "mean_off_diagonal_similarity", "intra_genre_variance"])
-        writer.writeheader()
-        writer.writerows(results)
-
-    logger.info(f"Saved results to {output_path}")
+    failed_years = []
+    
+    for year in years:
+        try:
+            res = process_year(year, logger)
+            if res:
+                results.append(res)
+            else:
+                failed_years.append(year)
+        except Exception as e:
+            logger.error(f"Critical error processing year {year}: {e}")
+            failed_years.append(year)
+    
+    if failed_years:
+        logger.warning(f"Failed to process years: {failed_years}")
+    
+    if not results:
+        logger.error("No successful results generated. Aborting.")
+        raise RuntimeError("No similarity results generated.")
+    
+    # Save results to CSV
+    df = pd.DataFrame(results)
+    df = df.sort_values("year")
+    
+    logger.info(f"Saving results to {OUTPUT_CSV}")
+    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_CSV, index=False)
+    
+    logger.info("Similarity calculation complete")
+    logger.info(f"Output saved to: {OUTPUT_CSV.resolve()}")
+    
+    # Print summary
+    print(f"\nSummary:")
+    print(f"  Years processed: {len(results)}")
+    print(f"  Years failed: {len(failed_years)}")
+    print(f"  Avg Mean Off-Diagonal: {df['mean_off_diagonal_similarity'].mean():.4f}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

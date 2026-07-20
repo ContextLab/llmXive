@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T11:40:44.117382Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-254-statistical-analysis-of-publicly-availab
-last_run_id: 64b6c039-711e-40c9-8aee-b94b27d7b4c3
+last_run_id: 84021413-3cfa-4c8a-9fa7-70d448457a75
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
-updated_at: '2026-07-20T05:59:15.103366Z'
+updated_at: '2026-07-20T21:21:42.731798Z'
