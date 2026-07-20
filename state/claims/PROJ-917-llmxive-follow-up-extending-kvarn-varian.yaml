@@ -166,3 +166,463 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T01:07:58Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: run paired t-test on 30 runs for accumulated KL-divergence
+  claim_id: c_fe8634cf
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the accumulated KL-divergence metric in code/analysis/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the accumulated KL-divergence metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:31:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: run autoregressive simulation for 1000 steps
+  claim_id: c_8ad9dd7a
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine with cumulative
+    error state propagation in code/simulation/autoregressive_loop.py. Default: 1000
+    steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement autoregressive simulation engine with cumulative error state
+    propagation. Default: 1000 steps.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:31:49Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model with 2 inputs
+  claim_id: c_156b6ba5
+  context: 'T022 [P] [US2] Define a multi-layer perceptron (MLP) model architecture
+    (2 inputs: mean, var) in code/model_training/mlp_model.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define a multi-layer perceptron (MLP) model architecture (2 inputs: mean,
+    var).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:32:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project
+  claim_id: c_1e438d25
+  context: T002 Initialize Python 3.11 project with pinned requirements.txt (numpy,
+    scipy, torch-cpu, scikit-learn, pandas, pyarrow, pytest, matplotlib)
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned requirements.txt.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T16:32:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound proportional to square of quantization interval
+  claim_id: c_fa8aada3
+  context: T032 [P] [US3] Implement theoretical lower bound calculation using an analytical
+    noise model proportional to the square of the quantization interval. in code/analysis/stats.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_lower_bound_proportional_to_square_of_quantizati
+  kind: entity_fact
+  raw_text: Theoretical lower bound calculation using an analytical noise model proportional
+    to the square of the quantization interval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:32:35Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: closed-form baseline predictor s equals 1 over variance
+  claim_id: c_78ff0c75
+  context: T024 [US2] Implement closed-form baseline predictor (s = 1/variance) in
+    code/model_training/baselines.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Closed-form baseline predictor (s = 1/variance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:32:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon floor set to 1e-6
+  claim_id: c_cc10981b
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, and RANDOM_SEED.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, and RANDOM_SEED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:33:46Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: generate 30 independent simulation runs
+  claim_id: c_01c993e4
+  context: 'T030b [US3] Execute batch_runner.py to generate 30 independent simulation
+    runs (n=30). Output: data/simulation/run_001.json through data/simulation/run_030.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:34:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default simulation steps 1000
+  claim_id: c_55f3336b
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine with cumulative
+    error state propagation in code/simulation/autoregressive_loop.py. Default: 1000
+    steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Default: 1000 steps.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:35:10Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: autoregressive simulation engine default of 1000 steps
+  claim_id: c_ecf484f1
+  context: T027 [P] [US3] Implement autoregressive simulation engine with cumulative
+    error state propagation in code/simulation/autoregressive_loop.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Default: 1000 steps.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:38:21Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 30 independent simulation runs
+  claim_id: c_14b88895
+  context: 'T030b [US3] Execute `batch_runner.py` to generate 30 independent simulation
+    runs (n=30). **Output**: `data/simulation/run_001.json` through `data/simulation/run_030.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:41:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Perform paired t-test on accumulated KL-divergence with 30 runs
+  claim_id: c_8f836667
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the **accumulated KL-divergence** metric in `code/analysis/stats.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the accumulated KL-divergence metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:41:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default simulation loop runs for 1000 steps
+  claim_id: c_475052e3
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine with cumulative
+    error state propagation in `code/simulation/autoregressive_loop.py`. **Default**:
+    1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default simulation loop runs for 1000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:41:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 'MLP model uses 2 inputs: mean and variance'
+  claim_id: c_f7d75ab0
+  context: 'T022 [P] [US2] Define a multi-layer perceptron (MLP) model architecture
+    (2 inputs: mean, var) in `code/model_training/mlp_model.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The MLP model architecture uses 2 inputs: mean and variance.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:42:10Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default epsilon floor is 1e-6
+  claim_id: c_042d3093
+  context: T009 [P] [US1] Setup environment configuration management in `code/config.py`
+    with a `Config` dataclass containing `CPU_ONLY=True`, `EPSILON_FLOOR=1e-6`, and
+    `RANDOM_SEED`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default epsilon floor is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:42:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Closed-form baseline predictor uses s = 1/variance
+  claim_id: c_7eec9efb
+  context: T013 [P] [US2] Implement unit test for closed-form baseline (s = 1/variance)
+    implementation in `tests/test_model_training.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The closed-form baseline predictor uses the formula s = 1/variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:43:03Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound uses noise model proportional to square of quantization
+    interval
+  claim_id: c_99b7ee35
+  context: T032 [P] [US3] Implement theoretical lower bound calculation using an analytical
+    noise model proportional to the square of the quantization interval. in `code/analysis/stats.py`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_lower_bound_uses_noise_model_proportional_to_squ
+  kind: entity_fact
+  raw_text: Theoretical lower bound calculation uses an analytical noise model proportional
+    to the square of the quantization interval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:43:26Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: batch_runner.py executes multiple independent simulation runs
+  claim_id: c_570de51e
+  context: 'Phase 5: User Story 3 - Simulate Long-Horizon Generation and Measure Latency/Accuracy
+    Trade-off'
+  evidence:
+    entailment_evidence: py executes multiple independent simulation run
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Batch_runner.py_executes_multiple_independent_simulation_run
+  kind: entity_fact
+  raw_text: 'Implement `code/simulation/batch_runner.py` to execute multiple independent
+    simulation runs. Output: Script `batch_runner.py`.'
+  resolved_value: batch_runner.py executes multiple independent simulation runs
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T16:49:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: batch_runner.py generates 30 independent simulation runs
+  claim_id: c_5b0006a7
+  context: 'Task T030b: Execute `batch_runner.py` to generate 30 independent simulation
+    runs (n=30). Output: `data/simulation/run_001.json` through `data/simulation/run_030.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute `batch_runner.py` to generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:49:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test on accumulated KL-divergence using 30 runs
+  claim_id: c_202b9543
+  context: 'Task T031: Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the accumulated KL-divergence metric in `code/analysis/stats.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the accumulated KL-divergence metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:49:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: autoregressive simulation engine default is 1000 steps
+  claim_id: c_ec005df1
+  context: 'Task T027: Implement autoregressive simulation engine with cumulative
+    error state propagation in `code/simulation/autoregressive_loop.py`. Default:
+    1000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Default: 1000 steps.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:49:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 30 independent simulation runs
+  claim_id: c_32dba01f
+  context: 'T030b [US3] Execute batch_runner.py to generate 30 independent simulation
+    runs (n=30). Output: data/simulation/run_001.json through data/simulation/run_030.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate 30 independent simulation runs (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Perform paired t-test on 30 runs for accumulated KL-divergence
+  claim_id: c_59da92f1
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the accumulated KL-divergence metric in code/analysis/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the accumulated KL-divergence metric
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Autoregressive simulation default step count is 1000
+  claim_id: c_f454a244
+  context: 'T027 [P] [US3] Implement autoregressive simulation engine with cumulative
+    error state propagation in code/simulation/autoregressive_loop.py. Default: 1000
+    steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Default: 1000 steps'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_94fa67d9
+  context: T002 Initialize Python 3.11 project with pinned requirements.txt (numpy,
+    scipy, torch-cpu, scikit-learn, pandas, pyarrow, pytest, matplotlib)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Config includes EPSILON_FLOOR set to 1e-6
+  claim_id: c_d0627aa5
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, and RANDOM_SEED.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, and RANDOM_SEED
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Batch runner produces exactly 30 output files
+  claim_id: c_bbe99f1f
+  context: 'Crucial: Tb must produce exactly 30 files (run_001.json to run_030.json)
+    via batch_runner.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tb must produce exactly 30 files (run_001.json to run_030.json) via batch_runner.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T16:51:47Z'

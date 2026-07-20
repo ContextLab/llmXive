@@ -1,0 +1,18 @@
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "I", "W"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+"tests/*" = ["D100", "D101", "D102", "D103"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

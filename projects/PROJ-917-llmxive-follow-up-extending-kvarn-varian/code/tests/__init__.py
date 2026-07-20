@@ -1,1 +1,1 @@
-# Root test package for llmXive
+"""Test suite for llmXive project."""

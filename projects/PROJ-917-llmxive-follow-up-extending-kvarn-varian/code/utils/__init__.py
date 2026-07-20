@@ -1,12 +1,26 @@
 """
-Utilities package for llmXive project.
-Exports seed management functions for project-wide reproducibility.
+Utils package for llmXive project.
+
+This package contains utility modules for:
+- Seed management (reproducibility)
+- Numerical stability utilities
+- Data processing helpers
 """
-from .seed_manager import set_seed, get_seed, reset_seed, ensure_seed_set
+
+from .seeds import (
+    set_global_seed,
+    get_seed,
+    ensure_seed_set,
+    reset_seed,
+    get_seed_context,
+    get_seed_info
+)
 
 __all__ = [
-    "set_seed",
-    "get_seed",
-    "reset_seed",
-    "ensure_seed_set"
+    'set_global_seed',
+    'get_seed',
+    'ensure_seed_set',
+    'reset_seed',
+    'get_seed_context',
+    'get_seed_info'
 ]

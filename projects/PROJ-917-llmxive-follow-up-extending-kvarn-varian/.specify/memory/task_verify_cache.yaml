@@ -1,12 +1,31 @@
-T007:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim references creation of three classes (`AttentionTrajectory`, `ScalingFactor`,\
-    \ `SimulationRun`) in a shared `code/` module, but no code files, definitions,\
-    \ or any non\u2011empty artifacts are presented. Without the actual module or\
-    \ class implementations, the requirement is not met. The next implementer must\
-    \ add a `code/` directory (or appropriate package) containing the definitions\
-    \ of these three entities."
+  r: "No evidence of a `code/` directory or the required sub\u2011directories (`data_generation`,\
+    \ `model_training`, `simulation`, `analysis`, `tests/`) is provided; the implementer\
+    \ only supplied narrative text without any filesystem artifacts. The task remains\
+    \ undone until the directory structure is created and visible."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The conversation contains only the task description and project specifications;
+    no script, function, or code snippet that computes and stores checksums for files
+    in a `data/` directory is provided. Consequently, the required artifact is missing.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no visible evidence that a `tests/` directory (or the required\
+    \ sub\u2011directories `test_data_generation`, `test_model_training`, `test_simulation`)\
+    \ actually exists in the repository; no file listings or contents are shown. The\
+    \ task cannot be considered complete until the specified test directory hierarchy\
+    \ is present and populated with appropriate test code."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only a research feature specification and user stories; there
+    are no ruff or black configuration files, no linting/formatting setup scripts,
+    nor any evidence that linting or formatting tools have been integrated into the
+    project. Consequently, the required artifact for task T003 is missing.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -5,9 +5,10 @@ This module provides functions for:
 - Epsilon floor handling to prevent division by zero and log(0).
 - Temporal drift models for synthetic data generation.
 - Numerical stability checks (NaN, Inf).
+- Sensitivity analysis utilities (epsilon sweep generation).
 """
 import numpy as np
-from typing import Union, Optional, Callable
+from typing import Union, Optional, Callable, List
 import json
 import hashlib
 from pathlib import Path
@@ -183,6 +184,37 @@ def get_drift_model(name: str) -> Callable:
     if name not in models:
         raise ValueError(f"Unknown drift model: {name}. Choose from {list(models.keys())}")
     return models[name]
+
+# --- Sensitivity Analysis Utilities ---
+
+def generate_epsilon_sweep_values(
+    start: float,
+    end: float,
+    steps: int
+) -> List[float]:
+    """
+    Generate a list of epsilon values for sensitivity analysis.
+    Creates a linearly spaced sweep from start to end inclusive.
+
+    Args:
+        start: The starting epsilon value (e.g., 1e-8).
+        end: The ending epsilon value (e.g., 1e-2).
+        steps: The number of points to generate in the sweep.
+
+    Returns:
+        A list of float values representing the epsilon sweep.
+
+    Raises:
+        ValueError: If steps < 2 or start > end.
+    """
+    if steps < 2:
+        raise ValueError(f"steps must be at least 2, got {steps}")
+    if start > end:
+        raise ValueError(f"start ({start}) must be <= end ({end})")
+
+    # Use numpy to generate the linearly spaced values
+    values = np.linspace(start, end, steps)
+    return values.tolist()
 
 def compute_checksum(file_path: Union[str, Path]) -> str:
     """

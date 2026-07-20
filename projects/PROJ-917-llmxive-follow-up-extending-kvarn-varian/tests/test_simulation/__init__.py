@@ -1,3 +1,1 @@
-"""
-Tests for simulation module.
-"""
+# Test package for simulation modules

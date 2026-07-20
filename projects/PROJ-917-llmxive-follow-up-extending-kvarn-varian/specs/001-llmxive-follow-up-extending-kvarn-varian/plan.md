@@ -15,7 +15,7 @@ This project investigates whether the mapping from input attention statistics (m
 **Primary Dependencies**: `numpy`, `scipy` (for Sinkhorn), `torch` (CPU-only, version pinned to CPU wheels), `scikit-learn`, `pandas`, `pyarrow` (for Parquet), `pytest`, `matplotlib`  
 **Storage**: Local filesystem (`data/`, `code/`); Parquet/JSON/CSV for artifacts.  
 **Testing**: `pytest` (unit tests for data generation, model training, simulation logic; integration tests for full pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM).  
 **Project Type**: Research artifact (Python scripts, simulation engine, analysis notebooks).  
 **Performance Goals**: Total runtime ≤ 6 hours; memory usage < 6 GB during peak simulation; per-token latency reduction target: significant improvement vs. Sequential Sinkhorn.  
 **Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization libraries requiring CUDA; all data must fit in RAM; Sequential Sinkhorn solver must be optimized for CPU (e.g., using `scipy.optimize` or a custom NumPy implementation).  
@@ -61,7 +61,7 @@ code/
 │   └── utils.py                 # Moment extraction, epsilon handling, drift models
 ├── model_training/
 │   ├── __init__.py
-│   ├── mlp_model.py             # 2-layer MLP definition (4 inputs: mean, var, skew, kurt)
+│   ├── mlp_model.py             # 2-layer MLP definition (Multiple inputs: mean, var, skew, kurt)
 │   ├── train.py                 # Training loop, MSE reporting
 │   └── baselines.py             # Closed-form s = 1/variance
 ├── simulation/
