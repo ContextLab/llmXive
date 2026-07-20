@@ -6,11 +6,11 @@
   "failures": [
     "python code/runner.py --mode synthetic --phi-range 0.0 0.9 --sample-sizes 50 100 200 --trials 1000 -> rc=2\n    usage: runner.py [-h] [--full] [--phi PHI] [--n N] [--resamples RESAMPLES]\n                 [--trials TRIALS] [--seed SEED] [--setup]\nrunner.py: error: unrecognized arguments: --mode synthetic --phi-range 0.0 0.9 --sample-sizes 50 100 200"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 9,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 9,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-20T03:30:26Z"
+  "updated_at": "2026-07-20T05:40:30Z"
 }

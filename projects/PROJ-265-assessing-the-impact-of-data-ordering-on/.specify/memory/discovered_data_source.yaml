@@ -1,16 +1,9 @@
-status: verified
-kind: pypi_package
-ref: ucimlrepo
-access_python: "import pandas as pd\nfrom ucimlrepo import fetch_ucirepo\nrepo = fetch_ucirepo(id=235)\n\
-  # The fetched object has a .data attribute with original and processed DataFrames\n\
-  df = getattr(repo, 'data', None)\nif df is None:\n    raise RuntimeError('Missing\
-  \ data attribute')\n# Try original first, fallback to processed\norig = getattr(df,\
-  \ 'original', None)\nproc = getattr(df, 'processed', None)\nif orig is not None:\n\
-  \    df = orig\nelif proc is not None:\n    df = proc\nelse:\n    raise RuntimeError('No\
-  \ DataFrame found in repository object')\nrecords = len(df)\nprint(f\"RECORDS={records}\"\
-  )\nprint(\"FIELDS=\" + \",\".join(df.columns))"
-record_count: 2075259
-sample_fields:
+status: none
+intent: Python package synthetic AR(1) time series generator UCI Power Consumption
+  dataset python package dataset
+required_fields:
+- timestamp
+- value
 - Date
 - Time
 - Global_active_power
@@ -20,10 +13,6 @@ sample_fields:
 - Sub_metering_1
 - Sub_metering_2
 - Sub_metering_3
-field_coverage: 0.5
-required_fields:
-- time
-- value
-intent: UCI Individual Household Electric Power Consumption download python package
-  dataset
-cache_key: ab2ae1b00227def72009cbbd5b3b4e4ae60e6fba5e3d97daead092d5b9ba0485
+cache_key: 64388dfe75d338a6aafce48eb63db31ad8803721b17c94f451c9fd707e22861c
+searched_at: '2026-07-20T05:25:08.802976+00:00'
+retry_count: 1

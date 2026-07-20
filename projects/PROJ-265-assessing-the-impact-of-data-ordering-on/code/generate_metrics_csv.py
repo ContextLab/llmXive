@@ -7,73 +7,61 @@ from typing import List, Dict, Any
 
 from config import get_results_dir
 
-def load_results_from_log(log_path: str) -> List[Dict[str, Any]]:
-    """Load simulation results from the JSON log file."""
-    if not os.path.exists(log_path):
-        raise FileNotFoundError(f"Log file not found: {log_path}")
+logger = logging.getLogger(__name__)
 
-    with open(log_path, "r") as f:
+def load_results_from_log(log_path: Path) -> List[Dict[str, Any]]:
+    """Load simulation results from the JSON log file."""
+    if not log_path.exists():
+        raise FileNotFoundError(f"Log file not found: {log_path}")
+    with open(log_path, 'r') as f:
         return json.load(f)
 
 def aggregate_results(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Aggregate results into the format required for coverage_metrics.csv.
-    Expects 'paired' condition results which already contain aggregated stats.
-    """
-    # Filter for paired results if mixed
-    paired_results = [r for r in results if r.get("condition") == "paired"]
+    """Aggregate results into the format required for coverage_metrics.csv."""
+    # The runner already aggregates per (phi, n) in run_paired_trial
+    # So we just need to format them for CSV
+    aggregated = []
+    for res in results:
+        if res.get('condition') == 'paired':
+            aggregated.append({
+                'phi': res['phi'],
+                'n': res['n'],
+                'ordered_cov': res['ordered_coverage'],
+                'shuffled_cov': res['shuffled_coverage'],
+                'diff': res['diff'],
+                'p_value': res['p_value']
+            })
+    return aggregated
 
-    if not paired_results:
-        logging.warning("No paired results found in log file.")
-        return []
-
-    # The run_full_batch_paired already aggregates, so we just format
-    # Ensure consistent key ordering and formatting
-    formatted = []
-    for r in paired_results:
-        formatted.append({
-            "phi": r["phi"],
-            "n": r["n"],
-            "ordered_cov": round(r["ordered_coverage"], 6),
-            "shuffled_cov": round(r["shuffled_coverage"], 6),
-            "diff": round(r["diff"], 6),
-            "p_value": f"{r['p_value']:.6f}",
-        })
-
-    # Sort by phi then n for readability
-    formatted.sort(key=lambda x: (x["phi"], x["n"]))
-    return formatted
-
-def write_csv(data: List[Dict[str, Any]], output_path: str):
-    """Write aggregated results to a CSV file."""
-    if not data:
-        logging.warning("No data to write to CSV.")
+def write_csv(aggregated: List[Dict[str, Any]], csv_path: Path) -> None:
+    """Write aggregated results to CSV."""
+    if not aggregated:
+        logger.warning("No data to write to CSV.")
         return
 
-    fieldnames = ["phi", "n", "ordered_cov", "shuffled_cov", "diff", "p_value"]
-
-    with open(output_path, "w", newline="") as f:
+    fieldnames = ['phi', 'n', 'ordered_cov', 'shuffled_cov', 'diff', 'p_value']
+    with open(csv_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
-
-    logging.info(f"CSV written to {output_path}")
+        for row in aggregated:
+            # Format p_value to 6 decimal places
+            row['p_value'] = f"{row['p_value']:.6f}"
+            writer.writerow(row)
+    logger.info(f"CSV written to {csv_path}")
 
 def main():
+    """Main entry point to generate the metrics CSV."""
     results_dir = get_results_dir()
-    log_path = os.path.join(results_dir, "simulation_logs.json")
-    csv_path = os.path.join(results_dir, "coverage_metrics.csv")
-
-    logging.basicConfig(level=logging.INFO)
+    log_path = results_dir / "simulation_logs.json"
+    csv_path = results_dir / "coverage_metrics.csv"
 
     try:
         results = load_results_from_log(log_path)
         aggregated = aggregate_results(results)
         write_csv(aggregated, csv_path)
-        logging.info("Metrics CSV generation complete.")
-    except FileNotFoundError as e:
-        logging.error(str(e))
-        logging.error("Run 'python code/runner.py --full' first to generate logs.")
+    except Exception as e:
+        logger.error(f"Failed to generate metrics CSV: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
