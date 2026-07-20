@@ -12,7 +12,7 @@ import os
 import random
 import time
 from collections.abc import Callable, Iterable
-from typing import Any, NoReturn, TypeVar
+from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
     BackendUnavailable,
@@ -26,6 +26,13 @@ from llmxive.backends.base import (
     TransientBackendError,
     invoke_with_deadline,
 )
+
+if TYPE_CHECKING:
+    # Type-checking only: ``backends`` must not import ``model_selection`` at
+    # module scope (the established cycle guard; see ``ImagePart.__post_init__``
+    # in ``backends/base.py``). ``_lkg_free_models`` below does the real
+    # (function-local) import.
+    from llmxive.model_selection.lkg import LKGStore
 
 
 def _lc_content(content):
@@ -519,32 +526,6 @@ def _ensure_api_key_env() -> None:
         os.environ["DARTMOUTH_CHAT_API_KEY"] = key
 
 
-# Fail-safe set of FREE Dartmouth chat models (input/output cost-per-token
-# == 0 per chat.dartmouth.edu/api/models). Used only when the live catalog
-# is unreachable, so a transient listing outage never blocks a known-free
-# model. The live catalog (free_chat_models) is authoritative when available.
-# Synced 2026-06 with ChatDartmouth.list(): the qwen.* and google.gemma-*
-# families were RETIRED from the Dartmouth catalog, so every agent that named
-# them silently fell through to the weak `local` fallback. The only capable
-# Free capable models on the Dartmouth catalog (verified live 2026-06-25 by real
-# call — all responding): qwen3.5-122b (reasoning) is the primary default, gemma
-# (fast, non-reasoning) and gpt-oss-120b (reasoning) are fallbacks. qwen + gemma
-# were transiently retired/down 2026-06 (why the registry had moved to gpt-oss)
-# and are back. llama / codellama stay free but small (last resort). Paid models
-# (claude/gpt-5/gemini/voyage) are NEVER listed here — they route through
-# PAID_FALLBACK_MODELS + the daily credit guard.
-KNOWN_FREE_MODELS: frozenset[str] = frozenset(
-    {
-        "qwen.qwen3.5-122b",
-        "google.gemma-3-27b-it",
-        "google.gemma-4-31B-it",
-        "openai.gpt-oss-120b",
-        "meta.llama-3.2-11b-vision-instruct",
-        "meta.llama-3-2-3b-instruct",
-        "meta.codellama-13b-instruct-hf",
-    }
-)
-
 _FREE_MODELS_CACHE: frozenset[str] | None = None
 
 
@@ -616,8 +597,9 @@ def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
     """Set of Dartmouth model ids that are free (cost-per-token == 0).
 
     Authoritative source: the live chat catalog's explicit per-model pricing.
-    Returns ``None`` when the catalog is unreachable so callers fall back to
-    KNOWN_FREE_MODELS. Cached for the process lifetime.
+    Returns ``None`` when the catalog is unreachable so callers (``is_free_model``)
+    fall back to the last-known-good LKG catalog observation. Cached for the
+    process lifetime.
     """
     global _FREE_MODELS_CACHE
     if _FREE_MODELS_CACHE is not None and not force_refresh:
@@ -660,17 +642,62 @@ def model_token_costs(model: str) -> tuple[float | None, float | None]:
     return _MODEL_COSTS_CACHE.get(model, (None, None))
 
 
+def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | None:
+    """Free-model ids from the persisted last-known-good (LKG) catalog component.
+
+    ``model_selection.snapshot`` writes a "catalog" LKG component every time it
+    fetches the Dartmouth catalog live (:mod:`llmxive.model_selection.lkg`).
+    This reads that SAME persisted component directly — never a fresh network
+    call — so :func:`is_free_model` has a REAL, aged-but-genuine pricing
+    observation to fall back on when the live catalog is unreachable, instead
+    of a hardcoded allowlist that can silently drift from the truth.
+
+    Function-local import: ``backends`` must not import ``model_selection`` at
+    module scope — that would create an import cycle (the same guard as
+    ``ImagePart.__post_init__`` in ``backends/base.py``).
+
+    ANY failure — no LKG file yet, a corrupt/truncated file, a schema-version
+    mismatch, or a "catalog" entry with an unexpected payload shape — returns
+    ``None`` rather than raising. This sits on the call path of every LLM
+    request, so it must never crash a chat call just because the LKG cache is
+    unusable; the caller treats ``None`` the same as "no LKG data available".
+    """
+    try:
+        from llmxive.model_selection.lkg import LKGStore as _LKGStore
+        from llmxive.model_selection.snapshot import _models_from_payload
+
+        entry = (lkg_store or _LKGStore()).load().get("catalog")
+        if entry is None:
+            return None
+        _refs, pricing = _models_from_payload(entry.payload)
+        return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
+    except Exception:
+        return None
+
+
 def is_free_model(model: str) -> bool:
     """Whether ``model`` is a free Dartmouth chat model (cost-per-token == 0).
 
-    Prefers the live catalog; on catalog outage (or for served-but-unlisted
-    models) falls back to the static KNOWN_FREE_MODELS allowlist so a
-    transient listing failure never blocks a known-free model.
+    Three-step ladder, in order of authority (spec 026 Slice 8):
+
+    1. The LIVE catalog (:func:`free_chat_models`) when reachable — authoritative.
+    2. On a live-catalog outage, the last-known-good LKG catalog observation
+       (:func:`_lkg_free_models`) — an aged but REAL timestamped pricing
+       snapshot. This is what keeps a transient Dartmouth catalog-listing blip
+       from denying every free model: ``chat()`` treats a non-free model as
+       paid and requires the credit-guard opt-in (off by default), so without
+       this fallback a bare outage would make every candidate look paid and
+       every call would be refused while the models themselves are up and free.
+    3. If NEITHER is available (cold start, no LKG observation yet), fail
+       CLOSED: an unknown-priced model is never treated as free (SC-003).
     """
     live = free_chat_models()
-    if live is not None and model in live:
-        return True
-    return model in KNOWN_FREE_MODELS
+    if live is not None:
+        return model in live
+    lkg = _lkg_free_models()
+    if lkg is not None:
+        return model in lkg
+    return False
 
 
 class DartmouthBackend(BaseBackend):
@@ -968,7 +995,6 @@ class DartmouthBackend(BaseBackend):
 
 
 __all__ = [
-    "KNOWN_FREE_MODELS",
     "BackendUnavailable",
     "DartmouthBackend",
     "free_chat_models",

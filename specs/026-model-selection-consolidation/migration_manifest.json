@@ -4,7 +4,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 112,
+      "line": 119,
       "models": [
         "gpt-oss",
         "qwen3",
@@ -12,23 +12,6 @@
       ],
       "owning_slice": null,
       "symbol": "_REASONING_MODELS"
-    },
-    {
-      "category": "migration_target",
-      "file": "src/llmxive/backends/dartmouth.py",
-      "kind": "module_constant",
-      "line": 536,
-      "models": [
-        "google.gemma-3-27b-it",
-        "google.gemma-4-31B-it",
-        "meta.codellama-13b-instruct-hf",
-        "meta.llama-3-2-3b-instruct",
-        "meta.llama-3.2-11b-vision-instruct",
-        "openai.gpt-oss-120b",
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": 8,
-      "symbol": "KNOWN_FREE_MODELS"
     },
     {
       "category": "canonical_layer",
