@@ -8,7 +8,7 @@
 
 |check|result|
 |-|-|
-|Full non-slow suite|**7098 passed, 17 skipped, 0 failed**|
+|Full non-slow suite|**7108 passed, 17 skipped, 0 failed**|
 |Manifest migration rows|**0** — only `canonical_layer` (8) + `test_double` (294) remain|
 |`enforcement.py` guard|9 passed, still green AFTER the deletions|
 |Real calls|vision 2/2 + dartmouth chat, live|
@@ -53,6 +53,42 @@ function-local import — the cycle guarded all through spec 026.
 
 **T3 — selection-pin deletion (`cfa8dbfc1e`).** The three router tables plus the legacy paid-tiers
 shim and its `_LEGACY_WARNED` latch. `LLMXIVE_EXECUTION_PAID_ESCALATION` (the boolean) stays.
+
+## Review round 5 — two Slice-8 defects, both in what the author specified
+
+|#|severity|defect|fix|
+|-|-|-|-|
+|R1|**blocker**|`enforcement.py` treated every `migration_target` row already in the GENERATED manifest as sanctioned. Since the documented workflow regenerates the manifest after every pin move, the guard was CIRCULAR: add a pin → regenerate → the pin becomes its own permission slip. Reproduced: 1 violation before regen, **0** after. Second hole: `_RETIRED_SYMBOL_OWNER_FILES` permanently exempted `router.py`/`dartmouth.py` from retired-symbol scanning, so `DEFAULT_MODEL = _choose_at_runtime()` in the former owner file was invisible.|`fbf3a5fc12` — manifest baseline DELETED (sanction now comes only from `inventory.py`'s hand-maintained `_CANONICAL_FILES`/`_CANONICAL_SYMBOLS`, a reviewed code allowlist); owner-file exemption removed; `Store` contexts (assignments) detected, not just imports/`Load`. Re-verified by the original probes: planted pin now survives regeneration (1 → 1), owner-file redefinition caught.|
+|R2|high|The free/paid ladder had NO freshness bound on either source: `_FREE_MODELS_CACHE` was process-lifetime with no timestamp, and `_lkg_free_models` ignored `LKGEntry.observed_at` entirely. A stale "free" verdict bypasses `paid_call_allowed()` — this sits directly on the spend-authorization boundary (FR-007, SC-003).|`c3900d0992` — monotonic TTL on the in-process cache (refetch failure falls through to LKG rather than serving an expired cache); LKG entries older than the bound rejected → fail closed; tz-naive/aware both handled without raising.|
+
+**The lesson from R1.** My dispatch said "consume `migration_manifest.json` for the sanctioned classifications." That single instruction made a *generated* artifact the authority on what is permitted — and a guard whose baseline regenerates alongside the thing it guards is not a guard. Sanction must come from a reviewed, hand-maintained allowlist in code. The manifest is now read for reporting only and cannot suppress a violation.
+
+**The lesson from R2.** The Slice-8 plan called LKG pricing "aged but a REAL timestamped observation" — and then never looked at the timestamp. Naming a property is not enforcing it.
+
+## OPEN JUDGMENT CALL for the 0–8 review: the freshness bound conflates two volatilities
+
+The R2 fix derives its bound from `PROFILES["independent_review"].max_catalog_age_s` = **900s**, per
+Constitution I (derive, don't duplicate). That is defensible but semantically imprecise, and the
+consequence is real:
+
+- `max_catalog_age_s=900` exists in the SELECTION layer because model **availability/health** changes
+  fast — a high-stakes call wants a fresh view of *what is up*.
+- The paid guard needs a fresh view of **pricing**, which changes rarely (a free→paid transition is an
+  infrequent, announced event).
+
+Because LKG only refreshes on a SUCCESSFUL live fetch, it ages monotonically during an outage. So the
+ladder now protects roughly **15 minutes** of catalog outage; past that, every free model reads as
+paid, the guard denies, and chains exhaust — the exact failure mode the LKG ladder was built to
+prevent. Verified live: the current on-disk LKG (10.9 h old) is rejected, so `is_free_model` returns
+False during a simulated outage.
+
+**Author's recommendation: KEEP 900s**, but record it as a deliberate decision rather than a
+side-effect of constant reuse. Failing closed is the right posture for an autonomous system that
+spends money: a longer pricing-specific bound (say 24 h) would preserve availability but expose up to
+24 h of *unmetered* spend if a model went free→paid, because the credit guard would never engage. The
+cost of failing closed is proportionate — the pipeline skips cron ticks during an infrastructure
+outage and retries; nothing user-facing is down. If the reviewer prefers availability over that
+posture, the change is one constant plus its tests.
 
 ## For the slices 0–8 review
 
