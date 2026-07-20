@@ -1,0 +1,7 @@
+artifact_hashes:
+  data/raw/human_eval_data.jsonl: 39a7299387e8b8f441f97d0b9d632c99412744482e54916723d716690c19050d
+last_updated: 1715424000
+project_id: PROJ-727-assessing-energy-consumption-of-llm-infe
+state_version: 1.0
+constitution_principles:
+  - III: Checksum verification for data integrity

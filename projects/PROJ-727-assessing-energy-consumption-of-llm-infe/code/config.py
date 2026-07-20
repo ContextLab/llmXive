@@ -1,46 +1,49 @@
 import os
 from pathlib import Path
 
-# Project root
+# Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_NAME = "PROJ-727-assessing-energy-consumption-of-llm-infe"
+STATE_DIR = PROJECT_ROOT / "state" / "projects" / PROJECT_NAME
+STATE_FILE = STATE_DIR / "state.yaml"
 
-# Directories
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-FIGURES_DIR = PROJECT_ROOT / "figures"
-DATA_CHECKSUMS_FILE = DATA_RAW_DIR / "checksums.json"
+# Data directories
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
+DATA_CHECKSUMS_FILE = DATA_RAW_DIR / "checksums.yaml"
 
-# Model IDs and HuggingFace IDs
-# T005a amended StarCoder-base to StarCoder-1B due to RAM constraints
-MODEL_IDS = ["GPT2-small", "CodeBERT", "StarCoder-1B"]
-
-MODEL_HF_IDS = {
-    "GPT2-small": "gpt2",
-    "CodeBERT": "microsoft/codebert-base",
-    "StarCoder-1B": "bigcode/starcoderbase-1b"
+# Model configurations
+MODEL_IDS = {
+    "gpt2": "gpt2",
+    "codebert": "microsoft/codebert-base",
+    "starcoder": "bigcode/starcoderbase-1b",
 }
 
-# Model parameters (in millions)
-MODEL_PARAMS_M = {
-    "GPT2-small": 117,
-    "CodeBERT": 125,
-    "StarCoder-1B": 1000
+MODEL_PARAMS = {
+    "gpt2": 117_000_000,  # 117M parameters
+    "codebert": 125_000_000,  # 125M parameters
+    "starcoder": 1_000_000_000,  # 1B parameters (approximate)
 }
 
 # Inference parameters
-MAX_NEW_TOKENS = 64
+MAX_TOKENS = 50
 TEMPERATURE = 0.0
+SEED = 42
+
+# Constants
+HUMAN_EVAL_URL = "https://huggingface.co/datasets/openai_humaneval/resolve/main/openai_humaneval.jsonl"
 
 def ensure_directories():
     """Ensure all required directories exist."""
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-def get_model_hf_id(model_id: str) -> str:
-    """Get the HuggingFace ID for a given model ID."""
-    return MODEL_HF_IDS.get(model_id, model_id)
+def get_model_hf_id(model_key: str) -> str:
+    """Get the Hugging Face model ID for a given model key."""
+    return MODEL_IDS.get(model_key, "")
 
-def get_model_params_m(model_id: str) -> int:
-    """Get the parameter count (in millions) for a given model ID."""
-    return MODEL_PARAMS_M.get(model_id, 0)
+def get_model_params_m(model_key: str) -> int:
+    """Get the number of parameters (in millions) for a given model key."""
+    return MODEL_PARAMS.get(model_key, 0)

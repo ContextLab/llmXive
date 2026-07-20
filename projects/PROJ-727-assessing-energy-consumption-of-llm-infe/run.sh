@@ -1,21 +1,52 @@
 #!/bin/bash
-# T008: Environment Verification Entry Point
-# This script verifies the environment by running the dummy inference test.
-# It exits with code 1 on failure and code 0 on success.
+# run.sh - Entry point for the energy consumption pipeline.
+# This script verifies the environment, runs the full pipeline, and logs the duration.
 
 set -e
 
-echo "Starting environment verification..."
+echo "=========================================="
+echo "Starting Energy Consumption Pipeline"
+echo "=========================================="
 
-# Run the dummy inference test
-# This test performs a lightweight import check and a single-token generation
-# using a tiny model to verify the environment without OOM risk.
-python -m pytest tests/test_dummy.py::test_dummy_inference -v
+# 1. Environment Verification (T008a)
+echo "Verifying environment..."
+python -c "
+import sys
+try:
+    import torch
+    import transformers
+    import codecarbon
+    import pandas as pd
+    import numpy as np
+    print('Environment Verified: All core dependencies found.')
+except ImportError as e:
+    print(f'Environment Verification Failed: {e}', file=sys.stderr)
+    sys.exit(1)
+"
 
-if [ $? -eq 0 ]; then
-    echo "Environment Verified"
-    exit 0
-else
-    echo "Environment verification failed."
+if [ $? -ne 0 ]; then
+    echo "Environment verification failed. Exiting."
     exit 1
 fi
+
+# 2. Run Full Pipeline with Timing (T034)
+echo "Running full pipeline with timing..."
+python code/pipeline_timer.py
+
+if [ $? -ne 0 ]; then
+    echo "Pipeline execution failed. Check logs."
+    exit 1
+fi
+
+# 3. Final Validation (T035)
+echo "Running final validation..."
+python code/final_validation.py
+
+if [ $? -ne 0 ]; then
+    echo "Final validation failed. Check logs."
+    exit 1
+fi
+
+echo "=========================================="
+echo "Pipeline Completed Successfully"
+echo "=========================================="

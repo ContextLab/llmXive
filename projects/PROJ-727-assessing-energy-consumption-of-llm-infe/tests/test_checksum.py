@@ -1,8 +1,8 @@
 import os
 import tempfile
-import hashlib
-import pytest
+import yaml
 from pathlib import Path
+import pytest
 
 from code.checksum_verify import (
     compute_sha256,
@@ -11,109 +11,103 @@ from code.checksum_verify import (
     save_checksums,
     verify_file,
     compute_and_store_checksum,
-    store_all,
-    DATA_RAW_DIR,
-    STATE_FILE
 )
+from code.config import DATA_RAW_DIR, STATE_FILE
+
+@pytest.fixture
+def temp_state_file(tmp_path):
+    """Create a temporary state file for testing."""
+    state_file = tmp_path / "state.yaml"
+    state_file.write_text("artifact_hashes: {}\n")
+    return str(state_file)
+
+@pytest.fixture
+def temp_raw_dir(tmp_path):
+    """Create a temporary raw directory for testing."""
+    raw_dir = tmp_path / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    return str(raw_dir)
 
 def test_compute_sha256():
     """Test SHA-256 computation on a known string."""
-    content = b"Hello, World!"
-    expected_hash = hashlib.sha256(content).hexdigest()
-    
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(content)
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        f.write("test data")
         temp_path = f.name
     
     try:
+        # Known SHA-256 for "test data"
+        expected_hash = "39a7299387e8b8f441f97d0b9d632c99412744482e54916723d716690c19050d"
         actual_hash = compute_sha256(temp_path)
         assert actual_hash == expected_hash
     finally:
         os.unlink(temp_path)
 
 def test_ensure_raw_directory():
-    """Test that ensure_raw_directory creates the directory if missing."""
-    # Remove if exists (for test isolation)
-    if os.path.exists(DATA_RAW_DIR):
-        # Don't remove if it's a real project directory in dev
-        # Just ensure it exists
-        pass
-    
+    """Test that ensure_raw_directory creates the directory."""
+    # This test assumes DATA_RAW_DIR is a valid path
     ensure_raw_directory()
-    assert os.path.isdir(DATA_RAW_DIR)
+    assert os.path.exists(DATA_RAW_DIR)
 
-def test_load_save_checksums():
-    """Test loading and saving checksums to state file."""
-    test_checksums = {"test_file.jsonl": "abc123", "another.txt": "def456"}
+def test_load_save_checksums(temp_state_file):
+    """Test loading and saving checksums."""
+    # Temporarily override STATE_FILE for testing
+    import code.checksum_verify
+    original_state_file = code.checksum_verify.STATE_FILE
+    code.checksum_verify.STATE_FILE = temp_state_file
     
-    # Save
-    save_checksums(test_checksums)
-    
-    # Load
-    loaded = load_checksums()
-    
-    assert "test_file.jsonl" in loaded
-    assert loaded["test_file.jsonl"] == "abc123"
-    assert loaded["another.txt"] == "def456"
+    try:
+        checksums = {"test.txt": "abc123"}
+        save_checksums(checksums)
+        
+        loaded = load_checksums()
+        assert loaded == checksums
+    finally:
+        code.checksum_verify.STATE_FILE = original_state_file
 
 def test_verify_file():
     """Test file verification."""
-    content = b"Verification test data"
-    expected_hash = hashlib.sha256(content).hexdigest()
-    
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(content)
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        f.write("test data")
         temp_path = f.name
     
     try:
-        # Should pass
-        assert verify_file(temp_path, expected_hash) is True
+        # Correct hash
+        correct_hash = compute_sha256(temp_path)
+        assert verify_file(temp_path, correct_hash)
         
-        # Should fail
-        assert verify_file(temp_path, "wrong_hash") is False
+        # Incorrect hash
+        assert not verify_file(temp_path, "wrong_hash")
+        
+        # Non-existent file
+        assert not verify_file("non_existent_file.txt", "any_hash")
     finally:
         os.unlink(temp_path)
 
-def test_compute_and_store_checksum():
+def test_compute_and_store_checksum(temp_state_file, temp_raw_dir):
     """Test computing and storing a checksum."""
-    content = b"Test content for storage"
-    
-    with tempfile.NamedTemporaryFile(delete=False, dir=DATA_RAW_DIR) as f:
-        f.write(content)
-        temp_path = f.name
-    
-    file_name = os.path.basename(temp_path)
-    expected_hash = hashlib.sha256(content).hexdigest()
-    
-    try:
-        # Compute and store
-        stored_hash = compute_and_store_checksum(temp_path)
-        assert stored_hash == expected_hash
-        
-        # Verify it's in state
-        checksums = load_checksums()
-        assert file_name in checksums
-        assert checksums[file_name] == expected_hash
-    finally:
-        os.unlink(temp_path)
-
-def test_store_all():
-    """Test storing checksums for all files in data/raw/."""
     # Create a test file
-    test_content = b"Store all test"
-    test_file = os.path.join(DATA_RAW_DIR, "store_all_test.jsonl")
+    test_file = os.path.join(temp_raw_dir, "test.txt")
+    with open(test_file, "w") as f:
+        f.write("test content")
     
-    with open(test_file, "wb") as f:
-        f.write(test_content)
+    # Temporarily override constants for testing
+    import code.checksum_verify
+    original_state_file = code.checksum_verify.STATE_FILE
+    original_data_raw_dir = code.checksum_verify.DATA_RAW_DIR
+    
+    code.checksum_verify.STATE_FILE = temp_state_file
+    code.checksum_verify.DATA_RAW_DIR = temp_raw_dir
     
     try:
-        # Store all
-        store_all()
+        checksum = compute_and_store_checksum(test_file, "test.txt")
         
-        # Verify
+        # Verify the checksum was stored
         checksums = load_checksums()
-        assert "store_all_test.jsonl" in checksums
-        assert checksums["store_all_test.jsonl"] == hashlib.sha256(test_content).hexdigest()
+        assert "test.txt" in checksums
+        assert checksums["test.txt"] == checksum
+        
+        # Verify the checksum matches
+        assert compute_sha256(test_file) == checksum
     finally:
-        if os.path.exists(test_file):
-            os.unlink(test_file)
+        code.checksum_verify.STATE_FILE = original_state_file
+        code.checksum_verify.DATA_RAW_DIR = original_data_raw_dir

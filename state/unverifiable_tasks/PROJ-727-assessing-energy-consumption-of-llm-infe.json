@@ -2,12 +2,26 @@
   "project_id": "PROJ-727-assessing-energy-consumption-of-llm-infe",
   "tasks": [
     {
-      "task_key": "T028",
+      "task_key": "T013",
       "reject_count": 1,
-      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/energy_bar.png",
-      "first_seen": "2026-07-20T01:16:24.588458+00:00",
-      "last_seen": "2026-07-20T01:16:24.588458+00:00"
+      "last_reason": "The required output file `data/processed/energy_inference_raw.csv` does not exist, and the provided `code/inference.py` appears incomplete (only imports, logging setup, and a commented\u2011out model list; no logic for sequential loading/unloading, `codecarbon` measurement, token counting, or CSV writing). The task\u2019s core functionality and verification steps are therefore not satisfied.",
+      "first_seen": "2026-07-20T02:18:24.018073+00:00",
+      "last_seen": "2026-07-20T02:18:24.018073+00:00"
+    },
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "The required output file `data/processed/energy_results_raw.csv` does not exist, so the evaluation results have not been recorded. Additionally, the provided `code/evaluation.py` is truncated and does not show a complete implementation of the evaluation logic, making it unclear whether all rows are processed and the `pass_fail_status` column is generated. The task therefore remains unfinished.",
+      "first_seen": "2026-07-20T02:18:27.878953+00:00",
+      "last_seen": "2026-07-20T02:18:27.878953+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "The `code/main.py` file is truncated and the `aggregate_results` function is not fully implemented (it ends abruptly). Moreover, the required output files `data/processed/filtered_rows.csv` and `data/processed/energy_results_aggregated.csv` are absent, so the aggregation task and its verification have not been completed.",
+      "first_seen": "2026-07-20T02:18:30.778099+00:00",
+      "last_seen": "2026-07-20T02:18:30.778099+00:00"
     }
   ],
-  "updated_at": "2026-07-20T01:16:24.588458+00:00"
+  "updated_at": "2026-07-20T02:18:30.778099+00:00"
 }

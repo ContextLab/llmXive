@@ -1,78 +1,98 @@
 # Quickstart Guide: Assessing Energy Consumption of LLM Inference
 
-## Prerequisites
+## Overview
+This project quantifies the energy consumption (kWh) and runtime of LLM inference on the HumanEval dataset using CPU-only execution. It measures metrics for three models: GPT-2-small, CodeBERT, and StarCoder-1B.
 
+## Prerequisites
 - Python 3.9+
 - pip
-- 14GB+ disk space
-- 8GB+ RAM (CPU-only execution)
+- A Unix-like environment (Linux/macOS) or WSL on Windows
+- Sufficient disk space (~10GB for models and data)
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
+1. **Clone the repository** (if not already done) and navigate to the project root.
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
+ *Note: Ensure `requirements.txt` includes `transformers`, `torch`, `codecarbon`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `human-eval`, and `huggingface_hub`.*
 
-## Running the Pipeline
+4. **Verify the environment**:
+ ```bash
+ python tests/test_dummy.py::test_dummy_inference
+ ```
+ *Alternatively, run the entry point script:*
+ ```bash
+ bash run.sh
+ ```
+ This will run a lightweight dummy inference test to verify imports and basic functionality without loading full models. It should exit with code 0 and print "Environment Verified".
 
-The full pipeline can be executed using the `run.sh` script:
+## Execution
+
+To run the full pipeline (Inference -> Evaluation -> Aggregation -> Analysis -> Visualization):
 
 ```bash
-chmod +x run.sh
-./run.sh
+bash run.sh
 ```
 
-### Pipeline Steps
-
-1. **Environment Verification**: Runs a lightweight dummy inference test to ensure the environment is ready.
-2. **Data Download**: Fetches the HumanEval dataset and saves it to `data/raw/human_eval_data.jsonl`.
-3. **Checksum Verification**: Computes and stores SHA-256 hash of the downloaded data in `state/projects/PROJ-727-assessing-energy-consumption-of-llm-infe.yaml`.
-4. **Calibration**: Validates `codecarbon` power draw detection with a CPU-bound load loop.
-5. **Inference**: Runs GPT-2-small, CodeBERT, and StarCoder-1B on HumanEval problems, logging energy usage.
-6. **Evaluation**: Evaluates generated completions and joins results with energy metrics.
-7. **Aggregation**: Filters invalid rows and creates the clean aggregated dataset.
-8. **Statistical Analysis**: Performs ANOVA, Tukey HSD, and regression analysis.
-9. **Visualization**: Generates bar and scatter plots.
+**Note**: This process may take several hours on a CPU-only runner. It will:
+1. Download the HumanEval dataset.
+2. Run inference for GPT-2, CodeBERT, and StarCoder-1B.
+3. Evaluate generated completions.
+4. Perform statistical analysis (ANOVA, Tukey HSD, Regression).
+5. Generate visualizations.
 
 ## Expected Artifacts
 
-After successful execution, the following files should exist:
+Upon successful completion, the following files will be generated in the `data/processed/` and `logs/` directories:
 
-### Data
-- `data/raw/human_eval_data.jsonl` (HumanEval dataset)
-- `data/processed/energy_inference_raw.csv`
-- `data/processed/energy_results_raw.csv`
-- `data/processed/energy_results_aggregated.csv`
-- `data/processed/filtered_rows.csv`
-- `data/processed/stats_report.csv`
-- `data/processed/sensitivity_delta.csv`
-- `data/processed/scatter_slope.txt`
+### Data Artifacts
+- `data/raw/human_eval_data.jsonl`: Raw HumanEval dataset.
+- `data/processed/energy_inference_raw.csv`: Raw inference logs (energy, tokens, runtime).
+- `data/processed/energy_results_raw.csv`: Joined inference and evaluation results.
+- `data/processed/filtered_rows.csv`: Rows filtered out due to null energy or zero tokens.
+- `data/processed/energy_results_aggregated.csv`: Clean, aggregated dataset for analysis.
+- `data/processed/stats_report.csv`: Statistical analysis results (ANOVA, Tukey, Regression).
+- `data/processed/sensitivity_delta.csv`: Sensitivity analysis results.
 
-### Visualizations
-- `data/processed/energy_bar.png` (Energy per Token vs Model)
-- `data/processed/tradeoff_scatter.png` (Energy per Correct vs Accuracy)
+### Visualization Artifacts
+- `data/processed/energy_bar.png`: Bar plot of Energy per Token vs Model.
+- `data/processed/tradeoff_scatter.png`: Scatter plot of Energy per Correct Solution vs Accuracy.
 
-### State & Logs
-- `state/projects/PROJ-727-assessing-energy-consumption-of-llm-infe.yaml` (includes artifact_hashes)
-- `logs/pipeline_duration.log`
-- `codecarbon_logs/` (directory with energy logs per model)
+### Logs
+- `logs/pipeline_duration.log`: Execution time and timing details.
 
 ## Verification
 
-To verify checksums manually:
-```bash
-python -m code.checksum_verify verify
-```
-
-To re-compute and store checksums:
-```bash
-python -m code.checksum_verify store
-```
+To verify the results:
+1. Check that `data/processed/energy_results_aggregated.csv` exists and contains non-null values for all required columns.
+2. Verify `data/processed/stats_report.csv` contains the ANOVA table and regression coefficients.
+3. Ensure `data/processed/energy_bar.png` and `data/processed/tradeoff_scatter.png` exist and have correct labels/legends.
+4. Confirm `logs/pipeline_duration.log` shows the total runtime.
 
 ## Troubleshooting
 
-- **OOM Errors**: Ensure you are using StarCoder-1B (not StarCoder-base) as per project constraints.
-- **Missing Data**: Run `python -m code.download` to re-download the HumanEval dataset.
-- **Checksum Mismatch**: Re-run the download task and verify the checksum again.
+- **OOM Errors**: The pipeline is designed for CPU-only execution. If you encounter OOM errors, ensure no other heavy processes are running and that you are using the `StarCoder-1B` model (not the base version) as per project constraints.
+- **Missing Data**: If `data/raw/human_eval_data.jsonl` is missing, ensure `code/download.py` runs successfully or manually fetch the dataset.
+- **CodeCarbon Errors**: Ensure you have write permissions in the project directory for `codecarbon` to log emissions.
+
+## Project Structure
+
+```
+.
+├── code/ # Source code modules
+├── data/
+│ ├── raw/ # Raw datasets
+│ └── processed/ # Processed data and results
+├── tests/ # Test suite
+├── logs/ # Execution logs
+├── run.sh # Entry point script
+├── requirements.txt # Dependencies
+└── quickstart.md # This file
+```
