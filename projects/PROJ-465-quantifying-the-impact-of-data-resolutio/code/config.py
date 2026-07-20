@@ -1,36 +1,59 @@
 """
-Configuration Module.
+Configuration management module for the gravitational wave resolution impact study.
 
-Handles environment configuration and directory setup.
-
-This module ensures strict typing and comprehensive documentation
-as per task T039 requirements.
+This module handles environment variables, path resolution, and directory
+initialization for the project's data and results artifacts.
 """
 import os
 from pathlib import Path
 from typing import Optional
 
-# Define project root
-PROJECT_ROOT = Path(__file__).parent.parent
 
-# Directories
-DATA_DIR = PROJECT_ROOT / 'data'
-RAW_DATA_DIR = DATA_DIR / 'raw'
-DERIVED_DATA_DIR = DATA_DIR / 'derived'
-RESULTS_DIR = PROJECT_ROOT / 'results'
-POSTERIORS_DIR = RESULTS_DIR / 'posteriors'
-METRICS_DIR = RESULTS_DIR / 'metrics'
+# Base project root (assumes code/ is a subdirectory of the root)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def ensure_directories() -> None:
+# Data directories
+DATA_DIR = _PROJECT_ROOT / "data"
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_DERIVED_DIR = DATA_DIR / "derived"
+
+# Results directories
+RESULTS_DIR = _PROJECT_ROOT / "results"
+RESULTS_POSTERIORS_DIR = RESULTS_DIR / "posteriors"
+RESULTS_METRICS_DIR = RESULTS_DIR / "metrics"
+
+# Analysis outputs
+ANALYSIS_DIR = RESULTS_DIR / "analysis"
+VISUALIZATIONS_DIR = ANALYSIS_DIR / "visualizations"
+
+# Cache directory for intermediate data
+CACHE_DIR = _PROJECT_ROOT / ".cache"
+
+
+def ensure_directories(base_dir: Optional[Path] = None) -> None:
     """
-    Ensure all required directories exist.
+    Ensure that all required project directories exist.
+
+    Creates the directory structure defined in the project plan if they
+    do not already exist. This is idempotent.
+
+    Args:
+        base_dir: Optional base directory to start from. Defaults to
+                  the project root derived from this module's location.
     """
-    dirs = [
-        DATA_DIR, RAW_DATA_DIR, DERIVED_DATA_DIR,
-        RESULTS_DIR, POSTERIORS_DIR, METRICS_DIR
+    target_base = base_dir if base_dir is not None else _PROJECT_ROOT
+
+    directories = [
+        DATA_DIR,
+        DATA_RAW_DIR,
+        DATA_DERIVED_DIR,
+        RESULTS_DIR,
+        RESULTS_POSTERIORS_DIR,
+        RESULTS_METRICS_DIR,
+        ANALYSIS_DIR,
+        VISUALIZATIONS_DIR,
+        CACHE_DIR,
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
 
-# Initialize directories on import
-ensure_directories()
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)

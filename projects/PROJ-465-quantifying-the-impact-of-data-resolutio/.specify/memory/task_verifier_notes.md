@@ -2,7 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T038** — No `docs/quickstart.md` or `docs/data-model.md` files were presented, and there is no evidence that any documentation was added or updated. The provided artifacts relate only to feature specifications and testing scenarios, not to the required documentation updates.
 - **T039** — No code, documentation, or refactored files were provided; the only evidence is a textual description of user stories unrelated to the “code cleanup and refactoring” task. Without actual artifacts showing strict typing and docstrings, the requirement is not met.
 - **T040** — No performance data, code changes, or benchmark reports are present to demonstrate that the MCMC runs have been optimized to finish within the 4‑hour target. The implementer provided only the feature specification and user stories, but no evidence (e.g., timing logs, profiling results, optimized pipeline scripts) that the required performance goal has been achieved.
 - **T041** — No evidence of new unit test files in the `tests/unit/` directory was provided; the claim that edge‑case tests for missing data segments and inference convergence failures were added cannot be verified. The required test artifacts are missing.

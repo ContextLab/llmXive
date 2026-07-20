@@ -1,88 +1,94 @@
 """
-Data Models Module.
+Data model definitions for the gravitational wave resolution impact study.
 
-Defines core data structures for the gravitational wave resolution study.
-
-This module ensures strict typing and comprehensive documentation
-as per task T039 requirements.
+This module defines the core data structures used to represent strain events,
+resolution configurations, posterior distributions, and bias metrics.
 """
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
 import numpy as np
 
+
 @dataclass
 class StrainEvent:
     """
     Represents a gravitational wave strain event.
-    
+
     Attributes:
         event_id: Unique identifier for the event (e.g., 'GW150914').
-        source: Origin of the data (e.g., 'GWOSC', 'Injection').
-        sampling_rate: Original sampling rate in Hz.
-        duration: Duration of the strain data in seconds.
-        snr: Signal-to-noise ratio.
-        metadata: Additional event-specific metadata.
+        source: The detector or catalog source (e.g., 'GWOSC').
+        start_time: The GPS start time of the event.
+        end_time: The GPS end time of the event.
+        snr: Signal-to-noise ratio of the event.
+        data_path: Path to the raw strain data file.
     """
     event_id: str
     source: str
-    sampling_rate: float
-    duration: float
+    start_time: float
+    end_time: float
     snr: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    data_path: str
+
 
 @dataclass
 class ResolutionConfig:
     """
-    Represents a specific resolution configuration (downsampling/quantization).
-    
+    Configuration for data resolution (sampling rate and bit depth).
+
     Attributes:
-        sampling_rate: Target sampling rate in Hz.
-        bit_depth: Bit depth for quantization (e.g., 16, 32).
-        description: Human-readable description of the configuration.
+        sampling_rate: The sampling rate in Hz (e.g., 4096, 2048, 1024).
+        bit_depth: The bit depth for quantization (e.g., 16, 32).
+        name: A human-readable name for this configuration.
     """
-    sampling_rate: float
+    sampling_rate: int
     bit_depth: int
-    description: str
+    name: str = field(init=False)
+
+    def __post_init__(self):
+        self.name = f"{self.sampling_rate}Hz_{self.bit_depth}bit"
+
 
 @dataclass
 class PosteriorDistribution:
     """
     Represents a posterior distribution from Bayesian inference.
-    
+
     Attributes:
-        event_id: Associated event ID.
+        event_id: ID of the event this posterior belongs to.
         resolution_config: The resolution configuration used.
-        parameters: Dictionary of parameter names to their posterior samples (numpy arrays).
-        status: Status of the inference run ('valid', 'inconclusive').
-        width_to_prior_ratio: Ratio of posterior width to prior width.
-        metadata: Additional metadata (e.g., dlogz, steps).
+        samples: A dictionary mapping parameter names to arrays of samples.
+        log_weights: Array of log weights corresponding to the samples.
+        is_inconclusive: Flag indicating if the inference run was inconclusive.
+        posterior_width_90_ci: The width of the 90% credible interval.
+        prior_width_90_ci: The width of the prior 90% credible interval.
     """
     event_id: str
     resolution_config: ResolutionConfig
-    parameters: Dict[str, np.ndarray]
-    status: str = 'valid'
-    width_to_prior_ratio: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    samples: Dict[str, np.ndarray]
+    log_weights: np.ndarray
+    is_inconclusive: bool = False
+    posterior_width_90_ci: Optional[float] = None
+    prior_width_90_ci: Optional[float] = None
+
 
 @dataclass
 class BiasMetric:
     """
-    Represents a calculated bias metric comparing a posterior to a baseline/truth.
-    
+    Represents a calculated bias metric for a specific parameter.
+
     Attributes:
-        event_id: Associated event ID.
+        event_id: ID of the event.
+        parameter: The name of the parameter (e.g., 'mass_1', 'chi_eff').
         resolution_config: The resolution configuration used.
-        parameter_name: Name of the parameter being measured.
-        bias_value: Calculated bias value.
-        hellinger_distance: Hellinger distance between distributions.
-        exceeds_threshold: Boolean indicating if bias exceeds the catalog CI.
-        catalog_ci: The catalog-reported confidence interval used for comparison.
+        bias_value: The calculated bias value.
+        exceeds_threshold: Boolean indicating if bias exceeds the threshold.
+        threshold_value: The threshold value used for comparison.
+        hellinger_distance: The Hellinger distance between posteriors.
     """
     event_id: str
+    parameter: str
     resolution_config: ResolutionConfig
-    parameter_name: str
     bias_value: float
-    hellinger_distance: float
     exceeds_threshold: bool
-    catalog_ci: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    threshold_value: float
+    hellinger_distance: float

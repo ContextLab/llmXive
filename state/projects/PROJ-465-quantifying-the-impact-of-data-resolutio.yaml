@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T23:26:50.236559Z'
-current_stage: in_progress
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-465-quantifying-the-impact-of-data-resolutio
-last_run_id: d153cd94-3015-4117-8a69-bec2bb2cac82
+last_run_id: d2ca1278-04d4-466d-8f88-74b5da898f08
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio
 title: Quantifying the Impact of Data Resolution on Gravitational Wave Parameter Estimation
-updated_at: '2026-07-20T13:36:47.788744Z'
+updated_at: '2026-07-20T14:01:00.996261Z'

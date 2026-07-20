@@ -19,31 +19,3 @@ T033:
     \ the task description and specifications, but no actual data, table, or file\
     \ showing the identified lowest viable sampling rate where the majority rule (FR\u2011\
     007) is satisfied. The required artifact is missing."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, documentation, or refactored files were provided; the only evidence\
-    \ is a textual description of user stories unrelated to the \u201Ccode cleanup\
-    \ and refactoring\u201D task. Without actual artifacts showing strict typing and\
-    \ docstrings, the requirement is not met."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No performance data, code changes, or benchmark reports are present to demonstrate\
-    \ that the MCMC runs have been optimized to finish within the 4\u2011hour target.\
-    \ The implementer provided only the feature specification and user stories, but\
-    \ no evidence (e.g., timing logs, profiling results, optimized pipeline scripts)\
-    \ that the required performance goal has been achieved."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of new unit test files in the `tests/unit/` directory was provided;\
-    \ the claim that edge\u2011case tests for missing data segments and inference\
-    \ convergence failures were added cannot be verified. The required test artifacts\
-    \ are missing."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a quickstart.md validation run or any generated checksum files
-    is present; the implementer did not provide the required artifacts (validation
-    logs, checksum listings, or updated documentation), so the task is not satisfied.

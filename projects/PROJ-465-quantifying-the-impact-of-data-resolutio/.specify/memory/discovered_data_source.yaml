@@ -1,0 +1,40 @@
+status: verified
+kind: pypi_package
+ref: gwpy
+access_python: 'import json, sys
+
+  from gwpy.timeseries import TimeSeries
+
+
+  start = 1126259462 - 15
+
+  end = 1126259462 + 15
+
+  ts = TimeSeries.fetch_open_data("L1", start, end)
+
+  records = len(ts)
+
+  fields = ["time","strain","detector","sample_rate","gps_start","gps_end"]
+
+  print(f"RECORDS={records}")
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 122880
+sample_fields:
+- time
+- strain
+- detector
+- sample_rate
+- gps_start
+- gps_end
+field_coverage: 0.857
+required_fields:
+- time
+- strain
+- detector
+- sample_rate
+- gps_start
+- gps_end
+- segment_id
+intent: download GW150914 high SNR strain data from GWOSC using python package dataset
+cache_key: f5a34464d34c83d9ffc18099dc6c384f81d14eeff251a49a2d6a2a0626dafb4f

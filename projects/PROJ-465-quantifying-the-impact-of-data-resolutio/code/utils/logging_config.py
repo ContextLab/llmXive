@@ -1,10 +1,9 @@
 """
-Logging Configuration Module.
+Logging configuration module for the research pipeline.
 
-Sets up logging infrastructure for derivation logs and pipeline execution.
-
-This module ensures strict typing and comprehensive documentation
-as per task T039 requirements.
+This module sets up a centralized logging infrastructure with a custom
+adapter for derivation logging, ensuring that all data transformation
+steps are recorded with appropriate context and severity levels.
 """
 import logging
 import sys
@@ -12,65 +11,111 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 import json
 
+
 class DerivationAdapter(logging.LoggerAdapter):
     """
-    Logger adapter to include derivation parameters in log records.
-    """
-    def process(self, msg, kwargs):
-        extra = kwargs.get('extra', {})
-        extra.update(self.extra)
-        kwargs['extra'] = extra
-        return msg, kwargs
+    A custom logger adapter for derivation-specific logging.
 
-def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> None:
+    This adapter enriches log messages with metadata about the derivation
+    process, such as the transformation type, parameters used, and output
+    artifact paths.
     """
-    Configure the root logger with console and file handlers.
-    
+
+    def process(self, msg: str, kwargs: Dict[str, Any]) -> tuple[str, Dict[str, Any]]:
+        """
+        Process the log message to include derivation context.
+
+        Args:
+            msg: The original log message.
+            kwargs: Keyword arguments passed to the logger.
+
+        Returns:
+            A tuple containing the processed message and updated kwargs.
+        """
+        extra = self.extra or {}
+        derivation_context = extra.get("derivation_context", {})
+
+        # Prepend context to the message
+        context_str = json.dumps(derivation_context, sort_keys=True)
+        return f"[DERIVATION:{context_str}] {msg}", kwargs
+
+
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[Path] = None,
+    enable_console: bool = True
+) -> None:
+    """
+    Configure the root logger for the application.
+
+    Sets up handlers for console and optional file output, configures
+    the log format, and sets the global log level.
+
     Args:
-        log_file: Optional path to a log file.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional path to a log file. If provided, logs are
+                  written to this file.
+        enable_console: If True, logs are also printed to the console.
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers
-    root_logger.handlers = []
-    
+    root_logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # Define format
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
     # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    root_logger.addHandler(ch)
-    
-    # File handler (if specified)
-    if log_file:
+    if enable_console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(formatter)
+        root_logger.addHandler(console_handler)
+
+    # File handler
+    if log_file is not None:
         log_file.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        root_logger.addHandler(fh)
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
 
-def get_derivation_logger(name: str, params: Dict[str, Any]) -> DerivationAdapter:
+
+def get_derivation_logger(
+    name: str,
+    derivation_context: Optional[Dict[str, Any]] = None
+) -> DerivationAdapter:
     """
-    Get a logger adapter configured for derivation logging.
-    
+    Get a derivation-specific logger adapter.
+
     Args:
-        name: Name of the derivation step.
-        params: Dictionary of parameters for the derivation.
-        
+        name: The name of the logger (typically the module name).
+        derivation_context: A dictionary of context information to include
+                            in all log messages from this adapter.
+
     Returns:
-        A DerivationAdapter instance.
+        A DerivationAdapter instance configured with the given context.
     """
-    logger = logging.getLogger(f"derivation.{name}")
-    return DerivationAdapter(logger, {'params': params})
+    logger = logging.getLogger(name)
+    return DerivationAdapter(logger, {"derivation_context": derivation_context or {}})
 
-def log_derivation_params(logger: DerivationAdapter, params: Dict[str, Any]) -> None:
+
+def log_derivation_params(
+    logger: DerivationAdapter,
+    params: Dict[str, Any],
+    operation: str
+) -> None:
     """
-    Log derivation parameters at INFO level.
-    
+    Log the parameters of a derivation operation.
+
     Args:
-        logger: The derivation logger adapter.
-        params: Parameters to log.
+        logger: The derivation logger adapter to use.
+        params: A dictionary of parameters used in the derivation.
+        operation: The name of the operation being performed.
     """
-    logger.info(f"Derivation parameters: {json.dumps(params, indent=2)}")
+    logger.info(f"Starting derivation operation: {operation}", extra={"derivation_context": {"operation": operation, "params": params}})
+    logger.debug(f"Derivation parameters: {json.dumps(params, indent=2)}")
