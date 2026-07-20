@@ -1,0 +1,13 @@
+T017:
+  c: false
+  h: fab50720224afb1f03f2c7f8b62b093d3b29de763a76c9795de80355151bdc71
+  r: The required `results/manifest.json` file does not exist, so the requested fields
+    (`arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums) cannot be verified
+    or present. The implementer must create the manifest file and populate it with
+    the specified entries.
+T019:
+  c: false
+  h: aba9020eca06075d9f1a67fbc13293ca51649c31b71b9c56d028d98e6f7e24e6
+  r: "The required file `tests/unit/test_align.py` does not exist on disk, so the\
+    \ unit test for topic alignment (cosine similarity) is missing. Without this artifact,\
+    \ the task\u2019s deliverable is not satisfied."

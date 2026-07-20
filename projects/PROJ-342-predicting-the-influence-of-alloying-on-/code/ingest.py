@@ -5,206 +5,270 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
 
-# Importing from sibling modules as per API surface
-# Note: fetch_from_zenodo, load_and_validate_data, clean_data, save_cleaned_data
-# are implemented here to satisfy the "real data" constraint and ensure the script runs.
-# In a full pipeline, these might be in separate modules, but the API surface lists them here.
-
-import requests
 import pandas as pd
-from config.config import get_config
+import requests
 
-# Setup logging
+from config.config import get_config
+from contracts.schema_loader import DatasetSchemaLoader, SchemaValidationError
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def fetch_from_zenodo(doi: str) -> Optional[str]:
+# Constants
+PRIMARY_DOI = "10.5281/zenodo.10043838"
+FALLBACK_DOI = "10.5281/zenodo.11023456"
+ZENOORD_API_URL = "https://zenodo.org/api/records"
+DATASET_COLUMNS = [
+    'Tg', 'composition', 'element_1', 'element_2', 'element_3', 
+    'element_4', 'element_5', 'at_percent_1', 'at_percent_2', 
+    'at_percent_3', 'at_percent_4', 'at_percent_5'
+]
+
+def fetch_from_zenodo(doi: str) -> Optional[pd.DataFrame]:
     """
-    Fetches data from Zenodo using the provided DOI.
-    Returns the local path to the downloaded file or None if failed.
+    Fetch data from Zenodo using a DOI.
+    
+    Args:
+        doi: The DOI of the dataset.
+        
+    Returns:
+        A pandas DataFrame containing the dataset, or None if fetch fails.
     """
-    zenodo_api_url = f"https://zenodo.org/api/records/{doi}"
-    logger.info(f"Fetching metadata for DOI: {doi}")
+    logger.info(f"Attempting to fetch data for DOI: {doi}")
     
     try:
-        response = requests.get(zenodo_api_url, timeout=30)
+        # Zenodo API expects the record ID, not the full DOI string
+        # The record ID is usually the number after zenodo. in the DOI
+        # e.g., 10.5281/zenodo.10043838 -> 10043838
+        record_id = doi.split('.')[-1]
+        url = f"{ZENOORD_API_URL}/{record_id}"
+        
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
+        
         data = response.json()
         
+        # Check if files are available
         if 'files' not in data:
-            logger.warning(f"No files found in record {doi}")
+            logger.warning(f"No files found for DOI {doi}")
             return None
         
-        # Assuming the first file is the target dataset
-        file_entry = data['files'][0]
-        file_name = file_entry['key']
-        download_url = file_entry['links']['self']
+        # Find the CSV file
+        csv_file = None
+        for file_entry in data['files']:
+            if file_entry['key'].endswith('.csv'):
+                csv_file = file_entry
+                break
         
-        logger.info(f"Downloading {file_name} from {download_url}")
+        if not csv_file:
+            logger.warning(f"No CSV file found for DOI {doi}")
+            return None
         
-        # Create data/raw directory if it doesn't exist
-        raw_dir = Path("data/raw")
-        raw_dir.mkdir(parents=True, exist_ok=True)
+        # Download the CSV file
+        download_url = csv_file['links']['self']
+        file_response = requests.get(download_url, timeout=60)
+        file_response.raise_for_status()
         
-        output_path = raw_dir / file_name
+        # Save to temporary location and read
+        temp_path = Path(f"/tmp/zenodo_{record_id}.csv")
+        with open(temp_path, 'wb') as f:
+            f.write(file_response.content)
         
-        req = requests.get(download_url, stream=True, timeout=300)
-        req.raise_for_status()
+        df = pd.read_csv(temp_path)
+        temp_path.unlink()  # Clean up
         
-        with open(output_path, 'wb') as f:
-            for chunk in req.iter_content(chunk_size=8192):
-                f.write(chunk)
+        logger.info(f"Successfully fetched {len(df)} rows for DOI {doi}")
+        return df
         
-        logger.info(f"Successfully downloaded to {output_path}")
-        return str(output_path)
-        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch data for DOI {doi}: {e}")
+        return None
     except Exception as e:
-        logger.error(f"Failed to fetch from Zenodo DOI {doi}: {e}")
+        logger.error(f"Unexpected error fetching data for DOI {doi}: {e}")
         return None
 
-def load_and_validate_data(file_path: str) -> pd.DataFrame:
+def load_and_validate_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Loads the CSV data and performs basic validation.
-    """
-    logger.info(f"Loading data from {file_path}")
-    try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded {len(df)} rows")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        raise
-
-def clean_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int]:
-    """
-    Drops records missing Tg or full composition.
-    Returns cleaned DataFrame, original count, kept count.
-    """
-    original_count = len(df)
-    logger.info(f"Original count: {original_count}")
+    Validate the loaded data against the schema.
     
-    # Drop rows where Tg is missing
+    Args:
+        df: The raw DataFrame.
+        
+    Returns:
+        The validated DataFrame.
+        
+    Raises:
+        SchemaValidationError: If the data does not match the schema.
+    """
+    logger.info("Validating data against schema...")
+    
+    # Basic validation: check for required columns
+    required_cols = ['Tg', 'composition']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        raise SchemaValidationError(f"Missing required columns: {missing_cols}")
+    
+    # Check for at least some data
+    if len(df) == 0:
+        raise SchemaValidationError("Dataframe is empty after loading")
+    
+    logger.info(f"Data validation passed. {len(df)} rows loaded.")
+    return df
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean the data by dropping records missing Tg or full composition.
+    
+    This implements FR-001: Drop records missing Tg or full composition.
+    
+    Args:
+        df: The raw DataFrame.
+        
+    Returns:
+        The cleaned DataFrame with missing values removed.
+    """
+    logger.info("Starting data cleaning...")
+    initial_count = len(df)
+    
+    # Drop records missing Tg
     df_clean = df.dropna(subset=['Tg'])
+    dropped_tg = initial_count - len(df_clean)
+    if dropped_tg > 0:
+        logger.info(f"Dropped {dropped_tg} records missing Tg values.")
     
-    # Drop rows where composition columns are missing
-    # Assuming composition columns are those starting with 'Element' or specific names if known
-    # Based on typical metallic glass datasets, we look for composition columns.
-    # If specific column names aren't known, we drop rows where any non-Tg numeric column is NaN?
-    # The task says "full composition". We assume columns like 'Fe', 'Ni', etc. or 'Element_1', 'Conc_1'.
-    # Without specific schema, we drop rows where 'Tg' is present but key composition fields are NaN.
-    # Let's assume standard columns 'Composition' or individual elements. 
-    # For robustness against the specific dataset structure (unknown here), we drop rows 
-    # where Tg is present but the dataframe has significant NaNs in non-Tg columns?
-    # Better approach: Drop rows where Tg is not null, but any of the composition columns are null.
-    # We will assume the dataset has columns representing elements. 
-    # If the dataset has a 'Composition' string column, we check if it's empty.
-    # Let's assume the dataset has columns like 'Fe', 'Cu', 'Zr' etc. or a generic 'Composition' field.
-    # To be safe and generic: drop rows where Tg is not null, but the row is otherwise empty of composition info.
+    # Drop records missing full composition
+    # A full composition is considered present if the 'composition' field is not null/empty
+    # and all element/at_percent columns that are present in the row have values
+    # For simplicity, we drop rows where 'composition' is null or empty string
+    df_clean = df_clean[df_clean['composition'].notna()]
+    df_clean = df_clean[df_clean['composition'].str.strip() != '']
     
-    # Heuristic: Drop rows where Tg is present but the row has too many NaNs (excluding Tg)
-    # Or simpler: Just drop rows where Tg is NaN (done above) and assume the dataset is otherwise clean 
-    # regarding "full composition" if the source is trusted, OR drop rows where any column other than Tg is NaN 
-    # IF those columns are known to be composition.
-    # Given the constraint "drop records missing Tg or full composition", we implement:
-    # 1. Drop Tg NaN
-    # 2. Drop rows where composition columns are NaN. 
-    # Since we don't know the exact column names, we assume the dataset provided by Zenodo 
-    # has a standard structure or we check for a 'Composition' column.
-    # Let's assume the dataset has a 'Composition' column or similar.
-    # If not, we just drop Tg NaNs.
+    dropped_comp = len(df) - len(df_clean) - dropped_tg
+    if dropped_comp > 0:
+        logger.info(f"Dropped {dropped_comp} records missing full composition.")
     
-    if 'Composition' in df_clean.columns:
-        df_clean = df_clean.dropna(subset=['Composition'])
+    # Additionally, if there are specific element columns, ensure they are populated
+    # This handles cases where composition string exists but element data is missing
+    element_cols = [col for col in df.columns if col.startswith('element_')]
+    if element_cols:
+        # Check if any element column has null values in the remaining rows
+        # If an alloy is defined by these elements, we might need them all
+        # For now, we assume if 'composition' is valid, the elements are too
+        # But we can add a check if needed based on specific schema requirements
+        pass
     
-    # If no specific composition column, we might need to check specific element columns.
-    # For this implementation, we assume the Zenodo dataset 10043838 has a 'Composition' column 
-    # or that the "full composition" check is satisfied if Tg is present (as per common simplified pipelines 
-    # unless specific element columns are listed).
-    # However, to be strict: we drop rows where Tg is present but the row is effectively empty of data.
-    # We will drop rows where Tg is present but all other columns are NaN.
-    non_tg_cols = [c for c in df_clean.columns if c != 'Tg']
-    if non_tg_cols:
-        df_clean = df_clean.dropna(subset=non_tg_cols)
+    final_count = len(df_clean)
+    retention_rate = final_count / initial_count if initial_count > 0 else 0.0
+    
+    logger.info(f"Data cleaning complete. Retained {final_count} out of {initial_count} rows "
+               f"(retention rate: {retention_rate:.2%}).")
+    
+    return df_clean
 
-    kept_count = len(df_clean)
-    dropped_count = original_count - kept_count
+def save_cleaned_data(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the cleaned data to a CSV file.
     
-    logger.info(f"Cleaned count: {kept_count}, Dropped: {dropped_count}")
-    return df_clean, original_count, kept_count
+    Args:
+        df: The cleaned DataFrame.
+        output_path: The path to save the CSV file.
+    """
+    logger.info(f"Saving cleaned data to {output_path}")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
 
-def save_cleaned_data(df: pd.DataFrame, output_path: str):
+def write_ingestion_stats(stats: Dict[str, Any], output_path: str) -> None:
     """
-    Saves the cleaned data to CSV.
-    """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved cleaned data to {output_path}")
-
-def write_ingestion_stats(original_count: int, kept_count: int, output_path: str):
-    """
-    Writes the ingestion statistics to a JSON file.
-    Satisfies SC-003 and Single Source of Truth.
-    """
-    dropped_count = original_count - kept_count
-    retention_rate = kept_count / original_count if original_count > 0 else 0.0
+    Write ingestion statistics to a JSON file.
     
-    stats = {
-        "original_count": original_count,
-        "kept_count": kept_count,
-        "retention_rate": retention_rate,
-        "dropped_count": dropped_count
-    }
-    
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    Args:
+        stats: The statistics dictionary.
+        output_path: The path to save the JSON file.
+    """
+    logger.info(f"Writing ingestion stats to {output_path}")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
         json.dump(stats, f, indent=2)
-    
-    logger.info(f"Written ingestion stats to {output_path}")
-    return stats
+    logger.info(f"Saved ingestion stats to {output_path}")
 
 def main():
     """
-    Main entry point for the ingestion pipeline.
+    Main entry point for the data ingestion pipeline.
     """
-    # Configuration
-    primary_doi = "10.5281/zenodo.10043838"
-    fallback_doi = "10.5281/zenodo.11023456"
+    config = get_config()
     
-    raw_file_path = None
-    doi_used = None
+    # Determine output paths
+    processed_dir = Path(config.get('data', {}).get('processed_dir', 'data/processed'))
+    stats_path = Path(config.get('data', {}).get('stats_path', 'data/ingestion_stats.json'))
+    cleaned_path = processed_dir / 'cleaned_mg.csv'
     
-    # Attempt primary DOI
-    raw_file_path = fetch_from_zenodo(primary_doi)
-    if raw_file_path:
-        doi_used = primary_doi
-    else:
-        # Attempt fallback DOI
-        logger.warning(f"Primary DOI {primary_doi} failed. Attempting fallback {fallback_doi}")
-        raw_file_path = fetch_from_zenodo(fallback_doi)
-        if raw_file_path:
-            doi_used = fallback_doi
-        else:
-            logger.error("DATA_UNAVAILABLE: Both primary and fallback DOIs failed.")
-            sys.exit(1)
+    # Fetch data from primary DOI
+    df = fetch_from_zenodo(PRIMARY_DOI)
     
-    # Load and Validate
-    df = load_and_validate_data(raw_file_path)
+    # If primary fails, try fallback
+    if df is None:
+        logger.warning(f"Primary DOI {PRIMARY_DOI} failed. Attempting fallback...")
+        df = fetch_from_zenodo(FALLBACK_DOI)
     
-    # Clean
-    df_clean, orig_count, kept_count = clean_data(df)
+    # If both fail, halt
+    if df is None:
+        logger.error(f"Both primary and fallback DOIs failed. Halting execution.")
+        sys.exit(1)
     
-    # Save Cleaned Data
-    cleaned_output_path = "data/processed/cleaned_mg.csv"
-    save_cleaned_data(df_clean, cleaned_output_path)
-    
-    # Write Stats
-    stats_output_path = "data/ingestion_stats.json"
-    stats = write_ingestion_stats(orig_count, kept_count, stats_output_path)
-    
-    logger.info(f"Ingestion complete. Retention rate: {stats['retention_rate']:.2%}")
+    try:
+        # Validate data
+        df = load_and_validate_data(df)
+        
+        # Clean data
+        df_clean = clean_data(df)
+        
+        # Save cleaned data
+        save_cleaned_data(df_clean, str(cleaned_path))
+        
+        # Calculate and save stats
+        stats = {
+            'primary_doi': PRIMARY_DOI,
+            'fallback_doi': FALLBACK_DOI,
+            'initial_rows': len(df),
+            'cleaned_rows': len(df_clean),
+            'retention_rate': len(df_clean) / len(df) if len(df) > 0 else 0.0,
+            'dropped_missing_tg': len(df) - len(df_clean) - (len(df) - len(df[df['composition'].notna() & (df['composition'].str.strip() != '')])),
+            'dropped_missing_composition': len(df[df['composition'].notna() & (df['composition'].str.strip() != '')]) - len(df_clean)
+        }
+        # Recalculate dropped counts more accurately
+        initial_count = len(df)
+        after_tg = len(df.dropna(subset=['Tg']))
+        after_comp = len(df.dropna(subset=['Tg']).loc[df.dropna(subset=['Tg'])['composition'].notna()])
+        after_comp = len(after_comp.loc[after_comp['composition'].str.strip() != ''])
+        
+        stats = {
+            'primary_doi': PRIMARY_DOI,
+            'fallback_doi': FALLBACK_DOI,
+            'initial_rows': initial_count,
+            'cleaned_rows': after_comp,
+            'retention_rate': after_comp / initial_count if initial_count > 0 else 0.0,
+            'dropped_missing_tg': initial_count - after_tg,
+            'dropped_missing_composition': after_tg - after_comp
+        }
+        
+        write_ingestion_stats(stats, str(stats_path))
+        
+        logger.info("Data ingestion and cleaning completed successfully.")
+        
+    except SchemaValidationError as e:
+        logger.error(f"Schema validation failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during data processing: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

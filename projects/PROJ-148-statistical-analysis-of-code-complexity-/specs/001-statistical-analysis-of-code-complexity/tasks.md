@@ -44,8 +44,8 @@ id: "TASKS-001"
 - [X] T004 Create configuration module with random seed handling (`code/utils/config.py`)
 - [X] T005 [P] Implement a reusable logging utility (`code/utils/logging.py`)
 - [X] T006 [P] Add a small helper for reproducible data‑hashing and checksum verification (`code/utils/checksum.py`)
-- [ ] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
-- [ ] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T050 [US1] Implement fallback handling for lizard parse failures – skip unparsable files, log warnings, and continue (`code/data/extract_metrics.py`)
+- [X] T051 [US1] Implement memory‑aware, chunked processing of source files to stay within a modest RAM limit (`code/data/extract_metrics.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready – user story implementation can now begin
 
@@ -60,17 +60,17 @@ id: "TASKS-001"
 ### Required Contract & Integration Tests
 
 - [X] T008 [US1] Contract test for dataset schema (`tests/contract/test_dataset_schema.py`)
-- [ ] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T009 [US1] Integration test for end‑to‑end data pipeline (`tests/integration/test_data_pipeline.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
 - [X] T010 [US1] Download GHTorrent Java project list and archives, enforce ≥10 projects (`code/data/download_gh.py`)
 - [X] T011 [US1] Extract Java source files and commit metadata (`code/data/extract_commits.py`)
-- [ ] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
+- [X] T012 [US1] Compute complexity metrics with lizard (cyclomatic complexity, LOC, token count, nesting depth, Halstead volume) (`code/data/extract_metrics.py`)
 - [X] T013 [US1] Label bug‑fix vs. non‑bug‑fix units using commit messages & issue IDs (`code/data/label_bug_fixes.py`)
 - [X] T014 [US1] {{claim:c_56d7c5ab}} (`code/data/validate_bug_labels.py`)
-- [ ] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
-- [ ] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T015 [US1] Preprocess: impute <5 % missing values, log‑transform metrics with skewness >2, remove rows with >5 % missing (`code/data/preprocess.py`)
+- [X] T049 [US1] Integrate bug‑label reliability validation into the data pipeline and enforce precision ≥ 85 % (fail pipeline if precision < 85 %) (`code/data/preprocess.py`) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T052 [US1] Document split proportions ([deferred] train / [deferred] test) and embed in pipeline configuration (`code/data/split_dataset.py`)
 - [X] T016 [US1] Perform project‑level stratified train/test split and save splits (`code/data/split_dataset.py`) <!-- FAILED: unspecified -->
 - [X] T017 [US1] Add validation that each project appears in only one split (assertion in `split_dataset.py`)

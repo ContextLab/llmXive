@@ -1,0 +1,7 @@
+# Window-specific stopwords for 2000-2004
+# These are in addition to the standard English stopwords
+# Example: domain-specific terms common in early 2000s abstracts
+introduction
+conclusion
+methodology
+framework

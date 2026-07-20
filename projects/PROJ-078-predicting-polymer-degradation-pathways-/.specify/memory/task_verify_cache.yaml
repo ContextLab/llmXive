@@ -1,26 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the required directories (`code/`, `data/raw/`,\
-    \ `data/processed/`, `data/reports/`, `tests/`, `state/`) actually exist; the\
-    \ response contains only the task description without any file\u2011system listing\
-    \ or screenshots. The implementer must provide proof (e.g., a directory tree listing)\
-    \ that these folders have been created and are non\u2011empty where appropriate."
-T003:
-  c: false
-  h: f39c5d37fc9a7ee51e6d00fd4c400a75d88249d1ea9d141f43b144e59a29bb51
-  r: "The repository contains a non\u2011empty `code/.ruff.toml` that configures ruff\
-    \ linting and its own formatter, but there is no configuration for the `black`\
-    \ formatter (e.g., a `pyproject.toml` or `black` section) and no `.flake8` file.\
-    \ The task required configuring both linting (ruff or flake8) **and** formatting\
-    \ with black, which is not satisfied."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no evidence of a pytest configuration (e.g., `pytest.ini`
-    or `conftest.py`) nor the required `tests/unit` and `tests/integration` directories
-    with any test files. Without these artifacts present, the task of setting up the
-    pytest framework and directory structure is not satisfied.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,3 +33,17 @@ T016:
   r: No `preprocess.py` script or any files under `data/raw/` or `data/processed/`
     with accompanying checksum files were provided. The required implementation that
     saves raw and processed datasets and generates checksums is missing.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model.py` file or any code defining a GNN architecture is presented, and\
+    \ there is no evidence that a lightweight (\u22643 layers, hidden dimension \u2264\
+    128) CPU\u2011only model has been implemented. The required artifact is missing,\
+    \ so the task is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` file or code snippet was provided, and there is no evidence\
+    \ that functional\u2011group\u2011preserving edge dropout (non\u2011ester bonds\
+    \ only) and SMILES canonicalization were implemented. The required artifact is\
+    \ missing, so the task is not satisfied."

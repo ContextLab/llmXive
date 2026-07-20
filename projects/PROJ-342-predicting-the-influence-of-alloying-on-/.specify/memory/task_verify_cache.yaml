@@ -1,0 +1,35 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or documentation for a resource\u2011monitoring\
+    \ wrapper is present; the only artifacts shown relate to data ingestion, modeling,\
+    \ and reporting, not to CPU\u2011time or RAM enforcement. Consequently the required\
+    \ implementation of a monitoring wrapper that enforces the 6\u2011hour / 7\u202F\
+    GB limits is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing the added DOI error\u2011handling\
+    \ logic is present; the implementer provided no artifact (e.g., updated ingestion\
+    \ module, unit test, or log output) that demonstrates a primary\u2011DOI fallback\
+    \ to a secondary DOI and a DATA_UNAVAILABLE halt when both fail. Consequently\
+    \ the requirement cannot be verified as met."
+T018:
+  c: false
+  h: e328d427400522c858e48335159550eaae0c84bfaee28c7b8907951035357f95
+  r: "The required artifact `tests/unit/test_descriptors.py` does not exist on disk,\
+    \ so no unit test for the descriptor calculation logic is present. The task\u2019\
+    s core deliverable is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an `artifacts/models/` directory with saved model files nor an\
+    \ `artifacts/metrics/` directory containing R\xB2, MAE, and feature importance\
+    \ data was provided. The required artifacts are missing, so the task is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or logs were provided that implement or demonstrate\
+    \ resource\u2011monitoring checks for runtime\u202F<\u202F6\u202Fh and RAM\u202F\
+    <\u202F7\u202FGB. The required artifact (e.g., a monitoring script, CI guard,\
+    \ or runtime/RAM validation step) is missing, so the task is not satisfied."

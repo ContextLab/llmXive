@@ -5,175 +5,188 @@ from pathlib import Path
 import sys
 import os
 
-# Add parent directory to path for imports
+# Ensure we can import the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.data.fetch.pubmed_fetcher import (
-    fetch_pubmed_abstracts,
-    _fetch_batch_with_retry,
-    _parse_pubmed_xml,
-    compute_checksum,
-    MAX_RETRIES,
-    YEAR_START,
-    YEAR_END
+    _build_esearch_params,
+    _build_efetch_params,
+    _parse_esearch_response,
+    _parse_efetch_response,
+    fetch_pubmed_abstracts
 )
 
 class TestPubMedFetcherLogic(unittest.TestCase):
 
-    def test_parse_pubmed_xml_valid(self):
-        """Test parsing valid PubMed XML response."""
+    def test_build_esearch_params(self):
+        """Test ESearch parameter construction."""
+        params = _build_esearch_params("cancer", 2010, 2020, 500)
+        self.assertEqual(params["db"], "pubmed")
+        self.assertIn("2010/2010", params["term"])
+        self.assertIn("2020/2020", params["term"])
+        self.assertEqual(params["retmax"], 500)
+        self.assertEqual(params["retmode"], "xml")
+
+    def test_build_efetch_params(self):
+        """Test EFetch parameter construction."""
+        params = _build_efetch_params(["12345", "67890"])
+        self.assertEqual(params["db"], "pubmed")
+        self.assertEqual(params["id"], "12345,67890")
+        self.assertEqual(params["rettype"], "abstract")
+
+    def test_parse_esearch_response_valid(self):
+        """Test parsing a valid ESearch XML response."""
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <PubmedArticleSet>
+        <eSearchResult>
+            <Count>2</Count>
+            <RetMax>2</RetMax>
+            <RetStart>0</RetStart>
+            <QueryKey>1</QueryKey>
+            <WebEnv>NCID_12345</WebEnv>
+            <IdList>
+                <Id>12345</Id>
+                <Id>67890</Id>
+            </IdList>
+        </eSearchResult>"""
+        
+        ids = _parse_esearch_response(xml_content)
+        self.assertEqual(len(ids), 2)
+        self.assertIn("12345", ids)
+        self.assertIn("67890", ids)
+
+    def test_parse_esearch_response_empty(self):
+        """Test parsing an empty ESearch XML response."""
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+        <eSearchResult>
+            <Count>0</Count>
+            <IdList>
+            </IdList>
+        </eSearchResult>"""
+        
+        ids = _parse_esearch_response(xml_content)
+        self.assertEqual(len(ids), 0)
+
+    def test_parse_efetch_response_valid(self):
+        """Test parsing a valid EFetch XML response."""
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+        <PubmedArticles>
             <PubmedArticle>
-                <MedlineCitation>
-                    <PMID>123456</PMID>
+                <MedlineCitation Status="MEDLINE" Owner="NLM">
+                    <PMID Version="1">12345</PMID>
                     <Article>
+                        <Journal>
+                            <JournalIssue>
+                                <PubDate>
+                                    <Year>2020</Year>
+                                </PubDate>
+                            </JournalIssue>
+                        </Journal>
                         <ArticleTitle>Test Title</ArticleTitle>
                         <Abstract>
                             <AbstractText>This is a test abstract.</AbstractText>
                         </Abstract>
-                        <Journal>
-                            <JournalIssue>
-                                <PubDate>
-                                    <Year>2023</Year>
-                                </PubDate>
-                            </JournalIssue>
-                        </Journal>
+                        <AuthorList>
+                            <Author>
+                                <LastName>Doe</LastName>
+                                <ForeName>John</ForeName>
+                            </Author>
+                        </AuthorList>
                     </Article>
                 </MedlineCitation>
             </PubmedArticle>
-        </PubmedArticleSet>"""
+        </PubmedArticles>"""
+        
+        records = _parse_efetch_response(xml_content)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["pmid"], "12345")
+        self.assertEqual(records[0]["title"], "Test Title")
+        self.assertEqual(records[0]["abstract"], "This is a test abstract.")
+        self.assertEqual(records[0]["year"], "2020")
+        self.assertEqual(records[0]["authors"], ["John Doe"])
+        self.assertEqual(records[0]["source"], "pubmed")
 
-        # Note: The actual parser in pubmed_fetcher uses DocSum format from esearch/efetch
-        # This test validates the XML parsing logic conceptually
-        # We'll test the actual efetch format below
-        pass
-
-    def test_parse_pubmed_xml_efetch_format(self):
-        """Test parsing PubMed XML in efetch format (DocSum)."""
+    def test_parse_efetch_response_multiple_abstracts(self):
+        """Test parsing EFetch with multiple abstract text blocks."""
         xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <eFetchResult>
-            <DocSum Id="123456">
-                <Item Name="Title">Test Title</Item>
-                <Item Name="Abstract">This is a test abstract.</Item>
-                <Item Name="PubDate">2023</Item>
-            </DocSum>
-            <DocSum Id="789012">
-                <Item Name="Title">Another Title</Item>
-                <Item Name="Abstract">Another abstract text.</Item>
-                <Item Name="PubDate">2024</Item>
-            </DocSum>
-        </eFetchResult>"""
+        <PubmedArticles>
+            <PubmedArticle>
+                <MedlineCitation Status="MEDLINE" Owner="NLM">
+                    <PMID Version="1">12345</PMID>
+                    <Article>
+                        <Journal>
+                            <JournalIssue>
+                                <PubDate>
+                                    <Year>2020</Year>
+                                </PubDate>
+                            </JournalIssue>
+                        </Journal>
+                        <ArticleTitle>Test Title</ArticleTitle>
+                        <Abstract>
+                            <AbstractText>Background part.</AbstractText>
+                            <AbstractText>Methods part.</AbstractText>
+                        </Abstract>
+                    </Article>
+                </MedlineCitation>
+            </PubmedArticle>
+        </PubmedArticles>"""
+        
+        records = _parse_efetch_response(xml_content)
+        self.assertEqual(len(records), 1)
+        self.assertIn("Background part.", records[0]["abstract"])
+        self.assertIn("Methods part.", records[0]["abstract"])
 
-        results = _parse_pubmed_xml(xml_content)
+    @patch('src.data.fetch.pubmed_fetcher._fetch_with_backoff')
+    @patch('src.data.fetch.pubmed_fetcher.ET.fromstring')
+    def test_fetch_pubmed_abstracts_integration_mock(self, mock_et_fromstring, mock_fetch):
+        """Test the fetch function with mocked network calls."""
+        # Mock ESearch response
+        esearch_xml = """<?xml version="1.0" encoding="UTF-8"?>
+        <eSearchResult>
+            <Count>2</Count>
+            <IdList><Id>111</Id><Id>222</Id></IdList>
+        </eSearchResult>"""
+        
+        # Mock EFetch response
+        efetch_xml = """<?xml version="1.0" encoding="UTF-8"?>
+        <PubmedArticles>
+            <PubmedArticle>
+                <MedlineCitation>
+                    <PMID>111</PMID>
+                    <Article>
+                        <Journal><JournalIssue><PubDate><Year>2020</Year></PubDate></JournalIssue></Journal>
+                        <ArticleTitle>First</ArticleTitle>
+                        <Abstract><AbstractText>Text 1</AbstractText></Abstract>
+                    </Article>
+                </MedlineCitation>
+            </PubmedArticle>
+            <PubmedArticle>
+                <MedlineCitation>
+                    <PMID>222</PMID>
+                    <Article>
+                        <Journal><JournalIssue><PubDate><Year>2021</Year></PubDate></JournalIssue></Journal>
+                        <ArticleTitle>Second</ArticleTitle>
+                        <Abstract><AbstractText>Text 2</AbstractText></Abstract>
+                    </Article>
+                </MedlineCitation>
+            </PubmedArticle>
+        </PubmedArticles>"""
+        
+        mock_fetch.side_effect = [esearch_xml, efetch_xml]
+        mock_et_fromstring.side_effect = [ET.fromstring(esearch_xml), ET.fromstring(efetch_xml)]
+        
+        # Mock Path operations
+        with patch('pathlib.Path.mkdir'):
+            with patch('builtins.open', mock_open()) as mock_file:
+                records = fetch_pubmed_abstracts("test", 2020, 2021, max_total=10, output_path=Path("test.jsonl"))
+                
+                self.assertEqual(len(records), 2)
+                self.assertEqual(records[0]["pmid"], "111")
+                self.assertEqual(records[1]["pmid"], "222")
 
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results[0]["id"], "123456")
-        self.assertEqual(results[0]["title"], "Test Title")
-        self.assertEqual(results[0]["abstract"], "This is a test abstract.")
-        self.assertEqual(results[0]["year"], 2023)
-        self.assertEqual(results[0]["source"], "pubmed")
-
-        self.assertEqual(results[1]["year"], 2024)
-
-    def test_parse_pubmed_xml_outside_year_range(self):
-        """Test that year filtering is applied in the main fetch function logic."""
-        # The filtering happens in fetch_pubmed_abstracts, not in the parser
-        # This test ensures the parser correctly extracts years
-        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <eFetchResult>
-            <DocSum Id="111">
-                <Item Name="Title">Old Paper</Item>
-                <Item Name="Abstract">Old text.</Item>
-                <Item Name="PubDate">1995</Item>
-            </DocSum>
-            <DocSum Id="222">
-                <Item Name="Title">New Paper</Item>
-                <Item Name="Abstract">New text.</Item>
-                <Item Name="PubDate">2023</Item>
-            </DocSum>
-        </eFetchResult>"""
-
-        results = _parse_pubmed_xml(xml_content)
-
-        self.assertEqual(len(results), 2)
-        self.assertEqual(results[0]["year"], 1995)
-        self.assertEqual(results[1]["year"], 2023)
-
-    def test_compute_checksum(self):
-        """Test SHA256 checksum computation."""
-        with patch("builtins.open", mock_open(read_data=b"test data")):
-            checksum = compute_checksum(Path("test.txt"))
-            # SHA256 of "test data"
-            expected = "916f4027003661f85e8d87f2d0d5f7b2e2b6e3b1e3c8f7e1e3b6e3b1e3c8f7e1" # Placeholder
-            # Actually compute it properly
-            import hashlib
-            expected = hashlib.sha256(b"test data").hexdigest()
-            self.assertEqual(checksum, expected)
-
-    @patch("urllib.request.urlopen")
-    def test_fetch_batch_with_retry_success(self, mock_urlopen):
-        """Test successful batch fetch."""
-        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <eFetchResult>
-            <DocSum Id="123">
-                <Item Name="Title">Test</Item>
-                <Item Name="Abstract">Text</Item>
-                <Item Name="PubDate">2023</Item>
-            </DocSum>
-        </eFetchResult>"""
-
-        mock_response = MagicMock()
-        mock_response.read.return_value = xml_content.encode('utf-8')
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-
-        results = _fetch_batch_with_retry(["123"])
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["id"], "123")
-        mock_urlopen.assert_called_once()
-
-    @patch("time.sleep")
-    @patch("urllib.request.urlopen")
-    def test_fetch_batch_with_retry_failure_then_success(self, mock_urlopen, mock_sleep):
-        """Test retry logic on HTTP error."""
-        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-        <eFetchResult>
-            <DocSum Id="456">
-                <Item Name="Title">Retry Test</Item>
-                <Item Name="Abstract">Success</Item>
-                <Item Name="PubDate">2022</Item>
-            </DocSum>
-        </eFetchResult>"""
-
-        # First call fails, second succeeds
-        error = urllib.error.HTTPError(None, 503, "Service Unavailable", None, None)
-        mock_urlopen.side_effect = [error, MagicMock(read=lambda: xml_content.encode('utf-8'))]
-
-        # Mock the context manager behavior for the second call
-        mock_response = MagicMock()
-        mock_response.read.return_value = xml_content.encode('utf-8')
-        mock_urlopen.side_effect = [
-            error,
-            MagicMock(__enter__=lambda s: mock_response, __exit__=lambda s, *a: None)
-        ]
-
-        results = _fetch_batch_with_retry(["456"])
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(mock_urlopen.call_count, 2)
-        mock_sleep.assert_called()
-
-    @patch("urllib.request.urlopen")
-    def test_fetch_batch_max_retries_exceeded(self, mock_urlopen):
-        """Test that max retries are respected."""
-        error = urllib.error.HTTPError(None, 503, "Service Unavailable", None, None)
-        mock_urlopen.side_effect = [error] * (MAX_RETRIES + 1)
-
-        results = _fetch_batch_with_retry(["789"])
-
-        self.assertEqual(len(results), 0)
-        self.assertEqual(mock_urlopen.call_count, MAX_RETRIES)
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_year_filtering_logic(self):
+        """Verify that the search term construction includes year filtering."""
+        params = _build_esearch_params("diabetes", 2005, 2010, 100)
+        term = params["term"]
+        self.assertIn("2005/2005", term)
+        self.assertIn("2010/2010", term)
+        self.assertIn("Date - Publication", term)

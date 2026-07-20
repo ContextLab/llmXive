@@ -1,9 +1,11 @@
 # Quickstart: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
 ## Prerequisites
+
 - Python 3.11+
-- Git
-- Access to the project repository
+- `pip`
+- Sufficient RAM available (for bootstrapping)
+- Substantial disk space
 
 ## Installation
 
@@ -21,54 +23,50 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
-   *Note*: `requirements.txt` now includes `pingouin` for psychometric validation and `scipy` for reliability checks.
 
-## Running the Pipeline
+## Execution
 
-### Step 1: Prepare Data
-*Note: Since no verified longitudinal dataset URL is available, the pipeline uses a synthetic data generator by default.*
-
-1. Ensure `data/consent/` exists (even if empty, for the check).
-   ```bash
-   mkdir -p data/consent
-   touch data/consent/.gitkeep
-   ```
-2. Run the data generation script (simulates the verified source with known parameters):
-   ```bash
-   python code/data/ingestion.py --generate-synthetic
-   ```
-   *Output*: `data/raw/synthetic_logs.csv`, `data/processed/weekly_agg.csv`.
-
-### Step 2: Execute Analysis
-Run the full analysis pipeline:
+### 1. Generate Synthetic Data & Consent
+Run the data generation script to create the synthetic dataset and the required consent artifact.
 ```bash
-python code/data/validation.py   # Includes Group Balance & Cronbach's α check
-python code/analysis/modeling.py # Includes FDR Correction
-python code/analysis/survival.py # Includes Event Count Check
+python code/data/synthetic_generator.py
+```
+*Output*: `data/raw/synthetic_data.csv`, `data/consent/consent_record.json`
+
+### 2. Ingest and Validate
+Run the ingestion pipeline to validate the data and aggregate daily logs into weekly bins.
+```bash
+python code/data/ingestion.py
+```
+*Output*: `data/processed/merged_data.csv`
+
+### 3. Run Analysis
+Execute the full modeling and robustness pipeline.
+```bash
+python code/analysis/modeling.py
 python code/analysis/robustness.py
 ```
 
-### Step 3: Generate Report & Version
-Generate the final HTML/PDF report and update artifact hashes:
+### 4. Generate Report
+Generate the final HTML report.
 ```bash
 python code/reports/generate_report.py
-python code/utils/versioning.py
 ```
-*Output*: `reports/analysis_report.html` (or `.pdf`) and updated `state.yaml`.
+*Output*: `data/reports/final_analysis.html`
 
-## Verification
-To verify the pipeline works:
-1. Check that `data/processed/weekly_agg.csv` contains at least 100 rows.
-2. Check that `reports/analysis_report.html` contains a Kaplan-Meier curve and a table of interaction coefficients (with FDR-adjusted p-values).
-3. Run tests:
-   ```bash
-   pytest tests/
-   ```
+### 5. Verify
+Run the quickstart validation script to ensure all artifacts exist.
+```bash
+bash quickstart.sh
+```
+*Expected Exit Code*: 0
+*Expected Output*: "All checks passed. Data and reports generated successfully."
 
 ## Troubleshooting
-- **Group Imbalance Error**: If the non-gamified group has < 30 users, the pipeline halts. This is expected if the synthetic seed produces an unbalanced split; change the seed.
-- **Insufficient Events**: If dropout events < 10 per group, survival analysis is skipped.
-- **Convergence Warning**: If `statsmodels` fails to converge, check for collinearity (VIF > 5) in `code/analysis/modeling.py`.
-- **Missing Consent**: The pipeline will halt with "Data Insufficiency" if `data/consent/` is missing.
+
+- **Error: "Data Insufficiency"**: The generated dataset has a limited number of users. Check `synthetic_generator.py` seed or parameters.
+- **Error: "Missing Consent"**: The `data/consent/` directory is empty. Ensure `synthetic_generator.py` ran successfully.
+- **Error: "VIF > 5"**: The model detected high collinearity. `need_for_achievement` will be dropped automatically. Check `code/analysis/modeling.py` logs.
+- **Error: "Insufficient Events"**: dropout events detected. Survival analysis will be skipped; descriptive stats will be reported.

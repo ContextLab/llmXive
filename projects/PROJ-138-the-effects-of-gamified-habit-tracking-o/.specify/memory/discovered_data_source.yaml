@@ -1,0 +1,12 @@
+status: none
+intent: Habitica API user activity logs dataset download python package dataset
+required_fields:
+- user_id
+- gamified_status
+- week_number
+- weekly_adherence_count
+- weekly_activity_binary
+- personality_score
+cache_key: f90691574192b66f542a30e512f57735860f8672355fd17af7f05f2effd7c8ca
+searched_at: '2026-07-20T13:28:54.133733+00:00'
+retry_count: 1

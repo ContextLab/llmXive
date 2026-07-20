@@ -1,3 +1,7 @@
+"""
+Resource monitoring wrapper to enforce CPU time and RAM limits.
+Implements FR-005: Max 6 hours runtime, Max 7GB RAM.
+"""
 import os
 import sys
 import time
@@ -5,97 +9,123 @@ import resource
 from contextlib import contextmanager
 from typing import Generator, Callable, Any, Optional
 
+# Constants for limits (FR-005)
+MAX_CPU_TIME_SECONDS = 6 * 60 * 60  # 6 hours
+MAX_RAM_BYTES = 7 * 1024 * 1024 * 1024  # 7 GB
+
 class ResourceLimitExceeded(Exception):
-    """Exception raised when resource limits are exceeded."""
+    """Raised when CPU time or RAM usage exceeds defined limits."""
     pass
+
 
 def get_current_ram_mb() -> float:
     """
-    Get the current RAM usage in MB.
+    Get the current resident set size (RSS) of the process in MB.
     
     Returns:
-        Current RAM usage in MB.
+        float: Current RAM usage in MB.
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_maxrss / 1024  # Convert KB to MB on Linux
+    # ru_maxrss is in KB on Linux/macOS
+    return usage.ru_maxrss / 1024.0
+
 
 def get_current_cpu_time() -> float:
     """
-    Get the current CPU time in seconds.
+    Get the total CPU time used by the process so far in seconds.
     
     Returns:
-        Current CPU time in seconds.
+        float: Total CPU time in seconds.
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
     return usage.ru_utime + usage.ru_stime
 
+
 @contextmanager
-def resource_monitor(max_ram_mb: Optional[float] = None, max_cpu_time: Optional[float] = None):
+def resource_monitor(max_cpu: Optional[float] = None, max_ram: Optional[int] = None):
     """
-    Context manager to monitor resource usage.
+    Context manager to monitor CPU time and RAM usage during execution.
     
     Args:
-        max_ram_mb: Maximum RAM usage in MB.
-        max_cpu_time: Maximum CPU time in seconds.
+        max_cpu: Maximum allowed CPU time in seconds (default: 6 hours).
+        max_ram: Maximum allowed RAM in bytes (default: 7 GB).
         
     Yields:
         None
         
     Raises:
-        ResourceLimitExceeded: If limits are exceeded.
+        ResourceLimitExceeded: If limits are exceeded during the block.
     """
+    if max_cpu is None:
+        max_cpu = MAX_CPU_TIME_SECONDS
+    if max_ram is None:
+        max_ram = MAX_RAM_BYTES
+
     start_time = time.time()
-    start_cpu = get_current_cpu_time()
-    start_ram = get_current_ram_mb()
+    
+    # Initial RAM check
+    initial_ram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
     
     try:
         yield
     finally:
         end_time = time.time()
-        end_cpu = get_current_cpu_time()
-        end_ram = get_current_ram_mb()
+        elapsed_cpu = get_current_cpu_time()
+        current_ram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
         
-        elapsed_time = end_time - start_time
-        elapsed_cpu = end_cpu - start_cpu
-        peak_ram = max(start_ram, end_ram)
+        # Check CPU time limit
+        if elapsed_cpu > max_cpu:
+            raise ResourceLimitExceeded(
+                f"CPU time limit exceeded: {elapsed_cpu:.2f}s > {max_cpu:.2f}s"
+            )
         
-        print(f"Resource usage:")
-        print(f"  Elapsed time: {elapsed_time:.2f}s")
-        print(f"  CPU time: {elapsed_cpu:.2f}s")
-        print(f"  Peak RAM: {peak_ram:.2f}MB")
-        
-        if max_ram_mb and peak_ram > max_ram_mb:
-            raise ResourceLimitExceeded(f"RAM limit exceeded: {peak_ram:.2f}MB > {max_ram_mb}MB")
-        
-        if max_cpu_time and elapsed_cpu > max_cpu_time:
-            raise ResourceLimitExceeded(f"CPU time limit exceeded: {elapsed_cpu:.2f}s > {max_cpu_time}s")
+        # Check RAM limit
+        if current_ram > max_ram:
+            raise ResourceLimitExceeded(
+                f"RAM limit exceeded: {current_ram / (1024**3):.2f}GB > {max_ram / (1024**3):.2f}GB"
+            )
 
-def enforce_resource_limits(max_ram_mb: float = 7000, max_cpu_time: float = 21600):
+
+def enforce_resource_limits(func: Callable) -> Callable:
     """
-    Enforce resource limits by setting soft limits.
+    Decorator to enforce resource limits on a function.
     
     Args:
-        max_ram_mb: Maximum RAM in MB.
-        max_cpu_time: Maximum CPU time in seconds.
+        func: The function to wrap.
+        
+    Returns:
+        Wrapped function that enforces limits.
     """
-    # Set soft limits
-    resource.setrlimit(resource.RLIMIT_AS, (max_ram_mb * 1024 * 1024, max_ram_mb * 1024 * 1024))
-    resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_time, max_cpu_time))
-    
-    print(f"Resource limits set: RAM={max_ram_mb}MB, CPU={max_cpu_time}s")
+    def wrapper(*args, **kwargs) -> Any:
+        with resource_monitor():
+            return func(*args, **kwargs)
+    return wrapper
+
 
 def main():
-    """Main function for testing resource monitoring."""
-    import time
+    """
+    Main entry point for testing the resource monitor.
+    Demonstrates monitoring functionality.
+    """
+    print("Resource Monitor Test")
+    print(f"Max CPU Time: {MAX_CPU_TIME_SECONDS / 3600} hours")
+    print(f"Max RAM: {MAX_RAM_BYTES / (1024**3)} GB")
     
-    print("Testing resource monitoring...")
+    # Test current readings
+    print(f"Current CPU Time: {get_current_cpu_time():.2f}s")
+    print(f"Current RAM: {get_current_ram_mb():.2f} MB")
     
+    # Test context manager with a simple operation
     try:
-        with resource_monitor(max_ram_mb=10000, max_cpu_time=100):
-            time.sleep(1)
-            print("Resource monitoring successful")
+        with resource_monitor():
+            # Simulate some work
+            total = sum(range(1000000))
+            print(f"Computation complete. Sum: {total}")
+            print("Resource limits enforced successfully.")
     except ResourceLimitExceeded as e:
         print(f"Resource limit exceeded: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

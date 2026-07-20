@@ -1,12 +1,3 @@
-"""
-Base data structures for the Topic Drift Analysis pipeline.
-
-This module defines the core data entities used throughout the research:
-- AbstractRecord: Represents a single academic abstract with metadata.
-- TopicVector: Represents the distribution of topics for a document or window.
-- DivergenceMeasurement: Represents the statistical divergence between two topic vectors.
-"""
-
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 import numpy as np
@@ -16,184 +7,203 @@ import numpy as np
 class AbstractRecord:
     """
     Represents a single academic abstract record.
-
+    
     Attributes:
-        id: Unique identifier for the record (e.g., arXiv ID or PubMed ID).
-        title: Title of the academic paper.
-        abstract: The text content of the abstract.
-        source: The source database (e.g., 'arxiv', 'pubmed').
-        year: Publication year.
-        categories: List of subject categories/keywords.
-        tokens: Preprocessed list of tokens (optional, populated after preprocessing).
+        id: Unique identifier for the abstract (e.g., arXiv ID or PubMed ID)
+        title: Title of the paper
+        text: Full text content of the abstract (preprocessed)
+        source: Source of the abstract ('arxiv' or 'pubmed')
+        year: Publication year
+        window: 5-year window label (e.g., '2000-2004')
+        tokens: List of tokenized words (optional, for debugging)
+        metadata: Additional metadata dictionary
     """
     id: str
     title: str
-    abstract: str
+    text: str
     source: str
     year: int
-    categories: List[str] = field(default_factory=list)
-    tokens: Optional[List[str]] = None
+    window: str
+    tokens: Optional[List[str]] = field(default_factory=list)
+    metadata: Dict[str, any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate the record upon initialization."""
-        if not isinstance(self.year, int) or self.year < 1900 or self.year > 2099:
-            raise ValueError(f"Invalid year: {self.year}. Must be between 1900 and 2099.")
-        if not self.abstract or not self.abstract.strip():
-            raise ValueError("Abstract text cannot be empty.")
+        """Validate required fields."""
         if not self.id:
-            raise ValueError("Record ID cannot be empty.")
+            raise ValueError("AbstractRecord requires a non-empty id")
+        if not self.text:
+            raise ValueError("AbstractRecord requires non-empty text")
+        if self.source not in ['arxiv', 'pubmed']:
+            raise ValueError(f"AbstractRecord source must be 'arxiv' or 'pubmed', got '{self.source}'")
+        if not (2000 <= self.year <= 2024):
+            raise ValueError(f"AbstractRecord year must be between 2000 and 2024, got {self.year}")
 
-    def to_dict(self) -> Dict:
-        """Convert the record to a dictionary representation."""
+    def to_dict(self) -> Dict[str, any]:
+        """Convert record to dictionary for serialization."""
         return {
-            "id": self.id,
-            "title": self.title,
-            "abstract": self.abstract,
-            "source": self.source,
-            "year": self.year,
-            "categories": self.categories,
-            "tokens": self.tokens
+            'id': self.id,
+            'title': self.title,
+            'text': self.text,
+            'source': self.source,
+            'year': self.year,
+            'window': self.window,
+            'tokens': self.tokens,
+            'metadata': self.metadata
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "AbstractRecord":
+    def from_dict(cls, data: Dict[str, any]) -> 'AbstractRecord':
         """Create an AbstractRecord from a dictionary."""
         return cls(
-            id=data["id"],
-            title=data["title"],
-            abstract=data["abstract"],
-            source=data["source"],
-            year=data["year"],
-            categories=data.get("categories", []),
-            tokens=data.get("tokens")
+            id=data['id'],
+            title=data['title'],
+            text=data['text'],
+            source=data['source'],
+            year=data['year'],
+            window=data['window'],
+            tokens=data.get('tokens', []),
+            metadata=data.get('metadata', {})
         )
 
 
 @dataclass
 class TopicVector:
     """
-    Represents a topic distribution vector.
-
-    This can represent the topic proportions of a single document or an aggregate
-    topic distribution for a time window.
-
+    Represents a topic distribution vector for a specific window.
+    
     Attributes:
-        window_label: Identifier for the time window (e.g., "2000-2004") or document ID.
-        vector: Numpy array of topic probabilities (must sum to 1.0).
-        topic_indices: Optional list of topic indices if the vector is sparse.
-        model_id: Identifier for the LDA model that generated this vector.
+        window: The 5-year window this vector represents
+        topic_proportions: Numpy array of topic proportions (sum to 1.0)
+        topic_words: List of top words for each topic (list of lists)
+        topic_weights: Optional weights for topics (e.g., from LDA model)
+        k: Number of topics
+        coherence_score: Optional coherence score for validation
     """
-    window_label: str
-    vector: np.ndarray
-    model_id: Optional[str] = None
-    topic_indices: Optional[List[int]] = None
+    window: str
+    topic_proportions: np.ndarray
+    topic_words: List[List[str]]
+    topic_weights: Optional[np.ndarray] = None
+    k: int = 10
+    coherence_score: Optional[float] = None
 
     def __post_init__(self):
-        """Validate and normalize the vector."""
-        if not isinstance(self.vector, np.ndarray):
-            self.vector = np.array(self.vector, dtype=np.float64)
+        """Validate and normalize the topic vector."""
+        if not isinstance(self.topic_proportions, np.ndarray):
+            self.topic_proportions = np.array(self.topic_proportions)
         
-        # Ensure non-negative
-        if np.any(self.vector < 0):
-            raise ValueError("Topic probabilities cannot be negative.")
+        if self.topic_proportions.ndim != 1:
+            raise ValueError(f"topic_proportions must be 1D array, got {self.topic_proportions.ndim}D")
         
-        # Normalize to sum to 1.0 if not already
-        total = np.sum(self.vector)
-        if total == 0:
-            raise ValueError("Topic vector cannot be all zeros.")
+        if len(self.topic_proportions) != self.k:
+            raise ValueError(f"topic_proportions length ({len(self.topic_proportions)}) must match k ({self.k})")
         
+        # Ensure proportions sum to 1.0 (with floating point tolerance)
+        total = np.sum(self.topic_proportions)
         if not np.isclose(total, 1.0, atol=1e-6):
-            self.vector = self.vector / total
+            # Normalize if close to 1.0
+            if total > 0:
+                self.topic_proportions = self.topic_proportions / total
+            else:
+                raise ValueError("topic_proportions sum to zero, cannot normalize")
+        
+        if len(self.topic_words) != self.k:
+            raise ValueError(f"topic_words length ({len(self.topic_words)}) must match k ({self.k})")
 
-    @property
-    def k(self) -> int:
-        """Return the number of topics (dimension of the vector)."""
-        return len(self.vector)
-
-    def get_topic_probability(self, topic_idx: int) -> float:
-        """Get the probability of a specific topic."""
-        if topic_idx < 0 or topic_idx >= self.k:
-            raise IndexError(f"Topic index {topic_idx} out of range [0, {self.k})")
-        return float(self.vector[topic_idx])
-
-    def to_dict(self) -> Dict:
-        """Convert the vector to a dictionary for JSON serialization."""
+    def to_dict(self) -> Dict[str, any]:
+        """Convert topic vector to dictionary for serialization."""
         return {
-            "window_label": self.window_label,
-            "vector": self.vector.tolist(),
-            "model_id": self.model_id,
-            "topic_indices": self.topic_indices,
-            "k": self.k
+            'window': self.window,
+            'topic_proportions': self.topic_proportions.tolist(),
+            'topic_words': self.topic_words,
+            'topic_weights': self.topic_weights.tolist() if self.topic_weights is not None else None,
+            'k': self.k,
+            'coherence_score': self.coherence_score
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "TopicVector":
+    def from_dict(cls, data: Dict[str, any]) -> 'TopicVector':
         """Create a TopicVector from a dictionary."""
         return cls(
-            window_label=data["window_label"],
-            vector=np.array(data["vector"], dtype=np.float64),
-            model_id=data.get("model_id"),
-            topic_indices=data.get("topic_indices")
+            window=data['window'],
+            topic_proportions=np.array(data['topic_proportions']),
+            topic_words=data['topic_words'],
+            topic_weights=np.array(data['topic_weights']) if data.get('topic_weights') is not None else None,
+            k=data['k'],
+            coherence_score=data.get('coherence_score')
         )
+
+    def get_topic_probability(self, topic_idx: int) -> float:
+        """Get the probability of a specific topic."""
+        if 0 <= topic_idx < self.k:
+            return float(self.topic_proportions[topic_idx])
+        raise IndexError(f"Topic index {topic_idx} out of range [0, {self.k})")
 
 
 @dataclass
 class DivergenceMeasurement:
     """
-    Represents a statistical divergence measurement between two topic vectors.
-
+    Represents a Jensen-Shannon divergence measurement between two topic vectors.
+    
     Attributes:
-        window_pair: Tuple of (window_a, window_b) labels being compared.
-        divergence_type: Type of divergence (e.g., 'JS', 'KL').
-        value: The calculated divergence value.
-        p_value: P-value from permutation test (optional).
-        confidence_interval: Tuple (lower, upper) for the 95% CI (optional).
-        is_significant: Boolean indicating if the result is statistically significant.
-        method_details: Dictionary of additional parameters used in calculation.
+        window_1: First window label
+        window_2: Second window label
+        js_divergence: The JS divergence value (base 2)
+        js_distance: The JS distance (square root of divergence)
+        p_value: Optional p-value from permutation test
+        confidence_interval: Optional 95% confidence interval tuple (lower, upper)
+        corrected_p_value: Optional p-value after MaxT correction
+        significant: Whether the divergence is statistically significant
     """
-    window_pair: Tuple[str, str]
-    divergence_type: str
-    value: float
+    window_1: str
+    window_2: str
+    js_divergence: float
+    js_distance: float
     p_value: Optional[float] = None
     confidence_interval: Optional[Tuple[float, float]] = None
-    is_significant: Optional[bool] = None
-    method_details: Dict = field(default_factory=dict)
+    corrected_p_value: Optional[float] = None
+    significant: bool = False
 
     def __post_init__(self):
-        """Validate the measurement."""
-        if len(self.window_pair) != 2:
-            raise ValueError("window_pair must be a tuple of exactly two window labels.")
-        if self.value < 0:
-            raise ValueError(f"Divergence value cannot be negative: {self.value}")
+        """Validate the divergence measurement."""
+        if not (0.0 <= self.js_divergence <= 1.0):
+            raise ValueError(f"JS divergence must be in [0, 1], got {self.js_divergence}")
         
-        # Validate CI if present
-        if self.confidence_interval is not None:
-            if not isinstance(self.confidence_interval, tuple) or len(self.confidence_interval) != 2:
-                raise ValueError("confidence_interval must be a tuple of (lower, upper).")
-            if self.confidence_interval[0] > self.confidence_interval[1]:
-                raise ValueError("CI lower bound cannot be greater than upper bound.")
+        if not (0.0 <= self.js_distance <= 1.0):
+            raise ValueError(f"JS distance must be in [0, 1], got {self.js_distance}")
+        
+        if self.p_value is not None and not (0.0 <= self.p_value <= 1.0):
+            raise ValueError(f"p-value must be in [0, 1], got {self.p_value}")
 
-    def to_dict(self) -> Dict:
-        """Convert the measurement to a dictionary."""
+    def to_dict(self) -> Dict[str, any]:
+        """Convert divergence measurement to dictionary for serialization."""
         return {
-            "window_pair": list(self.window_pair),
-            "divergence_type": self.divergence_type,
-            "value": float(self.value),
-            "p_value": self.p_value,
-            "confidence_interval": list(self.confidence_interval) if self.confidence_interval else None,
-            "is_significant": self.is_significant,
-            "method_details": self.method_details
+            'window_1': self.window_1,
+            'window_2': self.window_2,
+            'js_divergence': self.js_divergence,
+            'js_distance': self.js_distance,
+            'p_value': self.p_value,
+            'confidence_interval': self.confidence_interval,
+            'corrected_p_value': self.corrected_p_value,
+            'significant': self.significant
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "DivergenceMeasurement":
+    def from_dict(cls, data: Dict[str, any]) -> 'DivergenceMeasurement':
         """Create a DivergenceMeasurement from a dictionary."""
         return cls(
-            window_pair=tuple(data["window_pair"]),
-            divergence_type=data["divergence_type"],
-            value=data["value"],
-            p_value=data.get("p_value"),
-            confidence_interval=tuple(data["confidence_interval"]) if data.get("confidence_interval") else None,
-            is_significant=data.get("is_significant"),
-            method_details=data.get("method_details", {})
+            window_1=data['window_1'],
+            window_2=data['window_2'],
+            js_divergence=data['js_divergence'],
+            js_distance=data['js_distance'],
+            p_value=data.get('p_value'),
+            confidence_interval=tuple(data['confidence_interval']) if data.get('confidence_interval') else None,
+            corrected_p_value=data.get('corrected_p_value'),
+            significant=data.get('significant', False)
         )
+
+    def is_significant_at_alpha(self, alpha: float = 0.05) -> bool:
+        """Check if the measurement is significant at the given alpha level."""
+        if self.p_value is None:
+            return False
+        p = self.corrected_p_value if self.corrected_p_value is not None else self.p_value
+        return p < alpha

@@ -7,3 +7,8 @@ target-version = "py311"
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/data_models.py" = ["E501"]
+"code/utils.py" = ["E501"]

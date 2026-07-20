@@ -1,11 +1,3 @@
-"""
-Lightweight Graph Neural Network (GNN) for Polymer Degradation Pathway Prediction.
-
-Implements a CPU-only architecture constrained to:
-- Maximum 3 GNN layers
-- Hidden dimension <= 128
-- Integrated Gradients support for feature attribution
-"""
 from __future__ import annotations
 
 import torch
@@ -13,282 +5,294 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool
 from torch_geometric.data import Batch
-from typing import Optional, Tuple, List, Dict, Any
-
+from typing import Optional, Dict, Any, Tuple
 import logging
+
 from utils import get_logger
 
 logger = get_logger(__name__)
 
-
 class PolymerGNN(nn.Module):
     """
-    Lightweight GNN for predicting polymer degradation pathways.
-
-    Architecture Constraints (FR-003):
-    - Maximum 3 message passing layers
+    Lightweight Graph Neural Network for polymer degradation pathway prediction.
+    
+    Constraints (FR-003):
+    - Maximum 3 layers
     - Hidden dimension <= 128
-    - CPU-only optimization (no CUDA-specific ops)
-
-    Args:
-        input_dim (int): Dimension of input node features
-        hidden_dim (int): Hidden dimension (must be <= 128)
-        num_layers (int): Number of GNN layers (must be <= 3)
-        num_classes (int): Number of degradation pathway classes
-        dropout (float): Dropout probability
+    - CPU-only execution (no CUDA dependencies enforced at inference time)
     """
-
+    
     def __init__(
         self,
         input_dim: int,
-        hidden_dim: int = 128,
-        num_layers: int = 3,
-        num_classes: int = 4,
-        dropout: float = 0.2
+        hidden_dim: int = 64,
+        num_layers: int = 2,
+        output_dim: int = 3,
+        dropout: float = 0.1
     ):
+        """
+        Initialize the GNN model.
+        
+        Args:
+            input_dim: Number of input node features (e.g., atom features)
+            hidden_dim: Hidden dimension size (must be <= 128)
+            num_layers: Number of GCN layers (must be <= 3)
+            output_dim: Number of degradation pathway classes
+            dropout: Dropout rate for regularization
+        """
         super().__init__()
-
-        # Enforce constraints
+        
+        # Validate constraints
         if hidden_dim > 128:
             raise ValueError(f"hidden_dim must be <= 128, got {hidden_dim}")
         if num_layers > 3:
             raise ValueError(f"num_layers must be <= 3, got {num_layers}")
         if num_layers < 1:
             raise ValueError(f"num_layers must be >= 1, got {num_layers}")
-
-        self.input_dim = input_dim
+        
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
-        self.num_classes = num_classes
-        self.dropout = dropout
-
-        # Logger for architecture details
-        self.logger = get_logger(__name__)
-
-        # Build GNN layers
+        
+        # Build GCN layers
         self.convs = nn.ModuleList()
         
-        # First layer: input_dim -> hidden_dim
+        # First layer
         self.convs.append(GCNConv(input_dim, hidden_dim))
         
-        # Middle layers: hidden_dim -> hidden_dim
+        # Intermediate layers
         for _ in range(num_layers - 1):
             self.convs.append(GCNConv(hidden_dim, hidden_dim))
-
-        # Readout layer: hidden_dim -> num_classes
-        self.fc = nn.Linear(hidden_dim, num_classes)
-
-        # Activation
-        self.act = F.relu
-
-        # Log architecture
-        self.logger.info(
+        
+        # Dropout layers
+        self.dropout = dropout
+        self.batch_norms = nn.ModuleList([
+            nn.BatchNorm1d(hidden_dim) for _ in range(num_layers)
+        ])
+        
+        # Output layer
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        
+        logger.info(
             f"Initialized PolymerGNN: input_dim={input_dim}, "
-            f"hidden_dim={hidden_dim}, num_layers={num_layers}, "
-            f"num_classes={num_classes}"
+            f"hidden_dim={hidden_dim}, num_layers={num_layers}, output_dim={output_dim}"
         )
-
-    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, 
-                batch: Optional[torch.Tensor] = None) -> torch.Tensor:
+    
+    def forward(self, data: Batch) -> torch.Tensor:
         """
         Forward pass through the GNN.
-
+        
         Args:
-            x: Node features tensor [num_nodes, input_dim]
-            edge_index: Edge index tensor [2, num_edges]
-            batch: Batch vector for pooling [num_nodes] (optional)
-
+            data: Batch of molecular graphs (PyTorch Geometric Batch object)
+                Expected attributes: x (node features), edge_index, batch
+        
         Returns:
-            logits: Class logits [num_graphs, num_classes] or [num_nodes, num_classes]
-                    if batch is None
+            torch.Tensor: Logits for each graph in the batch (shape: [batch_size, output_dim])
         """
-        # Ensure on CPU (FR-003)
-        x = x.cpu()
-        edge_index = edge_index.cpu()
-        if batch is not None:
-            batch = batch.cpu()
-
-        # Message passing
+        x, edge_index, batch = data.x, data.edge_index, data.batch
+        
         for i, conv in enumerate(self.convs):
             x = conv(x, edge_index)
-            x = self.act(x)
+            x = self.batch_norms[i](x)
+            x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
-
-        # Graph-level pooling if batch vector provided
-        if batch is not None:
-            x = global_mean_pool(x, batch)
-
+        
+        # Global pooling to get graph-level representation
+        x = global_mean_pool(x, batch)
+        
         # Final classification layer
         logits = self.fc(x)
-
+        
         return logits
-
-    def get_embeddings(self, x: torch.Tensor, edge_index: torch.Tensor,
-                       batch: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Get graph embeddings before the final classification layer.
-
-        Useful for visualization or downstream tasks.
-        """
-        x = x.cpu()
-        edge_index = edge_index.cpu()
-        if batch is not None:
-            batch = batch.cpu()
-
-        for conv in self.convs:
-            x = conv(x, edge_index)
-            x = self.act(x)
-            x = F.dropout(x, p=self.dropout, training=False)
-
-        if batch is not None:
-            x = global_mean_pool(x, batch)
-
-        return x
 
 
 class IntegratedGradients:
     """
-    Integrated Gradients implementation for feature attribution.
-
-    Computes the importance of each node/feature in the input graph
-    with respect to the model's prediction.
-
-    Reference: Sundararajan et al., "Axiomatic Attribution for Deep Networks", 2017
+    Integrated Gradients for feature attribution on GNN models.
+    
+    Computes the importance of each node/atom in the molecular graph
+    by integrating gradients along a path from a baseline to the input.
     """
-
-    def __init__(self, model: PolymerGNN, target_class: int, 
-                 n_steps: int = 50):
+    
+    def __init__(
+        self,
+        model: PolymerGNN,
+        baseline: Optional[torch.Tensor] = None
+    ):
         """
+        Initialize Integrated Gradients.
+        
         Args:
-            model: The PolymerGNN model
-            target_class: The class index to compute attributions for
-            n_steps: Number of integration steps
+            model: The trained PolymerGNN model
+            baseline: Baseline input tensor (default: zero tensor of same shape as input)
         """
         self.model = model
-        self.target_class = target_class
-        self.n_steps = n_steps
-        self.logger = get_logger(__name__)
-
-    def compute(self, x: torch.Tensor, edge_index: torch.Tensor,
-                batch: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Compute Integrated Gradients for the input graph.
-
-        Args:
-            x: Input node features [num_nodes, input_dim]
-            edge_index: Edge index [2, num_edges]
-            batch: Batch vector [num_nodes] (optional)
-
-        Returns:
-            attributions: Node-feature attributions [num_nodes, input_dim]
-        """
+        self.baseline = baseline
         self.model.eval()
-        x = x.cpu()
-        edge_index = edge_index.cpu()
-        if batch is not None:
-            batch = batch.cpu()
-
-        # Baseline: zero vector
-        baseline = torch.zeros_like(x)
-
-        # Generate interpolated inputs
-        alphas = torch.linspace(0, 1, steps=self.n_steps)
-        attributions = torch.zeros_like(x)
-
+    
+    def compute_gradients(
+        self,
+        data: Batch,
+        target_class: Optional[int] = None,
+        steps: int = 50
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Compute Integrated Gradients for a batch of molecular graphs.
+        
+        Args:
+            data: Batch of molecular graphs
+            target_class: Specific class to compute attributions for.
+                         If None, computes for the predicted class of each sample.
+            steps: Number of integration steps (higher = more accurate)
+        
+        Returns:
+            Tuple of (attributions, predicted_classes)
+            - attributions: Node-level attributions (shape: [num_nodes, input_dim])
+            - predicted_classes: Predicted class for each graph in batch
+        """
+        self.model.train()  # Enable gradients
+        
+        # Move data to device
+        device = next(self.model.parameters()).device
+        x = data.x.to(device)
+        edge_index = data.edge_index.to(device)
+        batch = data.batch.to(device)
+        
+        # Determine target class for each sample
         with torch.no_grad():
-            for alpha in alphas:
-                # Interpolate between baseline and input
-                interpolated_x = baseline + alpha * (x - baseline)
-                interpolated_x.requires_grad_(True)
-
-                # Forward pass
-                output = self.model(interpolated_x, edge_index, batch)
-                
-                # Select target class logit
-                if batch is not None:
-                    # Graph-level prediction
-                    target_logits = output[:, self.target_class]
-                    # Sum over batch if multiple graphs
-                    target_logit = target_logits.sum()
-                else:
-                    # Node-level prediction
-                    target_logits = output[:, self.target_class]
-                    target_logit = target_logits.mean()
-
-                # Backward pass
-                target_logit.backward()
-
-                # Accumulate gradients
-                attributions += interpolated_x.grad.detach()
-
-                # Reset gradients
-                if interpolated_x.grad is not None:
-                    interpolated_x.grad.zero_()
-
+            logits = self.model(data)
+            probs = F.softmax(logits, dim=-1)
+            predicted_classes = torch.argmax(probs, dim=-1)
+        
+        if target_class is not None:
+            target_classes = torch.full_like(predicted_classes, target_class)
+        else:
+            target_classes = predicted_classes
+        
+        # Prepare baseline
+        if self.baseline is not None:
+            baseline = self.baseline.to(device)
+        else:
+            baseline = torch.zeros_like(x)
+        
+        # Generate interpolated inputs
+        alpha = torch.linspace(0, 1, steps, device=device)
+        
+        # Accumulate gradients
+        attributions = torch.zeros_like(x, device=device)
+        
+        for i in range(steps):
+            # Create interpolated input
+            alpha_i = alpha[i]
+            interpolated_x = baseline + alpha_i * (x - baseline)
+            
+            # Create temporary batch with interpolated features
+            temp_data = Batch(
+                x=interpolated_x,
+                edge_index=edge_index,
+                batch=batch,
+                ptr=data.ptr if hasattr(data, 'ptr') else None
+            )
+            
+            # Compute gradients
+            temp_data.x.requires_grad_(True)
+            
+            output = self.model(temp_data)
+            
+            # Select target class output for each sample
+            if target_class is not None:
+                # All samples target same class
+                target_output = output[:, target_class]
+            else:
+                # Each sample targets its own predicted class
+                target_output = output[torch.arange(len(output)), target_classes]
+            
+            # Backpropagate
+            target_output.sum().backward()
+            
+            # Accumulate gradients
+            with torch.no_grad():
+                grad = temp_data.x.grad
+                if grad is not None:
+                    attributions += grad
+            
+            # Clear gradients
+            temp_data.x.grad = None
+        
         # Scale by (input - baseline)
-        attributions = attributions / self.n_steps
-        attributions = attributions * (x - baseline)
-
-        return attributions
+        attributions = attributions / steps * (x - baseline)
+        
+        # Reset model to eval
+        self.model.eval()
+        
+        return attributions, predicted_classes
 
 
 def create_model_from_config(config: Dict[str, Any]) -> PolymerGNN:
     """
-    Create a PolymerGNN model from a configuration dictionary.
-
+    Create a PolymerGNN instance from a configuration dictionary.
+    
     Args:
-        config: Dictionary containing model hyperparameters
-
+        config: Dictionary containing model parameters
+            - input_dim: int
+            - hidden_dim: int (default: 64, max: 128)
+            - num_layers: int (default: 2, max: 3)
+            - output_dim: int
+            - dropout: float (default: 0.1)
+    
     Returns:
-        Initialized PolymerGNN model
-
-    Raises:
-        ValueError: If config violates architecture constraints
+        PolymerGNN: Initialized model instance
     """
-    input_dim = config.get('input_dim', 64)  # Default based on typical molecular features
-    hidden_dim = config.get('hidden_dim', 128)
-    num_layers = config.get('num_layers', 3)
-    num_classes = config.get('num_classes', 4)
-    dropout = config.get('dropout', 0.2)
-
-    # Validate constraints
-    if hidden_dim > 128:
-        raise ValueError(f"Configuration error: hidden_dim ({hidden_dim}) exceeds max 128")
-    if num_layers > 3:
-        raise ValueError(f"Configuration error: num_layers ({num_layers}) exceeds max 3")
-
-    logger = get_logger(__name__)
-    logger.info(f"Creating PolymerGNN with config: {config}")
-
-    return PolymerGNN(
+    input_dim = config.get('input_dim', 64)
+    hidden_dim = min(config.get('hidden_dim', 64), 128)
+    num_layers = min(config.get('num_layers', 2), 3)
+    output_dim = config.get('output_dim', 3)
+    dropout = config.get('dropout', 0.1)
+    
+    model = PolymerGNN(
         input_dim=input_dim,
         hidden_dim=hidden_dim,
         num_layers=num_layers,
-        num_classes=num_classes,
+        output_dim=output_dim,
         dropout=dropout
     )
+    
+    return model
 
 
-def validate_model_constraints(model: PolymerGNN) -> Tuple[bool, List[str]]:
+def validate_model_constraints(model: PolymerGNN) -> bool:
     """
-    Validate that a model meets the architecture constraints.
-
+    Validate that a PolymerGNN model meets the architectural constraints.
+    
+    Constraints:
+    - Number of layers <= 3
+    - Hidden dimension <= 128
+    
     Args:
         model: The PolymerGNN model to validate
-
+    
     Returns:
-        Tuple of (is_valid, list_of_violations)
+        bool: True if all constraints are satisfied, False otherwise
     """
-    violations = []
-
-    if model.hidden_dim > 128:
-        violations.append(f"hidden_dim ({model.hidden_dim}) > 128")
-
+    constraints_met = True
+    
+    # Check number of layers
     if model.num_layers > 3:
-        violations.append(f"num_layers ({model.num_layers}) > 3")
-
-    if model.num_layers < 1:
-        violations.append(f"num_layers ({model.num_layers}) < 1")
-
-    is_valid = len(violations) == 0
-    return is_valid, violations
+        logger.error(
+            f"Constraint violation: num_layers={model.num_layers} > 3"
+        )
+        constraints_met = False
+    
+    # Check hidden dimension
+    if model.hidden_dim > 128:
+        logger.error(
+            f"Constraint violation: hidden_dim={model.hidden_dim} > 128"
+        )
+        constraints_met = False
+    
+    if constraints_met:
+        logger.info(
+            f"Model constraints validated: num_layers={model.num_layers}, "
+            f"hidden_dim={model.hidden_dim}"
+        )
+    
+    return constraints_met

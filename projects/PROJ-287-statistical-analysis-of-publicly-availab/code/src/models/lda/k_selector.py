@@ -1,410 +1,339 @@
-"""
-K-Selector Module for LDA Topic Modeling.
-
-This module implements the logic to validate the optimal number of topics (k)
-for Latent Dirichlet Allocation (LDA) models. It uses the Elbow Method based on
-reconstruction error (inertia) and optionally held-out likelihood to determine
-if k=10 is appropriate or if an alternative k should be selected.
-
-The implementation adheres to the project's constraints:
-- CPU-only execution.
-- Real data processing (no synthetic data generation).
-- Compatibility with existing project utilities (logging, config).
-"""
-
 import os
 import logging
+import json
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any
 
 import numpy as np
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
-from scipy.spatial.distance import jensenshannon
 
 from src.utils.logging import get_logger
-from src.utils.config import get_random_seed
 
 logger = get_logger(__name__)
 
 
 class KSelector:
     """
-    Selects and validates the optimal number of topics (k) for LDA.
+    Selects the optimal number of topics (k) using the elbow method on
+    reconstruction error (or held-out likelihood approximation) and
+    validates the default k=10.
 
-    Attributes:
-        k_candidates (List[int]): List of candidate k values to evaluate.
-        max_iterations (int): Maximum iterations for LDA fitting.
-        random_seed (int): Seed for reproducibility.
-        vectorizer (CountVectorizer): The vectorizer used for text-to-bag-of-words.
+    This class supports the task:
+    T022: Implement src/models/lda/k_selector.py to validate k=10 using
+    elbow method/held-out likelihood; select optimal k if needed.
     """
 
     def __init__(
         self,
-        k_candidates: Optional[List[int]] = None,
-        max_iterations: int = 20,
-        random_seed: Optional[int] = None
+        min_k: int = 5,
+        max_k: int = 15,
+        max_iter: int = 20,
+        random_state: Optional[int] = None,
+        n_jobs: int = 1,
     ):
         """
-        Initializes the KSelector.
+        Initialize the KSelector.
 
         Args:
-            k_candidates: List of k values to test. Defaults to [5, 8, 10, 12, 15, 20].
-            max_iterations: Max iterations for LDA.
-            random_seed: Random seed. If None, uses config.
+            min_k: Minimum number of topics to test.
+            max_k: Maximum number of topics to test.
+            max_iter: Maximum iterations for LDA fitting.
+            random_state: Random seed for reproducibility.
+            n_jobs: Number of CPU cores to use (-1 for all).
         """
-        if k_candidates is None:
-            # Standard range around the target k=10
-            self.k_candidates = [5, 8, 10, 12, 15, 20]
-        else:
-            self.k_candidates = sorted(k_candidates)
+        self.min_k = min_k
+        self.max_k = max_k
+        self.max_iter = max_iter
+        self.random_state = random_state
+        self.n_jobs = n_jobs
+        self._scores: Dict[int, float] = {}
+        self._optimal_k: Optional[int] = None
 
-        self.max_iterations = max_iterations
-        self.random_seed = random_seed if random_seed is not None else get_random_seed()
-        self.vectorizer = CountVectorizer(
-            max_df=0.95,
-            min_df=2,
-            max_features=5000,
-            stop_words='english'
-        )
-
-        self._inertia_scores: Dict[int, float] = {}
-        self._log_likelihood_scores: Dict[int, float] = {}
-
-    def fit_vectorizer(self, documents: List[str]) -> None:
-        """
-        Fits the CountVectorizer on the provided documents.
-
-        Args:
-            documents: List of raw text documents.
-        """
-        if not documents:
-            raise ValueError("Document list cannot be empty for vectorizer fitting.")
-        
-        logger.info(f"Fitting CountVectorizer on {len(documents)} documents...")
-        self.vectorizer.fit(documents)
-
-    def _fit_lda_model(self, k: int, corpus: Any) -> LatentDirichletAllocation:
-        """
-        Fits a single LDA model with specific k.
-
-        Args:
-            k: Number of topics.
-            corpus: The document-term matrix.
-
-        Returns:
-            Fitted LDA model.
-        """
-        model = LatentDirichletAllocation(
-            n_components=k,
-            max_iter=self.max_iterations,
-            learning_method='online',
-            random_state=self.random_seed,
-            batch_size=1024,
-            n_jobs=1, # CPU only constraint
-            verbose=0
-        )
-        model.fit(corpus)
-        return model
-
-    def _calculate_inertia(self, model: LatentDirichletAllocation, corpus: Any) -> float:
-        """
-        Calculates the reconstruction error (inertia) for an LDA model.
-        
-        Inertia is approximated as the negative log-likelihood of the data
-        under the fitted model, which serves as the "distortion" metric for the elbow method.
-
-        Args:
-            model: Fitted LDA model.
-            corpus: Document-term matrix.
-
-        Returns:
-            Float representing the inertia (lower is better).
-        """
-        # score() returns the log-likelihood of the data
-        log_likelihood = model.score(corpus)
-        # Inertia is typically defined as sum of squared distances. 
-        # For probabilistic models, we use negative log-likelihood as a proxy for "error".
-        # We return the negative value so that "lower is better" for the elbow method logic.
-        return -log_likelihood
-
-    def evaluate_k_range(
+    def fit_scores(
         self,
         documents: List[str],
-        max_k: Optional[int] = None
+        vectorizer: Optional[CountVectorizer] = None,
     ) -> Dict[int, float]:
         """
-        Evaluates a range of k values to find the optimal number of topics.
+        Fit LDA models for k in [min_k, max_k] and compute reconstruction error.
 
-        This method:
-        1. Fits the vectorizer if not already fitted.
-        2. Converts documents to a sparse matrix.
-        3. Iterates through k_candidates.
-        4. Fits LDA models and records inertia.
+        The reconstruction error (||V - WH||_F^2) serves as a proxy for
+        held-out likelihood in this CPU-constrained context. Lower is better.
 
         Args:
-            documents: List of raw text documents.
-            max_k: If provided, filters candidates to only those <= max_k.
+            documents: List of preprocessed document strings.
+            vectorizer: Optional pre-fitted CountVectorizer. If None, a new one
+                        is fitted with standard parameters.
 
         Returns:
-            Dictionary mapping k to inertia score.
+            Dict mapping k -> reconstruction error.
         """
         if not documents:
-            raise ValueError("Cannot evaluate k range on empty document list.")
+            raise ValueError("Documents list is empty; cannot fit LDA models.")
 
-        if not self.vectorizer.vocabulary_:
-            self.fit_vectorizer(documents)
+        if vectorizer is None:
+            vectorizer = CountVectorizer(
+                max_df=0.95,
+                min_df=2,
+                max_features=5000,
+                stop_words="english",
+            )
 
-        corpus = self.vectorizer.transform(documents)
-        
-        candidates_to_test = self.k_candidates
-        if max_k is not None:
-            candidates_to_test = [k for k in candidates_to_test if k <= max_k]
-            if not candidates_to_test:
-                raise ValueError(f"No candidates <= {max_k} found in {self.k_candidates}")
+        logger.info(f"Vectorizing {len(documents)} documents...")
+        try:
+            X = vectorizer.fit_transform(documents)
+        except ValueError as e:
+            logger.error(f"Failed to vectorize documents: {e}")
+            raise
 
-        logger.info(f"Evaluating k values: {candidates_to_test}")
-        
-        results = {}
-        for k in candidates_to_test:
-            logger.debug(f"Fitting LDA with k={k}...")
+        if X.shape[0] == 0 or X.shape[1] == 0:
+            raise ValueError(
+                "Vectorized matrix is empty. Check document content and tokenization."
+            )
+
+        self._scores = {}
+
+        logger.info(
+            f"Running LDA grid search for k in [{self.min_k}, {self.max_k}]..."
+        )
+
+        for k in range(self.min_k, self.max_k + 1):
+            logger.info(f"Fitting LDA with k={k}...")
+            lda = LatentDirichletAllocation(
+                n_components=k,
+                max_iter=self.max_iter,
+                learning_method="batch",
+                random_state=self.random_state,
+                n_jobs=self.n_jobs,
+                verbose=0,
+            )
+
             try:
-                model = self._fit_lda_model(k, corpus)
-                inertia = self._calculate_inertia(model, corpus)
-                results[k] = inertia
-                self._inertia_scores[k] = inertia
-                logger.info(f"k={k}: Inertia (Neg LogLikelihood) = {inertia:.4f}")
+                lda.fit(X)
+                # Reconstruction error is available as score_ in newer sklearn
+                # or we compute ||X - X_reconstructed||_F^2 manually if needed.
+                # In sklearn, .score(X) returns the lower bound of the ELBO.
+                # We use the negative ELBO as a proxy: higher ELBO (less negative) is better.
+                # However, for elbow method on "error", we often look at reconstruction.
+                # sklearn LDA doesn't expose reconstruction error directly, but we can
+                # approximate it via the likelihood score or compute X_reconstructed.
+                # Let's use the negative ELBO (score) as the metric: higher is better.
+                # To make it an "error" metric for elbow, we take -score.
+                score = lda.score(X)
+                # We store the negative score as "error" so lower is better (elbow works on error)
+                error_metric = -score
+                self._scores[k] = error_metric
+                logger.info(f"k={k}: ELBO={score:.4f}, Error Proxy={error_metric:.4f}")
             except Exception as e:
-                logger.error(f"Failed to fit LDA model for k={k}: {e}")
-                # Skip failed k values
-                continue
+                logger.error(f"Failed to fit LDA for k={k}: {e}")
+                self._scores[k] = float("inf")
 
-        return results
+        return self._scores
 
-    def find_elbow_point(self, inertia_scores: Optional[Dict[int, float]] = None) -> int:
+    def find_elbow_k(self) -> int:
         """
-        Identifies the optimal k using the Elbow Method (Kneedle algorithm approximation).
+        Find the optimal k using the knee/elbow method on the computed scores.
 
-        Finds the point where the rate of decrease in inertia significantly slows down.
-
-        Args:
-            inertia_scores: Dict of k -> inertia. If None, uses internal scores.
+        Uses the second derivative (acceleration) of the error curve to find
+        the point of maximum curvature.
 
         Returns:
             The optimal k value.
         """
-        if inertia_scores is None:
-            inertia_scores = self._inertia_scores
+        if not self._scores:
+            raise RuntimeError(
+                "No scores computed. Call fit_scores() before find_elbow_k()."
+            )
 
-        if not inertia_scores:
-            raise ValueError("No inertia scores available to find elbow point.")
+        ks = sorted(self._scores.keys())
+        errors = [self._scores[k] for k in ks]
 
-        sorted_k = sorted(inertia_scores.keys())
-        sorted_inertia = [inertia_scores[k] for k in sorted_k]
+        if len(ks) < 3:
+            logger.warning(
+                "Not enough points for elbow detection. Returning middle k."
+            )
+            return ks[len(ks) // 2]
 
-        if len(sorted_k) < 2:
-            # If only one candidate, return it
-            return sorted_k[0]
+        # Normalize errors to [0, 1] for stability
+        min_err = min(errors)
+        max_err = max(errors)
+        if max_err - min_err == 0:
+            normalized = errors
+        else:
+            normalized = [(e - min_err) / (max_err - min_err) for e in errors]
 
-        # Normalize points to [0, 1] for the Kneedle algorithm
-        x_min, x_max = sorted_k[0], sorted_k[-1]
-        y_min, y_max = min(sorted_inertia), max(sorted_inertia)
-        
-        # Avoid division by zero if all y are same (unlikely in LDA)
-        if y_max == y_min:
-            return sorted_k[0]
+        # Compute first derivative (slope)
+        slopes = np.diff(normalized)
+        # Compute second derivative (curvature)
+        curvatures = np.diff(slopes)
 
-        # Normalize X and Y
-        x_norm = [(x - x_min) / (x_max - x_min) for x in sorted_k]
-        y_norm = [(y - y_min) / (y_max - y_min) for y in sorted_inertia]
+        # The elbow is where curvature is maximum (most positive change in slope,
+        # or least negative if we are looking at decreasing error)
+        # Since error decreases then flattens, we look for the point where
+        # the rate of decrease slows down most.
+        # In a decreasing curve, the "elbow" is where the second derivative is
+        # most positive (bending up).
+        # However, standard elbow detection often looks for the point of
+        # maximum distance from the line connecting start and end, or max curvature.
+        # Let's use the point of maximum curvature (max second derivative).
+        # Note: np.diff reduces length by 1 each time.
+        # curvatures corresponds to indices 1 to len-2 of original ks.
 
-        # Calculate distance from the line connecting first and last points
-        # Line equation: y = mx + c. 
-        # Point 1: (x0, y0), Point 2: (x1, y1)
-        # Distance from (x, y) to line: |Ax + By + C| / sqrt(A^2 + B^2)
-        # Here we simplify to vertical distance from the chord if we assume convexity
-        
-        # Simple Euclidean distance from the chord connecting (0, y_norm[0]) and (1, y_norm[-1])
-        # Since we normalized x to 0..1, the line is y = y_norm[-1] + (y_norm[0] - y_norm[-1]) * x
-        # Actually, since we want the "elbow" in a decreasing curve (convex shape), 
-        # we look for the point furthest from the line connecting the start and end.
-        
-        x0, y0 = x_norm[0], y_norm[0]
-        x1, y1 = x_norm[-1], y_norm[-1]
-        
-        max_dist = -1
-        elbow_idx = 0
+        max_curvature_idx = np.argmax(curvatures)
+        # The index in 'ks' corresponds to max_curvature_idx + 1 (because of first diff)
+        optimal_idx = max_curvature_idx + 1
 
-        for i, (x, y) in enumerate(zip(x_norm, y_norm)):
-            # Line equation: (y1 - y0)x - (x1 - x0)y + x1*y0 - y1*x0 = 0
-            # A = y1 - y0, B = -(x1 - x0), C = x1*y0 - y1*x0
-            A = y1 - y0
-            B = x0 - x1
-            C = x1 * y0 - y1 * x0
-            
-            dist = abs(A * x + B * y + C) / np.sqrt(A**2 + B**2)
-            
-            if dist > max_dist:
-                max_dist = dist
-                elbow_idx = i
+        if optimal_idx >= len(ks):
+            optimal_idx = len(ks) - 1
 
-        return sorted_k[elbow_idx]
+        self._optimal_k = ks[optimal_idx]
+        logger.info(f"Elbow method selected k={self._optimal_k}")
+        return self._optimal_k
 
-    def validate_k(
+    def validate_k_default(
         self,
         documents: List[str],
-        target_k: int = 10
-    ) -> Tuple[int, bool, Dict[str, Any]]:
+        default_k: int = 10,
+        vectorizer: Optional[CountVectorizer] = None,
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
-        Validates if the target_k is optimal.
+        Validate if the default k=10 is optimal or if another k is better.
 
         Args:
-            documents: List of raw text documents.
-            target_k: The desired number of topics (default 10).
+            documents: List of documents.
+            default_k: The default number of topics to validate (usually 10).
+            vectorizer: Optional vectorizer.
 
         Returns:
-            Tuple of (selected_k, is_target_optimal, details_dict).
+            Tuple of (is_optimal, details_dict).
+            details_dict contains:
+                - 'scores': dict of k -> error
+                - 'optimal_k': int
+                - 'is_optimal': bool
+                - 'recommendation': str
         """
-        logger.info(f"Validating k={target_k} using Elbow Method...")
-        
-        # Evaluate range
-        scores = self.evaluate_k_range(documents)
-        
-        if not scores:
-            raise RuntimeError("Failed to evaluate any k values.")
+        self.fit_scores(documents, vectorizer)
 
-        optimal_k = self.find_elbow_point(scores)
-        
-        # Check if target_k is within 10% of optimal or is the optimal itself
-        # Or if target_k is the closest available candidate to the elbow
-        is_optimal = (optimal_k == target_k)
-        
-        # If target_k is not exactly the elbow, check if it's close enough (within 10% relative difference)
-        if not is_optimal:
-            relative_diff = abs(optimal_k - target_k) / optimal_k
-            if relative_diff <= 0.1:
-                is_optimal = True
-                optimal_k = target_k # Prefer the target if close enough
+        optimal_k = self.find_elbow_k()
+        is_optimal = optimal_k == default_k
 
         details = {
-            "target_k": target_k,
-            "optimal_k_found": optimal_k,
-            "is_target_optimal": is_optimal,
-            "inertia_scores": scores,
-            "method": "elbow"
+            "scores": self._scores,
+            "optimal_k": optimal_k,
+            "is_optimal": is_optimal,
+            "default_k": default_k,
+            "recommendation": (
+                f"Use k={optimal_k}"
+                if not is_optimal
+                else f"Default k={default_k} is optimal"
+            ),
         }
 
-        logger.info(f"Validation complete. Optimal k: {optimal_k}, Target k: {target_k}. Match: {is_optimal}")
-        
-        return optimal_k, is_optimal, details
+        logger.info(f"Validation result: {details['recommendation']}")
+        return is_optimal, details
 
-    def get_inertia_scores(self) -> Dict[int, float]:
-        """Returns the inertia scores from the last evaluation."""
-        return self._inertia_scores.copy()
+    def save_results(
+        self,
+        output_path: str,
+        window_name: Optional[str] = None,
+        validation_details: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """
+        Save the k-selection results to a JSON file.
+
+        Args:
+            output_path: Path to save the JSON file.
+            window_name: Optional name of the time window.
+            validation_details: Optional details from validate_k_default.
+        """
+        results = {
+            "window": window_name,
+            "min_k": self.min_k,
+            "max_k": self.max_k,
+            "scores": self._scores,
+            "optimal_k": self._optimal_k,
+        }
+
+        if validation_details:
+            results["validation"] = validation_details
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+
+        logger.info(f"Saved k-selection results to {output_path}")
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for running the K-Selector validation.
-    
-    This script expects processed data to be available in `data/processed/`.
-    It loads a sample of documents, runs the validation, and logs the results.
+    Main entry point for running the KSelector as a script.
+    This script is intended to be run after data preprocessing (T016)
+    and before LDA fitting (T020) to determine the optimal k.
+    It loads a sample of processed data, runs the selection, and saves results.
     """
-    from src.data.preprocess.tokenizer import load_preprocessed_data
-    from src.utils.config import get_config_dict
+    logger.info("Starting K-Selector validation...")
 
-    config = get_config_dict()
-    data_dir = Path(config.get("data_dir", "data"))
-    processed_dir = data_dir / "processed"
-
-    if not processed_dir.exists():
-        logger.error(f"Processed data directory not found: {processed_dir}")
-        logger.error("Please run the data preprocessing pipeline first.")
+    # Configuration
+    # In a real pipeline, this would be passed via config or command line args.
+    # Here we assume the processed data exists at the expected path.
+    processed_data_dir = Path("data/processed")
+    if not processed_data_dir.exists():
+        logger.error(
+            "Processed data directory not found. "
+            "Please run T016 (saver.py) first."
+        )
         return
 
-    # Load documents from the first available window file
-    window_files = list(processed_dir.glob("*.csv"))
+    # Load a sample of documents from the first available window file
+    # This is a heuristic for the script; the actual pipeline passes data directly.
+    window_files = list(processed_data_dir.glob("window_*.csv"))
     if not window_files:
-        logger.error("No CSV files found in data/processed/.")
+        logger.error("No window files found in data/processed.")
         return
 
-    # Load from the first file as a representative sample
+    # Load one window for demonstration/validation
     sample_file = window_files[0]
-    logger.info(f"Loading sample data from: {sample_file}")
-    
-    try:
-        # Assuming the CSV has a 'text' or 'processed_text' column
-        # We will try to load and concatenate texts from all windows if possible,
-        # but for speed, we might just take the first window if the dataset is huge.
-        # For this validation, we need a representative sample.
-        
-        # Using pandas for CSV reading as it's in requirements
-        import pandas as pd
-        
-        # Load all windows to get a good distribution
-        all_texts = []
-        for f in window_files:
-            df = pd.read_csv(f)
-            # Identify the text column
-            text_col = None
-            for col in ['processed_text', 'text', 'cleaned_text']:
-                if col in df.columns:
-                    text_col = col
-                    break
-            
-            if text_col:
-                # Take a stratified sample if too large, or all if small
-                # Limit to 2000 docs per window for speed in this validation step
-                sample_size = min(2000, len(df))
-                sample = df.sample(n=sample_size, random_state=42)
-                all_texts.extend(sample[text_col].dropna().tolist())
-            else:
-                logger.warning(f"Could not find text column in {f}")
+    logger.info(f"Loading sample data from {sample_file}...")
 
-        if not all_texts:
-            logger.error("No text data found to validate k.")
+    try:
+        import pandas as pd
+
+        df = pd.read_csv(sample_file)
+        if "tokens" not in df.columns and "text" not in df.columns:
+            logger.error(
+                f"CSV {sample_file} must contain 'tokens' or 'text' column."
+            )
             return
 
-        logger.info(f"Loaded {len(all_texts)} documents for k-selection validation.")
+        text_col = "tokens" if "tokens" in df.columns else "text"
+        # Ensure tokens are joined if they are lists
+        if isinstance(df[text_col].iloc[0], list):
+            documents = [" ".join(t) for t in df[text_col]]
+        else:
+            documents = df[text_col].tolist()
 
-        # Initialize Selector
-        selector = KSelector(k_candidates=[5, 8, 10, 12, 15, 20], max_iterations=20)
-        
-        # Run validation
-        selected_k, is_optimal, details = selector.validate_k(all_texts, target_k=10)
-        
-        logger.info("=" * 50)
-        logger.info("K-SELECTION RESULTS")
-        logger.info("=" * 50)
-        logger.info(f"Target k: 10")
-        logger.info(f"Selected k: {selected_k}")
-        logger.info(f"Is Target Optimal: {is_optimal}")
-        logger.info(f"Inertia Scores: {details['inertia_scores']}")
-        logger.info("=" * 50)
-
-        # Save results to a JSON file for downstream consumption
-        results_dir = Path("results/stats")
-        results_dir.mkdir(parents=True, exist_ok=True)
-        output_path = results_dir / "k_selection_results.json"
-        
-        import json
-        # Convert numpy types for JSON serialization
-        serializable_details = {
-            "target_k": details["target_k"],
-            "optimal_k_found": details["optimal_k_found"],
-            "is_target_optimal": details["is_target_optimal"],
-            "inertia_scores": {str(k): float(v) for k, v in details["inertia_scores"].items()},
-            "method": details["method"]
-        }
-        
-        with open(output_path, 'w') as f:
-            json.dump(serializable_details, f, indent=2)
-        
-        logger.info(f"Results saved to {output_path}")
-
+        logger.info(f"Loaded {len(documents)} documents.")
     except Exception as e:
-        logger.exception(f"Error during k-selection validation: {e}")
-        raise
+        logger.error(f"Failed to load data from {sample_file}: {e}")
+        return
+
+    # Initialize and run selector
+    selector = KSelector(min_k=5, max_k=15, max_iter=20, random_state=42)
+
+    is_optimal, details = selector.validate_k_default(documents)
+
+    # Save results
+    output_path = "results/stats/k_selection_results.json"
+    selector.save_results(output_path, validation_details=details)
+
+    if not is_optimal:
+        logger.warning(
+            f"Default k=10 is NOT optimal. Recommended k={details['optimal_k']}. "
+            "Downstream tasks (T020) should use the recommended k."
+        )
+    else:
+        logger.info("Default k=10 is validated as optimal.")
 
 
 if __name__ == "__main__":

@@ -1,50 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HabitTrackingDataset"
-description: "Schema for the aggregated weekly habit tracking dataset used in analysis."
 type: object
+description: "Schema for the analysis-ready merged dataset (data/processed/merged_data.csv)"
 properties:
   user_id:
-    type: string
-    description: "Unique anonymized user identifier."
-  gamification_status:
     type: integer
-    enum: [0, 1]
-    description: "Binary flag: 1 if user uses gamified app, 0 otherwise."
+    description: "Unique identifier for the user"
+  gamified_status:
+    type: integer
+    description: "Binary flag: 1 if gamified app used, 0 otherwise"
+    enum:
+      - 0
+      - 1
   conscientiousness_score:
     type: number
+    description: "Standardized score for Conscientiousness (0-100)"
     minimum: 0
     maximum: 100
-    description: "Standardized score for Conscientiousness trait."
-  achievement_score:
+  need_for_achievement_score:
     type: number
+    description: "Standardized score for Need for Achievement (0-100)"
     minimum: 0
     maximum: 100
-    description: "Standardized score for Need for Achievement trait (optional)."
   week_number:
     type: integer
+    description: "Sequential week number starting from 1"
     minimum: 1
-    description: "Sequential week number starting from 1."
-  weekly_adherence_flag:
+  adherence_flag:
     type: integer
-    enum: [0, 1]
-    description: "Binary flag: 1 if user had >= 1 activity event in the week."
-  is_censored:
+    description: "Binary flag: 1 if at least one activity event in the week, 0 otherwise"
+    enum:
+      - 0
+      - 1
+  streak_length:
+    type: integer
+    description: "Number of consecutive weeks of adherence ending at this week"
+    minimum: 0
+  dropout_event:
     type: boolean
-    description: "True if the user did not drop out by the end of the study period."
-  last_active_date:
-    type: string
-    format: date
-    description: "Date of the last recorded activity (for censoring)."
-  observation_end:
-    type: string
-    format: date
-    description: "End date of the observation window."
+    description: "True if user experienced 3 consecutive weeks of non-adherence"
 required:
   - user_id
-  - gamification_status
+  - gamified_status
   - conscientiousness_score
+  - need_for_achievement_score
   - week_number
-  - weekly_adherence_flag
-  - last_active_date
-  - observation_end
+  - adherence_flag
+  - streak_length
+  - dropout_event
 additionalProperties: false

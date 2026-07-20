@@ -1,0 +1,6 @@
+# Window-specific stopwords for 2020-2024
+# Example: domain-specific terms common in recent abstracts
+deep
+learning
+neural
+network

@@ -65,7 +65,7 @@
 - [ ] T014 [P] [US1] Implement `src/data/preprocess/tokenizer.py` using NLTK/spaCy with window-specific stopword loading
 - [ ] T015 [US1] Implement `src/data/preprocess/filter.py` to exclude records <20 tokens and log exclusion counts
 - [ ] T016 [US1] Implement `src/data/storage/saver.py` to save processed CSVs to `data/processed/` partitioned by the **specific 5-year windows**
-- [~] T017 [US1] Update `results/manifest.json` with `arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums
+- [ ] T017 [US1] Update `results/manifest.json` with `arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,7 +80,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for k-selection logic (elbow method within 10% tolerance) in `tests/unit/test_lda.py`
-- [~] T019 [P] [US2] Unit test for topic alignment (cosine similarity) in `tests/unit/test_align.py`
+- [ ] T019 [P] [US2] Unit test for topic alignment (cosine similarity) in `tests/unit/test_align.py`
 
 ### Implementation for User Story 2
 

@@ -76,16 +76,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation.**
 > **[P] Tag Note**: T010 and T011 are parallel-safe *with respect to each other* (they test different aspects). They logically depend on the existence of the code being tested, but can be written concurrently with implementation tasks if the team is split. Tests MUST be written and failing before implementation begins.
 
-- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/unit/test_ingest_schema.py`
-- [ ] T011 [P] [US1] Integration test for Zenodo DOI reachability and data retention in `tests/integration/test_data_ingestion.py`
+- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/unit/test_ingest_schema.py`
+- [X] T011 [P] [US1] Integration test for Zenodo DOI reachability and data retention in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456)
-- [ ] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001)
-- [~] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv`
-- [~] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
-- [~] T016 [US1] Write data retention rate and record counts to `data/ingestion_stats.json` to satisfy SC-003 and Single Source of Truth (SC-003)
+- [X] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456) [UNRESOLVED-CLAIM: c_47cdbfde — status=not_enough_info]
+- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001)
+- [ ] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv`
+- [ ] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
+- [X] T016 [US1] Write data retention rate and record counts to `data/ingestion_stats.json` to satisfy SC-003 and Single Source of Truth (SC-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,15 +100,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Unit test for descriptor calculation logic (radius mismatch, VEC, electronegativity) in `tests/unit/test_descriptors.py` <!-- FAILED: unspecified -->
-- [~] T019 [P] [US2] Integration test for LOFO split correctness (no family leakage) in `tests/integration/test_train_cv.py`
+- [ ] T018 [P] [US2] Unit test for descriptor calculation logic (radius mismatch, VEC, electronegativity) in `tests/unit/test_descriptors.py` <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Integration test for LOFO split correctness (no family leakage) in `tests/integration/test_train_cv.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [P] [US2] Implement `code/descriptors.py` to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0` (FR-002)
-- [~] T021 [P] [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model)
-- [~] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003)
-- [ ] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
+- [X] T020 [P] [US2] Implement `code/descriptors.py` to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0` (FR-002)
+- [X] T021 [P] [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model)
+- [X] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003)
+- [X] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
 - [ ] T024 [US2] Save model artifacts (`artifacts/models/`) and metrics (`artifacts/metrics/`) including R², MAE, and feature importances (SC-001)
 - [ ] T025 [US2] Add resource monitoring checks to ensure runtime < 6h and RAM < 7GB (FR-005, SC-004)
 
@@ -124,8 +124,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T040 [P] [US3] Contract test for report content validation (no causal language) in `tests/contract/test_report_content.py`
-- [ ] T041 [P] [US3] Integration test for statistical validation (FDR, VIF) in `tests/integration/test_statistical_validation.py`
+- [X] T040 [P] [US3] Contract test for report content validation (no causal language) in `tests/contract/test_report_content.py`
+- [X] T041 [P] [US3] Integration test for statistical validation (FDR, VIF) in `tests/integration/test_statistical_validation.py`
 
 ### Implementation for User Story 3
 

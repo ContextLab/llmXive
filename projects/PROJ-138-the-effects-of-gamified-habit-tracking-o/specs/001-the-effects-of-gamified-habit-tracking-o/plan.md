@@ -1,39 +1,37 @@
 # Implementation Plan: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
-**Branch**: `001-gamification-effects` | **Date**: 2026-10-27 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-gamification-effects/spec.md`
+**Branch**: `001-gamification-effects` | **Date**: 2026-06-24 | **Spec**: `specs/001-the-effects-of-gamified-habit-tracking-o/spec.md`
+**Input**: Feature specification from `/specs/001-the-effects-of-gamified-habit-tracking-o/spec.md`
 
 ## Summary
 
-This project implements a statistical analysis pipeline to investigate whether gamified habit-tracking (points, badges) yields higher long-term adherence than non-gamified methods, moderated by personality traits (Conscientiousness, Need for Achievement). The technical approach involves ingesting longitudinal event logs, aggregating them into weekly adherence metrics, and fitting mixed-effects logistic regression and survival analysis models. The pipeline is designed to run entirely on CPU-only CI (GitHub Actions) using `statsmodels` and `lifelines`, with robustness checks via bootstrapping.
-
-**Critical Note on Data & Power**: Due to the absence of a verified public longitudinal dataset containing both habit logs and personality traits, the default execution path uses a **synthetic data generator**. This generator is designed to validate the *pipeline logic* and *statistical recovery* of known parameters, not to provide definitive empirical evidence. The sample size (N=100) is acknowledged as underpowered for detecting interaction effects in mixed models; therefore, findings on real data (if ever obtained) would be strictly **exploratory**.
+This project investigates whether gamified habit-tracking applications (points, badges, leaderboards) produce higher long-term adherence to self-defined behavioral goals compared to non-gamified tools, and how this effect is moderated by personality traits (Conscientiousness, Need for Achievement). The technical approach involves attempting ingestion from a verified longitudinal source (Habitica API), and if unavailable, generating a deterministic synthetic dataset that mimics the expected schema. The data is aggregated into weekly adherence metrics, and mixed-effects logistic regression models with survival analysis components are fitted. The study strictly adheres to the project constitution regarding ethical data handling, reproducibility, and psychometric validity. All statistical findings are framed as associational due to the observational (and synthetic) nature of the data.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `lifelines`, `seaborn`, `matplotlib`, `pyyaml`, `pingouin` (for Cronbach's α), `scipy`
-**Storage**: Local CSV/Parquet files (intermediate), final artifacts in `data/processed/`
-**Testing**: `pytest` (unit tests for data aggregation, model convergence checks, contract validation)
-**Target Platform**: Linux (GitHub Actions Free Runner: Limited CPU, 7GB RAM)
-**Project Type**: Computational Research Pipeline / Data Analysis
-**Performance Goals**: Complete analysis of ~100-500 users with 52 weeks of data in < 30 minutes.
-**Constraints**: No GPU usage; no deep learning models; memory usage < 6GB; strict handling of missing data and censoring.
-**Scale/Scope**: ~100 valid user records (minimum viability), up to 500 if data permits; Longitudinal data per user over a one-year period.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `jinja2`, `pyyaml`, `pytest`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/reports`)  
+**Testing**: `pytest` (unit tests for data ingestion, integration tests for modeling pipeline)  
+**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM)  
+**Project Type**: Data Science Pipeline / Statistical Analysis  
+**Performance Goals**: Full pipeline execution < 6 hours; memory usage < 6GB during bootstrapping  
+**Constraints**: CPU-only execution (no GPU); minimum sample size N=100 (per SC-001); strict adherence to FR-010 (consent check) before processing; survival analysis halts if dropout events < 10 per group (per FR-009).  
+**Scale/Scope**: Single dataset (simulated or API logs), 1,000 bootstrap iterations (per SC-004), 100+ user records (per SC-001).  
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action / Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. `requirements.txt` pins all versions. Data ingestion script fetches from canonical source (or synthetic generator) deterministically. |
-| **II. Verified Accuracy** | **PASS** | **Reference-Validator Agent** runs as a pre-condition for `research_complete` stage. All citations in `research.md` are validated against the "Verified datasets" block. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/` with checksums. Derivations written to `data/processed/`. PII scan will be enforced. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated programmatically from `code/` outputs. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | **Post-run hook** (`code/utils/versioning.py`) calculates SHA-256 hashes of all artifacts and updates `state.yaml` automatically. |
-| **VI. Ethical Data Handling** | **PASS** | **FR-010**: Pipeline halts if `data/consent/` is missing. Personality data anonymized. |
-| **VII. Psychometric Validity** | **PASS** | **FR-011**: `code/data/validation.py` includes `calculate_cronbach_alpha` function. |
+- **Principle I (Reproducibility)**: Plan includes pinned `requirements.txt` and random seed setting in `code/`. External data source (synthetic generator or API) is deterministic based on seed or API state.
+- **Principle II (Verified Accuracy)**: All citations in `research.md` will be validated against primary sources (e.g., Q113106917) before inclusion.
+- **Principle III (Data Hygiene)**: Plan mandates checksumming of `data/` artifacts and immutable raw data processing.
+- **Principle IV (Single Source of Truth)**: All statistics in the final report will be generated programmatically from the *pipeline code* acting on the *raw synthetic data* (or API logs), ensuring traceability.
+- **Principle V (Versioning)**: `state.yaml` will be updated with content hashes of all final artifacts (Task T033).
+- **Principle VI (Ethical Data Handling)**: Plan includes a mandatory `check_consent.py` step (T012a) that halts execution if *real* consent artifacts are missing. If synthetic data is used, a 'Simulated Consent Record' is generated *only after* confirming no real data exists, and is explicitly flagged as 'SIMULATED' in the report.
+- **Principle VII (Psychometric Validity)**: Plan includes `calculate_cronbach_alpha.py` (T012c) to validate personality scales before modeling and report the result (FR-011).
 
 ## Project Structure
 
@@ -45,9 +43,7 @@ specs/001-gamification-effects/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (Inputs to implementation)
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
+├── contracts/           # Phase 1 output
 └── tasks.md             # Phase 2 output
 ```
 
@@ -56,67 +52,84 @@ specs/001-gamification-effects/
 ```text
 code/
 ├── data/
-│   ├── ingestion.py       # FR-001, FR-001a, FR-001b
-│   ├── aggregation.py     # FR-001b
-│   └── validation.py      # FR-010, FR-011, Group Balance Check
+│   ├── synthetic_generator.py   # Generates synthetic longitudinal logs (fallback)
+│   ├── ingestion.py             # Loads and validates data (API or Synthetic)
+│   └── consent_check.py         # Verifies consent artifacts
 ├── analysis/
-│   ├── modeling.py        # FR-002, FR-007 (FDR Correction)
-│   ├── survival.py        # FR-003, FR-009 (Event Count Check)
-│   └── robustness.py      # FR-004, FR-005
+│   ├── aggregation.py           # Daily -> Weekly binning
+│   ├── modeling.py              # Mixed-effects & Survival models
+│   ├── robustness.py            # Bootstrapping & Sensitivity analysis
+│   └── correction.py            # FDR/Bonferroni logic (excludes time points)
 ├── reports/
-│   └── generate_report.py # FR-005
+│   ├── template.html            # Jinja2 template for final report
+│   └── generate_report.py       # Report generation script (includes limitations)
 ├── utils/
-│   ├── config.py          # Seed pinning
-│   ├── versioning.py      # Constitution Principle V (Hashing)
-│   └── logging.py
-├── tests/
-│   ├── test_ingestion.py
-│   ├── test_modeling.py
-│   └── test_contracts.py
-└── requirements.txt
+│   ├── validation.py            # Schema validation & VIF checks
+│   └── versioning.py            # Artifact hashing
+└── tests/
+    ├── test_data.py
+    ├── test_modeling.py
+    └── test_pipeline.py
+
+data/
+├── raw/
+│   ├── synthetic_data.csv       # Generated logs (if API fails)
+│   └── consent/
+│       └── consent_record.json  # Real or Simulated consent artifact
+├── processed/
+│   └── merged_data.csv          # Analysis-ready dataset
+└── reports/
+    └── final_analysis.html      # Final output
+
+state.yaml
+requirements.txt
 ```
 
-**Structure Decision**: Single `code/` directory structure selected for simplicity and ease of CI execution. All logic is modularized by function (ingestion, modeling, reporting) to ensure testability and adherence to the "Single Source of Truth" principle. `pyyaml` is explicitly used for reading `contracts/` schemas to validate data frames.
-
-## Implementation Phases
-
-### Phase 0: Data Ingestion & Validation (FR-001, FR-010)
-1.  **Check Consent**: Verify `data/consent/` exists. Halt if missing.
-2.  **Ingest/Generate**: If real data exists, ingest from source. If not, run `synthetic_generator.py` with pinned seed.
-3.  **Schema Validation**: Load `contracts/dataset.schema.yaml` (via `pyyaml`) and validate raw data structure.
-4.  **Group Balance Check (FR-008)**: Count `gamified` vs `non-gamified`. If `non-gamified` < 30, halt with "Group Imbalance" error.
-
-### Phase 1: Aggregation & Feature Engineering (FR-001b)
-1.  **Weekly Binning**: Aggregate daily logs to `week_number`.
-2.  **Adherence Flag**: Set `weekly_adherence_flag` (1 if count >= 1).
-3.  **Dropout Logic**: Calculate `last_active_date`. Define dropout as 3 consecutive weeks of non-adherence *without subsequent activity* within the observation window.
-4.  **Merge**: Join personality traits with weekly data.
-
-### Phase 2: Psychometric Validation (FR-011)
-1.  **Reliability Check**: Calculate Cronbach's α for personality scales (using `pingouin` or `scipy`).
-2.  **Report**: Log α value. If using synthetic data, log the theoretical value used in generation.
-
-### Phase 3: Statistical Modeling (FR-002, FR-007)
-1.  **Mixed-Effects Logistic**: Fit model with fixed effects (Gamification, Conscientiousness, Interaction) and random intercepts.
-2.  **Collinearity Check**: Calculate VIF. If > 5, drop secondary trait.
-3.  **Multiple Comparison Correction (FR-007)**: Apply Benjamini-Hochberg (FDR) to interaction term p-values.
-4.  **LOUO Cross-Validation**: Report average AUC.
-
-### Phase 4: Survival Analysis (FR-003, FR-009)
-1.  **Event Count Check (FR-009)**: Count dropout events per group. If < 10, halt survival analysis and output descriptive stats only.
-2.  **Kaplan-Meier**: Generate curves stratified by Conscientiousness quartiles.
-3.  **Cox PH**: Fit model, report Hazard Ratios.
-
-### Phase 5: Robustness & Reporting (FR-004, FR-005)
-1.  **Bootstrapping**: A sufficient number of iterations to generate 95% CI.
-2.  **Report Generation**: Create HTML/PDF with visualizations.
-3.  **Versioning (Constitution V)**: Run `utils/versioning.py` to hash artifacts and update `state.yaml`.
+**Structure Decision**: Single project structure selected to align with the statistical analysis nature of the work, keeping data, code, and reports in a unified hierarchy for reproducibility.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Mixed-Effects Models | Longitudinal data requires handling within-subject correlation. | Standard logistic regression would violate independence assumptions and inflate Type I error. |
-| Survival Analysis | "Dropout" is a time-to-event metric (3 consecutive weeks). | Simple adherence rates ignore the timing of dropout and censoring. |
-| Bootstrapping | Robustness validation required by SC-004. | Single point estimate does not account for sampling variability in small N. |
-| Synthetic Data | No verified longitudinal dataset with personality + logs exists. | Public datasets are cross-sectional (MyPersonality) or lack personality traits. |
+| Mixed-Effects Model | Required for repeated measures (weekly logs) per user | Standard logistic regression ignores within-user correlation, violating FR-002. |
+| Survival Analysis | Required to model "time-to-dropout" (3 consecutive weeks non-adherence) | Simple adherence rates ignore the temporal dimension of dropout defined in US-2. |
+| Stratified Bootstrapping | Required to maintain group balance (gamified vs. non-gamified) and preserve interaction structure | Simple bootstrapping may create empty groups in resamples, invalidating interaction tests. |
+| FDR Correction | Required by FR-007 for multiple personality trait tests | Bonferroni is too conservative for correlated traits; FDR balances power and error control. Time points excluded per FR-007. |
+
+## Phases and Tasks
+
+### Phase 0: Data Source Verification (NEW - Addresses FR-001)
+- [ ] **T001**: Attempt ingestion from verified longitudinal source (Habitica API).
+- [ ] **T002**: If API ingestion fails (auth/availability), log failure and proceed to synthetic generation.
+
+### Phase 1: Data Generation & Ingestion
+- [ ] **T013a**: Generate synthetic data (if T001 failed) using `synthetic_generator.py` with specific parameters (null-hypothesis mode, AR(1) noise) and save to `data/raw/synthetic_data.csv`.
+- [ ] **T013b**: Ingest data (API or Synthetic) via `ingestion.py`, validate `gamified_app_usage` tags, check `MIN_TOTAL_RECORDS` (≥100) and `MIN_NON_GAMIFIED_USERS` (≥30), and halt with "Data Insufficiency" if thresholds not met.
+- [ ] **T012a**: Check for consent artifacts. If *real* data exists, halt if missing. If synthetic, generate `data/consent/consent_record.json` flagged as 'SIMULATED'.
+- [ ] **T012b**: Calculate Cronbach's alpha for personality scales.
+- [ ] **T012c**: Report Cronbach's alpha in final output (FR-011).
+- [ ] **T014**: Aggregate daily logs into weekly bins (`week_number`, `weekly_adherence_flag`).
+- [ ] **T017**: Generate `data/processed/merged_data.csv` and verify it contains required columns (User_ID, Gamified, Adherence, Personality Scores).
+
+### Phase 2: Modeling & Robustness
+- [ ] **T021**: Calculate VIF for predictors. If VIF > 5 for `need_for_achievement`, drop it (log structural change).
+- [ ] **T020**: Fit mixed-effects logistic regression model (fixed effects: gamification, personality, interaction; random intercept: user_id).
+- [ ] **T022a**: Apply Benjamini-Hochberg (FDR) correction to interaction terms and secondary traits. **Explicitly exclude time points (weeks)** from correction set (FR-007).
+- [ ] **T029**: Execute stratified bootstrapping (multiple iterations) preserving joint distribution of (Gamification, Personality).
+- [ ] **T029a**: Validate bootstrap variance < 0.01. Halt if variance > 0.01 (SC-004).
+- [ ] **T031a**: Perform sensitivity analysis on adherence thresholds (set:,, 3 events/week) and report coefficient stability (SC-005).
+- [ ] **T032a**: Generate final report with mandatory 'Data Limitations' section (observational nature, synthetic data) and Cronbach's alpha (FR-006, FR-011).
+
+### Phase 3: Validation & Release
+- [ ] **T033**: Hash all final artifacts and update `state.yaml`.
+- [ ] **T034**: Update `README.md` and `quickstart.md` with project overview and execution instructions.
+- [ ] **T038**: Run `bash quickstart.sh` and verify exit code 0 and existence of `data/processed/merged_data.csv`.
+
+## Execution Order Verification
+The pipeline enforces the following dependency graph:
+1. T001 (API) -> T002 (Fallback) -> T013a (Gen)
+2. T013a/T001 -> T013b (Ingest) -> T012a (Consent) -> T012b (Alpha) -> T014 (Agg) -> T017 (Merge)
+3. T017 -> T021 (VIF) -> T020 (Model) -> T022a (FDR)
+4. T017 -> T029 (Bootstrap) -> T029a (Variance Check)
+5. T017 -> T031a (Sensitivity)
+6. T020, T022a, T029a, T031a -> T032a (Report) -> T033 (Hash) -> T038 (Verify)

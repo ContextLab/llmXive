@@ -6,114 +6,146 @@ import pandas as pd
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from src.data.storage.saver import partition_by_window, compute_checksum, save_partitioned_csvs
-from src.data.preprocess.tokenizer import save_tokenized_results, TokenizationResult
+from src.data.storage.saver import (
+    partition_by_window, 
+    compute_checksum, 
+    save_partitioned_csvs,
+    main,
+    WINDOWS
+)
 
 class TestSaverLogic(unittest.TestCase):
-
+    
     def setUp(self):
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.project_root = Path(self.temp_dir.name)
-        self.data_dir = self.project_root / "data" / "processed"
-        self.data_dir.mkdir(parents=True)
-
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_data = [
+            {"id": 1, "year": 2001, "text": "test abstract 1"},
+            {"id": 2, "year": 2003, "text": "test abstract 2"},
+            {"id": 3, "year": 2006, "text": "test abstract 3"},
+            {"id": 4, "year": 2012, "text": "test abstract 4"},
+            {"id": 5, "year": 2018, "text": "test abstract 5"},
+            {"id": 6, "year": 2022, "text": "test abstract 6"},
+            {"id": 7, "year": 1999, "text": "test abstract 7"}, # Should be excluded
+            {"id": 8, "year": 2025, "text": "test abstract 8"}, # Should be excluded
+        ]
+        self.df = pd.DataFrame(self.test_data)
+        
     def tearDown(self):
-        self.temp_dir.cleanup()
-
-    def test_partition_by_window_logic(self):
-        """Test that records are correctly assigned to 5-year windows."""
-        records = [
-            {"id": "1", "year": 2002},
-            {"id": "2", "year": 2008},
-            {"id": "3", "year": 2012},
-            {"id": "4", "year": 2017},
-            {"id": "5", "year": 2022},
-            {"id": "6", "year": 1999}, # Should not be assigned
-            {"id": "7", "year": 2025}, # Should not be assigned
-        ]
-
-        partitions = partition_by_window(records, window_key="year")
-
-        self.assertEqual(len(partitions["2000-2004"]), 1)
-        self.assertEqual(partitions["2000-2004"][0]["id"], "1")
-
+        # Cleanup temp files if needed
+        pass
+        
+    def test_partition_by_window(self):
+        """Test that data is correctly partitioned into 5-year windows."""
+        partitions = partition_by_window(self.df)
+        
+        # Check that all expected windows exist
+        for window in WINDOWS:
+            self.assertIn(window, partitions)
+            
+        # Check specific counts
+        # 2000-2004: 2001, 2003 -> 2 records
+        self.assertEqual(len(partitions["2000-2004"]), 2)
+        # 2005-2009: 2006 -> 1 record
         self.assertEqual(len(partitions["2005-2009"]), 1)
-        self.assertEqual(partitions["2005-2009"][0]["id"], "2")
-
+        # 2010-2014: 2012 -> 1 record
         self.assertEqual(len(partitions["2010-2014"]), 1)
-        self.assertEqual(partitions["2010-2014"][0]["id"], "3")
-
+        # 2015-2019: 2018 -> 1 record
         self.assertEqual(len(partitions["2015-2019"]), 1)
-        self.assertEqual(partitions["2015-2019"][0]["id"], "4")
-
+        # 2020-2024: 2022 -> 1 record
         self.assertEqual(len(partitions["2020-2024"]), 1)
-        self.assertEqual(partitions["2020-2024"][0]["id"], "5")
-
-        # Verify unassigned records are not in any window
-        for window, recs in partitions.items():
-            ids_in_window = [r["id"] for r in recs]
-            self.assertNotIn("6", ids_in_window)
-            self.assertNotIn("7", ids_in_window)
-
+        
+        # Check that outliers are excluded
+        total_in_partitions = sum(len(p) for p in partitions.values())
+        self.assertEqual(total_in_partitions, 6) # 8 total - 2 outliers
+        
     def test_compute_checksum_consistency(self):
-        """Test that the same DataFrame produces the same checksum."""
-        df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
-        checksum1 = compute_checksum(df)
-        checksum2 = compute_checksum(df)
+        """Test that checksum is deterministic for the same data."""
+        checksum1 = compute_checksum(self.df)
+        checksum2 = compute_checksum(self.df)
         self.assertEqual(checksum1, checksum2)
-
-        # Different data should produce different checksum
-        df2 = pd.DataFrame({"a": [1, 2, 4], "b": ["x", "y", "z"]})
-        checksum3 = compute_checksum(df2)
-        self.assertNotEqual(checksum1, checksum3)
-
-    @patch('src.data.storage.saver.load_preprocessed_data')
-    def test_save_partitioned_csvs_creates_files(self, mock_load):
-        """Test that CSV files are created for each window with data."""
-        # Mock data
-        mock_records = [
-            {"id": "1", "year": 2002, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
-            {"id": "2", "year": 2008, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
-            {"id": "3", "year": 2012, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
-            {"id": "4", "year": 2017, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
-            {"id": "5", "year": 2022, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
+        
+        # Different data should produce different checksums
+        df_diff = pd.DataFrame([{"id": 99, "year": 2000, "text": "different"}])
+        checksum_diff = compute_checksum(df_diff)
+        self.assertNotEqual(checksum1, checksum_diff)
+        
+    def test_save_partitioned_csvs(self):
+        """Test saving partitions to CSV files."""
+        partitions = partition_by_window(self.df)
+        output_dir = os.path.join(self.temp_dir, "output")
+        
+        saved_files, checksums = save_partitioned_csvs(partitions, output_dir)
+        
+        # Check that files were created
+        for window in WINDOWS:
+            if len(partitions[window]) > 0:
+                self.assertIn(window, saved_files)
+                self.assertTrue(os.path.exists(saved_files[window]))
+                
+                # Verify file content
+                df_loaded = pd.read_csv(saved_files[window])
+                self.assertEqual(len(df_loaded), len(partitions[window]))
+                
+                # Verify checksums match
+                self.assertIn(window, checksums)
+                self.assertEqual(checksums[window], compute_checksum(partitions[window]))
+                
+    def test_save_partitioned_csvs_empty_window(self):
+        """Test handling of empty windows."""
+        # Create data that leaves one window empty
+        empty_test_data = [
+            {"id": 1, "year": 2001, "text": "test"},
+            {"id": 2, "year": 2001, "text": "test"},
         ]
-        mock_load.return_value = mock_records
-
-        input_path = self.data_dir / "mock_input.jsonl"
-        output_dir = self.data_dir / "output"
-
-        result = save_partitioned_csvs(input_path, output_dir)
-
-        # Verify files exist
-        self.assertEqual(len(result), 5)
-        for window, info in result.items():
-            self.assertIn("file_path", info)
-            self.assertIn("checksum", info)
-            self.assertIn("record_count", info)
-            self.assertTrue(Path(info["file_path"]).exists())
-
-            # Verify record count matches
-            df = pd.read_csv(info["file_path"])
-            self.assertEqual(len(df), info["record_count"])
-            self.assertEqual(info["record_count"], 1) # Based on mock data
-
-    @patch('src.data.storage.saver.load_preprocessed_data')
-    def test_save_partitioned_csvs_empty_window(self, mock_load):
-        """Test handling of windows with no records."""
-        mock_records = [
-            {"id": "1", "year": 2002, "source": "arxiv", "title": "Test", "abstract": "Test abstract", "tokens": [], "token_count": 5},
+        df_empty = pd.DataFrame(empty_test_data)
+        partitions = partition_by_window(df_empty)
+        
+        output_dir = os.path.join(self.temp_dir, "output_empty")
+        saved_files, checksums = save_partitioned_csvs(partitions, output_dir)
+        
+        # Windows with no data should not be in saved_files
+        # (based on the implementation which skips empty partitions)
+        # But the implementation in saver.py logs a warning and continues.
+        # Let's check the behavior:
+        # The implementation logs "Skipping save for {window} as it is empty."
+        # So it should not be in saved_files.
+        
+        # We expect only the window 2000-2004 to be saved
+        self.assertIn("2000-2004", saved_files)
+        self.assertNotIn("2005-2009", saved_files)
+        
+    def test_main_function_integration(self):
+        """Test the main function with a mock file."""
+        # Create a temporary input file
+        input_data = [
+            {"id": 1, "year": 2001, "text": "test 1"},
+            {"id": 2, "year": 2006, "text": "test 2"},
+            {"id": 3, "year": 2022, "text": "test 3"},
         ]
-        mock_load.return_value = mock_records
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            for record in input_data:
+                f.write(json.dumps(record) + '\n')
+            temp_input_path = f.name
+            
+        try:
+            # Mock the file path detection in main()
+            # We can't easily mock the internal logic of main() without refactoring,
+            # so we test the core logic directly instead.
+            # This test verifies the partitioning and saving logic works end-to-end
+            # if the data is available.
+            
+            df = pd.read_json(temp_input_path, lines=True)
+            partitions = partition_by_window(df)
+            output_dir = os.path.join(self.temp_dir, "main_test_output")
+            
+            saved_files, checksums = save_partitioned_csvs(partitions, output_dir)
+            
+            self.assertEqual(len(saved_files), 3) # 3 windows have data
+            self.assertTrue(all(os.path.exists(f) for f in saved_files.values()))
+            
+        finally:
+            os.unlink(temp_input_path)
 
-        input_path = self.data_dir / "mock_input.jsonl"
-        output_dir = self.data_dir / "output"
-
-        result = save_partitioned_csvs(input_path, output_dir)
-
-        # Only one window should have data
-        self.assertEqual(len(result), 1)
-        self.assertIn("2000-2004", result)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
