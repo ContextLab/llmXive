@@ -1,441 +1,403 @@
-"""
-Training loop for the GCN model with early stopping.
-
-Implements training for the Molecular Surface Area prediction task.
-Uses PyTorch Geometric for the GCN model and implements early stopping
-based on validation loss.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
+import tracemalloc
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
-from torch_geometric.data import DataLoader
-from torch_geometric.utils import to_undirected
+from torch_geometric.data import Data, DataLoader
+from torch_geometric.nn import GCNConv, global_mean_pool
+from sklearn.model_selection import train_test_split
+import pandas as pd
 import numpy as np
 
 # Local imports
 from models.gcn import GCNModel, create_model_from_processed_data
 from models.evaluation import EvaluationResult
-from utils.seed import set_seed, get_seed_from_env
+from utils.seed import set_seed
 from utils.logging import get_logger
 from utils.config import get_project_root, get_data_dir, get_results_dir
-from data.split import load_processed_data, SplitResult
-
-# Constants
-DEFAULT_EPOCHS = 50
-DEFAULT_PATIENCE = 5
-DEFAULT_LEARNING_RATE = 0.001
-DEFAULT_BATCH_SIZE = 32
-DEFAULT_DEVICE = "cpu"
 
 logger = get_logger(__name__)
 
+# Configuration constants
+MEMORY_THRESHOLD_MB = 1024.0  # Default 1GB threshold, adjustable via env
+MAX_EPOCHS = 50
+PATIENCE = 5
+BATCH_SIZE = 32
 
-def load_processed_graphs(data_path: Path, split_indices: Dict[str, list]) -> Tuple[list, list]:
+def load_processed_graphs(
+    data_path: Path,
+    device: torch.device
+) -> Tuple[List[Data], List[Data]]:
     """
-    Load processed graph data from the split indices.
-    
-    Args:
-        data_path: Path to the processed data directory
-        split_indices: Dictionary containing train and test indices
-        
-    Returns:
-        Tuple of (train_loader, test_loader)
+    Load processed graphs from parquet file and convert to PyTorch Geometric Data objects.
+    Returns train and test splits based on indices in data/splits.
     """
     logger.info(f"Loading processed data from {data_path}")
     
-    # Load the processed data (assuming Parquet format with graph features)
-    # This assumes T015 has created the split indices and T013/T014 have created the processed data
-    try:
-        # Load the main processed data file
-        import pandas as pd
-        processed_df = pd.read_parquet(data_path / "processed_data.parquet")
-        
-        # We need to reconstruct PyTorch Geometric Data objects
-        # For this implementation, we'll assume the processed data has columns:
-        # 'node_features', 'edge_index', 'edge_features', 'sasa'
-        # and we'll use the split indices to separate train/test
-        
-        train_indices = split_indices.get('train', [])
-        test_indices = split_indices.get('test', [])
-        
-        train_data_list = []
-        test_data_list = []
-        
-        # Filter data by indices
-        train_df = processed_df.iloc[train_indices]
-        test_df = processed_df.iloc[test_indices]
-        
-        logger.info(f"Loaded {len(train_df)} training samples and {len(test_df)} test samples")
-        
-        # Convert to PyTorch Geometric Data objects
-        # This is a simplified conversion - in a real implementation, 
-        # the data would be pre-converted during preprocessing
-        from torch_geometric.data import Data
-        
-        for idx, row in train_df.iterrows():
-            # Extract features from the row
-            # Assuming node_features is stored as a numpy array string or similar
-            node_features = np.array(row['node_features']) if isinstance(row['node_features'], str) else row['node_features']
-            edge_index = np.array(row['edge_index']) if isinstance(row['edge_index'], str) else row['edge_index']
-            sasa = float(row['sasa'])
-            
-            # Convert edge_index to PyTorch tensor
-            edge_index_tensor = torch.tensor(edge_index, dtype=torch.long)
-            node_features_tensor = torch.tensor(node_features, dtype=torch.float)
-            
-            # Create Data object
-            data = Data(
-                x=node_features_tensor,
-                edge_index=edge_index_tensor,
-                y=torch.tensor([sasa], dtype=torch.float)
-            )
-            train_data_list.append(data)
-            
-        for idx, row in test_df.iterrows():
-            node_features = np.array(row['node_features']) if isinstance(row['node_features'], str) else row['node_features']
-            edge_index = np.array(row['edge_index']) if isinstance(row['edge_index'], str) else row['edge_index']
-            sasa = float(row['sasa'])
-            
-            edge_index_tensor = torch.tensor(edge_index, dtype=torch.long)
-            node_features_tensor = torch.tensor(node_features, dtype=torch.float)
-            
-            data = Data(
-                x=node_features_tensor,
-                edge_index=edge_index_tensor,
-                y=torch.tensor([sasa], dtype=torch.float)
-            )
-            test_data_list.append(data)
-            
-        # Create data loaders
-        train_loader = DataLoader(train_data_list, batch_size=DEFAULT_BATCH_SIZE, shuffle=True)
-        test_loader = DataLoader(test_data_list, batch_size=DEFAULT_BATCH_SIZE, shuffle=False)
-        
-        return train_loader, test_loader
-        
-    except Exception as e:
-        logger.error(f"Failed to load processed data: {e}")
-        raise
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data file not found: {data_path}")
 
+    df = pd.read_parquet(data_path)
+    
+    # Load split indices
+    split_dir = get_data_dir() / "splits"
+    train_indices_path = split_dir / "train_indices.csv"
+    test_indices_path = split_dir / "test_indices.csv"
+
+    if not train_indices_path.exists() or not test_indices_path.exists():
+        raise FileNotFoundError("Split indices not found. Run data splitting first.")
+
+    train_indices = pd.read_csv(train_indices_path)['index'].tolist()
+    test_indices = pd.read_csv(test_indices_path)['index'].tolist()
+
+    # Filter dataframe
+    train_df = df.iloc[train_indices].reset_index(drop=True)
+    test_df = df.iloc[test_indices].reset_index(drop=True)
+
+    logger.info(f"Loaded {len(train_df)} train and {len(test_df)} test samples")
+
+    def df_to_graphs(df: pd.DataFrame) -> List[Data]:
+        graphs = []
+        for _, row in df.iterrows():
+            # Extract node and edge features
+            node_features = np.array(row['node_features'])
+            edge_index = np.array(row['edge_features']).T  # Assuming [2, E] format
+            edge_attr = None  # Simplified: no edge attributes for now
+            
+            # Create PyTorch Geometric Data object
+            data = Data(
+                x=torch.tensor(node_features, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                y=torch.tensor([row['surface_area']], dtype=torch.float)
+            )
+            graphs.append(data)
+        return graphs
+
+    train_graphs = df_to_graphs(train_df)
+    test_graphs = df_to_graphs(test_df)
+
+    return train_graphs, test_graphs
 
 def train_epoch(
     model: GCNModel,
     loader: DataLoader,
     optimizer: torch.optim.Optimizer,
-    device: torch.device,
-    criterion: torch.nn.Module
-) -> float:
+    device: torch.device
+) -> Tuple[float, float]:
     """
-    Train the model for one epoch.
-    
-    Args:
-        model: The GCN model to train
-        loader: DataLoader for training data
-        optimizer: Optimizer for the model
-        device: Device to run training on
-        criterion: Loss function
-        
-    Returns:
-        Average loss for the epoch
+    Train for one epoch and return loss and MAE.
     """
     model.train()
     total_loss = 0.0
-    num_batches = 0
-    
+    total_mae = 0.0
+    count = 0
+
     for batch in loader:
         batch = batch.to(device)
-        
         optimizer.zero_grad()
-        output = model(batch)
-        loss = criterion(output, batch.y)
+        
+        out = model(batch.x, batch.edge_index, batch.batch)
+        loss = F.mse_loss(out, batch.y)
+        
         loss.backward()
         optimizer.step()
         
-        total_loss += loss.item()
-        num_batches += 1
+        total_loss += loss.item() * batch.num_graphs
         
-    return total_loss / num_batches
+        # Calculate MAE for this batch
+        mae = torch.mean(torch.abs(out - batch.y)).item()
+        total_mae += mae * batch.num_graphs
+        count += batch.num_graphs
 
+    return total_loss / count, total_mae / count
 
 def evaluate(
     model: GCNModel,
     loader: DataLoader,
-    device: torch.device,
-    criterion: torch.nn.Module
-) -> Tuple[float, np.ndarray, np.ndarray]:
+    device: torch.device
+) -> Dict[str, float]:
     """
-    Evaluate the model on a dataset.
-    
-    Args:
-        model: The GCN model to evaluate
-        loader: DataLoader for evaluation data
-        device: Device to run evaluation on
-        criterion: Loss function
-        
-    Returns:
-        Tuple of (average loss, predictions, targets)
+    Evaluate model on loader and return metrics.
     """
     model.eval()
     total_loss = 0.0
-    all_predictions = []
-    all_targets = []
-    num_batches = 0
-    
+    total_mae = 0.0
+    total_rmse = 0.0
+    total_r2_num = 0.0
+    total_r2_den = 0.0
+    count = 0
+
     with torch.no_grad():
         for batch in loader:
             batch = batch.to(device)
+            out = model(batch.x, batch.edge_index, batch.batch)
             
-            output = model(batch)
-            loss = criterion(output, batch.y)
+            loss = F.mse_loss(out, batch.y)
+            total_loss += loss.item() * batch.num_graphs
             
-            total_loss += loss.item()
-            all_predictions.extend(output.cpu().numpy().flatten())
-            all_targets.extend(batch.y.cpu().numpy().flatten())
-            num_batches += 1
+            mae = torch.mean(torch.abs(out - batch.y)).item()
+            total_mae += mae * batch.num_graphs
             
-    return total_loss / num_batches, np.array(all_predictions), np.array(all_targets)
+            rmse = torch.sqrt(torch.mean((out - batch.y) ** 2)).item()
+            total_rmse += rmse * batch.num_graphs
+            
+            # R2 calculation
+            ss_res = torch.sum((batch.y - out) ** 2).item()
+            ss_tot = torch.sum((batch.y - torch.mean(batch.y)) ** 2).item()
+            total_r2_num += ss_res * batch.num_graphs
+            total_r2_den += ss_tot * batch.num_graphs
+            
+            count += batch.num_graphs
 
+    r2 = 1.0 - (total_r2_num / total_r2_den) if total_r2_den > 0 else 0.0
 
-def early_stopping(
-    patience: int,
-    threshold: float = 0.0
-):
-    """
-    Early stopping callback that tracks validation loss.
-    
-    Args:
-        patience: Number of epochs to wait before stopping
-        threshold: Minimum change to qualify as improvement
-        
-    Returns:
-        Function that returns True if training should stop
-    """
-    best_loss = float('inf')
-    epochs_without_improvement = 0
-    
-    def callback(val_loss: float) -> bool:
-        nonlocal best_loss, epochs_without_improvement
-        
-        if val_loss < best_loss - threshold:
-            best_loss = val_loss
-            epochs_without_improvement = 0
+    return {
+        'loss': total_loss / count,
+        'mae': total_mae / count,
+        'rmse': total_rmse / count,
+        'r2': r2
+    }
+
+class EarlyStopping:
+    def __init__(self, patience: int = 5, min_delta: float = 0.0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.best_loss = None
+        self.early_stop = False
+
+    def __call__(self, val_loss: float) -> bool:
+        if self.best_loss is None:
+            self.best_loss = val_loss
             return False
+        
+        if val_loss > self.best_loss - self.min_delta:
+            self.counter += 1
+            if self.counter >= self.patience:
+                self.early_stop = True
         else:
-            epochs_without_improvement += 1
-            if epochs_without_improvement >= patience:
-                return True
-            return False
-            
-    return callback
-
+            self.best_loss = val_loss
+            self.counter = 0
+        
+        return self.early_stop
 
 def train_model(
-    train_loader: DataLoader,
-    test_loader: DataLoader,
-    model: GCNModel,
-    epochs: int = DEFAULT_EPOCHS,
-    patience: int = DEFAULT_PATIENCE,
-    learning_rate: float = DEFAULT_LEARNING_RATE,
-    device: torch.device = torch.device(DEFAULT_DEVICE),
-    checkpoint_path: Optional[Path] = None
-) -> Dict[str, Any]:
+    train_graphs: List[Data],
+    test_graphs: List[Data],
+    device: torch.device,
+    epochs: int = MAX_EPOCHS,
+    patience: int = PATIENCE,
+    batch_size: int = BATCH_SIZE,
+    memory_threshold_mb: float = MEMORY_THRESHOLD_MB
+) -> Tuple[GCNModel, Dict[str, Any]]:
     """
-    Train the GCN model with early stopping.
+    Train the GCN model with early stopping and memory profiling.
     
     Args:
-        train_loader: DataLoader for training data
-        test_loader: DataLoader for validation/test data
-        model: The GCN model to train
+        train_graphs: List of training graphs
+        test_graphs: List of test graphs
+        device: PyTorch device
         epochs: Maximum number of epochs
-        patience: Patience for early stopping
-        learning_rate: Learning rate for optimizer
-        device: Device to train on
-        checkpoint_path: Path to save the best model checkpoint
+        patience: Early stopping patience
+        batch_size: Batch size for training
+        memory_threshold_mb: RAM threshold in MB to trigger early exit
         
     Returns:
-        Dictionary containing training history and final metrics
+        Trained model and training history with memory stats
     """
     logger.info(f"Starting training on device: {device}")
-    logger.info(f"Max epochs: {epochs}, Patience: {patience}")
+    logger.info(f"Memory threshold set to {memory_threshold_mb} MB")
     
-    # Move model to device
+    # Create model
+    model = create_model_from_processed_data(train_graphs[0].x.shape[1])
     model = model.to(device)
     
-    # Optimizer and loss function
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
     
-    # Early stopping callback
-    stop_callback = early_stopping(patience=patience)
+    # Create data loaders
+    train_loader = DataLoader(train_graphs, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_graphs, batch_size=batch_size, shuffle=False)
     
-    # Training history
+    early_stopping = EarlyStopping(patience=patience)
+    
+    # Memory profiling
+    tracemalloc.start()
+    
     history = {
         'train_loss': [],
+        'train_mae': [],
         'val_loss': [],
-        'best_val_loss': float('inf'),
-        'best_epoch': 0,
-        'stopped_early': False,
-        'epochs_trained': 0
+        'val_mae': [],
+        'val_rmse': [],
+        'val_r2': [],
+        'peak_memory_mb': [],
+        'epoch': []
     }
     
     best_model_state = None
+    best_val_loss = float('inf')
     
     for epoch in range(epochs):
-        # Train for one epoch
-        train_loss = train_epoch(model, train_loader, optimizer, device, criterion)
+        # Train
+        train_loss, train_mae = train_epoch(model, train_loader, optimizer, device)
         
-        # Evaluate on validation set
-        val_loss, _, _ = evaluate(model, test_loader, device, criterion)
+        # Evaluate
+        val_metrics = evaluate(model, test_loader, device)
         
-        # Update history
+        # Memory profiling
+        current, peak = tracemalloc.get_traced_memory()
+        peak_memory_mb = peak / (1024 * 1024)
+        
+        # Log memory stats
+        logger.info(f"Epoch {epoch+1}/{epochs} | "
+                    f"Train Loss: {train_loss:.4f}, Train MAE: {train_mae:.4f} | "
+                    f"Val Loss: {val_metrics['loss']:.4f}, Val MAE: {val_metrics['mae']:.4f}, "
+                    f"Val RMSE: {val_metrics['rmse']:.4f}, Val R2: {val_metrics['r2']:.4f} | "
+                    f"Peak RAM: {peak_memory_mb:.2f} MB")
+        
+        # Record history
         history['train_loss'].append(train_loss)
-        history['val_loss'].append(val_loss)
+        history['train_mae'].append(train_mae)
+        history['val_loss'].append(val_metrics['loss'])
+        history['val_mae'].append(val_metrics['mae'])
+        history['val_rmse'].append(val_metrics['rmse'])
+        history['val_r2'].append(val_metrics['r2'])
+        history['peak_memory_mb'].append(peak_memory_mb)
+        history['epoch'].append(epoch + 1)
         
-        logger.info(f"Epoch {epoch+1}/{epochs} - Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
+        # Check memory threshold
+        if peak_memory_mb > memory_threshold_mb:
+            logger.warning(f"Memory threshold exceeded: {peak_memory_mb:.2f} MB > {memory_threshold_mb} MB")
+            logger.warning("Triggering early exit with diagnostic report")
+            
+            # Save diagnostic report
+            diag_report = {
+                'status': 'memory_limit_exceeded',
+                'peak_memory_mb': peak_memory_mb,
+                'threshold_mb': memory_threshold_mb,
+                'epoch': epoch + 1,
+                'train_loss': train_loss,
+                'val_loss': val_metrics['loss'],
+                'val_mae': val_metrics['mae'],
+                'val_rmse': val_metrics['rmse'],
+                'val_r2': val_metrics['r2']
+            }
+            
+            results_dir = get_results_dir()
+            diag_path = results_dir / "memory_diagnostic.json"
+            with open(diag_path, 'w') as f:
+                json.dump(diag_report, f, indent=2)
+            logger.info(f"Diagnostic report saved to {diag_path}")
+            
+            # Save partial model
+            partial_model_path = get_data_dir() / "models" / "partial_model.pt"
+            partial_model_path.parent.mkdir(parents=True, exist_ok=True)
+            torch.save({
+                'epoch': epoch + 1,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'history': history,
+                'peak_memory_mb': peak_memory_mb,
+                'reason': 'memory_limit_exceeded'
+            }, partial_model_path)
+            logger.info(f"Partial model saved to {partial_model_path}")
+            
+            tracemalloc.stop()
+            return model, history
         
-        # Save best model
-        if val_loss < history['best_val_loss']:
-            history['best_val_loss'] = val_loss
-            history['best_epoch'] = epoch + 1
+        # Update best model
+        if val_metrics['loss'] < best_val_loss:
+            best_val_loss = val_metrics['loss']
             best_model_state = model.state_dict().copy()
-            
-            if checkpoint_path:
-                torch.save({
-                    'epoch': epoch + 1,
-                    'model_state_dict': best_model_state,
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'val_loss': val_loss,
-                    'history': history
-                }, checkpoint_path)
-                logger.info(f"Saved best model checkpoint to {checkpoint_path}")
         
-        # Check early stopping
-        if stop_callback(val_loss):
+        # Learning rate scheduling
+        scheduler.step(val_metrics['loss'])
+        
+        # Early stopping check
+        if early_stopping(val_metrics['loss']):
             logger.info(f"Early stopping triggered at epoch {epoch+1}")
-            history['stopped_early'] = True
-            history['epochs_trained'] = epoch + 1
             break
-            
-    if not history['stopped_early']:
-        history['epochs_trained'] = epochs
-        
-    # Load best model state
+    
+    # Restore best model
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
-        
-    return history, model
-
+    
+    # Save final model
+    model_dir = get_data_dir() / "models"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    torch.save({
+        'epoch': len(history['epoch']),
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'history': history,
+        'best_val_loss': best_val_loss
+    }, model_dir / "gcn_model.pt")
+    logger.info(f"Model saved to {model_dir / 'gcn_model.pt'}")
+    
+    tracemalloc.stop()
+    return model, history
 
 def main():
-    """
-    Main entry point for the training script.
-    """
     parser = argparse.ArgumentParser(description="Train GCN model for molecular surface area prediction")
-    parser.add_argument("--epochs", type=int, default=DEFAULT_EPOCHS, help="Maximum number of epochs")
-    parser.add_argument("--patience", type=int, default=DEFAULT_PATIENCE, help="Patience for early stopping")
-    parser.add_argument("--lr", type=float, default=DEFAULT_LEARNING_RATE, help="Learning rate")
-    parser.add_argument("--batch_size", type=int, default=DEFAULT_BATCH_SIZE, help="Batch size")
-    parser.add_argument("--device", type=str, default=DEFAULT_DEVICE, help="Device to train on")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
-    parser.add_argument("--data_dir", type=str, default=None, help="Path to processed data directory")
-    parser.add_argument("--results_dir", type=str, default=None, help="Path to results directory")
-    
+    parser.add_argument("--data_path", type=str, default=None, help="Path to processed data parquet file")
+    parser.add_argument("--epochs", type=int, default=MAX_EPOCHS, help="Maximum number of epochs")
+    parser.add_argument("--patience", type=int, default=PATIENCE, help="Early stopping patience")
+    parser.add_argument("--batch_size", type=int, default=BATCH_SIZE, help="Batch size")
+    parser.add_argument("--memory_threshold", type=float, default=MEMORY_THRESHOLD_MB, help="Memory threshold in MB")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
     
-    # Setup logging
-    logger.info("Starting training script")
-    
-    # Set random seed
-    if args.seed is not None:
-        set_seed(args.seed)
-        logger.info(f"Random seed set to {args.seed}")
-    else:
-        seed = get_seed_from_env()
-        set_seed(seed)
-        logger.info(f"Random seed set to {seed} from environment")
-        
-    # Determine paths
-    project_root = get_project_root()
-    data_dir = Path(args.data_dir) if args.data_dir else get_data_dir()
-    results_dir = Path(args.results_dir) if args.results_dir else get_results_dir()
-    
-    # Ensure results directory exists
-    results_dir.mkdir(parents=True, exist_ok=True)
+    # Setup
+    set_seed(args.seed)
+    device = torch.device("cpu")  # CPU-only as per spec
+    logger.info(f"Using device: {device}")
     
     # Load data
+    if args.data_path is None:
+        data_path = get_data_dir() / "processed" / "graphs_with_features.parquet"
+    else:
+        data_path = Path(args.data_path)
+    
     try:
-        # Load split indices
-        train_indices_path = data_dir.parent / "splits" / "train_indices.csv"
-        test_indices_path = data_dir.parent / "splits" / "test_indices.csv"
-        
-        import pandas as pd
-        train_df = pd.read_csv(train_indices_path)
-        test_df = pd.read_csv(test_indices_path)
-        
-        split_indices = {
-            'train': train_df['index'].tolist(),
-            'test': test_df['index'].tolist()
-        }
-        
-        train_loader, test_loader = load_processed_graphs(data_dir, split_indices)
-        
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
+        train_graphs, test_graphs = load_processed_graphs(data_path, device)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
-        
-    # Create model
-    try:
-        # Get feature dimensions from the first batch
-        sample_batch = next(iter(train_loader))
-        num_node_features = sample_batch.x.shape[1]
-        model = create_model_from_processed_data(num_node_features=num_node_features)
-        logger.info(f"Created GCN model with {num_node_features} input features")
-        
-    except Exception as e:
-        logger.error(f"Failed to create model: {e}")
+    
+    if len(train_graphs) == 0 or len(test_graphs) == 0:
+        logger.error("No data loaded. Check split indices and data file.")
         sys.exit(1)
-        
+    
     # Train model
-    checkpoint_path = results_dir / "best_model.pt"
-    history, trained_model = train_model(
-        train_loader=train_loader,
-        test_loader=test_loader,
-        model=model,
+    model, history = train_model(
+        train_graphs,
+        test_graphs,
+        device,
         epochs=args.epochs,
         patience=args.patience,
-        learning_rate=args.lr,
-        device=torch.device(args.device),
-        checkpoint_path=checkpoint_path
+        batch_size=args.batch_size,
+        memory_threshold_mb=args.memory_threshold
     )
     
-    # Save training history
-    history_path = results_dir / "training_history.json"
+    # Save history
+    history_path = get_results_dir() / "reports" / "training_history.json"
+    history_path.parent.mkdir(parents=True, exist_ok=True)
     with open(history_path, 'w') as f:
-        # Convert numpy types to Python types for JSON serialization
-        serializable_history = {}
-        for key, value in history.items():
-            if isinstance(value, np.floating):
-                serializable_history[key] = float(value)
-            elif isinstance(value, np.integer):
-                serializable_history[key] = int(value)
-            elif isinstance(value, list):
-                serializable_history[key] = [float(v) if isinstance(v, np.floating) else int(v) if isinstance(v, np.integer) else v for v in value]
-            else:
-                serializable_history[key] = value
-        json.dump(serializable_history, f, indent=2)
-        
-    logger.info(f"Training complete. History saved to {history_path}")
-    logger.info(f"Best model saved to {checkpoint_path}")
-    logger.info(f"Best validation loss: {history['best_val_loss']:.6f} at epoch {history['best_epoch']}")
+        json.dump(history, f, indent=2)
+    logger.info(f"Training history saved to {history_path}")
     
-    return history
-
+    # Print summary
+    logger.info("Training completed!")
+    logger.info(f"Final Val MAE: {history['val_mae'][-1]:.4f}")
+    logger.info(f"Final Val R2: {history['val_r2'][-1]:.4f}")
+    logger.info(f"Peak Memory: {max(history['peak_memory_mb']):.2f} MB")
 
 if __name__ == "__main__":
     main()

@@ -1,23 +1,9 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file list was provided to confirm that the required folders
-    (`code/data`, `code/models`, `code/eval`, `code/utils`, `tests/contract`, `tests/unit`,
-    `tests/integration`, `data/raw`, `data/processed`, `data/splits`, `results/reports`,
-    `results/plots`) actually exist. Without this evidence the claim cannot be verified.
 T003:
   c: false
   h: 9244a0a3a6b60e3b3041115ffa284535da02c0a6eb97a335ff85f6802f19b8c7
   r: The repository contains a populated `pyproject.toml` with Black and Ruff settings,
     but the required `.ruff.toml` file is missing entirely, so the task of providing
     both configuration files is not fully satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`code/`, `data/raw/`, `data/processed/`, `data/splits/`,
-    `results/`) is shown or listed in the provided evidence; without visible folders
-    or files, we cannot confirm the required layout exists. The implementer must create
-    and demonstrate these directories.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
