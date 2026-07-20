@@ -8,7 +8,7 @@
 
 |check|result|
 |-|-|
-|Full non-slow suite|**7108 passed, 17 skipped, 0 failed**|
+|Full non-slow suite|**7123 passed, 17 skipped, 0 failed**|
 |Manifest migration rows|**0** — only `canonical_layer` (8) + `test_double` (292) remain|
 |`enforcement.py` guard|12 passed, green AFTER the deletions AND after the round-5 hardening|
 |Real calls|vision 2/2 + dartmouth chat, live|
@@ -67,7 +67,39 @@ shim and its `_LEGACY_WARNED` latch. `LLMXIVE_EXECUTION_PAID_ESCALATION` (the bo
 
 **The lesson from R2.** The Slice-8 plan called LKG pricing "aged but a REAL timestamped observation" — and then never looked at the timestamp. Naming a property is not enforcing it.
 
-## OPEN JUDGMENT CALL for the 0–8 review: the freshness bound conflates two volatilities
+## Review round 6 — "free model reads as paid" was a semantic bug, not a tuning question
+
+**Maintainer finding:** the ladder returned a BOOL, so "I cannot verify pricing" had nowhere to go but
+`False`, which `chat()` read as "this model costs money" (`paid_call = not is_free_model(model)`) and
+turned into `PaidGuardDenied` — a **permanent, cost-related** refusal that `disposition_of` maps to
+SKIP. Two genuinely different things were collapsed: *this model costs money* (a long-lived pricing
+FACT) and *I can't currently see pricing* (a temporary AVAILABILITY condition). The operator-facing
+signal said "enable paid opt-in" when the actual remedy was "wait for the catalog".
+
+A SECOND conflation sat in the same path: `free_chat_models()` returns only the free set, so
+`model not in live` could not distinguish *listed with cost > 0* (genuinely paid) from *not listed at
+all* (unknown). A served-but-unlisted model was called paid.
+
+**Fixed (`9b64fb7db7`)** with a tri-state verdict plus a correctly-classified exception:
+
+|state|verdict|`chat()` behavior|
+|-|-|-|
+|listed, priced 0|`FREE`|proceeds|
+|listed, priced > 0|`PAID`|paid guard → `PaidGuardDenied` (SKIP)|
+|listed, cost unknown|`UNVERIFIABLE`|`PricingUnverifiable` (TRANSIENT → RETRY_ADVANCE)|
+|served but unlisted|`UNVERIFIABLE`|same|
+|catalog outage, no fresh LKG|`UNVERIFIABLE`|same|
+
+`PricingUnverifiable` subclasses `TransientBackendError`, so the condition now advances/retries and is
+reported as the transient availability problem it is. **SC-003 is preserved exactly**: an unverifiable
+model still never proceeds as free — it is refused, but with the right reason, the right disposition,
+and a message that tells an operator no configuration change is needed.
+
+Verified directly: all five states resolve as tabulated; `chat()` raises `PricingUnverifiable` and not
+`PaidGuardDenied`; `disposition_of` gives RETRY_ADVANCE vs SKIP respectively; `is_free_model` still
+returns False for UNVERIFIABLE.
+
+## PARTIALLY-RESOLVED judgment call: the freshness bound conflates two volatilities
 
 The R2 fix derives its bound from `PROFILES["independent_review"].max_catalog_age_s` = **900s**, per
 Constitution I (derive, don't duplicate). That is defensible but semantically imprecise, and the
@@ -84,7 +116,12 @@ paid, the guard denies, and chains exhaust — the exact failure mode the LKG la
 prevent. Verified live: the current on-disk LKG (10.9 h old) is rejected, so `is_free_model` returns
 False during a simulated outage.
 
-**Author's recommendation: KEEP 900s**, but record it as a deliberate decision rather than a
+**Round 6 changes the stakes here.** The cost of a short bound is no longer "every free model is
+misreported as paid and the operator is sent to the wrong setting" — it is now an honest, transient,
+self-healing `PricingUnverifiable` that advances the chain and retries on the next tick. That makes a
+conservative bound much easier to live with.
+
+**Author's recommendation: KEEP 900s**, and record it as a deliberate decision rather than a
 side-effect of constant reuse. Failing closed is the right posture for an autonomous system that
 spends money: a longer pricing-specific bound (say 24 h) would preserve availability but expose up to
 24 h of *unmetered* spend if a model went free→paid, because the credit guard would never engage. The
