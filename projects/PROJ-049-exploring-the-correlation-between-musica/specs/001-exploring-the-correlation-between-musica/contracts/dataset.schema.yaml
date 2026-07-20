@@ -1,55 +1,89 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Dataset Schema"
-description: "Schema for the analysis-ready merged dataset containing personality and listening data."
-type: "object"
+title: "Merged User Dataset Schema"
+description: "Schema for the cleaned and merged dataset containing personality traits and music preferences."
+type: object
 properties:
   user_id:
-    type: "string"
-    description: "Unique hashed identifier for the user."
-  openness_score:
-    type: "number"
-    description: "Big Five Openness score (continuous)."
-  conscientiousness_score:
-    type: "number"
-    description: "Big Five Conscientiousness score (continuous)."
-  extraversion_score:
-    type: "number"
-    description: "Big Five Extraversion score (continuous)."
-  agreeableness_score:
-    type: "number"
-    description: "Big Five Agreeableness score (continuous)."
-  neuroticism_score:
-    type: "number"
-    description: "Big Five Neuroticism score (continuous)."
+    type: string
+    description: "Hashed unique identifier for the user."
+    minLength: 1
+  openness:
+    type: number
+    description: "Big Five Openness score."
+    minimum: 0
+    maximum: 100
+  conscientiousness:
+    type: number
+    description: "Big Five Conscientiousness score."
+    minimum: 0
+    maximum: 100
+  extraversion:
+    type: number
+    description: "Big Five Extraversion score."
+    minimum: 0
+    maximum: 100
+  agreeableness:
+    type: number
+    description: "Big Five Agreeableness score."
+    minimum: 0
+    maximum: 100
+  neuroticism:
+    type: number
+    description: "Big Five Neuroticism score."
+    minimum: 0
+    maximum: 100
   age:
-    type: "integer"
+    type: integer
     description: "User age in years."
+    minimum: 0
   gender:
-    type: "string"
+    type: string
     description: "User gender category."
+    enum:
+      - "Male"
+      - "Female"
+      - "Other"
+      - "Unknown"
   country:
-    type: "string"
-    description: "User country code or region."
-  genre_name:
-    type: "string"
-    description: "Standardized genre name (Rock, Pop, etc.)."
+    type: string
+    description: "User country or region."
+  genre:
+    type: string
+    description: "Standardized music genre."
+    enum:
+      - "Rock"
+      - "Pop"
+      - "Hip-Hop"
+      - "Classical"
+      - "Electronic"
+      - "Jazz"
+      - "Folk"
+      - "Country"
+      - "Metal"
+      - "Other"
   listening_minutes:
-    type: "number"
-    description: "Total minutes listened for this genre."
+    type: integer
+    description: "Total minutes listened to this genre."
+    minimum: 0
+  log_minutes:
+    type: number
+    description: "Log-transformed listening minutes."
+    minimum: 0
   genre_score:
-    type: "number"
-    description: "Normalized genre score (0.0 to 1.0)."
+    type: number
+    description: "Normalized genre preference score."
 required:
   - user_id
-  - openness_score
-  - conscientiousness_score
-  - extraversion_score
-  - agreeableness_score
-  - neuroticism_score
+  - openness
+  - conscientiousness
+  - extraversion
+  - agreeableness
+  - neuroticism
   - age
   - gender
   - country
-  - genre_name
+  - genre
   - listening_minutes
+  - log_minutes
   - genre_score
 additionalProperties: false

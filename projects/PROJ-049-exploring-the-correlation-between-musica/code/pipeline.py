@@ -9,6 +9,7 @@ import os
 import sys
 import time
 import logging
+import argparse
 from pathlib import Path
 
 # Add project root to path if running as script
@@ -25,7 +26,7 @@ from verify_schema import verify_schema_integrity
 
 logger = setup_logging(__name__)
 
-def run_pipeline():
+def run_pipeline(force_synthetic: bool = False):
     """
     Execute the full research pipeline:
     1. Setup directories
@@ -33,9 +34,15 @@ def run_pipeline():
     3. Perform statistical analysis
     4. Generate reports and visualizations
     5. Verify output schemas
+
+    Args:
+        force_synthetic (bool): If True, forces the use of synthetic data generation
+                                even if real data sources are available.
     """
     start_time = time.time()
     logger.info("Starting pipeline execution...")
+    if force_synthetic:
+        logger.info("FORCE_SYNTHETIC mode enabled: Using synthetic data generator.")
 
     # 1. Setup
     logger.info("Setting up directory structure...")
@@ -43,7 +50,7 @@ def run_pipeline():
 
     # 2. Data Ingestion
     logger.info("Running data ingestion and preprocessing...")
-    merged_data_path = run_orchestration()
+    merged_data_path = run_orchestration(force_synthetic=force_synthetic)
     if not merged_data_path or not merged_data_path.exists():
         logger.error("Data ingestion failed. Aborting pipeline.")
         return False
@@ -67,10 +74,18 @@ def run_pipeline():
     logs_dir = Path("logs")
     logs_dir.mkdir(exist_ok=True)
     with open(logs_dir / "timing.log", "a") as f:
-        f.write(f"Pipeline run: {time.strftime('%Y-%m-%d %H:%M:%S')} | Duration: {duration:.2f}s\n")
+        f.write(f"Pipeline run: {time.strftime('%Y-%m-%d %H:%M:%S')} | Duration: {duration:.2f}s | Force Synthetic: {force_synthetic}\n")
     
     return True
 
 if __name__ == "__main__":
-    success = run_pipeline()
+    parser = argparse.ArgumentParser(description="Music-Personality Correlation Research Pipeline")
+    parser.add_argument(
+        "--force-synthetic",
+        action="store_true",
+        help="Force the use of synthetic data generation even if real data is available."
+    )
+    args = parser.parse_args()
+
+    success = run_pipeline(force_synthetic=args.force_synthetic)
     sys.exit(0 if success else 1)

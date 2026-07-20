@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-049-exploring-the-correlation-between-musica",
+  "ok": false,
+  "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(\"Generating synthetic personality data...\")     df = generate_s\u2026\u201d; code/ingest.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(\"Generating synthetic listening data...\")     df = generate_s\u2026\u201d; code/synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator.  Generates de\u2026\u201d; 2 command(s) failed: python code/ingest.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/synthetic_data.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-049-exploring-the-correlation-between-musica/code/ingest.py\", line 15, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-049-exploring-the-correlation-between-musica/code/analysis.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-20T17:00:27Z"
+}

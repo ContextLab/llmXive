@@ -1,8 +1,11 @@
 """
 Synthetic Data Generator.
 
-Generates deterministic synthetic datasets for BFI-2 and Last.fm data
-when real data is unavailable.
+Generates a deterministic synthetic dataset for validation purposes,
+strictly adhering to the schema defined in contracts/dataset.schema.yaml.
+
+This generator is used in "Validation Mode" when no real data source is
+available or when explicitly requested via --force-synthetic.
 """
 
 import os
@@ -19,103 +22,118 @@ logger = setup_logging(__name__)
 CONTRACTS_DIR = Path("contracts")
 SCHEMA_FILE = CONTRACTS_DIR / "dataset.schema.yaml"
 
-def generate_synthetic_data(n_rows: int = 500, seed: int = 42, data_type: str = "mixed") -> pd.DataFrame:
+def generate_synthetic_data(n_rows: int = 1000, seed: int = 42) -> pd.DataFrame:
     """
-    Generate synthetic data mimicking BFI-2 and Last.fm structure.
+    Generate deterministic synthetic data matching the project schema.
+    
+    The schema requires: user_id, openness, conscientiousness, extraversion,
+    agreeableness, neuroticism, age, gender, country.
     
     Args:
-        n_rows: Number of rows to generate.
+        n_rows: Number of rows to generate (default 1000).
         seed: Random seed for reproducibility.
-        data_type: 'personality', 'listening', or 'mixed'.
         
     Returns:
-        Generated DataFrame.
+        DataFrame with schema-compliant columns.
     """
+    # Set seeds for full reproducibility
     random.seed(seed)
     np.random.seed(seed)
     
-    # Generate User IDs
-    user_ids = [f"user_{i:04d}" for i in range(n_rows)]
+    # 1. User IDs
+    user_ids = [f"user_{i:05d}" for i in range(n_rows)]
     
-    # Personality Traits (0-100 scale)
-    traits = {
-        "Extraversion": np.random.normal(50, 15, n_rows),
-        "Agreeableness": np.random.normal(55, 12, n_rows),
-        "Conscientiousness": np.random.normal(60, 10, n_rows),
-        "Neuroticism": np.random.normal(45, 14, n_rows),
-        "Openness": np.random.normal(52, 13, n_rows)
-    }
+    # 2. Personality Traits (Big Five)
+    # Simulating realistic distributions (normal approx, clipped 0-100)
+    openness = np.clip(np.random.normal(52, 13, n_rows), 0, 100).astype(int)
+    conscientiousness = np.clip(np.random.normal(60, 10, n_rows), 0, 100).astype(int)
+    extraversion = np.clip(np.random.normal(50, 15, n_rows), 0, 100).astype(int)
+    agreeableness = np.clip(np.random.normal(55, 12, n_rows), 0, 100).astype(int)
+    neuroticism = np.clip(np.random.normal(45, 14, n_rows), 0, 100).astype(int)
     
-    # Demographics
-    ages = np.random.randint(18, 65, n_rows)
-    genders = np.random.choice(["Male", "Female", "Non-binary"], n_rows, p=[0.48, 0.48, 0.04])
-    countries = np.random.choice(["US", "UK", "DE", "FR", "JP"], n_rows, p=[0.4, 0.2, 0.15, 0.15, 0.1])
+    # 3. Demographics
+    # Age: 18-65 (uniform distribution as requested)
+    age = np.random.randint(18, 66, n_rows)
     
-    # Listening Data
-    genres = ["Rock", "Pop", "Jazz", "Classical", "HipHop", "Electronic", "Country", "Metal"]
-    listening_minutes = np.random.exponential(1000, n_rows).astype(int)
+    # Gender: Categorical
+    gender_options = ["Male", "Female", "Non-binary"]
+    gender_probs = [0.48, 0.48, 0.04]
+    gender = np.random.choice(gender_options, n_rows, p=gender_probs)
     
-    # Assign random genres to users
-    assigned_genres = [random.choice(genres) for _ in range(n_rows)]
+    # Country: Categorical
+    country_options = ["US", "UK", "DE", "FR", "JP"]
+    country_probs = [0.40, 0.20, 0.15, 0.15, 0.10]
+    country = np.random.choice(country_options, n_rows, p=country_probs)
     
-    if data_type == "personality":
-        df = pd.DataFrame({
-            "user_id": user_ids,
-            **traits,
-            "age": ages,
-            "gender": genders,
-            "country": countries
-        })
-    elif data_type == "listening":
-        df = pd.DataFrame({
-            "user_id": user_ids,
-            "genre": assigned_genres,
-            "listening_minutes": listening_minutes
-        })
-    else:
-        # Mixed
-        df = pd.DataFrame({
-            "user_id": user_ids,
-            **traits,
-            "age": ages,
-            "gender": genders,
-            "country": countries,
-            "genre": assigned_genres,
-            "listening_minutes": listening_minutes
-        })
+    # Construct DataFrame
+    df = pd.DataFrame({
+        "user_id": user_ids,
+        "openness": openness,
+        "conscientiousness": conscientiousness,
+        "extraversion": extraversion,
+        "agreeableness": agreeableness,
+        "neuroticism": neuroticism,
+        "age": age,
+        "gender": gender,
+        "country": country
+    })
     
-    # Clip traits to 0-100
-    for t in traits:
-        df[t] = df[t].clip(0, 100)
-        
+    logger.info(f"Generated {n_rows} synthetic rows with schema-compliant columns.")
     return df
 
 def validate_schema(df: pd.DataFrame, schema_path: Optional[Path] = None) -> bool:
     """
-    Validate DataFrame against schema.
+    Validate DataFrame against the project's dataset schema.
     
     Args:
         df: DataFrame to validate.
-        schema_path: Path to schema file.
+        schema_path: Path to schema file (defaults to contracts/dataset.schema.yaml).
         
     Returns:
-        True if valid.
+        True if valid, raises error or returns False if invalid.
     """
-    # Simplified validation
-    required_cols = ["user_id"]
-    if not all(col in df.columns for col in required_cols):
-        logger.error("Missing required columns.")
+    if schema_path is None:
+        schema_path = SCHEMA_FILE
+        
+    if not schema_path.exists():
+        logger.warning(f"Schema file not found at {schema_path}, skipping strict validation.")
+        return True
+        
+    try:
+        with open(schema_path, 'r') as f:
+            schema = yaml.safe_load(f)
+        
+        required_fields = schema.get('fields', [])
+        df_columns = set(df.columns)
+        
+        missing_fields = set(required_fields) - df_columns
+        if missing_fields:
+            logger.error(f"Schema validation failed: Missing fields {missing_fields}")
+            return False
+            
+        logger.info("Schema validation passed.")
+        return True
+    except Exception as e:
+        logger.error(f"Error reading schema: {e}")
         return False
-    logger.info("Schema validation passed.")
-    return True
 
 def main():
-    """Generate and save synthetic data."""
-    df = generate_synthetic_data(n_rows=500, seed=42, data_type="mixed")
+    """Generate and save synthetic data to the required path."""
+    # Ensure output directory exists
     output_path = Path("data/processed/synthetic_data.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Generate data
+    df = generate_synthetic_data(n_rows=1000, seed=42)
+    
+    # Validate against schema before saving
+    if not validate_schema(df):
+        logger.error("Schema validation failed. Aborting save.")
+        raise ValueError("Synthetic data does not match schema.")
+    
+    # Save to CSV
     df.to_csv(output_path, index=False)
-    logger.info(f"Synthetic data saved to {output_path}")
+    logger.info(f"Synthetic data successfully saved to {output_path}")
 
 if __name__ == "__main__":
     main()

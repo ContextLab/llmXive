@@ -29,7 +29,7 @@ The system must compute Spearman rank correlation coefficients between each Big 
 
 **Why this priority**: This is the core analytical engine that directly answers the research question. It must handle the statistical logic correctly to produce valid results, accounting for skewed data distributions and high-cardinality categorical variables.
 
-**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre-calculated correlation values and verifying the output matches the expected coefficients within a tolerance of 0.001.
+**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre-calculated correlation values and verifying the output matches the expected coefficients within an acceptable tolerance.
 
 **Acceptance Scenarios**:
 

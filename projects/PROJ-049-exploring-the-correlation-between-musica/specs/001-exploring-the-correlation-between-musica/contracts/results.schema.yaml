@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the statistical analysis results (correlations and regressions). This is the single source of truth for the final output and satisfies FR-006 for the summary report."
+type: object
+properties:
+  trait:
+    type: string
+    description: "The Big Five trait being analyzed."
+    enum:
+      - "Openness"
+      - "Conscientiousness"
+      - "Extraversion"
+      - "Agreeableness"
+      - "Neuroticism"
+  genre:
+    type: string
+    description: "The music genre being analyzed."
+    enum:
+      - "Rock"
+      - "Pop"
+      - "Hip-Hop"
+      - "Classical"
+      - "Electronic"
+      - "Jazz"
+      - "Folk"
+      - "Country"
+      - "Metal"
+      - "Other"
+  correlation_rho:
+    type: number
+    description: "Spearman rank correlation coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value for the correlation."
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: boolean
+    description: "True if adjusted_p_value < 0.05."
+  effect_size_r:
+    type: number
+    description: "Pearson's r effect size (derived for interpretation)."
+  ci_lower_bootstrap:
+    type: number
+    description: "Lower bound of 95% CI via bootstrapping."
+  ci_upper_bootstrap:
+    type: number
+    description: "Upper bound of 95% CI via bootstrapping."
+  beta:
+    type: number
+    description: "Regression coefficient (beta) for the trait in the full model."
+  std_error:
+    type: number
+    description: "Standard error of the beta coefficient."
+  t_stat:
+    type: number
+    description: "T-statistic for the regression."
+  vif:
+    type: number
+    description: "Variance Inflation Factor for collinearity check."
+    minimum: 1
+  beta_baseline:
+    type: number
+    description: "Beta coefficient for the trait in the baseline model (if applicable, else null)."
+  beta_full:
+    type: number
+    description: "Beta coefficient for the trait in the full model."
+  delta:
+    type: number
+    description: "Change in beta (beta_full - beta_baseline)."
+  percent_change:
+    type: number
+    description: "Percent change in beta ((delta / beta_baseline) * 100)."
+  effect_size_threshold_met:
+    type: boolean
+    description: "True if |effect_size_r| > 0.3, as per SC-001."
+required:
+  - trait
+  - genre
+  - correlation_rho
+  - p_value
+  - adjusted_p_value
+  - is_significant
+  - effect_size_r
+  - ci_lower_bootstrap
+  - ci_upper_bootstrap
+  - beta
+  - std_error
+  - t_stat
+  - vif
+  - beta_full
+  - delta
+  - percent_change
+  - effect_size_threshold_met
+additionalProperties: false

@@ -1,14 +1,16 @@
 # Quickstart: Exploring the Correlation Between Musical Preference and Personality Traits
 
 ## Prerequisites
+
 *   Python 3.11+
-*   Git
-*   Access to a terminal with `pip`
+*   `git`
+*   Access to the project repository.
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory):
+1.  **Clone the repository**:
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-049-exploring-the-correlation-between-musica
     ```
 
@@ -22,43 +24,55 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Dependencies include: pandas, numpy, scipy, scikit-learn, matplotlib, seaborn, pytest.*
 
-## Running the Pipeline
+## Data Setup
 
-### 1. Data Ingestion & Preprocessing
-This step generates the synthetic data (since verified sources are unavailable) and merges it.
-```bash
-python code/ingest.py
-```
-*   **Output**: `data/processed/merged_dataset.csv`
-*   **Note**: If real data files are placed in `data/raw/`, this script will attempt to load them. Otherwise, it generates a deterministic synthetic dataset.
+**Important**: This project requires real data. Do not use synthetic data for analysis.
 
-### 2. Statistical Analysis
-Run the correlation and regression analysis.
-```bash
-python code/analysis.py
-```
-*   **Output**:
-    *   `data/processed/analysis_results.csv` (Detailed stats)
-    *   `data/processed/results_report.csv` (Summary report)
-    *   `data/processed/correlation_heatmap.png`
-    *   `data/processed/regression_coefficients.png`
+1.  **Verify Data Availability**:
+    The system will attempt to download the required datasets automatically. Ensure you have internet access.
+    ```bash
+    python code/ingestion.py --check-only
+    ```
+    *If this fails, the project cannot proceed due to data unavailability (see `research.md`).*
 
-### 3. Verify Results
-Check the generated report.
-```bash
-cat data/processed/results_report.csv
-```
-Look for rows where `is_significant` is `True` and `adjusted_p_value` < 0.05. Check `effect_size_threshold_met` for SC-001 and `beta_delta` for SC-003.
+2.  **Download Data**:
+    ```bash
+    python code/ingestion.py
+    ```
+    This will create `data/raw/` and `data/processed/merged_users.csv`.
 
-## Testing
-Run the unit tests to ensure the pipeline integrity.
-```bash
-pytest tests/
-```
+## Running the Analysis
+
+1.  **Execute the full pipeline**:
+    ```bash
+    python code/analysis.py
+    ```
+    This script performs:
+    *   Data cleaning and merging.
+    *   Spearman correlation matrix calculation.
+    *   Multiple linear regression with demographic controls.
+    *   Benjamini-Hochberg FDR correction.
+    *   Visualization generation.
+
+2.  **Verify Outputs**:
+    Check the `results/` directory for:
+    *   `correlation_heatmap.png`
+    *   `results_report.csv` (Satisfies FR-006; defined by `contracts/results.schema.yaml`)
+    *   `analysis_results.csv`
+
+## Validation
+
+1.  **Run Unit Tests**:
+    ```bash
+    pytest tests/ -v
+    ```
+    Ensure all tests pass, particularly `test_analysis.py` which validates the FDR correction logic.
+
+2.  **Reproducibility Check**:
+    Re-run the pipeline on a clean environment to ensure results are identical (random seeds are pinned).
 
 ## Troubleshooting
-*   **Missing Data Error**: If `merged_dataset.csv` is empty, check `code/ingest.py` logs. The script may have failed to generate synthetic data if the random seed was corrupted (unlikely).
-*   **Memory Error**: The synthetic dataset is capped at 10k rows. If you replace it with a larger real dataset, ensure it fits in < 7GB RAM.
-*   **No Significant Results**: This is expected if the synthetic data is random. The pipeline is validated by the *presence* of the output files and the correct application of FDR, not the existence of a specific correlation.
+
+*   **Dataset Not Found**: If `ingestion.py` fails, check the `research.md` file for the list of verified sources. If the specific datasets are not available, the project is blocked until a verified source is found.
+*   **Memory Error**: If the dataset is too large, the script will attempt to stream it. If it fails, reduce the sample size in `code/config.py` (only for testing, not for final results).

@@ -1,3 +1,11 @@
+T008:
+  c: false
+  h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
+  r: "The repository contains a `synthetic_data.py` that can generate a DataFrame,\
+    \ but it never writes the data to `data/processed/synthetic_data.csv` (the file\
+    \ is missing) and the required `contracts/dataset.schema.yaml` is also absent,\
+    \ so the column\u2011name compliance cannot be verified. The task\u2019s core\
+    \ output (the saved CSV matching the schema) is not present."
 T012:
   c: false
   h: 55c26fa05fca1ac58a85667314afc024020b0e23fc4a29a75e600fe17cab1b71
@@ -13,21 +21,6 @@ T017:
     \ verification and checksum logging cannot be performed. The implementer must\
     \ provide the CSV file (non\u2011empty with the correct columns) and the corresponding\
     \ verification/log output."
-T026:
-  c: false
-  h: fafc73f6c7a17f9392b75e6bd4efaa486747e86f80f5817500e3167816703003
-  r: The repository contains `code/analysis.py`, but the shown code does not include
-    any logic that reads `data/processed/analysis_results.csv` and creates a seaborn
-    heatmap saved as `results/correlation_heatmap.png` with the specified dimensions
-    and DPI. Moreover, the expected output file `results/correlation_heatmap.png`
-    is absent. The task therefore remains unfinished.
-T028:
-  c: false
-  h: f99d34409557014b1e1c71353064000b6962db0fbc3c616c4984f909279b1e69
-  r: The `results/results_report.csv` file does not exist, and the provided `code/analysis.py`
-    is incomplete (truncated and lacking the logic to compute effect sizes, confidence
-    intervals, and write the required CSV). Consequently the required output artifact
-    is missing and the implementation does not fulfill the specification.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +35,11 @@ T031:
     \ (e.g., updated scripts, commit logs, or before\u2011after comparisons), we cannot\
     \ confirm that the required code cleanup task was performed. The implementer must\
     \ supply the revised codebase (or a clear summary of changes) to satisfy the task."
+T034:
+  c: false
+  h: 398f289e7d1e7112633a9d4c9156c2a186fb28dc451bb930f4c697402c92abf8
+  r: "The repository lacks the required `data/processed/coefficient_deltas.csv` file,\
+    \ and the provided `code/analysis.py` (truncated) shows no implementation that\
+    \ computes regression\u2011coefficient deltas, logs them, applies a >10\u202F\
+    % change threshold, or writes a `validity_status` column. The task\u2019s core\
+    \ functionality is therefore missing."
