@@ -1,3 +1,27 @@
+T000:
+  c: false
+  h: 24ae67f2c6608c9e3fb20c7a2e854d3731684b288222f4e4b71ade98f086d1ee
+  r: "The repository contains `code/data/generate_mock_data.py`, but the shown source\
+    \ is truncated and does not include any code that writes `data/raw/mock_studies.csv`.\
+    \ Moreover, the required output file `data/raw/mock_studies.csv` is absent from\
+    \ the project. The task\u2019s core deliverable\u2014a CSV with 15 synthetic studies\u2014\
+    is therefore not present."
+T006b:
+  c: false
+  h: dd435b8ae14f7f63d2be87b72eb2508ccef25aa26ff24053e5e34dee8d0b49ee
+  r: "The provided `code/utils/config.py` exists, but the required configuration files\
+    \ `code/config/config.yaml` and `config_schema.yaml` are missing, so the loader\
+    \ cannot actually load or validate any configuration. Additionally, the snippet\
+    \ does not show a `load_config()` function, and without the schema file the validation\
+    \ step cannot be performed. The task\u2019s core requirements are therefore not\
+    \ satisfied."
+T007c:
+  c: false
+  h: 9d70d67d0318a6c82852f5b0c2247a4282c95e8f0217c0f9c0357e4b094fffe3
+  r: The script `code/config/generate_lexicon.py` is present and correctly defines
+    the required tract names and verbs, but the required output file `data/config/tract_lexicon.yaml`
+    does not exist on disk. The task demands that this YAML file be generated; its
+    absence means the requirement is not satisfied.
 T008c:
   c: false
   h: b638115c02b4625f8abbaf5cb247d7e26b3e2101225a22d235d017a5562de83f
@@ -53,8 +77,9 @@ T018:
     \ demonstrated as handled."
 T040:
   c: false
-  h: 700ff3073523883b151d62faa43c6878ac79333e20bab7d3d0d2139d20d41f0c
-  r: The `p_value_converter.py` module exists and contains conversion logic, but the
-    required artifact `data/logs/conversion_log.csv` is not present on disk; the task
-    explicitly demanded that conversion results be logged to this file. Without the
-    log file, the implementation does not satisfy the artifact requirement.
+  h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b
+  r: "The repository contains `code/extraction/p_value_converter.py`, but the required\
+    \ log file `data/logs/conversion_log.csv` does not exist, and the header written\
+    \ by the script uses different column names (`p_value`, `result_r`, `status`)\
+    \ instead of the exact `original_p`, `converted_r`, `conversion_status` specified.\
+    \ Consequently the logging artifact does not meet the task\u2019s specification."

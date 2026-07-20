@@ -1,10 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Study Record Schema
-description: >
-  Schema defining the structure of a single study record extracted from
-  literature regarding the correlation between structural brain connectivity
-  and individual music preferences. This schema is used for validation of
-  extracted data before meta-analysis.
+description: Schema for individual study metadata, tract information, effect sizes, and qualitative descriptors in the meta-analysis pipeline.
 type: object
 required:
   - study_id
@@ -16,80 +12,54 @@ required:
 properties:
   study_id:
     type: string
-    description: Unique identifier for the study (e.g., "Author_Year_Tract").
-    pattern: "^[A-Za-z0-9_]+$"
-    
+    description: Unique identifier for the study (e.g., 'Author_Year_01').
+    pattern: '^[A-Za-z0-9_]+$'
+  
   author:
     type: string
-    description: Last name of the first author.
+    description: Primary author's last name.
     minLength: 1
-    
+  
   year:
     type: integer
     description: Publication year.
     minimum: 1900
     maximum: 2100
-    
+  
   tract:
     type: string
-    description: >
-      Name of the white matter tract investigated. 
-      Should be harmonized against the JHU Atlas standard names 
-      (see analysis.tract_mapping).
+    description: Name of the brain tract investigated (harmonized name preferred).
     minLength: 1
-    
+  
   r:
     type: number
-    description: >
-      Pearson correlation coefficient (effect size).
-      Must be between -1.0 and 1.0.
+    description: Pearson correlation coefficient reported in the study.
     minimum: -1.0
     maximum: 1.0
-    
+  
   n:
     type: integer
     description: Sample size (number of participants).
     minimum: 1
-    
-  p_value:
-    type: number
-    description: >
-      Reported p-value. Optional if r and n are provided, 
-      but useful for verification or Fisher's Z conversion if r is missing.
-    minimum: 0.0
-    maximum: 1.0
-    
+  
   qualitative_desc:
     type: string
-    description: >
-      Qualitative description or narrative finding extracted from the text
-      (e.g., "positive correlation", "no significant association").
-      Used when quantitative metrics are missing or for narrative synthesis.
+    description: Qualitative description or narrative finding extracted from the study text.
     default: ""
-    
-  notes:
-    type: string
-    description: Additional notes, limitations, or context extracted from the study.
-    default: ""
-    
-  source_file:
-    type: string
-    description: Filename of the source document from which this record was extracted.
-    
-  extraction_confidence:
+  
+  p_value:
     type: number
-    description: >
-      Confidence score of the extraction (0.0 to 1.0). 
-      1.0 indicates direct numerical extraction; lower values indicate NLP inference.
+    description: Reported p-value (optional, for conversion tasks).
     minimum: 0.0
     maximum: 1.0
-    default: 1.0
-    
-  is_narrative_pool:
-    type: boolean
-    description: >
-      Flag indicating if this study is included in the narrative pool 
-      (qualitative synthesis) due to lack of quantitative data.
-    default: false
-    
-additionalProperties: false
+    default: null
+  
+  notes:
+    type: string
+    description: Any additional notes or exclusion reasons.
+    default: ""
+  
+  extracted_from:
+    type: string
+    description: Source file or method of extraction (e.g., 'manual', 'nlp_logic', 'p_value_converter').
+    default: "unknown"

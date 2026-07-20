@@ -74,13 +74,17 @@ def load_tract_mapping_config() -> Dict[str, str]:
             pass
     
     # Default mapping for common tracts
+    # Includes variants for arcuate, cingulum, uncinate, slf, ilf, etc.
     return {
         "arcuate": "Arcuate Fasciculus",
         "arcuate fasciculus": "Arcuate Fasciculus",
+        "af": "Arcuate Fasciculus",
         "cingulum": "Cingulum Bundle",
         "cingulum bundle": "Cingulum Bundle",
+        "cb": "Cingulum Bundle",
         "uncinate": "Uncinate Fasciculus",
         "uncinate fasciculus": "Uncinate Fasciculus",
+        "uf": "Uncinate Fasciculus",
         "slf": "Superior Longitudinal Fasciculus",
         "superior longitudinal fasciculus": "Superior Longitudinal Fasciculus",
         "ilf": "Inferior Longitudinal Fasciculus",

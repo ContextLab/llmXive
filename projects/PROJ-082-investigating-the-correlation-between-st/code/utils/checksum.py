@@ -13,12 +13,15 @@ def calculate_md5(file_path: Union[str, Path]) -> str:
         
     Returns:
         MD5 hex digest string
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
-    hash_md5 = hashlib.md5()
     path_obj = Path(file_path)
     if not path_obj.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-        
+    
+    hash_md5 = hashlib.md5()
     with open(path_obj, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
@@ -33,12 +36,15 @@ def calculate_sha256(file_path: Union[str, Path]) -> str:
         
     Returns:
         SHA256 hex digest string
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
-    hash_sha256 = hashlib.sha256()
     path_obj = Path(file_path)
     if not path_obj.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-        
+    
+    hash_sha256 = hashlib.sha256()
     with open(path_obj, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_sha256.update(chunk)
@@ -54,7 +60,11 @@ def verify_checksum(file_path: Union[str, Path], expected_checksum: str, algorit
         algorithm: Checksum algorithm ('md5' or 'sha256')
         
     Returns:
-        True if checksum matches, False otherwise
+        True if checksum matches, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the algorithm is unsupported.
     """
     if algorithm == "md5":
         actual_checksum = calculate_md5(file_path)

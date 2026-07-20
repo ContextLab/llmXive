@@ -16,3 +16,38 @@ exclude = '''
     | dist
 )/
 '''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+include = ["*.py", "*.pyi"]
+exclude = [
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B006", # mutable default arguments (common in data pipelines)
+    "B008", # function calls in default arguments (common in data pipelines)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/data/generate_mock_data.py" = ["S311"] # Mock data generation uses random
