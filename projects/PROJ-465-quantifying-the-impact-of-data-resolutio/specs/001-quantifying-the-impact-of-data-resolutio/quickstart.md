@@ -1,73 +1,74 @@
-# Quickstart: Quantifying the Impact of Data Resolution on Gravitational Wave Parameter Estimation
+# Quickstart Guide: Quantifying Data Resolution Impact on GW Parameter Estimation
+
+## Overview
+
+This project quantifies how downsampling and quantization of gravitational wave strain data affect parameter estimation accuracy.
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to the internet (for `gwpy` data fetch)
+- Python 3.9+
+- pip
+- GWOSC API access (optional for real data)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-465-quantifying-the-impact-of-data-resolutio
-   ```
+1. Clone the repository:
+ ```bash
+ git clone <repo-url>
+ cd PROJ-465-quantifying-the-impact-of-data-resolutio
+ ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+2. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Running the Pipeline
 
-The pipeline is designed to run sequentially.
+### 1. Download Data (Optional)
 
-### Step 1: Fetch Data
-Download high-SNR strain data from GWOSC.
 ```bash
-python code/scripts/fetch_data.py --event GW150914
+python code/data/download.py
 ```
 
-### Step 2: Preprocess
-Downsample and quantize the data.
+### 2. Transform Data
+
 ```bash
-python code/scripts/preprocess.py --event GW150914 --rates 4096 2048 1024 --bits 32 16
+python code/data/transform.py
 ```
 
-### Step 3: Run Inference
-Execute Bayesian parameter estimation.
-```bash
-python code/scripts/run_inference.py --event GW150914 --config all
-```
-*Note: This step may take 1-2 hours per configuration on a CPU.*
+### 3. Run Inference
 
-### Step 4: Analyze Metrics
-Calculate Hellinger distances and bias.
 ```bash
-python code/scripts/analyze_metrics.py --event GW150914
+python code/inference/run_bilby.py
 ```
 
-### Step 5: Aggregate Results
-Generate the final summary report.
+### 4. Calculate Metrics
+
 ```bash
-python code/scripts/aggregate_results.py
+python code/analysis/metrics.py
 ```
 
-## Verification
+### 5. Aggregate Results
 
-To verify the pipeline on a single configuration:
 ```bash
-python -m pytest code/tests/ -v
+python code/analysis/aggregate.py
 ```
 
-## Troubleshooting
+## Output Artifacts
 
-- **GWOSC Timeout**: If `fetch_data.py` fails, check internet connectivity or GWOSC status.
-- **Convergence Failure**: If `run_inference.py` flags "inconclusive", the `dlogz` threshold was not met within 5000 steps. This is expected for low-SNR or highly degenerate cases.
+- `results/posteriors/`: Posterior distribution files
+- `results/metrics/`: Bias and divergence metrics
+- `results/aggregation_report.json`: Summary of resolution thresholds
+- `results/summary_table.csv`: Final summary table
+- `results/figures/sampling_rate_vs_bias.png`: Visualization plot
+
+## Validation
+
+Run the quickstart validation script:
+
+```bash
+python code/validation/run_quickstart.py
+```
+
+This script ensures all artifacts are generated and checksummed.

@@ -1,93 +1,106 @@
 # Quickstart Guide: Quantifying the Impact of Data Resolution on Gravitational Wave Parameter Estimation
 
-This guide provides instructions for setting up, running, and analyzing the gravitational wave (GW) resolution impact pipeline.
+This guide walks you through setting up the environment, downloading data, running the full analysis pipeline, and interpreting the results for the `PROJ-465` project.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip and virtual environment tools
-- Access to the GWOSC API (internet connection required)
+- `pip` (Python package manager)
+- Access to the GWOSC API (no API key required for public events, but rate limits apply)
 
-## Installation
+## 1. Installation
 
-1. Clone the repository and navigate to the project root.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-## Configuration
-
-Ensure the `code/config.py` file is configured with your desired data paths.
-By default, data is stored in:
-- `data/raw/`: Raw strain data from GWOSC
-- `data/derived/`: Processed (downsampled/quantized) data
-- `results/posteriors/`: Posterior samples from `bilby` runs
-- `results/metrics/`: Calculated bias and divergence metrics
-
-## Running the Pipeline
-
-The pipeline is executed in three main phases corresponding to the User Stories.
-
-### Phase 1: Data Download and Transformation (User Story 1)
-
-Download high-SNR events and apply resolution transforms.
+Clone the repository and install the required dependencies.
 
 ```bash
-python code/data/download.py
-python code/data/transform.py
+# Navigate to the project root
+cd PROJ-465-quantifying-the-impact-of-data-resolutio
+
+# Create and activate a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r code/requirements.txt
 ```
 
-*Note: This step requires fetching data from GWOSC. Ensure you have network access.*
+**Key Dependencies**:
+- `gwpy`: For accessing GWOSC data.
+- `bilby` & `dynesty`: For Bayesian parameter estimation.
+- `scipy`, `numpy`, `pandas`: For data transformation and analysis.
+- `matplotlib`: For visualization.
 
-### Phase 2: Bayesian Inference (User Story 1)
+## 2. Configuration
 
-Run parameter estimation using `bilby` and `dynesty`.
+Ensure the project directories exist. The `code/config.py` module handles this automatically upon first run, but you can verify:
+
+```python
+from code.config import ensure_directories
+ensure_directories()
+```
+
+This creates the necessary structure:
+- `data/raw/`: For downloaded strain data.
+- `data/derived/`: For downsampled/quantized data.
+- `results/posteriors/`: For Bayesian inference outputs.
+- `results/metrics/`: For calculated bias and divergence metrics.
+
+## 3. Data Download
+
+The pipeline automatically fetches high-SNR (Signal-to-Noise Ratio ≥ 20) events from the GWOSC catalog.
+
+To manually trigger a download for a specific event (e.g., GW150914):
 
 ```bash
-python code/inference/run_bilby.py
+python code/data/download.py --event GW150914
 ```
 
-This generates posterior files for each resolution configuration.
-Convergence is checked via `dlogz < 0.1`. Runs exceeding the maximum steps with `dlogz > 0.1` are flagged as "inconclusive".
+**Note**: The script includes logic to detect missing data segments. If data is unavailable for a requested segment, it logs a warning with the segment ID and proceeds with available data, as per the project's robustness requirements.
 
-### Phase 3: Metrics Calculation (User Story 2)
+## 4. Running the Pipeline
 
-Calculate Hellinger distance and bias metrics against the baseline (4096 Hz).
+The full analysis pipeline can be executed via the validation script, which orchestrates downloading, downsampling, inference, and metric calculation.
 
 ```bash
-python code/analysis/metrics.py
+python code/validation/run_quickstart.py
 ```
 
-This step gates on the validity of the baseline posterior.
+This script performs the following steps:
+1. **Ensures Event Data**: Fetches strain data for the target event.
+2. **Runs Pipeline**:
+ - **Downsampling**: Applies `scipy.signal.decimate` to generate 4096 Hz, 2048 Hz, and 1024 Hz versions.
+ - **Quantization**: Simulates 16-bit and 32-bit float storage constraints.
+ - **Inference**: Runs `bilby` with the `IMRPhenomPv2` waveform model and `dynesty` sampler (max 5000 steps, `dlogz` threshold 0.1).
+ - **Metrics**: Calculates Hellinger distance and bias against the 4096 Hz baseline.
+3. **Generates Checksums**: Verifies artifact integrity using `code/utils/hash_artifact.py`.
+4. **Validates Artifacts**: Confirms that all expected output files (posteriors, metrics, reports) exist.
 
-### Phase 4: Aggregation and Visualization (User Story 3)
+## 5. Output Artifacts
 
-Aggregate results across events and generate summary reports.
+Upon successful completion, the following artifacts are generated:
 
-```bash
-python code/analysis/aggregate.py
-python code/analysis/visualize.py
-```
-
-## Output Artifacts
-
-- **Posterior Files**: `results/posteriors/{event_id}_{resolution}_posterior.hdf5`
-- **Metrics JSON**: `results/metrics/{event_id}_metrics.json`
+- **Posteriors**: `results/posteriors/<event_id>_<resolution>.json`
+ - Contains posterior samples and metadata, including "inconclusive" flags if convergence (`dlogz`) was not met.
+- **Metrics**: `results/metrics/<event_id>_metrics.csv`
+ - Contains Hellinger distance, mass/spin bias, and 90% CI comparisons.
 - **Aggregation Report**: `results/metrics/aggregation_report.json`
-- **Visualizations**: `figures/bias_vs_sampling_rate.png`
+ - Summarizes the majority-rule threshold where bias exceeds catalog uncertainty.
+- **Visualizations**: `results/figures/sampling_rate_vs_bias.png`
+ - Plots sampling rate against bias magnitude with the catalog uncertainty threshold line.
+
+## 6. Interpreting Results
+
+- **Inconclusive Runs**: If a posterior is flagged "inconclusive" (due to `dlogz > 0.1`), it is excluded from the denominator in the majority-rule calculation but counted as "bias exceeded" in the threshold analysis, per FR-004 and FR-007.
+- **Bias Threshold**: The primary output is the lowest sampling rate where bias exceeds the catalog-reported 90% confidence interval for ≥ 50% of valid events.
+- **No Threshold**: If bias remains within limits even at the lowest tested resolution (e.g., 1024 Hz), a "No threshold found" report is generated.
 
 ## Troubleshooting
 
-- **Convergence Failures**: If many runs are flagged "inconclusive", consider increasing the `dlogz` threshold or `maxiter` in `code/inference/run_bilby.py` (requires spec update).
-- **Missing Data**: The pipeline logs warnings for missing GWOSC segments. Check `logs/derivation.log` for segment IDs.
-- **Seed Reproducibility**: All random seeds are enforced via `code/utils/seeds.py`. Do not modify `numpy` or `bilby` seeds elsewhere in the code.
+- **Missing Data**: If the download fails due to missing segments, check the logs for the specific segment ID. The pipeline will continue with available data.
+- **Convergence Failures**: If many runs are flagged "inconclusive", consider increasing the `dlogz` threshold or `max_steps` in `code/inference/run_bilby.py` (not recommended for standard runs).
+- **API Rate Limits**: GWOSC may rate-limit requests. Add a small delay between downloads or use the `--wait` flag if available.
 
-## Contributing
+## Further Reading
 
-Please refer to the `CONTRIBUTING.md` file for development guidelines.
+- See `docs/data-model.md` for details on the data structures and artifact formats.
+- Refer to `specs/001-quantify-gw-resolution-impact/spec.md` for the full requirements and user stories.

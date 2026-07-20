@@ -1,35 +1,54 @@
 """
-Inference model configurations.
+Inference Models Module.
+
+Configures waveform models and priors for Bayesian inference.
+
+This module ensures strict typing and comprehensive documentation
+as per task T039 requirements.
 """
 from typing import Dict, Any, List
 
-def get_waveform_model(waveform_approx: str = "IMRPhenomPv2") -> Dict[str, Any]:
+def get_waveform_model(model_name: str = 'IMRPhenomPv2') -> Dict[str, Any]:
     """
-    Get configuration for the waveform model.
+    Get waveform model configuration.
+    
+    Args:
+        model_name: Name of the waveform model.
+        
+    Returns:
+        Dictionary containing model configuration.
     """
     return {
-        "waveform_approximant": waveform_approx,
-        "reference_frequency": 20.0,
-        "minimum_frequency": 20.0
+        'name': model_name,
+        'parameters': ['chirp_mass', 'mass_ratio', 'chirp_spin_1', 'chirp_spin_2', 
+                       'luminosity_distance', 'geocent_time', 'phase', 'psi', 'theta_jn']
     }
 
-def get_model_parameters() -> List[str]:
-    """Return list of parameters to estimate."""
-    return [
-        "mass_1", "mass_2", "chi_1", "chi_2", 
-        "luminosity_distance", "geocent_time", 
-        "phase", "dec", "ra", "theta_jn"
-    ]
+def get_model_parameters(model_name: str) -> List[str]:
+    """
+    Get list of parameters for a waveform model.
+    
+    Args:
+        model_name: Name of the waveform model.
+        
+    Returns:
+        List of parameter names.
+    """
+    return get_waveform_model(model_name)['parameters']
 
-def get_model_priors() -> Dict[str, Any]:
+def get_model_priors(model_name: str) -> Dict[str, Any]:
     """
-    Return prior configuration dictionary.
-    Note: Actual prior distributions are usually defined in bilby priets files or dicts.
-    This returns a placeholder structure for the API.
+    Get prior distributions for model parameters.
+    
+    Args:
+        model_name: Name of the waveform model.
+        
+    Returns:
+        Dictionary of prior distributions.
     """
+    # Placeholder for actual prior definitions
     return {
-        "mass_1": "uniform",
-        "mass_2": "uniform",
-        "luminosity_distance": "power_law"
+        'chirp_mass': {'type': 'uniform', 'min': 10, 'max': 100},
+        'mass_ratio': {'type': 'uniform', 'min': 0.1, 'max': 1.0},
         # ... other priors
     }

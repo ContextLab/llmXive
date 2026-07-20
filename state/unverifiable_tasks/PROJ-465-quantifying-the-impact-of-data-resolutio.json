@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-465-quantifying-the-impact-of-data-resolutio",
+  "tasks": [
+    {
+      "task_key": "T038",
+      "reject_count": 1,
+      "last_reason": "No `docs/quickstart.md` or `docs/data-model.md` files were presented, and there is no evidence that any documentation was added or updated. The provided artifacts relate only to feature specifications and testing scenarios, not to the required documentation updates.",
+      "first_seen": "2026-07-20T13:36:47.769085+00:00",
+      "last_seen": "2026-07-20T13:36:47.769085+00:00"
+    }
+  ],
+  "updated_at": "2026-07-20T13:36:47.769085+00:00"
+}
