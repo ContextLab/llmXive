@@ -1,314 +1,236 @@
-"""
-Unit tests for router evaluation logic (T020).
-
-Tests:
-- Accuracy calculation
-- Random baseline calculation
-- Paired t-test implementation
-- Bootstrap significance test
-- End-to-end evaluation flow
-"""
-
 import os
 import sys
 import json
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 import numpy as np
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.router_evaluation import (
+    load_convergence_results,
+    load_router_predictions,
+    align_data,
     calculate_accuracy,
     calculate_random_baseline_accuracy,
     paired_ttest_router_vs_baseline,
     bootstrap_significance_test,
     evaluate_router,
-    align_data
+    save_evaluation_results,
+    print_evaluation_summary
 )
 
-class TestAccuracyCalculations:
-    """Tests for accuracy calculation functions."""
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test files."""
+    temp_path = tempfile.mkdtemp()
+    yield temp_path
+    shutil.rmtree(temp_path)
 
-    def test_calculate_accuracy_perfect_match(self):
-        """Test accuracy when predictions perfectly match ground truth."""
-        ground_truth = [1, 2, 3, 1, 2]
-        predictions = [1, 2, 3, 1, 2]
-        
-        accuracy = calculate_accuracy(ground_truth, predictions)
+@pytest.fixture
+def sample_convergence_data(temp_dir):
+    """Create sample convergence data file."""
+    data = [
+        {'task_id': 'task_1', 'convergence_step': 2, 'k': 2},
+        {'task_id': 'task_2', 'convergence_step': 3, 'k': 3},
+        {'task_id': 'task_3', 'convergence_step': 1, 'k': 1},
+        {'task_id': 'task_4', 'convergence_step': 4, 'k': 4},
+        {'task_id': 'task_5', 'convergence_step': 2, 'k': 2},
+    ]
+    filepath = os.path.join(temp_dir, 'convergence_results.csv')
+    with open(filepath, 'w') as f:
+        f.write('task_id,convergence_step,k\n')
+        for row in data:
+            f.write(f"{row['task_id']},{row['convergence_step']},{row['k']}\n")
+    return filepath
+
+@pytest.fixture
+def sample_router_predictions(temp_dir):
+    """Create sample router predictions file."""
+    data = [
+        {'task_id': 'task_1', 'predicted_k': 2, 'actual_k': 2, 'entropy': 0.5, 'difficulty': 'easy'},
+        {'task_id': 'task_2', 'predicted_k': 3, 'actual_k': 3, 'entropy': 0.8, 'difficulty': 'medium'},
+        {'task_id': 'task_3', 'predicted_k': 1, 'actual_k': 1, 'entropy': 0.2, 'difficulty': 'hard'},
+        {'task_id': 'task_4', 'predicted_k': 3, 'actual_k': 4, 'entropy': 0.9, 'difficulty': 'medium'},
+        {'task_id': 'task_5', 'predicted_k': 2, 'actual_k': 2, 'entropy': 0.4, 'difficulty': 'easy'},
+    ]
+    filepath = os.path.join(temp_dir, 'router_predictions.csv')
+    with open(filepath, 'w') as f:
+        f.write('task_id,predicted_k,actual_k,entropy,difficulty\n')
+        for row in data:
+            f.write(f"{row['task_id']},{row['predicted_k']},{row['actual_k']},{row['entropy']},{row['difficulty']}\n")
+    return filepath
+
+class TestAccuracyCalculations:
+    def test_calculate_accuracy_perfect(self):
+        """Test accuracy calculation with perfect predictions."""
+        data = [
+            {'predicted_k': 2, 'actual_k': 2},
+            {'predicted_k': 3, 'actual_k': 3},
+            {'predicted_k': 1, 'actual_k': 1},
+        ]
+        accuracy = calculate_accuracy(data)
         assert accuracy == 1.0
 
-    def test_calculate_accuracy_no_match(self):
-        """Test accuracy when predictions never match ground truth."""
-        ground_truth = [1, 2, 3, 1, 2]
-        predictions = [2, 3, 1, 2, 3]
-        
-        accuracy = calculate_accuracy(ground_truth, predictions)
+    def test_calculate_accuracy_partial(self):
+        """Test accuracy calculation with partial predictions."""
+        data = [
+            {'predicted_k': 2, 'actual_k': 2},  # Correct
+            {'predicted_k': 3, 'actual_k': 4},  # Within tolerance (1)
+            {'predicted_k': 1, 'actual_k': 4},  # Outside tolerance
+        ]
+        accuracy = calculate_accuracy(data, tolerance=1)
+        assert accuracy == 2/3
+
+    def test_calculate_accuracy_empty(self):
+        """Test accuracy calculation with empty data."""
+        accuracy = calculate_accuracy([])
         assert accuracy == 0.0
 
-    def test_calculate_accuracy_partial_match(self):
-        """Test accuracy with partial matches."""
-        ground_truth = [1, 2, 3, 1, 2]
-        predictions = [1, 3, 3, 2, 2]  # 3 matches out of 5
-        
-        accuracy = calculate_accuracy(ground_truth, predictions)
-        assert accuracy == 0.6
+    def test_calculate_random_baseline_accuracy(self):
+        """Test random baseline accuracy calculation."""
+        data = [
+            {'actual_k': 1},  # Correct for baseline
+            {'actual_k': 2},  # Incorrect
+            {'actual_k': 1},  # Correct for baseline
+        ]
+        accuracy = calculate_random_baseline_accuracy(data)
+        assert accuracy == 2/3
 
-    def test_calculate_random_baseline_all_k1(self):
-        """Test random baseline when all ground truth is k=1."""
-        ground_truth = [1, 1, 1, 1]
-        
-        baseline_acc = calculate_random_baseline_accuracy(ground_truth)
-        assert baseline_acc == 1.0
-
-    def test_calculate_random_baseline_no_k1(self):
-        """Test random baseline when no ground truth is k=1."""
-        ground_truth = [2, 3, 4, 2]
-        
-        baseline_acc = calculate_random_baseline_accuracy(ground_truth)
-        assert baseline_acc == 0.0
-
-    def test_calculate_random_baseline_mixed(self):
-        """Test random baseline with mixed ground truth."""
-        ground_truth = [1, 2, 1, 3, 1]  # 3 out of 5 are k=1
-        
-        baseline_acc = calculate_random_baseline_accuracy(ground_truth)
-        assert baseline_acc == 0.6
-
-    def test_calculate_random_baseline_empty(self):
-        """Test random baseline with empty ground truth."""
-        ground_truth = []
-        
-        baseline_acc = calculate_random_baseline_accuracy(ground_truth)
-        assert baseline_acc == 0.0
+    def test_calculate_random_baseline_accuracy_empty(self):
+        """Test random baseline accuracy with empty data."""
+        accuracy = calculate_random_baseline_accuracy([])
+        assert accuracy == 0.0
 
 class TestStatisticalTests:
-    """Tests for statistical significance testing functions."""
+    def test_paired_ttest_basic(self):
+        """Test paired t-test with simple data."""
+        router_acc = [1, 1, 0, 1, 1]
+        baseline_acc = [1, 0, 0, 1, 0]
+        t_stat, p_val = paired_ttest_router_vs_baseline(router_acc, baseline_acc)
+        assert not np.isnan(t_stat)
+        assert 0 <= p_val <= 1
 
-    def test_paired_ttest_router_better(self):
-        """Test t-test when router is significantly better."""
-        # Create data where router is always correct, baseline is 50% correct
-        ground_truth = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2] * 10  # 50% k=1
-        router_predictions = ground_truth  # Always correct
-        
-        t_stat, p_value = paired_ttest_router_vs_baseline(ground_truth, router_predictions)
-        
-        # Router accuracy = 1.0, Baseline accuracy = 0.5
-        # Difference should be significant
-        assert p_value < 0.05
-        assert t_stat > 0  # Router should have higher mean
+    def test_paired_ttest_unequal_lengths(self):
+        """Test paired t-test with unequal lengths raises error."""
+        router_acc = [1, 1, 0]
+        baseline_acc = [1, 0]
+        with pytest.raises(ValueError):
+            paired_ttest_router_vs_baseline(router_acc, baseline_acc)
 
-    def test_paired_ttest_equal(self):
-        """Test t-test when router and baseline perform equally."""
-        # All ground truth is k=1, so both router and baseline should be 100%
-        ground_truth = [1] * 100
-        router_predictions = [1] * 100
-        
-        t_stat, p_value = paired_ttest_router_vs_baseline(ground_truth, router_predictions)
-        
-        # No difference expected
-        assert abs(t_stat) < 1e-6
-        assert p_value > 0.05
+    def test_bootstrap_significance_test(self):
+        """Test bootstrap significance test."""
+        router_acc = [1, 1, 0, 1, 1, 1, 0, 1]
+        baseline_acc = [1, 0, 0, 1, 0, 1, 0, 1]
+        mean_diff, p_val, is_significant = bootstrap_significance_test(
+            router_acc, baseline_acc, n_iterations=100
+        )
+        assert isinstance(mean_diff, float)
+        assert 0 <= p_val <= 1
+        assert isinstance(is_significant, bool)
 
-    def test_bootstrap_test_significant(self):
-        """Test bootstrap test when router is significantly better."""
-        ground_truth = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2] * 20
-        router_predictions = ground_truth  # Perfect router
-        
-        p_value = bootstrap_significance_test(ground_truth, router_predictions, n_iterations=1000)
-        
-        # Should be highly significant
-        assert p_value < 0.05
-
-    def test_bootstrap_test_not_significant(self):
-        """Test bootstrap test when router is not better than baseline."""
-        # Create data where router performs same as baseline
-        ground_truth = [1] * 100  # All k=1
-        router_predictions = [1] * 100  # Router also predicts all k=1
-        
-        p_value = bootstrap_significance_test(ground_truth, router_predictions, n_iterations=1000)
-        
-        # No difference expected
-        assert p_value > 0.05
+    def test_bootstrap_significance_test_unequal_lengths(self):
+        """Test bootstrap significance test with unequal lengths raises error."""
+        router_acc = [1, 1, 0]
+        baseline_acc = [1, 0]
+        with pytest.raises(ValueError):
+            bootstrap_significance_test(router_acc, baseline_acc)
 
 class TestAlignData:
-    """Tests for data alignment function."""
+    def test_align_data_success(self, temp_dir, sample_convergence_data, sample_router_predictions):
+        """Test successful data alignment."""
+        conv_results = load_convergence_results(sample_convergence_data)
+        router_preds = load_router_predictions(sample_router_predictions)
+        
+        aligned = align_data(conv_results, router_preds)
+        
+        assert len(aligned) == 5
+        assert all('task_id' in item for item in aligned)
+        assert all('convergence_step' in item for item in aligned)
+        assert all('predicted_k' in item for item in aligned)
 
-    def test_align_data_basic(self):
-        """Test basic alignment of ground truth and predictions."""
-        convergence_data = [
-            {'task_id': 'A', 'optimal_k': 1},
-            {'task_id': 'B', 'optimal_k': 2},
-            {'task_id': 'C', 'optimal_k': 3}
+    def test_align_data_missing_predictions(self, temp_dir):
+        """Test alignment when some predictions are missing."""
+        conv_data = [
+            {'task_id': 'task_1', 'convergence_step': 2, 'k': 2},
+            {'task_id': 'task_2', 'convergence_step': 3, 'k': 3},
         ]
-        router_data = [
-            {'task_id': 'A', 'predicted_k': 1},
-            {'task_id': 'B', 'predicted_k': 2},
-            {'task_id': 'C', 'predicted_k': 3}
+        pred_data = [
+            {'task_id': 'task_1', 'predicted_k': 2, 'actual_k': 2, 'entropy': 0.5, 'difficulty': 'easy'},
         ]
         
-        gt_list, pred_list = align_data(convergence_data, router_data)
+        filepath_conv = os.path.join(temp_dir, 'conv.csv')
+        filepath_pred = os.path.join(temp_dir, 'pred.csv')
         
-        assert gt_list == [1, 2, 3]
-        assert pred_list == [1, 2, 3]
-
-    def test_align_data_unordered(self):
-        """Test alignment when data is not in the same order."""
-        convergence_data = [
-            {'task_id': 'C', 'optimal_k': 3},
-            {'task_id': 'A', 'optimal_k': 1},
-            {'task_id': 'B', 'optimal_k': 2}
-        ]
-        router_data = [
-            {'task_id': 'B', 'predicted_k': 2},
-            {'task_id': 'C', 'predicted_k': 3},
-            {'task_id': 'A', 'predicted_k': 1}
-        ]
+        with open(filepath_conv, 'w') as f:
+            f.write('task_id,convergence_step,k\n')
+            for row in conv_data:
+                f.write(f"{row['task_id']},{row['convergence_step']},{row['k']}\n")
         
-        gt_list, pred_list = align_data(convergence_data, router_data)
+        with open(filepath_pred, 'w') as f:
+            f.write('task_id,predicted_k,actual_k,entropy,difficulty\n')
+            for row in pred_data:
+                f.write(f"{row['task_id']},{row['predicted_k']},{row['actual_k']},{row['entropy']},{row['difficulty']}\n")
         
-        # Should be sorted by task_id
-        assert gt_list == [1, 2, 3]
-        assert pred_list == [1, 2, 3]
-
-    def test_align_data_partial_overlap(self):
-        """Test alignment when there's partial overlap."""
-        convergence_data = [
-            {'task_id': 'A', 'optimal_k': 1},
-            {'task_id': 'B', 'optimal_k': 2},
-            {'task_id': 'C', 'optimal_k': 3}
-        ]
-        router_data = [
-            {'task_id': 'B', 'predicted_k': 2},
-            {'task_id': 'D', 'predicted_k': 1}  # D not in convergence
-        ]
+        conv_results = load_convergence_results(filepath_conv)
+        router_preds = load_router_predictions(filepath_pred)
         
-        gt_list, pred_list = align_data(convergence_data, router_data)
+        aligned = align_data(conv_results, router_preds)
         
-        # Only B should be in the result
-        assert len(gt_list) == 1
-        assert gt_list == [2]
-        assert pred_list == [2]
-
-    def test_align_data_no_overlap(self):
-        """Test alignment when there's no overlap."""
-        convergence_data = [
-            {'task_id': 'A', 'optimal_k': 1}
-        ]
-        router_data = [
-            {'task_id': 'B', 'predicted_k': 2}
-        ]
-        
-        with pytest.raises(ValueError, match="No common task_ids"):
-            align_data(convergence_data, router_data)
+        assert len(aligned) == 1
+        assert aligned[0]['task_id'] == 'task_1'
 
 class TestEvaluateRouter:
-    """Tests for the main evaluate_router function."""
-
-    def test_evaluate_router_full_flow(self):
-        """Test complete evaluation flow with mock data."""
-        ground_truth = [1, 2, 1, 3, 1, 2, 1, 2, 1, 1] * 10  # 60% k=1
-        router_predictions = [1, 2, 1, 3, 1, 2, 1, 2, 1, 1] * 10  # Perfect router
+    def test_evaluate_router_full(self, temp_dir, sample_convergence_data, sample_router_predictions):
+        """Test full router evaluation."""
+        conv_results = load_convergence_results(sample_convergence_data)
+        router_preds = load_router_predictions(sample_router_predictions)
         
-        results = evaluate_router(ground_truth, router_predictions)
+        aligned = align_data(conv_results, router_preds)
+        results = evaluate_router(aligned)
         
-        assert results['router_accuracy'] == 1.0
-        assert results['baseline_accuracy'] == 0.6
-        assert results['accuracy_improvement'] == 0.4
-        assert results['sample_size'] == 100
-        assert results['is_significant'] == True
-        assert results['p_value'] < 0.05
-
-    def test_evaluate_router_worse_than_baseline(self):
-        """Test evaluation when router performs worse than baseline."""
-        # All k=1, so baseline is 100%
-        # Router predicts everything as k=2
-        ground_truth = [1] * 100
-        router_predictions = [2] * 100
-        
-        results = evaluate_router(ground_truth, router_predictions)
-        
-        assert results['router_accuracy'] == 0.0
-        assert results['baseline_accuracy'] == 1.0
-        assert results['accuracy_improvement'] == -1.0
-        assert results['is_significant'] == False  # Router is significantly worse, but we test for better
-
-    def test_evaluate_router_bootstrap(self):
-        """Test evaluation using bootstrap method."""
-        ground_truth = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2] * 20
-        router_predictions = ground_truth  # Perfect router
-        
-        results = evaluate_router(
-            ground_truth, 
-            router_predictions, 
-            use_bootstrap=True, 
-            bootstrap_iterations=500
-        )
-        
-        assert results['statistical_test'] == 'bootstrap'
-        assert results['is_significant'] == True
-        assert results['p_value'] < 0.05
+        assert 'router_accuracy' in results
+        assert 'baseline_accuracy' in results
+        assert 'accuracy_improvement' in results
+        assert 't_statistic' in results
+        assert 'p_value_ttest' in results
+        assert 'is_significant' in results
+        assert results['n_samples'] == 5
 
 class TestIntegration:
-    """Integration tests for the router evaluation module."""
-
-    def test_end_to_end_with_temp_files(self):
-        """Test end-to-end flow with temporary files."""
-        # Create temporary directory
-        temp_dir = tempfile.mkdtemp()
-        try:
-            # Create mock data files
-            convergence_file = Path(temp_dir) / "convergence_results.csv"
-            predictions_file = Path(temp_dir) / "router_predictions.csv"
-            results_file = Path(temp_dir) / "evaluation_results.json"
-            
-            # Write mock data
-            with open(convergence_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=['task_id', 'optimal_k', 'converged'])
-                writer.writeheader()
-                for i in range(100):
-                    writer.writerow({
-                        'task_id': f'task_{i}',
-                        'optimal_k': 1 if i % 2 == 0 else 2,
-                        'converged': 'True'
-                    })
-            
-            with open(predictions_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=['task_id', 'predicted_k', 'confidence'])
-                writer.writeheader()
-                for i in range(100):
-                    writer.writerow({
-                        'task_id': f'task_{i}',
-                        'predicted_k': 1 if i % 2 == 0 else 2,  # Perfect predictions
-                        'confidence': 0.9
-                    })
-            
-            # Mock the file paths
-            with patch('src.router_evaluation.CONVERGENCE_RESULTS_PATH', convergence_file), \
-                 patch('src.router_evaluation.ROUTER_PREDICTIONS_PATH', predictions_file), \
-                 patch('src.router_evaluation.EVALUATION_RESULTS_PATH', results_file):
-                
-                    # Import and run main
-                    import importlib
-                    import src.router_evaluation as router_eval_module
-                    importlib.reload(router_eval_module)
-                    
-                    router_eval_module.main()
-                    
-                    # Check results file
-                    assert results_file.exists()
-                    
-                    with open(results_file, 'r') as f:
-                        results = json.load(f)
-                    
-                    assert results['router_accuracy'] == 1.0
-                    assert results['baseline_accuracy'] == 0.5
-                    assert results['is_significant'] == True
+    def test_save_evaluation_results(self, temp_dir, sample_convergence_data, sample_router_predictions):
+        """Test saving evaluation results to JSON."""
+        conv_results = load_convergence_results(sample_convergence_data)
+        router_preds = load_router_predictions(sample_router_predictions)
         
-        finally:
-            shutil.rmtree(temp_dir)
+        aligned = align_data(conv_results, router_preds)
+        results = evaluate_router(aligned)
+        
+        output_file = os.path.join(temp_dir, 'evaluation_results.json')
+        save_evaluation_results(results, output_file)
+        
+        assert os.path.exists(output_file)
+        
+        with open(output_file, 'r') as f:
+            loaded_results = json.load(f)
+        
+        assert loaded_results == results
+
+    def test_print_evaluation_summary(self, temp_dir, sample_convergence_data, sample_router_predictions, capsys):
+        """Test printing evaluation summary."""
+        conv_results = load_convergence_results(sample_convergence_data)
+        router_preds = load_router_predictions(sample_router_predictions)
+        
+        aligned = align_data(conv_results, router_preds)
+        results = evaluate_router(aligned)
+        
+        print_evaluation_summary(results)
+        
+        captured = capsys.readouterr()
+        assert "ROUTER EVALUATION SUMMARY" in captured.out
+        assert "Router Accuracy:" in captured.out
+        assert "Baseline Accuracy:" in captured.out
+        assert "Significant" in captured.out

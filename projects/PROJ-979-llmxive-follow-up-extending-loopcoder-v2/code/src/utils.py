@@ -1,85 +1,177 @@
-"""
-Utility functions for the llmXive pipeline.
+import json
+import os
+import time
+import platform
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Any, Optional, List
 
-Includes FLOPs calculation for baseline computation and other shared helpers.
-"""
-from typing import Union
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
-def calculate_flops(parameters: int, sequence_length: int, k: int) -> float:
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
+
+def get_model_param_count(model) -> int:
     """
-    Calculate the baseline Floating Point Operations (FLOPs) for a model execution.
-    
-    Implements the formula: FLOPs = parameters * sequence_length * k
-    
-    This is used for:
-    - FR-006: Comparing dynamic routing vs static baseline efficiency.
-    - SC-002: Estimating computational cost savings.
-    
+    Calculate the total number of parameters in a PyTorch model.
+
     Args:
-        parameters (int): Total number of model parameters.
-        sequence_length (int): Length of the input/output sequence.
-        k (int): Number of inference loops or iterations.
-        
-    Returns:
-        float: The estimated total FLOPs.
-        
-    Raises:
-        ValueError: If any input is negative.
-    """
-    if parameters < 0 or sequence_length < 0 or k < 0:
-        raise ValueError("parameters, sequence_length, and k must be non-negative.")
-    
-    return float(parameters * sequence_length * k)
+        model: A PyTorch nn.Module instance.
 
-def get_model_param_count(model_name: str) -> int:
-    """
-    Returns the approximate parameter count for known CodeLlama variants.
-    
-    Args:
-        model_name (str): The HuggingFace model identifier.
-        
     Returns:
-        int: Estimated parameter count in billions (multiplied by 1e9).
-        
-    Note:
-        This is a helper for quick estimation. For precise counts, use the
-        model config from the transformers library.
+        Total number of parameters as an integer.
     """
-    model_name_lower = model_name.lower()
-    
-    if "1.3b" in model_name_lower:
-        return int(1.3e9)
-    elif "3b" in model_name_lower or "34b" in model_name_lower: # Assuming 34b typo in prompt context or specific variant, but sticking to 3b as per plan
-        if "34b" in model_name_lower:
-            return int(34e9)
-        return int(3e9)
-    elif "7b" in model_name_lower:
-        return int(7e9)
-    elif "70b" in model_name_lower:
-        return int(70e9)
+    if not TORCH_AVAILABLE:
+        raise RuntimeError("PyTorch is required to count model parameters.")
+    return sum(p.numel() for p in model.parameters())
+
+
+def calculate_flops(
+    parameters: int,
+    sequence_length: int,
+    k: int,
+    multiplier: float = 2.0
+) -> float:
+    """
+    Calculate approximate FLOPs for a transformer inference pass.
+
+    Formula: FLOPs = parameters * sequence_length * k * multiplier
+    (multiplier accounts for forward/backward or specific architecture factors,
+     defaulting to 2.0 for standard FLOP estimation per spec T005d).
+
+    Args:
+        parameters: Number of model parameters.
+        sequence_length: Input sequence length.
+        k: Number of loop iterations or samples.
+        multiplier: FLOP multiplier constant.
+
+    Returns:
+        Estimated FLOPs as a float.
+    """
+    return parameters * sequence_length * k * multiplier
+
+
+def capture_metrics(
+    output_path: Optional[str] = None,
+    include_gpu: bool = True
+) -> Dict[str, Any]:
+    """
+    Capture runtime system metrics including time, RAM, and GPU usage.
+
+    This function logs:
+    - Timestamp
+    - Platform info
+    - CPU count
+    - Available and used RAM (in GB)
+    - GPU memory usage and utilization (if GPU available and include_gpu=True)
+
+    It writes the collected metrics to a JSON file at the specified output path.
+    If no path is provided, it defaults to 'data/processed/resource_metrics.json'
+    relative to the project root.
+
+    Args:
+        output_path: Optional path to save the JSON metrics file.
+        include_gpu: Whether to attempt to capture GPU metrics.
+
+    Returns:
+        A dictionary containing the captured metrics.
+    """
+    metrics: Dict[str, Any] = {
+        "timestamp": datetime.now().isoformat(),
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+            "processor": platform.processor(),
+            "python_version": platform.python_version()
+        },
+        "cpu": {
+            "count": os.cpu_count()
+        }
+    }
+
+    # RAM Metrics
+    if PSUTIL_AVAILABLE:
+        mem = psutil.virtual_memory()
+        metrics["memory"] = {
+            "total_gb": round(mem.total / (1024 ** 3), 2),
+            "available_gb": round(mem.available / (1024 ** 3), 2),
+            "used_gb": round(mem.used / (1024 ** 3), 2),
+            "percent": round(mem.percent, 2)
+        }
     else:
-        # Default fallback for unknown models - raise or return 0? 
-        # Returning 0 to force explicit configuration if unknown
-        raise ValueError(f"Unknown model parameter count for: {model_name}. Please specify manually.")
+        metrics["memory"] = {
+            "status": "psutil not installed",
+            "note": "Install psutil for detailed memory metrics."
+        }
+
+    # GPU Metrics
+    if include_gpu and TORCH_AVAILABLE:
+        if torch.cuda.is_available():
+            gpu_metrics = []
+            for i in range(torch.cuda.device_count()):
+                gpu_metrics.append({
+                    "device_id": i,
+                    "name": torch.cuda.get_device_name(i),
+                    "total_memory_gb": round(torch.cuda.get_device_properties(i).total_memory / (1024 ** 3), 2),
+                    "allocated_memory_gb": round(torch.cuda.memory_allocated(i) / (1024 ** 3), 2),
+                    "reserved_memory_gb": round(torch.cuda.memory_reserved(i) / (1024 ** 3), 2),
+                    "utilization_percent": torch.cuda.utilization(i)
+                })
+            metrics["gpu"] = {
+                "available": True,
+                "device_count": torch.cuda.device_count(),
+                "devices": gpu_metrics
+            }
+        else:
+            metrics["gpu"] = {
+                "available": False,
+                "reason": "CUDA not available in PyTorch"
+            }
+    elif include_gpu:
+        metrics["gpu"] = {
+            "available": False,
+            "reason": "PyTorch not installed or GPU support missing"
+        }
+    else:
+        metrics["gpu"] = {
+            "skipped": True,
+            "reason": "include_gpu flag set to False"
+        }
+
+    # Ensure output directory exists
+    if output_path is None:
+        # Default to project root relative path
+        output_path = "data/processed/resource_metrics.json"
+
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write to file
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2)
+
+    return metrics
+
 
 def main():
     """
-    CLI entry point for testing FLOPs calculation.
+    CLI entry point for capturing resource metrics.
+    Usage: python -m src.utils capture
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Calculate baseline FLOPs.")
-    parser.add_argument("--params", type=int, default=1300000000, help="Model parameters (e.g., 1.3e9)")
-    parser.add_argument("--seq-len", type=int, default=512, help="Sequence length")
-    parser.add_argument("--k", type=int, default=2, help="Number of loops")
-    
-    args = parser.parse_args()
-    
-    flops = calculate_flops(args.params, args.seq_len, args.k)
-    print(f"Parameters: {args.params}")
-    print(f"Sequence Length: {args.seq_len}")
-    print(f"K (Loops): {args.k}")
-    print(f"Estimated FLOPs: {flops:.2e}")
+    print("Capturing resource metrics...")
+    metrics = capture_metrics()
+    print(f"Metrics saved to {Path('data/processed/resource_metrics.json').resolve()}")
+    print(json.dumps(metrics, indent=2))
+
 
 if __name__ == "__main__":
     main()

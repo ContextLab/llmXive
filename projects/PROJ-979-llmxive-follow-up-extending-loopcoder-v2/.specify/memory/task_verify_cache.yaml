@@ -1,20 +1,63 @@
-T004:
+T001:
   c: false
-  h: 8b806465d0a09efcb1b1582835c43b8aec79eaee52b91aa5c614d5c4c8c645a0
-  r: "The repository contains `code/src/data_loader.py`, but the required output artifacts\
-    \ `data/checksums.txt` and `data/processed/strata_log.json` are absent, indicating\
-    \ the script has not been run to produce them. Moreover, the provided code is\
-    \ truncated before any implementation of stratified sampling, configurable ratios,\
-    \ or saving processed splits, so the core functionality is not demonstrably present.\
-    \ The next implementer must ensure the script writes the checksum file, creates\
-    \ the strata log, and fully implements the sampling and split\u2011saving steps."
-T012:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or verification output is provided; the claim lacks any
+    artifact (e.g., a file tree listing, script output, or screenshots) showing that
+    the required folders (`data/raw`, `data/processed`, `code/src`, `code/tests`,
+    `code/notebooks`, etc.) actually exist. The implementer must supply concrete evidence
+    that the directories were created and verified.
+T005e:
   c: false
-  h: 4f54dc12b24f7f89f150af439068b9a4c06fc0259811d903de928367bff9a526
-  r: "The `entropy.py` file is truncated (e.g., `EXCLUSION_LOG_PATH =` is unfinished\
-    \ and core logic for sampling, clustering, entropy computation, and logging is\
-    \ absent), and the required `data/processed/exclusion_log.json` file does not\
-    \ exist. Consequently the implementation does not fulfill the task\u2019s specifications."
+  h: f93ab00d31e446a92fec7edf24cd69e640ffee61ef6795578e67b2b81f39fe07
+  r: "The repository contains a `capture_metrics()` implementation in `code/src/utils.py`,\
+    \ but the function\u2019s body is truncated and does not show any code that actually\
+    \ writes the metrics to `data/processed/resource_metrics.json`. Moreover, the\
+    \ expected JSON file is absent from the `data/processed/` directory. The required\
+    \ output artifact is missing, so the task is not fully satisfied."
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The required deliverable `paper/model_substitution_rationale.md` is not present
+    nor shown, and no content with the three required sections (Hypothesis, Pilot
+    Results, Rationale) is provided. Without this document, the pilot comparison and
+    baseline hypothesis are not documented.
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `paper/model_substitution_rationale.md` file was provided; the
+    claim lacks the required markdown document detailing the model substitution rationale
+    based on T008b results. The artifact is missing, so the task is not satisfied.
+T012d:
+  c: false
+  h: 12b8d1812f7daffbdcfe2a3224768e90d973df2de716e7971f2cc6797d9c7e6f
+  r: "The repository lacks the required `data/processed/exclusion_log.json` file,\
+    \ and the shown portion of `code/src/entropy.py` does not contain any logic that\
+    \ writes exclusion counts or rates to that JSON path. Consequently, the exclusion\u2011\
+    logging feature is not implemented."
+T013a:
+  c: false
+  h: 08e3a415f94bdd8b679b467bd1550ed7df25f042eac7d64509a10aa6e53d3d4e
+  r: "The provided `code/src/inference.py` shows model loading and a single\u2011\
+    step `generate_solution` function, but there is no visible implementation of a\
+    \ loop runner that iterates over\u202Fk\u202Fvalues and tracks convergence, nor\
+    \ any evidence that it avoids reading `data/processed/entropy_results.csv`. The\
+    \ required loop\u2011running logic is missing (or not demonstrably present). The\
+    \ task is therefore not satisfied."
+T013d:
+  c: false
+  h: 17736db35d8087b5179a4c89f7076534699074f48310aa885bacf00aaaad1ce8
+  r: "The `data/processed/convergence_results.csv` file does not exist, and the provided\
+    \ excerpt of `code/src/inference.py` shows no implementation that writes convergence\
+    \ trajectories to that CSV (only imports of logging utilities). Therefore the\
+    \ required result\u2011logging functionality is missing."
+T019:
+  c: false
+  h: 03d54bcdd3c60d2ade2235a47a866cf0483229ff5c904cd726bc5bc290c57782
+  r: "The repository lacks the required output files `data/processed/router_model.pkl`\
+    \ and `data/processed/router_metrics.json`, and the shown portion of `code/src/analysis.py`\
+    \ does not contain any logistic\u2011regression training code or a loss defined\
+    \ as sparse categorical cross\u2011entropy. The task\u2019s core implementation\
+    \ and its artifacts are therefore missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,13 +66,6 @@ T020:
     \ a random baseline, and reporting a paired t\u2011test or bootstrap significance\
     \ (p\u202F<\u202F0.05). None of these artifacts (implementation, accuracy metrics,\
     \ or significance test report) are present, so the requirement is not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the FLOPs estimation, baseline calculation, dynamic router\
-    \ comparison, or non\u2011inferiority test results is present. The implementer\
-    \ provided only a textual description of the task, without code, data, or reported\
-    \ metrics, so the required output is missing."
 T022:
   c: false
   h: 0755da764c817d665f80c63ce8eedbd2260039df6dbd70874ea83069c37d34d0

@@ -33,3 +33,245 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T03:31:50Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: Average entropy of pilot study is 0.8500
+  claim_id: c_2d0402c3
+  context: Pilot Study Results (T008b) section reporting metrics for 10 samples.
+  evidence:
+    asserted: '0.85'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Average Entropy: 0.8500'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:17:28Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: Convergence rate of pilot study is 70.00%
+  claim_id: c_0140c9b3
+  context: Pilot Study Results (T008b) section reporting metrics for 10 samples.
+  evidence:
+    asserted: '70.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Convergence Rate: 70.00%'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:17:28Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: Spearman correlation between entropy and convergence steps is -0.45
+  claim_id: c_a66ad394
+  context: Pilot Study Results (T008b) section reporting metrics for 10 samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Spearman Correlation ($\rho$): -0.45"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:17:45Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: CodeLlama-1.3b parameter count is approximately 1.3 billion
+  claim_id: c_7c98f247
+  context: Section 5 discussing re-scaling FLOPs calculations based on actual parameter
+    count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-1.3b has approx. 1.3B parameters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:18:06Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: pilot study average entropy 0.8500
+  claim_id: c_7fa30d76
+  context: The pilot study results section reports specific metrics including average
+    entropy and convergence rate for the 10 samples.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot study (N=10) yielded an average entropy of 0.8500.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:18:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: pilot study convergence rate 70.00%
+  claim_id: c_4b0304a4
+  context: The pilot study results section reports specific metrics including average
+    entropy and convergence rate for the 10 samples.
+  evidence:
+    asserted: '70.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot study achieved a convergence rate of 70.00%.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:18:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: pilot study spearman correlation -0.45
+  claim_id: c_17164d83
+  context: The pilot study results section reports a Spearman correlation of -0.45
+    between entropy and convergence steps.
+  evidence:
+    asserted: '-0.45'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pilot study calculated a Spearman correlation ($\rho$) of -0.45."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:18:36Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: CodeLlama-1.3b parameter count 1.3B
+  claim_id: c_e9282b1e
+  context: Section 6 notes that FLOPs calculations are re-scaled based on the actual
+    parameter count of CodeLlama-1.3b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-1.3b has an approximate parameter count of 1.3B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:18:54Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 0
+  canonical: Average entropy of 0.8500 in pilot study
+  claim_id: c_1cc63d6a
+  context: Pilot Study Results (T008b) section listing execution metrics.
+  evidence:
+    asserted: '0.85'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Average Entropy: 0.8500'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:26:48Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 0
+  canonical: Convergence rate of 70.00% in pilot study
+  claim_id: c_9ac151f5
+  context: Pilot Study Results (T008b) section listing execution metrics.
+  evidence:
+    asserted: '70.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Convergence Rate: 70.00%'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:26:48Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: Spearman correlation of -0.45 between entropy and convergence steps
+  claim_id: c_537005c8
+  context: Pilot Study Results (T008b) section listing execution metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Spearman Correlation ($\rho$): -0.45"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:26:48Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: Pilot study size of 10 samples
+  claim_id: c_e0f5c495
+  context: Pilot Study Results (T008b) section listing execution metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pilot Size: 10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:27:04Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/paper/model_substitution_rationale.md
+  attempts: 1
+  canonical: 10 entropy valid samples in pilot study
+  claim_id: c_00d9072e
+  context: Pilot Study Results (T008b) section listing execution metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Entropy Valid Samples: 10'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T18:28:27Z'

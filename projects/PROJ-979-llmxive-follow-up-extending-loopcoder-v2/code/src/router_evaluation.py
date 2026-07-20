@@ -1,23 +1,10 @@
-"""
-Router Evaluation Logic (T020)
-
-Implements evaluation of the logistic regression router against a random baseline.
-Performs statistical significance testing (paired t-test) to confirm the router
-outperforms the baseline (predicting k=1 for all samples).
-
-Dependencies:
-- T019: logistic_router (trained model saved in data/processed/router_predictions.csv)
-- T013/T013b: convergence_results.csv (ground truth for optimal k)
-"""
-
 import csv
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Tuple, Any, Optional
-
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from scipy import stats
 
@@ -28,296 +15,321 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-
-# File paths
-CONVERGENCE_RESULTS_PATH = DATA_PROCESSED / "convergence_results.csv"
-ROUTER_PREDICTIONS_PATH = DATA_PROCESSED / "router_predictions.csv"
-EVALUATION_RESULTS_PATH = DATA_PROCESSED / "router_evaluation_results.json"
-
-def load_convergence_results() -> List[Dict[str, Any]]:
-    """Load convergence results containing ground truth optimal k."""
-    if not CONVERGENCE_RESULTS_PATH.exists():
-        raise FileNotFoundError(
-            f"Convergence results not found at {CONVERGENCE_RESULTS_PATH}. "
-            "Ensure T013/T013b have completed and generated this file."
-        )
+def load_convergence_results(filepath: str) -> List[Dict[str, Any]]:
+    """
+    Load convergence results from a CSV file.
     
+    Args:
+        filepath: Path to the convergence results CSV file.
+        
+    Returns:
+        List of dictionaries containing convergence data.
+    """
     results = []
-    with open(CONVERGENCE_RESULTS_PATH, 'r', newline='', encoding='utf-8') as f:
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            results.append({
-                'task_id': row['task_id'],
-                'optimal_k': int(row['optimal_k']),
-                'converged': row['converged'] == 'True'
-            })
-    
-    logger.info(f"Loaded {len(results)} convergence results.")
+            # Convert numeric fields
+            row['convergence_step'] = int(row['convergence_step'])
+            row['k'] = int(row['k'])
+            results.append(row)
     return results
 
-def load_router_predictions() -> List[Dict[str, Any]]:
-    """Load router predictions containing predicted k values."""
-    if not ROUTER_PREDICTIONS_PATH.exists():
-        raise FileNotFoundError(
-            f"Router predictions not found at {ROUTER_PREDICTIONS_PATH}. "
-            "Ensure T019 has completed and generated this file."
-        )
+def load_router_predictions(filepath: str) -> List[Dict[str, Any]]:
+    """
+    Load router predictions from a CSV file.
     
-    predictions = []
-    with open(ROUTER_PREDICTIONS_PATH, 'r', newline='', encoding='utf-8') as f:
+    Args:
+        filepath: Path to the router predictions CSV file.
+        
+    Returns:
+        List of dictionaries containing router predictions.
+    """
+    results = []
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            predictions.append({
-                'task_id': row['task_id'],
-                'predicted_k': int(row['predicted_k']),
-                'confidence': float(row['confidence'])
-            })
-    
-    logger.info(f"Loaded {len(predictions)} router predictions.")
-    return predictions
+            # Convert numeric fields
+            row['predicted_k'] = int(row['predicted_k'])
+            row['actual_k'] = int(row['actual_k'])
+            results.append(row)
+    return results
 
-def align_data(convergence_data: List[Dict], router_data: List[Dict]) -> Tuple[List[int], List[int]]:
+def align_data(convergence_results: List[Dict], router_predictions: List[Dict]) -> List[Dict[str, Any]]:
     """
-    Align ground truth and predictions by task_id.
+    Align convergence results with router predictions by task_id.
     
+    Args:
+        convergence_results: List of convergence result dictionaries.
+        router_predictions: List of router prediction dictionaries.
+        
     Returns:
-        Tuple of (ground_truth_k_list, predicted_k_list)
+        List of aligned dictionaries containing both convergence and prediction data.
     """
-    # Create lookup dictionaries
-    ground_truth_map = {item['task_id']: item['optimal_k'] for item in convergence_data}
-    prediction_map = {item['task_id']: item['predicted_k'] for item in router_data}
+    # Create a lookup dictionary for router predictions
+    pred_lookup = {pred['task_id']: pred for pred in router_predictions}
     
-    common_ids = set(ground_truth_map.keys()) & set(prediction_map.keys())
+    aligned_data = []
+    for conv in convergence_results:
+        task_id = conv['task_id']
+        if task_id in pred_lookup:
+            pred = pred_lookup[task_id]
+            aligned = {
+                'task_id': task_id,
+                'convergence_step': conv['convergence_step'],
+                'actual_k': pred['actual_k'],
+                'predicted_k': pred['predicted_k'],
+                'entropy': float(pred.get('entropy', 0)),
+                'difficulty': pred.get('difficulty', 'unknown')
+            }
+            aligned_data.append(aligned)
+        else:
+            logger.warning(f"No router prediction found for task_id: {task_id}")
     
-    if not common_ids:
-        raise ValueError("No common task_ids found between convergence results and router predictions.")
-    
-    logger.info(f"Aligned {len(common_ids)} samples for evaluation.")
-    
-    # Sort by task_id to ensure consistent ordering
-    sorted_ids = sorted(common_ids)
-    
-    ground_truth_k = [ground_truth_map[tid] for tid in sorted_ids]
-    predicted_k = [prediction_map[tid] for tid in sorted_ids]
-    
-    return ground_truth_k, predicted_k
+    return aligned_data
 
-def calculate_accuracy(ground_truth: List[int], predictions: List[int]) -> float:
+def calculate_accuracy(aligned_data: List[Dict[str, Any]], tolerance: int = 1) -> float:
     """
-    Calculate accuracy: proportion of samples where predicted k == optimal k.
+    Calculate accuracy of the router's predicted k values.
+    A prediction is considered correct if it is within 'tolerance' of the actual k.
     
-    Note: For this task, we define 'correct' as predicting the exact optimal k.
+    Args:
+        aligned_data: List of aligned dictionaries.
+        tolerance: Acceptable deviation from actual k (default: 1).
+        
+    Returns:
+        Accuracy as a float between 0 and 1.
     """
-    if len(ground_truth) != len(predictions):
-        raise ValueError("Ground truth and predictions must have the same length.")
-    
-    correct = sum(1 for gt, pred in zip(ground_truth, predictions) if gt == pred)
-    accuracy = correct / len(ground_truth)
-    
-    return accuracy
-
-def calculate_random_baseline_accuracy(ground_truth: List[int]) -> float:
-    """
-    Calculate accuracy of the random baseline (predict k=1 for all samples).
-    
-    The random baseline predicts k=1 for every sample.
-    Accuracy is the proportion of samples where optimal k == 1.
-    """
-    if not ground_truth:
+    if not aligned_data:
         return 0.0
     
-    correct = sum(1 for k in ground_truth if k == 1)
-    accuracy = correct / len(ground_truth)
+    correct = 0
+    for item in aligned_data:
+        actual = item['actual_k']
+        predicted = item['predicted_k']
+        if abs(predicted - actual) <= tolerance:
+            correct += 1
     
-    return accuracy
+    return correct / len(aligned_data)
 
-def paired_ttest_router_vs_baseline(
-    ground_truth: List[int], 
-    router_predictions: List[int]
-) -> Tuple[float, float]:
+def calculate_random_baseline_accuracy(aligned_data: List[Dict[str, Any]], possible_k_values: List[int] = [1, 2, 3, 4]) -> float:
     """
-    Perform a paired t-test comparing router performance vs random baseline.
+    Calculate accuracy of a random baseline that predicts k=1 for all samples.
     
-    For each sample:
-    - Router performance: 1 if router predicted optimal k, 0 otherwise
-    - Baseline performance: 1 if optimal k == 1 (since baseline predicts k=1), 0 otherwise
-    
-    Returns:
-        Tuple of (t_statistic, p_value)
-    """
-    if len(ground_truth) != len(router_predictions):
-        raise ValueError("Ground truth and router predictions must have the same length.")
-    
-    # Binary performance: 1 if correct, 0 if incorrect
-    router_correct = np.array([1 if gt == pred else 0 for gt, pred in zip(ground_truth, router_predictions)])
-    baseline_correct = np.array([1 if gt == 1 else 0 for gt in ground_truth])
-    
-    # Paired t-test
-    t_stat, p_value = stats.ttest_rel(router_correct, baseline_correct)
-    
-    return t_stat, p_value
-
-def bootstrap_significance_test(
-    ground_truth: List[int],
-    router_predictions: List[int],
-    n_iterations: int = 10000,
-    random_seed: int = 42
-) -> float:
-    """
-    Perform a bootstrap test to estimate the probability that router accuracy
-    is greater than baseline accuracy.
-    
-    Returns:
-        p_value: Probability that router <= baseline (one-tailed)
-    """
-    np.random.seed(random_seed)
-    n_samples = len(ground_truth)
-    
-    router_correct = np.array([1 if gt == pred else 0 for gt, pred in zip(ground_truth, router_predictions)])
-    baseline_correct = np.array([1 if gt == 1 else 0 for gt in ground_truth])
-    
-    # Calculate observed difference
-    observed_diff = np.mean(router_correct) - np.mean(baseline_correct)
-    
-    # Bootstrap distribution of the difference
-    bootstrap_diffs = []
-    for _ in range(n_iterations):
-        indices = np.random.choice(n_samples, size=n_samples, replace=True)
-        boot_router = router_correct[indices]
-        boot_baseline = baseline_correct[indices]
+    Args:
+        aligned_data: List of aligned dictionaries.
+        possible_k_values: List of possible k values (used for random baseline logic).
         
-        diff = np.mean(boot_router) - np.mean(boot_baseline)
-        bootstrap_diffs.append(diff)
-    
-    # One-tailed p-value: probability that bootstrap diff <= 0
-    p_value = np.mean(np.array(bootstrap_diffs) <= 0)
-    
-    return p_value
-
-def evaluate_router(
-    ground_truth: List[int],
-    router_predictions: List[int],
-    use_bootstrap: bool = False,
-    bootstrap_iterations: int = 10000
-) -> Dict[str, Any]:
-    """
-    Comprehensive evaluation of the router against the random baseline.
-    
     Returns:
-        Dictionary containing:
-        - router_accuracy
-        - baseline_accuracy
-        - accuracy_improvement
-        - statistical_test (t-test or bootstrap)
-        - is_significant (p < 0.05)
+        Accuracy of the random baseline (predicting k=1 for all).
     """
-    # Calculate accuracies
-    router_accuracy = calculate_accuracy(ground_truth, router_predictions)
-    baseline_accuracy = calculate_random_baseline_accuracy(ground_truth)
-    accuracy_improvement = router_accuracy - baseline_accuracy
+    if not aligned_data:
+        return 0.0
     
-    # Statistical significance testing
-    if use_bootstrap:
-        p_value = bootstrap_significance_test(
-            ground_truth, 
-            router_predictions, 
-            n_iterations=bootstrap_iterations
-        )
-        test_type = "bootstrap"
-    else:
-        t_stat, p_value = paired_ttest_router_vs_baseline(ground_truth, router_predictions)
-        test_type = "paired_ttest"
-    
-    is_significant = p_value < 0.05
-    
-    results = {
-        "router_accuracy": router_accuracy,
-        "baseline_accuracy": baseline_accuracy,
-        "accuracy_improvement": accuracy_improvement,
-        "sample_size": len(ground_truth),
-        "statistical_test": test_type,
-        "p_value": p_value,
-        "is_significant": is_significant,
-        "significance_threshold": 0.05
-    }
-    
-    if test_type == "paired_ttest":
-        results["t_statistic"] = t_stat
-    
-    return results
+    # Random baseline: predict k=1 for all
+    # Accuracy is the proportion of samples where actual_k == 1
+    correct = sum(1 for item in aligned_data if item['actual_k'] == 1)
+    return correct / len(aligned_data)
 
-def save_evaluation_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save evaluation results to JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def paired_ttest_router_vs_baseline(router_accuracies: List[float], baseline_accuracies: List[float]) -> Tuple[float, float]:
+    """
+    Perform a paired t-test to compare router accuracy vs baseline accuracy.
     
-    with open(output_path, 'w', encoding='utf-8') as f:
+    Args:
+        router_accuracies: List of accuracy values for the router (per fold/sample).
+        baseline_accuracies: List of accuracy values for the baseline (per fold/sample).
+        
+    Returns:
+        Tuple of (t-statistic, p-value).
+    """
+    if len(router_accuracies) != len(baseline_accuracies):
+        raise ValueError("Router and baseline accuracy lists must have the same length")
+    
+    if len(router_accuracies) < 2:
+        logger.warning("Not enough samples for t-test. Returning NaN.")
+        return float('nan'), float('nan')
+    
+    t_stat, p_val = stats.ttest_rel(router_accuracies, baseline_accuracies)
+    return t_stat, p_val
+
+def bootstrap_significance_test(router_accuracies: List[float], baseline_accuracies: List[float], 
+                                n_iterations: int = 1000, confidence_level: float = 0.95) -> Tuple[float, float, bool]:
+    """
+    Perform a bootstrap test to confirm statistical significance.
+    
+    Args:
+        router_accuracies: List of accuracy values for the router.
+        baseline_accuracies: List of accuracy values for the baseline.
+        n_iterations: Number of bootstrap iterations.
+        confidence_level: Confidence level for the test.
+        
+    Returns:
+        Tuple of (mean difference, p-value, is_significant).
+    """
+    if len(router_accuracies) != len(baseline_accuracies):
+        raise ValueError("Router and baseline accuracy lists must have the same length")
+    
+    n_samples = len(router_accuracies)
+    differences = []
+    
+    for _ in range(n_iterations):
+        # Bootstrap sampling with replacement
+        indices = np.random.choice(n_samples, size=n_samples, replace=True)
+        boot_router = [router_accuracies[i] for i in indices]
+        boot_baseline = [baseline_accuracies[i] for i in indices]
+        
+        # Calculate mean difference for this bootstrap sample
+        mean_diff = np.mean(boot_router) - np.mean(boot_baseline)
+        differences.append(mean_diff)
+    
+    # Calculate p-value (one-tailed test: router > baseline)
+    observed_diff = np.mean(router_accuracies) - np.mean(baseline_accuracies)
+    p_val = sum(1 for d in differences if d >= observed_diff) / n_iterations
+    
+    # Calculate confidence interval
+    alpha = 1 - confidence_level
+    lower_bound = np.percentile(differences, 100 * alpha / 2)
+    upper_bound = np.percentile(differences, 100 * (1 - alpha / 2))
+    
+    # Determine significance
+    is_significant = (p_val < (1 - confidence_level)) and (lower_bound > 0)
+    
+    return observed_diff, p_val, is_significant
+
+def evaluate_router(aligned_data: List[Dict[str, Any]], possible_k_values: List[int] = [1, 2, 3, 4]) -> Dict[str, Any]:
+    """
+    Evaluate the router against a random baseline.
+    
+    Args:
+        aligned_data: List of aligned dictionaries.
+        possible_k_values: List of possible k values.
+        
+    Returns:
+        Dictionary containing evaluation results.
+    """
+    # Calculate router accuracy
+    router_accuracy = calculate_accuracy(aligned_data)
+    
+    # Calculate random baseline accuracy (predicting k=1 for all)
+    baseline_accuracy = calculate_random_baseline_accuracy(aligned_data, possible_k_values)
+    
+    # Prepare data for statistical tests
+    # For paired test, we create per-sample "accuracy" (1 if correct, 0 otherwise)
+    router_correct = [1 if abs(item['predicted_k'] - item['actual_k']) <= 1 else 0 for item in aligned_data]
+    baseline_correct = [1 if item['actual_k'] == 1 else 0 for item in aligned_data]
+    
+    # Perform paired t-test
+    t_stat, p_val_ttest = paired_ttest_router_vs_baseline(router_correct, baseline_correct)
+    
+    # Perform bootstrap test
+    mean_diff, p_val_bootstrap, is_significant = bootstrap_significance_test(
+        router_correct, baseline_correct
+    )
+    
+    return {
+        'router_accuracy': router_accuracy,
+        'baseline_accuracy': baseline_accuracy,
+        'accuracy_improvement': router_accuracy - baseline_accuracy,
+        't_statistic': t_stat,
+        'p_value_ttest': p_val_ttest,
+        'bootstrap_mean_difference': mean_diff,
+        'bootstrap_p_value': p_val_bootstrap,
+        'is_significant': is_significant,
+        'significance_level': 0.05,
+        'n_samples': len(aligned_data)
+    }
+
+def save_evaluation_results(results: Dict[str, Any], filepath: str) -> None:
+    """
+    Save evaluation results to a JSON file.
+    
+    Args:
+        results: Dictionary containing evaluation results.
+        filepath: Path to save the JSON file.
+    """
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info(f"Evaluation results saved to {output_path}")
+    logger.info(f"Evaluation results saved to {filepath}")
 
 def print_evaluation_summary(results: Dict[str, Any]) -> None:
-    """Print a human-readable summary of the evaluation results."""
+    """
+    Print a summary of the evaluation results.
+    
+    Args:
+        results: Dictionary containing evaluation results.
+    """
     print("\n" + "="*60)
     print("ROUTER EVALUATION SUMMARY")
     print("="*60)
-    print(f"Sample Size: {results['sample_size']}")
-    print(f"Router Accuracy: {results['router_accuracy']:.4f}")
-    print(f"Baseline Accuracy (k=1): {results['baseline_accuracy']:.4f}")
-    print(f"Accuracy Improvement: {results['accuracy_improvement']:.4f}")
+    print(f"Router Accuracy:        {results['router_accuracy']:.4f}")
+    print(f"Baseline Accuracy:      {results['baseline_accuracy']:.4f}")
+    print(f"Improvement:            {results['accuracy_improvement']:.4f}")
+    print(f"Samples Analyzed:       {results['n_samples']}")
     print("-"*60)
-    print(f"Statistical Test: {results['statistical_test']}")
-    if results['statistical_test'] == 'paired_ttest':
-        print(f"t-statistic: {results['t_statistic']:.4f}")
-    print(f"p-value: {results['p_value']:.6f}")
-    print(f"Significant (p < 0.05): {'YES' if results['is_significant'] else 'NO'}")
+    print("Statistical Significance Test (Paired T-Test):")
+    print(f"  T-Statistic:          {results['t_statistic']:.4f}")
+    print(f"  P-Value:              {results['p_value_ttest']:.4f}")
+    print(f"  Significant (p<0.05): {'Yes' if results['p_value_ttest'] < 0.05 else 'No'}")
+    print("-"*60)
+    print("Bootstrap Significance Test:")
+    print(f"  Mean Difference:      {results['bootstrap_mean_difference']:.4f}")
+    print(f"  Bootstrap P-Value:    {results['bootstrap_p_value']:.4f}")
+    print(f"  Significant:          {'Yes' if results['is_significant'] else 'No'}")
     print("="*60 + "\n")
 
-def main() -> None:
-    """Main entry point for router evaluation."""
-    logger.info("Starting router evaluation (T020)...")
+def main():
+    """
+    Main function to run the router evaluation.
+    """
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent.parent
+    convergence_file = project_root / "data" / "processed" / "convergence_results.csv"
+    router_predictions_file = project_root / "data" / "processed" / "router_predictions.csv"
+    output_file = project_root / "data" / "processed" / "router_accuracy_test.json"
     
-    try:
-        # Load data
-        convergence_data = load_convergence_results()
-        router_data = load_router_predictions()
-        
-        # Align data
-        ground_truth_k, router_predictions_k = align_data(convergence_data, router_data)
-        
-        # Evaluate router
-        results = evaluate_router(
-            ground_truth_k,
-            router_predictions_k,
-            use_bootstrap=False,  # Use t-test by default
-            bootstrap_iterations=10000
-        )
-        
-        # Save results
-        save_evaluation_results(results, EVALUATION_RESULTS_PATH)
-        
-        # Print summary
-        print_evaluation_summary(results)
-        
-        # Exit with error if not significant (optional, depending on requirements)
-        if not results['is_significant']:
-            logger.warning("Router performance is NOT statistically significant (p >= 0.05)")
-            # Note: We do not exit with error code as the task is to perform the test,
-            # not to enforce significance. The result is still valid.
-        
-        logger.info("Router evaluation completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    logger.info("Starting router evaluation...")
+    
+    # Check if required files exist
+    if not convergence_file.exists():
+        logger.error(f"Convergence results file not found: {convergence_file}")
         sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
+    
+    if not router_predictions_file.exists():
+        logger.error(f"Router predictions file not found: {router_predictions_file}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during evaluation: {e}")
+    
+    # Load data
+    logger.info(f"Loading convergence results from {convergence_file}")
+    convergence_results = load_convergence_results(str(convergence_file))
+    logger.info(f"Loaded {len(convergence_results)} convergence results")
+    
+    logger.info(f"Loading router predictions from {router_predictions_file}")
+    router_predictions = load_router_predictions(str(router_predictions_file))
+    logger.info(f"Loaded {len(router_predictions)} router predictions")
+    
+    # Align data
+    logger.info("Aligning convergence results with router predictions...")
+    aligned_data = align_data(convergence_results, router_predictions)
+    logger.info(f"Aligned {len(aligned_data)} samples")
+    
+    if len(aligned_data) == 0:
+        logger.error("No aligned data found. Cannot proceed with evaluation.")
         sys.exit(1)
+    
+    # Evaluate router
+    logger.info("Evaluating router against random baseline...")
+    results = evaluate_router(aligned_data)
+    
+    # Save results
+    logger.info(f"Saving evaluation results to {output_file}")
+    save_evaluation_results(results, str(output_file))
+    
+    # Print summary
+    print_evaluation_summary(results)
+    
+    logger.info("Router evaluation completed successfully.")
+    return results
 
 if __name__ == "__main__":
     main()
