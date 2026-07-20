@@ -1,202 +1,151 @@
 # The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-## Project Overview
+**Project ID**: PROJ-200-the-impact-of-incidental-music-on-autobi
 
-This project investigates the relationship between adolescent music exposure and the vividness/valence of autobiographical memories triggered by those songs. It implements a complete data science pipeline from raw data ingestion to statistical modeling and hypothesis testing.
+## Overview
 
-## Key Research Questions
+This project investigates the relationship between incidental music exposure during adolescence and the vividness/valence of autobiographical memories retrieved with those musical cues. We utilize the Million Song Dataset (MSD) for exposure metrics and the Autobiographical Memory Test (AMT) dataset for memory retrieval data.
 
-1. Does adolescent music exposure predict the vividness of autobiographical memories?
-2. How does the emotional valence of memories relate to early musical experiences?
-3. Are these relationships robust across different matching thresholds and permutation tests?
+## Key Updates & Specification Alignment
 
-## Project Structure
+This implementation adheres to the updated specification (Phase 2.5) which resolves contradictions between the original plan and requirements:
 
-```
+- **Unit of Analysis**: The primary unit of analysis is the **User-Track Pair**, not the individual memory instance.
+- **Primary Predictor**: `residualized_exposure_score` is used, calculated by regressing `adolescent_exposure_score` on `overall_popularity_score` and extracting residuals.
+- **Model Formula**: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)`.
+- **Permutation Test**: A **block-permutation** is performed on User-Track Pair rows, shuffling exposure scores while preserving the User-Track grouping structure.
+- **Aggregation**: All metrics are aggregated per User-Track Pair.
+- **Match Rate Handling**: The pipeline logs a warning if the match rate is < 80% but proceeds (SC-004).
+- **Edge Cases**: The fallback check for missing birth years (>50%) is performed **before** applying the Minimum Listen Threshold filter.
+
+## Architecture
+
+The pipeline is organized into the following phases:
+
+1. **Data Ingestion (US1)**: Downloads MSD and AMT data, filters for valid birth years, and computes exposure scores.
+2. **Cue Matching & Aggregation (US2)**: Matches AMT cues to MSD tracks using fuzzy string matching (Levenshtein ≤ 4) and aggregates memory attributes to User-Track pairs.
+3. **Statistical Modeling (US3)**: Fits linear mixed-effects models, runs sensitivity analysis, and performs block-permutation tests.
+
+## Directory Structure
+
+```text
 .
-├── code/ # Python implementation
+├── code/ # Python implementation modules
 │ ├── __init__.py
-│ ├── config.py # Project configuration and paths
-│ ├── data_ingestion.py # Data download and preprocessing
-│ ├── cue_matching.py # Fuzzy string matching for music cues
-│ ├── aggregation.py # Data aggregation to User-Track pairs
-│ ├── modeling.py # Statistical modeling and hypothesis testing
-│ ├── generate_diagnostic_plots.py
-│ ├── generate_final_results.py
-│ ├── generate_regression_summary.py
-│ ├── generate_user_track_pairs.py
-│ ├── setup_data_dirs.py
-│ ├── state_manager.py
-│ └── utils.py
+│ ├── config.py # Configuration and paths
+│ ├── data_ingestion.py # Data loading and exposure calculation
+│ ├── cue_matching.py # Fuzzy matching and normalization
+│ ├── aggregation.py # Aggregation to User-Track pairs
+│ ├── modeling.py # Statistical modeling and tests
+│ ├── utils.py # Logging and utilities
+│ ├── main.py # Pipeline orchestration
+│ └──... (generator scripts)
 ├── data/
-│ ├── raw/ # Raw downloaded datasets (MSD, AMT)
-│ ├── processed/ # Intermediate processed data
-│ └── final/ # Final analysis outputs
-├── tests/ # Test suite
-│ ├── unit/
-│ └── integration/
-├── specs/ # Project specifications
-├── contracts/ # Data and output schemas
-├── requirements.txt # Python dependencies
-├── state.yaml # File checksum tracking
+│ ├── raw/ # Raw downloaded datasets
+│ ├── processed/ # Intermediate processed data (parquet)
+│ └── final/ # Final analysis results and plots
+├── tests/ # Unit and integration tests
+├── contracts/ # Data schemas
+├── state.yaml # Checksum tracking
+├── requirements.txt # Dependencies
 └── README.md
 ```
 
-## Setup Instructions
+## Installation
 
-### Prerequisites
-
-- Python 3.11 or higher
-- pip package manager
-
-### Installation
-
-1. Clone the repository:
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
  cd PROJ-200-the-impact-of-incidental-music-on-autobi
  ```
 
-2. Create a virtual environment:
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. Set up data directories:
- ```bash
- python code/setup_data_dirs.py
- ```
+ **Required Dependencies**:
+ - `pandas`
+ - `numpy`
+ - `scikit-learn`
+ - `statsmodels`
+ - `python-Levenshtein`
+ - `pyyaml`
+ - `tqdm`
+ - `scipy`
+ - `matplotlib`
+ - `seaborn`
+ - `pyarrow`
 
 ## Usage
 
 ### Running the Full Pipeline
 
-The main orchestration script executes the complete analysis pipeline:
+The main entry point orchestrates the entire flow from ingestion to final results.
 
 ```bash
 python code/main.py
 ```
 
 This will:
-1. Download raw datasets (MSD and AMT)
-2. Filter and process cohort data
-3. Calculate exposure scores
-4. Match music cues to tracks
-5. Aggregate data to User-Track pairs
-6. Fit statistical models
-7. Run sensitivity and permutation tests
-8. Generate diagnostic plots and final results
+1. Download and verify datasets (if not present).
+2. Process and filter the cohort.
+3. Match cues and aggregate to User-Track pairs.
+4. Fit mixed-effects models and run sensitivity/permutation tests.
+5. Generate diagnostic plots and final summaries.
 
-### Running Individual Components
+### Running Specific Stages
 
-Each component can be run independently for testing or partial execution:
+You can also run individual stages using the generator scripts in `code/`:
 
-```bash
-# Data ingestion
-python code/data_ingestion.py
+- **Ingestion**: `python code/generate_ingested_cohort.py`
+- **User-Track Pairs**: `python code/generate_user_track_pairs.py`
+- **Regression Summary**: `python code/generate_regression_summary.py`
+- **Final Results**: `python code/generate_final_results.py`
+- **Diagnostic Plots**: `python code/generate_diagnostic_plots.py`
 
-# Cue matching
-python code/cue_matching.py
+### Validation
 
-# Aggregation
-python code/aggregation.py
-
-# Modeling
-python code/modeling.py
-```
-
-### Running Tests
+To ensure the pipeline runs correctly and outputs are valid:
 
 ```bash
-# Run all tests
-pytest tests/
-
-# Run specific test suite
-pytest tests/unit/test_ingestion.py
-pytest tests/unit/test_matching.py
-pytest tests/unit/test_modeling.py
+python code/quickstart_validator.py
 ```
 
 ## Data Sources
 
-- **Million Song Dataset (MSD)**: Music track metadata and listening logs
-- **Autobiographical Memory Test (AMT)**: Free-text memory cues and associated metadata
+- **Million Song Dataset (MSD)**: Used for track metadata and listen counts.
+- **Autobiographical Memory Test (AMT)**: Used for memory cues and vividness/valence ratings.
 
-Both datasets are downloaded from their canonical sources during the data ingestion phase.
-
-## Output Files
-
-The pipeline generates the following outputs in `data/final/`:
-
-- `regression_summary.csv`: Model coefficients, standard errors, and p-values
-- `sensitivity_analysis.csv`: Results across different Levenshtein thresholds
-- `permutation_results.csv`: Permutation test statistics and p-values
-- `plots/`: Diagnostic plots (residuals, QQ plots, etc.)
+*Note: The pipeline will attempt to download these datasets automatically. Ensure you have an internet connection and sufficient disk space (approx. 5GB+ for raw data).*
 
 ## Configuration
 
-Project configuration is managed in `code/config.py`. Key parameters include:
+Configuration is managed via `code/config.py`. Key parameters include:
+- `LEVENSHEIT_THRESHOLD`: Maximum distance for cue matching (default: 4).
+- `MIN_LISTEN_THRESHOLD`: Minimum listens required for a track (default: 10).
+- `BIRTH_YEAR_FALLBACK_THRESHOLD`: Percentage of missing birth years to trigger global exposure (default: 0.50).
 
-- Levenshtein distance threshold for cue matching (default: 4)
-- Minimum listen threshold for track filtering (default: 10)
-- Random seeds for reproducibility
-- File paths for data directories
+## Testing
 
-## Statistical Methods
+Run the test suite using `pytest`:
 
-### Primary Analysis
-
-Linear mixed-effects models are fitted with the formula:
-```
-mean_vividness ~ residualized_exposure + popularity + (1|user_id)
+```bash
+pytest tests/ -v
 ```
 
-Where:
-- `residualized_exposure`: Adolescent exposure score adjusted for overall track popularity
-- `popularity`: Overall track popularity score
-- `user_id`: Random effect to account for individual differences
-
-### Sensitivity Analysis
-
-The analysis is repeated across different Levenshtein distance thresholds (2, 4, 6) to assess robustness.
-
-### Permutation Test
-
-A block-permutation test is performed on User-Track pairs to establish statistical significance, shuffling exposure scores while preserving the User-Track grouping structure.
-
-## Dependencies
-
-See `requirements.txt` for the complete list of dependencies:
-
-- pandas
-- numpy
-- scikit-learn
-- statsmodels
-- python-Levenshtein
-- pyyaml
-- tqdm
-- scipy
-- matplotlib
-- seaborn
+Tests are organized by user story:
+- `tests/unit/test_ingestion.py`: US1 logic.
+- `tests/unit/test_matching.py`: US2 logic.
+- `tests/unit/test_modeling.py`: US3 logic.
+- `tests/integration/test_pipeline.py`: End-to-end validation.
 
 ## License
 
-This project is licensed under the MIT License.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests to ensure nothing is broken
-5. Submit a pull request
-
-## Contact
-
-For questions or issues, please open an issue in the repository.
+This project is for research purposes.

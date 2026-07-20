@@ -36,7 +36,7 @@ The pipeline is designed to run entirely on CPU within GitHub Actions free-tier 
 | **IV. Single Source of Truth** | ✅ Pass | All statistics traced to specific data rows and code blocks; no hand-typed numbers. |
 | **V. Versioning Discipline** | ✅ Pass | **Mechanism**: Every derived file in `data/processed/` and `data/final/` is checksummed via `sha256sum`. The `state.yaml` file is updated by the Advancement-Evaluator Agent with these hashes upon successful pipeline completion. Any change to source data invalidates the state, triggering a re-run. |
 | **VI. Psychometric Instrument Integrity** | ✅ Pass | AMT protocol followed; deviations documented; vividness/valence scales validated against literature. **Blocker**: If only LLM-generated data is verified, the study is flagged as non-valid for human psychology claims. |
-| **VII. Developmental Period Definition** | ✅ Pass | Adolescence strictly defined as ages -18; boundary cases excluded or analyzed separately. |
+| **VII. Developmental Period Definition** | ✅ Pass | Adolescence strictly defined as the developmental period spanning from childhood to adulthood.; boundary cases excluded or analyzed separately. |
 
 ## Project Structure
 

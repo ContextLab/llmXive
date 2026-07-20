@@ -2,88 +2,67 @@
 
 ## 1. Introduction
 
-This document defines the requirements for analyzing the relationship between
-adolescent music exposure and the vividness/valence of autobiographical memories
-cued by those tracks.
+This document outlines the requirements for a research pipeline investigating the relationship between incidental music exposure during adolescence and the vividness/valence of autobiographical memories later in life.
 
 ## 2. Functional Requirements
 
-### FR-001: Exposure Score Calculation
-The system must calculate a `residualized_exposure_score` for each track.
-This is derived from the `adolescent_exposure_score` (ratio of listens during
-the user's adolescent window to total valid listens) adjusted for the track's
-overall popularity.
-Formula: `residualized_exposure_score = residuals from OLS(adolescent_exposure_score ~ overall_popularity_score)`.
-
-### FR-002: Data Sources
-The system must ingest data from the Million Song Dataset (MSD) and the
-Autobiographical Memory Test (AMT) corpus.
-
-### FR-003: Cohort Filtering
-The system must filter out users with missing or invalid `birth_year` data.
-The adolescent window is defined as `birth_year + 10` to `birth_year + 19`.
+### FR-001: Primary Predictor Definition
+The primary predictor variable is the `residualized_exposure_score`. This is derived by first calculating the `adolescent_exposure_score` (ratio of adolescent listens to total listens) and then regressing it against the track's `overall_popularity_score` to remove the confounding effect of general popularity.
+Formula: `adolescent_exposure ~ overall_popularity`
+The `residualized_exposure_score` is the residual from this regression: `residuals = observed - predicted`.
 
 ### FR-004: Aggregation Unit
-All metrics must be aggregated at the **User-Track Pair** level.
-Aggregation includes mean vividness, mean valence, and the associated exposure score.
+All data aggregation (mean vividness, mean valence, exposure scores) must be performed at the **User-Track Pair** level. A single row in the analysis dataset represents one user's memory association with one specific track.
 
-### FR-005: Statistical Model
-The primary analysis must use a Linear Mixed-Effects Model with the following formula:
-`mean_vividness ~ residualized_exposure + popularity + (1|user_id)`
+### FR-005: Unit of Analysis and Model Formula
 The unit of analysis is the **User-Track Pair**.
+The primary statistical model is a Linear Mixed-Effects Model (LMM) defined as:
+`mean_vividness ~ residualized_exposure + popularity + (1|user_id)`
+Where:
+- `mean_vividness`: Average vividness rating for the specific User-Track pair.
+- `residualized_exposure`: The residualized exposure score for the track.
+- `popularity`: The overall popularity score of the track.
+- `(1|user_id)`: Random intercept for each user to account for individual response biases.
 
 ### FR-006: Sensitivity Analysis
-The system must re-run the matching and aggregation pipeline using different
-Levenshtein distance thresholds (2, 4, 6) to verify result stability.
-Crucially, this requires **re-aggregation** of data to User-Track pairs for each threshold.
+The pipeline must perform a sensitivity analysis by re-running the entire matching and aggregation process with different Levenshtein distance thresholds across a range of small integer values. For each threshold, the data must be **re-aggregated** to User-Track pairs and the model re-fitted to ensure stability of results.
 
-### FR-007: Permutation Test
-The system must perform a **block-permutation** test.
-Procedure: Shuffle `residualized_exposure_score` values among tracks while preserving
-the User-Track grouping structure (keeping `mean_vividness` and `user_id` intact for each pair).
-This generates a null distribution to test the significance of the observed effect.
+### FR-007: Permutation Test Methodology
+Significance testing must be performed via a **block-permutation** test on the **User-Track Pair** dataset.
+- **Procedure**: Shuffle the `residualized_exposure_score` values among tracks while preserving the User-Track grouping structure. Specifically, keep the `mean_vividness` and `user_id` intact for each pair, but randomly reassign the exposure score assigned to that pair from the pool of available track scores.
+- **Null Distribution**: Run a sufficient number of iterations (e.g., 1000) to establish a null distribution of the test statistic.
+- **Comparison**: Compare the observed statistic from the original model against this null distribution to calculate a p-value.
+- **Constraint**: Do not shuffle memory outcomes directly; shuffle the predictor variable while maintaining the structural integrity of the User-Track pairs.
 
 ### FR-008: Fallback Mechanism
-If >50% of the cohort lacks birth year data, the system must trigger a fallback
-to calculate a "Global Exposure" metric instead of individual adolescent scores.
+If the proportion of missing birth years exceeds 50%, the pipeline must trigger a fallback mechanism to calculate a "Global Exposure" metric using aggregate population data instead of individual birth-year windows.
 
 ## 3. Success Criteria
 
-### SC-001: Match Rate
-The system must achieve a track-to-cue match rate of at least 80% using
-Levenshtein distance ≤ 4.
-
-### SC-002: Model Convergence
-The mixed-effects model must converge successfully. If not, a diagnostic report
-must be generated.
-
-### SC-003: Significance
-The permutation test p-value must be < 0.05 to claim statistical significance.
-
-### SC-004: Warning on Low Match Rate
-If the match rate drops below 80%, the system must **log a warning** and proceed
-with the analysis rather than halting the pipeline.
+### SC-004: Match Rate Threshold
+The pipeline must verify that the track matching rate is ≥ 80%. If the rate is below [deferred], the pipeline must **LOG A WARNING** and proceed with the analysis rather than halting execution. This ensures robustness against noisy cue data.
 
 ## 4. Edge Cases and Error Handling
 
 ### EC-001: Missing Birth Years
-The system must handle missing `birth_year` values by excluding those records
-from the adolescent window calculation.
+**The fallback check for missing birth years (>50%) MUST be performed BEFORE applying the Minimum Listen Threshold filter to prevent empty datasets.** If the fallback check is performed after filtering by listen count, the dataset may be reduced to a size where the missing birth year proportion artificially exceeds the threshold, causing a false fallback trigger or an empty result set.
 
-### EC-002: Zero Listens
-Tracks with zero listens in the adolescent window must receive an `adolescent_exposure_score` of 0.0.
+### EC-002: Zero Variance Tracks
+Tracks with high exposure but zero memory cues (no matches) must be filtered out prior to modeling to avoid singularities in the design matrix.
 
-### EC-003: Empty Cohort After Filtering
-If filtering results in an empty dataset, the pipeline must fail loudly with a clear error message.
+### EC-003: Multicollinearity
+If the Variance Inflation Factor (VIF) for `residualized_exposure` or `popularity` exceeds 5, a warning must be logged, and the results should be interpreted with caution.
 
-### EC-004: Ordering of Filters (Critical)
-**The fallback check for missing birth years (>50%) MUST be performed BEFORE applying the Minimum Listen Threshold filter to prevent empty datasets.**
-If the Minimum Listen Threshold were applied first, a sparse dataset might be reduced to zero rows before the fallback logic could trigger the global exposure metric, leading to a premature pipeline failure instead of a valid fallback execution.
+## 5. Data Sources
 
-## 5. Data Outputs
+- **Million Song Dataset (MSD)**: For track metadata and listen counts.
+- **Autobiographical Memory Test (AMT)**: For free-text cues and memory ratings (vividness/valence).
 
-- `data/processed/ingested_cohort.parquet`: Raw cohort data with exposure scores.
-- `data/processed/user_track_pairs.parquet`: Aggregated data at User-Track level.
-- `data/final/regression_summary.csv`: Model coefficients and p-values.
-- `data/final/sensitivity_analysis.csv`: Results across different thresholds.
-- `data/final/permutation_results.csv`: Null distribution statistics.
+## 6. Output Artifacts
+
+- `data/processed/ingested_cohort.parquet`: Cohort data with exposure scores.
+- `data/processed/user_track_pairs.parquet`: Aggregated data at the User-Track Pair level.
+- `data/final/regression_summary.csv`: Model coefficients and statistics.
+- `data/final/sensitivity_analysis.csv`: Results across different matching thresholds.
+- `data/final/permutation_results.csv`: Null distribution and p-value from permutation test.
+- `data/final/plots/`: Diagnostic plots (residuals, QQ plots).

@@ -1,18 +1,9 @@
 """
-T039 Implementation: Generate sensitivity analysis and permutation test results.
+Generate final analysis results: sensitivity analysis and permutation test results.
 
-This script loads the regression results and sensitivity analysis data generated
-by the modeling pipeline, performs the final aggregation, and writes the required
-CSV files to data/final/.
-
-It assumes:
-- T038 (regression_summary.csv) has been generated.
-- The modeling.py run_sensitivity_analysis and run_permutation_test functions
-  have executed and produced intermediate results or can be called directly.
-
-Since T045 (permutation test) and T034 (sensitivity analysis) are marked as 
-implemented (T045 in completed list, T034 implied by context of T039), 
-this script orchestrates the final output generation.
+This module orchestrates the generation of:
+1. sensitivity_analysis.csv: Results from re-running the analysis with different Levenshtein thresholds
+2. permutation_results.csv: Results from the block-permutation test
 """
 import os
 import sys
@@ -20,125 +11,167 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Tuple, Any
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from config import get_project_root, get_config_dict, ensure_directories
+# Import from project modules
+from config import get_project_root, get_config_dict
 from utils import setup_logging, get_logger
-from state_manager import register_file, save_state
 from modeling import run_sensitivity_analysis, run_permutation_test
+from state_manager import register_file, save_state
 
-# Setup logging
 logger = get_logger(__name__)
 
-def run_sensitivity_analysis_pipeline(config: Dict[str, Any]) -> pd.DataFrame:
+def run_sensitivity_analysis_pipeline() -> pd.DataFrame:
     """
-    Executes the sensitivity analysis for different Levenshtein thresholds.
-    Returns a DataFrame containing the results.
+    Run the sensitivity analysis pipeline and return results DataFrame.
+    
+    This function:
+    1. Calls run_sensitivity_analysis from modeling.py
+    2. Formats the results into a tidy DataFrame
+    3. Returns the DataFrame for saving
+    
+    Returns:
+        pd.DataFrame: Tidy DataFrame with sensitivity analysis results
     """
-    logger.info("Running sensitivity analysis pipeline...")
+    logger.info("Starting sensitivity analysis pipeline")
     
-    # The modeling module's run_sensitivity_analysis function handles the re-matching
-    # and re-aggregation for thresholds 2, 4, 6 as per spec updates.
-    # We call it and capture the results.
+    # Run the sensitivity analysis from modeling module
+    results = run_sensitivity_analysis()
     
-    try:
-        results = run_sensitivity_analysis(config)
-        if isinstance(results, pd.DataFrame):
-            return results
-        elif isinstance(results, dict) and 'summary' in results:
-            return pd.DataFrame(results['summary'])
-        else:
-            # Fallback: if the function returns None or unexpected type, 
-            # we might need to re-implement the logic here or assume it writes to disk.
-            # Given the task constraints, we assume it returns a DataFrame or dict.
-            logger.warning("Sensitivity analysis returned unexpected type. Attempting to load from disk if created.")
-            # If the function writes directly to disk, we try to load it.
-            # But the spec says "Generate ... .csv", so we must produce it.
-            # Let's assume the function returns the data to be saved.
-            raise ValueError("run_sensitivity_analysis did not return a DataFrame or dict with 'summary'.")
-    except Exception as e:
-        logger.error(f"Error running sensitivity analysis: {e}")
-        # If the function fails, we might need to simulate the structure for the task to complete,
-        # but the constraint says "NEVER fabricate". 
-        # However, if the dependency (T034/T044) is not fully runnable due to missing data,
-        # we must handle it.
-        # For now, we assume the function works as designed in a real environment.
-        # If it fails, we return an empty DF with correct columns to avoid crash, 
-        # but log the error.
-        columns = ['threshold', 'coefficient', 'std_err', 'p_value', 'vif', 'match_rate']
-        return pd.DataFrame(columns=columns)
+    if results is None or len(results) == 0:
+        logger.error("Sensitivity analysis returned no results")
+        return pd.DataFrame()
+    
+    # Convert list of dicts to DataFrame
+    df = pd.DataFrame(results)
+    
+    # Ensure proper column ordering
+    expected_cols = [
+        'threshold', 'n_user_track_pairs', 'mean_vividness', 'mean_valence',
+        'residualized_exposure_coef', 'residualized_exposure_se', 
+        'residualized_exposure_pval', 'popularity_coef', 'popularity_se',
+        'popularity_pval', 'model_r2', 'vif_residualized', 'vif_popularity'
+    ]
+    
+    # Only keep columns that exist
+    available_cols = [col for col in expected_cols if col in df.columns]
+    df = df[available_cols]
+    
+    logger.info(f"Sensitivity analysis completed. Generated {len(df)} rows.")
+    return df
 
-def run_permutation_test_pipeline(config: Dict[str, Any]) -> pd.DataFrame:
+def run_permutation_test_pipeline(n_permutations: int = 1000) -> pd.DataFrame:
     """
-    Executes the block-permutation test.
-    Returns a DataFrame containing the results.
-    """
-    logger.info("Running permutation test pipeline...")
+    Run the permutation test pipeline and return results DataFrame.
     
-    try:
-        results = run_permutation_test(config)
-        if isinstance(results, pd.DataFrame):
-            return results
-        elif isinstance(results, dict) and 'summary' in results:
-            return pd.DataFrame(results['summary'])
-        else:
-            logger.warning("Permutation test returned unexpected type.")
-            raise ValueError("run_permutation_test did not return a DataFrame or dict with 'summary'.")
-    except Exception as e:
-        logger.error(f"Error running permutation test: {e}")
-        # Return empty DF with expected columns
-        columns = ['iteration', 'statistic', 'p_value', 'observed_statistic']
-        return pd.DataFrame(columns=columns)
+    This function:
+    1. Calls run_permutation_test from modeling.py
+    2. Formats the results into a DataFrame
+    3. Returns the DataFrame for saving
+    
+    Args:
+        n_permutations (int): Number of permutations to run (default: 1000)
+        
+    Returns:
+        pd.DataFrame: DataFrame with permutation test results
+    """
+    logger.info(f"Starting permutation test pipeline with {n_permutations} permutations")
+    
+    # Run the permutation test from modeling module
+    results = run_permutation_test(n_permutations=n_permutations)
+    
+    if results is None:
+        logger.error("Permutation test returned no results")
+        return pd.DataFrame()
+    
+    # Convert results to DataFrame
+    # Expected structure: observed_stat, null_distribution (list), p_value, n_permutations
+    df = pd.DataFrame([results])
+    
+    # Ensure column names are consistent
+    if 'observed_stat' in df.columns:
+        df = df.rename(columns={'observed_stat': 'observed_statistic'})
+    
+    logger.info(f"Permutation test completed. P-value: {df['p_value'].iloc[0]:.4f}")
+    return df
 
 def main():
     """
-    Main entry point for T039.
-    Generates data/final/sensitivity_analysis.csv and data/final/permutation_results.csv.
+    Main entry point for generating final results.
+    
+    This function:
+    1. Sets up logging
+    2. Creates output directories
+    3. Runs sensitivity analysis and saves to CSV
+    4. Runs permutation test and saves to CSV
+    5. Updates state.yaml with checksums
     """
+    # Setup logging
     setup_logging()
+    logger.info("=" * 60)
+    logger.info("Starting Final Results Generation (T039)")
+    logger.info("=" * 60)
+    
+    # Get project root and config
+    project_root = get_project_root()
     config = get_config_dict()
-    root = get_project_root()
     
-    output_dir = root / "data" / "final"
-    ensure_directories([output_dir])
-    
-    logger.info(f"Starting T039: Generating final results in {output_dir}")
-    
-    # 1. Run Sensitivity Analysis
-    sensitivity_df = run_sensitivity_analysis_pipeline(config)
-    
-    # Ensure columns are present even if empty
-    expected_sens_cols = ['threshold', 'coefficient', 'std_err', 'p_value', 'vif', 'match_rate']
-    for col in expected_sens_cols:
-        if col not in sensitivity_df.columns:
-            sensitivity_df[col] = np.nan
+    # Define output paths
+    output_dir = project_root / "data" / "final"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     sensitivity_path = output_dir / "sensitivity_analysis.csv"
-    sensitivity_df.to_csv(sensitivity_path, index=False)
-    logger.info(f"Sensitivity analysis saved to {sensitivity_path}")
+    permutation_path = output_dir / "permutation_results.csv"
     
-    # 2. Run Permutation Test
-    perm_df = run_permutation_test_pipeline(config)
+    # Run sensitivity analysis
+    logger.info("Running sensitivity analysis...")
+    try:
+        sensitivity_df = run_sensitivity_analysis_pipeline()
+        
+        if not sensitivity_df.empty:
+            sensitivity_df.to_csv(sensitivity_path, index=False)
+            logger.info(f"Saved sensitivity analysis to: {sensitivity_path}")
+            
+            # Register file in state manager
+            register_file(str(sensitivity_path), "sensitivity_analysis")
+        else:
+            logger.warning("Sensitivity analysis produced empty results. Skipping save.")
+            
+    except Exception as e:
+        logger.error(f"Error running sensitivity analysis: {e}", exc_info=True)
+        # Continue to permutation test even if sensitivity fails
     
-    expected_perm_cols = ['iteration', 'statistic', 'p_value', 'observed_statistic']
-    for col in expected_perm_cols:
-        if col not in perm_df.columns:
-            perm_df[col] = np.nan
+    # Run permutation test
+    logger.info("Running permutation test...")
+    try:
+        # Use 1000 permutations as default, configurable via config
+        n_perms = config.get('permutation_n', 1000)
+        permutation_df = run_permutation_test_pipeline(n_permutations=n_perms)
+        
+        if not permutation_df.empty:
+            permutation_df.to_csv(permutation_path, index=False)
+            logger.info(f"Saved permutation results to: {permutation_path}")
+            
+            # Register file in state manager
+            register_file(str(permutation_path), "permutation_results")
+        else:
+            logger.warning("Permutation test produced empty results. Skipping save.")
+            
+    except Exception as e:
+        logger.error(f"Error running permutation test: {e}", exc_info=True)
     
-    perm_path = output_dir / "permutation_results.csv"
-    perm_df.to_csv(perm_path, index=False)
-    logger.info(f"Permutation results saved to {perm_path}")
+    # Save state
+    try:
+        save_state()
+        logger.info("Updated state.yaml with new file checksums")
+    except Exception as e:
+        logger.error(f"Error saving state: {e}", exc_info=True)
     
-    # Register files in state
-    register_file(str(sensitivity_path), "sensitivity_analysis")
-    register_file(str(perm_path), "permutation_results")
-    save_state()
+    logger.info("=" * 60)
+    logger.info("Final Results Generation Complete")
+    logger.info("=" * 60)
     
-    logger.info("T039 completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,15 +1,8 @@
 """
-Cue Matching Module for the Impact of Incidental Music on Autobiographical Memory Retrieval project.
+Cue Matching Module for PROJ-200.
 
-This module handles the parsing of AMT free-text cues, fuzzy string matching to MSD tracks
-using Levenshtein distance, and resolution of ambiguous matches.
-
-Functions:
-  normalize_text: Normalizes text for matching (lowercase, remove punctuation).
-  normalize_cues: Applies text normalization to AMT cues.
-  build_inverse_index: Creates a searchable index of MSD track titles.
-  match_cues: Performs fuzzy matching with Levenshtein distance <= 4.
-  resolve_collisions: Resolves ambiguous matches (same title/artist).
+This module handles the normalization of AMT cues, fuzzy matching to MSD tracks,
+and resolution of collisions. It implements the logic for T022-T024.
 """
 import re
 import logging
@@ -17,159 +10,177 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional
 import pandas as pd
 from python_levenshtein import distance as levenshtein_distance
+
 from config import get_project_root, get_config_dict
 
 logger = logging.getLogger(__name__)
 
 def normalize_text(text: str) -> str:
     """
-    Normalizes text for matching by converting to lowercase and removing punctuation.
+    Normalizes a text string for comparison.
+
+    - Converts to lowercase
+    - Removes punctuation
+    - Removes extra whitespace
 
     Args:
-        text: Input string to normalize.
+        text (str): The input text.
 
     Returns:
-        Normalized string.
+        str: The normalized text.
     """
     if not isinstance(text, str):
         return ""
-    
-    # Convert to lowercase
     text = text.lower()
-    # Remove punctuation and extra whitespace
     text = re.sub(r'[^\w\s]', '', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def normalize_cues(df: pd.DataFrame, cue_col: str = 'cue_text') -> pd.DataFrame:
+def normalize_cues(cues_df: pd.DataFrame, title_col: str = 'cue_text') -> pd.DataFrame:
     """
-    Applies text normalization to AMT cues.
+    Normalizes the cue text in the dataframe.
 
     Args:
-        df: DataFrame containing AMT cues.
-        cue_col: Name of the cue text column.
+        cues_df (pd.DataFrame): The dataframe containing cues.
+        title_col (str): The column name containing the cue text.
 
     Returns:
-        DataFrame with normalized cue text in a new column 'normalized_cue'.
+        pd.DataFrame: The dataframe with a new 'normalized_cue' column.
     """
-    logger.info(f"Normalizing {len(df)} cues")
-    df = df.copy()
-    df['normalized_cue'] = df[cue_col].apply(normalize_text)
-    logger.info("Cue normalization complete")
-    return df
+    logger.info("Normalizing cues...")
+    cues_df['normalized_cue'] = cues_df[title_col].apply(normalize_text)
+    return cues_df
 
-def build_inverse_index(df_tracks: pd.DataFrame, title_col: str = 'title',
-                        artist_col: str = 'artist') -> Dict[str, List[Tuple[str, str]]]:
+def build_inverse_index(tracks_df: pd.DataFrame, title_col: str = 'title', artist_col: str = 'artist') -> Dict[str, List[Tuple[str, str]]]:
     """
-    Creates a searchable index of MSD track titles.
+    Builds an inverse index of normalized track titles to their original (title, artist) pairs.
 
     Args:
-        df_tracks: DataFrame containing MSD track information.
-        title_col: Name of the title column.
-        artist_col: Name of the artist column.
+        tracks_df (pd.DataFrame): The dataframe containing track metadata.
+        title_col (str): Column name for track title.
+        artist_col (str): Column name for track artist.
 
     Returns:
-        Dictionary mapping normalized titles to list of (title, artist) tuples.
+        Dict[str, List[Tuple[str, str]]]: Mapping from normalized title to list of (title, artist).
     """
-    logger.info("Building inverse index of track titles")
+    logger.info("Building inverse index for track titles...")
     index = {}
-    
-    for _, row in df_tracks.iterrows():
-        title = row[title_col]
-        artist = row[artist_col]
-        normalized_title = normalize_text(title)
-        
-        if normalized_title not in index:
-            index[normalized_title] = []
-        index[normalized_title].append((title, artist))
-    
-    logger.info(f"Built index with {len(index)} unique normalized titles")
+    for _, row in tracks_df.iterrows():
+        norm_title = normalize_text(row[title_col])
+        if not norm_title:
+            continue
+        if norm_title not in index:
+            index[norm_title] = []
+        index[norm_title].append((row[title_col], row[artist_col]))
     return index
 
-def match_cues(df_cues: pd.DataFrame, df_tracks: pd.DataFrame, 
-               threshold: int = 4, cue_col: str = 'normalized_cue',
-               title_col: str = 'title', artist_col: str = 'artist') -> pd.DataFrame:
+def match_cues(cues_df: pd.DataFrame, tracks_df: pd.DataFrame, threshold: int = 4) -> pd.DataFrame:
     """
-    Performs fuzzy matching with Levenshtein distance <= 4.
+    Performs fuzzy matching between cues and tracks using Levenshtein distance.
+
+    This implements T023. Matches are found if the distance is <= threshold.
+    Unmatched cues are logged.
 
     Args:
-        df_cues: DataFrame with normalized cues.
-        df_tracks: DataFrame with MSD track information.
-        threshold: Maximum Levenshtein distance for a match.
-        cue_col: Name of the normalized cue column.
-        title_col: Name of the track title column.
-        artist_col: Name of the track artist column.
+        cues_df (pd.DataFrame): The dataframe with cues.
+        tracks_df (pd.DataFrame): The dataframe with tracks.
+        threshold (int): Maximum Levenshtein distance.
 
     Returns:
-        DataFrame with matched track information and match status.
+        pd.DataFrame: The cues dataframe with match results.
     """
-    logger.info(f"Matching cues with Levenshtein threshold = {threshold}")
+    logger.info(f"Starting cue matching with threshold {threshold}...")
     
-    # Build inverse index
-    track_index = build_inverse_index(df_tracks, title_col, artist_col)
+    # Build index
+    index = build_inverse_index(tracks_df)
     
-    # Prepare results
-    results = []
+    matched_count = 0
     unmatched_count = 0
     
-    for _, cue_row in df_cues.iterrows():
-        cue_text = cue_row[cue_col]
+    results = []
+
+    for _, cue_row in cues_df.iterrows():
+        norm_cue = cue_row['normalized_cue']
         best_match = None
-        min_distance = float('inf')
+        best_dist = float('inf')
         
-        # Check against indexed titles
-        for normalized_title, track_info_list in track_index.items():
-            dist = levenshtein_distance(cue_text, normalized_title)
-            if dist < min_distance:
-                min_distance = dist
-                best_match = track_info_list[0]  # Take first match for now
+        # Simple search: check against all unique normalized titles in index
+        # In a production system, this would be optimized (e.g., using a trie or BK-tree)
+        for norm_track_title, candidates in index.items():
+            dist = levenshtein_distance(norm_cue, norm_track_title)
+            if dist <= threshold and dist < best_dist:
+                best_dist = dist
+                best_match = candidates # List of (title, artist)
         
-        if min_distance <= threshold:
+        if best_match:
+            matched_count += 1
+            # Resolve collisions later, store candidates for now
             results.append({
-                'cue_id': cue_row.get('cue_id', None),
-                'matched_title': best_match[0],
-                'matched_artist': best_match[1],
-                'match_distance': min_distance,
-                'is_match': True
+                'cue_id': cue_row['cue_id'],
+                'matched_candidates': best_match,
+                'distance': best_dist,
+                'is_matched': True
             })
         else:
-            results.append({
-                'cue_id': cue_row.get('cue_id', None),
-                'matched_title': None,
-                'matched_artist': None,
-                'match_distance': min_distance,
-                'is_match': False
-            })
             unmatched_count += 1
-    
-    df_matched = pd.DataFrame(results)
-    match_rate = 1 - (unmatched_count / len(df_cues))
-    
-    logger.info(f"Matching complete: {match_rate:.2%} match rate ({unmatched_count} unmatched)")
-    return df_matched
+            results.append({
+                'cue_id': cue_row['cue_id'],
+                'matched_candidates': [],
+                'distance': None,
+                'is_matched': False
+            })
 
-def resolve_collisions(df_matched: pd.DataFrame, threshold: int = 4) -> pd.DataFrame:
+    logger.info(f"Matching complete. Matched: {matched_count}, Unmatched: {unmatched_count}")
+    
+    # Log unmatched if rate is low
+    total = len(cues_df)
+    match_rate = matched_count / total if total > 0 else 0
+    if match_rate < 0.80:
+        logger.warning(f"Match rate is {match_rate:.2%}, which is below the 80% threshold (SC-004). Proceeding with warning.")
+
+    # Add results to dataframe
+    for i, res in enumerate(results):
+        cues_df.at[i, 'is_matched'] = res['is_matched']
+        cues_df.at[i, 'matched_candidates'] = res['matched_candidates']
+        cues_df.at[i, 'distance'] = res['distance']
+
+    return cues_df
+
+def resolve_collisions(cues_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Resolves ambiguous matches (same title/artist) and logs collisions.
+    Resolves ambiguous matches where a cue matches multiple tracks.
+
+    This implements T024. Currently, it picks the first match or the one with the
+    smallest distance if available. In a full system, this might use artist metadata.
 
     Args:
-        df_matched: DataFrame with matched cues.
-        threshold: Maximum Levenshtein distance for a match.
+        cues_df (pd.DataFrame): The dataframe with matched candidates.
 
     Returns:
-        DataFrame with resolved matches.
+        pd.DataFrame: The dataframe with a single 'matched_track_id' (or title).
     """
-    logger.info("Resolving match collisions")
-    
-    df = df_matched.copy()
-    collisions = 0
-    
-    # Group by matched title and artist to find collisions
-    # For this implementation, we assume the first match is the best
-    # In a more complex scenario, we might use additional heuristics
-    
-    df = df.sort_values('match_distance')
-    df = df.drop_duplicates(subset=['cue_id'], keep='first')
-    
-    logger.info("Collision resolution complete")
-    return df
+    logger.info("Resolving collisions...")
+    resolved_count = 0
+    collision_count = 0
+
+    for i, row in cues_df.iterrows():
+        if not row['is_matched']:
+            continue
+        
+        candidates = row['matched_candidates']
+        if len(candidates) == 1:
+            cues_df.at[i, 'matched_title'] = candidates[0][0]
+            cues_df.at[i, 'matched_artist'] = candidates[0][1]
+            resolved_count += 1
+        else:
+            # Collision: pick the first one (or implement more complex logic)
+            # For this implementation, we pick the first candidate and log the collision
+            cues_df.at[i, 'matched_title'] = candidates[0][0]
+            cues_df.at[i, 'matched_artist'] = candidates[0][1]
+            collision_count += 1
+            logger.debug(f"Collision resolved for cue {row['cue_id']}: {len(candidates)} candidates found. Picked: {candidates[0][0]}")
+
+    if collision_count > 0:
+        logger.info(f"Resolved {collision_count} collisions by picking the first candidate.")
+
+    return cues_df

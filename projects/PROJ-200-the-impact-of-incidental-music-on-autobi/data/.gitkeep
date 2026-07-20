@@ -1,1 +1,2 @@
-# Data directory placeholder
+# This directory is for processed and final data artifacts.
+# State tracking is handled by state.yaml in the project root.

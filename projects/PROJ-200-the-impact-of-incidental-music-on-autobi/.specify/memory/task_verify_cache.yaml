@@ -1,0 +1,67 @@
+T016a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt shows `spec.md`\u2019s FR\u2011001 now defines `residualized_exposure_score`,\
+    \ states it is the primary predictor, and includes the regression formula `adolescent_exposure\
+    \ ~ overall_popularity`. This satisfies the task\u2019s update requirement."
+T016f:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt shows FR\u2011006 now reads: \u201CThe system shall\
+    \ re\u2011run \u2026 using different Levenshtein distance thresholds (2,\u202F\
+    4,\u202F6)\u2026 The data must be **re\u2011aggregated to User\u2011Track pairs**\
+    \ for each threshold iteration,\u201D satisfying the required update."
+T016g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `spec.md` file or excerpt showing the Edge Cases section was provided, so
+    we cannot verify that the required sentence was added. The artifact needed to
+    confirm the update is missing.
+T018:
+  c: false
+  h: a21dda2e42ada4c69598de2bdb6faad3c20fb9787c70e1e3da7429afde2eb178
+  r: The required `data/processed/ingested_cohort.parquet` file does not exist, and
+    `state.yaml` contains no entry or checksum for it. Both the data artifact and
+    its checksum update are missing.
+T029:
+  c: false
+  h: 77f000a4d29297691247588c4bd2f069157c1e016a9f76dec38463d6e1da2f03
+  r: The required `data/processed/user_track_pairs.parquet` file does not exist, and
+    `state.yaml` has not been updated with any checksum entry for it (the `files`
+    map is empty). Consequently the task of generating the parquet file and recording
+    its checksum was not fulfilled.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No diagnostic plots (e.g., residual checks, QQ plots) were found in the required\
+    \ `data/final/plots/` directory, nor any evidence (files, screenshots, code) indicating\
+    \ they were generated and saved. The task\u2019s deliverable is missing."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or code docstring contents were provided; without the actual files
+    we cannot confirm that documentation was updated to reflect the specification
+    changes. The required artifacts are missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was presented showing that the ingestion\
+    \ pipeline uses chunking when memory exceeds 5\u202FGB. Without an artifact (e.g.,\
+    \ a script, function, or log) demonstrating the chunking logic, we cannot confirm\
+    \ the performance optimization requirement is met. The implementer must provide\
+    \ the relevant implementation or evidence (e.g., code snippet, test showing chunked\
+    \ processing, or logs) that verifies chunking is employed for >5\u202FGB datasets."
+T045#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material only contains a research specification; there are no logs,\
+    \ code, configuration files, or any evidence that the pipeline was audited or\
+    \ modified to prevent PII from appearing in logs or output files. Consequently,\
+    \ the security\u2011hardening requirement (no PII leaks) is not demonstrated."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run, timing logs, or any output\
+    \ confirming the pipeline completed end\u2011to\u2011end within the required 6\u2011\
+    hour window is present. The required artifact (validation results showing runtime)\
+    \ is missing."

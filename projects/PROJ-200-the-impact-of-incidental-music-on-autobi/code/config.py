@@ -1,73 +1,52 @@
 """
-Configuration Module for the Impact of Incidental Music on Autobiographical Memory Retrieval project.
+Configuration Module for PROJ-200.
 
-This module provides project paths, configuration parameters, and utility functions
-for managing the project structure.
-
-Functions:
-  get_project_root: Returns the project root directory.
-  ensure_directories: Creates necessary project directories.
-  get_config_dict: Returns a dictionary of configuration parameters.
+This module defines project paths, thresholds, and configuration dictionaries.
 """
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-# Project root directory
-_PROJECT_ROOT = Path(__file__).parent.parent
-
-# Default configuration parameters
-DEFAULT_CONFIG = {
-    'levenshtein_threshold': 4,
-    'min_listen_threshold': 10,
-    'random_seed': 42,
-    'match_rate_threshold': 0.80,
-    'birth_year_fallback_threshold': 0.50,
-    'early_adolescence_start_offset': 10,
-    'early_adolescence_end_offset': 14,
-    'late_adolescence_start_offset': 15,
-    'late_adolescence_end_offset': 19,
-}
-
 def get_project_root() -> Path:
     """
-    Returns the project root directory.
+    Returns the root path of the project.
 
     Returns:
-        Path to the project root.
+        Path: The project root directory.
     """
-    return _PROJECT_ROOT
+    # Assuming the script is run from the project root or code/
+    current_dir = Path(__file__).resolve().parent
+    return current_dir.parent
 
-def ensure_directories() -> None:
+def ensure_directories():
     """
-    Creates necessary project directories if they don't exist.
-
-    Creates:
-      - data/raw/
-      - data/processed/
-      - data/final/
-      - data/final/plots/
-      - tests/
+    Ensures that all required directories (data/raw, data/processed, etc.) exist.
     """
     root = get_project_root()
-    directories = [
+    dirs = [
         root / "data" / "raw",
         root / "data" / "processed",
         root / "data" / "final",
         root / "data" / "final" / "plots",
         root / "tests",
-        root / "tests" / "unit",
-        root / "tests" / "integration",
+        root / "contracts"
     ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 def get_config_dict() -> Dict[str, Any]:
     """
-    Returns a dictionary of configuration parameters.
+    Returns the configuration dictionary with thresholds and parameters.
 
     Returns:
-        Dictionary of configuration parameters.
+        Dict[str, Any]: Configuration parameters.
     """
-    return DEFAULT_CONFIG.copy()
+    return {
+        "levenshtein_threshold": 4,
+        "min_listen_threshold": 10,
+        "birth_year_fallback_threshold": 0.50,
+        "match_rate_warning_threshold": 0.80,
+        "random_seed": 42,
+        "adolescent_start_offset": 10,
+        "adolescent_end_offset": 18
+    }
