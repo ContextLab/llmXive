@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fork-Point Gene Schema"
+description: "Schema for fork-point gene results (CSV/JSON)."
+type: object
+properties:
+  branch_id:
+    type: string
+    description: "Unique identifier for the branch point"
+  divergence_score:
+    type: number
+    description: "Statistical divergence metric (based on permutation test of therapy response labels)"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation test"
+  genes:
+    type: array
+    items:
+      type: object
+      properties:
+        gene_symbol:
+          type: string
+        timing_rank:
+          type: integer
+          minimum: 1
+        expression_level:
+          type: number
+      required:
+        - gene_symbol
+        - timing_rank
+    description: "List of genes at the fork-point"
+required:
+  - branch_id
+  - p_value
+  - genes
+additionalProperties: false

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Contract"
+description: "Schema for validated dataset metadata and checksums."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "GEO accession ID (e.g., GSE136103)"
+  source_url:
+    type: string
+    description: "Direct download URL (must be verified)"
+  checksum_sha256:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the raw file"
+  file_size_bytes:
+    type: integer
+    minimum: 0
+    description: "Size of the downloaded file"
+  status:
+    type: string
+    enum:
+      - "available"
+      - "download_failed"
+      - "auth_required"
+      - "substituted"
+    description: "Status of data acquisition"
+  substitution_source:
+    type: string
+    description: "If status is 'substituted', the URL of the substitute dataset"
+required:
+  - dataset_id
+  - checksum_sha256
+  - status
+additionalProperties: false

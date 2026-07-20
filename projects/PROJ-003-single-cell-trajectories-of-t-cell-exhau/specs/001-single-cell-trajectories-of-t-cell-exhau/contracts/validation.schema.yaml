@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Metrics Schema"
+description: "Schema for cross-dataset validation and clinical enrichment results."
+type: object
+properties:
+  spearman_correlation:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Rank correlation of top 3 genes across datasets (after functional alignment)"
+  jaccard_index:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Consistency of top 50 gene sets"
+  enrichment_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value for therapy response enrichment (if labels are available)"
+  bootstrap_iterations:
+    type: integer
+    minimum: 100
+    description: "Number of bootstrap iterations performed"
+  datasets_used:
+    type: array
+    items:
+      type: string
+    description: "List of dataset IDs used in validation"
+required:
+  - spearman_correlation
+  - jaccard_index
+  - enrichment_p_value
+  - bootstrap_iterations
+  - datasets_used
+additionalProperties: false
