@@ -6,6 +6,13 @@ T012:
     \ or `verify_checksum`, and never writes the downloaded bytes to `data/raw/` nor\
     \ creates `data/hashes.json` (the file is missing). Consequently the required\
     \ download, verification, and checksum\u2011recording behavior is not implemented."
+T014:
+  c: false
+  h: 4390f1ab7fda6be38500c6d4c6bbbd6d33181d43aa4bdb873e4431a314857e11
+  r: The `code/spectrum_computation.py` file is only partially implemented (truncated
+    before the actual `anafast` call and without any logic to save results), and the
+    required output `data/derived/cl_bb_spectrum.json` does not exist. Both the functional
+    implementation and the expected output artifact are missing.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -94,3 +101,17 @@ T043:
     end pipeline finished within six hours is missing. The implementer must provide\
     \ concrete validation output (e.g., a timestamped log or summary) showing the\
     \ pipeline execution succeeded and met the time constraint."
+T060a:
+  c: false
+  h: 71dea067466c1b80c2bf9b6a2f31b59a03b30d9406a30814dca0a78c337415e0
+  r: "The repository contains a `generate_inflation_synthetic` implementation that\
+    \ writes a HEALPix map, but the required output file `data/synthetic/inflation_synthetic.fits`\
+    \ is absent from the disk. Without the artifact, the task\u2019s deliverable is\
+    \ not satisfied."
+T061a:
+  c: false
+  h: 35f7ec9816c7e005f02017173f35ffe20c7e6e56690e927c6277f38d44d337af
+  r: "The required output file `data/synthetic/ground_truth_inflation.json` does not\
+    \ exist, and the provided `code/synthetic_data.py` excerpt does not contain a\
+    \ `serialize_inflation_ground_truth` function that would create it. The task\u2019\
+    s core artifact is therefore missing."

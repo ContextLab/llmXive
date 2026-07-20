@@ -11,7 +11,7 @@ This project implements a computational pipeline to distinguish causal, non-infl
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python
 **Primary Dependencies**: `pyhealpix`, `dynesty`, `emcee`, `numpy`, `scipy`, `requests`, `pyyaml`, `astropy`, `astroquery`
 **Storage**: Local file system under `data/` (raw maps, masks, derived spectra)
 **Testing**: `pytest` with synthetic data generation for validation

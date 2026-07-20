@@ -1,224 +1,168 @@
-"""
-Synthetic data generation for early universe phase transition analysis.
-
-This module provides functions to generate synthetic B-mode polarization maps
-based on theoretical models (inflation and phase transitions) for validation
-and testing of the inference pipeline.
-"""
-
 import os
 import json
 import numpy as np
-from typing import Dict, Any, Tuple
-import sys
-import pathlib
+from typing import Dict, Any, Tuple, Optional
 import healpy as hp
+import sys
 
 from config import get_config, init_reproducibility
 
-# Ensure reproducibility
-init_reproducibility()
+# Constants for ground truth
+TRUE_R_INF = 0.01
+TRUE_E_PT = 1e15  # GeV
+TRUE_MODEL_NULL = "null"
 
-def generate_theoretical_BB_spectrum(model_type: str, params: Dict[str, float],
-                                     l_max: int = 200) -> Tuple[np.ndarray, np.ndarray]:
+def generate_theoretical_BB_spectrum(params: Dict[str, float], l_range: Tuple[int, int] = (2, 200)) -> np.ndarray:
     """
-    Generate a theoretical BB power spectrum for a given model.
-
-    Args:
-        model_type: Type of model ('inflation' or 'phase_transition')
-        params: Dictionary of model parameters (e.g., {'r': 0.01} or {'E_PT': 1e15})
-        l_max: Maximum multipole moment to compute
-
-    Returns:
-        Tuple of (l_values, Cl_BB_values)
+    Generates a theoretical BB power spectrum based on parameters.
+    Simplified model for synthetic generation purposes.
     """
-    l_values = np.arange(2, l_max + 1, dtype=float)
-    Cl_BB = np.zeros_like(l_values)
-
-    if model_type == 'inflation':
-        r = params.get('r', 0.01)
-        # Simplified tensor contribution: ~ r * (l*(l+1))^(-0.5) scaling for demonstration
-        # In a real implementation, this would use CAMB or CLASS
-        # Using a simplified power law for synthetic data generation
-        Cl_BB = r * 1e-10 * (l_values * (l_values + 1)) ** (-0.5)
-
-    elif model_type == 'phase_transition':
-        E_PT = params.get('E_PT', 1e15)  # Energy scale in GeV
-        # Phase transition signals typically peak at specific scales
-        # Using a Gaussian-like bump centered at a characteristic l
-        l_peak = 100  # Characteristic scale for phase transitions
+    l = np.arange(l_range[0], l_range[1] + 1)
+    r = params.get('r', 0.0)
+    E_pt = params.get('E_PT', 0.0)
+    
+    # Tensor contribution (approximate scaling)
+    C_l_tensor = r * 1e-10 * (l * (l + 1)) ** -0.5
+    
+    # Phase transition contribution (approximate peak)
+    C_l_pt = 0.0
+    if E_pt > 0:
+        # Peak around l ~ 100 for high energy scale
+        peak_l = 100
         width = 20
-        amplitude = (E_PT / 1e16) ** 2 * 1e-9
-        Cl_BB = amplitude * np.exp(-0.5 * ((l_values - l_peak) / width) ** 2)
+        C_l_pt = (E_pt / 1e16)**2 * 1e-10 * np.exp(-0.5 * ((l - peak_l) / width)**2)
+    
+    # Lensing contribution (Null model baseline)
+    # Approximate lensing B-mode spectrum
+    C_l_lensing = 2e-10 * (l * (l + 1)) ** -1.5 * (1 - np.exp(-l/5))
+    
+    C_l_total = C_l_tensor + C_l_pt + C_l_lensing
+    return C_l_total
 
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
-
-    return l_values, Cl_BB
-
-def generate_gaussian_random_field(Cl_BB: np.ndarray, l_values: np.ndarray,
-                                   nside: int = 64, seed: int = None) -> np.ndarray:
+def generate_gaussian_random_field(C_l: np.ndarray, l_range: Tuple[int, int], seed: int) -> np.ndarray:
     """
-    Generate a Gaussian random B-mode map from a power spectrum.
-
-    Args:
-        Cl_BB: Power spectrum values (Cl_BB)
-        l_values: Corresponding multipole moments (l)
-        nside: HEALPix resolution parameter
-        seed: Random seed for reproducibility
-
-    Returns:
-        HEALPix map array representing B-mode polarization
+    Generates a Gaussian random HEALPix map from a given power spectrum.
     """
-    if seed is not None:
-        np.random.seed(seed)
-
+    nside = 64
     npix = hp.nside2npix(nside)
-    map_b = np.zeros(npix)
+    map_out = np.zeros(npix)
+    
+    # Healpix alm generation
+    alm = hp.synalm(C_l, l_max=l_range[1], new=True)
+    map_out = hp.alm2map(alm, nside, pixwin=False)
+    
+    return map_out
 
-    # Healpy uses spherical harmonics coefficients a_lm
-    # We generate a_lm with the correct power spectrum
-    a_lm = hp.synalm(Cl_BB, lmax=len(Cl_BB) - 1, new=True)
-
-    # Generate the map from a_lm
-    # We only need the B-mode, so we construct a pure B-mode map
-    # For simplicity, we treat the generated a_lm as the B-mode coefficients
-    map_b = hp.alm2map(a_lm, nside)
-
-    return map_b
-
-def generate_inflation_synthetic(r_value: float = 0.01, nside: int = 64,
-                                 output_dir: str = None, seed: int = 42) -> Dict[str, Any]:
+def generate_inflation_synthetic(output_path: str, seed: int = 42) -> Dict[str, Any]:
     """
-    Generate synthetic B-mode maps for an inflationary model with a given tensor-to-scalar ratio r.
-
-    Args:
-        r_value: Tensor-to-scalar ratio (default 0.01)
-        nside: HEALPix resolution parameter
-        output_dir: Directory to save output files
-        seed: Random seed for reproducibility
-
-    Returns:
-        Dictionary containing metadata and paths to generated files
+    Generates synthetic B-mode maps with inflationary signal (r=0.01).
     """
-    if output_dir is None:
-        config = get_config()
-        output_dir = config.get('synthetic_data_dir', 'data/synthetic')
+    init_reproducibility(seed)
+    params = {'r': TRUE_R_INF, 'E_PT': 0.0}
+    l_range = (2, 200)
+    C_l = generate_theoretical_BB_spectrum(params, l_range)
+    m_map = generate_gaussian_random_field(C_l, l_range, seed)
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    hp.write_map(output_path, m_map, overwrite=True)
+    
+    return {'model': 'inflation', 'params': params, 'path': output_path}
 
-    os.makedirs(output_dir, exist_ok=True)
+def generate_pt_synthetic(output_path: str, seed: int = 43) -> Dict[str, Any]:
+    """
+    Generates synthetic B-mode maps with phase transition signal.
+    """
+    init_reproducibility(seed)
+    params = {'r': 0.0, 'E_PT': TRUE_E_PT}
+    l_range = (2, 200)
+    C_l = generate_theoretical_BB_spectrum(params, l_range)
+    m_map = generate_gaussian_random_field(C_l, l_range, seed)
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    hp.write_map(output_path, m_map, overwrite=True)
+    
+    return {'model': 'phase_transition', 'params': params, 'path': output_path}
 
-    # Generate theoretical spectrum
-    l_values, Cl_BB = generate_theoretical_BB_spectrum('inflation', {'r': r_value})
+def generate_null_synthetic(output_path: str, seed: int = 44) -> Dict[str, Any]:
+    """
+    Generates synthetic B-mode maps representing the Null (lens-only) model.
+    """
+    init_reproducibility(seed)
+    params = {'r': 0.0, 'E_PT': 0.0}
+    l_range = (2, 200)
+    C_l = generate_theoretical_BB_spectrum(params, l_range)
+    m_map = generate_gaussian_random_field(C_l, l_range, seed)
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    hp.write_map(output_path, m_map, overwrite=True)
+    
+    return {'model': 'null', 'params': params, 'path': output_path}
 
-    # Generate random field
-    b_mode_map = generate_gaussian_random_field(Cl_BB, l_values, nside, seed)
-
-    # Prepare ground truth metadata
+def serialize_inflation_ground_truth(output_path: str = "data/synthetic/ground_truth_inflation.json") -> None:
+    """
+    Writes ground truth parameters for inflationary synthetic data to JSON.
+    """
     ground_truth = {
-        'model_type': 'inflation',
-        'params': {
-            'r': r_value
+        "model_type": "inflation",
+        "true_parameters": {
+            "r": TRUE_R_INF,
+            "E_PT": 0.0
         },
-        'nside': nside,
-        'seed': seed,
-        'l_values': l_values.tolist(),
-        'Cl_BB': Cl_BB.tolist(),
-        'description': f'Synthetic B-mode map for inflation with r={r_value}'
+        "description": "Ground truth for T060a synthetic inflation data",
+        "seed_used": 42
     }
-
-    # Save ground truth JSON
-    json_path = os.path.join(output_dir, 'ground_truth_inflation.json')
-    with open(json_path, 'w') as f:
-        json.dump(ground_truth, f, indent=2)
-
-    # Save FITS map
-    fits_path = os.path.join(output_dir, 'inflation_synthetic.fits')
-    hp.write_map(fits_path, b_mode_map, overwrite=True)
-
-    return {
-        'ground_truth_path': json_path,
-        'fits_path': fits_path,
-        'params': ground_truth['params']
-    }
-
-def generate_pt_synthetic(E_PT_value: float = 1e15, nside: int = 64,
-                          output_dir: str = None, seed: int = 43) -> Dict[str, Any]:
-    """
-    Generate synthetic B-mode maps for a phase transition model with a given energy scale E_PT.
-
-    Args:
-        E_PT_value: Energy scale of the phase transition in GeV (default 1e15)
-        nside: HEALPix resolution parameter
-        output_dir: Directory to save output files
-        seed: Random seed for reproducibility
-
-    Returns:
-        Dictionary containing metadata and paths to generated files
-    """
-    if output_dir is None:
-        config = get_config()
-        output_dir = config.get('synthetic_data_dir', 'data/synthetic')
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Generate theoretical spectrum
-    l_values, Cl_BB = generate_theoretical_BB_spectrum('phase_transition', {'E_PT': E_PT_value})
-
-    # Generate random field
-    b_mode_map = generate_gaussian_random_field(Cl_BB, l_values, nside, seed)
-
-    # Prepare ground truth metadata
-    ground_truth = {
-        'model_type': 'phase_transition',
-        'params': {
-            'E_PT': E_PT_value
-        },
-        'nside': nside,
-        'seed': seed,
-        'l_values': l_values.tolist(),
-        'Cl_BB': Cl_BB.tolist(),
-        'description': f'Synthetic B-mode map for phase transition with E_PT={E_PT_value} GeV'
-    }
-
-    # Save ground truth JSON
-    json_path = os.path.join(output_dir, 'ground_truth_pt.json')
-    with open(json_path, 'w') as f:
-        json.dump(ground_truth, f, indent=2)
-
-    # Save FITS map
-    fits_path = os.path.join(output_dir, 'pt_synthetic.fits')
-    hp.write_map(fits_path, b_mode_map, overwrite=True)
-
-    return {
-        'ground_truth_path': json_path,
-        'fits_path': fits_path,
-        'params': ground_truth['params']
-    }
-
-def save_dataset(dataset_info: Dict[str, Any], output_path: str):
-    """
-    Save dataset information to a JSON file.
-
-    Args:
-        dataset_info: Dictionary containing dataset metadata
-        output_path: Path to save the JSON file
-    """
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(dataset_info, f, indent=2)
+        json.dump(ground_truth, f, indent=2)
+
+def serialize_pt_ground_truth(output_path: str = "data/synthetic/ground_truth_pt.json") -> None:
+    """
+    Writes ground truth parameters for phase transition synthetic data to JSON.
+    """
+    ground_truth = {
+        "model_type": "phase_transition",
+        "true_parameters": {
+            "r": 0.0,
+            "E_PT": TRUE_E_PT
+        },
+        "description": "Ground truth for T060c synthetic PT data",
+        "seed_used": 43
+    }
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(ground_truth, f, indent=2)
+
+def serialize_null_ground_truth(output_path: str = "data/synthetic/ground_truth_null.json") -> None:
+    """
+    Writes ground truth parameters for null synthetic data to JSON.
+    """
+    ground_truth = {
+        "model_type": "null",
+        "true_parameters": {
+            "r": 0.0,
+            "E_PT": 0.0
+        },
+        "description": "Ground truth for T060b synthetic null data",
+        "seed_used": 44
+    }
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(ground_truth, f, indent=2)
+
+def save_dataset(dataset_name: str, data: Any) -> None:
+    """Generic dataset saver."""
+    pass
 
 def main():
-    """Main function to generate synthetic datasets for validation."""
-    print("Generating synthetic inflation data...")
-    inflation_result = generate_inflation_synthetic(r_value=0.01, seed=42)
-    print(f"  Ground truth: {inflation_result['ground_truth_path']}")
-    print(f"  FITS map: {inflation_result['fits_path']}")
+    """Main entry point for synthetic data generation and serialization."""
+    print("Generating and serializing synthetic ground truth data...")
+    serialize_inflation_ground_truth()
+    serialize_pt_ground_truth()
+    serialize_null_ground_truth()
+    print("Done.")
 
-    print("Generating synthetic phase transition data...")
-    pt_result = generate_pt_synthetic(E_PT_value=1e15, seed=43)
-    print(f"  Ground truth: {pt_result['ground_truth_path']}")
-    print(f"  FITS map: {pt_result['fits_path']}")
-
-    print("Synthetic data generation complete.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

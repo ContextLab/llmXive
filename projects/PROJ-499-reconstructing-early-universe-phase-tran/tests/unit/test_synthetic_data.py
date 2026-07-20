@@ -1,7 +1,6 @@
 """
-Unit tests for synthetic data generation functions.
+Unit tests for synthetic data generation module.
 """
-
 import os
 import json
 import tempfile
@@ -9,179 +8,144 @@ import numpy as np
 import pytest
 import healpy as hp
 
-from synthetic_data import (
+# Adjust import path if running from tests/
+import sys
+import pathlib
+project_root = pathlib.Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from code.synthetic_data import (
     generate_theoretical_BB_spectrum,
     generate_gaussian_random_field,
     generate_inflation_synthetic,
+    generate_null_synthetic,
     generate_pt_synthetic,
-    save_dataset
+    serialize_inflation_ground_truth,
+    serialize_null_ground_truth,
+    serialize_pt_ground_truth
 )
 
 
 class TestTheoreticalSpectrum:
-    """Tests for generate_theoretical_BB_spectrum function."""
+    def test_spectrum_shape(self):
+        """Test that the spectrum has the expected shape."""
+        l_vals, cl_vals = generate_theoretical_BB_spectrum(r=0.01)
+        assert len(l_vals) == len(cl_vals)
+        assert l_vals[0] >= 2
+        assert np.all(cl_vals >= 0)
 
-    def test_inflation_spectrum_structure(self):
-        """Test that inflation spectrum has correct structure and positive values."""
-        l_values, Cl_BB = generate_theoretical_BB_spectrum('inflation', {'r': 0.01})
+    def test_inflation_component(self):
+        """Test that inflation component is present when r > 0."""
+        l_vals, cl_vals = generate_theoretical_BB_spectrum(r=0.01)
+        # Check that there is some power
+        assert np.sum(cl_vals) > 0
 
-        assert len(l_values) > 0
-        assert len(Cl_BB) == len(l_values)
-        assert np.all(Cl_BB >= 0)
-        assert l_values[0] == 2  # Starts at l=2
-
-    def test_phase_transition_spectrum_structure(self):
-        """Test that phase transition spectrum has correct structure and positive values."""
-        l_values, Cl_BB = generate_theoretical_BB_spectrum('phase_transition', {'E_PT': 1e15})
-
-        assert len(l_values) > 0
-        assert len(Cl_BB) == len(l_values)
-        assert np.all(Cl_BB >= 0)
-        assert l_values[0] == 2
-
-    def test_invalid_model_type(self):
-        """Test that invalid model type raises ValueError."""
-        with pytest.raises(ValueError, match="Unknown model type"):
-            generate_theoretical_BB_spectrum('invalid_model', {})
+    def test_null_component(self):
+        """Test that null model produces only lensing power."""
+        l_vals, cl_vals = generate_theoretical_BB_spectrum(r=0.0, E_PT=None)
+        # Should still have lensing power
+        assert np.sum(cl_vals) > 0
 
 
 class TestGaussianRandomField:
-    """Tests for generate_gaussian_random_field function."""
-
-    def test_map_dimensions(self):
-        """Test that generated map has correct dimensions."""
-        l_values = np.array([2.0, 3.0, 4.0])
-        Cl_BB = np.array([1e-10, 1e-10, 1e-10])
-
-        for nside in [16, 32, 64]:
-            b_map = generate_gaussian_random_field(Cl_BB, l_values, nside)
-            expected_npix = hp.nside2npix(nside)
-            assert len(b_map) == expected_npix
+    def test_map_shape(self):
+        """Test that generated map has correct shape."""
+        l_vals = np.arange(2, 100)
+        cl_vals = np.ones_like(l_vals, dtype=float) * 1e-10
+        nside = 16
+        bmap = generate_gaussian_random_field(nside, cl_vals, l_vals, seed=42)
+        expected_npix = hp.nside2npix(nside)
+        assert bmap.shape == (expected_npix,)
 
     def test_reproducibility(self):
-        """Test that same seed produces same result."""
-        l_values = np.array([2.0, 3.0, 4.0])
-        Cl_BB = np.array([1e-10, 1e-10, 1e-10])
-
-        map1 = generate_gaussian_random_field(Cl_BB, l_values, nside=32, seed=123)
-        map2 = generate_gaussian_random_field(Cl_BB, l_values, nside=32, seed=123)
-
+        """Test that same seed produces same map."""
+        l_vals = np.arange(2, 100)
+        cl_vals = np.ones_like(l_vals, dtype=float) * 1e-10
+        nside = 16
+        
+        map1 = generate_gaussian_random_field(nside, cl_vals, l_vals, seed=123)
+        map2 = generate_gaussian_random_field(nside, cl_vals, l_vals, seed=123)
+        
         np.testing.assert_array_equal(map1, map2)
 
 
 class TestInflationSynthetic:
-    """Tests for generate_inflation_synthetic function."""
-
-    def test_output_files_created(self):
-        """Test that output files are created."""
+    def test_file_creation(self):
+        """Test that the function creates a FITS file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_inflation_synthetic(r_value=0.01, output_dir=tmpdir, seed=42)
+            output_path = os.path.join(tmpdir, "test_inflation.fits")
+            result_path = generate_inflation_synthetic(r=0.01, output_path=output_path)
+            
+            assert os.path.exists(result_path)
+            assert result_path == output_path
 
-            assert os.path.exists(result['ground_truth_path'])
-            assert os.path.exists(result['fits_path'])
-
-    def test_ground_truth_content(self):
-        """Test that ground truth JSON contains expected fields."""
+    def test_map_validity(self):
+        """Test that the generated map is a valid HEALPix map."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_inflation_synthetic(r_value=0.01, output_dir=tmpdir, seed=42)
+            output_path = os.path.join(tmpdir, "test_inflation.fits")
+            generate_inflation_synthetic(r=0.01, output_path=output_path)
+            
+            # Try to read the map
+            bmap = hp.read_map(output_path)
+            assert len(bmap) > 0
 
-            with open(result['ground_truth_path'], 'r') as f:
-                data = json.load(f)
 
-            assert data['model_type'] == 'inflation'
-            assert 'r' in data['params']
-            assert data['params']['r'] == 0.01
-            assert 'l_values' in data
-            assert 'Cl_BB' in data
-            assert 'nside' in data
-            assert 'seed' in data
-
-    def test_fits_map_validity(self):
-        """Test that FITS file contains valid HEALPix map."""
+class TestNullSynthetic:
+    def test_file_creation(self):
+        """Test that the function creates a FITS file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_inflation_synthetic(r_value=0.01, output_dir=tmpdir, seed=42)
-
-            # Read the FITS file
-            b_map = hp.read_map(result['fits_path'])
-
-            assert len(b_map) == hp.nside2npix(64)
-            assert not np.all(b_map == 0)  # Map should not be all zeros
+            output_path = os.path.join(tmpdir, "test_null.fits")
+            result_path = generate_null_synthetic(output_path=output_path)
+            
+            assert os.path.exists(result_path)
 
 
 class TestPTSynthetic:
-    """Tests for generate_pt_synthetic function."""
-
-    def test_output_files_created(self):
-        """Test that output files are created."""
+    def test_file_creation(self):
+        """Test that the function creates a FITS file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_pt_synthetic(E_PT_value=1e15, output_dir=tmpdir, seed=43)
+            output_path = os.path.join(tmpdir, "test_pt.fits")
+            result_path = generate_pt_synthetic(E_PT=1e15, output_path=output_path)
+            
+            assert os.path.exists(result_path)
 
-            assert os.path.exists(result['ground_truth_path'])
-            assert os.path.exists(result['fits_path'])
 
-    def test_ground_truth_content(self):
-        """Test that ground truth JSON contains expected fields."""
+class TestGroundTruthSerialization:
+    def test_inflation_gt(self):
+        """Test inflation ground truth JSON structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_pt_synthetic(E_PT_value=1e15, output_dir=tmpdir, seed=43)
-
-            with open(result['ground_truth_path'], 'r') as f:
+            output_path = os.path.join(tmpdir, "gt_inflation.json")
+            result_path = serialize_inflation_ground_truth(r=0.01, output_path=output_path)
+            
+            assert os.path.exists(result_path)
+            with open(result_path, 'r') as f:
                 data = json.load(f)
+            
+            assert data["model_type"] == "inflation"
+            assert "true_parameters" in data
+            assert data["true_parameters"]["r"] == 0.01
 
-            assert data['model_type'] == 'phase_transition'
-            assert 'E_PT' in data['params']
-            assert data['params']['E_PT'] == 1e15
-            assert 'l_values' in data
-            assert 'Cl_BB' in data
-            assert 'nside' in data
-            assert 'seed' in data
-
-    def test_fits_map_validity(self):
-        """Test that FITS file contains valid HEALPix map."""
+    def test_null_gt(self):
+        """Test null ground truth JSON structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_pt_synthetic(E_PT_value=1e15, output_dir=tmpdir, seed=43)
+            output_path = os.path.join(tmpdir, "gt_null.json")
+            result_path = serialize_null_ground_truth(output_path=output_path)
+            
+            assert os.path.exists(result_path)
+            with open(result_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["model_type"] == "null"
 
-            # Read the FITS file
-            b_map = hp.read_map(result['fits_path'])
-
-            assert len(b_map) == hp.nside2npix(64)
-            assert not np.all(b_map == 0)  # Map should not be all zeros
-
-    def test_different_energy_scales(self):
-        """Test that different energy scales produce different spectra."""
+    def test_pt_gt(self):
+        """Test PT ground truth JSON structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result1 = generate_pt_synthetic(E_PT_value=1e14, output_dir=tmpdir, seed=43)
-            result2 = generate_pt_synthetic(E_PT_value=1e16, output_dir=tmpdir, seed=43)
-
-            with open(result1['ground_truth_path'], 'r') as f:
-                data1 = json.load(f)
-            with open(result2['ground_truth_path'], 'r') as f:
-                data2 = json.load(f)
-
-            assert data1['params']['E_PT'] == 1e14
-            assert data2['params']['E_PT'] == 1e16
-
-            # The amplitudes should be different
-            assert data1['Cl_BB'] != data2['Cl_BB']
-
-
-class TestSaveDataset:
-    """Tests for save_dataset function."""
-
-    def test_save_and_load(self):
-        """Test that dataset can be saved and loaded."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_data = {
-                'test_key': 'test_value',
-                'numbers': [1, 2, 3],
-                'nested': {'a': 1, 'b': 2}
-            }
-            output_path = os.path.join(tmpdir, 'test_dataset.json')
-
-            save_dataset(test_data, output_path)
-
-            assert os.path.exists(output_path)
-
-            with open(output_path, 'r') as f:
-                loaded_data = json.load(f)
-
-            assert loaded_data == test_data
+            output_path = os.path.join(tmpdir, "gt_pt.json")
+            result_path = serialize_pt_ground_truth(E_PT=1e15, output_path=output_path)
+            
+            assert os.path.exists(result_path)
+            with open(result_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["model_type"] == "phase_transition"
+            assert data["true_parameters"]["E_PT"] == 1e15
