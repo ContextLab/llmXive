@@ -391,6 +391,26 @@ class PaidGuardDenied(PermanentBackendError):
     """
 
 
+class PricingUnverifiable(TransientBackendError):
+    """Cannot determine whether ``model`` is free or paid RIGHT NOW — the live
+    pricing catalog is unreachable and there is no fresh last-known-good
+    pricing observation to fall back on (or the model is served but not
+    listed in an otherwise-reachable catalog).
+
+    This is DELIBERATELY distinct from :class:`PaidGuardDenied`: that class
+    means "this model VERIFIABLY costs money and the credit guard declined
+    it" (a long-lived, cost-related fact). This class means "pricing is
+    temporarily unknowable" (a transient AVAILABILITY condition) — it says
+    nothing about cost and needs no opt-in/config change, only for the
+    catalog (or a fresh LKG observation) to come back. Subclasses
+    :class:`TransientBackendError` (NOT ``PermanentBackendError``) so
+    ``router.disposition_of`` classifies it ``RETRY_ADVANCE`` — the walker
+    tries the next candidate as an outage, not a permanent SKIP that implies
+    "enable paid opt-in" — while :func:`llmxive.backends.dartmouth.is_free_model`
+    still answers ``False`` for it (SC-003: an unverifiable model never
+    proceeds as free)."""
+
+
 class UnsupportedFeatureError(PermanentBackendError):
     """This backend/model cannot serve a feature THIS request needs (e.g. image
     content on a text-only local checkpoint). Like ``PaidGuardDenied`` this is a
@@ -521,6 +541,7 @@ __all__ = [
     "ModelDownError",
     "PaidGuardDenied",
     "PermanentBackendError",
+    "PricingUnverifiable",
     "TextPart",
     "TransientBackendError",
     "UnsupportedFeatureError",

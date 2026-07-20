@@ -14,7 +14,7 @@ model ``is_free_model`` calls paid, so a transient catalog-listing blip must
 never make a genuinely-free model look paid.
 
 A review found BOTH steps of the ladder had no freshness bound: the
-in-process ``free_chat_models`` cache lived for the entire process, and
+in-process live-pricing cache lived for the entire process, and
 ``_lkg_free_models`` never consulted ``observed_at`` at all — either one
 could serve an arbitrarily stale "free" verdict, which bypasses
 ``paid_call_allowed`` at the spend-authorization boundary (``chat()``). Both
@@ -24,12 +24,21 @@ the in-process cache TTLs out and refetches; a "catalog" LKG entry older than
 the bound reads as absent (fail closed). The tests below cover both the
 "still fresh" (outage protection preserved) and "now stale" (fails closed)
 sides of that bound, plus the ``chat()``-level assertion that a stale cached
-"free" cannot bypass the paid guard.
+verdict cannot bypass the spend-authorization guard.
+
+Follow-up (maintainer-identified defect): ``is_free_model`` now delegates to
+the tri-state ``model_pricing_verdict`` (see
+``test_dartmouth_pricing_verdict.py`` for the FREE/PAID/UNVERIFIABLE split
+itself) — a live-catalog outage with no fresh LKG is UNVERIFIABLE, not
+silently "not free", so ``chat()`` raises the transient
+``PricingUnverifiable`` rather than ``PaidGuardDenied`` in that case (see
+``test_stale_cached_pricing_cannot_bypass_the_pricing_guard_at_chat_level``
+below).
 
 Real LKG reads/writes throughout (Constitution III) — only the true network
-boundary (``free_chat_models`` / ``_fetch_cloud_models``) is stubbed to
-simulate a live-catalog outage; the LKG file itself is a REAL file under a
-hermetic ``LLMXIVE_REPO_ROOT``.
+boundary (``_fetch_cloud_models``) is stubbed to simulate a live-catalog
+outage; the LKG file itself is a REAL file under a hermetic
+``LLMXIVE_REPO_ROOT``.
 """
 
 from __future__ import annotations
@@ -40,7 +49,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from llmxive.backends import dartmouth as dm
-from llmxive.backends.base import ChatMessage
+from llmxive.backends.base import ChatMessage, PricingUnverifiable
 from llmxive.model_selection.lkg import LKGEntry, LKGStore
 from llmxive.model_selection.snapshot import _models_to_payload
 from llmxive.model_selection.types import ModelPricing, ModelRef
@@ -67,17 +76,24 @@ def _write_catalog_lkg(store: LKGStore, *, now: datetime) -> None:
 
 @pytest.fixture(autouse=True)
 def _reset_live_cache(monkeypatch: pytest.MonkeyPatch) -> None:
-    """``free_chat_models`` caches process-wide (now with a bounded TTL —
+    """The live pricing cache is process-wide (now with a bounded TTL —
     Finding 2); every test controls it directly via monkeypatch so the
     module cache (value AND fill-timestamp) never leaks between tests."""
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE", None)
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE_AT", None)
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE", None)
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE_AT", None)
+
+
+def _fake_catalog_fetch():
+    return [
+        {"id": SYNTHETIC_FREE_MODEL, "input_cost_per_token": 0, "output_cost_per_token": 0},
+        {"id": SYNTHETIC_PAID_MODEL, "input_cost_per_token": 1e-6, "output_cost_per_token": 5e-6},
+    ]
 
 
 def test_is_free_model_live_catalog_hit(monkeypatch: pytest.MonkeyPatch) -> None:
     """Step 1 of the ladder: a reachable live catalog is authoritative, and a
     model absent from it is NOT free even if it would be in the LKG."""
-    monkeypatch.setattr(dm, "free_chat_models", lambda **_kw: frozenset({SYNTHETIC_FREE_MODEL}))
+    monkeypatch.setattr(dm, "_fetch_cloud_models", _fake_catalog_fetch)
     assert dm.is_free_model(SYNTHETIC_FREE_MODEL) is True
     assert dm.is_free_model(SYNTHETIC_PAID_MODEL) is False
 
@@ -94,7 +110,9 @@ def test_is_free_model_catalog_outage_with_lkg_stays_free(
     monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))
     store = LKGStore(tmp_path / "state" / "model_selection" / "lkg_snapshot.json")
     _write_catalog_lkg(store, now=datetime.now(UTC))
-    monkeypatch.setattr(dm, "free_chat_models", lambda **_kw: None)  # live outage
+    monkeypatch.setattr(
+        dm, "_fetch_cloud_models", lambda: (_ for _ in ()).throw(RuntimeError("down"))
+    )  # live outage
 
     assert dm.is_free_model(SYNTHETIC_FREE_MODEL) is True
     assert dm.is_free_model(SYNTHETIC_PAID_MODEL) is False
@@ -108,7 +126,9 @@ def test_is_free_model_catalog_outage_without_lkg_fails_closed(
     """Cold start: live catalog unreachable AND no LKG record exists yet ->
     fail CLOSED (never free), never raise."""
     monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))  # empty repo root, no LKG file
-    monkeypatch.setattr(dm, "free_chat_models", lambda **_kw: None)
+    monkeypatch.setattr(
+        dm, "_fetch_cloud_models", lambda: (_ for _ in ()).throw(RuntimeError("down"))
+    )
 
     assert dm.is_free_model(SYNTHETIC_FREE_MODEL) is False
 
@@ -125,7 +145,9 @@ def test_is_free_model_catalog_outage_with_expired_lkg_fails_closed(
     monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))
     store = LKGStore(tmp_path / "state" / "model_selection" / "lkg_snapshot.json")
     _write_catalog_lkg(store, now=datetime.now(UTC) - timedelta(hours=2))
-    monkeypatch.setattr(dm, "free_chat_models", lambda **_kw: None)  # live outage
+    monkeypatch.setattr(
+        dm, "_fetch_cloud_models", lambda: (_ for _ in ()).throw(RuntimeError("down"))
+    )  # live outage
 
     assert dm.is_free_model(SYNTHETIC_FREE_MODEL) is False
 
@@ -142,8 +164,8 @@ def test_expired_cache_refetch_failure_falls_through_to_fresh_lkg(
     _write_catalog_lkg(store, now=datetime.now(UTC))
 
     # Cache remembers the model as free, but the fill is long expired.
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE", frozenset({SYNTHETIC_FREE_MODEL}))
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE_AT", time.monotonic() - 100_000)
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE", {SYNTHETIC_FREE_MODEL: ModelPricing(0.0, 0.0)})
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE_AT", time.monotonic() - 100_000)
     monkeypatch.setattr(
         dm, "_fetch_cloud_models", lambda: (_ for _ in ()).throw(RuntimeError("still down"))
     )
@@ -180,8 +202,8 @@ def test_free_chat_models_cache_expires_and_refetches_after_ttl(
     # Simulate the TTL having elapsed.
     monkeypatch.setattr(
         dm,
-        "_FREE_MODELS_CACHE_AT",
-        dm._FREE_MODELS_CACHE_AT - dm._free_model_freshness_bound_s() - 1,
+        "_LIVE_PRICING_CACHE_AT",
+        dm._LIVE_PRICING_CACHE_AT - dm._free_model_freshness_bound_s() - 1,
     )
 
     third = dm.free_chat_models()
@@ -189,38 +211,42 @@ def test_free_chat_models_cache_expires_and_refetches_after_ttl(
     assert calls["n"] == 2  # refetched, not served stale
 
 
-def test_stale_cached_free_cannot_bypass_paid_call_allowed_at_chat_level(
+def test_stale_cached_pricing_cannot_bypass_the_pricing_guard_at_chat_level(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
     """Finding 2, asserted at the boundary that actually matters:
     ``DartmouthBackend.chat()``. An EXPIRED in-process "free" cache entry —
     the exact bypass this finding closes — must fail through to
-    ``is_free_model() -> False`` and therefore reach ``paid_call_allowed()``;
-    with the paid opt-in off (the test default), that refuses the call
-    (``PaidGuardDenied``) instead of silently invoking the client."""
+    ``model_pricing_verdict() -> UNVERIFIABLE`` (catalog unreachable, no LKG)
+    rather than silently proceeding as free. Follow-up (maintainer-identified
+    defect): this is a TRANSIENT availability condition, not a verified cost
+    fact, so ``chat()`` raises ``PricingUnverifiable`` here — NOT
+    ``PaidGuardDenied``, which is reserved for a genuinely VERIFIED-paid model
+    the credit guard declines. Either way the client must never be reached."""
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "test-key")
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
     monkeypatch.setenv("LLMXIVE_REPO_ROOT", str(tmp_path))  # no LKG file -> cold start
 
     # An EXPIRED cache that still (pre-fix) remembers the model as free.
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE", frozenset({SYNTHETIC_FREE_MODEL}))
-    monkeypatch.setattr(dm, "_FREE_MODELS_CACHE_AT", time.monotonic() - 100_000)
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE", {SYNTHETIC_FREE_MODEL: ModelPricing(0.0, 0.0)})
+    monkeypatch.setattr(dm, "_LIVE_PRICING_CACHE_AT", time.monotonic() - 100_000)
     # The refetch is unreachable (the outage this cache was protecting
     # against), and there is no LKG record either -> the ladder must fail
-    # CLOSED, i.e. paid_call_allowed() must be consulted.
+    # CLOSED (UNVERIFIABLE), i.e. the refusal must happen BEFORE
+    # paid_call_allowed() is ever consulted.
     monkeypatch.setattr(
         dm, "_fetch_cloud_models", lambda: (_ for _ in ()).throw(RuntimeError("down"))
     )
 
     def _client_must_not_be_reached(self, model):
         raise AssertionError(
-            "chat() must not reach the client; the paid guard should refuse first"
+            "chat() must not reach the client; the pricing guard should refuse first"
         )
 
     monkeypatch.setattr(dm.DartmouthBackend, "_client", _client_must_not_be_reached)
 
     backend = dm.DartmouthBackend()
-    with pytest.raises(dm.PaidGuardDenied):
+    with pytest.raises(PricingUnverifiable):
         backend.chat([ChatMessage(role="user", content="hi")], model=SYNTHETIC_FREE_MODEL)
 
 

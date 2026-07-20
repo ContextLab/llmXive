@@ -24,6 +24,7 @@ from llmxive.backends.base import (
     ModelDownError,
     PaidGuardDenied,
     PermanentBackendError,
+    PricingUnverifiable,
     TransientBackendError,
 )
 from llmxive.backends.router import (
@@ -145,6 +146,7 @@ def test_model_none_is_single_degrading_call():
         (ModelDownError("x"), CandidateDisposition.RETRY_ADVANCE),
         (DeadlineExceededError("x"), CandidateDisposition.RETRY_ADVANCE),
         (EmptyReplyError("x"), CandidateDisposition.RETRY_ADVANCE),
+        (PricingUnverifiable("x"), CandidateDisposition.RETRY_ADVANCE),
         (TransientBackendError("x"), CandidateDisposition.RETRY_ADVANCE),
         (PermanentBackendError("x"), CandidateDisposition.ABORT),
         (BackendError("x"), CandidateDisposition.ABORT),
@@ -162,3 +164,16 @@ def test_paid_denial_is_skip_not_abort_despite_permanent_base():
     assert issubclass(PaidGuardDenied, PermanentBackendError)
     assert disposition_of(PaidGuardDenied("x")) is CandidateDisposition.SKIP
     assert disposition_of(PermanentBackendError("x")) is CandidateDisposition.ABORT
+
+
+def test_pricing_unverifiable_retry_advances_paid_guard_denied_still_skips():
+    """Maintainer-identified defect fix: ``PricingUnverifiable`` (catalog
+    unreachable / no fresh LKG — a TRANSIENT availability condition) must
+    RETRY_ADVANCE like any other transient, never SKIP like a genuine
+    ``PaidGuardDenied`` (a VERIFIED-paid model the credit guard declined).
+    Collapsing these into one disposition is exactly the operator-facing
+    misdiagnosis ("enable paid opt-in" for what is really "the catalog will
+    come back") this split exists to prevent."""
+    assert issubclass(PricingUnverifiable, TransientBackendError)
+    assert disposition_of(PricingUnverifiable("x")) is CandidateDisposition.RETRY_ADVANCE
+    assert disposition_of(PaidGuardDenied("x")) is CandidateDisposition.SKIP

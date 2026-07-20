@@ -190,8 +190,12 @@ def paid_call_allowed(
 
     Returns ``(allowed, reason)``. FAIL-CLOSED: any doubt (opt-in off,
     balance unreachable, budget cap reached, nonsensical budget) refuses.
-    Free models never reach this function — the backend consults it only
-    after :func:`llmxive.backends.dartmouth.is_free_model` says False.
+    Free (and unverifiable) models never reach this function — the backend
+    consults it only when
+    :func:`llmxive.backends.dartmouth.model_pricing_verdict` says
+    ``PricingVerdict.PAID`` (a VERIFIED cost fact, distinct from
+    ``UNVERIFIABLE``, which the backend refuses earlier with a transient
+    ``PricingUnverifiable`` and never reaches here).
 
     **Reservation-aware mode (spec 026 FR-011, the twice-checked paid gate).**
     When ``estimated_cost_credits`` is given, the guard OWNS the full headroom

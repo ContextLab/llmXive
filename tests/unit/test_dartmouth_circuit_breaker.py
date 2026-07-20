@@ -179,8 +179,9 @@ def test_chat_integrates_breaker_and_fails_fast(monkeypatch):
     from llmxive.backends import dartmouth as dm
 
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "sk-test-fake")
-    # Treat the test model as free so the paid-model guard doesn't short-circuit.
-    monkeypatch.setattr(dm, "is_free_model", lambda model: True)
+    # Treat the test model as VERIFIED free so neither the pricing-unverifiable
+    # refusal nor the paid-model guard short-circuits chat().
+    monkeypatch.setattr(dm, "model_pricing_verdict", lambda model: dm.PricingVerdict.FREE)
 
     invoked = {"n": 0}
 
@@ -221,7 +222,7 @@ def test_chat_breaker_is_per_model_isolated(monkeypatch):
     from llmxive.backends import dartmouth as dm
 
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "sk-test-fake")
-    monkeypatch.setattr(dm, "is_free_model", lambda model: True)
+    monkeypatch.setattr(dm, "model_pricing_verdict", lambda model: dm.PricingVerdict.FREE)
 
     model_a = "qwen.qwen3.5-122b"
     model_b = "openai.gpt-oss-120b"

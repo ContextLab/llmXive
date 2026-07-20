@@ -4,7 +4,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 120,
+      "line": 123,
       "models": [
         "gpt-oss",
         "qwen3",
@@ -1065,7 +1065,7 @@
       "category": "test_double",
       "file": "tests/unit/test_dartmouth_circuit_breaker.py",
       "kind": "model_id_literal",
-      "line": 205,
+      "line": 206,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -1076,7 +1076,7 @@
       "category": "test_double",
       "file": "tests/unit/test_dartmouth_circuit_breaker.py",
       "kind": "model_id_literal",
-      "line": 211,
+      "line": 212,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -1087,7 +1087,7 @@
       "category": "test_double",
       "file": "tests/unit/test_dartmouth_circuit_breaker.py",
       "kind": "module_constant",
-      "line": 226,
+      "line": 227,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -1098,7 +1098,7 @@
       "category": "test_double",
       "file": "tests/unit/test_dartmouth_circuit_breaker.py",
       "kind": "module_constant",
-      "line": 227,
+      "line": 228,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -2335,7 +2335,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_router_primitive.py",
       "kind": "model_id_literal",
-      "line": 69,
+      "line": 70,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -2346,7 +2346,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_router_primitive.py",
       "kind": "model_id_literal",
-      "line": 71,
+      "line": 72,
       "models": [
         "qwen.qwen3.5-122b"
       ],

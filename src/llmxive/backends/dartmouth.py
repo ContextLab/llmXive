@@ -13,6 +13,7 @@ import random
 import time
 from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
 
 from llmxive.backends.base import (
@@ -24,6 +25,7 @@ from llmxive.backends.base import (
     ModelDownError,
     PaidGuardDenied,
     PermanentBackendError,
+    PricingUnverifiable,
     TransientBackendError,
     invoke_with_deadline,
 )
@@ -31,9 +33,10 @@ from llmxive.backends.base import (
 if TYPE_CHECKING:
     # Type-checking only: ``backends`` must not import ``model_selection`` at
     # module scope (the established cycle guard; see ``ImagePart.__post_init__``
-    # in ``backends/base.py``). ``_lkg_free_models`` below does the real
-    # (function-local) import.
+    # in ``backends/base.py``). ``_lkg_model_pricing``/``_live_model_pricing``
+    # below do the real (function-local) import.
     from llmxive.model_selection.lkg import LKGStore
+    from llmxive.model_selection.types import ModelPricing
 
 
 def _lc_content(content):
@@ -527,11 +530,17 @@ def _ensure_api_key_env() -> None:
         os.environ["DARTMOUTH_CHAT_API_KEY"] = key
 
 
-_FREE_MODELS_CACHE: frozenset[str] | None = None
-#: ``time.monotonic()`` timestamp of the last successful ``_FREE_MODELS_CACHE``
+#: Full per-model pricing map from the live catalog (id -> ModelPricing;
+#: ``None`` cost fields mean "listed but unpriced"). This is the SINGLE live
+#: pricing cache — ``free_chat_models()`` is a filtered VIEW over it, and
+#: ``model_pricing_verdict()`` reads it directly for the paid/unlisted
+#: distinction that a free-only frozenset can't express (see
+#: ``_live_model_pricing``).
+_LIVE_PRICING_CACHE: dict[str, ModelPricing] | None = None
+#: ``time.monotonic()`` timestamp of the last successful ``_LIVE_PRICING_CACHE``
 #: fill; ``None`` means "no cache yet". Monotonic (not wall-clock) so a system
-#: clock adjustment can't extend or shrink the TTL. See ``free_chat_models``.
-_FREE_MODELS_CACHE_AT: float | None = None
+#: clock adjustment can't extend or shrink the TTL. See ``_live_model_pricing``.
+_LIVE_PRICING_CACHE_AT: float | None = None
 
 #: Fallback spend-authorization freshness bound (seconds), used ONLY if the
 #: canonical ``model_selection.profiles`` constant cannot be imported (should
@@ -652,44 +661,66 @@ def _model_token_costs(model_obj: dict[str, Any]) -> tuple[float | None, float |
     return (max(ins) if ins else None, max(outs) if outs else None)
 
 
-def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
-    """Set of Dartmouth model ids that are free (cost-per-token == 0).
+def _live_model_pricing(*, force_refresh: bool = False) -> dict[str, ModelPricing] | None:
+    """Full live per-model pricing map (id -> ``ModelPricing``; unpriced
+    catalog entries — embeddings/helper bots — carry ``ModelPricing(None,
+    None)``, never treated as free or paid).
 
     Authoritative source: the live chat catalog's explicit per-model pricing.
-    Returns ``None`` when the catalog is unreachable so callers (``is_free_model``)
-    fall back to the last-known-good LKG catalog observation.
+    Returns ``None`` when the catalog is unreachable so callers
+    (``model_pricing_verdict``) fall back to the last-known-good LKG catalog
+    observation. This is the ONE live-catalog cache (Constitution I):
+    ``free_chat_models`` is a filtered view over it, and
+    ``model_pricing_verdict`` reads it directly to preserve the paid/unlisted
+    distinction a free-only frozenset erases.
 
     Cached for a BOUNDED TTL (:func:`_free_model_freshness_bound_s`) — NOT the
     process lifetime (review Finding 2: an unbounded cache in a long-running
-    cron worker never re-confirms a "free" verdict, which bypasses the paid
-    guard). Once the TTL elapses the next call refetches; a refetch FAILURE
-    returns ``None`` rather than re-serving the (now expired) cache, so
-    ``is_free_model`` falls through to the LKG step instead of silently
-    trusting an unboundedly old "free" verdict.
+    cron worker never re-confirms a pricing verdict, which bypasses the
+    spend-authorization boundary). Once the TTL elapses the next call
+    refetches; a refetch FAILURE returns ``None`` rather than re-serving the
+    (now expired) cache, so callers fall through to the LKG step instead of
+    silently trusting an unboundedly old verdict.
     """
-    global _FREE_MODELS_CACHE, _FREE_MODELS_CACHE_AT
+    global _LIVE_PRICING_CACHE, _LIVE_PRICING_CACHE_AT
     now = time.monotonic()
     cache_is_fresh = (
-        _FREE_MODELS_CACHE_AT is not None
-        and (now - _FREE_MODELS_CACHE_AT) < _free_model_freshness_bound_s()
+        _LIVE_PRICING_CACHE_AT is not None
+        and (now - _LIVE_PRICING_CACHE_AT) < _free_model_freshness_bound_s()
     )
-    if _FREE_MODELS_CACHE is not None and cache_is_fresh and not force_refresh:
-        return _FREE_MODELS_CACHE
+    if _LIVE_PRICING_CACHE is not None and cache_is_fresh and not force_refresh:
+        return _LIVE_PRICING_CACHE
     try:
         models = _fetch_cloud_models()
     except Exception:
         return None
-    free: set[str] = set()
+    from llmxive.model_selection.types import ModelPricing as _ModelPricing
+
+    pricing: dict[str, _ModelPricing] = {}
     for m in models:
         mid = m.get("id")
         if not mid:
             continue
         in_cost, out_cost = _model_token_costs(m)
-        if in_cost == 0 and out_cost == 0:
-            free.add(str(mid))
-    _FREE_MODELS_CACHE = frozenset(free)
-    _FREE_MODELS_CACHE_AT = now
-    return _FREE_MODELS_CACHE
+        pricing[str(mid)] = _ModelPricing(in_cost, out_cost)
+    _LIVE_PRICING_CACHE = pricing
+    _LIVE_PRICING_CACHE_AT = now
+    return _LIVE_PRICING_CACHE
+
+
+def free_chat_models(*, force_refresh: bool = False) -> frozenset[str] | None:
+    """Set of Dartmouth model ids that are free (cost-per-token == 0).
+
+    A filtered VIEW over :func:`_live_model_pricing` — kept as its own
+    function (rather than inlined) because it is a public, standalone export
+    (``__all__``) with its own established frozenset-shaped contract. Returns
+    ``None`` when the catalog is unreachable, exactly mirroring
+    ``_live_model_pricing``.
+    """
+    pricing = _live_model_pricing(force_refresh=force_refresh)
+    if pricing is None:
+        return None
+    return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
 
 
 _MODEL_COSTS_CACHE: dict[str, tuple[float | None, float | None]] = {}
@@ -714,15 +745,18 @@ def model_token_costs(model: str) -> tuple[float | None, float | None]:
     return _MODEL_COSTS_CACHE.get(model, (None, None))
 
 
-def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | None:
-    """Free-model ids from the persisted last-known-good (LKG) catalog component.
+def _lkg_model_pricing(*, lkg_store: LKGStore | None = None) -> dict[str, ModelPricing] | None:
+    """Full per-model pricing map from the persisted last-known-good (LKG)
+    catalog component (sibling of :func:`_lkg_free_models`, which preserves
+    ONLY the free subset — insufficient to distinguish a genuinely PAID
+    model from one simply absent from the LKG snapshot).
 
     ``model_selection.snapshot`` writes a "catalog" LKG component every time it
     fetches the Dartmouth catalog live (:mod:`llmxive.model_selection.lkg`).
     This reads that SAME persisted component directly — never a fresh network
-    call — so :func:`is_free_model` has a REAL, aged-but-genuine pricing
-    observation to fall back on when the live catalog is unreachable, instead
-    of a hardcoded allowlist that can silently drift from the truth.
+    call — so :func:`model_pricing_verdict` has a REAL, aged-but-genuine
+    pricing observation to fall back on when the live catalog is unreachable,
+    instead of a hardcoded allowlist that can silently drift from the truth.
 
     Function-local import: ``backends`` must not import ``model_selection`` at
     module scope — that would create an import cycle (the same guard as
@@ -739,7 +773,7 @@ def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | N
     is fine for display/reporting, but not for authorizing spend — this is
     the same freshness bound spec 026 reserves for high-stakes calls, and
     SC-003 requires stale/unknown pricing to fail closed rather than trust an
-    arbitrarily old "free" verdict.
+    arbitrarily old verdict.
     """
     try:
         from llmxive.model_selection.lkg import LKGStore as _LKGStore
@@ -751,41 +785,98 @@ def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | N
         if not _is_fresh_enough(entry.observed_at):
             return None
         _refs, pricing = _models_from_payload(entry.payload)
-        return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
+        return pricing
     except Exception:
         return None
 
 
-def is_free_model(model: str) -> bool:
-    """Whether ``model`` is a free Dartmouth chat model (cost-per-token == 0).
+def _lkg_free_models(*, lkg_store: LKGStore | None = None) -> frozenset[str] | None:
+    """Free-model ids from the persisted last-known-good (LKG) catalog
+    component — a filtered VIEW over :func:`_lkg_model_pricing` (Constitution
+    I: one LKG read, two views). See that function's docstring for the
+    freshness/failure contract, which this inherits unchanged."""
+    pricing = _lkg_model_pricing(lkg_store=lkg_store)
+    if pricing is None:
+        return None
+    return frozenset(model_id for model_id, p in pricing.items() if p.is_free)
 
-    Three-step ladder, in order of authority (spec 026 Slice 8):
 
-    1. The LIVE catalog (:func:`free_chat_models`) when reachable — authoritative.
-    2. On a live-catalog outage, the last-known-good LKG catalog observation
-       (:func:`_lkg_free_models`) — an aged but REAL timestamped pricing
-       snapshot, bounded by :func:`_free_model_freshness_bound_s`. This is
-       what keeps a transient Dartmouth catalog-listing blip from denying
-       every free model: ``chat()`` treats a non-free model as paid and
-       requires the credit-guard opt-in (off by default), so without this
-       fallback a bare outage would make every candidate look paid and every
-       call would be refused while the models themselves are up and free.
-       Both steps of this ladder are freshness-bounded (review Finding 2): a
-       stale "free" verdict — from either the in-process cache outliving its
-       TTL or an old LKG observation — bypasses ``paid_call_allowed`` at the
-       spend-authorization boundary, so neither is allowed to serve data
-       older than the bound.
-    3. If NEITHER is available (cold start, no LKG observation yet, or the
-       only LKG record is too stale), fail CLOSED: an unknown-priced model is
-       never treated as free (SC-003).
+class PricingVerdict(StrEnum):
+    """The three real outcomes of asking "does calling ``model`` cost money?"
+    — the tri-state that a bare ``bool`` (the old ``is_free_model``) could not
+    express, collapsing "verified paid" and "cannot tell right now" into the
+    same ``False``.
+
+    - ``FREE``: verified cost-per-token == 0.
+    - ``PAID``: verified cost-per-token > 0 — a long-lived, cost-related FACT.
+    - ``UNVERIFIABLE``: cannot determine right now — a TRANSIENT availability
+      condition (catalog unreachable + no fresh LKG, or the model is served
+      but not listed in an otherwise-reachable catalog). Never conflated with
+      PAID: absence from a catalog is unknown, not a cost fact.
     """
-    live = free_chat_models()
+
+    FREE = "free"
+    PAID = "paid"
+    UNVERIFIABLE = "unverifiable"
+
+
+def _verdict_from_pricing(p: ModelPricing | None) -> PricingVerdict:
+    """Classify one ``ModelPricing`` observation (or its absence, ``None``,
+    meaning "not listed"). Unpriced-but-listed (``ModelPricing(None, None)`` —
+    e.g. an embeddings/helper-bot catalog entry) is ALSO UNVERIFIABLE: it is
+    neither a verified $0 nor a verified >$0 fact."""
+    if p is None or not p.is_known:
+        return PricingVerdict.UNVERIFIABLE
+    return PricingVerdict.FREE if p.is_free else PricingVerdict.PAID
+
+
+def model_pricing_verdict(model: str) -> PricingVerdict:
+    """The tri-state spend-authorization verdict for ``model`` — the ladder
+    :func:`is_free_model` and ``DartmouthBackend.chat()`` both build on
+    (spec 026 Slice 8, extended to split PAID from UNVERIFIABLE).
+
+    Two-step ladder, in order of authority, preserving the SAME freshness
+    bounds the old bool-returning ladder used (:func:`_free_model_freshness_bound_s`)
+    — this does NOT loosen them:
+
+    1. The LIVE catalog (:func:`_live_model_pricing`) when reachable —
+       authoritative. A model priced $0 is FREE; priced >$0 is PAID; a model
+       ABSENT from an otherwise-reachable catalog is UNVERIFIABLE (served but
+       unlisted is unknown, never paid — the core defect this fixes).
+    2. On a live-catalog outage, the last-known-good LKG catalog observation
+       (:func:`_lkg_model_pricing`) — an aged but REAL timestamped pricing
+       snapshot, bounded by the same freshness function. Same three-way split
+       as step 1. This is what keeps a transient Dartmouth catalog-listing
+       blip from denying every free model.
+    3. If NEITHER is available (cold start, no LKG observation yet, or the
+       only LKG record is too stale), UNVERIFIABLE: an unknown-priced model
+       is never silently treated as free (SC-003) OR as paid (the second half
+       of the defect this fixes) — it is explicitly "cannot tell right now".
+    """
+    live = _live_model_pricing()
     if live is not None:
-        return model in live
-    lkg = _lkg_free_models()
+        return _verdict_from_pricing(live.get(model))
+    lkg = _lkg_model_pricing()
     if lkg is not None:
-        return model in lkg
-    return False
+        return _verdict_from_pricing(lkg.get(model))
+    return PricingVerdict.UNVERIFIABLE
+
+
+def is_free_model(model: str) -> bool:
+    """Whether ``model`` is a VERIFIED-free Dartmouth chat model
+    (cost-per-token == 0).
+
+    A thin wrapper over :func:`model_pricing_verdict`: this answers ONLY "is
+    this VERIFIED free", so an ``UNVERIFIABLE`` model reads as ``False`` here
+    — same as a genuinely ``PAID`` model (SC-003: an unverifiable model never
+    proceeds as free). Callers that need to distinguish "genuinely paid" from
+    "cannot tell right now" (e.g. the spend-authorization guard in
+    ``DartmouthBackend.chat()``, which must raise a TRANSIENT
+    ``PricingUnverifiable`` rather than a PERMANENT ``PaidGuardDenied`` for
+    the latter) MUST call :func:`model_pricing_verdict` directly instead of
+    this collapsed bool.
+    """
+    return model_pricing_verdict(model) is PricingVerdict.FREE
 
 
 class DartmouthBackend(BaseBackend):
@@ -917,7 +1008,22 @@ class DartmouthBackend(BaseBackend):
         # ~$2.00 list-price equivalent, renewing daily — costing the project
         # $0 in actual money when managed within budget). The guard FAILS
         # CLOSED (balance unreachable -> refuse). See backends/credits.py.
-        paid_call = not is_free_model(model)
+        #
+        # The verdict is TRI-STATE, not a bool: "verified paid" and "cannot
+        # tell right now" are different problems with different fixes (a
+        # cost fact vs. a transient catalog outage), so they get different
+        # exception types here — PricingUnverifiable (transient, RETRY_ADVANCE)
+        # vs. PaidGuardDenied (permanent, SKIP). See ``model_pricing_verdict``.
+        verdict = model_pricing_verdict(model)
+        if verdict is PricingVerdict.UNVERIFIABLE:
+            raise PricingUnverifiable(
+                f"Dartmouth: cannot verify pricing for {model!r} — the catalog is "
+                "unreachable and there is no fresh last-known-good pricing. Refusing "
+                "rather than assuming free (SC-003). This is a TRANSIENT availability "
+                "condition, not a cost or opt-in problem: it needs no configuration "
+                "change and should resolve when the catalog returns."
+            )
+        paid_call = verdict is PricingVerdict.PAID
         if paid_call:
             from llmxive.backends.credits import paid_call_allowed
 
@@ -1085,7 +1191,9 @@ class DartmouthBackend(BaseBackend):
 __all__ = [
     "BackendUnavailable",
     "DartmouthBackend",
+    "PricingVerdict",
     "free_chat_models",
     "is_free_model",
+    "model_pricing_verdict",
     "model_token_costs",
 ]
