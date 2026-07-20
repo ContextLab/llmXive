@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`\
+    \ directory (or any files within it) is provided; the only artifacts shown are\
+    \ feature specifications, not the actual project root folder. The task\u2019s\
+    \ core requirement\u2014creating the project root directory\u2014is therefore\
+    \ unmet."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/`)
+    inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is presented;
+    the artifact list is empty, so the task is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)
+    inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is provided;
+    the artifact list is empty, so the task is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Python virtual environment (e.g., a `venv` or `.venv` directory
+    with activation scripts and installed packages) exists in the specified path,
+    and no related artifact was supplied. The required environment was not created.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
+    with Black settings, or a `pre-commit` hook) were presented for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+    directory, so the required artifact does not exist. The task remains undone.
+T008:
+  c: false
+  h: 4666104977d95cd8fa09aa4871094f64d17982bb3af5bb3142c7db4b937aff8f
+  r: The provided `validation.py` is incomplete (truncated after `def v`) and does
+    not contain functions that actually validate data against the schemas. Moreover,
+    the required schema files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
+    are missing from the repository. Both the utility implementation and the schema
+    artifacts are absent, so the task is not satisfied.

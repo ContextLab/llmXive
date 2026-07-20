@@ -1,264 +1,276 @@
-"""
-Storage utilities for saving simulation results.
-Implements deterministic saving of processed data to Parquet/CSV formats.
-"""
 from __future__ import annotations
 
 import os
 import logging
-from typing import List, Dict, Any, Optional, Union
-from dataclasses import asdict, is_dataclass
+import uuid
+from typing import List, Dict, Any, Optional, Union, Tuple
+from dataclasses import asdict, is_dataclass, fields
 import json
 import hashlib
-import time
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
 
+from config import get_config
 from models import SimulatedDataset, PowerMetric
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def _ensure_dir(path: str) -> None:
-    """Ensure the directory for the given path exists."""
-    directory = os.path.dirname(path)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-        logger.info(f"Created directory: {directory}")
+def generate_run_id() -> str:
+    """
+    Generate a deterministic run ID based on current timestamp and a random UUID.
+    Used to uniquely identify simulation runs.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_id = uuid.uuid4().hex[:8]
+    return f"run_{timestamp}_{unique_id}"
 
 
-def _serialize_dataset(dataset: SimulatedDataset) -> Dict[str, Any]:
-    """Convert a SimulatedDataset dataclass to a serializable dictionary."""
-    result = {}
-    for key, value in asdict(dataset).items():
-        if isinstance(value, np.ndarray):
-            result[key] = value.tolist()
-        elif is_dataclass(value):
-            result[key] = _serialize_dataset(value)
-        else:
-            result[key] = value
-    return result
+def _enforce_constraints(
+    datasets: List[SimulatedDataset],
+    simulations_per_condition: int,
+    expected_dataset_count: int
+) -> Tuple[List[SimulatedDataset], Dict[str, Any]]:
+    """
+    Enforce the dataset count and simulation count constraints before writing.
+    
+    Args:
+        datasets: List of SimulatedDataset objects.
+        simulations_per_condition: Expected number of simulations per condition.
+        expected_dataset_count: Expected number of datasets (e.g., 10).
+        
+    Returns:
+        Tuple of (validated_datasets, metadata)
+        
+    Raises:
+        ValueError: If constraints are not met.
+    """
+    # Check dataset count
+    if len(datasets) != expected_dataset_count:
+        raise ValueError(
+            f"Dataset count constraint violated: expected {expected_dataset_count}, "
+            f"got {len(datasets)}. Ensure fetch_datasets returns exactly {expected_dataset_count} valid datasets."
+        )
+    
+    # Check simulation counts per condition
+    # We group by (dataset_id, snr, sparsity) to verify counts
+    simulation_counts: Dict[Tuple[str, float, float], int] = {}
+    
+    for ds in datasets:
+        # SimulatedDataset contains the simulation results for specific conditions
+        # Depending on how SimulatedDataset is structured in models.py, we might need to
+        # check the internal simulation list or assume the object represents one simulation.
+        # Based on T015 description ("process a batch"), SimulatedDataset likely represents
+        # a single simulation instance with metadata.
+        # However, T019 mentions "simulations per condition rule".
+        # Let's assume datasets here is a flat list of all simulation results.
+        
+        key = (ds.dataset_id, ds.snr, ds.sparsity)
+        simulation_counts[key] = simulation_counts.get(key, 0) + 1
+    
+    for key, count in simulation_counts.items():
+        if count != simulations_per_condition:
+            raise ValueError(
+                f"Simulation count constraint violated for condition {key}: "
+                f"expected {simulations_per_condition}, got {count}."
+            )
+    
+    logger.info(
+        f"Constraints validated: {len(datasets)} total simulations across "
+        f"{len(set(d.dataset_id for d in datasets))} datasets, "
+        f"{simulations_per_condition} per condition."
+    )
+    
+    metadata = {
+        "total_simulations": len(datasets),
+        "dataset_count": len(set(d.dataset_id for d in datasets)),
+        "simulations_per_condition": simulations_per_condition,
+        "conditions_verified": list(simulation_counts.keys())
+    }
+    
+    return datasets, metadata
 
 
-def _serialize_metric(metric: PowerMetric) -> Dict[str, Any]:
-    """Convert a PowerMetric dataclass to a serializable dictionary."""
-    result = {}
-    for key, value in asdict(metric).items():
-        if isinstance(value, np.ndarray):
-            result[key] = value.tolist()
-        elif is_dataclass(value):
-            result[key] = _serialize_metric(value)
-        else:
-            result[key] = value
-    return result
+def _dataclass_to_dict(obj: Any) -> Dict[str, Any]:
+    """
+    Recursively convert a dataclass to a dictionary, handling numpy arrays.
+    """
+    if is_dataclass(obj):
+        result = {}
+        for f in fields(obj):
+            val = getattr(obj, f.name)
+            result[f.name] = _dataclass_to_dict(val)
+        return result
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (list, tuple)):
+        return [_dataclass_to_dict(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {k: _dataclass_to_dict(v) for k, v in obj.items()}
+    else:
+        return obj
 
 
 def save_simulated_datasets(
     datasets: List[SimulatedDataset],
-    output_path: str,
-    file_format: str = "parquet"
+    output_path: Optional[str] = None,
+    simulations_per_condition: int = 200,
+    expected_dataset_count: int = 10
 ) -> str:
     """
-    Save a list of SimulatedDataset objects to a file.
-
-    Args:
-        datasets: List of SimulatedDataset objects to save.
-        output_path: Path to the output file (directory will be created).
-        file_format: Either 'parquet' or 'csv'.
-
-    Returns:
-        The absolute path to the saved file.
-    """
-    if not datasets:
-        logger.warning("No datasets to save.")
-        return ""
-
-    _ensure_dir(output_path)
-
-    # Convert to DataFrame
-    records = [_serialize_dataset(ds) for ds in datasets]
-    df = pd.DataFrame(records)
-
-    # Add metadata columns if missing
-    if 'seed' not in df.columns:
-        logger.warning("Seed column missing; ensuring reproducibility metadata is present.")
+    Save simulated datasets to `data/processed/simulated_datasets.csv`.
     
-    logger.info(f"Saving {len(datasets)} simulated datasets to {output_path} ({file_format})")
-
-    if file_format.lower() == "parquet":
-        df.to_parquet(output_path, index=False, engine='pyarrow')
-    elif file_format.lower() == "csv":
-        df.to_csv(output_path, index=False)
-    else:
-        raise ValueError(f"Unsupported file format: {file_format}. Use 'parquet' or 'csv'.")
-
-    logger.info(f"Successfully saved {len(datasets)} datasets to {output_path}")
-    return os.path.abspath(output_path)
+    Enforces constraints on dataset count and simulations per condition before writing.
+    
+    Args:
+        datasets: List of SimulatedDataset objects.
+        output_path: Optional override for output path. Defaults to data/processed/simulated_datasets.csv.
+        simulations_per_condition: Expected number of simulations per (dataset, snr, sparsity) condition.
+        expected_dataset_count: Expected number of unique datasets.
+        
+    Returns:
+        Path to the saved file.
+        
+    Raises:
+        ValueError: If constraints are not met.
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = os.path.join(config.output_path, "simulated_datasets.csv")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Enforce constraints
+    validated_datasets, metadata = _enforce_constraints(
+        datasets, simulations_per_condition, expected_dataset_count
+    )
+    
+    # Convert to DataFrame
+    data_rows = []
+    for ds in validated_datasets:
+        row = _dataclass_to_dict(ds)
+        # Flatten nested structures if necessary for CSV compatibility
+        # Ensure arrays are stored as JSON strings or flattened
+        for k, v in row.items():
+            if isinstance(v, (list, dict)):
+                row[k] = json.dumps(v)
+        data_rows.append(row)
+    
+    df = pd.DataFrame(data_rows)
+    
+    # Write to CSV
+    df.to_csv(output_path, index=False)
+    
+    logger.info(f"Saved {len(df)} simulated dataset records to {output_path}")
+    
+    # Save manifest
+    manifest_path = os.path.join(os.path.dirname(output_path), "simulation_manifest.json")
+    with open(manifest_path, "w") as f:
+        json.dump({
+            "run_id": generate_run_id(),
+            "timestamp": datetime.now().isoformat(),
+            "metadata": metadata,
+            "file_path": output_path
+        }, f, indent=2)
+    
+    return output_path
 
 
 def save_power_metrics(
     metrics: List[PowerMetric],
-    output_path: str,
-    file_format: str = "csv"
+    output_path: Optional[str] = None
 ) -> str:
     """
-    Save a list of PowerMetric objects to a file.
-
-    Args:
-        metrics: List of PowerMetric objects to save.
-        output_path: Path to the output file.
-        file_format: Either 'parquet' or 'csv'.
-
-    Returns:
-        The absolute path to the saved file.
-    """
-    if not metrics:
-        logger.warning("No power metrics to save.")
-        return ""
-
-    _ensure_dir(output_path)
-
-    # Convert to DataFrame
-    records = [_serialize_metric(m) for m in metrics]
-    df = pd.DataFrame(records)
-
-    logger.info(f"Saving {len(metrics)} power metrics to {output_path} ({file_format})")
-
-    if file_format.lower() == "parquet":
-        df.to_parquet(output_path, index=False, engine='pyarrow')
-    elif file_format.lower() == "csv":
-        df.to_csv(output_path, index=False)
-    else:
-        raise ValueError(f"Unsupported file format: {file_format}. Use 'parquet' or 'csv'.")
-
-    logger.info(f"Successfully saved {len(metrics)} metrics to {output_path}")
-    return os.path.abspath(output_path)
-
-
-def generate_run_id(seed: int, snr: float, sparsity: float, dataset_id: Optional[int] = None) -> str:
-    """
-    Generate a deterministic run ID for reproducibility tracking.
-
-    Args:
-        seed: Random seed used for simulation.
-        snr: Signal-to-Noise Ratio level.
-        sparsity: Sparsity level.
-        dataset_id: Optional OpenML dataset ID.
-
-    Returns:
-        A unique string ID.
-    """
-    parts = [f"seed={seed}", f"snr={snr:.2f}", f"sparsity={sparsity:.2f}"]
-    if dataset_id is not None:
-        parts.append(f"dataset={dataset_id}")
+    Save power metrics to `data/processed/power_metrics.csv`.
     
-    input_str = "|".join(parts)
-    return hashlib.sha256(input_str.encode()).hexdigest()[:16]
+    Args:
+        metrics: List of PowerMetric objects.
+        output_path: Optional override for output path. Defaults to data/processed/power_metrics.csv.
+        
+    Returns:
+        Path to the saved file.
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = os.path.join(config.output_path, "power_metrics.csv")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Convert to DataFrame
+    data_rows = []
+    for m in metrics:
+        row = _dataclass_to_dict(m)
+        for k, v in row.items():
+            if isinstance(v, (list, dict)):
+                row[k] = json.dumps(v)
+        data_rows.append(row)
+    
+    df = pd.DataFrame(data_rows)
+    
+    # Write to CSV
+    df.to_csv(output_path, index=False)
+    
+    logger.info(f"Saved {len(df)} power metric records to {output_path}")
+    
+    return output_path
 
 
 def save_simulation_manifest(
-    run_ids: List[str],
-    config_summary: Dict[str, Any],
-    output_path: str
+    run_id: str,
+    metadata: Dict[str, Any],
+    output_path: Optional[str] = None
 ) -> str:
     """
-    Save a manifest file describing the simulation run for reproducibility.
-
+    Save a manifest file for the simulation run.
+    
     Args:
-        run_ids: List of run IDs generated for this batch.
-        config_summary: Summary of configuration parameters used.
-        output_path: Path to the manifest JSON file.
-
+        run_id: Unique identifier for the run.
+        metadata: Dictionary containing run metadata.
+        output_path: Optional override for output path.
+        
     Returns:
-        The absolute path to the saved manifest.
+        Path to the saved manifest file.
     """
-    _ensure_dir(output_path)
+    config = get_config()
+    if output_path is None:
+        output_path = os.path.join(config.output_path, "simulation_manifest.json")
     
     manifest = {
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "run_ids": run_ids,
-        "config": config_summary,
-        "total_runs": len(run_ids)
+        "run_id": run_id,
+        "timestamp": datetime.now().isoformat(),
+        "metadata": metadata
     }
-
-    with open(output_path, 'w') as f:
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, "w") as f:
         json.dump(manifest, f, indent=2)
     
     logger.info(f"Saved simulation manifest to {output_path}")
-    return os.path.abspath(output_path)
+    
+    return output_path
 
 
-def main():
+def main() -> None:
     """
-    Main entry point for testing storage functionality.
-    This function creates dummy data to demonstrate the storage logic
-    and writes it to the data/processed directory as per the task requirements.
+    Main entry point for storage module.
+    Demonstrates saving simulated datasets and power metrics.
+    This function is intended to be called by the pipeline after simulation.
     """
-    from config import get_config
+    logger.info("Storage module main() called. Ready to save simulation results.")
     
-    config = get_config()
-    output_dir = config.get("output_path", "data/processed")
+    # Example usage (would be populated by the pipeline):
+    # datasets = [...] # List of SimulatedDataset
+    # metrics = [...]  # List of PowerMetric
+    # save_simulated_datasets(datasets)
+    # save_power_metrics(metrics)
     
-    # Create dummy data to demonstrate storage
-    # In a real pipeline, these would come from the simulators
-    dummy_datasets = [
-        SimulatedDataset(
-            X=[[1.0, 2.0], [3.0, 4.0]],
-            Y=[1.0, 2.0],
-            true_coefficients=[0.5, -0.5],
-            snr=1.0,
-            sparsity=0.5,
-            seed=42,
-            dataset_id=12345
-        ),
-        SimulatedDataset(
-            X=[[2.0, 3.0], [4.0, 5.0]],
-            Y=[3.0, 4.0],
-            true_coefficients=[0.8, -0.2],
-            snr=2.0,
-            sparsity=0.3,
-            seed=123,
-            dataset_id=12345
-        )
-    ]
-    
-    dummy_metrics = [
-        PowerMetric(
-            method="ForwardStepwise",
-            snr=1.0,
-            sparsity=0.5,
-            alpha=0.05,
-            power_rate=0.85,
-            ci_lower=0.75,
-            ci_upper=0.95
-        ),
-        PowerMetric(
-            method="LASSO",
-            snr=1.0,
-            sparsity=0.5,
-            alpha=0.05,
-            power_rate=0.82,
-            ci_lower=0.72,
-            ci_upper=0.92
-        )
-    ]
-
-    # Save datasets
-    dataset_path = os.path.join(output_dir, "simulated_datasets.parquet")
-    save_simulated_datasets(dummy_datasets, dataset_path, "parquet")
-
-    # Save metrics
-    metrics_path = os.path.join(output_dir, "power_metrics.csv")
-    save_power_metrics(dummy_metrics, metrics_path, "csv")
-
-    # Save manifest
-    run_ids = [generate_run_id(d.seed, d.snr, d.sparsity, d.dataset_id) for d in dummy_datasets]
-    manifest_path = os.path.join(output_dir, "simulation_manifest.json")
-    save_simulation_manifest(run_ids, {"seed": config.get("seed", 42)}, manifest_path)
-
-    logger.info("Storage logic demonstration completed. Files written to data/processed/")
+    logger.info("Storage module ready.")
 
 
 if __name__ == "__main__":

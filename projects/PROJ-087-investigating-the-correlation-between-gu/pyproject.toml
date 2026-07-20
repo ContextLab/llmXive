@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-gut-sleep"
+name = "llmxive-gut-microbiome-sleep"
 version = "0.1.0"
-description = "Investigating the correlation between gut microbiome composition and sleep quality"
+description = "Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0",
@@ -20,26 +20,34 @@ dependencies = [
 ]
 
 [tool.ruff]
-# Enable specific rule sets
+# Select specific error codes: E (pycodestyle), F (Pyflakes), W (pycodestyle), I (isort)
 select = ["E", "F", "W", "I"]
-# Line length for formatting (though ruff handles some formatting, black is also configured)
+# Ignore specific rules if necessary (currently none)
+ignore = []
+# Line length for formatting
 line-length = 88
+# Target Python version
 target-version = "py311"
 
+[tool.ruff.per-file-ignores]
+# Allow unused imports in __init__.py files for package namespace exposure
+"__init__.py" = ["F401"]
+
 [tool.black]
+# Line length setting to match ruff
 line-length = 88
+# Target Python version
 target-version = ["py311"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
+# Exclude generated files or specific directories
+extend-exclude = '''
+(
+    \.eggs
+    | \.git
     | \.mypy_cache
-    | \.tox
+    | \.ruff_cache
     | \.venv
-    | _build
-    | buck-out
     | build
     | dist
-)/
+    | data
+)
 '''

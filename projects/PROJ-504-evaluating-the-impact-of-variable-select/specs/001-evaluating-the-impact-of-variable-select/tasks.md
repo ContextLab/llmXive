@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `projects/PROJ-504-evaluating-the-impact-of-variable-select/` containing `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` (FR-001)
-- [X] T002 Initialize Python project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0`, `openml>=0.14.0`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
+- [X] T002 Initialize Python project with `requirements.txt` pinning versions (e.g., `scikit-learn>=1.4.0`, `statsmodels>=0.14.0 [UNRESOLVED-CLAIM: c_a8c4ba54 — status=not_enough_info]`, `openml>=0.14.0 [UNRESOLVED-CLAIM: c_1140efc1 — status=not_enough_info]`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`) (FR-002)
 - [X] T003 [P] Configure linting and formatting by creating `code/pyproject.toml` with `[tool.black]` section (target-version = 3.11, line-length = 88) and `code/.flake8` file with `[flake8]` section (max-line-length = 88, extend-ignore = E203) to enforce style consistency (FR-003)
 
 ---
@@ -62,7 +62,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T006 [P] Create base configuration loader in `code/config.py` to manage seeds and paths; must load keys: `seed`, `openml_ids`, `snr_levels`, `sparsity_levels`, `output_path` (FR-006)
 - [X] T007 Create base data models in `code/models.py`: `SimulatedDataset` (fields: X, Y, true_coefficients, snr, sparsity, seed, dataset_id) and `PowerMetric` (fields: method, snr, sparsity, alpha, power_rate, ci_lower, ci_upper) (FR-007)
 - [X] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T009 [P] Setup environment configuration management for CI limits: explicitly configure and expose 'vCPU' and 'RAM' constraints in `code/config.py` and `code/utils/limits.py` for downstream tasks to reference (FR-008, SC-003, SC-004)
+- [X] T009 [P] Setup environment configuration management for CI limits: explicitly configure and expose 'vCPU' and 'RAM' constraints in `code/config.py` and `code/utils/limits.py` for downstream tasks to reference (FR-008, SC-003, SC-004)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,9 +70,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Data Pipeline & Simulation Loop (Priority: P1) 🎯 MVP
 
-**Goal**: Download a set of real OpenML regression datasets for evaluation. The research question focuses on assessing the generalizability of the proposed method across diverse regression tasks. The method involves selecting representative datasets from the OpenML repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686., extract covariance structures, and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth coefficients.
+**Goal**: Download a set of real OpenML regression datasets for evaluation. The research question focuses on assessing the generalizability of the proposed method across diverse regression tasks. The method involves selecting representative datasets from the OpenML repository and applying the evaluation protocol. References: DOI:10.21105/joss.01686 [UNRESOLVED-CLAIM: c_645310e9 — status=verified]., extract covariance structures, and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth coefficients.
 
-**Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded, and that A large set of synthetic outcome vectors (Multiple simulations across 12 conditions) are generated and stored in `data/processed/` with correct metadata.
+**Independent Test**: Verify that 10 datasets with ≥100 rows and ≥3 predictors are loaded [UNRESOLVED-CLAIM: c_f7565a5e — status=refuted], and that A large set of synthetic outcome vectors (Multiple simulations across 12 conditions) are generated and stored in `data/processed/` with correct metadata. [UNRESOLVED-CLAIM: c_3db94142 — status=not_enough_info]
 
 ### Tests for User Story 1 (TDD-First) ⚠️
 
@@ -80,13 +80,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T010 [TDD-First] [P] [US1] Unit test for OpenML downloader in `tests/unit/test_downloader.py`: function `test_downloader_fetches_10_datasets` asserts `len(datasets) == 10` and `all(d.n_rows >= 100)` and `all(d.n_features >= 3)` (FR-001)
 - [X] T011 [TDD-First] [P] [US1] Unit test for simulator in `tests/unit/test_simulators.py`: function `test_simulator_generates_correct_snr` asserts generated Y variance matches SNR target within tolerance (FR-002)
-- [X] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_expected_rows` asserts `len(results_df) == 24000` (200 sims * 10 datasets * 4 SNR * 3 Sparsity) (FR-002, US-1)
+- [X] T012 [TDD-First] [P] [US1] Integration test for full download+simulate pipeline in `tests/integration/test_pipeline.py`: function `test_pipeline_generates_expected_rows` asserts `len(results_df) == 24000` (200 sims * 10 datasets * 4 SNR * 3 Sparsity) [UNRESOLVED-CLAIM: c_31ab221d — status=not_enough_info] (FR-002, US-1)
 
 ### Implementation for User Story 1
 
 - [X] T013 [P] [US1] Implement `code/data/downloader.py` to fetch regression datasets from OpenML with retry logic with **time-based exponential backoff** (limited retry attempts) and checksumming; validate ≥ 100 rows and ≥ 3 predictors; raise hard failure if retries exhausted (FR-001, Edge Case: API timeout)
 - [X] T014 [P] [US1] Implement `code/data/downloader.py` logic to skip datasets with condition number > 10^10 and log warning to `code/utils/logger.py` (FR-001)
-- [ ] T019 [US1] Create `data/processed/` storage logic in `code/data/storage.py` to save results as Parquet/CSV with deterministic seeds; explicitly enforce the ** datasets** constraint and ** simulations per condition** rule before writing simulation results (FR-002)
+- [X] T019 [US1] Create `data/processed/` storage logic in `code/data/storage.py` to save results as Parquet/CSV with deterministic seeds; explicitly enforce the ** datasets** constraint and ** simulations per condition** rule before writing simulation results (FR-002)
 - [X] T016 [US1] Implement `code/data/simulators.py` configuration to support low to moderate SNR levels and Sparsity levels **{0.2, 0.4}** (FR-002)
 - [X] T015 [US1] Implement `code/data/simulators.py` to generate synthetic Y vectors using real X covariance and ground-truth coefficients; includes memory-efficient chunking (process a batch of simulations) and monitoring via `psutil` to abort if RAM exceeds a defined safety threshold consistent with system constraints. (FR-002, SC-004)
 - [X] T017 [US1] Implement `code/data/simulators.py` to record true coefficients and simulation metadata for every run (FR-002)
@@ -100,13 +100,13 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Apply Forward Stepwise, Backward Elimination, and LASSO selection methods to each simulated dataset, refit OLS, and calculate empirical power (proportion of true non-zero coefficients selected AND significant).
 
-**Independent Test**: Run selection methods on a subset of simulations and verify that Power = (True Positives / Total True Non-Zero Coefficients) matches expected values within ±0.01 tolerance.
+**Independent Test**: Run selection methods on a subset of simulations and verify that Power = (True Positives / Total True Non-Zero Coefficients) matches expected values within ±0.01 tolerance [UNRESOLVED-CLAIM: c_8ccd9e2c — status=not_enough_info].
 
 ### Tests for User Story 2 (TDD-First) ⚠️
 
 - [X] T021 [TDD-First] [P] [US2] Unit test for selection methods in `tests/unit/test_selectors.py`: function `test_forward_stepwise_selects_correct_vars`
 - [X] T022 [TDD-First] [P] [US2] Unit test for power calculation in `tests/unit/test_metrics.py`: function `test_power_calculation_matches_ground_truth`
-- [ ] T023 [TDD-First] [P] [US2] Integration test for selection+refit pipeline in `tests/integration/test_selectors.py`: function `test_full_selection_pipeline`
+- [X] T023 [TDD-First] [P] [US2] Integration test for selection+refit pipeline in `tests/integration/test_selectors.py`: function `test_full_selection_pipeline`
 
 ### Implementation for User Story 2 (Implementation MUST follow tests)
 
@@ -139,7 +139,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T036 [US3] Validate `data/processed/simulation_results.csv` contains required columns (method, snr, sparsity, power_rate) and sufficient rows to ensure simulation-level granularity is preserved for T037 (FR-005)
 - [ ] T037 [P] [US3] Implement `code/analysis/comparators.py` to perform Kruskal-Wallis tests on the **simulation-level data** (n=24,000 rows) from `data/processed/simulation_results.csv` per Spec FR-005; unit of analysis is individual simulation (FR-005)
-- [ ] T038 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity on simulation-level data per Spec FR-005 (FR-005)
+- [ ] T038 [US3] Implement `code/analysis/comparators.py` to run Dunn's post-hoc analysis with Holm correction for multiplicity [UNRESOLVED-CLAIM: c_01214f8d — status=not_enough_info] on simulation-level data per Spec FR-005 (FR-005)
 - [ ] T039 [US3] Implement `code/analysis/comparators.py` to perform sensitivity analysis on Alpha across a range of representative values (FR-006)
 - [ ] T040 [US3] Implement `code/viz/plots.py` to generate Power vs. SNR curves for each selection method, explicitly faceted or differentiated by Sparsity level **AND Alpha thresholds {, conventional significance levels, 0.10}** in the code logic (FR-003, US-3)
 - [ ] T041 [US3] Implement `code/viz/plots.py` to save all plots to `results/plots/`
@@ -159,7 +159,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T046 [P] Additional unit tests in `tests/unit/`
 - [ ] T047 Run quickstart.md validation
 - [ ] T048 Verify reproducibility by re-running pipeline with pinned seeds and comparing checksums
-- [ ] T049 [P] Implement runtime profiling in `code/utils/profiler.py` to measure total execution time per phase and ensure the full pipeline completes within 6 hours (FR-008); add logging for slow steps to identify bottlenecks
+- [ ] T049 [P] Implement runtime profiling in `code/utils/profiler.py` to measure total execution time per phase and ensure the full pipeline completes within 6 hours [UNRESOLVED-CLAIM: c_66a9719e — status=not_enough_info] (FR-008); add logging for slow steps to identify bottlenecks
 - [ ] T050 [US3] Ensure sensitivity analysis in `code/analysis/comparators.py` explicitly iterates over a range of Alpha values and generates separate power curves for each (FR-006)
 
 ---

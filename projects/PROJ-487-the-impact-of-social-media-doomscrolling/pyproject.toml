@@ -1,28 +1,6 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-proj-487"
-version = "0.1.0"
-description = "The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety"
-readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-    "pandas",
-    "numpy",
-    "statsmodels",
-    "requests",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "pyyaml",
-    "pytrends",
-]
-
 [tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
+line-length = 100
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -40,12 +18,5 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-known_first_party = ["code", "tests", "utils"]
-known_third_party = ["pandas", "numpy", "statsmodels", "requests", "sklearn", "matplotlib", "seaborn", "yaml", "pytrends"]
-
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+line_length = 100
+known_first_party = ["code"]

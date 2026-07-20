@@ -6,6 +6,13 @@ T001:
     \ `tests/integration/`) was provided. The implementer must create this folder\
     \ hierarchy and ensure each subdirectory exists and is non\u2011empty (or at least\
     \ present)."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
+    \ accompanying `.gitkeep` files is provided; the artifact list is empty, so the\
+    \ task\u2019s deliverable cannot be confirmed. The implementer must add the two\
+    \ directories with a `.gitkeep` file in each."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

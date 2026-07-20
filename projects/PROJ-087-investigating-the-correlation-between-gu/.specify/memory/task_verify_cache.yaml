@@ -1,0 +1,37 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or `__init__.py` files were presented as evidence; the required\
+    \ folders (`src`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,\
+    \ `docs`) and empty `__init__.py` files are not shown, so the task\u2019s deliverable\
+    \ is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the `data/raw/`, `data/processed/`, and
+    `data/processed/plots/` directories actually exist, nor that each contains a `.gitkeep`
+    file. Without visible directory listings or file contents, the requirement cannot
+    be confirmed as satisfied.
+T017:
+  c: false
+  h: 9a5444b58b862a87ced97b46644030bcbd5e904691264627f160a431e5cbc3f5
+  r: The required artifact `data/processed/ingestion_report.json` does not exist,
+    so the exclusion counts and proportion are not logged as specified. The task therefore
+    remains unfinished.
+T029:
+  c: false
+  h: 689e14f68494386f14f65eef68c893df48c38a6ced5a09a53745ca82a75de3a5
+  r: "The required `src/report.py` file does not exist, so no report or summary table\
+    \ of correlations is present. The task\u2019s core deliverable is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any plot files (e.g., PNG, PDF, SVG) existing in the required
+    `data/processed/plots/` directory is provided; the implementer did not supply
+    the saved plot artifacts, so the task requirement is not met.
+T037:
+  c: false
+  h: 198ac684e91a93618e7c8af1729950f67bda90db0abfea83fc3b623ac7fe5a4f
+  r: The required file `src/models/schemas.py` does not exist, so no Pydantic models
+    (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) are defined as required.
+    The artifact is missing, making the task unfinished.

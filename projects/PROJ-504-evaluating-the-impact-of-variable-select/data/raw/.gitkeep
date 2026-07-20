@@ -1,1 +1,2 @@
-# Placeholder to ensure data/raw directory is tracked
+# This directory stores raw datasets downloaded from external sources (e.g., OpenML).
+# Do not commit large files here.

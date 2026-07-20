@@ -4,10 +4,12 @@ Configuration loader for the variable selection impact study.
 Manages seeds, OpenML dataset IDs, SNR levels, sparsity levels, and output paths.
 All paths are relative to the project root.
 """
-
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional
+
+# Import resource limits configuration
+from utils.limits import get_cpu_limit, get_memory_limit_gb, validate_resources, configure_environment, get_resource_monitor
 
 # Determine project root relative to this file's location
 # Project structure: projects/PROJ-504-evaluating-the-impact-of-variable-select/
@@ -26,9 +28,10 @@ class Config:
         sparsity_levels: List of sparsity levels (proportion of non-zero coefficients) to simulate.
         output_path: Base directory for processed data and results.
         raw_data_path: Directory for raw downloaded data.
-        processed_data_path: Directory for processed simulation data.
         results_path: Directory for analysis results and plots.
         max_retries: Maximum retry attempts for data fetching.
+        max_vcpu: Maximum number of CPU cores allowed (from limits).
+        max_ram_gb: Maximum RAM in Gigabytes allowed (from limits).
     """
     seed: int = 42
     openml_ids: List[int] = field(default_factory=lambda: [150, 159, 160, 161, 162, 163, 164, 165, 166, 167])
@@ -38,9 +41,19 @@ class Config:
     raw_data_path: str = "data/raw"
     results_path: str = "results"
     max_retries: int = 3
+    max_vcpu: int = field(init=False)
+    max_ram_gb: float = field(init=False)
     
     def __post_init__(self):
         """Validate and normalize paths after initialization."""
+        # Set resource limits from environment
+        self.max_vcpu = get_cpu_limit()
+        self.max_ram_gb = get_memory_limit_gb()
+        
+        # Validate resources
+        if not validate_resources():
+            raise RuntimeError("Resource validation failed. Check system limits.")
+        
         # Ensure paths are absolute relative to project root
         self._resolve_paths()
         
@@ -72,7 +85,7 @@ def get_config() -> Config:
     Factory function to create and return a default configuration.
     
     Returns:
-        Config: A fully initialized configuration object with validated paths.
+        Config: A fully initialized configuration object with validated paths and resource limits.
     """
     return Config()
 

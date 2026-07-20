@@ -1,15 +1,12 @@
-'T001 Create project root directory: `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`': 1
-? 'T002 Create data directories: `data/raw/`, `data/processed/`, `data/reports/` in
-  `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`'
-: 1
-? 'T003 Create code directories: `code/data/`, `code/tests/`, `code/utils/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`'
-: 1
-? 'T004 [P] Create Python virtual environment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-  <!-- FAILED: unspecified -->'
-: 1
-? 'T005 [P] Install dependencies from `requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`:
-  `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`,
-  `pyyaml`, `pytrends`'
-: 1
-? T006 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T006: 1
+T008: 1
+T014: 1
+T020: 1
+T022: 1
+T026: 1
+T027: 1
+T029: 1

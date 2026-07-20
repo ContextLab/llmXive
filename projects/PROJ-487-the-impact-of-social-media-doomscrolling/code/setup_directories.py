@@ -1,58 +1,38 @@
-"""
-Script to create the required code directory structure for the project.
-This fulfills task T003.
-"""
 import os
 import sys
+from pathlib import Path
 
 def main():
     """
-    Creates the following directories relative to the project root:
-    - code/data/
-    - code/tests/
-    - code/utils/
-    
-    Also ensures __init__.py files exist in each to make them packages.
+    Creates the required code directory structure for the project.
+    Specifically creates: code/data/, code/tests/, code/utils/
     """
-    # Define the base directory (project root)
-    # We assume this script is run from the project root or the script determines the root.
-    # For T003, we are creating directories under the project root.
-    # The prompt implies we are in the project root context.
+    # Determine the project root based on the script location or current working directory
+    # The task specifies paths relative to the project root.
+    # We assume the script is run from the project root or the project root is the parent of 'code'.
+    project_root = Path.cwd()
     
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    # The script is in code/, so base_dir is code/. We need to go up one level to project root.
-    project_root = os.path.dirname(base_dir)
+    code_dir = project_root / "code"
     
-    directories = [
-        os.path.join(project_root, "code", "data"),
-        os.path.join(project_root, "code", "tests"),
-        os.path.join(project_root, "code", "utils"),
+    directories_to_create = [
+        code_dir / "data",
+        code_dir / "tests",
+        code_dir / "utils"
     ]
     
-    created = []
-    for dir_path in directories:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-            print(f"Created directory: {dir_path}")
-            created.append(dir_path)
+    created_count = 0
+    for directory in directories_to_create:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
-        
-        # Ensure __init__.py exists to make it a Python package
-        init_file = os.path.join(dir_path, "__init__.py")
-        if not os.path.exists(init_file):
-            with open(init_file, "w") as f:
-                f.write('"""' + os.path.basename(dir_path) + " module.\n\"\"\"\n")
-            print(f"Created package initializer: {init_file}")
-        else:
-            print(f"Package initializer already exists: {init_file}")
+            print(f"Directory already exists: {directory}")
     
-    # Also ensure code/ itself has an __init__.py if it doesn't
-    code_init = os.path.join(project_root, "code", "__init__.py")
-    if not os.path.exists(code_init):
-        with open(code_init, "w") as f:
-            f.write('"""' + "Code package.\n\"\"\"\n")
-        print(f"Created package initializer: {code_init}")
+    if created_count > 0:
+        print(f"Successfully created {created_count} directory(ies).")
+    else:
+        print("All required directories already exist.")
     
     return 0
 

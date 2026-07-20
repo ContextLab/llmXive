@@ -1,3 +1,1 @@
-"""
-Data acquisition and preprocessing module.
-"""
+# Data package initialization

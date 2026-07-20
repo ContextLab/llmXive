@@ -13,232 +13,228 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-DATA_RAW_DIR = "data/raw"
-DATA_PROCESSED_DIR = "data/processed"
-GDELT_FILE = os.path.join(DATA_RAW_DIR, "gdelt_events.csv")
-GOOGLE_TRENDS_FILE = os.path.join(DATA_RAW_DIR, "google_trends.csv")
-OUTPUT_FILE = os.path.join(DATA_PROCESSED_DIR, "aligned_timeseries.csv")
-STATIONARITY_CHECK_FILE = os.path.join(DATA_PROCESSED_DIR, "stationarity_check.csv")
-VALIDATION_STATUS_FILE = os.path.join(DATA_PROCESSED_DIR, "validation_status.json")
+# Configuration constants
+MIN_DATA_LENGTH = 20
+DATA_DIR_RAW = "data/raw"
+DATA_DIR_PROCESSED = "data/processed"
+FILE_GDELT = os.path.join(DATA_DIR_RAW, "gdelt_events.csv")
+FILE_TRENDS = os.path.join(DATA_DIR_RAW, "google_trends.csv")
+FILE_OUTPUT = os.path.join(DATA_DIR_PROCESSED, "aligned_timeseries.csv")
+FILE_STATIONARITY = os.path.join(DATA_DIR_PROCESSED, "stationarity_check.csv")
+FILE_VALIDATION_STATUS = os.path.join(DATA_DIR_PROCESSED, "validation_status.json")
 
-MIN_SERIES_LENGTH = 20
-ADF_THRESHOLD = 0.05
-
-
-def load_gdelt_data(filepath: str) -> pd.DataFrame:
+def load_gdelt_data(filepath: str = FILE_GDELT) -> pd.DataFrame:
     """Load GDELT events data."""
-    logger.info(f"Loading GDELT data from {filepath}")
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"GDELT file not found: {filepath}")
-    df = pd.read_csv(filepath)
-    # Ensure date column is datetime
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
-    elif 'timestamp' in df.columns:
-        df['date'] = pd.to_datetime(df['timestamp'])
-        df.drop(columns=['timestamp'], inplace=True)
-    else:
-        raise ValueError("GDELT data must have a 'date' or 'timestamp' column")
-    return df
+        raise FileNotFoundError(f"GDELT data file not found: {filepath}")
+    df = pd.read_csv(filepath, parse_dates=['date'])
+    if 'date' not in df.columns or 'event_count' not in df.columns:
+        raise ValueError(f"GDELT data missing required columns. Found: {df.columns.tolist()}")
+    return df[['date', 'event_count']]
 
-
-def load_google_trends_data(filepath: str) -> pd.DataFrame:
+def load_google_trends_data(filepath: str = FILE_TRENDS) -> pd.DataFrame:
     """Load Google Trends data."""
-    logger.info(f"Loading Google Trends data from {filepath}")
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Google Trends file not found: {filepath}")
-    df = pd.read_csv(filepath)
-    # Ensure date column is datetime
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
-    elif 'timestamp' in df.columns:
-        df['date'] = pd.to_datetime(df['timestamp'])
-        df.drop(columns=['timestamp'], inplace=True)
-    else:
-        raise ValueError("Google Trends data must have a 'date' or 'timestamp' column")
-    return df
-
+        raise FileNotFoundError(f"Google Trends data file not found: {filepath}")
+    df = pd.read_csv(filepath, parse_dates=['date'])
+    if 'date' not in df.columns or 'interest_score' not in df.columns:
+        raise ValueError(f"Google Trends data missing required columns. Found: {df.columns.tolist()}")
+    return df[['date', 'interest_score']]
 
 def align_timestamps(gdelt_df: pd.DataFrame, trends_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Align timestamps to daily intervals.
-    Preserves zero-event days as valid zeros.
-    Uses linear interpolation ONLY for null/missing values.
-    """
-    logger.info("Aligning timestamps to daily intervals...")
-
-    # Determine common date range
+    """Align timestamps to daily intervals, preserving zero-event days."""
+    # Get the intersection of date ranges
     min_date = max(gdelt_df['date'].min(), trends_df['date'].min())
     max_date = min(gdelt_df['date'].max(), trends_df['date'].max())
 
     if min_date > max_date:
         raise ValueError("No overlapping date range between datasets")
 
-    # Create complete daily date range
-    full_date_range = pd.date_range(start=min_date, end=max_date, freq='D')
+    # Create a complete daily date range
+    full_range = pd.date_range(start=min_date, end=max_date, freq='D')
+    aligned_df = pd.DataFrame({'date': full_range})
 
     # Merge GDELT data
-    gdelt_indexed = gdelt_df.set_index('date').reindex(full_date_range)
-    gdelt_indexed = gdelt_indexed.rename(columns={'value': 'gdelt_events'})
-    # Fill NaN in count columns with 0 (zero-event days are valid)
-    if 'gdelt_events' in gdelt_indexed.columns:
-        gdelt_indexed['gdelt_events'] = gdelt_indexed['gdelt_events'].fillna(0)
+    gdelt_df = gdelt_df.set_index('date')
+    aligned_df = aligned_df.merge(gdelt_df, left_on='date', right_index=True, how='left')
 
-    # Merge Google Trends data
-    trends_indexed = trends_df.set_index('date').reindex(full_date_range)
-    trends_indexed = trends_indexed.rename(columns={'value': 'anxiety_index'})
-    # Interpolate missing values in trends (linear interpolation)
-    if 'anxiety_index' in trends_indexed.columns:
-        trends_indexed['anxiety_index'] = trends_indexed['anxiety_index'].interpolate(method='linear')
+    # Merge Trends data
+    trends_df = trends_df.set_index('date')
+    aligned_df = aligned_df.merge(trends_df, left_on='date', right_index=True, how='left')
 
-    # Combine
-    aligned_df = pd.concat([gdelt_indexed[['gdelt_events']], trends_indexed[['anxiety_index']]], axis=1)
-    aligned_df.index.name = 'date'
-    aligned_df = aligned_df.reset_index()
+    # Reset index
+    aligned_df = aligned_df.reset_index(drop=True)
 
-    logger.info(f"Aligned dataset shape: {aligned_df.shape}")
+    # Interpolate ONLY null/missing values (NOT zeros)
+    # Fill NaNs with linear interpolation
+    aligned_df['event_count'] = aligned_df['event_count'].interpolate(method='linear')
+    aligned_df['interest_score'] = aligned_df['interest_score'].interpolate(method='linear')
+
+    # Fill any remaining edge NaNs (if interpolation failed at boundaries)
+    aligned_df['event_count'] = aligned_df['event_count'].fillna(0)
+    aligned_df['interest_score'] = aligned_df['interest_score'].fillna(0)
+
     return aligned_df
 
-
-def test_stationarity(series: pd.Series, name: str = "Series") -> Tuple[bool, float, Dict]:
-    """
-    Perform Augmented Dickey-Fuller test for stationarity.
-    Returns (is_stationary, p_value, result_dict)
-    """
+def test_stationarity(series: pd.Series, name: str = "series") -> Dict[str, Any]:
+    """Perform Augmented Dickey-Fuller test for stationarity."""
     result = adfuller(series.dropna(), autolag='AIC')
-    p_value = result[1]
-    is_stationary = p_value < ADF_THRESHOLD
-
-    logger.info(f"{name} ADF Test: p-value = {p_value:.4f}, Stationary = {is_stationary}")
-
-    details = {
-        "statistic": result[0],
-        "p_value": p_value,
+    return {
+        "name": name,
+        "adf_statistic": result[0],
+        "p_value": result[1],
         "critical_values": {k: v for k, v in result[4].items()},
-        "is_stationary": is_stationary
+        "is_stationary": result[1] < 0.05
     }
-    return is_stationary, p_value, details
 
+def ensure_stationarity(df: pd.DataFrame, col: str, max_diffs: int = 5) -> Tuple[pd.Series, int, Dict[str, Any]]:
+    """Ensure series is stationary by differencing if necessary."""
+    current_series = df[col].copy()
+    diffs_applied = 0
+    original_stats = test_stationarity(current_series, f"{col}_original")
 
-def ensure_stationarity(df: pd.DataFrame, col_name: str) -> Tuple[pd.Series, List[Dict], int]:
+    if original_stats['is_stationary']:
+        return current_series, 0, original_stats
+
+    for i in range(1, max_diffs + 1):
+        current_series = current_series.diff().dropna()
+        stats = test_stationarity(current_series, f"{col}_diff_{i}")
+        diffs_applied = i
+        if stats['is_stationary']:
+            return current_series, diffs_applied, stats
+
+    # If not stationary after max_diffs, return best effort
+    return current_series, diffs_applied, stats
+
+def normalize_to_zscore(series: pd.Series) -> pd.Series:
+    """Convert series to z-scores (mean=0, std=1)."""
+    mean_val = series.mean()
+    std_val = series.std()
+    if std_val == 0:
+        logger.warning(f"Standard deviation is zero for series. Returning zeros.")
+        return pd.Series([0.0] * len(series), index=series.index)
+    return (series - mean_val) / std_val
+
+def validate_data_length(df: pd.DataFrame, min_length: int = MIN_DATA_LENGTH) -> bool:
     """
-    Apply differencing until the series is stationary (p < 0.05).
-    Returns the stationary series, list of test results, and number of differences applied.
+    Validate that the time-series has sufficient length for Granger causality.
+    Returns True if length >= min_length, False otherwise.
     """
-    series = df[col_name].copy()
-    test_results = []
-    diff_count = 0
-    max_diffs = 5  # Safety limit
-
-    while diff_count < max_diffs:
-        is_stationary, p_value, details = test_stationarity(series, f"{col_name} (diff {diff_count})")
-        test_results.append(details)
-
-        if is_stationary:
-            break
-
-        # Apply differencing
-        series = series.diff().dropna()
-        diff_count += 1
-
-        if len(series) < 10:
-            logger.warning(f"{col_name} series too short after {diff_count} differences")
-            break
-
-    if not is_stationary:
-        logger.error(f"Failed to achieve stationarity for {col_name} after {diff_count} differences")
-
-    return series, test_results, diff_count
-
+    length = len(df)
+    if length < min_length:
+        logger.error(f"Insufficient data for Granger causality: length={length} < {min_length}")
+        return False
+    return True
 
 def main():
-    """Main preprocessing pipeline: alignment, stationarity check, differencing, and saving."""
-    logger.info("Starting preprocessing pipeline (T018: Stationarity Testing)")
+    """Main preprocessing pipeline."""
+    logger.info("Starting data preprocessing pipeline...")
 
     try:
         # Load data
-        gdelt_df = load_gdelt_data(GDELT_FILE)
-        trends_df = load_google_trends_data(GOOGLE_TRENDS_FILE)
+        logger.info("Loading GDELT data...")
+        gdelt_df = load_gdelt_data()
+        logger.info(f"Loaded {len(gdelt_df)} GDELT records.")
+
+        logger.info("Loading Google Trends data...")
+        trends_df = load_google_trends_data()
+        logger.info(f"Loaded {len(trends_df)} Trends records.")
 
         # Align timestamps
+        logger.info("Aligning timestamps...")
         aligned_df = align_timestamps(gdelt_df, trends_df)
+        logger.info(f"Aligned data has {len(aligned_df)} rows.")
 
-        # Check minimum length
-        if len(aligned_df) < MIN_SERIES_LENGTH:
-            error_msg = f"Insufficient data for Granger causality: {len(aligned_df)} rows < {MIN_SERIES_LENGTH}"
-            logger.error(error_msg)
-            with open(VALIDATION_STATUS_FILE, 'w') as f:
-                json.dump({"status": "failed", "reason": error_msg}, f)
+        # --- T021: Validation for Granger Causality Length ---
+        if not validate_data_length(aligned_df, MIN_DATA_LENGTH):
+            logger.error("Validation failed: Insufficient data for Granger causality.")
+            # Write failure status
+            status = {
+                "status": "failed",
+                "reason": "Insufficient data for Granger causality",
+                "data_length": len(aligned_df),
+                "required_minimum": MIN_DATA_LENGTH,
+                "timestamp": datetime.now().isoformat()
+            }
+            os.makedirs(os.path.dirname(FILE_VALIDATION_STATUS), exist_ok=True)
+            with open(FILE_VALIDATION_STATUS, 'w') as f:
+                json.dump(status, f, indent=2)
             sys.exit(1)
+        # -----------------------------------------------------
 
-        # Ensure output directory exists
-        os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+        # Ensure stationarity
+        logger.info("Testing and ensuring stationarity...")
+        gdelt_stationary, gdelt_diffs, gdelt_stats = ensure_stationarity(aligned_df, 'event_count')
+        trends_stationary, trends_diffs, trends_stats = ensure_stationarity(aligned_df, 'interest_score')
 
-        # Process GDELT series
-        gdelt_stationary, gdelt_results, gdelt_diffs = ensure_stationarity(aligned_df, 'gdelt_events')
-        # Process Trends series
-        trends_stationary, trends_results, trends_diffs = ensure_stationarity(aligned_df, 'anxiety_index')
+        logger.info(f"GDELT stationarity: p={gdelt_stats['p_value']:.4f}, diffs={gdelt_diffs}")
+        logger.info(f"Trends stationarity: p={trends_stats['p_value']:.4f}, diffs={trends_diffs}")
 
-        # Re-align indices after differencing (they might have different lengths now)
+        # Save stationarity check report
+        stationarity_report = {
+            "gdelt": gdelt_stats,
+            "trends": trends_stats
+        }
+        os.makedirs(os.path.dirname(FILE_STATIONARITY), exist_ok=True)
+        with open(FILE_STATIONARITY, 'w') as f:
+            json.dump(stationarity_report, f, indent=2)
+        logger.info(f"Stationarity check saved to {FILE_STATIONARITY}")
+
+        # Re-align if differencing changed lengths (simplest approach: dropna on the differenced series)
+        # Since ensure_stationarity returns a shorter series, we need to re-index or just take the common index
+        # For simplicity in this pipeline, we assume the differenced series are aligned by index if we processed them on the same df
+        # However, diff() drops the first row. If both dropped rows, they are aligned.
+        # If one dropped more (unlikely with max_diffs loop logic), we align again.
         min_len = min(len(gdelt_stationary), len(trends_stationary))
-        gdelt_stationary = gdelt_stationary.iloc[:min_len]
-        trends_stationary = trends_stationary.iloc[:min_len]
+        final_gdelt = gdelt_stationary.iloc[-min_len:]
+        final_trends = trends_stationary.iloc[-min_len:]
 
-        # Create final processed dataframe
-        processed_df = pd.DataFrame({
-            'date': aligned_df['date'].iloc[-min_len:].values,
-            'gdelt_events': gdelt_stationary.values,
-            'anxiety_index': trends_stationary.values
+        # Normalize to z-scores
+        logger.info("Normalizing data to z-scores...")
+        final_gdelt_norm = normalize_to_zscore(final_gdelt)
+        final_trends_norm = normalize_to_zscore(final_trends)
+
+        # Construct final output dataframe
+        # We need to align the dates from the original aligned_df corresponding to the final rows
+        # Since we took the last min_len rows, we take the last min_len dates
+        final_dates = aligned_df['date'].iloc[-min_len:].reset_index(drop=True)
+
+        final_df = pd.DataFrame({
+            'date': final_dates,
+            'gdelt_zscore': final_gdelt_norm.values,
+            'trends_zscore': final_trends_norm.values
         })
 
-        # Save aligned, stationary data
-        processed_df.to_csv(OUTPUT_FILE, index=False)
-        logger.info(f"Saved processed data to {OUTPUT_FILE}")
+        # Save processed data
+        os.makedirs(os.path.dirname(FILE_OUTPUT), exist_ok=True)
+        final_df.to_csv(FILE_OUTPUT, index=False)
+        logger.info(f"Processed data saved to {FILE_OUTPUT}")
 
-        # Save stationarity check results
-        stationarity_data = []
-        for i, res in enumerate(gdelt_results):
-            stationarity_data.append({
-                'series': 'gdelt_events',
-                'diff_step': i,
-                'p_value': res['p_value'],
-                'is_stationary': res['is_stationary']
-            })
-        for i, res in enumerate(trends_results):
-            stationarity_data.append({
-                'series': 'anxiety_index',
-                'diff_step': i,
-                'p_value': res['p_value'],
-                'is_stationary': res['is_stationary']
-            })
-
-        stationarity_df = pd.DataFrame(stationarity_data)
-        stationarity_df.to_csv(STATIONARITY_CHECK_FILE, index=False)
-        logger.info(f"Saved stationarity check to {STATIONARITY_CHECK_FILE}")
-
-        # Update validation status
-        validation_status = {
+        # Write success status
+        status = {
             "status": "success",
-            "rows_processed": len(processed_df),
-            "gdelt_diffs": gdelt_diffs,
-            "trends_diffs": trends_diffs,
-            "files": {
-                "aligned": OUTPUT_FILE,
-                "stationarity_check": STATIONARITY_CHECK_FILE
-            }
+            "data_length": len(final_df),
+            "gdelt_stationarity": gdelt_stats['is_stationary'],
+            "trends_stationarity": trends_stats['is_stationary'],
+            "timestamp": datetime.now().isoformat()
         }
-        with open(VALIDATION_STATUS_FILE, 'w') as f:
-            json.dump(validation_status, f, indent=2)
+        with open(FILE_VALIDATION_STATUS, 'w') as f:
+            json.dump(status, f, indent=2)
 
         logger.info("Preprocessing pipeline completed successfully.")
+        return 0
 
     except Exception as e:
-        logger.error(f"Preprocessing pipeline failed: {str(e)}")
-        with open(VALIDATION_STATUS_FILE, 'w') as f:
-            json.dump({"status": "failed", "reason": str(e)}, f)
+        logger.error(f"Preprocessing pipeline failed: {str(e)}", exc_info=True)
+        status = {
+            "status": "failed",
+            "reason": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+        os.makedirs(os.path.dirname(FILE_VALIDATION_STATUS), exist_ok=True)
+        with open(FILE_VALIDATION_STATUS, 'w') as f:
+            json.dump(status, f, indent=2)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

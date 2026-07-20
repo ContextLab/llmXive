@@ -127,6 +127,10 @@
     "classified_at": "2026-07-08T12:49:04Z",
     "verdict": false
   },
+  "PROJ-1019-llmxive-follow-up-extending-vision-as-un::1.6.0": {
+    "classified_at": "2026-07-20T04:46:35Z",
+    "verdict": false
+  },
   "PROJ-102-predicting-sleep-stage-transitions-from-::1.6.0": {
     "classified_at": "2026-07-06T11:30:00Z",
     "verdict": false

@@ -4,236 +4,275 @@ from scipy.stats import spearmanr
 from typing import List, Dict, Any, Optional
 import logging
 from pathlib import Path
+import json
+import os
+import sys
+
+# Add parent directory to path to allow imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.config import load_config
-from src.models.schemas import CorrelationResult
+from src.logging_config import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
-def calculate_spearman_correlation(
-    diversity_df: pd.DataFrame,
-    sleep_metrics: List[str]
-) -> pd.DataFrame:
+def calculate_spearman_correlation(diversity_df: pd.DataFrame, sleep_metrics: List[str]) -> pd.DataFrame:
     """
     Calculate Spearman rank correlation between diversity indices and sleep metrics.
 
     Args:
-        diversity_df: DataFrame with diversity indices and sleep metrics.
-        sleep_metrics: List of sleep metric column names to correlate.
+        diversity_df: DataFrame containing diversity indices (Shannon, Simpson, etc.) and sample IDs
+        sleep_metrics: List of sleep metric column names to correlate against
 
     Returns:
-        DataFrame with correlation results (r, p-value).
+        DataFrame with correlation coefficients, p-values, and metadata
     """
-    diversity_cols = [col for col in diversity_df.columns if col not in sleep_metrics]
     results = []
 
-    for div_col in diversity_cols:
-        for sleep_col in sleep_metrics:
-            if diversity_df[div_col].notna().sum() < 3 or diversity_df[sleep_col].notna().sum() < 3:
-                logger.warning(f"Insufficient data for {div_col} vs {sleep_col}")
+    # Ensure diversity_df has required columns
+    required_cols = ['sample_id', 'shannon', 'simpson', 'observed_otus']
+    for col in required_cols:
+        if col not in diversity_df.columns:
+            logger.error(f"Missing required column: {col}")
+            raise ValueError(f"Missing required column: {col}")
+
+    for sleep_metric in sleep_metrics:
+        if sleep_metric not in diversity_df.columns:
+            logger.warning(f"Sleep metric {sleep_metric} not found in dataframe, skipping.")
+            continue
+
+        for diversity_metric in ['shannon', 'simpson', 'observed_otus']:
+            # Drop rows with NaN in either column
+            valid_data = diversity_df[[diversity_metric, sleep_metric]].dropna()
+
+            if len(valid_data) < 3:
+                logger.warning(f"Not enough data points for {diversity_metric} vs {sleep_metric}")
                 continue
 
-            r, p = spearmanr(diversity_df[div_col], diversity_df[sleep_col])
+            r, p_value = spearmanr(valid_data[diversity_metric], valid_data[sleep_metric])
+
             results.append({
-                "diversity_metric": div_col,
-                "sleep_metric": sleep_col,
-                "r": r,
-                "p_value": p
+                'diversity_metric': diversity_metric,
+                'sleep_metric': sleep_metric,
+                'correlation_coefficient': r,
+                'p_value': p_value,
+                'n_samples': len(valid_data)
             })
+
+    if not results:
+        return pd.DataFrame()
 
     return pd.DataFrame(results)
 
-def apply_benjamini_hochberg(
-    df: pd.DataFrame,
-    p_value_col: str = "p_value"
-) -> pd.DataFrame:
+def apply_benjamini_hochberg(results_df: pd.DataFrame, p_value_col: str = 'p_value') -> pd.DataFrame:
     """
     Apply Benjamini-Hochberg FDR correction to p-values.
 
     Args:
-        df: DataFrame with p-values.
-        p_value_col: Name of the p-value column.
+        results_df: DataFrame containing p-values
+        p_value_col: Name of the column containing p-values
 
     Returns:
-        DataFrame with added 'q_value' column.
-    """
-    if df.empty:
-        logger.warning("Empty DataFrame provided to Benjamini-Hochberg correction.")
-        df["q_value"] = []
-        return df
-
-    p_values = df[p_value_col].values
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = p_values[sorted_indices]
-
-    q_values = np.zeros(n)
-    for i in range(n):
-        rank = i + 1
-        q_values[sorted_indices[i]] = sorted_p_values[i] * n / rank
-
-    q_values = np.minimum.accumulate(q_values[::-1])[::-1]
-    q_values = np.clip(q_values, 0, 1)
-
-    df = df.copy()
-    df["q_value"] = q_values
-    return df
-
-def flag_correlations(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Flag correlations as moderate or meaningful.
-
-    Args:
-        df: DataFrame with r and q_value columns.
-
-    Returns:
-        DataFrame with 'is_moderate' and 'is_meaningful' columns.
-    """
-    if df.empty:
-        logger.warning("Empty DataFrame provided to flag_correlations.")
-        df["is_moderate"] = []
-        df["is_meaningful"] = []
-        return df
-
-    df = df.copy()
-    df["is_moderate"] = df["r"].abs() > 0.3
-    df["is_meaningful"] = (df["q_value"] < 0.05) & df["is_moderate"]
-    return df
-
-def handle_no_significant_associations(
-    results_df: pd.DataFrame,
-    output_path: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Handle the case where no significant associations are found.
-
-    Args:
-        results_df: DataFrame of correlation results.
-        output_path: Optional path to write a report file.
-
-    Returns:
-        Dictionary with analysis summary.
+        DataFrame with added 'q_value' column
     """
     if results_df.empty:
-        logger.warning("No correlation results to analyze.")
-        summary = {
-            "status": "no_data",
-            "message": "No correlation data was available to analyze.",
-            "significant_count": 0,
-            "moderate_count": 0,
-            "total_count": 0
-        }
-        if output_path:
-            summary["report_path"] = str(output_path)
-            with open(output_path, 'w') as f:
-                f.write(f"Analysis Report: {summary['message']}\n")
-        return summary
+        return results_df.copy()
 
-    meaningful_count = results_df["is_meaningful"].sum()
-    moderate_count = results_df["is_moderate"].sum()
-    total_count = len(results_df)
+    df = results_df.copy()
+    df = df.sort_values(p_value_col)
 
-    if meaningful_count == 0:
-        logger.info("No significant associations found (q < 0.05 and |r| > 0.3).")
-        status = "no_significant_associations"
-        message = (
-            "No statistically significant associations were found between "
-            "gut microbiome diversity indices and sleep quality metrics "
-            "after Benjamini-Hochberg correction."
-        )
-    else:
-        status = "associations_found"
-        message = f"Found {meaningful_count} significant association(s)."
+    n = len(df)
+    df['rank'] = range(1, n + 1)
+    df['q_value'] = (df[p_value_col] * n) / df['rank']
 
-    summary = {
-        "status": status,
-        "message": message,
-        "significant_count": int(meaningful_count),
-        "moderate_count": int(moderate_count),
-        "total_count": int(total_count)
-    }
+    # Ensure q-values are monotonic (cumulative min from bottom)
+    df['q_value'] = df['q_value'].iloc[::-1].cummin().iloc[::-1]
 
-    if output_path:
-        summary["report_path"] = str(output_path)
-        summary_str = (
-            f"Analysis Report\n"
-            f"Status: {status}\n"
-            f"Message: {message}\n"
-            f"Total correlations tested: {total_count}\n"
-            f"Moderate correlations (|r| > 0.3): {moderate_count}\n"
-            f"Significant associations (q < 0.05, |r| > 0.3): {meaningful_count}\n"
-        )
-        with open(output_path, 'w') as f:
-            f.write(summary_str)
+    # Cap q-values at 1.0
+    df['q_value'] = df['q_value'].clip(upper=1.0)
 
-    return summary
+    return df.drop(columns=['rank'])
 
-def run_correlation_analysis(
-    input_path: Path,
-    output_csv_path: Path,
-    output_report_path: Optional[Path] = None
-) -> Dict[str, Any]:
+def flag_correlations(results_df: pd.DataFrame, 
+                      r_threshold: float = 0.3, 
+                      q_threshold: float = 0.05) -> pd.DataFrame:
     """
-    Run the full correlation analysis pipeline.
+    Flag correlations as moderate or meaningful based on thresholds.
 
     Args:
-        input_path: Path to cleaned data CSV.
-        output_csv_path: Path to save correlation results.
-        output_report_path: Path to save analysis summary report.
+        results_df: DataFrame with correlation results including 'correlation_coefficient' and 'q_value'
+        r_threshold: Absolute correlation coefficient threshold for "moderate"
+        q_threshold: Q-value threshold for "meaningful"
 
     Returns:
-        Summary dictionary of the analysis.
+        DataFrame with added 'is_moderate' and 'is_meaningful' boolean columns
     """
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
+    if results_df.empty:
+        return results_df.copy()
 
-    sleep_metrics = ["sleep_efficiency", "sleep_duration_hours", "sleep_latency_minutes"]
+    df = results_df.copy()
+    df['is_moderate'] = df['correlation_coefficient'].abs() > r_threshold
+    df['is_meaningful'] = (df['q_value'] < q_threshold) & (df['correlation_coefficient'].abs() > r_threshold)
+
+    return df
+
+def handle_no_significant_associations(results_df: pd.DataFrame, output_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Handle the case where no significant associations are found.
+    
+    This function:
+    1. Checks if the input DataFrame is empty or contains no meaningful correlations.
+    2. Logs a clear message about the absence of significant findings.
+    3. Optionally saves a summary report to a JSON file indicating no significant associations.
+    4. Returns a status dictionary for downstream processing or reporting.
+
+    Args:
+        results_df: DataFrame containing correlation results (may be empty or have no meaningful flags)
+        output_path: Optional path to save a JSON report of the "no association" finding
+
+    Returns:
+        Dictionary containing:
+            - 'has_significant_associations': bool
+            - 'total_tests': int
+            - 'meaningful_count': int
+            - 'message': str
+            - 'report_path': str or None
+    """
+    if results_df.empty:
+        has_significant = False
+        total_tests = 0
+        meaningful_count = 0
+        message = "No correlation tests were performed (input data was empty)."
+    else:
+        # Ensure 'is_meaningful' column exists
+        if 'is_meaningful' not in results_df.columns:
+            # If not flagged yet, we can't determine meaningfulness without thresholds
+            # For safety, assume not meaningful if not flagged
+            meaningful_count = 0
+        else:
+            meaningful_count = int(results_df['is_meaningful'].sum())
+        
+        total_tests = len(results_df)
+        has_significant = meaningful_count > 0
+
+        if has_significant:
+            message = f"Found {meaningful_count} meaningful associations out of {total_tests} tests."
+        else:
+            message = "No significant associations found (q-value < 0.05 AND |r| > 0.3)."
+
+    logger.info(message)
+
+    report = {
+        'has_significant_associations': has_significant,
+        'total_tests': total_tests,
+        'meaningful_count': meaningful_count,
+        'message': message,
+        'timestamp': pd.Timestamp.now().isoformat()
+    }
+
+    if output_path and not has_significant:
+        try:
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(report, f, indent=2)
+            logger.info(f"Saved no-association report to: {output_path}")
+            report['report_path'] = output_path
+        except Exception as e:
+            logger.error(f"Failed to write report to {output_path}: {e}")
+            report['report_path'] = None
+    else:
+        report['report_path'] = None
+
+    return report
+
+def run_correlation_analysis(input_path: str, 
+                             output_csv_path: str, 
+                             output_report_path: Optional[str] = None,
+                             r_threshold: float = 0.3, 
+                             q_threshold: float = 0.05) -> Dict[str, Any]:
+    """
+    Run the full correlation analysis pipeline:
+    1. Load cleaned data
+    2. Calculate Spearman correlations
+    3. Apply Benjamini-Hochberg correction
+    4. Flag significant correlations
+    5. Handle "no significant associations" case
+    6. Save results to CSV and optional JSON report
+
+    Args:
+        input_path: Path to cleaned microbiome-sleep CSV
+        output_csv_path: Path to save correlation results CSV
+        output_report_path: Path to save "no association" JSON report (optional)
+        r_threshold: Threshold for moderate correlation
+        q_threshold: Threshold for meaningful correlation
+
+    Returns:
+        Dictionary with analysis summary and file paths
+    """
+    config = load_config()
+    logger.info(f"Starting correlation analysis from {input_path}")
+
+    # Load data
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} samples")
+
+    sleep_metrics = ['sleep_efficiency', 'sleep_duration_hours', 'wake_after_sleep_onset']
     sleep_metrics = [m for m in sleep_metrics if m in df.columns]
 
     if not sleep_metrics:
-        logger.error("No valid sleep metrics found in the dataset.")
-        return handle_no_significant_associations(pd.DataFrame(), output_report_path)
+        logger.error("No valid sleep metrics found in input data.")
+        raise ValueError("No valid sleep metrics found in input data.")
 
-    logger.info("Calculating Spearman correlations...")
-    corr_df = calculate_spearman_correlation(df, sleep_metrics)
+    # Calculate correlations
+    corr_results = calculate_spearman_correlation(df, sleep_metrics)
 
-    if corr_df.empty:
-        logger.warning("No correlations could be calculated.")
-        return handle_no_significant_associations(pd.DataFrame(), output_report_path)
+    if corr_results.empty:
+        logger.warning("Correlation calculation returned empty results.")
+        # Handle empty case
+        report = handle_no_significant_associations(pd.DataFrame(), output_report_path)
+        # Save empty results
+        pd.DataFrame(columns=['diversity_metric', 'sleep_metric', 'correlation_coefficient', 
+                              'p_value', 'q_value', 'is_moderate', 'is_meaningful']).to_csv(output_csv_path, index=False)
+        return report
 
-    logger.info("Applying Benjamini-Hochberg correction...")
-    corr_df = apply_benjamini_hochberg(corr_df)
+    # Apply FDR correction
+    corr_results = apply_benjamini_hochberg(corr_results)
 
-    logger.info("Flagging correlations...")
-    corr_df = flag_correlations(corr_df)
+    # Flag correlations
+    corr_results = flag_correlations(corr_results, r_threshold, q_threshold)
 
-    logger.info(f"Saving results to {output_csv_path}")
-    output_csv_path.parent.mkdir(parents=True, exist_ok=True)
-    corr_df.to_csv(output_csv_path, index=False)
+    # Handle no significant associations
+    report = handle_no_significant_associations(corr_results, output_report_path)
 
-    logger.info("Handling results summary...")
-    summary = handle_no_significant_associations(corr_df, output_report_path)
+    # Save results
+    Path(output_csv_path).parent.mkdir(parents=True, exist_ok=True)
+    corr_results.to_csv(output_csv_path, index=False)
+    logger.info(f"Saved correlation results to {output_csv_path}")
 
-    return summary
+    report['output_csv_path'] = output_csv_path
+    return report
 
 def main():
-    """Entry point for the correlation analysis script."""
+    """Main entry point for correlation analysis script."""
     config = load_config()
-    input_path = Path(config.get("CLEANED_DATA_PATH", "data/processed/cleaned_microbiome_sleep.csv"))
-    output_csv_path = Path(config.get("CORRELATION_RESULTS_PATH", "data/processed/correlation_results.csv"))
-    output_report_path = Path(config.get("CORRELATION_REPORT_PATH", "data/processed/correlation_summary.txt"))
+    input_path = config.get('PROCESSED_DATA_PATH', 'data/processed/cleaned_microbiome_sleep.csv')
+    output_csv = config.get('CORRELATION_OUTPUT_PATH', 'data/processed/correlation_results.csv')
+    output_report = config.get('NO_ASSOCIATION_REPORT_PATH', 'data/processed/no_association_report.json')
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T016 (cleaned dataset) has been completed.")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    summary = run_correlation_analysis(input_path, output_csv_path, output_report_path)
-    logger.info(f"Analysis complete. Status: {summary['status']}")
-    logger.info(summary['message'])
-
-    if output_report_path.exists():
-        logger.info(f"Report saved to: {output_report_path}")
+    try:
+        result = run_correlation_analysis(
+            input_path=input_path,
+            output_csv_path=output_csv,
+            output_report_path=output_report
+        )
+        logger.info("Correlation analysis completed successfully.")
+        logger.info(f"Has significant associations: {result['has_significant_associations']}")
+        if not result['has_significant_associations']:
+            logger.info(result['message'])
+    except Exception as e:
+        logger.error(f"Correlation analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

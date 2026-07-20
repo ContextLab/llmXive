@@ -1,2 +1,3 @@
-# This directory serves as the project root for PROJ-487.
-# It is created to establish the project structure as per T001.
+# This directory exists to satisfy T001: Create project root directory.
+# The project structure is initialized here.
+# Data, code, and configuration will be added in subsequent tasks.

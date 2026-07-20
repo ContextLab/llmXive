@@ -44,11 +44,11 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: Execute `mkdir -p src data/raw data/processed tests/unit tests/integration docs` and create empty `__init__.py` in `src`, `tests`, `tests/unit`, `tests/integration`.
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies: Create `requirements.txt` containing `pandas>=2.0`, `scikit-bio>=0.5.9`, `scipy>=1.10`, `matplotlib>=3.7`, `seaborn>=0.12`, `requests>=2.28`, `pytest>=7.0`, `pydantic>=2.0`, `ruff>=0.1.0`. Run `pip install -r requirements.txt` then `pip freeze > requirements.txt`. <!-- FAILED: unspecified -->
-- [ ] T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml` with `[tool.ruff]` rules set to `["E", "F", "W", "I"]` and `[tool.black]` line-length 88.
+- [X] T002 Initialize Python 3.11 project with pinned dependencies: Create `requirements.txt` containing `pandas>=2.0`, `scikit-bio>=0.5.9`, `scipy>=1.10`, `matplotlib>=3.7`, `seaborn>=0.12`, `requests>=2.28`, `pytest>=7.0`, `pydantic>=2.0`, `ruff>=0.1.0`. Run `pip install -r requirements.txt` then `pip freeze > requirements.txt`. <!-- FAILED: unspecified -->
+- [X] T003 [P] Configure linting (ruff) and formatting (black): Create `pyproject.toml` with `[tool.ruff]` rules set to `["E", "F", "W", "I"]` and `[tool.black]` line-length 88.
 - [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/plots/`): Ensure directories exist and contain `.gitkeep` files.
-- [ ] T005 [P] Create base configuration loader in `src/config.py`: Implement `load_config()` function reading `DATA_URL`, `RANDOM_SEED`, and `LOG_LEVEL` from environment variables with defaults.
-- [ ] T006 [P] Implement logging infrastructure in `src/logging_config.py`: Configure root logger with format `%(asctime)s - %(levelname)s - %(message)s` and level `INFO`.
+- [X] T005 [P] Create base configuration loader in `src/config.py`: Implement `load_config()` function reading `DATA_URL`, `RANDOM_SEED`, and `LOG_LEVEL` from environment variables with defaults.
+- [X] T006 [P] Implement logging infrastructure in `src/logging_config.py`: Configure root logger with format `%(asctime)s - %(levelname)s - %(message)s` and level `INFO`.
 - [ ] T009 [P] Setup content hashing utility in `src/utils/hashing.py`: Implement `def compute_sha256(file_path: str) -> str` function.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -86,11 +86,11 @@
 - [X] T014 [US1] [BLOCKED UNTIL T012b PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts.**
 - [X] T015 [US1] [BLOCKED UNTIL T012b PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py`.
 - [ ] T016 [US1] [BLOCKED UNTIL T012b PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`.
-- [~] T017 [US1] [BLOCKED UNTIL T012b PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, and calculate/store `exclusion_proportion` in `data/processed/ingestion_report.json`.
+- [ ] T017 [US1] [BLOCKED UNTIL T012b PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, and calculate/store `exclusion_proportion` in `data/processed/ingestion_report.json`.
 
 ### Model Definition (Deferred until Schema Verified)
 
-- [~] T037 [US1] [BLOCKED UNTIL T012b PASSES] Define Pydantic models (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) in `src/models/schemas.py` based on the verified schema from T012b.
+- [ ] T037 [US1] [BLOCKED UNTIL T012b PASSES] Define Pydantic models (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) in `src/models/schemas.py` based on the verified schema from T012b.
 - [X] T038 [US1] [BLOCKED UNTIL T012b PASSES] Write unit tests for models in `tests/unit/test_models.py`: Implement `test_microbiome_sample_instantiation()` and `test_sleep_metric_instantiation()`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (if T012b passed).
@@ -138,7 +138,7 @@
 - [ ] T028 [US3] Implement boxplot generation by sleep quartile in `src/viz.py`.
 - [ ] T029 [US3] Compile final report including summary table of correlations in `src/report.py`.
 - [ ] T030 [US3] Save all plot artifacts to `data/processed/plots/`.
-- [ ] T031 [US3] Generate final HTML/PDF report with all findings and "No significant associations" handling.
+- [~] T031 [US3] Generate final HTML/PDF report with all findings and "No significant associations" handling.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -148,8 +148,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates: Add 'Usage Examples' and 'Data Source' sections to `README.md` and update `docs/` with pipeline flow.
-- [ ] T033 Code cleanup and refactoring: Remove unused imports and refactor T014 to use generator expressions for memory efficiency.
+- [~] T032 [P] Documentation updates: Add 'Usage Examples' and 'Data Source' sections to `README.md` and update `docs/` with pipeline flow.
+- [~] T033 Code cleanup and refactoring: Remove unused imports and refactor T014 to use generator expressions for memory efficiency.
 - [ ] T034 Performance optimization: Optimize T015 (merge) to reduce RAM usage by [deferred] using chunked processing.
 - [ ] T035 [P] Implement `tests/integration/test_reproducibility.py`: Run the full pipeline twice, compute **SHA-256 hashes** of `data/processed/cleaned_microbiome_sleep.csv` and all files in `data/processed/plots/`, and assert the hashes match between runs to verify reproducibility (SC-005).
 - [ ] T036 Run quickstart.md validation

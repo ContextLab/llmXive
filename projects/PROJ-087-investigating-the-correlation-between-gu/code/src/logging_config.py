@@ -1,52 +1,57 @@
-"""
-Logging configuration for the project.
-"""
 import logging
 import sys
 from typing import Optional
 
-def configure_root_logger(level: Optional[str] = None) -> logging.Logger:
+
+def configure_root_logger(level: int = logging.INFO, format_string: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger with a standard format.
+    Configure the root logger with a specific format and level.
 
     Args:
-        level: Log level string (e.g., 'INFO', 'DEBUG'). Defaults to 'INFO'.
+        level: The logging level (default: logging.INFO).
+        format_string: The log format string. If None, defaults to
+                       '%(asctime)s - %(levelname)s - %(message)s'.
 
     Returns:
-        The configured root logger.
+        The configured root logger instance.
     """
-    if level is None:
-        level = "INFO"
+    if format_string is None:
+        format_string = "%(asctime)s - %(levelname)s - %(message)s"
 
-    log_level = getattr(logging, level.upper(), logging.INFO)
+    logger = logging.getLogger()
+    logger.setLevel(level)
 
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
+    # Remove existing handlers to avoid duplicates on re-configuration
+    if logger.handlers:
+        logger.handlers.clear()
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
 
-    # Avoid adding duplicate handlers if called multiple times
-    if not root_logger.handlers:
-        root_logger.addHandler(handler)
+    # Create formatter
+    formatter = logging.Formatter(format_string)
+    console_handler.setFormatter(formatter)
 
-    return root_logger
+    # Add handler to the root logger
+    logger.addHandler(console_handler)
 
-def setup_logger(name: str, level: Optional[str] = None) -> logging.Logger:
+    return logger
+
+
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Setup a named logger.
+    Get or create a named logger, ensuring it is configured with the root logger's settings.
 
     Args:
-        name: Name of the logger.
-        level: Log level.
+        name: The name of the logger (typically __name__).
+        level: The logging level for this logger.
 
     Returns:
-        Configured logger instance.
+        A configured logger instance.
     """
     logger = logging.getLogger(name)
-    if level:
-        logger.setLevel(getattr(logging, level.upper()))
-    else:
-        logger.setLevel(logging.INFO)
+    logger.setLevel(level)
+    # Propagate to root logger which has the handler
+    logger.propagate = True
     return logger

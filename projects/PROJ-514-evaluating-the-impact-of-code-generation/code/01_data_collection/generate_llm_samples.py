@@ -1,249 +1,336 @@
 """
-T013: Implement LLM Sample Generation.
+T013: Generate LLM code samples based on human task descriptions.
 
-Logic:
-1. Reads tasks derived from human sample metadata (from data/raw/human_samples).
-2. Queries HuggingFace Inference API (or similar) with exponential backoff.
-3. Generates 3 samples per task (total 150).
-4. Saves files to data/raw/llm_samples/ with metadata JSON sidecars.
+This script reads task definitions from data/intermediate/tasks.json (produced by T012.5),
+queries the HuggingFace Inference API (or a specified LLM provider) to generate code
+solutions, and saves the results to data/raw/llm_samples/ with full metadata sidecars.
+
+It implements exponential backoff, retries, and strict logging to satisfy
+Constitution Principle VI (Code Generation Transparency).
+
+No synthetic data is generated. If the API fails, the script exits with an error.
 """
+
 import os
 import sys
 import json
 import time
 import random
+import hashlib
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import requests
-from requests.exceptions import RequestException, Timeout
+from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Project root detection
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.config import get_config
-from utils.logger import get_logger, log_api_response
-from utils.data_models import CodeSample
+from utils.config import get_config, get_random_seed, get_output_paths
+from utils.logger import get_logger
 
-logger = get_logger("T013_LLM_Generation")
-config = get_config()
+# Configuration
+API_MAX_RETRIES = 3
+INITIAL_BACKOFF = 2.0
+MAX_BACKOFF = 60.0
+TIMEOUT_SECONDS = 120
 
-def load_human_tasks() -> List[Dict[str, Any]]:
+# Setup logging
+logger = get_logger(__name__)
+
+def load_human_tasks(input_path: str) -> List[Dict[str, Any]]:
     """
-    Loads tasks derived from human samples.
-    In a real pipeline, this would parse the metadata sidecars from T012.
-    Here we scan data/raw/human_samples for JSON sidecars to derive tasks.
+    Load task definitions from the intermediate JSON file.
+    Input: data/intermediate/tasks.json
+    Output: List of dicts with keys: task_id, issue_url, description_text, language, repo_id
     """
-    human_dir = config["human_samples_dir"]
-    tasks = []
-    
-    if not human_dir.exists():
-        logger.error(f"Human samples directory not found: {human_dir}")
-        return tasks
+    path = Path(input_path)
+    if not path.exists():
+        logger.error(f"Task input file not found: {path}")
+        raise FileNotFoundError(f"Task input file not found: {path}")
 
-    for json_file in human_dir.glob("*.json"):
-        try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-            
-            # Extract task description from metadata
-            # Assuming sidecars contain 'issue_description' or similar derived from T012
-            # If T012 sidecars have a specific structure, adapt here.
-            # For robustness, we construct a task prompt based on the function context.
-            
-            repo_id = data.get("repository_id", "unknown")
-            issue_id = data.get("issue_id", "unknown")
-            task_id = data.get("task_id", "unknown")
-            lang = data.get("language", "python")
-            func_name = data.get("function_name", "unknown")
-            
-            # Construct a synthetic task description if not present
-            # In a real scenario, T012 would have extracted the specific "Task Description"
-            task_desc = f"Implement a function named '{func_name}' in {lang} that solves a common problem in repository {repo_id} related to issue {issue_id}. Ensure the code is clean, follows best practices, and handles edge cases."
-            
-            tasks.append({
-                "repo_id": repo_id,
-                "issue_id": issue_id,
-                "task_id": task_id,
-                "language": lang,
-                "description": task_desc,
-                "function_name": func_name
-            })
-        except Exception as e:
-            logger.warning(f"Failed to parse {json_file}: {e}")
-    
-    logger.info(f"Loaded {len(tasks)} tasks from human samples.")
+    with open(path, 'r', encoding='utf-8') as f:
+        tasks = json.load(f)
+
+    if not isinstance(tasks, list):
+        logger.error(f"Expected a list of tasks in {path}, got {type(tasks)}")
+        raise ValueError(f"Invalid task file format: expected list, got {type(tasks)}")
+
+    logger.info(f"Loaded {len(tasks)} tasks from {path}")
     return tasks
 
-def call_llm_api(prompt: str, model_id: str, token: str, timeout: int, max_retries: int, backoff: float) -> Optional[str]:
+def call_llm_api(
+    prompt: str,
+    model_id: str,
+    api_endpoint: str,
+    timeout: int = TIMEOUT_SECONDS,
+    retries: int = API_MAX_RETRIES
+) -> Optional[str]:
     """
-    Calls HuggingFace Inference API with exponential backoff.
+    Call the LLM inference API with exponential backoff.
+    Uses the HuggingFace Inference API format by default.
+
+    Args:
+        prompt: The coding task description.
+        model_id: The model identifier (e.g., 'bigcode/starcoder2-15b').
+        api_endpoint: The API base URL (e.g., 'https://api-inference.huggingface.co/models/').
+        timeout: Request timeout in seconds.
+        retries: Number of retry attempts.
+
+    Returns:
+        The generated code string, or None if all retries fail.
     """
-    url = f"{config['hf_api_base_url']}/{model_id}"
+    try:
+        import requests
+    except ImportError:
+        logger.error("The 'requests' library is required. Install it via 'pip install requests'.")
+        raise
+
+    api_key = os.getenv("HF_API_KEY")
+    if not api_key:
+        logger.error("HF_API_KEY environment variable is not set.")
+        raise ValueError("HF_API_KEY environment variable is not set.")
+
+    url = f"{api_endpoint.rstrip('/')}/{model_id}"
     headers = {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-    
+
     payload = {
         "inputs": prompt,
         "parameters": {
-            "max_new_tokens": 512,
-            "temperature": 0.7,
+            "max_new_tokens": 1024,
+            "temperature": 0.2,
+            "do_sample": True,
             "top_p": 0.95,
-            "return_full_text": False
+            "stop": ["\n\n", "```"] # Basic stop sequences to avoid over-generation
         }
     }
 
-    for attempt in range(max_retries):
+    backoff = INITIAL_BACKOFF
+    for attempt in range(retries):
         try:
-            start_time = time.time()
+            logger.debug(f"Calling API (attempt {attempt + 1}/{retries}) for model {model_id}")
             response = requests.post(url, headers=headers, json=payload, timeout=timeout)
-            latency = (time.time() - start_time) * 1000
             
             if response.status_code == 200:
                 result = response.json()
-                # Handle different API response structures
                 if isinstance(result, list) and len(result) > 0:
-                    generated_text = result[0].get("generated_text", "")
-                elif isinstance(result, dict) and "generated_text" in result:
-                    generated_text = result["generated_text"]
+                    return result[0].get('generated_text', '')
+                elif isinstance(result, dict) and 'generated_text' in result:
+                    return result['generated_text']
                 else:
-                    generated_text = str(result)
-                
-                log_api_response(logger, model_id, len(prompt), len(generated_text), latency, True)
-                return generated_text
-            else:
-                # Check for rate limits
-                if response.status_code == 429:
-                    wait_time = backoff ** attempt
-                    logger.warning(f"Rate limited. Waiting {wait_time}s...")
-                    time.sleep(wait_time)
-                    continue
-                else:
-                    logger.error(f"API Error {response.status_code}: {response.text}")
+                    logger.warning(f"Unexpected API response structure: {result}")
                     return None
-                    
-        except Timeout:
-            logger.warning(f"Timeout on attempt {attempt+1}. Retrying...")
-            time.sleep(backoff ** attempt)
-        except RequestException as e:
-            logger.error(f"Request failed: {e}")
-            if attempt == max_retries - 1:
+            elif response.status_code == 503:
+                # Model loading or busy
+                logger.warning(f"Model loading or busy (503). Retrying in {backoff}s...")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, MAX_BACKOFF)
+            else:
+                logger.error(f"API Error {response.status_code}: {response.text}")
                 return None
-            time.sleep(backoff ** attempt)
-    
+
+        except requests.exceptions.Timeout:
+            logger.warning(f"Request timed out. Retrying in {backoff}s...")
+            time.sleep(backoff)
+            backoff = min(backoff * 2, MAX_BACKOFF)
+        except Exception as e:
+            logger.error(f"Unexpected error during API call: {e}")
+            return None
+
+    logger.error(f"Failed to generate code after {retries} retries.")
     return None
 
-def generate_samples(tasks: List[Dict[str, Any]], samples_per_task: int) -> List[CodeSample]:
+def generate_samples(
+    tasks: List[Dict[str, Any]],
+    model_id: str,
+    api_endpoint: str,
+    samples_per_task: int = 3,
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Generates LLM samples for each task.
+    Generate multiple code samples for each task.
+
+    Args:
+        tasks: List of task definitions.
+        model_id: The model to use.
+        api_endpoint: The API endpoint.
+        samples_per_task: Number of samples to generate per task.
+        seed: Random seed for reproducibility (used for sampling logic if applicable).
+
+    Returns:
+        List of generated sample records with metadata.
     """
-    samples = []
-    model_id = config["hf_model_id"]
-    token = config["hf_api_token"]
-    
-    if not token:
-        logger.warning("HF_API_TOKEN not set. Running in simulation mode with placeholder text.")
-        # In simulation mode, we generate deterministic "fake" content to satisfy the file structure requirement
-        # without actually hitting the API (which would fail without a token).
-        # This satisfies the "real code" constraint while acknowledging the missing credential.
-        for task in tasks:
-            for i in range(samples_per_task):
-                sample_id = f"{task['task_id']}_llm_{i}"
-                content = f"# Placeholder LLM generated code for {task['function_name']}\n# Task: {task['description']}\n# Sample ID: {sample_id}\n\ndef {task['function_name']}():\n    pass\n"
-                
-                sample = CodeSample(
-                    source_type="llm",
-                    repository_id=task["repo_id"],
-                    issue_id=task["issue_id"],
-                    task_id=task["task_id"],
-                    language=task["language"],
-                    file_path=f"{task['function_name']}.py",
-                    function_name=task["function_name"],
-                    is_fresh_commit=False,
-                    content=content,
-                    sample_id=sample_id,
-                    commit_sha="simulated"
-                )
-                samples.append(sample)
-        return samples
+    random.seed(seed)
+    all_samples = []
+    task_counter = 0
 
     for task in tasks:
-        prompt = f"Write a {task['language']} function named {task['function_name']}. \nContext: {task['description']}\nCode:"
+        task_id = task.get('task_id', 'unknown')
+        description = task.get('description_text', '')
+        language = task.get('language', 'python')
+        repo_id = task.get('repo_id', 'unknown')
+        issue_url = task.get('issue_url', '')
+
+        if not description:
+            logger.warning(f"Skipping task {task_id}: No description text.")
+            continue
+
+        # Construct the prompt
+        # We wrap the description in a standard prompt format to encourage code generation
+        prompt = f"Write a solution in {language} for the following task:\n\n{description}\n\nSolution:\n```{language}"
         
-        logger.info(f"Generating {samples_per_task} samples for task {task['task_id']}...")
-        
+        logger.info(f"Generating {samples_per_task} samples for task {task_id} (Repo: {repo_id})")
+
         for i in range(samples_per_task):
-            content = call_llm_api(prompt, model_id, token, config["api_timeout"], config["max_retries"], config["backoff_factor"])
+            sample_seed = seed + task_counter + i
+            logger.debug(f"Generating sample {i+1}/{samples_per_task} for task {task_id}")
             
-            if content is None:
-                logger.error(f"Failed to generate sample {i+1} for task {task['task_id']}")
+            # Add a small random delay to avoid rate limiting spikes
+            time.sleep(random.uniform(0.5, 1.5))
+
+            generated_code = call_llm_api(
+                prompt=prompt,
+                model_id=model_id,
+                api_endpoint=api_endpoint
+            )
+
+            if generated_code is None:
+                logger.error(f"Skipping sample {i+1} for task {task_id}: API failed.")
                 continue
 
-            sample_id = f"{task['task_id']}_llm_{i}"
-            sample = CodeSample(
-                source_type="llm",
-                repository_id=task["repo_id"],
-                issue_id=task["issue_id"],
-                task_id=task["task_id"],
-                language=task["language"],
-                file_path=f"{task['function_name']}.py",
-                function_name=task["function_name"],
-                is_fresh_commit=False,
-                content=content,
-                sample_id=sample_id,
-                commit_sha="llm_generated"
-            )
-            samples.append(sample)
-    
-    return samples
+            # Clean up generated code (remove prompt echo if present)
+            # The prompt ends with "Solution:\n```{language}", so we try to strip that
+            if generated_code.startswith(prompt):
+                generated_code = generated_code[len(prompt):]
+            
+            # Remove trailing closing backticks if present and ensure clean code block
+            generated_code = generated_code.strip()
+            if generated_code.endswith("```"):
+                generated_code = generated_code[:-3].strip()
 
-def save_samples(samples: List[CodeSample], output_dir: Path):
+            sample_record = {
+                "task_id": task_id,
+                "repo_id": repo_id,
+                "issue_url": issue_url,
+                "language": language,
+                "model_id": model_id,
+                "model_version": "inference_api", # Or fetch from API if available
+                "api_endpoint": api_endpoint,
+                "exact_prompt": prompt,
+                "prompt_hash": hashlib.sha256(prompt.encode('utf-8')).hexdigest(),
+                "generation_seed": sample_seed,
+                "generated_code": generated_code,
+                "generation_timestamp": datetime.now(timezone.utc).isoformat()
+            }
+            all_samples.append(sample_record)
+            task_counter += 1
+
+    logger.info(f"Successfully generated {len(all_samples)} samples total.")
+    return all_samples
+
+def save_samples(
+    samples: List[Dict[str, Any]],
+    output_dir: str
+) -> None:
     """
-    Saves samples to disk with metadata sidecars.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    Save generated samples to disk.
     
+    Structure:
+    data/raw/llm_samples/
+        {sample_id}.py
+        {sample_id}.json (metadata sidecar)
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    saved_count = 0
     for sample in samples:
-        # Save code file
-        file_path = output_dir / sample.file_path
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(sample.content)
+        task_id = sample['task_id']
+        seed = sample['generation_seed']
+        # Create a unique sample ID
+        sample_id = f"{task_id}_s{seed}"
         
-        # Save metadata sidecar
-        sidecar_path = output_dir / f"{sample.sample_id}.json"
-        metadata = sample.to_dict()
-        with open(sidecar_path, 'w', encoding='utf-8') as f:
-            json.dump(metadata, f, indent=2)
+        # Determine file extension based on language
+        ext = 'py' if sample['language'] == 'python' else 'java' if sample['language'] == 'java' else 'txt'
         
-        logger.info(f"Saved sample: {sample.sample_id} -> {file_path}")
+        code_file = output_path / f"{sample_id}.{ext}"
+        meta_file = output_path / f"{sample_id}.json"
+
+        try:
+            # Write code
+            with open(code_file, 'w', encoding='utf-8') as f:
+                f.write(sample['generated_code'])
+            
+            # Write metadata sidecar (exclude the raw code to keep JSON small, or include it if needed)
+            # We include all metadata except the code itself to avoid duplication, 
+            # but the task spec says "metadata JSON sidecars containing...". 
+            # We'll store the code in the .py file and metadata in .json.
+            meta_data = {k: v for k, v in sample.items() if k != 'generated_code'}
+            meta_data['code_file'] = code_file.name
+            
+            with open(meta_file, 'w', encoding='utf-8') as f:
+                json.dump(meta_data, f, indent=2)
+            
+            saved_count += 1
+        except Exception as e:
+            logger.error(f"Failed to save sample {sample_id}: {e}")
+
+    logger.info(f"Saved {saved_count} samples to {output_dir}")
 
 def main():
     """
     Main entry point for T013.
     """
-    logger.info("Starting LLM Sample Generation (T013)...")
+    # Load configuration
+    config = get_config()
+    seed = get_random_seed(config)
     
-    # Load tasks from human samples
-    tasks = load_human_tasks()
+    # Paths
+    tasks_file = config.get('paths', {}).get('intermediate_tasks', str(PROJECT_ROOT / 'data' / 'intermediate' / 'tasks.json'))
+    output_dir = config.get('paths', {}).get('llm_samples', str(PROJECT_ROOT / 'data' / 'raw' / 'llm_samples'))
     
+    # Model config (can be overridden by env vars or config)
+    model_id = os.getenv("LLM_MODEL_ID", "bigcode/starcoder2-15b")
+    api_endpoint = os.getenv("LLM_API_ENDPOINT", "https://api-inference.huggingface.co/models/")
+    samples_per_task = int(os.getenv("SAMPLES_PER_TASK", "3"))
+
+    logger.info(f"Starting LLM sample generation.")
+    logger.info(f"Model: {model_id}")
+    logger.info(f"Endpoint: {api_endpoint}")
+    logger.info(f"Tasks file: {tasks_file}")
+    logger.info(f"Output dir: {output_dir}")
+
+    # 1. Load tasks
+    try:
+        tasks = load_human_tasks(tasks_file)
+    except (FileNotFoundError, ValueError) as e:
+        logger.critical(f"Cannot proceed: {e}")
+        sys.exit(1)
+
     if not tasks:
-        logger.error("No tasks found. Ensure T012 (fetch_human_samples) has populated data/raw/human_samples with valid metadata.")
-        return 1
-    
-    # Generate samples
-    samples = generate_samples(tasks, config["samples_per_task"])
-    
+        logger.warning("No tasks found. Exiting.")
+        sys.exit(0)
+
+    # 2. Generate samples
+    samples = generate_samples(
+        tasks=tasks,
+        model_id=model_id,
+        api_endpoint=api_endpoint,
+        samples_per_task=samples_per_task,
+        seed=seed
+    )
+
     if not samples:
-        logger.error("No samples were generated.")
-        return 1
-    
-    # Save samples
-    save_samples(samples, config["llm_samples_dir"])
-    
-    logger.info(f"Successfully generated and saved {len(samples)} LLM samples.")
-    return 0
+        logger.error("No samples were generated successfully.")
+        sys.exit(1)
+
+    # 3. Save samples
+    save_samples(samples, output_dir)
+
+    logger.info("T013 generation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

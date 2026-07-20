@@ -1,0 +1,57 @@
+name: PMD Environment Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pmd-environment-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Cache PMD
+      uses: actions/cache@v3
+      with:
+        path: ~/.pmd
+        key: ${{ runner.os }}-pmd-${{ hashFiles('**/pmd-version.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pmd-
+
+    - name: Install PMD CLI
+      run: |
+        wget https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.0.0/pmd-bin-7.0.0.tar.gz
+        tar -xzf pmd-bin-7.0.0.tar.gz
+        sudo mv pmd-bin-7.0.0 /opt/pmd
+        sudo ln -s /opt/pmd/bin/pmd /usr/local/bin/pmd
+        rm pmd-bin-7.0.0.tar.gz
+        echo "PMD_HOME=/opt/pmd" >> $GITHUB_ENV
+        echo "/opt/pmd/bin" >> $GITHUB_PATH
+
+    - name: Verify Java Installation
+      run: |
+        java -version
+        echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+
+    - name: Run PMD Environment Check
+      run: |
+        python3 code/utils/pmd_env_check.py
+
+    - name: Upload Environment Check Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: pmd-env-check-results
+        path: |
+          data/intermediate/tool_validity_status.json
+          logs/*.log

@@ -90,6 +90,7 @@ def generate_manifest(human_dir: Path, llm_dir: Path, output_path: Path) -> bool
         return False
 
     # Define CSV columns based on task requirements
+    # Note: 'language' is added as per task description requirements
     fieldnames = [
         'sample_id',
         'source_type',
@@ -97,7 +98,8 @@ def generate_manifest(human_dir: Path, llm_dir: Path, output_path: Path) -> bool
         'issue_id',
         'task_id',
         'commit_sha',
-        'file_path'
+        'file_path',
+        'language'
     ]
 
     # Ensure output directory exists

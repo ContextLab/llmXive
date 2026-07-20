@@ -1,0 +1,20 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., ruff, black, or pre\u2011\
+    commit setup) are present in the provided artifacts, nor any documentation showing\
+    \ they have been integrated into the project. Without such files, the requirement\
+    \ to configure linting/formatting tools is not satisfied."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/human_samples`, `data/raw/llm_samples`,
+    `data/intermediate`, `data/processed`) is present; the artifact list is empty,
+    so the directory structure has not been verified as created.
+T019:
+  c: false
+  h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195
+  r: The required file `tests/contract/test_pmd_wrapper.py` does not exist in the
+    repository, so the contract test for the PMD CLI wrapper is missing. The task
+    cannot be considered completed until this test file is added with appropriate
+    test cases.
