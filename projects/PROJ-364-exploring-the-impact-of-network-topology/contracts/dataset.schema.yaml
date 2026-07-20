@@ -1,60 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for validated defect coordinate datasets and metadata.
+title: Defect Coordinate Dataset Schema
+description: |
+  Schema for defect coordinate data used in the network topology heat dissipation study.
+  Defines the structure for raw input datasets containing defect locations and material properties.
 type: object
 required:
-  - metadata
-  - data
+  - sample_id
+  - x
+  - y
+  - material_type
+  - thermal_conductivity
 properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample instance.
+    minLength: 1
+  x:
+    type: number
+    description: X-coordinate of the defect (in nanometers).
+    minimum: -10000
+    maximum: 10000
+  y:
+    type: number
+    description: Y-coordinate of the defect (in nanometers).
+    minimum: -10000
+    maximum: 10000
+  material_type:
+    type: string
+    description: |
+      Type of 2D material. Valid values include 'graphene', 'MoS2', 'hBN', etc.
+      Must match entries in src/data/materials.py.
+    enum:
+      - graphene
+      - MoS2
+      - hBN
+      - WSe2
+      - custom
+    minLength: 1
+  thermal_conductivity:
+    type: number
+    description: |
+      Thermal conductivity of the material in W/(m·K).
+      Must be a positive real number.
+    minimum: 0
   metadata:
     type: object
-    required:
-      - source
-      - material
-      - sample_id
-      - timestamp
-      - version
+    description: Optional metadata for the dataset entry.
     properties:
       source:
         type: string
-        description: Origin of the data (e.g., 'experimental', 'simulation', 'synthetic')
-      material:
-        type: string
-        description: Material name (e.g., 'graphene', 'MoS2')
-      sample_id:
-        type: string
-        description: Unique identifier for the sample
+        description: Source of the data (e.g., 'experimental', 'simulation', 'literature').
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of data creation
-      version:
-        type: string
-        description: Schema version used
+        description: ISO 8601 timestamp of data creation.
       notes:
         type: string
-        description: Optional notes about the dataset
-  data:
-    type: array
-    items:
-      type: object
-      required:
-        - x
-        - y
-      properties:
-        x:
-          type: number
-          description: X coordinate in nanometers
-        y:
-          type: number
-          description: Y coordinate in nanometers
-        thermal_conductivity:
-          type: number
-          description: Optional thermal conductivity value for the sample (W/m·K)
-        defect_type:
-          type: string
-          description: Optional defect type classification
-        metadata:
-          type: object
-          description: Optional additional per-point metadata
-additionalProperties: false
+        description: Free-form notes about the sample.
+additionalProperties: true
+examples:
+  - sample_id: "SAMPLE_001"
+    x: 12.5
+    y: 45.2
+    material_type: "graphene"
+    thermal_conductivity: 5300.0
+    metadata:
+      source: "simulation"
+      timestamp: "2023-10-27T10:00:00Z"

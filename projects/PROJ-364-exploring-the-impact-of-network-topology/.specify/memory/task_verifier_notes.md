@@ -2,15 +2,14 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — No project files (e.g., `pyproject.toml`, `requirements.txt`, or a virtual environment) were provided, and there is no evidence that a Python 3.11 project with the listed dependencies has been created. The implementer must supply the initialized project structure and a manifest showing those packages.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.flake8`, `ruff.toml`, or `black` settings) or documentation of their setup are present in the provided evidence. Without these artifacts, the task of configuring flake8/ruff and black cannot be verified as completed.
-- **T004** — No evidence of a `data/` directory (with `raw/` and `processed/` subfolders) or a `results/` directory is provided; the claim lacks any listed files, screenshots, or directory listings to confirm the required structure exists. The implementer must create and show the actual folder hierarchy.
-- **T006** — No logging configuration files, scripts, or directory structure (`logs/`) were supplied, nor any code showing distinct log levels for data ingestion warnings versus statistical results. Without such artifacts, the requirement cannot be verified as met.
-- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T008** — declared artifact(s) missing/empty/invalid: src/utils/checksum.py
-- **T009** — declared artifact(s) missing/empty/invalid: src/data/materials.py
-- **T012** — The test file `tests/contract/test_graph_schema.py` exists, but the required schema file `graph.schema.yaml` is missing, and the test imports a schema from `tests.contract.test_schemas` instead of loading `graph.schema.yaml`. Without the actual `graph.schema.yaml` the contract test cannot validate against the specified schema.
-- **T012a** — declared artifact(s) missing/empty/invalid: src/data_ingestion/verify_data.py
-- **T014** — The required file `src/data_ingestion/threshold.py` does not exist, and the dependent module `src/data/materials.py` is also missing, so the implementation cannot retrieve lattice constants or compute the threshold as specified. The only present artifact is `config.yaml`, which alone does not satisfy the task.
-- **T016** — declared artifact(s) missing/empty/invalid: src/graphs/serializer.py, schema.yaml
-- **T017** — declared artifact(s) missing/empty/invalid: src/data_ingestion/generate_synthetic.py
+- **T003a** — declared artifact(s) missing/empty/invalid: ruff.toml
+- **T004a** — No directory listing or file‑system snapshot was provided, so there is no evidence that the required folders (`data/raw`, `data/processed`, `results`, `state`, `contracts`, `logs`, `docs`, `src`, `src/data`, `src/graphs`, `src/metrics`, `src/analysis`, `src/utils`, `tests/unit`, `tests/integration`, `tests/contract`) actually exist. The implementer must supply a proof (e.g., a tree view or command output) showing the created directory structure.
+- **T004b** — No `.gitkeep` files were presented for any of the project directories, and there is no evidence that they have been added to ensure version‑control tracking. The required artifacts are missing.
+- **T006a** — No `logging.conf` file was presented, and no content showing the required format string `%(asctime)s - %(name)s - %(levelname)s - %(message)s` with the `logs/pipeline.log` handler is available to verify. The required artifact is missing.
+- **T006b** — declared artifact(s) missing/empty/invalid: src/utils/logger.py
+- **T007a** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T007b** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T007c** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008a** — declared artifact(s) missing/empty/invalid: src/utils/checksum.py
+- **T008b** — declared artifact(s) missing/empty/invalid: tests/unit/test_checksum.py
+- **T009a** — The required file `src/data/materials.py` does not exist, so no dictionary or runtime reading of `R_lattice` from `config.yaml` is present. The task is therefore not satisfied.

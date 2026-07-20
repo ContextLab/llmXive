@@ -44,3 +44,14 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1103/physrevb.93.045417
   verified_at: '2026-07-15T12:11:38.545366Z'
+- artifact_hash: 957dcf28a906068e01ab8a3cc71cb775daa5f91294a7ee1627ac261ec3c15d7c
+  artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Braiding properties of Majorana Kramers pairs
+  kind: doi
+  value: 10.1103/PhysRevB.93.045417
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1103/physrevb.93.045417
+  verified_at: '2026-07-20T17:42:08.131006Z'

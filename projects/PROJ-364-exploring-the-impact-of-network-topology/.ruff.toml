@@ -1,6 +1,31 @@
-# This file extends pyproject.toml settings for standalone ruff usage
-# or can be used as the primary config if pyproject.toml is not preferred.
-# Currently, settings are in pyproject.toml [tool.ruff] section.
-# This file exists for IDE compatibility if needed.
-target-version = "py311"
-line-length = 100
+select = ["E", "F", "W"]
+ignore = []
+
+# Same line length as black (configured in pyproject.toml)
+line-length = 88
+
+# Target Python 3.10+ (consistent with project requirements)
+target-version = "py310"
+
+[per-file-ignores]
+# Allow longer lines in test files for readability
+"tests/**/*.py" = ["E501"]
+# Allow longer lines in config/data files
+"data/**/*.py" = ["E501"]
+"config/**/*.py" = ["E501"]
+
+[flake8-quotes]
+# Use double quotes consistently
+docstring-quotes = "double"
+inline-quotes = "double"
+
+[flake8-unused-arguments]
+# Allow unused arguments in test methods (pytest fixtures)
+ignore-args = ["self", "cls", "request"]
+
+[isort]
+# Match black's import sorting
+known-first-party = ["src", "tests", "scripts"]
+known-third-party = ["numpy", "pandas", "networkx", "scipy", "scikit-learn", "matplotlib", "seaborn", "yaml", "jsonschema", "pytest"]
+force-single-line = false
+lines-after-imports = 2

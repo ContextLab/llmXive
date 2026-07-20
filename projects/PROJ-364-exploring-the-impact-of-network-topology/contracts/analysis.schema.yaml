@@ -1,130 +1,286 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Analysis Schema
-description: Schema for correlation analysis and statistical validation results.
+title: AnalysisResult
+description: >-
+  Schema for the output of the correlation analysis pipeline (User Story 3).
+  Contains statistical results including correlations, p-values, confidence intervals,
+  and sensitivity analysis metrics.
 type: object
 required:
-  - metadata
-  - correlation_results
-  - regression_results
+  - analysis_metadata
+  - correlations
+  - statistical_significance
   - sensitivity_analysis
 properties:
-  metadata:
+  analysis_metadata:
     type: object
+    description: Metadata about the analysis run.
     required:
-      - analysis_id
       - timestamp
-      - threshold_base
-      - is_synthetic
+      - pipeline_version
+      - data_source
+      - threshold_used
+      - sample_count
     properties:
-      analysis_id:
-        type: string
-        description: Unique identifier for this analysis run
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp
-      threshold_base:
-        type: number
-        description: Base threshold used (nm)
-      is_synthetic:
-        type: boolean
-        description: True if analysis was run on synthetic data
+        description: ISO 8601 timestamp of when the analysis was run.
+      pipeline_version:
+        type: string
+        description: Version of the analysis pipeline used.
       data_source:
         type: string
-        description: Source of the data (e.g., 'paired', 'unpaired', 'synthetic')
-  correlation_results:
+        description: Identifier for the dataset used (e.g., path or dataset name).
+      threshold_used:
+        type: number
+        description: The distance threshold used for graph construction.
+      sample_count:
+        type: integer
+        minimum: 0
+        description: Number of samples included in the analysis.
+      is_synthetic:
+        type: boolean
+        default: false
+        description: Flag indicating if synthetic data was used (triggers safety guards).
+      data_status:
+        type: object
+        description: Snapshot of the data status check (from T012a).
+        required:
+          - has_real_data
+          - is_unpaired
+          - fallback_mode
+        properties:
+          has_real_data:
+            type: boolean
+          is_unpaired:
+            type: boolean
+          fallback_mode:
+            type: string
+            enum: [synthetic, none]
+
+  correlations:
     type: object
-    description: Results from Pearson/Spearman correlation tests
+    description: Results of correlation tests between topological metrics and thermal conductivity.
+    required:
+      - pearson
+      - spearman
     properties:
       pearson:
         type: object
+        description: Pearson correlation results.
+        required:
+          - coefficient
+          - p_value
+          - confidence_interval
         properties:
           coefficient:
             type: number
+            description: Pearson correlation coefficient (r).
           p_value:
             type: number
+            minimum: 0
+            maximum: 1
+            description: Two-tailed p-value for the Pearson test.
           confidence_interval:
             type: array
             items:
               type: number
             minItems: 2
             maxItems: 2
+            description: 95% confidence interval [lower, upper].
+          method:
+            type: string
+            const: pearson
+            description: Name of the correlation method.
+
       spearman:
         type: object
+        description: Spearman rank correlation results.
+        required:
+          - coefficient
+          - p_value
+          - confidence_interval
         properties:
           coefficient:
             type: number
+            description: Spearman correlation coefficient (rho).
           p_value:
             type: number
+            minimum: 0
+            maximum: 1
+            description: Two-tailed p-value for the Spearman test.
           confidence_interval:
             type: array
             items:
               type: number
             minItems: 2
             maxItems: 2
-      corrected_p_values:
-        type: object
-        description: P-values after Bonferroni or FDR correction
-        additionalProperties:
-          type: number
-  regression_results:
-    type: array
-    description: Unified results from linear, polynomial, and GP regression
-    items:
-      type: object
-      required:
-        - metric_name
-        - model_type
-        - score
-        - params
-      properties:
-        metric_name:
-          type: string
-          description: Name of the topological metric used
-        model_type:
-          type: string
-          enum:
-            - linear
-            - polynomial
-            - gaussian_process
-        score:
+            description: 95% confidence interval [lower, upper].
+          method:
+            type: string
+            const: spearman
+            description: Name of the correlation method.
+
+      partial_correlations:
+        type: array
+        description: Results of partial correlation analysis controlling for confounders (T029).
+        items:
           type: object
+          required:
+            - metric_name
+            - controlled_variables
+            - coefficient
+            - p_value
           properties:
-            r_squared:
+            metric_name:
+              type: string
+              description: Name of the topological metric being correlated.
+            controlled_variables:
+              type: array
+              items:
+                type: string
+              description: List of confounders controlled for (e.g., defect_density, purity).
+            coefficient:
               type: number
-            rmse:
+            p_value:
               type: number
-        params:
-          type: object
-          description: Model parameters (coefficients, kernel hyperparameters, etc.)
+
+  statistical_significance:
+    type: object
+    description: Corrected significance metrics and multiple comparison adjustments.
+    required:
+      - bonferroni_corrected
+      - fdr_corrected
+      - bootstrap_summary
+    properties:
+      bonferroni_corrected:
+        type: object
+        description: P-values corrected using Bonferroni method.
+        properties:
+          pearson_p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          spearman_p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          alpha_threshold:
+            type: number
+            default: 0.05
+      fdr_corrected:
+        type: object
+        description: P-values corrected using Benjamini-Hochberg FDR method.
+        properties:
+          pearson_p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          spearman_p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          q_threshold:
+            type: number
+            default: 0.05
+      bootstrap_summary:
+        type: object
+        description: Summary of bootstrap resampling results (T032).
+        required:
+          - n_iterations
+          - mean_coefficient
+          - std_deviation
+        properties:
+          n_iterations:
+            type: integer
+            minimum: 1
+          mean_coefficient:
+            type: number
+          std_deviation:
+            type: number
+          confidence_level:
+            type: number
+            default: 0.95
+
   sensitivity_analysis:
     type: object
-    description: Results from sensitivity analysis across different thresholds
+    description: Results from sensitivity analysis across different thresholds (T034).
     required:
-      - std_dev_correlation
       - thresholds_tested
+      - correlation_variance
+      - std_dev
+      - build_status
     properties:
-      std_dev_correlation:
-        type: number
-        description: Standard deviation of correlation coefficient across thresholds
       thresholds_tested:
         type: array
         items:
           type: number
-        description: List of threshold multipliers tested (e.g., [1.5, 2.0, 2.5])
-      passed_sensitivity_check:
-        type: boolean
-        description: True if std_dev <= 0.05 (SC-005 target)
+        description: List of distance thresholds tested (baseline, 2.0x, 2.5x).
+      correlation_variance:
+        type: object
+        description: Variance of correlation coefficients across thresholds.
+        properties:
+          pearson_variance:
+            type: number
+          spearman_variance:
+            type: number
+      std_dev:
+        type: number
+        description: Standard deviation of the correlation coefficient across thresholds.
+        minimum: 0
+      build_status:
+        type: string
+        enum: [pass, fail]
+        description: 'Fail if std_dev > 0.05 (SC-005).'
+      failure_reason:
+        type: string
+        nullable: true
+        description: Reason for build failure if build_status is 'fail'.
+
+  regression_models:
+    type: array
+    description: Results from regression analysis (linear, polynomial, GP) (T031, T031b).
+    items:
+      type: object
+      required:
+        - model_type
+        - r_squared
+        - parameters
+      properties:
+        model_type:
+          type: string
+          enum: [linear, polynomial, gaussian_process]
+        r_squared:
+          type: number
+        parameters:
+          type: object
+          description: Model-specific parameters (e.g., coefficients, kernel hyperparameters).
+
   population_analysis:
     type: object
-    description: Results for unpaired data population-level correlation (optional)
+    nullable: true
+    description: Results for unpaired data population-level analysis (T031d). Null if data is paired.
+    required:
+      - mean_topology
+      - mean_thermal
+      - correlation
     properties:
-      mean_topology_metric:
-        type: number
-      mean_thermal_conductivity:
-        type: number
-      correlation_coefficient:
-        type: number
-      p_value:
-        type: number
+      mean_topology:
+        type: object
+        description: Mean topological metrics per source dataset.
+      mean_thermal:
+        type: object
+        description: Mean thermal conductivity per source dataset.
+      correlation:
+        type: object
+        description: Correlation between the aggregated means.
+        required:
+          - coefficient
+          - p_value
+        properties:
+          coefficient:
+            type: number
+          p_value:
+            type: number
+
 additionalProperties: false

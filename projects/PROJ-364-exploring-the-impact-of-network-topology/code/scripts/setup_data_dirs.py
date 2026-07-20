@@ -1,49 +1,66 @@
+"""
+Script to create the required directory structure for the llmXive project.
+This ensures all necessary folders exist for data, results, state, contracts, logs, docs, and source code.
+"""
 import os
 from pathlib import Path
 
-def create_directory_structure(project_root: str) -> None:
+
+def create_directory_structure():
     """
-    Creates the required directory structure for the project's data and results.
-    
-    This function implements T004: Setup `data/` (raw, processed) and `results/` directory structure.
-    It also ensures the `state/` and `logs/` directories exist as per the project plan.
-    
-    Args:
-        project_root: The absolute or relative path to the project root directory.
+    Creates the full directory structure required by the project.
+    This includes data directories, results, state, contracts, logs, docs,
+    and the source code structure with submodules.
     """
-    root = Path(project_root)
-    
-    # Define the directory structure relative to the project root
-    # Based on T001 and T004 requirements
+    # Define all required directories relative to the project root
+    # Assuming this script is run from the project root or code/scripts/
+    # We will resolve paths relative to the script's parent directory (code/)
+    base_dir = Path(__file__).resolve().parent.parent
+
     directories = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "results",
-        root / "state",
-        root / "logs",
-        root / "docs",
-        root / "contracts",
+        # Data directories
+        "data/raw",
+        "data/processed",
+        
+        # Output and state directories
+        "results",
+        "state",
+        
+        # Contract definitions
+        "contracts",
+        
+        # Logging and documentation
+        "logs",
+        "docs",
+        
+        # Source code structure
+        "src",
+        "src/data",
+        "src/graphs",
+        "src/metrics",
+        "src/analysis",
+        "src/utils",
+        "src/data_ingestion",
+        
+        # Test directories
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
-    
+
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path.relative_to(base_dir)}")
             created_count += 1
         else:
-            # Ensure subdirectories exist even if parent exists
-            if not (directory / ".gitkeep").exists():
-                # Create a .gitkeep file to ensure the directory is tracked in git
-                # This is a common practice for empty directories in git
-                (directory / ".gitkeep").touch()
-            print(f"Directory already exists: {directory}")
-    
-    print(f"Directory setup complete. Created {created_count} new directories.")
+            print(f"Directory already exists: {full_path.relative_to(base_dir)}")
+
+    print(f"\nDirectory structure creation complete. Created {created_count} new directories.")
+    return True
+
 
 if __name__ == "__main__":
-    # Default to current directory if no argument provided
-    import sys
-    target_root = sys.argv[1] if len(sys.argv) > 1 else "."
-    create_directory_structure(target_root)
-    print(f"Data directory structure initialized at: {Path(target_root).resolve()}")
+    create_directory_structure()

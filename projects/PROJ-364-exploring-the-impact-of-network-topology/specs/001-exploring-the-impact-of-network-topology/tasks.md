@@ -53,13 +53,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002a [P] Create `requirements.txt` with pinned versions: `networkx>=3.2`, `pandas>=2.2`, `numpy>=1.26`, `scipy>=1.12`, `scikit-learn>=1.4`, `matplotlib>=3.8`, `seaborn>=0.13`, `pyyaml>=6.0`, `jsonschema>=4.22`.
-- [ ] T002b [P] Install dependencies: Run `pip install -r requirements.txt` in the project root.
+- [X] T002a [P] Create `requirements.txt` with pinned versions: `networkx>=3.2`, `pandas>=2.2`, `numpy>=1.26`, `scipy>=1.12`, `scikit-learn>=1.4`, `matplotlib>=3.8`, `seaborn>=0.13`, `pyyaml>=6.0`, `jsonschema>=4.22`.
+- [X] T002b [P] Install dependencies: Run `pip install -r requirements.txt` in the project root.
 - [ ] T003a [P] Create `.ruff.toml` configuration file with linting rules (e.g., `select = ["E", "F", "W"]`).
-- [ ] T003b [P] Create `pyproject.toml` configuration for formatting (e.g., `[tool.black] line-length = 88`).
+- [X] T003b [P] Create `pyproject.toml` configuration for formatting (e.g., `[tool.black] line-length = 88`).
 - [ ] T004a [P] Create directory structure: `mkdir -p data/raw data/processed results state contracts logs docs src src/data src/graphs src/metrics src/analysis src/utils tests/unit tests/integration tests/contract`.
 - [ ] T004b [P] Add `.gitkeep` files to all created directories to ensure version control tracking.
-- [ ] T005 [P] [Foundational] Configure `config.yaml` with defaults: `threshold: a predefined value`, `seed: 42`, `statistical_override: false`, `R_lattice:` (placeholder for Plan Section 3).
+- [X] T005 [P] [Foundational] Configure `config.yaml` with defaults: `threshold:`, `seed: 42`, `statistical_override: false`. **CRITICAL SUB-TASK**: Fetch the `R_lattice` value from the literature source cited in Plan Section 3 (DOI: 10.1103/PhysRevB.93.045417) and write the **verified numeric value** to `config.yaml` under key `R_lattice`. Do NOT use a placeholder. Also set `lattice_variance_threshold` to `0.05` in `config.yaml` for T025b.
 - [ ] T006a [P] Create `logging.conf` with format string `%(asctime)s - %(name)s - %(levelname)s - %(message)s` and file path `logs/pipeline.log`.
 - [ ] T006b [P] Implement `src/utils/logger.py` to load `logging.conf` and provide a `get_logger()` function.
 - [ ] T007a [P] Create `contracts/dataset.schema.yaml` defining the schema for defect coordinate data (columns: `sample_id`, `x`, `y`, `material_type`, `thermal_conductivity`).
@@ -67,12 +67,11 @@
 - [ ] T007c [P] Create `contracts/analysis.schema.yaml` defining the schema for `AnalysisResult` objects (correlations, p-values, CIs).
 - [ ] T008a [P] Implement `src/utils/checksum.py` with function `calculate_sha256(file_path: str) -> str`.
 - [ ] T008b [P] Implement `tests/unit/test_checksum.py` to verify `calculate_sha256` returns correct hash for a test file.
-- [ ] T009a [P] Implement `src/data/materials.py` with dictionary `MATERIAL_CONSTANTS = {'graphene': {'lattice': 0.246}, 'MoS2': {'lattice': 0.316}}` and `R_lattice` values from Plan Section 3.
+- [ ] T009a [P] Implement `src/data/materials.py` with dictionary `MATERIAL_CONSTANTS = {'graphene': {'lattice': 0.246}, 'MoS2': {'lattice': 'representative lattice constant'}}`. **CRITICAL**: This file MUST read the `R_lattice` value from `config.yaml` (set by T005) at runtime. Do NOT hardcode `R_lattice` here.
 - [ ] T009b [P] Implement `tests/unit/test_materials.py` to verify `MATERIAL_CONSTANTS` values.
 - [ ] T012a [P] [Foundational] Implement `src/data_ingestion/verify_data.py` to check for the existence of paired real datasets.
- - If no real data exists, generate `state/data_status.json` with `has_real_data: false`, `fallback_mode: synthetic`.
- - If unpaired real data exists, set `is_unpaired: true`.
- - **AUTOMATED FALLBACK**: If `has_real_data` is false, the script MUST automatically proceed to trigger the synthetic data generation path (T017) without human intervention.
+ - **PURE STATUS CHECKER**: This script MUST NOT trigger synthetic data generation. It MUST ONLY check for real data and write `state/data_status.json` with `has_real_data: true/false`, `is_unpaired: true/false`, `fallback_mode: synthetic/none`.
+ - If `has_real_data` is false, the script MUST exit cleanly. The pipeline orchestration (external to this task) must decide whether to proceed to T017.
  - **Deliverable**: `state/data_status.json` with keys `has_real_data`, `is_unpaired`, `fallback_mode`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -97,10 +96,10 @@
  - Log message format: `"[US1] Dropped row {row_id}: missing coordinate"`
  - Exception class: `DataIngestionError` if ALL rows are dropped
  - Artifact: `data/processed/dropped_rows.csv` for auditability (Constitution III)
-- [ ] T014 [US1] Implement `src/data_ingestion/threshold.py` to calculate threshold: MUST retrieve material-specific lattice constants from `src/data/materials.py` (T009) AND the statistical_override flag from config.yaml (T005). Apply statistical multiplier if `statistical_override` is active; otherwise use fixed nanometer-scale (FR-009, US1-Scenario 3). **DEPENDS**: Phase 2 (T005, T009) MUST be complete.
+- [ ] T014 [US1] Implement `src/data_ingestion/threshold.py` to calculate threshold: MUST retrieve material-specific lattice constants from `src/data/materials.py` (T009) AND the statistical_override flag from config.yaml (T005). Apply statistical multiplier if `statistical_override` is active; otherwise use fixed nanoscale (FR-009, US1-Scenario 3). **DEPENDS**: Phase 2 (T005, T009) MUST be complete. **BLOCKING**: This task cannot start until T005 and T009 are marked complete.
 - [X] T015 [US1] Implement `src/graphs/constructor.py` using `scipy.spatial.cKDTree` for O(N log N) edge creation within threshold (US1-Scenario 1)
 - [ ] T016 [US1] Implement `src/graphs/serializer.py` to convert NetworkX graphs to JSON-compatible dicts conforming to `graph.schema.yaml`
-- [ ] T017 [P] [US1] Implement `src/data_ingestion/generate_synthetic.py` for validation-only mode (seeded, versioned, checksummed); explicitly NOT for scientific hypothesis testing (Plan Section 5)
+- [ ] T017 [P] [US1] Implement `src/data_ingestion/generate_synthetic.py` for validation-only mode (seeded, versioned, checksummed). **CRITICAL SAFETY GUARD**: This script is for PIPELINE VALIDATION ONLY. It MUST NOT be used for hypothesis testing. If invoked, the pipeline MUST skip all statistical analysis steps (Phase 5) and log a warning that no scientific conclusions are drawn. **DEPENDS**: T012a (to check status).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,19 +122,21 @@
 - [ ] T021 [P] [US2] Implement `src/metrics/clustering.py` for global clustering coefficient and density-normalized variant (Plan Section 3)
 - [ ] T022b [US2] [FR-002] Implement `src/metrics/edge_cases.py` to handle the "zero defects" (perfect crystal) scenario:
  - Detect when `node_count == 0`
- - Assign `null` to clustering, `infinity` to average_path_length
+ - Assign `null` (JSON null) to clustering, `null` to average_path_length (UNIFIED REPRESENTATION)
  - Set `zero_defect_flag: true` in metadata
- - Log specific warning: `"[US2] Zero defects detected for sample {sample_id}. Assigning null/infinity metrics."` (Spec Edge Cases)
+ - Log specific warning: `"[US2] Zero defects detected for sample {sample_id}. Assigning null metrics."` (Spec Edge Cases)
+ - **Output**: `average_path_length` MUST be `null` (not 'infinity' or NaN) to match T022.
 - [ ] T022 [US2] Implement `src/metrics/paths_and_lcc.py` to calculate:
- 1. Average Path Length ONLY on the Largest Connected Component (LCC); handle disconnected graphs by flagging `is_connected=false` and setting path length to NaN (FR-006, US2-Scenario 2).
+ 1. Average Path Length ONLY on the Largest Connected Component (LCC); handle disconnected graphs by flagging `is_connected=false` and setting path length to `null` (UNIFIED REPRESENTATION with T022b).
  2. LCC Fraction (nodes in LCC / total nodes) (FR-002, US2-Scenario 1).
  (Consolidated from T022a to resolve arbitrary split confusion). **Deliverables**: `TopologyGraph` dict entries for `average_path_length`, `is_connected`, and `lcc_fraction`. **DEPENDS**: T022b.
 - [ ] T023 [US2] Implement `src/metrics/percolation.py` to estimate critical distance `d_c` via binary search where LCC fraction exceeds threshold; MUST serialize `d_c` to the TopologyGraph JSON dict (Constitution VI)
 - [ ] T025b [US2] [FR-002] Implement `src/metrics/lattice_correction.py` to apply the "Background lattice correction" (series-parallel resistance formula) to metrics before correlation. **Deliverables**:
  - Implement formula: `1/R_total = 1/R_defect + 1/R_lattice`
- - **Read `R_lattice` from `config.yaml`** as defined in Plan Section 3.
- - **Stability Verification**: Calculate variance of corrected metrics across samples; log warning if variance > threshold (Plan Constitution Check). This addresses the gap between the plan's methodology and the spec's sensitivity requirements.
-- [ ] T025 [US2] Implement `src/metrics/aggregator.py` to combine all metrics (clustering, path, LCC fraction, percolation, degree) into a single `TopologyGraph` dict. MUST depend on T022b (zero defects), T022 (LCC metrics), T023 (percolation), and T025b (lattice correction). Load `R_lattice` from `src/data/materials.py` (T009) and apply the series-parallel resistance correction to the raw metrics before they are passed to the correlation phase (Plan Section 3) **DEPENDS**: T025b.
+ - **Read `R_lattice` from `config.yaml`** as defined in T005.
+ - **Stability Verification**: Read `lattice_variance_threshold` from `config.yaml` (default 0.05). Calculate variance of corrected metrics across samples; if variance > threshold, log a warning. **DO NOT HARDCODE THRESHOLD**. This addresses the gap between the plan's methodology and the spec's sensitivity requirements.
+ - **Dependencies**: T005 (config.yaml).
+- [ ] T025 [US2] Implement `src/metrics/aggregator.py` to combine all metrics (clustering, path, LCC fraction, percolation, degree) into a single `TopologyGraph` dict. MUST depend on T022b (zero defects), T022 (LCC metrics), T023 (percolation), and T025b (lattice correction). Load `R_lattice` from `config.yaml` (via T005) and apply the series-parallel resistance correction to the raw metrics before they are passed to the correlation phase (Plan Section 3) **DEPENDS**: T025b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -160,20 +161,21 @@
 - [ ] T031 [US3] Implement `src/analysis/correlation.py` for Pearson/Spearman tests on retained PCs; include linear and polynomial regression (FR-003, US3-Scenario 1)
 - [ ] T031b [US3] Implement `src/analysis/gp_regressor.py` for Gaussian Process regression (kernel selection, hyperparameter optimization) as explicitly required by FR-003
 - [ ] T031d [US3] [FR-008] Implement `src/analysis/population_correlation.py` to handle FR-008:
- - **Check `state/data_status.json`**: If `fallback_mode: synthetic`, SKIP hypothesis testing and log warning.
- - If `is_unpaired: true`, aggregate mean topology metrics and mean thermal conductivity per source dataset.
+ - **CRITICAL CHECK**: Read `state/data_status.json`. If `has_real_data` is false, SKIP hypothesis testing immediately and log a warning.
+ - If `is_unpaired` is true (and `has_real_data` is true), aggregate mean topology metrics and mean thermal conductivity per source dataset.
  - Perform population-level correlation analysis.
  - Output results to `results/population_correlation.json`.
  - **Dependencies**: T012a (data status).
 - [ ] T032 [US3] Implement `src/analysis/bootstrap.py` for resampling to generate confidence intervals (FR-004, US3-Scenario 2)
 - [ ] T033 [US3] Implement `src/analysis/correction.py` for Bonferroni or Benjamini-Hochberg FDR on p-values (FR-005, US3-Scenario 4)
-- [ ] T034 [US3] Implement `src/analysis/sensitivity.py` to repeat the full pipeline (T029-T033) for thresholds 1.5x, 2.0x, 2.5x the baseline.
- - Calculate standard deviation of the correlation coefficient across thresholds
- - **DO NOT FAIL**: Log a warning if `std_dev > 0.05` but continue execution to generate the report.
- - Output `std_dev` field in `AnalysisResult` JSON (FR-010, SC-005)
+- [ ] T034 [US3] Implement `src/analysis/sensitivity.py` to repeat the full pipeline (T029-T033) for thresholds **x (baseline), 2.0x, and 2.5x** the baseline (per FR-010/SC-005).
+ - Calculate standard deviation of the correlation coefficient across these thresholds.
+ - **FAIL CONDITION**: If `std_dev > 0.05`, the task MUST fail the build (exit code 1) and log an error. This is a mandatory success criterion (SC-005).
+ - Output `std_dev` field in `AnalysisResult` JSON (FR-010, SC-005).
  - **Dependencies**: T031, T031b, T031d.
 - [ ] T035 [US3] Implement `src/analysis/visualizer.py` to generate scatter plots with regression lines and save to `results/` (US3-Scenario 5)
 - [ ] T036 [US3] Implement `src/analysis/reporter.py` to aggregate results into `AnalysisResult` JSON objects.
+ - **CRITICAL SAFETY GUARD**: At the start of execution, read `state/data_status.json`. If `has_real_data` is false, HALT execution immediately and log: "Synthetic data detected. Hypothesis testing skipped." Do NOT generate statistical reports.
  - **Synthetic Detection**: Check `config.yaml` flag `is_synthetic` or file hash; if true, skip hypothesis testing
  - **Artifact**: Generate `results/synthetic_warning.log` with specific message if synthetic data is detected (Plan Section 4, Section 5)
  - **Unpaired Data**: Route to T031d output if `state/data_status.json` indicates unpaired data (FR-008).
@@ -288,8 +290,9 @@ With multiple developers:
 - **Compute**: Ensure streaming is used for large datasets to stay within 7GB RAM limit.
 - **Threshold**: Default to 2.0nm (phonon MFP based) unless statistical override is active.
 - **LCC Fraction**: Calculated in T022 (merged), not T022a.
-- **Zero Defects**: Handled in T022b with specific null/infinity values.
+- **Zero Defects**: Handled in T022b with unified `null` representation.
 - **GP Regression**: Implemented in T031b, unified in T036.
-- **Sensitivity**: Outputs `std_dev` field and logs warning if target exceeded in T034.
+- **Sensitivity**: Tests x, 2.0x, 2.5x. Outputs `std_dev` field. FAILS build if std_dev > 0.05 (SC-005).
 - **Data Source Gap**: No verified real dataset exists pairing defect coordinates with thermal conductivity. T017 and T036 must handle synthetic fallback gracefully; T013 must fail loudly if a real source is specified but unreachable, never substituting fake data. T031d handles population-level analysis for unpaired real data. T012a verifies data availability to resolve plan/spec contradictions.
-- **Lattice Correction**: Implemented and verified in T025b.
+- **Lattice Correction**: Implemented and verified in T025b. `R_lattice` is fetched from literature in T005 and read from config.yaml.
+- **Ordering**: T022b before T022; T025b before T025; T031d before T034; T034 before T036.

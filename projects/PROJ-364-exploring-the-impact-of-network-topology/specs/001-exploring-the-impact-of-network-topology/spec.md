@@ -51,7 +51,7 @@ As a researcher, I need the system to perform correlation analysis (linear and n
 
 1. **Given** a dataset of samples with calculated topology metrics and corresponding thermal conductivity values, **When** the analysis script runs, **Then** it outputs a correlation matrix with Pearson and Spearman coefficients and associated p-values for each metric-conductivity pair.
 2. **Given** the same dataset, **When** the bootstrap resampling module runs (n=1000 iterations), **Then** it outputs a % confidence interval for the correlation coefficients and flags any results where the interval crosses zero.
-3. **Given** multiple hypothesis tests (e.g., testing 5 different metrics), **When** the analysis completes, **Then** it applies a Bonferroni correction to the p-values and reports the adjusted significance levels.
+3. **Given** multiple hypothesis tests (e.g., testing multiple different metrics), **When** the analysis completes, **Then** it applies a Bonferroni correction to the p-values and reports the adjusted significance levels.
 4. **Given** a dataset where exact sample pairing is unavailable (only aggregate statistics exist), **When** the analysis runs, **Then** it performs a population-level correlation analysis between the mean topology metrics and the mean thermal conductivity of the source dataset.
 5. **Given** the analysis results, **When** the visualization module runs, **Then** it generates scatter plots of topology metrics vs. thermal conductivity with regression lines overlaid.
 
@@ -75,7 +75,7 @@ As a researcher, I need the system to perform correlation analysis (linear and n
 - **FR-006**: System MUST handle disconnected graphs by calculating path metrics only on the largest connected component and flagging the graph as "disconnected" in the metadata (See US-2).
 - **FR-007**: System MUST output all results in a structured JSON format containing metrics, correlations, p-values, confidence intervals, and generate scatter plots of topology metrics vs. thermal conductivity with regression lines (See US-3).
 - **FR-008**: System MUST support population-level correlation analysis when exact sample pairing is unavailable (See US-3).
-- **FR-009**: System MUST allow the proximity threshold to be configured as a fixed physical distance (default 2.0 nm) or as a statistical multiplier of the average nearest-neighbor distance (See US-1).
+- **FR-009**: System MUST allow the proximity threshold to be configured as a fixed physical distance (default nm) or as a statistical multiplier of the average nearest-neighbor distance (See US-1).
 - **FR-010**: System MUST perform a sensitivity analysis on the proximity threshold by testing values at sub-nanometer scales and reporting the stability of the correlation coefficient (See US-3).
 
 ### Key Entities

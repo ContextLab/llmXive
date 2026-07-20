@@ -1,3 +1,30 @@
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or file\u2011system snapshot was provided, so there is\
+    \ no evidence that the required folders (`data/raw`, `data/processed`, `results`,\
+    \ `state`, `contracts`, `logs`, `docs`, `src`, `src/data`, `src/graphs`, `src/metrics`,\
+    \ `src/analysis`, `src/utils`, `tests/unit`, `tests/integration`, `tests/contract`)\
+    \ actually exist. The implementer must supply a proof (e.g., a tree view or command\
+    \ output) showing the created directory structure."
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitkeep` files were presented for any of the project directories, and there\
+    \ is no evidence that they have been added to ensure version\u2011control tracking.\
+    \ The required artifacts are missing."
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `logging.conf` file was presented, and no content showing the required format
+    string `%(asctime)s - %(name)s - %(levelname)s - %(message)s` with the `logs/pipeline.log`
+    handler is available to verify. The required artifact is missing.
+T009a:
+  c: false
+  h: 535b1256a90b667478bd0e6c248b773c660715812c2538800843bd567da53d85
+  r: The required file `src/data/materials.py` does not exist, so no dictionary or
+    runtime reading of `R_lattice` from `config.yaml` is present. The task is therefore
+    not satisfied.
 T013:
   c: false
   h: 1e9d80d8351dbb7a4e986096f3f9dd4ca93a6d6f42935c1b5b7618950ef2532f
