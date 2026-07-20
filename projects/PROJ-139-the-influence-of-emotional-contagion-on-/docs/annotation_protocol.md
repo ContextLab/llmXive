@@ -1,79 +1,41 @@
 # Annotation Protocol for Sentiment Validation
 
-## Overview
+## Purpose
+This document defines the protocol for human annotation of comment sentiment to validate the VADER sentiment analysis tool against human judgment. This validation is a critical component of the Constitution Principle VII, ensuring that automated sentiment scores align with human interpretation.
 
-This document defines the protocol for annotating comments to validate the VADER sentiment analysis tool against human judgments. This validation is critical for ensuring the reliability of sentiment measurements in the emotional contagion study.
+## Annotation Scale
+Annotators will use a **5-point Likert scale** to rate the sentiment of each comment:
 
-## Annotation Requirements
+| Score | Label | Description |
+|:--- |:--- |:--- |
+| -2 | Very Negative | Strongly negative sentiment, hostility, or severe criticism. |
+| -1 | Negative | Negative sentiment, criticism, or disagreement. |
+| 0 | Neutral | No clear sentiment, factual statement, or mixed feelings that cancel out. |
+| +1 | Positive | Positive sentiment, agreement, or praise. |
+| +2 | Very Positive | Strongly positive sentiment, enthusiasm, or strong agreement. |
 
-### Annotator Count
+## Instructions for Annotators
+1. **Context**: Read the full thread context if necessary to understand the nuance, but focus primarily on the specific comment being rated.
+2. **Tone**: Pay attention to sarcasm, irony, and emotional intensity. VADER is designed to handle these, but human judgment is the ground truth.
+3. **Neutrality**: If a comment is purely informational without emotional coloring, mark it as Neutral (0).
+4. **Mixed Sentiment**: If a comment contains both positive and negative elements, judge the *overall* dominant sentiment. If perfectly balanced, mark as Neutral (0).
+5. **Confidence**: Annotators should mark comments they are unsure about for a secondary review, but still provide their best estimate.
 
-- **Minimum**: 2 independent annotators must label each sampled comment.
-- **Ideal**: 3 annotators per comment to enable more robust reliability metrics (e.g., Fleiss' Kappa).
-
-### Annotation Labels
-
-Annotators must assign one of the following labels to each comment:
-
-- **positive**: The comment expresses positive sentiment, approval, or agreement.
-- **negative**: The comment expresses negative sentiment, disapproval, or disagreement.
-- **neutral**: The comment is factual, objective, or sentiment is ambiguous/unclear.
-
-### Annotation Guidelines
-
-1. **Read the full comment** in context if possible.
-2. **Ignore sarcasm** unless it is explicitly clear (sarcasm is challenging and should be noted).
-3. **Focus on the dominant sentiment** if multiple sentiments are present.
-4. **When in doubt**, choose 'neutral' rather than forcing a positive/negative classification.
-5. **Do not consider** the correctness of the argument, only the sentiment expressed.
-
-### Sample Selection
-
-- Comments are sampled from the validated dataset (`data/processed/valid_threads.csv`).
-- A minimum of 100 comments should be annotated for statistical power.
-- Sampling should be stratified by subreddit to ensure representation.
-
-## Annotation Process
-
-1. **Preparation**:
- - Select a representative subset of comments (see `code/data/sampling.py`).
- - Prepare the annotation file (`data/raw/annotations.json`).
-
-2. **Annotation**:
- - Each annotator independently labels the comments.
- - Annotators should not communicate during the annotation process.
- - Time spent per comment should be recorded if possible.
-
-3. **Aggregation**:
- - Combine annotations from all annotators.
- - Calculate inter-rater reliability (Cohen's Kappa for 2 annotators, Fleiss' Kappa for more).
-
-4. **Validation**:
- - Compare human annotations with VADER predictions.
- - Calculate agreement metrics and confidence intervals.
+## Sampling Strategy
+- **Source**: Comments are sampled from the dataset downloaded in T008 (`data/raw/reddit_threads.jsonl`).
+- **Method**: Stratified random sampling to ensure representation across different subreddits and initial sentiment ranges (as estimated by a preliminary VADER run).
+- **Size**: Target N = 200 comments for initial validation.
+- **Constraint**: If human annotation data is unavailable, the system will fall back to a pre-validated corpus from HuggingFace (e.g., `nltk_data/sentiment/sentiment_corpus.json`) as defined in the implementation script.
 
 ## Data Storage
+- Raw annotations will be stored in `data/raw/annotations.json`.
+- The file will be checksummed (SHA-256) upon creation to ensure integrity.
+- Format: JSON list of objects containing `comment_id`, `text`, `annotator_id`, `score`, and `timestamp`.
 
-- **Raw annotations**: Stored in `data/raw/annotations.json`.
-- **Validation report**: Generated in `data/processed/vader_validation_report.json`.
-- **Justification**: Generated in `data/processed/validation_justification.json`.
+## Reliability Check
+- If multiple annotators rate the same comment, Inter-Rater Reliability (Cohen's Kappa) will be computed.
+- A Kappa score < 0.6 will trigger a warning but will not halt the pipeline (per task T007b requirements).
 
-## Quality Control
-
-- **Inter-rater reliability**: Kappa must be ≥ 0.6 for acceptable agreement.
-- **If Kappa < 0.6**:
- - Log a warning but do not halt the pipeline.
- - Review annotation guidelines for clarity.
- - Consider additional training for annotators.
-- **Confidence intervals**: Bootstrapped 95% confidence intervals should be computed for Kappa to justify subset validity.
-
-## Ethical Considerations
-
-- Annotators should be informed about the purpose of the annotation task.
-- No personally identifiable information (PII) should be shared with annotators.
-- Annotator identities should be kept confidential.
-
-## Version History
-
-- **v1.0**: Initial protocol definition for PROJ-139.
-- **Status**: Active for sentiment validation pipeline.
+## Version
+- Protocol Version: 1.0
+- Last Updated: 2023-10-27

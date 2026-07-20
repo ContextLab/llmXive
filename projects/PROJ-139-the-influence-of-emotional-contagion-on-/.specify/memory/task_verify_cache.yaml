@@ -1,3 +1,22 @@
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., a data extraction script, sentiment\
+    \ analysis results, contagion index calculations, or decision\u2011quality metrics)\
+    \ were provided for inspection. Without any tangible files or results, we cannot\
+    \ confirm that the required data pipeline, sentiment analysis, or statistical\
+    \ modeling has been implemented as specified. The next implementer must supply\
+    \ the actual scripts, generated datasets, and computed metrics to satisfy the\
+    \ user stories."
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, datasets, or result files are provided to demonstrate that\
+    \ the required data extraction, sentiment analysis, contagion index computation,\
+    \ or decision\u2011quality modeling have been implemented. The evidence needed\
+    \ (e.g., a data extraction script that pulls Reddit/Stack Exchange threads, VADER\
+    \ sentiment processing code, computed metrics, and model outputs) is missing,\
+    \ so the task is not satisfied."
 T019:
   c: false
   h: 92c06802de23737232483c0480b05438cf609539f13fb465ed5af74f95d52a7b
@@ -35,9 +54,10 @@ T027:
   r: No `state/projects/PROJ-139-...yaml` file (or any similarly named YAML) was presented,
     and therefore there is no evidence that an `artifact_hashes` section containing
     checksums was recorded. The required checksum registry is missing.
-T029:
+T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `quickstart.md` file (or its contents) was provided, and nothing
-    shows that execution instructions for the full pipeline were added. The required
-    artifact is missing, so the task is not satisfied.
+  r: "No evidence such as re\u2011run logs, generated checksum files, or a report\
+    \ showing that the pipeline was executed again and that its outputs match the\
+    \ original checksums is present. Without these artifacts the claim of having verified\
+    \ reproducibility cannot be confirmed."
