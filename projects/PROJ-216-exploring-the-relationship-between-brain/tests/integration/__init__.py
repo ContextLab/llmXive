@@ -1,1 +1,3 @@
-"""Integration tests for llmXive brain network dynamics project."""
+"""
+Integration tests package.
+"""

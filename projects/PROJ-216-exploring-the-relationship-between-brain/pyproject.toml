@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-brain-music"
+version = "0.1.0"
+description = "Exploring the relationship between brain network dynamics and musical creativity"
+requires-python = ">=3.11"
+dependencies = [
+    "nibabel",
+    "nilearn",
+    "networkx",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "openneuro-py",
+    "dipy",
+    "psutil"
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"

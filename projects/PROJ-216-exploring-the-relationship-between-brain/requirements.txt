@@ -6,8 +6,4 @@ pandas
 numpy
 openneuro-py
 dipy
-ruff
-black
-pytest
-requests
-urllib3
+psutil

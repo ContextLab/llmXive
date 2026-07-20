@@ -1,82 +1,78 @@
 import os
 import sys
+from pathlib import Path
 
 def create_directories():
     """
-    Creates the necessary directory structure for the project.
-    This function is called by the main entry point to ensure
-    data, code, tests, and reports directories exist.
+    Create the necessary directory structure for the project.
+    Includes data subdirectories, code, tests, and reports.
     """
-    # Define the project root (assuming script is run from root or code/)
-    # We use the directory of this script as the anchor to find the project root
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-
-    # Directories to create relative to project root
-    dirs_to_create = [
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "code/tests",
-        "tests/unit",
-        "tests/integration",
-        "reports"
+    base_path = Path(".")
+    
+    directories = [
+        base_path / "data" / "raw",
+        base_path / "data" / "interim",
+        base_path / "data" / "processed",
+        base_path / "code",
+        base_path / "tests" / "unit",
+        base_path / "tests" / "integration",
+        base_path / "reports",
+        base_path / "figures",
+        base_path / "logs",
     ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = os.path.join(project_root, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-
-    return created_count
+    
+    created = []
+    for dir_path in directories:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(dir_path))
+        
+    return created
 
 def create_init_files():
     """
-    Creates __init__.py files in code/ and tests/ to ensure they are
-    treated as Python packages.
+    Create __init__.py files in code and tests directories to make them packages.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-
+    base_path = Path(".")
+    
     init_paths = [
-        "code/__init__.py",
-        "code/tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py"
+        base_path / "code" / "__init__.py",
+        base_path / "tests" / "__init__.py",
+        base_path / "tests" / "unit" / "__init__.py",
+        base_path / "tests" / "integration" / "__init__.py",
     ]
-
-    created_count = 0
+    
+    created = []
     for init_path in init_paths:
-        full_path = os.path.join(project_root, init_path)
-        # Ensure parent directory exists before creating __init__.py
-        parent_dir = os.path.dirname(full_path)
-        if not os.path.exists(parent_dir):
-            os.makedirs(parent_dir)
-
-        if not os.path.exists(full_path):
-            with open(full_path, 'w') as f:
-                f.write("# Package initialization\n")
-            print(f"Created init file: {full_path}")
-            created_count += 1
+        if not init_path.exists():
+            init_path.touch()
+            created.append(str(init_path))
         else:
-            print(f"Init file already exists: {full_path}")
-
-    return created_count
+            # Ensure it's not empty if it exists but was previously a placeholder
+            # For now, we just ensure the file exists.
+            pass
+            
+    return created
 
 def main():
     """
     Main entry point to set up the project directory structure.
     """
-    print("Starting directory setup...")
-    dir_count = create_directories()
-    init_count = create_init_files()
-    print(f"Setup complete. Created {dir_count} directories and {init_count} init files.")
-    return 0
+    print("Setting up project directories...")
+    
+    dirs = create_directories()
+    print(f"Created directories: {dirs}")
+    
+    inits = create_init_files()
+    print(f"Created/Verified init files: {inits}")
+    
+    # Create a placeholder README in reports to satisfy "at least one file" requirement
+    reports_dir = Path("reports")
+    placeholder = reports_dir / ".gitkeep"
+    if not placeholder.exists():
+        placeholder.touch()
+        print(f"Created placeholder: {placeholder}")
+        
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

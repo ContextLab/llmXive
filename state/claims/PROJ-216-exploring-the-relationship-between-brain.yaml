@@ -1,0 +1,33 @@
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Tasks designed for 10 subjects on CPU-only CI with 2 cores, 7GB RAM,
+    and 6h limit
+  claim_id: c_9c3d8aee
+  context: Notes section describing feasibility constraints for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (2 cores,
+    7GB RAM, 6h limit).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:25:24Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 3
+  canonical: CPU-only CI configured with 2 cores, 7GB RAM, and 6h limit
+  claim_id: c_82a2370e
+  context: Notes section describing feasibility constraints for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (2 cores,
+    7GB RAM, 6h limit).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:25:24Z'

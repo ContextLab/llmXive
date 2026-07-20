@@ -1,0 +1,39 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/` directory with the required `raw`, `interim`,
+    and `processed` subfolders actually exists; the artifact list is empty, so the
+    implementer has not demonstrated that the directories were created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `code/` directory containing an `__init__.py`
+    file and a `tests/` subdirectory actually exists; the submission includes only
+    specification text and no filesystem artifacts.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` or `tests/integration/` directories
+    was provided; the implementer did not include any file listings, screenshots,
+    or code showing these folders exist. The task therefore remains unfinished.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `reports/` directory (or any files within it) was provided;\
+    \ the implementer\u2019s claim is unsupported by any visible artifact. The required\
+    \ directory must be created and contain the final output files for the task to\
+    \ be considered complete."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, or a pre\u2011commit config) are present\
+    \ in the repository, nor any documentation showing that Ruff and Black have been\
+    \ set up and integrated. Without these artifacts the requirement to configure\
+    \ the tools is not satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, code file, or documentation for a system\u2011level dependency check\
+    \ of FSL/AFNI is present; the only provided material is the project specification,\
+    \ which does not include the required artifact. The task remains undone."

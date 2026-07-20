@@ -1,8 +1,7 @@
-'T001b Create `data/` subdirectories: `raw`, `interim`, `processed`': 1
-'T001c Create `code/` subdirectories: `__init__.py`, `tests/`': 1
-T001d Create `tests/unit/` and `tests/integration/` directories: 1
-T001e Create `reports/` directory for final outputs: 1
-? 'T002 Initialize Python 3.11 project with dependencies (`requirements.txt`: `nibabel`,
-  `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `openneuro-py`, `dipy`)'
-: 1
-T003 [P] Configure linting and formatting tools (ruff, black): 1
+T001b: 1
+T001c: 1
+T001d: 1
+T001e: 1
+T003: 1
+T005: 1
+T017: 1
