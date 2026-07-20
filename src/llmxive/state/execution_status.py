@@ -67,13 +67,8 @@ MAX_REPLAN_ROUNDS = 3
 #: Env: enable the single PAID escalation rung (default off). Booleans use the
 #: canonical {"1","true","yes","on"} idiom (mirrors backends.credits).
 PAID_ESCALATION_ENV = "LLMXIVE_EXECUTION_PAID_ESCALATION"
-#: Deprecated: a comma-separated model-id list. Model-ids are NO LONGER honored;
-#: any nonempty value collapses to ONE paid rung (with a one-time warning). Removal
-#: tracked for slice 8.
-_LEGACY_PAID_TIERS_ENV = "LLMXIVE_EXECUTION_PAID_TIERS"
 _BOOL_TRUE = {"1", "true", "yes", "on"}
 _BOOL_FALSE = {"0", "false", "no", "off"}
-_LEGACY_WARNED = False
 
 
 @dataclass(frozen=True)
@@ -110,33 +105,20 @@ _PAID_RUNG = TierConstraint(allow_paid=True, require_paid=True)
 
 
 def _paid_escalation_enabled() -> bool:
-    """Exact env precedence (spec 026 slice 6, round-2 #4):
-    (a) PAID_ESCALATION present → true=on, false/0=off, invalid=warn+off; legacy ignored.
-    (b) else legacy PAID_TIERS nonempty → on (one rung) + one-time deprecation warning.
-    (c) else off."""
-    global _LEGACY_WARNED
+    """Exact env precedence (spec 026 slice 6): PAID_ESCALATION present ->
+    true=on, false/0/empty=off, invalid=warn+off (fail closed); unset -> off."""
     raw = os.environ.get(PAID_ESCALATION_ENV)
-    if raw is not None:
-        v = raw.strip().lower()
-        if v in _BOOL_TRUE:
-            return True
-        if v in _BOOL_FALSE or v == "":
-            return False
-        logger.warning(
-            "%s=%r is not a recognized boolean — disabling paid escalation (fail closed)",
-            PAID_ESCALATION_ENV, raw,
-        )
+    if raw is None:
         return False
-    legacy = os.environ.get(_LEGACY_PAID_TIERS_ENV, "").strip()
-    if legacy:
-        if not _LEGACY_WARNED:
-            logger.warning(
-                "%s is deprecated; model-ids are no longer honored — collapsing to ONE "
-                "paid escalation rung. Use %s=1 instead.",
-                _LEGACY_PAID_TIERS_ENV, PAID_ESCALATION_ENV,
-            )
-            _LEGACY_WARNED = True
+    v = raw.strip().lower()
+    if v in _BOOL_TRUE:
         return True
+    if v in _BOOL_FALSE or v == "":
+        return False
+    logger.warning(
+        "%s=%r is not a recognized boolean — disabling paid escalation (fail closed)",
+        PAID_ESCALATION_ENV, raw,
+    )
     return False
 
 

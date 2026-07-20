@@ -1,6 +1,7 @@
 """Slice-5 wiring: ``router.chat_with_fallback`` — the registry-agent routing
 chokepoint — now delegates to ``model_selection.route.route_chat`` (select() →
-execute()) instead of walking ``MODEL_FALLBACKS`` by hand.
+execute()) instead of walking the legacy per-model fallback table (the
+``MODEL_FALLBACKS`` dict, deleted in Slice 8) by hand.
 
 Spec 026 slice 7: the obsolete ``default_backend`` / ``fallback_backends`` /
 ``model`` bridge parameters have been REMOVED from ``chat_with_fallback`` now

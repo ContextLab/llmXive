@@ -1,7 +1,8 @@
 """Slice-5 (Step B): ``reasoning_chat`` + ``chat_with_model_fallback`` — the
 reasoning/analysis + convergence-panel entry points — now delegate to
 ``model_selection.route.route_chat`` (select() → execute()) instead of hand-walking
-``MODEL_FALLBACKS`` on a single injected backend.
+the legacy per-model fallback table (the ``MODEL_FALLBACKS`` dict, deleted in
+Slice 8) on a single injected backend.
 
 These pin the WRAPPER contract: intent forwarded (standard_generation profile +
 caller model + reasoning-safe budget), the caller's injected backend adapted into a

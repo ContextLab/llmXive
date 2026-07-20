@@ -574,7 +574,6 @@ QWEN_DEFAULT = QWEN  # rank-one free model the ladder's tier-1 rung excludes
 def test_execution_tier1_golden_leads_with_gemma4(monkeypatch):
     # Hermetic: no paid escalation → tier 1 is the free second-opinion rung.
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
-    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
 
     ov1 = execution_status.tier_constraint(1).to_overrides()
     # The ladder rung really is free-only + drops whatever leads (no model id):

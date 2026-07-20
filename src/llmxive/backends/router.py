@@ -50,60 +50,6 @@ def make_backend(name: str) -> BaseBackend:
     return cls()
 
 
-# Per-backend model-fallback chain. When the primary model on a
-# backend hits transient errors after retries, try these models in
-# order before falling through to the next backend. This keeps
-# pipeline runs alive when one Dartmouth-hosted model has a vLLM
-# outage but other models on the same backend are healthy.
-MODEL_FALLBACKS: dict[str, list[str]] = {
-    # qwen3.5-122b is the primary free reasoning model (maintainer default). The
-    # Dartmouth free models flap on a multi-day cycle, so when the primary's vLLM
-    # flaps the router walks the SAME-backend peers in order before falling through
-    # to the next backend, keeping runs alive. Free peers first, then the guarded
-    # paid model last:
-    #   1. gemma-3-27b — free, FAST, non-reasoning (degrades a qwen flap to a
-    #      sub-second model instead of a 360s deadline wait).
-    #   2. gpt-oss-120b — free, capable reasoning (often up; flaps).
-    #   3. claude-haiku-4.5 — a CAPABLE *paid* last resort (~29 credits ≈ $0.029).
-    #      GUARDED: dartmouth.chat() raises PermanentBackendError unless
-    #      LLMXIVE_PAID_OPT_IN is set AND the daily credit budget has headroom;
-    #      the router treats that peer-permanent as "skip to next peer", so with
-    #      opt-in OFF this entry is a silent no-op.
-    "qwen.qwen3.5-122b": [
-        "google.gemma-3-27b-it",
-        "openai.gpt-oss-120b",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-    # gpt-oss as primary (a few modules still pin it) degrades the same way.
-    "openai.gpt-oss-120b": [
-        "qwen.qwen3.5-122b",
-        "google.gemma-3-27b-it",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-    # gemma as primary (fast default for cheap calls) → reasoning peers → paid.
-    "google.gemma-3-27b-it": [
-        "qwen.qwen3.5-122b",
-        "openai.gpt-oss-120b",
-        "anthropic.claude-haiku-4-5-20251001",
-    ],
-}
-
-#: The maintainer-default model — what a caller that does NOT pin one should use.
-#:
-#: A REAL backend requires a model (``DartmouthBackend.chat`` takes ``model`` as a
-#: REQUIRED keyword-only arg), so ``model=None`` is viable ONLY for the injected
-#: fake backends whose narrower signatures ``_chat_degrading`` degrades toward.
-#: Against Dartmouth a ``model=None`` call dies with ``TypeError: chat() missing 1
-#: required keyword-only argument: 'model'``. Public entry points that build live,
-#: real-backend units must therefore default to THIS rather than to ``None``.
-DEFAULT_MODEL: str = "qwen.qwen3.5-122b"
-
-#: Sanctioned PAID models permitted in MODEL_FALLBACKS as guarded fallbacks
-#: (Constitution IV stays satisfied: each is gated by the paid opt-in + daily
-#: credit-budget guard in ``backends/credits.py``, so it costs $0 and is off by
-#: default). Distinct from KNOWN_FREE_MODELS, which are unconditionally free.
-PAID_FALLBACK_MODELS: frozenset[str] = frozenset({"anthropic.claude-haiku-4-5-20251001"})
-
 # ---------------------------------------------------------------------------
 # Reasoning-safe token budgets — the SINGLE source of truth (was duplicated as
 # ``_REASONING_MAX_TOKENS`` in 8 modules). qwen3.5-122b et al. are reasoning
@@ -412,8 +358,8 @@ def chat_with_fallback(
     profile: str = "standard_generation",
 ) -> ChatResponse:
     """Registry-agent routing chokepoint (spec 026 slice 5): resolve the chain
-    through model SELECTION and delegate to ``execute`` — no hand-walk of
-    ``MODEL_FALLBACKS``, no backend-name loop.
+    through model SELECTION and delegate to ``execute`` — no hand-walk of the
+    legacy per-model fallback table, no backend-name loop.
 
     Delegates to :func:`llmxive.model_selection.route.route_chat`, which acquires
     the real LKG-inclusive runtime snapshot and runs the pure ``select`` for

@@ -13,7 +13,6 @@ from llmxive.state import execution_status as es
 def _free_first(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
-    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
 
 
 def test_tier0_is_free_only_even_when_opt_in_true(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -69,25 +68,9 @@ def test_paid_rung_to_overrides_is_require_paid(monkeypatch: pytest.MonkeyPatch)
     assert ov.allow_paid is True and ov.require_paid is True
 
 
-def test_env_precedence_new_zero_beats_legacy(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "anthropic.claude-haiku")
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "0")
-    assert all(not c.is_paid for c in es.model_tier_ladder())  # explicit off wins
-
-
-def test_env_legacy_only_enables_one_rung_with_warning(
-    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
-) -> None:
-    monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_TIERS", "a.b,c.d,c.d")
-    # The one-time deprecation warning fires once per process; reset the latch so
-    # this test observes it deterministically regardless of run order.
-    monkeypatch.setattr(es, "_LEGACY_WARNED", False)
-    import logging
-
-    with caplog.at_level(logging.WARNING):
-        ladder = es.model_tier_ladder()
-    assert sum(c.is_paid for c in ladder) == 1
-    assert sum("deprecated" in r.message.lower() for r in caplog.records) >= 1
+def test_env_unset_defaults_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
+    assert all(not c.is_paid for c in es.model_tier_ladder())
 
 
 def test_env_invalid_new_value_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:

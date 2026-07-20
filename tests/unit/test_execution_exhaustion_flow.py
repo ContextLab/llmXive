@@ -32,7 +32,6 @@ from llmxive.types import Project, Stage
 def _free_first_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """Default FREE-FIRST: no paid opt-in, no paid escalation configured."""
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
-    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_TIERS", raising=False)
     monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
 
 

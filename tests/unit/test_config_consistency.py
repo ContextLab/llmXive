@@ -28,9 +28,9 @@ Spec 026 US5 (slice 7) retired ``agents/registry.yaml``'s per-agent
 ``default_model`` field in favor of a named capability ``profile``, so this
 file no longer imports/depends on ``KNOWN_FREE_MODELS``
 (``backends/dartmouth.py``) or ``MODEL_FALLBACKS`` (``backends/router.py``) —
-both stay defined (Slice 8 owns their deletion) but the free-first / guarded-
-paid-fallback guarantee they used to encode is now checked one layer down, at
-the capability-policy / selection layer, exactly as production ``route_chat``
+both were deleted in Slice 8 — the free-first / guarded-paid-fallback
+guarantee they used to encode is now checked one layer down, at the
+capability-policy / selection layer, exactly as production ``route_chat``
 resolves it (see ``tests/unit/test_model_selection_select.py`` and
 ``tests/unit/test_profile_schema.py`` for the complementary coverage).
 """
@@ -40,13 +40,20 @@ from __future__ import annotations
 from pathlib import Path
 
 from llmxive.agents.registry import load as load_registry
-from llmxive.backends.router import PAID_FALLBACK_MODELS
 from llmxive.model_selection.policy import CAPABILITY_POLICY
 from llmxive.model_selection.profiles import PROFILES, build_requirement
 from llmxive.model_selection.select import select
 from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import CallBudget
-from tests.unit.test_model_selection_select import GPT_OSS, LOCAL, QWEN, VL, _ids, _snapshot
+from tests.unit.test_model_selection_select import (
+    CLAUDE,
+    GPT_OSS,
+    LOCAL,
+    QWEN,
+    VL,
+    _ids,
+    _snapshot,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -54,16 +61,20 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 NO_LLM = "deterministic-no-llm"
 
 #: The ONE sanctioned paid family (Constitution IV free-first; guarded
-#: fallback governed process-wide by the credit guard, SC-007(b)). DERIVED
-#: from the reviewed source-layer contract (``router.PAID_FALLBACK_MODELS``)
-#: rather than hand-typed here — a second, independently-maintained
-#: "sanctioned paid" constant reconstructed inside a test is exactly the
-#: hardcoded-allowlist duplication US5 AC4 forbids. Cost itself is NEVER
-#: asserted from this family name below — only from the runtime snapshot's
-#: own PRICING (see ``test_paid_off_chains_contain_only_snapshot_free_
-#: candidates`` etc.); this identifier is used solely to name the guarded
-#: fallback for the README display-name check.
-_SANCTIONED_PAID_MODEL_ID = next(iter(PAID_FALLBACK_MODELS))
+#: fallback governed process-wide by the credit guard, SC-007(b)). ``router``
+#: no longer carries a dedicated identity pin for it (Slice 8 deleted
+#: ``PAID_FALLBACK_MODELS`` once cost/eligibility moved entirely to the
+#: capability-policy + snapshot-pricing layer), so this is DERIVED from
+#: ``CLAUDE`` — the SAME shared fixture identity ``test_model_selection_select``
+#: already uses to construct every realistic composite snapshot in this suite —
+#: rather than a second, independently-maintained "sanctioned paid" constant.
+#: Cost itself is NEVER asserted from this family name below — only from the
+#: runtime snapshot's own PRICING (see
+#: ``test_paid_off_chains_contain_only_snapshot_free_candidates`` etc.); this
+#: identifier is used solely to name the guarded fallback for the README
+#: display-name check and the "exactly this one paid id" membership checks.
+_SANCTIONED_PAID_MODEL_ID = CLAUDE
+_SANCTIONED_PAID_MODEL_IDS = frozenset({_SANCTIONED_PAID_MODEL_ID})
 _SANCTIONED_PAID_FAMILY = _family_of(
     _SANCTIONED_PAID_MODEL_ID, _vendor_of(_SANCTIONED_PAID_MODEL_ID)
 )
@@ -162,36 +173,35 @@ def test_every_canonical_profile_resolves_under_the_fixed_snapshot():
 
 def test_paid_on_text_profiles_reach_the_sanctioned_guarded_tail():
     """Every TEXT profile's (non-vision) paid-ON projection reaches the ONE
-    model the reviewed source-layer contract (``router.PAID_FALLBACK_MODELS``)
-    sanctions as a guarded paid fallback — identified by SNAPSHOT membership,
-    never by a family name invented in this test."""
+    sanctioned guarded paid fallback (``_SANCTIONED_PAID_MODEL_IDS``) —
+    identified by SNAPSHOT membership, never by a family name invented in
+    this test."""
     on_snap = _snapshot(paid_opt_in=True, credit_source="live")
     text_profiles = [name for name, p in PROFILES.items() if p.capability != "vision"]
     assert text_profiles, "expected at least one non-vision canonical profile"
     for name in sorted(text_profiles):
         chain = select(build_requirement(name, _CB, allow_paid=True), on_snap)
         ids = {c.model_ref.model_id for c in chain.candidates}
-        assert ids & PAID_FALLBACK_MODELS, (
+        assert ids & _SANCTIONED_PAID_MODEL_IDS, (
             f"profile {name!r} paid-ON projection never reaches the sanctioned "
-            f"guarded paid tail {sorted(PAID_FALLBACK_MODELS)}"
+            f"guarded paid tail {sorted(_SANCTIONED_PAID_MODEL_IDS)}"
         )
 
 
 def test_no_paid_candidate_outside_the_sanctioned_guarded_tail():
     """Complementary to the check above: the policy/snapshot combination must
-    never surface a paid candidate the source-layer contract doesn't
-    sanction. Every NON-free candidate (per snapshot pricing) across every
-    canonical profile's paid-ON projection is a member of
-    ``router.PAID_FALLBACK_MODELS`` — preserving the "no paid family beyond
-    the one sanctioned guarded fallback" guarantee WITHOUT re-deriving it
-    from a hardcoded family list."""
+    never surface a paid candidate outside the sanctioned set. Every NON-free
+    candidate (per snapshot pricing) across every canonical profile's
+    paid-ON projection is a member of ``_SANCTIONED_PAID_MODEL_IDS`` —
+    preserving the "no paid family beyond the one sanctioned guarded
+    fallback" guarantee WITHOUT re-deriving it from a hardcoded family list."""
     on_snap = _snapshot(paid_opt_in=True, credit_source="live")
     for name in sorted(PROFILES):
         chain = select(build_requirement(name, _CB, allow_paid=True), on_snap)
         paid_ids = {c.model_ref.model_id for c in chain.candidates if not c.pricing.is_free}
-        assert paid_ids <= PAID_FALLBACK_MODELS, (
+        assert paid_ids <= _SANCTIONED_PAID_MODEL_IDS, (
             f"profile {name!r} paid-ON projection surfaces an unsanctioned "
-            f"paid candidate {sorted(paid_ids - PAID_FALLBACK_MODELS)}"
+            f"paid candidate {sorted(paid_ids - _SANCTIONED_PAID_MODEL_IDS)}"
         )
 
 
@@ -205,7 +215,7 @@ def test_unknown_priced_candidate_never_qualifies_as_free():
     for allow_paid in (False, True):
         chain = select(build_requirement("deep_review", _CB, allow_paid=allow_paid), snap)
         ids = {c.model_ref.model_id for c in chain.candidates}
-        assert not (ids & PAID_FALLBACK_MODELS), (
+        assert not (ids & _SANCTIONED_PAID_MODEL_IDS), (
             "an unknown-priced candidate was admitted — unknown pricing must "
             "never qualify as free"
         )
