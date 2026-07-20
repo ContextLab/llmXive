@@ -1,0 +1,30 @@
+T017:
+  c: false
+  h: 7b1c85bc48797f75dc7a8dd482149a884acc101c1471711fc5a54e21dcec67de
+  r: "The required output file `data/metrics/subject_info.json` does not exist, and\
+    \ the provided `code/data/save_metadata.py` is incomplete (truncated) and contains\
+    \ no implementation that writes the subject list, exclusion reasons, and motion\
+    \ metrics to that JSON file. The task\u2019s core requirement is therefore unmet."
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No evidence of the required docstrings was presented: the response contains
+    no listing, diff, or excerpt showing that every public function in `code/analysis/`
+    and `code/data/` now has comprehensive docstrings. Without the actual files or
+    documentation showing the added docstrings, we cannot confirm the task was completed.
+    The implementer must provide the updated source files (or a clear diff) demonstrating
+    the new docstrings for all public functions in the specified directories.'
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark results, timing logs, or any performance measurements were\
+    \ provided to demonstrate that a preprocessing loop for N=10 subjects now completes\
+    \ in under 6\u202Fhours. Without such artifacts, the claim cannot be verified.\
+    \ The implementer must supply the optimized preprocessing script and empirical\
+    \ runtime evidence (e.g., a log or report showing the <6\u202Fh execution time)."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` file, its validation script, or CI run logs\
+    \ is provided; without these artifacts we cannot confirm that the end\u2011to\u2011\
+    end flow was executed and passed on CI. The required validation output is missing."

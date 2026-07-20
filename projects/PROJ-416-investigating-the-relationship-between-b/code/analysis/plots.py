@@ -1,372 +1,202 @@
-"""
-Plotting utilities for User Story 3: Statistical Analysis and Reporting.
-
-Generates scatter plots with regression lines and residual diagnostics
-for the ANCOVA analysis results.
-"""
 import os
 import logging
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless execution
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-import seaborn as sns
+from typing import Dict, List, Optional, Any
 
-# Configure logging
+from code.config import Config
+from code.utils.logging import setup_logging
+
 logger = logging.getLogger(__name__)
 
-# Set style for better plots
-plt.style.use('seaborn-v0_8-whitegrid')
 
 def generate_scatter_plot(
-    data: pd.DataFrame,
-    x_col: str,
-    y_col: str,
-    title: str = "Scatter Plot with Regression Line",
-    x_label: str = "X Variable",
-    y_label: str = "Y Variable",
-    output_path: Optional[Path] = None
-) -> Path:
+    x: np.ndarray,
+    y: np.ndarray,
+    x_label: str,
+    y_label: str,
+    title: str,
+    output_path: Path,
+    regression_line: bool = True
+) -> None:
     """
-    Generate a scatter plot with a regression line.
-    
+    Generate a scatter plot with an optional regression line.
+
     Args:
-        data: DataFrame containing the data
-        x_col: Column name for x-axis
-        y_col: Column name for y-axis
-        title: Plot title
-        x_label: X-axis label
-        y_label: Y-axis label
-        output_path: Path to save the plot (if None, returns in-memory)
-        
-    Returns:
-        Path to the saved plot file
+        x: 1D array of x-values.
+        y: 1D array of y-values.
+        x_label: Label for the x-axis.
+        y_label: Label for the y-axis.
+        title: Title of the plot.
+        output_path: Path to save the figure.
+        regression_line: Whether to plot a linear regression line.
     """
-    if x_col not in data.columns or y_col not in data.columns:
-        raise ValueError(f"Columns {x_col} or {y_col} not found in data. Available: {list(data.columns)}")
-    
-    # Remove NaN values
-    clean_data = data[[x_col, y_col]].dropna()
-    
-    if len(clean_data) < 2:
-        raise ValueError(f"Not enough data points ({len(clean_data)}) to generate a regression plot.")
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Scatter plot
-    ax.scatter(clean_data[x_col], clean_data[y_col], alpha=0.6, edgecolors='w', linewidth=0.5)
-    
-    # Regression line
-    slope, intercept = np.polyfit(clean_data[x_col], clean_data[y_col], 1)
-    x_line = np.linspace(clean_data[x_col].min(), clean_data[x_col].max(), 100)
-    y_line = slope * x_line + intercept
-    ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Regression: y = {slope:.3f}x + {intercept:.3f}')
-    
-    # R-squared calculation
-    residuals = clean_data[y_col] - (slope * clean_data[x_col] + intercept)
-    ss_res = np.sum(residuals ** 2)
-    ss_tot = np.sum((clean_data[y_col] - clean_data[y_col].mean()) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
-    
-    ax.set_title(f"{title} (R² = {r_squared:.3f})")
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.legend()
-    
-    plt.tight_layout()
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Scatter plot saved to {output_path}")
-        return output_path
-    
-    return output_path
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x, y, alpha=0.7, edgecolors='k')
+
+    if regression_line:
+        # Simple linear regression
+        m, b = np.polyfit(x, y, 1)
+        plt.plot(x, m * x + b, 'r-', label=f'y = {m:.2f}x + {b:.2f}')
+        plt.legend()
+
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.grid(True, alpha=0.3)
+
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Scatter plot saved to {output_path}")
+
 
 def generate_regression_line_plot(
-    data: pd.DataFrame,
-    x_col: str,
-    y_col: str,
-    fitted_col: str,
-    title: str = "Observed vs Fitted Values",
-    x_label: str = "Observed",
-    y_label: str = "Fitted",
-    output_path: Optional[Path] = None
-) -> Path:
+    x: np.ndarray,
+    y: np.ndarray,
+    x_label: str,
+    y_label: str,
+    title: str,
+    output_path: Path,
+    model=None
+) -> None:
     """
-    Generate a plot comparing observed vs fitted values.
-    
+    Generate a plot showing data points and a fitted regression line.
+
     Args:
-        data: DataFrame containing observed and fitted values
-        x_col: Column name for observed values
-        y_col: Column name for fitted values (or vice versa)
-        fitted_col: Column name for the other set of values
-        title: Plot title
-        x_label: X-axis label
-        y_label: Y-axis label
-        output_path: Path to save the plot
-        
-    Returns:
-        Path to the saved plot file
+        x: 1D array of x-values.
+        y: 1D array of y-values.
+        x_label: Label for the x-axis.
+        y_label: Label for the y-axis.
+        title: Title of the plot.
+        output_path: Path to save the figure.
+        model: Optional fitted model object to use for prediction.
     """
-    if x_col not in data.columns or y_col not in data.columns:
-        raise ValueError(f"Columns {x_col} or {y_col} not found in data.")
-    
-    clean_data = data[[x_col, y_col]].dropna()
-    
-    if len(clean_data) < 2:
-        raise ValueError(f"Not enough data points ({len(clean_data)}) to generate the plot.")
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Scatter of observed vs fitted
-    ax.scatter(clean_data[x_col], clean_data[y_col], alpha=0.6, edgecolors='w')
-    
-    # Ideal line (y = x)
-      # Calculate min/max for the line
-    min_val = min(clean_data[x_col].min(), clean_data[y_col].min())
-    max_val = max(clean_data[x_col].max(), clean_data[y_col].max())
-    ax.plot([min_val, max_val], [min_val, max_val], 'r--', label='Ideal (y=x)')
-    
-    ax.set_title(title)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.legend()
-    
-    plt.tight_layout()
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Regression line plot saved to {output_path}")
-        return output_path
-    
-    return output_path
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x, y, alpha=0.7, edgecolors='k', label='Data')
+
+    if model is not None:
+        # Assume model has predict method
+        x_sorted = np.sort(x)
+        y_pred = model.predict(x_sorted.reshape(-1, 1))
+        plt.plot(x_sorted, y_pred, 'r-', label='Fitted Line')
+        plt.legend()
+    else:
+        # Fallback to simple polyfit
+        m, b = np.polyfit(x, y, 1)
+        x_sorted = np.sort(x)
+        plt.plot(x_sorted, m * x_sorted + b, 'r-', label='Simple Fit')
+        plt.legend()
+
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.grid(True, alpha=0.3)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Regression line plot saved to {output_path}")
+
 
 def generate_residual_plot(
-    data: pd.DataFrame,
-    residuals_col: str,
-    fitted_col: str,
-    title: str = "Residuals vs Fitted Values",
-    x_label: str = "Fitted Values",
-    y_label: str = "Residuals",
-    output_path: Optional[Path] = None
-) -> Path:
+    x: np.ndarray,
+    residuals: np.ndarray,
+    title: str,
+    output_path: Path
+) -> None:
     """
-    Generate a residual diagnostic plot.
-    
+    Generate a residual plot to check model assumptions.
+
     Args:
-        data: DataFrame containing residuals and fitted values
-        residuals_col: Column name for residuals
-        fitted_col: Column name for fitted values
-        title: Plot title
-        x_label: X-axis label
-        y_label: Y-axis label
-        output_path: Path to save the plot
-        
-    Returns:
-        Path to the saved plot file
+        x: 1D array of x-values (predicted or independent variable).
+        residuals: 1D array of residual values.
+        title: Title of the plot.
+        output_path: Path to save the figure.
     """
-    if residuals_col not in data.columns or fitted_col not in data.columns:
-        raise ValueError(f"Columns {residuals_col} or {fitted_col} not found in data.")
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x, residuals, alpha=0.7, edgecolors='k')
     
-    clean_data = data[[residuals_col, fitted_col]].dropna()
-    
-    if len(clean_data) < 2:
-        raise ValueError(f"Not enough data points ({len(clean_data)}) to generate the plot.")
-    
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-    
-    # Residuals vs Fitted
-    ax1.scatter(clean_data[fitted_col], clean_data[residuals_col], alpha=0.6, edgecolors='w')
-    ax1.axhline(y=0, color='r', linestyle='--')
-    ax1.set_title("Residuals vs Fitted")
-    ax1.set_xlabel(x_label)
-    ax1.set_ylabel(y_label)
-    ax1.grid(True, alpha=0.3)
-    
-    # Q-Q Plot for residuals
-    from scipy import stats
-    qq_data = clean_data[residuals_col].dropna()
-    if len(qq_data) > 1:
-        stats.probplot(qq_data, dist="norm", plot=ax2)
-        ax2.set_title("Normal Q-Q")
-    
-    plt.tight_layout()
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Residual plot saved to {output_path}")
-        return output_path
-    
-    return output_path
+    # Add a horizontal line at y=0
+    plt.axhline(y=0, color='r', linestyle='--', linewidth=1)
+
+    plt.xlabel("Predicted Values / Independent Variable")
+    plt.ylabel("Residuals")
+    plt.title(title)
+    plt.grid(True, alpha=0.3)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Residual plot saved to {output_path}")
+
 
 def run_analysis(
-    results_path: Path,
+    results_df: pd.DataFrame,
     output_dir: Path,
-    pre_col: str = "pre_treatment_score",
-    post_col: str = "post_treatment_score",
-    metric_col: str = "global_efficiency",
-    confounds_cols: Optional[List[str]] = None
-) -> Dict[str, Path]:
+    config: Config
+) -> None:
     """
-    Run all plotting analyses for the statistical results.
-    
+    Run the plotting analysis pipeline.
+
     Args:
-        results_path: Path to the statistical results CSV
-        output_dir: Directory to save generated plots
-        pre_col: Column name for pre-treatment scores
-        post_col: Column name for post-treatment scores
-        metric_col: Column name for the network metric
-        confounds_cols: Optional list of confound column names
-        
-    Returns:
-        Dictionary mapping plot types to their file paths
+        results_df: DataFrame containing statistical results.
+        output_dir: Path to save plots.
+        config: Configuration object.
     """
-    if not results_path.exists():
-        raise FileNotFoundError(f"Results file not found: {results_path}")
+    ensure_directories(output_dir)
     
-    logger.info(f"Loading results from {results_path}")
-    df = pd.read_csv(results_path)
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    plots_generated = {}
-    
-    # 1. Pre vs Post Scatter Plot
-    try:
-        plot_path = output_dir / "scatter_pre_post.png"
+    # Example: Plot Post vs Pre treatment scores
+    if 'pre_treatment_score' in results_df.columns and 'post_treatment_score' in results_df.columns:
+        x = results_df['pre_treatment_score'].values
+        y = results_df['post_treatment_score'].values
+        
         generate_scatter_plot(
-            data=df,
-            x_col=pre_col,
-            y_col=post_col,
-            title="Pre-treatment vs Post-treatment Scores",
-            x_label="Pre-treatment Score",
-            y_label="Post-treatment Score",
-            output_path=plot_path
+            x, y,
+            "Pre-Treatment Score",
+            "Post-Treatment Score",
+            "Pre vs Post Treatment Scores",
+            output_dir / "pre_post_scatter.png"
         )
-        plots_generated["pre_post_scatter"] = plot_path
-    except Exception as e:
-        logger.warning(f"Failed to generate pre-post scatter plot: {e}")
-    
-    # 2. Metric vs Post-treatment Scatter Plot
-    try:
-        plot_path = output_dir / "scatter_metric_post.png"
-        generate_scatter_plot(
-            data=df,
-            x_col=metric_col,
-            y_col=post_col,
-            title=f"{metric_col} vs Post-treatment Scores",
-            x_label=metric_col.replace('_', ' ').title(),
-            y_label="Post-treatment Score",
-            output_path=plot_path
+
+    # Example: Plot Metric vs Post Treatment
+    if 'network_metric' in results_df.columns and 'post_treatment_score' in results_df.columns:
+        x = results_df['network_metric'].values
+        y = results_df['post_treatment_score'].values
+        
+        generate_regression_line_plot(
+            x, y,
+            "Network Metric",
+            "Post-Treatment Score",
+            "Network Metric vs Post-Treatment Score",
+            output_dir / "metric_vs_post.png"
         )
-        plots_generated["metric_post_scatter"] = plot_path
-    except Exception as e:
-        logger.warning(f"Failed to generate metric-post scatter plot: {e}")
-    
-    # 3. Residual Diagnostics (if residuals are available)
-    if 'residuals' in df.columns and 'fitted_values' in df.columns:
-        try:
-            plot_path = output_dir / "residual_diagnostics.png"
-            generate_residual_plot(
-                data=df,
-                residuals_col='residuals',
-                fitted_col='fitted_values',
-                title="Residual Diagnostics",
-                output_path=plot_path
-            )
-            plots_generated["residual_diagnostics"] = plot_path
-        except Exception as e:
-            logger.warning(f"Failed to generate residual diagnostics: {e}")
-    
-    # 4. Observed vs Fitted Plot
-    if 'fitted_values' in df.columns and post_col in df.columns:
-        try:
-            plot_path = output_dir / "observed_vs_fitted.png"
-            generate_regression_line_plot(
-                data=df,
-                x_col=post_col,
-                y_col='fitted_values',
-                title="Observed vs Fitted Post-treatment Scores",
-                x_label="Observed Post-treatment",
-                y_label="Fitted Post-treatment",
-                output_path=plot_path
-            )
-            plots_generated["observed_vs_fitted"] = plot_path
-        except Exception as e:
-            logger.warning(f"Failed to generate observed vs fitted plot: {e}")
-    
-    logger.info(f"Generated {len(plots_generated)} plots in {output_dir}")
-    return plots_generated
+
+    logger.info("Plotting analysis complete.")
+
+
+def ensure_directories(path: Path) -> None:
+    """Ensure the given path exists, creating it if necessary."""
+    path.mkdir(parents=True, exist_ok=True)
+
 
 def main():
-    """Main entry point for plotting analysis."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate plots for statistical analysis results")
-    parser.add_argument(
-        "--results-path",
-        type=str,
-        required=True,
-        help="Path to the statistical results CSV file"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/figures",
-        help="Directory to save generated plots"
-    )
-    parser.add_argument(
-        "--pre-col",
-        type=str,
-        default="pre_treatment_score",
-        help="Column name for pre-treatment scores"
-    )
-    parser.add_argument(
-        "--post-col",
-        type=str,
-        default="post_treatment_score",
-        help="Column name for post-treatment scores"
-    )
-    parser.add_argument(
-        "--metric-col",
-        type=str,
-        default="global_efficiency",
-        help="Column name for the network metric"
-    )
-    
-    args = parser.parse_args()
-    
+    """Main entry point for the plotting script."""
     setup_logging()
+    config = Config()
     
-    results_path = Path(args.results_path)
-    output_dir = Path(args.output_dir)
-    
-    try:
-        plots = run_analysis(
-            results_path=results_path,
-            output_dir=output_dir,
-            pre_col=args.pre_col,
-            post_col=args.post_col,
-            metric_col=args.metric_col
-        )
-        
-        logger.info("Plot generation completed successfully")
-        for plot_type, path in plots.items():
-            logger.info(f"  - {plot_type}: {path}")
-            
-    except Exception as e:
-        logger.error(f"Plot generation failed: {e}")
-        raise
+    # Load results (simplified)
+    results_path = Path(config.metrics_output_dir) / "statistical_results.csv"
+    if results_path.exists():
+        df = pd.read_csv(results_path)
+        run_analysis(df, Path(config.figures_output_dir), config)
+    else:
+        logger.warning(f"Results file not found: {results_path}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-"""Integration tests for the llmXive brain network dynamics pipeline."""
+"""Integration tests package for the llmXive brain network dynamics pipeline."""

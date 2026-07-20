@@ -300,3 +300,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T16:36:29Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: analysis pipeline runs on subset of 10 subjects
+  claim_id: c_fe8373e4
+  context: This guide explains how to run the full analysis pipeline on a subset of
+    N=10 subjects, ensuring the process completes within the CI constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This guide explains how to run the full analysis pipeline on a subset
+    of N=10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:40:58Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: CI constraints 2 CPU cores 7GB RAM 14GB disk 6h
+  claim_id: c_b042ccc6
+  context: This guide explains how to run the full analysis pipeline on a subset of
+    N=10 subjects, ensuring the process completes within the CI constraints (2 CPU
+    cores, 7GB RAM, 14GB disk, 6h).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The process completes within the CI constraints (2 CPU cores, 7GB RAM,
+    14GB disk, 6h).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:41:12Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: subjects excluded if FD > 3.0mm or rotation > 3.0 degrees
+  claim_id: c_41aebdf2
+  context: "Subjects with Framewise Displacement (FD) > 3.0mm or rotation > 3.0\xB0\
+    \ are automatically excluded. Check logs/preprocessing.log for the list of excluded\
+    \ subjects."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Subjects with Framewise Displacement (FD) > 3.0mm or rotation > 3.0\xB0\
+    \ are automatically excluded."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:41:12Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline halts if valid subjects less than 5
+  claim_id: c_715b769a
+  context: If the number of valid subjects after exclusion is less than 5, the pipeline
+    will halt with a fatal error as per SC-004.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_valid_subjects_less_than_5
+  kind: magnitude
+  raw_text: If the number of valid subjects after exclusion is less than 5, the pipeline
+    will halt with a fatal error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:41:41Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: project uses real fMRI data from OpenNeuro
+  claim_id: c_0bcb6ddc
+  context: This project uses real fMRI data from OpenNeuro. No synthetic or placeholder
+    data is generated.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_real_fMRI_data_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The project uses real fMRI data from OpenNeuro.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:42:21Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/docs/quickstart.md
+  attempts: 1
+  canonical: clinical measures include GAD-7 and HAM-A anxiety scores
+  claim_id: c_732e4a4b
+  context: 'Clinical Measures: Pre/Post treatment anxiety scores (e.g., GAD-7, HAM-A)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clinical measures include Pre/Post treatment anxiety scores (e.g.,
+    GAD-7, HAM-A).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:42:44Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: study findings framed as associational
+  claim_id: c_d931f76d
+  context: 'Based on the study design, findings are framed as **ASSOCIATIONAL**. *Note:
+    The study did not meet the criteria for randomized controlled trial (study_design
+    != ''randomized'' or randomized != true).*'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_findings_framed_as_associational
+  kind: entity_fact
+  raw_text: Based on the study design, findings are framed as ASSOCIATIONAL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:51:23Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: study did not meet criteria for randomized controlled trial
+  claim_id: c_9588f70a
+  context: 'Based on the study design, findings are framed as **ASSOCIATIONAL**. *Note:
+    The study did not meet the criteria for randomized controlled trial (study_design
+    != ''randomized'' or randomized != true).*'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_did_not_meet_criteria_for_randomized_controlled_trial
+  kind: entity_fact
+  raw_text: The study did not meet the criteria for randomized controlled trial.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:51:46Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global efficiency coefficient 0.4521 p-value 0.0312
+  claim_id: c_cf2f34ba
+  context: '| Metric | Coefficient | P-Value | VIF | Significant? |
+
+    |---|---|---|---|---|
+
+    | Global Efficiency | 0.4521 | 0.0312 | 1.21 | Yes |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Global Efficiency had a coefficient of 0.4521 and a p-value of 0.0312.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:52:07Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: local efficiency coefficient 0.1205 p-value 0.1540
+  claim_id: c_13e0f122
+  context: '| Metric | Coefficient | P-Value | VIF | Significant? |
+
+    |---|---|---|---|---|
+
+    | Local Efficiency | 0.1205 | 0.1540 | 1.18 | No |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local Efficiency had a coefficient of 0.1205 and a p-value of 0.1540.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:52:32Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity q coefficient -0.0512 p-value 0.4201
+  claim_id: c_9201e042
+  context: '| Metric | Coefficient | P-Value | VIF | Significant? |
+
+    |---|---|---|---|---|
+
+    | Modularity (Q) | -0.0512 | 0.4201 | 1.05 | No |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Modularity (Q) had a coefficient of -0.0512 and a p-value of 0.4201.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:52:57Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: minimum sample size 18
+  claim_id: c_a99091ec
+  context: '**Minimum N Required:** 18'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum N required for the study was 18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:53:51Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: 2mm motion threshold retained 8 subjects
+  claim_id: c_96581ede
+  context: 'Motion Threshold Sensitivity:
+
+    - 2mm: 8 subjects retained
+
+    - 3mm: 10 subjects retained'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using a 2mm motion threshold, 8 subjects were retained.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:54:09Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: 3mm motion threshold retained 10 subjects
+  claim_id: c_93d7338d
+  context: 'Motion Threshold Sensitivity:
+
+    - 2mm: 8 subjects retained
+
+    - 3mm: 10 subjects retained'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using a 3mm motion threshold, 10 subjects were retained.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:54:28Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: uncorrected analysis 2 significant metrics
+  claim_id: c_77a673da
+  context: 'P-value Correction Sensitivity:
+
+    - Uncorrected: 2 significant metrics
+
+    - FDR (0.05): 1 significant metric
+
+    - Bonferroni: 0 significant metrics'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Uncorrected analysis resulted in 2 significant metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:55:00Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: fdr 0.05 correction 1 significant metric
+  claim_id: c_7fe10fe5
+  context: 'P-value Correction Sensitivity:
+
+    - Uncorrected: 2 significant metrics
+
+    - FDR (0.05): 1 significant metric
+
+    - Bonferroni: 0 significant metrics'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FDR (0.05) correction resulted in 1 significant metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:55:20Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: bonferroni correction 0 significant metrics
+  claim_id: c_b01278f1
+  context: 'P-value Correction Sensitivity:
+
+    - Uncorrected: 2 significant metrics
+
+    - FDR (0.05): 1 significant metric
+
+    - Bonferroni: 0 significant metrics'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction resulted in 0 significant metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T20:55:37Z'

@@ -1,7 +1,3 @@
-"""
-Logging utilities for the Brain Network Dynamics pipeline.
-Provides structured logging and provenance tracking.
-"""
 import logging
 import sys
 import json
@@ -10,67 +6,86 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs JSON logs."""
     def format(self, record):
-        log_obj = {
+        log_record = {
             "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
-            "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
             "line": record.lineno
         }
-        if record.exc_info:
-            log_obj["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_obj)
-
-def setup_logging(level: int = logging.INFO, log_file: Optional[Path] = None) -> logging.Logger:
-    """
-    Configure root logger with console and optional file handlers.
-    
-    Args:
-        level: Logging level (e.g., logging.INFO).
-        log_file: Optional path to write logs to.
         
-    Returns:
-        Configured logger instance.
+        # Add extra fields if present
+        if hasattr(record, "subject_id"):
+            log_record["subject_id"] = record.subject_id
+        if hasattr(record, "reason"):
+            log_record["reason"] = record.reason
+        if hasattr(record, "category"):
+            log_record["category"] = record.category
+        if hasattr(record, "details"):
+            log_record["details"] = record.details
+
+        return json.dumps(log_record)
+
+def setup_logging(log_file: Path, name: str = "pipeline") -> logging.Logger:
     """
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(level)
+    Set up logging to both file and console.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
     
-    # Clear existing handlers
-    logger.handlers.clear()
+    # Prevent duplicate handlers
+    if logger.handlers:
+        return logger
+
+    # Ensure log directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(JsonFormatter())
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    ))
+    
+    logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     
-    # File handler
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(JsonFormatter())
-        logger.addHandler(file_handler)
-        
     return logger
 
-def log_provenance(logger: logging.Logger, stage: str, details: Dict[str, Any]) -> None:
-    """Log structured provenance information for a pipeline stage."""
-    extra_data = {
-        "provenance_stage": stage,
-        "timestamp": datetime.utcnow().isoformat(),
-        **details
+def log_provenance(logger: logging.Logger, step: str, details: Dict[str, Any]):
+    """
+    Log provenance information for a pipeline step.
+    """
+    logger.info(json.dumps({
+        "event": "provenance",
+        "step": step,
+        "details": details
+    }))
+
+def log_exclusion(logger: logging.Logger, subject_id: str, reason: str, category: str, details: Optional[Dict[str, Any]] = None):
+    """
+    Log an exclusion event for a subject.
+    This is the core function for T016: logging excluded subjects and reasons.
+    """
+    log_data = {
+        "event": "exclusion",
+        "subject_id": subject_id,
+        "reason": reason,
+        "category": category,
+        "timestamp": datetime.utcnow().isoformat()
     }
-    logger.info("Provenance", extra={"json": extra_data})
+    if details:
+        log_data["details"] = details
     
-def log_exclusion(logger: logging.Logger, subject_id: str, reason: str) -> None:
-    """Log subject exclusion with reason."""
-    logger.warning(f"Subject excluded: {subject_id} | Reason: {reason}")
+    # Log as a structured JSON message
+    logger.info(json.dumps(log_data))
+    
+    # Also log a standard message for readability in the log file
+    logger.warning(f"EXCLUDED: Subject {subject_id} - {reason} (Category: {category})")

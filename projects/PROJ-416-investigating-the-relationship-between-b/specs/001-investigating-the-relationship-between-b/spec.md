@@ -77,7 +77,7 @@ As a researcher, I need to perform ANCOVA analysis modeling Post-treatment score
 - **FR-007**: System MUST generate diagnostic plots including scatter plots with regression lines and residual diagnostics (See US-3)
 - **FR-008**: System MUST frame all findings as ASSOCIATIONAL when dataset is observational (no random assignment) (See US-3)
 - **FR-009**: System MUST require validated anxiety assessment instruments with citable validation documentation (e.g., GAD-7, HAM-A); if the instrument is not validated, the system MUST halt (See US-1)
-- **FR-010**: System MUST perform sensitivity analysis sweeping specific decision cutoffs (motion threshold: {2mm, 3mm}; p-value: {, 0.05, 0.1}) and report variation in outcome rates (See US-3)
+- **FR-010**: System MUST perform sensitivity analysis sweeping specific decision cutoffs (motion threshold: a small range of millimeter-scale displacements; p-value: {,, 0.1}) and report variation in outcome rates (See US-3)
 - **FR-011**: System MUST verify the existence of paired pre/post treatment fMRI and clinical scores in the target dataset before execution; if missing, the system MUST halt with a fatal error (See US-1)
 - **FR-012**: System MUST calculate Variance Inflation Factor (VIF) for all predictors; if VIF > 5, the system MUST apply Ridge regression with lambda=1.0; if the model fails to converge or R² < 0.05, the system MUST switch to separate univariate models (See US-3)
 - **FR-013**: System MUST include known confounders (medication status, age, comorbidities) as covariates in the ANCOVA model if data is available; if data is missing, the system MUST flag this as a limitation in the report (See US-3)

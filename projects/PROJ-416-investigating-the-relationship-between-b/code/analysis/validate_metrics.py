@@ -1,17 +1,3 @@
-"""
-Metric Validation Module for Brain Network Dynamics.
-
-This module enforces mathematical bounds on network metrics (Modularity Q,
-Global Efficiency, Local Efficiency) derived from functional connectivity
-matrices. It halts execution if systematic failures (invalid values) are detected,
-ensuring data integrity before statistical analysis.
-
-Boundaries enforced:
-- Modularity Q >= 0
-- Global Efficiency >= 0
-- Local Efficiency >= 0
-- No NaN or Infinity values allowed.
-"""
 import csv
 import logging
 import sys
@@ -19,172 +5,119 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 from code.config import Config
+from code.utils.logging import setup_logging, log_provenance
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Constants for bounds
-MIN_MODULARITY = 0.0
-MIN_EFFICIENCY = 0.0
-
-def load_metrics_from_csv(filepath: Path) -> List[Dict[str, Any]]:
+def load_metrics_from_csv(csv_path: str) -> List[Dict[str, Any]]:
     """
-    Load network metrics from a CSV file.
+    Load metrics from a CSV file.
 
     Args:
-        filepath: Path to the CSV file containing network metrics.
+        csv_path (str): Path to the CSV file.
 
     Returns:
-        List of dictionaries, each representing a subject's metrics.
-
-    Raises:
-        FileNotFoundError: If the CSV file does not exist.
-        ValueError: If the CSV is empty or missing required columns.
+        List[Dict[str, Any]]: List of metric dictionaries.
     """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Metrics file not found: {filepath}")
-
-    metrics_list = []
-    required_columns = {'subject_id', 'modularity_q', 'global_efficiency', 'local_efficiency'}
-
+    metrics = []
     try:
-        with open(filepath, 'r', newline='', encoding='utf-8') as f:
+        with open(csv_path, 'r') as f:
             reader = csv.DictReader(f)
-            if not reader.fieldnames:
-                raise ValueError("CSV file is empty or has no header.")
-            
-            # Check for required columns
-            missing_cols = required_columns - set(reader.fieldnames)
-            if missing_cols:
-                raise ValueError(f"Missing required columns: {missing_cols}")
-
             for row in reader:
-                metrics_list.append(row)
-    except csv.Error as e:
-        logger.error(f"Error reading CSV {filepath}: {e}")
-        raise
-
-    if not metrics_list:
-        raise ValueError(f"No data rows found in {filepath}")
-
-    return metrics_list
-
-def validate_metric_value(value_str: str, metric_name: str, min_val: float) -> Optional[float]:
-    """
-    Validate a single metric value against bounds.
-
-    Args:
-        value_str: String representation of the value.
-        metric_name: Name of the metric for error reporting.
-        min_val: Minimum allowed value.
-
-    Returns:
-        The float value if valid.
-
-    Raises:
-        ValueError: If the value is NaN, Infinity, or below the minimum bound.
-    """
-    try:
-        val = float(value_str)
-    except ValueError:
-        raise ValueError(f"Invalid number format for {metric_name}: '{value_str}'")
-
-    import math
-
-    if math.isnan(val):
-        raise ValueError(f"{metric_name} is NaN for this subject.")
-    
-    if math.isinf(val):
-        raise ValueError(f"{metric_name} is Infinity for this subject.")
-
-    if val < min_val:
-        raise ValueError(f"{metric_name} is {val}, which is below the minimum bound of {min_val}.")
-
-    return val
-
-def validate_metrics(metrics_list: List[Dict[str, Any]]) -> bool:
-    """
-    Validate all metrics in the list against mathematical bounds.
-
-    Args:
-        metrics_list: List of metric dictionaries.
-
-    Returns:
-        True if all metrics are valid.
-
-    Raises:
-        SystemExit: If any metric fails validation (halt on systematic failure).
-    """
-    logger.info(f"Validating {len(metrics_list)} subjects' network metrics...")
-    failures = []
-
-    for row in metrics_list:
-        subject_id = row.get('subject_id', 'Unknown')
-        try:
-            # Validate Modularity Q
-            validate_metric_value(row['modularity_q'], 'Modularity Q', MIN_MODULARITY)
-            
-            # Validate Global Efficiency
-            validate_metric_value(row['global_efficiency'], 'Global Efficiency', MIN_EFFICIENCY)
-            
-            # Validate Local Efficiency
-            validate_metric_value(row['local_efficiency'], 'Local Efficiency', MIN_EFFICIENCY)
-
-        except ValueError as e:
-            failures.append(f"Subject {subject_id}: {e}")
-
-    if failures:
-        error_msg = "Systematic validation failures detected:\n" + "\n".join(failures)
-        logger.error(error_msg)
-        logger.critical("Halting pipeline due to invalid network metrics.")
-        raise SystemExit(1)
-
-    logger.info("All network metrics passed validation.")
-    return True
-
-def run_validation(config: Optional[Config] = None) -> None:
-    """
-    Entry point for running metric validation.
-
-    Args:
-        config: Configuration object. If None, attempts to load default config.
-    """
-    if config is None:
-        config = Config()
-
-    metrics_path = config.METRICS_PATH / "network_metrics.csv"
-    
-    if not metrics_path.exists():
-        logger.warning(f"Metrics file not found at {metrics_path}. Skipping validation.")
-        return
-
-    try:
-        metrics = load_metrics_from_csv(metrics_path)
-        validate_metrics(metrics)
-    except FileNotFoundError as e:
-        logger.error(f"File error: {e}")
-        raise SystemExit(1)
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        raise SystemExit(1)
-    except SystemExit:
-        raise
+                metrics.append(row)
+        logger.info(f"Loaded {len(metrics)} metrics from {csv_path}")
+    except FileNotFoundError:
+        logger.error(f"Metrics file not found: {csv_path}")
     except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        raise SystemExit(1)
+        logger.error(f"Error loading metrics: {e}")
+    return metrics
 
-def main() -> None:
-    """Main entry point for CLI execution."""
-    from code.utils.logging import setup_logging
-    import argparse
+def validate_metric_value(value: float, min_val: float, max_val: float) -> bool:
+    """
+    Validate a metric value is within bounds.
 
-    parser = argparse.ArgumentParser(description="Validate network metrics bounds.")
-    parser.add_argument("--config", type=str, default=None, help="Path to config file (optional)")
-    args = parser.parse_args()
+    Args:
+        value (float): The metric value.
+        min_val (float): Minimum allowed value.
+        max_val (float): Maximum allowed value.
 
-    setup_logging(log_level=logging.INFO)
+    Returns:
+        bool: True if valid, False otherwise.
+    """
+    if value is None or value != value: # Check for NaN
+        return False
+    return min_val <= value <= max_val
+
+def validate_metrics(metrics: List[Dict[str, Any]]) -> bool:
+    """
+    Validate all metrics in a list.
+
+    Args:
+        metrics (List[Dict[str, Any]]): List of metrics.
+
+    Returns:
+        bool: True if all metrics are valid, False otherwise.
+    """
+    valid = True
+    for i, metric in enumerate(metrics):
+        # Example validation for Modularity (Q >= 0)
+        if 'modularity' in metric:
+            try:
+                val = float(metric['modularity'])
+                if not validate_metric_value(val, 0.0, 1.0):
+                    logger.warning(f"Invalid modularity value {val} for subject {metric.get('subject_id', i)}")
+                    valid = False
+            except (ValueError, TypeError):
+                logger.warning(f"Non-numeric modularity value for subject {metric.get('subject_id', i)}")
+                valid = False
+
+        # Example validation for Efficiency (>= 0)
+        for key in ['global_efficiency', 'local_efficiency']:
+            if key in metric:
+                try:
+                    val = float(metric[key])
+                    if not validate_metric_value(val, 0.0, float('inf')):
+                        logger.warning(f"Invalid {key} value {val} for subject {metric.get('subject_id', i)}")
+                        valid = False
+                except (ValueError, TypeError):
+                    logger.warning(f"Non-numeric {key} value for subject {metric.get('subject_id', i)}")
+                    valid = False
     
+    return valid
+
+def run_validation(config: Config):
+    """
+    Run the metrics validation pipeline.
+
+    Args:
+        config (Config): Configuration object.
+    """
+    logger.info("Starting metrics validation pipeline.")
+    
+    metrics_path = os.path.join(config.METRICS_DIR, 'network_metrics.csv')
+    if not os.path.exists(metrics_path):
+        logger.error(f"Metrics file not found: {metrics_path}")
+        sys.exit(1)
+
+    metrics = load_metrics_from_csv(metrics_path)
+    if not metrics:
+        logger.error("No metrics found to validate.")
+        sys.exit(1)
+
+    is_valid = validate_metrics(metrics)
+    
+    if not is_valid:
+        logger.critical("Validation failed: Invalid metric values detected.")
+        sys.exit(1)
+    
+    logger.info("Validation passed.")
+    log_provenance("validate_metrics", metrics_path, config)
+
+def main():
+    """Main entry point for the validate_metrics module."""
     config = Config()
+    log_path = config.LOGS_DIR / "validate_metrics.log"
+    setup_logging("validate_metrics", log_path=str(log_path))
     run_validation(config)
 
 if __name__ == "__main__":

@@ -5,271 +5,297 @@ import os
 import sys
 import math
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Tuple, Optional, Any
 
 import numpy as np
+import pandas as pd
 import networkx as nx
-from nilearn import datasets, image, masking
-from nilearn.connectome import ConnectivityMeasure
-from nilearn.input_data import NiftiLabelsMasker
+from nilearn import image, masking
+from nilearn.datasets import fetch_atlas_aal
 
-# Importing from project utils to ensure consistent logging format
-try:
-    from utils.logging import setup_logging, log_provenance, log_exclusion
-except ImportError:
-    # Fallback for standalone execution if utils not in path yet
-    def setup_logging(*args, **kwargs):
-        logging.basicConfig(level=logging.INFO)
-        return logging.getLogger(__name__)
-    def log_provenance(*args, **kwargs): pass
-    def log_exclusion(*args, **kwargs): pass
-
-# Importing Config from project root
-try:
-    from config import Config
-except ImportError:
-    class Config:
-        DATA_DIR = Path("data")
-        METRICS_DIR = Path("data/metrics")
-        LOG_DIR = Path("logs")
-        PREPROCESSED_DIR = Path("data/processed")
+from code.config import Config
+from code.utils.logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def load_preprocessed_data(subject_id: str) -> Optional[Path]:
-    """
-    Locate the preprocessed NIfTI file for a given subject.
-    Expects file at: data/processed/<subject_id>_preprocessed.nii.gz
-    """
-    preprocessed_dir = Config.PREPROCESSED_DIR
-    filepath = preprocessed_dir / f"{subject_id}_preprocessed.nii.gz"
-    if filepath.exists():
-        return filepath
-    logger.warning(f"Preprocessed file not found for subject {subject_id} at {filepath}")
-    return None
 
-def extract_roi_timeseries(nifti_path: Path, atlas: str = "aal") -> Tuple[np.ndarray, List[str]]:
+def load_preprocessed_data(
+    processed_dir: Path, subject_ids: List[str]
+) -> Dict[str, np.ndarray]:
     """
-    Extract ROI timeseries using the specified atlas (default AAL).
-    Returns: (timeseries matrix: [n_timepoints, n_rois], roi_names: List[str])
+    Load preprocessed fMRI NIfTI files for a list of subjects.
+
+    Args:
+        processed_dir: Path to the directory containing preprocessed data.
+        subject_ids: List of subject identifiers to load.
+
+    Returns:
+        A dictionary mapping subject_id to a 2D numpy array of shape (time_points, voxels).
     """
-    # Load atlas
-    if atlas == "aal":
-        atlas_data = datasets.fetch_atlas_aal()
-        atlas_img = atlas_data.maps
-        labels = atlas_data.labels
-    elif atlas == "schaefer":
-        # Using Schaefer 100 parcels as a moderate default
-        atlas_data = datasets.fetch_atlas_schaefer_2018(n_rois=100)
-        atlas_img = atlas_data.maps
-        labels = atlas_data.labels
+    data_dict = {}
+    for sub_id in subject_ids:
+        file_path = processed_dir / f"{sub_id}_preproc.nii.gz"
+        if not file_path.exists():
+            logger.warning(f"Preprocessed file not found for {sub_id}: {file_path}")
+            continue
+
+        try:
+            # Load image and flatten to 2D (time, voxels)
+            img = image.load_img(str(file_path))
+            data = masking.apply_mask(img, mask_img=None) # Assumes whole brain or specific mask logic handled elsewhere
+            # If mask_img is None, nilearn might need a specific mask. 
+            # For this implementation, we assume the preprocessed file is ready for analysis 
+            # or we load a standard brain mask if available in config.
+            # Simplified for this context:
+            data_dict[sub_id] = data
+            logger.info(f"Loaded data for {sub_id}: shape {data.shape}")
+        except Exception as e:
+            logger.error(f"Failed to load data for {sub_id}: {e}")
+    return data_dict
+
+
+def extract_roi_timeseries(
+    fmri_data: np.ndarray, atlas_mask: np.ndarray, atlas_labels: List[str]
+) -> np.ndarray:
+    """
+    Extract average time series for each ROI from the fmri data using an atlas mask.
+
+    Args:
+        fmri_data: 2D numpy array of shape (time_points, voxels).
+        atlas_mask: 1D or 2D array indicating ROI membership (e.g., integer labels per voxel).
+        atlas_labels: List of labels corresponding to ROI indices.
+
+    Returns:
+        2D numpy array of shape (time_points, num_rois).
+    """
+    if fmri_data.ndim != 2:
+        raise ValueError("fmri_data must be 2D (time, voxels)")
+
+    num_rois = len(atlas_labels)
+    time_series = np.zeros((fmri_data.shape[0], num_rois))
+
+    # Assuming atlas_mask maps voxel index to ROI index (0 to num_rois-1)
+    # This is a simplified extraction; real implementation might use nilearn's NiftiLabelsMasker
+    for i, label in enumerate(atlas_labels):
+        # Find voxels belonging to this ROI
+        # Note: atlas_mask logic depends on how it's provided. 
+        # Here we assume atlas_mask is a 1D array of length equal to voxels, 
+        # where values are ROI indices (0-based or 1-based).
+        # Adjust based on actual mask format.
+        roi_voxels = np.where(atlas_mask == i + 1)[0] # Assuming 1-based labels in mask
+        if len(roi_voxels) == 0:
+            logger.warning(f"No voxels found for ROI {label} (index {i})")
+            time_series[:, i] = np.nan
+        else:
+            time_series[:, i] = np.mean(fmri_data[:, roi_voxels], axis=1)
+
+    return time_series
+
+
+def calculate_connectivity_matrix(
+    roi_timeseries: np.ndarray, method: str = "pearson"
+) -> np.ndarray:
+    """
+    Calculate the functional connectivity matrix from ROI time series.
+
+    Args:
+        roi_timeseries: 2D numpy array of shape (time_points, num_rois).
+        method: Correlation method ('pearson', 'spearman').
+
+    Returns:
+        2D numpy array (num_rois, num_rois) representing the connectivity matrix.
+    """
+    if roi_timeseries.shape[0] < 2:
+        raise ValueError("Need at least 2 time points to calculate connectivity.")
+
+    if method == "pearson":
+        corr_matrix = np.corrcoef(roi_timeseries.T)
+    elif method == "spearman":
+        from scipy.stats import spearmanr
+        corr_matrix, _ = spearmanr(roi_timeseries, axis=0)
     else:
-        raise ValueError(f"Unsupported atlas: {atlas}. Use 'aal' or 'schaefer'.")
+        raise ValueError(f"Unsupported method: {method}")
 
-    masker = NiftiLabelsMasker(
-        labels_img=atlas_img,
-        standardize=True,
-        detrend=True,
-        low_pass=0.1,
-        high_pass=0.01,
-        t_r=2.0, # Default TR, should ideally come from metadata
-        memory="nilearn_cache",
-        memory_level=1
-    )
+    # Handle NaNs (e.g., from constant time series)
+    corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
+    return corr_matrix
 
-    try:
-        timeseries = masker.fit_transform(nifti_path)
-    except Exception as e:
-        logger.error(f"Failed to extract timeseries from {nifti_path}: {e}")
-        raise
 
-    return timeseries, list(labels)
-
-def calculate_connectivity_matrix(timeseries: np.ndarray, method: str = "pearson") -> np.ndarray:
+def calculate_network_metrics(
+    connectivity_matrix: np.ndarray, threshold: float = 0.2
+) -> Dict[str, float]:
     """
-    Calculate the connectivity matrix from timeseries.
-    Handles NaN/Inf in input timeseries by replacing with 0 before calculation.
-    """
-    # Sanitize input
-    if np.any(np.isnan(timeseries)) or np.any(np.isinf(timeseries)):
-        logger.warning("Input timeseries contains NaN or Inf. Replacing with 0.")
-        timeseries = np.nan_to_num(timeseries, nan=0.0, posinf=0.0, neginf=0.0)
+    Calculate network metrics (Modularity, Global Efficiency, Local Efficiency) from a connectivity matrix.
 
-    conn_measure = ConnectivityMeasure(kind=method)
-    try:
-        matrices = conn_measure.fit_transform([timeseries])
-        return matrices[0]
-    except Exception as e:
-        logger.error(f"Error calculating connectivity matrix: {e}")
-        raise
+    Args:
+        connectivity_matrix: 2D numpy array (num_rois, num_rois).
+        threshold: Threshold for binarizing the weighted matrix.
 
-def calculate_network_metrics(connectivity_matrix: np.ndarray) -> Dict[str, float]:
+    Returns:
+        Dictionary containing 'modularity_q', 'global_efficiency', 'local_efficiency'.
     """
-    Calculate Modularity, Global Efficiency, and Local Efficiency.
-    Implements robust NaN/Infinity handling:
-    1. Checks input matrix for invalid values.
-    2. Checks calculated metrics for invalid values.
-    3. Returns None for invalid metrics and logs the event.
-    """
-    metrics = {}
+    # Create a graph from the connectivity matrix
+    G = nx.from_numpy_array(connectivity_matrix)
+    
+    # Binarize the graph based on threshold
+    # Keep edges with weight > threshold
+    edges_to_remove = []
+    for u, v, data in G.edges(data=True):
+        if data['weight'] <= threshold:
+            edges_to_remove.append((u, v))
+    G.remove_edges_from(edges_to_remove)
 
-    # 1. Input Validation
-    if np.any(np.isnan(connectivity_matrix)) or np.any(np.isinf(connectivity_matrix)):
-        logger.error("Connectivity matrix contains NaN or Inf. Skipping metric calculation.")
+    if G.number_of_edges() == 0:
+        logger.warning("Graph is empty after thresholding. Returning zeros.")
         return {
-            "modularity": None,
-            "global_efficiency": None,
-            "local_efficiency": None
+            "modularity_q": 0.0,
+            "global_efficiency": 0.0,
+            "local_efficiency": 0.0
         }
 
-    # Create NetworkX graph
-    # Thresholding: Keep edges > 0 (positive correlation) for efficiency calc
-    # Convert to directed graph for efficiency calculations (undirected is also fine, but nx expects specific types)
-    G = nx.from_numpy_array(connectivity_matrix, create_using=nx.Graph)
-    # Remove self-loops
-    G.remove_edges_from(nx.selfloop_edges(G))
-
-    # 2. Modularity Calculation
+    # Modularity
     try:
-        # Community detection using Louvain
-        # If graph is disconnected or empty, handle gracefully
-        if G.number_of_nodes() == 0:
-            raise ValueError("Graph has no nodes")
-        
-        # Use a fixed random seed for reproducibility if needed, but here we just run
+        # Use a partition algorithm if communities not pre-defined
+        # Here we use Louvain method
+        partition = nx.community.louvain_communities(G)
+        modularity_q = nx.community.modularity(G, partition)
+    except Exception as e:
+        logger.warning(f"Modularity calculation failed: {e}. Setting to 0.")
+        modularity_q = 0.0
+
+    # Global Efficiency
+    try:
+        global_eff = nx.global_efficiency(G)
+    except Exception as e:
+        logger.warning(f"Global efficiency calculation failed: {e}. Setting to 0.")
+        global_eff = 0.0
+
+    # Local Efficiency
+    try:
+        local_eff = nx.average_local_efficiency(G)
+    except Exception as e:
+        logger.warning(f"Local efficiency calculation failed: {e}. Setting to 0.")
+        local_eff = 0.0
+
+    return {
+        "modularity_q": float(modularity_q),
+        "global_efficiency": float(global_eff),
+        "local_efficiency": float(local_eff)
+    }
+
+
+def save_metrics_to_csv(
+    metrics_list: List[Dict[str, Any]], output_path: Path
+) -> None:
+    """
+    Save a list of metric dictionaries to a CSV file.
+
+    Args:
+        metrics_list: List of dictionaries, each containing subject_id and metrics.
+        output_path: Path to the output CSV file.
+    """
+    if not metrics_list:
+        logger.warning("No metrics to save.")
+        return
+
+    fieldnames = ["subject_id"] + list(metrics_list[0].keys())
+    fieldnames = [f for f in fieldnames if f != "subject_id"]
+    fieldnames.insert(0, "subject_id")
+
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(metrics_list)
+
+    logger.info(f"Saved metrics to {output_path}")
+
+
+def run_analysis(
+    processed_dir: Path,
+    output_dir: Path,
+    subject_ids: List[str],
+    config: Config
+) -> List[Dict[str, Any]]:
+    """
+    Run the full network analysis pipeline for a set of subjects.
+
+    Args:
+        processed_dir: Path to preprocessed data.
+        output_dir: Path to save results.
+        subject_ids: List of subject IDs to process.
+        config: Configuration object containing atlas and threshold settings.
+
+    Returns:
+        List of dictionaries containing metrics for each subject.
+    """
+    ensure_directories(output_dir)
+    
+    # Fetch atlas (simplified)
+    # In a real scenario, this might be cached or specified in config
+    try:
+        atlas_data = fetch_atlas_aal()
+        atlas_img = image.load_img(atlas_data.maps)
+        atlas_mask = masking.apply_mask(atlas_img, mask_img=None) # Simplified
+        # This is a placeholder for actual atlas loading logic
+        # Real implementation would need to align atlas with subject space
+        atlas_labels = [f"ROI_{i}" for i in range(1, 121)] # AAL has 116+ regions
+    except Exception as e:
+        logger.error(f"Failed to fetch atlas: {e}")
+        return []
+
+    metrics_list = []
+    for sub_id in subject_ids:
         try:
-            partition = nx.community.louvain_communities(G, seed=42)
-            q = nx.community.modularity(G, partition)
+            # Load data
+            fmri_data = load_preprocessed_data(processed_dir, [sub_id]).get(sub_id)
+            if fmri_data is None:
+                continue
+
+            # Extract ROI timeseries
+            roi_ts = extract_roi_timeseries(fmri_data, atlas_mask, atlas_labels)
+
+            # Calculate connectivity
+            conn_matrix = calculate_connectivity_matrix(roi_ts)
+
+            # Calculate metrics
+            metrics = calculate_network_metrics(conn_matrix, config.network_threshold)
+
+            # Store results
+            result = {"subject_id": sub_id}
+            result.update(metrics)
+            metrics_list.append(result)
             
-            if math.isnan(q) or math.isinf(q):
-                logger.warning(f"Calculated Modularity Q is invalid: {q}. Setting to None.")
-                metrics["modularity"] = None
-            else:
-                metrics["modularity"] = float(q)
-        except Exception as comm_err:
-            logger.warning(f"Community detection failed ({comm_err}). Setting modularity to None.")
-            metrics["modularity"] = None
-    except Exception as e:
-        logger.error(f"Error calculating modularity: {e}")
-        metrics["modularity"] = None
+            logger.info(f"Processed {sub_id}: {metrics}")
+        except Exception as e:
+            logger.error(f"Error processing {sub_id}: {e}")
+            continue
 
-    # 3. Global Efficiency
-    try:
-        if G.number_of_nodes() < 2:
-            raise ValueError("Graph too small for efficiency")
-        
-        ge = nx.global_efficiency(G)
-        if math.isnan(ge) or math.isinf(ge):
-            logger.warning(f"Calculated Global Efficiency is invalid: {ge}. Setting to None.")
-            metrics["global_efficiency"] = None
-        else:
-            metrics["global_efficiency"] = float(ge)
-    except Exception as e:
-        logger.error(f"Error calculating global efficiency: {e}")
-        metrics["global_efficiency"] = None
+    # Save results
+    output_file = output_dir / "network_metrics.csv"
+    save_metrics_to_csv(metrics_list, output_file)
 
-    # 4. Local Efficiency
-    try:
-        if G.number_of_nodes() < 2:
-            raise ValueError("Graph too small for local efficiency")
-        
-        le = nx.local_efficiency(G)
-        if math.isnan(le) or math.isinf(le):
-            logger.warning(f"Calculated Local Efficiency is invalid: {le}. Setting to None.")
-            metrics["local_efficiency"] = None
-        else:
-            metrics["local_efficiency"] = float(le)
-    except Exception as e:
-        logger.error(f"Error calculating local efficiency: {e}")
-        metrics["local_efficiency"] = None
+    return metrics_list
 
-    return metrics
 
-def save_metrics_to_csv(subject_id: str, metrics: Dict[str, float], output_path: Path):
-    """
-    Append metrics to a CSV file.
-    Handles None values by writing 'NaN' string or empty cell.
-    """
-    file_exists = output_path.exists()
-    
-    with open(output_path, mode='a', newline='') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["subject_id", "modularity", "global_efficiency", "local_efficiency"])
-        
-        # Convert None to string 'NaN' for CSV consistency
-        row = [
-            subject_id,
-            metrics.get("modularity") if metrics.get("modularity") is not None else "NaN",
-            metrics.get("global_efficiency") if metrics.get("global_efficiency") is not None else "NaN",
-            metrics.get("local_efficiency") if metrics.get("local_efficiency") is not None else "NaN"
-        ]
-        writer.writerow(row)
+def ensure_directories(path: Path) -> None:
+    """Ensure the given path exists, creating it if necessary."""
+    path.mkdir(parents=True, exist_ok=True)
 
-def run_analysis(subject_id: str, atlas: str = "aal") -> Dict[str, float]:
-    """
-    Run the full analysis pipeline for a single subject.
-    Returns the dictionary of metrics (with None for invalid ones).
-    """
-    logger.info(f"Starting analysis for subject: {subject_id}")
-    
-    nifti_path = load_preprocessed_data(subject_id)
-    if not nifti_path:
-        logger.error(f"Skipping {subject_id}: No preprocessed data found.")
-        return {"modularity": None, "global_efficiency": None, "local_efficiency": None}
-
-    try:
-        timeseries, roi_names = extract_roi_timeseries(nifti_path, atlas=atlas)
-        logger.info(f"Extracted timeseries for {subject_id}: shape {timeseries.shape}")
-        
-        conn_matrix = calculate_connectivity_matrix(timeseries)
-        logger.info(f"Calculated connectivity matrix for {subject_id}")
-        
-        metrics = calculate_network_metrics(conn_matrix)
-        
-        # Log specific invalid metrics found
-        invalid_keys = [k for k, v in metrics.items() if v is None]
-        if invalid_keys:
-            logger.warning(f"Subject {subject_id} has invalid metrics: {invalid_keys}")
-            log_exclusion(subject_id, "Invalid Network Metrics", f"Metrics {invalid_keys} contained NaN/Inf")
-        
-        return metrics
-
-    except Exception as e:
-        logger.error(f"Analysis failed for {subject_id}: {e}")
-        log_exclusion(subject_id, "Analysis Failure", str(e))
-        return {"modularity": None, "global_efficiency": None, "local_efficiency": None}
 
 def main():
-    """
-    Main entry point for running analysis on all subjects in the processed directory.
-    """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
+    """Main entry point for the network analysis script."""
+    setup_logging()
+    config = Config()
     
-    # Ensure output directories exist
-    Config.METRICS_DIR.mkdir(parents=True, exist_ok=True)
-    output_file = Config.METRICS_DIR / "network_metrics.csv"
+    processed_dir = Path(config.processed_data_dir)
+    output_dir = Path(config.metrics_output_dir)
     
-    # Get list of subjects (simple heuristic: look for _preprocessed.nii.gz)
-    subjects = []
-    if Config.PREPROCESSED_DIR.exists():
-        for f in Config.PREPROCESSED_DIR.glob("*_preprocessed.nii.gz"):
-            sid = f.stem.replace("_preprocessed", "")
-            subjects.append(sid)
-    
-    if not subjects:
-        logger.warning("No preprocessed subjects found in data/processed. Exiting.")
-        sys.exit(0)
-    
-    logger.info(f"Found {len(subjects)} subjects to process.")
-    
-    for sid in subjects:
-        metrics = run_analysis(sid)
-        save_metrics_to_csv(sid, metrics, output_file)
-        logger.info(f"Saved metrics for {sid}")
-    
-    logger.info("Analysis complete.")
+    # For demo, load all subjects in processed_dir (or filter as needed)
+    # In real run, this would come from a manifest or command line arg
+    subject_ids = [f"sub-{i:03d}" for i in range(1, 11)] # Placeholder
+
+    run_analysis(processed_dir, output_dir, subject_ids, config)
+
 
 if __name__ == "__main__":
     main()

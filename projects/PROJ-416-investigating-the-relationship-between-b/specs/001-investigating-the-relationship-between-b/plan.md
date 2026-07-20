@@ -20,7 +20,7 @@
 **Primary Dependencies**: `nibabel`, `nilearn`, `scikit-learn`, `networkx`, `pandas`, `numpy`, `matplotlib`, `scipy`  
 **Storage**: Local file system (`data/`), CSV/Parquet for metrics  
 **Testing**: `pytest` (unit tests for metric bounds, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple CPU cores, 7GB RAM, 14GB Disk, No GPU)  
 **Project Type**: Data Science Pipeline / CLI  
 **Performance Goals**: Preprocess **N=10** subjects within 6 hours; total runtime ≤6h (Reduced from N=20 to ensure feasibility).  
 **Constraints**: No GPU/CUDA; no deep learning training; memory <7GB; disk <14GB; strict data hygiene (checksums).  
@@ -91,6 +91,6 @@ projects/416-brain-network-dynamics/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Univariate Models Only** | Metrics (Modularity, Efficiency) are highly interdependent. Multivariate models with Ridge fallback (Spec FR-005) introduce p-hacking risks and invalid p-values. Univariate models with FDR correction provide a statistically sounder primary analysis for small N. | Multivariate models with Ridge switching are rejected due to methodological unsoundness (biased coefficients, invalid p-values) and the risk of selection bias. **Spec requires update to remove this mandate.** |
-| **Sensitivity Analysis** | FR-010 requires sweeping cutoffs (motion threshold, p 0.01/0.05/0.1). | A single cutoff run cannot demonstrate robustness of findings to threshold choices. |
+| **Sensitivity Analysis** | FR-010 requires sweeping cutoffs (motion threshold, p /0.05/0.1). | A single cutoff run cannot demonstrate robustness of findings to threshold choices. |
 | **Dataset-Variable Gate** | FR-011 requires halting if pre/post data is missing. | Proceeding without paired data would result in a fatal analysis failure or invalid inference. |
 | **N=10 Limit** | A subset of subjects exceeds 6h runtime on 2 CPU cores. | Processing a cohort of subjects takes approximately several hours.; N=10 ensures feasibility within the 6h CI limit. |

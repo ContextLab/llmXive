@@ -1,1 +1,1 @@
-"""Test suite for the Brain Network Dynamics pipeline."""
+"""Test package initialization."""
