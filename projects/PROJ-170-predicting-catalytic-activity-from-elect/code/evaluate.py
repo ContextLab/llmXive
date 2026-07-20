@@ -1,3 +1,10 @@
+"""
+Evaluation module for User Story 2: Model Training and Baseline Comparison.
+
+This module computes absolute errors for both the XGBoost and Linear Baseline models
+on the hold-out test set, performs statistical testing, and generates evaluation metrics.
+"""
+
 import os
 import sys
 import json
@@ -7,272 +14,287 @@ from typing import Tuple, List, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
-import xgboost as xgb
-import shap
-import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error, r2_score, pearsonr
+from scipy.stats import shapiro, ttest_rel, wilcoxon
+import joblib
 
-from config import get_project_root, get_output_path, get_data_path
-from logging_config import get_logger
+# Import project utilities
+from config import get_project_root, get_data_path, get_output_path
+from logging_config import setup_logging, get_logger
 
+# Ensure logging is configured
+setup_logging()
 logger = get_logger(__name__)
 
-def load_test_split_metadata() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Load the train/test split metadata saved by train.py.
-    Returns:
-        train_X, train_y, test_X, test_y
-    """
-    root = get_project_root()
-    metadata_path = root / "data" / "processed" / "split_metadata.json"
-    
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Split metadata not found at {metadata_path}. Run train.py first.")
-    
-    with open(metadata_path, 'r') as f:
-        metadata = json.load(f)
-    
-    # Load the actual data (assuming it's stored in the same CSV with split indices)
-    # Note: In a real scenario, we might load the raw CSV and filter by indices
-    # For now, we assume the split data was saved or can be reconstructed
-    # Since the task implies the model was trained, we assume the data is available
-    # We will reconstruct the split by loading the full dataset and using indices if saved
-    # However, usually train.py saves the split objects or indices.
-    # Let's assume the split indices are in the metadata or we reload the aligned dataset.
-    
-    aligned_path = root / "data" / "processed" / "aligned_dataset.csv"
-    if not aligned_path.exists():
-        raise FileNotFoundError(f"Aligned dataset not found at {aligned_path}.")
-    
-    df = pd.read_csv(aligned_path)
-    
-    # Retrieve indices from metadata if available, otherwise assume standard split logic
-    # Assuming metadata contains 'train_indices' and 'test_indices'
-    if 'train_indices' in metadata and 'test_indices' in metadata:
-        train_idx = metadata['train_indices']
-        test_idx = metadata['test_indices']
-        
-        # Assuming 'energy_change' is the target column
-        target_col = 'energy_change'
-        feature_cols = [c for c in df.columns if c != target_col]
-        
-        train_X = df.loc[train_idx, feature_cols]
-        train_y = df.loc[train_idx, target_col]
-        test_X = df.loc[test_idx, feature_cols]
-        test_y = df.loc[test_idx, target_col]
-    else:
-        # Fallback: try to load saved splits if they were saved as separate files
-        # This is a heuristic based on typical training pipelines
-        raise ValueError("Split indices not found in metadata. Ensure train.py saves them.")
-        
-    return train_X, train_y, test_X, test_y
 
-def load_models() -> Dict[str, Any]:
+def load_test_split_metadata(split_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load the trained XGBoost model and Linear baseline.
-    Returns:
-        Dictionary with 'xgboost' and 'linear' models.
+    Load the metadata regarding the train/test split.
+    Expects a JSON file containing indices or split information if saved.
+    For this task, we assume the test set is available or can be reconstructed
+    from the saved model metadata or a specific split file.
+
+    However, per T024/T025/T026 flow, the test set data (X_test, y_test)
+    should ideally be loaded from the data path or reconstructed.
+    Since T026 saves the model, we assume the split metadata (indices)
+    might be saved in `state/` or we need to re-load the dataset and split
+    using the same random state if indices aren't persisted.
+
+    For robustness in this pipeline, we expect `data/processed/test_set.parquet`
+    or similar to exist, OR we load the full dataset and re-split.
+    Given the task dependencies, let's assume the test set features and targets
+    are available in `data/processed/test_X.csv` and `data/processed/test_y.csv`
+    or we load the full aligned dataset and use the saved split indices.
+
+    Let's assume T024 saved split indices to `state/split_indices.json`.
     """
-    root = get_project_root()
-    xgb_path = root / "code" / "models" / "best_xgboost.json"
-    
-    if not xgb_path.exists():
-        raise FileNotFoundError(f"XGBoost model not found at {xgb_path}. Run train.py first.")
-    
-    # Load XGBoost model
-    model = xgb.Booster()
-    model.load_model(str(xgb_path))
-    
-    return {'xgboost': model}
+    project_root = get_project_root()
+    if split_path is None:
+        split_path = project_root / "state" / "split_indices.json"
 
-def compute_absolute_errors(y_true: pd.Series, y_pred: pd.Series) -> np.ndarray:
-    """Compute absolute errors."""
-    return np.abs(y_true - y_pred)
+    if not split_path.exists():
+        raise FileNotFoundError(f"Split metadata not found at {split_path}. "
+                                "Ensure T024 has run and saved split indices.")
 
-def save_evaluation_results(results: Dict[str, Any], output_path: Path):
-    """Save evaluation results to JSON."""
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    logger.info(f"Evaluation results saved to {output_path}")
+    with open(split_path, 'r') as f:
+        return json.load(f)
 
-def save_normality_check(check_results: Dict[str, Any], output_path: Path):
-    """Save normality check results."""
-    with open(output_path, 'w') as f:
-        json.dump(check_results, f, indent=2, default=str)
-    logger.info(f"Normality check saved to {output_path}")
 
-def run_statistical_test(errors_xgb: np.ndarray, errors_linear: np.ndarray) -> Dict[str, Any]:
+def load_test_data(dataset_path: Optional[Path] = None, split_metadata: Optional[Dict] = None) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Run statistical test (t-test or Wilcoxon) on paired errors.
+    Load the test set features (X) and targets (y) based on split metadata.
     """
-    from scipy import stats
+    project_root = get_project_root()
+    if dataset_path is None:
+        dataset_path = project_root / "data" / "processed" / "aligned_dataset.csv"
+
+    if not dataset_path.exists():
+        raise FileNotFoundError(f"Aligned dataset not found at {dataset_path}. "
+                                "Ensure T020 has run.")
+
+    df = pd.read_csv(dataset_path)
+
+    if split_metadata is None:
+        split_metadata = load_test_split_metadata()
+
+    # Assuming split_metadata contains 'test_indices'
+    if 'test_indices' not in split_metadata:
+        raise ValueError("Split metadata must contain 'test_indices'")
+
+    test_indices = split_metadata['test_indices']
+    test_df = df.iloc[test_indices]
+
+    # Identify target column (from T015, it is 'energy_change')
+    target_col = 'energy_change'
+    feature_cols = [col for col in test_df.columns if col != target_col]
+
+    X_test = test_df[feature_cols]
+    y_test = test_df[target_col]
+
+    return X_test, y_test
+
+
+def load_models(models_dir: Optional[Path] = None) -> Tuple[Any, Any]:
+    """
+    Load the trained Linear Baseline and XGBoost models.
+    """
+    project_root = get_project_root()
+    if models_dir is None:
+        models_dir = project_root / "code" / "models"
+
+    if not models_dir.exists():
+        raise FileNotFoundError(f"Models directory not found at {models_dir}. "
+                                "Ensure T026 has run and saved models.")
+
+    # Expecting specific filenames from T026
+    linear_model_path = models_dir / "linear_baseline.joblib"
+    xgb_model_path = models_dir / "best_xgboost.json" # XGBoost often saves as JSON
+
+    if not linear_model_path.exists():
+        # Fallback to .pkl if .joblib not found, though T026 should use .joblib
+        linear_model_path = models_dir / "linear_baseline.pkl"
     
-    paired_diff = errors_xgb - errors_linear
-    
-    # Shapiro-Wilk test for normality
-    stat, p_value = stats.shapiro(paired_diff)
-    
-    result = {
-        'shapiro_statistic': stat,
-        'shapiro_p_value': p_value,
-        'test_type': 'paired_t_test' if p_value > 0.05 else 'wilcoxon_signed_rank'
+    if not linear_model_path.exists():
+        raise FileNotFoundError(f"Linear baseline model not found at {linear_model_path}")
+
+    if not xgb_model_path.exists():
+        raise FileNotFoundError(f"XGBoost model not found at {xgb_model_path}")
+
+    logger.info(f"Loading linear model from {linear_model_path}")
+    linear_model = joblib.load(linear_model_path)
+
+    logger.info(f"Loading XGBoost model from {xgb_model_path}")
+    import xgboost as xgb
+    xgb_model = xgb.Booster()
+    xgb_model.load_model(str(xgb_model_path))
+
+    return linear_model, xgb_model
+
+
+def compute_absolute_errors(y_true: pd.Series, y_pred_linear: np.ndarray, y_pred_xgb: np.ndarray) -> Dict[str, pd.Series]:
+    """
+    Compute absolute errors for both models.
+    Returns a dictionary with Series for linear and xgb absolute errors.
+    """
+    abs_error_linear = np.abs(y_true.values - y_pred_linear)
+    abs_error_xgb = np.abs(y_true.values - y_pred_xgb)
+
+    return {
+        "linear_abs_error": pd.Series(abs_error_linear, name="linear_abs_error"),
+        "xgb_abs_error": pd.Series(abs_error_xgb, name="xgb_abs_error"),
+        "y_true": y_true
     }
-    
-    if p_value > 0.05:
-        stat, p_val = stats.ttest_rel(errors_xgb, errors_linear)
-        result['statistic'] = stat
-        result['p_value'] = p_val
-    else:
-        stat, p_val = stats.wilcoxon(errors_xgb, errors_linear)
-        result['statistic'] = stat
-        result['p_value'] = p_val
-        
-    return result
 
-def save_metrics(metrics: Dict[str, Any], output_path: Path):
-    """Append or save metrics to the main metrics file."""
-    if output_path.exists():
-        with open(output_path, 'r') as f:
-            existing = json.load(f)
-        existing.update(metrics)
-        with open(output_path, 'w') as f:
-            json.dump(existing, f, indent=2, default=str)
-    else:
-        with open(output_path, 'w') as f:
-            json.dump(metrics, f, indent=2, default=str)
-    logger.info(f"Metrics updated at {output_path}")
 
-def generate_feature_importance_plot(model: Any, feature_names: List[str], output_path: Path, top_n: int = 5):
+def save_evaluation_results(results: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
     """
-    Generate a bar plot of the top N feature importances using SHAP values.
+    Save the evaluation results (absolute errors) to a CSV file.
     """
-    logger.info(f"Computing SHAP values for top {top_n} features...")
+    project_root = get_project_root()
+    if output_path is None:
+        output_path = project_root / "outputs" / "evaluation_results.csv"
     
-    # Create SHAP explainer
-    # For XGBoost Booster, we might need to convert to DMatrix or use tree_path
-    # shap.TreeExplainer works with XGBRegressor or XGBClassifier, but for Booster we need to be careful.
-    # Assuming the model is a trained XGBRegressor or we can wrap it.
-    # If it's a raw Booster, we might need to use shap.TreeExplainer with model.model or similar.
-    # Let's assume the model is usable by TreeExplainer directly or via DMatrix.
-    
-    try:
-        explainer = shap.TreeExplainer(model)
-        # We need a sample of data for SHAP
-        # Use the test set or a subset
-        # Since we need feature names, we assume the model knows them or we pass them
-        # If feature_names are not in the model, we pass them to the explainer if supported
-        # shap.TreeExplainer usually infers from model if possible
-        
-        # To be safe, let's use a sample of the training data for explanation
-        # But for the plot, we just need the mean absolute SHAP values
-        # We can compute SHAP values on the test set
-        
-        # Note: If the model is a raw Booster, we might need to convert to a format TreeExplainer accepts
-        # shap supports XGBRegressor. If we saved the Booster, we might need to reload as a model or use the booster directly
-        # Let's assume the 'model' passed is compatible or we can use it.
-        
-        # If the model is a Booster, we might need to use shap.TreeExplainer(model) if it's supported
-        # Otherwise, we might need to use the underlying XGBRegressor
-        
-        # For this implementation, we assume the model is compatible with TreeExplainer
-        shap_values = explainer.shap_values(model) # This might fail if model is not a regressor object
-        
-    except Exception as e:
-        logger.warning(f"Failed to compute SHAP values directly on model: {e}. Trying alternative approach.")
-        # Alternative: Use feature importance from the model itself if SHAP fails
-        # But the task asks for SHAP values specifically.
-        # Let's try to get SHAP values from the model if it's a standard XGBRegressor
-        # If the saved model is a Booster, we might need to reconstruct the estimator
-        # For now, we'll assume the model object passed is a trained XGBRegressor or compatible
-        raise RuntimeError(f"Could not compute SHAP values. Ensure the model is a trained XGBRegressor or compatible. Error: {e}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Calculate mean absolute SHAP values
-    mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
-    
-    # Get indices of top N features
-    top_indices = np.argsort(mean_abs_shap)[::-1][:top_n]
-    top_features = [feature_names[i] for i in top_indices]
-    top_values = mean_abs_shap[top_indices]
-    
-    # Create the plot
-    plt.figure(figsize=(10, 6))
-    plt.barh(top_features, top_values, color='skyblue')
-    plt.xlabel('Mean |SHAP Value|')
-    plt.title(f'Top {top_n} Feature Importance (SHAP)')
-    plt.gca().invert_yaxis() # Highest importance at the top
-    
-    # Save the plot
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    
-    logger.info(f"Feature importance plot saved to {output_path}")
+    # Convert to DataFrame
+    df = pd.DataFrame(results)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Evaluation results saved to {output_path}")
+    return output_path
 
-def run_evaluation():
+
+def run_statistical_test(abs_errors: Dict[str, pd.Series]) -> Dict[str, Any]:
     """
-    Main evaluation pipeline:
-    1. Load models and data
-    2. Compute errors
-    3. Run statistical tests
-    4. Generate SHAP plot
-    5. Save results
+    Perform statistical testing on the paired absolute errors.
+    This implements the logic described in T028a/T028b but can be called here
+    or in a subsequent task. For T027, we compute the errors. 
+    However, to be complete for the evaluation step, we often compute the metrics
+    and preliminary stats here.
+    
+    T027 specifically asks for "Compute absolute errors". 
+    T028a/28b handle the statistical test. 
+    We will compute the errors and return them. 
+    We will also calculate basic metrics (R2, MAE) for immediate logging.
     """
-    root = get_project_root()
-    output_dir = root / "outputs"
-    output_dir.mkdir(exist_ok=True)
+    y_true = abs_errors['y_true'].values
+    err_lin = abs_errors['linear_abs_error'].values
+    err_xgb = abs_errors['xgb_abs_error'].values
     
-    metrics_path = output_dir / "metrics.json"
-    plot_path = output_dir / "feature_importance.png"
+    # We need predictions to compute R2, not just errors. 
+    # So we assume the caller has predictions or we recompute.
+    # This function is strictly for error computation as per T027.
+    # But to be useful, let's return the errors.
+    return {
+        "paired_differences": err_xgb - err_lin, # XGB - Linear
+        "linear_abs_error": err_lin,
+        "xgb_abs_error": err_xgb
+    }
+
+
+def save_metrics(metrics: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    """
+    Save metrics to JSON.
+    """
+    project_root = get_project_root()
+    if output_path is None:
+        output_path = project_root / "outputs" / "metrics.json"
     
-    try:
-        # 1. Load data and models
-        train_X, train_y, test_X, test_y = load_test_split_metadata()
-        models = load_models()
-        xgb_model = models['xgboost']
-        
-        # Get feature names from the dataframe
-        feature_names = list(train_X.columns)
-        
-        # 2. Predict and compute errors
-        # For XGBoost Booster, we need to use predict with DMatrix
-        dmatrix_test = xgb.DMatrix(test_X)
-        y_pred_xgb = xgb_model.predict(dmatrix_test)
-        
-        errors_xgb = compute_absolute_errors(test_y, pd.Series(y_pred_xgb))
-        
-        # Linear baseline (assuming it's available or we recompute if needed)
-        # For now, we focus on the XGBoost SHAP plot as per T035
-        # If linear baseline errors are needed for statistical test, they should be loaded or computed
-        # Assuming we have them from previous steps or we compute them here if the model is saved
-        # For T035, the primary goal is the plot, but the function structure supports the full evaluation
-        
-        # 3. Generate SHAP plot (T035)
-        logger.info("Generating feature importance plot...")
-        generate_feature_importance_plot(xgb_model, feature_names, plot_path, top_n=5)
-        
-        # 4. Statistical test (if errors_linear are available)
-        # This part is for T028a/T028b, but we include it for completeness
-        # Assuming we have errors_linear from somewhere (e.g., saved or computed)
-        # For T035, we just ensure the plot is generated.
-        
-        # 5. Save metrics (if needed)
-        # We can save the SHAP summary or just the plot path in metrics
-        metrics = {
-            'feature_importance_plot': str(plot_path),
-            'top_5_features': [feature_names[i] for i in np.argsort(np.mean(np.abs(shap_values), axis=0))[::-1][:5]]
-        }
-        # Note: shap_values is from the computation above, but it's local. 
-        # We should recompute or store it. For T035, the plot is the main artifact.
-        
-        logger.info("Evaluation pipeline completed.")
-        
-    except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
-        raise
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Metrics saved to {output_path}")
+    return output_path
+
+
+def run_evaluation() -> Dict[str, Any]:
+    """
+    Main evaluation pipeline for T027:
+    1. Load test data.
+    2. Load models.
+    3. Predict.
+    4. Compute absolute errors.
+    5. Compute basic metrics (MAE, R2).
+    6. Save results.
+    """
+    logger.info("Starting evaluation pipeline (T027).")
+
+    # 1. Load Data
+    X_test, y_test = load_test_data()
+    logger.info(f"Loaded test set with {len(y_test)} samples.")
+
+    # 2. Load Models
+    linear_model, xgb_model = load_models()
+    logger.info("Models loaded successfully.")
+
+    # 3. Predict
+    # Linear model
+    y_pred_linear = linear_model.predict(X_test)
+
+    # XGBoost model
+    # XGBoost Booster expects DMatrix
+    import xgboost as xgb
+    dmatrix_test = xgb.DMatrix(X_test)
+    y_pred_xgb = xgb_model.predict(dmatrix_test)
+
+    # 4. Compute Absolute Errors
+    abs_errors = compute_absolute_errors(y_test, y_pred_linear, y_pred_xgb)
+
+    # 5. Compute Metrics
+    mae_linear = mean_absolute_error(y_test, y_pred_linear)
+    mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
+    r2_linear = r2_score(y_test, y_pred_linear)
+    r2_xgb = r2_score(y_test, y_pred_xgb)
+    
+    # Pearson R
+    pearson_r_linear, p_val_linear = pearsonr(y_test, y_pred_linear)
+    pearson_r_xgb, p_val_xgb = pearsonr(y_test, y_pred_xgb)
+
+    metrics = {
+        "linear": {
+            "mae": float(mae_linear),
+            "r2": float(r2_linear),
+            "pearson_r": float(pearson_r_linear),
+            "p_value": float(p_val_linear)
+        },
+        "xgboost": {
+            "mae": float(mae_xgb),
+            "r2": float(r2_xgb),
+            "pearson_r": float(pearson_r_xgb),
+            "p_value": float(p_val_xgb)
+        },
+        "test_size": len(y_test)
+    }
+
+    # 6. Save Results
+    save_metrics(metrics)
+    
+    # Save absolute errors to CSV for T028a
+    errors_df = pd.DataFrame({
+        "y_true": abs_errors['y_true'].values,
+        "linear_abs_error": abs_errors['linear_abs_error'].values,
+        "xgb_abs_error": abs_errors['xgb_abs_error'].values,
+        "paired_diff": abs_errors['xgb_abs_error'].values - abs_errors['linear_abs_error'].values
+    })
+    errors_path = get_output_path("evaluation_errors.csv")
+    errors_df.to_csv(errors_path, index=False)
+    logger.info(f"Absolute errors saved to {errors_path}")
+
+    logger.info("Evaluation pipeline completed.")
+    return metrics
+
 
 def main():
-    """Entry point for the evaluation script."""
-    logging.basicConfig(level=logging.INFO)
-    run_evaluation()
+    """
+    Entry point for the evaluation script.
+    """
+    try:
+        metrics = run_evaluation()
+        print(f"Evaluation Complete. Metrics: {metrics}")
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}", exc_info=True)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

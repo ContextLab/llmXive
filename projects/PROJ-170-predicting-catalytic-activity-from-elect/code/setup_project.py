@@ -5,17 +5,27 @@ from config import get_project_root
 
 def create_directories():
     """
-    Create the project directory structure as defined in T001a.
-    Paths: data/raw/, data/processed/, code/, outputs/, tests/, state/projects/, code/models/
+    Creates the required project directory structure as defined in T001a.
+    
+    Directories created:
+    - data/raw/
+    - data/processed/
+    - code/
+    - outputs/
+    - tests/
+    - state/projects/
+    - code/models/
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
     root = get_project_root()
-    if not root:
-        raise RuntimeError("Project root not found. Ensure CONFIG_ROOT is set or config.py is correctly configured.")
-
+    if root is None:
+        raise RuntimeError("Project root could not be determined. Ensure CONFIG_PATH is set.")
+    
     root_path = Path(root)
-
-    # Define relative paths to create
-    directories = [
+    
+    required_dirs = [
         "data/raw",
         "data/processed",
         "code",
@@ -24,47 +34,27 @@ def create_directories():
         "state/projects",
         "code/models"
     ]
-
-    created = []
-    for dir_path in directories:
-        full_path = root_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
-        else:
-            # Ensure it is actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-
-    return created
+    
+    created_count = 0
+    for dir_name in required_dirs:
+        dir_path = root_path / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Directory created/verified: {dir_path}")
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+            return False
+    
+    print(f"Successfully created/verified {created_count} directories.")
+    return True
 
 def main():
-    """Entry point for directory creation."""
-    print("Starting project directory creation...")
-    try:
-        created_dirs = create_directories()
-        print(f"Successfully created directories:")
-        for d in created_dirs:
-            print(f"  - {d}")
-        
-        if not created_dirs:
-            print("No new directories created (all already exist).")
-        
-        # Verify existence
-        root_path = Path(get_project_root())
-        missing = []
-        for rel in ["data/raw", "data/processed", "code", "outputs", "tests", "state/projects", "code/models"]:
-            if not (root_path / rel).exists():
-                missing.append(rel)
-        
-        if missing:
-            print(f"ERROR: The following directories are missing after creation attempt: {missing}")
-            sys.exit(1)
-        
-        print("Verification complete: All required directories exist.")
-    except Exception as e:
-        print(f"ERROR: Failed to create directories: {e}")
+    """Entry point for the setup script."""
+    success = create_directories()
+    if not success:
         sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

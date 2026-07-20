@@ -66,7 +66,7 @@ As a domain expert, I need a SHAP-based analysis that ranks the top 5 descriptor
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the OC dataset (≈5k entries), Materials Project bulk descriptors, and the 2025 CO₂ hydrogenation study dataset () via `wget` and parse them into a unified Pandas DataFrame (See US-1).
+- **FR-001**: System MUST download the OC dataset, Materials Project bulk descriptors, and the 2025 CO₂ hydrogenation study dataset () via `wget` and parse them into a unified Pandas DataFrame (See US-1).
 - **FR-002**: System MUST align DFT entries to experimental TOFs using exact string matching on columns: `composition`, `surface_facet`, `synthesis_condition`. Entries are excluded from the unified dataset if they cannot be aligned OR if `synthesis_condition` is not uniquely identifiable to prevent circular validation. If an entry is aligned but has missing descriptors with <5 neighbors in the reference set, it is flagged and excluded from model training (See US-1).
 - **FR-003**: System MUST impute missing descriptor values using k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry space (normalized element counts), excluding the target variable (experimental_tof) from distance calculation. If fewer than 5 neighbors are found, the entry is flagged and excluded from model training. All numeric features must be scaled to zero mean and unit variance (See US-1).
 - **FR-004**: System MUST train a Gradient-Boosted Regression Trees model (XGBoost) with a grid search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, and n_estimators ≤ 200, selecting the configuration that maximizes 5-fold cross-validated R² (See US-2).

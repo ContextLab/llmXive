@@ -1,41 +1,48 @@
 """
-Linting and Formatting Configuration Manager.
+Linting and Formatting Configuration Management.
 
-This module ensures that configuration files for Ruff (linting) and Black (formatting)
-exist in the project root. It generates standard configurations compatible with the
-project's requirements (Python 3.10+).
+This module ensures that the project's linting (ruff) and formatting (black)
+configuration files exist and are consistent with project standards.
 """
+
 import os
 import sys
 from pathlib import Path
 
 from config import get_project_root
 
+# Configuration content literals to ensure idempotent creation
+RUFF_CONFIG_CONTENT = """[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in ML pipelines)
+]
 
-def ensure_linting_config() -> None:
-    """
-    Create or verify the existence of linting and formatting configuration files.
+# Exclude generated data files and virtual environments
+exclude = [
+    "data/",
+    "outputs/",
+    "state/",
+    "venv/",
+    ".venv/",
+    "__pycache__",
+]
 
-    Creates:
-    - pyproject.toml: Contains [tool.black] and [tool.ruff] sections.
-    - .flake8: Legacy configuration (optional, but good for compatibility).
+[lint.per-file-ignores]
+# Allow specific style in tests if needed
+"tests/*" = ["S101"] # assert statements in tests
+"""
 
-    If the files exist, this function checks for the presence of the required
-    sections and updates them if necessary (idempotent behavior).
-    """
-    project_root = get_project_root()
-    pyproject_path = project_root / "pyproject.toml"
-    flake8_path = project_root / ".flake8"
-
-    # Ensure pyproject.toml exists
-    if not pyproject_path.exists():
-        pyproject_path.touch()
-
-    content = pyproject_path.read_text()
-
-    # Define Black configuration
-    black_section = """
-[tool.black]
+BLACK_CONFIG_CONTENT = """[tool.black]
 line-length = 88
 target-version = ['py310']
 include = '\\.pyi?$'
@@ -50,78 +57,83 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | outputs
+  | state
 )/
 '''
 """
 
-    # Define Ruff configuration
-    ruff_section = """
-[tool.ruff]
-target-version = "py310"
-line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by Black)
-    "B008", # Do not perform function call in argument defaults (common in fastapi/some ML libs)
-]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Ignore unused imports in __init__.py files
+PYPROJECT_EXTRACT = """
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
 """
 
-    # Simple injection logic to ensure sections exist
-    # In a real robust system, we would use tomlkit to parse/modify,
-    # but for a setup script, string injection is sufficient.
-
-    if "[tool.black]" not in content:
-        content += black_section
-        pyproject_path.write_text(content)
-        print(f"Added [tool.black] configuration to {pyproject_path}")
-
-    if "[tool.ruff]" not in content:
-        content += ruff_section
-        pyproject_path.write_text(content)
-        print(f"Added [tool.ruff] configuration to {pyproject_path}")
-
-    # Create .flake8 for legacy tool compatibility
-    flake8_content = """
-[flake8]
-max-line-length = 88
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist
-"""
-    if not flake8_path.exists():
-        flake8_path.write_text(flake8_content)
-        print(f"Created {flake8_path}")
+def ensure_linting_config() -> bool:
+    """
+    Ensures that .ruff.toml and the relevant [tool.black] section in pyproject.toml exist.
+    
+    Returns:
+        bool: True if configuration is valid or successfully created, False otherwise.
+    """
+    project_root = get_project_root()
+    ruff_config_path = project_root / ".ruff.toml"
+    pyproject_path = project_root / "pyproject.toml"
+    
+    # Ensure .ruff.toml exists
+    if not ruff_config_path.exists():
+        try:
+            with open(ruff_config_path, "w", encoding="utf-8") as f:
+                f.write(RUFF_CONFIG_CONTENT)
+            print(f"Created {ruff_config_path}")
+        except OSError as e:
+            print(f"Error creating {ruff_config_path}: {e}", file=sys.stderr)
+            return False
+    
+    # Ensure pyproject.toml exists and contains Black config
+    if not pyproject_path.exists():
+        try:
+            with open(pyproject_path, "w", encoding="utf-8") as f:
+                # Basic header + Black + Pytest
+                f.write("[build-system]\nrequires = [\"setuptools>=45\", \"wheel\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"llmxive-proj-170\"\nversion = \"0.1.0\"\n")
+                f.write("\n")
+                f.write(BLACK_CONFIG_CONTENT)
+                f.write(PYPROJECT_EXTRACT)
+            print(f"Created {pyproject_path}")
+        except OSError as e:
+            print(f"Error creating {pyproject_path}: {e}", file=sys.stderr)
+            return False
     else:
-        # Check if max-line-length is set, update if not
-        current = flake8_path.read_text()
-        if "max-line-length" not in current:
-            flake8_path.write_text(flake8_content + "\n" + current)
-            print(f"Updated {flake8_path}")
+        # Check if Black section exists in existing pyproject.toml
+        try:
+            with open(pyproject_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                if "[tool.black]" not in content:
+                    # Append Black config if missing
+                    with open(pyproject_path, "a", encoding="utf-8") as f:
+                        f.write("\n" + BLACK_CONFIG_CONTENT)
+                    print(f"Appended [tool.black] section to {pyproject_path}")
+                else:
+                    print(f"{pyproject_path} already contains [tool.black] section.")
+        except OSError as e:
+            print(f"Error reading {pyproject_path}: {e}", file=sys.stderr)
+            return False
+    
+    return True
 
-
-def main() -> None:
-    """Entry point for CLI execution."""
+def main():
+    """CLI entry point for ensuring linting configuration."""
     print("Configuring linting and formatting tools...")
-    ensure_linting_config()
-    print("Linting and formatting configuration complete.")
-
+    if ensure_linting_config():
+        print("Linting configuration complete.")
+        print("To check code: ruff check .")
+        print("To format code: black .")
+        return 0
+    else:
+        print("Failed to configure linting tools.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

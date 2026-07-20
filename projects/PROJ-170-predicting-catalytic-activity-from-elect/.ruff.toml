@@ -1,0 +1,28 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in ML pipelines)
+]
+
+# Exclude generated data files and virtual environments
+exclude = [
+    "data/",
+    "outputs/",
+    "state/",
+    "venv/",
+    ".venv/",
+    "__pycache__",
+]
+
+[lint.per-file-ignores]
+# Allow specific style in tests if needed
+"tests/*" = ["S101"] # assert statements in tests

@@ -1,10 +1,38 @@
-T026:
+T001a:
   c: false
-  h: c8b55aed0414e916cd351008eca0c6796c645188d7a5daff7130313a1cb5a57d
-  r: "The repository contains a `code/train.py` file, but it is truncated and does\
-    \ not demonstrate the required nested cross\u2011validation or saving of the best\
-    \ XGBoost model. Moreover, the expected output file `code/models/best_xgboost.json`\
-    \ is absent. The task\u2019s core requirements are therefore not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided showing the required folders
+    (`data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`, `state/projects/`,
+    `code/models/`). Without concrete evidence that these directories exist, the task
+    is not satisfied.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no artifact (e.g., a script, log, or report) that checks
+    for the required directories from T001a, nor any evidence that such directories
+    exist. Without concrete output or code demonstrating the verification step, the
+    task requirement is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `__init__.py` files in the required directories (`code/`, `tests/`,
+    `code/utils/`) was provided; the artifacts are missing or not shown, so the task
+    requirement is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `.flake8` files, or a setup script invoking ruff/flake8/black)
+    were presented. Without these artifacts, the requirement to configure the tools
+    cannot be verified as satisfied. The next implementer should add the appropriate
+    configuration files and, optionally, a brief usage guide.
+T010:
+  c: false
+  h: 3f46edfcd6e1df99d41476ee802a4f45d104c17db512df3a696c4c3c363f35ac
+  r: The provided `code/download_data.py` is incomplete (the core `download_stratified_sample`
+    function is truncated) and the required output file `data/raw/oc20_sample.h5`
+    does not exist. The script does not demonstrably perform the stratified download
+    and save the file as specified.
 T028a:
   c: false
   h: 97230bb33bea33340f1446fd115c62ce3a20d2147560c0d2ccc8174a0a487752
