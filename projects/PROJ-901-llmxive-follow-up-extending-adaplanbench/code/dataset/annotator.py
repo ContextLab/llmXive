@@ -20,15 +20,29 @@ def load_filtered_tasks() -> pd.DataFrame:
     Load the filtered dataset from data/processed/filtered_tasks.csv.
     If the file does not exist, attempt to regenerate it by running
     the loader and filter pipeline.
+    
+    Raises:
+        FileNotFoundError: If the filtered dataset cannot be found or regenerated.
+        RuntimeError: If regeneration fails.
     """
     paths = Paths()
     input_path = paths.processed_dir / "filtered_tasks.csv"
 
-    if not input_path.exists():
-        print(f"Warning: {input_path} not found. Regenerating filtered dataset...", file=sys.stderr)
-        # Load raw and filter
+    if input_path.exists():
+        return pd.read_csv(input_path)
+
+    print(f"Warning: {input_path} not found. Attempting to regenerate...", file=sys.stderr)
+    
+    # Attempt to load raw and filter
+    try:
         raw_data = load_adaplanbench()
+        if raw_data is None or raw_data.empty:
+            raise RuntimeError("Failed to load raw AdaPlanBench data.")
+        
         filtered_data = filter_progressive_constraints(raw_data, min_constraints=5)
+        
+        if filtered_data is None or filtered_data.empty:
+            raise RuntimeError("Filtering resulted in an empty dataset. Check min_constraints or data source.")
         
         # Ensure directory exists
         paths.processed_dir.mkdir(parents=True, exist_ok=True)
@@ -36,8 +50,10 @@ def load_filtered_tasks() -> pd.DataFrame:
         # Save
         filtered_data.to_csv(input_path, index=False)
         print(f"Saved regenerated filtered dataset to {input_path}")
-
-    return pd.read_csv(input_path)
+        
+        return filtered_data
+    except Exception as e:
+        raise RuntimeError(f"Failed to regenerate filtered dataset: {e}") from e
 
 
 def select_random_sample(
@@ -62,9 +78,8 @@ def select_random_sample(
               file=sys.stderr)
         sample_size = len(df)
     
-    random.seed(seed)
-    indices = random.sample(range(len(df)), sample_size)
-    return df.iloc[indices].reset_index(drop=True)
+    # Use pandas sample for reproducibility
+    return df.sample(n=sample_size, random_state=seed).reset_index(drop=True)
 
 
 def save_annotation_sample(df: pd.DataFrame, output_path: Path) -> None:
@@ -107,8 +122,12 @@ def main():
     
     args = parser.parse_args()
     
-    # Load filtered tasks
-    df = load_filtered_tasks()
+    # Load filtered tasks (will attempt regeneration if missing)
+    try:
+        df = load_filtered_tasks()
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     
     if df.empty:
         print("Error: Filtered dataset is empty. Cannot create sample.", file=sys.stderr)

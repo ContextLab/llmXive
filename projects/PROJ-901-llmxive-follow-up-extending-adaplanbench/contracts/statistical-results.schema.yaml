@@ -1,0 +1,193 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Results Schema
+description: Schema for GLMM analysis results comparing dual-track vs monolithic agents
+type: object
+required:
+  - analysis_metadata
+  - model_fit
+  - hypothesis_testing
+  - coefficients
+  - p_values
+  - effect_sizes
+  - conclusion
+properties:
+  analysis_metadata:
+    type: object
+    required:
+      - timestamp
+      - data_source
+      - human_annotations_included
+      - sample_size
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      data_source:
+        type: string
+      human_annotations_included:
+        type: boolean
+      sample_size:
+        type: integer
+        minimum: 1
+  model_fit:
+    type: object
+    required:
+      - converged
+      - log_likelihood
+      - aic
+      - bic
+      - n_observations
+    properties:
+      converged:
+        type: boolean
+      log_likelihood:
+        type: number
+      aic:
+        type: number
+      bic:
+        type: number
+      n_observations:
+        type: integer
+        minimum: 1
+  hypothesis_testing:
+    type: object
+    required:
+      - interaction_p_value
+      - null_hypothesis
+      - alternative_hypothesis
+    properties:
+      interaction_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      null_hypothesis:
+        type: string
+      alternative_hypothesis:
+        type: string
+  coefficients:
+    type: object
+    required:
+      - const
+      - architecture_encoded
+      - constraint_count
+      - architecture_encoded:constraint_count
+    properties:
+      const:
+        type: number
+      architecture_encoded:
+        type: number
+      constraint_count:
+        type: number
+      architecture_encoded:constraint_count:
+        type: number
+  p_values:
+    type: object
+    required:
+      - const
+      - architecture_encoded
+      - constraint_count
+      - architecture_encoded:constraint_count
+    properties:
+      const:
+        type: number
+        minimum: 0
+        maximum: 1
+      architecture_encoded:
+        type: number
+        minimum: 0
+        maximum: 1
+      constraint_count:
+        type: number
+        minimum: 0
+        maximum: 1
+      architecture_encoded:constraint_count:
+        type: number
+        minimum: 0
+        maximum: 1
+  effect_sizes:
+    type: object
+    required:
+      - odds_ratios
+      - confidence_intervals
+      - pseudo_r_squared
+    properties:
+      odds_ratios:
+        type: object
+        required:
+          - const
+          - architecture_encoded
+          - constraint_count
+          - architecture_encoded:constraint_count
+        properties:
+          const:
+            type: number
+            minimum: 0
+          architecture_encoded:
+            type: number
+            minimum: 0
+          constraint_count:
+            type: number
+            minimum: 0
+          architecture_encoded:constraint_count:
+            type: number
+            minimum: 0
+      confidence_intervals:
+        type: object
+        required:
+          - lower
+          - upper
+        properties:
+          lower:
+            type: object
+            required:
+              - const
+              - architecture_encoded
+              - constraint_count
+              - architecture_encoded:constraint_count
+            properties:
+              const:
+                type: number
+                minimum: 0
+              architecture_encoded:
+                type: number
+                minimum: 0
+              constraint_count:
+                type: number
+                minimum: 0
+              architecture_encoded:constraint_count:
+                type: number
+                minimum: 0
+          upper:
+            type: object
+            required:
+              - const
+              - architecture_encoded
+              - constraint_count
+              - architecture_encoded:constraint_count
+            properties:
+              const:
+                type: number
+                minimum: 0
+              architecture_encoded:
+                type: number
+                minimum: 0
+              constraint_count:
+                type: number
+                minimum: 0
+              architecture_encoded:constraint_count:
+                type: number
+                minimum: 0
+      pseudo_r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+  conclusion:
+    type: object
+    required:
+      - significant_interaction
+      - interpretation
+    properties:
+      significant_interaction:
+        type: boolean
+      interpretation:
+        type: string

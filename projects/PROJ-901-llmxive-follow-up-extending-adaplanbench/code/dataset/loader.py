@@ -37,6 +37,9 @@ def load_adaplanbench() -> pd.DataFrame:
     """
     try:
         # Attempt to load the dataset
+        # Using streaming=False to load into memory as a DataFrame
+        # If the dataset is too large, the runner environment will fail, which is the desired behavior
+        # over fabricating a synthetic subset.
         dataset = load_dataset(DATASET_NAME, split="train")
         
         # Convert to pandas DataFrame for easier manipulation
@@ -86,7 +89,7 @@ def filter_progressive_constraints(df: pd.DataFrame, min_reveals: int = MIN_CONS
     else:
         raise ValueError(
             "Dataset missing required column for filtering: "
-            "Expected 'progressive_constraints' (list) or 'constraint_count' (int)."
+            "Expected 'progressive_constraints' (list) or 'constraint_count' (int). "
             f"Available columns: {list(df.columns)}"
         )
     

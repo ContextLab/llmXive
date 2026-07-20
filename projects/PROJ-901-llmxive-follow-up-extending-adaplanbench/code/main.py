@@ -1,267 +1,290 @@
+"""
+Main orchestration script for the llmXive AdaPlanBench extension pipeline.
+
+This script orchestrates the execution of the three main phases:
+1. Dataset Preparation (filtering and validation)
+2. Agent Execution (Dual-Track and Monolithic)
+3. Statistical Analysis (Power, GLMM, Agreement)
+
+It includes a ResourceMonitor wrapper to track CPU and RAM usage per task
+and fails fast if resource limits (defined in config.py) are exceeded.
+"""
+
 import os
 import sys
 import time
 import resource
 import json
 import csv
+import signal
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any, Optional, Callable, List
 
-# Local imports based on API surface
-from config import Paths, set_all_seeds, ResourceLimits, ModelConfig
+# Project imports
+from config import Paths, ResourceLimits, set_all_seeds, AnalysisConfig
 from dataset.loader import load_adaplanbench, filter_progressive_constraints, save_filtered_dataset
-from agent.monolithic import MonolithicAgent, MonolithicAgentConfig
-from agent.dual_track import DualTrackAgent, run_dual_track_experiment
-from agent.base import ExecutionResult, TaskContext
+from dataset.add_constraint_count import main as add_constraint_count_main
+from dataset.validate_subset import validate_subset
+from agent.dual_track import run_dual_track_experiment
+from agent.monolithic import main as run_monolithic_main
+from analysis.power import run_power_analysis
+from analysis.generate_execution_traces import main as generate_traces_main
+from analysis.generate_statistical_results import main as generate_stat_results_main
+from analysis.agreement_rate import run_agreement_analysis
 
-# Ensure paths are initialized
-if not hasattr(Paths, 'BASE_DIR'):
-    # Fallback if config hasn't been fully loaded in this context, 
-    # though typically config.py handles this.
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    Paths.BASE_DIR = BASE_DIR
-    Paths.RAW_DATA_DIR = BASE_DIR / "data" / "raw"
-    Paths.PROCESSED_DATA_DIR = BASE_DIR / "data" / "processed"
-    Paths.CODE_DIR = BASE_DIR / "code"
 
 class ResourceMonitor:
-    def __init__(self, limits: Optional[ResourceLimits] = None):
-        self.limits = limits or ResourceLimits()
+    """
+    Monitors CPU and RAM usage for a specific task execution.
+    Fails fast if limits defined in config.ResourceLimits are exceeded.
+    """
+
+    def __init__(self, limits: ResourceLimits, task_name: str):
+        self.limits = limits
+        self.task_name = task_name
         self.start_time: Optional[float] = None
-        self.start_rss: Optional[int] = None
+        self.start_cpu: Optional[float] = None
+        self.start_memory: Optional[int] = None
+        self.metrics: Dict[str, Any] = {}
+
+    def _get_current_cpu_time(self) -> float:
+        """Returns total CPU time (user + system) in seconds."""
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_utime + usage.ru_stime
+
+    def _get_current_memory_mb(self) -> float:
+        """Returns current resident set size (RSS) in MB."""
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KB on Linux/macOS
+        return usage.ru_maxrss / 1024.0
 
     def start(self):
+        """Start monitoring resources."""
         self.start_time = time.time()
-        self.start_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        self.start_cpu = self._get_current_cpu_time()
+        self.start_memory = self._get_current_memory_mb()
+        self.metrics = {
+            "task": self.task_name,
+            "start_time_iso": datetime.utcnow().isoformat(),
+            "status": "running"
+        }
 
-    def check(self):
-        if not self.start_time:
-            return
-        
+    def check(self) -> Dict[str, Any]:
+        """
+        Check current resource usage against limits.
+        If limits are exceeded, raises a RuntimeError with details.
+        Returns current metrics.
+        """
         current_time = time.time()
-        current_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        
-        # Convert KB to MB (ru_maxrss is in KB on Linux/macOS)
-        current_mb = current_rss / 1024
-        
-        if self.limits.max_memory_mb and current_mb > self.limits.max_memory_mb:
-            raise MemoryError(
-                f"Memory limit exceeded: {current_mb:.2f} MB > {self.limits.max_memory_mb} MB"
-            )
-        
-        elapsed = current_time - self.start_time
-        if self.limits.max_time_seconds and elapsed > self.limits.max_time_seconds:
-            raise TimeoutError(
-                f"Time limit exceeded: {elapsed:.2f} s > {self.limits.max_time_seconds} s"
+        current_cpu = self._get_current_cpu_time()
+        current_memory = self._get_current_memory_mb()
+
+        elapsed_time = current_time - self.start_time
+        cpu_usage = current_cpu - self.start_cpu
+        memory_delta = current_memory - self.start_memory
+        peak_memory = current_memory  # Approximation using current max
+
+        self.metrics.update({
+            "elapsed_time_sec": elapsed_time,
+            "cpu_time_sec": cpu_usage,
+            "current_memory_mb": current_memory,
+            "peak_memory_mb": peak_memory
+        })
+
+        # Check Time Limit
+        if self.limits.max_time_sec and elapsed_time > self.limits.max_time_sec:
+            raise RuntimeError(
+                f"[{self.task_name}] Time limit exceeded: {elapsed_time:.2f}s > {self.limits.max_time_sec}s"
             )
 
-def run_dataset_preparation():
+        # Check Memory Limit
+        if self.limits.max_memory_mb and peak_memory > self.limits.max_memory_mb:
+            raise RuntimeError(
+                f"[{self.task_name}] Memory limit exceeded: {peak_memory:.2f}MB > {self.limits.max_memory_mb}MB"
+            )
+
+        # Check CPU Limit (if configured as a hard cap on CPU seconds)
+        if self.limits.max_cpu_sec and cpu_usage > self.limits.max_cpu_sec:
+            raise RuntimeError(
+                f"[{self.task_name}] CPU time limit exceeded: {cpu_usage:.2f}s > {self.limits.max_cpu_sec}s"
+            )
+
+        return self.metrics
+
+    def stop(self):
+        """Finalize monitoring and log results."""
+        final_metrics = self.check()
+        final_metrics["status"] = "completed"
+        final_metrics["end_time_iso"] = datetime.utcnow().isoformat()
+        self.metrics = final_metrics
+        return final_metrics
+
+def log_resource_metrics(metrics: Dict[str, Any], log_path: Path):
+    """Appends resource metrics to a JSONL log file."""
+    with open(log_path, 'a') as f:
+        f.write(json.dumps(metrics) + '\n')
+
+def run_dataset_preparation(resource_monitor: ResourceMonitor) -> bool:
     """
-    Executes T012-T015: Load, filter, and save the progressive constraint subset.
+    Executes Phase 1 & 2 of the pipeline:
+    1. Load raw dataset
+    2. Filter for progressive constraints >= 5
+    3. Add constraint_count column
+    4. Validate subset
     """
-    print(">>> Starting Dataset Preparation (T012-T015)...")
-    monitor = ResourceMonitor()
-    monitor.start()
+    print(f"Starting Dataset Preparation: {resource_monitor.task_name}")
+    resource_monitor.start()
 
     try:
-        # Load raw dataset (T012)
-        print("Loading AdaPlanBench dataset...")
-        raw_data = load_adaplanbench()
-        
-        # Filter for progressive constraints >= 5 (T013)
-        print("Filtering tasks with >= 5 progressive constraints...")
-        filtered_data = filter_progressive_constraints(raw_data, min_constraints=5)
-        
-        # Add constraint_count metadata (T014)
+        # 1. Load and Filter
+        print("Loading and filtering AdaPlanBench dataset...")
+        # The loader handles fetching and filtering
+        # Note: We assume the dataset is fetched and filtered here.
+        # In a real run, this might take a moment.
+        # We call the main logic from the dataset module to ensure side effects (saving) happen.
+        from dataset.loader import main as loader_main
+        loader_main()
+
+        # 2. Add Constraint Count
         print("Adding constraint_count column...")
-        # Assuming filter_progressive_constraints returns a list of dicts or similar structure
-        # We ensure the column exists by counting the 'progressive_constraints' list if present
-        for item in filtered_data:
-            if 'progressive_constraints' in item:
-                item['constraint_count'] = len(item['progressive_constraints'])
-            else:
-                item['constraint_count'] = 0
-        
-        # Save to CSV (T014)
-        output_path = Paths.PROCESSED_DATA_DIR / "filtered_tasks.csv"
-        print(f"Saving filtered dataset to {output_path}...")
-        save_filtered_dataset(filtered_data, output_path)
-        
-        # Validate subset (T015)
+        add_constraint_count_main()
+
+        # 3. Validate Subset
         print("Validating subset...")
-        # Assuming validate_subset is a function that runs checks
-        # We call it here to ensure the data is consistent
-        from dataset.validate_subset import validate_subset
-        validation_results = validate_subset(output_path)
-        
-        if validation_results.get('valid', False):
-            print("Dataset preparation complete and validated.")
-        else:
-            print("WARNING: Dataset validation returned non-critical issues.")
-            
-    finally:
-        monitor.check()
-    
-    print(">>> Dataset Preparation Finished.\n")
+        validate_subset()
 
-def run_agent_execution():
+        # Check resources after heavy operations
+        metrics = resource_monitor.check()
+        print(f"Dataset Prep Resource Check: {metrics}")
+
+        resource_monitor.stop()
+        return True
+
+    except Exception as e:
+        resource_monitor.stop()
+        resource_monitor.metrics["status"] = "failed"
+        resource_monitor.metrics["error"] = str(e)
+        print(f"Dataset Preparation FAILED: {e}")
+        raise
+
+def run_agent_execution(resource_monitor: ResourceMonitor) -> bool:
     """
-    Executes T023-T024: Run both Monolithic and Dual-Track agents on filtered data.
-    Generates data/processed/execution_traces.csv.
+    Executes Phase 3: Dual-Track and Monolithic agent execution.
     """
-    print(">>> Starting Agent Execution (T023-T024)...")
-    monitor = ResourceMonitor()
-    monitor.start()
+    print(f"Starting Agent Execution: {resource_monitor.task_name}")
+    resource_monitor.start()
 
-    input_path = Paths.PROCESSED_DATA_DIR / "filtered_tasks.csv"
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Filtered dataset not found at {input_path}. "
-            "Run dataset preparation first."
-        )
+    try:
+        # 1. Run Dual-Track
+        print("Running Dual-Track Agent...")
+        run_dual_track_experiment()
 
-    # Load filtered tasks
-    tasks = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Parse constraint_count if it's a string representation of a list or int
-            try:
-                row['constraint_count'] = int(row.get('constraint_count', 0))
-            except (ValueError, TypeError):
-                row['constraint_count'] = 0
-            tasks.append(row)
+        # 2. Run Monolithic
+        print("Running Monolithic Agent...")
+        run_monolithic_main()
 
-    print(f"Loaded {len(tasks)} tasks for execution.")
+        # 3. Generate Execution Traces
+        print("Generating Execution Traces...")
+        generate_traces_main()
 
-    # Configuration
-    # Using a CPU-tractable model as per spec
-    model_config = ModelConfig(
-        model_name="microsoft/phi-2", # Example SLM, adjust if specific small model required
-        device="cpu",
-        precision="float32"
-    )
-    
-    monolithic_config = MonolithicAgentConfig(
-        model_config=model_config,
-        temperature=0.0
-    )
+        metrics = resource_monitor.check()
+        print(f"Agent Execution Resource Check: {metrics}")
 
-    results = []
-    output_path = Paths.PROCESSED_DATA_DIR / "execution_traces.csv"
-    
-    # Initialize agents
-    print("Initializing Monolithic Agent...")
-    monolithic_agent = MonolithicAgent(monolithic_config)
-    
-    print("Initializing Dual-Track Agent...")
-    dual_track_agent = DualTrackAgent()
+        resource_monitor.stop()
+        return True
 
-    for idx, task in enumerate(tasks):
-        monitor.check()
-        task_id = task.get('id', f"task_{idx}")
-        print(f"Processing {idx+1}/{len(tasks)}: {task_id}")
+    except Exception as e:
+        resource_monitor.stop()
+        resource_monitor.metrics["status"] = "failed"
+        resource_monitor.metrics["error"] = str(e)
+        print(f"Agent Execution FAILED: {e}")
+        raise
 
-        # 1. Run Monolithic
-        print(f"  -> Running Monolithic on {task_id}...")
-        try:
-            monolithic_result = monolithic_agent.execute(task)
-            monolithic_violation = monolithic_result.violations > 0
-            monolithic_score = monolithic_result.final_score
-        except Exception as e:
-            print(f"    ERROR in Monolithic: {e}")
-            monolithic_violation = True
-            monolithic_score = 0.0
-            monolithic_result = ExecutionResult(
-                plan=[], violations=1, final_score=0.0, logs=["Execution failed"]
-            )
-
-        # 2. Run Dual-Track
-        print(f"  -> Running Dual-Track on {task_id}...")
-        try:
-            dual_track_result = dual_track_agent.execute(task)
-            dual_violation = dual_track_result.violations > 0
-            dual_score = dual_track_result.final_score
-        except Exception as e:
-            print(f"    ERROR in Dual-Track: {e}")
-            dual_violation = True
-            dual_score = 0.0
-            dual_track_result = ExecutionResult(
-                plan=[], violations=1, final_score=0.0, logs=["Execution failed"]
-            )
-
-        # Record results
-        results.append({
-            "task_id": task_id,
-            "constraint_count": task['constraint_count'],
-            "architecture": "monolithic",
-            "violation": monolithic_violation,
-            "score": monolithic_score,
-            "execution_time_ms": 0, # Placeholder if not measured
-            "log_summary": str(monolithic_result.logs[:5])
-        })
-        
-        results.append({
-            "task_id": task_id,
-            "constraint_count": task['constraint_count'],
-            "architecture": "dual_track",
-            "violation": dual_violation,
-            "score": dual_score,
-            "execution_time_ms": 0,
-            "log_summary": str(dual_track_result.logs[:5])
-        })
-
-    # Write to CSV
-    print(f"Writing execution traces to {output_path}...")
-    if results:
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=results[0].keys())
-            writer.writeheader()
-            writer.writerows(results)
-    
-    print(f"Executed {len(tasks)} tasks. Total traces: {len(results)}")
-    print(">>> Agent Execution Finished.\n")
-
-def run_statistical_analysis():
+def run_statistical_analysis(resource_monitor: ResourceMonitor) -> bool:
     """
-    Placeholder for T027-T032: GLMM and statistical analysis.
+    Executes Phase 4: Statistical analysis (Power, GLMM, Agreement).
     """
-    print(">>> Starting Statistical Analysis (T027-T032)...")
-    # This will be implemented in Phase 5
-    print(">>> Statistical Analysis Placeholder.\n")
+    print(f"Starting Statistical Analysis: {resource_monitor.task_name}")
+    resource_monitor.start()
+
+    try:
+        # 1. Power Analysis
+        print("Running Power Analysis...")
+        run_power_analysis()
+
+        # 2. Generate Statistical Results (GLMM)
+        print("Running Statistical Analysis (GLMM)...")
+        generate_stat_results_main()
+
+        # 3. Agreement Rate
+        print("Running Agreement Rate Analysis...")
+        run_agreement_analysis()
+
+        metrics = resource_monitor.check()
+        print(f"Statistical Analysis Resource Check: {metrics}")
+
+        resource_monitor.stop()
+        return True
+
+    except Exception as e:
+        resource_monitor.stop()
+        resource_monitor.metrics["status"] = "failed"
+        resource_monitor.metrics["error"] = str(e)
+        print(f"Statistical Analysis FAILED: {e}")
+        raise
 
 def run_all_tasks():
     """
-    Orchestrates the full pipeline: Dataset Prep -> Agent Execution -> Analysis.
+    Orchestrates the full pipeline with resource monitoring.
     """
-    print("="*60)
-    print("LLMxive Automated Science Pipeline")
-    print("="*60)
-    
-    start_time = time.time()
-    
-    try:
-        run_dataset_preparation()
-        run_agent_execution()
-        run_statistical_analysis()
-        
-        elapsed = time.time() - start_time
-        print(f"Pipeline completed in {elapsed:.2f} seconds.")
-        
-    except Exception as e:
-        print(f"Pipeline failed: {e}")
+    from config import Paths, ResourceLimits
+
+    paths = Paths()
+    limits = ResourceLimits()
+    log_path = paths.processed_dir / "resource_metrics.jsonl"
+
+    # Ensure log file exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not log_path.exists():
+        log_path.touch()
+
+    tasks = [
+        ("Dataset Preparation", run_dataset_preparation),
+        ("Agent Execution", run_agent_execution),
+        ("Statistical Analysis", run_statistical_analysis)
+    ]
+
+    all_success = True
+
+    for name, task_func in tasks:
+        monitor = ResourceMonitor(limits, name)
+        try:
+            success = task_func(monitor)
+            log_resource_metrics(monitor.metrics, log_path)
+            if not success:
+                all_success = False
+        except Exception as e:
+            print(f"Critical failure in {name}: {e}")
+            all_success = False
+            # Continue to next task or break?
+            # Usually in a pipeline, if one fails, we might stop,
+            # but the prompt asks to log per task. Let's log and continue
+            # if the failure is recoverable, but for this script,
+            # a failure in a phase usually blocks the next.
+            # We will break to prevent cascading errors on missing files.
+            break
+
+    if all_success:
+        print("Pipeline completed successfully.")
+    else:
+        print("Pipeline completed with errors.")
         sys.exit(1)
 
 def main():
-    """
-    Entry point for the script.
-    Usage: python code/main.py
-    """
-    # Set seeds for reproducibility
-    set_all_seeds(42)
-    
-    # Run the full pipeline
+    """Entry point."""
+    print("llmXive AdaPlanBench Extension Pipeline")
+    print("---------------------------------------")
     run_all_tasks()
 
 if __name__ == "__main__":
