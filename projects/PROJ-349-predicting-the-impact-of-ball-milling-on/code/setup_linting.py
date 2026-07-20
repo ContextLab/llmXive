@@ -1,8 +1,3 @@
-"""
-Script to configure and install linting and formatting tools for the project.
-Handles installation of dev dependencies, configuration file creation, and
-pre-commit initialization.
-"""
 import subprocess
 import sys
 from pathlib import Path
@@ -18,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 def check_tool(tool_name: str) -> bool:
     """
-    Check if a specific tool is installed and return its version.
+    Check if a linting/formatting tool is installed and return its version.
     
     Args:
-        tool_name: Name of the tool to check (e.g., 'flake8', 'black')
+        tool_name: Name of the tool (e.g., 'flake8', 'black')
         
     Returns:
-        True if the tool is installed, False otherwise.
+        bool: True if tool is installed, False otherwise
     """
     try:
         result = subprocess.run(
@@ -33,212 +28,197 @@ def check_tool(tool_name: str) -> bool:
             text=True,
             check=True
         )
-        logger.info(f"{tool_name} is installed: {result.stdout.strip()}")
-        return True
-    except subprocess.CalledProcessError:
-        logger.warning(f"{tool_name} is not installed or not in PATH.")
-        return False
-    except FileNotFoundError:
-        logger.warning(f"{tool_name} command not found.")
-        return False
-
-def install_dev_dependencies() -> bool:
-    """
-    Install development dependencies from requirements-dev.txt.
-    
-    Returns:
-        True if installation succeeds, False otherwise.
-    """
-    requirements_file = Path("requirements-dev.txt")
-    if not requirements_file.exists():
-        logger.error(f"Requirements file not found: {requirements_file}")
-        return False
-
-    logger.info(f"Installing development dependencies from {requirements_file}...")
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_file)],
-            check=True
-        )
-        logger.info("Development dependencies installed successfully.")
+        logger.info(f"{tool_name} version: {result.stdout.strip()}")
         return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to install dependencies: {e}")
+        logger.error(f"{tool_name} not installed or error occurred: {e}")
+        return False
+    except FileNotFoundError:
+        logger.error(f"{tool_name} command not found. Is it installed?")
         return False
 
-def create_flake8_config() -> bool:
-    """
-    Create a .flake8 configuration file if it doesn't exist.
-    
-    Returns:
-        True if config is created or already exists, False on error.
-    """
-    config_path = Path(".flake8")
-    if config_path.exists():
-        logger.info(f"Configuration file {config_path} already exists.")
-        return True
+def install_dev_dependencies() -> None:
+    """Install linting and formatting dependencies."""
+    logger.info("Installing development dependencies (flake8, black, pre-commit)...")
+    try:
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install",
+            "flake8",
+            "black",
+            "pre-commit"
+        ])
+        logger.info("Development dependencies installed successfully.")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to install dependencies: {e}")
+        raise
 
+def create_flake8_config(root_dir: Path) -> None:
+    """
+    Create a .flake8 configuration file.
+    
+    Args:
+        root_dir: Project root directory
+    """
     config_content = """[flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
     build,
     dist,
     .eggs,
-    *.egg-info
+    *.egg-info,
+    data,
+    results
 per-file-ignores =
-    */__init__.py:F401
+    __init__.py:F401
 """
-    try:
-        config_path.write_text(config_content)
-        logger.info(f"Created {config_path} with default settings.")
-        return True
-    except IOError as e:
-        logger.error(f"Failed to create {config_path}: {e}")
-        return False
+    config_path = root_dir / ".flake8"
+    if not config_path.exists():
+        with open(config_path, 'w') as f:
+            f.write(config_content)
+        logger.info(f"Created .flake8 config at {config_path}")
+    else:
+        logger.info(f".flake8 config already exists at {config_path}")
 
-def create_black_config() -> bool:
+def create_black_config(root_dir: Path) -> None:
     """
-    Ensure black configuration exists in pyproject.toml.
+    Create a pyproject.toml configuration for Black if it doesn't exist or update it.
     
-    Returns:
-        True if config is updated or already exists, False on error.
+    Args:
+        root_dir: Project root directory
     """
-    pyproject_path = Path("pyproject.toml")
+    toml_path = root_dir / "pyproject.toml"
     
-    if not pyproject_path.exists():
-        logger.warning(f"{pyproject_path} not found. Creating with black config...")
-        content = """[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-"""
-        try:
-            pyproject_path.write_text(content)
-            logger.info(f"Created {pyproject_path} with black configuration.")
-            return True
-        except IOError as e:
-            logger.error(f"Failed to create {pyproject_path}: {e}")
-            return False
-
-    # Check if black section exists
-    content = pyproject_path.read_text()
-    if "[tool.black]" in content:
-        logger.info(f"Black configuration already exists in {pyproject_path}.")
-        return True
-
-    # Append black config
-    black_config = """
+    black_section = """
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py38', 'py39', 'py310']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
     | _build
     | buck-out
     | build
     | dist
+    | data
+    | results
 )/
 '''
 """
-    try:
-        with open(pyproject_path, 'a') as f:
-            f.write(black_config)
-        logger.info(f"Added black configuration to {pyproject_path}.")
-        return True
-    except IOError as e:
-        logger.error(f"Failed to update {pyproject_path}: {e}")
-        return False
-
-def init_pre_commit() -> bool:
-    """
-    Initialize pre-commit hooks if not already initialized.
     
-    Returns:
-        True if successful, False otherwise.
-    """
-    pre_commit_config = Path(".pre-commit-config.yaml")
-    if not pre_commit_config.exists():
-        logger.warning(f"{pre_commit_config} not found. Skipping pre-commit init.")
-        return False
-
-    logger.info("Initializing pre-commit hooks...")
-    try:
-        # Check if .git/hooks/pre-commit exists
-        hook_path = Path(".git/hooks/pre-commit")
-        if not hook_path.exists():
-            subprocess.run(["pre-commit", "install"], check=True)
-            logger.info("Pre-commit hooks installed.")
-        else:
-            logger.info("Pre-commit hooks already installed.")
+    if toml_path.exists():
+        with open(toml_path, 'r') as f:
+            content = f.read()
         
-        # Run a dry-run check
-        subprocess.run(["pre-commit", "run", "--all-files"], check=False)
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.warning(f"Pre-commit setup or run had issues: {e}")
-        return False
-    except FileNotFoundError:
-        logger.error("pre-commit command not found. Please install it first.")
-        return False
+        if '[tool.black]' in content:
+            logger.info("Black configuration already exists in pyproject.toml")
+            return
+        
+        with open(toml_path, 'a') as f:
+            f.write(black_section)
+        logger.info(f"Appended Black config to {toml_path}")
+    else:
+        with open(toml_path, 'w') as f:
+            f.write("[project]\nname = \"llmXive-project\"\nversion = \"0.1.0\"\n")
+            f.write(black_section)
+        logger.info(f"Created pyproject.toml with Black config at {toml_path}")
 
-def main():
-    """Main entry point for the linting setup script."""
-    logger.info("Starting linting and formatting configuration...")
+def init_pre_commit(root_dir: Path) -> None:
+    """
+    Initialize pre-commit hooks.
     
-    # 1. Install dependencies
-    if not install_dev_dependencies():
-        logger.error("Dependency installation failed. Aborting.")
+    Args:
+        root_dir: Project root directory
+    """
+    pre_commit_path = root_dir / ".pre-commit-config.yaml"
+    
+    config_content = """repos:
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+- id: black
+  language_version: python3
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+- id: flake8
+"""
+    
+    if not pre_commit_path.exists():
+        with open(pre_commit_path, 'w') as f:
+            f.write(config_content)
+        logger.info(f"Created .pre-commit-config.yaml at {pre_commit_path}")
+    else:
+        logger.info(f".pre-commit-config.yaml already exists at {pre_commit_path}")
+    
+    # Initialize git hooks if .git exists
+    git_dir = root_dir / ".git"
+    if git_dir.exists():
+        logger.info("Initializing pre-commit hooks...")
+        try:
+            subprocess.run(
+                ["pre-commit", "install"],
+                cwd=root_dir,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            logger.info("Pre-commit hooks installed successfully.")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Failed to install pre-commit hooks: {e}")
+            logger.info("You can install them manually by running: pre-commit install")
+    else:
+        logger.info(".git directory not found. Skipping pre-commit hook installation.")
+
+def main() -> None:
+    """Main entry point for setting up linting and formatting tools."""
+    root_dir = Path(__file__).parent.parent
+    logger.info(f"Setting up linting tools in {root_dir}")
+    
+    # Install dependencies
+    install_dev_dependencies()
+    
+    # Create configuration files
+    create_flake8_config(root_dir)
+    create_black_config(root_dir)
+    init_pre_commit(root_dir)
+    
+    # Verify installations
+    logger.info("Verifying tool installations...")
+    flake8_ok = check_tool("flake8")
+    black_ok = check_tool("black")
+    
+    if flake8_ok and black_ok:
+        logger.info("Linting setup completed successfully.")
+        
+        # Run a quick check on the src directory if it exists
+        src_dir = root_dir / "code" / "src"
+        if src_dir.exists():
+            logger.info("Running black --check on code/src/...")
+            try:
+                subprocess.run(
+                    ["black", "--check", str(src_dir)],
+                    cwd=root_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True
+                )
+                logger.info("black --check passed on code/src/")
+            except subprocess.CalledProcessError:
+                # It's okay if there are formatting issues initially
+                logger.info("black --check found formatting issues (expected on first run). Run 'black code/src/' to fix.")
+            except FileNotFoundError:
+                logger.warning("black command not found during check.")
+    else:
+        logger.error("Linting setup incomplete. Some tools are missing.")
         sys.exit(1)
-    
-    # 2. Verify tools
-    tools = ["flake8", "black", "isort"]
-    all_installed = True
-    for tool in tools:
-        if not check_tool(tool):
-            all_installed = False
-    
-    if not all_installed:
-        logger.error("One or more tools are missing after installation.")
-        sys.exit(1)
-    
-    # 3. Create configuration files
-    create_flake8_config()
-    create_black_config()
-    
-    # 4. Initialize pre-commit
-    init_pre_commit()
-    
-    # 5. Final check
-    logger.info("Running black --check on codebase...")
-    try:
-        subprocess.run(["black", "--check", "code/"], check=True)
-        logger.info("Code formatting check passed.")
-    except subprocess.CalledProcessError:
-        logger.warning("Code formatting check failed. Run 'black code/' to fix.")
-    
-    logger.info("Linting and formatting configuration complete.")
 
 if __name__ == "__main__":
     main()

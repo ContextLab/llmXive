@@ -981,3 +981,164 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T07:57:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset of at least 500 experiments target or 150 minimum viable
+  claim_id: c_4d004cf3
+  context: 'Goal: Automatically aggregate ball milling experimental data from public
+    repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized
+    features, creating a clean, analysis-ready dataset of at least 500 experiments
+    (target) or 150 (minimum viable).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_of_at_least_500_experiments_target_or_150_minimum_vi
+  kind: magnitude
+  raw_text: creating a clean, analysis-ready dataset of at least 500 experiments (target)
+    or 150 (minimum viable)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:23:35Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: output contains 500 rows target or 150 rows minimum viable
+  claim_id: c_776f7581
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the output CSV/Parquet contains \u2265500 rows (target) or \u2265\
+    150 rows (minimum viable)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:23:35Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: raises InsufficientDataError if row count less than 150
+  claim_id: c_8dd85420
+  context: 'Deliverable: A fully functional validate_schema(dataframe) function that
+    raises InsufficientDataError (defined in src/utils/exceptions.py) if row count
+    < 150 or schema validation fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raises_InsufficientDataError_if_row_count_less_than_150
+  kind: magnitude
+  raw_text: raises InsufficientDataError if row count < 150
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:24:01Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: scrape papers from arXiv search query ball milling AND particle size
+    distribution or list of 5 known IDs
+  claim_id: c_b29d6263
+  context: 'Specifics: Use pdfminer.six to scrape tables from arXiv PDFs. Target:
+    Scrape papers from the arXiv search query ''ball milling'' AND ''particle size
+    distribution'' (or a specific list of 5 known IDs: 2201.00001, 2202.00002, etc.,
+    to be updated with real IDs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'scrape papers from the arXiv search query ''ball milling'' AND ''particle
+    size distribution'' (or a specific list of 5 known IDs: 2201.00001, 2202.00002,
+    etc., to be updated with real IDs)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:24:14Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest training 1000 trees limit
+  claim_id: c_c2d048f1
+  context: "Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme (standalone, no fallback logic needed here)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Random Forest training (\u22641000 trees)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:24:14Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nadeau and Bengio corrected resampled t-test alpha 0.05
+  claim_id: c_12e25337
+  context: "Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Nadeau & Bengio corrected resampled t-test (\u03B1 = 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:24:45Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: power analysis Cohen f squared 0.15
+  claim_id: c_e2365403
+  context: "Implement a priori power analysis in src/evaluate/power_analysis.py (Cohen's\
+    \ f\xB2 = 0.15) to report minimum detectable effect size."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "a priori power analysis (Cohen's f\xB2 = 0.15)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:25:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: job time limit 360 minutes
+  claim_id: c_aaa4854a
+  context: 'Enforce a job time limit of hours (360 minutes) using timeout-minutes:
+    360 in the workflow definition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce a job time limit of hours (360 minutes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:25:47Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback to Random Forest if 1800 seconds or 5GB RAM
+  claim_id: c_64504cf6
+  context: 'Critical: GPR fallback to Random Forest must be automatic and logged if
+    >30min (1800s) or >5GB RAM (configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T08:25:47Z'

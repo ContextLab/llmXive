@@ -34,6 +34,14 @@ T007b:
     \ `from src.exceptions import \u2026` does not match the actual location of `exceptions.py`\
     \ (`src/utils/exceptions.py`), so the module would fail to import. Both issues\
     \ prevent the function from being fully functional as required."
+T013b:
+  c: false
+  h: c628e90c982b9b235f35e247bf96bec82d39825ecd5dc800ec542970236744ec
+  r: "The repository contains `src/ingest/arxiv_extractor.py`, but the file is truncated\
+    \ and lacks any logic that extracts tables, writes them to `data/raw/arxiv_tables.json`,\
+    \ or raises `DataIngestionError` on failure. Moreover, the required output file\
+    \ `data/raw/arxiv_tables.json` does not exist. Consequently the task\u2019s core\
+    \ requirements are not met."
 T015b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

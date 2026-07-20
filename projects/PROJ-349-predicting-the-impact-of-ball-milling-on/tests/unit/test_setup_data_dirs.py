@@ -3,72 +3,50 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
+
 from code.setup_data_dirs import setup_directories
 
+
 class TestSetupDataDirs:
-    def test_setup_directories_creates_missing(self):
-        """Test that setup_directories creates directories that don't exist."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # Change to temp directory to simulate project root
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                
-                # Ensure data dir doesn't exist yet
-                data_dir = Path(tmp_dir) / "data"
-                assert not data_dir.exists()
-                
-                # Run the setup
-                result = setup_directories()
-                
-                # Verify result
-                assert result is True
-                
-                # Verify directories exist
-                assert (Path(tmp_dir) / "data" / "raw").exists()
-                assert (Path(tmp_dir) / "data" / "processed").exists()
-                assert (Path(tmp_dir) / "data" / "splits").exists()
-                assert (Path(tmp_dir) / "results").exists()
-                
-            finally:
-                os.chdir(original_cwd)
+    """Tests for the setup_data_dirs module (T004)."""
 
-    def test_setup_directories_skips_existing(self):
-        """Test that setup_directories handles existing directories gracefully."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                
-                # Pre-create the directories
-                (Path(tmp_dir) / "data" / "raw").mkdir(parents=True)
-                (Path(tmp_dir) / "data" / "processed").mkdir(parents=True)
-                (Path(tmp_dir) / "data" / "splits").mkdir(parents=True)
-                (Path(tmp_dir) / "results").mkdir(parents=True)
-                
-                # Run the setup
-                result = setup_directories()
-                
-                # Verify result
-                assert result is True
-                
-            finally:
-                os.chdir(original_cwd)
+    def test_creates_required_directories(self, tmp_path):
+        """Verify that all required data directories are created."""
+        # Arrange
+        data_raw = tmp_path / "data" / "raw"
+        data_processed = tmp_path / "data" / "processed"
+        data_splits = tmp_path / "data" / "splits"
+        results = tmp_path / "results"
 
-    def test_setup_directories_verification_failure(self):
-        """Test that setup_directories exits if verification fails (mocked)."""
-        # This is harder to test directly without mocking sys.exit
-        # But we verify the logic by ensuring the directories are created correctly
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmp_dir)
-                
-                # Run setup
-                setup_directories()
-                
-                # If we are here, verification passed (no sys.exit(1))
-                assert (Path(tmp_dir) / "data" / "raw").exists()
-                
-            finally:
-                os.chdir(original_cwd)
+        # Act
+        setup_directories(tmp_path)
+
+        # Assert
+        assert data_raw.exists() and data_raw.is_dir()
+        assert data_processed.exists() and data_processed.is_dir()
+        assert data_splits.exists() and data_splits.is_dir()
+        assert results.exists() and results.is_dir()
+
+    def test_does_not_fail_if_directories_exist(self, tmp_path):
+        """Verify that the function handles existing directories gracefully."""
+        # Arrange
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        
+        # Act & Assert (should not raise)
+        setup_directories(tmp_path)
+        
+        # Verify directory still exists
+        assert (tmp_path / "data" / "raw").exists()
+
+    def test_creates_parent_directories(self, tmp_path):
+        """Verify that parent directories are created if missing."""
+        # Arrange: Ensure 'data' does not exist
+        assert not (tmp_path / "data").exists()
+
+        # Act
+        setup_directories(tmp_path)
+
+        # Assert
+        assert (tmp_path / "data").exists()
+        assert (tmp_path / "data" / "raw").exists()
+        assert (tmp_path / "results").exists()
