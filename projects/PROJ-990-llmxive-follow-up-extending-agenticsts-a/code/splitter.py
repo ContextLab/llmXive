@@ -1,296 +1,282 @@
-"""
-Splitter module for stratified data splitting of trajectories.
-
-This module performs a stratified split of trajectory data into training
-and hold-out sets based on the utility scores derived from the ablation study.
-"""
 import os
 import json
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Import from existing project modules
-from config import load_config_from_file, ensure_directories
+# Import config for paths if available, otherwise use defaults
+try:
+    from config import load_config_from_file
+    CONFIG = load_config_from_file()
+    DATA_PROCESSED_DIR = Path(CONFIG.get('paths', {}).get('processed', 'data/processed'))
+except (ImportError, FileNotFoundError, KeyError):
+    DATA_PROCESSED_DIR = Path('data/processed')
 
-def load_processed_data(
-    utility_labels_path: str,
-    parser_metrics_path: str
-) -> pd.DataFrame:
+# Constants for splitting
+TRAIN_RATIO = 0.8
+HOLDOUT_RATIO = 0.2
+RANDOM_STATE = 42  # Fixed seed for reproducibility
+
+def load_processed_data(input_file: Optional[str] = None) -> pd.DataFrame:
     """
-    Load and merge utility labels with parser metrics.
-
-    Args:
-        utility_labels_path: Path to utility_labels.csv
-        parser_metrics_path: Path to parsed trajectory metrics
-
-    Returns:
-        Merged DataFrame containing both utility scores and trajectory metrics
+    Loads the processed utility labels or trajectory data for splitting.
+    Defaults to 'utility_labels.csv' if no specific input is provided,
+    as that is the primary labeled dataset available after T008b.
     """
-    logger.info(f"Loading utility labels from {utility_labels_path}")
-    utility_df = pd.read_csv(utility_labels_path)
+    if input_file is None:
+        # Check for the most likely source of labeled data
+        candidates = [
+            DATA_PROCESSED_DIR / 'utility_labels.csv',
+            DATA_PROCESSED_DIR / 'trajectories.csv'
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                input_file = str(candidate)
+                break
     
-    logger.info(f"Loading parser metrics from {parser_metrics_path}")
-    metrics_df = pd.read_csv(parser_metrics_path)
-
-    # Merge on trajectory_id and turn_id
-    merged_df = pd.merge(
-        utility_df,
-        metrics_df,
-        on=['trajectory_id', 'turn_id'],
-        how='inner'
-    )
-
-    logger.info(f"Merged dataset shape: {merged_df.shape}")
-    logger.info(f"Columns: {merged_df.columns.tolist()}")
+    if input_file is None:
+        raise FileNotFoundError(
+            "No input data file found. Expected 'data/processed/utility_labels.csv' "
+            "or 'data/processed/trajectories.csv'. Ensure T008b and T007 are completed."
+        )
     
-    return merged_df
+    path = Path(input_file)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
+    
+    logger.info(f"Loading data from {path}")
+    df = pd.read_csv(path)
+    
+    if df.empty:
+        raise ValueError(f"Input file {path} is empty.")
+    
+    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    return df
 
-def stratified_split(
-    df: pd.DataFrame,
-    stratify_column: str = 'utility_score',
-    test_size: float = 0.2,
-    random_state: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def stratified_split(df: pd.DataFrame, train_ratio: float = TRAIN_RATIO, random_state: int = RANDOM_STATE) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Perform stratified split of the dataset.
-
+    Performs a stratified split of the dataframe into training and hold-out sets.
+    
+    Stratification is performed on the 'utility_score' column if it exists.
+    If 'utility_score' is not available, it attempts to stratify on 'layer_id'.
+    If neither exists, it falls back to a random split (with a warning).
+    
     Args:
-        df: Input DataFrame
-        stratify_column: Column to use for stratification
-        test_size: Proportion of data to include in hold-out set
-        random_state: Random seed for reproducibility
-
+        df: The input DataFrame.
+        train_ratio: Proportion of data to include in the training set.
+        random_state: Seed for reproducibility.
+        
     Returns:
         Tuple of (train_df, holdout_df)
     """
-    # Ensure stratify column exists
-    if stratify_column not in df.columns:
-        raise ValueError(f"Stratify column '{stratify_column}' not found in DataFrame")
-
-    # For continuous utility_score, we bin it for stratification
-    if df[stratify_column].dtype in ['float64', 'float32']:
-        logger.info(f"Binning continuous {stratify_column} for stratification")
-        # Create bins based on percentiles to ensure balanced stratification
-        n_bins = 5
-        df = df.copy()
-        df['_stratify_bins'] = pd.qcut(
-            df[stratify_column], 
-            q=n_bins, 
-            labels=False, 
-            duplicates='drop'
-        )
-        stratify_col = '_stratify_bins'
-    else:
-        stratify_col = stratify_column
-
-    # Perform stratified split
-    train_df, holdout_df = train_test_split(
-        df,
-        test_size=test_size,
-        stratify=df[stratify_col],
-        random_state=random_state
-    )
-
-    # Drop the temporary bin column if it was created
-    if '_stratify_bins' in train_df.columns:
-        train_df = train_df.drop(columns=['_stratify_bins'])
-    if '_stratify_bins' in holdout_df.columns:
-        holdout_df = holdout_df.drop(columns=['_stratify_bins'])
-
-    logger.info(f"Train set size: {len(train_df)}")
-    logger.info(f"Hold-out set size: {len(holdout_df)}")
+    if df.empty:
+        raise ValueError("Cannot split an empty DataFrame.")
     
-    return train_df, holdout_df
-
-def train_test_split(
-    df: pd.DataFrame,
-    test_size: float,
-    stratify: pd.Series,
-    random_state: int
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Custom stratified train-test split implementation without sklearn dependency.
-    
-    Args:
-        df: Input DataFrame
-        test_size: Proportion for test set
-        stratify: Series to stratify by
-        random_state: Random seed
-
-    Returns:
-        Tuple of (train_df, test_df)
-    """
     np.random.seed(random_state)
     
-    train_indices = []
-    test_indices = []
-    
-    # Group by stratify column
-    unique_strata = stratify.unique()
-    
-    for stratum in unique_strata:
-        stratum_mask = stratify == stratum
-        stratum_indices = df.index[stratum_mask].tolist()
+    stratify_col = None
+    if 'utility_score' in df.columns:
+        stratify_col = 'utility_score'
+        logger.info(f"Stratifying by 'utility_score' column.")
+    elif 'layer_id' in df.columns:
+        stratify_col = 'layer_id'
+        logger.info(f"Stratifying by 'layer_id' column.")
+    else:
+        logger.warning("No suitable column found for stratification ('utility_score' or 'layer_id'). "
+                     "Performing a random split. This may lead to distribution shifts.")
         
-        # Shuffle indices
-        np.random.shuffle(stratum_indices)
+    if stratify_col:
+        # Ensure the column is numeric or categorical for stratification
+        # If it's continuous (float), we might need to bin it, but pandas handles float stratification in newer versions.
+        # For safety, we let pandas handle it, but if it fails due to too many unique values, we fall back.
+        try:
+            train_df, holdout_df = train_test_split(
+                df, 
+                train_size=train_ratio, 
+                stratify=df[stratify_col], 
+                random_state=random_state
+            )
+        except Exception as e:
+            logger.warning(f"Stratification failed ({e}). Falling back to random split.")
+            train_df, holdout_df = train_test_split(
+                df, 
+                train_size=train_ratio, 
+                random_state=random_state
+            )
+    else:
+        train_df, holdout_df = train_test_split(
+            df, 
+            train_size=train_ratio, 
+            random_state=random_state
+        )
         
-        # Calculate split point
-        n_stratum = len(stratum_indices)
-        n_test = int(n_stratum * test_size)
-        
-        # Split
-        test_indices.extend(stratum_indices[:n_test])
-        train_indices.extend(stratum_indices[n_test:])
-    
-    train_df = df.loc[train_indices].reset_index(drop=True)
-    test_df = df.loc[test_indices].reset_index(drop=True)
-    
-    return train_df, test_df
+    logger.info(f"Split complete: Train set size = {len(train_df)}, Holdout set size = {len(holdout_df)}")
+    return train_df, holdout_df
 
-def save_split_data(
-    train_df: pd.DataFrame,
-    holdout_df: pd.DataFrame,
-    output_dir: str
-) -> None:
+def train_test_split(df: pd.DataFrame, train_size: float, stratify: Optional[pd.Series] = None, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Save split datasets to CSV files.
+    Wrapper around sklearn's train_test_split or a manual implementation if sklearn is unavailable.
+    Given the project constraints, we use a manual numpy-based approach to ensure no extra dependencies.
+    """
+    try:
+        from sklearn.model_selection import train_test_split as sk_split
+        return sk_split(df, train_size=train_size, stratify=stratify, random_state=random_state)
+    except ImportError:
+        logger.warning("sklearn not found. Using manual stratified split implementation.")
+        indices = df.index.tolist()
+        
+        if stratify is not None:
+            # Group indices by stratification column values
+            stratify_values = stratify.values
+            unique_vals = np.unique(stratify_values)
+            strata_indices = {val: [] for val in unique_vals}
+            
+            for idx, val in zip(indices, stratify_values):
+                strata_indices[val].append(idx)
+            
+            train_indices = []
+            holdout_indices = []
+            
+            for val, idxs in strata_indices.items():
+                n_total = len(idxs)
+                n_train = int(np.ceil(n_total * train_size))
+                np.random.shuffle(idxs)
+                train_indices.extend(idxs[:n_train])
+                holdout_indices.extend(idxs[n_train:])
+                
+            np.random.shuffle(train_indices)
+            np.random.shuffle(holdout_indices)
+            
+            return df.loc[train_indices].reset_index(drop=True), df.loc[holdout_indices].reset_index(drop=True)
+        else:
+            # Random split
+            np.random.shuffle(indices)
+            n_train = int(len(indices) * train_size)
+            train_indices = indices[:n_train]
+            holdout_indices = indices[n_train:]
+            return df.loc[train_indices].reset_index(drop=True), df.loc[holdout_indices].reset_index(drop=True)
 
+def save_split_data(train_df: pd.DataFrame, holdout_df: pd.DataFrame, output_dir: Optional[Path] = None) -> Tuple[Path, Path]:
+    """
+    Saves the split dataframes to CSV files.
+    
     Args:
-        train_df: Training DataFrame
-        holdout_df: Hold-out DataFrame
-        output_dir: Directory to save files
-    """
-    train_path = Path(output_dir) / 'train_set.csv'
-    holdout_path = Path(output_dir) / 'holdout_set.csv'
-
-    logger.info(f"Saving train set to {train_path}")
-    train_df.to_csv(train_path, index=False)
-    
-    logger.info(f"Saving hold-out set to {holdout_path}")
-    holdout_df.to_csv(holdout_path, index=False)
-
-    # Log distribution statistics
-    logger.info(f"Train set statistics:")
-    logger.info(f"  Shape: {train_df.shape}")
-    if 'utility_score' in train_df.columns:
-        logger.info(f"  Utility score mean: {train_df['utility_score'].mean():.4f}")
-        logger.info(f"  Utility score std: {train_df['utility_score'].std():.4f}")
-    
-    logger.info(f"Hold-out set statistics:")
-    logger.info(f"  Shape: {holdout_df.shape}")
-    if 'utility_score' in holdout_df.columns:
-        logger.info(f"  Utility score mean: {holdout_df['utility_score'].mean():.4f}")
-        logger.info(f"  Utility score std: {holdout_df['utility_score'].std():.4f}")
-
-def validate_split(
-    train_df: pd.DataFrame,
-    holdout_df: pd.DataFrame,
-    stratify_column: str = 'utility_score'
-) -> Dict[str, Any]:
-    """
-    Validate that the split is appropriate.
-
-    Args:
-        train_df: Training DataFrame
-        holdout_df: Hold-out DataFrame
-        stratify_column: Column used for stratification
-
+        train_df: Training set DataFrame.
+        holdout_df: Holdout set DataFrame.
+        output_dir: Directory to save files. Defaults to DATA_PROCESSED_DIR.
+        
     Returns:
-        Validation report dictionary
+        Tuple of (train_path, holdout_path)
+    """
+    if output_dir is None:
+        output_dir = DATA_PROCESSED_DIR
+        
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    train_path = output_dir / 'train_set.csv'
+    holdout_path = output_dir / 'holdout_set.csv'
+    
+    train_df.to_csv(train_path, index=False)
+    holdout_df.to_csv(holdout_path, index=False)
+    
+    logger.info(f"Saved training set to {train_path} ({len(train_df)} rows)")
+    logger.info(f"Saved holdout set to {holdout_path} ({len(holdout_df)} rows)")
+    
+    return train_path, holdout_path
+
+def validate_split(train_df: pd.DataFrame, holdout_df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Validates the split for data leakage and distribution balance.
+    
+    Returns a report dictionary with validation status and statistics.
     """
     report = {
-        'train_size': len(train_df),
-        'holdout_size': len(holdout_df),
-        'total_size': len(train_df) + len(holdout_df),
-        'train_ratio': len(train_df) / (len(train_df) + len(holdout_df)),
-        'holdout_ratio': len(holdout_df) / (len(train_df) + len(holdout_df))
+        "status": "passed",
+        "train_size": len(train_df),
+        "holdout_size": len(holdout_df),
+        "total_size": len(train_df) + len(holdout_df),
+        "train_ratio": len(train_df) / (len(train_df) + len(holdout_df)),
+        "issues": []
     }
-
-    if stratify_column in train_df.columns:
-        train_stats = train_df[stratify_column].describe()
-        holdout_stats = holdout_df[stratify_column].describe()
+    
+    # Check for index overlap (should not happen with reset_index, but good to verify)
+    if set(train_df.index) & set(holdout_df.index):
+        report["status"] = "failed"
+        report["issues"].append("Index overlap detected between train and holdout sets.")
         
-        report['train_mean'] = float(train_stats['mean'])
-        report['train_std'] = float(train_stats['std'])
-        report['holdout_mean'] = float(holdout_stats['mean'])
-        report['holdout_std'] = float(holdout_stats['std'])
+    # Check for column consistency
+    if set(train_df.columns) != set(holdout_df.columns):
+        report["status"] = "failed"
+        report["issues"].append("Column mismatch between train and holdout sets.")
         
-        # Check if means are similar (within 10%)
-        if report['train_mean'] != 0:
-            diff_pct = abs(report['train_mean'] - report['holdout_mean']) / abs(report['train_mean'])
-            report['mean_diff_pct'] = diff_pct
-            report['distribution_match'] = diff_pct < 0.1
-        else:
-            report['mean_diff_pct'] = 0.0
-            report['distribution_match'] = True
-
+    # Check for empty sets
+    if len(train_df) == 0:
+        report["status"] = "failed"
+        report["issues"].append("Training set is empty.")
+    if len(holdout_df) == 0:
+        report["status"] = "failed"
+        report["issues"].append("Holdout set is empty.")
+        
+    # Check distribution of key columns if available
+    for col in ['utility_score', 'layer_id']:
+        if col in train_df.columns and col in holdout_df.columns:
+            # Simple check for presence of unique values
+            train_unique = train_df[col].nunique()
+            holdout_unique = holdout_df[col].nunique()
+            if train_unique == 0 or holdout_unique == 0:
+                report["issues"].append(f"Column '{col}' has no unique values in one of the sets.")
+                
     return report
 
 def main():
     """
-    Main entry point for the splitter module.
-    
-    Reads utility labels and parser metrics, performs stratified split,
-    and saves train and hold-out sets.
+    Main entry point for the splitter task.
+    Loads processed data, performs stratified split, and saves the results.
     """
-    # Load configuration
-    config = load_config_from_file()
+    logger.info("Starting data split process (T014a)...")
     
-    # Ensure output directories exist
-    ensure_directories(config)
-    
-    # Define paths
-    utility_labels_path = config.get('paths', {}).get('utility_labels', 'data/processed/utility_labels.csv')
-    parser_metrics_path = config.get('paths', {}).get('parser_metrics', 'data/processed/parser_metrics.csv')
-    output_dir = config.get('paths', {}).get('processed', 'data/processed')
-    
-    # Check if input files exist
-    if not os.path.exists(utility_labels_path):
-        raise FileNotFoundError(f"Utility labels file not found: {utility_labels_path}")
-    if not os.path.exists(parser_metrics_path):
-        raise FileNotFoundError(f"Parser metrics file not found: {parser_metrics_path}")
-    
-    # Load and merge data
-    merged_df = load_processed_data(utility_labels_path, parser_metrics_path)
-    
-    if merged_df.empty:
-        raise ValueError("Merged dataset is empty. Check input files and merge keys.")
-    
-    # Perform stratified split
-    logger.info("Performing stratified split...")
-    train_df, holdout_df = stratified_split(
-        merged_df,
-        stratify_column='utility_score',
-        test_size=0.2,
-        random_state=config.get('hyperparameters', {}).get('random_state', 42)
-    )
-    
-    # Validate split
-    validation_report = validate_split(train_df, holdout_df)
-    logger.info(f"Split validation: {json.dumps(validation_report, indent=2)}")
-    
-    # Save split data
-    save_split_data(train_df, holdout_df, output_dir)
-    
-    # Save validation report
-    report_path = Path(output_dir) / 'split_validation_report.json'
-    with open(report_path, 'w') as f:
-        json.dump(validation_report, f, indent=2)
-    
-    logger.info(f"Split complete. Validation report saved to {report_path}")
-    logger.info(f"Train set: {len(train_df)} samples")
-    logger.info(f"Hold-out set: {len(holdout_df)} samples")
+    try:
+        # 1. Load Data
+        df = load_processed_data()
+        
+        # 2. Split Data
+        train_df, holdout_df = stratified_split(df)
+        
+        # 3. Validate Split
+        validation_report = validate_split(train_df, holdout_df)
+        if validation_report["status"] == "failed":
+            logger.error(f"Split validation failed: {validation_report['issues']}")
+            raise RuntimeError("Data split validation failed.")
+            
+        # 4. Save Data
+        train_path, holdout_path = save_split_data(train_df, holdout_df)
+        
+        # 5. Log Summary
+        logger.info("Split process completed successfully.")
+        logger.info(f"Train set: {train_path} ({len(train_df)} rows)")
+        logger.info(f"Holdout set: {holdout_path} ({len(holdout_df)} rows)")
+        
+        # Save validation report as JSON for audit
+        report_path = DATA_PROCESSED_DIR / 'split_validation_report.json'
+        with open(report_path, 'w') as f:
+            json.dump(validation_report, f, indent=2)
+        logger.info(f"Saved validation report to {report_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Value error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during split: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

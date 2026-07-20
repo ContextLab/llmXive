@@ -1,204 +1,143 @@
 """
 Unit tests for the splitter module.
 """
-import os
-import sys
 import pytest
 import pandas as pd
 import numpy as np
+import os
+import json
 from pathlib import Path
 import tempfile
-import json
+import shutil
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
+# Import the module under test
 from splitter import (
     load_processed_data,
     stratified_split,
     train_test_split,
     save_split_data,
     validate_split,
-    main
+    DEFAULT_TRAIN_RATIO,
+    STRATIFY_COLUMN
 )
-from config import load_config_from_file, ensure_directories
 
 @pytest.fixture
 def sample_data():
     """Create sample data for testing."""
-    np.random.seed(42)
-    n_samples = 100
-    
     data = {
-        'trajectory_id': np.random.randint(1, 10, n_samples),
-        'turn_id': np.random.randint(1, 20, n_samples),
-        'utility_score': np.random.uniform(0, 1, n_samples),
-        'health': np.random.randint(0, 100, n_samples),
-        'threat': np.random.randint(0, 10, n_samples),
-        'deck_size': np.random.randint(10, 50, n_samples)
+        'trajectory_id': range(100),
+        'turn': np.random.randint(0, 50, 100),
+        'utility_score': np.random.choice([0, 1, 2, 3], 100),
+        'entropy': np.random.rand(100),
+        'health': np.random.randint(10, 100, 100)
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
 def temp_dir():
     """Create a temporary directory for test outputs."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+    temp_path = tempfile.mkdtemp()
+    yield temp_path
+    shutil.rmtree(temp_path)
 
-def test_stratified_split_continuous(sample_data):
-    """Test stratified split with continuous utility scores."""
-    train_df, holdout_df = stratified_split(
-        sample_data,
-        stratify_column='utility_score',
-        test_size=0.2,
-        random_state=42
-    )
+def test_load_processed_data(sample_data, temp_dir):
+    """Test loading processed data from CSV."""
+    test_file = os.path.join(temp_dir, "test_data.csv")
+    sample_data.to_csv(test_file, index=False)
+    
+    loaded_df = load_processed_data(test_file)
+    assert len(loaded_df) == len(sample_data)
+    assert list(loaded_df.columns) == list(sample_data.columns)
+
+def test_load_processed_data_missing_file():
+    """Test that missing file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_processed_data("nonexistent/path.csv")
+
+def test_stratified_split_stratification(sample_data):
+    """Test that stratified split maintains distribution."""
+    train_df, holdout_df = stratified_split(sample_data, train_ratio=0.8)
     
     # Check sizes
     assert len(train_df) + len(holdout_df) == len(sample_data)
+    assert len(train_df) == int(len(sample_data) * 0.8)
     assert len(holdout_df) == int(len(sample_data) * 0.2)
     
-    # Check that utility_score exists in both
-    assert 'utility_score' in train_df.columns
-    assert 'utility_score' in holdout_df.columns
+    # Check no overlap
+    train_ids = set(train_df['trajectory_id'])
+    holdout_ids = set(holdout_df['trajectory_id'])
+    assert len(train_ids.intersection(holdout_ids)) == 0
 
-def test_stratified_split_categorical():
-    """Test stratified split with categorical data."""
-    np.random.seed(42)
-    n_samples = 100
+def test_stratified_split_missing_column(sample_data):
+    """Test split when stratification column is missing."""
+    # Remove the stratification column
+    data_no_strat = sample_data.drop(columns=[STRATIFY_COLUMN])
     
-    data = {
-        'id': range(n_samples),
-        'category': np.random.choice(['A', 'B', 'C'], n_samples),
-        'value': np.random.uniform(0, 1, n_samples)
-    }
-    df = pd.DataFrame(data)
-    
-    train_df, holdout_df = stratified_split(
-        df,
-        stratify_column='category',
-        test_size=0.2,
-        random_state=42
-    )
-    
-    # Check that category distribution is similar
-    train_dist = train_df['category'].value_counts(normalize=True).sort_index()
-    holdout_dist = holdout_df['category'].value_counts(normalize=True).sort_index()
-    
-    # Allow some tolerance for randomness
-    for cat in ['A', 'B', 'C']:
-        train_prop = train_dist.get(cat, 0)
-        holdout_prop = holdout_dist.get(cat, 0)
-        assert abs(train_prop - holdout_prop) < 0.1, f"Distribution mismatch for {cat}"
+    # Should fall back to random split without error
+    train_df, holdout_df = stratified_split(data_no_strat)
+    assert len(train_df) + len(holdout_df) == len(data_no_strat)
 
-def test_train_test_split_custom(sample_data):
-    """Test custom train-test split implementation."""
-    train_df, test_df = train_test_split(
-        sample_data,
-        test_size=0.2,
-        stratify=sample_data['utility_score'],
-        random_state=42
-    )
+def test_train_test_split_alias(sample_data):
+    """Test that train_test_split is an alias for stratified_split."""
+    train1, holdout1 = stratified_split(sample_data)
+    train2, holdout2 = train_test_split(sample_data)
     
-    assert len(train_df) + len(test_df) == len(sample_data)
-    assert len(test_df) == int(len(sample_data) * 0.2)
+    # Results should be identical (same random state)
+    assert len(train1) == len(train2)
+    assert len(holdout1) == len(holdout2)
 
-def test_validate_split(sample_data):
-    """Test split validation."""
-    train_df, holdout_df = stratified_split(
-        sample_data,
-        stratify_column='utility_score',
-        test_size=0.2,
-        random_state=42
-    )
+def test_save_split_data(temp_dir, sample_data):
+    """Test saving split data to CSV files."""
+    train_df = sample_data.iloc[:80]
+    holdout_df = sample_data.iloc[80:]
     
-    report = validate_split(train_df, holdout_df)
+    train_path = os.path.join(temp_dir, "train.csv")
+    holdout_path = os.path.join(temp_dir, "holdout.csv")
     
-    assert 'train_size' in report
-    assert 'holdout_size' in report
-    assert 'train_mean' in report
-    assert 'holdout_mean' in report
-    assert 'distribution_match' in report
-    assert report['distribution_match'] is True
-
-def test_save_split_data(sample_data, temp_dir):
-    """Test saving split data to CSV."""
-    train_df, holdout_df = stratified_split(
-        sample_data,
-        stratify_column='utility_score',
-        test_size=0.2,
-        random_state=42
-    )
+    save_split_data(train_df, holdout_df, train_path, holdout_path)
     
-    save_split_data(train_df, holdout_df, temp_dir)
+    assert os.path.exists(train_path)
+    assert os.path.exists(holdout_path)
     
-    train_path = Path(temp_dir) / 'train_set.csv'
-    holdout_path = Path(temp_dir) / 'holdout_set.csv'
-    
-    assert train_path.exists()
-    assert holdout_path.exists()
-    
-    # Verify content
     loaded_train = pd.read_csv(train_path)
     loaded_holdout = pd.read_csv(holdout_path)
     
-    assert len(loaded_train) == len(train_df)
-    assert len(loaded_holdout) == len(holdout_df)
+    assert len(loaded_train) == 80
+    assert len(loaded_holdout) == 20
 
-def test_main_with_mock_data(temp_dir):
-    """Test main function with mock data."""
-    # Create mock input files
-    utility_labels = pd.DataFrame({
-        'trajectory_id': [1, 2, 3, 4, 5],
-        'turn_id': [1, 1, 1, 1, 1],
-        'utility_score': [0.1, 0.2, 0.3, 0.4, 0.5]
-    })
-    utility_path = Path(temp_dir) / 'utility_labels.csv'
-    utility_labels.to_csv(utility_path, index=False)
+def test_validate_split(sample_data):
+    """Test split validation."""
+    train_df, holdout_df = stratified_split(sample_data)
+    validation_result = validate_split(train_df, holdout_df, sample_data)
     
-    parser_metrics = pd.DataFrame({
-        'trajectory_id': [1, 2, 3, 4, 5],
-        'turn_id': [1, 1, 1, 1, 1],
-        'health': [100, 90, 80, 70, 60],
-        'threat': [1, 2, 3, 4, 5],
-        'deck_size': [20, 25, 30, 35, 40]
-    })
-    metrics_path = Path(temp_dir) / 'parser_metrics.csv'
-    parser_metrics.to_csv(metrics_path, index=False)
+    assert validation_result['total_original_rows'] == len(sample_data)
+    assert validation_result['count_match'] is True
+    assert validation_result['no_overlap'] is True
+    assert 'stratification_maintained' in validation_result
+
+def test_validate_split_with_overlap():
+    """Test validation detects overlap."""
+    df = pd.DataFrame({'id': [1, 2, 3, 4], 'value': [10, 20, 30, 40]})
+    train_df = df.iloc[:3]
+    holdout_df = df.iloc[2:]  # Overlap on index 2
     
-    # Create a minimal config
-    config = {
-        'paths': {
-            'utility_labels': str(utility_path),
-            'parser_metrics': str(metrics_path),
-            'processed': temp_dir
-        },
-        'hyperparameters': {
-            'random_state': 42
-        }
-    }
+    validation_result = validate_split(train_df, holdout_df, df)
+    assert validation_result['no_overlap'] is False
+
+def test_stratified_split_small_strata(sample_data):
+    """Test split with small strata falls back to random."""
+    # Create data with a strata that has only 1 sample
+    small_data = sample_data.copy()
+    small_data.loc[0, STRATIFY_COLUMN] = 999  # Unique value with count 1
     
-    config_path = Path(temp_dir) / 'config.json'
-    with open(config_path, 'w') as f:
-        json.dump(config, f)
+    # Should not raise, should fall back to random split
+    train_df, holdout_df = stratified_split(small_data)
+    assert len(train_df) + len(holdout_df) == len(small_data)
+
+def test_random_state_reproducibility(sample_data):
+    """Test that same random state produces same split."""
+    train1, holdout1 = stratified_split(sample_data, random_state=42)
+    train2, holdout2 = stratified_split(sample_data, random_state=42)
     
-    # Mock load_config_from_file to return our config
-    original_func = load_config_from_file
-    import splitter
-    splitter.load_config_from_file = lambda: config
-    splitter.ensure_directories = lambda c: None
-    
-    try:
-        main()
-        
-        # Check outputs
-        train_path = Path(temp_dir) / 'train_set.csv'
-        holdout_path = Path(temp_dir) / 'holdout_set.csv'
-        report_path = Path(temp_dir) / 'split_validation_report.json'
-        
-        assert train_path.exists()
-        assert holdout_path.exists()
-        assert report_path.exists()
-    finally:
-        # Restore original function
-        splitter.load_config_from_file = original_func
+    assert train1.equals(train2)
+    assert holdout1.equals(holdout2)

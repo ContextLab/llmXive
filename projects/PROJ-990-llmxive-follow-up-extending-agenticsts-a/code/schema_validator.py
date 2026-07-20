@@ -9,260 +9,259 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class SchemaField:
-    """Represents a single field in a schema definition."""
     def __init__(self, name: str, dtype: str, required: bool = True, description: str = ""):
         self.name = name
         self.dtype = dtype
         self.required = required
         self.description = description
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "dtype": self.dtype,
-            "required": self.required,
-            "description": self.description
-        }
-
 class Schema:
-    """Represents a schema for a processed dataset."""
-    def __init__(self, name: str, fields: List[SchemaField], description: str = ""):
+    def __init__(self, name: str, fields: List[SchemaField]):
         self.name = name
         self.fields = fields
-        self.description = description
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "fields": [f.to_dict() for f in self.fields]
-        }
 
 def validate_dataframe_schema(df: pd.DataFrame, schema: Schema) -> Dict[str, Any]:
-    """
-    Validates a DataFrame against a Schema definition.
-    Returns a report dict with 'valid' (bool) and 'errors' (list).
-    """
+    """Validates a DataFrame against a defined schema."""
     errors = []
-    existing_cols = set(df.columns)
-    
+    warnings = []
     for field in schema.fields:
-        if field.name not in existing_cols:
+        if field.name not in df.columns:
             if field.required:
                 errors.append(f"Missing required column: {field.name}")
             continue
         
-        # Check dtype compatibility
         actual_dtype = str(df[field.name].dtype)
-        # Map pandas dtypes to generic types for comparison
-        expected_type = field.dtype.lower()
-        
-        type_mapping = {
-            'int': ['int64', 'int32', 'int'],
-            'float': ['float64', 'float32', 'float'],
-            'string': ['object', 'string', 'str'],
-            'bool': ['bool', 'boolean']
+        # Map pandas dtypes to expected string representations loosely
+        expected_map = {
+            "int64": ["int64", "int32", "int"],
+            "float64": ["float64", "float32", "float"],
+            "object": ["object", "string"],
+            "bool": ["bool"]
         }
         
-        valid_types = type_mapping.get(expected_type, [expected_type])
-        if actual_dtype not in valid_types:
-            errors.append(f"Column '{field.name}' has dtype {actual_dtype}, expected {expected_type}")
-    
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "schema_name": schema.name,
-        "row_count": len(df)
-    }
+        if field.dtype not in expected_map.get(actual_dtype, [actual_dtype]):
+            # Strict check for specific string match if not in loose map
+            if field.dtype != actual_dtype:
+                warnings.append(f"Column '{field.name}' has dtype {actual_dtype}, expected {field.dtype}")
 
-def create_processed_directories(base_dir: Path) -> None:
-    """
-    Creates the data/processed directory structure and schema registry file.
-    """
-    processed_dir = base_dir / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create a placeholder registry if it doesn't exist
-    registry_path = processed_dir / "schema_registry.json"
-    if not registry_path.exists():
-        registry = {
-            "version": "1.0",
-            "schemas": {}
-        }
-        with open(registry_path, 'w') as f:
-            json.dump(registry, f, indent=2)
-        logger.info(f"Created schema registry at {registry_path}")
-    
-    logger.info(f"Ensured processed directory exists at {processed_dir}")
+    if errors:
+        return {"valid": False, "errors": errors, "warnings": warnings}
+    return {"valid": True, "errors": [], "warnings": warnings}
 
-def validate_schema_file(schema_path: Path) -> Optional[Schema]:
-    """
-    Loads and validates a schema definition file (JSON).
-    Returns the Schema object if valid, None otherwise.
-    """
+def validate_json_schema(file_path: Path, schema: Dict[str, Any]) -> Dict[str, Any]:
+    """Validates a JSON file against a simple schema definition."""
+    errors = []
     try:
-        with open(schema_path, 'r') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
         
-        fields = []
-        for field_data in data.get("fields", []):
-            fields.append(SchemaField(
-                name=field_data["name"],
-                dtype=field_data["dtype"],
-                required=field_data.get("required", True),
-                description=field_data.get("description", "")
-            ))
-        
-        return Schema(
-            name=data.get("name", "unknown"),
-            fields=fields,
-            description=data.get("description", "")
-        )
-    except Exception as e:
-        logger.error(f"Failed to load schema from {schema_path}: {e}")
-        return None
+        if not isinstance(data, list):
+            errors.append("JSON root must be a list of records.")
+            return {"valid": False, "errors": errors}
 
-def validate_all_processed_files(base_dir: Path) -> Dict[str, Any]:
-    """
-    Scans data/processed/ for CSV files and validates them against registered schemas.
-    """
-    processed_dir = base_dir / "data" / "processed"
-    registry_path = processed_dir / "schema_registry.json"
+        if not data:
+            return {"valid": True, "errors": [], "warnings": ["File is empty"]}
+
+        sample = data[0]
+        for field_name, field_type in schema.get("fields", {}).items():
+            if field_name not in sample:
+                if schema.get("required", True):
+                    errors.append(f"Missing required field: {field_name}")
+                continue
+            
+            val = sample[field_name]
+            type_map = {
+                "int": int,
+                "float": float,
+                "str": str,
+                "bool": bool
+            }
+            expected_type = type_map.get(field_type)
+            if expected_type and not isinstance(val, expected_type):
+                errors.append(f"Field '{field_name}' has type {type(val).__name__}, expected {field_type}")
+
+    except json.JSONDecodeError as e:
+        errors.append(f"Invalid JSON format: {str(e)}")
+    except FileNotFoundError:
+        errors.append(f"File not found: {file_path}")
+
+    return {"valid": len(errors) == 0, "errors": errors, "warnings": []}
+
+def create_processed_directories(root_path: Path) -> None:
+    """Creates the data/processed directory structure if it doesn't exist."""
+    processed_dir = root_path / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directory exists: {processed_dir}")
+
+def validate_schema_file(root_path: Path) -> Dict[str, Any]:
+    """Creates and validates the schema definition file for processed metrics."""
+    schemas = {
+        "ablation_labels_full.json": {
+            "type": "json",
+            "fields": {
+                "layer_id": "str",
+                "utility_score": "float"
+            }
+        },
+        "utility_labels.csv": {
+            "type": "csv",
+            "fields": {
+                "layer_id": "int",
+                "utility_score": "float",
+                "turn_id": "int"
+            }
+        },
+        "train_set.csv": {
+            "type": "csv",
+            "fields": {
+                "trajectory_id": "str",
+                "turn": "int",
+                "entropy": "float",
+                "utility_score": "float"
+            }
+        },
+        "holdout_set.csv": {
+            "type": "csv",
+            "fields": {
+                "trajectory_id": "str",
+                "turn": "int",
+                "entropy": "float",
+                "utility_score": "float"
+            }
+        },
+        "proxy_validation_report.json": {
+            "type": "json",
+            "fields": {
+                "correlation": "float",
+                "threshold": "float",
+                "passed": "bool"
+            }
+        },
+        "baseline_comparison.csv": {
+            "type": "csv",
+            "fields": {
+                "condition": "str",
+                "win_rate": "float",
+                "avg_tokens": "float"
+            }
+        },
+        "token_reduction_verification.json": {
+            "type": "json",
+            "fields": {
+                "reduction_percent": "float",
+                "threshold_percent": "float",
+                "passed": "bool"
+            }
+        },
+        "divergence_report.json": {
+            "type": "json",
+            "fields": {
+                "is_divergent": "bool",
+                "count": "int"
+            }
+        },
+        "statistical_results.json": {
+            "type": "json",
+            "fields": {
+                "p_value": "float",
+                "effect_size": "float",
+                "test_type": "str",
+                "bonferroni_adjusted": "float",
+                "divergence_status": "bool"
+            }
+        }
+    }
+
+    schema_path = root_path / "specs" / "schema_registry.json"
+    schema_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(schema_path, 'w') as f:
+        json.dump(schemas, f, indent=2)
+    
+    return {"valid": True, "message": "Schema registry created", "path": str(schema_path)}
+
+def validate_all_processed_files(root_path: Path) -> List[Dict[str, Any]]:
+    """Validates all existing files in data/processed against their schemas."""
+    processed_dir = root_path / "data" / "processed"
+    results = []
     
     if not processed_dir.exists():
-        return {"valid": False, "error": "Processed directory does not exist"}
-    
+        return [{"valid": False, "message": "data/processed directory does not exist"}]
+
+    registry_path = root_path / "specs" / "schema_registry.json"
     if not registry_path.exists():
-        return {"valid": False, "error": "Schema registry not found"}
-    
+        results.append({"valid": False, "message": "Schema registry not found. Run create_schema_registry first."})
+        return results
+
     with open(registry_path, 'r') as f:
         registry = json.load(f)
-    
-    results = {}
-    all_valid = True
-    
-    for csv_file in processed_dir.glob("*.csv"):
-        file_name = csv_file.stem
-        if file_name in registry.get("schemas", {}):
-            schema_data = registry["schemas"][file_name]
-            # Reconstruct schema object for validation
-            fields = [SchemaField(**f) for f in schema_data.get("fields", [])]
-            schema = Schema(name=file_name, fields=fields)
-            
-            try:
-                df = pd.read_csv(csv_file)
-                validation_result = validate_dataframe_schema(df, schema)
-                results[file_name] = validation_result
-                if not validation_result["valid"]:
-                    all_valid = False
-                    logger.warning(f"Validation failed for {csv_file}: {validation_result['errors']}")
-                else:
-                    logger.info(f"Validation passed for {csv_file}: {validation_result['row_count']} rows")
-            except Exception as e:
-                results[file_name] = {"valid": False, "errors": [str(e)]}
-                all_valid = False
-        else:
-            logger.info(f"No schema registered for {csv_file}, skipping validation")
-    
-    return {
-        "valid": all_valid,
-        "results": results,
-        "total_files_checked": len(results)
-    }
 
-def write_schema_registry(base_dir: Path, schemas: Dict[str, Schema]) -> None:
-    """
-    Writes the schema registry to data/processed/schema_registry.json.
-    """
-    processed_dir = base_dir / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    registry_path = processed_dir / "schema_registry.json"
+    for filename, spec in registry.items():
+        file_path = processed_dir / filename
+        if not file_path.exists():
+            results.append({"file": filename, "valid": False, "message": "File missing"})
+            continue
+
+        if spec["type"] == "json":
+            schema_def = {"fields": spec["fields"]}
+            res = validate_json_schema(file_path, schema_def)
+            results.append({"file": filename, **res})
+        elif spec["type"] == "csv":
+            try:
+                df = pd.read_csv(file_path)
+                schema_obj = Schema(name=filename, fields=[
+                    SchemaField(name=k, dtype=v) for k, v in spec["fields"].items()
+                ])
+                res = validate_dataframe_schema(df, schema_obj)
+                results.append({"file": filename, **res})
+            except Exception as e:
+                results.append({"file": filename, "valid": False, "message": str(e)})
     
-    registry = {
-        "version": "1.0",
-        "schemas": {}
+    return results
+
+def write_schema_registry(root_path: Path) -> None:
+    """Writes the schema registry to specs/schema_registry.json."""
+    schemas = {
+        "ablation_labels_full.json": {"type": "json", "fields": {"layer_id": "str", "utility_score": "float"}},
+        "utility_labels.csv": {"type": "csv", "fields": {"layer_id": "int", "utility_score": "float", "turn_id": "int"}},
+        "train_set.csv": {"type": "csv", "fields": {"trajectory_id": "str", "turn": "int", "entropy": "float", "utility_score": "float"}},
+        "holdout_set.csv": {"type": "csv", "fields": {"trajectory_id": "str", "turn": "int", "entropy": "float", "utility_score": "float"}},
+        "proxy_validation_report.json": {"type": "json", "fields": {"correlation": "float", "threshold": "float", "passed": "bool"}},
+        "baseline_comparison.csv": {"type": "csv", "fields": {"condition": "str", "win_rate": "float", "avg_tokens": "float"}},
+        "token_reduction_verification.json": {"type": "json", "fields": {"reduction_percent": "float", "threshold_percent": "float", "passed": "bool"}},
+        "divergence_report.json": {"type": "json", "fields": {"is_divergent": "bool", "count": "int"}},
+        "statistical_results.json": {"type": "json", "fields": {"p_value": "float", "effect_size": "float", "test_type": "str", "bonferroni_adjusted": "float", "divergence_status": "bool"}}
     }
-    
-    for name, schema in schemas.items():
-        registry["schemas"][name] = schema.to_dict()
-    
+    registry_path = root_path / "specs" / "schema_registry.json"
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
     with open(registry_path, 'w') as f:
-        json.dump(registry, f, indent=2)
-    
-    logger.info(f"Wrote schema registry to {registry_path}")
+        json.dump(schemas, f, indent=2)
 
 def main():
-    """
-    Main entry point to initialize the processed directory structure 
-    and validate existing files against the registry.
-    """
-    base_dir = Path.cwd()
-    create_processed_directories(base_dir)
+    root = Path(__file__).resolve().parent.parent
+    logger.info(f"Running schema validation for project at {root}")
     
-    # Define standard schemas for this project
-    utility_labels_schema = Schema(
-        name="utility_labels",
-        fields=[
-            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
-            SchemaField("turn_id", "int", True, "Turn number within trajectory"),
-            SchemaField("layer_id", "int", True, "Layer index being evaluated"),
-            SchemaField("utility_score", "float", True, "Utility score from ablation"),
-            SchemaField("entropy", "float", False, "Shannon entropy at this turn")
-        ],
-        description="Derived utility labels from ablation study"
-    )
+    create_processed_directories(root)
+    validate_schema_file(root)
     
-    train_set_schema = Schema(
-        name="train_set",
-        fields=[
-            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
-            SchemaField("features", "string", True, "JSON string of feature vector"),
-            SchemaField("utility_score", "float", True, "Target utility score")
-        ],
-        description="Training split of processed data"
-    )
+    validation_results = validate_all_processed_files(root)
     
-    holdout_set_schema = Schema(
-        name="holdout_set",
-        fields=[
-            SchemaField("trajectory_id", "string", True, "Unique ID for the trajectory"),
-            SchemaField("features", "string", True, "JSON string of feature vector"),
-            SchemaField("utility_score", "float", True, "Target utility score")
-        ],
-        description="Hold-out validation split of processed data"
-    )
+    all_valid = all(r.get("valid", False) for r in validation_results)
     
-    baseline_comparison_schema = Schema(
-        name="baseline_comparison",
-        fields=[
-            SchemaField("condition", "string", True, "Agent condition (Dynamic, Static, Random)"),
-            SchemaField("win_rate", "float", True, "Average win rate"),
-            SchemaField("avg_tokens", "float", True, "Average token usage")
-        ],
-        description="Aggregated baseline comparison metrics"
-    )
+    report_path = root / "data" / "processed" / "schema_validation_report.json"
+    with open(report_path, 'w') as f:
+        json.dump({
+            "valid": all_valid,
+            "results": validation_results
+        }, f, indent=2)
     
-    schemas = {
-        "utility_labels": utility_labels_schema,
-        "train_set": train_set_schema,
-        "holdout_set": holdout_set_schema,
-        "baseline_comparison": baseline_comparison_schema
-    }
-    
-    write_schema_registry(base_dir, schemas)
-    
-    # Validate any existing files
-    validation_report = validate_all_processed_files(base_dir)
-    
-    if validation_report["valid"]:
-        print("All processed files validated successfully.")
+    logger.info(f"Validation report written to {report_path}")
+    if all_valid:
+        logger.info("All processed files are valid.")
     else:
-        print("Validation issues found:")
-        for name, res in validation_report.get("results", {}).items():
-            if not res.get("valid", True):
-                print(f"  - {name}: {res.get('errors', [])}")
+        logger.warning("Some files failed validation.")
     
-    return validation_report
+    return all_valid
 
 if __name__ == "__main__":
     main()

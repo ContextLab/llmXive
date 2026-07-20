@@ -1,0 +1,59 @@
+T008:
+  c: false
+  h: 7acda35590a4c16f164c0434dbb2dda01a81332786d5cb773b808972cde60169
+  r: The repository lacks the required `data/raw/trajectories.csv` input file and
+    the expected output `data/processed/ablation_labels_full.json`; neither file exists.
+    Additionally, the provided `code/ablation.py` is truncated and does not show a
+    complete implementation that writes the JSON with the specified `{layer_id, utility_score}`
+    schema. The task therefore remains unfinished.
+T008b:
+  c: false
+  h: 92ad701530669338ac6a1743e1637d88f2bf0b49af14085bd2cef411a694304c
+  r: The repository contains a partially shown `code/extractor.py`, but the required
+    input file `data/processed/ablation_labels_full.json` and the expected output
+    `data/processed/utility_labels.csv` are both absent. Moreover, the shown script
+    is truncated and does not include the logic to write the CSV, so the conversion
+    cannot be verified as functional. The task therefore remains unfinished.
+T024a:
+  c: false
+  h: 9a6bc81f657a41ef216583d31b77f7212dbdb90cd370eae73193be62c7a7265f
+  r: "The `code/stats.py` contains only a placeholder `detect_divergence` that assumes\
+    \ a pre\u2011generated report and does not implement the required analysis of\
+    \ paired trajectories. Moreover, the expected output file `data/processed/divergence_report.json`\
+    \ is absent. Both the implementation and the required artifact are missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data logs, CSV summary, or statistical test results were provided; without
+    any tangible artifacts, we cannot confirm that the dynamic memory policy, baseline
+    simulations, or significance reporting were implemented as specified. The required
+    outputs are missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or output artifacts (e.g., dynamic policy implementation, baseline
+    simulation logs, aggregation CSV, or statistical test results) are present to
+    confirm that the three user stories have been realized. The claim cannot be verified
+    without concrete files or evidence.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `README.md` and `quickstart.md` files or their updated
+    contents is provided; without seeing the files we cannot confirm they exist or
+    contain the documentation changes. The implementer must supply the actual updated
+    markdown files.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, diff, or documentation showing that any cleanup or refactoring was performed
+    was provided; the only evidence is a feature specification unrelated to code cleanup,
+    so the required artifact is missing.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (code, benchmarks, logs, or documentation) were provided to demonstrate\
+    \ that the system has been optimized to run within a 6\u2011hour limit on a CPU\u2011\
+    only runner. Without performance measurements, profiling data, or an implementation\
+    \ of the claimed optimizations, the requirement cannot be verified. The implementer\
+    \ must supply the optimized code and empirical evidence (e.g., runtime logs showing\
+    \ \u22646\u202Fh execution on a CPU\u2011only environment)."
