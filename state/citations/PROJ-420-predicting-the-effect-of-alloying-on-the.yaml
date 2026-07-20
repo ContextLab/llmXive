@@ -1,4 +1,4 @@
-- artifact_hash: fe8c814782e2b5476e8c5dbe9744930b3d17006f5116c469021791df41c30b8e
+- artifact_hash: 530eefc696ae493468fce4fd007e71a529fd3ed46ca77551d9ee7972f4c76395
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://next-gen.materialsproject.org/api/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
-  verified_at: '2026-07-19T19:04:10.621443Z'
+  verified_at: '2026-07-20T07:19:27.036246Z'

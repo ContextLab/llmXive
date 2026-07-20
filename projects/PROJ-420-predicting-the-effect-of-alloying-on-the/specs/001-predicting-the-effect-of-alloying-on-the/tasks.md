@@ -126,6 +126,24 @@
 
 ---
 
+## Phase 6: Computational Universe Exploration (Priority: P3) 🧪 Research Extension
+
+**Goal**: Address the "Computational Irreducibility" critique by exploring simple rule-based systems (hypergraph rewriting) as an alternative to pure statistical regression. This phase tests whether simple local rules can reproduce observed elastic properties without pre-defined descriptors.
+
+**Independent Test**: Can be verified by running the exploration script and confirming it generates a set of candidate rules, evolves them, and logs a "best-fit" score against the real dataset, even if the fit is imperfect.
+
+### Implementation for Phase 6
+
+- [ ] T046 [P] [US3-Ext] Implement a minimal Hypergraph Rewriting System in `code/computational_exploration.py`. Define a small, finite set of simple rules (e.g., node replacement, edge swapping) that operate on a graph representation of the alloy structure (nodes=atoms, edges=bonds).
+- [ ] T047 [US3-Ext] Implement a "Rule Miner" in `code/computational_exploration.py` that enumerates the space of possible simple rules (e.g., all rules of length < 4) and selects a random subset for testing.
+- [ ] T048 [US3-Ext] Implement an evolution engine in `code/computational_exploration.py` that takes the filtered alloy data (from T016), converts it to a graph, applies the selected rules for a fixed number of steps, and computes a "derived" elastic metric (e.g., based on graph connectivity or path lengths) to serve as a proxy for Poisson's ratio.
+- [ ] T049 [US3-Ext] Implement a comparison metric in `code/computational_exploration.py` that evaluates the correlation between the "derived" metric from the rule evolution and the actual Poisson's ratio in the dataset. Log the top 3 rule sets that produce the highest correlation.
+- [ ] T050 [US3-Ext] Update `docs/outputs/final_report.md` to include a new section "Computational Universe Exploration" that summarizes the results of T049, explicitly contrasting the "statistical shadow" approach with the "rule execution" approach, and noting whether simple rules were found to be predictive.
+
+**Checkpoint**: Phase 6 complete - research extension results available for discussion
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -138,12 +156,12 @@
 - [X] T032c [P] Simplify nested loops in `code/data_cleaning.py` to maximum depth of 3
 - [X] T033a [P] Optimize data extraction runtime in `code/data_extraction.py` to target < 30s per source
 - [X] T033b [P] Optimize modeling runtime in `code/modeling.py` to target < 10min for full pipeline
-- [~] T033c [P] Reduce memory usage in `code/` to target < 4GB peak
+- [ ] T033c [P] Reduce memory usage in `code/` to target < 4GB peak <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T034 [P] Unit tests for data cleaning logic in `tests/unit/test_data_cleaning.py`
 - [X] T035 [P] Unit tests for modeling logic in `tests/unit/test_modeling.py`
 - [X] T036 [P] Contract tests for data schemas in `tests/contract/test_schemas.py`
 - [X] T037 [P] Unit tests for analysis logic in `tests/unit/test_analysis.py`
-- [~] T045 [P] Run quickstart.md validation
+- [ ] T045 [P] Run quickstart.md validation
 
 ---
 
@@ -156,6 +174,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Phase 6 (Research Extension)**: Depends on Foundational and US1 completion (needs real data)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -163,6 +182,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T016 (clean data artifact)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T024 (trained model)
+- **Phase 6 (Ext)**: Can start after Foundational and T016 (needs clean data for graph construction)
 
 ### Within Each User Story
 
@@ -180,6 +200,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 6 tasks (T046-T050) can run in parallel with Phase 5 tasks as they operate on the same data artifact but different logic paths.
 
 ---
 
@@ -209,7 +230,8 @@ Task: "Implement data extraction for NIST Materials Data Repository in code/data
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 → Test independently → Deploy/Demo (Research Extension)
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -220,6 +242,7 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Modeling)
  - Developer C: User Story 3 (Analysis)
+ - Developer D: Phase 6 (Computational Exploration)
 3. Stories complete and integrate independently
 
 ---
@@ -242,4 +265,5 @@ With multiple developers:
 - T025a implements the required Bootstrap Resampling for uncertainty quantification.
 - T028 explicitly excludes Al to prevent infinite VIF.
 - T008b now reads verified URLs from plan.md.
-- Phase 6 (Computational Universe Exploration) has been removed as it was not part of the approved scope in spec.md or plan.md.
+- Phase 6 (Computational Universe Exploration) has been added to address the "Computational Irreducibility" critique from the research-stage review, exploring simple rule-based systems as an alternative to pure statistical regression.
+- T033c remains a target for future optimization if memory usage becomes a bottleneck.
