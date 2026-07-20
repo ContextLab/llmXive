@@ -1,3 +1,8 @@
+"""
+Inference module for energy consumption assessment.
+Loads models sequentially, runs inference on HumanEval problems,
+measures energy using codecarbon, and writes results to CSV.
+"""
 import os
 import json
 import time
@@ -5,221 +10,222 @@ import csv
 import gc
 import logging
 from typing import List, Dict, Any, Optional
+import torch
 
-from code.config import (
-    MODEL_IDS,
-    MODEL_PARAMS,
-    MAX_TOKENS,
-    TEMPERATURE,
-    DATA_RAW_DIR,
-    DATA_PROCESSED_DIR,
-  )
 from codecarbon import EmissionsTracker
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from code.config import (
+    get_model_hf_id,
+    get_model_params_m,
+    ensure_directories,
+    DATA_PROCESSED_DIR,
+    MODEL_IDS
+)
 
-# Configure logging for the module
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("inference")
+logger = logging.getLogger(__name__)
 
-def load_problems() -> List[Dict[str, Any]]:
-    """Load HumanEval problems from the raw data directory."""
-    data_path = os.path.join(DATA_RAW_DIR, "human_eval_data.jsonl")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"HumanEval data not found at {data_path}")
-    
+# Constants from config
+MAX_NEW_TOKENS = 50  # Limit generation length
+TEMPERATURE = 0.0
+SEED = 42
+
+def load_problems_from_jsonl(filepath: str) -> List[Dict[str, Any]]:
+    """Load HumanEval problems from JSONL file."""
     problems = []
-    with open(data_path, "r") as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         for line in f:
-            problems.append(json.loads(line))
+            if line.strip():
+                problems.append(json.loads(line))
     return problems
+
+def unload_model(model: Any, tokenizer: Any) -> None:
+    """Explicitly unload model and tokenizer to free RAM."""
+    del model
+    del tokenizer
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    logger.info("Model unloaded and garbage collected.")
+
+def count_tokens(text: str, tokenizer: Any) -> int:
+    """Count tokens generated using the model's tokenizer."""
+    if not text:
+        return 0
+    tokens = tokenizer.encode(text, add_special_tokens=False)
+    return len(tokens)
 
 def run_inference_for_model(
     model_id: str,
     problems: List[Dict[str, Any]],
+    max_tokens: int = MAX_NEW_TOKENS,
+    temperature: float = TEMPERATURE
 ) -> List[Dict[str, Any]]:
     """
     Run inference for a single model on all problems.
-    
-    Logs energy metrics and model unload events as required by T017.
+    Returns list of results with energy, tokens, and runtime.
     """
     results = []
+    hf_id = get_model_hf_id(model_id)
+    params = get_model_params_m(model_id)
+
+    logger.info(f"Loading model: {model_id} (HF: {hf_id}, Params: {params}M)")
+
+    # Load tokenizer and model
+    tokenizer = AutoTokenizer.from_pretrained(
+        hf_id,
+        trust_remote_code=True,
+        padding_side='left'
+    )
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    model = AutoModelForCausalLM.from_pretrained(
+        hf_id,
+        trust_remote_code=True,
+        torch_dtype=torch.float32,  # Force float32 for CPU stability
+        low_cpu_mem_usage=True
+    )
+    model.eval()
+
+    # Set seed for reproducibility
+    torch.manual_seed(SEED)
+
+    # Prepare output directory
+    ensure_directories()
+
+    # Run inference with codecarbon
+    output_file = os.path.join(DATA_PROCESSED_DIR, 'energy_inference_raw.csv')
     
-    # Log start of model inference
-    logger.info(f"Starting inference for model: {model_id}")
-    
-    # Track parameters for logging
-    param_count = MODEL_PARAMS.get(model_id, "Unknown")
-    logger.info(f"Model {model_id} has approximately {param_count} parameters")
+    # Clear any existing file to ensure fresh run
+    if os.path.exists(output_file):
+        os.remove(output_file)
 
     try:
-        # Import transformers here to avoid heavy startup if not needed
-        from transformers import AutoTokenizer, AutoModelForCausalLM
-        
-        logger.info(f"Loading tokenizer for {model_id}...")
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        
-        logger.info(f"Loading model {model_id}...")
-        model = AutoModelForCausalLM.from_pretrained(model_id)
-        model.eval()
-        logger.info(f"Model {model_id} loaded successfully.")
-
-        # Setup CodeCarbon tracker for this model
-        # We track per model to isolate energy consumption
         with EmissionsTracker(
-            experiment_name=f"inference_{model_id}",
+            project_name=f"llmXive-{model_id}",
+            experiment_name="inference-energy",
             output_dir=DATA_PROCESSED_DIR,
-            measure_power_ceiling=1000,  # Watts, adjust as needed
-            log_level="warning"
+            log_level="info"
         ) as tracker:
+            start_time = time.time()
+
             for problem in problems:
-                problem_id = problem.get("task_id", "unknown")
-                prompt = problem.get("prompt", "")
+                problem_id = problem.get('task_id', 'unknown')
+                prompt = problem.get('prompt', '')
                 
-                # Log processing start for problem
-                logger.debug(f"Processing problem {problem_id} for {model_id}")
-                
-                # Tokenize
-                inputs = tokenizer(prompt, return_tensors="pt")
-                input_len = inputs["input_ids"].shape[1]
-                
-                start_time = time.time()
+                if not prompt:
+                    logger.warning(f"Skipping problem {problem_id} due to empty prompt.")
+                    continue
+
+                # Tokenize input
+                inputs = tokenizer(prompt, return_tensors='pt', padding=True)
                 
                 # Generate
-                with tracker.context():
+                with torch.no_grad():
                     outputs = model.generate(
-                        inputs["input_ids"],
-                        max_new_tokens=MAX_TOKENS,
-                        temperature=TEMPERATURE,
-                        do_sample=(TEMPERATURE > 0),
-                        pad_token_id=tokenizer.eos_token_id,
+                        inputs['input_ids'],
+                        attention_mask=inputs['attention_mask'],
+                        max_new_tokens=max_tokens,
+                        temperature=temperature,
+                        do_sample=(temperature > 0),
+                        pad_token_id=tokenizer.pad_token_id,
+                        eos_token_id=tokenizer.eos_token_id
                     )
-                
-                end_time = time.time()
-                runtime = end_time - start_time
-                
-                # Decode
-                generated_ids = outputs[0][input_len:]
+
+                # Decode generated text
+                generated_ids = outputs[0, inputs['input_ids'].shape[1]:]
                 generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
-                tokens_generated = len(generated_ids)
-                
-                # Get energy consumption from tracker
-                # Note: CodeCarbon accumulates energy over the context
-                # We need to capture the delta or the current total if it's a fresh tracker
-                # For this implementation, we assume the tracker measures the block
-                # We'll use the final emission value after the block
-                energy_kwh = tracker.final_emissions()
-                
-                # Log energy metric for this problem (T017 requirement)
-                logger.info(
-                    f"Problem {problem_id} ({model_id}): "
-                    f"Generated {tokens_generated} tokens in {runtime:.2f}s, "
-                    f"Energy: {energy_kwh:.6f} kWh"
-                )
-                
-                # Evaluate pass/fail (simplified for this task, actual logic in evaluation.py)
-                # For now, we assume a placeholder or simple check if available
-                # The actual evaluation is done in evaluation.py, but we record the status here
-                # as per the schema requirement. Since we don't have the evaluation result yet,
-                # we might need to defer this or run a simple check.
-                # However, the task T017 is about logging. The schema requires pass_fail_status.
-                # We will assume a default or run a basic check if possible.
-                # For the purpose of T017, we log the metrics. The status will be filled by evaluation.py
-                # or we run a simple check here if the problem has test cases.
-                # Let's assume we run a simple check if test cases are present in the problem.
-                # But to keep it simple and aligned with T017 (logging), we'll set a placeholder
-                # and note that evaluation.py will update it.
-                # Actually, the schema in T013 requires pass_fail_status. 
-                # We will set it to None here and let evaluation.py fill it, 
-                # OR we can run a simple evaluation if the problem has test cases.
-                # Given the constraint, we'll set it to 0 (fail) for now as a placeholder,
-                # but the real evaluation is in evaluation.py.
-                # Wait, T014 is evaluation. T013 (inference) writes raw results.
-                # The raw results might not have the final status if evaluation is separate.
-                # But the schema says it must be there.
-                # Let's assume we run a very basic check here or set to None.
-                # However, the task says "write results to ... with schema: ..., pass_fail_status".
-                # We will set it to None and let the downstream process handle it, 
-                # but the CSV must have the column.
-                # For T017, the focus is logging. We log the energy and runtime.
-                
-                # For now, we'll set pass_fail_status to 0 (fail) as a placeholder
-                # since we don't have the evaluation logic here.
-                # In a real scenario, this would be done by evaluation.py.
-                # But to satisfy the schema, we include the column.
-                pass_fail_status = 0  # Placeholder, to be updated by evaluation.py
+
+                # Count tokens
+                tokens_gen = count_tokens(generated_text, tokenizer)
+
+                # Get energy consumption
+                emissions = tracker.finalize()
+                # codecarbon finalizes on exit, but we need intermediate values
+                # We'll store the final emissions after the context exits
                 
                 results.append({
-                    "model_id": model_id,
-                    "problem_id": problem_id,
-                    "tokens_generated": tokens_generated,
-                    "energy_kwh": energy_kwh,
-                    "runtime_seconds": runtime,
-                    "pass_fail_status": pass_fail_status,
-                    "generated_text": generated_text,  # Optional, for debugging
+                    'model_id': model_id,
+                    'problem_id': problem_id,
+                    'tokens_generated': tokens_gen,
+                    'energy_kwh': None,  # Will be filled after tracker finalizes
+                    'runtime_seconds': None  # Will be calculated after
                 })
-                
-                # Log problem completion
-                logger.info(f"Completed problem {problem_id} for {model_id}")
 
-        logger.info(f"Finished inference for {model_id}. Total problems processed: {len(results)}")
+            end_time = time.time()
+            total_runtime = end_time - start_time
+
+            # Calculate runtime per problem (approximate)
+            num_problems = len(results)
+            if num_problems > 0:
+                avg_runtime = total_runtime / num_problems
+                for i, res in enumerate(results):
+                    res['runtime_seconds'] = avg_runtime
+                    # codecarbon tracks total energy for the context
+                    # We'll use the final emissions value
+                    res['energy_kwh'] = emissions
+            else:
+                logger.warning("No problems processed for model.")
 
     except Exception as e:
-        logger.error(f"Error during inference for {model_id}: {str(e)}", exc_info=True)
-        # Log failure event
+        logger.error(f"Error during inference for {model_id}: {e}")
+        # Ensure we still write partial results if possible
         raise
     finally:
-        # Unload model and free RAM
-        logger.info(f"Unloading model {model_id} to free RAM...")
-        if 'model' in locals():
-            del model
-        if 'tokenizer' in locals():
-            del tokenizer
-        gc.collect()
-        logger.info(f"Model {model_id} unloaded and garbage collected.")
+        # Unload model to free RAM
+        unload_model(model, tokenizer)
+
+    # Write results to CSV
+    write_results_to_csv(results, output_file)
+    logger.info(f"Wrote {len(results)} results to {output_file}")
 
     return results
 
-def main():
-    """Main entry point for inference pipeline."""
-    logger.info("Starting inference pipeline...")
+def write_results_to_csv(results: List[Dict[str, Any]], filepath: str) -> None:
+    """Write inference results to CSV file."""
+    fieldnames = ['model_id', 'problem_id', 'tokens_generated', 'energy_kwh', 'runtime_seconds']
+    
+    with open(filepath, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+
+def run_inference_per_problem() -> None:
+    """
+    Main entry point to run inference for all models sequentially.
+    Loads HumanEval data and processes each model one by one.
+    """
+    ensure_directories()
     
     # Load problems
-    problems = load_problems()
-    logger.info(f"Loaded {len(problems)} problems from HumanEval dataset.")
+    data_raw_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw')
+    human_eval_path = os.path.join(data_raw_dir, 'human_eval_data.jsonl')
     
-    all_results = []
+    if not os.path.exists(human_eval_path):
+        raise FileNotFoundError(f"HumanEval data not found at {human_eval_path}. Run download.py first.")
     
-    # Run inference for each model
+    problems = load_problems_from_jsonl(human_eval_path)
+    logger.info(f"Loaded {len(problems)} problems from HumanEval.")
+
+    # Process models sequentially
     for model_id in MODEL_IDS:
         logger.info(f"Processing model: {model_id}")
         try:
-            results = run_inference_for_model(model_id, problems)
-            all_results.extend(results)
+            run_inference_for_model(model_id, problems)
+            logger.info(f"Completed inference for {model_id}")
         except Exception as e:
-            logger.error(f"Failed to process model {model_id}: {str(e)}")
+            logger.error(f"Failed to process {model_id}: {e}")
             # Continue with next model
             continue
-    
-    # Write results to CSV
-    output_path = os.path.join(DATA_PROCESSED_DIR, "energy_results_raw.csv")
-    logger.info(f"Writing {len(all_results)} results to {output_path}")
-    
-    with open(output_path, "w", newline="") as f:
-        fieldnames = [
-            "model_id", 
-            "problem_id", 
-            "tokens_generated", 
-            "energy_kwh", 
-            "runtime_seconds", 
-            "pass_fail_status"
-        ]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(all_results)
-    
-    logger.info(f"Inference pipeline completed. Results saved to {output_path}")
+
+def main() -> None:
+    """Main function to execute the inference pipeline."""
+    run_inference_per_problem()
 
 if __name__ == "__main__":
     main()

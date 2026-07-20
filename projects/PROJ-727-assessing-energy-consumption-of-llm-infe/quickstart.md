@@ -1,90 +1,78 @@
 # Quickstart Guide: Assessing Energy Consumption of LLM Inference
 
-This guide provides instructions to run the full pipeline for assessing the energy consumption of LLM inference on code completion tasks (HumanEval).
-
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.9+
 - pip
-- Sufficient RAM (minimum 8GB recommended for StarCoder-1B on CPU)
-- Internet connection (to download HumanEval dataset and models)
+- 14GB+ disk space
+- 8GB+ RAM (CPU-only execution)
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. **Install dependencies**:
+1. Clone the repository and navigate to the project directory.
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
- *Note: If `requirements.txt` is missing, ensure it is created with the following packages:*
- - transformers
- - torch-cpu
- - codecarbon
- - pandas
- - numpy
- - scipy
- - statsmodels
- - matplotlib
- - seaborn
- - human-eval
- - huggingface_hub
 
 ## Running the Pipeline
 
-The entire pipeline can be executed via the `run.sh` entry point. This script:
-1. Verifies the environment (imports `human_eval` and runs a trivial dummy test).
-2. Downloads the HumanEval dataset.
-3. Runs inference for GPT-2-small, CodeBERT, and StarCoder-1B.
-4. Evaluates the generated solutions.
-5. Performs statistical analysis (ANOVA, Tukey HSD, Regression).
-6. Generates sustainability visualizations.
-
-### Execution Command
+The full pipeline can be executed using the `run.sh` script:
 
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
 
-**Note**: Running on a CPU-only environment may take several hours. Ensure your system is stable and not under heavy load.
+### Pipeline Steps
+
+1. **Environment Verification**: Runs a lightweight dummy inference test to ensure the environment is ready.
+2. **Data Download**: Fetches the HumanEval dataset and saves it to `data/raw/human_eval_data.jsonl`.
+3. **Checksum Verification**: Computes and stores SHA-256 hash of the downloaded data in `state/projects/PROJ-727-assessing-energy-consumption-of-llm-infe.yaml`.
+4. **Calibration**: Validates `codecarbon` power draw detection with a CPU-bound load loop.
+5. **Inference**: Runs GPT-2-small, CodeBERT, and StarCoder-1B on HumanEval problems, logging energy usage.
+6. **Evaluation**: Evaluates generated completions and joins results with energy metrics.
+7. **Aggregation**: Filters invalid rows and creates the clean aggregated dataset.
+8. **Statistical Analysis**: Performs ANOVA, Tukey HSD, and regression analysis.
+9. **Visualization**: Generates bar and scatter plots.
 
 ## Expected Artifacts
 
-Upon successful completion, the following files will be generated in the `data/` and `data/processed/` directories:
+After successful execution, the following files should exist:
 
-### Raw Data
-- `data/raw/human_eval_data.jsonl`: The downloaded HumanEval dataset.
-
-### Processed Results
-- `data/processed/energy_results_raw.csv`: Raw inference logs including energy (kWh), runtime, and tokens generated.
-- `data/processed/energy_results_aggregated.csv`: Cleaned and aggregated results (filtered for nulls/zero tokens).
-- `data/processed/stats_report.csv`: Statistical summary including ANOVA, Tukey HSD, and regression results.
-- `data/processed/sensitivity_delta.csv`: Sensitivity analysis results (perturbation impact).
-- `data/processed/scatter_slope.txt`: Calculated slope for the trade-off scatter plot.
+### Data
+- `data/raw/human_eval_data.jsonl` (HumanEval dataset)
+- `data/processed/energy_inference_raw.csv`
+- `data/processed/energy_results_raw.csv`
+- `data/processed/energy_results_aggregated.csv`
+- `data/processed/filtered_rows.csv`
+- `data/processed/stats_report.csv`
+- `data/processed/sensitivity_delta.csv`
+- `data/processed/scatter_slope.txt`
 
 ### Visualizations
-- `data/processed/energy_bar.png`: Bar plot of Energy per Token vs. Model ID.
-- `data/processed/tradeoff_scatter.png`: Scatter plot of Energy per Correct Solution vs. Pass@1 Accuracy.
+- `data/processed/energy_bar.png` (Energy per Token vs Model)
+- `data/processed/tradeoff_scatter.png` (Energy per Correct vs Accuracy)
+
+### State & Logs
+- `state/projects/PROJ-727-assessing-energy-consumption-of-llm-infe.yaml` (includes artifact_hashes)
+- `logs/pipeline_duration.log`
+- `codecarbon_logs/` (directory with energy logs per model)
+
+## Verification
+
+To verify checksums manually:
+```bash
+python -m code.checksum_verify verify
+```
+
+To re-compute and store checksums:
+```bash
+python -m code.checksum_verify store
+```
 
 ## Troubleshooting
 
-- **OOM Errors**: If you encounter Out-Of-Memory errors, ensure no other heavy processes are running. The pipeline attempts to unload models sequentially, but CPU memory is limited.
-- **CodeCarbon Errors**: If `codecarbon` fails to detect power draw, run `python code/calibration.py` to validate the environment.
-- **Model Download Failures**: Ensure you have a stable internet connection and sufficient disk space (models are several GBs).
-- **Dummy Test Failure**: If `run.sh` exits with code 1 during the dummy test, verify your Python environment and `human-eval` installation.
-
-## Configuration
-
-Configuration constants (model IDs, seeds, max tokens) are defined in `code/config.py`.
-- **Models**: GPT2-small, CodeBERT, StarCoder-1B (substituted for StarCoder-base due to RAM constraints).
-- **Temperature**: 0.0 (deterministic generation).
-- **Seeds**: Fixed seeds for reproducibility.
-
-## License
-
-This project is part of the llmXive automated science pipeline.
+- **OOM Errors**: Ensure you are using StarCoder-1B (not StarCoder-base) as per project constraints.
+- **Missing Data**: Run `python -m code.download` to re-download the HumanEval dataset.
+- **Checksum Mismatch**: Re-run the download task and verify the checksum again.

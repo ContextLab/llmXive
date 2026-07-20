@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-727-assessing-energy-consumption-of-llm-infe",
+  "tasks": [
+    {
+      "task_key": "T028",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/energy_bar.png",
+      "first_seen": "2026-07-20T01:16:24.588458+00:00",
+      "last_seen": "2026-07-20T01:16:24.588458+00:00"
+    }
+  ],
+  "updated_at": "2026-07-20T01:16:24.588458+00:00"
+}

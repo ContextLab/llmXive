@@ -1,1 +1,2 @@
-# This directory stores raw data files
+# This directory contains raw data files.
+# HumanEval data should be downloaded here by T005 (download.py)

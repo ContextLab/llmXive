@@ -1,0 +1,62 @@
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run.sh` script content was presented; the claim provides only the task description\
+    \ without any actual file or code. The required executable script that imports\
+    \ modules, runs T008a test, and exits with code\u202F1 on failure is missing."
+T013:
+  c: false
+  h: 9196bc01b1a863757844774b141ae7d043c7997adf27afb8898278a57d189b41
+  r: "The repository contains a partially shown `code/inference.py`, but the required\
+    \ output file `data/processed/energy_inference_raw.csv` does not exist, so the\
+    \ inference logs for the three models are not present. Without this CSV (and its\
+    \ rows for GPT\u20112, CodeBERT, and StarCoder\u20111B), the task\u2019s verification\
+    \ condition is unmet."
+T014:
+  c: false
+  h: d9ec6e5f8cf0dc80f82423d6c28bf36e88afba99bbf3f85f8cb8b64fe6d501eb
+  r: "The required output file `data/processed/energy_results_raw.csv` does not exist,\
+    \ and the provided `code/evaluation.py` is incomplete (truncated) and does not\
+    \ contain the logic to join inference results with the HumanEval evaluation outcomes\
+    \ to produce that CSV. The task\u2019s core deliverable is therefore missing."
+T016:
+  c: false
+  h: 3a126e6ab0040f724fb47b5f2582c9afa8456f29021d2512f111fa0b29e425e0
+  r: "The repository contains `code/main.py` with a partially shown `aggregate_results`\
+    \ function, but the required output files `data/processed/filtered_rows.csv` and\
+    \ `data/processed/energy_results_aggregated.csv` are absent. Without these files,\
+    \ the task\u2019s verification condition (existence and correct filtering) is\
+    \ not met. The implementation must be completed and the aggregation script run\
+    \ to produce the two CSV files."
+T027:
+  c: true
+  h: ea6b58f71e42c4c12d3ab730d8e5dead445ece00f715b6f2cc54047ca4191ce2
+  r: "The file `code/visualization.py` exists, is non\u2011empty, and its `load_data`\
+    \ function reads exclusively from `data/processed/energy_results_aggregated.csv`\
+    \ and performs metric calculations without referencing any raw data. No placeholder\
+    \ or stub code is present."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No scatter plot image (e.g., `data/processed/tradeoff_scatter.png`) or any other
+    artifact showing Energy per Correct Solution vs Pass@1 Accuracy with distinct
+    markers per model was provided; thus the required visualization is missing.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` file (or its contents) was provided, so we cannot
+    confirm that run instructions and expected artifacts were added as required. The
+    implementer must supply the updated `quickstart.md` showing the new documentation.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run.sh` script, execution logs, or timing evidence were provided to demonstrate\
+    \ that the full pipeline (inference, statistical analysis, and plotting) completes\
+    \ within the 6\u2011hour limit on a free\u2011tier runner. Consequently the task\u2019\
+    s core requirement cannot be verified."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `run.sh` execution on a clean GitHub Actions runner is provided,\
+    \ nor are the required output files (e.g., CSVs, PNGs) shown to exist or be non\u2011\
+    null. Without logs or generated artifacts, the final validation cannot be confirmed."

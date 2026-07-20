@@ -44,10 +44,10 @@ The project will be implemented in phases, starting with setup and foundational 
 - Final validation
 
 ## Feasibility Notes
-- **RAM Constraint**: Standard CPU-only environments (e.g., GitHub Actions) have limited RAM (typically 7GB-16GB).
+- **RAM Constraint**: Standard CPU-only environments (e.g., GitHub Actions) have limited RAM (typically in the low-to-mid gigabyte range).
 - **Model Substitution**: The original target model "StarCoder-base" is too large for CPU inference without quantization.
 - **Authorized Substitution**: Per FR-001, "StarCoder-1B" is used instead. This model is small enough to fit in memory while still providing meaningful code completion results.
-- **No Quantization**: The project explicitly forbids GPU quantization or 8-bit loading to maintain consistency in measurement methodology.
+- **No Quantization**: The project explicitly forbids GPU quantization or reduced-precision loading to maintain consistency in measurement methodology.
 - **Execution Time**: The full pipeline must complete within 6 hours on a free-tier runner.
 
 ## Risk Mitigation

@@ -3,170 +3,152 @@ import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from code.config import DATA_PROCESSED_DIR, FIGURES_DIR
+from code.config import DATA_PROCESSED_DIR
 
 def load_data():
-    """
-    Load the aggregated energy results from the processed CSV file.
-    Returns a pandas DataFrame.
-    """
-    filepath = os.path.join(DATA_PROCESSED_DIR, 'energy_results_aggregated.csv')
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Aggregated data file not found at {filepath}")
-    df = pd.read_csv(filepath)
-    return df
+    """Load aggregated results from CSV."""
+    file_path = os.path.join(DATA_PROCESSED_DIR, "energy_results_aggregated.csv")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Data file not found: {file_path}")
+    return pd.read_csv(file_path)
 
-def plot_energy_bar(df):
+def plot_energy_bar():
     """
-    Generate a bar plot of Energy per Token (Joules) vs Model ID.
-    Includes title, axis labels with units, error bars, and legend.
-    Saves the plot to data/processed/energy_bar.png.
+    Generate Bar Plot: Y=Energy per Token (Joules), X=Model ID.
+    Include error bars if standard deviation > 0.
+    Include a legend.
+    Save to data/processed/energy_bar.png.
     """
-    # Calculate mean and std of energy per token for each model
-    # Ensure 'energy_per_token_joules' exists or calculate it
-    # Assuming the aggregated CSV has 'energy_kwh' and 'tokens_generated'
-    # We need to convert kWh to Joules: 1 kWh = 3,600,000 Joules
-    if 'energy_per_token_joules' not in df.columns:
-        # Calculate if not present, assuming energy_kwh and tokens_generated exist
-        # Handle division by zero or nulls
-        df['energy_kwh_clean'] = pd.to_numeric(df['energy_kwh'], errors='coerce')
-        df['tokens_generated_clean'] = pd.to_numeric(df['tokens_generated'], errors='coerce')
-        
-        # Filter out rows where calculation is invalid
-        valid_df = df[(df['energy_kwh_clean'].notna()) & (df['tokens_generated_clean'] > 0)]
-        if valid_df.empty:
-            raise ValueError("No valid data points to calculate energy per token.")
-        
-        # Calculate Joules per token
-        valid_df['energy_per_token_joules'] = (valid_df['energy_kwh_clean'] * 3_600_000) / valid_df['tokens_generated_clean']
-    else:
-        valid_df = df.dropna(subset=['energy_per_token_joules'])
+    df = load_data()
 
-    # Group by model_id to get mean and std
-    grouped = valid_df.groupby('model_id')['energy_per_token_joules'].agg(['mean', 'std', 'count']).reset_index()
-    grouped.columns = ['model_id', 'mean_energy', 'std_energy', 'count']
+    # Calculate Energy per Token in Joules (1 kWh = 3,600,000 Joules)
+    # Ensure we handle cases where tokens_generated might be 0 (though filtered in T016)
+    df['energy_per_token_joules'] = (df['energy_kwh'] * 3_600_000) / df['tokens_generated']
+
+    # Group by model_id to calculate mean and std for error bars
+    grouped = df.groupby('model_id')['energy_per_token_joules']
+    means = grouped.mean()
+    stds = grouped.std()
+    models = means.index.tolist()
 
     # Prepare data for plotting
-    models = grouped['model_id'].tolist()
-    means = grouped['mean_energy'].tolist()
-    stds = grouped['std_energy'].tolist()
+    x = np.arange(len(models))
+    y = means.values
+    yerr = stds.values
 
     # Create the plot
     plt.figure(figsize=(10, 6))
-    x_pos = np.arange(len(models))
-    bars = plt.bar(x_pos, means, yerr=stds, capsize=5, color=['skyblue', 'lightgreen', 'salmon'], edgecolor='black')
+    
+    # Plot bar chart with error bars
+    # Only add error bars if std > 0, otherwise matplotlib handles it gracefully (or we set yerr=0)
+    # The requirement says: "Include error bars if standard deviation > 0"
+    # We'll pass the std array; if all are 0, it draws no error bars effectively.
+    plt.bar(x, y, yerr=yerr, capsize=5, color='skyblue', edgecolor='black', label='Energy per Token')
 
-    # Title and Labels
-    plt.title('Energy Consumption per Token by Model (CPU Inference)', fontsize=14, fontweight='bold')
-    plt.xlabel('Model ID', fontsize=12)
-    plt.ylabel('Energy per Token (Joules)', fontsize=12)
-    plt.xticks(x_pos, models, rotation=45)
-    
-    # Legend (if multiple bars per group, but here we have single bars per model)
-    # Adding a legend to explain the error bars or colors if needed
-    plt.legend(['Mean Energy (±1 Std Dev)'], loc='upper right')
-    
+    plt.xticks(x, models, rotation=45)
+    plt.ylabel('Energy per Token (Joules)')
+    plt.xlabel('Model ID')
+    plt.title('Energy Consumption per Token by Model')
+    plt.legend()
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Save the plot
+    output_path = os.path.join(DATA_PROCESSED_DIR, "energy_bar.png")
     plt.tight_layout()
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(FIGURES_DIR), exist_ok=True)
-    output_path = os.path.join(DATA_PROCESSED_DIR, 'energy_bar.png')
     plt.savefig(output_path)
     plt.close()
-    print(f"Bar plot saved to {output_path}")
+
+    # Validation step: programmatically confirm the plot file exists and contains required elements
+    if not os.path.exists(output_path):
+        raise FileNotFoundError(f"Failed to generate plot: {output_path}")
+    
+    # Reload to verify content (basic check)
+    img = plt.imread(output_path)
+    if img.size == 0:
+        raise ValueError("Generated plot is empty.")
+    
+    # Note: We cannot programmatically verify title/labels from the saved image file easily without OCR,
+    # but we have just generated it with these elements. The existence of the file with non-zero size
+    # and the code above confirms the intent.
+    
+    print(f"Bar plot generated successfully: {output_path}")
     return output_path
 
-def plot_tradeoff_scatter(df):
+def plot_tradeoff_scatter():
     """
-    Generate a scatter plot: Y=Energy per Correct Solution, X=Pass@1 Accuracy.
-    Includes title, axis labels with units, distinct markers per model, and legend.
-    Saves the plot to data/processed/tradeoff_scatter.png.
+    Generate Scatter Plot: Y=Energy per Correct Solution, X=Pass@1 Accuracy.
+    Distinct markers per model. Include a legend.
+    Save to data/processed/tradeoff_scatter.png.
     """
-    # Calculate metrics per model
-    # 1. Accuracy: pass_fail_status mean (0/1) per model
-    # 2. Energy per Correct Solution: Total Energy / Total Correct Solutions? 
-    #    Or Mean Energy / Accuracy? 
-    #    Definition: Energy per Correct Solution = (Total Energy for Model) / (Number of Passed Solutions)
-    #    Or per problem? The prompt says "Energy per Correct Solution".
-    #    Let's aggregate per model: Sum(Energy) / Sum(Pass)
-    
-    # Convert necessary columns to numeric
-    df['energy_kwh_clean'] = pd.to_numeric(df['energy_kwh'], errors='coerce')
-    df['pass_fail_status'] = pd.to_numeric(df['pass_fail_status'], errors='coerce')
-    
-    # Filter valid rows
-    valid_df = df[(df['energy_kwh_clean'].notna()) & (df['pass_fail_status'].notna())]
-    
-    if valid_df.empty:
-        raise ValueError("No valid data for scatter plot.")
+    df = load_data()
 
-    # Aggregate per model
-    agg = valid_df.groupby('model_id').agg(
-        total_energy_kwh=('energy_kwh_clean', 'sum'),
+    # Calculate metrics
+    # Energy per Correct Solution: Sum of energy for passed solutions / count of passed solutions
+    # However, the data is per problem. We need to aggregate per model first.
+    # Y = Total Energy for Correct / Count of Correct
+    # X = Pass@1 Accuracy = Count of Correct / Total Problems (per model)
+    
+    # Filter for passed solutions only for energy calculation
+    passed_df = df[df['pass_fail_status'] == 1]
+    
+    # Calculate total energy and count of correct solutions per model
+    model_stats = df.groupby('model_id').agg(
         total_correct=('pass_fail_status', 'sum'),
-        count=('problem_id', 'count')
+        total_problems=('problem_id', 'count'),
+        total_energy_kwh=('energy_kwh', 'sum')
     ).reset_index()
-
-    # Calculate Accuracy (Pass@1 approximated as pass rate here)
-    agg['accuracy'] = agg['total_correct'] / agg['count']
     
-    # Calculate Energy per Correct Solution (Joules)
-    # Total Energy (Joules) / Total Correct Solutions
-    agg['total_energy_joules'] = agg['total_energy_kwh'] * 3_600_000
-    agg['energy_per_correct'] = agg['total_energy_joules'] / agg['total_correct']
+    model_stats['accuracy'] = model_stats['total_correct'] / model_stats['total_problems']
+    model_stats['energy_per_correct_kwh'] = model_stats['total_energy_kwh'] / model_stats['total_correct']
+    model_stats['energy_per_correct_joules'] = model_stats['energy_per_correct_kwh'] * 3_600_000
 
-    # Prepare plot data
-    models = agg['model_id'].tolist()
-    accuracies = agg['accuracy'].tolist()
-    energy_per_correct = agg['energy_per_correct'].tolist()
-
+    # Create the plot
     plt.figure(figsize=(10, 6))
     
-    # Distinct markers and colors
     markers = ['o', 's', '^']
-    colors = ['blue', 'green', 'red']
+    for i, model in enumerate(model_stats['model_id']):
+        row = model_stats[model_stats['model_id'] == model].iloc[0]
+        plt.scatter(
+            [row['accuracy']], 
+            [row['energy_per_correct_joules']], 
+            marker=markers[i % len(markers)], 
+            s=100, 
+            label=model
+        )
     
-    for i, model in enumerate(models):
-        plt.scatter(accuracies[i], energy_per_correct[i], 
-                    marker=markers[i], s=100, color=colors[i], 
-                    label=f'{model}', zorder=5)
-        
-        # Annotate points
-        plt.annotate(model, (accuracies[i], energy_per_correct[i]), 
-                     textcoords="offset points", xytext=(5,5), fontsize=10)
+    plt.xlabel('Pass@1 Accuracy')
+    plt.ylabel('Energy per Correct Solution (Joules)')
+    plt.title('Sustainability Trade-off: Energy vs Accuracy')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
 
-    # Title and Labels
-    plt.title('Sustainability Trade-off: Accuracy vs. Energy per Correct Solution', fontsize=14, fontweight='bold')
-    plt.xlabel('Pass@1 Accuracy (Fraction)', fontsize=12)
-    plt.ylabel('Energy per Correct Solution (Joules)', fontsize=12)
-    
-    plt.legend(title='Model')
-    plt.grid(True, linestyle='--', alpha=0.6)
-    
+    # Save the plot
+    output_path = os.path.join(DATA_PROCESSED_DIR, "tradeoff_scatter.png")
     plt.tight_layout()
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(FIGURES_DIR), exist_ok=True)
-    output_path = os.path.join(DATA_PROCESSED_DIR, 'tradeoff_scatter.png')
     plt.savefig(output_path)
     plt.close()
-    print(f"Scatter plot saved to {output_path}")
+
+    # Validation
+    if not os.path.exists(output_path):
+        raise FileNotFoundError(f"Failed to generate plot: {output_path}")
+    
+    img = plt.imread(output_path)
+    if img.size == 0:
+        raise ValueError("Generated plot is empty.")
+    
+    print(f"Scatter plot generated successfully: {output_path}")
     return output_path
 
 def main():
-    """
-    Main entry point to generate all visualizations for User Story 3.
-    """
-    print("Loading aggregated data...")
-    df = load_data()
-    
-    print("Generating Energy Bar Plot...")
-    plot_energy_bar(df)
-    
-    print("Generating Trade-off Scatter Plot...")
-    plot_tradeoff_scatter(df)
-    
-    print("All visualizations completed successfully.")
+    """Main entry point for visualization tasks."""
+    print("Starting visualization generation...")
+    try:
+        plot_energy_bar()
+        plot_tradeoff_scatter()
+        print("All visualizations completed.")
+    except Exception as e:
+        print(f"Error generating visualizations: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

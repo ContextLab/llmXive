@@ -1,9 +1,10 @@
 """
 Versioning and artifact hashing logic.
+Updates project state in YAML format per Constitution Principle V.
 """
 import hashlib
 import os
-import json
+import yaml
 from pathlib import Path
 from datetime import datetime
 
@@ -18,15 +19,16 @@ def hash_file(filepath):
     return sha256_hash.hexdigest()
 
 def update_project_state(artifact_path, description):
-    """Updates a simple project state log with artifact hashes."""
-    state_file = os.path.join(DATA_PROCESSED_DIR, "project_state.json")
+    """Updates a project state log in YAML format with artifact hashes."""
+    state_file = os.path.join(DATA_PROCESSED_DIR, "project_state.yaml")
     
     state = []
     if os.path.exists(state_file):
         with open(state_file, "r") as f:
             try:
-                state = json.load(f)
-            except json.JSONDecodeError:
+                loaded_state = yaml.safe_load(f)
+                state = loaded_state if loaded_state else []
+            except yaml.YAMLError:
                 state = []
 
     new_entry = {
@@ -38,9 +40,9 @@ def update_project_state(artifact_path, description):
     state.append(new_entry)
 
     with open(state_file, "w") as f:
-        json.dump(state, f, indent=2)
+        yaml.safe_dump(state, f, default_flow_style=False, allow_unicode=True)
     
-    print(f"Updated project state for: {artifact_path}")
+    print(f"Updated project state (YAML) for: {artifact_path}")
 
 if __name__ == "__main__":
     # Example usage for testing
