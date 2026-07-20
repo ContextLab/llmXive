@@ -2470,23 +2470,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T15:48:09Z'
-- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
-  attempts: 1
-  canonical: simulation tasks run on 2 cores with 7GB RAM within 6 hours
-  claim_id: c_5435ae96
-  context: 'CRITICAL: All simulation tasks must run on CPU-only (2 cores, 7GB RAM)
-    within 6 hours. No GPU/CUDA dependencies allowed.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6
-    hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T15:48:42Z'
 - artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
   attempts: 1
   canonical: Viechtbauer 2010 Journal of Statistical Software 36(3) 1-48
@@ -2731,3 +2714,302 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T15:51:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Download verified Cochrane dataset or synthetic base with parameters
+    from Jackson et al. 2010
+  claim_id: c_44bb9c8c
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T040 Fetch Real
+    Data'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a script to download a verified Cochrane meta-analysis dataset
+    (or a verified synthetic base with explicitly cited parameters from literature,
+    e.g., Jackson et al., 2010) into data/raw/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T21:59:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generate 2500 synthetic meta-analysis datasets across 5 heterogeneity
+    levels
+  claim_id: c_e7e82c2c
+  context: 'Phase 3: User Story 1 - Task T014 Full Scale Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run generator.py for the full set (5 levels \xD7 500 replicates = 2,500\
+    \ total)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:00:08Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Simulation pipeline completes in under 360 minutes with RAM under 7GB
+  claim_id: c_17000fc6
+  context: 'Phase 3: User Story 1 - Task T014 Full Scale Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process completes within 360 minutes (6 hours) and RAM usage
+    < 7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:00:38Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Output file simulation_raw.json contains 2500 records
+  claim_id: c_049e1cc5
+  context: 'Phase 3: User Story 1 - Task T014 Full Scale Performance Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify integrity of data/results/simulation_raw.json (2,500 records).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:00:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generated mean variance is within 0.01 of target value
+  claim_id: c_2fe98a6a
+  context: 'Phase 3: User Story 1 - Task T008 Unit test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact data/results/test_variance_check.json contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:01:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Coverage at zero heterogeneity is within 1.5% of 0.95 with alpha 0.05
+  claim_id: c_dab8d167
+  context: 'Phase 4: User Story 2 - Task T020 Implementation'
+  evidence:
+    asserted: '0.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: "Implement logic in metrics.py to verify coverage at \u03C4\xB2=0 is statistically\
+    \ indistinguishable from 0.95 (within \xB11.5%, alpha=0.05, CI=95%)."
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T22:01:21Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full pipeline completes in under 6 hours with RAM under 7GB
+  claim_id: c_b8443801
+  context: 'Phase 5: User Story 3 - Task T038 Verification'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:01:38Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 0
+  canonical: coverage at tau squared equals zero within 1.5 percent of 0.95
+  claim_id: c_6bc5863f
+  context: Implement logic in metrics.py to verify coverage at tau^2=0 is statistically
+    indistinguishable from 0.95 (within +/- 1.5%, alpha=0.05, CI=95%)
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Verify coverage at tau^2=0 is statistically indistinguishable from 0.95
+    (within +/- 1.5%, alpha=0.05, CI=95%)
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T22:03:49Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: mean variance within 0.01 of target in test_variance_check.json
+  claim_id: c_89ed7c07
+  context: Unit test test_generator.py verifying that generated variance matches injected
+    tau^2 within Monte Carlo error (500 replicates).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output artifact data/results/test_variance_check.json contains
+    mean variance within 0.01 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:03:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Jackson et al., 2010 synthetic base parameters
+  claim_id: c_501a4c94
+  context: 'Fetch Real Data: Execute a script to download a verified Cochrane meta-analysis
+    dataset (or a verified synthetic base with explicitly cited parameters from literature,
+    e.g., Jackson et al., 2010) into data/raw/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Jackson et al., 2010
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:04:05Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 2500 total replicates in full scale performance test
+  claim_id: c_c9cc9bb3
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2,500 total replicates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:04:23Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: process completes within 360 minutes
+  claim_id: c_67cf9393
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total). Verify the process completes within 360 minutes
+    (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the process completes within 360 minutes (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:04:47Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7GB
+  claim_id: c_35398ad0
+  context: 'Full Scale Performance Test: Run generator.py for the full set (5 levels
+    x 500 replicates = 2,500 total). Verify the process completes within 360 minutes
+    (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: RAM usage < 7GB on CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:05:12Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 500 replicates per level
+  claim_id: c_dcbfc541
+  context: "Implement code/simulation/generator.py to load base Cochrane data (from\
+    \ data/raw/, verified in T040) and implement a loop generating \u2265500 replicates\
+    \ per level for heterogeneity levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 500 replicates per level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:05:33Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction with alpha 0.05 divided by 5
+  claim_id: c_a9fba6f2
+  context: Unit test test_stats.py verifying Bonferroni correction application (alpha
+    = 0.05/5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction application (alpha = 0.05/5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:06:55Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: aggregate pipeline completes within 6 hours and less than 7GB RAM
+  claim_id: c_b9d56986
+  context: Verify aggregate pipeline performance (generation + estimation + analysis)
+    completes within 6 hours and < 7GB RAM on CPU-only runner (SC-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregate_pipeline_completes_within_6_hours_and_less_than_7G
+  kind: magnitude
+  raw_text: aggregate pipeline performance (generation + estimation + analysis) completes
+    within 6 hours and < 7GB RAM on CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:07:14Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 2
+  canonical: simulation tasks run on 2 cores with 7GB RAM within 6 hours
+  claim_id: c_5435ae96
+  context: 'CRITICAL: All simulation tasks must run on CPU-only (2 cores, 7GB RAM)
+    within 6 hours. No GPU/CUDA dependencies allowed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:07:36Z'

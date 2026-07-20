@@ -2,9 +2,15 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005 [P] Implement custom logging infrastructure in `src/utils/logging.py` to track skipped invalid SMILES** — No `src/utils/logging.py` file or any code showing a custom logging infrastructure was provided. Without the actual module (and its functionality to log skipped invalid SMILES), the task requirement cannot be confirmed as met. The implementer must add the file with the required logging implementation.
-- **T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R²)** — No evidence of a `src/utils/metrics.py` file containing implementations for MAE, RMSE, and R² was provided; the artifact is missing or empty, so the required metric calculators are not verified.
-- **T007 Define and write schema files for `ReactionRecord` and `MolecularGraph` in `specs/001-predicting-molecular-reactivity-using-gr/contracts/`: Create `reaction_record.schema.yaml` (fields: reactants_smiles, product_smiles, yield, reaction_class) and `molecular_graph.schema.yaml` (fields: atoms, bonds, features).** — No schema files (`reaction_record.schema.yaml` and `molecular_graph.schema.yaml`) are present in the repository, nor is any content shown that defines the required fields. The required artifacts are missing, so the task is not satisfied.
-- **T008 Setup CI environment configuration: Create `.github/workflows/ci.yml` with steps for installing dependencies, running tests, and enforcing a strict runtime limit.** — No `.github/workflows/ci.yml` file was presented in the evidence, and thus there is no proof that a CI workflow with dependency installation, test execution, and a strict runtime limit has been created. The required artifact is missing.
-- **T009 [P] Create spec amendment request for FR-008: Document the change from "reaction class stratification" to "Scaffold Split" in a formal amendment request or PR description to update `spec.md`. (Note: spec.md has been updated in this revision, this task tracks the workflow).** — No amendment request, PR description, or updated `spec.md` content was provided; the implementer did not supply any document that records the change from “reaction class stratification” to “Scaffold Split”. The required artifact is missing, so the task is not satisfied.
-- **T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function with `pytest.fail` placeholder to verify logging of invalid SMILES.** — No evidence of a `tests/unit/test_parsing.py` file or a `test_parse_smiles_invalid_logs_error` function containing a `pytest.fail` placeholder is provided; the required unit‑test artifact is missing.
+- **T006** — declared artifact(s) missing/empty/invalid: src/utils/metrics.py
+- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008** — declared artifact(s) missing/empty/invalid: github/workflows/ci.yml
+- **T009** — No amendment request, PR description, or documented change to `spec.md` is present; the implementer did not provide any artifact showing the transition from “reaction class stratification” to “Scaffold Split”. The required formal spec amendment is missing.
+- **T012** — declared artifact(s) missing/empty/invalid: src/data/download.py
+- **T013** — declared artifact(s) missing/empty/invalid: src/data/download.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/data/parse.py
+- **T014b** — declared artifact(s) missing/empty/invalid: src/data/parse.py
+- **T015** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py
+- **T016a** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py
+- **T016b** — No amendment request or PR description was provided; the implementer did not supply any draft text updating `spec.md` for FR‑008 to reflect the Scaffold Split methodology. The required artifact is missing.
+- **T017** — declared artifact(s) missing/empty/invalid: src/models/mpnn.py

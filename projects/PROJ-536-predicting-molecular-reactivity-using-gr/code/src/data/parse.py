@@ -6,22 +6,18 @@ import pandas as pd
 import numpy as np
 
 try:
-    import rdkit
     from rdkit import Chem
-    from rdkit.Chem import Descriptors
+    from rdkit.Chem import AllChem
 except ImportError:
-    rdkit = None
-    Chem = None
-    Descriptors = None
-    raise ImportError("RDKit is required for this module. Install with: pip install rdkit")
+    raise ImportError("RDKit is required. Install it via: pip install rdkit")
 
-# Import project logging utilities
-from src.utils.logging import get_logger, log_invalid_smiles, log_skipped_reaction, log_message
+from src.utils.logging import get_logger, log_invalid_smiles, log_skipped_reaction
 
 # Constants
-DATA_VALIDITY_TARGET = 0.95  # SC-005 Target: >95% valid reactions
+DATA_VALIDITY_TARGET = 0.95  # SC-005 target: >95% valid reactions
 
-def get_atom_features(mol: Chem.Mol) -> List[Dict[str, Any]]:
+
+def get_atom_features(mol: Any) -> List[Dict[str, Any]]:
     """
     Extract atom features from an RDKit molecule.
     Returns a list of dictionaries, one per atom.
@@ -33,16 +29,17 @@ def get_atom_features(mol: Chem.Mol) -> List[Dict[str, Any]]:
     for atom in mol.GetAtoms():
         feat = {
             "atomic_num": atom.GetAtomicNum(),
+            "degree": atom.GetDegree(),
             "formal_charge": atom.GetFormalCharge(),
-            "num_explicit_hs": atom.GetNumExplicitHs(),
-            "num Implicit_hs": atom.GetNumImplicitHs(),
             "hybridization": str(atom.GetHybridization()),
             "is_aromatic": atom.GetIsAromatic(),
+            "num_hydrogens": atom.GetTotalNumHs(),
         }
         features.append(feat)
     return features
 
-def get_bond_features(mol: Chem.Mol) -> List[Dict[str, Any]]:
+
+def get_bond_features(mol: Any) -> List[Dict[str, Any]]:
     """
     Extract bond features from an RDKit molecule.
     Returns a list of dictionaries, one per bond.
@@ -55,198 +52,157 @@ def get_bond_features(mol: Chem.Mol) -> List[Dict[str, Any]]:
         feat = {
             "bond_type": str(bond.GetBondType()),
             "is_conjugated": bond.GetIsConjugated(),
+            "is_in_ring": bond.IsInRing(),
             "start_atom_idx": bond.GetBeginAtomIdx(),
             "end_atom_idx": bond.GetEndAtomIdx(),
         }
         features.append(feat)
     return features
 
+
 def smiles_to_graph(smiles: str) -> Optional[Dict[str, Any]]:
     """
     Convert a SMILES string to a graph representation (atoms, bonds).
-    Returns None if the SMILES is invalid.
+    Returns None if SMILES is invalid.
     """
-    if Chem is None:
-        raise ImportError("RDKit not available")
-    
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return None
+        
+        # Sanitize to catch common issues
+        Chem.SanitizeMol(mol)
+        
+        return {
+            "atoms": get_atom_features(mol),
+            "bonds": get_bond_features(mol),
+            "num_atoms": mol.GetNumAtoms(),
+            "num_bonds": mol.GetNumBonds(),
+        }
+    except Exception:
         return None
-    
-    # Add hydrogens to ensure implicit Hs are correctly calculated if needed
-    mol = Chem.AddHs(mol)
-    
-    graph_data = {
-        "atoms": get_atom_features(mol),
-        "bonds": get_bond_features(mol),
-        "num_atoms": mol.GetNumAtoms(),
-        "num_bonds": mol.GetNumBonds(),
-    }
-    return graph_data
 
-def parse_reaction_dataframe(df: pd.DataFrame, 
-                             reactant_col: str = "reactants_smiles",
-                             product_col: str = "product_smiles") -> Tuple[pd.DataFrame, int, int]:
+
+def parse_reaction_dataframe(df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int]:
     """
     Parse SMILES columns in a DataFrame into graph representations.
     
     Args:
-        df: Input DataFrame containing SMILES columns.
-        reactant_col: Name of the reactants SMILES column.
-        product_col: Name of the product SMILES column.
-        
+        df: DataFrame with 'reactants_smiles' and 'product_smiles' columns.
+    
     Returns:
-        Tuple of (processed_df, total_entries, valid_entries)
-        processed_df contains new columns: 'reactant_graph', 'product_graph', 'is_valid'
+        Tuple of (processed_df, valid_count, invalid_count)
+        processed_df has new columns 'reactants_graph' and 'product_graph'.
     """
-    if Chem is None:
-        raise ImportError("RDKit not available")
-    
     logger = get_logger(__name__)
-    total = len(df)
     valid_count = 0
+    invalid_count = 0
     
-    # Prepare new columns
-    reactant_graphs = []
-    product_graphs = []
-    valid_flags = []
+    processed_rows = []
     
     for idx, row in df.iterrows():
-        r_smiles = row.get(reactant_col)
-        p_smiles = row.get(product_col)
+        reactants_smiles = row.get("reactants_smiles", "")
+        product_smiles = row.get("product_smiles", "")
         
-        is_valid = True
-        r_graph = None
-        p_graph = None
+        if not isinstance(reactants_smiles, str) or not isinstance(product_smiles, str):
+            log_skipped_reaction(logger, idx, "Non-string SMILES")
+            invalid_count += 1
+            processed_rows.append({**row, "reactants_graph": None, "product_graph": None, "is_valid": False})
+            continue
         
-        # Parse reactants (may be a mixture separated by '.')
-        if pd.notna(r_smiles) and isinstance(r_smiles, str):
-            # RDKit handles dot-separated mixtures in MolFromSmiles
-            r_graph = smiles_to_graph(r_smiles)
-            if r_graph is None:
-                is_valid = False
-                log_invalid_smiles(logger, r_smiles, "reactant", idx)
+        reactants_graph = smiles_to_graph(reactants_smiles)
+        product_graph = smiles_to_graph(product_smiles)
         
-        # Parse product
-        if pd.notna(p_smiles) and isinstance(p_smiles, str):
-            p_graph = smiles_to_graph(p_smiles)
-            if p_graph is None:
-                is_valid = False
-                log_invalid_smiles(logger, p_smiles, "product", idx)
-        
-        if not is_valid:
-            log_skipped_reaction(logger, idx, f"Invalid SMILES in row {idx}")
-            valid_flags.append(False)
-            reactant_graphs.append(None)
-            product_graphs.append(None)
+        if reactants_graph is None or product_graph is None:
+            log_invalid_smiles(logger, idx, reactants_smiles, product_smiles)
+            invalid_count += 1
+            processed_rows.append({**row, "reactants_graph": None, "product_graph": None, "is_valid": False})
         else:
-            valid_flags.append(True)
-            reactant_graphs.append(r_graph)
-            product_graphs.append(p_graph)
             valid_count += 1
+            processed_rows.append({**row, "reactants_graph": reactants_graph, "product_graph": product_graph, "is_valid": True})
     
-    processed_df = df.copy()
-    processed_df['reactant_graph'] = reactant_graphs
-    processed_df['product_graph'] = product_graphs
-    processed_df['is_valid'] = valid_flags
-    
-    return processed_df, total, valid_count
+    processed_df = pd.DataFrame(processed_rows)
+    return processed_df, valid_count, invalid_count
 
-def calculate_data_validity(total_entries: int, valid_entries: int) -> float:
+
+def calculate_data_validity(df: pd.DataFrame, target: float = DATA_VALIDITY_TARGET) -> Dict[str, Any]:
     """
-    Calculate the percentage of successfully parsed reactions.
+    Calculate and report the percentage of successfully parsed reactions.
+    
+    This function implements the requirement from SC-005:
+    "The pipeline must successfully parse >95% of the raw reaction data."
     
     Args:
-        total_entries: Total number of reaction entries processed.
-        valid_entries: Number of entries successfully parsed.
-        
+        df: A DataFrame containing parsed reaction data with an 'is_valid' column.
+        target: The minimum validity threshold (default 0.95 for 95%).
+    
     Returns:
-        Validity percentage as a float (0.0 to 1.0).
-        
+        A dictionary containing validity statistics.
+    
     Raises:
-        AssertionError: If validity is below the SC-005 target (>95%).
+        ValueError: If the validity percentage is below the target threshold.
     """
-    if total_entries == 0:
-        validity = 0.0
-    else:
-        validity = valid_entries / total_entries
+    if "is_valid" not in df.columns:
+        raise ValueError("DataFrame must contain an 'is_valid' column to calculate validity.")
+    
+    total = len(df)
+    if total == 0:
+        raise ValueError("Cannot calculate validity on an empty DataFrame.")
+    
+    valid_count = df["is_valid"].sum()
+    validity_percentage = (valid_count / total) * 100
     
     logger = get_logger(__name__)
-    log_message(logger, f"Data Validity: {validity:.2%} ({valid_entries}/{total_entries})")
     
-    # Assert against SC-005 target
-    if validity < DATA_VALIDITY_TARGET:
-        error_msg = (
-            f"Data validity {validity:.2%} is below the SC-005 target of {DATA_VALIDITY_TARGET:.2%}. "
-            f"Please check data quality or parsing logic."
+    result = {
+        "total_reactions": total,
+        "valid_reactions": int(valid_count),
+        "invalid_reactions": total - int(valid_count),
+        "validity_percentage": validity_percentage,
+        "target_percentage": target * 100,
+        "meets_target": validity_percentage >= (target * 100)
+    }
+    
+    log_message(
+        logger, 
+        f"Data Validity Report: {validity_percentage:.2f}% valid ({valid_count}/{total} reactions). "
+        f"Target: {target*100:.2f}%. Status: {'PASS' if result['meets_target'] else 'FAIL'}"
+    )
+    
+    if not result["meets_target"]:
+        raise ValueError(
+            f"Data validity {validity_percentage:.2f}% is below the required target of {target*100:.2f}% "
+            f"as per SC-005. Please check data quality or parsing logic."
         )
-        log_message(logger, error_msg, level=logging.ERROR)
-        raise AssertionError(error_msg)
     
-    return validity
+    return result
+
 
 def main():
     """
-    Main entry point for testing the parsing module.
-    This function expects a CSV file path as an argument or uses a default test path.
+    Main entry point for the parse module.
+    Demonstrates the data validity calculation workflow.
     """
     logger = get_logger(__name__)
-    log_message(logger, "Starting data parsing and validity calculation...")
+    logger.info("Starting SMILES to Graph parsing and validity calculation.")
     
-    # Example: Load a sample dataset if available, otherwise create a minimal test case
-    # In a real pipeline, this would be called after download.py
-    try:
-        # Check if we have a downloaded file (path might vary based on T012 implementation)
-        possible_paths = [
-            "data/uspto_subset.csv",
-            "data/raw/uspto_subset.csv",
-            "data/uspto_sample.csv"
-        ]
-        input_file = None
-        for p in possible_paths:
-            if os.path.exists(p):
-                input_file = p
-                break
-        
-        if input_file:
-            log_message(logger, f"Loading data from {input_file}")
-            df = pd.read_csv(input_file)
-        else:
-            # Fallback: Create a minimal synthetic dataset for testing if no real data is found
-            # NOTE: In production, this should ideally fail or require a real download.
-            # However, to satisfy the "runnable" constraint for the task without external blocking:
-            # We create a small valid set and one invalid set to test the logic.
-            # The task requires REAL data if available. If not, we demonstrate the logic.
-            log_message(logger, "No real data file found. Creating minimal test data for logic verification.")
-            data = {
-                "reactants_smiles": ["CCO", "C1=CC=CC=C1", "INVALID_SMILES", "CC(=O)O"],
-                "product_smiles": ["CCO", "C1=CC=CC=C1", "C1=CC=CC=C1", "CC(=O)O"],
-                "yield": [0.8, 0.9, 0.5, 0.7]
-            }
-            df = pd.DataFrame(data)
-        
-        log_message(logger, f"Loaded {len(df)} rows.")
-        
-        # Parse
-        processed_df, total, valid = parse_reaction_dataframe(df)
-        
-        # Calculate validity
-        validity = calculate_data_validity(total, valid)
-        
-        log_message(logger, f"Data validity check passed: {validity:.2%}")
-        
-        # Save processed data if real data was used
-        if input_file:
-            output_path = "data/processed/uspto_parsed.csv"
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            # Drop graph columns for CSV (they are objects)
-            csv_df = processed_df.drop(columns=['reactant_graph', 'product_graph'])
-            csv_df.to_csv(output_path, index=False)
-            log_message(logger, f"Saved processed data to {output_path}")
-            
-    except Exception as e:
-        log_message(logger, f"Error during parsing: {str(e)}", level=logging.ERROR)
-        raise
+    # Example usage (in a real scenario, this would load from a file)
+    # This block is primarily for documentation of the API usage
+    sample_data = {
+        "reactants_smiles": ["CCO", "invalid_smiles", "c1ccccc1"],
+        "product_smiles": ["CCO", "CC(=O)O", "c1ccccc1C(=O)O"],
+        "yield": [0.8, 0.5, 0.9]
+    }
+    df = pd.DataFrame(sample_data)
+    
+    parsed_df, valid, invalid = parse_reaction_dataframe(df)
+    logger.info(f"Parsed {valid} valid, {invalid} invalid.")
+    
+    validity_stats = calculate_data_validity(parsed_df)
+    logger.info(f"Validity Stats: {validity_stats}")
+    
+    return validity_stats
+
 
 if __name__ == "__main__":
     main()

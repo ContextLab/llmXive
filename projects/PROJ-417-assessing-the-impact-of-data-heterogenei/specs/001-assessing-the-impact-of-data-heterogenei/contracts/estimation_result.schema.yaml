@@ -8,27 +8,25 @@ required:
   - replicate_id
   - estimator_name
   - pooled_effect
-  - pooled_se
+  - se_pooled
   - ci_lower
   - ci_upper
-  - tau_squared_estimate
+  - coverage_flag
+  - tau2_estimate
   - i_squared
+  - k_studies_included
   - convergence_status
 properties:
   replicate_id:
     type: string
-    description: Reference to the simulated dataset replicate_id.
+    description: Reference to the input simulated dataset replicate.
   estimator_name:
     type: string
-    enum:
-      - FixedEffects
-      - DerSimonianLaird
-      - REML
-    description: Name of the estimator used.
+    description: Name of the estimator used (e.g., "FixedEffects", "DL", "REML").
   pooled_effect:
     type: number
-    description: The estimated overall effect size (mu_hat).
-  pooled_se:
+    description: The estimated pooled effect size.
+  se_pooled:
     type: number
     description: Standard error of the pooled effect.
   ci_lower:
@@ -37,34 +35,27 @@ properties:
   ci_upper:
     type: number
     description: Upper bound of the 95% confidence interval.
-  tau_squared_estimate:
+  coverage_flag:
+    type: boolean
+    description: True if the true effect size falls within [ci_lower, ci_upper].
+  tau2_estimate:
     type: number
     description: Estimated between-study variance.
   i_squared:
     type: number
-    minimum: 0
-    maximum: 100
     description: >
-      I^2 statistic representing the percentage of variation across studies
-      that is due to heterogeneity rather than chance.
-      Calculated as max(0, (Q - df) / Q) * 100.
-  q_statistic:
-    type: number
-    description: Cochran's Q statistic.
-  df:
+      The I^2 statistic representing the percentage of total variation across studies
+      due to heterogeneity rather than chance. Required field per specification.
+  k_studies_included:
     type: integer
-    description: Degrees of freedom (k - 1).
+    description: Number of studies actually used in this estimation.
   convergence_status:
     type: string
-    enum:
-      - success
-      - failed
-      - skipped
-    description: Status of the estimation process.
-  true_tau_squared:
+    description: Status of the estimation algorithm (e.g., "success", "failed", "boundary").
+  bias:
     type: number
-    description: The ground-truth tau^2 for bias calculation reference.
-  true_mu:
+    description: Calculated bias (pooled_effect - true_effect_size).
+  computation_time_ms:
     type: number
-    description: The ground-truth mu for bias calculation reference.
+    description: Time taken for estimation in milliseconds.
 additionalProperties: false

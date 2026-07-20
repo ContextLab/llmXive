@@ -42,7 +42,7 @@
 - [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and provenance tracking
 - [ ] T007 Implement `src/data/loaders.py` for raster loading utilities and coordinate alignment checks
 - [X] T008 Implement `src/data/preprocess.py` for spatial thinning (default 10 km, min 1 km) and density-based background sampling using exactly **[deferred] points** per species (as per Spec Assumptions)
-- [~] T009 Setup environment configuration management and checksum verification for raw downloads
+- [ ] T009 Setup environment configuration management and checksum verification for raw downloads
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -61,12 +61,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `src/data/fetch_gbif.py` to retrieve records, remove duplicates, and apply spatial thinning (FR-001)
+- [ ] T012 [P] [US1] Implement `src/data/fetch_gbif.py` to retrieve records, remove duplicates, and apply spatial thinning (FR-001)
 - [ ] T013 [P] [US1] Implement `src/data/fetch_climate.py` to download WorldClim v2.1 rasters covering the convex hull and align to occurrences (FR-002) <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Implement `src/modeling/train_rf.py` for training a Random Forest classifier (climate-only) using **5-fold cross-validation** (per Spec Constitution) to calculate AUC and TSS (SC-001, SC-002)
 - [ ] T015 [US1] Implement `src/modeling/metrics.py` to calculate and report AUC and TSS values (SC-001, SC-002)
-- [~] T016 [US1] Add error handling for "No occurrence records" and "Model training failure" (retry with reduced max_depth)
-- [~] T017 [US1] Add logging for data provenance and thinning statistics <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [ ] T016 [US1] Add error handling for "No occurrence records" and "Model training failure" (retry with reduced max_depth)
+- [ ] T017 [US1] Add logging for data provenance and thinning statistics <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
  in "<unicode string>", line 8, column 1:
  The code uses only imports from...
  ^
@@ -96,10 +96,10 @@ could not find expected ':'
 - [ ] T020 [P] [US2] Implement `src/data/fetch_traits.py` to retrieve SLA, seed mass, and plant height from TRY public subset; verify source metadata and explicitly flag values as **'unverified protocol'** if source is not 'Handbook 2013' (FR-003, FR-010)
 - [X] T022a [US2] Implement `src/analysis/collinearity.py` to merge climate and trait data for the full predictor set across all species (prerequisite for VIF)
 - [X] T022 [US2] Implement `src/analysis/collinearity.py` to compute Variance Inflation Factor (VIF) for the full predictor set using the merged data from T022a and flag VIF > 5 (FR-011, SC-005)
-- [~] T023 [US2] Implement logic to flag/exclude species with missing traits and log exclusion reasons (FR-006)
+- [ ] T023 [US2] Implement logic to flag/exclude species with missing traits and log exclusion reasons (FR-006)
 - [X] T021a [US2] Implement `src/modeling/loso_cv.py` to orchestrate the full LOSO cycle: train on N-1 species, **use the known trait values** of the 1 held-out species as inputs, and evaluate (FR-004, US-2)
 - [X] T021b [US2] Implement `src/modeling/loso_cv.py` (optional branch) to **predict traits** for the held-out species using a climate-niche model trained on N-1 species (Plan Override of FR-004), and evaluate using these imputed values <!-- ATOMIZE: requested -->
-- [~] T024 [US2] Integrate both **known** (T021a) and **imputed** (T021b) trait data into the Random Forest training pipeline for the "climate + traits" configuration, ensuring the Spec-compliant path (known values) is the default
+- [ ] T024 [US2] Integrate both **known** (T021a) and **imputed** (T021b) trait data into the Random Forest training pipeline for the "climate + traits" configuration, ensuring the Spec-compliant path (known values) is the default
 - [~] T025 [US2] Add explicit disclaimer logic in the report generation to frame relationships as associative, not causal (FR-007)
 - [~] T025b [US2] Add explicit documentation in the final report explaining the **Trait Imputation** strategy as a Plan override of Spec FR-004 to ensure scientific validity
 - [~] T025c [US2] Create a formal note in `research.md` or `plan.md` documenting the Spec-Plan divergence regarding Trait Imputation (FR-004 override) to ensure traceability
@@ -117,7 +117,7 @@ could not find expected ':'
 ### Tests for User Story 3
 
 - [X] T026 [P] [US3] Unit test for t-test logic and Bonferroni correction in `tests/unit/test_stats.py`
-- [ ] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity.py`
+- [~] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 

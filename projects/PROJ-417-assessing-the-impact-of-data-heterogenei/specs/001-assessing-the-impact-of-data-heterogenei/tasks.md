@@ -57,7 +57,7 @@
 - [X] T005 [P] Implement `code/simulation/__init__.py` and `code/analysis/__init__.py` to expose core classes
 - [ ] T006 Create `code/main.py` entry point that orchestrates the pipeline (generation -> estimation -> analysis -> reporting) with CLI argument support for seeds and levels <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T007 Setup logging infrastructure in `code/utils/logging.py` to capture convergence failures and simulation progress to `data/results/simulation.log`
-- [ ] T040 [P] **Fetch Real Data**: Execute a script to download a verified Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited parameters from literature, e.g., Jackson et al., 2010) into `data/raw/`. The task must specify the exact URL or package fetch command and save the file as `data/raw/cochrane_base.csv`.
+- [ ] T040 [P] **Fetch Real Data**: Execute a script to download a verified Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited parameters from literature, e.g., Jackson et al., 2010 [UNRESOLVED-CLAIM: c_501a4c94 — status=not_enough_info]) into `data/raw/`. The task must specify the exact URL or package fetch command and save the file as `data/raw/cochrane_base.csv`.
 - [X] T041 [P] **Document Data Source**: Create `data/raw/README.md` and update `research.md` to explicitly document the source URL, accession ID, and citation for the base dataset used in T040, satisfying Constitution Principle II (Verified Accuracy).
 
 **Checkpoint**: Foundation ready - data fetched, schemas defined, user story implementation can now begin.
@@ -74,11 +74,11 @@
 
 - [ ] T008 [P] [US1] Unit test `test_generator.py` verifying that generated variance matches injected $\tau^2$ within Monte Carlo error (500 replicates). **Verify output artifact `data/results/test_variance_check.json` contains mean variance within 0.01 of target **.
 - [ ] T009 [P] [US1] Unit test `test_generator.py` verifying that $\tau^2=0$ produces zero between-study variance (homogeneity). **Verify output artifact `data/results/test_homogeneity_check.json` confirms zero variance**.
-- [ ] T014 [P] [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (5 levels $\times$ 500 replicates = 2,500 total). Verify the process completes within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner. Verify integrity of `data/results/simulation_raw.json` (2,500 records).
+- [ ] T014 [P] [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (5 levels $\times$ 500 replicates = 2,500 total). Verify the process completes within 360 minutes (6 hours) [UNRESOLVED-CLAIM: c_67cf9393 — status=not_enough_info] and RAM usage < 7GB on CPU-only runner [UNRESOLVED-CLAIM: c_35398ad0 — status=not_enough_info]. Verify integrity of `data/results/simulation_raw.json` (2,500 records).
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/simulation/generator.py` to load base Cochrane data (from `data/raw/`, verified in T040) and implement a loop generating ≥500 replicates per level for heterogeneity levels $\{0, 0.1, 0.5, 1.0, 2.0\}$. **Ensure output conforms to `contracts/simulated_dataset.schema.yaml`**.
+- [ ] T010 [US1] Implement `code/simulation/generator.py` to load base Cochrane data (from `data/raw/`, verified in T040) and implement a loop generating ≥500 replicates per level [UNRESOLVED-CLAIM: c_dcbfc541 — status=not_enough_info] for heterogeneity levels $\{0, 0.1, 0.5, 1.0, 2.0\}$. **Ensure output conforms to `contracts/simulated_dataset.schema.yaml`**.
 - [ ] T011 [US1] Implement logic in `generator.py` to handle $N < 5$ studies by flagging/excluding replicates (Edge Case: Small Study Effects)
 - [ ] T012 [US1] Implement logic in `generator.py` to handle $\tau^2=0$ without numerical instability (Edge Case: Zero Variance)
 - [ ] T013 [US1] Ensure `generator.py` outputs `data/results/simulation_raw.json` conforming to `contracts/simulated_dataset.schema.yaml`
@@ -135,7 +135,7 @@
 - [ ] T028 [US3] Implement `code/reporting/report_gen.py` to aggregate metrics, perform tests, and generate `data/results/report.md`. **Must include sensitivity sweep data from T034**.
 - [ ] T029 [US3] Ensure `report_gen.py` explicitly labels results as "associational" and avoids causal claims (SC-005)
 - [ ] T030 [US3] Validate final report content against `contracts/aggregated_metric.schema.yaml`
-- [ ] T038 [P] [US3] Verify aggregate pipeline performance (generation + estimation + analysis) completes within 6 hours and < 7GB RAM on CPU-only runner (SC-003)
+- [ ] T038 [P] [US3] Verify aggregate pipeline performance (generation + estimation + analysis) completes within 6 hours and < 7GB RAM on CPU-only runner [UNRESOLVED-CLAIM: c_b9d56986 — status=not_enough_info] (SC-003)
 - [ ] T020_test_edge_cases_metrics [P] [US3] Unit test `test_stats.py` verifying that bias metrics are correctly calculated for excluded $N<5$ studies from T011.
 
 **Checkpoint**: Statistical analysis complete; visualizations generated; report framed correctly.
@@ -240,10 +240,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours. No GPU/CUDA dependencies allowed.
+- **CRITICAL**: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours. [UNRESOLVED-CLAIM: c_5435ae96 — status=not_enough_info] No GPU/CUDA dependencies allowed.
 - **CRITICAL**: Data must be real (Cochrane) or verified synthetic base. No fabrication of input data. T040 ensures this by mandating a fetch step in Phase 2.
 - **CRITICAL**: REML convergence failures must be handled gracefully (log/skip) to ensure full pipeline completion.
-- **CRITICAL**: T010 must implement a loop for ≥500 replicates per level.
+- **CRITICAL**: T010 must implement a loop for ≥500 replicates per level [UNRESOLVED-CLAIM: c_dcbfc541 — status=not_enough_info].
 - **CRITICAL**: T037 must implement conditional branching for statistical test selection.
 - **CRITICAL**: T038 must verify aggregate pipeline performance.
 - **CRITICAL**: T034 (Sensitivity Sweep) is a core success criterion, not optional polish.

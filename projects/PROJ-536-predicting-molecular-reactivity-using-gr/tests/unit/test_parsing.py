@@ -8,6 +8,7 @@ import os
 import tempfile
 import shutil
 from pathlib import Path
+import io
 
 # Import the logging utilities defined in the project
 from src.utils.logging import get_logger, log_invalid_smiles
@@ -79,7 +80,6 @@ def test_log_invalid_smiles_handles_special_characters():
     logger.handlers = []
     
     # Create a string handler to capture logs in memory
-    import io
     log_stream = io.StringIO()
     handler = logging.StreamHandler(log_stream)
     handler.setLevel(logging.DEBUG)
@@ -112,7 +112,6 @@ def test_log_invalid_smiles_with_none_values():
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
     
-    import io
     log_stream = io.StringIO()
     handler = logging.StreamHandler(log_stream)
     handler.setLevel(logging.DEBUG)

@@ -1,0 +1,43 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no configuration files, scripts, or documentation for
+    environment management or checksum verification of raw downloads; no artifacts
+    exist to demonstrate that these requirements were addressed. The task remains
+    unfulfilled.
+T012:
+  c: false
+  h: 46c54fefdaea971ba2a413ead115385fc564ee5efd9a245abd2f33fbb6f13c86
+  r: "The required file `src/data/fetch_gbif.py` does not exist, so no code was provided\
+    \ to retrieve GBIF records, deduplicate them, or perform spatial thinning. The\
+    \ task\u2019s core artifact is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation showing that error handling for \u201CNo occurrence\
+    \ records\u201D and \u201CModel training failure\u201D (with retry using a reduced\
+    \ `max_depth`) was added. The required artifact (e.g., updated pipeline scripts,\
+    \ exception handling logic, and corresponding unit/integration tests) is missing,\
+    \ so the task is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, configuration, or log files that add provenance\
+    \ or thinning\u2011statistics logging, nor any evidence (e.g., screenshots, test\
+    \ outputs) showing such logging in action. Consequently the required artifact\
+    \ is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or log files were provided that implement the\
+    \ required logic to detect missing trait data, flag or exclude those species,\
+    \ and record the exclusion reasons. Consequently, the task\u2019s core requirement\
+    \ (FR\u2011006) is not demonstrated."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or documentation were presented showing that the\
+    \ known (T021a) and imputed (T021b) trait data have been incorporated into the\
+    \ Random Forest training pipeline, nor that the spec\u2011compliant path is set\
+    \ as the default. The required artifact (e.g., updated pipeline script, config\
+    \ file, or test output confirming the default behavior) is missing."

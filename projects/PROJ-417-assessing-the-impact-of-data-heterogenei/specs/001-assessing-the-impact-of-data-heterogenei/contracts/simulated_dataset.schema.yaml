@@ -2,31 +2,31 @@ $schema: http://json-schema.org/draft-07/schema#
 title: SimulatedDataset
 description: >
   Schema for a single simulated meta-analysis dataset replicate.
-  Contains the true parameters used for generation and the resulting
-  study-level data points.
+  Contains the ground truth parameters and the generated study-level data.
 type: object
 required:
   - replicate_id
-  - true_tau_squared
-  - true_mu
+  - true_effect_size
+  - true_heterogeneity_tau2
   - heterogeneity_level
+  - k_studies
   - studies
+  - metadata
 properties:
   replicate_id:
     type: string
-    description: Unique identifier for this replicate (e.g., "tau0.1_rep001")
-  true_tau_squared:
+    description: Unique identifier for this simulation replicate (e.g., "tau2_0.1_rep_001").
+  true_effect_size:
     type: number
-    description: The ground-truth between-study variance (tau^2) used for generation.
-  true_mu:
+    description: The ground truth pooled effect size (mu) used for generation.
+  true_heterogeneity_tau2:
     type: number
-    description: The ground-truth overall effect size (mu) used for generation.
+    description: The ground truth between-study variance (tau^2) used for generation.
   heterogeneity_level:
-    type: string
-    description: The categorical level name (e.g., "low", "moderate", "high") corresponding to the tau^2.
-  num_studies:
+    type: number
+    description: The nominal tau^2 level category (0, 0.1, 0.5, 1.0, 2.0).
+  k_studies:
     type: integer
-    minimum: 1
     description: Number of studies in this replicate.
   studies:
     type: array
@@ -38,15 +38,29 @@ properties:
         - effect_size
         - standard_error
         - sample_size
+        - included
       properties:
         study_id:
-          type: integer
+          type: string
         effect_size:
           type: number
         standard_error:
           type: number
-          minimum: 0
         sample_size:
           type: integer
-          minimum: 1
+        included:
+          type: boolean
+          description: Whether this study was included in the analysis (True if k >= 5, etc).
+  metadata:
+    type: object
+    description: Additional simulation parameters.
+    properties:
+      seed:
+        type: integer
+      generation_method:
+        type: string
+        enum: [random_effects, fixed_effects]
+      timestamp:
+        type: string
+        format: date-time
 additionalProperties: false

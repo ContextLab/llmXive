@@ -1,0 +1,13 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No amendment request, PR description, or documented change to `spec.md` is present;\
+    \ the implementer did not provide any artifact showing the transition from \u201C\
+    reaction class stratification\u201D to \u201CScaffold Split\u201D. The required\
+    \ formal spec amendment is missing."
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No amendment request or PR description was provided; the implementer did not\
+    \ supply any draft text updating `spec.md` for FR\u2011008 to reflect the Scaffold\
+    \ Split methodology. The required artifact is missing."

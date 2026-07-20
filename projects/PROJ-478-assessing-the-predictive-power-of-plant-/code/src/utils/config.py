@@ -1,39 +1,43 @@
+"""
+Configuration constants for the plant trait SDM project.
+"""
 import os
 from typing import Final
 
 # Random Seeds
 RANDOM_SEED: Final[int] = 42
-NEST_SEED: Final[int] = 42
+N_SPLITS: Final[int] = 5
 
-# Resource Limits (CPU/Time constraints)
+# Model Hyperparameters
 MAX_DEPTH: Final[int] = 10
 N_ESTIMATORS: Final[int] = 100
-MAX_MEMORY_MB: Final[int] = 4096
-MAX_WORKERS: Final[int] = 4
 
 # Data Paths
-DATA_RAW_DIR: Final[str] = "data/raw"
-DATA_PROCESSED_DIR: Final[str] = "data/processed"
-DATA_METADATA_DIR: Final[str] = "data/metadata"
+DATA_DIR: Final[str] = "data"
+PROCESSED_DIR: Final[str] = "data/processed"
+RAW_DIR: Final[str] = "data/raw"
 RESULTS_DIR: Final[str] = "results"
 
-# Model Parameters
-RF_PARAMS: Final[dict] = {
-    "max_depth": MAX_DEPTH,
-    "n_estimators": N_ESTIMATORS,
-    "random_state": RANDOM_SEED,
-    "n_jobs": MAX_WORKERS,
+# Trait Configuration
+REQUIRED_TRAITS: Final[list] = ["sla", "seed_mass", "plant_height"]
+TRAIT_SOURCES: Final[dict] = {
+    "handbook": "Handbook 2013",
+    "public": "TRY Public Subset"
 }
 
-# Spatial Thinning
-THINNING_DISTANCE_KM: Final[float] = 10.0
-MIN_THINNING_DISTANCE_KM: Final[float] = 1.0
+# Thresholds
+SPATIAL_THINNING_KM: Final[float] = 10.0
+MIN_THINNING_KM: Final[float] = 1.0
+VIF_THRESHOLD: Final[float] = 5.0
 
 # Background Sampling
-BACKGROUND_POINTS_PER_SPECIES: Final[int] = 10000  # Default, can be overridden
+# Note: The exact number is deferred in the spec, so we set a placeholder.
+# This should be updated based on the specific species or user input.
+BACKGROUND_POINTS_PER_SPECIES: Final[int] = 1000
 
-# Statistical Thresholds
-VIF_THRESHOLD: Final[float] = 5.0
-P_VALUE_THRESHOLD: Final[float] = 0.05
-SENSITIVITY_THRESHOLDS: Final[list] = [0.01, 0.02, 0.05]
-SENSITIVITY_CONSISTENCY_RATIO: Final[float] = 0.67
+# Logging
+LOG_LEVEL: Final[str] = "INFO"
+
+# Protocol Constants
+HANDBOOK_2013_SOURCE: Final[str] = "Handbook 2013"
+UNVERIFIED_PROTOCOL_FLAG: Final[str] = "unverified protocol"

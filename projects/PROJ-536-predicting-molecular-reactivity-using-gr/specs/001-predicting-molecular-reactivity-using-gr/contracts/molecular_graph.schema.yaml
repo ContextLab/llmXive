@@ -1,8 +1,9 @@
+# Schema for MolecularGraph
+# Defines the structure of a molecular graph derived from SMILES
+# Used for validation in src/data/parse.py
 $schema: http://json-schema.org/draft-07/schema#
 title: MolecularGraph
-description: >
-  Schema for a molecular graph representation derived from a SMILES string.
-  Contains atom and bond information along with computed features.
+description: A graph representation of a molecule with atoms, bonds, and features.
 type: object
 required:
   - atoms
@@ -11,104 +12,93 @@ required:
 properties:
   atoms:
     type: array
-    description: >
-      List of atoms in the molecule. Each atom is an object containing
-      element symbol and index.
+    description: >-
+      List of atom nodes in the graph.
+      Each atom is an object with an index and atomic number.
     items:
       type: object
       required:
         - index
-        - element
+        - atomic_number
       properties:
         index:
           type: integer
-          description: >
-            0-based index of the atom in the molecule.
-        element:
-          type: string
-          description: >
-            Chemical element symbol (e.g., 'C', 'N', 'O').
-          pattern: "^[A-Z][a-z]?$"
+          description: Unique index of the atom in the graph (0-based).
+          minimum: 0
+        atomic_number:
+          type: integer
+          description: Atomic number of the element (e.g., 6 for Carbon).
+          minimum: 1
         charge:
           type: integer
-          description: >
-            Formal charge of the atom. Defaults to 0 if not specified.
+          description: Formal charge of the atom.
           default: 0
-      additionalProperties: false
+        is_aromatic:
+          type: boolean
+          description: Whether the atom is part of an aromatic system.
+          default: false
   bonds:
     type: array
-    description: >
-      List of bonds in the molecule. Each bond connects two atom indices
-      and specifies the bond type.
+    description: >-
+      List of bond edges in the graph.
+      Each bond connects two atoms and has a type.
     items:
       type: object
       required:
         - source
         - target
-        - type
+        - bond_type
       properties:
         source:
           type: integer
-          description: >
-            Index of the source atom.
+          description: Index of the source atom.
+          minimum: 0
         target:
           type: integer
-          description: >
-            Index of the target atom.
-        type:
-          type: string
-          description: >
-            Bond order/type. Allowed values: 'SINGLE', 'DOUBLE', 'TRIPLE', 'AROMATIC'.
-          enum:
-            - SINGLE
-            - DOUBLE
-            - TRIPLE
-            - AROMATIC
-      additionalProperties: false
+          description: Index of the target atom.
+          minimum: 0
+        bond_type:
+          type: integer
+          description: >-
+            Type of bond: 1 (single), 2 (double), 3 (triple), 4 (aromatic).
+          enum: [1, 2, 3, 4]
+        is_conjugated:
+          type: boolean
+          description: Whether the bond is conjugated.
+          default: false
   features:
     type: object
-    description: >
-      Computed molecular features and descriptors.
-    required:
-      - atom_features
-      - bond_features
+    description: >-
+      Global features or feature matrices associated with the graph.
+      Used for model input.
     properties:
       atom_features:
         type: array
-        description: >
-          Feature vector for each atom. The length must match the number of atoms.
+        description: >-
+          Matrix of atom features (N_atoms x N_features).
+          Features typically include: atomic number, degree, hybridization, etc.
         items:
           type: array
           items:
             type: number
       bond_features:
         type: array
-        description: >
-          Feature vector for each bond. The length must match the number of bonds.
+        description: >-
+          Matrix of bond features (N_bonds x N_features).
         items:
           type: array
           items:
             type: number
       molecular_weight:
         type: number
-        description: >
-          Calculated molecular weight.
+        description: Calculated molecular weight of the molecule.
       logP:
         type: number
-        description: >
-          Calculated partition coefficient (logP).
+        description: Calculated partition coefficient (logP).
       tpsa:
         type: number
-        description: >
-          Topological Polar Surface Area.
-    additionalProperties: true
-  smiles:
-    type: string
-    description: >
-      Canonical SMILES string corresponding to this graph.
-  metadata:
-    type: object
-    description: >
-      Optional metadata about the graph construction (e.g., timestamp, rdkit version).
-    nullable: true
+        description: Topological Polar Surface Area.
+    required:
+      - atom_features
+      - bond_features
 additionalProperties: false
