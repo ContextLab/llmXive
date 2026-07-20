@@ -1,237 +1,248 @@
 import numpy as np
 from skimage.morphology import skeletonize, medial_axis
-from skimage.measure import label, find_contours
-from skimage.filters import gaussian
-from scipy.ndimage import convolve, distance_transform_edt
-from typing import Tuple, Dict, Any, Optional
+from skimage.measure import label, find_contours, regionprops
+from skimage.filters import gaussian, threshold_otsu
+from skimage.exposure import rescale_intensity
+from scipy.ndimage import convolve, distance_transform_edt, binary_erosion
 import logging
-from code.logging_utils import get_logger
+from typing import Dict, Any, Tuple, Optional
 
-logger = get_logger(__name__)
+# Initialize logger for this module
+logger = logging.getLogger(__name__)
 
 def handle_empty_fields(image: np.ndarray, metadata: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Check if the input image represents an empty field of view.
+    Check if the provided image represents an empty field of view.
     
     An empty field of view is defined as an image where:
-    1. The image is entirely zero (black).
-    2. The sum of pixel values is below a noise threshold (relative to image size).
+    1. The image is all zeros (no signal).
+    2. The image contains only background noise below a negligible threshold 
+       (e.g., mean intensity < 1.0 after potential scaling).
     
     Args:
-        image: 2D numpy array representing the grayscale microscopy image.
-        metadata: Optional dictionary containing image metadata (e.g., filename, acquisition params).
+        image: 2D or 3D numpy array representing the microscopy image.
+        metadata: Optional dictionary containing image metadata (e.g., acquisition 
+                parameters) that might help determine validity.
     
     Returns:
-        bool: True if the field of view is empty (should be skipped), False otherwise.
+        bool: True if the field is empty and should be skipped, False otherwise.
     
     Side Effects:
-        Logs a warning with the image source (from metadata or default) if the field is empty.
+        Logs a WARNING if an empty field is detected, including the image shape 
+        and mean intensity.
     """
-    if image is None or image.size == 0:
-        source = metadata.get('filename', 'Unknown') if metadata else 'Unknown'
-        logger.warning(f"Skipping empty field of view: {source} (Image is None or empty).")
+    if image is None:
+        logger.warning("Empty field detected: image is None.")
         return True
-
-    # Calculate basic statistics
-    total_pixels = image.size
-    pixel_sum = np.sum(image)
-    max_pixel = np.max(image)
     
-    # Threshold: If the image is all zeros or extremely dark relative to its size
-    # We use a very small epsilon to avoid floating point issues, but primarily check for 0 sum
-    # A more robust check might involve the standard deviation, but sum == 0 is the primary indicator of "empty".
-    # If max_pixel is 0, it's definitely empty.
-    if max_pixel == 0:
-        source = metadata.get('filename', 'Unknown') if metadata else 'Unknown'
-        logger.warning(f"Skipping empty field of view: {source} (Max pixel value is 0).")
+    if image.size == 0:
+        logger.warning("Empty field detected: image has zero size.")
         return True
-
-    # Check for extremely low signal-to-noise ratio if max > 0 but sum is tiny
-    # If the image is mostly noise with no actual signal, it might be considered empty.
-    # However, strict "empty" usually means no signal. We'll stick to max == 0 or sum == 0.
-    # If sum is > 0 but very low, it might be noise, but we process it to let downstream handle it
-    # unless we define a specific noise floor. For now, strict empty check is max == 0.
+    
+    # Check for all zeros
+    if np.all(image == 0):
+        logger.warning(
+            "Skipping empty field of view (all zeros). "
+            f"Image shape: {image.shape}, Mean intensity: 0.0"
+        )
+        return True
+    
+    # Check for negligible signal (noise floor)
+    # Using a very low threshold to catch images that are effectively empty
+    # but might have minor sensor noise.
+    mean_intensity = np.mean(image)
+    if mean_intensity < 1e-6:
+        logger.warning(
+            f"Skipping empty field of view (negligible signal). "
+            f"Image shape: {image.shape}, Mean intensity: {mean_intensity:.2e}"
+        )
+        return True
     
     return False
 
-def denoise_and_subtract(image: np.ndarray, sigma: float = 1.0) -> np.ndarray:
+def denoise_and_subtract(image: np.ndarray) -> np.ndarray:
     """
     Apply Gaussian denoising and background subtraction.
+    
+    Args:
+        image: 2D or 3D numpy array.
+    
+    Returns:
+        Processed image with background removed.
     """
     if handle_empty_fields(image):
         return np.zeros_like(image)
     
-    # Denoise
-    denoised = gaussian(image, sigma=sigma)
+    # Gaussian denoising
+    denoised = gaussian(image, sigma=1.0)
     
-    # Background subtraction (simple rolling ball approximation via morphological opening)
-    # Using a simple median filter or morphological opening for background estimation
-    from skimage.morphology import disk
-    selem = disk(sigma * 2) # Approximate background scale
-    background = denoised
-    # If morphological operations are too heavy or unavailable for background, 
-    # we can use a large Gaussian as background estimate.
-    # Let's use a larger Gaussian for background estimation to be safe and fast.
-    background_est = gaussian(image, sigma=sigma * 5)
-    subtracted = denoised - background_est
+    # Background subtraction using morphological opening or rolling ball approximation
+    # Using a large kernel for background estimation
+    kernel_size = max(15, image.shape[0] // 10)
+    if kernel_size % 2 == 0:
+        kernel_size += 1
     
-    # Ensure non-negative
-    subtracted = np.maximum(subtracted, 0)
-    return subtracted
+    # Create a structuring element for morphological opening
+    from skimage.morphology import disk, ball
+    if image.ndim == 2:
+        selem = disk(kernel_size // 2)
+    else:
+        selem = ball(kernel_size // 2)
+    
+    # Estimate background
+    background = opening(denoised, selem)
+    
+    # Subtract background
+    result = denoised - background
+    result = np.clip(result, 0, None)
+    
+    return result
 
 def skeletonize_and_count(image: np.ndarray) -> Tuple[int, np.ndarray]:
     """
     Skeletonize the image and count branch points.
+    
+    Args:
+        image: Preprocessed 2D image.
+    
+    Returns:
+        Tuple of (branch_point_count, skeleton_image).
     """
     if handle_empty_fields(image):
         return 0, np.zeros_like(image, dtype=bool)
     
-    # Binarize
-    binary = image > np.percentile(image, 75) # Simple adaptive threshold
-    if not np.any(binary):
-        return 0, np.zeros_like(image, dtype=bool)
+    # Threshold the image
+    thresh = threshold_otsu(image)
+    binary = image > thresh
     
     # Skeletonize
     skeleton = skeletonize(binary)
     
-    # Count branch points (pixels with > 2 neighbors in the skeleton)
-    # Convolve with 3x3 kernel to count neighbors
+    # Count branch points: pixels in skeleton with > 2 neighbors
+    # Use convolution with a 3x3 kernel to count neighbors
     kernel = np.ones((3, 3), dtype=int)
     kernel[1, 1] = 0
     neighbors = convolve(skeleton.astype(int), kernel, mode='constant')
     branch_points = (skeleton & (neighbors > 2))
-    count = int(np.sum(branch_points))
+    count = np.sum(branch_points)
     
-    return count, skeleton
+    return int(count), skeleton
 
 def calculate_soma_area_and_length(image: np.ndarray, skeleton: np.ndarray) -> Tuple[float, float]:
     """
-    Calculate soma area (approximated by largest contour) and total process length.
+    Calculate soma area and total process length.
+    
+    Args:
+        image: Preprocessed 2D image.
+        skeleton: Skeletonized image from skeletonize_and_count.
+    
+    Returns:
+        Tuple of (soma_area, total_length).
     """
     if handle_empty_fields(image):
         return 0.0, 0.0
     
-    binary = image > np.percentile(image, 75)
-    if not np.any(binary):
+    # Threshold for soma detection (usually the brightest region)
+    thresh = threshold_otsu(image)
+    binary = image > thresh
+    
+    # Label connected components
+    labeled_image = label(binary)
+    props = regionprops(labeled_image)
+    
+    if not props:
         return 0.0, 0.0
     
-    # Soma area: Largest connected component in the original binary (excluding thin processes)
-    # Or simply the area of the largest contour if we assume soma is the largest blob.
-    labeled = label(binary)
-    if labeled.max() == 0:
-        return 0.0, 0.0
+    # Assume the largest component is the soma
+    soma_props = max(props, key=lambda p: p.area)
+    soma_area = soma_props.area
     
-    # Find contours
-    # Note: find_contours works on 2D arrays
-    contours = find_contours(binary, level=0.5)
-    if not contours:
-        return 0.0, 0.0
-    
-    # Assume soma is the largest contour
-    soma_contour = max(contours, key=len)
-    soma_area = len(soma_contour) # Approximation, or use polygon area if needed
-    
-    # Total length: Number of non-zero pixels in skeleton (approximate length)
-    total_length = int(np.sum(skeleton))
+    # Total length from skeleton (number of pixels)
+    total_length = np.sum(skeleton)
     
     return float(soma_area), float(total_length)
 
-def run_sholl_analysis(image: np.ndarray, skeleton: np.ndarray, step_size: float = 5.0, max_radius: Optional[float] = None) -> int:
+def run_sholl_analysis(image: np.ndarray, skeleton: np.ndarray, 
+                      step_size: float = 5.0, max_radius: Optional[float] = None) -> Dict[str, Any]:
     """
-    Perform Sholl analysis on the skeleton.
-    Returns the number of intersections at the most populated radius bin (or total intersections).
-    For this task, we return a single representative metric: total intersections across all radii.
+    Perform Sholl analysis on the skeletonized image.
+    
+    Args:
+        image: Preprocessed 2D image.
+        skeleton: Skeletonized image.
+        step_size: Radius step size for Sholl circles.
+        max_radius: Maximum radius to consider. If None, uses half the image diagonal.
+    
+    Returns:
+        Dictionary containing Sholl intersections data.
     """
     if handle_empty_fields(image):
-        return 0
+        return {"intersections": [], "radii": []}
     
-    if not np.any(skeleton):
-        return 0
+    # Find centroid of the skeleton (approximate soma center)
+    coords = np.column_stack(np.where(skeleton))
+    if len(coords) == 0:
+        return {"intersections": [], "radii": []}
     
-    # Find center of mass of the skeleton (approximate soma center)
-    y_coords, x_coords = np.where(skeleton > 0)
-    if len(x_coords) == 0:
-        return 0
-    
-    center_x = np.mean(x_coords)
-    center_y = np.mean(y_coords)
-    
-    # Calculate distances
-    dist_map = np.sqrt((np.arange(image.shape[0])[:, None] - center_y)**2 + 
-                       (np.arange(image.shape[1])[None, :] - center_x)**2)
+    center = np.mean(coords, axis=0)
     
     if max_radius is None:
-        max_radius = np.max(dist_map)
+        h, w = image.shape
+        max_radius = np.sqrt((h/2)**2 + (w/2)**2)
     
-    # Create bins
     radii = np.arange(0, max_radius, step_size)
-    intersections = 0
-    
-    # Count intersections for each ring
-    # A simple approximation: count skeleton pixels that fall into each bin?
-    # True Sholl counts crossings of a circle. 
-    # We will approximate by counting skeleton pixels in annular bins as a proxy for complexity.
-    # Or, iterate radii and count skeleton pixels at that distance.
-    
-    # More accurate Sholl: Count transitions from inside to outside for each radius.
-    # Given constraints, we will count the number of skeleton pixels in each bin and sum them?
-    # No, Sholl is intersections.
-    
-    # Let's do a simplified version: Count skeleton pixels in each annulus.
-    # This is not strictly Sholl intersections but correlates with complexity.
-    # To be strictly compliant with "Sholl analysis", we need intersections.
-    # We will implement a basic intersection counter.
+    intersections = []
     
     for r in radii:
-        # Create a mask for the current radius ring
-        # We look for pixels where distance is close to r
-        # This is computationally expensive for large images, but necessary for accuracy.
-        # Instead, we can use the distance map.
-        # Count how many skeleton pixels are at distance r (within tolerance)
-        # This is not intersections.
+        # Create a circle mask
+        y, x = np.ogrid[:image.shape[0], :image.shape[1]]
+        dist_from_center = np.sqrt((x - center[1])**2 + (y - center[0])**2)
+        circle_mask = (dist_from_center <= r) & (dist_from_center > r - step_size)
         
-        # Let's count intersections with the circle of radius r
-        # We can check the distance map values at skeleton locations
-        skeleton_distances = dist_map[skeleton > 0]
-        # Count how many are within [r, r+step_size)
-        count = np.sum((skeleton_distances >= r) & (skeleton_distances < r + step_size))
-        intersections += count
+        # Count intersections (pixels in skeleton within the annulus)
+        intersection_count = np.sum(skeleton & circle_mask)
+        intersections.append(int(intersection_count))
     
-    return int(intersections)
+    return {"intersections": intersections, "radii": radii.tolist()}
 
-def process_microglia_image(image: np.ndarray, metadata: Optional[Dict[str, Any]] = None, 
-                            sholl_step: float = 5.0) -> Dict[str, Any]:
+def process_microglia_image(image: np.ndarray, metadata: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Full pipeline for a single image: denoise, skeletonize, extract metrics.
+    Full pipeline to process a single microglia image.
+    
+    Args:
+        image: Raw image array.
+        metadata: Dictionary with image metadata.
+    
+    Returns:
+        Dictionary with extracted metrics or None if image is empty.
     """
-    # Check for empty field of view first
+    # Check for empty field
     if handle_empty_fields(image, metadata):
-        return {
-            "branch_points": 0,
-            "total_length": 0.0,
-            "soma_area": 0.0,
-            "sholl_intersections": 0,
-            "skipped": True,
-            "filename": metadata.get('filename', 'Unknown') if metadata else 'Unknown'
-        }
+        return None
     
-    # 1. Denoise and subtract background
-    processed_image = denoise_and_subtract(image)
+    # Denoise and subtract background
+    processed = denoise_and_subtract(image)
     
-    # 2. Skeletonize and count branch points
-    branch_points, skeleton = skeletonize_and_count(processed_image)
+    # Skeletonize and count branch points
+    branch_points, skeleton = skeletonize_and_count(processed)
     
-    # 3. Calculate soma area and length
-    soma_area, total_length = calculate_soma_area_and_length(processed_image, skeleton)
+    # Calculate soma area and length
+    soma_area, total_length = calculate_soma_area_and_length(processed, skeleton)
     
-    # 4. Run Sholl analysis
-    sholl_intersections = run_sholl_analysis(processed_image, skeleton, step_size=sholl_step)
+    # Run Sholl analysis
+    sholl_data = run_sholl_analysis(processed, skeleton)
+    
+    # Aggregate Sholl intersections (e.g., total or max)
+    # For simplicity, using the sum of intersections as the metric
+    sholl_intersections = sum(sholl_data["intersections"])
     
     return {
         "branch_points": branch_points,
         "total_length": total_length,
         "soma_area": soma_area,
         "sholl_intersections": sholl_intersections,
-        "skipped": False,
-        "filename": metadata.get('filename', 'Unknown') if metadata else 'Unknown'
+        "metadata": metadata
     }
+
+# Import opening from skimage if not already available
+from skimage.morphology import opening

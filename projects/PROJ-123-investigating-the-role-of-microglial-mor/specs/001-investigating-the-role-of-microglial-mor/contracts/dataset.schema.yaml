@@ -5,6 +5,8 @@ description: |
   Defines the structure for microglial cell measurements tagged by brain region
   and pathology status.
   This schema strictly adheres to FR-003, excluding 'fractal_dimension' and 'complexity_index'.
+  It defines the operational definition of morphological complexity as the vector of
+  [branch_points, total_length, soma_area, sholl_intersections].
 type: object
 required:
   - brain_region

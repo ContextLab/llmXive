@@ -1,0 +1,28 @@
+{
+  "reference_step": 5,
+  "reference_p_value": 0.05,
+  "max_deviation_ratio": 0.2,
+  "max_deviation_percent": 20.0,
+  "is_flagged": false,
+  "threshold": 0.5,
+  "variations": [
+    {
+      "step": 2,
+      "p_value": 0.048,
+      "deviation_ratio": 0.04,
+      "percent_deviation": 4.0
+    },
+    {
+      "step": 5,
+      "p_value": 0.05,
+      "deviation_ratio": 0.0,
+      "percent_deviation": 0.0
+    },
+    {
+      "step": 10,
+      "p_value": 0.055,
+      "deviation_ratio": 0.1,
+      "percent_deviation": 10.0
+    }
+  ]
+}

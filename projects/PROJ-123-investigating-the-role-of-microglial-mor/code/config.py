@@ -34,6 +34,27 @@ DEFAULT_CONFIG = {
 
 CONFIG: Dict[str, Any] = {}
 
+# T004: Explicit constants for paths, seeds, and CPU-only execution
+# These are defined at module level for immediate access by other modules
+DATA_ROOT = Path(os.getcwd()) / DEFAULT_CONFIG["paths"]["data_root"]
+MODEL_ROOT = Path(os.getcwd()) / DEFAULT_CONFIG["paths"]["model_root"]
+SEED = DEFAULT_CONFIG["seed"]
+CPU_ONLY = DEFAULT_CONFIG["cpu_only"]
+
+# T004: Statistical thresholds
+VIF_THRESHOLD = 5.0
+SENSITIVITY_THRESHOLD = 0.05
+
+# T004: Approved morphology metrics list (FR-003)
+# This list defines the operational definition of morphological complexity
+# used throughout the pipeline (T013-T016).
+MORPHOLOGY_METRICS = [
+    "branch_points",
+    "total_length",
+    "soma_area",
+    "sholl_intersections"
+]
+
 def get_project_root() -> Path:
     """Get the project root directory."""
     return _PROJECT_ROOT
@@ -106,12 +127,6 @@ def get_analysis_config() -> Dict[str, Any]:
 def get_data_paths() -> Dict[str, str]:
     """Get data directory paths."""
     return DEFAULT_CONFIG.get("paths", {})
-
-# T004: Explicit constants for paths, seeds, and CPU-only execution
-DATA_ROOT = get_path(DEFAULT_CONFIG["paths"]["data_root"])
-MODEL_ROOT = get_path(DEFAULT_CONFIG["paths"]["model_root"])
-SEED = DEFAULT_CONFIG["seed"]
-CPU_ONLY = DEFAULT_CONFIG["cpu_only"]
 
 # Ensure required directories exist on import (idempotent)
 ensure_dirs(

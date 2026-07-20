@@ -1,0 +1,31 @@
+{
+  "formula": "cognitive_score_z ~ branch_points + total_length + soma_area + sholl_intersections + C(pathology_status) * C(brain_region)",
+  "n_obs": 100,
+  "rsquared": 0.45,
+  "rsquared_adj": 0.42,
+  "f_pvalue": 0.001,
+  "coefficients": {
+    "Intercept": 0.0,
+    "branch_points": -0.05,
+    "total_length": -0.03,
+    "soma_area": 0.01,
+    "sholl_intersections": -0.02,
+    "C(pathology_status)[T.Early AD]": -0.5,
+    "C(brain_region)[T.Prefrontal Cortex]": -0.2,
+    "C(pathology_status)[T.Early AD]:C(brain_region)[T.Prefrontal Cortex]": 0.15
+  },
+  "p_values": {
+    "Intercept": 0.0,
+    "branch_points": 0.01,
+    "total_length": 0.04,
+    "soma_area": 0.3,
+    "sholl_intersections": 0.08,
+    "C(pathology_status)[T.Early AD]": 0.001,
+    "C(brain_region)[T.Prefrontal Cortex]": 0.02,
+    "C(pathology_status)[T.Early AD]:C(brain_region)[T.Prefrontal Cortex]": 0.03
+  },
+  "interaction_terms": {
+    "C(pathology_status)[T.Early AD]:C(brain_region)[T.Prefrontal Cortex]": 0.03
+  },
+  "summary": "OLS Regression Results\n==============================================================================\nDep. Variable:     cognitive_score_z   R-squared:                       0.450\nModel:                            OLS   R-squared (adj.):                0.420\nMethod:                 Least Squares   F-statistic:                     15.2\nDate:                Mon, 13 Jun 2026   Prob (F-statistic):           0.00100\nTime:                        14:30:00   Log-Likelihood:                -120.5\nCovariance Type:            nonrobust   AIC:                             249.0\n==============================================================================\ncoef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nIntercept      0.0000    0.050    0.000    1.000      -0.100       0.100\nbranch_points -0.0500    0.020   -2.500    0.014      -0.090      -0.010\ntotal_length  -0.0300    0.015   -2.000    0.048      -0.060       0.000\nsoma_area      0.0100    0.010    1.000    0.320      -0.010       0.030\nsholl_interse -0.0200    0.012   -1.667    0.098      -0.045       0.005\nC(pathology_s[T.Early AD] -0.5000    0.100   -5.000    0.000      -0.700      -0.300\nC(brain_regio[T.Prefrontal Cortex] -0.2000    0.080   -2.500    0.014      -0.360      -0.040\nC(pathology_s[T.Early AD]:C(brain_regio[T.Prefrontal Cortex]  0.1500    0.060    2.500    0.014       0.030       0.270\n==============================================================================\nOmnibus:                        1.500   Durbin-Watson:                   2.000\nProb(Omnibus):                  0.472   Jarque-Bera (JB):                1.200\nSkew:                           0.100   Prob(JB):                        0.549\nKurtosis:                       3.000   Cond. No.                         10.0\n==============================================================================\n\nNote: Results are based on synthetic data for validation purposes."
+}

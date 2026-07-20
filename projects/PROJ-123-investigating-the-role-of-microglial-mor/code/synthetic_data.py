@@ -1,251 +1,221 @@
 """
-Synthetic Data Generator for Microglial Morphology Pipeline.
+Synthetic data generator for pipeline validation (Task T007).
 
-Generates synthetic microglial cell data conforming to the dataset schema
-defined in T006a. This data is used for pipeline validation and logic testing
-where real data is unavailable or for initial regression logic checks.
+Generates synthetic microglial morphology data conforming to the schema defined in T006a.
+This data is used strictly for unit tests (T010) and logic validation (T010, T011).
+It does NOT feed the main regression pipeline which requires real data (T012a).
 
-Constraints:
-- Generates data for 'Hippocampus' and 'Prefrontal Cortex'.
-- Generates data for 'Normal' and 'Early AD' pathology status.
-- Metrics: branch_points, total_length, soma_area, sholl_intersections.
-- Includes cognitive_score (mwm_latency).
-- Does NOT include 'fractal_dimension' or 'complexity_index'.
+Schema Compliance (T006a):
+- brain_region: Enum ['Hippocampus', 'Prefrontal Cortex']
+- pathology_status: Enum ['Normal', 'Early AD']
+- morphological_metrics: branch_points, total_length, soma_area, sholl_intersections
+- cognitive_score: mwm_latency
 """
-
 import os
 import json
 import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
-import pandas as pd
 
 from code.config import get_path, ensure_dirs, set_seed, get_project_root
+from code.logging_utils import get_logger
 
+logger = get_logger(__name__)
+
+# Constants for synthetic generation
+BRAIN_REGIONS = ['Hippocampus', 'Prefrontal Cortex']
+PATHOLOGY_STATUSES = ['Normal', 'Early AD']
+METRICS_COLUMNS = ['branch_points', 'total_length', 'soma_area', 'sholl_intersections']
+COGNITIVE_SCORE_COL = 'mwm_latency'
 
 def set_seed(seed: int = 42) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
 
-
 def generate_microglia_cell(
     brain_region: str,
     pathology_status: str,
-    seed: Optional[int] = None
+    seed_offset: int = 0
 ) -> Dict[str, Any]:
     """
-    Generate a single synthetic microglia cell record.
+    Generate a single synthetic microglial cell record.
+
+    Logic:
+    - 'Early AD' in 'Hippocampus' typically shows simplified morphology (fewer branches, shorter length).
+    - 'Normal' shows more complex morphology.
+    - 'Prefrontal Cortex' has slightly different baseline values than 'Hippocampus'.
+    - Cognitive score (mwm_latency) correlates inversely with complexity in AD.
 
     Args:
-        brain_region: 'Hippocampus' or 'Prefrontal Cortex'.
-        pathology_status: 'Normal' or 'Early AD'.
-        seed: Optional seed for this specific cell (for reproducibility).
+        brain_region: 'Hippocampus' or 'Prefrontal Cortex'
+        pathology_status: 'Normal' or 'Early AD'
+        seed_offset: Offset for random variation to ensure unique rows
 
     Returns:
-        Dictionary containing synthetic morphological metrics and metadata.
+        Dictionary with morphology metrics and metadata.
     """
-    if seed is not None:
-        local_rng = np.random.default_rng(seed)
+    # Base parameters
+    base_branches = 8 if brain_region == 'Hippocampus' else 10
+    base_length = 150.0 if brain_region == 'Hippocampus' else 180.0
+    base_soma = 40.0
+    base_sholl = 12 if brain_region == 'Hippocampus' else 15
+    base_latency = 20.0  # seconds
+
+    # Pathology modifier
+    if pathology_status == 'Early AD':
+        # Simplification: fewer branches, shorter processes
+        branch_modifier = -0.4
+        length_modifier = -0.3
+        soma_modifier = 0.1  # slight swelling
+        sholl_modifier = -0.3
+        latency_modifier = 0.6  # worse performance (higher latency)
     else:
-        local_rng = np.random.default_rng()
+        branch_modifier = 0.0
+        length_modifier = 0.0
+        soma_modifier = 0.0
+        sholl_modifier = 0.0
+        latency_modifier = 0.0
 
-    # Base parameters (approximate biological ranges in microns)
-    # Hippocampus tends to have slightly different morphology than PFC
-    region_bias = 1.0
-    if brain_region == "Hippocampus":
-        region_bias = 1.1
-    elif brain_region == "Prefrontal Cortex":
-        region_bias = 0.95
+    # Region modifier (Prefrontal Cortex generally larger/more complex)
+    region_branch_modifier = 0.0 if brain_region == 'Hippocampus' else 0.2
+    region_length_modifier = 0.0 if brain_region == 'Hippocampus' else 0.15
 
-    # Pathology effect: AD typically shows dystrophy (reduced complexity)
-    # Normal: higher branch points, longer processes
-    # Early AD: lower branch points, shorter processes, sometimes larger soma
-    pathology_factor = 1.0
-    if pathology_status == "Normal":
-        pathology_factor = 1.2
-    elif pathology_status == "Early AD":
-        pathology_factor = 0.7
+    # Apply modifiers with noise
+    noise_scale = 0.15
+    branch_points = max(1, int((base_branches * (1 + branch_modifier + region_branch_modifier)) * (1 + np.random.normal(0, noise_scale) + seed_offset * 0.001)))
+    total_length = max(10.0, base_length * (1 + length_modifier + region_length_modifier) * (1 + np.random.normal(0, noise_scale) + seed_offset * 0.001))
+    soma_area = max(10.0, base_soma * (1 + soma_modifier) * (1 + np.random.normal(0, noise_scale) + seed_offset * 0.001))
+    sholl_intersections = max(1, int((base_sholl * (1 + sholl_modifier)) * (1 + np.random.normal(0, noise_scale) + seed_offset * 0.001)))
 
-    # Generate Morphological Metrics
-    # Branch Points: Typically 10-40 for microglia
-    base_branch_points = 25.0
-    branch_points = int(np.clip(
-        local_rng.normal(base_branch_points * region_bias * pathology_factor, 5.0),
-        5, 60
-    ))
-
-    # Total Length (microns): Typically 100-500
-    base_total_length = 300.0
-    total_length = float(np.clip(
-        local_rng.normal(base_total_length * region_bias * pathology_factor, 50.0),
-        50, 800
-    ))
-
-    # Soma Area (microns^2): Typically 50-200
-    # Dystrophic (AD) cells often have hypertrophied (larger) somas
-    soma_factor = 1.0
-    if pathology_status == "Early AD":
-        soma_factor = 1.4 # Hypertrophy
-    base_soma_area = 100.0
-    soma_area = float(np.clip(
-        local_rng.normal(base_soma_area * region_bias * soma_factor, 20.0),
-        30, 400
-    ))
-
-    # Sholl Intersections: Count at a specific radius (e.g., 20um)
-    # Correlates with branch points but distinct metric
-    base_sholl = 15.0
-    sholl_intersections = int(np.clip(
-        local_rng.normal(base_sholl * region_bias * pathology_factor, 3.0),
-        2, 40
-    ))
-
-    # Cognitive Score (mwm_latency in seconds):
-    # Normal: Lower latency (better performance, e.g., 20-40s)
-    # Early AD: Higher latency (worse performance, e.g., 60-120s)
-    # Correlate with pathology_status
-    if pathology_status == "Normal":
-        cognitive_score = float(np.clip(
-            local_rng.normal(30.0, 8.0),
-            10, 60
-        ))
-    else:
-        cognitive_score = float(np.clip(
-            local_rng.normal(90.0, 20.0),
-            40, 180
-        ))
+    # Cognitive score: Higher latency = worse performance
+    # Normal: ~20s, AD: ~35s
+    cognitive_score = base_latency * (1 + latency_modifier) * (1 + np.random.normal(0, 0.1))
+    cognitive_score = max(5.0, cognitive_score)
 
     return {
-        "subject_id": f"SUBJ-{random.randint(1000, 9999)}-{random.randint(1, 100)}",
-        "brain_region": brain_region,
-        "pathology_status": pathology_status,
-        "morphological_metrics": {
-            "branch_points": branch_points,
-            "total_length": round(total_length, 2),
-            "soma_area": round(soma_area, 2),
-            "sholl_intersections": sholl_intersections
-        },
-        "cognitive_score": round(cognitive_score, 2),
-        "metadata": {
-            "generated_by": "synthetic_data.py",
-            "version": "1.0",
-            "seed": seed
-        }
+        'brain_region': brain_region,
+        'pathology_status': pathology_status,
+        'branch_points': branch_points,
+        'total_length': round(total_length, 2),
+        'soma_area': round(soma_area, 2),
+        'sholl_intersections': sholl_intersections,
+        'mwm_latency': round(cognitive_score, 2),
+        'cell_id': f"cell_{brain_region}_{pathology_status}_{seed_offset}"
     }
-
 
 def generate_ground_truth_metrics(
     n_cells: int = 100,
-    seed: Optional[int] = None
+    seed: int = 42
 ) -> List[Dict[str, Any]]:
     """
-    Generate a list of synthetic microglia cells representing ground truth.
+    Generate a balanced synthetic dataset for validation.
 
     Args:
-        n_cells: Number of cells to generate.
-        seed: Random seed for reproducibility.
+        n_cells: Total number of cells to generate
+        seed: Random seed
 
     Returns:
-        List of dictionaries, each representing a cell record.
+        List of dictionaries representing cell records.
     """
-    if seed is not None:
-        set_seed(seed)
+    set_seed(seed)
+    data = []
+    n_per_group = n_cells // 4
 
-    regions = ["Hippocampus", "Prefrontal Cortex"]
-    statuses = ["Normal", "Early AD"]
+    # Generate balanced groups
+    groups = [
+        ('Hippocampus', 'Normal'),
+        ('Hippocampus', 'Early AD'),
+        ('Prefrontal Cortex', 'Normal'),
+        ('Prefrontal Cortex', 'Early AD')
+    ]
 
-    cells = []
-    for i in range(n_cells):
-        # Ensure balanced distribution for testing
-        region = regions[i % 2]
-        status = statuses[(i // 2) % 2]
+    for group_idx, (region, status) in enumerate(groups):
+        for i in range(n_per_group):
+            cell = generate_microglia_cell(region, status, seed_offset=group_idx * 1000 + i)
+            data.append(cell)
 
-        # Add some randomness to the assignment to avoid perfect alternation
-        if random.random() > 0.5:
-            region = random.choice(regions)
-        if random.random() > 0.5:
-            status = random.choice(statuses)
+    # Add a few extra random samples to reach n_cells if not divisible
+    remaining = n_cells - len(data)
+    for i in range(remaining):
+        region = random.choice(BRAIN_REGIONS)
+        status = random.choice(PATHOLOGY_STATUSES)
+        cell = generate_microglia_cell(region, status, seed_offset=10000 + i)
+        data.append(cell)
 
-        cell = generate_microglia_cell(region, status, seed=i)
-        cells.append(cell)
-
-    return cells
-
+    return data
 
 def generate_synthetic_dataset(
     output_path: Optional[str] = None,
-    n_cells: int = 200,
+    n_cells: int = 100,
     seed: int = 42
 ) -> str:
     """
-    Generate the full synthetic dataset and save it to disk.
-
-    This function creates a CSV file conforming to the schema in T006a.
-    It also saves the raw JSON ground truth for reference.
+    Generate synthetic dataset and save to CSV.
 
     Args:
-        output_path: Optional path to save the CSV. Defaults to data/processed/synthetic_morphology.csv.
-        n_cells: Number of cells to generate.
-        seed: Random seed.
+        output_path: Path to save CSV. If None, uses default path from config.
+        n_cells: Number of cells to generate
+        seed: Random seed
 
     Returns:
         Path to the generated CSV file.
     """
-    set_seed(seed)
-
-    # Generate data
-    raw_data = generate_ground_truth_metrics(n_cells=n_cells, seed=seed)
-
-    # Flatten for CSV
-    rows = []
-    for cell in raw_data:
-        metrics = cell["morphological_metrics"]
-        rows.append({
-            "subject_id": cell["subject_id"],
-            "brain_region": cell["brain_region"],
-            "pathology_status": cell["pathology_status"],
-            "branch_points": metrics["branch_points"],
-            "total_length": metrics["total_length"],
-            "soma_area": metrics["soma_area"],
-            "sholl_intersections": metrics["sholl_intersections"],
-            "cognitive_score": cell["cognitive_score"]
-        })
-
-    df = pd.DataFrame(rows)
-
-    # Ensure output directory exists
     if output_path is None:
-        output_path = get_path("data_processed", "synthetic_morphology.csv")
+        output_path = get_path('data/processed/synthetic_morphological_metrics.csv')
 
-    output_dir = os.path.dirname(output_path)
-    ensure_dirs(output_dir)
+    output_path = Path(output_path)
+    ensure_dirs(output_path)
 
-    # Save CSV
+    data = generate_ground_truth_metrics(n_cells=n_cells, seed=seed)
+
+    import pandas as pd
+    df = pd.DataFrame(data)
+
+    # Ensure column order matches schema expectations
+    expected_cols = ['cell_id', 'brain_region', 'pathology_status'] + METRICS_COLUMNS + [COGNITIVE_SCORE_COL]
+    # Reorder if necessary, but ensure all exist
+    final_cols = [c for c in expected_cols if c in df.columns]
+    # Add any missing columns (shouldn't happen with current logic)
+    for c in df.columns:
+        if c not in final_cols:
+            final_cols.append(c)
+
+    df = df[final_cols]
     df.to_csv(output_path, index=False)
+    logger.info(f"Generated synthetic dataset with {len(df)} rows at {output_path}")
 
-    # Save JSON ground truth for debugging/validation
-    json_path = output_path.replace(".csv", "_ground_truth.json")
-    with open(json_path, "w") as f:
-        json.dump(raw_data, f, indent=2)
+    return str(output_path)
 
-    return output_path
-
-
-def run_synthetic_pipeline() -> str:
+def run_synthetic_pipeline(
+    n_cells: int = 100,
+    seed: int = 42
+) -> str:
     """
-    Entry point to run the synthetic data generation pipeline.
-    Used by T007 to produce the validation dataset.
+    Run the full synthetic data generation pipeline.
+
+    This function is the entry point for T012b (synthetic ingestion path).
+
+    Args:
+        n_cells: Number of cells to generate
+        seed: Random seed
 
     Returns:
-        Path to the generated CSV.
+        Path to the generated CSV file.
     """
-    print("Generating synthetic microglial morphology dataset...")
-    output_path = generate_synthetic_dataset(n_cells=500, seed=42)
-    print(f"Synthetic dataset generated at: {output_path}")
+    logger.info("Starting synthetic data generation pipeline...")
+    output_path = generate_synthetic_dataset(n_cells=n_cells, seed=seed)
+    logger.info("Synthetic data generation complete.")
     return output_path
 
-
 if __name__ == "__main__":
-    run_synthetic_pipeline()
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate synthetic microglial morphology data")
+    parser.add_argument("--n-cells", type=int, default=100, help="Number of cells to generate")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default=None, help="Output CSV path")
+    args = parser.parse_args()
+
+    path = run_synthetic_pipeline(n_cells=args.n_cells, seed=args.seed)
+    print(f"Generated: {path}")
