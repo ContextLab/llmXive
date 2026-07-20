@@ -5,7 +5,6 @@ shap
 pandas
 pyyaml
 datasets
-pytest
 numpy
+pytest
 matplotlib
-seaborn

@@ -15,27 +15,31 @@ logger = get_logger(__name__)
 
 def calculate_steric_index(smiles: str) -> float:
     """
-    Calculate steric hindrance index using RDKit descriptors.
-    Formula: (NumRotatableBonds + MolMR) / MolecularWeight
+    Calculate steric hindrance proxy using RDKit descriptors.
+    Formula: NumRotatableBonds + CalcCrippenDescriptors[0] (LogP)
     Returns a high value (999.0) if molecule is invalid.
+    
+    This proxy is defined by the project to replace the undefined 
+    'steric hindrance index' in the spec Edge Cases.
     """
     try:
         from rdkit import Chem
-        from rdkit.Chem import Descriptors, rdMolDescriptors
+        from rdkit.Chem import rdMolDescriptors, Crippen
 
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return 999.0
 
+        # Calculate number of rotatable bonds
         rotatable = rdMolDescriptors.CalcNumRotatableBonds(mol)
-        mr = Descriptors.CalcMolMR(mol)
-        mw = Descriptors.MolWt(mol)
+        
+        # Calculate Crippen descriptors (LogP, MR)
+        # CalcCrippenDescriptors returns (LogP, MR)
+        logp = Crippen.CalcCrippenDescriptors(mol)[0]
 
-        if mw <= 0:
-            return 999.0
-
-        steric_hindrance_index = (rotatable + mr) / mw
-        return steric_hindrance_index
+        # Composite proxy: both are dimensionless (count + logP)
+        steric_hindrance_proxy = rotatable + logp
+        return steric_hindrance_proxy
     except Exception as e:
         logger.warning(f"Error calculating steric index for {smiles}: {e}")
         return 999.0
@@ -68,8 +72,12 @@ def clean_and_filter_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str
     Clean SMILES, canonicalize, and filter rows based on:
     1. Invalid SMILES (parsing error)
     2. Explicitly 'primary' substrate class
-    3. Steric hindrance index > 2.0
-
+    3. Steric hindrance proxy > 2.0
+    
+    Filtering Rule from T012:
+    - Calculate steric_hindrance_proxy = CalcNumRotatableBonds + CalcCrippenDescriptors[0] (LogP)
+    - Filter row if steric_hindrance_proxy > 2.0 OR if substrate class is explicitly 'primary'
+    
     Returns a tuple of (cleaned_dataframe, list_of_exclusion_dicts).
     """
     exclusions = []
@@ -84,7 +92,7 @@ def clean_and_filter_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str
         if canonical is None:
             exclusions.append({
                 'row_index': int(idx),
-                'reason': 'parsing_error',
+                'reason': 'canonicalization_error',
                 'original_smiles': original_smiles
             })
             continue
@@ -93,17 +101,17 @@ def clean_and_filter_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str
         if is_primary_substrate(substrate_class):
             exclusions.append({
                 'row_index': int(idx),
-                'reason': 'invalid_substrate',
+                'reason': 'primary_substrate',
                 'original_smiles': original_smiles
             })
             continue
 
-        # 3. Filter by steric hindrance index
-        steric_index = calculate_steric_index(canonical)
-        if steric_index > 2.0:
+        # 3. Filter by steric hindrance proxy
+        steric_proxy = calculate_steric_index(canonical)
+        if steric_proxy > 2.0:
             exclusions.append({
                 'row_index': int(idx),
-                'reason': 'invalid_substrate', # Per task spec, steric filter is part of substrate validity
+                'reason': 'high_steric_hindrance',
                 'original_smiles': original_smiles
             })
             continue

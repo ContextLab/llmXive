@@ -1,70 +1,103 @@
-import json
-import os
 import pytest
+import json
+import yaml
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Import the module under test
+from models.save_artifacts import (
+    load_best_training_result,
+    validate_metrics_against_schema,
+    load_schema,
+    save_metrics
+)
 
-from models.save_artifacts import load_best_training_result, validate_metrics_against_schema, save_metrics
+@pytest.fixture
+def temp_dirs():
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        results_dir = tmp_path / "results"
+        artifacts_dir = tmp_path / "artifacts"
+        contracts_dir = tmp_path / "contracts"
+        
+        results_dir.mkdir()
+        artifacts_dir.mkdir()
+        contracts_dir.mkdir()
+        
+        yield {
+            "results": results_dir,
+            "artifacts": artifacts_dir,
+            "contracts": contracts_dir
+        }
 
-def test_load_best_training_result():
-    """Test loading the best training result from a JSON file."""
-    # Create a temporary results file
-    results_data = [
-        {"val_r2": 0.5, "val_mae": 0.2, "config": {"lr": 0.01}},
-        {"val_r2": 0.8, "val_mae": 0.1, "config": {"lr": 0.001}}
-    ]
-    results_path = Path("test_results.json")
-    with open(results_path, 'w') as f:
-        json.dump(results_data, f)
-
-    result = load_best_training_result(results_path)
-    assert result is not None
-    assert result['val_r2'] == 0.8
-    assert result['config']['lr'] == 0.001
-
-    # Clean up
-    os.remove(results_path)
-
-def test_validate_metrics_against_schema():
-    """Test validation of metrics against schema."""
-    valid_metrics = {
-        "model_id": "test_model",
-        "hyperparameters": {"lr": 0.01},
-        "metrics": {"r2": 0.9, "mae": 0.1},
-        "weights_path": "artifacts/best_model.pt"
+def test_validate_metrics_against_schema_valid(temp_dirs):
+    # Create a mock schema
+    schema_content = {
+        "required": ["model_id", "hyperparameters", "metrics", "weights_path"],
+        "properties": {
+            "metrics": {
+                "required": ["r2", "mae"]
+            }
+        }
     }
-    assert validate_metrics_against_schema(valid_metrics) is True
-
-    invalid_metrics = {
-        "model_id": "test_model",
-        "hyperparameters": {"lr": 0.01},
-        "metrics": {"r2": 0.9},  # Missing 'mae'
-        "weights_path": "artifacts/best_model.pt"
-    }
-    assert validate_metrics_against_schema(invalid_metrics) is False
-
-    invalid_metrics = {
-        "model_id": "test_model",
-        "hyperparameters": {"lr": 0.01},
-        "metrics": {"r2": 0.9, "mae": 0.1},
-        # Missing 'weights_path'
-    }
-    assert validate_metrics_against_schema(invalid_metrics) is False
-
-def test_save_metrics():
-    """Test saving metrics to a JSON file."""
+    
     metrics = {
-        "model_id": "test_model",
+        "model_id": "test-123",
         "hyperparameters": {"lr": 0.01},
-        "metrics": {"r2": 0.9, "mae": 0.1},
-        "weights_path": "artifacts/best_model.pt"
+        "metrics": {"r2": 0.95, "mae": 0.1},
+        "weights_path": "path/to/model.pt"
     }
-    output_path = Path("test_metrics.json")
-    assert save_metrics(metrics, output_path) is True
-    assert output_path.exists()
+    
+    assert validate_metrics_against_schema(metrics, schema_content) is True
 
-    # Clean up
-    os.remove(output_path)
+def test_validate_metrics_against_schema_missing_key(temp_dirs):
+    schema_content = {"required": ["model_id"]}
+    metrics = {
+        "hyperparameters": {},
+        "metrics": {"r2": 0.95, "mae": 0.1},
+        "weights_path": "path.pt"
+    }
+    
+    assert validate_metrics_against_schema(metrics, schema_content) is False
+
+def test_validate_metrics_against_schema_missing_nested_metric(temp_dirs):
+    schema_content = {"required": ["metrics"]}
+    metrics = {
+        "model_id": "test",
+        "hyperparameters": {},
+        "metrics": {"r2": 0.95}, # Missing mae
+        "weights_path": "path.pt"
+    }
+    
+    assert validate_metrics_against_schema(metrics, schema_content) is False
+
+def test_load_schema(temp_dirs):
+    schema_file = temp_dirs["contracts"] / "test_schema.yaml"
+    schema_data = {"test": "value"}
+    with open(schema_file, 'w') as f:
+        yaml.dump(schema_data, f)
+    
+    loaded = load_schema(schema_file)
+    assert loaded == schema_data
+
+def test_load_schema_not_found(temp_dirs):
+    with pytest.raises(FileNotFoundError):
+        load_schema(temp_dirs["contracts"] / "nonexistent.yaml")
+
+def test_save_metrics(temp_dirs):
+    metrics = {
+        "model_id": "test",
+        "hyperparameters": {},
+        "metrics": {"r2": 0.9, "mae": 0.1},
+        "weights_path": "path.pt"
+    }
+    out_path = temp_dirs["artifacts"] / "test_metrics.json"
+    
+    save_metrics(metrics, out_path)
+    
+    assert out_path.exists()
+    with open(out_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == metrics

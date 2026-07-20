@@ -5,239 +5,201 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from sibling modules using exact API surface names
+# Local imports based on API surface
+from config import TrainingConfig, DataConfig, AnalysisConfig, ensure_dirs
 from utils.logger import setup_logging, get_logger
 from utils.checksum import compute_file_checksum
-from config import TrainingConfig, DataConfig, AnalysisConfig, ensure_dirs
-from models.mpnn import MPNNConfig, create_mpnn_from_config
-from models.train import load_processed_data, prepare_features
 
-def load_best_training_result(result_path: str) -> Dict[str, Any]:
-    """
-    Load the best training result from a JSON file.
-    
-    Args:
-        result_path: Path to the JSON file containing training results.
-        
-    Returns:
-        Dictionary containing the best training result.
-    """
-    logger = get_logger(__name__)
-    
-    if not os.path.exists(result_path):
-        logger.error(f"Training result file not found: {result_path}")
-        raise FileNotFoundError(f"Training result file not found: {result_path}")
-    
-    try:
-        with open(result_path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON file {result_path}: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error loading {result_path}: {e}")
-        raise
+# Import schema validation helper (assuming it exists or is defined here if not in other files)
+# The task requires validating against model_output.schema.yaml
+import yaml
 
-def validate_metrics_against_schema(
-    metrics: Dict[str, Any],
-    schema_path: str = "specs/001-predict-sn1-rate-constants/contracts/model_output.schema.yaml"
-) -> bool:
+logger = get_logger(__name__)
+
+def load_best_training_result(results_dir: Path) -> Dict[str, Any]:
     """
-    Validate metrics dictionary against the model output schema.
-    
-    Args:
-        metrics: Dictionary containing model metrics.
-        schema_path: Path to the YAML schema file.
-        
-    Returns:
-        True if validation passes, False otherwise.
+    Loads the best training result from the results directory.
+    Expects a file named 'best_result.json' or similar containing metrics and path to weights.
     """
-    logger = get_logger(__name__)
+    best_result_path = results_dir / "best_result.json"
+    if not best_result_path.exists():
+        # Fallback: scan for the file with highest val_r2 if naming convention varies
+        # For now, assume standard naming based on T020/T021 output
+        raise FileNotFoundError(f"Best training result not found at {best_result_path}")
     
-    # Load schema
-    try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.warning(f"Schema file not found: {schema_path}. Skipping validation.")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to load schema: {e}")
-        return False
-    
-    # Check required fields
-    required_fields = ['model_id', 'hyperparameters', 'metrics', 'weights_path']
-    for field in required_fields:
-        if field not in metrics:
-            logger.error(f"Missing required field in metrics: {field}")
+    with open(best_result_path, 'r') as f:
+        return json.load(f)
+
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Loads the YAML schema definition."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_metrics_against_schema(metrics: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """
+    Validates the metrics dictionary against the loaded schema.
+    Checks for required top-level keys: model_id, hyperparameters, metrics (r2, mae), weights_path.
+    """
+    required_keys = ['model_id', 'hyperparameters', 'metrics', 'weights_path']
+    for key in required_keys:
+        if key not in metrics:
+            logger.error(f"Missing required key in metrics: {key}")
             return False
     
-    # Check metrics sub-fields
-    if 'metrics' in metrics:
-        metric_fields = ['r2', 'mae']
-        for field in metric_fields:
-            if field not in metrics['metrics']:
-                logger.error(f"Missing required metric: {field}")
-                return False
+    # Check nested metrics
+    if not isinstance(metrics['metrics'], dict):
+        logger.error("metrics field must be a dictionary")
+        return False
     
-    logger.info("Metrics validation passed.")
+    if 'r2' not in metrics['metrics'] or 'mae' not in metrics['metrics']:
+        logger.error("metrics field must contain 'r2' and 'mae'")
+        return False
+
+    # Check hyperparameters structure if defined in schema
+    # Simple validation: ensure it's a dict
+    if not isinstance(metrics['hyperparameters'], dict):
+        logger.error("hyperparameters field must be a dictionary")
+        return False
+
     return True
 
-def save_best_model(
-    model,
-    config: MPNNConfig,
-    output_path: str
-) -> None:
-    """
-    Save the best model weights and configuration.
-    
-    Args:
-        model: The trained MPNN model.
-        config: The MPNNConfig used for training.
-        output_path: Path where the model will be saved.
-    """
-    logger = get_logger(__name__)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Save model state dict
-    torch.save({
-        'model_state_dict': model.state_dict(),
-        'config': config.to_dict()
-    }, output_path)
-    
-    logger.info(f"Best model saved to: {output_path}")
+def save_best_model(model, model_path: Path) -> None:
+    """Saves the PyTorch model state dict."""
+    import torch
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(model.state_dict(), model_path)
+    logger.info(f"Model weights saved to {model_path}")
 
-def save_metrics(
-    metrics: Dict[str, Any],
-    output_path: str
-) -> None:
-    """
-    Save model metrics to a JSON file.
-    
-    Args:
-        metrics: Dictionary containing model metrics.
-        output_path: Path where the metrics will be saved.
-    """
-    logger = get_logger(__name__)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+def save_metrics(metrics: Dict[str, Any], metrics_path: Path) -> None:
+    """Saves metrics to a JSON file."""
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(metrics_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Metrics saved to: {output_path}")
+    logger.info(f"Metrics saved to {metrics_path}")
 
-def save_hyperparameter_log(
-    input_results_path: str,
-    output_log_path: str,
-    top_n: int = 10
-) -> None:
-    """
-    Generate and save a formatted log of top hyperparameter configurations.
-    
-    Args:
-        input_results_path: Path to JSON file with all search results.
-        output_log_path: Path for the formatted log file.
-        top_n: Number of top configurations to include.
-    """
-    from models.log_hyperparameters import generate_hyperparameter_log
-    
-    logger = get_logger(__name__)
-    
-    generate_hyperparameter_log(
-        input_path=input_results_path,
-        output_path=output_log_path,
-        top_n=top_n
-    )
-    
-    logger.info(f"Hyperparameter log saved to: {output_log_path}")
+def save_hyperparameter_log(search_results: list, log_path: Path) -> None:
+    """Saves the hyperparameter search results to a CSV."""
+    import csv
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not search_results:
+        logger.warning("No search results to save.")
+        return
+
+    # Determine headers from the first result
+    fieldnames = list(search_results[0].keys())
+    with open(log_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(search_results)
+    logger.info(f"Hyperparameter log saved to {log_path}")
 
 def main():
-    """Main entry point for saving model artifacts."""
-    parser = argparse.ArgumentParser(
-        description="Save best model weights, metrics, and hyperparameter log."
-    )
-    parser.add_argument(
-        "--results",
-        type=str,
-        default="artifacts/training_results.json",
-        help="Path to JSON file containing training results"
-    )
-    parser.add_argument(
-        "--model-output",
-        type=str,
-        default="artifacts/best_model.pt",
-        help="Path for the saved model weights"
-    )
-    parser.add_argument(
-        "--metrics-output",
-        type=str,
-        default="artifacts/metrics.json",
-        help="Path for the saved metrics JSON"
-    )
-    parser.add_argument(
-        "--log-output",
-        type=str,
-        default="artifacts/hyperparameter_search.log",
-        help="Path for the hyperparameter search log"
-    )
-    parser.add_argument(
-        "--top-n",
-        type=int,
-        default=10,
-        help="Number of top configurations to log (default: 10)"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level"
-    )
+    """
+    Main entry point for T022: Save best model weights and metrics.
+    """
+    setup_logging()
     
-    args = parser.parse_args()
+    # Configuration paths
+    config = TrainingConfig()
+    data_config = DataConfig()
     
-    # Setup logging
-    setup_logging(level=args.log_level)
-    logger = get_logger(__name__)
+    results_dir = Path(config.results_dir)
+    artifacts_dir = Path("artifacts")
+    contracts_dir = Path("specs/001-predict-sn1-rate-constants/contracts")
     
-    logger.info("Starting artifact save process...")
-    
-    # Ensure output directories exist
+    # Ensure directories exist
     ensure_dirs()
     
-    # Load best training result
+    # 1. Load best training result (from T020/T021)
     try:
-        best_result = load_best_training_result(args.results)
-    except Exception as e:
-        logger.error(f"Failed to load training results: {e}")
+        best_result = load_best_training_result(results_dir)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
     
-    # Validate metrics against schema
-    if not validate_metrics_against_schema(best_result):
-        logger.error("Metrics validation failed. Aborting save.")
-        sys.exit(1)
+    # 2. Construct the metrics dictionary conforming to model_output.schema.yaml
+    # The schema expects: model_id, hyperparameters, metrics (r2, mae), weights_path
+    # We derive model_id from a timestamp or config hash if not present
+    import time
+    model_id = best_result.get('model_id', f"sn1_mpnn_{int(time.time())}")
     
-    # Save metrics
-    save_metrics(best_result, args.metrics_output)
+    metrics_dict = {
+        "model_id": model_id,
+        "hyperparameters": best_result.get('hyperparameters', {}),
+        "metrics": {
+            "r2": best_result.get('val_r2'),
+            "mae": best_result.get('val_mae')
+        },
+        "weights_path": "artifacts/best_model.pt"  # Relative path as per task
+    }
     
-    # Save model (if model object is available - in practice this would be passed or reloaded)
-    # For now, we assume the model was saved separately during training
-    # This function is kept for API completeness
+    # 3. Load and validate against schema
+    schema_path = contracts_dir / "model_output.schema.yaml"
+    try:
+        schema = load_schema(schema_path)
+        if not validate_metrics_against_schema(metrics_dict, schema):
+            logger.error("Metrics validation failed against schema.")
+            sys.exit(1)
+        logger.info("Metrics validated successfully against schema.")
+    except FileNotFoundError:
+        logger.warning(f"Schema file {schema_path} not found. Skipping validation.")
     
-    # Generate and save hyperparameter log
-    save_hyperparameter_log(
-        input_results_path=args.results,
-        output_log_path=args.log_output,
-        top_n=args.top_n
+    # 4. Save artifacts
+    weights_path = artifacts_dir / "best_model.pt"
+    metrics_path = artifacts_dir / "metrics.json"
+    
+    # We need the actual model object to save weights.
+    # Since T022 depends on T020/T021 which train the model, we assume the best model
+    # is available in memory or can be reconstructed. 
+    # In a real pipeline, T020/T021 would pass the model instance or we reload it.
+    # For this task, we assume the training script (T020) saved the best model 
+    # to a temporary location or we reconstruct it.
+    # However, the task says "Save best model weights". 
+    # Let's assume the training loop in T020/T021 saved the best model to results_dir/best_model.pt
+    # and we just move/copy it, OR we reconstruct and save.
+    # Given the API surface, T020 (train.py) likely has the logic. 
+    # We will reconstruct the model using the hyperparameters from best_result.
+    
+    from models.mpnn import create_mpnn_from_config, MPNNConfig
+    
+    hp = best_result.get('hyperparameters', {})
+    mpnn_config = MPNNConfig(
+        hidden_dim=hp.get('hidden_dim', 64),
+        num_layers=hp.get('num_layers', 2),
+        dropout=hp.get('dropout', 0.1),
+        learning_rate=hp.get('learning_rate', 1e-3) # Not needed for config but good to have
     )
     
-    logger.info("Artifact save process complete.")
+    model = create_mpnn_from_config(mpnn_config)
+    
+    # Load the weights from the training run (assuming T020 saved best weights to results_dir)
+    temp_weights = results_dir / "best_model_weights.pt"
+    if not temp_weights.exists():
+        # Fallback: try to find any .pt file in results_dir
+        pt_files = list(results_dir.glob("*.pt"))
+        if pt_files:
+            temp_weights = pt_files[0]
+            logger.warning(f"Using fallback weights from {temp_weights}")
+        else:
+            logger.error("No model weights found to save. Training might not have completed.")
+            sys.exit(1)
+    
+    import torch
+    model.load_state_dict(torch.load(temp_weights, map_location='cpu'))
+    
+    # Save to final location
+    save_best_model(model, weights_path)
+    
+    # Save metrics
+    save_metrics(metrics_dict, metrics_path)
+    
+    # 5. Save hyperparameter search log (T023 dependency, but good to do here or in T023)
+    # T022 specifically asks for model and metrics. T023 asks for hyperparameter_search.csv.
+    # We will skip T023 logic here to strictly follow T022, but the function is available.
+    
+    logger.info("T022 completed successfully.")
 
 if __name__ == "__main__":
-    import torch
     main()

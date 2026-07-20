@@ -1,8 +1,20 @@
-T034:
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied no artifact showing that `quickstart.md` was executed\
-    \ and its steps/outcomes compared to the generated results from T033. There is\
-    \ no validation report, diff, or updated documentation confirming the instructions\
-    \ match the actual execution. Consequently, the task\u2019s requirement is not\
-    \ satisfied."
+  r: "No `artifacts/hyperparameter_search.csv` file was presented, and no content\
+    \ showing the required columns (`config_id`, `learning_rate`, `hidden_dim`, `dropout`,\
+    \ `r2_val`, `mae_val`) or the top\u201110 configurations based on validation R\xB2\
+    \ was provided. The implementer must supply the CSV file with the correct data."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts were presented; the response contains only the task description
+    and project excerpt, with no `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`,
+    or `artifacts/perturbation_results.csv` files (or their contents) to verify. The
+    required files and their specified column structures are therefore missing.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/integration_test_report.md` file or its contents were provided;\
+    \ thus there is no evidence that a 50\u2011row integration test was run or that\
+    \ all pipeline phases completed without error. The required deliverable is missing."

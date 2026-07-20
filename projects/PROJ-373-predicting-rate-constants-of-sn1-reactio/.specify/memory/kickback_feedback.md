@@ -4,12 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T015` (rejected 1x): The exclusion_report.csv file exists and contains the required columns and mapped error codes, but the required schema file (`exclusion_report.schema.yaml`) is missing, so the report cannot be verified to match the specified schema. The task therefore does not meet all requirements.
-- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/cleaned_sn1.csv
-- `T022` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T023` (rejected 1x): No `artifacts/hyperparameter_search.log` file or its contents were provided; thus there is no evidence that the top‑10 hyperparameter configurations and their validation R² scores were logged as required. The implementer must supply the actual log file with the expected entries.
-- `T030` (rejected 1x): I looked for the three required files in the repository (`artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv`). None of these artifacts are present, and no content is shown that would satisfy the specified column formats. The task therefore remains unfinished.
-- `T033` (rejected 1x): The required deliverable `artifacts/integration_test_report.md` is not present in the provided evidence, nor is any content showing that the full pipeline was executed and verified without error. Without this report, the integration test requirement is unmet.
+- `T034` (rejected 1x): The implementer supplied no artifact showing that `quickstart.md` was executed and its steps/outcomes compared to the generated results from T033. There is no validation report, diff, or updated documentation confirming the instructions match the actual execution. Consequently, the task’s requirement is not satisfied.
 
 ## Required change
 
