@@ -1,8 +1,15 @@
+T004:
+  c: true
+  h: e543f4daf7fe046f9c9f28b4afd8a1f8f5e12a89219bee423f2d3e0464241a28
+  r: "The `code/config.py` file exists, is non\u2011empty, and defines all required\
+    \ constants: `HCP_MMP_FILE_PATH`, `HCP_MMP_URL`, `HCP_MMP_HASH` (placeholder as\
+    \ specified), `SENSITIVITY_THRESHOLDS`, and `N_MIN`. The definitions match the\
+    \ specification, and no required artifact is missing."
 T029c:
   c: false
-  h: f0b0439f8c89d90c91fd51425f53bcfb84c934ae80812cd4938061f893bf6dd4
-  r: "The repository lacks the required output files (`data/results/insufficient_sample_report.md`,\
-    \ `data/processed/routing_state.json`, `data/results/correlation_report.csv`)\
-    \ and the `code/main.py` implementation is incomplete (truncated logic, undefined\
-    \ variable `j`, and no enforcement of the \u201Cfail if N_MIN missing and no default\u201D\
-    \ rule). Consequently the runtime gate behavior described in the task is not realized."
+  h: 4eef444f4d472665c65a0a3ff4e795b617456bea5e94e60a8fae4fc359eff815
+  r: "The provided `code/main.py` snippet ends before any runtime\u2011gate logic\
+    \ is shown, and there is no visible code that checks `N` against `N_MIN`, writes\
+    \ `data/results/insufficient_sample_report.md`, or creates `data/processed/routing_state.json`.\
+    \ Both required output files are absent, indicating the Sample Size Check task\
+    \ has not been fully implemented."
