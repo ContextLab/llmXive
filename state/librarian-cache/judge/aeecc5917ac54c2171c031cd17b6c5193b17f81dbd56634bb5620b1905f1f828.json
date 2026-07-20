@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.00795",
+  "judged_at": "2026-07-20T10:13:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper directly addresses the user's question by providing a methodological framework for assessing the validity of statistical inference (specifically randomization inference and p-values) in randomized controlled trials when outcome data is missing (sample attrition). It satisfies acceptance criteria (a) and (d) as it measures the same mechanism (validity of significance tests under missingness) and serves as a foundational methodological reference for this specific problem domain.",
+  "relevant": true
+}

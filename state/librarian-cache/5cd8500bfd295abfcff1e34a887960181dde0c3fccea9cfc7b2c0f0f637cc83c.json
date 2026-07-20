@@ -1,0 +1,579 @@
+{
+  "fetched_at": "2026-07-20T10:13:45Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data",
+      "target_n": 5
+    },
+    "duration_seconds": 107.73,
+    "ended_at": "2026-07-20T10:13:45Z",
+    "expansion": null,
+    "extracted_queries": [
+      "multiple imputation inverse probability weighting",
+      "RCT missing outcome data attrition bias",
+      "missing at random MAR MCAR mechanism",
+      "intention to treat analysis per protocol comparison",
+      "sensitivity analysis pattern-mixture model selection bias"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2403.15327"
+      ]
+    },
+    "per_query_hit_count": {
+      "Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data statistics": 3,
+      "RCT missing outcome data attrition bias": 3,
+      "intention to treat analysis per protocol comparison": 3,
+      "missing at random MAR MCAR mechanism": 3,
+      "multiple imputation inverse probability weighting": 3,
+      "sensitivity analysis pattern-mixture model selection bias": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "0807.4002",
+          "rationale": "The paper focuses on randomization-based inference and the use of ancillary statistics to improve power in multi-center trials, but it does not address the specific mechanism of \"missing data\" or the validity of statistical significance in the presence of missingness (e.g., imputation, dropout bias, or sensitivity analysis). While it discusses statistical power and validity in RCTs, the absence of any connection to missing data mechanisms means it fails the \"same-mechanism\" (a) and \"independent/",
+          "title": "Multi-center clinical trials: Randomization and ancillary statistics"
+        },
+        {
+          "primary_pointer": "2505.12023",
+          "rationale": "The paper focuses on change-point detection in conditional distributions and model validity under temporal covariate shift, which is a distinct statistical problem from assessing the validity of statistical significance in randomized controlled trials (RCTs) specifically caused by missing data. While both involve \"validity\" and \"power,\" the paper does not address the mechanisms of missing data (e.g., imputation, attrition bias) or the specific context of RCTs, failing to meet the criteria for sa",
+          "title": "Model-X Change-Point Detection of Conditional Distribution"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-20T10:11:57Z",
+    "term_input": {
+      "normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+      "raw": "Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The central challenges in missing data models concern the identifiability of two distributions: the target law and the full law. The target law refers to the joint distribution of the data variables, whereas the full law refers to the joint distribution of the data variables and their corresponding response indicators. However, the relationship between the identifiability of these two distributions and the feasibility of multiple imputation has not been clearly established. We present a procedure where the choice of the imputation method is guided by identifiability considerations. We show that imputations can be drawn from the correct conditional distributions for all possible missing data patterns if and only if the full law is identifiable. This result implies that standard multiple imputation methods -- which keep observed values unchanged and replace missing values with imputed values -- are invalid when the target law is identifiable but the full law is not. We demonstrate that alternative imputation strategies can sometimes enable the estimation of the target law in such cases. Specifically, we introduce factorizable imputation where certain observed values are also imputed and the imputed data are weighted in the analysis.",
+          "claimed_authors": [
+            "Juha Karvanen",
+            "Santtu Tikka"
+          ],
+          "claimed_title": "Multiple Imputation Guided by Full Law and Target Law Identifiability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.18688"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Multiple Imputation Guided by Full Law and Target Law Identifiability')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Missing covariate data commonly occur in epidemiological and clinical research, and are often dealt with using multiple imputation (MI). Imputation of partially observed covariates is complicated if the substantive model is non-linear (e.g. Cox proportional hazards model), or contains non-linear (e.g. squared) or interaction terms, and standard software implementations of MI may impute covariates from models that are incompatible with such substantive models. We show how imputation by fully conditional specification, a popular approach for performing MI, can be modified so that covariates are imputed from models which are compatible with the substantive model. We investigate through simulation the performance of this proposal, and compare it to existing approaches. Simulation results suggest our proposal gives consistent estimates for a range of common substantive models, including models which contain non-linear covariate effects or interactions, provided data are missing at random and the assumed imputation models are correctly specified and mutually compatible.",
+          "claimed_authors": [
+            "Jonathan W. Bartlett",
+            "Shaun R. Seaman",
+            "Ian R. White",
+            "James R. Carpenter"
+          ],
+          "claimed_title": "Multiple imputation of covariates by fully conditional specification: accommodating the substantive model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.6799"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Multiple imputation of covariates by fully conditional specification: accommodating the substantive model')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We define the star transform as a generalization of the broken ray transform introduced by us in previous work. The advantages of using the star transform include the possibility to reconstruct the absorption and the scattering coefficients of the medium separately and simultaneously (from the same data) and the possibility to utilize scattered radiation which, in the case of the conventional X-ray tomography, is discarded. In this paper, we derive the star transform from physical principles, discuss its mathematical properties and analyze numerical stability of inversion. In particular, it is shown that stable inversion of the star transform can be obtained only for configurations involving odd number of rays. Several computationally-efficient inversion algorithms are derived and tested numerically.",
+          "claimed_authors": [
+            "Fan Zhao",
+            "John C. Schotland",
+            "Vadim A. Markel"
+          ],
+          "claimed_title": "Inversion of the star transform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.7655"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Inversion of the star transform')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a quantile regression estimator for panel data models with individual heterogeneity and attrition. The method is motivated by the fact that attrition bias is often encountered in Big Data applications. For example, many users sign-up for the latest program but few remain active users several months later, making the evaluation of such interventions inherently very challenging. Building on earlier work by Hausman and Wise (1979), we provide a simple identification strategy that leads to a two-step estimation procedure. In the first step, the coefficients of interest in the selection equation are consistently estimated using parametric or nonparametric methods. In the second step, standard panel quantile methods are employed on a subset of weighted observations. The estimator is computationally easy to implement in Big Data applications with a large number of subjects. We investigate the conditions under which the parameter estimator is asymptotically Gaussian and we carry out a series of Monte Carlo simulations to investigate the finite sample properties of the estimator. Lastly, using a simulation exercise, we apply the method to the evaluation of a recent Time-of-Day electricity pricing experiment inspired by the work of Aigner and Hausman (1980).",
+          "claimed_authors": [
+            "Matthew Harding",
+            "Carlos Lamarche"
+          ],
+          "claimed_title": "A Panel Quantile Approach to Attrition Bias in Big Data: Evidence from a Randomized Experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.03364"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='A Panel Quantile Approach to Attrition Bias in Big Data: Evidence from a Randomized Experiment')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Handling missing data is a major challenge in model-based clustering, especially when the data exhibit skewness and heavy tails. We address this by extending the finite mixture of scale mixtures of multivariate skew-normal (FMSMSN) family to accommodate incomplete data under a missing at random (MAR) mechanism. Unlike previous work that is limited to one of the special cases of the FMSMSN family, our method offers a cluster analysis methodology for the entire family that accounts for skewness and excess kurtosis amidst data with missing values. The multivariate skew-normal distribution, as parameterised by \\cite{azzalini1996} and \\cite{arnoldbeaver} includes the normal distribution as a special case, which ensures that our method is flexible toward existing symmetric model-based clustering techniques under a normality assumption. We derive the distributional properties of the missing components of the data and propose an augmented EM-type algorithm tailored for incomplete observations. The modified E-step yields closed-form expressions for the conditional expectations of the missing values. The simulation experiments showcase the flexibility of the FMSMSN family in both clustering performance and parameter recovery for varying percentages of missing values, while incorporating the effects of sample size and cluster proximity. Finally, we illustrate the practical utility of the proposed method by applying special cases of the FMSMSN family to global CO2 emissions data.",
+          "claimed_authors": [
+            "Jason Pillay",
+            "Cristina Tortora",
+            "Antonio Punzo",
+            "Andriette Bekker"
+          ],
+          "claimed_title": "Clustering data with values missing at random using scale mixtures of multivariate skew-normal distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.20329"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Clustering data with values missing at random using scale mixtures of multivariate skew-normal distributions')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Visual Monitoring Camera (VMC) is a small imaging instrument onboard Mars Express with a field of view of ~40x30 degrees. The camera was initially intended to provide visual confirmation of the separation of the Beagle 2 lander and has similar technical specifications to a typical webcam of the 2000s. In 2007, a few years after the end of its original mission, VMC was turned on again to obtain full-disk images of Mars to be used for outreach purposes. As VMC obtained more images, the scientific potential of the camera became evident, and in 2018 the camera was given an upgraded status of a new scientific instrument, with science goals in the field of Martian atmosphere meteorology. The wide Field of View of the camera combined with the orbit of Mars Express enable the acquisition of full-disk images of the planet showing different local times, which for a long time has been rare among orbital missions around Mars. The small data volume of images also allows videos that show the atmospheric dynamics of dust and cloud systems to be obtained. This paper is intended to be the new reference paper for VMC as a scientific instrument, and thus provides an overview of the updated procedures to plan, command and execute science observations of the Martian atmosphere. These observations produce valuable science data that is calibrated and distributed to the community for scientific use.",
+          "claimed_authors": [
+            "Jorge From",
+            " :",
+            "Jorge Hernández-Bernal",
+            "Alejandro Cardesin Moinelo",
+            "Ricardo Hueso",
+            "Eleni Ravanis",
+            "Abel Burgos Sierra",
+            "Simon Wood",
+            "Marc Costa Sitja",
+            "Alfredo Escalante",
+            "Emmanuel Grotheer",
+            "Julia Marin Yaseli de la Parra",
+            "Donald Merrit",
+            "Miguel Almeida",
+            "Michel Breitfellner",
+            "Mar Sierra",
+            "Patrick Martin",
+            "Dmitri Titov",
+            "Colin Wilson",
+            "Ethan Larsen",
+            "Teresa del Rio Gaztelurrutia",
+            "Agustin Sanchez Lavega"
+          ],
+          "claimed_title": "The Visual Monitoring Camera (VMC) on Mars Express: a new science instrument made from an old webcam orbiting Mars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.02999"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='The Visual Monitoring Camera (VMC) on Mars Express: a new science instrument made from an old webcam orbiting Mars')",
+        "failed_at": "2026-07-20T10:13:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An experimental implementation of the Coherent One-Way Quantum Key Distribution (COW-QKD) protocol is reported under realistic conditions, and a clean and easy-to-use framework for performing finite key analysis of the COW-QKD protocol is provided by extending a set of existing results. The framework provided here is used to perform finite key rate analysis of the COW-QKD protocol with respect to the actual parameters used in the experimental realization reported here. The system is kept running for several hours with different experimental parameters and stable secure key rates between 1.2 to 1.6 kbps are observed. In addition, QBER, phase error rate and secure key rate are obtained under finite key analysis, and it is shown that COW-QKD is secure for medium-range transmissions (up-to ~ 156 (171) km of optical fiber with 0.2 dB loss per km if detector efficiency is 0.1 (0.2) and other parameters are same as those used in this experiment).",
+          "claimed_authors": [
+            "Neha Pathania",
+            "Sandeep Mishra",
+            "Anirban Pathak"
+          ],
+          "claimed_title": "Finite key analysis of experimentally realized practical COW-QKD protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.22646"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Finite key analysis of experimentally realized practical COW-QKD protocol')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+          "claimed_authors": [
+            "Mustapha Guezouri",
+            "Ahmed Blaha",
+            "Mokhtar Keche"
+          ],
+          "claimed_title": "Adaptation of TURN protocol to SIP protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1178"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Adaptation of TURN protocol to SIP protocol')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language generation maps a rich, high-dimensional internal state to a single token sequence. We study this many-to-one mapping through the lens of intention collapse: the projection from an internal intention space I to an external language space L. We introduce three cheap, model-agnostic metrics computed on a pre-collapse state I: (i) intention entropy Hint(I), (ii) effective dimensionality deff(I), and (iii) recoverability Recov(I), operationalized as probe AUROC for predicting eventual success. We evaluate these metrics in a 3x3 study across models (Mistral-7B, LLaMA-3.1-8B, Qwen-2.5-7B) and benchmarks (GSM8K, ARC-Challenge, AQUA-RAT), comparing baseline, chain-of-thought (CoT), and a babble control (n=200 items per cell). CoT increases average accuracy from 34.2% to 47.3% (+13.1 pp), driven by large gains on GSM8K but consistent degradations on ARC-Challenge. Across models, CoT induces distinct entropy regimes relative to baseline, dH = Hint(CoT) - Hint(Base): Mistral shows dH < 0 (lower-entropy CoT), whereas LLaMA shows dH > 0 (higher-entropy CoT), highlighting heterogeneity in CoT-induced internal uncertainty. Finally, probe AUROC is significantly above chance in a subset of settings and can dissociate from behavioral accuracy (e.g., high AUROC alongside lower CoT accuracy on ARC-Challenge for Qwen), suggesting that informative internal signal is not always reliably converted into a final discrete decision under constrained response formats.",
+          "claimed_authors": [
+            "Patricio Vera"
+          ],
+          "claimed_title": "Intention Collapse: Intention-Level Metrics for Reasoning in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.01011"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Intention Collapse: Intention-Level Metrics for Reasoning in Language Models')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proxy pattern-mixture models (PPMM) have previously been proposed as a model-based framework for assessing the potential for nonignorable nonresponse in sample surveys and nonignorable selection in nonprobability samples. One defining feature of the PPMM is the single sensitivity parameter, $φ$, that ranges from 0 to 1 and governs the degree of departure from ignorability. While this sensitivity parameter is attractive in its simplicity, it may also be of interest to describe departures from ignorability in terms of how the odds of response (or selection) depend on the outcome being measured. In this paper, we re-express the PPMM as a selection model, using the known relationship between pattern-mixture models and selection models, in order to better understand the underlying assumptions of the PPMM and the implied effect of the outcome on nonresponse. The selection model that corresponds to the PPMM is a quadratic function of the survey outcome and proxy variable, and the magnitude of the effect depends on the value of the sensitivity parameter, $φ$ (missingness/selection mechanism), the differences in the proxy means and standard deviations for the respondent and nonrespondent populations, and the strength of the proxy, $ρ^{(1)}$. Large values of $φ$ (beyond $0.5$) often result in unrealistic selection mechanisms, and the corresponding selection model can be used to establish more realistic bounds on $φ$. We illustrate the results using data from the U.S. Census Household Pulse Survey.",
+          "claimed_authors": [
+            "Seth Adarkwah Yiadom",
+            "Rebecca Andridge"
+          ],
+          "claimed_title": "Formulating the Proxy Pattern-Mixture Model as a Selection Model to Assist with Sensitivity Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.18117"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Formulating the Proxy Pattern-Mixture Model as a Selection Model to Assist with Sensitivity Analysis')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a novel sensitivity analysis framework for linear estimators with identification failures that can be viewed as seeing the wrong outcome distribution. Our approach measures the degree of identification failure through the change in measure between the observed distribution and a hypothetical target distribution that would identify the causal parameter of interest. The framework yields a sensitivity analysis that generalizes existing bounds for Average Potential Outcome (APO), Regression Discontinuity (RD), and instrumental variables (IV) exclusion failure designs. Our partial identification results extend results from the APO context to allow even unbounded likelihood ratios. Our proposed sensitivity analysis consistently estimates sharp bounds under plausible conditions and estimates valid bounds under mild conditions. We find that our method performs well in simulations even when targeting a discontinuous and nearly infinite bound.",
+          "claimed_authors": [
+            "Jacob Dorn",
+            "Luther Yap"
+          ],
+          "claimed_title": "Sensitivity Analysis for Linear Estimators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.06305"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Sensitivity Analysis for Linear Estimators')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Differentially private selection mechanisms offer strong privacy guarantees for queries aiming to identify the top-scoring element r from a finite set R, based on a dataset-dependent utility function. While selection queries are fundamental in data science, few mechanisms effectively ensure their privacy. Furthermore, most approaches rely on global sensitivity to achieve differential privacy (DP), which can introduce excessive noise and impair downstream inferences. To address this limitation, we propose the Smooth Noisy Max (SNM) mechanism, which leverages smooth sensitivity to yield provably tighter (upper bounds on) expected errors compared to global sensitivity-based methods. Empirical results demonstrate that SNM is more accurate than state-of-the-art differentially private selection methods in three applications: percentile selection, greedy decision trees, and random forests.",
+          "claimed_authors": [
+            "Iago Chaves",
+            "Victor Farias",
+            "Amanda Perez",
+            "Diego Mesquita",
+            "Javam Machado"
+          ],
+          "claimed_title": "Differentially Private Selection using Smooth Sensitivity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.08086"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Differentially Private Selection using Smooth Sensitivity')",
+        "failed_at": "2026-07-20T10:13:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "It is common in instrumental variable studies for instrument values to be missing, for example when the instrument is a genetic test in Mendelian randomization studies. In this paper we discuss two apparent paradoxes that arise in so-called single consent designs where there is one-sided noncompliance, i.e., where unencouraged units cannot access treatment. The first paradox is that, even under a missing completely at random assumption, a complete-case analysis is biased when knowledge of one-sided noncompliance is taken into account; this is not the case when such information is disregarded. This occurs because incorporating information about one-sided noncompliance induces a dependence between the missingness and treatment. The second paradox is that, although incorporating such information does not lead to efficiency gains without missing data, the story is different when instrument values are missing: there, incorporating such information changes the efficiency bound, allowing possible efficiency gains. This is because some of the missing values can be filled in, based on the fact that anyone who received treatment must have been encouraged by the instrument (since the unencouraged cannot access treatment).",
+          "claimed_authors": [
+            "Edward H. Kennedy",
+            "Dylan S. Small"
+          ],
+          "claimed_title": "Paradoxes in instrumental variable studies with missing data and one-sided noncompliance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.00506"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Assessing the Validity of Statistical Significance in Randomized Controlled Tria', candidate_title='Paradoxes in instrumental variable studies with missing data and one-sided noncompliance')",
+        "failed_at": "2026-07-20T10:13:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Roderick Little"
+          ],
+          "title": "Calibrated Bayes, for Statistics in General, and Missing Data in Particular",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1108.1917",
+        "summary": "It is argued that the Calibrated Bayesian (CB) approach to statistical inference capitalizes on the strength of Bayesian and frequentist approaches to statistical inference. In the CB approach, inferences under a particular model are Bayesian, but frequentist methods are useful for model development and model checking. In this article the CB approach is outlined. Bayesian methods for missing data are then reviewed from a CB perspective. The basic theory of the Bayesian approach, and the closely related technique of multiple imputation, is described. Then applications of the Bayesian approach to normal models are described, both for monotone and nonmonotone missing data patterns. Sequential Regression Multivariate Imputation and Penalized Spline of Propensity Models are presented as two useful approaches for relaxing distributional assumptions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1108.1917",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nathaniel Schenker"
+          ],
+          "title": "Discussion of \"Calibrated Bayes, for Statistics in General, and Missing Data in Particular\" by R. J. A. Little",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1108.3457",
+        "summary": "Discussion of \"Calibrated Bayes, for Statistics in General, and Missing Data in Particular\" by R. Little [arXiv:1108.1917]",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1108.3457",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hairu Wang",
+            "Zhiping Lu",
+            "Yukun Liu"
+          ],
+          "title": "Score test for missing at random or not",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.12921",
+        "summary": "Missing data are frequently encountered in various disciplines and can be divided into three categories: missing completely at random (MCAR), missing at random (MAR) and missing not at random (MNAR). Valid statistical approaches to missing data depend crucially on correct identification of the underlying missingness mechanism. Although the problem of testing whether this mechanism is MCAR or MAR has been extensively studied, there has been very little research on testing MAR versus MNAR.A critical challenge that is faced when dealing with this problem is the issue of model identification under MNAR. In this paper, under a logistic model for the missing probability, we develop two score tests for the problem of whether the missingness mechanism is MAR or MNAR under a parametric model and a semiparametric location model on the regression function. The score tests require only parameter estimation under the null MAR assumption, which completely circumvents the identification issue. Our simulations and analysis of human immunodeficiency virus data show that the score tests have well-controlled type I errors and desirable powers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2105.12921",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xinran Li",
+            "Peizan Sheng",
+            "Zeyang Yu"
+          ],
+          "title": "Randomization Inference with Sample Attrition",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.00795",
+        "summary": "Randomization inference is a widely-used and appealing approach for analyzing treatment effects in randomized experiments, as it is finite-sample valid and does not require any distributional assumptions. However, naive application of randomization inference may suffer from severe size distortion in the presence of sample attrition, where outcome data are missing for some units. In this paper, we propose new, computationally efficient methods for randomization inference that remain valid under a broad class of potentially informative missingness mechanisms, allowing a unit's missingness to depend on its (unobserved) potential outcomes. Specifically, we construct valid p-values for testing both sharp and bounded null hypotheses on treatment effects via a worst-case consideration of the classical Fisher randomization test. Leveraging distribution-free test statistics, these worst-case p-values admit closed-form solutions. Importantly, by incorporating both potential outcomes and potential missingness indicators into the test statistic, our methods can exploit structural assumptions such as monotone missingness, which are commonly adopted in applications due to their plausibility and ability to substantially improve inferential power. Moreover, our approach connects to a range of partial identification bounds in the literature, which in some sense suggests the sharpness of our tests. We illustrate the proposed methods through both simulation studies and an empirical application. An R package implementing the proposed methods is publicly available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2507.00795",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yijin Zeng",
+            "Niall M. Adams",
+            "Dean A. Bodenham"
+          ],
+          "title": "On two-sample testing for data with arbitrarily missing values",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.15327",
+        "summary": "We develop a new rank-based approach for univariate two-sample testing in the presence of missing data which makes no assumptions about the missingness mechanism. This approach is a theoretical extension of the Wilcoxon-Mann-Whitney test that controls the Type I error by providing exact bounds for the test statistic after accounting for the number of missing values. Greater statistical power is shown when the method is extended to account for a bounded domain. Furthermore, exact bounds are provided on the proportions of data that can be missing in the two samples while yielding a significant result. Simulations demonstrate that our method has good power, typically for cases of $10\\%$ to $20\\%$ missing data, while standard imputation approaches fail to control the Type I error. We illustrate our method on complex clinical trial data in which patients' withdrawal from the trial lead to missing values.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2403.15327",
+          "http_status": 200,
+          "pdf_sample_score": 0.2419,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yijin Zeng",
+            "Niall M. Adams",
+            "Dean A. Bodenham"
+          ],
+          "title": "Scale two-sample testing with arbitrarily missing data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.20332",
+        "summary": "This work proposes a novel rank-based scale two-sample testing method for univariate, distinct data when a subset of the data may be missing. Our approach is based on mathematically tight bounds of the Ansari-Bradley test statistic in the presence of missing data, and rejects the null hypothesis if the test statistic is significant regardless of the missing values. This proposed scale testing method is then combined with the location testing method proposed by Zeng et al. (2024) using the Holm-Bonferroni correction for location-scale testing. We show that our methods control the Type I error regardless of the values of the missing data. Simulation results demonstrate that our methods have good statistical power, typically when less than 10% of the data are missing, while other missing data methods, such as case deletion or imputation methods, fail to control the Type I error when the data are missing not at random. We illustrate the proposed location-scale testing method on hepatitis C virus dataset where a subset of values is unobserved.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2509.20332",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kejian Zhang",
+            "Muxuan Liang",
+            "Robert Maile",
+            "Doudou Zhou"
+          ],
+          "title": "Two-sample Testing with Block-wise Missingness in Multi-source Data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.17411",
+        "summary": "Multi-source and multi-modal datasets are increasingly common in scientific research, yet they often exhibit block-wise missingness, where entire modalities are systematically absent in some sources or no single source contains all modalities. This structured missingness poses major challenges for two-sample hypothesis testing. Standard approaches, such as imputation or complete-case analysis, may introduce bias or suffer efficiency loss, especially under missingness-not-at-random mechanisms. To address this challenge, we propose the Block-Pattern Enhanced Test, a general framework for constructing two-sample testing statistics that explicitly accounts for block-wise missingness. We show that the framework yields valid tests under a new condition allowing for missing-not-at-random mechanism. Building on this general framework, we further propose the Block-wise Rank In Similarity graph Edge-count (BRISE) test, which accommodate heterogeneous modalities using rank-based similarity graphs. Theoretically, we establish that the null distribution of BRISE converges to a $χ^2$ distribution, and that the test is consistent both in the standard asymptotic regime and in the high-dimensional low-sample-size setting under mild conditions. Simulation studies demonstrate that BRISE controls the type-I error rate and achieves strong power across a wide range of alternatives. Applications to two real-world datasets with block-wise missingness further illustrate the practical utility of the proposed method.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2508.17411",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Han Wang",
+            "Yang Xu",
+            "Wenbin Lu",
+            "Rui Song"
+          ],
+          "title": "Off-Policy Evaluation Under Nonignorable Missing Data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.06961",
+        "summary": "Off-Policy Evaluation (OPE) aims to estimate the value of a target policy using offline data collected from potentially different policies. In real-world applications, however, logged data often suffers from missingness. While OPE has been extensively studied in the literature, a theoretical understanding of how missing data affects OPE results remains unclear. In this paper, we investigate OPE in the presence of monotone missingness and theoretically demonstrate that the value estimates remain unbiased under ignorable missingness but can be biased under nonignorable (informative) missingness. To retain the consistency of value estimation, we propose an inverse probability weighted value estimator and conduct statistical inference to quantify the uncertainty of the estimates. Through a series of numerical experiments, we empirically demonstrate that our proposed estimator yields a more reliable value inference under missing data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2507.06961",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:13:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

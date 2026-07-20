@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.17411",
+  "judged_at": "2026-07-20T10:13:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the mechanism of \"missing data\" (specifically block-wise missingness) in the context of \"two-sample hypothesis testing\" (the statistical engine of RCTs), providing a method to ensure the validity of test statistics and control Type-I error rates under these conditions. While it focuses on multi-source data rather than clinical trials specifically, it establishes the necessary statistical baseline and methodology for assessing sig",
+  "relevant": true
+}

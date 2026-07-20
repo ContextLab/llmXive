@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-20T10:15:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the diffusion coefficient of hydrogen in metals from compositional and microstructural descriptors materials science",
+  "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscape concepts, but it does not measure hydrogen diffusion coefficients, study metals, or utilize compositional/microstructural descriptors as variables. It fails to satisfy any inclusion criteria (a-f) because it lacks the specific domain, mechanism, or empirical variables required by the user's question, representing only a shared keyword (\"physics-inspired\") without a substantive connection to",
+  "relevant": false
+}

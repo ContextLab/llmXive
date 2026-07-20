@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0408068",
+  "judged_at": "2026-07-20T10:14:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the diffusion coefficient of hydrogen in metals from compositional and microstructural descriptors materials science",
+  "rationale": "The paper focuses on half-metallicity and magnetic properties (Slater-Pauling behavior) in Heusler alloys, which is a distinct construct from the user's question regarding hydrogen diffusion coefficients. While both topics fall under materials science, the paper does not measure the diffusion mechanism, hydrogen solubility, or the specific microstructural descriptors relevant to hydrogen transport, failing to satisfy any of the inclusion criteria (a-f).",
+  "relevant": false
+}

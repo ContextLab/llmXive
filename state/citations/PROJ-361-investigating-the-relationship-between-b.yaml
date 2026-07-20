@@ -1,4 +1,4 @@
-- artifact_hash: bbea4ce4be009469778f606e3d474df897e9f908e1dd1ef191d564fcd70cb416
+- artifact_hash: 6666774413bd61a3c5dbfa86d3cd63d8264c00963c37352231423c84faad33f6
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -7,10 +7,10 @@
     with Applications to Imaging Genomics'
   kind: url
   value: https://arxiv.org/abs/1705.04312
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1705.04312
-  verified_at: '2026-07-06T01:22:42.914407Z'
-- artifact_hash: bbea4ce4be009469778f606e3d474df897e9f908e1dd1ef191d564fcd70cb416
+  verified_at: '2026-07-20T10:28:38.177241Z'
+- artifact_hash: 6666774413bd61a3c5dbfa86d3cd63d8264c00963c37352231423c84faad33f6
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -18,10 +18,10 @@
   fetched_title: OpenNeuro
   kind: url
   value: https://openneuro.org/datasets/ds004285
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds004285
-  verified_at: '2026-07-06T01:22:42.914407Z'
-- artifact_hash: bbea4ce4be009469778f606e3d474df897e9f908e1dd1ef191d564fcd70cb416
+  verified_at: '2026-07-20T10:28:38.177241Z'
+- artifact_hash: 6666774413bd61a3c5dbfa86d3cd63d8264c00963c37352231423c84faad33f6
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -29,6 +29,6 @@
   fetched_title: Vif - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-06T01:22:42.914407Z'
+  verified_at: '2026-07-20T10:28:38.177241Z'

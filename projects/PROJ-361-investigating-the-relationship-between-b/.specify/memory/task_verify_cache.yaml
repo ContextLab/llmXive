@@ -1,0 +1,14 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting, formatting, or type\u2011checking configuration files (e.g., .flake8,\
+    \ pyproject.toml/black settings, mypy.ini) or any evidence of them being set up\
+    \ is present. The required artifacts to demonstrate that flake8, black, and mypy\
+    \ are configured are missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No SQLite schema, SQL script, or code defining the required `subjects` and `files`\
+    \ tables with the specified columns was provided. The implementer\u2019s claim\
+    \ lacks any tangible artifact demonstrating that the metadata registry has been\
+    \ set up."

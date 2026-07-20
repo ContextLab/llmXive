@@ -57,7 +57,7 @@
 
 - [ ] T004 [P] Setup SQLite schema for metadata registry (tables: `subjects`, `files` with columns `subject_id`, `file_path`, `checksum`, `status`) to index the file-based `data/` directory. Do NOT store raw data in SQLite.
 - [ ] T005 [P] Implement `code/utils/config.py` for environment variables and path management
-- [ ] T006 [P] Create `code/utils/update_state.py` to handle versioning and hash tracking (Constitution Principle V)
+- [X] T006 [P] Create `code/utils/update_state.py` to handle versioning and hash tracking (Constitution Principle V)
 - [ ] T007 Setup `git_hooks/pre-commit` to trigger state updates on artifact changes
 - [ ] T008 Implement `code/utils/logging_utils.py` for standardized error handling and motion threshold logging
 - [ ] T009 Create base entities: `Subject`, `ConnectivityMatrix`, `TopologyMetrics`, `IllusionScore` in `code/models/`
@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download and preprocess resting-state fMRI data from OpenNeuro ds004285, extract BOLD time series.
+**Goal**: Download and preprocess resting-state fMRI data from OpenNeuro ds004285 [UNRESOLVED-CLAIM: c_4fa18412 — status=not_enough_info], extract BOLD time series.
 
 **Independent Test**: {{claim:c_499be8e7}}
 
@@ -81,10 +81,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/preprocessing/download_openneuro.py` to fetch ds004285 data for at least 50 subjects to `data/raw/`. Must handle credentials, verify checksums, and ensure output NIfTI files are stored in `data/raw/{subject_id}/`.
+- [ ] T012 [US1] Implement `code/preprocessing/download_openneuro.py` to fetch ds004285 data for at least 50 subjects [UNRESOLVED-CLAIM: c_dff94395 — status=not_enough_info] to `data/raw/`. Must handle credentials, verify checksums, and ensure output NIfTI files are stored in `data/raw/{subject_id}/`.
 - [ ] T013 [US1] Implement `code/preprocessing/run_fmriprep.sh` to execute containerized fMRIPrep (pinned version `poldracklab/fmriprep:.0`) with HCP configuration.
 - [ ] T014 [US1] Implement `code/preprocessing/extract_timeseries.py` to map Schaefer parcellation ROIs to preprocessed BOLD data.
-- [ ] T015 [US1] Implement motion quality control logic in `code/utils/quality_control.py` to calculate mean FD for ALL subjects, record the value, and exclude subjects with FD > 0.5mm [UNRESOLVED-CLAIM: c_92a4ff2e — status=not_enough_info].
+- [ ] T015 [US1] Implement motion quality control logic in `code/utils/quality_control.py` to calculate mean FD for ALL subjects, record the value, and exclude subjects with FD > 0.5mm [UNRESOLVED-CLAIM: c_4ad8fc16 — status=not_enough_info].
 - [ ] T016 [US1] Add validation to ensure output matrices of dimensions T×N contain no NaN values.
 - [ ] T017 [US1] Add logging for preprocessing completion and exclusion reasons (referencing T015's recorded FD).
 
@@ -106,7 +106,7 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `code/topology/compute_connectivity.py` to generate 200x200 Pearson correlation matrices from time-series data.
-- [ ] T021 [US2] Implement `code/topology/compute_metrics.py` using `bctpy` to calculate: modularity (Louvain, fixed seed), path length, clustering, efficiency, small-worldness. Input: adjacency matrix (numpy array); Output: JSON object with metrics. Must flag subjects where `global_efficiency` > 1.0 or `path_length` <= 0 for manual review.
+- [ ] T021 [US2] Implement `code/topology/compute_metrics.py` using `bctpy` to calculate: modularity (Louvain, fixed seed), path length, clustering, efficiency, small-worldness. Input: adjacency matrix (numpy array); Output: JSON object with metrics. Must flag subjects where global_efficiency > 1.0 or path_length <= 0 [UNRESOLVED-CLAIM: c_c40ee56c — status=not_enough_info].
 - [ ] T022 [US2] Implement logic in `code/topology/metrics_utils.py` to handle disconnected graphs (replace infinite path length with NaN) and log the event.
 - [ ] T023 [US2] Implement outlier detection for `global_efficiency` > 1.0 or non-positive path length.
 - [ ] T024 [US2] Save raw five metrics to `data/processed/topology_metrics_raw.json`. **CRITICAL**: This file is the primary input for US-3. Implement optional PCA reduction in a separate function `reduce_dimensions.py` but do NOT overwrite the raw metrics file.
@@ -119,7 +119,7 @@
 
 ## Phase 5: User Story 4 - Behavioral Data Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Extract existing visual illusion susceptibility scores (Müller-Lyer and Ponzo) from the OpenNeuro ds004285 dataset and link them to Subject IDs.
+**Goal**: Extract existing visual illusion susceptibility scores (Müller-Lyer and Ponzo) from the OpenNeuro ds004285 dataset [UNRESOLVED-CLAIM: c_244d04cc — status=not_enough_info] and link them to Subject IDs.
 *Note: This phase aligns with the Plan's strategy of using existing OpenNeuro data. The Spec's requirement for a "custom online task" is contradicted by the Plan's explicit "existing data" strategy; this revision follows the Plan for execution.*
 
 **Independent Test**: The extraction can be tested by running the script on a subset and verifying that scores are correctly linked to Subject IDs and match the expected schema.
@@ -147,7 +147,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T054 [US3] Implement `code/analysis/correlation_analysis.py` to compute Pearson/Spearman correlations between the **raw five metrics** (from T024) and illusion scores. {{claim:c_af16974d}} (1705.04312, https://arxiv.org/abs/1705.04312 [UNRESOLVED-CLAIM: c_9bbffd22 — status=not_enough_info])
+- [ ] T054 [US3] Implement `code/analysis/correlation_analysis.py` to compute Pearson/Spearman correlations between the **raw five metrics** (from T024) and illusion scores. {{claim:c_af16974d}} (1705.04312 [UNRESOLVED-CLAIM: c_0de4f997 — status=verified], https://arxiv.org/abs/1705.04312 [UNRESOLVED-CLAIM: c_0de4f997 — status=verified])
 - [ ] T055 [US3] Implement logic to handle cases where no significant correlations are found (generate full table with explicit null statement).
 - [ ] T056 [US3] Implement `code/analysis/generate_plots.py` to create scatter plots with regression lines and CI shading for significant findings.
 - [ ] T059 [US3] **Mandatory**: Implement `code/analysis/reproducibility_check.py` to re-run analysis on a subset, compare correlation coefficients, and assert tolerance (SC-005). **Must pass before report generation.**
@@ -165,8 +165,8 @@
 - [ ] T060 [P] **Reproducibility**: (Already covered in T059 as mandatory).
 - [ ] T061 [P] **Reviewer Address (Kandel)**: Update `docs/research_limitations.md` to explicitly anchor findings at the **systems/network level** of explanation. Clearly state that while the study correlates topology with behavior, it does not claim to trace mechanisms to synaptic plasticity or molecular genetics (e.g., CREB/BDNF), acknowledging this as a scope limitation and future direction.
 - [ ] T062 [P] **Reviewer Address (Rockmore)**: Update `docs/research_limitations.md` to discuss the "texture" of the illusion. Document the specific visual stimuli parameters (line lengths, angles, background patterns) used in the Müller-Lyer and Ponzo tasks (as per OpenNeuro metadata). Explicitly state that the current analysis measures the *frequency/magnitude of the error* rather than the topological shape of the stimulus itself, and propose that future work could apply Topological Data Analysis (TDA) to the stimulus geometry.
-- [ ] T063 [P] **Data Integrity**: Verify that `code/preprocessing/download_openneuro.py` strictly enforces the download of **real** data from `https://openneuro.org/datasets/ds004285 [UNRESOLVED-CLAIM: c_7898829c — status=not_enough_info]` and fails if the dataset is unreachable, ensuring no synthetic data is used for the primary hypothesis test.
-- [ ] T064 [P] **Collinearity Check**: Implement `code/topology/check_collinearity.py` to calculate Variance Inflation Factors (VIF) for the raw metrics. **Must include logic to {{claim:c_acd16148}} (Wikidata Q113106917 [UNRESOLVED-CLAIM: c_adbc7f59 — status=not_enough_info], https://www.wikidata.org/wiki/Q113106917). **
+- [ ] T063 [P] **Data Integrity**: Verify that `code/preprocessing/download_openneuro.py` strictly enforces the download of **real** data from `https://openneuro.org/datasets/ds004285 ` and fails if the dataset is unreachable, ensuring no synthetic data is used for the primary hypothesis test.
+- [ ] T064 [P] **Collinearity Check**: Implement `code/topology/check_collinearity.py` to calculate Variance Inflation Factors (VIF) for the raw metrics. **Must include logic to {{claim:c_acd16148}} (Wikidata Q113106917 [UNRESOLVED-CLAIM: c_88d435bd — status=not_enough_info], https://www.wikidata.org/wiki/Q113106917). **
 - [ ] T065 [P] **Code Cleanup**: Enforce `flake8` (E501) and `black` formatting compliance across `code/`.
 - [ ] T066 [P] **Performance**: Run CI job `perf-check` on a -subject subset to verify `compute_metrics.py` runs within Approximate duration per subject on CPU.
 - [ ] T067 [P] Additional unit tests for edge cases (disconnected graphs, single module partition) in `tests/unit/`.

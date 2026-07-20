@@ -1,82 +1,75 @@
 """
-Utility module to initialize and run project tooling (linting, formatting, type checking).
+Utility to ensure linting, formatting, and type-checking tools are installed
+and configured for the project.
 """
 import subprocess
 import sys
 import os
+from pathlib import Path
 
+REQUIRED_TOOLS = [
+    ("flake8", "flake8"),
+    ("black", "black"),
+    ("isort", "isort"),
+    ("mypy", "mypy"),
+]
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """
-    Execute a shell command and report success/failure.
+CONFIG_FILES = [
+    ".flake8",
+    "pyproject.toml",
+    "mypy.ini",
+]
 
-    Args:
-        cmd: List of command arguments.
-        description: Human-readable description of the action.
+def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and return the result."""
+    return subprocess.run(cmd, check=check)
 
-    Returns:
-        True if the command succeeded, False otherwise.
-    """
-    print(f"Running: {description}...")
-    try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+def ensure_config_files_exist(project_root: Path) -> None:
+    """Ensure configuration files exist in the project root."""
+    missing = []
+    for filename in CONFIG_FILES:
+        if not (project_root / filename).exists():
+            missing.append(filename)
+    
+    if missing:
+        raise FileNotFoundError(
+            f"Configuration files missing in project root {project_root}: {missing}. "
+            "Please ensure .flake8, pyproject.toml, and mypy.ini are present."
         )
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Error: {description} failed with exit code {e.returncode}")
-        if e.stderr:
-            print(e.stderr, file=sys.stderr)
-        return False
-    except FileNotFoundError:
-        print(f"Error: Command not found. Ensure tools are installed: {cmd[0]}")
-        return False
 
+def install_tools() -> None:
+    """Install required linting, formatting, and type-checking tools."""
+    print("Checking and installing required tools...")
+    for package, _ in REQUIRED_TOOLS:
+        try:
+            __import__(package.replace("-", "_"))
+            print(f"  ✓ {package} is already installed")
+        except ImportError:
+            print(f"  Installing {package}...")
+            run_command([sys.executable, "-m", "pip", "install", package])
+    print("All tools installed successfully.")
 
-def main() -> int:
-    """
-    Main entry point for running linting, formatting, and type checking.
-    """
-    print("=== Project Tooling Runner ===")
+def main() -> None:
+    """Main entry point for tooling setup."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    print(f"Project root: {project_root}")
 
-    # 1. Format with Black
-    success = run_command(
-        [sys.executable, "-m", "black", "--check", "code/", "tests/"],
-        "Black formatting check",
-    )
-    if not success:
-        print("Formatting check failed. Run 'black code/ tests/' to fix.")
-        return 1
+    # Ensure config files exist
+    try:
+        ensure_config_files_exist(project_root)
+        print("Configuration files verified.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
-    # 2. Lint with Flake8
-    success = run_command(
-        [sys.executable, "-m", "flake8", "code/", "tests/"],
-        "Flake8 linting check",
-    )
-    if not success:
-        print("Linting check failed. Run 'flake8 code/ tests/' to fix.")
-        return 1
+    # Ensure tools are installed
+    install_tools()
 
-    # 3. Type check with Mypy
-    success = run_command(
-        [sys.executable, "-m", "mypy", "code/", "tests/"],
-        "Mypy type checking",
-    )
-    if not success:
-        print("Type checking failed. Run 'mypy code/ tests/' to fix.")
-        return 1
-
-    print("=== All tooling checks passed ===")
-    return 0
-
+    print("\nTooling setup complete. You can now run:")
+    print("  - black code/ tests/            # Format code")
+    print("  - isort code/ tests/            # Sort imports")
+    print("  - flake8 code/ tests/           # Lint code")
+    print("  - mypy code/ tests/             # Type check code")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

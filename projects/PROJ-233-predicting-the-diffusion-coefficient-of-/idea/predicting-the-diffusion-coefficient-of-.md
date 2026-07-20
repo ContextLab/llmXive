@@ -9,34 +9,73 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning regression models trained on compositional (e.g., atomic radius, electronegativity) and microstructural (e.g., grain size, dislocation density) descriptors predict hydrogen diffusion coefficients in metals with higher accuracy than traditional empirical Arrhenius correlations?
+Which compositional and microstructural features govern hydrogen diffusion coefficients in metals, and how do non-linear interactions between these descriptors determine the variance in diffusion rates across alloy systems?
 
 ## Motivation
 
-Hydrogen embrittlement is a critical failure mechanism in structural metals and energy storage systems, yet predicting hydrogen diffusivity remains challenging due to the complex interplay of chemistry and microstructure. Current empirical correlations often lack generalizability across diverse alloy systems, creating a gap for data-driven models that can integrate multi-scale descriptors to improve design safety and efficiency.
+Hydrogen embrittlement and storage efficiency depend critically on hydrogen diffusivity, yet traditional Arrhenius-based models often fail to capture the complex, non-linear interplay between chemical composition and microstructural defects. Identifying the specific physical descriptors and their interactions that drive diffusion variance is essential for accelerating the design of robust, hydrogen-resistant alloys without relying on costly trial-and-error experimentation.
 
 ## Related work
 
-- [Recent advances and applications of machine learning in solid-state materials science](https://doi.org/10.1038/s41524-019-0221-0) — Provides foundational methodology for applying statistical learning to predict material properties from descriptors.
-- [High-entropy ceramics: Present status, challenges, and a look forward](https://doi.org/10.1007/s40145-021-0477-y) — Discusses compositional complexity and descriptor selection in multi-principal element systems relevant to alloy design.
+- [Is hydrogen diffusion in amorphous metals non-Arrhenian?](https://arxiv.org/abs/2310.15498) — Demonstrates that hydrogen diffusion in amorphous metals deviates from standard Arrhenius behavior, highlighting the need for models that account for structural disorder and non-linear effects.
+- [Explainable Machine Learning for Hydrogen Diffusion in Metals and Random Binary Alloys](https://arxiv.org/abs/2308.07823) — Establishes the feasibility of using explainable ML to identify key features governing hydrogen diffusion in binary alloys, providing a methodological precedent for interpreting feature importance in this domain.
 
 ## Expected results
 
-The study expects to achieve a coefficient of determination (R²) greater than 0.75 on a held-out test set, demonstrating that microstructural features significantly improve prediction over composition-only models. Feature importance analysis will identify key physical drivers (e.g., lattice distortion) controlling diffusion, providing actionable insights for alloy development.
+The study expects to identify a specific subset of compositional (e.g., electronegativity difference, atomic radius mismatch) and microstructural (e.g., free volume fraction, dislocation density) descriptors that non-linearly interact to explain >70% of the variance in diffusion coefficients. The analysis will reveal that non-linear interaction terms between lattice distortion and defect density are more predictive than linear additive models, challenging the sufficiency of traditional empirical correlations.
 
 ## Methodology sketch
 
-- Download elemental property data from the **Materials Project API** (https://materialsproject.org) using `requests` library (Python).
-- Curate hydrogen diffusion coefficient targets from open-access supplementary tables in the Journal of Materials Science (search for DOI: 10.1007/s10853-019-XXXXX) or NIST Standard Reference Database (https://webbook.nist.gov/chemistry/).
-- Preprocess data by handling missing microstructural values via imputation and normalizing numerical descriptors (StandardScaler).
-- Split dataset into 80% training and 20% test sets using stratified sampling based on metal crystal structure.
-- Train a Gradient Boosting Regressor (XGBoost) using 5-fold cross-validation to optimize hyperparameters (learning rate, tree depth) on CPU.
-- Evaluate performance using Mean Absolute Error (MAE) and R² metrics; compare against a baseline linear regression model.
-- Generate SHAP (SHapley Additive exPlanations) plots to visualize feature contributions to diffusion predictions.
-- Validate model stability by retraining on bootstrapped samples and reporting confidence intervals on predictions.
+- **Data Acquisition**: Retrieve hydrogen diffusion coefficients ($D$) and associated material metadata (composition, crystal structure, processing history) from the NIST Standard Reference Database and supplementary data from the *Journal of Materials Science* (targeting open-access datasets with explicit microstructural parameters).
+- **Descriptor Engineering**: Calculate compositional descriptors (e.g., mean electronegativity, atomic radius variance, valence electron concentration) using elemental data from the Materials Project API; derive microstructural proxies (e.g., estimated free volume, grain boundary density) from processing parameters and literature-derived correlations where direct measurements are missing.
+- **Preprocessing**: Impute missing microstructural values using k-Nearest Neighbors (k=5) based on crystal structure and composition similarity; normalize all numerical features using StandardScaler.
+- **Model Training**: Train an XGBoost Regressor and a Random Forest Regressor using 5-fold cross-validation to capture non-linear interactions; optimize hyperparameters (max_depth, learning_rate, n_estimators) via Bayesian optimization within a 2-hour CPU budget.
+- **Interaction Analysis**: Utilize SHAP (SHapley Additive exPlanations) interaction values to quantify the contribution of pairwise descriptor interactions (e.g., atomic radius mismatch $\times$ dislocation density) to the predicted diffusion coefficient.
+- **Validation**: Evaluate model performance using Root Mean Squared Error (RMSE) and $R^2$ on a held-out test set (20% of data); compare against a baseline linear regression model to quantify the gain from non-linear modeling.
+- **Independence Check**: Ensure the validation target (experimental $D$) is derived from independent measurements (e.g., permeation experiments) distinct from the input descriptors (calculated from composition/microstructure), avoiding circular validation.
+- **Robustness Testing**: Perform bootstrapping (1,000 iterations) to generate confidence intervals for feature importance rankings and assess model stability across data perturbations.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None available in context.
 - Closest match: None identified.
 - Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-20T10:15:13Z
+**Outcome**: exhausted
+**Original term**: Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors materials science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors materials science | 0 |
+| 1 | hydrogen diffusivity prediction in metallic alloys | 3 |
+| 2 | machine learning models for hydrogen diffusion coefficients | 5 |
+| 3 | microstructure-property relationships for hydrogen transport | 0 |
+| 4 | computational prediction of hydrogen mobility in metals | 0 |
+| 5 | hydrogen embrittlement diffusion modeling | 0 |
+| 6 | atomic diffusion coefficients in crystalline materials | 0 |
+| 7 | data-driven estimation of hydrogen permeability | 0 |
+| 8 | composition-dependent hydrogen diffusion in steel and alloys | 0 |
+| 9 | grain boundary effects on hydrogen diffusion rates | 0 |
+| 10 | first-principles calculations of hydrogen migration barriers | 0 |
+| 11 | multiscale modeling of hydrogen transport in metals | 0 |
+| 12 | hydrogen solubility and diffusivity correlations | 0 |
+| 13 | crystallographic orientation influence on hydrogen diffusion | 0 |
+| 14 | deep learning for hydrogen diffusion in complex alloys | 0 |
+| 15 | trap density and hydrogen diffusion kinetics | 0 |
+| 16 | hydrogen transport mechanisms in body-centered cubic metals | 0 |
+| 17 | predictive modeling of hydrogen diffusion using descriptors | 0 |
+| 18 | hydrogen diffusion in high-entropy alloys | 0 |
+| 19 | ab initio prediction of hydrogen diffusion coefficients | 0 |
+| 20 | hydrogen migration pathways in metal lattices | 0 |
+
+### Verified citations
+
+1. **Is hydrogen diffusion in amorphous metals non-Arrhenian?** (2023). Chunguang Tang, Gang Sun, Yun Liu. arXiv. [2310.15498](https://arxiv.org/abs/2310.15498). PDF-sampled: No.
+2. **Explainable Machine Learning for Hydrogen Diffusion in Metals and Random Binary Alloys** (2023). Grace M. Lu, Matthew Witman, Sapan Agarwal, Vitalie Stavila, Dallas R. Trinkle. arXiv. [2308.07823](https://arxiv.org/abs/2308.07823). PDF-sampled: No.
