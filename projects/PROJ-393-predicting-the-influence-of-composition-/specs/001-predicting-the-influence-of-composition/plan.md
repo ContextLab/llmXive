@@ -21,7 +21,7 @@ The approach strictly adheres to the project constitution regarding reproducibil
 **Project Type**: Computational research pipeline / CLI tool.  
 **Performance Goals**: Full pipeline execution ≤ 6 hours; Memory usage < 6 GB; No GPU required.  
 **Constraints**: No DFT targets in training; strict unit normalization (Oe, emu/g); **MICE imputation** for missing data; CPU-only inference/training.  
-**Scale/Scope**: Target ≥50 experimental data points; ~5 engineered features per entry.
+**Scale/Scope**: Target ≥50 experimental data points; A set of engineered features per entry.
 
 > **Dataset Note**: The "Verified datasets" block provided in the prompt contains URLs for NIST *security* guidelines (800-53), LLM leaderboards, and unrelated music/banking datasets. **None** of these contain Heusler alloy magnetic hysteresis data. The plan below explicitly addresses this gap by defining the ingestion strategy to fetch from the *actual* scientific sources (NIST Materials Data Repository, specific journal supplements) and manual curation, as mandated by FR-001 and the spec's assumption that no pre-existing unified dataset exists. The implementation will not use the irrelevant URLs listed in the prompt's "Verified datasets" block for the scientific data.
 
