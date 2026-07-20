@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-123-investigating-the-role-of-microglial-mor",
+  "ok": false,
+  "reason": "14 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eck is skipped (assuming synthetic data or external join later).\u2026\u201d; code/run_t018_output.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(\"Using synthetic data path for validation (T01\u2026\u201d; code/run_t018_output.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n (T012b)...\")         # Generate synthetic data for validation\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv; python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode run-full --data data/processed/synthetic_dataset.csv; 1 declared deliverable(s) absent: data/processed/morphological_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode generate-synthetic --output data/processed/synthetic_dataset.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py': [Errno 2] No such file or directory",
+    "python projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py --mode run-full --data data/processed/synthetic_dataset.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-123-investigating-the-role-of-microglial-mor/projects/PROJ-123-investigating-the-role-of-microglial-mor/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-20T18:08:38Z"
+}

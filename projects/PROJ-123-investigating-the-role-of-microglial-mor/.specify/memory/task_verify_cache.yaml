@@ -5,3 +5,9 @@ T028:
     flag was set to `true` and that the required disclaimer was appended to text outputs
     (with the exception logic for randomization metadata). Without such artifacts,
     we cannot confirm the task was fulfilled.
+T040:
+  c: false
+  h: dc73b92b2d42b070f4fe62a1b8ee55ad4eff0e45ba1ae6014f7c7d674e5a9143
+  r: The required artifact `docs/LIMITATIONS.md` does not exist, so the task of updating
+    it after verification cannot be satisfied. No evidence of scheduling or any other
+    required output is present.

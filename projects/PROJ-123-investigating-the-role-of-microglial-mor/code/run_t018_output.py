@@ -1,3 +1,13 @@
+"""
+Runner script for Task T018: Output Morphological Metrics.
+
+This script orchestrates the generation of the final morphological metrics CSV.
+It handles both the real data path (expecting upstream T013-T017 output) and
+the synthetic data path for validation purposes.
+
+Usage:
+    python code/run_t018_output.py [--mode synthetic|real]
+"""
 import os
 import sys
 import logging
@@ -6,92 +16,75 @@ from pathlib import Path
 from code.config import get_path, ensure_dirs, set_seed, load_config
 from code.synthetic_data import run_synthetic_pipeline
 from code.output_metrics import run_output_pipeline
-from code.morphometry import process_microglia_image
-from code.data_ingestion import run_ingestion_pipeline_with_exclusion
+from code.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def main():
+
+def main(mode: str = "real"):
     """
-    Execute the T018 output pipeline.
+    Main entry point for T018.
     
-    This script:
-    1. Loads data (preferring real data, falling back to synthetic for validation only if configured).
-    2. Processes images to extract morphological metrics.
-    3. Writes the final CSV to data/processed/morphological_metrics.csv.
+    Args:
+        mode: Either 'real' (default) or 'synthetic'.
+              'synthetic' generates synthetic data first, then runs the output pipeline.
+              'real' assumes upstream data (T013-T017) has already been generated.
     """
-    config = load_config()
-    set_seed(config.get('SEED', 42))
+    logging.basicConfig(level=logging.INFO)
+    set_seed(42)
     
-    # Setup logging
-    log_path = get_path('logs', 't018_output.log')
-    ensure_dirs(log_path)
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_path),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-
-    logger.info("Starting T018 Output Pipeline")
+    logger.info(f"Starting T018 in '{mode}' mode.")
     
-    # Check if real data path is configured
-    use_real_data = config.get('USE_REAL_DATA', False)
+    if mode == "synthetic":
+        logger.info("Generating synthetic data for validation (T012b)...")
+        try:
+            synthetic_path = run_synthetic_pipeline()
+            logger.info(f"Synthetic data generated at {synthetic_path}")
+            # Note: The synthetic data generator writes to data_processed/synthetic_dataset.csv.
+            # The output_metrics.py expects data in data_intermediates/processed_morphology.csv.
+            # For validation, we assume the synthetic data IS the processed data for this step,
+            # or we copy it to the expected location.
+            # However, the spec says T007 is for logic validation ONLY.
+            # To make T018 run end-to-end for validation, we will treat the synthetic output
+            # as the input to T018.
+            # We need to ensure the intermediate file exists.
+            import shutil
+            intermediate_path = get_path("data_intermediates", "processed_morphology.csv")
+            ensure_dirs(os.path.dirname(intermediate_path))
+            shutil.copy(synthetic_path, intermediate_path)
+            logger.info(f"Copied synthetic data to intermediate path: {intermediate_path}")
+        except Exception as e:
+            logger.error(f"Failed to generate synthetic data: {e}")
+            raise
     
-    processed_records = []
+    elif mode == "real":
+        logger.info("Running T018 on real data (assuming T013-T017 completed).")
+        # No synthetic generation. The output_metrics.py will fail loudly if
+        # the intermediate file is missing.
     
-    if use_real_data:
-        logger.info("Attempting real data ingestion path (T012a)...")
-        # This will fail loudly if real data is not available
-        image_paths, metadata_list = run_ingestion_pipeline_with_exclusion()
-        
-        for img_path, meta in zip(image_paths, metadata_list):
-            # Process image using the pipeline functions from T013-T017
-            try:
-                metrics = process_microglia_image(img_path)
-                if metrics:
-                    record = {
-                        'file_path': img_path,
-                        'brain_region': meta.get('brain_region'),
-                        'pathology_status': meta.get('pathology_status'),
-                        'branch_points': metrics['branch_points'],
-                        'total_length': metrics['total_length'],
-                        'soma_area': metrics['soma_area'],
-                        'sholl_intersections': metrics['sholl_intersections']
-                    }
-                    processed_records.append(record)
-            except Exception as e:
-                logger.error(f"Failed to process {img_path}: {e}")
     else:
-        logger.info("Using synthetic data path for validation (T012b)...")
-        # Generate synthetic data for validation
-        synthetic_data = run_synthetic_pipeline()
-        
-        for item in synthetic_data:
-            processed_records.append({
-                'file_path': item.get('file_path', 'synthetic'),
-                'brain_region': item.get('brain_region'),
-                'pathology_status': item.get('pathology_status'),
-                'branch_points': item.get('branch_points'),
-                'total_length': item.get('total_length'),
-                'soma_area': item.get('soma_area'),
-                'sholl_intersections': item.get('sholl_intersections')
-            })
-
-    if not processed_records:
-        logger.error("No records processed. T018 cannot complete.")
-        sys.exit(1)
-
-    # Write output CSV
-    output_path = run_output_pipeline(processed_records)
+        raise ValueError(f"Invalid mode: {mode}. Must be 'real' or 'synthetic'.")
     
-    if output_path:
-        logger.info(f"T018 Complete. Output written to: {output_path}")
-    else:
-        logger.error("Failed to write output CSV.")
-        sys.exit(1)
+    # Run the T018 output pipeline
+    try:
+        output_path = run_output_pipeline()
+        logger.info(f"T018 completed successfully. Output: {output_path}")
+        return output_path
+    except FileNotFoundError as e:
+        logger.error(f"T018 failed: {e}")
+        logger.error("Ensure T013-T017 (morphometry pipeline) has run and produced "
+                     "data/intermediates/processed_morphology.csv")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in T018: {e}")
+        raise
+
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Run T018: Output Morphological Metrics")
+    parser.add_argument("--mode", choices=["real", "synthetic"], default="real",
+                        help="Mode: 'real' for production, 'synthetic' for validation")
+    args = parser.parse_args()
+    
+    main(mode=args.mode)

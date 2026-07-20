@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T05:10:10.403690Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-123-investigating-the-role-of-microglial-mor
-last_run_id: 7d469114-9e3b-45ec-a2a2-87f54175e910
+last_run_id: 9c707444-ab0a-403f-8549-eca3669cc74d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-123-investigating-the-role-of-microglial-mor/specs/001-investigating-the-role-of-microglial-mor
 title: Investigating the Role of Microglial Morphology in Age-Related Cognitive Decline
-updated_at: '2026-07-20T17:16:48.591174Z'
+updated_at: '2026-07-20T18:16:26.088259Z'

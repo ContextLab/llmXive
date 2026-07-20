@@ -1,0 +1,15 @@
+status: none
+intent: Allen Brain Atlas microglia confocal images download AD Knowledge Portal dataset
+  python package dataset
+required_fields:
+- image_id
+- file_path
+- brain_region
+- pathology_status
+- branch_points
+- total_process_length
+- soma_area
+- sholl_intersections
+cache_key: 1784d084a046f3bbf4f776be06c3de1b30340a8ffbf934e4ab37f1b69f3d07fc
+searched_at: '2026-07-20T18:10:06.594135+00:00'
+retry_count: 1

@@ -415,3 +415,154 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T17:45:50Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "Mean R\xB2 score of 0.6850 in 5-fold cross-validation"
+  claim_id: c_85d59bff
+  context: "The model was evaluated using 5-fold cross-validation to assess generalizability.\
+    \ Mean R\xB2 Score: 0.6850"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean R\xB2 Score: 0.6850"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:47:32Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "Standard deviation of 0.0420 for R\xB2 scores in 5-fold cross-validation"
+  claim_id: c_9255786a
+  context: "Mean R\xB2 Score: 0.6850. Standard Deviation: 0.0420"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Standard Deviation: 0.0420'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:47:48Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "R\xB2 score of 0.7120 for Fold 1 in 5-fold cross-validation"
+  claim_id: c_a233aa52
+  context: "Fold-wise Performance table showing Fold 1 R\xB2 Score as 0.7120."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fold 1 R\xB2 Score: 0.7120"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:48:09Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "R\xB2 score of 0.6580 for Fold 2 in 5-fold cross-validation"
+  claim_id: c_08b92fd9
+  context: "Fold-wise Performance table showing Fold 2 R\xB2 Score as 0.6580."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fold 2 R\xB2 Score: 0.6580"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:48:29Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "R\xB2 score of 0.6950 for Fold 3 in 5-fold cross-validation"
+  claim_id: c_480b50ec
+  context: "Fold-wise Performance table showing Fold 3 R\xB2 Score as 0.6950."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fold 3 R\xB2 Score: 0.6950"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:49:03Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "R\xB2 score of 0.6700 for Fold 4 in 5-fold cross-validation"
+  claim_id: c_70483cbf
+  context: "Fold-wise Performance table showing Fold 4 R\xB2 Score as 0.6700."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fold 4 R\xB2 Score: 0.6700"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:49:45Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: "R\xB2 score of 0.7020 for Fold 5 in 5-fold cross-validation"
+  claim_id: c_3e30ca8b
+  context: "Fold-wise Performance table showing Fold 5 R\xB2 Score as 0.7020."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fold 5 R\xB2 Score: 0.7020"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:50:15Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: Interaction p-value of 0.0312 at Sholl radius step 2
+  claim_id: c_ef290a61
+  context: P-Value Variation table showing Step 2 Interaction P-Value as 0.0312.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interaction P-Value for Sholl step 2 is 0.0312
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:50:31Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: Interaction p-value of 0.0232 at Sholl radius step 5
+  claim_id: c_6386e307
+  context: P-Value Variation table showing Step 5 Interaction P-Value as 0.0232.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interaction P-Value for Sholl step 5 is 0.0232
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:50:49Z'
+- artifact_path: projects/PROJ-123-investigating-the-role-of-microglial-mor/reports/validation_report.md
+  attempts: 1
+  canonical: Interaction p-value of 0.0295 at Sholl radius step 10
+  claim_id: c_efe4e12f
+  context: P-Value Variation table showing Step 10 Interaction P-Value as 0.0295.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Interaction P-Value for Sholl step 10 is 0.0295
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:51:06Z'
