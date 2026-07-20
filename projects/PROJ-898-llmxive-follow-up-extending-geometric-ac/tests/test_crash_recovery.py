@@ -1,22 +1,21 @@
 """
-Unit tests for crash recovery mechanism in data_generation.py.
-
-Tests verify that the CrashRecoveryHandler properly handles
-physics simulation failures and recovers gracefully.
+Unit tests for crash recovery and error handling in data generation.
+Verifies that the system handles physics simulation failures gracefully.
 """
-import pytest
+
+import json
 import os
 import sys
-import json
 import tempfile
 import time
 from unittest.mock import patch, MagicMock
+import pytest
 import numpy as np
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.data_generation import (
+from data_generation import (
     CrashRecoveryHandler,
     PhysicsSimulationError,
     URDFLoadError,
@@ -24,225 +23,217 @@ from code.data_generation import (
     TimeoutError,
     RecoveryResult
 )
+from utils import setup_logging
 
 class TestCrashRecoveryHandler:
-    """Test suite for CrashRecoveryHandler class."""
-    
+    """Tests for the CrashRecoveryHandler class."""
+
     @pytest.fixture
-    def handler(self):
-        """Create a CrashRecoveryHandler instance with test settings."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, "errors.log")
-            handler = CrashRecoveryHandler(
-                max_retries=3,
-                base_delay=0.1,
-                max_delay=0.5,
-                log_file=log_file
+    def handler(self, tmp_path):
+        """Create a handler with a temporary log directory."""
+        log_dir = tmp_path / "data" / "results"
+        log_dir.mkdir(parents=True)
+        
+        # Mock the error log path
+        with patch('data_generation.CrashRecoveryHandler.error_log_path', str(log_dir / "errors.log")):
+            logger = setup_logging("test")
+            return CrashRecoveryHandler(logger)
+
+    def test_successful_operation(self, handler):
+        """Test that a successful operation returns immediately."""
+        def success_op():
+            return "success"
+        
+        success, result = handler.retry_with_backoff(success_op, "test_op")
+        assert success is True
+        assert result == "success"
+
+    def test_retry_on_transient_failure(self, handler):
+        """Test that transient failures trigger retries with backoff."""
+        attempts = [0]
+        
+        def flaky_op():
+            attempts[0] += 1
+            if attempts[0] < 3:
+                raise SimulationStepError("Transient failure")
+            return "success"
+        
+        success, result = handler.retry_with_backoff(flaky_op, "flaky_op")
+        assert success is True
+        assert result == "success"
+        assert attempts[0] == 3  # Failed twice, succeeded on third
+
+    def test_max_retries_exceeded(self, handler):
+        """Test that max retries are respected and failure is returned."""
+        def always_fail():
+            raise URDFLoadError("Always fails")
+        
+        success, result = handler.retry_with_backoff(always_fail, "fail_op")
+        assert success is False
+        assert result is None
+
+    def test_unexpected_error_raises(self, handler):
+        """Test that unexpected errors are not caught and re-raised."""
+        def unexpected_error():
+            raise ValueError("Unexpected error")
+        
+        with pytest.raises(ValueError, match="Unexpected error"):
+            handler.retry_with_backoff(unexpected_error, "unexpected_op")
+
+    def test_log_error_creation(self, handler, tmp_path):
+        """Test that error logs are created when errors occur."""
+        log_file = tmp_path / "data" / "results" / "errors.log"
+        
+        # Create directory structure
+        log_file.parent.mkdir(parents=True)
+        
+        # Mock the log file path
+        handler.error_log_path = str(log_file)
+        
+        def fail_op():
+            raise SimulationStepError("Test error")
+        
+        handler.retry_with_backoff(fail_op, "fail_op")
+        
+        assert log_file.exists()
+        with open(log_file, "r") as f:
+            content = f.read()
+            assert "SimulationStepError" in content
+            assert "Test error" in content
+
+    def test_handle_urdf_load_success(self, handler):
+        """Test successful URDF loading."""
+        # Create a temporary URDF file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.urdf', delete=False) as f:
+            f.write('''<?xml version="1.0"?>
+            <robot name="test">
+                <link name="base">
+                    <inertial><mass value="1.0"/></inertial>
+                    <visual><geometry><box size="0.1 0.1 0.1"/></geometry></visual>
+                </link>
+            </robot>''')
+            urdf_path = f.name
+
+        try:
+            with patch('data_generation.p') as mock_p:
+                mock_p.loadURDF.return_value = 1  # Valid body ID
+                mock_p.getNumBodies.return_value = 0
+                
+                success, body_id = handler.handle_urdf_load(urdf_path, "test_trial")
+                
+                assert success is True
+                assert body_id == 1
+        finally:
+            os.unlink(urdf_path)
+
+    def test_handle_urdf_load_not_found(self, handler):
+        """Test URDF loading with non-existent file."""
+        success, body_id = handler.handle_urdf_load("/nonexistent/path.urdf", "test_trial")
+        assert success is False
+        assert body_id is None
+
+    def test_handle_urdf_load_invalid_id(self, handler):
+        """Test URDF loading that returns error ID."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.urdf', delete=False) as f:
+            f.write('<?xml version="1.0"?><robot><link name="base"/></robot>')
+            urdf_path = f.name
+
+        try:
+            with patch('data_generation.p') as mock_p:
+                mock_p.loadURDF.return_value = -1  # Error ID
+                
+                success, body_id = handler.handle_urdf_load(urdf_path, "test_trial")
+                
+                assert success is False
+                assert body_id is None
+        finally:
+            os.unlink(urdf_path)
+
+    def test_handle_simulation_step_success(self, handler):
+        """Test successful simulation step."""
+        with patch('data_generation.p') as mock_p:
+            mock_p.getNumBodies.return_value = 0
+            mock_p.getBasePositionAndOrientation.return_value = ([0, 0, 0], [0, 0, 0, 1], [], [], [], [])
+            mock_p.getBaseVelocity.return_value = ([0, 0, 0], [0, 0, 0])
+            mock_p.getJointStates.return_value = []
+            
+            success, state = handler.handle_simulation_step("test_trial")
+            
+            assert success is True
+            assert isinstance(state, dict)
+
+    def test_handle_simulation_step_nan_detection(self, handler):
+        """Test that NaN values in simulation state are detected."""
+        with patch('data_generation.p') as mock_p:
+            mock_p.getNumBodies.return_value = 1
+            mock_p.getBasePositionAndOrientation.return_value = (
+                [np.nan, 0, 0], [0, 0, 0, 1], [], [], [], []
             )
-            yield handler
-    
-    def test_initialization(self, handler):
-        """Test that handler initializes with correct parameters."""
-        assert handler.max_retries == 3
-        assert handler.base_delay == 0.1
-        assert handler.max_delay == 0.5
-        assert handler.log_file is not None
-    
-    def test_handle_urdf_load_failure_success_after_retry(self, handler):
-        """Test URDF load failure recovery with successful retry."""
-        # Mock PyBullet functions
-        with patch('code.data_generation.p') as mock_p, \
-             patch('code.data_generation.pybullet_data') as mock_data:
+            mock_p.getBaseVelocity.return_value = ([0, 0, 0], [0, 0, 0])
+            mock_p.getJointStates.return_value = []
             
-            mock_p.resetSimulation = MagicMock()
-            mock_p.setAdditionalSearchPath = MagicMock()
-            mock_p.loadURDF = MagicMock(side_effect=[-1, 123])  # First fail, then succeed
-            mock_data.getDataPath = MagicMock(return_value="/fake/path")
+            success, state = handler.handle_simulation_step("test_trial")
             
-            result = handler.handle_urdf_load_failure("test.urdf", "test_context")
-            
-            assert result.success is True
-            assert result.attempts == 2
-            assert result.total_wait_time > 0.0
-            assert result.error_message is None
-            
-            # Verify resetSimulation was called before each retry
-            assert mock_p.resetSimulation.call_count == 2
-    
-    def test_handle_urdf_load_failure_max_retries(self, handler):
-        """Test URDF load failure after max retries."""
-        with patch('code.data_generation.p') as mock_p, \
-             patch('code.data_generation.pybullet_data') as mock_data:
-            
-            mock_p.resetSimulation = MagicMock()
-            mock_p.setAdditionalSearchPath = MagicMock()
-            mock_p.loadURDF = MagicMock(return_value=-1)  # Always fail
-            mock_data.getDataPath = MagicMock(return_value="/fake/path")
-            
-            result = handler.handle_urdf_load_failure("test.urdf", "test_context")
-            
-            assert result.success is False
-            assert result.attempts == 3
-            assert result.error_message is not None
-            assert "Failed to load test.urdf" in result.error_message
-    
-    def test_handle_simulation_step_failure(self, handler):
-        """Test simulation step failure recovery."""
-        with patch('code.data_generation.p') as mock_p, \
-             patch('code.data_generation.pybullet_data') as mock_data:
-            
-            mock_p.resetSimulation = MagicMock()
-            mock_p.setAdditionalSearchPath = MagicMock()
-            mock_data.getDataPath = MagicMock(return_value="/fake/path")
-            
-            result = handler.handle_simulation_step_failure("test_context")
-            
-            assert result.success is True
-            assert result.attempts == 1
-            assert result.total_wait_time == 0.0
-    
-    def test_handle_timeout(self, handler):
-        """Test timeout error handling."""
-        result = handler.handle_timeout("test_operation", 300.0)
+            assert success is False
+            assert state is None
+
+    def test_exponential_backoff_timing(self, handler):
+        """Test that backoff time increases exponentially."""
+        start_time = time.time()
         
-        assert result.success is False
-        assert result.attempts == 1
-        assert result.total_wait_time == 0.0
-        assert result.error_message is not None
-        assert "test_operation" in result.error_message
-        assert "300.0" in result.error_message
-    
-    def test_exponential_backoff(self, handler):
-        """Test that delays increase exponentially."""
-        delays = []
-        current_delay = handler.base_delay
+        def always_fail():
+            raise SimulationStepError("Fail")
         
-        for i in range(5):
-            delays.append(current_delay)
-            current_delay = min(current_delay * 2, handler.max_delay)
+        handler.retry_with_backoff(always_fail, "fail_op")
+        elapsed = time.time() - start_time
         
-        # Verify exponential growth up to max
-        assert delays[0] == handler.base_delay
-        assert delays[1] == handler.base_delay * 2
-        assert delays[2] == handler.base_delay * 4
-        # Last delays should be capped at max_delay
-        assert all(d <= handler.max_delay for d in delays[3:])
-    
-    def test_error_logging(self, handler):
-        """Test that errors are properly logged to file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, "test_errors.log")
-            test_handler = CrashRecoveryHandler(
-                max_retries=1,
-                base_delay=0.1,
-                log_file=log_file
-            )
-            
-            # Create a test error
-            error = URDFLoadError("Test URDF load failure")
-            
-            # Call private log method
-            test_handler._log_error(error, 1, 0.1)
-            
-            # Verify log file exists and contains error
-            assert os.path.exists(log_file)
-            
-            with open(log_file, 'r') as f:
-                log_content = f.read()
-            
-            assert "urdf_load" in log_content
-            assert "Test URDF load failure" in log_content
-            assert "attempt" in log_content
-            
-            # Parse and verify JSON structure
-            log_entry = json.loads(log_content.strip())
-            assert log_entry["error_type"] == "urdf_load"
-            assert log_entry["attempt"] == 1
-            assert log_entry["total_delay"] == 0.1
-            assert "timestamp" in log_entry
-    
-    def test_recovery_result_dataclass(self):
-        """Test RecoveryResult dataclass initialization."""
-        result = RecoveryResult(
-            success=True,
-            attempts=2,
-            total_wait_time=1.5,
-            error_message=None
-        )
-        
+        # Should have waited at least: 0.1 + 0.2 + 0.4 + 0.8 + 1.6 = 3.1 seconds
+        # But capped at MAX_BACKOFF (5.0) for each step after the first few
+        # With MAX_RETRIES=5, we expect 4 waits: 0.1, 0.2, 0.4, 0.8
+        assert elapsed >= 1.0  # Minimum expected backoff time
+
+class TestExceptions:
+    """Tests for custom exception classes."""
+
+    def test_physics_simulation_error(self):
+        """Test base exception."""
+        exc = PhysicsSimulationError("Test message")
+        assert str(exc) == "Test message"
+
+    def test_urdf_load_error(self):
+        """Test URDF load exception."""
+        exc = URDFLoadError("URDF failed")
+        assert isinstance(exc, PhysicsSimulationError)
+        assert str(exc) == "URDF failed"
+
+    def test_simulation_step_error(self):
+        """Test simulation step exception."""
+        exc = SimulationStepError("Step failed")
+        assert isinstance(exc, PhysicsSimulationError)
+        assert str(exc) == "Step failed"
+
+    def test_timeout_error(self):
+        """Test timeout exception."""
+        exc = TimeoutError("Timed out")
+        assert isinstance(exc, PhysicsSimulationError)
+        assert str(exc) == "Timed out"
+
+class TestRecoveryResult:
+    """Tests for RecoveryResult class."""
+
+    def test_success_result(self):
+        """Test successful recovery result."""
+        result = RecoveryResult(success=True, retries=0)
         assert result.success is True
-        assert result.attempts == 2
-        assert result.total_wait_time == 1.5
-        assert result.error_message is None
-    
-    def test_custom_exceptions(self):
-        """Test custom exception classes."""
-        # Test PhysicsSimulationError
-        error = PhysicsSimulationError("Test error", "test_type")
-        assert str(error) == "Test error"
-        assert error.error_type == "test_type"
-        assert hasattr(error, "timestamp")
-        
-        # Test URDFLoadError
-        urdf_error = URDFLoadError("URDF failed")
-        assert urdf_error.error_type == "urdf_load"
-        
-        # Test SimulationStepError
-        step_error = SimulationStepError("Step failed")
-        assert step_error.error_type == "simulation_step"
-        
-        # Test TimeoutError
-        timeout_error = TimeoutError("Timed out")
-        assert timeout_error.error_type == "timeout"
-    
-    def test_crash_recovery(self, handler):
-        """
-        Integration test for crash recovery mechanism.
-        
-        This test verifies that the recovery handler can successfully
-        recover from simulated failures and that the recovery process
-        is logged correctly.
-        """
-        # Simulate a scenario where recovery is needed
-        with patch('code.data_generation.p') as mock_p, \
-             patch('code.data_generation.pybullet_data') as mock_data:
-            
-            mock_p.resetSimulation = MagicMock()
-            mock_p.setAdditionalSearchPath = MagicMock()
-            mock_p.loadURDF = MagicMock(side_effect=[
-                -1,  # First attempt fails
-                -1,  # Second attempt fails
-                456  # Third attempt succeeds
-            ])
-            mock_data.getDataPath = MagicMock(return_value="/fake/path")
-            
-            # Attempt recovery
-            result = handler.handle_urdf_load_failure("recovery_test.urdf", "integration_test")
-            
-            # Verify recovery was successful
-            assert result.success is True
-            assert result.attempts == 3
-            assert result.total_wait_time > 0.0
-            
-            # Verify all resetSimulation calls were made
-            assert mock_p.resetSimulation.call_count == 3
-            
-            # Verify error log was created
-            assert os.path.exists(handler.log_file)
-            
-            # Verify log contains multiple entries
-            with open(handler.log_file, 'r') as f:
-                log_lines = f.readlines()
-            
-            # Should have 2 error entries (for failed attempts)
-            assert len(log_lines) >= 2
-            
-            # Parse and verify each log entry
-            for line in log_lines:
-                entry = json.loads(line.strip())
-                assert "error_type" in entry
-                assert "message" in entry
-                assert "attempt" in entry
+        assert result.retries == 0
+        assert result.last_error is None
+
+    def test_failure_result(self):
+        """Test failed recovery result."""
+        result = RecoveryResult(success=False, retries=3, last_error="Error message")
+        assert result.success is False
+        assert result.retries == 3
+        assert result.last_error == "Error message"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

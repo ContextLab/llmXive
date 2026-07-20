@@ -1,250 +1,143 @@
 """
-Configuration management for llmXive Geometric Action Model experiments.
-
-Provides dataclasses and utilities for loading, saving, and validating
-experiment parameters including topology counts, timeout limits, and
-simulation settings.
+Configuration management for llmXive experiments.
+Defines typed configuration objects and YAML loading utilities.
 """
-
 import json
 import logging
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
-
-from utils import setup_logging
-
-# Configure module logger
-logger = setup_logging(__name__)
-
+from .utils import setup_logging
 
 @dataclass
 class TopologyConfig:
-    """Configuration for kinematic chain topologies to generate."""
-    min_hinge_count: int = 2
+    """Configuration for topology generation parameters."""
+    min_hinge_count: int = 3
     max_hinge_count: int = 10
-    num_variations: int = 50
-    include_deformable: bool = True
-    deformable_types: List[str] = field(default_factory=lambda: ["soft_rope", "cloth"])
-    deformable_count: int = 20
+    object_types: List[str] = field(default_factory=lambda: ["rigid", "deformable"])
+    deformable_stiffness_range: tuple = (0.1, 1.0)
     
-    def __post_init__(self):
-        if self.min_hinge_count < 1:
-            raise ValueError("min_hinge_count must be at least 1")
-        if self.max_hinge_count < self.min_hinge_count:
-            raise ValueError("max_hinge_count must be >= min_hinge_count")
-        if self.num_variations < 1:
-            raise ValueError("num_variations must be at least 1")
-        
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "min_hinge_count": self.min_hinge_count,
-            "max_hinge_count": self.max_hinge_count,
-            "num_variations": self.num_variations,
-            "include_deformable": self.include_deformable,
-            "deformable_types": self.deformable_types,
-            "deformable_count": self.deformable_count,
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TopologyConfig":
-        """Create instance from dictionary."""
-        return cls(
-            min_hinge_count=data.get("min_hinge_count", 2),
-            max_hinge_count=data.get("max_hinge_count", 10),
-            num_variations=data.get("num_variations", 50),
-            include_deformable=data.get("include_deformable", True),
-            deformable_types=data.get("deformable_types", ["soft_rope", "cloth"]),
-            deformable_count=data.get("deformable_count", 20),
-        )
-
-
 @dataclass
 class SolverConfig:
-    """Configuration for symbolic solver execution."""
+    """Configuration for symbolic solver parameters."""
     timeout_seconds: float = 300.0
     max_iterations: int = 1000
-    tolerance: float = 1e-6
-    enable_parallel: bool = False
-    num_workers: int = 2
+    constraint_tolerance: float = 1e-6
     
-    def __post_init__(self):
-        if self.timeout_seconds <= 0:
-            raise ValueError("timeout_seconds must be positive")
-        if self.max_iterations < 1:
-            raise ValueError("max_iterations must be at least 1")
-        if self.tolerance <= 0:
-            raise ValueError("tolerance must be positive")
-        
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "timeout_seconds": self.timeout_seconds,
-            "max_iterations": self.max_iterations,
-            "tolerance": self.tolerance,
-            "enable_parallel": self.enable_parallel,
-            "num_workers": self.num_workers,
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SolverConfig":
-        """Create instance from dictionary."""
-        return cls(
-            timeout_seconds=data.get("timeout_seconds", 300.0),
-            max_iterations=data.get("max_iterations", 1000),
-            tolerance=data.get("tolerance", 1e-6),
-            enable_parallel=data.get("enable_parallel", False),
-            num_workers=data.get("num_workers", 2),
-        )
-
-
 @dataclass
 class ExperimentConfig:
-    """
-    Base configuration for experiment parameters.
-    
-    Contains all experiment settings including topology generation,
-    solver parameters, simulation settings, and output paths.
-    """
-    # Experiment identification
-    experiment_name: str = "llmxive_gam_follow_up"
+    """Configuration for experiment execution parameters."""
     seed: int = 42
-    output_dir: str = "data/generated"
-    results_dir: str = "data/results"
+    trial_count: int = 50
+    topology_counts: Dict[str, int] = field(default_factory=lambda: {"hinge_3": 10, "hinge_5": 10, "hinge_7": 10, "hinge_10": 10})
+    timeout_limits: Dict[str, float] = field(default_factory=lambda: {"step": 300.0})
     
-    # Configuration sections
-    topology: TopologyConfig = field(default_factory=TopologyConfig)
-    solver: SolverConfig = field(default_factory=SolverConfig)
-    
-    # Simulation settings
-    physics_dt: float = 1.0 / 240.0
-    physics_steps_per_action: int = 10
-    gravity: float = -9.81
-    
-    # Logging
-    log_level: str = "INFO"
-    log_file: Optional[str] = None
-    
-    def __post_init__(self):
-        # Validate directories exist or can be created
-        os.makedirs(self.output_dir, exist_ok=True)
-        os.makedirs(self.results_dir, exist_ok=True)
-        
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert entire config to dictionary."""
-        return {
-            "experiment_name": self.experiment_name,
-            "seed": self.seed,
-            "output_dir": self.output_dir,
-            "results_dir": self.results_dir,
-            "topology": self.topology.to_dict(),
-            "solver": self.solver.to_dict(),
-            "physics_dt": self.physics_dt,
-            "physics_steps_per_action": self.physics_steps_per_action,
-            "gravity": self.gravity,
-            "log_level": self.log_level,
-            "log_file": self.log_file,
-        }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ExperimentConfig":
-        """Create instance from dictionary."""
-        topology_data = data.get("topology", {})
-        solver_data = data.get("solver", {})
-        
-        return cls(
-            experiment_name=data.get("experiment_name", "llmxive_gam_follow_up"),
-            seed=data.get("seed", 42),
-            output_dir=data.get("output_dir", "data/generated"),
-            results_dir=data.get("results_dir", "data/results"),
-            topology=TopologyConfig.from_dict(topology_data),
-            solver=SolverConfig.from_dict(solver_data),
-            physics_dt=data.get("physics_dt", 1.0 / 240.0),
-            physics_steps_per_action=data.get("physics_steps_per_action", 10),
-            gravity=data.get("gravity", -9.81),
-            log_level=data.get("log_level", "INFO"),
-            log_file=data.get("log_file"),
-        )
-    
-    @classmethod
-    def create_default(cls) -> "ExperimentConfig":
-        """Create a configuration with default values."""
-        return cls()
+class Config:
+    """Container for all configuration sections."""
+    def __init__(self, topology: TopologyConfig, solver: SolverConfig, experiment: ExperimentConfig):
+        self.topology = topology
+        self.solver = solver
+        self.experiment = experiment
 
-def load_config(config_path: str) -> ExperimentConfig:
+def load_config(config_path: str) -> Config:
     """
-    Load experiment configuration from a JSON file.
+    Load configuration from a YAML or JSON file.
     
     Args:
-        config_path: Path to the JSON configuration file.
+        config_path: Path to configuration file
         
     Returns:
-        ExperimentConfig instance populated with values from the file.
-        
-    Raises:
-        FileNotFoundError: If the config file does not exist.
-        json.JSONDecodeError: If the file contains invalid JSON.
-        ValueError: If the configuration values are invalid.
+        Config object with loaded parameters
     """
+    logger = setup_logging()
+    logger.info(f"Loading configuration from {config_path}")
+    
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        
+    with open(config_path, 'r') as f:
+        if config_path.endswith('.yaml') or config_path.endswith('.yml'):
+            try:
+                import yaml
+                config_data = yaml.safe_load(f)
+            except ImportError:
+                raise ImportError("PyYAML is required to load YAML config files. Install with: pip install pyyaml")
+        else:
+            config_data = json.load(f)
     
-    logger.info(f"Loading configuration from: {config_path}")
+    # Extract sections with defaults
+    topology_data = config_data.get('topology', {})
+    solver_data = config_data.get('solver', {})
+    experiment_data = config_data.get('experiment', {})
     
-    with open(config_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    topology = TopologyConfig(**topology_data)
+    solver = SolverConfig(**solver_data)
+    experiment = ExperimentConfig(**experiment_data)
     
-    config = ExperimentConfig.from_dict(data)
-    logger.info(f"Loaded configuration: {config.experiment_name}")
-    logger.info(f"  Topology: {config.topology.num_variations} variations, "
-               f"hinges {config.topology.min_hinge_count}-{config.topology.max_hinge_count}")
-    logger.info(f"  Solver timeout: {config.solver.timeout_seconds}s")
-    
-    return config
+    return Config(topology, solver, experiment)
 
-def save_config(config: ExperimentConfig, config_path: str) -> None:
+def save_config(config: Config, config_path: str) -> None:
     """
-    Save experiment configuration to a JSON file.
+    Save configuration to a JSON file.
     
     Args:
-        config: ExperimentConfig instance to save.
-        config_path: Path to the output JSON file.
+        config: Config object to save
+        config_path: Path to save configuration file
     """
-    # Ensure parent directory exists
-    parent_dir = os.path.dirname(config_path)
-    if parent_dir and not os.path.exists(parent_dir):
-        os.makedirs(parent_dir, exist_ok=True)
+    logger = setup_logging()
+    logger.info(f"Saving configuration to {config_path}")
     
-    logger.info(f"Saving configuration to: {config_path}")
+    config_dict = {
+        'topology': {
+            'min_hinge_count': config.topology.min_hinge_count,
+            'max_hinge_count': config.topology.max_hinge_count,
+            'object_types': config.topology.object_types,
+            'deformable_stiffness_range': config.topology.deformable_stiffness_range
+        },
+        'solver': {
+            'timeout_seconds': config.solver.timeout_seconds,
+            'max_iterations': config.solver.max_iterations,
+            'constraint_tolerance': config.solver.constraint_tolerance
+        },
+        'experiment': {
+            'seed': config.experiment.seed,
+            'trial_count': config.experiment.trial_count,
+            'topology_counts': config.experiment.topology_counts,
+            'timeout_limits': config.experiment.timeout_limits
+        }
+    }
     
-    data = config.to_dict()
-    
-    with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    
-    logger.info("Configuration saved successfully")
+    os.makedirs(os.path.dirname(config_path) if os.path.dirname(config_path) else '.', exist_ok=True)
+    with open(config_path, 'w') as f:
+        json.dump(config_dict, f, indent=2)
 
-def create_default_config_file(output_path: str = "config/default_experiment.json") -> ExperimentConfig:
+def create_default_config_file(output_path: Optional[str] = None) -> str:
     """
-    Create a default configuration file and return the config object.
+    Create a default configuration file with standard parameters.
     
     Args:
-        output_path: Path where the JSON file will be written.
+        output_path: Optional path to save the config. Defaults to 'code/config.yaml'
         
     Returns:
-        The created ExperimentConfig instance.
+        Path to the created configuration file
     """
-    config = ExperimentConfig.create_default()
-    save_config(config, output_path)
-    logger.info(f"Default configuration created at: {output_path}")
-    return config
+    if output_path is None:
+        output_path = "code/config.yaml"
+        
+    default_config = Config(
+        topology=TopologyConfig(),
+        solver=SolverConfig(),
+        experiment=ExperimentConfig()
+    )
+    
+    save_config(default_config, output_path)
+    return output_path
 
 def get_default_config_path() -> str:
-    """Return the default path for the experiment configuration file."""
-    return "config/default_experiment.json"
-
-if __name__ == "__main__":
-    # Example usage: create a default config file
-    config = create_default_config_file()
-    print(f"Created default config: {config.to_dict()}")
+    """
+    Get the default path for the configuration file.
+    
+    Returns:
+        Default configuration file path
+    """
+    return "code/config.yaml"

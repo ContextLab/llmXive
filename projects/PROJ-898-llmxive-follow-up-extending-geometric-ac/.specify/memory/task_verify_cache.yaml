@@ -1,55 +1,10 @@
-T001a:
+T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required project root directory (`projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/`)\
-    \ or its contents is provided; the response only contains feature specifications\
-    \ and user stories, not the actual folder structure. The task\u2019s core deliverable\u2014\
-    a created project root structure\u2014is missing."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required `code/`, `data/`, and `tests/` directories
-    actually exist or contain any files; the claim cannot be verified from the given
-    artifacts. The implementer must supply a directory listing or screenshots showing
-    those three directories created.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `.gitkeep` files in the required directories (`data/raw`, `data/generated`,
-    `data/results`) is provided; without seeing those files, we cannot confirm the
-    task was actually completed. The implementer must supply the repository view or
-    file list showing the three `.gitkeep` files.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, or a pre\u2011commit hook setup) are\
-    \ present in the provided evidence, nor any documentation showing that Ruff and\
-    \ Black have been installed and integrated into the project workflow. Without\
-    \ these artifacts, the requirement to configure linting (ruff) and formatting\
-    \ (black) is not satisfied."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented as evidence; without
-    visible artifacts confirming the creation of `data/raw`, `data/generated`, `data/results`
-    and their placeholder files, the requirement cannot be verified as satisfied.
-T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script or code implementing the time\u2011calculation and CI\u2011budget\
-    \ enforcement was presented. The required artifact (a runnable script that computes\
-    \ `per_step_time * steps_per_trial * number_of_trials`, checks it against the\
-    \ 6\u2011hour limit, and aborts trials exceeding the cap) is missing, so the task\
-    \ is not satisfied."
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence contains only the feature specification and user stories\
-    \ for dataset generation and symbolic planning; there is no code, module, or documentation\
-    \ showing error\u2011handling logic for physics simulation crashes, nor any logs\
-    \ or recovery mechanisms. Consequently, the required artifact\u2014an implementation\
-    \ of crash recovery and state logging for the physics simulator\u2014is missing."
+  r: "No CPU\u2011only profiling script, execution logs, or timing results are present;\
+    \ the claim provides no artifact demonstrating that solver steps were measured\
+    \ and shown to be under 300\u202Fseconds on a 2\u2011core machine. The required\
+    \ evidence is missing."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

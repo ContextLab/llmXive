@@ -1,0 +1,51 @@
+# Pre-commit configuration for automated linting and formatting
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=10240']  # 10MB limit
+      - id: detect-private-key
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Alternative to black if ruff format is preferred
+        # args: [--diff]  # Use --diff for dry-run
+
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language-version: python3.11
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, types-pyyaml]
+        args: [--ignore-missing-imports]

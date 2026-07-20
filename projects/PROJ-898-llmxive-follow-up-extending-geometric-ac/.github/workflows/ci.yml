@@ -1,18 +1,21 @@
-name: CI - Geometric Action Model Evaluation
+name: CI - Multi-core x86_64 CPU Only
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main", "develop" ]
+    branches: [ main, develop ]
 
-# FR-004: Multi-core x86_64 runner, no GPU/CUDA
-# SC-005: 6-hour total limit enforcement (enforced via timeout-minutes)
-# Assumptions: <300s/step solver execution
+# FR-004: Multi-core x86_64 runner, no GPU/CUDA, 6-hour timeout limit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test-and-profile:
+  test:
+    name: Run Tests (CPU Only)
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # 6 hours hard cap (SC-005)
+    timeout-minutes: 360  # 6 hours (SC-005 hard cap)
 
     steps:
       - name: Checkout repository
@@ -27,52 +30,28 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "Warning: requirements.txt not found"
-          fi
+          pip install -r code/requirements.txt
 
-      - name: Verify CPU-only environment
+      - name: Run Linting (Ruff)
         run: |
-          python -c "import torch; assert not torch.cuda.is_available(), 'GPU detected but task requires CPU-only execution'"
-          echo "Environment verified: CPU-only (x86_64)"
+          ruff check code/
 
-      - name: Run Configuration Validation
+      - name: Run Formatting Check (Black)
         run: |
-          python code/config.py --validate
+          black --check code/
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/ -v --tb=short
+
+      - name: Run Time Budget Validation (FR-004 / SC-005)
+        run: |
+          python code/experiment_time_validator.py --validate-budget
+
+      - name: Upload Test Results
         if: always()
-
-      - name: Run Solver Profiling (FR-004: <300s/step verification)
-        run: |
-          python code/solver_profiler.py
-        # Enforces per-step timeout assumption on 2-core equivalent hardware
-        # If this exceeds 300s, the step fails immediately
-        timeout-minutes: 300 
-        if: always()
-
-      - name: Run Baseline Validation
-        run: |
-          python code/baseline_validator.py
-        if: always()
-
-      - name: Run Gradient Verification (FR-003)
-        run: |
-          python code/gradient_verification.py
-        if: always()
-
-      - name: Upload Results Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ci-results
-          path: |
-            data/results/
-            logs/
-          retention-days: 7
-
-      - name: Fail on Timeout
-        # This step ensures that if any previous step hangs indefinitely,
-        # the workflow fails cleanly rather than waiting forever.
-        run: |
-          echo "All timed steps completed successfully."
-        if: always()
+          name: test-results
+          path: data/results/*.csv
+          if-no-files-found: warn

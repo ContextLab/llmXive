@@ -1,134 +1,145 @@
 #!/usr/bin/env python3
 """
-Script to execute the Topology-Shift Test Set generation.
+Script to execute the synthetic test set generation for User Story 1.
 
-This script orchestrates the generation of a synthetic dataset containing
-novel kinematic chains and deformable materials using PyBullet, as defined
-in User Story 1 (US1).
+This script orchestrates the generation of novel kinematic chains and 
+deformable materials using PyBullet, ensuring zero overlap with the 
+original GAM training data.
 
-It loads configuration, initializes the TopologyShiftGenerator, runs the
-generation process, and saves the resulting metadata and data files.
+Usage:
+    python scripts/generate_test_set.py [--seed SEED] [--config CONFIG_PATH]
+
+Output:
+    - data/generated/physics_states.json
+    - data/generated/latent_trajectory.csv
+    - data/results/errors.log (if any errors occur)
 """
-
 import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 
-# Add project root to path to allow relative imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from code.config import load_config, create_default_config_file
-from code.data_generation import TopologyShiftGenerator
-from code.utils import setup_logging, set_deterministic_seed
+from config import load_config, get_default_config_path
+from data_generation import TopologyShiftGenerator, main as generation_main
+from metadata_checksum import generate_test_set_metadata, verify_zero_overlap
+from utils import setup_logging, set_deterministic_seed
 
-
-def main():
+def parse_args():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Generate the Topology-Shift Test Set for US1."
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config/experiment_config.json",
-        help="Path to the experiment configuration file."
+        description="Generate synthetic test set for geometric action model evaluation."
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Override the random seed from config."
+        help="Random seed for reproducibility. Defaults to config value."
     )
     parser.add_argument(
-        "--num-topologies",
-        type=int,
+        "--config",
+        type=str,
         default=None,
-        help="Override the number of topologies to generate."
+        help="Path to config YAML file. Defaults to code/config.yaml."
     )
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="data/generated",
-        help="Directory to save generated data."
+        default=None,
+        help="Base output directory. Defaults to project root."
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging."
-    )
+    return parser.parse_args()
 
-    args = parser.parse_args()
-
+def main():
+    """Main entry point for test set generation."""
+    args = parse_args()
+    
     # Setup logging
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    logger = setup_logging("generate_test_set", log_level=log_level)
-    logger.info("Starting Topology-Shift Test Set generation.")
-
-    # Load or create config
-    config_path = args.config
+    log_path = project_root / "data" / "results" / "errors.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    logger = setup_logging(
+        name="test_set_generation",
+        log_file=str(log_path),
+        level=logging.INFO
+    )
+    
+    logger.info("Starting synthetic test set generation (T013)")
+    
+    # Load configuration
+    config_path = args.config or get_default_config_path()
     if not os.path.exists(config_path):
-        logger.info(f"Config file {config_path} not found. Creating default.")
-        os.makedirs(os.path.dirname(config_path), exist_ok=True)
-        create_default_config_file(config_path)
-    
+        logger.error(f"Config file not found: {config_path}")
+        sys.exit(1)
+        
     config = load_config(config_path)
-
-    # Apply CLI overrides
-    if args.seed is not None:
-        config['random_seed'] = args.seed
-    if args.num_topologies is not None:
-        config['generation_params']['num_topologies'] = args.num_topologies
     
-    output_dir = args.output_dir
-    os.makedirs(output_dir, exist_ok=True)
-
+    # Override seed if provided
+    if args.seed is not None:
+        config.experiment.seed = args.seed
+        
     # Set deterministic seed
-    set_deterministic_seed(config['random_seed'])
-    logger.info(f"Random seed set to {config['random_seed']}")
-
-    # Initialize Generator
-    logger.info("Initializing TopologyShiftGenerator...")
+    set_deterministic_seed(config.experiment.seed)
+    logger.info(f"Using seed: {config.experiment.seed}")
+    
+    # Validate baseline metadata exists
+    baseline_metadata_path = project_root / "data" / "raw" / "gam_baseline_metadata.json"
+    if not baseline_metadata_path.exists():
+        logger.error(f"Baseline metadata not found: {baseline_metadata_path}")
+        logger.error("Run T009a first to create baseline metadata.")
+        sys.exit(1)
+    
+    # Initialize generator
     generator = TopologyShiftGenerator(
-        num_topologies=config['generation_params']['num_topologies'],
-        output_dir=output_dir,
+        config=config,
+        baseline_metadata_path=str(baseline_metadata_path),
         logger=logger
     )
-
+    
+    # Generate test set
+    logger.info(f"Generating {config.experiment.trial_count} trials...")
+    generation_main(
+        config=config,
+        output_dir=args.output_dir or str(project_root),
+        logger=logger
+    )
+    
+    # Verify zero overlap
+    logger.info("Verifying zero overlap with baseline...")
     try:
-        # Run generation
-        logger.info("Starting generation process...")
-        generator.generate_all()
+        overlap_result = verify_zero_overlap(
+            baseline_path=str(baseline_metadata_path),
+            generated_path=str(project_root / "data" / "generated" / "physics_states.json")
+        )
         
-        logger.info("Generation completed successfully.")
-        logger.info(f"Output files saved to: {output_dir}")
-        
-        # Verify outputs exist (basic check)
-        expected_files = [
-            os.path.join(output_dir, "topology_shift_metadata.json"),
-            os.path.join(output_dir, "topology_shift_data.npz")
-        ]
-        
-        all_exist = True
-        for f in expected_files:
-            if os.path.exists(f):
-                logger.debug(f"Verified: {f} exists.")
-            else:
-                logger.warning(f"Expected output not found: {f}")
-                all_exist = False
-
-        if all_exist:
-            logger.info("All expected output files verified.")
-            return 0
+        if overlap_result["overlap_detected"]:
+            logger.error("ZERO OVERLAP VERIFICATION FAILED!")
+            logger.error(f"Overlap details: {overlap_result}")
+            sys.exit(1)
         else:
-            logger.error("Some expected output files are missing.")
-            return 1
-
+            logger.info("Zero overlap verification PASSED.")
+            logger.info(f"Generated topology IDs: {overlap_result['generated_topology_ids'][:5]}...")
     except Exception as e:
-        logger.exception(f"Generation failed with error: {e}")
-        return 1
-
+        logger.error(f"Overlap verification failed with error: {e}")
+        sys.exit(1)
+    
+    # Generate metadata for the generated set
+    metadata_path = project_root / "data" / "generated" / "test_set_metadata.json"
+    generate_test_set_metadata(
+        physics_states_path=str(project_root / "data" / "generated" / "physics_states.json"),
+        output_path=str(metadata_path),
+        seed=config.experiment.seed
+    )
+    logger.info(f"Test set metadata saved to: {metadata_path}")
+    
+    logger.info("Test set generation completed successfully!")
+    logger.info(f"Output files:")
+    logger.info(f"  - physics_states.json: {project_root / 'data' / 'generated' / 'physics_states.json'}")
+    logger.info(f"  - latent_trajectory.csv: {project_root / 'data' / 'generated' / 'latent_trajectory.csv'}")
+    logger.info(f"  - test_set_metadata.json: {metadata_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
