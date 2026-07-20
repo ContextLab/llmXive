@@ -47,7 +47,7 @@ A researcher can aggregate results from multiple training runs across different 
 
 **Acceptance Scenarios**:
 
-1. **Given** results from multiple training runs (5 bit-widths × 3 seeds), **When** the aggregation script is executed, **Then** the system must output a CSV containing bit-width, memory footprint, convergence speed, and consistency score for each run.
+1. **Given** results from multiple training runs (multiple bit-widths × multiple seeds), **When** the aggregation script is executed, **Then** the system must output a CSV containing bit-width, memory footprint, convergence speed, and consistency score for each run.
 2. **Given** the aggregated CSV, **When** the statistical analysis module runs, **Then** it must identify a specific bit-width threshold (e.g., 4-bit) where the consistency score drops below the defined baseline (32-bit reference, seed=42), accompanied by a p-value < 0.05 from a non-linear regression fit.
 
 ### Edge Cases
@@ -60,11 +60,11 @@ A researcher can aggregate results from multiple training runs across different 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a CPU-only training loop that simulates low-bit precision (2-bit to 6-bit) using stochastic rounding on 32-bit floating-point arithmetic to model gradient distortion, ensuring no CUDA or GPU-specific instructions are executed (See US-1).
+- **FR-001**: System MUST implement a CPU-only training loop that simulates low-bit precision (-bit to 6-bit) using stochastic rounding on 32-bit floating-point arithmetic to model gradient distortion, ensuring no CUDA or GPU-specific instructions are executed (See US-1).
 - **FR-002**: System MUST utilize a downsampled subset of the Kinetics-400 dataset (4-second clips) via the HuggingFace Datasets API, ensuring the total dataset size fits within 7GB runner memory (See US-1).
 - **FR-003**: System MUST evaluate generated video outputs using a frozen, independent video-language model (e.g., CLIP-ViT or VideoMAE) to calculate a temporal coherence score, ensuring no gradient backpropagation to the generator (See US-2).
 - **FR-004**: System MUST execute the entire training and evaluation pipeline within a single GitHub Actions free-tier job (≤ 6 hours, 2 CPU cores, ≤ 7GB runner memory, ≤ 14GB disk) (See US-1, US-2, US-3).
-- **FR-005**: System MUST perform statistical analysis (non-linear regression and paired t-tests) across random seeds for each of 5 bit-widths (2, 3, 4, 5, 6) to validate the significance of the observed precision-consistency trade-offs (See US-3).
+- **FR-005**: System MUST perform statistical analysis (non-linear regression and paired t-tests) across random seeds for a range of bit-widths to validate the significance of the observed precision-consistency trade-offs (See US-3).
 - **FR-006**: System MUST calculate and report the theoretical memory footprint derived strictly from parameter counts and bit-widths using the formula: `(Parameter Count × Bit Width / 8) + 1.2GB` (Python runtime overhead), without relying on runtime profiling for claims (See US-3).
 - **FR-007**: System MUST validate the CLIP-ViT proxy metric by computing a correlation coefficient ≥ 0.7 between the model's score and human-labeled coherence on a held-out subset of 50 clips (See US-2).
 - **FR-008**: System MUST fit a piecewise linear or logistic regression model to the precision-consistency data to identify the non-linear degradation threshold (See US-3).
