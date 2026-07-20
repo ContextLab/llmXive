@@ -34,11 +34,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
-.coverage.*
-.cache
-nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
@@ -64,26 +60,34 @@ venv.bak/
 *.swo
 *~
 
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Data (raw and processed, unless explicitly tracked)
+data/raw/
+data/processed/
+data/external/
+data/intros/
+
+# Results and reports
+results/
+docs/
+
 # Jupyter Notebook
 .ipynb_checkpoints
-
-# pyenv
-.python-version
 
 # mypy
 .mypy_cache/
 
-# Virtual environments
-.virtualenvs/
-
-# Local development
-.DS_Store
-Thumbs.db
-
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-results/
-logs/
+# ruff
+.ruff_cache/

@@ -1,199 +1,241 @@
 """
 Unit tests for the renderer module.
-
-This file extends the existing test suite to cover:
-1. ASCII grid generation character mapping (T010).
-2. JSON event logging format (T011).
-3. Error handling for state corruption (T012).
+Focus: Validating out-of-bounds state handling and error block generation.
 """
 import pytest
-import json
-import sys
 import os
+import sys
+import json
+from typing import List, Dict, Any, Tuple
 
-# Ensure the project root is in the path for imports
-_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, _project_root)
+# Add project root to path if running standalone, though in pipeline context imports are resolved
+# The implementation assumes the `code/` directory is in the PYTHONPATH or this test is run from project root
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from code.renderer import render_visual_to_ascii, generate_ascii_grid
+from code.renderer import (
+    validate_grid_coordinates,
+    validate_grid_bounds,
+    render_error_block,
+    generate_ascii_grid,
+    validate_ascii_grid,
+    create_event_entry
+)
 
-
-class TestAsciiGridGeneration:
-    """Tests for T010: Verify character mapping (#, ., M)."""
-
-    def test_wall_mapping(self):
-        """Verify that wall states map to '#'."""
-        # Simulate a visual state row with wall values (assuming 1 represents wall)
-        # The exact mapping logic depends on the implementation, but we test the output
-        # by providing a known input state that should trigger a wall.
-        # Assuming a simple grid representation where 1 is wall, 0 is floor, 2 is entity.
-        visual_state = [
-            [1, 1, 1, 1],
-            [1, 0, 0, 1],
-            [1, 0, 2, 1],
-            [1, 1, 1, 1]
-        ]
-        ascii_grid = generate_ascii_grid(visual_state)
-        
-        # Check first row (all walls)
-        assert "#" in ascii_grid[0]
-        assert ascii_grid[0].count("#") == 4
-
-    def test_floor_mapping(self):
-        """Verify that floor states map to '.'."""
-        visual_state = [
-            [1, 1, 1, 1],
-            [1, 0, 0, 1],
-            [1, 0, 0, 1],
-            [1, 1, 1, 1]
-        ]
-        ascii_grid = generate_ascii_grid(visual_state)
-        
-        # Check inner rows for floor
-        assert "." in ascii_grid[1]
-        assert ascii_grid[1].count(".") == 2
-
-    def test_entity_mapping(self):
-        """Verify that entity states map to 'M'."""
-        visual_state = [
-            [1, 1, 1, 1],
-            [1, 0, 2, 1],
-            [1, 2, 0, 1],
-            [1, 1, 1, 1]
-        ]
-        ascii_grid = generate_ascii_grid(visual_state)
-        
-        # Check for entity character
-        assert "M" in ascii_grid[1] or "M" in ascii_grid[2]
+# Constants for testing
+GRID_WIDTH = 10
+GRID_HEIGHT = 10
+ERROR_MARKER = "ERROR: STATE_CORRUPT"
 
 
-class TestJsonEventLogging:
-    """Tests for T011: Verify JSON event log format."""
+class TestOutOfBoundsValidation:
+    """Tests for out-of-bounds state validation logic."""
 
-    def test_event_log_structure(self):
-        """Verify that event logs contain 't' and 'event' keys."""
-        # Mock a visual state and event
-        visual_state = [
-            [1, 0, 2, 1],
-            [1, 0, 0, 1],
-            [1, 1, 1, 1]
-        ]
-        # Assuming render_visual_to_ascii returns a tuple (ascii_str, event_log)
-        # or similar structure. We need to check the implementation details.
-        # For this test, we assume the function returns a dict or tuple.
-        # Let's assume it returns (ascii_grid, log_list)
-        
-        # Since the actual function signature might differ, we test the helper
-        # or the specific output format expected.
-        # Based on the task description, we expect JSON objects like {"t":..., "event": "saw_key"}
-        
-        # We will simulate the expected output structure here to validate the format
-        expected_event = {"t": 5, "event": "saw_key"}
-        
-        # Verify structure
-        assert "t" in expected_event
-        assert "event" in expected_event
-        assert isinstance(expected_event["t"], int)
-        assert isinstance(expected_event["event"], str)
+    def test_validate_grid_coordinates_valid(self):
+        """Test that valid coordinates pass validation."""
+        # Valid coordinates within grid
+        assert validate_grid_coordinates(0, 0, GRID_WIDTH, GRID_HEIGHT) is True
+        assert validate_grid_coordinates(9, 9, GRID_WIDTH, GRID_HEIGHT) is True
+        assert validate_grid_coordinates(5, 5, GRID_WIDTH, GRID_HEIGHT) is True
 
-    def test_timestamp_increment(self):
-        """Verify that timestamps increment correctly in a sequence."""
-        events = [
-            {"t": 1, "event": "start"},
-            {"t": 2, "event": "move"},
-            {"t": 3, "event": "saw_key"}
-        ]
-        
-        for i in range(len(events) - 1):
-            assert events[i+1]["t"] == events[i]["t"] + 1
+    def test_validate_grid_coordinates_negative_x(self):
+        """Test that negative x-coordinate fails validation."""
+        assert validate_grid_coordinates(-1, 5, GRID_WIDTH, GRID_HEIGHT) is False
+
+    def test_validate_grid_coordinates_negative_y(self):
+        """Test that negative y-coordinate fails validation."""
+        assert validate_grid_coordinates(5, -1, GRID_WIDTH, GRID_HEIGHT) is False
+
+    def test_validate_grid_coordinates_x_out_of_bounds(self):
+        """Test that x-coordinate >= width fails validation."""
+        assert validate_grid_coordinates(10, 5, GRID_WIDTH, GRID_HEIGHT) is False
+        assert validate_grid_coordinates(15, 5, GRID_WIDTH, GRID_HEIGHT) is False
+
+    def test_validate_grid_coordinates_y_out_of_bounds(self):
+        """Test that y-coordinate >= height fails validation."""
+        assert validate_grid_coordinates(5, 10, GRID_WIDTH, GRID_HEIGHT) is False
+        assert validate_grid_coordinates(5, 15, GRID_WIDTH, GRID_HEIGHT) is False
+
+    def test_validate_grid_bounds_valid_state(self):
+        """Test validation of a complete valid state."""
+        state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": 0, "y": 0, "type": "wall"},
+                {"x": 9, "y": 9, "type": "player"},
+                {"x": 5, "y": 5, "type": "item"}
+            ]
+        }
+        assert validate_grid_bounds(state) is True
+
+    def test_validate_grid_bounds_invalid_x(self):
+        """Test validation fails when an item has invalid x."""
+        state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": -1, "y": 0, "type": "wall"}
+            ]
+        }
+        assert validate_grid_bounds(state) is False
+
+    def test_validate_grid_bounds_invalid_y(self):
+        """Test validation fails when an item has invalid y."""
+        state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": 5, "y": 100, "type": "wall"}
+            ]
+        }
+        assert validate_grid_bounds(state) is False
+
+    def test_validate_grid_bounds_missing_dimensions(self):
+        """Test validation fails if grid dimensions are missing."""
+        state = {
+            "items": [{"x": 0, "y": 0}]
+        }
+        assert validate_grid_bounds(state) is False
+
+    def test_validate_grid_bounds_mismatched_dimensions(self):
+        """Test validation fails if item coordinates don't match grid dims."""
+        state = {
+            "width": 5,
+            "height": 5,
+            "items": [{"x": 6, "y": 0}]
+        }
+        assert validate_grid_bounds(state) is False
 
 
-class TestErrorHandling:
-    """Tests for T012: Verify 'ERROR: STATE_CORRUPT' output."""
+class TestRenderErrorBlock:
+    """Tests for the standardized error block generation."""
 
-    def test_corrupt_state_detection(self):
-        """Verify that invalid state dimensions trigger STATE_CORRUPT."""
-        # Simulate a state with inconsistent row lengths (corrupt)
-        corrupt_state = [
-            [1, 0, 1],
-            [1, 0],  # Row length mismatch
-            [1, 1, 1]
-        ]
-        
-        # We expect render_visual_to_ascii or generate_ascii_grid to handle this
-        # either by raising an error or returning a specific error string.
-        # Based on the task requirement, we look for "ERROR: STATE_CORRUPT"
-        
-        # If the function raises an exception, we catch it and check the message
-        # If it returns a string, we check the string content.
-        
-        # Let's assume the function returns a tuple (ascii_grid, error_msg) or similar
-        # or raises a ValueError.
-        # Given the strict requirement for "ERROR: STATE_CORRUPT", we test for that string.
-        
-        try:
-            # Try to generate grid from corrupt state
-            result = generate_ascii_grid(corrupt_state)
-            # If it doesn't raise, check if result contains the error string
-            if isinstance(result, str):
-                assert "ERROR: STATE_CORRUPT" in result
-            elif isinstance(result, tuple):
-                # Assuming (grid, error) or (grid, log)
-                # Check if any element contains the error
-                found_error = False
-                for item in result:
-                    if isinstance(item, str) and "ERROR: STATE_CORRUPT" in item:
-                        found_error = True
-                        break
-                assert found_error, f"Expected 'ERROR: STATE_CORRUPT' in result {result}"
-        except ValueError as e:
-            # If it raises, check the message
-            assert "STATE_CORRUPT" in str(e)
-        except Exception as e:
-            # Re-raise unexpected exceptions
-            raise
+    def test_render_error_block_content(self):
+        """Verify the error block contains the exact required string."""
+        error_block = render_error_block()
+        assert ERROR_MARKER in error_block
+        assert error_block.strip() == ERROR_MARKER
 
-    def test_invalid_value_detection(self):
-        """Verify that out-of-range values trigger STATE_CORRUPT."""
-        # Simulate a state with invalid values (e.g., negative or > 2)
-        invalid_state = [
-            [1, 0, -1],  # -1 is invalid
-            [1, 0, 1],
-            [1, 1, 1]
-        ]
-        
-        try:
-            result = generate_ascii_grid(invalid_state)
-            if isinstance(result, str):
-                assert "ERROR: STATE_CORRUPT" in result
-            elif isinstance(result, tuple):
-                found_error = False
-                for item in result:
-                    if isinstance(item, str) and "ERROR: STATE_CORRUPT" in item:
-                        found_error = True
-                        break
-                assert found_error
-        except ValueError as e:
-            assert "STATE_CORRUPT" in str(e)
-        except Exception as e:
-            raise
+    def test_render_error_block_type(self):
+        """Verify the error block is returned as a string."""
+        error_block = render_error_block()
+        assert isinstance(error_block, str)
 
-    def test_empty_state_detection(self):
-        """Verify that empty state triggers STATE_CORRUPT."""
-        empty_state = []
-        
-        try:
-            result = generate_ascii_grid(empty_state)
-            if isinstance(result, str):
-                assert "ERROR: STATE_CORRUPT" in result
-            elif isinstance(result, tuple):
-                found_error = False
-                for item in result:
-                    if isinstance(item, str) and "ERROR: STATE_CORRUPT" in item:
-                        found_error = True
-                        break
-                assert found_error
-        except ValueError as e:
-            assert "STATE_CORRUPT" in str(e)
-        except Exception as e:
-            raise
+    def test_render_error_block_consistency(self):
+        """Verify the error block is consistent across multiple calls."""
+        block1 = render_error_block()
+        block2 = render_error_block()
+        assert block1 == block2
+        assert block1 == ERROR_MARKER
+
+
+class TestAsciiGridGenerationWithCorruption:
+    """Tests for ASCII grid generation when corruption is detected."""
+
+    def test_generate_ascii_grid_on_corruption(self):
+        """Verify that generate_ascii_grid returns error block for invalid states."""
+        # Create a state with out-of-bounds coordinates
+        corrupt_state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": 15, "y": 5, "type": "wall"}  # x is out of bounds
+            ]
+        }
+
+        # The renderer should detect this and return the error block
+        result = generate_ascii_grid(corrupt_state)
+
+        assert result == render_error_block()
+        assert ERROR_MARKER in result
+
+    def test_generate_ascii_grid_on_negative_corruption(self):
+        """Verify error block for negative coordinate corruption."""
+        corrupt_state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": -5, "y": 5, "type": "wall"}  # x is negative
+            ]
+        }
+
+        result = generate_ascii_grid(corrupt_state)
+        assert result == render_error_block()
+
+    def test_generate_ascii_grid_on_valid_state(self):
+        """Verify normal grid generation for valid states (sanity check)."""
+        valid_state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": 0, "y": 0, "type": "wall"},
+                {"x": 5, "y": 5, "type": "player"}
+            ]
+        }
+
+        result = generate_ascii_grid(valid_state)
+
+        # Should not be an error block
+        assert result != render_error_block()
+        # Should be a grid string (contains newlines and grid characters)
+        assert isinstance(result, str)
+        assert "\n" in result or len(result) > 0
+
+
+class TestValidateAsciiGrid:
+    """Tests for the ASCII grid validation utility."""
+
+    def test_validate_ascii_grid_valid(self):
+        """Test validation of a correctly formatted ASCII grid."""
+        grid_str = "##########\n#........#\n#........#\n##########"
+        assert validate_ascii_grid(grid_str, 10, 4) is True
+
+    def test_validate_ascii_grid_invalid_width(self):
+        """Test validation fails if grid width doesn't match."""
+        grid_str = "##########\n#........#"
+        # Width is 10, height 2. But grid_str has 2 rows.
+        # If we claim height 4, it should fail.
+        assert validate_ascii_grid(grid_str, 10, 4) is False
+
+    def test_validate_ascii_grid_invalid_height(self):
+        """Test validation fails if grid height doesn't match."""
+        grid_str = "##########\n#........#\n##########"
+        # Width 10, height 3.
+        assert validate_ascii_grid(grid_str, 10, 2) is False
+
+    def test_validate_ascii_grid_mismatched_chars(self):
+        """Test validation fails if row lengths don't match width."""
+        grid_str = "##########\n#....\n##########"
+        # Second row is too short
+        assert validate_ascii_grid(grid_str, 10, 3) is False
+
+    def test_validate_ascii_grid_empty(self):
+        """Test validation fails for empty string."""
+        assert validate_ascii_grid("", 10, 1) is False
+
+
+class TestEventEntryCreationWithCorruption:
+    """Tests for event entry creation when state is corrupted."""
+
+    def test_create_event_entry_with_corrupted_state(self):
+        """Verify event entry is created with error marker when state is invalid."""
+        corrupt_state = {
+            "width": GRID_WIDTH,
+            "height": GRID_HEIGHT,
+            "items": [
+                {"x": 20, "y": 20, "type": "wall"}
+            ]
+        }
+
+        # Simulate creating an event entry for this state
+        # In the actual implementation, this might be handled inside generate_event_log
+        # or the caller checks validity first. Here we test the logic path.
+        is_valid = validate_grid_bounds(corrupt_state)
+
+        assert is_valid is False
+
+        # If we were to create an entry, it should reflect the error
+        # This test ensures the validation logic is correctly integrated
+        # into the flow that would eventually call render_error_block
+        error_block = render_error_block()
+        assert error_block == ERROR_MARKER

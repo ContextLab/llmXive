@@ -1,46 +1,73 @@
+# Contract for Metric Result (SC-003, SC-004)
+# Defines the structure of a metric calculation result.
+# Used for statistical analysis and reporting.
+
 $schema: http://json-schema.org/draft-07/schema#
 title: MetricResult
-description: Schema for a metric result from the evaluation
+description: >
+  The result of a metric calculation, including the memory gap score,
+  statistical significance, and confidence intervals.
 type: object
 required:
+  - memory_gap_score
+  - p_value
+  - confidence_interval
+  - run_id
+  - seed_id
   - metric_name
-  - value
   - timestamp
-  - agent_type
 properties:
-  metric_name:
-    type: string
-    description: Name of the metric being measured
-  value:
+  memory_gap_score:
     type: number
-    description: Numeric value of the metric
-  timestamp:
-    type: integer
-    description: Time when the metric was computed
-  agent_type:
-    type: string
-    enum: ["text_only", "multimodal_baseline"]
-    description: Type of agent that produced the metric
-  metadata:
-    type: object
-    description: Additional metadata about the metric computation
-    properties:
-      seed:
-        type: integer
-      game_instance_id:
-        type: string
-      steps:
-        type: integer
+    description: >
+      The calculated memory gap score for this run.
+      Higher values indicate better memory retention.
+    minimum: 0.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: >
+      The p-value from the statistical test (Mann-Whitney U).
+      Indicates the significance of the result.
+    minimum: 0.0
+    maximum: 1.0
   confidence_interval:
     type: object
-    description: Confidence interval for the metric (if applicable)
+    description: >
+      The 95% confidence interval for the memory gap score.
     properties:
       lower:
         type: number
       upper:
         type: number
-      confidence_level:
-        type: number
-        minimum: 0
-        maximum: 1
+    required:
+      - lower
+      - upper
+  run_id:
+    type: string
+    description: Unique identifier for this run.
+  seed_id:
+    type: integer
+    description: The random seed ID used for this run.
+  metric_name:
+    type: string
+    description: Name of the metric calculated (e.g., "memory_gap", "semantic_similarity").
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the metric was calculated.
+  agent_type:
+    type: string
+    description: Type of agent that produced the result (e.g., "text_agent", "baseline").
+    enum:
+      - text_agent
+      - baseline
+  deviation_tag:
+    type: string
+    description: >
+      Tag indicating if this metric uses a plan override.
+      Example: "Plan Override: Structured JSON Comparison + Semantic Similarity".
+    enum:
+      - standard
+      - plan_override
 additionalProperties: false

@@ -1,58 +1,116 @@
+# Contract for State Snapshot (SC-001, SC-002)
+# Defines the structure of a single game state snapshot captured during simulation.
+# Used for data validation and integrity checks.
+
 $schema: http://json-schema.org/draft-07/schema#
 title: StateSnapshot
-description: Schema for a single state snapshot in the game environment
+description: >
+  A snapshot of the game state at a specific time step, including the visual representation,
+  event log, and ground truth data (masked and unmasked).
 type: object
 required:
+  - ascii_grid
+  - event_log
+  - ground_truth_state
+  - masked_ground_truth
   - timestamp
-  - grid
-  - player_position
-  - key_collected
-  - exit_reachable
+  - step_id
+  - seed_id
 properties:
-  timestamp:
-    type: integer
-    description: Time step of the snapshot
-    minimum: 0
-  grid:
+  ascii_grid:
+    type: string
+    description: >
+      The ASCII representation of the current visual state.
+      Must match the ground truth state when rendered.
+    minLength: 1
+  event_log:
     type: array
-    description: 2D array representing the game grid
-    items:
-      type: array
-      items:
-        type: string
-        enum: [".", "#", "M", "K", "E"]
-    minItems: 1
-    uniqueItems: false
-  player_position:
-    type: object
-    required:
-      - row
-      - col
-    properties:
-      row:
-        type: integer
-        minimum: 0
-      col:
-        type: integer
-        minimum: 0
-  key_collected:
-    type: boolean
-    description: Whether the key has been collected
-  exit_reachable:
-    type: boolean
-    description: Whether the exit is currently reachable
-  events:
-    type: array
-    description: List of events that occurred at this timestamp
+    description: >
+      List of events that occurred up to this step.
+      Each event is a dictionary with action, target, and result.
     items:
       type: object
-      required:
-        - type
-        - details
       properties:
-        type:
+        step:
+          type: integer
+        action:
           type: string
-          enum: ["move", "key_collect", "exit_reach", "error"]
-        details:
+        target:
           type: string
+        result:
+          type: string
+  ground_truth_state:
+    type: object
+    description: >
+      The complete ground truth state of the environment at this step.
+      Includes all objects, their positions, and properties.
+    properties:
+      grid_width:
+        type: integer
+        minimum: 1
+      grid_height:
+        type: integer
+        minimum: 1
+      objects:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+            position:
+              type: object
+              properties:
+                x:
+                  type: integer
+                y:
+                  type: integer
+            properties:
+              type: object
+              additionalProperties: true
+  masked_ground_truth:
+    type: object
+    description: >
+      The ground truth state with hidden items masked out according to the visibility rules.
+      Used to simulate the agent's limited perception.
+    properties:
+      grid_width:
+        type: integer
+        minimum: 1
+      grid_height:
+        type: integer
+        minimum: 1
+      objects:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            type:
+              type: string
+            position:
+              type: object
+              properties:
+                x:
+                  type: integer
+                y:
+                  type: integer
+            visible:
+              type: boolean
+            properties:
+              type: object
+              additionalProperties: true
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the snapshot was created.
+  step_id:
+    type: integer
+    description: The sequential step ID in the game run.
+  seed_id:
+    type: integer
+    description: The random seed ID used for this run.
 additionalProperties: false

@@ -1,5 +1,3 @@
-# Random seeds for reproducibility across all experiments
-# List of integer seeds for the RNG-Bench evaluation pipeline
 seeds:
   - 1
   - 2

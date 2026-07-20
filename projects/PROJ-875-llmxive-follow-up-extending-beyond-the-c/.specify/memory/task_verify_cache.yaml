@@ -13,3 +13,45 @@ T017:
     of files under `data/processed/` and for any `state/*.yaml` files containing those
     checksum entries. No such integration or updated YAML files are present; the relevant
     code and state files are missing. The task therefore remains unfinished.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material only contains high\u2011level feature specifications and\
+    \ user stories; there is no code, script, or documentation that implements a sliding\u2011\
+    window or truncation mechanism for long event logs. Consequently, the required\
+    \ artifact (a concrete implementation of context window management) is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, documentation, or test showing a hard step limit for\
+    \ agents is present; the provided artifacts relate only to ASCII rendering, text\u2011\
+    only inference loops, and memory\u2011gap metrics, none of which implement or\
+    \ verify a step\u2011limit mechanism. The required artifact is missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material only contains high\u2011level feature specifications and\
+    \ user stories; there is no code, script, or configuration that implements error\
+    \ handling for NaN outputs or OOM conditions, nor any logging or run\u2011discard\
+    \ logic. Consequently, the required artifact is missing."
+T028:
+  c: false
+  h: 9fd643cc70f501568561f3c1fe4e8ecd774770d3258951e6fab2f8cab3b90abf
+  r: The required `code/resource_monitor.py` file does not exist, and the existing
+    `results/resource_profile.json` contains only placeholder zero values rather than
+    real peak RAM/CPU metrics from an agent run. Both the implementation and the logged
+    data are missing.
+T039b:
+  c: false
+  h: 4febfb118d1e46558dfd156cdb3b8a9b716b164e3baaac4ce3291ded663c88d1
+  r: The required script `code/baseline_runner.py` does not exist, and no baseline
+    logs are present in `data/processed/`; therefore the task of executing the runner
+    on the listed seeds cannot have been fulfilled. The missing script and output
+    logs must be added for completion.
+T041:
+  c: false
+  h: 4c80bbd2edff00b378883be1f5ab20ccac52d15fb94713aa9f8fed171e52882e
+  r: "The required `results/benchmark_log.json` file is absent, and the provided `code/agent_loop.py`\
+    \ does not show any implementation of sliding\u2011window context truncation nor\
+    \ any instrumentation of `main.py` to record total batch execution time. These\
+    \ core deliverables are missing, so the task is not satisfied."

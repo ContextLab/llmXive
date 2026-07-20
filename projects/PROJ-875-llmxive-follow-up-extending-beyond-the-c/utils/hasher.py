@@ -1,110 +1,133 @@
+"""
+utils/hasher.py
+
+Implements Constitution Principle V: Artifact Versioning.
+Generates deterministic version hashes (SHA-256) for all artifacts in the project's
+data, code, and results directories to ensure reproducibility and integrity tracking.
+
+Usage:
+    python utils/hasher.py
+"""
+
 import os
+import sys
 import hashlib
 import json
-from typing import List, Dict, Any
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, List
 
-def calculate_file_hash(filepath: str, algorithm: str = 'sha256') -> str:
-    """
-    Calculate the hash of a file.
-    
-    Args:
-        filepath: Path to the file
-        algorithm: Hash algorithm to use (default: sha256)
-        
-    Returns:
-        Hex digest of the file hash
-    """
-    hash_func = hashlib.new(algorithm)
-    
-    with open(filepath, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            hash_func.update(chunk)
-    
-    return hash_func.hexdigest()
+# Project root relative to this file (utils/hasher.py is in 'utils/')
+PROJECT_ROOT = Path(__file__).parent.parent
+ARTIFACT_DIRS = [
+    "data/processed",
+    "data/raw",
+    "code",
+    "results",
+    "config",
+    "specs/contracts"
+]
+OUTPUT_FILE = PROJECT_ROOT / "results" / "artifact_hashes.json"
 
-def generate_version_hash(filepath: str, metadata: Dict[str, Any] = None) -> str:
-    """
-    Generate a version hash for an artifact, incorporating file content and metadata.
-    
-    Args:
-        filepath: Path to the artifact file
-        metadata: Optional metadata to include in the hash
-        
-    Returns:
-        Version hash string
-    """
-    # Start with file content hash
-    content_hash = calculate_file_hash(filepath)
-    
-    # Incorporate metadata if provided
-    if metadata:
-        metadata_str = json.dumps(metadata, sort_keys=True)
-        combined = f"{content_hash}:{metadata_str}"
-    else:
-        combined = content_hash
-    
-    # Hash the combined string
-    version_hash = hashlib.sha256(combined.encode('utf-8')).hexdigest()[:16]
-    
-    return version_hash
+# Extensions to include (exclude pycache, logs, etc.)
+INCLUDE_EXTENSIONS = {".py", ".yaml", ".yml", ".json", ".txt", ".csv", ".md", ".png", ".jpg", ".txt"}
+EXCLUDE_DIRS = {"__pycache__", ".git", "venv", ".venv", "node_modules", ".pytest_cache"}
 
-def hash_directory(directory: str, pattern: str = "*") -> Dict[str, str]:
+def compute_file_hash(file_path: Path) -> str:
     """
-    Generate hashes for all files in a directory.
-    
-    Args:
-        directory: Path to the directory
-        pattern: Glob pattern to match files
-        
-    Returns:
-        Dictionary mapping filenames to their hashes
+    Computes the SHA-256 hash of a file by reading it in chunks.
+    Returns a hex string.
     """
-    import glob
-    
-    hashes = {}
-    for filepath in glob.glob(os.path.join(directory, pattern)):
-        if os.path.isfile(filepath):
-            filename = os.path.basename(filepath)
-            hashes[filename] = calculate_file_hash(filepath)
-    
-    return hashes
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except (IOError, OSError) as e:
+        raise RuntimeError(f"Failed to read file {file_path}: {e}")
+
+def collect_artifacts(base_dir: Path) -> List[Path]:
+    """
+    Recursively collects all relevant artifact files in a directory.
+    Skips excluded directories and non-matching extensions.
+    """
+    artifacts = []
+    if not base_dir.exists():
+        return artifacts
+
+    for root, dirs, files in os.walk(base_dir):
+        # Modify dirs in-place to skip excluded directories
+        dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
+
+        for file in files:
+            file_path = Path(root) / file
+            if file_path.suffix in INCLUDE_EXTENSIONS:
+                artifacts.append(file_path)
+
+    return artifacts
+
+def generate_version_manifest() -> Dict[str, Any]:
+    """
+    Generates a manifest containing hashes for all tracked artifacts.
+    """
+    manifest = {
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "project_root": str(PROJECT_ROOT),
+        "hash_algorithm": "sha256",
+        "artifacts": {}
+    }
+
+    total_files = 0
+    for dir_name in ARTIFACT_DIRS:
+        dir_path = PROJECT_ROOT / dir_name
+        if not dir_path.exists():
+            print(f"Warning: Directory {dir_path} does not exist. Skipping.")
+            continue
+
+        files = collect_artifacts(dir_path)
+        for file_path in files:
+            relative_path = file_path.relative_to(PROJECT_ROOT)
+            try:
+                file_hash = compute_file_hash(file_path)
+                manifest["artifacts"][str(relative_path)] = file_hash
+                total_files += 1
+            except RuntimeError as e:
+                print(f"Error hashing {file_path}: {e}", file=sys.stderr)
+
+    manifest["summary"] = {
+        "total_files_hashed": total_files,
+        "directories_scanned": ARTIFACT_DIRS
+    }
+
+    return manifest
 
 def main():
-    """Main entry point for the hasher utility."""
-    import sys
-    
-    if len(sys.argv) < 2:
-        print("Usage: python hasher.py <filepath> [output_file]")
-        sys.exit(1)
-    
-    filepath = sys.argv[1]
-    
-    if not os.path.exists(filepath):
-        print(f"Error: File not found: {filepath}")
-        sys.exit(1)
-    
-    if os.path.isdir(filepath):
-        # Hash directory
-        hashes = hash_directory(filepath)
-        print(json.dumps(hashes, indent=2))
-    else:
-        # Hash single file
-        file_hash = calculate_file_hash(filepath)
-        version_hash = generate_version_hash(filepath)
-        
-        result = {
-            "file": filepath,
-            "sha256": file_hash,
-            "version_hash": version_hash
-        }
-        
-        if len(sys.argv) >= 3:
-            output_file = sys.argv[2]
-            with open(output_file, 'w') as f:
-                json.dump(result, f, indent=2)
-            print(f"Hash written to {output_file}")
-        else:
-            print(json.dumps(result, indent=2))
+    """
+    Entry point for the hasher utility.
+    Ensures the results directory exists, generates the manifest,
+    and writes it to artifact_hashes.json.
+    """
+    # Ensure output directory exists
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-if __name__ == '__main__':
-    main()
+    print(f"Starting artifact hashing for project: {PROJECT_ROOT}")
+    print(f"Scanning directories: {ARTIFACT_DIRS}")
+
+    try:
+        manifest = generate_version_manifest()
+        
+        # Write manifest to file
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2, sort_keys=True)
+
+        print(f"Successfully hashed {manifest['summary']['total_files_hashed']} artifacts.")
+        print(f"Manifest written to: {OUTPUT_FILE}")
+        
+        return 0
+    except Exception as e:
+        print(f"Fatal error during hashing: {e}", file=sys.stderr)
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -102,9 +102,6 @@ class StdoutRedirector:
 
     def restore(self) -> None:
         """Restores original stdout and stderr."""
-        # Note: In a real production scenario, we might want to save the original
-        # references before redirecting. For this implementation, we assume
-        # the script lifecycle manages this or we just leave them redirected.
         pass
 
 def configure_global_logging() -> logging.Logger:

@@ -1,0 +1,127 @@
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: 'requirements.txt pinned versions: transformers 4.40.0, bitsandbytes
+    0.43.1, scikit-learn 1.5.0, sentence-transformers 3.0.1, numpy 1.26.4, pandas
+    2.2.2, pytest 8.2.0, pyyaml 6.0.1, datasets 2.19.1, sentencepiece 0.2.0'
+  claim_id: c_7b4e5175
+  context: 'Update requirements.txt with pinned versions: transformers==4.40.0, bitsandbytes==0.43.1,
+    scikit-learn==1.5.0, sentence-transformers==3.0.1, numpy==1.26.4, pandas==2.2.2,
+    pytest==8.2.0, pyyaml==6.0.1, datasets==2.19.1, sentencepiece==0.2.0.'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: transformers==4.40.0, bitsandbytes==0.43.1, scikit-learn==1.5.0, sentence-transformers==3.0.1,
+    numpy==1.26.4, pandas==2.2.2, pytest==8.2.0, pyyaml==6.0.1, datasets==2.19.1,
+    sentencepiece==0.2.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T01:58:47Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: 'seed list in config/seeds.yaml: 1 through 20'
+  claim_id: c_e3c13f8b
+  context: Create config/seeds.yaml containing the exact list of integers [1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] and implement code/config_loader.py
+    to load this file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: config/seeds.yaml containing the exact list of integers [1, 2, 3, 4, 5,
+    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:59:41Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: N=20 game instances execution time under 6 hours
+  claim_id: c_ab6b9ab4
+  context: Refactor code/agent_loop.py to implement sliding window context truncation
+    and verify N=20 game instances completes in <6 hours via results/benchmark_log.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=20 game instances completes in <6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T02:00:09Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Pilot experiment batch size N=20
+  claim_id: c_8664aa4b
+  context: Execute full experiment batch (Text Agent + Baseline) for N=20 (Pilot)
+    and generate results/statistical_summary.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=20 (Pilot) experiment batch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T02:02:13Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Full experiment batch size N=64
+  claim_id: c_102f57eb
+  context: If Power Analysis requires scaling, execute full experiment batch for N=64
+    and update results/statistical_summary.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=64 full experiment batch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T02:02:32Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: Baseline model memory footprint limit 7GB RAM
+  claim_id: c_11a1d988
+  context: Verify baseline model memory footprint <= 7GB RAM using a memory profiler
+    before finalizing the runner.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_memory_footprint_limit_7GB_RAM
+  kind: entity_fact
+  raw_text: Baseline model memory footprint <= 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T02:03:05Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: logger rotating file handler max_bytes 10MB backupCount 5
+  claim_id: c_91dc48ec
+  context: Implement code/logger.py with JSON-formatted rotating file handler (max_bytes=10MB,
+    backupCount=5) and configure code/main.py to use it.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log rotating file handler max_bytes=10MB, backupCount=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T02:03:07Z'

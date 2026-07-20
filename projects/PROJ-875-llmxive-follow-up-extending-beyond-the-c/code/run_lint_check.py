@@ -4,82 +4,84 @@ import os
 import json
 from datetime import datetime
 
-def run_command(cmd, cwd=None):
-    """Run a shell command and return (success, stdout, stderr)."""
+def run_command(cmd: list) -> int:
+    """
+    Executes a shell command and returns the exit code.
+    Prints output to stdout/stderr as the subprocess does.
+    """
     try:
         result = subprocess.run(
             cmd,
-            shell=True,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=120
+            check=False,
+            capture_output=False,
+            text=True
         )
-        return result.returncode == 0, result.stdout, result.stderr
-    except subprocess.TimeoutExpired:
-        return False, "", "Command timed out"
+        return result.returncode
+    except FileNotFoundError:
+        print(f"Error: Command not found: {cmd[0]}", file=sys.stderr)
+        return 1
     except Exception as e:
-        return False, "", str(e)
+        print(f"Error executing command: {e}", file=sys.stderr)
+        return 1
 
 def main():
+    """
+    Runs initial lint/format check on the codebase to verify tool configuration.
+    Executes 'ruff check .' and 'black --check .' on the project root.
+    Writes a summary report to results/lint_check_report.json.
+    """
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    code_dir = os.path.join(project_root, "code")
     results_dir = os.path.join(project_root, "results")
+    
+    # Ensure results directory exists
     os.makedirs(results_dir, exist_ok=True)
-
+    
     report_path = os.path.join(results_dir, "lint_check_report.json")
-    log_path = os.path.join(results_dir, "lint_check.log")
-
-    print(f"Running lint/format check in {project_root}...")
-
-    # Check black formatting
-    black_cmd = "black --check --diff ."
-    print(f"Executing: {black_cmd}")
-    black_ok, black_out, black_err = run_command(black_cmd, cwd=project_root)
-
-    # Check ruff linting
-    ruff_cmd = "ruff check ."
-    print(f"Executing: {ruff_cmd}")
-    ruff_ok, ruff_out, ruff_err = run_command(ruff_cmd, cwd=project_root)
-
-    overall_success = black_ok and ruff_ok
-
-    report = {
+    
+    print(f"Running lint/format checks in: {project_root}")
+    
+    checks = [
+        ("ruff", ["ruff", "check", "."]),
+        ("black", ["black", "--check", "."])
+    ]
+    
+    results = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "project_root": project_root,
-        "tools": {
-            "black": {
-                "command": black_cmd,
-                "success": black_ok,
-                "stdout": black_out,
-                "stderr": black_err
-            },
-            "ruff": {
-                "command": ruff_cmd,
-                "success": ruff_ok,
-                "stdout": ruff_out,
-                "stderr": ruff_err
-            }
-        },
-        "overall_success": overall_success
+        "checks": {}
     }
-
-    with open(report_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-
-    with open(log_path, "w", encoding="utf-8") as f:
-        f.write(f"Black Check:\n{'SUCCESS' if black_ok else 'FAILED'}\n{black_out}\n{black_err}\n")
-        f.write(f"Ruff Check:\n{'SUCCESS' if ruff_ok else 'FAILED'}\n{ruff_out}\n{ruff_err}\n")
-
-    print(f"Report written to: {report_path}")
-    print(f"Log written to: {log_path}")
-
-    if not overall_success:
-        print("Lint/Format check FAILED. See logs for details.")
-        sys.exit(1)
+    
+    all_passed = True
+    
+    for name, cmd in checks:
+        print(f"\n--- Running {name} ---")
+        return_code = run_command(cmd)
+        
+        results["checks"][name] = {
+            "command": " ".join(cmd),
+            "exit_code": return_code,
+            "passed": return_code == 0
+        }
+        
+        if return_code != 0:
+            all_passed = False
+            print(f"❌ {name} failed with exit code {return_code}")
+        else:
+            print(f"✅ {name} passed")
+    
+    # Write report
+    with open(report_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"\n--- Summary ---")
+    if all_passed:
+        print("✅ All lint/format checks passed.")
+        print(f"Report saved to: {report_path}")
+        return 0
     else:
-        print("Lint/Format check PASSED.")
-        sys.exit(0)
+        print("❌ Some checks failed. Review output above and fix issues.")
+        print(f"Report saved to: {report_path}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
