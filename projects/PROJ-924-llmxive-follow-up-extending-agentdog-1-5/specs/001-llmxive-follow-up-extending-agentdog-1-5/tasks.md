@@ -41,7 +41,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` (including `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/test/`, `specs/`, `docs/`)
+- [X] T001 Create project structure per `plan.md` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` (including `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/test/`, `specs/`, `docs/`)
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (sentence-transformers, scikit-learn, pandas, numpy, datasets, jsonschema, statsmodels, pytest, transformers, accelerate)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/` (create `.ruff.toml` and `pyproject.toml`)
 
@@ -57,11 +57,16 @@
 - [ ] T005a [P] Implement `fetch_advbench` and `fetch_hf4` functions in `data_loader.py` using `datasets.load_dataset` with streaming; ensure no synthetic fallbacks
 - [X] T005b [P] Add checksum verification logic in `data_loader.py` to validate raw data against `data/checksums.json`
 - [X] T005c [P] Generate static test fixture from real data (AdvBench/HF4) to `data/test_static_logs.json` for US-01 testing
-- [ ] T005d [P] Implement `fetch_taxonomy` function in `data_loader.py` to download the AgentDoG taxonomy definition from the verified canonical source: Hugging Face dataset `OWASP/Top-LLM` (revision `main`), save to `data/raw/taxonomy.json`; ensure this task runs before T008
+- [ ] T005d [P] Implement `fetch_taxonomy` function in `data_loader.py` to download the **raw AgentDoG 1.5 taxonomy definitions** from the verified HuggingFace dataset `agentdog/taxonomy-v1` using `datasets.load_dataset`. **Verify** the dataset exists and is accessible before fetching. **Fail loudly** if the dataset is unreachable or checksums do not match. Do not fetch pre-computed centroids. (input: HF dataset ID `agentdog/taxonomy-v1`, output: `data/raw/taxonomy_definitions.json`)
 - [ ] T006 [P] Create `utils.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` for contract validation helpers and JSON/CSV schema loading
 - [ ] T007 [P] Setup `checksums.json` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/` for raw data integrity tracking
-- [X] T008a [P] Implement `taxonomy_builder.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to generate centroid embeddings using `all-MiniLM-L6-v2` (CPU-first, batched to fit <100MB RAM) using the taxonomy fetched by T005d (input: `data/raw/taxonomy.json`)
-- [ ] T008b [US2] Implement runtime memory monitoring logic in `taxonomy_builder.py` using `tracemalloc` to profile centroid generation and enforce a strict peak RAM limit; raise an exception if exceeded (DEPENDS ON T008a execution)
+- [ ] T008a [P] Implement `taxonomy_builder.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to generate centroid embeddings using `all-MiniLM-L6-v2` (CPU-first, batched to fit <100MB RAM) using the taxonomy fetched by T005d (input: `data/raw/taxonomy_definitions.json`, output: `data/processed/taxonomy_centroids.json`)
+- [ ] T008b Implement runtime memory profiling logic in `taxonomy_builder.py` using `tracemalloc` to log peak RAM usage during centroid generation; **ENFORCE** the 7GB RAM limit by raising an exception if exceeded, as per Spec Edge Cases. (DEPENDS ON T008a execution; sequential, NOT parallel)
+- [ ] T009 [P] Create contract schema files in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-drift-detection/contracts/`:
+  - `taxonomy_centroid.schema.yaml`
+  - `agent_log.schema.yaml`
+  - `drift_result.schema.yaml`
+  (Output: Valid JSON/YAML schemas matching the Data Model in spec.md)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,13 +76,13 @@
 
 **Goal**: Implement the core drift scoring mechanism to compute cosine distances between logs and taxonomy centroids.
 
-**Independent Test**: The system can be tested by feeding a static JSON file of a sufficient number of known benign logs and a comparable number of known novel attack logs (where novelty is defined by human annotation from the US-02 process, not merely by absence from the taxonomy) and verifying that the "Drift Score" distribution is statistically distinguishable between the two groups with p < 0.05 and an effect size (Cohen's d) ≥ 0.5. **CRITICAL**: This test MUST utilize the human-annotated ground truth generated in Phase 4 (US-02) to satisfy the spec's acceptance criteria. Static fixtures are insufficient for the final validation metric; the test must run against `data/processed/merged_annotations.csv` to verify statistical significance against real human judgment.
+**Independent Test**: The system can be tested by feeding a static JSON file of a sufficient number of known benign logs and a comparable number of known novel attack logs and verifying that the "Drift Score" distribution is statistically distinguishable between the two groups with p < 0.05 and an effect size (Cohen's d) ≥ 0.5. **CRITICAL**: For MVP validation, this test utilizes the **mock ground truth** generated in T018b. For final validation, it uses `data/processed/merged_annotations.csv` from US-02.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Contract test for `drift_scoring.py` output schema: implement `test_drift_score_schema_matches_drift_result_yaml` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/test_contracts.py` validating against `contracts/drift_result.schema.yaml`
+- [ ] T010 [P] [US1] Contract test for `drift_scoring.py` output schema: implement `test_drift_score_schema_matches_drift_result_yaml` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/test_contracts.py` validating against `specs/001-llmxive-drift-detection/contracts/drift_result.schema.yaml` (from T009)
 - [X] T011 [P] [US1] Unit test for empty/whitespace log handling: implement `test_empty_log_returns_drift_score_2_0` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/test_drift_scoring.py` using `data/test_empty_log.json` and asserting `result['drift_score'] == 2.0`
 - [X] T012 [P] [US1] Integration test for batch processing memory limits: implement `test_batch_memory_limit_7gb` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/integration/test_end_to_end.py` using a dataset of logs and asserting `peak_memory < 7GB`
 
@@ -86,9 +91,11 @@
 - [ ] T013a [US1] Implement `compute_cosine_distance` function in `drift_scoring.py` to calculate minimum cosine distance to centroids
 - [ ] T013b [US1] Implement `batch_process_logs` function in `drift_scoring.py` with memory limits to handle large datasets within 7GB RAM
 - [ ] T014 [US1] Add logic to handle empty/whitespace logs by explicitly assigning a Drift Score representing the maximum theoretical cosine distance and adding a 'review_flag' column to the output CSV set to 'true' for these records, as per Edge Cases
-- [ ] T017 [US1] Implement `export_results` function in `drift_scoring.py` to export results to CSV (`data/processed/drift_scores.csv`) with columns: `log_id`, `drift_score`, `review_flag`
+- [X] T017 [US1] Implement `export_results` function in `drift_scoring.py` to export results to CSV (`data/processed/drift_scores.csv`) with columns: `log_id`, `drift_score`, `review_flag`
 - [ ] T016 [US1] Create `main.py` orchestration script in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run the full scoring pipeline including export (DEPENDS ON T017)
-- [ ] T018a [US1] Implement statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 Independent Test verification using human-annotated ground truth from US-02 (input: `data/processed/merged_annotations.csv`, output: `data/processed/us01_stats.json`)
+- [ ] T018b [US1] Implement `generate_mock_ground_truth` function in `validation.py` to create a **temporary** synthetic ground truth dataset (`data/processed/mock_ground_truth.csv`) for MVP testing ONLY. **Parameters**: Balanced ratio of benign/novel labels, sampled randomly from the top/bottom extreme drift score bins of `data/processed/drift_scores.csv` using a fixed random seed. **Constraint**: This mock data is for MVP testing ONLY and MUST be replaced by real human-annotated data for final validation. (input: `data/processed/drift_scores.csv`, output: `data/processed/mock_ground_truth.csv`)
+- [ ] T018c [US1] Implement statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 Independent Test verification using **mock ground truth from T018b** for MVP. (input: `data/processed/mock_ground_truth.csv`, output: `data/processed/us01_mvp_stats.json`) (DEPENDS ON T018b)
+- [ ] T018a [US1] Implement final statistical validation logic in `validation.py` to calculate p-values and Cohen's d for US-01 using **REAL human-annotated data** from US-02. This task is the final validation gate. (input: `data/processed/merged_annotations.csv`, output: `data/processed/us01_final_stats.json`) (DEPENDS ON T021a)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (excluding human validation)
 
@@ -108,15 +115,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021d [US2] Implement `ingest_human_annotations` function in `validation.py` to load at least 3 distinct human annotation CSVs (e.g., `human_annot_1.csv`, `human_annot_2.csv`, `human_annot_3.csv`) provided by the user/runner. This task MUST fail if fewer than 3 distinct human annotation files are provided, and MUST enforce the Kappa > 0.6 constraint (input: user-provided CSVs, output: `data/processed/merged_annotations.csv`, `data/processed/kappa_stats.json`)
+- [ ] T021f [US2] Implement `generate_mock_annotations` function in `validation.py` to generate mock human annotation fixtures for **unit testing the ingestion pipeline only**. **Input**: `data/processed/drift_scores.csv`. **Output**: `data/test/mock_annot_1.csv`, `data/test/mock_annot_2.csv`, `data/test/mock_annot_3.csv`. **Constraint**: These mock fixtures are ONLY for testing the ingestion logic and CANNOT be used to satisfy the Kappa > 0.6 constraint for final US-02 validation. (input: `data/processed/drift_scores.csv`, output: `data/test/mock_annot_*.csv`)
+- [ ] T023a [US2] Implement `stratify_logs` function in `annotator_interface.py` to calculate indices, sort, slice, and bin logs based on drift scores and config parameters (input: `data/processed/drift_scores.csv`, output: `data/processed/blinded_annotation_batch.csv`)
+- [ ] T022 [US2] Implement `export_stratified_bins` function in `annotator_interface.py` to export pre-calculated bins as blinded CSVs for annotation (using T023a logic) (input: `data/processed/blinded_annotation_batch.csv`, output: `data/processed/blinded_annotation_export.csv`)
+- [ ] T021d [US2] Implement `ingest_human_annotations` function in `validation.py`. **Input**: User-provided CSVs in `data/user_input/annotations/` (naming pattern: `human_annot_{id}.csv`). **Constraint**: For the final US-02 validation run, the system MUST fail if fewer than a sufficient number of distinct REAL human annotation files are provided. Mock fixtures from T021f are ONLY for unit testing the ingestion logic, not for satisfying the Kappa > 0.6 constraint. (input: user CSVs OR `data/test/mock_annot_*.csv`, output: `data/processed/merged_annotations.csv`, `data/processed/kappa_stats.json`) (DEPENDS ON T021f)
 - [ ] T021a [US2] Implement `merge_annotations` logic in `validation.py` to read the validated annotated CSVs from T021d, merge with drift scores, and output `data/processed/merged_annotations.csv` (DEPENDS ON T021d)
 - [ ] T021b [US2] Implement `validation.py` logic to perform logistic regression (using `statsmodels.formula.api.logit`) and Mann-Whitney U tests on `data/processed/merged_annotations.csv`, outputting `data/processed/validation_stats.json`
 - [ ] T021c [US2] Implement `prepare_annotation_interface` function in `annotator_interface.py` to generate a CSV template ready for human upload (columns: `log_id`, `text`, `drift_score` for reference ONLY, but `drift_score` must be removed before export) based on stratified bins from T023a
-- [ ] T021e [US2] Generate mock annotation fixtures for testing purposes (input: `data/processed/drift_scores.csv`, output: `data/test/mock_annot_1.csv`, `data/test/mock_annot_2.csv`, `data/test/mock_annot_3.csv`)
-- [ ] T022 [US2] Implement `export_stratified_bins` function in `annotator_interface.py` to export pre-calculated bins as blinded CSVs for annotation (using T025a logic)
-- [ ] T023 [US2] Implement logic to handle stratification parameters (deferred percentiles) via `config.py`
-- [ ] T023a [US2] Implement `stratify_logs` function in `annotator_interface.py` to calculate indices, sort, slice, and bin logs based on drift scores and config parameters
-- [ ] T024 [US2] Implement inter-annotator agreement (Kappa) calculation in `validation.py` using `sklearn.metrics.cohen_kappa_score` on the merged annotations from T021d (multiple distinct human files), with verification step `assert kappa > 0.6`. If a minimal number of files (3) are absent, the system must fail. (This is a separate verification step that runs after T021d's output is generated).
+- [ ] T024 [US2] Implement inter-annotator agreement (Kappa) calculation in `validation.py` using `sklearn.metrics.cohen_kappa_score` on the merged annotations from T021d (multiple distinct human files), with verification step `assert kappa > 0.6`. If a minimal number of REAL files are absent for the final run, the system must fail. (This is a separate verification step that runs after T021d's output is generated).
 - [ ] T025 [US2] Verify output CSVs contain required columns: `log_id`, `text`, `label` (blinded) and no `drift_score` column
 - [ ] T025a [US2] Implement blinding logic (remove `drift_score` column) in `annotator_interface.py` prior to export for human review
 
@@ -126,9 +132,9 @@
 
 ## Phase 5: User Story 3 - Baseline Performance Comparison (Priority: P3)
 
-**Goal**: Compare Drift Score detector against a standard zero-shot LLM classifier (local model).
+**Goal**: Compare Drift Score detector against a standard zero-shot LLM classifier (local model or API).
 
-**Independent Test**: The system can be tested by running a comparison script on a small subset of logs. where both the Drift Score and a zero-shot LLM inference (using a local CPU-friendly model) are available, and verifying the output includes AUC-ROC and inference time metrics against the human-annotated ground truth from US-02.
+**Independent Test**: The system can be tested by running a comparison script on a small subset of logs. where both the Drift Score and a zero-shot LLM inference (using a local CPU-friendly model by default, or gpt-4o-mini if API key is provided) are available, and verifying the output includes AUC-ROC and inference time metrics against the human-annotated ground truth from US-02.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -137,7 +143,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `comparison.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a zero-shot LLM classifier using a **local CPU-friendly model** (e.g., `distilbert-base-uncased-finetuned-sst` or similar local zero-shot model) on `data/processed/merged_annotations.csv`, comparing with Drift Scores. The Drift Score method remains CPU-only, and the baseline MUST also be CPU-only to satisfy Constitution Principle I (Reproducibility) and Principle VII (Resource-Constrained Integrity). *Note: While spec US-03 mentions gpt-4o-mini, the Constitution's strict "No external API calls" constraint for reproducibility takes precedence; this local model serves as the deterministic, reproducible baseline.*
+- [ ] T028 [US3] Implement `comparison.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a zero-shot LLM classifier. **Default Mode**: Use a **local CPU-friendly model** (`distilbert-base-uncased-finetuned-sst`) on `data/processed/merged_annotations.csv` with prompt: "Classify the following text as 'benign' or 'attack': {text}". **Optional Mode**: If `GPT_API_KEY` is present, switch to `gpt-4o-mini` (non-reproducible). Compare with Drift Scores. The Drift Score method remains CPU-only. Output AUC-ROC and inference time metrics. **Constraint**: The API mode is optional and non-reproducible; the local model is the primary reproducible path. (DEPENDS ON T021a for ground truth)
 - [ ] T029 [US3] Implement bootstrap iteration logic for AUC-ROC stability
 - [ ] T029a [US3] Implement deterministic inference caching mechanism in `comparison.py` for local model outputs to ensure reproducibility (Constitution Principle I)
 - [ ] T030 [US3] Generate comparison report containing AUC-ROC for both methods and average inference time per log
@@ -151,12 +157,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates in `docs/` (quickstart.md, data-model.md)
+- [ ] T032 [P] Documentation updates in `docs/`:
+  - Generate `quickstart.md` with reproducible steps (install, fetch data, run pipeline).
+  - Generate `data-model.md` with entity definitions and schema references.
+  - Update `README.md` with project overview.
 - [ ] T033 Code cleanup and refactoring in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`
 - [ ] T034a [P] Implement `benchmark_performance.py` in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` to run a large-scale log benchmark and assert completion time ≤ 30 minutes (SC-003)
 - [ ] T034b [P] Integrate `benchmark_performance.py` into GitHub Actions workflow to fail the build if the 30-minute threshold is exceeded
 - [ ] T035 [P] Additional unit tests for edge cases (leetspeak, obfuscation) in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/`
 - [ ] T036 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T037 [P] **Validation Handoff**: Implement logic in `validation.py` to replace `data/processed/mock_ground_truth.csv` with `data/processed/merged_annotations.csv` for the final US-01 validation run. Ensure T018a is executed with real data and T018c is marked as MVP-only. (DEPENDS ON T021a)
 
 ---
 
@@ -173,7 +183,7 @@
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (except T018a which is now in Phase 3)
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (except T018a which depends on T021a)
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
@@ -216,8 +226,8 @@ Task: "Add logic to handle empty/whitespace logs in code/drift_scoring.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T018a for statistical validation)
-4. **STOP and VALIDATE**: Test User Story 1 independently
+3. Complete Phase 3: User Story 1 (including T018b for mock ground truth and T018c for MVP validation)
+4. **STOP and VALIDATE**: Test User Story 1 independently using mock data
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -252,10 +262,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Hygiene**: Ensure `data_loader.py` fails loudly on real data fetch errors; never use synthetic fallbacks.
 - **Memory**: Ensure batch processing in `drift_scoring.py` respects 7GB RAM limits.
-- **Compute**: Use `all-MiniLM-L6-v2` on CPU for drift scoring; use local CPU-friendly model for baseline comparison (as per Spec US-03 and Constitution Principles).
-- **Reproducibility**: All inference (including baseline comparison) must use local models or cached data; no external API calls for Drift Score or Baseline.
-- **Taxonomy Fetch**: Ensure T005d successfully retrieves the taxonomy from the canonical source (OWASP/Top-LLM) before T008 runs.
-- **Ground Truth**: Ensure T021d (human ingestion) runs before T024 (Kappa) and T018a (US-01 stats) is complete.
+- **Compute**: Use `all-MiniLM-L6-v2` on CPU for drift scoring; use local CPU-friendly model for baseline comparison by default (as per Constitution), with optional API override for gpt-4o-mini.
+- **Reproducibility**: All inference (including baseline comparison) must use local models or cached data by default; external API calls are optional and require explicit configuration.
+- **Taxonomy Fetch**: Ensure T005d successfully retrieves the raw AgentDoG 1.5 taxonomy definitions from `agentdog/taxonomy-v1` before T008 runs.
+- **Ground Truth**: Ensure T018b (mock generation) runs before T018c (MVP stats) and T021f (mock annotations) runs before T021d (ingestion). Final validation (T018a) uses real data from T021a.
 - **Edge Cases**: Ensure T014 explicitly flags empty logs with Drift Score 2.0.
 - **Performance**: Ensure T034a and T034b enforce the 30-minute limit.
 - **Blinding**: Ensure T025a explicitly removes `drift_score` before export.
+- **Contracts**: Ensure T009 generates all required schema files before T010 runs.

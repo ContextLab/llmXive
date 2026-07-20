@@ -1,18 +1,45 @@
+# Ruff Configuration for llmXive Project
+# Linter rules and settings
 [lint]
 # Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = [
-  "E501", # Line too long (handled by Black)
-  "B008", # Do not perform function call in argument (common in tests/fixtures)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "ARG", "SIM"]
+ignore = ["E501", "F403", "F405"] # Ignore line-too-long (handled by black), and wildcard import warnings for dynamic loading
+
+# Allow autofix for all enabled rules (if `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/folders
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
-[lint.isort]
-known-first-party = ["config", "data_loader", "drift_scoring", "taxonomy_builder", "utils", "validation", "annotator_interface", "generate_test_fixture", "main", "benchmark_performance", "comparison"]
-force-sort-within-sections = true
-lines-after-imports = 2
+# Same as Black
+line-length = 88
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Assume Python 3.11
+target-version = "py311"
+
+# Per-file ignores (optional)
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests

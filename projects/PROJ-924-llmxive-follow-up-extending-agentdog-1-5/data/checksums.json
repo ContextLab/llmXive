@@ -1,20 +1,21 @@
 {
-  "advbench": {
-    "algorithm": "sha256",
-    "value": "pending_fetch",
-    "source": "datasets: llm-attacks/advbench",
-    "description": "SHA256 checksum of the raw 'harmful_behaviors_csv' file from AdvBench dataset. Value will be populated after T005a fetches the data."
+  "files": {
+    "raw/advbench.jsonl": {
+      "algorithm": "sha256",
+      "expected": "PENDING_DOWNLOAD"
+    },
+    "raw/hf4.jsonl": {
+      "algorithm": "sha256",
+      "expected": "PENDING_DOWNLOAD"
+    },
+    "raw/taxonomy_definitions.json": {
+      "algorithm": "sha256",
+      "expected": "PENDING_DOWNLOAD"
+    }
   },
-  "hf4": {
-    "algorithm": "sha256",
-    "value": "pending_fetch",
-    "source": "datasets: HuggingFaceH4/ultrachat_200k",
-    "description": "SHA256 checksum of the raw 'train_sft' split from HuggingFace H4 Ultrachat dataset. Value will be populated after T005a fetches the data."
-  },
-  "taxonomy": {
-    "algorithm": "sha256",
-    "value": "pending_fetch",
-    "source": "AgentDoG 1.5 Taxonomy Definition",
-    "description": "SHA256 checksum of the raw taxonomy.json file. Value will be populated after T005d fetches the data."
+  "metadata": {
+    "created_at": "2023-10-27T10:00:00Z",
+    "description": "Checksums for raw data integrity tracking. Values are placeholders until data is fetched and verified.",
+    "version": "1.0"
   }
 }

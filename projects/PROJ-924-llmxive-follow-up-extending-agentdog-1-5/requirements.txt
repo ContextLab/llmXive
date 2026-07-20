@@ -8,6 +8,5 @@ statsmodels
 pytest
 transformers
 accelerate
-scipy
-ruff
-black
+pyarrow
+tracemalloc

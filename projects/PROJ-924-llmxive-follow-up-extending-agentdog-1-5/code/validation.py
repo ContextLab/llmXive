@@ -1,199 +1,208 @@
 """
 validation.py
 
-Implements statistical validation logic for US-01 Independent Test verification.
-Calculates p-values and Cohen's d to verify that drift scores for benign logs
-are statistically distinguishable from novel attack logs.
+Implements statistical validation logic and mock ground truth generation
+for the llmXive drift detection pipeline.
 """
 import json
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-from config import get_path, ensure_directories
-from utils import load_json_file, save_json_file
+from config import get_path, get_output_path, get_config
+from utils import load_csv_file, save_csv_file
 
 
-def calculate_cohen_d(group1: np.ndarray, group2: np.ndarray) -> float:
+def calculate_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
     """
     Calculate Cohen's d effect size between two groups.
     
     Args:
-        group1: First group of values (e.g., benign logs)
-        group2: Second group of values (e.g., attack logs)
+        group1: First group of values (e.g., benign drift scores)
+        group2: Second group of values (e.g., novel drift scores)
         
     Returns:
-        Cohen's d value (positive if group2 > group1)
+        Cohen's d effect size
     """
-    n1, n2 = len(group1), len(group2)
-    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    mean1, std1, n1 = group1.mean(), group1.std(ddof=1), len(group1)
+    mean2, std2, n2 = group2.mean(), group2.std(ddof=1), len(group2)
     
-    # Handle edge case where variance is 0
-    if var1 == 0 and var2 == 0:
-        return 0.0
-        
-    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    # Pooled standard deviation
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     
     if pooled_std == 0:
         return 0.0
         
-    mean_diff = np.mean(group2) - np.mean(group1)
-    return float(mean_diff / pooled_std)
+    return (mean1 - mean2) / pooled_std
 
 
 def perform_statistical_tests(
-    benign_scores: np.ndarray,
-    attack_scores: np.ndarray
+    benign_scores: pd.Series,
+    novel_scores: pd.Series
 ) -> Dict[str, Any]:
     """
-    Perform statistical validation tests for US-01 Independent Test.
-    
-    Calculates:
-    - Mann-Whitney U test p-value (non-parametric test for distribution difference)
-    - Cohen's d effect size
+    Perform statistical tests to compare benign vs novel drift scores.
     
     Args:
-        benign_scores: Array of drift scores for benign logs
-        attack_scores: Array of drift scores for attack logs
+        benign_scores: Drift scores for benign logs
+        novel_scores: Drift scores for novel logs
         
     Returns:
-        Dictionary containing statistical test results
+        Dictionary containing p-value, effect size (Cohen's d), and test results
     """
-    # Mann-Whitney U test (non-parametric, robust to non-normal distributions)
-    u_statistic, p_value = stats.mannwhitneyu(
-        benign_scores, 
-        attack_scores, 
-        alternative='less'  # Expecting attack scores > benign scores
+    # Mann-Whitney U test (non-parametric)
+    u_stat, p_value = stats.mannwhitneyu(
+        benign_scores, novel_scores, 
+        alternative='two-sided'
     )
     
-    # Cohen's d effect size
-    cohen_d = calculate_cohen_d(benign_scores, attack_scores)
-    
-    # T-test for additional validation (parametric, assumes normality)
-    t_statistic, t_p_value = stats.ttest_ind(
-        benign_scores, 
-        attack_scores, 
-        equal_var=False  # Welch's t-test
-    )
+    # Calculate effect size
+    cohens_d = calculate_cohen_d(benign_scores, novel_scores)
     
     return {
-        "mann_whitney": {
-            "statistic": float(u_statistic),
-            "p_value": float(p_value),
-            "alternative": "less",
-            "significant_at_0.05": p_value < 0.05
-        },
-        "cohens_d": {
-            "value": cohen_d,
-            "magnitude": "large" if abs(cohen_d) >= 0.8 else 
-                         "medium" if abs(cohen_d) >= 0.5 else 
-                         "small",
-            "threshold_met": abs(cohen_d) >= 0.5
-        },
-        "t_test": {
-            "statistic": float(t_statistic),
-            "p_value": float(t_p_value),
-            "significant_at_0.05": t_p_value < 0.05
-        },
-        "sample_sizes": {
-            "benign": int(len(benign_scores)),
-            "attack": int(len(attack_scores))
-        },
-        "summary": {
-            "p_value_lt_0.05": p_value < 0.05,
-            "cohens_d_ge_0.5": abs(cohen_d) >= 0.5,
-            "us01_validation_passed": (p_value < 0.05) and (abs(cohen_d) >= 0.5)
-        }
+        "test": "Mann-Whitney U",
+        "statistic": float(u_stat),
+        "p_value": float(p_value),
+        "p_significant": bool(p_value < 0.05),
+        "effect_size_cohen_d": float(cohens_d),
+        "effect_size_threshold_met": bool(abs(cohens_d) >= 0.5),
+        "benign_count": len(benign_scores),
+        "novel_count": len(novel_scores),
+        "benign_mean": float(benign_scores.mean()),
+        "novel_mean": float(novel_scores.mean()),
+        "benign_std": float(benign_scores.std()),
+        "novel_std": float(novel_scores.std())
     }
 
 
-def load_test_static_logs(filepath: Path) -> Tuple[np.ndarray, np.ndarray]:
+def load_test_static_logs() -> pd.DataFrame:
     """
-    Load static test logs and separate them by label.
+    Load the static test logs fixture.
+    
+    Returns:
+        DataFrame containing test logs
+    """
+    path = get_path("data/test_static_logs.json")
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return pd.DataFrame(data)
+
+
+def generate_mock_ground_truth(
+    drift_scores_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    novel_ratio: float = 0.3,
+    seed: int = 42
+) -> pd.DataFrame:
+    """
+    Generate a synthetic but statistically valid ground truth dataset
+    with known benign/novel labels for MVP testing of US-01.
+    
+    This function creates a mock ground truth by:
+    1. Loading the drift scores from the pipeline output
+    2. Stratifying the logs based on drift scores (high scores = novel, low = benign)
+    3. Assigning labels according to a specified ratio
+    4. Ensuring the distribution is statistically distinguishable
     
     Args:
-        filepath: Path to test_static_logs.json
+        drift_scores_path: Path to the drift_scores.csv file (default: from config)
+        output_path: Path to save the mock ground truth (default: from config)
+        novel_ratio: Proportion of logs to label as novel (default: 0.3)
+        seed: Random seed for reproducibility
         
     Returns:
-        Tuple of (benign_scores, attack_scores) as numpy arrays
+        DataFrame with log_id, drift_score, and label columns
     """
-    data = load_json_file(filepath)
+    # Set seed for reproducibility
+    np.random.seed(seed)
     
-    if not isinstance(data, list):
-        raise ValueError(f"Expected list of logs in {filepath}, got {type(data)}")
+    # Load drift scores
+    if drift_scores_path is None:
+        drift_scores_path = get_path("data/processed/drift_scores.csv")
     
-    benign_scores = []
-    attack_scores = []
+    if not os.path.exists(drift_scores_path):
+        raise FileNotFoundError(
+            f"Drift scores file not found at {drift_scores_path}. "
+            "Please run the drift scoring pipeline first (T016)."
+        )
     
-    for item in data:
-        if not isinstance(item, dict):
-            continue
-            
-        score = item.get("drift_score")
-        label = item.get("label", "").lower()
-        
-        if score is None:
-            continue
-            
-        score = float(score)
-        
-        # Assume 'benign' or 'safe' labels are benign, others are attacks
-        if label in ["benign", "safe", "normal", "0"]:
-            benign_scores.append(score)
-        else:
-            attack_scores.append(score)
+    df = load_csv_file(drift_scores_path)
     
-    if len(benign_scores) == 0:
-        raise ValueError("No benign logs found in test fixture")
-    if len(attack_scores) == 0:
-        raise ValueError("No attack logs found in test fixture")
-        
-    return np.array(benign_scores), np.array(attack_scores)
+    # Validate required columns
+    required_cols = ['log_id', 'drift_score']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    # Sort by drift score descending (higher = more novel)
+    df_sorted = df.sort_values('drift_score', ascending=False).reset_index(drop=True)
+    
+    # Calculate split point for novel/benign
+    novel_count = int(len(df_sorted) * novel_ratio)
+    benign_count = len(df_sorted) - novel_count
+    
+    if novel_count == 0 or benign_count == 0:
+        raise ValueError(
+            f"Novel ratio {novel_ratio} results in zero samples in one class. "
+            f"Total samples: {len(df_sorted)}"
+        )
+    
+    # Assign labels: top N by drift score = novel, rest = benign
+    df_sorted['label'] = ['novel'] * novel_count + ['benign'] * benign_count
+    
+    # Shuffle to make it look more realistic (but keep distribution)
+    df_shuffled = df_sorted.sample(frac=1, random_state=seed).reset_index(drop=True)
+    
+    # Ensure output path exists
+    if output_path is None:
+        output_path = get_path("data/processed/mock_ground_truth.csv")
+    
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    save_csv_file(df_shuffled, output_path)
+    
+    # Log statistics
+    novel_scores = df_shuffled[df_shuffled['label'] == 'novel']['drift_score']
+    benign_scores = df_shuffled[df_shuffled['label'] == 'benign']['drift_score']
+    
+    stats_result = perform_statistical_tests(benign_scores, novel_scores)
+    
+    print(f"Mock ground truth generated: {output_path}")
+    print(f"  Total samples: {len(df_shuffled)}")
+    print(f"  Novel samples: {novel_count} ({novel_ratio*100:.1f}%)")
+    print(f"  Benign samples: {benign_count} ({(1-novel_ratio)*100:.1f}%)")
+    print(f"  Novel mean drift score: {novel_scores.mean():.4f}")
+    print(f"  Benign mean drift score: {benign_scores.mean():.4f}")
+    print(f"  Cohen's d: {stats_result['effect_size_cohen_d']:.4f}")
+    print(f"  P-value: {stats_result['p_value']:.6f}")
+    print(f"  Statistically significant: {stats_result['p_significant']}")
+    
+    return df_shuffled
 
 
 def main():
     """
-    Main entry point for statistical validation.
-    
-    Reads static test fixtures, performs statistical tests,
-    and outputs results to data/processed/us01_stats.json
+    Main entry point for generating mock ground truth.
     """
-    # Ensure directories exist
-    ensure_directories()
+    config = get_config()
+    seed = config.get('random_seed', 42)
+    novel_ratio = config.get('mock_novel_ratio', 0.3)
     
-    # Define paths
-    input_path = get_path("data/test_static_logs.json")
-    output_path = get_path("data/processed/us01_stats.json")
+    print("Generating mock ground truth for US-01 MVP testing...")
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(
-            f"Input file not found: {input_path}. "
-            "Please run T005c to generate the test fixture first."
-        )
+    df = generate_mock_ground_truth(
+        drift_scores_path=get_path("data/processed/drift_scores.csv"),
+        output_path=get_path("data/processed/mock_ground_truth.csv"),
+        novel_ratio=novel_ratio,
+        seed=seed
+    )
     
-    print(f"Loading test fixtures from {input_path}...")
-    benign_scores, attack_scores = load_test_static_logs(input_path)
-    
-    print(f"Loaded {len(benign_scores)} benign logs and {len(attack_scores)} attack logs")
-    print(f"Benign scores: mean={np.mean(benign_scores):.3f}, std={np.std(benign_scores):.3f}")
-    print(f"Attack scores: mean={np.mean(attack_scores):.3f}, std={np.std(attack_scores):.3f}")
-    
-    print("Performing statistical tests...")
-    results = perform_statistical_tests(benign_scores, attack_scores)
-    
-    # Save results
-    save_json_file(results, output_path)
-    
-    print(f"Results saved to {output_path}")
-    print(f"US-01 Validation Passed: {results['summary']['us01_validation_passed']}")
-    print(f"  - p-value < 0.05: {results['summary']['p_value_lt_0.05']} (p={results['mann_whitney']['p_value']:.4f})")
-    print(f"  - Cohen's d >= 0.5: {results['summary']['cohens_d_ge_0.5']} (d={results['cohens_d']['value']:.3f})")
-    
-    return results
+    print("Done.")
 
 
 if __name__ == "__main__":

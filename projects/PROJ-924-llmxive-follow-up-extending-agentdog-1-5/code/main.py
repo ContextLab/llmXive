@@ -1,21 +1,22 @@
 """
-Main orchestration script for the llmXive drift detection pipeline.
+Orchestration script for the Zero-Shot Drift Detection pipeline.
 
-This script executes the full scoring pipeline:
-1. Ensures directories exist.
-2. Sets random seeds for reproducibility.
-3. (Optional) Builds taxonomy centroids if data/raw/taxonomy.json exists.
-4. Runs the drift scoring pipeline on available log data.
-5. Exports results to data/processed/drift_scores.csv.
+This script runs the full scoring pipeline:
+1. Validates data integrity.
+2. Builds taxonomy centroids (if not present or forced).
+3. Runs batch drift scoring on logs.
+4. Exports results to CSV.
 
 Usage:
     python code/main.py
 """
-
 import sys
+import os
+import logging
 from pathlib import Path
 
-# Add project root to path to ensure imports work
+# Add project root to path to ensure imports work when running from root
+# or if this script is executed directly from the code directory.
 project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -24,52 +25,73 @@ from config import set_seed, ensure_directories, get_path, get_config
 from taxonomy_builder import main as build_taxonomy
 from drift_scoring import main as run_drift_scoring
 from data_loader import validate_data_integrity
-from utils import load_json_file
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("main")
 
-def main():
+def run_pipeline():
     """
-    Orchestrates the full drift detection pipeline.
+    Executes the full drift detection pipeline.
     """
-    print("Starting llmXive Drift Detection Pipeline...")
+    logger.info("Starting Zero-Shot Drift Detection Pipeline...")
     
-    # 1. Setup
+    # Load configuration
     config = get_config()
-    set_seed(config.get("random_seed", 42))
-    ensure_directories()
-    
-    raw_data_path = get_path("raw_logs")
-    taxonomy_path = get_path("taxonomy")
-    centroids_path = get_path("centroids")
-    
-    # 2. Validate Data Integrity
-    print("Validating raw data integrity...")
-    if not validate_data_integrity():
-        print("ERROR: Data integrity check failed. Aborting.")
-        sys.exit(1)
-    
-    # 3. Build Taxonomy (if source exists and centroids missing)
-    if Path(taxonomy_path).exists():
-        if not Path(centroids_path).exists():
-            print("Taxonomy found, but centroids missing. Building centroids...")
-            build_taxonomy()
-        else:
-            print("Centroids already exist. Skipping taxonomy build.")
-    else:
-        print("WARNING: No taxonomy source found at {}. Skipping centroid build.".format(taxonomy_path))
-        print("Drift scoring may fail or produce default results if centroids are missing.")
+    logger.info(f"Loaded configuration: {config.get('summary', 'N/A')}")
 
-    # 4. Run Drift Scoring
-    print("Running drift scoring pipeline...")
+    # 1. Initialize paths and ensure directories exist
+    ensure_directories()
+    logger.info("Ensured required directories exist.")
+
+    # 2. Set random seeds for reproducibility
+    set_seed(config.get('random_seed', 42))
+    logger.info("Random seeds set.")
+
+    # 3. Validate raw data integrity
+    # This ensures that AdvBench, HF4, and Taxonomy files are present and valid
+    # before proceeding to heavy computation.
+    logger.info("Validating raw data integrity...")
+    try:
+        validate_data_integrity()
+        logger.info("Data integrity check passed.")
+    except Exception as e:
+        logger.error(f"Data integrity check failed: {e}")
+        logger.error("Pipeline aborted. Please ensure raw data is downloaded and checksums match.")
+        return False
+
+    # 4. Build Taxonomy Centroids
+    # This step generates the reference embeddings for the taxonomy categories.
+    # It checks for existing centroids and regenerates if necessary or if forced.
+    logger.info("Running Taxonomy Builder...")
+    try:
+        build_taxonomy()
+        logger.info("Taxonomy centroids built successfully.")
+    except Exception as e:
+        logger.error(f"Taxonomy building failed: {e}")
+        logger.error("Pipeline aborted. Centroids are required for scoring.")
+        return False
+
+    # 5. Run Drift Scoring
+    # This is the core step: loading logs, computing cosine distances, and exporting results.
+    logger.info("Running Drift Scoring...")
     try:
         run_drift_scoring()
-        print("Drift scoring completed successfully.")
+        logger.info("Drift scoring completed successfully.")
     except Exception as e:
-        print(f"ERROR: Drift scoring pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Drift scoring failed: {e}")
+        logger.error("Pipeline aborted. Check logs for details.")
+        return False
 
-    print("Pipeline execution finished.")
-
+    logger.info("Pipeline completed successfully.")
+    return True
 
 if __name__ == "__main__":
-    main()
+    success = run_pipeline()
+    sys.exit(0 if success else 1)

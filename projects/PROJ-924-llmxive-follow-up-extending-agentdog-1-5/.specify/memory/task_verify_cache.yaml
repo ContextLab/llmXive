@@ -6,60 +6,26 @@ T001:
     \ `data/processed/`) is provided. Without these artifacts, we cannot confirm that\
     \ the project structure was created as specified. The implementer must add the\
     \ actual directory tree and files to satisfy the task."
-T003:
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting (ruff) or formatting (black) configuration files (e.g., `.ruff.toml`,
-    `pyproject.toml` with black settings, or related setup scripts) are present in
-    the indicated project directory, nor any evidence that these tools have been integrated.
-    The required artifacts are missing, so the task is not satisfied.
-T004:
+  r: "No `utils.py` file was presented in the evidence, nor any code showing contract\u2011\
+    validation helpers or JSON/CSV schema\u2011loading functions in the required directory.\
+    \ Without the actual artifact, the claim cannot be verified as fulfilled. The\
+    \ implementer must add a non\u2011empty `utils.py` at `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`\
+    \ containing the specified helper functions."
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `config.py` file was presented in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`,
-    nor any excerpt of its contents. Without the file (or its content) we cannot confirm
-    that it manages random seeds, paths, and batch sizes as required. The implementer
-    must add the file with the appropriate configuration definitions.
-T005a:
+  r: No `checksums.json` file was found in the required `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/`
+    directory, nor any evidence of its contents, so the raw data integrity tracking
+    artifact is missing.
+T010:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_loader.py` file or its contents were provided, and there is no evidence
-    that `fetch_advbench` and `fetch_hf4` have been implemented using `datasets.load_dataset`
-    with streaming. The required functions are missing, so the task is not satisfied.
-T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `taxonomy_builder.py` file or modifications were presented, and there is\
-    \ no evidence of `tracemalloc`\u2011based memory monitoring, RAM\u2011limit enforcement,\
-    \ or exception handling. Without the required code artifact, the task\u2019s requirement\
-    \ is not satisfied."
-T013a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `drift_scoring.py` file or `compute_cosine_distance` function was provided;
-    without the actual code we cannot verify that the function calculates the minimum
-    cosine distance to centroids as required. The implementer must add the file and
-    implement the function accordingly.
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `drift_scoring.py` file or `batch_process_logs` function was provided for\
-    \ inspection, so we cannot verify that the function exists, respects the 7\u202F\
-    GB RAM limit, or meets the specified behavior. The required code artifact is missing."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV output, code, or any other artifact was provided showing that empty/whitespace\
-    \ logs are assigned a drift_score of\u202F2.0 and a review_flag of\u202Ftrue.\
-    \ Without concrete files or code changes, the requirement cannot be verified as\
-    \ met."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, tests, or documentation for batch processing in `drift_scoring.py`\
-    \ were supplied; there is no artifact demonstrating that large\u2011dataset handling\
-    \ respects the 7\u202FGB RAM limit or raises an exception when exceeded. Consequently\
-    \ the required implementation cannot be verified."
+  h: 791f84e7142e8619c0977cd8c2f220fcce7266da15732c91902013e6a5bd57a7
+  r: The test implementation is present, but the required schema file `contracts/drift_result.schema.yaml`
+    does not exist, so the test cannot actually validate against the schema as required.
+    The missing schema must be added for the task to be complete.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -68,3 +34,10 @@ T016:
     \ Without the actual orchestration script, the task requirement is not satisfied.\
     \ The implementer must add the `main.py` file (non\u2011empty) that runs the full\
     \ scoring pipeline and export steps."
+T018b:
+  c: false
+  h: 2c38cd8f8e513a66d62ed9546d908c5a15c4778b21b804cfe057c23433822f00
+  r: "The required output file `data/processed/mock_ground_truth.csv` does not exist,\
+    \ so the synthetic ground\u2011truth dataset was never generated. Consequently\
+    \ the `generate_mock_ground_truth` function either was not implemented or did\
+    \ not produce the expected CSV. The task is therefore not satisfied."

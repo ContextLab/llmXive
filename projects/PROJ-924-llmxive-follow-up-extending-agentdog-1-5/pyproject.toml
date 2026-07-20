@@ -1,12 +1,17 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-agentdog-1-5"
-version = "0.1.0"
-description = "Zero-Shot Drift Detection for AgentDoG 1.5"
+name = "llmxive-agentdog"
+version = "1.5.0"
+description = "llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Team"}
+]
 dependencies = [
     "sentence-transformers",
     "scikit-learn",
@@ -18,36 +23,50 @@ dependencies = [
     "pytest",
     "transformers",
     "accelerate",
-    "scipy",
     "ruff",
-    "black",
+    "black"
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.nox
+    | \.pants.d
+    | \.pytype
+    | \.ruff_cache
+    | \.svn
+    | \.tox
+    | \.venv
+    | __pypackages__
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | venv
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_functions = "test_*"
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[tool.ruff]
+# Ruff is configured in .ruff.toml, but we ensure the path is recognized here if needed
+# or we can duplicate settings if the project prefers a single file.
+# Per task requirement, we use .ruff.toml for lint rules, but pyproject.toml for project metadata.
+# This section is kept minimal to avoid conflict with .ruff.toml.
+line-length = 88
+target-version = "py311"

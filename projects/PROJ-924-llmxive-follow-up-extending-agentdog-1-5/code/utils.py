@@ -1,13 +1,13 @@
 """
 utils.py - Contract validation helpers and JSON/CSV schema loading.
 
-This module provides utility functions for:
-- Loading and validating JSON schemas (YAML/JSON format)
-- Loading and saving JSON/CSV files
-- Validating data against schemas
-- UUID validation
+This module provides utilities for:
+- Loading JSON and CSV files with error handling.
+- Loading JSON schemas from disk.
+- Validating data against JSON schemas.
+- Saving data to JSON and CSV formats.
+- Specific validation helpers for drift result contracts.
 """
-
 import json
 import csv
 import os
@@ -15,256 +15,208 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
 
-# Try to import yaml, but handle if not installed
-try:
-    import yaml
-    YAML_AVAILABLE = True
-except ImportError:
-    YAML_AVAILABLE = False
+# Import config for path resolution if needed, though this module is standalone
+# from config import get_path
 
-
-def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
+def load_json_file(path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Load a JSON or YAML schema from the given path.
+    Load a JSON file from disk.
 
     Args:
-        schema_path: Path to the schema file (.json or .yaml/.yml)
+        path: Path to the JSON file.
 
     Returns:
-        Dictionary containing the parsed schema
+        Parsed JSON content as a dictionary.
 
     Raises:
-        FileNotFoundError: If the schema file does not exist
-        ValueError: If the file format is unsupported or parsing fails
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file content is not valid JSON.
     """
-    schema_path = Path(schema_path)
-
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    if schema_path.suffix in ['.yaml', '.yml']:
-        if not YAML_AVAILABLE:
-            raise ImportError(
-                "PyYAML is required to load YAML schemas. "
-                "Install it with: pip install pyyaml"
-            )
-        return yaml.safe_load(content)
-    elif schema_path.suffix == '.json':
-        return json.loads(content)
-    else:
-        raise ValueError(f"Unsupported schema format: {schema_path.suffix}. "
-                       "Use .json or .yaml/.yml")
-
-
-def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
-    """
-    Validate data against a JSON schema and return a list of errors.
-
-    This is a simplified validator that checks:
-    - Required fields are present
-    - Field types match the schema definition
-
-    For full JSON Schema validation, use the 'jsonschema' library.
-
-    Args:
-        data: The data to validate
-        schema: The JSON schema to validate against
-
-    Returns:
-        List of error messages. Empty list if validation passes.
-    """
-    errors = []
-
-    # Check required fields
-    required_fields = schema.get('required', [])
-    for field in required_fields:
-        if field not in data:
-            errors.append(f"Missing required field: {field}")
-
-    # Check property types
-    properties = schema.get('properties', {})
-    for field, definition in properties.items():
-        if field in data:
-            expected_type = definition.get('type')
-            value = data[field]
-
-            if expected_type == 'string':
-                if not isinstance(value, str):
-                    errors.append(f"Field '{field}' must be a string, got {type(value).__name__}")
-            elif expected_type == 'number':
-                if not isinstance(value, (int, float)):
-                    errors.append(f"Field '{field}' must be a number, got {type(value).__name__}")
-            elif expected_type == 'integer':
-                if not isinstance(value, int):
-                    errors.append(f"Field '{field}' must be an integer, got {type(value).__name__}")
-            elif expected_type == 'boolean':
-                if not isinstance(value, bool):
-                    errors.append(f"Field '{field}' must be a boolean, got {type(value).__name__}")
-            elif expected_type == 'array':
-                if not isinstance(value, list):
-                    errors.append(f"Field '{field}' must be an array, got {type(value).__name__}")
-            elif expected_type == 'object':
-                if not isinstance(value, dict):
-                    errors.append(f"Field '{field}' must be an object, got {type(value).__name__}")
-
-    return errors
-
-
-def load_json_file(file_path: Union[str, Path]) -> Dict[str, Any]:
-    """
-    Load a JSON file and return its contents as a dictionary.
-
-    Args:
-        file_path: Path to the JSON file
-
-    Returns:
-        Dictionary containing the parsed JSON data
-
-    Raises:
-        FileNotFoundError: If the file does not exist
-        json.JSONDecodeError: If the file contains invalid JSON
-    """
-    file_path = Path(file_path)
-
-    if not file_path.exists():
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
-
-    with open(file_path, 'r', encoding='utf-8') as f:
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-
-def save_json_file(data: Dict[str, Any], file_path: Union[str, Path], indent: int = 2) -> None:
+def save_json_file(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) -> None:
     """
     Save a dictionary to a JSON file.
 
     Args:
-        data: Dictionary to save
-        file_path: Path to the output file
-        indent: Indentation level for pretty-printing (default: 2)
+        data: Dictionary to save.
+        path: Path to the output JSON file.
+        indent: Indentation level for formatting.
     """
-    file_path = Path(file_path)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=indent)
 
-    # Ensure parent directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=indent, ensure_ascii=False)
-
-
-def load_csv_file(file_path: Union[str, Path]) -> List[Dict[str, str]]:
+def load_csv_file(path: Union[str, Path]) -> List[Dict[str, str]]:
     """
-    Load a CSV file and return its contents as a list of dictionaries.
+    Load a CSV file from disk into a list of dictionaries.
 
     Args:
-        file_path: Path to the CSV file
+        path: Path to the CSV file.
 
     Returns:
-        List of dictionaries, where each dictionary represents a row
-        with column names as keys
+        List of dictionaries, where each dictionary represents a row.
 
     Raises:
-        FileNotFoundError: If the file does not exist
+        FileNotFoundError: If the file does not exist.
+        csv.Error: If the CSV is malformed.
     """
-    file_path = Path(file_path)
-
-    if not file_path.exists():
-        raise FileNotFoundError(f"CSV file not found: {file_path}")
-
-    with open(file_path, 'r', encoding='utf-8', newline='') as f:
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"CSV file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
-
-def save_csv_file(data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:
+def save_csv_file(data: List[Dict[str, Any]], path: Union[str, Path], fieldnames: Optional[List[str]] = None) -> None:
     """
     Save a list of dictionaries to a CSV file.
 
     Args:
-        data: List of dictionaries to save (each dict is a row)
-        file_path: Path to the output file
+        data: List of dictionaries to save.
+        path: Path to the output CSV file.
+        fieldnames: Optional list of fieldnames. If None, derived from the first dict.
     """
-    file_path = Path(file_path)
-
-    # Ensure parent directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
     if not data:
-        # Write empty file if no data
-        with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        # Create empty file if no data
+        with open(path, 'w', encoding='utf-8') as f:
             pass
         return
 
-    # Get fieldnames from the first row
-    fieldnames = list(data[0].keys())
+    if fieldnames is None:
+        fieldnames = list(data[0].keys())
 
-    with open(file_path, 'w', encoding='utf-8', newline='') as f:
+    with open(path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
-
-def validate_drift_result_schema(result: Dict[str, Any]) -> List[str]:
+def load_schema(path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Validate a drift scoring result against the expected schema.
-
-    Expected schema for drift result:
-    {
-        "log_id": "string (UUID)",
-        "drift_score": "number (0.0 to 2.0)",
-        "review_flag": "boolean or string ('true'/'false')"
-    }
+    Load a JSON schema from disk.
 
     Args:
-        result: The drift result dictionary to validate
+        path: Path to the schema file.
 
     Returns:
-        List of error messages. Empty list if validation passes.
+        Parsed schema as a dictionary.
     """
-    errors = []
+    return load_json_file(path)
 
-    # Check required fields
-    required_fields = ['log_id', 'drift_score', 'review_flag']
-    for field in required_fields:
-        if field not in result:
-            errors.append(f"Missing required field: {field}")
+def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """
+    Validate data against a JSON schema.
+    
+    Note: This is a lightweight implementation. For complex schemas, 
+    the 'jsonschema' library is recommended, but this function provides
+    basic type and required field checking.
 
-    # Validate log_id format (UUID4)
-    if 'log_id' in result:
-        if not is_valid_uuid4(result['log_id']):
-            errors.append(f"Invalid UUID4 format for log_id: {result['log_id']}")
+    Args:
+        data: Data to validate.
+        schema: The JSON schema.
 
-    # Validate drift_score range
-    if 'drift_score' in result:
-        score = result['drift_score']
-        if not isinstance(score, (int, float)):
-            errors.append(f"drift_score must be a number, got {type(score).__name__}")
-        elif not (0.0 <= score <= 2.0):
-            errors.append(f"drift_score must be between 0.0 and 2.0, got {score}")
+    Returns:
+        True if valid.
 
-    # Validate review_flag
-    if 'review_flag' in result:
-        flag = result['review_flag']
-        valid_flags = [True, False, 'true', 'false', 'True', 'False', 1, 0]
-        if flag not in valid_flags:
-            errors.append(f"Invalid review_flag value: {flag}. "
-                        f"Expected boolean or 'true'/'false' string")
+    Raises:
+        ValueError: If validation fails.
+    """
+    # Basic required fields check
+    required = schema.get('required', [])
+    for field in required:
+        if field not in data:
+            raise ValueError(f"Missing required field: {field}")
+    
+    # Basic type checking if schema defines types
+    properties = schema.get('properties', {})
+    for key, value in data.items():
+        if key in properties:
+            prop_schema = properties[key]
+            expected_type = prop_schema.get('type')
+            if expected_type:
+                if expected_type == 'string' and not isinstance(value, str):
+                    raise ValueError(f"Field '{key}' must be a string")
+                if expected_type == 'number' and not isinstance(value, (int, float)):
+                    raise ValueError(f"Field '{key}' must be a number")
+                if expected_type == 'integer' and not isinstance(value, int):
+                    raise ValueError(f"Field '{key}' must be an integer")
+                if expected_type == 'boolean' and not isinstance(value, bool):
+                    raise ValueError(f"Field '{key}' must be a boolean")
+                if expected_type == 'array' and not isinstance(value, list):
+                    raise ValueError(f"Field '{key}' must be an array")
+                if expected_type == 'object' and not isinstance(value, dict):
+                    raise ValueError(f"Field '{key}' must be an object")
+    
+    return True
 
-    return errors
-
-
-def is_valid_uuid4(uuid_str: str) -> bool:
+def is_valid_uuid4(uuid_string: str) -> bool:
     """
     Check if a string is a valid UUID4.
 
     Args:
-        uuid_str: String to validate
+        uuid_string: The string to check.
 
     Returns:
-        True if the string is a valid UUID4, False otherwise
+        True if valid UUID4 format.
     """
-    # UUID4 pattern: 8-4-4-4-12 hex digits
-    pattern = r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
-    return bool(re.match(pattern, uuid_str))
+    pattern = re.compile(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        re.IGNORECASE
+    )
+    return bool(pattern.match(uuid_string))
+
+def validate_drift_result_schema(data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
+    """
+    Validate a drift result record or list of records against the expected contract.
+    
+    Expected fields per record:
+      - log_id (string, UUID4 recommended)
+      - drift_score (number)
+      - review_flag (boolean)
+      - category (optional string)
+
+    Args:
+        data: A single record or a list of records.
+
+    Returns:
+        True if valid.
+
+    Raises:
+        ValueError: If validation fails.
+    """
+    records = data if isinstance(data, list) else [data]
+    
+    for i, record in enumerate(records):
+        if not isinstance(record, dict):
+            raise ValueError(f"Record {i} is not a dictionary")
+        
+        # Required fields
+        if 'log_id' not in record:
+            raise ValueError(f"Record {i} missing 'log_id'")
+        if not isinstance(record['log_id'], str):
+            raise ValueError(f"Record {i} 'log_id' must be a string")
+        
+        if 'drift_score' not in record:
+            raise ValueError(f"Record {i} missing 'drift_score'")
+        if not isinstance(record['drift_score'], (int, float)):
+            raise ValueError(f"Record {i} 'drift_score' must be a number")
+        
+        if 'review_flag' not in record:
+            raise ValueError(f"Record {i} missing 'review_flag'")
+        if not isinstance(record['review_flag'], bool):
+            raise ValueError(f"Record {i} 'review_flag' must be a boolean")
+        
+        # Optional validation for log_id format if it looks like a UUID
+        if is_valid_uuid4(record['log_id']):
+            pass # Valid UUID4
+        # We don't strictly enforce UUID4 if it's just a string ID, but we accept it.
+
+    return True
