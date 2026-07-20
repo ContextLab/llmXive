@@ -1,11 +1,35 @@
-T022:
+T007a:
   c: false
-  h: 1f3b26cfb8baffc388a6254f371054b9bd8fff0b47d5b81c5477a9d08c3297fa
-  r: "The repository lacks `data/raw/baseline_failures.json` and the generated `data/raw/degraded_failures.json`.\
-    \ Moreover, `src/conditions/run_degraded.py` does not load the baseline failures\
-    \ nor re\u2011execute them with WIA=0; it instead attempts to generate a fresh\
-    \ set of failures, violating the task specification. The required output file\
-    \ with the specified keys is absent."
+  h: 2c75f1fd631c2aef729843253fe09097a990cb0b8328ced41539392479ba15a6
+  r: "The repository contains a partially\u2011implemented `src/sim/validation.py`\
+    \ that is truncated and does not actually write a JSON file to `data/raw/ground_truth_raw.json`.\
+    \ Moreover, the required artifact `data/raw/ground_truth_raw.json` is absent,\
+    \ and the existing code saves a richer structure (including action logs, timestamps,\
+    \ etc.) rather than a plain list of state transitions as specified. The task\u2019\
+    s core requirement\u2014extracting raw state\u2011transition logs and persisting\
+    \ them with a checksum\u2014is therefore not fulfilled."
+T011:
+  c: false
+  h: 38f83580196ddb1103ed34decbc531ee5161d29811421a05df01a6061c494021
+  r: The required source file `src/sim/trajectory_generator.py` does not exist, and
+    the provided test file is incomplete (it lacks any test that actually imports
+    or runs the generator to validate its output). Both the implementation and the
+    contract test are missing, so the task is not satisfied.
+T022a:
+  c: false
+  h: e46423da48e82998a6c86a637724485d8fe8ae40d96670b34f2211de32c4dca5
+  r: "The provided `src/conditions/run_degraded.py` generates a new `degraded_failures.json`\
+    \ dataset and never attempts to load `data/raw/baseline_failures.json`. Moreover,\
+    \ the required `data/raw/baseline_failures.json` file is absent from the repository.\
+    \ The implementation does not satisfy the task\u2019s specification of loading\
+    \ the baseline failures file."
+T022c:
+  c: false
+  h: 35ff409cd2551a377f500289a2998be13709c004e7ab9d370633d0ce6ed588a9
+  r: "The provided `run_degraded.py` does not contain the required batch\u2011size\
+    \ logic (no `BATCH_SIZE=50` or `MAX_BATCHES=10` constants or loop) and the script\
+    \ never writes to `data/raw/degraded_failures.json` (the file is missing). Consequently\
+    \ the task\u2019s specifications are not met."
 T023:
   c: false
   h: e6d9c4141fe8302983b28b259e4289d70737d161bc33069b7fa978e2e4fbb988

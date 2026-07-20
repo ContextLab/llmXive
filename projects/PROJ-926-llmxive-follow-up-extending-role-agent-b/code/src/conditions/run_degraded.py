@@ -1,166 +1,187 @@
-"""
-T022: Run Degraded Condition (WIA Horizon Zero)
-
-Loads baseline failure trajectories and re-executes them in the ALFWorld simulator
-with the WIA prediction horizon set to 0 (Degraded condition).
-"""
 import argparse
 import json
 import os
 import sys
 import uuid
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-# Add project root to path to allow imports from code/
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
+# Import existing APIs from project structure
+from src.conditions.degraded import (
+    DegradedConfig,
+    configure_degraded_environment,
+    run_degraded_condition_check
+)
 from src.sim.alfworld_runner import run_episode
-from src.conditions.degraded import configure_degraded_environment, get_degraded_prompt_template
-from src.config.config import DATA_PATH
+from src.config.config import DATA_PATH, SEED
+from src.sim.exclusion_logger import log_excluded_trajectory, set_exclusion_path
+
+# Constants for batch processing
+BATCH_SIZE = 50
+MAX_BATCHES = 10
+MAX_TOTAL_ATTEMPTS = MAX_BATCHES * BATCH_SIZE
 
 def load_baseline_failures(input_path: str) -> List[Dict[str, Any]]:
-    """Load baseline failure trajectories from JSON."""
+    """
+    Load baseline failure trajectories from the specified JSON file.
+    Raises FileNotFoundError if the file does not exist.
+    """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Baseline failures file not found: {input_path}")
     
-    with open(input_path, 'r') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'trajectories' in data:
-        return data['trajectories']
-    else:
-        raise ValueError(f"Unexpected data format in {input_path}")
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list of trajectories in {input_path}, got {type(data)}")
+    
+    return data
 
-def run_degraded_simulation(trajectory: Dict[str, Any]) -> Dict[str, Any]:
+def run_degraded_simulation(
+    baseline_failures: List[Dict[str, Any]],
+    output_path: str,
+    batch_size: int = BATCH_SIZE,
+    max_batches: int = MAX_BATCHES
+) -> List[Dict[str, Any]]:
     """
-    Re-run a specific trajectory in the ALFWorld simulator with WIA=0.
-    
-    Args:
-        trajectory: Original baseline failure trajectory dict
-        
-    Returns:
-        Dict containing the degraded trajectory result
+    Execute the re-simulation loop with batch limits on baseline failures.
+    Re-runs ALFWorld episodes with WIA prediction horizon = 0.
+    Saves results to the specified output path.
     """
-    original_id = trajectory.get('id')
-    task_id = trajectory.get('task_id')
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
-    if not task_id:
-        raise ValueError(f"Missing task_id in trajectory {original_id}")
+    # Set exclusion log path
+    set_exclusion_path(os.path.join(DATA_PATH, "raw", "excluded_log.json"))
     
-    # Configure degraded environment (WIA Horizon = 0)
-    degraded_config = configure_degraded_environment()
+    degraded_config = DegradedConfig(wia_horizon=0)
+    results = []
+    total_attempts = 0
+    batch_count = 0
     
-    # Get the degraded prompt template
-    prompt_template = get_degraded_prompt_template()
-    
-    # Run the episode with the degraded configuration
-    # Note: We pass the original task_id but the environment is configured
-    # to have WIA=0, which affects the agent's prediction horizon
-    try:
-        result = run_episode(
-            task_id=task_id,
-            seed=trajectory.get('seed', 42),
-            config_override=degraded_config,
-            prompt_template=prompt_template
-        )
+    # Process in batches
+    for batch_start in range(0, len(baseline_failures), batch_size):
+        if batch_count >= max_batches:
+            print(f"Reached MAX_BATCHES limit ({max_batches}). Stopping simulation.")
+            break
         
-        # Determine failure description from the result
-        # Since we are simulating WIA=0, we expect failures to be related
-        # to lack of predictive capability
-        if result.get('success', False):
-            failure_description = "Unexpected success in degraded condition"
-        else:
-            failure_description = result.get('failure_reason', "Failed due to WIA=0 constraint")
+        batch_end = min(batch_start + batch_size, len(baseline_failures))
+        batch = baseline_failures[batch_start:batch_end]
+        batch_count += 1
         
-        return {
-            'id': str(uuid.uuid4()),
-            'original_id': original_id,
-            'task_id': task_id,
-            'failure_description': failure_description,
-            'context_type': 'WIA_ZERO',
-            'action_log': result.get('action_log', []),
-            'state_transitions': result.get('state_transitions', []),
-            'timestamp': datetime.now().isoformat(),
-            'config_used': degraded_config
-        }
+        print(f"Processing batch {batch_count}/{max_batches} (size: {len(batch)})")
         
-    except Exception as e:
-        # Log the error but continue processing other trajectories
-        return {
-            'id': str(uuid.uuid4()),
-            'original_id': original_id,
-            'task_id': task_id,
-            'failure_description': f"Simulation error: {str(e)}",
-            'context_type': 'WIA_ZERO',
-            'action_log': [],
-            'state_transitions': [],
-            'timestamp': datetime.now().isoformat(),
-            'config_used': degraded_config,
-            'error': str(e)
-        }
+        for idx, failure in enumerate(batch):
+            if total_attempts >= MAX_TOTAL_ATTEMPTS:
+                print(f"Reached MAX_TOTAL_ATTEMPTS limit ({MAX_TOTAL_ATTEMPTS}). Stopping.")
+                break
+            
+            total_attempts += 1
+            trajectory_id = failure.get('id', str(uuid.uuid4()))
+            task_id = failure.get('task_id')
+            
+            if not task_id:
+                log_excluded_trajectory(
+                    trajectory_id=trajectory_id,
+                    reason="missing_task_id",
+                    details="Baseline failure entry missing task_id field"
+                )
+                continue
+            
+            try:
+                # Configure degraded environment
+                configure_degraded_environment(degraded_config)
+                
+                # Run the episode with the specific task and seed
+                # We use the seed from the original failure if available, otherwise default
+                seed = failure.get('seed', SEED)
+                
+                action_log, state_transitions = run_episode(task_id, seed)
+                
+                # Validate the trajectory against ground truth
+                is_valid, reason = run_degraded_condition_check(
+                    action_log, 
+                    state_transitions,
+                    failure
+                )
+                
+                if not is_valid:
+                    log_excluded_trajectory(
+                        trajectory_id=trajectory_id,
+                        reason="validation_failed",
+                        details=reason
+                    )
+                    continue
+                
+                # Construct the result entry
+                result_entry = {
+                    "id": trajectory_id,
+                    "task_id": task_id,
+                    "condition": "degraded",
+                    "seed": seed,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "action_log": action_log,
+                    "state_transitions": state_transitions,
+                    "original_failure_id": failure.get('id'),
+                    "validation_status": "PASS"
+                }
+                
+                results.append(result_entry)
+                
+            except Exception as e:
+                log_excluded_trajectory(
+                    trajectory_id=trajectory_id,
+                    reason="simulation_error",
+                    details=str(e)
+                )
+                continue
+        
+        if total_attempts >= MAX_TOTAL_ATTEMPTS:
+            break
+    
+    print(f"Simulation complete. Processed {total_attempts} attempts, saved {len(results)} valid trajectories.")
+    return results
 
 def run(input_path: str, output_path: str) -> None:
     """
-    Main function to process all baseline failures and generate degraded trajectories.
-    
-    Args:
-        input_path: Path to baseline_failures.json
-        output_path: Path to save degraded_failures.json
+    Main entry point to run the degraded condition simulation.
+    Loads baseline failures, runs simulation, and saves results.
     """
-    print(f"Loading baseline failures from {input_path}")
-    baseline_trajectories = load_baseline_failures(input_path)
-    print(f"Loaded {len(baseline_trajectories)} baseline trajectories")
+    print(f"Loading baseline failures from: {input_path}")
+    baseline_failures = load_baseline_failures(input_path)
+    print(f"Loaded {len(baseline_failures)} baseline failures.")
     
-    degraded_results = []
+    if not baseline_failures:
+        raise ValueError("No baseline failures found to process.")
     
-    for i, trajectory in enumerate(baseline_trajectories):
-        print(f"Processing trajectory {i+1}/{len(baseline_trajectories)}: {trajectory.get('id', 'unknown')}")
-        result = run_degraded_simulation(trajectory)
-        degraded_results.append(result)
+    print(f"Starting degraded simulation. Output: {output_path}")
+    results = run_degraded_simulation(baseline_failures, output_path)
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Save results to disk
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
     
-    # Save results
-    with open(output_path, 'w') as f:
-        json.dump({
-            'metadata': {
-                'total_trajectories': len(degraded_results),
-                'condition': 'degraded',
-                'wia_horizon': 0,
-                'generated_at': datetime.now().isoformat()
-            },
-            'trajectories': degraded_results
-        }, f, indent=2)
-    
-    print(f"Saved {len(degraded_results)} degraded trajectories to {output_path}")
-    
-    # Verification
-    if len(degraded_results) != len(baseline_trajectories):
-        print(f"WARNING: Mismatch in trajectory counts. Expected {len(baseline_trajectories)}, got {len(degraded_results)}")
-    
-    # Verify required keys
-    required_keys = ['id', 'original_id', 'failure_description', 'context_type']
-    for result in degraded_results:
-        for key in required_keys:
-            if key not in result:
-                print(f"ERROR: Missing required key '{key}' in result {result.get('id', 'unknown')}")
+    print(f"Successfully saved {len(results)} degraded failures to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Run degraded condition simulation')
-    parser.add_argument('--input', type=str, default='data/raw/baseline_failures.json',
-                      help='Path to baseline failures JSON')
-    parser.add_argument('--output', type=str, default='data/raw/degraded_failures.json',
-                      help='Path to save degraded failures JSON')
+    parser = argparse.ArgumentParser(description="Run Degraded Condition Simulation")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        required=True,
+        help="Path to baseline failures JSON file (e.g., data/raw/baseline_failures.json)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path to save degraded failures JSON file (e.g., data/raw/degraded_failures.json)"
+    )
     
     args = parser.parse_args()
-    
     run(args.input, args.output)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

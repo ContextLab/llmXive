@@ -1,249 +1,399 @@
+"""
+Validation module for ALFWorld trajectory analysis.
+
+Implements ground-truth extraction, validation mapping, and ambiguity handling.
+This module focuses on extracting raw ground-truth logs and applying validation rules.
+"""
 import json
 import os
 import hashlib
+import argparse
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config.config import DATA_PATH, SEED
 
-# Import exclusion logger to handle ambiguous cases
-from src.sim.exclusion_logger import log_excluded_trajectory, set_exclusion_path
+# Ensure data directories exist
+RAW_DATA_PATH = os.path.join(DATA_PATH, "raw")
+DERIVED_DATA_PATH = os.path.join(DATA_PATH, "derived")
+os.makedirs(RAW_DATA_PATH, exist_ok=True)
+os.makedirs(DERIVED_DATA_PATH, exist_ok=True)
 
-# Import ground truth loading from T007a
-# Assuming T007a populated this function or we load directly
-# Since T007a is marked completed, we assume the file exists and is readable
-# We will implement the loading logic here to be safe and self-contained
+
+def compute_checksum(data: str) -> str:
+    """Compute SHA-256 checksum for data integrity verification."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+
+
+def extract_ground_truth_from_simulator(
+    simulator_logs: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """
+    Extract raw ground-truth state transitions from ALFWorld simulator logs.
+    
+    This function processes the raw logs from the simulator to extract the 
+    ground-truth state transitions. It does NOT apply any validation rules 
+    or priority mappings here - that is done in T007c/T007b.
+    
+    Args:
+        simulator_logs: List of raw simulator log entries from ALFWorld
+        
+    Returns:
+        List of extracted ground-truth state transitions in JSON format
+    """
+    ground_truth_transitions = []
+    
+    for idx, log_entry in enumerate(simulator_logs):
+        # Extract state transition information
+        transition = {
+            "id": f"gt_{idx:06d}",
+            "step": log_entry.get("step", idx),
+            "state": log_entry.get("state", {}),
+            "action": log_entry.get("action", ""),
+            "observation": log_entry.get("observation", ""),
+            "reward": log_entry.get("reward", 0),
+            "done": log_entry.get("done", False),
+            "ground_truth_action": log_entry.get("ground_truth_action", log_entry.get("action", "")),
+            "timestamp": datetime.now().isoformat()
+        }
+        ground_truth_transitions.append(transition)
+    
+    return ground_truth_transitions
+
 
 def load_ground_truth_raw(filepath: str) -> List[Dict[str, Any]]:
     """
-    Load ground truth raw data from JSON file.
-    T007a ensures this file exists at data/raw/ground_truth_raw.json
+    Load raw ground-truth data from a JSON file.
+    
+    Args:
+        filepath: Path to the JSON file containing raw ground-truth data
+        
+    Returns:
+        List of ground-truth state transitions
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Ground truth raw file not found: {filepath}")
+        raise FileNotFoundError(f"Ground-truth file not found: {filepath}")
     
-    with open(filepath, 'r') as f:
-        return json.load(f)
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return data
 
-def validate_trajectory(trajectory: Dict[str, Any], ground_truth: Dict[str, Any]) -> Tuple[bool, Optional[str], Optional[str]]:
+
+def save_ground_truth_raw(
+    transitions: List[Dict[str, Any]], 
+    output_path: str,
+    include_checksum: bool = True
+) -> Dict[str, Any]:
     """
-    Validate a trajectory against ground truth.
+    Save raw ground-truth transitions to a JSON file with checksumming.
     
-    Returns:
-        (is_valid, reason_code, ground_truth_snapshot_id)
-        - is_valid: True if trajectory matches ground truth
-        - reason_code: Code indicating validation status (PASS, FAIL, AMBIGUOUS)
-        - ground_truth_snapshot_id: ID of the ground truth entry used
-    """
-    # Check if trajectory has required fields
-    if 'action_log' not in trajectory or 'trajectory_id' not in trajectory:
-        return False, "MISSING_FIELDS", None
-    
-    # Check if ground truth has required fields
-    if 'transitions' not in ground_truth or 'snapshot_id' not in ground_truth:
-        return False, "INVALID_GROUND_TRUTH", None
-    
-    # Extract action log and ground truth transitions
-    action_log = trajectory.get('action_log', [])
-    transitions = ground_truth.get('transitions', [])
-    
-    # Deterministic priority rule: Check transitions in order
-    # If multiple causes are found that cannot be resolved by priority, mark as AMBIGUOUS
-    causes = []
-    
-    for i, action in enumerate(action_log):
-        # Check if this action matches a ground truth transition
-        matched = False
-        for j, transition in enumerate(transitions):
-            expected_action = transition.get('expected_action')
-            expected_state = transition.get('expected_state')
-            actual_state = action.get('state')
-            
-            # Simple matching logic - in real implementation, this would be more complex
-            if expected_action and expected_action == action.get('action'):
-                if expected_state and expected_state == actual_state:
-                    matched = True
-                    break
+    Args:
+        transitions: List of ground-truth state transitions
+        output_path: Path where the JSON file will be saved
+        include_checksum: Whether to include checksum metadata
         
-        if not matched:
-            causes.append({
-                'step': i,
-                'action': action.get('action'),
-                'expected': transitions[i] if i < len(transitions) else None
-            })
+    Returns:
+        Metadata dictionary about the saved file
+    """
+    json_content = json.dumps(transitions, indent=2, ensure_ascii=False)
     
-    # Apply deterministic priority rule
-    if len(causes) == 0:
-        return True, "PASS", ground_truth.get('snapshot_id')
-    elif len(causes) == 1:
-        # Single cause found - not ambiguous
-        return False, "FAIL", ground_truth.get('snapshot_id')
+    if include_checksum:
+        checksum = compute_checksum(json_content)
     else:
-        # Multiple causes found - check if they can be resolved by priority rule
-        # Priority rule: First mismatch is the primary cause
-        # If multiple mismatches are equally valid (e.g., same step, different interpretations), it's ambiguous
-        
-        # For now, if we have multiple distinct causes at different steps, we use the first one (priority rule)
-        # If we have multiple causes at the same step with different interpretations, it's ambiguous
-        
-        ambiguous = False
-        for i, cause1 in enumerate(causes):
-            for j, cause2 in enumerate(causes):
-                if i < j and cause1['step'] == cause2['step']:
-                    # Same step, different interpretations - ambiguous
-                    ambiguous = True
-                    break
-            if ambiguous:
-                break
-        
-        if ambiguous:
-            return False, "AMBIGUOUS", ground_truth.get('snapshot_id')
-        else:
-            # Use first cause as per priority rule
-            return False, "FAIL", ground_truth.get('snapshot_id')
-
-def process_trajectory_for_ambiguity(trajectory: Dict[str, Any], ground_truth: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Process a trajectory to determine if it's ambiguous.
+        checksum = None
     
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(json_content)
+    
+    metadata = {
+        "output_path": output_path,
+        "record_count": len(transitions),
+        "timestamp": datetime.now().isoformat(),
+        "checksum": checksum,
+        "status": "saved"
+    }
+    
+    return metadata
+
+
+def validate_trajectory(
+    trajectory: Dict[str, Any],
+    ground_truth: List[Dict[str, Any]]
+) -> Tuple[bool, Optional[str], Optional[int]]:
+    """
+    Validate a single trajectory against ground-truth data.
+    
+    Args:
+        trajectory: The trajectory to validate
+        ground_truth: List of ground-truth transitions to compare against
+        
     Returns:
-        Dict with validation status and ambiguity details
+        Tuple of (is_valid, failure_reason, failure_step_index)
     """
-    is_valid, reason_code, gt_id = validate_trajectory(trajectory, ground_truth)
+    # Basic validation logic - check if trajectory has required fields
+    required_fields = ["id", "steps", "actions"]
+    for field in required_fields:
+        if field not in trajectory:
+            return False, f"Missing required field: {field}", None
     
-    result = {
-        'trajectory_id': trajectory.get('trajectory_id'),
-        'validation_status': reason_code,
-        'ground_truth_snapshot_id': gt_id,
-        'is_ambiguous': reason_code == "AMBIGUOUS"
+    # Compare trajectory actions against ground-truth
+    trajectory_steps = trajectory.get("steps", [])
+    for idx, step in enumerate(trajectory_steps):
+        if idx < len(ground_truth):
+            gt_action = ground_truth[idx].get("ground_truth_action", "")
+            traj_action = step.get("action", "")
+            
+            if traj_action != gt_action:
+                return False, f"Action mismatch at step {idx}", idx
+    
+    return True, None, None
+
+
+def process_trajectory_for_ambiguity(
+    trajectory: Dict[str, Any],
+    ground_truth: List[Dict[str, Any]]
+) -> bool:
+    """
+    Check if a trajectory contains ambiguous elements that prevent clear validation.
+    
+    Args:
+        trajectory: The trajectory to check
+        ground_truth: List of ground-truth transitions
+        
+    Returns:
+        True if trajectory is ambiguous, False otherwise
+    """
+    # Check for ambiguous states (e.g., multiple valid actions)
+    steps = trajectory.get("steps", [])
+    for step in steps:
+        if step.get("ambiguous", False):
+            return True
+        
+        # Check for missing critical information
+        if not step.get("action") and not step.get("observation"):
+            return True
+    
+    return False
+
+
+def run_validation_with_ambiguity_handling(
+    trajectories: List[Dict[str, Any]],
+    ground_truth: List[Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Run validation on multiple trajectories with ambiguity handling.
+    
+    Args:
+        trajectories: List of trajectories to validate
+        ground_truth: List of ground-truth transitions
+        
+    Returns:
+        Dictionary containing validation results
+    """
+    results = {
+        "total_trajectories": len(trajectories),
+        "valid": 0,
+        "invalid": 0,
+        "ambiguous": 0,
+        "details": []
     }
     
-    if reason_code == "AMBIGUOUS":
-        # Generate ambiguity reason
-        action_log = trajectory.get('action_log', [])
-        transitions = ground_truth.get('transitions', [])
+    for trajectory in trajectories:
+        is_ambiguous = process_trajectory_for_ambiguity(trajectory, ground_truth)
         
-        causes = []
-        for i, action in enumerate(action_log):
-            matched = False
-            for j, transition in enumerate(transitions):
-                expected_action = transition.get('expected_action')
-                if expected_action and expected_action == action.get('action'):
-                    matched = True
-                    break
-            
-            if not matched:
-                causes.append({
-                    'step': i,
-                    'action': action.get('action')
-                })
-        
-        # Find ambiguous steps (multiple causes at same step)
-        ambiguous_steps = []
-        for i, cause1 in enumerate(causes):
-            for j, cause2 in enumerate(causes):
-                if i < j and cause1['step'] == cause2['step']:
-                    ambiguous_steps.append(cause1['step'])
-                    break
-        
-        result['ambiguity_reason'] = f"Multiple failure causes detected at steps: {ambiguous_steps}. Cannot resolve with deterministic priority rule."
-    
-    return result
-
-def run_validation_with_ambiguity_handling(input_file: str, output_file: str, excluded_file: str) -> Dict[str, Any]:
-    """
-    Run validation on all trajectories and handle ambiguous cases.
-    
-    Ambiguous trajectories are logged to excluded_file with ambiguity_reason.
-    Valid and non-ambiguous failures are saved to output_file.
-    """
-    # Load ground truth
-    gt_path = os.path.join(DATA_PATH, 'raw', 'ground_truth_raw.json')
-    ground_truth_data = load_ground_truth_raw(gt_path)
-    
-    # Create a map of ground truth by ID for quick lookup
-    gt_map = {}
-    for gt in ground_truth_data:
-        gt_id = gt.get('snapshot_id')
-        if gt_id:
-            gt_map[gt_id] = gt
-    
-    # Load input trajectories
-    with open(input_file, 'r') as f:
-        trajectories = json.load(f)
-    
-    validated_trajectories = []
-    excluded_trajectories = []
-    
-    for traj in trajectories:
-        traj_id = traj.get('trajectory_id')
-        
-        # Try to find matching ground truth
-        gt_id = traj.get('ground_truth_id')
-        if gt_id and gt_id in gt_map:
-            gt = gt_map[gt_id]
-            result = process_trajectory_for_ambiguity(traj, gt)
-            
-            if result['validation_status'] == "AMBIGUOUS":
-                # Log to excluded file
-                excluded_entry = {
-                    'trajectory_id': traj_id,
-                    'ambiguity_reason': result.get('ambiguity_reason', 'Unknown ambiguity'),
-                    'timestamp': datetime.now().isoformat(),
-                    'ground_truth_snapshot_id': result.get('ground_truth_snapshot_id')
-                }
-                excluded_trajectories.append(excluded_entry)
-            else:
-                # Add validation result to trajectory
-                traj['validation_status'] = result['validation_status']
-                traj['ground_truth_snapshot_id'] = result.get('ground_truth_snapshot_id')
-                validated_trajectories.append(traj)
+        if is_ambiguous:
+            results["ambiguous"] += 1
+            results["details"].append({
+                "trajectory_id": trajectory.get("id"),
+                "status": "AMBIGUOUS",
+                "reason": "Trajectory contains ambiguous elements"
+            })
         else:
-            # No ground truth found - mark as failed
-            traj['validation_status'] = "FAIL"
-            traj['ground_truth_snapshot_id'] = None
-            validated_trajectories.append(traj)
+            is_valid, reason, step_idx = validate_trajectory(trajectory, ground_truth)
+            
+            if is_valid:
+                results["valid"] += 1
+                results["details"].append({
+                    "trajectory_id": trajectory.get("id"),
+                    "status": "PASS",
+                    "reason": None
+                })
+            else:
+                results["invalid"] += 1
+                results["details"].append({
+                    "trajectory_id": trajectory.get("id"),
+                    "status": "FAIL",
+                    "reason": reason,
+                    "failure_step": step_idx
+                })
     
-    # Write excluded trajectories to file
-    os.makedirs(os.path.dirname(excluded_file), exist_ok=True)
-    with open(excluded_file, 'w') as f:
-        json.dump(excluded_trajectories, f, indent=2)
-    
-    # Write validated trajectories to file
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(validated_trajectories, f, indent=2)
-    
-    return {
-        'total_processed': len(trajectories),
-        'validated': len(validated_trajectories),
-        'excluded': len(excluded_trajectories),
-        'excluded_file': excluded_file,
-        'output_file': output_file
-    }
+    return results
 
-def run():
-    """
-    Main entry point for validation with ambiguity handling.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Validate trajectories with ambiguity handling')
-    parser.add_argument('--input', required=True, help='Input trajectories file')
-    parser.add_argument('--output', required=True, help='Output validated trajectories file')
-    parser.add_argument('--excluded', default=os.path.join(DATA_PATH, 'raw', 'excluded_log.json'),
-                      help='Output excluded trajectories file')
-    
-    args = parser.parse_args()
-    
-    result = run_validation_with_ambiguity_handling(args.input, args.output, args.excluded)
-    
-    print(f"Validation complete:")
-    print(f"  Total processed: {result['total_processed']}")
-    print(f"  Validated: {result['validated']}")
-    print(f"  Excluded: {result['excluded']}")
-    print(f"  Excluded file: {result['excluded_file']}")
-    print(f"  Output file: {result['output_file']}")
 
-if __name__ == '__main__':
+def extract_ground_truth_from_task_bank(
+    task_bank_path: str,
+    task_ids: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Extract ground-truth state transitions from the ALFWorld task bank.
+    
+    This function reads the task bank (JSON/SQLite) and extracts the 
+    ground-truth state transitions for specified tasks.
+    
+    Args:
+        task_bank_path: Path to the task bank file
+        task_ids: Optional list of specific task IDs to extract
+                
+    Returns:
+        List of ground-truth state transitions
+    """
+    if not os.path.exists(task_bank_path):
+        raise FileNotFoundError(f"Task bank not found: {task_bank_path}")
+    
+    with open(task_bank_path, 'r', encoding='utf-8') as f:
+        task_bank = json.load(f)
+    
+    ground_truth_list = []
+    
+    tasks = task_bank.get("tasks", [])
+    for task in tasks:
+        if task_ids is None or task.get("id") in task_ids:
+            transitions = task.get("ground_truth_transitions", [])
+            for idx, transition in enumerate(transitions):
+                gt_entry = {
+                    "task_id": task.get("id"),
+                    "step": idx,
+                    "state": transition.get("state", {}),
+                    "action": transition.get("action", ""),
+                    "observation": transition.get("observation", ""),
+                    "reward": transition.get("reward", 0),
+                    "done": transition.get("done", False),
+                    "id": f"{task.get('id')}_gt_{idx:06d}"
+                }
+                ground_truth_list.append(gt_entry)
+    
+    return ground_truth_list
+
+
+def run(args: Optional[argparse.Namespace] = None) -> None:
+    """
+    Main entry point for ground-truth extraction and validation.
+    
+    This function orchestrates the extraction of ground-truth data from 
+    the ALFWorld simulator and saves it to the raw data directory.
+    
+    Args:
+        args: Optional argparse namespace with command-line arguments
+    """
+    if args is None:
+        parser = argparse.ArgumentParser(description="Extract and validate ground-truth data")
+        parser.add_argument("--input", type=str, default=None, help="Input simulator log file")
+        parser.add_argument("--output", type=str, default=None, help="Output file for raw ground-truth")
+        parser.add_argument("--task-bank", type=str, default=None, help="Path to task bank file")
+        parser.add_argument("--task-ids", type=str, default=None, help="Comma-separated list of task IDs")
+        args = parser.parse_args()
+    
+    print(f"[T007a] Starting ground-truth extraction at {datetime.now().isoformat()}")
+    
+    try:
+        # If task bank is provided, extract from there
+        if args.task_bank:
+            task_ids = None
+            if args.task_ids:
+                task_ids = [tid.strip() for tid in args.task_ids.split(",")]
+            
+            print(f"[T007a] Extracting ground-truth from task bank: {args.task_bank}")
+            ground_truth = extract_ground_truth_from_task_bank(args.task_bank, task_ids)
+        
+        # Otherwise, load from simulator logs
+        elif args.input:
+            print(f"[T007a] Loading simulator logs from: {args.input}")
+            with open(args.input, 'r', encoding='utf-8') as f:
+                simulator_logs = json.load(f)
+            
+            print(f"[T007a] Extracting ground-truth from {len(simulator_logs)} simulator entries")
+            ground_truth = extract_ground_truth_from_simulator(simulator_logs)
+        
+        else:
+            # Default: extract from standard task bank location
+            default_task_bank = os.path.join(DATA_PATH, "raw", "alfworld_task_bank.json")
+            if os.path.exists(default_task_bank):
+                print(f"[T007a] Using default task bank: {default_task_bank}")
+                ground_truth = extract_ground_truth_from_task_bank(default_task_bank)
+            else:
+                raise FileNotFoundError(
+                    "No input provided and default task bank not found. "
+                    "Please provide --input or --task-bank argument."
+                )
+        
+        # Determine output path
+        output_path = args.output
+        if not output_path:
+            output_path = os.path.join(RAW_DATA_PATH, "ground_truth_raw.json")
+        
+        # Save with checksumming
+        print(f"[T007a] Saving {len(ground_truth)} ground-truth transitions to {output_path}")
+        metadata = save_ground_truth_raw(ground_truth, output_path)
+        
+        print(f"[T007a] Ground-truth extraction complete!")
+        print(f"  - Records: {metadata['record_count']}")
+        print(f"  - Checksum: {metadata['checksum']}")
+        print(f"  - Output: {metadata['output_path']}")
+        
+        # Log to validation log
+        validation_log_path = os.path.join(RAW_DATA_PATH, "validation_log.json")
+        log_entry = {
+            "task_id": "T007a",
+            "timestamp": datetime.now().isoformat(),
+            "operation": "ground_truth_extraction",
+            "status": "SUCCESS",
+            "output_path": output_path,
+            "record_count": metadata['record_count'],
+            "checksum": metadata['checksum']
+        }
+        
+        # Append to validation log
+        existing_logs = []
+        if os.path.exists(validation_log_path):
+            with open(validation_log_path, 'r', encoding='utf-8') as f:
+                existing_logs = json.load(f)
+        
+        existing_logs.append(log_entry)
+        
+        with open(validation_log_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_logs, f, indent=2)
+        
+    except Exception as e:
+        print(f"[T007a] ERROR: {str(e)}")
+        
+        # Log failure
+        validation_log_path = os.path.join(RAW_DATA_PATH, "validation_log.json")
+        log_entry = {
+            "task_id": "T007a",
+            "timestamp": datetime.now().isoformat(),
+            "operation": "ground_truth_extraction",
+            "status": "FAILED",
+            "error_message": str(e)
+        }
+        
+        existing_logs = []
+        if os.path.exists(validation_log_path):
+            with open(validation_log_path, 'r', encoding='utf-8') as f:
+                existing_logs = json.load(f)
+        
+        existing_logs.append(log_entry)
+        
+        with open(validation_log_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_logs, f, indent=2)
+        
+        raise
+
+
+def main():
+    """CLI entry point."""
     run()
+
+
+if __name__ == "__main__":
+    main()

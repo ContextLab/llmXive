@@ -1,16 +1,16 @@
 status: none
-intent: ALFWorld trajectory dataset python package dataset
+intent: ALFWorld python package dataset download tasks trajectories python package
+  dataset
 required_fields:
 - trajectory_id
 - task_id
 - action_sequence
 - observation_sequence
-- failure_step_index
-- failure_reason_description
-- ground_truth_state_before_failure
-- ground_truth_state_after_failure
-- reward_per_step
+- failure_step
+- failure_description
+- ground_truth_state_transition
+- timestamp
 - success_flag
-cache_key: 1430e641a6a26f022e4c36aa5c56a6c7c085ddad79235c33db5b8bf329627c0c
-searched_at: '2026-07-19T03:19:11.353556+00:00'
+cache_key: 0f0a370b49b0218eca9d73a63229bdc8c2808883d92f0265c46ff7fd7b4319cb
+searched_at: '2026-07-20T02:12:51.652498+00:00'
 retry_count: 1
