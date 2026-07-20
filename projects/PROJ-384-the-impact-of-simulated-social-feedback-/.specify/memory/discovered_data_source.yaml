@@ -1,0 +1,12 @@
+status: none
+intent: download LOST dataset from arXiv repository python package dataset
+required_fields:
+- post_id
+- post_text
+- reply_id
+- reply_text
+- post_timestamp
+- reply_timestamp
+cache_key: 4d51b8f03663b09dc64a931db2bb1c6d1038f652f999dea6ba933869eaba6826
+searched_at: '2026-07-20T12:07:00.565445+00:00'
+retry_count: 1

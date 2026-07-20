@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Interaction Schema
+description: JSON Schema for raw interaction data in the LOST dataset pipeline.
+type: object
+required:
+  - post_text
+  - reply_text
+  - timestamp
+  - user_id
+properties:
+  post_text:
+    type: string
+    description: The text content of the user's post.
+    minLength: 0
+  reply_text:
+    type: string
+    description: The text content of the reply received. Can be empty for missing replies.
+    minLength: 0
+  timestamp:
+    type: string
+    description: ISO 8601 formatted timestamp of the interaction.
+    pattern: '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$'
+  user_id:
+    type: string
+    description: Unique identifier for the user.
+    minLength: 1
+additionalProperties: false

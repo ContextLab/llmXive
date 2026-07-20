@@ -1,0 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `code/utils/`, `tests/`, `data/raw/`,\
+    \ `data/processed/`) being present was provided; the claim lacks any artifact\
+    \ listing or file\u2011system snapshot confirming the project structure exists."
+T003:
+  c: true
+  h: ed10dfe312fb4cb5816e2577a84e023e066e92d05d53ea147362d3069d939b4c
+  r: "The file `code/.pre-commit-config.yaml` is present, non\u2011empty, and includes\
+    \ ruff (linting) and black (formatting) hooks as required (plus an extra mypy\
+    \ hook, which does not violate the task)."
+T008:
+  c: false
+  h: 44d66de4314cb55d1c288c590ee83cfc911d53042ff8f1eb0701d90a5b99c01d
+  r: "The `code/utils/model_loader.py` file exists and implements the model initialization\
+    \ and caching, but the required lexicon file `data/raw/lexicons/rosenberg_words.txt`\
+    \ is missing, so the loader cannot fulfill its purpose of loading the Rosenberg\
+    \ self\u2011esteem lexicon. Add the lexicon file (with the expected word list)\
+    \ to complete the task."
