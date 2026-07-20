@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files, directories, or any structural artifacts were presented; the\
+    \ claim provides only a feature specification narrative without the actual repository\
+    \ layout, configuration files, or folder hierarchy required to satisfy \u201C\
+    Create project structure per implementation plan.\u201D The required project structure\
+    \ is therefore missing."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only the feature specification text; there is no project\
+    \ scaffold, no `pyproject.toml`, `requirements.txt`, `setup.cfg`, or any other\
+    \ file showing a Python\u202F3.11 project initialized with the listed dependencies.\
+    \ Consequently the required artifact (an initialized Python project with the specified\
+    \ packages) is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting configuration files (e.g., .flake8, pyproject.toml/black settings,\
+    \ or a Makefile/CI script invoking flake8/black) were provided, nor any evidence\
+    \ that these tools have been set up and run. The claim does not include any artifact\
+    \ matching the task \u201CConfigure linting (flake8/black) and formatting tools.\u201D"
+T004:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `contracts/dataset.schema.yaml` does not exist (listed as\
+    \ missing), so no JSON Schema contracts for Participant, NoiseLog, or TaskPerformance\
+    \ are provided. The task\u2019s core artifact is absent."
+T005:
+  c: false
+  h: 713cb76eabe2b7f97cdc889e606a2f3ec4318f3e55eaa414920531b056b51783
+  r: The provided `code/scripts/update_state.py` contains a syntax error (`print`
+    without parentheses) that prevents it from executing and therefore cannot create
+    or update `state/projects/PROJ-114-.../current_stage.yaml`. The required output
+    file is missing, indicating the task is not genuinely fulfilled.
+T013:
+  c: false
+  h: a851e1762856c139769a5884ac55e872f25ed5fc3b8e91552b7bf5dde6f7f218
+  r: "The repository contains a non\u2011empty `code/data_ingestion.py`, but it only\
+    \ loads JSONL files (no CSV handling) and relies on a schema file that is missing\
+    \ (`contracts/dataset.schema.yaml` does not exist). Consequently the required\
+    \ validation step cannot be performed, so the implementation does not meet the\
+    \ task specification."

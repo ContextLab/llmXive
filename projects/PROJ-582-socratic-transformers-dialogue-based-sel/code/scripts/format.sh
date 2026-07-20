@@ -1,13 +1,13 @@
 #!/bin/bash
-# Script to run linter (ruff) and formatter (black) on the project.
-# This script is intended to be run from the project root directory.
+# Formatting script for Socratic Transformers project
+# Runs ruff check --fix and black on all Python files in src/ and tests/
 
 set -e
 
-echo "Running Ruff Linter..."
-ruff check .
+echo "Running Ruff fix..."
+ruff check --fix src/ tests/
 
-echo "Running Black Formatter (check mode)..."
-black --check .
+echo "Running Black formatter..."
+black src/ tests/
 
-echo "Linting and formatting checks passed."
+echo "Formatting complete."

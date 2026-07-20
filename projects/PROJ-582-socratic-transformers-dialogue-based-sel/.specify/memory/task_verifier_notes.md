@@ -13,7 +13,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T013** — declared artifact(s) missing/empty/invalid: src/data/static_extractor.py
 - **T014** — declared artifact(s) missing/empty/invalid: src/data/generate_dialogue.py
 - **T015** — declared artifact(s) missing/empty/invalid: src/data/ablation.py
-- **T029** — No code, data, or results showing a sensitivity‑analysis sweep over the specified error‑threshold values (0.01, 0.05, 0.1) are present. The implementer supplied no artifact (e.g., script, log, or figure) that demonstrates the sweep or its robustness validation, so the requirement is unmet.
-- **T032** — No research.md file or its contents were provided, so we cannot confirm that it was updated to distinguish the two concepts and address Ada Lovelace’s concerns. The required artifact is missing.
-- **T033** — No updated `spec.md` or excerpt showing the problem statement rewritten to use “evolutionary pressure” / “negative selection on belief” and to address David Krakauer’s review is provided; without that artifact we cannot confirm the requirement was met. The implementer must supply the revised specification file (or its relevant section) demonstrating the changes.
-- **T034** — No linting or formatting reports, diff logs, or updated source files are provided to demonstrate that `ruff check` and `black --check` were run and that all violations were fixed. The required evidence of zero linting/formatting errors is missing.
+- **T020** — declared artifact(s) missing/empty/invalid: src/train/lora_config.py
+- **T021** — declared artifact(s) missing/empty/invalid: src/train/train_loop.py

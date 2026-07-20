@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md` containing calculated effect size, alpha, power, and N=150 justification (FR-008); verify report contains N=150 and specific statistical parameters. **Note: This task must be completed BEFORE any synthetic data generation or data collection logic.**
-- [ ] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
+- [X] T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md` containing calculated effect size, alpha, power, and N=150 justification (FR-008); verify report contains N=150 and specific statistical parameters. **Note: This task must be completed BEFORE any synthetic data generation or data collection logic.**
+- [X] T043 [P] Validate calibration simulation logic: Define reference tone parameters in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py` to ensure simulation fidelity matches real-world expectations (FR-009); generate `data/processed/calibration_validation_report.json`.
 - [ ] T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant, NoiseLog, and TaskPerformance (Input entities only)
-- [~] T005 [P] Implement `code/scripts/update_state.py` to compute SHA-256 hashes of artifacts and update `state/projects/PROJ-114-.../current_stage.yaml`
+- [ ] T005 [P] Implement `code/scripts/update_state.py` to compute SHA-256 hashes of artifacts and update `state/projects/PROJ-114-.../current_stage.yaml`
 - [X] T006 [P] Setup logging infrastructure and environment configuration management in `code/config.py`
-- [ ] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
+- [X] T007 Create base data classes/entities in `code/models.py` matching Key Entities in spec.md
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,17 +76,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for calibration logic (error margin >2dB exclusion) in `tests/unit/test_data_ingestion.py`
-- [ ] T011 [P] [US1] Unit test for 1-minute bin gap analysis in `tests/unit/test_data_ingestion.py`
-- [ ] T012 [P] [US1] Integration test for full ingestion pipeline with synthetic data in `tests/integration/test_ingestion_pipeline.py`
+- [X] T010 [P] [US1] Unit test for calibration logic (error margin >2dB exclusion) in `tests/unit/test_data_ingestion.py`
+- [X] T011 [P] [US1] Unit test for 1-minute bin gap analysis in `tests/unit/test_data_ingestion.py`
+- [X] T012 [P] [US1] Integration test for full ingestion pipeline with synthetic data in `tests/integration/test_ingestion_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] [P] Create `code/scripts/generate_synthetic_data.py` to produce deterministic synthetic logs and task metrics for pipeline validation (NOT for hypothesis testing); ensure data includes edge cases (0dB, gaps >20%).
+- [X] T018 [US1] [P] Create `code/scripts/generate_synthetic_data.py` to produce deterministic synthetic logs and task metrics for pipeline validation (NOT for hypothesis testing); ensure data includes edge cases (0dB, gaps >20%).
 - [ ] T013 [US1] Implement `code/data_ingestion.py` to load raw JSONL/CSV from `data/raw/` and validate against `contracts/dataset.schema.yaml`
 - [ ] T014 [US1] Implement device-specific calibration protocol simulation in `code/data_ingestion.py` (FR-009): flag participants if `error_margin > 2dB` or `calibration_status` missing
-- [ ] T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007): bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`, exclude participants with <80% valid hours [UNRESOLVED-CLAIM: c_2d334f2e — status=not_enough_info] OR **detect and flag any single continuous gap >20% of total session time [UNRESOLVED-CLAIM: c_6b03692e — status=not_enough_info] **; generate exclusion log.
-- [ ] T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`: remove reaction times >3 SD from mean [UNRESOLVED-CLAIM: c_11c863ae — status=not_enough_info]; **handle 0dB as 'Low' noise [UNRESOLVED-CLAIM: c_630605c4 — status=not_enough_info]**; **flag participants with >90% silent sessions for model singularity check [UNRESOLVED-CLAIM: c_7645dfdc — status=not_enough_info]**; generate `data/processed/outlier_audit_log.json` containing counts and IDs of removed rows for audit.
+- [ ] T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007): bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`, exclude participants with <80% valid hours OR **detect and flag any single continuous gap >20% of total session time **; generate exclusion log.
+- [ ] T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`: remove reaction times >3 SD from mean; **handle 0dB as 'Low' noise **; **flag participants with >90% silent sessions for model singularity check **; generate `data/processed/outlier_audit_log.json` containing counts and IDs of removed rows for audit.
 - [ ] T044 [US1] Implement Error Count Validation/Cleaning in `code/data_ingestion.py`: handle missing error counts, impute or flag as appropriate, and ensure clean error data before CFI calculation; generate `data/processed/cleaned_error_counts.csv`.
 - [ ] T017 [US1] [Depends on: T016, T044] Implement CFI calculation in `code/data_ingestion.py` (FR-002): compute z-scored RT difference and z-scored error count; apply logic: if r > 0.7 use RT diff only, else sum them; output `data/processed/cfi_metrics.csv` with columns [participant_id, cfi_score]; verify file exists.
 - [ ] T040 [US1] Implement Valid Data Proportion Report generation: Aggregate pass/fail rates against N=150 target (SC-001) and generate `data/processed/valid_data_proportion_report.json` containing proportion of valid participants and recruitment status.
@@ -111,10 +111,10 @@
 ### Implementation for User Story 2
 
 - [ ] T041 [US2] [P] Define JSON Schema contract for `ModelResult` in `contracts/dataset.schema.yaml` (Output entity); **must be completed before T030**.
-- [ ] T042 [US2] [P] Generate descriptive statistics table: Aggregate continuous logs into three discrete categories (Low: <45dB, Moderate: 45-65dB, High: >65dB) [UNRESOLVED-CLAIM: c_7ab46834 — status=not_enough_info] as per FR-001; calculate counts, means, and standard deviations for each category; output `data/processed/descriptive_noise_categories.csv` and summary report.
-- [ ] T024 [US2] Implement collinearity diagnostic in `code/model_fitting.py`: compute VIF for `noise_level` and `noise_variability`; if VIF > 5, apply residualized variability approach [UNRESOLVED-CLAIM: c_a53a076f — status=not_enough_info]
+- [ ] T042 [US2] [P] Generate descriptive statistics table: Aggregate continuous logs into three discrete categories (Low: <45dB, Moderate: 45-65dB, High: >65dB) as per FR-001; calculate counts, means, and standard deviations for each category; output `data/processed/descriptive_noise_categories.csv` and summary report.
+- [ ] T024 [US2] Implement collinearity diagnostic in `code/model_fitting.py`: compute VIF for `noise_level` and `noise_variability`; if VIF > 5, apply residualized variability approach
 - [ ] T025 [US2] Implement LMM fitting in `code/model_fitting.py` (FR-003): fixed effects (continuous noise, quadratic noise, residualized variability), random intercept (participant ID), dependent variable (CFI)
-- [ ] T026 [US2] Implement Likelihood-Ratio Test in `code/model_fitting.py` (FR-004): compare quadratic model vs. linear baseline [UNRESOLVED-CLAIM: c_d474805c — status=not_enough_info]
+- [ ] T026 [US2] Implement Likelihood-Ratio Test in `code/model_fitting.py` (FR-004): compare quadratic model vs. linear baseline
 - [ ] T027 [US2] Implement post-hoc Tukey HSD test in `code/model_fitting.py` (FR-006) for noise categories (Low, Moderate, High)
 - [ ] T028 [US2] Implement family-wise error rate (FWER) calculation in `code/model_fitting.py` (SC-004) and explicitly compare against nominal alpha; generate verification report
 - [ ] T029 [US2] Handle model convergence failures in `code/model_fitting.py`: fallback to simpler linear model or report diagnostic error
@@ -152,7 +152,7 @@
 
 - [ ] T037 Generate `docs/paper_draft.md` from model results and sensitivity reports; populate with model coefficients from `data/models/model_result.json` and sensitivity data from `data/models/sensitivity_report.json`; verify file contains sections [Methods, Results, Discussion] and cites specific p-values.
 - [ ] T038 [P] Run `code/scripts/update_state.py` to hash all artifacts and update `state/`.
-- [ ] T039 [P] Execute end-to-end pipeline validation on GitHub Actions runner (NFR-001: <6 hours, <6GB RAM [UNRESOLVED-CLAIM: c_5b710f06 — status=not_enough_info]).
+- [ ] T039 [P] Execute end-to-end pipeline validation on GitHub Actions runner (NFR-001: <6 hours, <6GB RAM).
 
 ---
 

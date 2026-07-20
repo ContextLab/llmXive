@@ -1,9 +1,5 @@
-? 'T001 Create project structure per `plan.md` (directories: `code/`, `data/raw`,
-  `data/processed`, `results`, `tests/unit`, `tests/integration`)'
-: 1
-? 'T002 Initialize Python 3.11 project with `requirements.txt` (dependencies: `transformers`,
-  `torch`, `datasets`, `scipy`, `pandas`, `numpy`, `pytest`)'
-: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T005 [P] Implement `code/utils/logger.py` for structured logging and memory/CPU usage tracking: 1
-T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL): 1
+T001: 1
+T003: 1
+T018: 1
+T024: 1
+T025: 1

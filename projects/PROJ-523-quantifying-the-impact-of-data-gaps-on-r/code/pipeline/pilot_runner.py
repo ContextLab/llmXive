@@ -22,8 +22,9 @@ from simulation.generate_maps import generate_cmb_map, save_map_to_fits_wrapper,
 from simulation.utils import generate_random_mask, save_mask_to_fits_wrapper
 from gap_filling.harmonic_interp import apply_harmonic_filling
 from analysis.power_spectra import compute_power_spectrum
+from analysis.metadata_recorder import record_algorithm_metadata
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 PILOT_LOG_PATH = Path(DATA_RESULTS_DIR) / "pilot_log.json"
@@ -45,25 +46,18 @@ def run_pilot():
     
     pilot_id = "pilot_001"
     realization_id = f"{pilot_id}_realization_0"
+    nside = 512
+    seed = 42
+    gap_fraction = 0.1  # 10%
+    algo_name = "harmonic_interp"
     
     try:
         # 1. Generate CMB Map
         logger.info("Generating CMB map...")
-        # Assume generate_cmb_map returns the map and metadata
-        # We need to mock the parameters or use defaults from config
-        # For pilot, we use Nside=512 as per spec
-        nside = 512
-        seed = 42
-        
-        # Call the map generation function
-        # Note: This might take a while, but for pilot it's 1 realization.
-        # We assume generate_cmb_map is implemented and works.
-        # If not, this will fail and we log it.
         cmb_map, metadata = generate_cmb_map(realization_id, seed=seed, nside=nside)
         
         # 2. Generate Mask (1 gap fraction, random)
         logger.info("Generating mask...")
-        gap_fraction = 0.1 # 10%
         mask = generate_random_mask(nside, gap_fraction)
         
         # 3. Save Map and Mask
@@ -73,11 +67,22 @@ def run_pilot():
         
         # 4. Apply Gap Filling (1 algorithm: Harmonic Interp)
         logger.info("Applying gap filling...")
+        algo_start = time.time()
         filled_map = apply_harmonic_filling(cmb_map, mask)
+        algo_end = time.time()
+        algo_duration = algo_end - algo_start
         
         # 5. Compute Power Spectrum
         logger.info("Computing power spectrum...")
         cl = compute_power_spectrum(filled_map, nside)
+        
+        # 6. Record Algorithm Metadata (T023 requirement)
+        logger.info("Recording algorithm metadata...")
+        record_algorithm_metadata(
+            realization_id=realization_id,
+            algo_name=algo_name,
+            exec_time_sec=algo_duration
+        )
         
         end_time = time.time()
         duration = end_time - start_time
@@ -87,13 +92,16 @@ def run_pilot():
             "realization_id": realization_id,
             "status": "success",
             "total_time": duration,
+            "algo_duration": algo_duration,
             "realizations_run": 1,
             "algorithms_run": 1,
             "gap_fractions_run": 1,
+            "nside": nside,
+            "gap_fraction": gap_fraction,
             "timestamp": datetime.now().isoformat()
         }
         
-        # Save metrics to pilot_log.json
+        # Save metrics to pilot_log.json (T007 requirement)
         with open(PILOT_LOG_PATH, "w") as f:
             json.dump(metrics, f, indent=2)
         
@@ -105,7 +113,7 @@ def run_pilot():
     except Exception as e:
         end_time = time.time()
         duration = end_time - start_time
-        logger.error(f"Pilot run failed: {e}")
+        logger.error(f"Pilot run failed: {e}", exc_info=True)
         
         metrics = {
             "pilot_id": pilot_id,

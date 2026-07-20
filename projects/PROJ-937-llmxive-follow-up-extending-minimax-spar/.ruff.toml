@@ -1,0 +1,3 @@
+# Extends the config in pyproject.toml for explicit ruff CLI usage
+# This file is redundant if using pyproject.toml but ensures explicit CLI config exists
+extend = "pyproject.toml"

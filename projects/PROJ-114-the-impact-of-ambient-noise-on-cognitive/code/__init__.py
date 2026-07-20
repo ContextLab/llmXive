@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Code Module
+llmXive Research Pipeline: Ambient Noise & Cognitive Flexibility
 """

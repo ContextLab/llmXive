@@ -1,8 +1,9 @@
 """
-Contract tests for ablation data generation (T015).
+Contract tests for the ablation data generator.
 
-These tests verify that the ablation generator correctly replaces
-critique text with neutral placeholders of equivalent token length.
+These tests verify that the ablation transformation correctly replaces
+critique text with neutral placeholders while preserving the structure
+and token count characteristics.
 """
 
 import json
@@ -10,10 +11,8 @@ import os
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
-import pytest
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
 
 from src.data.ablation import (
     count_tokens,
@@ -23,204 +22,228 @@ from src.data.ablation import (
 )
 
 
-class TestAblationTupleCreation:
-    """Tests for create_ablation_tuple function."""
+class TestTokenCounting:
+    """Tests for token counting functionality."""
 
-    def test_ablation_replaces_reasoning(self):
-        """Verify that reasoning_snippet is replaced with placeholder."""
-        dialogue = {
-            "question": "What is 2+2?",
-            "initial_answer": "4",
-            "critique": {
-                "confidence_score": 0.9,
-                "reasoning_snippet": "The sum of 2 and 2 is clearly 4 based on basic arithmetic."
-            },
-            "revised_answer": "4"
-        }
+    def test_count_tokens_basic(self):
+        """Test basic token counting with whitespace approximation."""
+        text = "This is a simple test"
+        count = count_tokens(text)
+        assert count == 5  # 5 words
 
-        ablated = create_ablation_tuple(dialogue)
+    def test_count_tokens_empty(self):
+        """Test token counting with empty string."""
+        count = count_tokens("")
+        assert count == 0
 
-        assert ablated["critique"]["reasoning_snippet"] != dialogue["critique"]["reasoning_snippet"]
-        assert ablated["critique"]["is_ablated"] is True
-        assert "original_token_count" in ablated["critique"]
+    def test_count_tokens_with_tokenizer(self):
+        """Test token counting with a mock tokenizer."""
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.encode.return_value = [101, 2023, 2003, 2001]  # 4 tokens
+        
+        text = "This is a test"
+        count = count_tokens(text, mock_tokenizer)
+        assert count == 4
 
-    def test_ablation_preserves_other_fields(self):
-        """Verify that non-critique fields are preserved."""
-        dialogue = {
-            "question": "What is 2+2?",
-            "initial_answer": "4",
-            "critique": {
-                "confidence_score": 0.9,
-                "reasoning_snippet": "Some reasoning here."
-            },
-            "revised_answer": "4"
-        }
-
-        ablated = create_ablation_tuple(dialogue)
-
-        assert ablated["question"] == dialogue["question"]
-        assert ablated["initial_answer"] == dialogue["initial_answer"]
-        assert ablated["revised_answer"] == dialogue["revised_answer"]
-        assert ablated["critique"]["confidence_score"] == dialogue["critique"]["confidence_score"]
-
-    def test_ablation_handles_missing_critique(self):
-        """Verify graceful handling of missing critique field."""
-        dialogue = {
-            "question": "What is 2+2?",
-            "initial_answer": "4",
-            "revised_answer": "4"
-        }
-
-        ablated = create_ablation_tuple(dialogue)
-
-        # Should return unchanged when critique is missing
-        assert ablated == dialogue
-
-    def test_ablation_handles_empty_reasoning(self):
-        """Verify graceful handling of empty reasoning_snippet."""
-        dialogue = {
-            "question": "What is 2+2?",
-            "initial_answer": "4",
-            "critique": {
-                "confidence_score": 0.9,
-                "reasoning_snippet": ""
-            },
-            "revised_answer": "4"
-        }
-
-        ablated = create_ablation_tuple(dialogue)
-
-        # Should return unchanged when reasoning is empty
-        assert ablated["critique"]["reasoning_snippet"] == ""
-
-
-class TestAblationDatasetGeneration:
-    """Tests for generate_ablation_dataset function."""
-
-    def test_generates_jsonl_output(self):
-        """Verify that output is valid JSONL format."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as infile:
-            infile.write(json.dumps({
-                "question": "Q1",
-                "initial_answer": "A1",
-                "critique": {"confidence_score": 0.8, "reasoning_snippet": "Reasoning 1"},
-                "revised_answer": "A1_revised"
-            }) + '\n')
-            infile.write(json.dumps({
-                "question": "Q2",
-                "initial_answer": "A2",
-                "critique": {"confidence_score": 0.9, "reasoning_snippet": "Reasoning 2"},
-                "revised_answer": "A2_revised"
-            }) + '\n')
-            input_path = infile.name
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as outfile:
-            output_path = outfile.name
-
-        try:
-            stats = generate_ablation_dataset(input_path, output_path)
-
-            # Verify output file exists and has content
-            assert Path(output_path).exists()
-            assert stats["total_processed"] == 2
-            assert stats["successful_ablations"] == 2
-
-            # Verify each line is valid JSON
-            with open(output_path, 'r') as f:
-                lines = f.readlines()
-                assert len(lines) == 2
-                for line in lines:
-                    parsed = json.loads(line.strip())
-                    assert "critique" in parsed
-                    assert "is_ablated" in parsed["critique"]
-
-        finally:
-            os.unlink(input_path)
-            os.unlink(output_path)
-
-    def test_respects_sample_size(self):
-        """Verify that sample_size limit is respected."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as infile:
-            for i in range(10):
-                infile.write(json.dumps({
-                    "question": f"Q{i}",
-                    "initial_answer": f"A{i}",
-                    "critique": {"confidence_score": 0.8, "reasoning_snippet": f"Reasoning {i}"},
-                    "revised_answer": f"A{i}_revised"
-                }) + '\n')
-            input_path = infile.name
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as outfile:
-            output_path = outfile.name
-
-        try:
-            stats = generate_ablation_dataset(input_path, output_path, sample_size=3)
-
-            assert stats["total_processed"] == 3
-            assert stats["successful_ablations"] == 3
-
-            with open(output_path, 'r') as f:
-                lines = f.readlines()
-                assert len(lines) == 3
-
-        finally:
-            os.unlink(input_path)
-            os.unlink(output_path)
+        mock_tokenizer.encode.assert_called_once_with(text, add_special_tokens=False)
 
 
 class TestNeutralPlaceholderGeneration:
-    """Tests for generate_neutral_placeholder function."""
+    """Tests for neutral placeholder text generation."""
 
-    def test_placeholder_is_neutral(self):
-        """Verify that placeholder text is neutral/non-informative."""
-        original = "The model's reasoning contains a logical fallacy in step 3."
-        placeholder = generate_neutral_placeholder(original, target_token_count=10)
+    def test_placeholder_length_approximation(self):
+        """Test that placeholder approximates target token count."""
+        target_tokens = 20
+        placeholder = generate_neutral_placeholder(target_tokens)
+        
+        # Should be close to target (within 2 tokens)
+        actual_tokens = count_tokens(placeholder)
+        assert abs(actual_tokens - target_tokens) <= 2
 
-        # Placeholder should not contain specific references to the original content
-        assert "logical fallacy" not in placeholder.lower()
-        assert "step 3" not in placeholder
-        assert "model" not in placeholder.lower() or "model" in placeholder.lower() and "further" in placeholder.lower()
+    def test_placeholder_neutrality(self):
+        """Test that placeholder text is neutral (doesn't contain critique-like content)."""
+        placeholder = generate_neutral_placeholder(10)
+        
+        # Should not contain specific critique indicators
+        assert "contradiction" not in placeholder.lower()
+        assert "error" not in placeholder.lower()
+        assert "incorrect" not in placeholder.lower()
 
-    def test_placeholder_approximates_token_count(self):
-        """Verify that placeholder has approximately the target token count."""
-        original = "This is a test sentence with several words."
-        target_tokens = 8  # Approximate
+    def test_placeholder_empty_target(self):
+        """Test placeholder generation with zero target tokens."""
+        placeholder = generate_neutral_placeholder(0)
+        assert placeholder == ""
 
-        placeholder = generate_neutral_placeholder(original, target_tokens)
 
-        # The placeholder should be non-empty and reasonable length
-        assert len(placeholder) > 0
-        assert len(placeholder.split()) > 0
+class TestAblationTupleCreation:
+    """Tests for creating individual ablation tuples."""
 
-    def test_placeholder_without_tokenizer(self):
-        """Verify placeholder generation works without tokenizer."""
-        original = "Some reasoning text here."
-        placeholder = generate_neutral_placeholder(original, target_token_count=5, tokenizer=None)
+    def test_ablation_preserves_structure(self):
+        """Test that ablation preserves all original fields."""
+        dialogue_tuple = {
+            "question": "What is 2 + 2?",
+            "initial_answer": "4",
+            "critique": "The answer is correct but lacks explanation.",
+            "revised_answer": "The answer is 4 because 2 + 2 = 4.",
+            "metadata": {"source": "gsm8k"}
+        }
 
-        assert len(placeholder) > 0
-        assert isinstance(placeholder, str)
+        ablated = create_ablation_tuple(dialogue_tuple)
 
-class TestTokenCounting:
-    """Tests for count_tokens function."""
+        # All original fields should be preserved
+        assert ablated["question"] == dialogue_tuple["question"]
+        assert ablated["initial_answer"] == dialogue_tuple["initial_answer"]
+        assert ablated["revised_answer"] == dialogue_tuple["revised_answer"]
+        assert ablated["metadata"] == dialogue_tuple["metadata"]
 
-    def test_count_tokens_basic(self):
-        """Verify basic token counting."""
-        text = "This is a test."
-        count = count_tokens(text)
-        assert count > 0
+    def test_ablation_replaces_critique(self):
+        """Test that critique is replaced with neutral placeholder."""
+        dialogue_tuple = {
+            "question": "Test question",
+            "initial_answer": "Test answer",
+            "critique": "This critique identifies specific logical errors.",
+            "revised_answer": "Revised answer"
+        }
 
-    def test_count_tokens_empty(self):
-        """Verify empty string returns 0 or reasonable count."""
-        text = ""
-        count = count_tokens(text)
-        assert count >= 0
+        ablated = create_ablation_tuple(dialogue_tuple)
 
-    def test_count_tokens_with_mock_tokenizer(self):
-        """Verify token counting with a mock tokenizer."""
-        text = "Hello world"
+        # Critique should be different
+        assert ablated["critique"] != dialogue_tuple["critique"]
+        # But should be neutral
+        assert "error" not in ablated["critique"].lower()
 
-        mock_tokenizer = MagicMock()
-        mock_tokenizer.encode.return_value = [1, 2, 3]  # 3 tokens
+    def test_ablation_adds_metadata(self):
+        """Test that ablation adds appropriate metadata fields."""
+        dialogue_tuple = {
+            "question": "Test",
+            "initial_answer": "Answer",
+            "critique": "Critique text",
+            "revised_answer": "Revised"
+        }
 
-        count = count_tokens(text, mock_tokenizer)
-        assert count == 3
+        ablated = create_ablation_tuple(dialogue_tuple)
+
+        assert ablated["ablation_type"] == "neutral_placeholder"
+        assert "original_critique_token_count" in ablated
+        assert "ablated_critique_token_count" in ablated
+
+    def test_ablation_missing_critique(self):
+        """Test that missing critique raises ValueError."""
+        dialogue_tuple = {
+            "question": "Test",
+            "initial_answer": "Answer",
+            "revised_answer": "Revised"
+        }
+
+        with pytest.raises(ValueError, match="must contain a 'critique' field"):
+            create_ablation_tuple(dialogue_tuple)
+
+
+class TestAblationDatasetGeneration:
+    """Tests for generating full ablation datasets."""
+
+    def test_generate_ablation_dataset_basic(self):
+        """Test basic dataset generation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_path = Path(tmpdir) / "output.jsonl"
+
+            # Create input data
+            input_data = [
+                {"question": "Q1", "initial_answer": "A1", "critique": "C1", "revised_answer": "R1"},
+                {"question": "Q2", "initial_answer": "A2", "critique": "C2", "revised_answer": "R2"}
+            ]
+
+            with open(input_path, 'w') as f:
+                for item in input_data:
+                    f.write(json.dumps(item) + '\n')
+
+            # Generate ablation dataset
+            result = generate_ablation_dataset(
+                dialogue_dataset_path=str(input_path),
+                output_path=str(output_path)
+            )
+
+            # Verify results
+            assert len(result) == 2
+            assert all("ablation_type" in item for item in result)
+
+            # Verify output file exists
+            assert output_path.exists()
+
+            # Verify output format
+            with open(output_path, 'r') as f:
+                lines = f.readlines()
+            assert len(lines) == 2
+
+    def test_generate_ablation_dataset_sample_size(self):
+        """Test dataset generation with sample size limit."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_path = Path(tmpdir) / "output.jsonl"
+
+            # Create larger input
+            input_data = [
+                {"question": f"Q{i}", "initial_answer": f"A{i}", "critique": f"C{i}", "revised_answer": f"R{i}"}
+                for i in range(10)
+            ]
+
+            with open(input_path, 'w') as f:
+                for item in input_data:
+                    f.write(json.dumps(item) + '\n')
+
+            # Generate with sample size
+            result = generate_ablation_dataset(
+                dialogue_dataset_path=str(input_path),
+                output_path=str(output_path),
+                sample_size=3
+            )
+
+            assert len(result) == 3
+
+    def test_generate_ablation_dataset_missing_file(self):
+        """Test that missing input file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            generate_ablation_dataset(
+                dialogue_dataset_path="/nonexistent/path.jsonl",
+                output_path="/tmp/output.jsonl"
+            )
+
+    def test_generate_ablation_dataset_invalid_json(self):
+        """Test handling of invalid JSON lines."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_path = Path(tmpdir) / "output.jsonl"
+
+            # Create input with invalid JSON
+            with open(input_path, 'w') as f:
+                f.write('{"question": "valid", "initial_answer": "a", "critique": "c", "revised_answer": "r"}\n')
+                f.write('invalid json line\n')
+                f.write('{"question": "valid2", "initial_answer": "a2", "critique": "c2", "revised_answer": "r2"}\n')
+
+            # Should skip invalid lines and process valid ones
+            result = generate_ablation_dataset(
+                dialogue_dataset_path=str(input_path),
+                output_path=str(output_path)
+            )
+
+            assert len(result) == 2
+
+    def test_generate_ablation_dataset_missing_critique(self):
+        """Test handling of tuples missing critique field."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_path = Path(tmpdir) / "output.jsonl"
+
+            # Create input with missing critique
+            with open(input_path, 'w') as f:
+                f.write('{"question": "valid", "initial_answer": "a", "critique": "c", "revised_answer": "r"}\n')
+                f.write('{"question": "missing_critique", "initial_answer": "a", "revised_answer": "r"}\n')
+
+            # Should skip invalid tuples and process valid ones
+            result = generate_ablation_dataset(
+                dialogue_dataset_path=str(input_path),
+                output_path=str(output_path)
+            )
+
+            assert len(result) == 1

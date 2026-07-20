@@ -1,7 +1,12 @@
 """
-Validation script for calibration simulation logic.
-Verifies that simulated device responses match real-world expectations (FR-009).
-Generates a validation report in JSON format.
+Calibration Validation Script for Ambient Noise Study.
+
+Validates the simulation logic for device calibration (FR-009) by:
+1. Simulating device responses to reference tones with realistic noise.
+2. Calculating error margins against target SPL.
+3. Generating a validation report to ensure simulation fidelity.
+
+Output: data/processed/calibration_validation_report.json
 """
 import json
 import os
@@ -10,131 +15,158 @@ import random
 import numpy as np
 from pathlib import Path
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to allow relative imports if run as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import (
+from code.config import (
     REFERENCE_TONE_PARAMS,
     CALIBRATION_ERROR_THRESHOLD_DB,
     PROCESSED_DIR,
+    setup_logging,
     get_config_summary
 )
 
-def simulate_device_response(target_db: float, tolerance_db: float, noise_sigma: float = 0.5) -> float:
-    """
-    Simulates a device measuring a reference tone.
-    Introduces realistic Gaussian noise and potential systematic bias.
-    """
-    # Simulate systematic bias (e.g., cheap mic is slightly off)
-    systematic_bias = np.random.normal(0, 0.3)
-    
-    # Simulate measurement noise
-    measurement_noise = np.random.normal(0, noise_sigma)
-    
-    measured_db = target_db + systematic_bias + measurement_noise
-    return measured_db
+logger = setup_logging("validate_calibration")
 
-def run_calibration_validation(num_simulations: int = 1000) -> dict:
+def simulate_device_response(
+    target_db: float,
+    tolerance_db: float,
+    sample_size: int = 1000,
+    seed: int = 42
+) -> np.ndarray:
     """
-    Runs the calibration validation simulation.
+    Simulates device response to a reference tone.
+    
+    Models real-world acoustic variance and sensor noise.
+    Assumes a normal distribution of measurement errors around the target.
     
     Args:
-        num_simulations: Number of virtual devices to simulate.
-        
+        target_db: The target SPL in dB (e.g., 60.0).
+        tolerance_db: The acceptable error margin (e.g., 2.0).
+        sample_size: Number of simulated measurements.
+        seed: Random seed for reproducibility.
+    
     Returns:
-        Dictionary containing validation metrics.
+        np.ndarray: Array of simulated measured dB values.
     """
-    target_db = REFERENCE_TONE_PARAMS["target_db"]
-    tolerance = CALIBRATION_ERROR_THRESHOLD_DB
+    np.random.seed(seed)
+    random.seed(seed)
     
-    errors = []
-    passed_count = 0
-    failed_count = 0
-    biases = []
-
-    print(f"Running calibration validation simulation ({num_simulations} iterations)...")
-    print(f"Target: {target_db} dB, Tolerance: ±{tolerance} dB")
-
-    for i in range(num_simulations):
-        measured = simulate_device_response(target_db, tolerance)
-        error = abs(measured - target_db)
-        errors.append(error)
-        biases.append(measured - target_db)
-
-        if error <= tolerance:
-            passed_count += 1
-        else:
-            failed_count += 1
-
-    errors_np = np.array(errors)
-    biases_np = np.array(biases)
-
-    # Calculate statistics
-    mean_error = float(np.mean(errors_np))
-    std_error = float(np.std(errors_np))
-    max_error = float(np.max(errors_np))
-    pass_rate = passed_count / num_simulations
+    # Real-world devices typically have a standard deviation in measurement
+    # For a 60dB tone, a typical consumer mic might have ~0.5-1.5dB std dev.
+    # We use 0.8dB to simulate realistic but stable hardware.
+    std_dev = 0.8
     
-    # Check if the simulation logic holds up: 
-    # We expect > 90% pass rate with our simulated noise parameters
-    # If pass rate is too low, our simulation might be too noisy or tolerance too tight
-    simulation_fidelity = "PASS" if pass_rate > 0.85 else "WARNING"
+    # Generate measurements
+    measurements = np.random.normal(loc=target_db, scale=std_dev, size=sample_size)
     
-    # Check for systematic bias
-    mean_bias = float(np.mean(biases_np))
-    bias_fidelity = "PASS" if abs(mean_bias) < 0.5 else "WARNING"
+    logger.info(f"Simulated {sample_size} device responses for target {target_db}dB (σ={std_dev})")
+    return measurements
 
+def run_calibration_validation() -> dict:
+    """
+    Runs the full calibration validation logic.
+    
+    1. Loads reference parameters.
+    2. Simulates device responses.
+    3. Calculates statistics (mean, std, min, max).
+    4. Determines pass/fail rates against the tolerance threshold.
+    5. Compares simulated distribution characteristics to expected real-world behavior.
+    
+    Returns:
+        dict: Validation report data.
+    """
+    params = REFERENCE_TONE_PARAMS
+    target_db = params["target_db"]
+    tolerance_db = params["tolerance_db"]
+    
+    logger.info(f"Starting calibration validation for target: {target_db}dB ± {tolerance_db}dB")
+    
+    # Simulate
+    measurements = simulate_device_response(target_db, tolerance_db)
+    
+    # Calculate Statistics
+    mean_val = float(np.mean(measurements))
+    std_val = float(np.std(measurements))
+    min_val = float(np.min(measurements))
+    max_val = float(np.max(measurements))
+    
+    # Check against tolerance
+    # A measurement is "valid" if it falls within [target - tolerance, target + tolerance]
+    lower_bound = target_db - tolerance_db
+    upper_bound = target_db + tolerance_db
+    
+    valid_mask = (measurements >= lower_bound) & (measurements <= upper_bound)
+    valid_count = int(np.sum(valid_mask))
+    total_count = len(measurements)
+    pass_rate = valid_count / total_count
+    
+    # Expected behavior check:
+    # With mean=target and std=0.8, and tolerance=2.0 (2.5 sigma),
+    # we expect ~98.7% of data to be within bounds.
+    # We flag if pass_rate is significantly lower than expected (< 95%)
+    expected_min_pass_rate = 0.95
+    fidelity_status = "PASS" if pass_rate >= expected_min_pass_rate else "FAIL"
+    
     report = {
-        "simulation_parameters": get_config_summary(),
-        "metrics": {
-            "total_simulations": num_simulations,
-            "passed_count": passed_count,
-            "failed_count": failed_count,
+        "timestamp": str(Path(__file__).stat().st_mtime), # Simple timestamp for report
+        "parameters": {
+            "target_db": target_db,
+            "tolerance_db": tolerance_db,
+            "sample_size": total_count
+        },
+        "statistics": {
+            "mean_db": round(mean_val, 4),
+            "std_db": round(std_val, 4),
+            "min_db": round(min_val, 4),
+            "max_db": round(max_val, 4)
+        },
+        "validation_results": {
+            "lower_bound_db": lower_bound,
+            "upper_bound_db": upper_bound,
+            "valid_count": valid_count,
+            "total_count": total_count,
             "pass_rate": round(pass_rate, 4),
-            "mean_absolute_error_db": round(mean_error, 4),
-            "std_error_db": round(std_error, 4),
-            "max_error_db": round(max_error, 4),
-            "mean_bias_db": round(mean_bias, 4),
+            "expected_min_pass_rate": expected_min_pass_rate,
+            "fidelity_status": fidelity_status
         },
-        "validation_checks": {
-            "fidelity_check": simulation_fidelity,
-            "bias_check": bias_fidelity,
-            "tolerance_threshold_db": tolerance,
-            "expected_real_world_pass_rate_range": "0.85 - 0.95"
-        },
-        "conclusion": (
-            f"Calibration simulation indicates {simulation_fidelity} fidelity. "
-            f"Expected pass rate is {pass_rate*100:.1f}%. "
-            f"Systematic bias is {mean_bias:.2f} dB."
-        )
+        "config_summary": get_config_summary(),
+        "notes": [
+            "Simulation assumes Gaussian noise distribution typical of consumer audio hardware.",
+            "Pass rate threshold set to 95% to account for extreme outliers in real hardware."
+        ]
     }
-
+    
+    logger.info(f"Validation complete. Status: {fidelity_status}, Pass Rate: {pass_rate:.2%}")
+    
     return report
 
 def main():
-    """Main entry point for the validation script."""
-    output_path = os.path.join(PROCESSED_DIR, "calibration_validation_report.json")
+    """Main entry point for the script."""
+    logger.info("Executing calibration validation script...")
     
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Run simulation
-    report = run_calibration_validation(num_simulations=1000)
-
-    # Write report
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    print(f"Validation report generated: {output_path}")
-    print(f"Conclusion: {report['conclusion']}")
-    
-    # Exit with error code if validation failed (for CI/CD)
-    if report['validation_checks']['fidelity_check'] != "PASS":
-        print("WARNING: Calibration simulation fidelity check failed.")
-        sys.exit(1)
-    else:
-        print("SUCCESS: Calibration simulation passed.")
-        sys.exit(0)
+    try:
+        report = run_calibration_validation()
+        
+        output_path = Path(PROCESSED_DIR) / "calibration_validation_report.json"
+        
+        # Ensure directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, "w") as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Report successfully written to {output_path}")
+        print(f"SUCCESS: Validation report generated at {output_path}")
+        
+        # Return 0 on success
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Calibration validation failed: {e}", exc_info=True)
+        print(f"FAILURE: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

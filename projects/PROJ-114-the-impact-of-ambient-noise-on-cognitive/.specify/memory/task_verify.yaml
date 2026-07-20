@@ -1,18 +1,6 @@
-T001 Create project structure per implementation plan: 1
-? T002 Initialize Python 3.11 project with dependencies (pandas, numpy, scipy, statsmodels,
-  scikit-learn, pyyaml, jsonschema, pytest)
-: 1
-T003 [P] Configure linting (flake8/black) and formatting tools: 1
-? T004 [P] Define JSON Schema contracts in `contracts/dataset.schema.yaml` for Participant,
-  NoiseLog, and TaskPerformance (Input entities only)
-: 1
-? 'T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md`
-  containing calculated effect size, alpha, power, and N=150 justification (FR-008);
-  verify report contains N=150 and specific statistical parameters. **Note: This task
-  must be completed BEFORE any synthetic data generation or data collection logic.**'
-: 1
-? 'T043 [P] Validate calibration simulation logic: Define reference tone parameters
-  in `code/config.py` and implement validation script in `code/scripts/validate_calibration.py`
-  to ensure simulation fidelity matches real-world expectations (FR-009); generate
-  `data/processed/calibration_validation_report.json`.'
-: 1
+T001: 1
+T002: 1
+T003: 1
+T004: 1
+T005: 1
+T013: 1

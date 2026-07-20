@@ -1,10 +1,11 @@
 T007:
   c: false
-  h: 81c3cff54eedab326f953772147be6adb7aa47bdce95e2b10e0ebd5437f1dfd5
-  r: "The `code/pipeline/pilot_runner.py` file exists, but the provided snippet never\
-    \ writes the execution time to `data/results/pilot_log.json`, and that JSON file\
-    \ is missing from the repository. Consequently the task\u2019s requirement to\
-    \ record the pilot\u2019s runtime in `pilot_log.json` is not fulfilled."
+  h: 9305bd4ba1bf46777d3be633ae5e74725e77a6bb8b43ae93ecf0112b78cfd9fb
+  r: "The `pilot_runner.py` file exists but is truncated and shows no code that writes\
+    \ the execution time to `data/results/pilot_log.json`. Moreover, the required\
+    \ `pilot_log.json` file is missing, so the pilot\u2019s successful completion\
+    \ and logging have not been demonstrated. The missing log file and incomplete\
+    \ script need to be fixed."
 T011:
   c: false
   h: d133942fa1bb44c00cf68ff727cbce0725a76549be51bc868e09a01843de1d44
@@ -44,3 +45,37 @@ T026:
     \ contain code that runs the full pipeline (or a suitable mini\u2011pipeline)\
     \ and then asserts the CSV\u2019s existence and that it contains valid data rows.\
     \ This is currently missing."
+T029a:
+  c: false
+  h: 124451e3a643eea34d377e80cc93eab49f21bfcc05eee516b3c484d4e29fb2e9
+  r: "The repository contains `code/analysis/bias_analysis.py`, but the file is truncated\
+    \ and does not show any code that writes the computed bias magnitudes to `data/results/bias_summary.csv`.\
+    \ Moreover, the required CSV file is absent from the project directory. Consequently,\
+    \ the task\u2019s output artifact is missing."
+T029c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result file was provided that demonstrates the\
+    \ application of Bonferroni or Benjamini\u2011Hochberg correction to the regression\
+    \ outputs. The claim lacks any tangible artifact (e.g., corrected p\u2011value\
+    \ table, updated regression summary, or documentation) required to verify the\
+    \ task was completed."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, analysis notebook, or results comparing the observed bias trends
+    to the Null Model baseline are present; the task required an implemented comparison,
+    but no artifact was supplied.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing the final aggregation logic is
+    provided, nor any evidence (e.g., test logs, output files) showing that the logic
+    ensures at least 30 valid realizations are retained. The required artifact is
+    missing, so the task is not satisfied.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file or its contents were provided; therefore we cannot confirm\
+    \ that environment\u2011setup and pilot\u2011run instructions were added. The\
+    \ required documentation artifact is missing."

@@ -1,14 +1,15 @@
-name: CI - Dependency Verification and Package Health
+name: CI - Dependency Verification and Package Availability
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
 
 jobs:
   verify-dependencies:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,16 +22,39 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
+          if [ -f code/requirements.txt ]; then
+            pip install -r code/requirements.txt
+          else
+            echo "Error: code/requirements.txt not found"
+            exit 1
+          fi
 
-      - name: Verify healpy version
+      - name: Verify critical package availability (healpy >= 1.15.0)
         run: |
-          python -c "import healpy; print(f'healpy version: {healpy.__version__}'); assert tuple(map(int, healpy.__version__.split('.')[:2])) >= (1, 15), 'healpy version must be >= 1.15.0'"
+          python -c "import healpy; assert healpy.__version__ >= '1.15.0', f'healpy version {healpy.__version__} is less than 1.15.0'; print(f'Success: healpy version {healpy.__version__} installed')"
 
-      - name: Verify core packages import
+      - name: Verify other critical packages
         run: |
-          python -c "import camb; import numpy; import scipy; import statsmodels; import pyyaml; import astropy; import pytest; print('All core packages imported successfully')"
+          python -c "import camb; print('Success: camb installed')"
+          python -c "import numpy; print('Success: numpy installed')"
+          python -c "import scipy; print('Success: scipy installed')"
+          python -c "import statsmodels; print('Success: statsmodels installed')"
+          python -c "import yaml; print('Success: pyyaml installed')"
+          python -c "import astropy; print('Success: astropy installed')"
 
-      - name: Validate project structure
+      - name: Run basic import tests for project modules
         run: |
-          python -c "from pathlib import Path; assert Path('code/config.py').exists(); assert Path('code/data_io.py').exists(); assert Path('contracts').exists(); print('Project structure validated')"
+          cd code
+          python -c "import config; print('Success: config module imports')"
+          python -c "import data_io; print('Success: data_io module imports')"
+          python -c "from pipeline.pilot_runner import run_pilot; print('Success: pilot_runner imports')"
+          python -c "from pipeline.budget_check import run_budget_check; print('Success: budget_check imports')"
+          python -c "from simulation.generate_maps import generate_cmb_map; print('Success: generate_maps imports')"
+          python -c "from simulation.utils import generate_random_mask; print('Success: simulation utils imports')"
+          python -c "from gap_filling.harmonic_interp import apply_harmonic_filling; print('Success: harmonic_interp imports')"
+          python -c "from gap_filling.wiener_filter import apply_wiener_filling; print('Success: wiener_filter imports')"
+          python -c "from gap_filling.iterative_synthesis import apply_iterative_filling; print('Success: iterative_synthesis imports')"
+          python -c "from analysis.power_spectra import compute_power_spectrum; print('Success: power_spectra imports')"
+          python -c "from analysis.mode_coupling import compute_mode_coupling_matrix; print('Success: mode_coupling imports')"
+          python -c "from analysis.parameter_est import estimate_parameters_from_grid; print('Success: parameter_est imports')"
+          python -c "from analysis.bias_analysis import calculate_bias; print('Success: bias_analysis imports')"

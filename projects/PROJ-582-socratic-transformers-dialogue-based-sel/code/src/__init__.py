@@ -1,3 +1,4 @@
-# Socratic Transformers: Dialogue-Based Self-Teaching
-# Source package for the research pipeline.
-pass
+"""
+Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning
+Core source package.
+"""

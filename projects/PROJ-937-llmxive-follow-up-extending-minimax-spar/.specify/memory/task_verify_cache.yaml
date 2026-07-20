@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw`, `data/processed`,
+    `results`, `tests/unit`, `tests/integration`) is provided; the only artifact shown
+    is a feature specification, not a project folder structure. The implementer must
+    create and show these directories (with at least placeholder files) to satisfy
+    the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes user stories and testing for sparse\u2011\
+    attention heuristics; there are no ruff or black configuration files, scripts,\
+    \ or documentation present. Consequently, the required linting/formatting setup\
+    \ is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes or files were presented showing a fallback implementation in\
+    \ `code/heuristics/`; the evidence lacks any artifact that selects the first\u202F\
+    k\u202Fblocks when scores are near\u2011zero. Consequently the required logic\
+    \ is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output was presented that adds logging for exclusion\
+    \ counts when RULER samples are corrupted or lack the \u201Cneedle\u201D string.\
+    \ The required artifact (e.g., modified inference script, logging statements,\
+    \ or example log file) is missing, so the task\u2019s requirement is not satisfied."

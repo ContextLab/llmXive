@@ -1,0 +1,2 @@
+# This directory stores processed datasets derived from raw data.
+# Includes static QA tuples, dialogue tuples, and ablation datasets.

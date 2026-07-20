@@ -1,8 +1,10 @@
 """
 Ablation data generator for Socratic Transformers project.
 
-This module implements FR-007: replacing critique text with neutral placeholder
-text of equivalent token length to isolate the effect of the critique signal.
+This module implements the ablation condition (FR-007) by replacing critique text
+with neutral placeholder text of equivalent token length. This allows for
+isolating the effect of the critique signal in the dialogue-based self-teaching
+process.
 """
 
 import json
@@ -12,292 +14,217 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from src.utils.config import get_config
-from src.utils.logging import get_logger
-
-# Configure logger
-logger = get_logger(__name__)
 
 
 def count_tokens(text: str, tokenizer: Optional[Any] = None) -> int:
     """
-    Count tokens in a text string.
+    Count the number of tokens in a text string.
 
-    If a tokenizer is provided, use it for accurate token counting.
-    Otherwise, fall back to a simple whitespace-based estimate.
+    If a tokenizer is provided, it uses the tokenizer's encoding.
+    Otherwise, it falls back to a simple whitespace-based approximation.
 
     Args:
-        text: The text to count tokens for.
-        tokenizer: Optional HuggingFace tokenizer instance.
+        text: The input text string.
+        tokenizer: Optional HuggingFace tokenizer.
 
     Returns:
-        Estimated token count.
+        The estimated token count.
     """
     if tokenizer is not None:
         try:
             return len(tokenizer.encode(text, add_special_tokens=False))
-        except Exception as e:
-            logger.warning(f"Tokenizer encoding failed, falling back to estimate: {e}")
+        except Exception:
+            # Fallback if tokenizer fails
+            pass
 
-    # Fallback: whitespace-based estimate (rough approximation)
+    # Simple whitespace-based approximation
     return len(text.split())
 
 
-def generate_neutral_placeholder(original_text: str, target_token_count: int, tokenizer: Optional[Any] = None) -> str:
+def generate_neutral_placeholder(target_token_count: int, base_text: str = "The model considers the previous answer and generates a revised response based on a neutral evaluation of the logical consistency and factual accuracy of the statement.") -> str:
     """
-    Generate a neutral placeholder text with approximately the same token length
-    as the original critique text.
+    Generate a neutral placeholder text with approximately the same token count
+    as the original critique.
 
-    The placeholder consists of neutral, non-informative text that maintains
-    the structural presence of a critique without providing actual reasoning
-    content. This isolates the effect of the critique signal from the presence
-    of text itself.
+    This implements the ablation condition where the semantic content of the
+    critique is removed but the structural length is preserved.
 
     Args:
-        original_text: The original critique text to match length against.
-        target_token_count: The target number of tokens (from original text).
-        tokenizer: Optional tokenizer for accurate length matching.
+        target_token_count: The target number of tokens to match.
+        base_text: The base neutral text to repeat/modify.
 
     Returns:
-        A neutral placeholder string with approximately target_token_count tokens.
+        A neutral placeholder string with token count approximating the target.
     """
-    # Neutral template phrases (non-informative, structurally similar)
-    neutral_phrases = [
-        "The reasoning provided here requires further examination.",
-        "This analysis may benefit from additional consideration.",
-        "The argument presented warrants a closer review of assumptions.",
-        "Further verification of the underlying logic is recommended.",
-        "This perspective could be strengthened with more evidence.",
-    ]
+    if target_token_count <= 0:
+        return ""
 
-    # Calculate tokens per phrase
-    if tokenizer is not None:
-        phrase_tokens = [len(tokenizer.encode(p, add_special_tokens=False)) for p in neutral_phrases]
-        avg_tokens_per_phrase = sum(phrase_tokens) / len(phrase_tokens)
-    else:
-        avg_tokens_per_phrase = 8  # Rough estimate
+    # Calculate how many times we need to repeat the base text
+    base_tokens = count_tokens(base_text)
+    if base_tokens == 0:
+        base_tokens = 1  # Avoid division by zero
 
-    # Calculate how many phrases we need
-    num_phrases = max(1, int(target_token_count / avg_tokens_per_phrase))
+    repetitions = max(1, (target_token_count // base_tokens) + 1)
+    full_text = (base_text + " ") * repetitions
 
-    # Build placeholder by cycling through neutral phrases
-    placeholder_parts = []
-    for i in range(num_phrases):
-        phrase = neutral_phrases[i % len(neutral_phrases)]
-        placeholder_parts.append(phrase)
+    # Trim to approximate target token count
+    tokens = full_text.split()
+    if len(tokens) > target_token_count:
+        tokens = tokens[:target_token_count]
 
-    # Join with spaces
-    placeholder = " ".join(placeholder_parts)
-
-    # Fine-tune length if we have a tokenizer
-    if tokenizer is not None:
-        current_tokens = len(tokenizer.encode(placeholder, add_special_tokens=False))
-        diff = target_token_count - current_tokens
-
-        # Adjust by adding/removing neutral filler
-        filler = " further consideration is necessary. "
-        filler_tokens = len(tokenizer.encode(filler, add_special_tokens=False))
-
-        if diff > 0:
-            # Add filler phrases
-            repeats = diff // filler_tokens
-            placeholder += filler * repeats
-        elif diff < 0:
-            # Remove trailing filler if possible
-            while current_tokens > target_token_count and placeholder.endswith(filler):
-                placeholder = placeholder[:-len(filler)]
-                current_tokens -= filler_tokens
-
-    return placeholder
+    return " ".join(tokens)
 
 
 def create_ablation_tuple(dialogue_tuple: Dict[str, Any], tokenizer: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Create an ablated version of a dialogue tuple by replacing the critique
+    Create an ablation tuple from a dialogue tuple by replacing the critique
     with a neutral placeholder of equivalent token length.
 
     Args:
         dialogue_tuple: A dictionary containing the dialogue tuple with keys:
-            - question: str
-            - initial_answer: str
-            - critique: dict with 'confidence_score', 'reasoning_snippet'
-            - revised_answer: str
+            - question: The original question
+            - initial_answer: The initial answer generated
+            - critique: The self-generated critique (to be ablated)
+            - revised_answer: The revised answer
+            - (optional) metadata fields
         tokenizer: Optional tokenizer for accurate token counting.
 
     Returns:
-        A new dictionary with the critique's reasoning_snippet replaced by
-        a neutral placeholder.
+        A new dictionary with the critique replaced by a neutral placeholder.
+        The structure remains identical to the input for direct comparison.
     """
     if "critique" not in dialogue_tuple:
-        logger.warning("Dialogue tuple missing critique field, returning unchanged")
-        return dialogue_tuple
+        raise ValueError("Input dialogue tuple must contain a 'critique' field")
 
-    critique = dialogue_tuple["critique"]
-    original_reasoning = critique.get("reasoning_snippet", "")
-
-    if not original_reasoning:
-        logger.warning("Critique reasoning_snippet is empty, returning unchanged")
-        return dialogue_tuple
-
-    # Count tokens in original reasoning
-    target_tokens = count_tokens(original_reasoning, tokenizer)
+    original_critique = dialogue_tuple["critique"]
+    original_token_count = count_tokens(original_critique, tokenizer)
 
     # Generate neutral placeholder
-    neutral_placeholder = generate_neutral_placeholder(original_reasoning, target_tokens, tokenizer)
+    neutral_placeholder = generate_neutral_placeholder(original_token_count)
 
     # Create ablated tuple
     ablated_tuple = dialogue_tuple.copy()
-    ablated_tuple["critique"] = critique.copy()
-    ablated_tuple["critique"]["reasoning_snippet"] = neutral_placeholder
-    ablated_tuple["critique"]["is_ablated"] = True
-    ablated_tuple["critique"]["original_token_count"] = target_tokens
-
-    logger.info(f"Created ablated tuple: original={len(original_reasoning)} chars, "
-               f"ablated={len(neutral_placeholder)} chars, tokens={target_tokens}")
+    ablated_tuple["critique"] = neutral_placeholder
+    ablated_tuple["ablation_type"] = "neutral_placeholder"
+    ablated_tuple["original_critique_token_count"] = original_token_count
+    ablated_tuple["ablated_critique_token_count"] = count_tokens(neutral_placeholder, tokenizer)
 
     return ablated_tuple
 
 
 def generate_ablation_dataset(
-    input_path: str,
+    dialogue_dataset_path: str,
     output_path: str,
     tokenizer: Optional[Any] = None,
     sample_size: Optional[int] = None
-) -> Dict[str, int]:
+) -> List[Dict[str, Any]]:
     """
-    Generate an ablated dataset from dialogue tuples.
+    Generate an ablation dataset from a dialogue dataset.
 
-    This function reads dialogue tuples from a JSONL file, replaces each
-    critique's reasoning_snippet with a neutral placeholder of equivalent
-    token length, and writes the result to a new JSONL file.
+    This function reads dialogue tuples from a JSONL file, applies the ablation
+    transformation (replacing critiques with neutral placeholders), and writes
+    the result to a new JSONL file.
 
     Args:
-        input_path: Path to input JSONL file containing dialogue tuples.
-        output_path: Path to output JSONL file for ablated tuples.
+        dialogue_dataset_path: Path to the input JSONL file containing dialogue tuples.
+        output_path: Path to write the output JSONL file.
         tokenizer: Optional tokenizer for accurate token counting.
-        sample_size: Optional limit on number of tuples to process.
+        sample_size: Optional number of samples to process (for testing).
 
     Returns:
-        A dictionary with processing statistics:
-            - total_processed: Number of tuples processed
-            - successful_ablations: Number of successful ablations
-            - skipped_empty: Number of tuples with empty critiques
-            - file_size_bytes: Size of output file in bytes
+        A list of ablated dialogue tuples.
     """
-    stats = {
-        "total_processed": 0,
-        "successful_ablations": 0,
-        "skipped_empty": 0,
-        "file_size_bytes": 0
-    }
+    config = get_config()
+    logger = config.logger
+
+    if not Path(dialogue_dataset_path).exists():
+        raise FileNotFoundError(f"Input dialogue dataset not found: {dialogue_dataset_path}")
+
+    ablated_tuples = []
+
+    logger.info(f"Reading dialogue dataset from {dialogue_dataset_path}")
+    with open(dialogue_dataset_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    if sample_size:
+        lines = lines[:sample_size]
+
+    logger.info(f"Processing {len(lines)} dialogue tuples")
+
+    for i, line in enumerate(lines):
+        if not line.strip():
+            continue
+
+        try:
+            dialogue_tuple = json.loads(line)
+            ablated_tuple = create_ablation_tuple(dialogue_tuple, tokenizer)
+            ablated_tuples.append(ablated_tuple)
+
+            if (i + 1) % 100 == 0:
+                logger.info(f"Processed {i + 1}/{len(lines)} samples")
+
+        except json.JSONDecodeError as e:
+            logger.warning(f"Skipping invalid JSON at line {i + 1}: {e}")
+            continue
+        except ValueError as e:
+            logger.warning(f"Skipping invalid tuple at line {i + 1}: {e}")
+            continue
 
     # Ensure output directory exists
     output_dir = Path(output_path).parent
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting ablation dataset generation from {input_path}")
-    logger.info(f"Output will be written to {output_path}")
+    logger.info(f"Writing ablated dataset to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for tuple_data in ablated_tuples:
+            f.write(json.dumps(tuple_data, ensure_ascii=False) + '\n')
 
-    processed_count = 0
-
-    with open(input_path, 'r', encoding='utf-8') as infile, \
-         open(output_path, 'w', encoding='utf-8') as outfile:
-
-        for line_num, line in enumerate(infile, 1):
-            line = line.strip()
-            if not line:
-                continue
-
-            try:
-                dialogue_tuple = json.loads(line)
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON at line {line_num}: {e}")
-                continue
-
-            stats["total_processed"] += 1
-            processed_count += 1
-
-            # Check sample size limit
-            if sample_size is not None and processed_count > sample_size:
-                logger.info(f"Reached sample_size limit ({sample_size}), stopping")
-                break
-
-            # Create ablated tuple
-            ablated = create_ablation_tuple(dialogue_tuple, tokenizer)
-
-            # Write to output
-            outfile.write(json.dumps(ablated, ensure_ascii=False) + '\n')
-            stats["successful_ablations"] += 1
-
-            # Log progress every 100 items
-            if line_num % 100 == 0:
-                logger.info(f"Processed {line_num} lines...")
-
-    # Get output file size
-    stats["file_size_bytes"] = Path(output_path).stat().st_size
-
-    logger.info(f"Ablation dataset generation complete:")
-    logger.info(f"  Total processed: {stats['total_processed']}")
-    logger.info(f"  Successful ablations: {stats['successful_ablations']}")
-    logger.info(f"  Output file size: {stats['file_size_bytes']} bytes")
-
-    return stats
+    logger.info(f"Generated {len(ablated_tuples)} ablated tuples")
+    return ablated_tuples
 
 
 def main():
     """
-    Main entry point for ablation dataset generation.
+    Main entry point for the ablation data generator.
 
-    Reads dialogue tuples from data/processed/dialogue_tuples.jsonl,
-    generates ablated versions, and writes to data/processed/ablation_tuples.jsonl.
+    This script reads the dialogue dataset generated by T014 and produces
+    the ablated dataset for comparative analysis in T031.
     """
     config = get_config()
+    logger = config.logger
 
-    # Determine paths
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / "data" / "processed" / "dialogue_tuples.jsonl"
-    output_path = project_root / "data" / "processed" / "ablation_tuples.jsonl"
+    # Default paths - can be overridden via config or command line
+    dialogue_dataset_path = config.data_paths.get("dialogue_dataset", "data/processed/dialogue_dataset.jsonl")
+    ablation_dataset_path = config.data_paths.get("ablation_dataset", "data/processed/ablation_dataset.jsonl")
 
-    # Check if input exists
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run T014 (generate_dialogue.py) first to create dialogue tuples.")
+    logger.info("Starting ablation data generation")
+    logger.info(f"Input: {dialogue_dataset_path}")
+    logger.info(f"Output: {ablation_dataset_path}")
+
+    try:
+        # Generate ablation dataset
+        ablated_data = generate_ablation_dataset(
+            dialogue_dataset_path=dialogue_dataset_path,
+            output_path=ablation_dataset_path
+        )
+
+        logger.info(f"Successfully generated {len(ablated_data)} ablated tuples")
+        logger.info(f"Ablation dataset saved to: {ablation_dataset_path}")
+
+        # Print summary statistics
+        if ablated_data:
+            total_tokens = sum(t.get("original_critique_token_count", 0) for t in ablated_data)
+            avg_tokens = total_tokens / len(ablated_data)
+            logger.info(f"Average critique token count: {avg_tokens:.2f}")
+
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        logger.error("Please ensure the dialogue dataset has been generated by T014 first.")
         sys.exit(1)
-
-    # Load tokenizer if configured
-    tokenizer = None
-    if config.model_path:
-        try:
-            from transformers import AutoTokenizer
-            logger.info(f"Loading tokenizer from {config.model_path}")
-            tokenizer = AutoTokenizer.from_pretrained(config.model_path, trust_remote_code=True)
-        except Exception as e:
-            logger.warning(f"Failed to load tokenizer: {e}. Using whitespace-based token counting.")
-            tokenizer = None
-
-    # Generate ablation dataset
-    # Process first 1000 tuples for the ablation study (or all if fewer)
-    sample_limit = config.get("ablation_sample_size", 1000)
-
-    stats = generate_ablation_dataset(
-        input_path=str(input_path),
-        output_path=str(output_path),
-        tokenizer=tokenizer,
-        sample_size=sample_limit
-    )
-
-    # Print summary
-    print("\n" + "="*60)
-    print("ABLATION DATASET GENERATION COMPLETE")
-    print("="*60)
-    print(f"Input:  {input_path}")
-    print(f"Output: {output_path}")
-    print(f"Processed: {stats['total_processed']} tuples")
-    print(f"Generated: {stats['successful_ablations']} ablated tuples")
-    print(f"Output size: {stats['file_size_bytes']} bytes")
-    print("="*60)
-
-    return 0
+    except Exception as e:
+        logger.error(f"Error during ablation generation: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

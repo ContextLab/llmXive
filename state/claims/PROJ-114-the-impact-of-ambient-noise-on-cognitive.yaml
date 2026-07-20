@@ -380,3 +380,88 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T08:39:06Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/docs/power_analysis_report.md
+  attempts: 1
+  canonical: 150 participants provide >0.90 power to detect effect size f=0.25 in
+    3-group ANOVA at alpha=0.05
+  claim_id: c_4109330c
+  context: The analysis confirms that a sample of 150 participants provides sufficient
+    statistical power (>0.90) to detect a medium-to-large effect size (f = 0.25) in
+    a one-way ANOVA design with three groups (Low, Moderate, High noise), assuming
+    an alpha level of 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis confirms that a sample of 150 participants provides sufficient
+    statistical power (>0.90) to detect a medium-to-large effect size (f = 0.25) in
+    a one-way ANOVA design with three groups (Low, Moderate, High noise), assuming
+    an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:48:24Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/docs/power_analysis_report.md
+  attempts: 1
+  canonical: Meta-analytic estimates justify f=0.25 effect size for environmental
+    noise effects on cognitive performance
+  claim_id: c_8272e96d
+  context: 'Justification: Based on meta-analytic estimates of environmental noise
+    effects on cognitive performance (e.g., Smith et al., 2020; Jones & Brown, 2019),
+    a conservative estimate of f = 0.25 is appropriate for detecting meaningful differences
+    in Cognitive Flexibility Index (CFI).'
+  evidence:
+    asserted: '2020.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Based on meta-analytic estimates of environmental noise effects on cognitive
+    performance (e.g., Smith et al., 2020; Jones & Brown, 2019), a conservative estimate
+    of f = 0.25 is appropriate for detecting meaningful differences in Cognitive Flexibility
+    Index (CFI).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T15:48:24Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/docs/power_analysis_report.md
+  attempts: 1
+  canonical: N=150 (50 per group) yields achieved power of 0.902
+  claim_id: c_f4097a26
+  context: With N = 150 (50 per group), the achieved power is 0.902, which exceeds
+    the 0.90 threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With N = 150 (50 per group), the achieved power is 0.902, which exceeds
+    the 0.90 threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:49:00Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/docs/power_analysis_report.md
+  attempts: 1
+  canonical: N=150 yields power of ~0.54 for effect size f=0.15
+  claim_id: c_47c45ff9
+  context: "To ensure the study is not underpowered if the true effect size is smaller\
+    \ than anticipated, we evaluated the power for a small effect size (f = 0.15)\
+    \ with N = 150. Effect Size (f = 0.15): Power \u2248 0.54"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: With N = 150, the power for a small effect size (f = 0.15) is approximately
+    0.54.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T15:49:34Z'
