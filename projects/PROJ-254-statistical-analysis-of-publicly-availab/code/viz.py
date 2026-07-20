@@ -1,6 +1,5 @@
 """
-Visualization module for the Statistical Analysis of Publicly Available Music Streaming Data.
-Generates plots and interactive visualizations for genre evolution analysis.
+Visualization module for generating plots and heatmaps.
 """
 import os
 import logging
@@ -10,283 +9,172 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import plotly.graph_objects as go
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
+from typing import List, Dict, Tuple, Optional
 
 from utils import setup_logging, get_logger, set_deterministic_seed
-from memory_utils import check_memory_thresholds, trigger_garbage_collection
 
-# Configure logging
-logger = get_logger(__name__)
+logger = get_logger("viz")
 
-def load_similarity_data(filepath: str = "data/derived/yearly_similarity.csv") -> List[Dict[str, float]]:
+def load_similarity_data() -> List[Dict[str, Any]]:
     """
-    Load yearly similarity data from CSV.
-
-    Args:
-        filepath: Path to the CSV file containing similarity data.
-
+    Load similarity data from CSV.
+    
     Returns:
-        List of dictionaries with year, mean_off_diagonal_similarity, and intra_genre_variance.
+        List of dicts with year and similarity.
     """
+    path = Path("data/derived/yearly_similarity.csv")
+    if not path.exists():
+        raise FileNotFoundError("yearly_similarity.csv not found")
+        
     data = []
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Similarity data file not found: {filepath}")
-
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append({
                 'year': int(row['year']),
-                'mean_off_diagonal_similarity': float(row['mean_off_diagonal_similarity']),
-                'intra_genre_variance': float(row['intra_genre_variance'])
+                'similarity': float(row['mean_off_diagonal_similarity']),
+                'variance': float(row['intra_genre_variance'])
             })
-
-    # Sort by year
-    data.sort(key=lambda x: x['year'])
-    logger.info(f"Loaded {len(data)} years of similarity data from {filepath}")
     return data
 
-def calculate_confidence_interval(data: List[float], z_score: float = 1.96) -> Tuple[float, float]:
+def calculate_confidence_interval(similarities: List[float], confidence: float = 0.95) -> Tuple[float, float]:
     """
-    Calculate 95% confidence interval for a list of values.
-
+    Calculate confidence interval for similarity values.
+    
     Args:
-        data: List of numerical values.
-        z_score: Z-score for the desired confidence level (default 1.96 for 95%).
-
+        similarities: List of similarity values.
+        confidence: Confidence level.
+        
     Returns:
-        Tuple of (lower_bound, upper_bound).
+        Tuple of (lower, upper).
     """
-    if not data:
-        return 0.0, 0.0
+    import scipy.stats as stats
+    n = len(similarities)
+    mean = np.mean(similarities)
+    std_err = stats.sem(similarities)
+    h = std_err * stats.t.ppf((1 + confidence) / 2., n-1)
+    return mean - h, mean + h
 
-    mean = np.mean(data)
-    std_err = np.std(data, ddof=1) / np.sqrt(len(data))
-    margin = z_score * std_err
-    return mean - margin, mean + margin
-
-def generate_similarity_trend_plot(data: List[Dict[str, float]], output_path: str = "figures/similarity_trend.png") -> str:
+def generate_similarity_trend_plot(data: List[Dict[str, Any]]):
     """
-    Generate a line plot with 95% CI bands for similarity trends over time.
-
+    Generate line plot of similarity trends.
+    
     Args:
-        data: List of similarity data dictionaries.
-        output_path: Path to save the generated plot.
-
-    Returns:
-        Path to the saved plot file.
+        data: List of similarity data.
     """
-    set_deterministic_seed(42)
+    logger.info("Generating similarity trend plot...")
+    
     years = [d['year'] for d in data]
-    similarities = [d['mean_off_diagonal_similarity'] for d in data]
-
-    # Calculate rolling mean and CI for smoother trend
-    window = 3
-    rolling_similarities = []
-    rolling_ci_lower = []
-    rolling_ci_upper = []
-
-    for i in range(len(years)):
-        start = max(0, i - window // 2)
-        end = min(len(years), i + window // 2 + 1)
-        window_data = similarities[start:end]
-        rolling_similarities.append(np.mean(window_data))
-        lower, upper = calculate_confidence_interval(window_data)
-        rolling_ci_lower.append(lower)
-        rolling_ci_upper.append(upper)
-
+    sims = [d['similarity'] for d in data]
+    
     plt.figure(figsize=(12, 6))
-    plt.plot(years, rolling_similarities, 'b-', linewidth=2, label='Mean Similarity')
-    plt.fill_between(years, rolling_ci_lower, rolling_ci_upper, color='blue', alpha=0.2, label='95% CI')
-
-    plt.xlabel('Year', fontsize=12)
-    plt.ylabel('Mean Off-Diagonal Cosine Similarity', fontsize=12)
-    plt.title('Genre Evolution: Similarity Trend Over Time', fontsize=14)
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.plot(years, sims, marker='o', linestyle='-', color='b')
+    plt.xlabel('Year')
+    plt.ylabel('Mean Off-Diagonal Similarity')
+    plt.title('Genre Similarity Trend Over Time')
+    plt.grid(True)
+    
+    # Save
+    output_path = Path("figures/similarity_trend.png")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
+    
+    logger.info(f"Saved trend plot to {output_path}")
 
-    logger.info(f"Saved similarity trend plot to {output_path}")
-    return output_path
+def load_yearly_embeddings() -> Dict[int, Dict[str, np.ndarray]]:
+    """Load embeddings for heatmap."""
+    embeddings_dir = Path("yearly_embeddings")
+    yearly_data = {}
+    for year_file in embeddings_dir.glob("*.npy"):
+        year = int(year_file.stem)
+        data = np.load(year_file, allow_pickle=True).item()
+        yearly_data[year] = data
+    return yearly_data
 
-def load_yearly_embeddings(years: List[int], base_path: str = "yearly_embeddings") -> Dict[int, np.ndarray]:
+def compute_genre_similarity_matrix(yearly_data: Dict[int, Dict[str, np.ndarray]]) -> np.ndarray:
     """
-    Load yearly genre embeddings from .npy files.
-
+    Compute average similarity matrix across years.
+    
     Args:
-        years: List of years to load.
-        base_path: Base directory containing embedding files.
-
+        yearly_data: Dict of year -> genre -> vector.
+        
     Returns:
-        Dictionary mapping year to embedding array.
+        Average similarity matrix.
     """
-    embeddings = {}
-    for year in years:
-        filepath = os.path.join(base_path, f"{year}.npy")
-        if os.path.exists(filepath):
-            embeddings[year] = np.load(filepath)
-            logger.debug(f"Loaded embeddings for year {year}: shape {embeddings[year].shape}")
-        else:
-            logger.warning(f"Embeddings file not found for year {year}: {filepath}")
-    return embeddings
+    # Aggregate all vectors
+    all_genres = set()
+    for year_data in yearly_data.values():
+        all_genres.update(year_data.keys())
+        
+    genres = sorted(list(all_genres))
+    n = len(genres)
+    sim_matrix = np.zeros((n, n))
+    count = np.zeros((n, n))
+    
+    for year_data in yearly_data.values():
+        for i, g1 in enumerate(genres):
+            for j, g2 in enumerate(genres):
+                if g1 in year_data and g2 in year_data:
+                    v1 = year_data[g1]
+                    v2 = year_data[g2]
+                    sim = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+                    sim_matrix[i, j] += sim
+                    count[i, j] += 1
+                    
+    # Average
+    mask = count > 0
+    sim_matrix[mask] /= count[mask]
+    
+    return sim_matrix, genres
 
-def compute_genre_similarity_matrix(embeddings: Dict[int, np.ndarray], year1: int, year2: int) -> np.ndarray:
+def generate_genre_heatmap(yearly_data: Dict[int, Dict[str, np.ndarray]]):
     """
-    Compute pairwise cosine similarity matrix between genres of two years.
-
+    Generate interactive heatmap of genre similarities.
+    
     Args:
-        embeddings: Dictionary of year -> embedding matrix.
-        year1: First year.
-        year2: Second year.
-
-    Returns:
-        2D numpy array of cosine similarities.
+        yearly_data: Dict of year -> genre -> vector.
     """
-    if year1 not in embeddings or year2 not in embeddings:
-        raise ValueError(f"Embeddings missing for years {year1} or {year2}")
-
-    vecs1 = embeddings[year1]
-    vecs2 = embeddings[year2]
-
-    # Normalize vectors
-    norm1 = np.linalg.norm(vecs1, axis=1, keepdims=True)
-    norm2 = np.linalg.norm(vecs2, axis=1, keepdims=True)
-
-    # Avoid division by zero
-    norm1 = np.where(norm1 == 0, 1, norm1)
-    norm2 = np.where(norm2 == 0, 1, norm2)
-
-    normalized1 = vecs1 / norm1
-    normalized2 = vecs2 / norm2
-
-    # Compute cosine similarity
-    similarity_matrix = np.dot(normalized1, normalized2.T)
-    return similarity_matrix
-
-def generate_genre_heatmap(
-    data: List[Dict[str, float]],
-    embeddings: Optional[Dict[int, np.ndarray]] = None,
-    output_path: str = "figures/genre_similarity_heatmap.html"
-) -> str:
-    """
-    Generate an interactive heatmap showing genre similarity trends.
-    If embeddings are provided, computes actual genre-genre similarities.
-    Otherwise, visualizes the mean similarity trend as a heatmap.
-
-    Args:
-        data: List of similarity data dictionaries.
-        embeddings: Optional dictionary of year -> embedding matrix.
-        output_path: Path to save the HTML file.
-
-    Returns:
-        Path to the saved HTML file.
-    """
-    if not data:
-        raise ValueError("No similarity data provided for heatmap generation")
-
-    years = [d['year'] for d in data]
-    similarities = [d['mean_off_diagonal_similarity'] for d in data]
-
-    # If embeddings are available, compute a more detailed heatmap
-    if embeddings and len(embeddings) >= 2:
-        logger.info("Generating detailed genre-genre similarity heatmap")
-        sorted_years = sorted(embeddings.keys())
-        
-        # Compute a representative similarity matrix (using first two available years)
-        y1, y2 = sorted_years[0], sorted_years[1]
-        sim_matrix = compute_genre_similarity_matrix(embeddings, y1, y2)
-        
-        # Create labels (generic if genre names not available)
-        n_genres = sim_matrix.shape[0]
-        genre_labels = [f"Genre_{i}" for i in range(n_genres)]
-        
-        fig = go.Figure(data=go.Heatmap(
-            z=sim_matrix,
-            x=genre_labels,
-            y=genre_labels,
-            colorscale='RdBu',
-            zmid=0,
-            hoverongaps=False,
-            colorbar=dict(title="Cosine Similarity")
-        ))
-        
-        fig.update_layout(
-            title=f"Genre Similarity Heatmap ({y1} vs {y2})",
-            xaxis_title="Genres",
-            yaxis_title="Genres",
-            width=800,
-            height=800
-        )
-    else:
-        # Fallback: Visualize the trend as a heatmap (year vs value)
-        logger.info("Generating trend-based heatmap (no embeddings available)")
-        
-        # Create a 2D array: rows=years, cols=metrics (similarity, variance)
-        z_data = np.array([
-            [d['mean_off_diagonal_similarity'], d['intra_genre_variance']]
-            for d in data
-        ])
-        
-        fig = go.Figure(data=go.Heatmap(
-            z=z_data,
-            x=['Similarity', 'Variance'],
-            y=[str(y) for y in years],
-            colorscale='Viridis',
-            colorbar=dict(title="Value")
-        ))
-        
-        fig.update_layout(
-            title="Yearly Similarity and Variance Trends",
-            xaxis_title="Metric",
-            yaxis_title="Year",
-            width=800,
-            height=600
-        )
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    logger.info("Generating genre similarity heatmap...")
+    
+    sim_matrix, genres = compute_genre_similarity_matrix(yearly_data)
+    
+    fig = go.Figure(data=go.Heatmap(
+        z=sim_matrix,
+        x=genres,
+        y=genres,
+        colorscale='Viridis',
+        showscale=True
+    ))
+    
+    fig.update_layout(
+        title='Average Genre Similarity Heatmap',
+        xaxis_title='Genre',
+        yaxis_title='Genre'
+    )
+    
+    output_path = Path("figures/genre_similarity_heatmap.html")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.write_html(output_path)
-    logger.info(f"Saved interactive heatmap to {output_path}")
-    return output_path
+    
+    logger.info(f"Saved heatmap to {output_path}")
 
 def main():
-    """
-    Main entry point for visualization generation.
-    Generates both trend plot and heatmap.
-    """
+    """Main entry point for visualization."""
     setup_logging()
-    logger.info("Starting visualization generation")
-
+    set_deterministic_seed(42)
+    
     try:
-        # Load similarity data
-        data = load_similarity_data("data/derived/yearly_similarity.csv")
+        # Trend plot
+        data = load_similarity_data()
+        generate_similarity_trend_plot(data)
         
-        if not data:
-            logger.error("No similarity data found. Cannot generate visualizations.")
-            return
-
-        # Generate trend plot
-        plot_path = generate_similarity_trend_plot(data, "figures/similarity_trend.png")
-        logger.info(f"Trend plot generated: {plot_path}")
-
-        # Try to load embeddings for detailed heatmap
-        years = [d['year'] for d in data]
-        embeddings = load_yearly_embeddings(years, "yearly_embeddings")
+        # Heatmap
+        yearly_data = load_yearly_embeddings()
+        generate_genre_heatmap(yearly_data)
         
-        # Generate heatmap
-        heatmap_path = generate_genre_heatmap(data, embeddings, "figures/genre_similarity_heatmap.html")
-        logger.info(f"Heatmap generated: {heatmap_path}")
-
-        logger.info("All visualizations completed successfully")
-
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
     except Exception as e:
-        logger.error(f"Error generating visualizations: {e}")
+        logger.error(f"Visualization pipeline failed: {e}")
         raise
 
 if __name__ == "__main__":

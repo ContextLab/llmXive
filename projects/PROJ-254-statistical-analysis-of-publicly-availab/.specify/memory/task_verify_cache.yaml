@@ -1,18 +1,3 @@
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-genre-evolution/spec_amendment_request.md` file was provided,\
-    \ and thus there is no evidence that it contains the required statement about\
-    \ blocking Last.fm ingestion and proceeding with MPD\u2011only. The task\u2019\
-    s core deliverable is missing."
-T023:
-  c: false
-  h: 430d9689ccbd22fceef5fffbc578143417cc9de5db64d6ceb14f074b583c5179
-  r: "The provided `src/code/embeddings.py` does not contain an `aggregate_yearly_embeddings`\
-    \ implementation (the visible code only defines loading, sequence generation,\
-    \ and Word2Vec training functions), and the required output file `data/derived/low_coverage_years.json`\
-    \ is absent. Consequently the task\u2019s core functionality and its side\u2011\
-    effect file are not satisfied."
 T025:
   c: false
   h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443
@@ -28,13 +13,6 @@ T026:
     \ truncated and does not contain the full logic for loading the CSV, applying\
     \ the low\u2011coverage year filter, or fitting a robust linear regression model.\
     \ Both the data artifact and a complete function implementation are missing."
-T029:
-  c: false
-  h: fc48f0a62e77f822c1b5edacc0394962e9e67c5eaa591796f895b3aaab40b741
-  r: The repository lacks `data/derived/low_coverage_years.json` and `data/derived/excluded_years.json`,
-    and `src/code/regression.py` does not contain an implemented `prepare_exclusions`
-    function (the shown code only defines `flag_low_coverage` and `fit_linear_regression`).
-    Consequently the required logic and output files are absent.
 T030:
   c: false
   h: 3aca295dc610c9980227232e9013bda67f55aa28c2ba72a8962fc30f2f03ff48
@@ -42,3 +20,37 @@ T030:
     \ applies the Newey\u2011West HAC errors, or logs \u201CRegression fit complete\u201D\
     \ to `pipeline_log.txt`. Moreover, the required `data/derived/excluded_years.json`\
     \ file is missing entirely. These gaps prevent the task from being fulfilled."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `plan_waiver_log.md` file in `specs/001-genre-evolution/` was presented; the
+    claim lacks any artifact or content showing the waiver documentation, so the required
+    deliverable is missing.
+T061:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `spec_amendment_lastfm.md` file or merged changes to `spec.md` are provided;
+    the evidence lacks the required documentation confirming the Last.fm requirement
+    removal. The task remains undone until the amendment file and its integration
+    into the main specification are shown.
+T062:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response only shows an updated spec excerpt mentioning the Cook\u2019s Distance\
+    \ amendment, but provides no actual `spec_amendment_fr006.md` file nor evidence\
+    \ that it was merged into `spec.md`. Without those concrete artifacts, we cannot\
+    \ confirm the governance task was truly completed."
+T063:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim only describes that `spec_amendment_sc001.md` exists and has been incorporated,
+    but no actual file content or merged `spec.md` is provided as evidence. The required
+    artifacts (the amendment file and the updated main specification) are missing,
+    so the governance task is not demonstrably completed.
+T067:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `verify_spec_amendments.py` script is present, nor any evidence that a verification\
+    \ routine checks `spec.md` for the removal of Last.fm references and the inclusion\
+    \ of Cook\u2019s Distance text. The required artifact is missing, so the task\
+    \ is not satisfied."

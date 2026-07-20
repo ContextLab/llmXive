@@ -1,101 +1,66 @@
-# Spec Amendment Request: Last.fm Data Source Omission
+# Spec Amendment Request: Data Source Deviation (Last.fm Omission)
 
 **Date**: 2024-05-21
-**Project**: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution (PROJ-254)
-**Status**: Pending Approval
-**Author**: Automated Research Pipeline (llmXive)
+**Author**: Automated Science Pipeline
+**Project**: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
+**Reference Tasks**: T016 (Scope Deviation Log), T017 (This Amendment)
 
----
+## 1. Summary of Request
 
-## 1. Executive Summary
+This document formally requests a **Spec Amendment** to modify the data ingestion requirements defined in **FR-001** (Ingest Last.fm data) and **FR-009** (Join Last.fm with MusicBrainz) of the original specification.
 
-This document formally requests a Specification Amendment to modify the data ingestion requirements defined in **FR-001** and **FR-009**. The amendment proposes the permanent omission of the **Last.fm** dataset from the pipeline's ingestion phase due to the unavailability of a reliable, programmatic, and free data source that meets the project's reproducibility and scale requirements.
+The amendment proposes to **permanently omit** the ingestion of Last.fm data from the current pipeline execution and proceed exclusively with the **Spotify Million Playlist Dataset (MPD)** as the primary and sole data source.
 
-Consequently, the pipeline will proceed with a **Spotify Million Playlist Dataset (MPD)**-only architecture. All downstream analysis, including genre evolution tracking and similarity calculations, will be derived exclusively from the MPD data stream.
-
----
-
-## 2. Background & Context
+## 2. Background and Context
 
 ### 2.1 Original Specification Requirements
-- **FR-001**: "The system must ingest and process data from the Last.fm API and the Spotify Million Playlist Dataset (MPD)."
-- **FR-009**: "The system must correlate track metadata from Last.fm with MusicBrainz identifiers to enrich genre tagging."
+The original feature specification (Spec) mandated the following:
+- **FR-001**: Ingest Last.fm user listening history and track metadata.
+- **FR-009**: Perform a join operation between Last.fm data and MusicBrainz metadata to enrich the dataset.
 
-### 2.2 The Scope Deviation (T016)
-A prior scope deviation was documented in `specs/001-genre-evolution/scope_deviation_log.md` (Task T016). This log identified that while the MPD source is stable and accessible via the Hugging Face `datasets` library, the Last.fm API:
-1. Requires an API key with rate limits that prevent bulk ingestion of the required scale.
-2. Lacks a public, downloadable "full dump" that matches the specific track IDs in the MPD without prohibitive query costs.
-3. Presents a high risk of pipeline failure during the execution phase due to transient network or quota issues.
+### 2.2 Identified Scope Deviation (T016)
+As documented in `specs/001-genre-evolution/scope_deviation_log.md` (Task T016), the project Plan explicitly deviated from the Spec by prioritizing the MPD dataset due to its structured, streaming-friendly nature and the lack of a programmatic, real-time API for Last.fm that satisfies the project's volume and reproducibility constraints.
 
-### 2.3 Dependency on T016
-This amendment request is the formal governance step following the documentation in T016. It seeks to ratify the decision to treat Last.fm as a "Blocked" source rather than a "Failed Retry" source, allowing the pipeline to run deterministically on the available MPD data.
+The Plan noted that Last.fm ingestion is **BLOCKED** due to:
+1. Missing data sources: No official, free, high-volume API endpoint exists for the specific historical listening logs required.
+2. Access restrictions: The Last.fm API requires authentication and has strict rate limits incompatible with large-scale batch processing without a dedicated proxy or paid tier.
+3. Data consistency: The MPD dataset provides a self-contained, consistent schema that aligns with the project's memory constraints (FR-011) and streaming architecture (T040).
 
----
+## 3. Justification for Amendment
 
-## 3. Technical Justification
+The omission of Last.fm data is not a temporary delay but a structural constraint of the current execution environment. Attempting to force Last.fm ingestion would result in:
+- **Silent Fabrication**: The pipeline might resort to synthetic data generation to satisfy the join requirement, violating the "Real Data Only" constitution.
+- **Pipeline Failure**: Hard failures in the ingestion stage (T050) due to API unavailability, halting the entire research process.
+- **Resource Misalignment**: Diverting compute resources to error handling for an unavailable service rather than analyzing the available MPD data.
 
-### 3.1 Data Source Availability
-- **MPD (Spotify)**: Available as `spotify_million_playlist` on Hugging Face. Supports streaming (`streaming=True`), ensuring memory safety (FR-011) and full dataset contribution without fabrication.
-- **Last.fm**: No verified, open-access bulk dataset exists that aligns with the MPD track IDs. The REST API is unsuitable for processing millions of tracks within the project's time and compute constraints.
+Therefore, proceeding with **MPD-only** is the only viable path to produce a valid, reproducible scientific result under the current constraints.
 
-### 3.2 Impact on Analysis
-The primary research question—*"How do genre embeddings evolve over time?"*—can be robustly answered using the MPD dataset alone. The MPD contains:
-- Track titles and artist names.
-- Playlist context (implicitly defining co-occurrence for Word2Vec).
-- Release year metadata (via MusicBrainz join).
+## 4. Proposed Changes to Specification
 
-The omission of Last.fm user-tagging data reduces the *breadth* of genre metadata but does not invalidate the *methodology* of temporal embedding analysis. The pipeline will proceed with a "MPD-only" baseline, which is scientifically valid and reproducible.
+The following changes are requested:
 
-### 3.3 Risk Mitigation
-Continuing to attempt Last.fm ingestion introduces a high probability of:
-- **Execution Failure**: The pipeline will halt if the API times out or returns 429 errors.
-- **Fabrication**: To bypass failures, there is a risk of inadvertently generating synthetic data (violating the "Real Data Only" constraint).
-- **Inconsistency**: Different runs may yield different data volumes based on transient API availability.
+1. **FR-001 Modification**:
+ - *Original*: "Ingest Last.fm data."
+ - *Amended*: "Ingest the Spotify Million Playlist Dataset (MPD) as the primary data source. Last.fm ingestion is **excluded** for this project iteration due to data source unavailability."
 
-Removing Last.fm eliminates these risks, ensuring a stable, reproducible pipeline.
+2. **FR-009 Modification**:
+ - *Original*: "Join Last.fm data with MusicBrainz."
+ - *Amended*: "Join MPD track metadata with MusicBrainz. The Last.fm join step is **skipped** as Last.fm data is not ingested."
 
----
+3. **New Constraint**:
+ - Add a governance flag `lastfm_ingestion_enabled = False` to the pipeline configuration, ensuring all downstream logic (T050, T051) correctly bypasses Last.fm processing without raising errors.
 
-## 4. Proposed Amendment Text
+## 5. Impact Analysis
 
-**Replace** the following text in the Specification:
+- **Data Coverage**: The analysis will be limited to the MPD dataset (approx. 1 million playlists). While this reduces the total volume compared to a hypothetical Last.fm + MPD union, it ensures 100% data integrity and reproducibility.
+- **Methodology**: The Word2Vec embedding training (T042) and similarity analysis (T025) will proceed unchanged, as they rely on track sequences which are fully available in the MPD.
+- **Governance**: This amendment ratifies the decision made in T016 and prevents future confusion regarding the missing Last.fm component.
 
-> *Current*: "The system must ingest and process data from the Last.fm API and the Spotify Million Playlist Dataset (MPD)."
+## 6. Approval Status
 
-**With**:
-
-> *Amended*: "The system must ingest and process data from the Spotify Million Playlist Dataset (MPD). The Last.fm data source is **excluded** from this phase due to unavailability of a programmatic bulk source. All analysis will be conducted on MPD-derived metadata."
-
-**Update** FR-009 to:
-
-> *Amended*: "The system must correlate MPD track metadata with MusicBrainz identifiers. If external genre tags (e.g., from Last.fm) are unavailable, the system must rely on MusicBrainz genre metadata and track co-occurrence patterns for embedding generation."
+- **Status**: Pending Formal Approval
+- **Dependency**: This amendment is a prerequisite for the successful completion of User Story 1 (Ingestion/Embedding) and User Story 2 (Similarity).
+- **Action Required**: Approve this amendment to proceed with the MPD-only pipeline execution.
 
 ---
-
-## 5. Implementation Plan
-
-Upon approval of this amendment:
-
-1. **Ingestion Logic (T050/T051)**: The `ingest_lastfm` function in `src/code/ingest.py` will be modified to immediately log a `WARNING` and return an empty dataframe, rather than attempting API calls. The `join_lastfm_mb` step will be skipped if no Last.fm data is present.
-2. **Pipeline Flow**: The pipeline will proceed directly from `ingest_mpd` to `fetch_musicbrainz` and `join_mpd_mb`.
-3. **Documentation**: The `README.md` and `quickstart.md` will be updated to explicitly state "Data Source: MPD Only (Last.fm Blocked)".
-
----
-
-## 6. Approval Sign-off
-
-| Role | Name | Date | Decision |
-|:--- |:--- |:--- |:--- |
-| Project Lead | [Pending] | | [ ] Approved / [ ] Rejected |
-| Research Lead | [Pending] | | [ ] Approved / [ ] Rejected |
-
-**Note**: If rejected, the project must identify an alternative, verified bulk source for Last.fm data before proceeding, or the project scope must be reduced to exclude genre evolution analysis entirely.
-
----
-
-## 7. References
-
-- Task T016: `specs/001-genre-evolution/scope_deviation_log.md`
-- Task T040: Streaming architecture implementation for MPD.
-- Task T050: Conditional Last.fm ingestion logic.
-- Constitution Check: Ensures no fabricated data is used in place of the missing source.
+*This document serves as the formal record of the deviation from the original specification requirements.*

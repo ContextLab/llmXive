@@ -9,9 +9,7 @@ requests
 pyarrow
 musicbrainzngs
 thefuzz
-datasets
 psutil
 pydantic
-ruff
-black
-pytest
+datasets
+urllib3
