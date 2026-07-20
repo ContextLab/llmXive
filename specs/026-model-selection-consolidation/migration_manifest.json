@@ -1633,6 +1633,39 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 85,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_find_pin_violations_catches_a_planted_literal_pin"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "module_constant",
+      "line": 99,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "baseline_manifest"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "module_constant",
+      "line": 144,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "baseline_manifest"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_model_selection_execute.py",
       "kind": "model_id_literal",
       "line": 91,
