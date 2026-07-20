@@ -1,10 +1,10 @@
+"""Utility to create the project directory structure."""
 import os
 from pathlib import Path
 
 def main():
-    """Create the required directory structure for the project."""
+    """Create the standard project directories."""
     root = Path(__file__).resolve().parent.parent.parent
-    
     dirs = [
         root / "code",
         root / "data" / "raw",
@@ -15,12 +15,9 @@ def main():
         root / "docs",
         root / "state" / "projects",
     ]
-    
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {d}")
-    
-    print("Project structure initialized successfully.")
+    print(f"Created project structure in {root}")
 
 if __name__ == "__main__":
     main()

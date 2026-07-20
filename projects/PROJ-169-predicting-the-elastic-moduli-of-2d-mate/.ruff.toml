@@ -1,12 +1,49 @@
 [lint]
+# Enable strict rules: E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings), I (isort)
 select = ["E", "F", "W", "I"]
+
+# Ignore specific rules if needed (none for strict mode)
 ignore = []
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Exclude files from linting
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".eggs",
+    "*.egg",
+    "build",
+    "dist",
+    "data",
+    "docs",
+    "state"
+]
+
+# Per-file ignores
+per-file-ignores = {}
+
+# Line length configuration
+line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+# Allow unused variables for test files
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+# Isort configuration for import sorting
+known-first-party = ["code"]
+force-single-line = false
+force-sort-within-sections = false
+case-sensitive = false
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+extra-standard-library = []
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

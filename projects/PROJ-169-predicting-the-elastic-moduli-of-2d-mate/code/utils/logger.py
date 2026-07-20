@@ -90,10 +90,21 @@ def log_bias_check(report: Any) -> None:
     Args:
         report: A BiasReport object or a dictionary containing a 'summary' key.
                 This function accepts the full report object to avoid data loss.
+                It handles the specific call shape `log_bias_check(report.summary)`
+                by checking if the argument is already a string (the summary).
     """
     logger = get_logger()
     summary_text = ""
-    if hasattr(report, 'summary'):
+    
+    # Handle direct string call: log_bias_check("some summary text")
+    if isinstance(report, str):
+        summary_text = report
+    # Handle object with summary attribute: log_bias_check(report.summary) -> report is the object? 
+    # Wait, the call site is `log_bias_check(report.summary)`. 
+    # If report.summary is a string, `report` here is that string.
+    # If the caller passed the object `report` (expecting us to extract), `report` is the object.
+    # We need to be robust to both.
+    elif hasattr(report, 'summary'):
         summary_text = report.summary
     elif isinstance(report, dict) and 'summary' in report:
         summary_text = report['summary']

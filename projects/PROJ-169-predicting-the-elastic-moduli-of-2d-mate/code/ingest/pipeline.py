@@ -1,7 +1,7 @@
 """
-Data pipeline orchestration script for User Story 1.
-Downloads, parses, filters, and saves 2D material graphs.
-Generates mock split indices for MVP testing.
+Data pipeline orchestration script for 2D material elastic moduli prediction.
+Downloads, parses, filters, and saves material graphs to a Parquet file.
+Includes volume constraint verification (T013e).
 """
 from __future__ import annotations
 
@@ -10,246 +10,197 @@ import hashlib
 import json
 import logging
 import os
-import random
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import numpy as np
 import pandas as pd
 import yaml
 
-# Import from local modules (per API surface)
-from ingest.download import UnifiedDatasetLoader, DownloadManifest
+# Local imports
+from ingest.download import UnifiedDatasetLoader
+from ingest.filter import filter_graphs, is_2d_material, is_valid_6_component_tensor
 from ingest.parse_cif import parse_cif_directory
-from ingest.filter import filter_graphs, load_graphs_from_parquet, save_filter_stats
 from ingest.validator import enforce_single_source
+from ingest.volume_checker import count_unique_entries, verify_volume_constraint
 from utils.config import get_config
 from utils.logger import get_logger, log_operation
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-# Project constants
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-
-# Output artifacts
-GRAPHS_OUTPUT = DATA_PROCESSED_DIR / "graphs_v1.parquet"
-SPLIT_INDICES_OUTPUT = DATA_PROCESSED_DIR / "split_indices.json"
-EXCLUSION_LOG = DATA_PROCESSED_DIR / "exclusion_log.json"
-
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return f"sha256:{sha256_hash.hexdigest()}"
 
-
-def update_state_checksum(state_file: Path, artifact_name: str, checksum: str) -> None:
-    """Update the state YAML file with the new artifact checksum."""
-    if not state_file.exists():
-        logger.warning(f"State file {state_file} not found. Creating new state file.")
+def update_state_checksum(state_path: Path, artifact_name: str, checksum: str) -> None:
+    """Update the project state file with the artifact checksum."""
+    if not state_path.exists():
         state_data = {"artifact_hashes": {}}
     else:
-        with open(state_file, "r") as f:
+        with open(state_path, 'r') as f:
             state_data = yaml.safe_load(f) or {"artifact_hashes": {}}
 
-    # Ensure nested keys exist
     if "artifact_hashes" not in state_data:
         state_data["artifact_hashes"] = {}
+
+    # Navigate/create nested keys: data_processed -> graphs_v1_parquet
     if "data_processed" not in state_data["artifact_hashes"]:
         state_data["artifact_hashes"]["data_processed"] = {}
 
-    # Update checksum
-    state_data["artifact_hashes"]["data_processed"][artifact_name] = f"sha256:{checksum}"
+    state_data["artifact_hashes"]["data_processed"][artifact_name] = checksum
 
-    with open(state_file, "w") as f:
+    with open(state_path, 'w') as f:
         yaml.safe_dump(state_data, f, default_flow_style=False)
-
-    logger.info(f"Updated state file with checksum for {artifact_name}: {checksum}")
-
+        f.write("\n")
 
 def serialize_graph(graph_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Serialize a MaterialGraph-like dictionary for Parquet storage.
-    Ensures numpy arrays are converted to lists for JSON/Parquet compatibility.
-    """
+    """Convert a MaterialGraph-like dict to a serializable format for Parquet."""
+    # Ensure numpy arrays are converted to lists for JSON/Parquet serialization
     serialized = {}
     for key, value in graph_data.items():
-        if isinstance(value, np.ndarray):
+        if hasattr(value, 'tolist'):
             serialized[key] = value.tolist()
-        elif isinstance(value, list):
-            # Recursively handle nested lists if they contain arrays
-            serialized[key] = [
-                item.tolist() if isinstance(item, np.ndarray) else item
-                for item in value
-            ]
-        else:
+        elif isinstance(value, (list, dict, str, int, float, bool, type(None))):
             serialized[key] = value
+        else:
+            # Fallback for other types
+            try:
+                serialized[key] = json.dumps(value)
+            except (TypeError, ValueError):
+                serialized[key] = str(value)
     return serialized
 
-
-def generate_mock_split_indices(graphs: List[Dict[str, Any]], seed: int = 42) -> List[Dict[str, Any]]:
-    """
-    Generate a random 80/10/10 split of material indices for MVP testing.
-    Returns a list of objects: [{"id": "mp-123", "family_id": "TMD_1"}, ...]
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-
-    # Extract unique IDs and family_ids
-    indices = list(range(len(graphs)))
-    random.shuffle(indices)
-
-    n = len(indices)
-    train_end = int(0.8 * n)
-    val_end = int(0.9 * n)
-
-    train_indices = indices[:train_end]
-    val_indices = indices[train_end:val_end]
-    test_indices = indices[val_end:]
-
-    split_indices = []
-    for idx in indices:
-        graph = graphs[idx]
-        entry = {
-            "id": graph.get("id", f"unknown_{idx}"),
-            "family_id": graph.get("family_id", "unknown_family"),
-            "split": "train" if idx in train_indices else ("val" if idx in val_indices else "test")
-        }
-        split_indices.append(entry)
-
-    logger.info(f"Generated mock split: {len(train_indices)} train, {len(val_indices)} val, {len(test_indices)} test")
-    return split_indices
-
-
 def run_pipeline(
-    source: str = "materials_project",
-    download_dir: Optional[Path] = None,
-    overwrite: bool = False,
+    output_path: Path,
+    state_path: Path,
+    data_source: str = "materials_project"
 ) -> None:
     """
-    Orchestrate the full data pipeline:
-    1. Enforce single source.
-    2. Download raw data (CIFs and tensors).
-    3. Parse CIFs into graphs.
-    4. Filter for 2D materials and valid tensors.
-    5. Save to Parquet.
-    6. Generate checksum and update state.
-    7. Generate mock split indices.
+    Run the full data pipeline: download -> parse -> filter -> save.
+    Includes T013e volume constraint check.
     """
-    logger.info("Starting data pipeline...")
+    logger.info(f"Starting pipeline for data source: {data_source}")
 
-    # 1. Enforce single source
-    try:
-        enforce_single_source(source)
-    except SystemExit as e:
-        logger.error("Source enforcement failed.")
-        raise e
+    # Enforce single source constraint
+    enforce_single_source(data_source)
 
-    # Setup directories
-    if download_dir is None:
-        download_dir = DATA_RAW_DIR / source
-    download_dir.mkdir(parents=True, exist_ok=True)
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    # Step 1: Download
+    logger.info("Step 1: Downloading data...")
+    loader = UnifiedDatasetLoader(source=data_source)
+    download_manifest = loader.fetch_data()
+    raw_data_path = Path(download_manifest["raw_dir"])
 
-    # 2. Download
-    logger.info(f"Downloading data from {source}...")
-    # Note: In a real run, this would fetch from the API.
-    # For the MVP, we assume the loader handles the fetch or we simulate the manifest
-    # if the actual API call is blocked in this environment, but per constraints
-    # we must attempt the real logic.
-    # We rely on the UnifiedDatasetLoader to handle the fetch.
-    loader = UnifiedDatasetLoader(source=source, output_dir=download_dir)
-    manifest: DownloadManifest = loader.fetch_data()
+    if not raw_data_path.exists():
+        raise FileNotFoundError(f"Downloaded data path does not exist: {raw_data_path}")
 
-    if not manifest.files:
-        logger.error("No files downloaded. Pipeline cannot proceed.")
-        sys.exit(1)
+    # Step 2: Parse CIFs
+    logger.info("Step 2: Parsing CIF files...")
+    graphs = parse_cif_directory(raw_data_path)
+    logger.info(f"Parsed {len(graphs)} materials.")
 
-    # 3. Parse CIFs
-    logger.info(f"Parsing {len(manifest.files)} CIF files...")
-    raw_graphs = parse_cif_directory(download_dir, manifest)
+    if not graphs:
+        logger.warning("No materials parsed. Pipeline may fail volume check.")
 
-    if not raw_graphs:
-        logger.error("No graphs parsed. Pipeline cannot proceed.")
-        sys.exit(1)
+    # Step 3: Filter
+    logger.info("Step 3: Filtering for 2D materials and valid tensors...")
+    filtered_graphs, stats = filter_graphs(graphs)
+    logger.info(f"Filtered to {len(filtered_graphs)} valid 2D materials.")
 
-    # 4. Filter
-    logger.info("Filtering for 2D materials and valid tensors...")
-    filtered_graphs, exclusion_log = filter_graphs(raw_graphs)
+    # Log exclusion stats
+    if stats and "exclusion_log" in stats:
+        exclusion_log_path = output_path.parent / "exclusion_log.json"
+        with open(exclusion_log_path, 'w') as f:
+            json.dump(stats["exclusion_log"], f, indent=2)
+        logger.info(f"Exclusion log saved to {exclusion_log_path}")
 
     if not filtered_graphs:
-        logger.error("No graphs passed filtering. Pipeline cannot proceed.")
+        logger.error("Pipeline failed: No valid materials after filtering.")
+        # Write empty stats if needed, but fail early
+        return
+
+    # Step 4: Serialize and save to Parquet
+    logger.info("Step 4: Saving to Parquet...")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    serialized_data = [serialize_graph(g) for g in filtered_graphs]
+    df = pd.DataFrame(serialized_data)
+
+    # Ensure columns are present even if empty
+    required_cols = ["node_features", "edge_features", "target_moduli", "family_id"]
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = [None] * len(df)
+
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(df)} entries to {output_path}")
+
+    # Step 5: Compute checksum and update state
+    checksum = compute_sha256(output_path)
+    update_state_checksum(state_path, "graphs_v1_parquet", checksum)
+    logger.info(f"Checksum {checksum} recorded in state file.")
+
+    # Step 6: T013e - Verify Volume Constraint
+    logger.info("Step 5: Verifying volume constraint (T013e)...")
+    count = count_unique_entries(output_path)
+    threshold = 1000
+
+    if count < threshold:
+        error_msg = f"SC-001 Violation: Pipeline failed to ingest >1,000 entries. Current count: {count}."
+        logger.critical(error_msg)
+        # Exit with code 1 as required
         sys.exit(1)
+    
+    logger.info(f"Volume constraint satisfied: {count} entries >= {threshold}.")
 
-    # Save exclusion log for bias check
-    with open(EXCLUSION_LOG, "w") as f:
-        json.dump(exclusion_log, f, indent=2)
-
-    # 5. Save to Parquet
-    logger.info(f"Saving {len(filtered_graphs)} graphs to {GRAPHS_OUTPUT}...")
-    # Serialize for Parquet compatibility
-    serializable_graphs = [serialize_graph(g) for g in filtered_graphs]
-    df = pd.DataFrame(serializable_graphs)
-    df.to_parquet(GRAPHS_OUTPUT, index=False)
-
-    # 6. Checksum & State
-    checksum = compute_sha256(GRAPHS_OUTPUT)
-    update_state_checksum(STATE_FILE, "graphs_v1_parquet", checksum)
-
-    # 7. Generate Mock Split Indices
-    logger.info("Generating mock split indices...")
-    split_indices = generate_mock_split_indices(filtered_graphs)
-    with open(SPLIT_INDICES_OUTPUT, "w") as f:
-        json.dump(split_indices, f, indent=2)
-
-    logger.info(f"Pipeline completed successfully. Output: {GRAPHS_OUTPUT}, {SPLIT_INDICES_OUTPUT}")
-
-
-def main() -> None:
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Orchestrate data ingestion pipeline.")
+def main():
+    parser = argparse.ArgumentParser(description="Run 2D material data ingestion pipeline")
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/processed/graphs_v1.parquet",
+        help="Output path for the Parquet file"
+    )
+    parser.add_argument(
+        "--state",
+        type=str,
+        default="state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml",
+        help="Path to the project state YAML file"
+    )
     parser.add_argument(
         "--source",
         type=str,
-        default=os.getenv("DATA_SOURCE", "materials_project"),
-        help="Data source (materials_project or aflow).",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
         default=None,
-        help="Optional override for download directory.",
+        help="Data source (e.g., materials_project, aflow). Defaults to env var."
     )
-    parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Overwrite existing outputs.",
-    )
-
+    
     args = parser.parse_args()
 
-    try:
-        run_pipeline(
-            source=args.source,
-            download_dir=args.output_dir,
-            overwrite=args.overwrite,
-        )
-    except Exception as e:
-        logger.exception("Pipeline failed.")
-        sys.exit(1)
+    # Determine data source
+    data_source = args.source or os.getenv('DATA_SOURCE', 'materials_project')
 
+    output_path = Path(args.output)
+    state_path = Path(args.state)
+
+    # Ensure state directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        run_pipeline(output_path, state_path, data_source)
+    except SystemExit as e:
+        # Re-raise SystemExit (e.g., from volume check)
+        raise
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

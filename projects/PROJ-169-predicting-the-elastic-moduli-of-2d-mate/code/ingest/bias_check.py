@@ -1,11 +1,11 @@
 import os
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
-import logging
 
-from utils.logger import log_bias_check, log_exclusion_reason, get_logger
+from utils.logger import log_bias_check, log_exclusion_reason, get_logger, configure_log_file
 from utils.config import Config
 
 @dataclass
@@ -103,6 +103,7 @@ def write_bias_report(report: BiasReport, path: Path):
     
     logging.info(f"Bias report written to {path}")
     # Fix: log_bias_check expects the report object, not just the summary string
+    # The logger contract requires a report object.
     log_bias_check(report)
 
 def main():

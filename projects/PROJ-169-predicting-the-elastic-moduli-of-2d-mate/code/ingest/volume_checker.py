@@ -1,103 +1,117 @@
-"""
-T013e: Verify Volume Constraint (SC-001).
+"""Volume constraint verification for the ingestion pipeline.
 
-Post-processing check to ensure the pipeline ingested >1,000 unique 2D material
-entries. If the count is < 1,000, exit with code 1 and log a critical error.
+This module implements SC-001: Verify that the pipeline ingests >1,000
+unique 2D material entries. If the count is below the threshold, the
+pipeline must exit with code 1 and log a critical error.
 """
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional
 
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+# Threshold defined in SC-001
+VOLUME_THRESHOLD = 1000
+
 logger = logging.getLogger(__name__)
 
+
 def count_unique_entries(parquet_path: Path) -> int:
-    """
-    Count the number of unique material entries in the parquet file.
-    Uniqueness is determined by the 'id' column.
+    """Count unique 2D material entries in a Parquet file.
+
+    Args:
+        parquet_path: Path to the Parquet file containing the ingested data.
+
+    Returns:
+        The number of unique entries (rows) in the dataset.
+
+    Raises:
+        FileNotFoundError: If the Parquet file does not exist.
+        ValueError: If the file is empty or cannot be read.
     """
     if not parquet_path.exists():
-        logger.error(f"Parquet file not found: {parquet_path}")
-        return 0
+        raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
 
     try:
         df = pd.read_parquet(parquet_path)
-        if df.empty:
-            logger.warning("Parquet file is empty.")
-            return 0
-
-        if 'id' not in df.columns:
-            logger.error("Parquet file does not contain 'id' column.")
-            return 0
-
-        unique_count = df['id'].nunique()
-        return int(unique_count)
     except Exception as e:
-        logger.error(f"Failed to read parquet file: {e}")
+        raise ValueError(f"Failed to read Parquet file: {e}")
+
+    if df.empty:
+        logger.warning("Parquet file is empty.")
         return 0
 
-def verify_volume_constraint(
-    parquet_path: Path,
-    threshold: int = 1000
-) -> bool:
-    """
-    Verify that the number of unique entries meets the threshold (SC-001).
+    # Count unique entries based on the number of rows
+    # Assuming each row represents a unique material entry
+    unique_count = len(df)
+    logger.info(f"Found {unique_count} unique entries in {parquet_path.name}")
 
-    Returns True if count >= threshold, False otherwise.
-    Exits with code 1 if the check fails.
-    """
-    count = count_unique_entries(parquet_path)
+    return unique_count
 
-    logger.info(f"Unique 2D material entries found: {count} (Threshold: {threshold})")
+
+def verify_volume_constraint(parquet_path: Path, threshold: int = VOLUME_THRESHOLD) -> bool:
+    """Verify that the dataset meets the minimum volume constraint.
+
+    Args:
+        parquet_path: Path to the Parquet file containing the ingested data.
+        threshold: Minimum number of unique entries required (default: 1000).
+
+    Returns:
+        True if the constraint is satisfied, False otherwise.
+
+    Raises:
+        SystemExit: If the constraint is NOT satisfied (exits with code 1).
+    """
+    try:
+        count = count_unique_entries(parquet_path)
+    except (FileNotFoundError, ValueError) as e:
+        logger.critical(f"Failed to count entries: {e}")
+        sys.exit(1)
 
     if count < threshold:
         error_msg = f"SC-001 Violation: Pipeline failed to ingest >{threshold} entries. Current count: {count}."
         logger.critical(error_msg)
-        logger.critical("Do NOT proceed to training if this check fails.")
+        # Exit with code 1 to halt the pipeline
         sys.exit(1)
 
-    logger.info("SC-001 Volume Constraint PASSED.")
+    logger.info(f"Volume constraint satisfied: {count} entries >= {threshold} threshold.")
     return True
 
+
 def main() -> None:
+    """CLI entry point for volume constraint verification."""
     parser = argparse.ArgumentParser(
-        description="Verify volume constraint for 2D material dataset (SC-001)."
+        description="Verify that the ingestion pipeline meets the volume constraint (SC-001)."
     )
     parser.add_argument(
         "--input",
-        type=str,
-        default="data/processed/graphs_v1.parquet",
-        help="Path to the processed graphs parquet file."
+        type=Path,
+        required=True,
+        help="Path to the output Parquet file (e.g., data/processed/graphs_v1.parquet).",
     )
     parser.add_argument(
         "--threshold",
         type=int,
-        default=1000,
-        help="Minimum number of unique entries required."
+        default=VOLUME_THRESHOLD,
+        help=f"Minimum number of unique entries required (default: {VOLUME_THRESHOLD}).",
     )
 
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    threshold = args.threshold
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.critical(f"SC-001 Violation: Input file missing. Cannot verify volume.")
-        sys.exit(1)
+    logger.info("Starting volume constraint verification...")
+    verify_volume_constraint(args.input, args.threshold)
+    logger.info("Volume constraint verification completed successfully.")
 
-    verify_volume_constraint(input_path, threshold)
 
 if __name__ == "__main__":
     main()

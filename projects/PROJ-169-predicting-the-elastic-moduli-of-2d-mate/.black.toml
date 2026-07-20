@@ -15,4 +15,3 @@ exclude = '''
     | dist
 )/
 '''
-extend-exclude = "data/"

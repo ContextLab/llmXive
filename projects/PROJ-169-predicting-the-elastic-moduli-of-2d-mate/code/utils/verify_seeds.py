@@ -11,6 +11,7 @@ import os
 import sys
 import random
 import logging
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -24,7 +25,7 @@ from utils.config import Config
 from utils.logger import get_logger
 
 # Configure logger for this script
-logger = get_logger(__name__)
+logger = get_logger("seed_verification")
 
 def run_dummy_pipeline_step(seed_value: int) -> dict:
     """
@@ -101,7 +102,6 @@ def main():
     Main entry point for the seed verification script.
     """
     # Parse arguments
-    import argparse
     parser = argparse.ArgumentParser(description="Verify seed pinning for reproducibility")
     parser.add_argument("--seed", type=int, default=42, help="Seed value to verify")
     args = parser.parse_args()

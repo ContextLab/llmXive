@@ -32,6 +32,21 @@ def load_graphs_from_parquet(parquet_path: Path) -> pd.DataFrame:
         logger.error(f"Failed to read parquet file: {e}")
         raise
 
+def load_split_indices(split_path: Path) -> Dict[str, List[Dict[str, Any]]]:
+    """Load existing split indices from JSON."""
+    if not split_path.exists():
+        logger.warning(f"Split indices file not found: {split_path}. Starting fresh.")
+        return {"train": [], "val": [], "test": []}
+    
+    try:
+        with open(split_path, 'r') as f:
+            data = json.load(f)
+        logger.info(f"Loaded existing split indices from {split_path}")
+        return data
+    except Exception as e:
+        logger.error(f"Failed to load split indices: {e}")
+        raise
+
 def split_by_family(
     df: pd.DataFrame,
     test_size: float = 0.2,
@@ -60,10 +75,12 @@ def split_by_family(
     if len(families) == 0:
         raise ValueError("No families found in data.")
     
-    np.random.seed(random_state)
-    np.random.shuffle(families)
+    # Use numpy for reproducible shuffling
+    rng = np.random.RandomState(random_state)
+    shuffled_families = families.copy()
+    rng.shuffle(shuffled_families)
     
-    n_families = len(families)
+    n_families = len(shuffled_families)
     n_test = max(1, int(n_families * test_size))
     n_val = max(1, int(n_families * val_size))
     
@@ -71,9 +88,9 @@ def split_by_family(
     if n_test + n_val >= n_families:
         n_val = max(1, n_families - n_test - 1)
     
-    test_families = set(families[:n_test])
-    val_families = set(families[n_test:n_test + n_val])
-    train_families = set(families[n_test + n_val:])
+    test_families = set(shuffled_families[:n_test])
+    val_families = set(shuffled_families[n_test:n_test + n_val])
+    train_families = set(shuffled_families[n_test + n_val:])
     
     logger.info(f"Assigned {len(test_families)} families to test, {len(val_families)} to val, {len(train_families)} to train")
 
@@ -99,16 +116,20 @@ def split_by_family(
     val_ids = {item['family_id'] for item in val_list}
     test_ids = {item['family_id'] for item in test_list}
     
-    overlap_test_val = train_ids & val_ids
-    overlap_test_test = train_ids & test_ids
+    overlap_train_val = train_ids & val_ids
+    overlap_train_test = train_ids & test_ids
     overlap_val_test = val_ids & test_ids
     
-    if overlap_test_val or overlap_test_test or overlap_val_test:
+    if overlap_train_val or overlap_train_test or overlap_val_test:
         logger.error("SC-002 Violation: Family overlap detected in split.")
-        logger.error(f"Overlap train/val: {overlap_test_val}")
-        logger.error(f"Overlap train/test: {overlap_test_test}")
-        logger.error(f"Overlap val/test: {overlap_val_test}")
-        raise SystemExit(1)
+        if overlap_train_val:
+            logger.error(f"Overlap train/val: {overlap_train_val}")
+        if overlap_train_test:
+            logger.error(f"Overlap train/test: {overlap_train_test}")
+        if overlap_val_test:
+            logger.error(f"Overlap val/test: {overlap_val_test}")
+        logger.error("Exiting with code 1 as per SC-002 requirement.")
+        sys.exit(1)
         
     logger.info(f"Split complete: Train={len(train_list)}, Val={len(val_list)}, Test={len(test_list)}")
     logger.info(f"Families: Train={len(train_ids)}, Val={len(val_ids)}, Test={len(test_ids)}")
@@ -136,8 +157,9 @@ def save_split_manifest(manifest: SplitManifest, output_path: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="Split data by family")
-    parser.add_argument("--input", type=Path, required=True, help="Input parquet file")
-    parser.add_argument("--output", type=Path, required=True, help="Output JSON file")
+    parser.add_argument("--input", type=Path, required=True, help="Input parquet file (graphs_v1.parquet)")
+    parser.add_argument("--existing-split", type=Path, default=None, help="Optional existing split_indices.json to consume/overwrite")
+    parser.add_argument("--output", type=Path, required=True, help="Output JSON file (split_indices.json)")
     parser.add_argument("--test-size", type=float, default=0.2, help="Test set fraction")
     parser.add_argument("--val-size", type=float, default=0.1, help="Validation set fraction")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
@@ -145,9 +167,22 @@ def main():
     args = parser.parse_args()
     
     try:
+        # Load the primary data source
         df = load_graphs_from_parquet(args.input)
+        
+        # Optionally load existing split (for validation/logging, though we regenerate)
+        if args.existing_split:
+            existing_split = load_split_indices(args.existing_split)
+            logger.info(f"Consumed existing split from {args.existing_split} (will be overwritten)")
+        
+        # Perform the stratified split by family
         manifest = split_by_family(df, test_size=args.test_size, val_size=args.val_size, random_state=args.seed)
+        
+        # Save the new split, overwriting any existing file at the output path
         save_split_manifest(manifest, args.output)
+        
+        logger.info(f"Successfully generated stratified split satisfying SC-002 (inter-family generalization).")
+        
     except SystemExit:
         raise
     except Exception as e:

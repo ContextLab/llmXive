@@ -1,3 +1,11 @@
+T008a:
+  c: false
+  h: 2944a4e112b8cae3fac654fac7dddf9f1f2646af01feff97aafeb3e3a7b14bdd
+  r: "The repository contains `tests/integration/test_memory_full_pipeline.py`, but\
+    \ the file is truncated and the core function (`simulate_pipeline_processing`)\
+    \ is incomplete, so it does not actually run the full data\u2011loading pipeline\
+    \ or write memory stats. Moreover, the required output file `data/results/memory_test.log`\
+    \ is absent. The task\u2019s requirements are therefore not satisfied."
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -6,13 +14,41 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
-T017:
+T013d:
   c: false
-  h: 6bf6788e275eea40b8e6bfd98edee5f0e0c64a7718c115f080fd8f5c5697f2bb
-  r: "The required `data/processed/graphs_v1.parquet` file is missing, and `code/model/splitter.py`\
-    \ does not contain code that writes `split_indices.json`, nor does it show the\
-    \ mandated runtime assertion that exits with code\u202F1 on family overlap. Consequently\
-    \ the splitting logic is not fully implemented as specified."
+  h: 556206fdba903df52c1f1fb80c82ef1699a961032f198ebff73e76fe0671344e
+  r: "The pipeline script is present but only a fragment is shown; there is no evidence\
+    \ that it actually creates `data/processed/graphs_v1.parquet`, includes the required\
+    \ schema fields, handles missing tensors, or writes the SHA256 checksum into the\
+    \ state YAML. Moreover, the expected parquet file is missing and the state file\
+    \ still contains an empty `artifact_hashes` mapping. The task\u2019s core outputs\
+    \ are therefore not satisfied."
+T013e:
+  c: false
+  h: 50bb5e487d108eb892553948e3418cf2d59de1d3fb13c0d3885d762199121144
+  r: "The provided `pipeline.py` only shows imports for the volume\u2011checking utilities\
+    \ and does not contain the actual post\u2011processing logic that counts entries,\
+    \ logs a critical error, and exits with code\u202F1. Moreover, the required `data/processed/graphs_v1.parquet`\
+    \ file is missing, so the check cannot even be exercised. The task\u2019s core\
+    \ requirement is therefore not satisfied."
+T013f:
+  c: false
+  h: 4aa36af3977f344d251fc53a2bff575116c10833df903c88904338512417d3ba
+  r: The `split_generator.py` script is present and appears to implement the required
+    logic, but the expected output file `data/processed/split_indices.json` is missing,
+    and the `save_split_manifest` function is truncated, indicating the script may
+    not actually write the JSON file. The task is not fully satisfied until the script
+    correctly creates/overwrites `split_indices.json` with the mock split and disclaimer.
+T018b:
+  c: false
+  h: 6d54266854510b078bcba62aa5f29ad5d02a63408662f82547e9993274a5733e
+  r: "The repository contains a partially shown `code/model/train.py`, but the required\
+    \ output artifacts are absent: `data/processed/model_v1.pt` does not exist, and\
+    \ there is no `predictions.json` file. Moreover, the script is truncated before\
+    \ any logic that enforces CPU\u2011only execution, logs `memory_peak` per epoch,\
+    \ or handles the exit\u2011on\u2011failure behavior, so we cannot verify those\
+    \ requirements. The missing model checkpoint and predictions file mean the task\
+    \ is not genuinely completed."
 T021a:
   c: false
   h: 5c187d17c9ab7680f2f97aeb57f3c614ae26aaa6caf3c7a35acfcc96d0218234
@@ -43,13 +79,6 @@ T032:
     \ explicitly notes the model cannot extrapolate beyond the chemical space of the\
     \ training DFT data and that it does not discover new physics, satisfying the\
     \ task requirement."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim cannot be verified because no `README.md` file content is provided;\
-    \ without seeing the file we cannot confirm that the title matches \u201CStructure-Only\
-    \ Surrogate Model\u201D or that the required Feynman quote is present. The implementer\
-    \ must supply the actual `README.md` contents showing the updated title and quote."
 T036:
   c: false
   h: a2c4ffff14d96b79803b9bc91e72c424ffa9ed3f4e398931d2779956d32a2f39

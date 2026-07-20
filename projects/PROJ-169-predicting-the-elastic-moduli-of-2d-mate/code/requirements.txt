@@ -1,14 +1,16 @@
-pymatgen
-torch
-torch-geometric
-shap
-pandas
-numpy
-scikit-learn
-ruff
-black
-matminer
-pyarrow
-rich
-psutil  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Core Data & Scientific Computing
+pymatgen>=2023.1.28
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Deep Learning Frameworks (CPU compatible)
+torch>=2.0.0
+torch-geometric>=2.3.0
+
+# Explainability
+shap>=0.42.0
+
+# Code Quality & Formatting
+ruff>=0.1.0
+black>=23.0.0
