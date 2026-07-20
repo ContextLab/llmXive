@@ -1,0 +1,64 @@
+- artifact_hash: 20deb23bbaea92fe8755d74d76a6c7b53f4fa9be6c9bccd98e768b0df69f29ba
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
+  verified_at: '2026-07-20T21:04:04.982116Z'
+- artifact_hash: 60ba65ae189297b5e051c0e2e0d35cc9a3b5b3471f6ffe53484f203a533d1847
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "\u0410\u0423\u0422\u0415\u041D\u0422\u0418\u0427\u041D\u042B\u0419\
+    \ \u041C\u0423\u041B\u042C\u0422\u0418\u041F\u041B\u0418\u041A\u0410\u0426\u0418\
+    \u041E\u041D\u041D\u042B\u0419 \u0424\u0418\u041B\u042C\u041C \u0412 \u041E\u0411\
+    \u0423\u0427\u0415\u041D\u0418\u0418 \u0420\u0423\u0421\u0421\u041A\u041E\u041C\
+    \u0423 \u042F\u0417\u042B\u041A\u0423 \u041A\u0410\u041A \u0418\u041D\u041E\u0421\
+    \u0422\u0420\u0410\u041D\u041D\u041E\u041C\u0423 (\u041D\u0410 \u041F\u0420\u0418\
+    \u041C\u0415\u0420\u0415 \u041C\u0423\u041B\u042C\u0422\u0424\u0418\u041B\u042C\
+    \u041C\u0410 \xAB\u0416\u0418\u0425\u0410\u0420\u041A\u0410\xBB \u0418\u0417 \u0421\
+    \u0415\u0420\u0418\u0410\u041B\u0410 \xAB\u0413\u041E\u0420\u0410 \u0421\u0410\
+    \u041C\u041E\u0426\u0412\u0415\u0422\u041E\u0412\xBB) | Zenodo"
+  kind: url
+  value: https://doi.org/10.5281/zenodo.4567890`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/4567891
+  verified_at: '2026-07-20T21:04:30.751034Z'
+- artifact_hash: 60ba65ae189297b5e051c0e2e0d35cc9a3b5b3471f6ffe53484f203a533d1847
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-20T21:04:30.751034Z'
+- artifact_hash: 60ba65ae189297b5e051c0e2e0d35cc9a3b5b3471f6ffe53484f203a533d1847
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Aflow - Automatic FLOW for Materials Discovery
+  kind: url
+  value: https://aflow.org`
+  verification_status: pending
+  verified_against_url: https://aflow.org
+  verified_at: '2026-07-20T21:04:30.751034Z'
+- artifact_hash: 60ba65ae189297b5e051c0e2e0d35cc9a3b5b3471f6ffe53484f203a533d1847
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.4567890
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4567890
+  verified_at: '2026-07-20T21:04:30.751034Z'

@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project AFLOWlib metallic glass composition CTE dataset python package
+  dataset
+required_fields:
+- composition
+- CTE
+- weighted_mean_atomic_radius
+- electronegativity_variance
+- valence_electron_concentration
+- atomic_size_mismatch
+- amorphous_state_flag
+cache_key: c0ba50bcc2e0ecbb946683697a7c7d8f9194205cbd45c869e9924dc0f2a723b3
+searched_at: '2026-07-20T20:45:14.627218+00:00'
+retry_count: 1

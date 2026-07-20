@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetallicGlassEntry"
+description: "Schema for the processed metallic glass dataset containing composition and derived descriptors. Note: size_mismatch is optional due to multicollinearity checks."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier from the source database."
+  composition:
+    type: "string"
+    description: "Chemical formula string (e.g., Zr50Cu40Al10)."
+  cte:
+    type: "number"
+    description: "Coefficient of Thermal Expansion in 1/K."
+    minimum: 0
+  alloy_family:
+    type: "string"
+    description: "Base metal family (e.g., Zr, Pd, Fe)."
+  mean_atomic_radius:
+    type: "number"
+    description: "Weighted mean atomic radius in Angstroms."
+  electronegativity_var:
+    type: "number"
+    description: "Variance of electronegativity values."
+  vec:
+    type: "number"
+    description: "Valence Electron Concentration."
+  size_mismatch:
+    type: "number"
+    description: "Atomic size mismatch parameter. (Optional: excluded if VIF > 5.0)."
+  source:
+    type: "string"
+    description: "Source database name."
+required:
+  - id
+  - composition
+  - cte
+  - alloy_family
+  - mean_atomic_radius
+  - electronegativity_var
+  - vec
+  - source
+additionalProperties: false

@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation metrics and statistical significance results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "LinearRegression"
+      - "RandomForest"
+      - "NullModel"
+    description: "Type of model evaluated."
+  fold:
+    type: "integer"
+    minimum: -1
+    maximum: 5
+    description: "Cross-validation fold number (-1 for full dataset)."
+  r2:
+    type: "number"
+    description: "Coefficient of determination."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  p_value:
+    type: "number"
+    description: "P-value from permutation test. Null if analysis is qualitative or no data."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05 and R2 > 0.3. Null if analysis is qualitative or no data."
+  analysis_type:
+    type: "string"
+    enum:
+      - "Quantitative"
+      - "Qualitative"
+      - "NoData"
+    description: "Type of analysis performed based on sample size."
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance_score:
+          type: "number"
+        rank:
+          type: "integer"
+        correlation_with_cte:
+          type: "number"
+        divergence_flag:
+          type: "boolean"
+          description: "True if rank differs from correlation rank."
+      required:
+        - feature_name
+        - importance_score
+        - rank
+        - correlation_with_cte
+        - divergence_flag
+required:
+  - model_type
+  - fold
+  - r2
+  - mae
+  - rmse
+  - analysis_type
+  - feature_importance
+additionalProperties: false

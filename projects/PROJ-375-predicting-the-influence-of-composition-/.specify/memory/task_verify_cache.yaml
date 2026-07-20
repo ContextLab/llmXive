@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided showing that the required
+    folders (`code/ingestion`, `code/features`, `code/modeling`, `code/utils`, `data/raw`,
+    `data/processed`, `tests/unit`, `tests/integration`, `docs`) actually exist in
+    the repository. Without concrete evidence of these paths being created, the task
+    requirement is not satisfied.
+T003:
+  c: false
+  h: 435a7289d5cb3fee6627c5475dd9a2c9decab9d53ec99c8a95e17425b15f7b77
+  r: "The `code/.ruff.toml` file exists and contains the correct linting rules and\
+    \ line\u2011length setting, but there is no evidence that the `ruff` package was\
+    \ actually installed (e.g., no `requirements.txt`, `pyproject.toml`, or lock file\
+    \ showing `ruff` as a dependency). The installation step is missing."
+T012:
+  c: false
+  h: 3e51b8a81093e8e73e49c17087f36dc6d728f73fd1a8f8526baf66f5403da989
+  r: The integration test file does not contain a `test_schema_validation` function
+    that checks the DataFrame columns against a schema, and the required `contracts/mg_dataset.schema.yaml`
+    file is absent from the repository. Both the specific test and the schema artifact
+    are missing, so the task is not satisfied.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `fetch_data.py` file is present in `code/ingestion/`, and therefore there
+    is no implementation that queries the Materials Project and AFLOWlib APIs or collects
+    the required entries. The required artifact is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `descriptors.py` file (or its contents) is present in `code/features/`, and
+    no code implementing the weighted mean atomic radius, electronegativity variance,
+    VEC, or atomic size mismatch calculations is provided. The required artifact is
+    missing, so the task is not satisfied.
+T017a:
+  c: false
+  h: 7b0ff66abdd2aff7f358cace863274147fe6fe4b355dd82c5ba4c3909b1b1797
+  r: "The `code/features/descriptors.py` file shown contains no comment explaining\
+    \ why `size_mismatch` is kept despite a high VIF, and the required `results/metrics.json`\
+    \ file does not exist at all. Both the documentation comment and the JSON flag\
+    \ for VIF\u202F>\u202F5.0 are missing."
