@@ -1,170 +1,181 @@
-# Quick Start Guide: Chronotype and Moral Judgement Analysis Pipeline
+# Quickstart Guide: Chronotype and Moral Judgement Analysis Pipeline
 
-This guide provides instructions for setting up and running the automated science pipeline for analyzing the relationship between sleep chronotype and moral judgement.
+## Overview
+This pipeline analyzes the relationship between sleep chronotype (MEQ) and moral judgement (MFQ), controlling for sleep quality (PSQI) and acute sleepiness. It produces a reproducible RMarkdown report with ANCOVA results, effect sizes, and sensitivity analyses.
 
 ## Prerequisites
+- **R Version**: 4.3 or higher
+- **Operating System**: Linux, macOS, or Windows (WSL recommended for CI compatibility)
+- **Disk Space**: Minimum 500MB free space
+- **RAM**: Minimum 2GB available
+- **Python**: 3.8+ (for pipeline orchestration scripts)
 
-- R version 4.3 or higher
-- Python 3.9+ (for pipeline orchestration scripts)
-- Git
-- Sufficient disk space (~2GB for dependencies and derived data)
+## Installation
 
-## Setup
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd PROJ-046-the-relationship-between-sleep-chronotyp
+```
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-046-the-relationship-between-sleep-chronotyp
- ```
+### 2. Initialize R Environment
+Run the setup script to install dependencies and initialize `renv`:
+```bash
+python code/00_setup_r_env.py
+```
+This will:
+- Check R version (must be >= 4.3)
+- Initialize `renv`
+- Install required packages (`tidyverse`, `lme4`, `car`, `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`, `testthat`, `lintr`, `emmeans`)
 
-2. **Initialize R environment**:
- ```bash
- Rscript code/00_setup_r_env.R
- ```
- This will install required R packages (`tidyverse`, `lme4`, `car`, `effectsize`, `pwr`, `rmarkdown`, `knitr`, `data.table`, `testthat`, `lintr`, `emmeans`) and initialize `renv`.
+### 3. Prepare Data
+**CRITICAL**: The pipeline requires a user-provided merged CSV file. No synthetic data is permitted for primary analysis.
 
-3. **Set up data directories**:
- ```bash
- Rscript code/setup_data_structure.R
- ```
- This creates `data/raw/`, `data/processed/`, `data/derived/`, and `logs/` directories.
+1. Ensure your data file is located at: `data/raw/study_data.csv`
+2. The file **MUST** contain the following columns:
+ - `MEQ_score` (numeric)
+ - `MFQ_care` (numeric)
+ - `MFQ_fairness` (numeric)
+ - `MFQ_loyalty` (numeric)
+ - `MFQ_authority` (numeric)
+ - `MFQ_sanctity` (numeric)
+ - `PSQI` (numeric)
+ - `age` (numeric)
+ - `sex` (character)
+ - `acute_sleepiness` (numeric)
 
-4. **Prepare your data**:
- - Place your merged CSV file at `data/raw/study_data.csv`.
- - **Required columns**: `MEQ_score`, `MFQ_care`, `MFQ_fairness`, `MFQ_loyalty`, `MFQ_authority`, `MFQ_sanctity`, `PSQI`, `acute_sleepiness`, `age`, `sex`.
- - Ensure no required columns are missing (see Troubleshooting below).
- - See `data/raw/README_DATA_NEEDED.md` for detailed data requirements.
+If you do not have this file, see `data/raw/README_DATA_NEEDED.md` for instructions on data acquisition.
 
 ## Running the Pipeline
 
-Execute the pipeline in order:
-
+### Full Pipeline Execution
+To run the entire analysis pipeline from ingestion to report generation:
 ```bash
-# 1. Capture original row count
-Rscript code/00.5_capture_original_count.R
-
-# 2. Ingest and clean data
-Rscript code/01_ingest.R
-
-# 3. Classify chronotypes
-Rscript code/02_classify.R
-
-# 4. Final exclusion check (Hard Gate)
-Rscript code/02.5_final_exclusion_check.R
-
-# 5. Run ANCOVA analysis
-Rscript code/03_analysis.R
-
-# 6. Generate report
-Rscript code/04_render_report.R
-
-# 7. Validate report
-Rscript code/05_validate_report.R
+python code/run_pipeline.py
 ```
 
-Alternatively, run all steps sequentially:
-```bash
-./run_all_steps.sh
-```
+### Individual Steps
+You can also run specific steps independently:
 
-## Output Artifacts
+1. **Ingest and Clean Data**:
+ ```bash
+ python code/01_ingest.py
+ ```
+ Output: `data/processed/cleaned_data.csv`
 
-- `data/processed/cleaned_data.csv`: Cleaned dataset after ingestion
-- `data/derived/classified_data.csv`: Dataset with chronotype labels
-- `data/derived/ancova_results.csv`: ANCOVA results with effect sizes
-- `data/derived/sensitivity_sweep.csv`: Sensitivity analysis results
-- `reports/chronotype_moral_analysis.html`: Final analysis report
-- `logs/`: Log files for exclusions and warnings
+2. **Classify Chronotypes**:
+ ```bash
+ python code/02_classify.py
+ ```
+ Output: `data/derived/classified_data.csv`
+
+3. **Run ANCOVA Analysis**:
+ ```bash
+ python code/03_analysis.py
+ ```
+ Output: `data/derived/ancova_results.csv`, `data/derived/effect_sizes.csv`
+
+4. **Generate Report**:
+ ```bash
+ python code/04_render_report.py
+ ```
+ Output: `reports/chronotype_moral_analysis.html`
+
+5. **Validate Report**:
+ ```bash
+ python code/05_validate_report.py
+ ```
 
 ## Troubleshooting
 
-The pipeline includes several hard-gate abort conditions. Below are the specific scenarios that will cause the pipeline to stop, along with how to fix them.
+This section details common abort conditions and how to resolve them.
 
-### 1. Missing Required Columns in Input Data
+### 1. Missing Required Columns (Abort in T011)
+**Error Message**: `ABORT: Missing required columns. Found: [list]. Missing: [list].`
 
-**Error Message**: `ABORT: Missing required columns in input data. Required: [list of columns]. Found: [list of columns].`
+**Cause**: The input file `data/raw/study_data.csv` is missing one or more required columns listed in the Prerequisites section.
 
-**Cause**: The input file `data/raw/study_data.csv` is missing one or more of the required columns defined in FR-001.
+**Resolution**:
+- Verify your CSV file contains all required columns: `MEQ_score`, `MFQ_care`, `MFQ_fairness`, `MFQ_loyalty`, `MFQ_authority`, `MFQ_sanctity`, `PSQI`, `age`, `sex`, `acute_sleepiness`.
+- Check for typos in column names (case-sensitive).
+- Ensure no hidden characters or encoding issues (save as UTF-8 CSV).
+- If columns are missing, you must provide a valid dataset. See `data/raw/README_DATA_NEEDED.md` for data acquisition guidance.
 
-**Fix**:
-- Verify the column names in your CSV file match exactly: `MEQ_score`, `MFQ_care`, `MFQ_fairness`, `MFQ_loyalty`, `MFQ_authority`, `MFQ_sanctity`, `PSQI`, `acute_sleepiness`, `age`, `sex`.
-- Check for typos, extra spaces, or case sensitivity issues.
-- Ensure the file is a valid CSV (comma-separated, proper quoting).
-- If you are using a template, fill in all required columns.
+### 2. High Exclusion Rate (Abort in T012.5)
+**Error Message**: `ABORT: Exclusion rate (XX.X%) exceeds threshold (20.0%). Data quality too low for analysis.`
 
-### 2. Excessive Data Exclusion Rate (>20%)
+**Cause**: More than 20% of rows were excluded due to invalid MEQ scores or out-of-range MFQ values.
 
-**Error Message**: `ABORT: Exclusion rate (XX%) exceeds 20% threshold. Review data quality or collection methods.`
+**Resolution**:
+- Review `logs/classify_exclusions.log` to identify the specific reasons for exclusions.
+- Check your data collection method for systematic errors (e.g., survey logic failures, data entry errors).
+- If exclusions are due to `NA` values, ensure data collection captured all required fields.
+- If the dataset is too small or noisy, consider recruiting more participants or revising the data collection protocol.
+- **Do not** artificially manipulate data to bypass this check.
 
-**Cause**: More than 20% of rows were excluded due to invalid MEQ scores or out-of-range MFQ scores (as defined in FR-006). This check is performed in `code/02.5_final_exclusion_check.R`.
+### 3. Missing Data File (Abort in T011)
+**Error Message**: `ABORT: Input file 'data/raw/study_data.csv' not found.`
 
-**Fix**:
-- Inspect `logs/classify_exclusions.log` to see which rows were excluded and why.
-- Check your data collection process for systematic errors (e.g., survey skip logic, data entry mistakes).
-- Verify that MEQ scores are within the valid range (typically 1-64) and MFQ subscale scores are within expected bounds.
-- If the high exclusion rate is due to a specific data quality issue, clean the raw data and re-run the pipeline.
-- **Note**: Rows excluded for missing `acute_sleepiness` are NOT counted towards this 20% threshold.
+**Cause**: The required input file does not exist at the expected path.
 
-### 3. Missing Input File
+**Resolution**:
+- Ensure `data/raw/study_data.csv` exists in the project root.
+- If you have not yet acquired data, follow the instructions in `data/raw/README_DATA_NEEDED.md`.
+- Do not attempt to run the pipeline without valid input data.
 
-**Error Message**: `ABORT: Input file data/raw/study_data.csv not found.`
+### 4. VIF Warning (Non-Blocking)
+**Warning Message**: `WARNING: VIF > 2 detected for predictor [name] in model [subscale]. Results may be unreliable.`
 
-**Cause**: The pipeline cannot find the required input data file.
+**Cause**: High multicollinearity between predictors (Variance Inflation Factor > 2).
 
-**Fix**:
-- Ensure `data/raw/study_data.csv` exists in the correct location.
-- Check file permissions.
-- If you are running in a test environment, ensure you have provided a valid test file or are running with the appropriate test flag (if applicable for specific scripts).
-
-### 4. Low Group Balance Alert
-
-**Warning Message**: `WARNING: Intermediate chronotype group exceeds 70% of sample. Consider recruiting more extreme-type participants.`
-
-**Cause**: The proportion of participants classified as "intermediate" is >70%, which may reduce statistical power for detecting differences between morning and evening types.
-
-**Fix**:
-- This is a warning, not a hard abort. The pipeline will continue.
-- Review your recruitment strategy to ensure a more balanced distribution of chronotypes.
-- The final report will include this alert in the limitations section.
-
-### 5. High Variance Inflation Factor (VIF > 2)
-
-**Warning Message**: `WARNING: VIF > 2 detected for predictor(s). Results may be unreliable due to multicollinearity.`
-
-**Cause**: One or more predictors in the ANCOVA model have a Variance Inflation Factor greater than 2, indicating potential multicollinearity.
-
-**Fix**:
-- This is a warning, not a hard abort. The pipeline will continue but mark results as potentially unreliable.
-- Examine `data/derived/vif_flag.csv` and `logs/vif_warnings.log` for details.
-- Consider removing or combining highly correlated predictors in future studies.
+**Resolution**:
+- This is a **warning**, not an abort. The pipeline will continue but mark results as "Invalid" in `data/derived/vif_flag.csv`.
+- Review `reports/vif_visualization.png` to identify collinear predictors.
+- Consider removing or combining correlated predictors if publication is the goal.
 - The final report will include a note about this limitation.
 
-### 6. R or Python Environment Issues
+### 5. R Environment Issues
+**Error Message**: `R version X.Y.Z is installed. Required: >= 4.3.0` or `renv not initialized.`
 
-**Error Message**: `Error: R version < 4.3 required` or `ModuleNotFoundError: No module named '...'`
+**Cause**: R version is too old or `renv` environment is not set up.
 
-**Cause**: Missing or incompatible runtime environments.
+**Resolution**:
+- Update R to version 4.3 or higher.
+- Re-run `python code/00_setup_r_env.py` to initialize `renv`.
+- Ensure `renv` packages are installed: `Rscript -e 'renv::restore()'`
 
-**Fix**:
-- Ensure R version is 4.3 or higher (`R --version`).
-- Re-run `code/00_setup_r_env.R` to reinstall R packages.
-- Ensure Python 3.9+ is installed and active.
-- Install missing Python dependencies: `pip install -r requirements.txt`.
+### 6. CI Runner Compatibility
+**Error Message**: `CI Check Failed: RAM usage exceeds limit` or `CPU cores insufficient.`
 
-### 7. Test Mode vs. Production Mode
+**Cause**: The runner does not meet minimum resource requirements.
 
-**Error Message**: `ABORT: This script requires --mode=test flag.` or `ABORT: Output path validation failed.`
+**Resolution**:
+- Ensure at least 2GB RAM and 2 CPU cores are available.
+- If running on a free-tier CI, check resource limits and consider upgrading or optimizing data processing (e.g., streaming large datasets).
+- Refer to `.github/workflows/ci.yml` for configuration details.
 
-**Cause**: Scripts designed for testing (e.g., `code/06_benchmark_accuracy.R`) are being run without the required `--mode=test` flag, or output paths are incorrect.
+## Running Tests
 
-**Fix**:
-- Add `--mode=test` to the command line when running test-specific scripts.
-- Verify that output paths are within `data/derived/` for test scripts.
-- Do not run test scripts in production mode.
+To execute all verification tests:
+```bash
+bash run_all_tests.sh
+```
 
-## Getting Help
+This runs:
+- Unit tests (`tests/test-*.R`)
+- Benchmark accuracy test (`code/06_benchmark_accuracy.R --mode=test`)
+- Report validation (`code/04_report.Rmd` render check)
 
-- Check the `logs/` directory for detailed error messages and exclusion logs.
-- Review `docs/README.md` for additional context.
-- Refer to `data/raw/README_DATA_NEEDED.md` for data requirements.
-- Consult the project's issue tracker for known problems.
+## Output Files
+
+After successful execution, you will find:
+- **`data/processed/cleaned_data.csv`**: Ingested and filtered dataset.
+- **`data/derived/classified_data.csv`**: Dataset with chronotype labels.
+- **`data/derived/ancova_results.csv`**: ANCOVA results with p-values and effect sizes.
+- **`data/derived/sensitivity_sweep.csv`**: Sensitivity analysis across alpha thresholds.
+- **`reports/chronotype_moral_analysis.html`**: Final analysis report.
+- **`reports/vif_visualization.png`**: VIF diagnostic plot.
+
+## Support
+
+For issues not covered here, check the logs in `logs/` or refer to the full documentation in `docs/`.

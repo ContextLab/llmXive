@@ -615,3 +615,151 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T22:15:21Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Generate synthetic MEQ scores using normal distribution with n=100, mean=50,
+    sd=10
+  claim_id: c_36da384c
+  context: 'Method: Generate data using rnorm(n=100, mean=50, sd=10) for MEQ_score
+    to mimic real MEQ ranges. Explicit Mapping: Generate MEQ_score such that the known
+    label is deterministically derived using the exact same thresholds as FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data using rnorm(n=100, mean=50, sd=10) for MEQ_score to mimic
+    real MEQ ranges.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:26:00Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha threshold of 0.01 for 5 tests
+  claim_id: c_b6efc941
+  context: "Run ANCOVA for all 5 subscales. Apply Bonferroni correction (\u03B1 =\
+    \ 0.05/5 = 0.01) to p-values atomically within this step (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.05/5 = 0.01) to p-values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:26:14Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Flag VIF values greater than 2 as invalid without aborting pipeline
+  claim_id: c_f8461bbb
+  context: 'Calculate Variance Inflation Factors (VIF). If any VIF > 2: Log warning
+    to logs/vif_warnings.log, write ''Invalid'' flag to data/derived/vif_flag.csv,
+    and DO NOT ABORT the pipeline (per FR-006).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_VIF_values_greater_than_2_as_invalid_without_aborting_p
+  kind: magnitude
+  raw_text: 'If any VIF > 2: Log warning to logs/vif_warnings.log, write ''Invalid''
+    flag to data/derived/vif_flag.csv, and DO NOT ABORT the pipeline.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:26:30Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Verify regression test p-value tolerance is less than or equal to 0.01
+  claim_id: c_e609a3b5
+  context: "Action: If data/raw/reference_data.csv exists, run the ANCOVA model on\
+    \ it and compare p-values with the pipeline output (T019). Verify tolerance \u2264\
+    0.01."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_regression_test_p-value_tolerance_is_less_than_or_equ
+  kind: magnitude
+  raw_text: "Verify tolerance \u22640.01 for p-values in regression test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:26:50Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Recalculate significance status for alpha thresholds 0.01, 0.0125, and
+    0.015
+  claim_id: c_9d25cac3
+  context: Iterate over each unique contrast_label and recalculate significance status
+    for each alpha threshold {0.01, 0.0125, 0.015} (explicitly defined as a constant
+    vector) without re-fitting models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over each unique contrast_label and recalculate significance status
+    for each alpha threshold {0.01, 0.0125, 0.015}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:27:00Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Generate low balance alert if intermediate chronotype proportion exceeds
+    0.70
+  claim_id: c_5139baf6
+  context: 'Action: If proportion > 0.70, generate a warning file data/derived/low_balance_alert.txt
+    with a clear message suggesting recruitment of extreme-type participants.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If proportion > 0.70, generate a warning file data/derived/low_balance_alert.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:27:00Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: Ensure cyclomatic complexity is less than 10 using lintr
+  claim_id: c_83953af4
+  context: 'Code cleanup and refactoring: Run lintr::lint_dir(''code/'', linters =
+    list(cyclocomp_linter(limit = 10))) to ensure cyclomatic complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_cyclomatic_complexity_is_less_than_10_using_lintr
+  kind: magnitude
+  raw_text: Run lintr::lint_dir with cyclocomp_linter(limit = 10) to ensure cyclomatic
+    complexity < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:27:32Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp/tasks.md
+  attempts: 1
+  canonical: No public dataset contains all required variables (MEQ, MFQ, PSQI, Acute
+    Sleepiness, etc.)
+  claim_id: c_b89380fe
+  context: 'State clearly: ''No public dataset currently contains all these variables.
+    You must provide this file manually or via a custom merge.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_public_dataset_contains_all_required_variables_(MEQ,_MFQ,
+  kind: entity_fact
+  raw_text: No public dataset currently contains all these variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T22:28:05Z'

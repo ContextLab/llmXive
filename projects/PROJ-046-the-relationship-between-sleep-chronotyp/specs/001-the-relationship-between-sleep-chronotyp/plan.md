@@ -86,7 +86,11 @@ projects/PROJ-046-the-relationship-between-sleep-chronotyp/
 ## Implementation Phases
 
 ### Phase 0: Research & Data Strategy
-- **Task**: Verify MEQ and MFQ scoring algorithms (Horne & Östberg, 1976; Graham et al., 2009).
+- **Task**: Verify MEQ and MFQ scoring algorithms (Horne & Östberg,; Graham et al., n.d.
+
+The specific value to remove/generalize: 'n.d.'
+
+Rewritten passage:).
 - **Task**: Document Data Collection Protocol for PSQI and Acute Sleepiness (since no real combined dataset exists).
 - **Task**: Define MANCOVA and ANCOVA statistical assumptions.
 
