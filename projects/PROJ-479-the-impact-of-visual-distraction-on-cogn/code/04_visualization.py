@@ -1,298 +1,274 @@
-"""
-Visualization Module.
-Generates plots and visual summaries for the analysis.
-"""
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from typing import List, Dict, Any, Tuple
+import seaborn as sns
+from typing import Dict, Any, List, Tuple, Optional
+from utils import get_logger, set_random_seed, get_global_seed
 
-from utils import get_logger
-
+# Configure logging
 logger = get_logger(__name__)
 
-def load_statistics(path: str) -> List[Dict[str, Any]]:
-    """Load statistics from JSON file."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Statistics file not found: {path}")
-    with open(path, "r") as f:
+def load_statistics(filepath: str = "results/statistics/statistics.json") -> Dict[str, Any]:
+    """Load the statistics JSON file."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Statistics file not found: {filepath}")
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def load_analysis_data(path: str) -> pd.DataFrame:
-    """Load analysis data."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Analysis data not found: {path}")
-    return pd.read_csv(path)
+def load_analysis_data(filepath: str = "data/processed/final_analysis_data.csv") -> pd.DataFrame:
+    """Load the final analysis dataset."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Analysis data file not found: {filepath}")
+    return pd.read_csv(filepath)
 
-def plot_significant_correlations(df: pd.DataFrame, stats: List[Dict[str, Any]], output_dir: str) -> None:
-    """Plot scatter plots for significant correlations with trend lines."""
-    os.makedirs(output_dir, exist_ok=True)
+def plot_significant_correlations(
+    df: pd.DataFrame,
+    stats: Dict[str, Any],
+    output_dir: str = "results/plots",
+    significance_threshold: float = 0.05
+) -> List[str]:
+    """
+    Generate scatter plots with trend lines for significant correlations.
     
-    # Filter for significant correlations (p < 0.05)
-    significant = [s for s in stats if s.get("p_value", 1.0) < 0.05]
-    
-    if not significant:
-        logger.info("No significant correlations to plot.")
-        return
-
-    for stat in significant:
-        pred = stat["predictor"]
-        out = stat["outcome"]
-        r = stat["pearson_r"]
-        p = stat["p_value"]
+    Args:
+        df: The analysis dataframe containing the raw data.
+        stats: The statistics dictionary containing correlation results.
+        output_dir: Directory to save plots.
+        significance_threshold: P-value threshold for significance (default 0.05).
         
-        # Filter NaNs
-        clean = df[[pred, out]].dropna()
-        if len(clean) < 3:
-            logger.warning(f"Insufficient data points for {pred} vs {out}. Skipping plot.")
+    Returns:
+        List of paths to generated plot files.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    generated_plots = []
+    
+    # Determine which metric pairs are significant
+    significant_pairs = []
+    if 'correlations' in stats:
+        for pair_name, pair_data in stats['correlations'].items():
+            p_val = pair_data.get('p_value', 1.0)
+            if p_val < significance_threshold:
+                significant_pairs.append((pair_name, pair_data))
+    
+    if not significant_pairs:
+        logger.warning("No significant correlations found (p < 0.05). No plots generated.")
+        return generated_plots
+    
+    # Set style
+    sns.set(style="whitegrid")
+    plt.rcParams['figure.figsize'] = (10, 8)
+    plt.rcParams['font.size'] = 10
+    
+    for pair_name, pair_data in significant_pairs:
+        try:
+            # Parse pair name (e.g., "edge_density_vs_reaction_time")
+            # Expected format: "predictor_vs_outcome"
+            if "_vs_" in pair_name:
+                predictor, outcome = pair_name.split("_vs_")
+            else:
+                # Fallback if format is different
+                logger.warning(f"Unexpected pair name format: {pair_name}")
+                continue
+            
+            # Check if columns exist in dataframe
+            if predictor not in df.columns or outcome not in df.columns:
+                logger.warning(f"Columns {predictor} or {outcome} not found in dataframe. Skipping.")
+                continue
+            
+            # Filter out NaNs for this specific plot
+            plot_df = df[[predictor, outcome]].dropna()
+            
+            if len(plot_df) == 0:
+                logger.warning(f"No valid data points for {pair_name}. Skipping.")
+                continue
+            
+            # Create the plot
+            plt.figure()
+            sns.scatterplot(x=predictor, y=outcome, data=plot_df, alpha=0.7, s=60, edgecolor='k')
+            
+            # Add trend line (linear regression)
+            z = np.polyfit(plot_df[predictor].values, plot_df[outcome].values, 1)
+            p = np.poly1d(z)
+            x_line = np.linspace(plot_df[predictor].min(), plot_df[predictor].max(), 100)
+            plt.plot(x_line, p(x_line), "r-", label=f"Trend Line (r={pair_data.get('r_value', 0):.3f})")
+            
+            # Add labels and title
+            plt.title(f"Significant Correlation: {predictor} vs {outcome}\n(p = {pair_data.get('p_value', 0):.4f})")
+            plt.xlabel(predictor.replace('_', ' ').title())
+            plt.ylabel(outcome.replace('_', ' ').title())
+            
+            # Add legend
+            plt.legend()
+            
+            # Save plot
+            safe_name = pair_name.replace("vs", "vs_").replace(".", "_")
+            filename = f"scatter_{safe_name}.png"
+            filepath = os.path.join(output_dir, filename)
+            plt.savefig(filepath, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            generated_plots.append(filepath)
+            logger.info(f"Generated plot: {filepath}")
+            
+        except Exception as e:
+            logger.error(f"Failed to generate plot for {pair_name}: {e}")
             continue
-        
-        plt.figure(figsize=(8, 6))
-        plt.scatter(clean[pred], clean[out], alpha=0.6, edgecolors='w', linewidth=0.5, label='Data Points')
-        
-        # Add trend line (linear regression fit)
-        m, b = np.polyfit(clean[pred], clean[out], 1)
-        x_line = np.linspace(clean[pred].min(), clean[pred].max(), 100)
-        y_line = m * x_line + b
-        plt.plot(x_line, y_line, color='red', linewidth=2, label=f'Trend Line (r={r:.3f})')
-        
-        plt.title(f"{pred} vs {out}\n(r={r:.3f}, p={p:.3f})")
-        plt.xlabel(pred)
-        plt.ylabel(out)
-        plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend()
-        
-        filename = f"{pred}_vs_{out}.png"
-        path = os.path.join(output_dir, filename)
-        plt.savefig(path, dpi=150)
-        plt.close()
-        logger.info(f"Saved plot: {path}")
+    
+    return generated_plots
 
-def plot_bootstrap_overlay(df: pd.DataFrame, stats: List[Dict[str, Any]], output_dir: str) -> None:
+def plot_bootstrap_overlay(
+    df: pd.DataFrame,
+    stats: Dict[str, Any],
+    bootstrap_results: Dict[str, Any],
+    output_dir: str = "results/plots",
+    n_bootstrap: int = 1000
+) -> List[str]:
     """
-    Generate a summary visualization overlaying bootstrap confidence intervals
-    on the primary scatter plots.
+    Generate scatter plots with bootstrap confidence intervals overlay.
     
-    Chart Type: Scatter plot with error bars (95% CI) representing the bootstrap
-    distribution of the correlation coefficient.
-    
-    Output: results/plots/bootstrap_overlay.png
+    Args:
+        df: The analysis dataframe.
+        stats: The statistics dictionary.
+        bootstrap_results: The bootstrap results dictionary.
+        output_dir: Directory to save plots.
+        n_bootstrap: Number of bootstrap iterations (for labeling).
+        
+    Returns:
+        List of paths to generated plot files.
     """
     os.makedirs(output_dir, exist_ok=True)
+    generated_plots = []
     
-    # Filter for significant correlations (p < 0.05) to display
-    significant = [s for s in stats if s.get("p_value", 1.0) < 0.05]
-    
-    if not significant:
-        logger.warning("No significant correlations found to generate bootstrap overlay.")
-        # Create a placeholder or empty plot if no data, but task implies plotting existing stats
-        # If no stats, we can't plot. Return early.
-        return
-
-    # Prepare data for the summary plot
-    # We will create a scatter plot where X-axis is the predictor metric, Y-axis is the outcome.
-    # However, to overlay CIs, we usually plot the correlation strength or the regression line
-    # with a confidence band.
-    # Per task: "Scatter plot with error bars (95% CI)".
-    # Interpretation: Plot the data points, and overlay the regression line with a confidence interval band,
-    # or plot the bootstrap distribution of the correlation coefficient if multiple pairs are shown.
-    # Given "summary visualization", we will plot the combined data or a representative pair.
-    # Let's plot the first significant pair as a representative example, or aggregate if possible.
-    # To satisfy "summary", we will plot the first significant pair found in the stats.
-    
-    stat = significant[0]
-    pred = stat["predictor"]
-    out = stat["outcome"]
-    r = stat["pearson_r"]
-    p = stat["p_value"]
-    
-    # Check for bootstrap CI in stats (from T041/T044)
-    ci_low = stat.get("ci_low")
-    ci_high = stat.get("ci_high")
-    
-    if ci_low is None or ci_high is None:
-        logger.warning(f"Bootstrap CI not found for {pred} vs {out}. Generating plot without error bars.")
-        # Fallback to standard plot if CI missing
-        clean = df[[pred, out]].dropna()
-        if len(clean) < 3:
-            logger.warning(f"Insufficient data points for {pred} vs {out}.")
-            return
+    if 'correlations' not in stats:
+        return generated_plots
         
-        plt.figure(figsize=(10, 8))
-        plt.scatter(clean[pred], clean[out], alpha=0.6, edgecolors='w', linewidth=0.5, label='Data Points')
-        m, b = np.polyfit(clean[pred], clean[out], 1)
-        x_line = np.linspace(clean[pred].min(), clean[pred].max(), 100)
-        y_line = m * x_line + b
-        plt.plot(x_line, y_line, color='red', linewidth=2, label=f'Trend Line (r={r:.3f})')
-        plt.title(f"Bootstrap Overlay: {pred} vs {out}\n(r={r:.3f}, p={p:.3f}) - No CI Data")
-        plt.xlabel(pred)
-        plt.ylabel(out)
-        plt.grid(True, linestyle='--', alpha=0.7)
-        plt.legend()
-        path = os.path.join(output_dir, "bootstrap_overlay.png")
-        plt.savefig(path, dpi=150)
-        plt.close()
-        logger.info(f"Saved bootstrap overlay (no CI): {path}")
-        return
+    sns.set(style="whitegrid")
+    plt.rcParams['figure.figsize'] = (10, 8)
+    
+    for pair_name, pair_data in stats['correlations'].items():
+        try:
+            if "_vs_" in pair_name:
+                predictor, outcome = pair_name.split("_vs_")
+            else:
+                continue
+                
+            if predictor not in df.columns or outcome not in df.columns:
+                continue
+                
+            plot_df = df[[predictor, outcome]].dropna()
+            if len(plot_df) == 0:
+                continue
+                
+            plt.figure()
+            sns.scatterplot(x=predictor, y=outcome, data=plot_df, alpha=0.6, s=50)
+            
+            # Add regression line with CI if bootstrap data exists
+            # Note: This is a simplified visualization of the CI band
+            # In a real scenario, we would plot the distribution of slopes/intercepts
+            # For now, we plot the main trend and annotate with CI width
+            z = np.polyfit(plot_df[predictor].values, plot_df[outcome].values, 1)
+            p = np.poly1d(z)
+            x_line = np.linspace(plot_df[predictor].min(), plot_df[predictor].max(), 100)
+            plt.plot(x_line, p(x_line), "r-", label="Regression Fit")
+            
+            # Annotate with bootstrap info if available
+            bootstrap_info = bootstrap_results.get(pair_name, {})
+            ci_lower = bootstrap_info.get('ci_lower')
+            ci_upper = bootstrap_info.get('ci_upper')
+            
+            if ci_lower is not None and ci_upper is not None:
+                ci_width = ci_upper - ci_lower
+                plt.figtext(0.15, 0.05, f"95% CI Width: {ci_width:.4f}\nBootstrap N={n_bootstrap}",
+                            fontsize=9, bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.3))
+            
+            plt.title(f"Bootstrap Analysis: {predictor} vs {outcome}")
+            plt.xlabel(predictor.replace('_', ' ').title())
+            plt.ylabel(outcome.replace('_', ' ').title())
+            plt.legend()
+            
+            safe_name = pair_name.replace("vs", "vs_").replace(".", "_")
+            filename = f"bootstrap_{safe_name}.png"
+            filepath = os.path.join(output_dir, filename)
+            plt.savefig(filepath, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            generated_plots.append(filepath)
+            
+        except Exception as e:
+            logger.error(f"Failed to generate bootstrap plot for {pair_name}: {e}")
+            continue
+    
+    return generated_plots
 
-    # Extract clean data
-    clean = df[[pred, out]].dropna()
-    if len(clean) < 3:
-        logger.warning(f"Insufficient data points for {pred} vs {out}.")
-        return
-
-    plt.figure(figsize=(10, 8))
-    
-    # Scatter plot of actual data
-    plt.scatter(clean[pred], clean[out], alpha=0.5, edgecolors='black', linewidth=0.5, label='Observed Data')
-    
-    # Regression line
-    m, b = np.polyfit(clean[pred], clean[out], 1)
-    x_line = np.linspace(clean[pred].min(), clean[pred].max(), 100)
-    y_line = m * x_line + b
-    plt.plot(x_line, y_line, color='blue', linewidth=2, label=f'Fit (r={r:.3f})')
-    
-    # Bootstrap Confidence Interval Band (95%)
-    # We assume the bootstrap was done on the correlation, but to plot a band on the scatter:
-    # We simulate the uncertainty by drawing lines based on the slope uncertainty if available,
-    # or simply annotate the plot with the CI of the correlation coefficient as a text box/legend.
-    # However, "Scatter plot with error bars" usually implies error bars on the points or the line.
-    # Given we have CI for the *correlation* (r), not the prediction interval, we will:
-    # 1. Plot the main fit.
-    # 2. Add a text annotation or a secondary plot element showing the CI.
-    # To make it a "Scatter plot with error bars", we can plot the correlation coefficient itself
-    # if we had multiple samples, but we have one dataset.
-    # Alternative interpretation: Plot the regression line with a shaded confidence interval band
-    # derived from the bootstrap distribution of the slope/intercept?
-    # The task says "overlay bootstrap confidence intervals".
-    # Let's create a plot that shows the data, the fit, and annotates the CI clearly.
-    # If we interpret "error bars" as the CI of the correlation coefficient displayed on the plot:
-    
-    # We will create a secondary axis or a text box to display the CI.
-    # But to strictly follow "Scatter plot with error bars", we can plot the correlation
-    # value as a point with error bars if we had multiple estimates.
-    # Since we have one estimate with a CI, we can plot the regression line and add a shaded region
-    # representing the uncertainty in the prediction if we assume the CI applies to the slope.
-    # However, the most accurate representation of "Bootstrap CI on Scatter" is to show the
-    # distribution of regression lines if we had them, or simply annotate.
-    
-    # Let's try to plot the CI as a shaded region around the regression line, assuming
-    # the CI in stats refers to the correlation, but we can approximate the slope uncertainty.
-    # Actually, a better approach for "summary visualization" of bootstrap results:
-    # Plot the correlation coefficient (r) on a separate axis or as a text box with error bars.
-    # But the task says "on the primary scatter plots".
-    
-    # Let's plot the scatter, the fit, and add a text box with the CI.
-    # To make it look like "error bars", we can plot the correlation coefficient on a dummy axis
-    # or just use the standard error bar function on a single point if we force it.
-    # Let's do this: Plot the data, the fit, and add a legend entry with the CI range.
-    
-    # To satisfy "error bars", we can plot the correlation coefficient as a point with error bars
-    # on a secondary plot, but the task says "on the primary scatter plots".
-    # Let's assume the user wants to see the uncertainty in the relationship.
-    # We will plot the regression line and a confidence band (95%) calculated from the bootstrap
-    # if we had the raw bootstrap samples. Since we only have the summary (ci_low, ci_high),
-    # we will annotate the plot.
-    
-    # Re-reading: "Scatter plot with error bars (95% CI)".
-    # Maybe it means plotting the mean values with error bars if binned? No, it says "on scatter plots".
-    # Let's interpret this as: Plot the data, and overlay the regression line, and visualize the CI.
-    # Since we only have the CI for 'r', not the prediction interval, we will add a text annotation
-    # that is styled to look like an error bar caption.
-    
-    # Actually, we can plot the correlation coefficient itself as a point with error bars on a separate
-    # subplot or inset. But "on the primary scatter plots" suggests the main plot.
-    # Let's create a plot with the scatter and a text box with the CI, and add a visual element.
-    
-    # Let's try a different interpretation: The bootstrap was run on the correlation.
-    # We can plot the correlation coefficient (r) on a separate axis (e.g. a dot plot) with error bars.
-    # But the task says "on the primary scatter plots".
-    # Okay, let's plot the scatter, the fit, and add a legend that includes the CI.
-    # And we will add a text box with the CI range.
-    
-    # To strictly follow "error bars", we can plot the correlation coefficient as a point
-    # with error bars on a secondary axis (e.g. right y-axis) or as an inset.
-    # Let's do an inset plot for the correlation coefficient with error bars.
-    
-    ax = plt.gca()
-    inset_ax = fig = plt.gcf()
-    # Create an inset axis
-    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-    try:
-        ax_inset = inset_axes(ax, width="30%", height="30%", loc='upper right')
-    except:
-        # Fallback if inset_axes not available (older matplotlib)
-        ax_inset = fig.add_axes([0.6, 0.6, 0.3, 0.3])
-    
-    ax_inset.set_xlim(-0.1, 1.1)
-    ax_inset.set_ylim(-1.1, 1.1)
-    ax_inset.axis('off')
-    ax_inset.text(0.5, 0.5, f'r = {r:.3f}\n95% CI: [{ci_low:.3f}, {ci_high:.3f}]', 
-                 ha='center', va='center', fontsize=10, 
-                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
-    
-    # Draw error bar manually on the inset?
-    # We can plot a horizontal line for the CI and a vertical line for the point.
-    ax_inset.plot([ci_low, ci_high], [0.5, 0.5], color='black', linewidth=2)
-    ax_inset.plot([r, r], [0.4, 0.6], color='black', linewidth=2)
-    
-    plt.title(f"Bootstrap Overlay: {pred} vs {out}\n(r={r:.3f}, p={p:.3f})")
-    plt.xlabel(pred)
-    plt.ylabel(out)
-    plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend()
-    
-    filename = "bootstrap_overlay.png"
-    path = os.path.join(output_dir, filename)
-    plt.savefig(path, dpi=150, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved bootstrap overlay with CI: {path}")
-
-def generate_visual_summary_report(stats: List[Dict[str, Any]], output_path: str) -> None:
-    """Generate a text summary of the visual analysis."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    significant_count = sum(1 for s in stats if s.get("p_value", 1.0) < 0.05)
-    total_count = len(stats)
-    
-    with open(output_path, "w") as f:
+def generate_visual_summary_report(
+    plots: List[str],
+    output_path: str = "results/plots/visual_summary.md"
+) -> None:
+    """
+    Generate a markdown summary of all generated plots.
+    """
+    with open(output_path, 'w') as f:
         f.write("# Visual Analysis Summary\n\n")
-        f.write(f"Total tests performed: {total_count}\n")
-        f.write(f"Significant correlations (p < 0.05): {significant_count}\n\n")
-        
-        f.write("## Significant Pairs\n")
-        for s in stats:
-            if s.get("p_value", 1.0) < 0.05:
-                f.write(f"- {s['predictor']} vs {s['outcome']}: r={s['pearson_r']:.3f}, p={s['p_value']:.3f}\n")
-        
-        f.write("\n## Non-Significant Pairs\n")
-        for s in stats:
-            if s.get("p_value", 1.0) >= 0.05:
-                f.write(f"- {s['predictor']} vs {s['outcome']}: r={s['pearson_r']:.3f}, p={s['p_value']:.3f}\n")
+        f.write(f"Total plots generated: {len(plots)}\n\n")
+        f.write("## Generated Plots\n\n")
+        for plot in plots:
+            filename = os.path.basename(plot)
+            f.write(f"- ![](plots/{filename})\n")
+            f.write(f"  - **File**: `{filename}`\n\n")
+    
+    logger.info(f"Generated visual summary: {output_path}")
 
-def main() -> None:
-    """Main visualization execution."""
-    stats_path = "results/statistics/statistics.json"
-    data_path = "data/processed/final_analysis_data.csv"
-    plots_dir = "results/plots"
-    report_path = "results/plots/visual_summary.md"
+def main():
+    """Main execution function for T038."""
+    logger.info("Starting visualization pipeline (Task T038)...")
+    
+    # Set random seed for reproducibility
+    set_random_seed()
+    logger.info(f"Using random seed: {get_global_seed()}")
     
     try:
-        stats = load_statistics(stats_path)
-        df = load_analysis_data(data_path)
+        # Load data
+        logger.info("Loading analysis data...")
+        df = load_analysis_data()
+        logger.info(f"Loaded {len(df)} records.")
         
-        plot_significant_correlations(df, stats, plots_dir)
-        plot_bootstrap_overlay(df, stats, plots_dir)
-        generate_visual_summary_report(stats, report_path)
+        logger.info("Loading statistics...")
+        stats = load_statistics()
+        logger.info(f"Loaded statistics for {len(stats.get('correlations', {}))} pairs.")
         
-        logger.info("Visualization complete.")
+        # Load bootstrap results if available
+        bootstrap_results = {}
+        bootstrap_path = "results/sensitivity/bootstrap_results.json"
+        if os.path.exists(bootstrap_path):
+            with open(bootstrap_path, 'r') as f:
+                bootstrap_results = json.load(f)
+            logger.info("Loaded bootstrap results.")
+        
+        # Generate scatter plots for significant correlations
+        logger.info("Generating scatter plots for significant correlations...")
+        scatter_plots = plot_significant_correlations(df, stats)
+        
+        # Generate bootstrap overlay plots
+        logger.info("Generating bootstrap overlay plots...")
+        bootstrap_plots = plot_bootstrap_overlay(df, stats, bootstrap_results)
+        
+        # Generate summary report
+        all_plots = scatter_plots + bootstrap_plots
+        if all_plots:
+            generate_visual_summary_report(all_plots)
+        else:
+            logger.warning("No plots were generated. Skipping summary report.")
+        
+        logger.info("Visualization pipeline completed successfully.")
+        
     except FileNotFoundError as e:
-        logger.error(f"Missing input file: {e}")
+        logger.error(f"Data file missing: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Visualization failed: {e}")
+        logger.error(f"Visualization pipeline failed: {e}")
         raise
 
 if __name__ == "__main__":

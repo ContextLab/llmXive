@@ -9,3 +9,5 @@ seaborn
 Pillow
 pytest
 statsmodels
+opencv-python  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

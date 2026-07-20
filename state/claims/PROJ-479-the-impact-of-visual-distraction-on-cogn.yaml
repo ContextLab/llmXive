@@ -934,3 +934,966 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T20:38:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: synthetic participant records N >= 100
+  claim_id: c_5fc2f1cd
+  context: "Full Synthetic Path: Generate synthetic participant records (N \u2265\
+    \ 100) with participant_id, reaction_time, accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate synthetic participant records (N \u2265 100) with participant_id,\
+    \ reaction_time, accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:04:21Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: reaction_time mean 600 ms std 100 ms
+  claim_id: c_0ae124fe
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:04:32Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: accuracy mean 0.85 std 0.05
+  claim_id: c_3dc9d51f
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    accuracy: Normal distribution, mean=0.85, std=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'accuracy: Normal distribution, mean=0.85, std=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:04:48Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: visual_complexity mean 0.5 std 0.15
+  claim_id: c_1f140554
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    visual_complexity (simulated linkage): Normal distribution, mean=0.5, std=0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'visual_complexity (simulated linkage): Normal distribution, mean=0.5,
+    std=0.15.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:05:06Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: negative correlation visual_complexity reaction_time Cholesky decomposition
+  claim_id: c_f6585498
+  context: 'Correlation: Apply a negative correlation matrix between visual_complexity
+    and reaction_time using Cholesky decomposition.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Negative_correlation_visual_complexity_reaction_time_Cholesk
+  kind: entity_fact
+  raw_text: Apply a negative correlation matrix between visual_complexity and reaction_time
+    using Cholesky decomposition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:05:27Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05 effect_size 0.3 sample_size 100
+  claim_id: c_051c671b
+  context: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:06:01Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling >= 1000 iterations
+  claim_id: c_235f06c6
+  context: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap to compute 95% confidence intervals for correlation\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate bootstrap resampling with \u22651000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:06:01Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction scipy.stats.multitest.multipletests
+  claim_id: c_e813d437
+  context: Implement Holm-Bonferroni family-wise error correction in code/03_analysis.py
+    using scipy.stats.multitest.multipletests(method=holm).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_scipy.stats.multitest.multipletes
+  kind: entity_fact
+  raw_text: Use scipy.stats.multitest.multipletests(method=holm) for Holm-Bonferroni
+    family-wise error correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:06:18Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson L Statistical methods in psychology journals American Psychologist
+    54 8 594-604
+  claim_id: c_e8e888e2
+  context: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (). Statistical\
+    \ methods in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. ().\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:06:39Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: OpenCV Open Source Computer Vision Library https opencv org
+  claim_id: c_ad853b44
+  context: 'OpenCV Edge Detection: ''OpenCV: Open Source Computer Vision Library.
+    https://opencv.org'''
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://opencv.org/'
+      source_id: Q165277
+      url: https://www.wikidata.org/wiki/Q165277
+      value: https://opencv.org/
+    filled: true
+  kind: entity_fact
+  raw_text: 'OpenCV: Open Source Computer Vision Library. https://opencv.org'
+  resolved_value: https://opencv.org/
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T14:06:48Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Cover TM Thomas JA Elements of Information Theory Wiley-Interscience
+  claim_id: c_74b2e6e6
+  context: 'Color Entropy: ''Cover, T. M., & Thomas, J. A. (n.d.). Elements of Information
+    Theory. Wiley-Interscience.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cover_TM_Thomas_JA_Elements_of_Information_Theory_Wiley-Inte
+  kind: entity_fact
+  raw_text: Cover, T. M., & Thomas, J. A. (n.d.). Elements of Information Theory.
+    Wiley-Interscience.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:07:17Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Jocher G 2020 Ultralytics YOLOv5 https github com ultralytics yolov5
+  claim_id: c_387d7fb7
+  context: 'YOLOv5: ''Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5'''
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:07:33Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: binning results magnitude stability < 0.1 change
+  claim_id: c_860b78b5
+  context: 'Independent Test: Verify results/sensitivity/bootstrap_results.json shows
+    directional consistency and results/sensitivity/binning_results.csv shows magnitude
+    stability (<0.1 change).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that results/sensitivity/binning_results.csv shows magnitude stability
+    (<0.1 change).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:07:33Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Download Stroop/Flanker datasets from HuggingFace using IDs cognitive/stroop
+    and cognitive/flanker
+  claim_id: c_f212e931
+  context: 'T015a [US1] Implement code/01_data_acquisition.py to execute the Download
+    Branch: 1. Attempt to download Stroop/Flanker datasets from HuggingFace using
+    specific IDs: cognitive/stroop, cognitive/flanker.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Stroop/Flanker_datasets_from_HuggingFace_using_IDs
+  kind: entity_fact
+  raw_text: 'Attempt to download Stroop/Flanker datasets from HuggingFace using specific
+    IDs: ''cognitive/stroop'', ''cognitive/flanker''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:09:37Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Synthetic participant records generated with N >= 100
+  claim_id: c_a90cfef5
+  context: "T015b [US1] ... 2. Full Synthetic Path: Generate synthetic participant\
+    \ records (N \u2265 100) with participant_id, reaction_time, accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synthetic participant records generated with N \u2265 100."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:09:37Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Reaction time simulated with Normal distribution mean=600 std=100 ms
+  claim_id: c_d38616e5
+  context: 'T015b [US1] ... 3. Parameters: Use hardcoded statistical parameters to
+    ensure determinism: - reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reaction time simulated with Normal distribution, mean=600, std=100 (ms).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:09:51Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Accuracy simulated with Normal distribution mean=0.85 std=0.05
+  claim_id: c_91d3e826
+  context: 'T015b [US1] ... - accuracy: Normal distribution, mean=0.85, std=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Accuracy simulated with Normal distribution, mean=0.85, std=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:10:07Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Visual complexity simulated with Normal distribution mean=0.5 std=0.15
+  claim_id: c_3522411c
+  context: 'T015b [US1] ... - visual_complexity (simulated linkage): Normal distribution,
+    mean=0.5, std=0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Visual complexity simulated with Normal distribution, mean=0.5, std=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:10:25Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha=0.05 tails=2 effect_size=0.3 nobs1=100
+  claim_id: c_d180d7fb
+  context: 'T019 [US1] ... 1. Use statsmodels.stats.power.tt_solve_power with fixed
+    parameters: alpha=0.05, tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses alpha=0.05, tails=2, effect_size=0.3 (Cohen's d),
+    nobs1=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:11:06Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Citation Wilkinson L Task Force on Statistical Inference Statistical
+    methods in psychology journals included in p-value justification
+  claim_id: c_0b68da0f
+  context: "T037 [US3] ... 3. Template: The justification must include: ... (c) Citation:\
+    \ 'Wilkinson, L., & Task Force on Statistical Inference. (). Statistical methods\
+    \ in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. ().\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604.' included in p-value justification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:11:25Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: OpenCV Edge Detection cited as Wikidata Q165277
+  claim_id: c_8d0d6994
+  context: 'T037b [US3] ... 1. OpenCV Edge Detection: ''{{claim:c_ad853b44}} (Wikidata
+    Q165277, https://www.wikidata.org/wiki/Q165277)'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenCV_Edge_Detection_cited_as_Wikidata_Q165277
+  kind: entity_fact
+  raw_text: OpenCV Edge Detection cited as Wikidata Q165277.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:11:39Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Color Entropy cited as Cover T M and Thomas J A Elements of Information
+    Theory
+  claim_id: c_1f354444
+  context: 'T037b [US3] ... 2. Color Entropy: ''Cover, T. M., & Thomas, J. A. (n.d.).
+    Elements of Information Theory. Wiley-Interscience.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Color_Entropy_cited_as_Cover_T_M_and_Thomas_J_A_Elements_of
+  kind: entity_fact
+  raw_text: Color Entropy cited as Cover, T. M., & Thomas, J. A. (n.d.). Elements
+    of Information Theory. Wiley-Interscience.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:12:01Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: YOLOv5 cited as Jocher G 2020 Ultralytics YOLOv5
+  claim_id: c_51da86cd
+  context: 'T037b [US3] ... 3. YOLOv5: ''Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5
+    '''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: YOLOv5 cited as Jocher, G. (2020). Ultralytics YOLOv5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:12:26Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling performed with >= 1000 iterations
+  claim_id: c_5043c90e
+  context: "T040 [P] [US4] Unit test for bootstrap resampling logic (\u22651000 iterations)\
+    \ in tests/unit/test_bootstrap.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bootstrap resampling performed with \u22651000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:12:26Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni method used for family-wise error correction
+  claim_id: c_f0e636fd
+  context: T035 [US3] Implement Holm-Bonferroni family-wise error correction in code/03_analysis.py
+    using scipy.stats.multitest.multipletests(method=holm).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In statistics, the Holm\u2013Bonferroni method, also called the Holm\
+        \ method or Bonferroni\u2013Holm method, is used to counteract the problem\
+        \ of multiple comparisons. It is intended to control the family-wise error\
+        \ rate (FWER) and offers a simple test uniformly more powerful than the Bonferroni\
+        \ correction. It is named after Sture Holm, who codified the method, and Carlo\
+        \ Emilio Bonferroni."
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: family-wise error rate (FWER)
+    filled: true
+  kind: entity_fact
+  raw_text: Holm-Bonferroni method used for family-wise error correction.
+  resolved_value: family-wise error rate (FWER)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T14:12:34Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: synthetic participant records generated with N >= 100
+  claim_id: c_2fe912a3
+  context: 'Phase 3, User Story 1, T015b: Implement Synthetic Generation Branch.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate synthetic participant records (N \u2265 100) with participant_id,\
+    \ reaction_time, accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:13:52Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: reaction_time normal distribution mean 600 std 100 ms
+  claim_id: c_0becc1d7
+  context: 'Phase 3, User Story 1, T015b: Synthetic Generation Branch parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:13:52Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: accuracy normal distribution mean 0.85 std 0.05
+  claim_id: c_ed9d8cdc
+  context: 'Phase 3, User Story 1, T015b: Synthetic Generation Branch parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'accuracy: Normal distribution, mean=0.85, std=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:13:53Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: visual_complexity normal distribution mean 0.5 std 0.15
+  claim_id: c_ad34d95d
+  context: 'Phase 3, User Story 1, T015b: Synthetic Generation Branch parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'visual_complexity: Normal distribution, mean=0.5, std=0.15.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:13:53Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: power analysis using alpha 0.05 effect_size 0.3 sample_size 100
+  claim_id: c_a27a011d
+  context: 'Phase 3, User Story 1, T019: Power analysis calculation parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power.tt_solve_power with alpha=0.05, tails=2, effect_size=0.3,
+    nobs1=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:22Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: power calculation method statsmodels.stats.power.tt_solve_power
+  claim_id: c_be5a8ac5
+  context: 'Phase 3, User Story 1, T019: Power analysis method output schema.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_calculation_method_statsmodels.stats.power.tt_solve_po
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.power.tt_solve_power for power calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:28Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling >= 1000 iterations using scipy.stats.bootstrap
+  claim_id: c_29c6fa66
+  context: 'Phase 6, User Story 4, T041: Bootstrap resampling implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement bootstrap resampling (\u22651000 iterations) using scipy.stats.bootstrap."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:28Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson L Task Force Statistical Inference American Psychologist 54
+    594 604
+  claim_id: c_8a078d25
+  context: 'Phase 5, User Story 3, T037: Alpha threshold justification citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. ().\
+    \ Statistical methods in psychology journals: Guidelines and explanations. American\
+    \ Psychologist, 54(8), 594\u2013604.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:29Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Cover T M Thomas J A Elements of Information Theory Wiley-Interscience
+  claim_id: c_c6611c77
+  context: 'Phase 5, User Story 3, T037b: Methods citations for Color Entropy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cover_T_M_Thomas_J_A_Elements_of_Information_Theory_Wiley-In
+  kind: entity_fact
+  raw_text: 'Color Entropy citation: ''Cover, T. M., & Thomas, J. A. (n.d.). Elements
+    of Information Theory. Wiley-Interscience.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:39Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Jocher G 2020 Ultralytics YOLOv5
+  claim_id: c_706d117b
+  context: 'Phase 5, User Story 3, T037b: Methods citations for YOLOv5.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'YOLOv5 citation: ''Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:14:43Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 0
+  canonical: Synthetic participant records N greater than or equal to 100
+  claim_id: c_95d7ef49
+  context: "Full Synthetic Path: Generate synthetic participant records (N \u2265\
+    \ 100) with participant_id, reaction_time, accuracy."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P6366: 160920958'
+      source_id: Q7662746
+      url: https://www.wikidata.org/wiki/Q7662746
+      value: '160920958'
+    filled: true
+  kind: magnitude
+  raw_text: "Generate synthetic participant records (N \u2265 100) with participant_id,\
+    \ reaction_time, accuracy."
+  resolved_value: '160920958'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T14:15:07Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 0
+  canonical: Holm-Bonferroni method used for family-wise error correction
+  claim_id: c_841e608a
+  context: 'CRITICAL: Generate a text snippet explicitly stating: ''The Holm-Bonferroni
+    method was used for family-wise error correction.'''
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In statistics, the Holm\u2013Bonferroni method, also called the Holm\
+        \ method or Bonferroni\u2013Holm method, is used to counteract the problem\
+        \ of multiple comparisons. It is intended to control the family-wise error\
+        \ rate (FWER) and offers a simple test uniformly more powerful than the Bonferroni\
+        \ correction. It is named after Sture Holm, who codified the method, and Carlo\
+        \ Emilio Bonferroni."
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: family-wise error rate (FWER)
+    filled: true
+  kind: entity_fact
+  raw_text: The Holm-Bonferroni method was used for family-wise error correction.
+  resolved_value: family-wise error rate (FWER)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T14:15:09Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: reaction_time normal distribution mean 600 std 100 ms
+  claim_id: c_6ccc3bc6
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:10Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: accuracy normal distribution mean 0.85 std 0.05
+  claim_id: c_9ded8176
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    accuracy: Normal distribution, mean=0.85, std=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'accuracy: Normal distribution, mean=0.85, std=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:11Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: visual_complexity normal distribution mean 0.5 std 0.15
+  claim_id: c_92517130
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    visual_complexity (simulated linkage): Normal distribution, mean=0.5, std=0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'visual_complexity (simulated linkage): Normal distribution, mean=0.5,
+    std=0.15.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:11Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Negative correlation between visual_complexity and reaction_time via
+    Cholesky decomposition
+  claim_id: c_eac7754c
+  context: 'Correlation: Apply a negative correlation matrix between visual_complexity
+    and reaction_time using Cholesky decomposition.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Negative_correlation_between_visual_complexity_and_reaction
+  kind: entity_fact
+  raw_text: Apply a negative correlation matrix between visual_complexity and reaction_time
+    using Cholesky decomposition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:13Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha 0.05 tails 2 effect_size 0.3 nobs1 100
+  claim_id: c_1b037d96
+  context: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:14Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson L Statistical methods in psychology journals American Psychologist
+    54 8 594 604
+  claim_id: c_a5cfdfcc
+  context: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (). Statistical\
+    \ methods in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Wilkinson, L., & Task Force on Statistical Inference. (). Statistical\
+    \ methods in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:19Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Cover T M Thomas J A Elements of Information Theory Wiley-Interscience
+  claim_id: c_15639ce8
+  context: 'Color Entropy: ''Cover, T. M., & Thomas, J. A. (n.d.). Elements of Information
+    Theory. Wiley-Interscience.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cover_T_M_Thomas_J_A_Elements_of_Information_Theory_Wiley-In
+  kind: entity_fact
+  raw_text: Cover, T. M., & Thomas, J. A. (n.d.). Elements of Information Theory.
+    Wiley-Interscience.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:21Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Jocher G 2020 Ultralytics YOLOv5
+  claim_id: c_efab817d
+  context: 'YOLOv5: ''Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5'''
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Jocher, G. (2020). Ultralytics YOLOv5. https://github.com/ultralytics/yolov5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:21Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling 1000 iterations
+  claim_id: c_778837e3
+  context: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap to compute 95% confidence intervals for correlation\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "bootstrap resampling (\u22651000 iterations)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:15:22Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Synthetic participant records N >= 100
+  claim_id: c_6c107fe7
+  context: "Full Synthetic Path: Generate synthetic participant records (N \u2265\
+    \ 100) with participant_id, reaction_time, accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate synthetic participant records (N \u2265 100) with participant_id,\
+    \ reaction_time, accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:55Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Reaction time mean 600 ms std 100 ms
+  claim_id: c_a2c95f80
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'reaction_time: Normal distribution, mean=600, std=100 (ms).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Accuracy mean 0.85 std 0.05
+  claim_id: c_dc8cd6ec
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    accuracy: Normal distribution, mean=0.85, std=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'accuracy: Normal distribution, mean=0.85, std=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Visual complexity mean 0.5 std 0.15
+  claim_id: c_caf6f4cc
+  context: 'Parameters: Use hardcoded statistical parameters to ensure determinism:
+    visual_complexity (simulated linkage): Normal distribution, mean=0.5, std=0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'visual_complexity (simulated linkage): Normal distribution, mean=0.5,
+    std=0.15.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:56Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha 0.05 effect size 0.3 nobs 100
+  claim_id: c_abf32692
+  context: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use statsmodels.stats.power.tt_solve_power with fixed parameters: alpha=0.05,
+    tails=2, effect_size=0.3 (Cohen''s d), nobs1=100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:57Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling >= 1000 iterations 95% CI
+  claim_id: c_c26f8231
+  context: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap to compute 95% confidence intervals for correlation\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement bootstrap resampling (\u22651000 iterations) in code/03_analysis.py\
+    \ using scipy.stats.bootstrap to compute 95% confidence intervals for correlation\
+    \ coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:18:57Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wilkinson L Task Force Statistical Inference American Psychologist 54
+    8 594-604
+  claim_id: c_36e0eb2c
+  context: "Citation: 'Wilkinson, L., & Task Force on Statistical Inference. (). Statistical\
+    \ methods in psychology journals: Guidelines and explanations. American Psychologist,\
+    \ 54(8), 594\u2013604.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The justification must include: (c) Citation: 'Wilkinson, L., & Task\
+    \ Force on Statistical Inference. (). Statistical methods in psychology journals:\
+    \ Guidelines and explanations. American Psychologist, 54(8), 594\u2013604.'"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:19:15Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Justification minimum length 150 words
+  claim_id: c_0b7134ed
+  context: 'Minimum length: 150 words.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The justification must have a minimum length: 150 words.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T14:19:33Z'

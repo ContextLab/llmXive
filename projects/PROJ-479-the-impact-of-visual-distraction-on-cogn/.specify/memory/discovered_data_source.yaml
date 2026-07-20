@@ -1,14 +1,16 @@
 status: none
-intent: OpenML Stroop dataset reaction time accuracy plus HuggingFace flanker dataset
-  python package dataset
+intent: OpenML Stroop Flanker participant reaction time dataset HuggingFace python
+  package dataset
 required_fields:
 - participant_id
+- task_name
 - reaction_time
 - accuracy
+- trial_number
 - image_id
 - edge_density
 - color_entropy
 - object_count
-cache_key: e3ea8928be1998c62ba59d45fada96c8315ba329db9e02b8aa9f1996fe8e3d4f
-searched_at: '2026-07-19T20:05:16.055136+00:00'
+cache_key: 549d252c597c2c08fd4c623176b37f8bc0e1e8f270aecb3fb153c2840f44bb83
+searched_at: '2026-07-20T13:54:56.215154+00:00'
 retry_count: 1
