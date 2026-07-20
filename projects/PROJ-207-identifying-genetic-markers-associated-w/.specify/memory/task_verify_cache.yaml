@@ -1,10 +1,10 @@
 T022:
   c: true
-  h: 2e04f2d0cb344a38badbb15ebb153884eb2aa945690574b96b735d3f7466f672
-  r: "The repository contains a non\u2011empty `code/04_apply_fdr.sh` that references\
-    \ the required input file, invokes the `code/utils/fdr_correction.py` script (T020),\
-    \ and writes results to `data/processed/gwas_results_fdr.tsv`. The script\u2019\
-    s logic matches the task description, satisfying the creation requirement."
+  h: f253aacd0faf4faa9a1ab8f2cf8a6b4ee2689f97856d8177e9f82a0b082cc747
+  r: "The `code/04_apply_fdr.sh` script is present, non\u2011empty, and correctly\
+    \ invokes `code/utils/fdr_correction.py` on `data/interim/gwas_raw.tsv`, writing\
+    \ the results to `data/processed/gwas_results_fdr.tsv`. The required files are\
+    \ referenced as specified, satisfying the task\u2019s deliverable."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -333,3 +333,466 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T14:41:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: fetch data from NCBI BioProject PRJNA with SSL verification
+  claim_id: c_caf11c7f
+  context: 'Primary Strategy: The system MUST attempt to fetch real data from NCBI
+    BioProject using requests with SSL verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_data_from_NCBI_BioProject_PRJNA_with_SSL_verification
+  kind: entity_fact
+  raw_text: The system MUST attempt to fetch real data from NCBI BioProject PRJNA
+    with SSL verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:33:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt with ERR_SAMPLE_SIZE_INSUFFICIENT if sample size n < 80
+  claim_id: c_638f1d04
+  context: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n < 80, the system must halt with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:33:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt with ERR_POWER_INSUFFICIENT if power < 0.20 and n >= 80
+  claim_id: c_0ce70959
+  context: 'If n >= 80 AND Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT
+    and report the calculated power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n >= 80 AND Power < 0.20, the system must halt with error code ERR_POWER_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:33:40Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: live bee population must be less than 10% relative to peak season for
+    CCD diagnosis
+  claim_id: c_71ceea4d
+  context: Logic MUST fail validation if any of these criteria are not met in the
+    synthetic data generation process (FR-011). 3. Live bee population < 10% relative
+    to peak season.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Live_bee_population_must_be_less_than_10%25_relative_to_peak_s
+  kind: magnitude
+  raw_text: The CCD diagnosis validation logic checks for live bee population < 10%
+    relative to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:34:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: 1000 phenotype permutations with fixed random seed for reproducible null
+    distribution
+  claim_id: c_03d4148f
+  context: Generate null distribution via 1000 phenotype permutations (seed=42). Compare
+    AUC against a high quantile of the null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a fixed random seed for 1000 phenotype permutations to
+    ensure reproducible null distribution generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:34:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: report low predictive power if AUC < 0.75
+  claim_id: c_ef15fdb9
+  context: If AUC < 0.75, the system MUST report the result as 'low predictive power'
+    in the output artifact.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If AUC < 0.75, the system must report the result as low predictive power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:34:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: synthetic data verification requires at least 10 rows with non-null go_terms
+  claim_id: c_1a438d7f
+  context: Verify data/processed/annotated_snps.tsv exists and contains at least 10
+    rows with non-null go_terms (for synthetic data with known annotations).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_verification_requires_at_least_10_rows_with_n
+  kind: magnitude
+  raw_text: The verification process requires synthetic data with known annotations
+    to contain at least 10 rows with non-null go_terms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:35:17Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt with ERR_VARROA_COVARIATE_MISSING if Varroa data coverage is less
+    than 80%
+  claim_id: c_3eb2c93b
+  context: 'Mandatory: If < 80% of the total cohort has Varroa data (i.e. > 20% missing),
+    raise ERR_VARROA_COVARIATE_MISSING and halt.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_ERR_VARROA_COVARIATE_MISSING_if_Varroa_data_covera
+  kind: magnitude
+  raw_text: If less than 80% of the total cohort has Varroa data, the system must
+    raise ERR_VARROA_COVARIATE_MISSING and halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:36:06Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: flag SNPs with q value less than 0.05 as significant
+  claim_id: c_d6dc0a25
+  context: Update code/04_apply_fdr.sh to flag SNPs with q < 0.05 as significant and
+    document the study design.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_SNPs_with_q_value_less_than_0.05_as_significant
+  kind: magnitude
+  raw_text: The system flags SNPs with q < 0.05 as significant.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:36:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: fetch real data from NCBI BioProject PRJNA with SSL verification
+  claim_id: c_7b3d5c5a
+  context: 'T012a [US1] Implement code/01_download.py to fetch data from NCBI BioProject
+    PRJNA with SSL verification (FR-001). Primary Strategy: The system MUST attempt
+    to fetch real data from NCBI BioProject using requests with SSL verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_data_from_NCBI_BioProject_PRJNA_with_SSL_verifica
+  kind: entity_fact
+  raw_text: The system MUST attempt to fetch real data from NCBI BioProject using
+    requests with SSL verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:53:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt with error code ERR_SAMPLE_SIZE_INSUFFICIENT if n < 80
+  claim_id: c_80498458
+  context: 'T005 [P] Implement code/utils/power_analysis.py for FR-012. MUST: 1. Calculate
+    power using non-central chi-squared distribution. 2. If n < 80: HALT with error
+    code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n < 80, the power analysis halts with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:53:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt with error code ERR_POWER_INSUFFICIENT if n >= 80 and Power < 0.20
+  claim_id: c_4d7fff6a
+  context: 'T005 [P] Implement code/utils/power_analysis.py for FR-012. MUST: ...
+    3. If n >= 80 AND Power < 0.20: HALT with error code ERR_POWER_INSUFFICIENT and
+    report the calculated power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n >= 80 and Power < 0.20, the power analysis halts with error code
+    ERR_POWER_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:54:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: invoke synthetic data generator on missing file 404/403 or network unreachable
+  claim_id: c_7ec88e2f
+  context: 'T012a ... 3. On Missing File: If the fetch fails because the file is missing
+    (404/403) or network is unreachable (but SSL is valid), the system MUST automatically
+    invoke the synthetic data generator (code/00_generate_synthetic_data.py from T009)
+    to generate the baseline dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST automatically invoke the synthetic data generator if the
+    fetch fails because the file is missing (404/403) or network is unreachable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:54:39Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: live bee population less than 10% relative to peak season for CCD diagnosis
+  claim_id: c_367920e4
+  context: 'T009 [P] ... MUST implement CCD diagnosis validation logic that explicitly
+    checks: ... 3. Live bee population < 10% relative to peak season.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Live_bee_population_less_than_10%25_relative_to_peak_season_fo
+  kind: magnitude
+  raw_text: The live bee population must be less than 10% relative to peak season
+    to pass CCD diagnosis validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:55:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: use dwgsim with fixed random seed for reproducibility
+  claim_id: c_2278c1f7
+  context: 'T013b [US1] ... 2. Use dwgsim with a fixed random seed to ensure reproducibility.
+    Command: dwgsim -e 0.02 -d 500 -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_dwgsim_with_fixed_random_seed_for_reproducibility
+  kind: entity_fact
+  raw_text: The system uses dwgsim with a fixed random seed to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:55:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: use QUAL greater than 30 filter for variant calling
+  claim_id: c_81674446
+  context: "T014 [US1] Create code/02_align_call.sh to wrap bwa mem (alignment) and\
+    \ FreeBayes (variant calling) with QUAL > 30 and depth \u2265 10 filters (FR-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_QUAL_greater_than_30_filter_for_variant_calling
+  kind: magnitude
+  raw_text: The system uses a QUAL > 30 filter for variant calling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:56:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: use depth greater than or equal to 10 filter for variant calling
+  claim_id: c_4f2b2c0b
+  context: "T014 [US1] Create code/02_align_call.sh to wrap bwa mem (alignment) and\
+    \ FreeBayes (variant calling) with QUAL > 30 and depth \u2265 10 filters (FR-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_depth_greater_than_or_equal_to_10_filter_for_variant_cal
+  kind: magnitude
+  raw_text: "The system uses a depth \u2265 10 filter for variant calling."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:57:47Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: perform LD pruning with r squared less than 0.2
+  claim_id: c_de75b8dc
+  context: "T016 [US1] Implement code/utils/preprocess_phenotype.py for LD pruning\
+    \ (r\xB2 < 0.2) and covariate encoding (geographic region, sampling year, Varroa\
+    \ load) (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_LD_pruning_with_r_squared_less_than_0.2
+  kind: magnitude
+  raw_text: "LD pruning is performed with an r\xB2 threshold of less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:58:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: switch to PCA strategy if VIF greater than or equal to 5
+  claim_id: c_1d5b4d99
+  context: 'T046 [US1] ... Condition: If VIF >= 5 (inclusive boundary): Log ''High
+    collinearity detected (VIF >= 5). Switching to PCA strategy per Plan Constitution
+    Check VII.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_PCA_strategy_if_VIF_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: The system switches to a PCA strategy if the Variance Inflation Factor
+    (VIF) is greater than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:59:56Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: flag SNPs with q less than 0.05 as significant
+  claim_id: c_b0793b4a
+  context: T023 [US2] Update code/04_apply_fdr.sh to flag SNPs with q < 0.05 as significant
+    and document the study design.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_SNPs_with_q_less_than_0.05_as_significant
+  kind: magnitude
+  raw_text: The system flags SNPs with q < 0.05 as significant.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:59:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: generate null distribution via 1000 phenotype permutations with seed
+    42
+  claim_id: c_0368ca36
+  context: 'T030 [US3] Add AUC threshold logic in code/04_ml_validation.py: Generate
+    null distribution via 1000 phenotype permutations (seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system generates a null distribution via 1000 phenotype permutations
+    with a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:00:53Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: report low predictive power if AUC less than 0.75
+  claim_id: c_58a940d5
+  context: 'T030 [US3] ... MANDATORY: If AUC < 0.75, the system MUST report the result
+    as ''low predictive power'' in the output artifact.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_low_predictive_power_if_AUC_less_than_0.75
+  kind: magnitude
+  raw_text: The system reports the result as 'low predictive power' if the AUC is
+    less than 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:06:26Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: verify annotated SNPs file contains at least 10 rows with non-null go_terms
+    for synthetic data
+  claim_id: c_74a4cdc9
+  context: 'T032 [US3] ... Verification: Verify data/processed/annotated_snps.tsv
+    exists and contains at least 10 rows with non-null go_terms (for synthetic data
+    with known annotations).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_annotated_SNPs_file_contains_at_least_10_rows_with_no
+  kind: magnitude
+  raw_text: The system verifies that the annotated SNPs file contains at least 10
+    rows with non-null go_terms for synthetic data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:08:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt if less than 80% of cohort has Varroa data
+  claim_id: c_b11096fb
+  context: 'T044 [P] ... Mandatory: If < 80% of the total cohort has Varroa data (i.e.,
+    > 20% missing), raise ERR_VARROA_COVARIATE_MISSING and halt.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_less_than_80%25_of_cohort_has_Varroa_data
+  kind: magnitude
+  raw_text: If less than 80% of the total cohort has Varroa data, the system raises
+    an error and halts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:10:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: exclude samples from covariate model if missing Varroa data less than
+    or equal to 20%
+  claim_id: c_4eb17c24
+  context: "T044 [P] ... Mandatory: If missing for \u2264 20%, exclude those samples\
+    \ from the covariate model but retain for genotype-only analysis."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_from_covariate_model_if_missing_Varroa_data
+  kind: magnitude
+  raw_text: The system excludes samples from the covariate model if missing Varroa
+    data is less than or equal to 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T01:13:14Z'

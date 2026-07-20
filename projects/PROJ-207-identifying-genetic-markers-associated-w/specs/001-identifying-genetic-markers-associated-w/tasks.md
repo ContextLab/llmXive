@@ -140,7 +140,7 @@ requests
  1. Ensure bwa and freebayes are installed: `conda config --add channels bioconda` then `conda install -c bioconda bwa freebayes`.
  2. Execute alignment and variant calling.
 - [X] T015 [US1] Implement VCF to PLINK format conversion in `code/utils/vcf_to_plink.py` (FR-003)
-- [X] T016 [US1] Implement `code/utils/preprocess_phenotype.py` for LD pruning (r² < 0.2) and covariate encoding (geographic region, sampling year, Varroa load) (FR-003).
+- [X] T016 [US1] Implement `code/utils/preprocess_phenotype.py` for LD pruning (r² < 0.2) and covariate encoding (geographic region, sampling year, Varroa load) (FR-003). <!-- FAILED: unspecified -->
  - **Input**: Phenotype data from T009 (synthetic) or T012a (real).
  - **Output**: `data/processed/phenotypes_cleaned.fam` and `data/processed/phenotypes_cleaned.pheno`.
  - **MANDATORY**: MUST include geographic region, sampling year, and Varroa mite count in the model (unless PCA is triggered by T046, which is now a diagnostic, not a halt).
@@ -159,7 +159,7 @@ requests
  - Generate PCA covariates (using `code/utils/collinearity_diag.py` or PLINK `--pca`).
  - **Output**: Generate `data/processed/model_config.yaml` containing:
  - `strategy: "PCA"`
- - `pc_columns: ["PC1", "PC2", ...]` (list of generated PCs)
+ - `pc_columns: ["PC1", "PC2",...]` (list of generated PCs)
  - `collinearity_warning: "VIF >= 5 detected; PCA used for population structure control."`
  - `covariate_columns: []` (or keep non-collinear ones)
  - **Condition**: If VIF < 5:
@@ -171,7 +171,7 @@ requests
  - **MANDATORY**: The script MUST NOT HALT. It must always produce `model_config.yaml` to allow T017 to proceed.
  - **Verification**: Ensure the script exits with code 0 and the `model_config.yaml` file exists in both VIF < 5 and VIF >= 5 cases. Verify that in the VIF >= 5 case, the strategy is "PCA".
  - **Depends on**: T006, T016.
-- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with covariates (or PCs from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T022. Output to `data/interim/gwas_raw.tsv`.
+- [ ] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with covariates (or PCs from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T022. Output to `data/interim/gwas_raw.tsv`.
  - **Implementation**:
  1. **Required Artifacts**: `data/processed/model_config.yaml` (Output of T046), `data/processed/phenotypes_cleaned.fam` (Output of T016).
  2. **Execution Gates**: T043 (Power Analysis) MUST pass (exit code 0) before this task executes. T046 (Collinearity Guard) MUST pass (exit code 0) before this task executes.
@@ -249,7 +249,7 @@ requests
 
 ### Implementation for User Story 3
 
-- [X] T027 [P] [US3] Implement LASSO logistic regression with k-fold cross-validation. in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value
+- [X] T027 [P] [US3] Implement LASSO logistic regression with k-fold cross-validation. in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value <!-- FAILED: unspecified -->
 - [X] T028 [US3] Implement Polygenic Risk Score (PRS) calculation in `code/04_ml_validation.py` (FR-007)
 - [X] T029 [US3] Implement likelihood-ratio test for PRS improvement over covariates-only model in `code/04_ml_validation.py` (FR-007)
 - [X] T030 [US3] Add AUC threshold logic in `code/04_ml_validation.py`:

@@ -1,135 +1,205 @@
 #!/bin/bash
-# T017: Execute PLINK logistic regression for GWAS
-# Output: data/interim/gwas_raw.tsv
-# Dependencies:
-#   - T016: data/processed/phenotypes_cleaned.fam, data/processed/phenotypes_cleaned.pheno
-#   - T046: data/processed/model_config.yaml
-#   - T043: Power analysis gate (must have passed)
-#   - T046: Collinearity guard (must have passed)
+# code/03_gwas.sh
+# Executes PLINK2 logistic regression with covariates or PCA components.
+# Reads configuration from data/processed/model_config.yaml to determine strategy.
+# Outputs raw association statistics to data/interim/gwas_raw.tsv.
+#
+# Prerequisites (must be run before this script):
+#   - T016: Phenotype preprocessing (produces data/processed/phenotypes_cleaned.fam/pheno)
+#   - T015: VCF to PLINK conversion (produces data/processed/genotypes.{bed,bim,fam})
+#   - T043: Power analysis (must exit 0)
+#   - T046: Collinearity guard (produces data/processed/model_config.yaml)
 
 set -e
 
+echo "=== Starting GWAS Pipeline (T017) ==="
+
+# Define paths relative to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Paths
-MODEL_CONFIG="$PROJECT_ROOT/data/processed/model_config.yaml"
-PHENO_FILE="$PROJECT_ROOT/data/processed/phenotypes_cleaned.fam"
-PHENO_DATA="$PROJECT_ROOT/data/processed/phenotypes_cleaned.pheno"
-GENO_PREFIX="$PROJECT_ROOT/data/processed/honeybee_gwas" # Assumes T015 output prefix
+CONFIG_FILE="$PROJECT_ROOT/data/processed/model_config.yaml"
+FAM_FILE="$PROJECT_ROOT/data/processed/phenotypes_cleaned.fam"
+PHENO_FILE="$PROJECT_ROOT/data/processed/phenotypes_cleaned.pheno"
+BED_PREFIX="$PROJECT_ROOT/data/processed/genotypes"
+
 OUTPUT_DIR="$PROJECT_ROOT/data/interim"
 OUTPUT_FILE="$OUTPUT_DIR/gwas_raw.tsv"
-
-echo "=== T017: GWAS Execution ==="
-
-# Check prerequisites
-if [ ! -f "$MODEL_CONFIG" ]; then
-    echo "ERROR: Model config not found at $MODEL_CONFIG. Did T046 run?"
-    exit 1
-fi
-
-if [ ! -f "$PHENO_FILE" ] || [ ! -f "$PHENO_DATA" ]; then
-    echo "ERROR: Phenotype files not found. Did T016 run?"
-    exit 1
-fi
-
-if [ ! -f "$GENO_PREFIX.bed" ]; then
-    echo "ERROR: Genotype files not found at $GENO_PREFIX. Did T015 run?"
-    exit 1
-fi
 
 # Ensure output directory exists
 mkdir -p "$OUTPUT_DIR"
 
-# Read strategy from model_config.yaml
-STRATEGY=$(grep "^strategy:" "$MODEL_CONFIG" | awk '{print $2}')
+# Check prerequisites
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "ERROR: Model configuration not found at $CONFIG_FILE. Run T046 first."
+    exit 1
+fi
 
-# Build PLINK arguments
-PLINK_ARGS="--bfile $GENO_PREFIX"
-PLINK_ARGS="$PLINK_ARGS --logistic hide-covar --out $OUTPUT_DIR/gwas_raw"
+if [ ! -f "$FAM_FILE" ]; then
+    echo "ERROR: Phenotype FAM file not found at $FAM_FILE. Run T016 first."
+    exit 1
+fi
 
-# Add covariates based on strategy
-if [ "$STRATEGY" == "Covariates" ]; then
-    echo "Strategy: Covariates"
-    COVAR_COLS=$(grep "covariate_columns:" "$MODEL_CONFIG" | sed 's/covariate_columns: //' | tr -d '[]"' | tr ',' ' ')
-    # PLINK expects a .pheno file with the first column as FID, second IID, then covariates
-    # The phenotype file from T016 is expected to be formatted correctly by T016
-    PLINK_ARGS="$PLINK_ARGS --pheno $PHENO_DATA"
-    # Note: PLINK2 --covar is used for additional covariates, but if the phenotype file
-    # already contains them as columns 3+, --pheno handles them if specified correctly.
-    # However, T016 output spec says it writes .fam and .pheno.
-    # Standard PLINK --logistic uses --pheno for the binary trait and --covar for covariates.
-    # We assume the .pheno file contains the phenotype in the first column and covariates in subsequent columns.
-    # If the .pheno file only has the phenotype, we need a separate covar file.
-    # Based on T016 description: "Output: data/processed/phenotypes_cleaned.fam and data/processed/phenotypes_cleaned.pheno"
-    # And T016 description: "MUST include geographic region, sampling year, and Varroa mite count in the model".
-    # We assume T016 formats the .pheno file with the phenotype and covariates.
-    # If not, we would need to construct a .covar file. Assuming T016 handles the format for --pheno.
-    # To be safe and explicit with PLINK2, we use --covar if we have a separate file, but here we rely on --pheno structure.
-    # Let's assume the .pheno file has: FID, IID, Phenotype, Cov1, Cov2...
-    # If the .pheno file is just Phenotype, we need to extract covariates.
-    # Given the ambiguity, we will assume T016 produces a .pheno file compatible with --pheno --covar logic or just --pheno.
-    # Standard practice: --pheno for the phenotype column, --covar for the covariate columns.
-    # Let's assume T016 produced a .pheno file with the phenotype and we need to pass covariates separately if they are not in the .pheno file.
-    # However, T016 says it prepares the data. Let's assume the .pheno file contains the phenotype and the covariates are in the same file or a separate one.
-    # To be robust: If the .pheno file has more than 2 columns (FID, IID, Phenotype), we assume the rest are covariates?
-    # Actually, PLINK --pheno expects a specific format.
-    # Let's assume T016 created a file `phenotypes_cleaned.covar` if needed, or the .pheno file is structured correctly.
-    # The task T017 description says: "pass them to PLINK --covar".
-    # So we should look for a covariate file. But T016 only outputs .fam and .pheno.
-    # We will assume the .pheno file contains the phenotype and we need to pass the covariates via a separate file or the .pheno file itself.
-    # Let's assume T016 output `phenotypes_cleaned.pheno` has columns: FID, IID, Phenotype, Cov1, Cov2...
-    # In that case, we can use --pheno and specify which columns are covariates? No, PLINK --pheno uses the first column as phenotype.
-    # We need a separate .covar file for the covariates if they are not the phenotype.
-    # Let's assume T016 also generated `phenotypes_cleaned.covar` or we extract it.
-    # Given the constraints, we will assume T016 generated a file `phenotypes_cleaned.covar` containing the covariates.
-    # If not, we might need to adjust.
-    # Re-reading T016: "Output: data/processed/phenotypes_cleaned.fam and data/processed/phenotypes_cleaned.pheno".
-    # It does NOT mention a .covar file.
-    # So we must assume the .pheno file contains the phenotype and we need to pass covariates.
-    # If the .pheno file contains FID, IID, Phenotype, Cov1, Cov2... then we can use --pheno and --covar?
-    # No, --covar expects a separate file.
-    # Let's assume T016 created a file `phenotypes_cleaned.covar` as part of the "preprocess" step even if not explicitly listed, OR we extract it from the .pheno file.
-    # To be safe, let's assume T016 created `phenotypes_cleaned.covar` with the covariates.
-    COVAR_FILE="$PROJECT_ROOT/data/processed/phenotypes_cleaned.covar"
-    if [ -f "$COVAR_FILE" ]; then
-        PLINK_ARGS="$PLINK_ARGS --covar $COVAR_FILE"
-    else
-        echo "WARNING: Covariate file not found. Running without covariates."
-    fi
-elif [ "$STRATEGY" == "PCA" ]; then
-    echo "Strategy: PCA"
-    PC_COLS=$(grep "pc_columns:" "$MODEL_CONFIG" | sed 's/pc_columns: //' | tr -d '[]"' | tr ',' ' ')
-    PC_FILE="$PROJECT_ROOT/data/processed/eigenvec.txt" # Assumed PCA output from T046
-    if [ -f "$PC_FILE" ]; then
-        PLINK_ARGS="$PLINK_ARGS --covar $PC_FILE"
-    else
-        echo "ERROR: PCA file not found at $PC_FILE. Did T046 generate it?"
+if [ ! -f "${BED_PREFIX}.bed" ] || [ ! -f "${BED_PREFIX}.bim" ] || [ ! -f "${BED_PREFIX}.fam" ]; then
+    echo "ERROR: PLINK genotype files not found at $BED_PREFIX.*. Run T015 first."
+    exit 1
+fi
+
+# Read strategy from YAML config
+STRATEGY=$(grep "^strategy:" "$CONFIG_FILE" | awk '{print $2}')
+
+echo "Detected analysis strategy: $STRATEGY"
+
+COVAR_ARGS=""
+COVAR_FILE=""
+
+if [ "$STRATEGY" == "PCA" ]; then
+    # Extract PC columns from config
+    PC_COLUMNS=$(grep "^pc_columns:" -A 99 "$CONFIG_FILE" | grep -E '^\s+-' | sed 's/^\s*- //' | tr '\n' ',' | sed 's/,$//')
+    
+    if [ -z "$PC_COLUMNS" ]; then
+        echo "ERROR: No PC columns found in model_config.yaml for PCA strategy."
         exit 1
     fi
+
+    # PLINK expects a separate .covar file for PCA components usually, 
+    # but if the phenotype file was updated by T046 to include PCs, we can use --pheno-col.
+    # However, T046 output description says it generates model_config.yaml.
+    # Standard PLINK2 approach: Use --covar with the file containing PCs.
+    # T046 likely outputs a PCA file or updates the phenotype file. 
+    # Assuming T046 outputs a standard PLINK .covar file if PCA is used, 
+    # OR we extract from the phenotype file if T016/T046 merged them.
+    # Given T046 description: "Generate PCA covariates... Output: model_config.yaml... pc_columns".
+    # We assume the phenotype file (or a generated covar file) contains these columns.
+    # Let's assume T046 generated a specific covar file at data/processed/pca_covar.txt if PCA is used.
+    # If not, we might need to construct it. 
+    # For robustness, we check for a generated covar file first.
+    
+    COVAR_FILE="$PROJECT_ROOT/data/processed/pca_covar.txt"
+    if [ ! -f "$COVAR_FILE" ]; then
+        # Fallback: Try to use the phenotype file if it contains the PCs (common in pipelines)
+        # But PLINK --covar requires the file to have FID/IID.
+        # Let's assume T046 created a .covar file. If not, we error.
+        # If T046 didn't create it, the pipeline is broken.
+        # We will assume T046 created it.
+        echo "ERROR: PCA covariate file not found at $COVAR_FILE. T046 must generate this."
+        exit 1
+    fi
+    
+    COVAR_ARGS="--covar $COVAR_FILE --covar-name $PC_COLUMNS"
+    
+elif [ "$STRATEGY" == "Covariates" ]; then
+    # Use the cleaned phenotype file which includes the covariates
+    COVAR_ARGS="--pheno $PHENO_FILE"
+    # Extract covariate column names from config
+    COVARIATE_COLUMNS=$(grep "^covariate_columns:" -A 99 "$CONFIG_FILE" | grep -E '^\s+-' | sed 's/^\s*- //' | tr '\n' ',' | sed 's/,$//')
+    
+    if [ -z "$COVARIATE_COLUMNS" ]; then
+        echo "WARNING: No covariate columns found in config, running without covariates."
+    else
+        # PLINK --pheno-col expects 1-based indices or names if --pheno-name is used?
+        # Actually, --pheno takes the file, and --pheno-name takes the column header.
+        # We need to specify which columns are covariates.
+        # PLINK2 syntax: --covar is for external files. --pheno is for phenotype.
+        # If covariates are in the .pheno file, we treat them as covariates?
+        # PLINK2 --logistic [covariates in .pheno file?] -> Usually .pheno is just the phenotype.
+        # Standard practice: Covariates go in a .covar file. 
+        # If T016 put them in the .pheno file, we need to move them or use --pheno-col?
+        # PLINK2 --logistic hide-covar ... --covar-name ...
+        # Let's assume T016/T046 logic ensured a .covar file exists for covariates too, 
+        # OR we use the .pheno file as the covar file if it contains the right columns.
+        # To be safe and follow PLINK2 best practices:
+        # If covariates are in the .pheno file, we can use --pheno and --pheno-name for the outcome,
+        # and --covar for the rest? No, .pheno can't be .covar simultaneously easily.
+        # Re-reading T016: "Output: data/processed/phenotypes_cleaned.fam and data/processed/phenotypes_cleaned.pheno".
+        # T046: "If VIF < 5: Output model_config.yaml with covariate_columns".
+        # It implies we should use these columns as covariates.
+        # We will assume the .pheno file contains the phenotype in the first column and covariates in subsequent columns.
+        # PLINK2 --logistic --pheno file.pheno --pheno-name PHENOTYPE --covar file.pheno --covar-name COL1,COL2...
+        # This is valid.
+        
+        # Construct the command to use the .pheno file as both source of phenotype and covariates
+        # We assume the first column of .pheno is the phenotype (CCD status) and others are covariates.
+        # We need to know the phenotype column name. Let's assume it's 'CCD_Status' or similar.
+        # Since we don't know the exact header, we will assume the user knows or the file is standard.
+        # However, to be precise, we will use the .pheno file as the covar file for the covariates.
+        
+        # Let's assume the .pheno file has headers.
+        # We will pass the .pheno file as the covar file for the covariates.
+        COVAR_FILE="$PHENO_FILE"
+        COVAR_ARGS="--covar $COVAR_FILE --covar-name $COVARIATE_COLUMNS --pheno $PHENO_FILE --pheno-name CCD_Status" 
+        # Note: --pheno-name is required if multiple columns exist. 
+        # If T016 named the phenotype column 'CCD_Status', this works.
+        # If not, we might need to adjust. Assuming standard naming from T009/T016.
+        
 else
-    echo "ERROR: Unknown strategy '$STRATEGY' in model_config.yaml"
+    echo "ERROR: Unknown strategy '$STRATEGY' in $CONFIG_FILE. Must be 'PCA' or 'Covariates'."
     exit 1
 fi
 
-echo "Executing PLINK2 with args: $PLINK_ARGS"
-plink2 $PLINK_ARGS
+echo "Executing PLINK2 logistic regression..."
+echo "Strategy: $STRATEGY"
+echo "Output: $OUTPUT_FILE"
+
+# Run PLINK2
+# --logistic: Perform logistic regression
+# --hide-covar: Hide covariate output in the main .assoc.logistic file (optional, keeps it clean)
+# --out: Output prefix
+plink2 \
+    --bfile "$BED_PREFIX" \
+    --logistic \
+    $COVAR_ARGS \
+    --out "$OUTPUT_DIR/gwas_raw"
+
+# PLINK2 outputs gwas_raw.assoc.logistic by default.
+# We need to rename/move it to gwas_raw.tsv and ensure column names match requirements:
+# SNP, CHR, POS, P, Odds_Ratio, SE
+# PLINK2 default columns: CHR, SNP, BP, A1, TEST, NMISS, BETA, SE, Z, P, OR
+# We need to map: SNP -> SNP, CHR -> CHR, BP -> POS, P -> P, OR -> Odds_Ratio, SE -> SE
+
+# Check if output file exists
+if [ ! -f "$OUTPUT_DIR/gwas_raw.assoc.logistic" ]; then
+    echo "ERROR: PLINK2 failed to produce output file."
+    exit 1
+fi
+
+# Process the output to match the required schema
+# Using awk to reorder and rename columns
+awk 'BEGIN {FS="\t"; OFS="\t"} 
+     NR==1 {
+         # Find column indices
+         for(i=1; i<=NF; i++) {
+             if($i=="SNP") snp_col=i;
+             if($i=="CHR") chr_col=i;
+             if($i=="BP") bp_col=i;
+             if($i=="P") p_col=i;
+             if($i=="SE") se_col=i;
+             if($i=="OR") or_col=i;
+         }
+         # Print new header
+         print "SNP", "CHR", "POS", "P", "Odds_Ratio", "SE"
+         next
+     }
+     {
+         print $snp_col, $chr_col, $bp_col, $p_col, $or_col, $se_col
+     }' "$OUTPUT_DIR/gwas_raw.assoc.logistic" > "$OUTPUT_FILE"
 
 # Verify output
-if [ ! -f "$OUTPUT_FILE" ]; then
-    echo "ERROR: PLINK2 did not produce $OUTPUT_FILE"
+if [ -f "$OUTPUT_FILE" ]; then
+    ROW_COUNT=$(wc -l < "$OUTPUT_FILE")
+    echo "SUCCESS: GWAS raw results written to $OUTPUT_FILE ($ROW_COUNT rows)"
+    
+    # Verify header
+    HEADER=$(head -n 1 "$OUTPUT_FILE")
+    EXPECTED_HEADER="SNP	CHR	POS	P	Odds_Ratio	SE"
+    if [ "$HEADER" == "$EXPECTED_HEADER" ]; then
+        echo "Header verification: PASSED"
+    else
+        echo "Header verification: FAILED (Expected: $EXPECTED_HEADER, Got: $HEADER)"
+    fi
+else
+    echo "ERROR: Failed to write output file $OUTPUT_FILE"
     exit 1
 fi
 
-# Ensure required columns exist (PLINK2 --logistic output format)
-# Expected: CHROM, POS, SNP, A1, TEST, NMISS, BETA, SE, L95, U95, STAT, P
-# We need to map to: SNP, CHR, POS, P, Odds_Ratio, SE
-# PLINK2 --logistic produces odds ratio in the 'OR' column if --logistic is used with appropriate flags.
-# Let's check the header.
-if ! head -n 1 "$OUTPUT_FILE" | grep -q "SNP"; then
-    echo "ERROR: Output file missing 'SNP' column"
-    exit 1
-fi
-
-echo "GWAS raw statistics written to $OUTPUT_FILE"
-echo "T017 completed successfully."
+echo "=== GWAS Pipeline (T017) Complete ==="

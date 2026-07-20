@@ -19,6 +19,7 @@ def generate_thresholds():
     Sweeps across a range of low-magnitude values to test robustness.
     """
     # Standard GWAS significance thresholds + intermediate steps for sensitivity
+    # These are the specific values mandated by the task description
     return [1e-5, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8]
 
 def run_sensitivity_analysis(df, thresholds):
