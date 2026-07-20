@@ -1,0 +1,29 @@
+status: verified
+kind: pypi_package
+ref: ucimlrepo
+access_python: "import pandas as pd\nfrom ucimlrepo import fetch_ucirepo\nrepo = fetch_ucirepo(id=235)\n\
+  # The fetched object has a .data attribute with original and processed DataFrames\n\
+  df = getattr(repo, 'data', None)\nif df is None:\n    raise RuntimeError('Missing\
+  \ data attribute')\n# Try original first, fallback to processed\norig = getattr(df,\
+  \ 'original', None)\nproc = getattr(df, 'processed', None)\nif orig is not None:\n\
+  \    df = orig\nelif proc is not None:\n    df = proc\nelse:\n    raise RuntimeError('No\
+  \ DataFrame found in repository object')\nrecords = len(df)\nprint(f\"RECORDS={records}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(df.columns))"
+record_count: 2075259
+sample_fields:
+- Date
+- Time
+- Global_active_power
+- Global_reactive_power
+- Voltage
+- Global_intensity
+- Sub_metering_1
+- Sub_metering_2
+- Sub_metering_3
+field_coverage: 0.5
+required_fields:
+- time
+- value
+intent: UCI Individual Household Electric Power Consumption download python package
+  dataset
+cache_key: ab2ae1b00227def72009cbbd5b3b4e4ae60e6fba5e3d97daead092d5b9ba0485

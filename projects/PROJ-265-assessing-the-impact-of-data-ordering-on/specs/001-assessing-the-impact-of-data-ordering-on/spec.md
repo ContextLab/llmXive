@@ -92,7 +92,7 @@ The system MUST load the UCI Individual Household Electric Power Consumption dat
 - The `statsmodels` library is available in the GitHub Actions free-tier environment and can be installed without GPU dependencies.
 - The UCI Individual Household Electric Power Consumption dataset is accessible via the verified URL ` and the file integrity can be verified using MD5 checksum.
 - The synthetic AR() generation assumes a Gaussian error term with a mean of zero and variance of one., which is sufficient for testing the exchangeability violation.
-- The sample size $N \in \{, 100, 200\}$ is sufficient to estimate the mean and standard deviation and allow a substantial number of bootstrap resamples to run within the 6-hour compute limit.
+- The sample size $N \in \{,, 200\}$ is sufficient to estimate the mean and standard deviation and allow a substantial number of bootstrap resamples to run within the 6-hour compute limit.
 - The "true mean" for synthetic data is the theoretical process mean (0), serving as the ground truth for coverage calculation.
 - For real-world data, the "ground truth" is approximated by the Block-Bootstrap estimate, as the true population mean is unknown.
 - A two-proportion z-test on aggregate counts is an appropriate approximation for the paired simulation design, avoiding the need for computationally expensive exact tests.
