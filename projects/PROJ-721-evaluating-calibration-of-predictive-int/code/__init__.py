@@ -1,3 +1,3 @@
 """
-Code module for M4 calibration evaluation pipeline.
+Code module for evaluating calibration of predictive intervals in time series forecasting.
 """

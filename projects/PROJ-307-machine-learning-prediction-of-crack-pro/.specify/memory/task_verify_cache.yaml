@@ -1,0 +1,37 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any `__init__.py` files or placeholder module files in the `code/`
+    directory is provided; the implementer did not supply the required artifacts,
+    so the task is not satisfied.
+T009:
+  c: false
+  h: dc6c546f108d77f5126afdd02c992074c4d1be2b09f725f3c797db77ddf427b4
+  r: The provided `code/data/loader.py` exists and contains a `validate_schema` function,
+    but the required schema file `contracts/dataset.schema.yaml` is missing, so the
+    loader cannot actually consume the intended schema. Add the missing schema file
+    (and optionally import any missing types) to satisfy the task.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration or logging files (e.g., `config.yaml`, `.env`, `logging.py`,
+    or similar) are present in the `code/` directory, nor is any evidence (code snippets,
+    screenshots, test output) provided to demonstrate that environment configuration
+    management and logging infrastructure have been set up. The required artifacts
+    are missing, so the task is not satisfied.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, test, or documentation showing the added validation logic is
+    provided; the claim lacks any concrete artifact demonstrating that the pipeline
+    now halts when required columns are missing after cleaning. The required implementation
+    is therefore not evidenced.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files or scripts were presented in `code/analysis/` that perform feature\u2011\
+    importance aggregation or extract the top\u20113 features, and thus the required\
+    \ artifact is missing. The implementer must add the appropriate implementation\
+    \ (e.g., a Python module that reads model importance outputs, aggregates them\
+    \ across folds or models, and returns the three most important non\u2011\u0394\
+    K features)."

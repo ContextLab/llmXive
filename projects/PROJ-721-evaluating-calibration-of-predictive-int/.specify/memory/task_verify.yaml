@@ -1,13 +1,3 @@
-? 'T001 [P] Initialize project directory structure: Create `projects/PROJ-721-evaluating-calibration-of-predictive-int/`
-  with `code/`, `data/`, `results/`, `tests/`, `contracts/` subdirectories and all
-  necessary `__init__.py` files <!-- ATOMIZE: requested -->'
-: 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (pins `statsmodels`,
-  `prophet`, `lightgbm`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `matplotlib`,
-  `seaborn`, `pyyaml`, `pytest-json-report`)
-: 1
-T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools: 1
-? "T004 Implement `code/download.py` to fetch M4 dataset (M4-Dataset.zip and manifest.json)\
-  \ from official GitHub repo [UNRESOLVED-CLAIM: c_f41c15b3 \u2014 status=not_enough_info]\
-  \ (`) and validate SHA256 checksums against manifest"
-: 1
+T001: 1
+T003: 1
+T004: 1

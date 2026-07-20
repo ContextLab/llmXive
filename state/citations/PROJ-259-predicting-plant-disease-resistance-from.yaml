@@ -1,4 +1,4 @@
-- artifact_hash: 7e39271f31b1b4f491606cd5556742b736ff7e8e946a73e0716ddd41fa0415d8
+- artifact_hash: 8880cbdcbd5175c634ea20c2223f05a930ea1f2f82cd730e6b5e2dc5bd4d1165
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -7,10 +7,10 @@
     Study'
   kind: url
   value: https://arxiv.org/abs/2601.08725
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2601.08725
-  verified_at: '2026-07-02T22:41:00.456189Z'
-- artifact_hash: 7e39271f31b1b4f491606cd5556742b736ff7e8e946a73e0716ddd41fa0415d8
+  verified_at: '2026-07-20T19:22:44.581621Z'
+- artifact_hash: 8880cbdcbd5175c634ea20c2223f05a930ea1f2f82cd730e6b5e2dc5bd4d1165
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -18,6 +18,6 @@
   fetched_title: Vif - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-02T22:41:00.456189Z'
+  verified_at: '2026-07-20T19:22:44.581621Z'

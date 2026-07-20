@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file contents were provided, so there is no evidence
+    that `projects/PROJ-721-evaluating-calibration-of-predictive-int/` with the required
+    `code/`, `data/`, `results/`, `tests/`, `contracts/` subfolders and `__init__.py`
+    files actually exists. The implementer must supply the created folder hierarchy
+    and the initialization files.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
+    \ and `[tool.ruff]`, or `.flake8` and `black` config) are present in the provided\
+    \ evidence, so the requirement to set up `ruff`/`flake8` and `black` is not demonstrated.\
+    \ The implementer must add the appropriate configuration files and ensure they\
+    \ are non\u2011empty and correctly specify the tools."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No M4\u2011Dataset.zip, manifest.json, or any checksum\u2011validation logs\
+    \ are present in the provided evidence, so the required files were not fetched\
+    \ nor their SHA256 checksums verified. The task remains undone."

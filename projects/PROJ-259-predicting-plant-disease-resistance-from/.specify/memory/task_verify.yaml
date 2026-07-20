@@ -1,13 +1,8 @@
-T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions: 1
-? "T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples\
-  \ with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype\
-  \ (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite\
-  \ correlation=0.5 [UNRESOLVED-CLAIM: c_c39f1b62 \u2014 status=not_enough_info],\
-  \ {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)"
-: 1
-? T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using
-  query "plant AND disease resistance AND (SNP OR metabolite)" with accession list
-  from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**,
-  trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass
-  halt logic in T019 only if `source == SIMULATED`
-: 1
+T010: 1
+T011: 1
+T019: 1
+T022: 1
+T023: 1
+T027: 1
+T028: 1
+T028b: 1

@@ -1,0 +1,40 @@
+T011:
+  c: false
+  h: 42d039533e1fca24019cbf68605b9b9da1812bd1c80adfd5550b31407830596d
+  r: "The required file `tests/unit/test_classification.py` does not exist, so no\
+    \ unit test for the negation\u2011aware keyword classification logic is present.\
+    \ The task\u2019s deliverable is missing entirely."
+T012:
+  c: false
+  h: 5f0a6d11cb7dde6812117d04827a7e77836992e5abecbfb3edebc98003c9ecc7
+  r: The required artifact `tests/unit/test_anonymization.py` does not exist on disk,
+    so no unit test for PII anonymization is provided. The task cannot be considered
+    completed until the file is created with appropriate tests.
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log output, or comment indicating that a CPU feasibility analysis for\
+    \ FR\u2011002c was performed (or that the feature was deferred) is present. The\
+    \ required artifact\u2014a file containing the feasibility check logic or a comment/log\
+    \ entry \u201CFR\u2011002c Deferred\u201D\u2014is missing."
+T017:
+  c: false
+  h: e32dc8241282678d14d23777e6c0555a9d8f051e91cc67a251a581af267acda3
+  r: "The required output files `data/processed/anonymized.csv` and `data/processed/raw_counts.json`\
+    \ are absent, and the provided `code/01_ingest.py` contains numerous placeholder\
+    \ functions and is truncated, showing no logic that actually writes those files.\
+    \ The implementation does not fulfill the task\u2019s requirement to save the\
+    \ specified artifacts."
+T020:
+  c: false
+  h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e
+  r: The required file `tests/unit/test_lexicon.py` does not exist, so no unit test
+    for the `prosocial_action_count` lexicon logic is present. The task cannot be
+    considered done until the test file is created with appropriate test cases.
+T021:
+  c: false
+  h: 33c48265482ab05e7c8d9ba392333a4e61643c4a642a35b97142b056181b8cda
+  r: The required artifact `tests/unit/test_vader.py` does not exist on disk, so no
+    unit test for VADER `neg_score` extraction and range validation is present. The
+    task cannot be considered completed until this file is created with appropriate
+    tests.

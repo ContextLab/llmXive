@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create directory structure for `projects/001-crack-propagation-ml/` (code, data, tests, specs, contracts)
-- [~] T001b [P] Create initial `__init__.py` files and empty placeholder files for `code/` modules
+- [ ] T001b [P] Create initial `__init__.py` files and empty placeholder files for `code/` modules
 
 ---
 
@@ -61,8 +61,8 @@
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining required columns ($da/dN$, $\Delta K$, composition, heat treatment)
 - [ ] T007 [P] Create `contracts/output.schema.yaml` defining expected result formats (metrics, plots)
 - [X] T008 [P] Create `code/utils/__init__.py` and `code/utils/stats.py` (file structure for stats module)
-- [~] T009 [P] Create skeleton `code/data/loader.py` with schema validation logic (consumes `contracts/dataset.schema.yaml` from T006)
-- [~] T010 [P] Setup environment configuration management and logging infrastructure in `code/`
+- [ ] T009 [P] Create skeleton `code/data/loader.py` with schema validation logic (consumes `contracts/dataset.schema.yaml` from T006)
+- [ ] T010 [P] Setup environment configuration management and logging infrastructure in `code/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,7 +81,7 @@
 - [X] T015 [US1] Implement `code/models/baseline.py` for stratified linear regression using only $\log(\Delta K)$ to predict $\log(da/dN)$
 - [X] T016 [US1] Implement `code/main.py` step to train baseline and calculate $R^2$ and p-value against a **null model defined as an intercept-only (horizontal line) model** using a **Permutation Test** to confirm the **log-log linear relationship of the Paris Law** (slope significance).
 - [X] T017 [US1] Implement `code/analysis/viz.py` to generate Partial Dependence Plot (PDP) for $\Delta K$ vs $da/dN$ verifying Paris Law linearity
-- [~] T018 [US1] Add validation logic to halt if dataset lacks required columns after cleaning
+- [ ] T018 [US1] Add validation logic to halt if dataset lacks required columns after cleaning
 - [X] T010 [US1] Unit test for `code/data/loader.py` schema validation in `tests/unit/test_loader.py` (Write test immediately after T013 code)
 - [X] T011 [US1] Unit test for `code/data/preprocessor.py` imputation logic in `tests/unit/test_preprocessor.py` (Write test immediately after T014 code)
 - [X] T012 [US1] Integration test for baseline model training and $R^2$ calculation in `tests/integration/test_baseline.py`
@@ -101,12 +101,12 @@
 - [X] T007a [P] [US2] Implement the core Permutation Test function in `code/utils/stats.py` (parameters: n_permutations, seed, metric). **Null Hypothesis**: Target values are randomly permuted. **Test Statistic**: Difference in $R^2$ between models. **P-value**: Proportion of permuted statistics >= observed statistic.
 - [X] T021 [US2] Implement `code/models/augmented.py` to support Random Forest and XGBoost with composition (wt%) and heat-treatment descriptors
 - [X] T019 [US2] Unit test for `code/models/augmented.py` fallback logic (missing features) in `tests/unit/test_augmented.py`
-- [ ] T022 [US2] Implement `code/models/trainer.py` using Optuna for hyperparameter tuning ($n\_estimators$, $max\_depth$, $learning\_rate$) with k-fold stratified CV
-- [ ] T023 [US2] Implement `code/main.py` step to perform Permutation Test (using logic from T007a) comparing Baseline vs. Augmented model error reduction. **Note**: Implementation follows Plan.md decision to use ONLY Permutation Tests (F-test rejected).
-- [ ] T020 [US2] Integration test for Permutation Test significance in `tests/integration/test_permutation.py`
-- [ ] T024 [US2] Implement `code/main.py` step to train augmented models, run CV, and calculate $\Delta R^2$
+- [X] T022 [US2] Implement `code/models/trainer.py` using Optuna for hyperparameter tuning ($n\_estimators$, $max\_depth$, $learning\_rate$) with k-fold stratified CV
+- [X] T023 [US2] Implement `code/main.py` step to perform Permutation Test (using logic from T007a) comparing Baseline vs. Augmented model error reduction. **Note**: Implementation follows Plan.md decision to use ONLY Permutation Tests (F-test rejected).
+- [X] T020 [US2] Integration test for Permutation Test significance in `tests/integration/test_permutation.py`
+- [X] T024 [US2] Implement `code/main.py` step to train augmented models, run CV, and calculate $\Delta R^2$
 - [ ] T025 [US2] Implement feature importance aggregation and top-3 feature extraction logic in `code/analysis/`
-- [ ] T026 [US2] Add fallback logic in `code/models/augmented.py` to handle missing composition or heat-treatment columns gracefully
+- [X] T026 [US2] Add fallback logic in `code/models/augmented.py` to handle missing composition or heat-treatment columns gracefully
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,8 +120,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/analysis/regimes.py` using **`ruptures` change-point detection** as the primary method to identify Low/Mid/High $\Delta K$ regions. **Fallback**: If `ruptures` fails, use `scikit-learn`'s `GaussianProcessRegressor` with RBF kernel (varying coefficient model) with bandwidth selected via cross-validation.
-- [ ] T027 [US3] Unit test for `code/analysis/regimes.py` varying coefficient models in `tests/unit/test_regimes.py`
+- [X] T029 [US3] Implement `code/analysis/regimes.py` using **`ruptures` change-point detection** as the primary method to identify Low/Mid/High $\Delta K$ regions. **Fallback**: If `ruptures` fails, use `scikit-learn`'s `GaussianProcessRegressor` with RBF kernel (varying coefficient model) with bandwidth selected via cross-validation.
+- [X] T027 [US3] Unit test for `code/analysis/regimes.py` varying coefficient models in `tests/unit/test_regimes.py`
 - [ ] T030 [US3] Implement local $R^2$ and feature importance calculation within identified regimes in `code/analysis/regimes.py`
 - [ ] T031 [US3] Implement `code/analysis/sensitivity.py` to sweep model parameters and verify region stability (ranking unchanged)
 - [ ] T028 [US3] Unit test for `code/analysis/sensitivity.py` stability check in `tests/unit/test_sensitivity.py`

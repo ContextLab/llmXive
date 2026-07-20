@@ -1,3 +1,3 @@
 """
-Tests package for M4 calibration evaluation pipeline.
+Test suite for the calibration evaluation pipeline.
 """

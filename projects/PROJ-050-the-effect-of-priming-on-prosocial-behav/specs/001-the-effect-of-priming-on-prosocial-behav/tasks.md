@@ -86,10 +86,10 @@
 - [X] T014 [US1] Implement `code/01_ingest.py`: Source verification for `pushshift/reddit` (FR-014) and presence check for multiple target subreddits (r/AskReddit, r/relationships, r/socialscience, r/psychology, r/dataisbeautiful). **Dependency**: Must wait for T013 success.
 - [X] T015 [US1] Implement `code/01_ingest.py`: Data fetching logic with `TARGET_N = 10,000` limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001, FR-001a). **Dependency**: Must wait for T014 success.
 - [X] T016 [US1] Implement `code/01_ingest.py`: Classification logic using NLTK `word_tokenize` and -token negation window (FR-002, FR-002a); log "Negation Exclusions".
-- [~] T015b [US1] **Feasibility Check for Optional Feature**: Check CPU feasibility for FR-002c (confidence score). If a lightweight lexical confidence model can be run within time limits, implement logic; otherwise, explicitly defer this feature in code comments and log "FR-002c Deferred". This task does not implement the full feature, only determines feasibility.
+- [ ] T015b [US1] **Feasibility Check for Optional Feature**: Check CPU feasibility for FR-002c (confidence score). If a lightweight lexical confidence model can be run within time limits, implement logic; otherwise, explicitly defer this feature in code comments and log "FR-002c Deferred". This task does not implement the full feature, only determines feasibility.
 - [X] T016a [US1] Implement `code/01_ingest.py`: Anonymization logic (SHA hash of username). **CRITICAL**: The SHA-256 hash MUST be **retained and explicitly mapped as the `user_id` column** for downstream LMM random effects (FR-009, SC-009). Strip raw timestamps only after computing `thread_age` (FR-009).
 - [ ] T017 [US1] Implement `code/01_ingest.py`: Save `data/processed/anonymized.csv` and `data/processed/raw_counts.json`.
-- [ ] T018 [US1] Implement `code/01_ingest.py`: Post-fetch validation to ensure at least 4,000 comments per group and ≥3 subreddits remain; abort if conditions not met (FR-001, Edge Cases).
+- [X] T018 [US1] Implement `code/01_ingest.py`: Post-fetch validation to ensure at least 4,000 comments per group and ≥3 subreddits remain; abort if conditions not met (FR-001, Edge Cases).
 - [ ] T019 [US1] Create `tests/integration/test_ingest_pipeline.py` to verify end-to-end data flow and abort conditions
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,16 +106,16 @@
 
 - [ ] T020 [P] [US2] Unit test for `prosocial_action_count` lexicon logic (excluding prime keywords) in `tests/unit/test_lexicon.py`
 - [ ] T021 [P] [US2] Unit test for VADER `neg_score` extraction and range validation in `tests/unit/test_vader.py`
-- [ ] T022 [P] [US2] Unit test for stratified sampling logic (FR-010, FR-010a) in `tests/unit/test_sampling.py`
+- [~] T022 [P] [US2] Unit test for stratified sampling logic (FR-010, FR-010a) in `tests/unit/test_sampling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/02_score.py`: VADER sentiment scoring and `neg_score` extraction for all comments (FR-003, SC-008)
-- [ ] T024 [US2] Implement `code/02_score.py`: `prosocial_action_count` computation using secondary lexicon (FR-003b), excluding "help", "support", "charity" and equivalents
-- [ ] T025 [US2] Implement `code/02_score.py`: Stratified sampling logic for validation (FR-010, FR-010a) to ensure ≥200 comments with ≥50 per stratum. **Logic**: Implement thematic categories (Social Science: r/socialscience, r/psychology; General: all others). If a stratum is insufficient, merge within category, then merge across thread_type, then draw from global pool.
-- [ ] T026a [US2] Create `code/validation/protocol.md` defining "prosocial action" and "negative sentiment" for human raters (FR-011). This task generates the instructions only.
-- [ ] T026b [US2] **EXTERNAL FILE VERIFICATION**: Implement `code/validation/run_validation.py` to **accept an externally supplied** `gold_standard.csv`. Verify the file contains annotations from **≥3 distinct raters** (validated via `rater_id` column). **Abort** if the file does not meet this criterion (FR-011a). This task does not recruit raters; it verifies the external artifact.
-- [ ] T027 [US2] Implement `code/validation/run_validation.py`: Logic to load `gold_standard.csv`, compute Cohen's Kappa (SC-006) and Pearson r for `neg_score` (SC-008). **ABORT LOGIC**: If Cohen's Kappa < 0.7, the script MUST abort the pipeline and log insufficiency per SC-006.
+- [X] T023 [US2] Implement `code/02_score.py`: VADER sentiment scoring and `neg_score` extraction for all comments (FR-003, SC-008)
+- [X] T024 [US2] Implement `code/02_score.py`: `prosocial_action_count` computation using secondary lexicon (FR-003b), excluding "help", "support", "charity" and equivalents
+- [X] T025 [US2] Implement `code/02_score.py`: Stratified sampling logic for validation (FR-010, FR-010a) to ensure ≥200 comments with ≥50 per stratum. **Logic**: Implement thematic categories (Social Science: r/socialscience, r/psychology; General: all others). If a stratum is insufficient, merge within category, then merge across thread_type, then draw from global pool.
+- [X] T026a [US2] Create `code/validation/protocol.md` defining "prosocial action" and "negative sentiment" for human raters (FR-011). This task generates the instructions only.
+- [X] T026b [US2] **EXTERNAL FILE VERIFICATION**: Implement `code/validation/run_validation.py` to **accept an externally supplied** `gold_standard.csv`. Verify the file contains annotations from **≥3 distinct raters** (validated via `rater_id` column). **Abort** if the file does not meet this criterion (FR-011a). This task does not recruit raters; it verifies the external artifact.
+- [X] T027 [US2] Implement `code/validation/run_validation.py`: Logic to load `gold_standard.csv`, compute Cohen's Kappa (SC-006) and Pearson r for `neg_score` (SC-008). **ABORT LOGIC**: If Cohen's Kappa < 0.7, the script MUST abort the pipeline and log insufficiency per SC-006.
 - [ ] T028 [US2] Implement `code/02_score.py`: Performance monitoring to ensure runtime ≤ 4 hours on CPU (FR-012)
 - [ ] T029 [US2] Save `data/processed/scored.csv` and `results/validation_report.json`
 

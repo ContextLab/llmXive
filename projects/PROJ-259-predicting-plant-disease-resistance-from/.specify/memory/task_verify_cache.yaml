@@ -1,0 +1,38 @@
+T010:
+  c: false
+  h: 93f026e1380b19c0072b82c0645f530471274ed980d5b8fc9386728eb589ab7d
+  r: The repository lacks the required `data_manifest.yaml` file, so the download
+    module cannot obtain an accession list as specified. Moreover, the provided `download.py`
+    is truncated and does not show the logic that (a) performs the query `"plant AND
+    disease resistance AND (SNP OR metabolite)"`, (b) retries three times and then
+    switches to synthetic generation, or (c) bypasses T019 halt logic when `source
+    == SIMULATED`. These essential behaviors are absent or unverifiable.
+T011:
+  c: false
+  h: 048986a2ebd05d4f769fd88f177ced253476dda40f37863b55157204e58acacd
+  r: "The provided `preprocess.py` is truncated and does not contain the full implementation\
+    \ for MetaboAnalyst normalization, sample\u2011ID alignment, or exclusion\u2011\
+    logging logic. Moreover, the required `data/processed/exclusion_log.csv` file\
+    \ is absent, so the mandated logging of dropped samples is not satisfied."
+T019:
+  c: false
+  h: 2d673eeffffd561106fbd311f66408458e7b61633b7aa33e08e975c7723f2f6e
+  r: "The provided `code/main.py` is truncated (the `check_data_integrity` function\
+    \ ends mid\u2011logic and no CLI `if __name__ == \"__main__\"` or orchestration\
+    \ code is shown), and the required `data_manifest.yaml` file is absent, so the\
+    \ script cannot read `source_type` or enforce the specified halt behavior. The\
+    \ task\u2019s core requirements are therefore not met."
+T027:
+  c: false
+  h: 05f568960489a781c3c742b8ab75d7da037c76c06f5c406d7841b417e1a93d18
+  r: "The repository contains a partially\u2011implemented `biomarker_report.py` (the\
+    \ file is truncated and never writes a CSV), and the required output `artifacts/reports/top_features.csv`\
+    \ does not exist. Consequently the task of generating the top\u2011features report\
+    \ with p\u2011values and effect sizes has not been fulfilled."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation was provided that implements the\
+    \ required logic to filter and rank features by selection frequency and BH\u2011\
+    adjusted p\u2011value\u202F<\u202F0.05. The artifact is missing, so the task\u2019\
+    s functional requirement is not satisfied."

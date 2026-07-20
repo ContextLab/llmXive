@@ -1,2 +1,7 @@
-T011 [P] [US1] Unit test for negation-aware keyword classification logic in `tests/unit/test_classification.py`: 1
-T012 [P] [US1] Unit test for PII anonymization (SHA-256 hash ing) in `tests/unit/test_anonymization.py`: 1
+T011: 1
+T012: 1
+T015b: 1
+T017: 1
+T019: 1
+T020: 1
+T021: 1

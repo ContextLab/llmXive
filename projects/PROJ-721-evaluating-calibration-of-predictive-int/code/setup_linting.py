@@ -1,64 +1,79 @@
-"""
-Setup script for linting and formatting tools.
-Verifies installation and runs initial checks on the codebase.
-"""
 import subprocess
 import sys
 import os
+from pathlib import Path
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """Execute a command and report status."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=False,
-            text=True
-        )
-        return result.returncode == 0
-    except subprocess.CalledProcessError as e:
-        print(f"Error running {description}: {e}")
-        return False
+def run_command(cmd: list[str]) -> None:
+    """
+    Execute a shell command and raise an error if it fails.
+    
+    Args:
+        cmd: List of command arguments to execute.
+    """
+    print(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
 
-def main():
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(project_root)
+def main() -> None:
+    """
+    Install and configure linting (ruff) and formatting (black) tools.
+    
+    This function:
+    1. Installs ruff and black via pip.
+    2. Creates a pyproject.toml with default configurations for both tools
+       if one does not already exist or if the sections are missing.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    pyproject_path = project_root / "pyproject.toml"
 
-    # Check if tools are installed
-    tools = [
-        ("ruff", "ruff --version"),
-        ("black", "black --version"),
-    ]
+    # 1. Install tools
+    print("Installing linting and formatting tools...")
+    run_command([sys.executable, "-m", "pip", "install", "ruff", "black"])
 
-    for tool, cmd_str in tools:
-        print(f"Checking {tool}...")
-        try:
-            subprocess.run(cmd_str.split(), check=True, capture_output=True)
-            print(f"  ✓ {tool} found")
-        except subprocess.CalledProcessError:
-            print(f"  ✗ {tool} not found. Installing...")
-            if not run_command([sys.executable, "-m", "pip", "install", tool], f"Install {tool}"):
-                print(f"Failed to install {tool}. Exiting.")
-                return 1
+    # 2. Create or update pyproject.toml
+    config_content = """
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
 
-    print("\n--- Running Linter (Ruff) ---")
-    # Run linter on the code directory (excluding itself if necessary, but usually fine)
-    if not run_command(["ruff", "check", "."], "Ruff check"):
-        print("Linter found issues. Run 'ruff check --fix' to auto-fix where possible.")
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.isort]
+known-first-party = ["download", "models", "metrics", "stratify", "recalibration", "run_pipeline"]
+"""
+
+    if not pyproject_path.exists():
+        pyproject_path.write_text(config_content.strip())
+        print(f"Created {pyproject_path} with ruff and black configuration.")
     else:
-        print("Linter passed.")
+        content = pyproject_path.read_text()
+        if "[tool.black]" not in content or "[tool.ruff]" not in content:
+            # Append missing sections
+            pyproject_path.write_text(content.rstrip() + "\n" + config_content.strip())
+            print(f"Updated {pyproject_path} with missing ruff/black configuration.")
+        else:
+            print(f"{pyproject_path} already contains ruff and black configuration.")
 
-    print("\n--- Running Formatter (Black) ---")
-    # Run formatter in check mode first
-    if not run_command(["black", "--check", "."], "Black check"):
-        print("Formatter found issues. Run 'black .' to auto-format.")
-    else:
-        print("Formatter passed.")
-
-    print("\nLinting and formatting tools configured successfully.")
-    return 0
+    print("Linting and formatting setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

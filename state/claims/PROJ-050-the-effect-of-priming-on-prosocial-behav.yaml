@@ -624,3 +624,207 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T00:25:19Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 0
+  canonical: Pipeline aborts if Cohen's Kappa is less than 0.7
+  claim_id: c_5dbe110f
+  context: 'T027 [US2] Implement code/validation/run_validation.py: Logic to load
+    gold_standard.csv, compute Cohen''s Kappa (SC-006) and Pearson r for neg_score
+    (SC-008). ABORT LOGIC: If Cohen''s Kappa < 0.7, the script MUST abort the pipeline
+    and log insufficiency per SC-006.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If Cohen's Kappa < 0.7, the script MUST abort the pipeline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T18:59:44Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Output DataFrame contains at least 4000 comments per group in Prime and
+    Control
+  claim_id: c_8a08a126
+  context: 'Independent Test: Execute code/01_ingest.py against a small, known test
+    subset and verify the output DataFrame contains exactly two distinct groups (''Prime'',
+    ''Control'') with at least 4,000 comments each (or aborts correctly), and that
+    no plaintext usernames or timestamps exist in the output.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_DataFrame_contains_at_least_4000_comments_per_group_i
+  kind: magnitude
+  raw_text: Verify the output DataFrame contains exactly two distinct groups ('Prime',
+    'Control') with at least 4,000 comments each.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:00:10Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Validation file contains annotations from at least 3 distinct raters
+  claim_id: c_f14de909
+  context: "T026b [US2] EXTERNAL FILE VERIFICATION: Implement code/validation/run_validation.py\
+    \ to accept an externally supplied gold_standard.csv. Verify the file contains\
+    \ annotations from \u22653 distinct raters (validated via rater_id column)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_file_contains_annotations_from_at_least_3_distinc
+  kind: magnitude
+  raw_text: "Verify the file contains annotations from \u22653 distinct raters."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:00:42Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Stratified sampling ensures at least 200 comments total with at least
+    50 per stratum
+  claim_id: c_96f9b115
+  context: "T025 [US2] Implement code/02_score.py: Stratified sampling logic for validation\
+    \ (FR-010, FR-010a) to ensure \u2265200 comments with \u226550 per stratum."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_sampling_ensures_at_least_200_comments_total_with
+  kind: magnitude
+  raw_text: "Ensure stratified sampling logic ensures \u2265200 comments with \u2265\
+    50 per stratum."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:01:09Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Results stats report contains p-values, coefficients, CIs, sensitivity
+    results and boxplot exists
+  claim_id: c_ab038cc1
+  context: 'Independent Test: Execute code/03_analyze.py on the scored dataset and
+    verify results/stats_report.json contains p-values, coefficients, CIs, sensitivity
+    results, and results/boxplot.png exists.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_stats_report_contains_p-values,_coefficients,_CIs,_s
+  kind: entity_fact
+  raw_text: Verify results/stats_report.json contains p-values, coefficients, CIs,
+    sensitivity results, and results/boxplot.png exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:01:33Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Bootstrap convergence requires standard deviation of mean p-value over
+    last 100 iterations to be less than 0.001
+  claim_id: c_d033d93e
+  context: 'T035 [US3] Implement code/03_analyze.py: Sensitivity analysis with bootstrap
+    resampling. Convergence Logic: Run bootstrap iterations (target a sufficient number
+    to ensure stable estimation) and check for convergence by verifying that the mean
+    p-value estimate stabilizes (standard deviation of the mean over the last 100
+    iterations < 0.001).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_convergence_requires_standard_deviation_of_mean_p-
+  kind: magnitude
+  raw_text: Check for convergence by verifying that the mean p-value estimate stabilizes
+    (standard deviation of the mean over the last 100 iterations < 0.001).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:02:19Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Pre-data-collection power analysis assumes d=0.15 and alpha=0.05
+  claim_id: c_317d7e93
+  context: "T013 [US1] PRE-COLLECTION POWER ANALYSIS: Implement code/00_power_analysis.py\
+    \ to perform pre-data-collection power analysis (FR-013) assuming d=0.15, \u03B1\
+    =0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform pre-data-collection power analysis assuming d=0.15, \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:03:07Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Power analysis aborts if power is less than 80%
+  claim_id: c_778b432d
+  context: 'T013 [US1] PRE-COLLECTION POWER ANALYSIS: ... If power < 80%, the script
+    MUST abort and log a requirement for researcher approval before proceeding.'
+  evidence:
+    candidates:
+    - - ''
+      - 80.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_aborts_if_power_is_less_than_80%25
+  kind: magnitude
+  raw_text: If power < 80%, the script MUST abort and log a requirement for researcher
+    approval before proceeding.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:04:00Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Data fetching logic uses TARGET_N limit of 10000
+  claim_id: c_65744af5
+  context: 'T015 [US1] Implement code/01_ingest.py: Data fetching logic with TARGET_N
+    = 10,000 limit and abort logic if dataset exhausted or group counts < 4,000 (FR-001,
+    FR-001a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement data fetching logic with TARGET_N = 10,000 limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:04:23Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime must be less than or equal to 4 hours on CPU
+  claim_id: c_8bcde566
+  context: "T028 [US2] Implement code/02_score.py: Performance monitoring to ensure\
+    \ runtime \u2264 4 hours on CPU (FR-012)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_must_be_less_than_or_equal_to_4_hours_on_CP
+  kind: magnitude
+  raw_text: "Verify performance monitoring ensures runtime \u2264 4 hours on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:04:44Z'
