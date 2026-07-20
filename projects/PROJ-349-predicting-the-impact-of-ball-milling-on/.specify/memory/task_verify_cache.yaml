@@ -1,30 +1,24 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file artifacts were provided showing the required folders
-    (`src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`, `results`, `contracts/`,
-    `.github/workflows/`). Without concrete evidence that these paths exist and contain
-    content, the task requirement is not satisfied.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project scaffold, configuration file, or dependency list (e.g., `pyproject.toml`,
-    `requirements.txt`, or `environment.yml`) was provided; the implementer only restated
-    the feature specification without delivering the actual Python 3.11 project initialization
-    or pinned dependencies. The required artifact is missing.
+  r: No directory tree or placeholder files were presented; without concrete evidence
+    that the required folders (`src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`,
+    `results`, `contracts/`, `.github/workflows/`) exist, the claim cannot be verified.
+    The implementer must provide a listing or screenshots showing these directories
+    (and any placeholder files) in the repository.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification for data aggregation and
-    modeling, with no linting configuration files (e.g., `.flake8`, `pyproject.toml`
-    for Black, or a `pre-commit` setup) or any evidence that flake8/black were installed
-    and integrated. Consequently, the required linting/formatting tooling is missing.
+  r: No evidence of `flake8 --version`, `black --version`, or a successful `black
+    --check src/` run is present; the required artifacts (version outputs and linting
+    check results) are missing, so the linting configuration cannot be confirmed as
+    completed.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw`, `data/processed`, `data/splits`,
-    `results`) being created or listed is provided; the implementer did not supply
-    any artifact confirming the directory structure exists.
+  r: "No directory listings or filesystem evidence were provided; the required `data/raw`,\
+    \ `data/processed`, `data/splits`, and `results` folders are not shown to exist,\
+    \ so the task\u2019s deliverable cannot be verified."
 T007a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e

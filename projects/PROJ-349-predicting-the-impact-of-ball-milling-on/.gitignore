@@ -21,7 +21,6 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 
 # PyInstaller
@@ -57,14 +56,12 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs and editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.settings/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -80,12 +77,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 
 # Project specific
 data/raw/*
@@ -96,3 +90,7 @@ data/splits/*
 !data/splits/.gitkeep
 results/*
 !results/.gitkeep
+logs/
+*.log
+.huggingface/
+hf_cache/

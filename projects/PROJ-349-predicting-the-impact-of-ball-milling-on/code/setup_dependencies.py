@@ -1,81 +1,82 @@
 """
-Script to verify and install project dependencies.
-This script reads requirements.txt and ensures all packages are installed.
-It also performs a basic import check to validate the environment.
+Setup script to install pinned dependencies from requirements.txt.
+Ensures the Python environment matches the project specifications.
 """
 import subprocess
 import sys
-import importlib
 from pathlib import Path
 
-REQUIRED_PACKAGES = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "statsmodels",
-    "matplotlib",
-    "seaborn",
-    "requests",
-    "tqdm",
-    "pyarrow",
-    "pdfminer.six",
-]
-
-def check_installation():
-    """Check if all required packages are installed."""
-    missing = []
-    for package in REQUIRED_PACKAGES:
-        try:
-            # Map package name to import name if they differ
-            if package == "pdfminer.six":
-                import_name = "pdfminer"
-            else:
-                import_name = package.replace("-", "_")
-            
-            importlib.import_module(import_name)
-            print(f"✓ {package} is installed")
-        except ImportError:
-            print(f"✗ {package} is missing")
-            missing.append(package)
-    
-    return missing
-
-def install_dependencies():
-    """Install dependencies from requirements.txt."""
-    requirements_path = Path("requirements.txt")
-    if not requirements_path.exists():
-        print("Error: requirements.txt not found in project root.")
-        sys.exit(1)
-    
-    print(f"Installing dependencies from {requirements_path}...")
+def check_installation(package_name: str) -> bool:
+    """Check if a package is installed."""
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(requirements_path)])
+        __import__(package_name)
+        return True
+    except ImportError:
+        return False
+
+def install_dependencies(requirements_path: Path) -> None:
+    """
+    Install dependencies from the requirements file.
+    
+    Args:
+        requirements_path: Path to requirements.txt
+        
+    Raises:
+        SystemExit: If installation fails
+    """
+    if not requirements_path.exists():
+        print(f"Error: Requirements file not found at {requirements_path}")
+        sys.exit(1)
+
+    print(f"Installing dependencies from {requirements_path}...")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+            check=True,
+            capture_output=False
+        )
         print("Dependencies installed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error installing dependencies: {e}")
         sys.exit(1)
 
-def main():
-    print("Checking project dependencies...")
-    missing = check_installation()
+def main() -> None:
+    """Main entry point for dependency setup."""
+    # Determine project root (assuming script is in code/ or code/code/)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent if script_dir.name == "code" else script_dir
     
-    if missing:
-        print("\nThe following packages are missing:")
-        for pkg in missing:
-            print(f"  - {pkg}")
-        print("\nAttempting to install missing packages...")
-        install_dependencies()
-    else:
-        print("\nAll required dependencies are installed.")
-        
-    # Final verification
-    print("\nFinal verification:")
-    final_missing = check_installation()
-    if final_missing:
-        print("Warning: Some packages could not be installed or imported.")
+    requirements_path = project_root / "requirements.txt"
+    
+    print(f"Project root: {project_root}")
+    print(f"Requirements file: {requirements_path}")
+    
+    # Install dependencies
+    install_dependencies(requirements_path)
+    
+    # Verify critical packages
+    critical_packages = [
+        "pandas", "numpy", "scikit-learn", "matplotlib", 
+        "requests", "tqdm", "pyarrow", "pdfminer.six"
+    ]
+    
+    print("\nVerifying critical packages...")
+    all_installed = True
+    for pkg in critical_packages:
+        # Handle pdfminer.six special case
+        import_name = "pdfminer" if pkg == "pdfminer.six" else pkg
+        if check_installation(import_name):
+            print(f"  [OK] {pkg}")
+        else:
+            print(f"  [FAIL] {pkg}")
+            all_installed = False
+
+    if not all_installed:
+        print("\nWarning: Some critical packages are missing.")
         sys.exit(1)
-    else:
-        print("Environment ready for Python 3.11 project.")
+    
+    print("\nAll dependencies verified successfully.")
 
 if __name__ == "__main__":
     main()

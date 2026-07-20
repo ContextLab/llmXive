@@ -1,13 +1,14 @@
-# Predicting the Impact of Ball Milling on Particle Size Distribution
+# Ball Milling PSD Prediction
 
-## Overview
-This project implements a data science pipeline to predict particle size distribution (PSD) outcomes based on ball milling parameters using Gaussian Process Regression and Random Forest models.
+This project predicts the impact of ball milling on particle size distribution (PSD) using machine learning models trained on experimental data from public repositories.
 
-## Prerequisites
-- Python 3.11 or higher
+## Requirements
+
+- Python 3.11+
 - pip
 
 ## Installation
+
 1. Create a virtual environment:
  ```bash
  python -m venv venv
@@ -19,25 +20,54 @@ This project implements a data science pipeline to predict particle size distrib
  pip install -r requirements.txt
  ```
 
-3. (Optional) Install development tools:
+3. (Optional) Install dev dependencies:
  ```bash
  pip install -e ".[dev]"
  ```
 
 ## Project Structure
+
 ```
 .
-├── code/ # Source code
-├── data/ # Data directories (raw, processed, splits)
+├── code/ # Setup scripts
+├── src/ # Source code
+│ ├── cli/ # CLI entry points
+│ ├── config/ # Configuration management
+│ ├── exceptions.py # Custom exceptions
+│ ├── ingest/ # Data ingestion modules
+│ ├── interpret/ # Model interpretation
+│ ├── model/ # Model training
+│ ├── preprocess/ # Data preprocessing
+│ └── utils/ # Utilities
 ├── tests/ # Test suite
-├── results/ # Output artifacts
-├── requirements.txt # Pinned dependencies
+├── data/ # Data directories
+│ ├── raw/
+│ ├── processed/
+│ └── splits/
+├── results/ # Model results and reports
+├── contracts/ # Data schemas
+├── requirements.txt # Production dependencies
 ├── pyproject.toml # Project configuration
 └── README.md
 ```
 
 ## Usage
-Refer to `quickstart.md` for execution instructions.
+
+### Data Ingestion
+```bash
+python -m src.cli.ingest
+```
+
+### Model Training
+```bash
+python -m src.cli.train
+```
+
+### Interpretation
+```bash
+python -m src.cli.interpret
+```
 
 ## License
-MIT
+
+MIT License

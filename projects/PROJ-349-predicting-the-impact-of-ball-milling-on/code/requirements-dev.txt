@@ -1,0 +1,5 @@
+flake8==7.1.0
+black==24.4.2
+isort==5.13.2
+pre-commit==3.7.1
+mypy==1.10.0

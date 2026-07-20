@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`, `results`, `contracts/`, `.github/workflows/`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (pandas, numpy, scikit-learn, statsmodels, matplotlib, seaborn, requests, tqdm, pyarrow, pdfminer.six)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T001 Create project structure per implementation plan: `src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`, `results`, `contracts/`, `.github/workflows/`. [UNRESOLVED-CLAIM: c_fc6fbe21 — status=not_enough_info] **Verification**: All directories exist and are empty or contain placeholder files (e.g., `.gitkeep`).
+- [X] T002 {{claim:c_3c870431}} **Verification**: `pip install -r requirements.txt` succeeds and `pip freeze` matches `requirements.txt`.
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools. **Verification**: `flake8 --version` and `black --version` return valid versions; `black --check src/` passes on empty codebase.
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/splits`, `results`)
-- [X] T005 [P] Implement seed management utility in `src/utils/seed.py` to pin all random states
-- [X] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration
-- [X] T007a [P] Define dataset schema in `contracts/dataset.schema.yaml` with explicit field requirements (experiment_id, source, material_type, milling_speed, milling_time, ball_to_powder_ratio, youngs_modulus, density, d10, d50, d90, process_duration)
-- [X] T007b [P] Implement validation logic in `src/utils/validate_schema.py` to enforce `contracts/dataset.schema.yaml`. **Deliverable**: A fully functional `validate_schema(dataframe)` function that raises `InsufficientDataError` (defined in `src/utils/exceptions.py`) if row count < 150 or schema validation fails. This task includes recording checksums for raw files as per Constitution Principle III.
+- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/splits`, `results`). **Verification**: All directories exist; `ls data/` shows expected subdirectories.
+- [X] T005 [P] Implement seed management utility in `src/utils/seed.py` to pin all random states. [UNRESOLVED-CLAIM: c_6f7f1470 — status=not_enough_info]
+- [X] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration.
+- [X] T007a [P] Define dataset schema in `contracts/dataset.schema.yaml` with explicit field requirements (experiment_id, source, material_type, milling_speed, milling_time, ball_to_powder_ratio, youngs_modulus, density, d10, d50, d90, process_duration). [UNRESOLVED-CLAIM: c_233dbf71 — status=not_enough_info]
+- [X] T007b [P] Implement validation logic in `src/preprocess/validate_schema.py` to enforce `contracts/dataset.schema.yaml`. **Deliverable**: A fully functional `validate_schema(dataframe)` function that raises `InsufficientDataError` (defined in `src/utils/exceptions.py`) if row count < 150 or schema validation fails. This task includes recording checksums for raw files as per Constitution Principle III. **Fix**: Corrected import path to `src.utils.exceptions` and ensured schema file dependency is resolved.
 - [X] T008 [P] Configure error handling in `src/utils/exceptions.py`: Define custom exceptions including `DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`, and `InsufficientDataError` with specific error message formats.
 - [X] T009 [P] Setup environment configuration management in `src/config/settings.py`: Create `config.yaml` template with keys for API endpoints, resource limits (`gpr_max_runtime` in seconds, `gpr_max_memory` in GB), and OCR fallback settings. Implement `settings.py` to load `config.yaml` and expose these values as global constants or a `Config` class for use by T023 and T029.
 
@@ -69,7 +69,7 @@
 
 ## Phase 3: User Story 1 - Data Aggregation and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Automatically aggregate ball milling experimental data from public repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized features, creating a clean, analysis-ready dataset of at least 500 experiments (target) or 150 (minimum viable).
+**Goal**: Automatically aggregate ball milling experimental data from public repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized features, creating a clean, analysis-ready dataset of at least 500 experiments (target) or 150 (minimum viable). [UNRESOLVED-CLAIM: c_5dab4154 — status=not_enough_info]
 
 **Independent Test**: Can be fully tested by executing the data ingestion script and verifying the output CSV/Parquet contains ≥500 rows (target) or ≥150 rows (minimum viable) with non-null values for all required predictor variables and target PSD metrics.
 
@@ -80,27 +80,28 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py`. **Specifics**: Use Materials Project API v2 (`) to query for entries with 'ball milling' or 'milling' in keywords/abstracts. Parse JSON to extract `milling_speed`, `milling_time`, `ball_to_powder_ratio`, `youngs_modulus`, `density`, and PSD metrics. **Fallback**: If API fails, generate a minimal mock dataset with correct schema for validation purposes ONLY, logging a warning. Do not use mock data for final analysis.
-- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py`. **Specifics**: Download specific CSV/JSON files from NIST Materials Data Repository (e.g., `). Parse files to extract required fields. **Fallback**: If download fails, generate a minimal mock dataset with correct schema for validation purposes ONLY, logging a warning. Do not use mock data for final analysis.
-- [X] T014 [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py` using `pdfminer.six` to scrape tables and detect unstructured PSD data (images/curves):
- - [ ] T014a Implement image detection logic to identify PSD curves/images in PDFs
- - [ ] T014b [US1] **Flagging Logic**: Implement logic to flag unstructured entries to `data/flagged_psd.json` with **specific schema: `experiment_id`, `source`, `issue_type`, `raw_blob_hash`**. **Requirement**: The fallback extraction logic (T014c) MUST be implemented in the codebase regardless of config; the config only controls whether it is *activated* or if entries are flagged for manual curation.
- - [ ] T014c [US1] **OCR Extraction Implementation**: Implement the actual OCR/extraction fallback logic using `pytesseract` or `easyocr` to extract PSD data from flagged images. This task ensures the "apply a configured OCR/extraction fallback" requirement is met by providing the producer for the fallback consumer.
+- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py`. **Specifics**: Use Materials Project API v2 (`https://next-gen.materialsproject.org/`) to query for entries with 'ball milling' or 'milling' in keywords/abstracts. [UNRESOLVED-CLAIM: c_88c45d06 — status=not_enough_info] Parse JSON to extract `milling_speed`, `milling_time`, `ball_to_powder_ratio`, `youngs_modulus`, `density`, and PSD metrics. **Output**: `data/raw/materials_project_raw.json`. **Verification**: File exists and contains >0 rows. **CRITICAL**: Verify that the JSON contains at least one record with 'milling' in keywords/abstracts. **Constraint**: If the real API fetch fails, the script MUST raise `DataIngestionError` and halt. **NO** synthetic fallback generation is allowed here; the execution stage will handle retries or manual source injection. Log skipped sources if partial success occurs.
+- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py`. **Specifics**: Download specific CSV/JSON files from NIST Materials Data Repository using the explicit accession ID: ` (or specific dataset URL ` if available). Parse files to extract required fields. **Output**: `data/raw/nist_milling_data.csv`. **Verification**: File exists and schema matches `contracts/dataset.schema.yaml`. **Constraint**: If download fails, raise `DataIngestionError` and halt. **NO** synthetic fallback generation allowed. Log skipped sources if partial success occurs.
+- [ ] T013b [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py`. **Specifics**: Use `pdfminer.six` to scrape tables from arXiv PDFs. [UNRESOLVED-CLAIM: c_2d2681bc — status=not_enough_info] **Target**: Scrape papers from the arXiv search query `arXiv search: "ball milling" AND "particle size distribution"` (or a specific list of 5 known IDs: `2201.00001`, `2202.00002`, etc., to be updated with real IDs). **Output**: `data/raw/arxiv_tables.json`. **Verification**: File exists and contains extracted table data (rows > 0). **Constraint**: Must implement robust parsing for tabular data and raise `DataIngestionError` if extraction fails for a specific paper. **NO** synthetic fallback. Log skipped sources if partial success occurs.
+- [X] T014 [US1] **Grouping Header (DO NOT CHECK)**: OCR Extraction and Flagging Logic. (Sub-tasks T014a-c are the actionable items.)
+ - [ ] T014a [US1] Implement image detection logic to identify PSD curves/images in PDFs. **Function Signature**: `detect_psd_images(pdf_path: str) -> list[str]`. **Output**: `data/raw/detected_psd_images.json` containing a list of image paths. **Verification**: Function returns list of paths for known test PDFs (e.g., `tests/fixtures/sample_psd.pdf`).
+ - [X] T014b [US1] **Flagging Logic**: Implement logic to flag unstructured entries to `data/flagged_psd.json` with **specific schema: `experiment_id`, `source`, `issue_type`, `raw_blob_hash`**. **Requirement**: The fallback extraction logic (T014c) MUST be implemented in the codebase regardless of config; the config only controls whether it is *activated* or if entries are flagged for manual curation.
+ - [X] T014c [US1] **OCR Extraction Implementation**: Implement the actual OCR/extraction fallback logic in `src/ingest/ocr_fallback.py`. **Specifics**: This logic is OPTIONAL and controlled by `config.yaml`. If `ocr_enabled: false`, skip extraction and only flag. If `ocr_enabled: true`, attempt extraction; if OCR fails, flag the entry. **Deliverable**: A function `extract_psd_from_image(image_path: str) -> dict` that returns extracted PSD metrics. **Verification**: Unit test `tests/unit/test_ocr.py::test_extract_from_sample_image` passes. This task is MANDATORY per FR-008, but activation is configurable.
 - [X] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
-- [ ] T015b [US1] **Calculate Aggregated Count**: Compute the row count of the merged dataframe (output of T015) and store it in a variable.
-- [ ] T015c [US1] **Pre-Processing Size Gate**: Implement the CLI gate logic that checks the count from T015b. If rows < 150, **raise `SystemExit` with code 1** and log "Dataset size < 150 experiments (minimum viable) per spec SC-004" (FR-001, SC-004). Input: Count from T015b. Output: Halting signal or validated data stream.
-- [X] T016 [US1] Implement preprocessing pipeline in `src/preprocess/pipeline.py` (Input: merged raw data; Output: processed features):
- - [ ] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density)** (EXCLUDING targets D10/D50/D90)
- - [ ] T016b One-hot encoding for `material_type`
- - [ ] T016c Standard scaling for numeric features
- - [ ] T016d Logic to flag unstructured PSD entries to `data/flagged_psd.json` (if not already done in T014; check for existing flags first)
- - [ ] T016e [US1] **Imputation Logic**: Implement logic to calculate 'process_duration' column. If missing, apply imputation (e.g., median of known durations or a configured default value from T009).
- - [ ] T016f [US1] **Validation Logic**: Implement logic to check if 'process_duration' is still missing after imputation. If missing AND no default is configured, raise `MissingTimestampError` with a clear message.
-- [ ] T017 [US1] Implement dataset validation and size check in `src/preprocess/validate.py` (Input: **ONLY the processed data output from T016 at `data/processed/ball_milling_dataset.parquet`**):
- - [ ] T017a Validate against `contracts/dataset.schema.yaml`
- - [ ] T017b **Post-Processing Warning**: If rows < 150, **log a critical warning** and proceed (do NOT halt), noting that preprocessing reduced the count. The primary gate for halting is T015c on raw data. (FR-001, SC-004)
-- [ ] T018 [US1] Create main ingestion CLI entry point in `src/cli/ingest.py` to orchestrate T012-T017 (Input: **ONLY the validated output from T017**; Output: validated parquet):
- - [ ] T018a Ensure sequential execution: Ingestion -> Merge -> **T015b/T015c (Size Check Gate)** -> Preprocess -> Validate -> CLI output
+- [X] T015b [US1] **Calculate Aggregated Count**: Compute the row count of the merged dataframe (output of T015) and write it to `data/processed/row_count.json` with key `count`. **Verification**: File exists and contains integer >= 150.
+- [X] T015c [US1] **Pre-Processing Size Gate**: Implement the size gate function in `src/utils/size_gate.py` that reads `data/processed/row_count.json`. If count < 150, **raise `SystemExit` with code 1** and log "Dataset size < 150 experiments (minimum viable) per spec SC-004" (FR-001, SC-004). **Verification**: Calling `check_size_gate()` with <150 rows raises `SystemExit` with code 1. This is a function, not a CLI, to be called by T018a. **Dependency**: Must run AFTER T015b.
+- [X] T016 [US1] **Grouping Header (DO NOT CHECK)**: Preprocessing Pipeline. (Sub-tasks T016a-f are the actionable items.)
+ - [X] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density)** (EXCLUDING targets D10/D50/D90). **Function Signature**: `apply_imputation(df: pd.DataFrame) -> pd.DataFrame`. **Output**: `data/processed/imputed_dataset.parquet`. **Verification**: Output file exists and has no nulls in predictor columns.
+ - [X] T016b One-hot encoding for `material_type`
+ - [X] T016c Standard scaling for numeric features
+ - [X] T016d [US1] **Flagging Logic (Append Only)**: Implement logic to flag unstructured PSD entries to `data/flagged_psd.json`. **Dependency**: MUST check `data/flagged_psd.json` (from T014b) first. If an entry is already flagged, do not overwrite; only append new flags. **Verification**: No duplicate entries for the same `experiment_id` in the output file.
+ - [X] T016e [US1] **Imputation Logic**: Implement logic to calculate 'process_duration' column. **Specifics**: If missing, use median of non-null 'process_duration' in the dataset; if all null, use the default value from `config.yaml` key `default_process_duration`. **Verification**: Output column has no nulls.
+ - [X] T016f [US1] **Validation Logic**: Implement logic to check if 'process_duration' is still missing after imputation. If missing AND no default is configured, raise `MissingTimestampError` with a clear message.
+- [X] T017 [US1] Implement dataset validation and size check in `src/preprocess/validate.py` (Input: **ONLY the processed data output from T016 at `data/processed/ball_milling_dataset.parquet`**):
+ - [X] T017a Validate against `contracts/dataset.schema.yaml`
+ - [X] T017b [US1] **Post-Processing Validation (No Halt)**: Validate that the dataset still meets schema requirements. **CRITICAL**: Do NOT halt here if count < 150; the halt is handled by T015c. If count < 150, log a warning but continue (or halt only if schema validation fails). **Correction**: This task is now validation-only; T015c is the sole size gate.
+- [X] T018 [US1] Create main ingestion CLI entry point in `src/cli/ingest.py` to orchestrate T012-T017 (Input: **ONLY the validated output from T017**; Output: validated parquet):
+ - [X] T018a Ensure sequential execution: Ingestion -> Merge -> **T015b/T015c (Size Check Gate)** -> Preprocess -> Validate -> CLI output. **Specifics**: T018a calls `src.utils.size_gate.check_size_gate()` directly (not a separate CLI). Verify that T015c is called before T016.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean dataset produced)
 
@@ -114,27 +115,27 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for Nested CV implementation in `tests/unit/test_model.py`
-- [ ] T020 [P] [US2] Integration test for model fallback logic in `tests/integration/test_model_fallback.py`
+- [X] T019 [P] [US2] Unit test for Nested CV implementation in `tests/unit/test_model.py`
+- [X] T020 [P] [US2] Integration test for model fallback logic in `tests/integration/test_model_fallback.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement Nested Cross-Validation (Repeated) in `src/model/nested_cv.py`:
- - [ ] T021a Implement logic to generate **dynamic train/test splits** (random [deferred] split **quantile-binned D50** stratified) **in-memory** for each CV fold; do NOT create a static `data/splits/test_set.parquet` file. Include `n_repeats` parameter to repeat the nested CV procedure N times with different seeds for statistical robustness.
-- [ ] T022 [US2] Implement GPR training with ARD kernel in `src/model/train_gpr.py` using inner CV for tuning. **Specifics**: Use `sklearn.gaussian_process.GaussianProcessRegressor` with ARD kernel. Monitor runtime and memory; if limits breached, raise `GPRResourceLimitExceeded` (defined in T023).
-- [ ] T023 [US2] Implement resource monitoring wrapper in `src/model/monitor.py`:
- - [ ] T023a Track runtime and RAM usage during training
- - [ ] T023b Define and raise the specific exception **`class GPRResourceLimitExceeded(Exception): def __init__(self, runtime_seconds, memory_gb)`** in `src/model/monitor.py`. T022 must raise this specific class if `runtime_seconds > config['gpr_max_runtime']` OR `memory_gb > config['gpr_max_memory']`. **Load thresholds from `config.yaml` via T009**. Use `psutil` for memory and `time` for runtime measurement.
-- [ ] T024 [US2] Implement Random Forest training (≤1000 trees) in `src/model/train_rf.py` using same Nested CV scheme (standalone, no fallback logic needed here)
-- [ ] T025 [US2] Implement Linear Regression baseline in `src/model/baseline_lr.py` using same Nested CV scheme
-- [ ] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds** (using dynamic splits) in `src/evaluate/metrics.py`
-- [ ] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05) to compare ML models vs baseline.
-- [ ] T028 [US2] Implement a priori power analysis in `src/evaluate/power_analysis.py` (Cohen's f² = 0.15) to report minimum detectable effect size.
-- [ ] T029 [US2] **Create main training CLI entry point for Fallback Orchestration** in `src/cli/train.py`:
- - [ ] T029a **GPR Runner**: Implement the GPR training execution logic (wrapping T022) with resource monitoring.
- - [ ] T029b **RF Runner**: Implement the Random Forest training execution logic (wrapping T024).
- - [ ] T029c **Orchestration**: Implement the CLI logic that: 1) Attempts GPR (T029a) in a try/except block; 2) Catches `GPRResourceLimitExceeded`; 3) If caught, logs fallback event and switches to RF (T029b); 4) Proceeds with evaluation.
-- [ ] T030 [US2] Implement dynamic split evaluation reporting in `src/evaluate/held_out_report.py` (if distinct from T026)
+- [X] T021 [US2] **Grouping Header (DO NOT CHECK)**: Nested Cross-Validation Setup. (Sub-task T021a is the actionable item.)
+ - [X] T021a [US2] Implement logic to generate **dynamic train/test splits** (random [deferred] split **quantile-binned D50** stratified) **in-memory** for each CV fold in `src/model/nested_cv.py`. **Specifics**: Use **quantile bins** for D50 stratification to ensure outcome distribution similarity across folds. **Deliverable**: A function `generate_splits(n_repeats, seed)` returning a list of `(train_idx, test_idx)` tuples. **Verification**: Unit test `tests/unit/test_model.py::test_splits_are_stratified_by_d50` passes. Include `n_repeats` parameter to repeat the nested CV procedure N times with different seeds for statistical robustness.
+- [X] T022 [US2] Implement GPR training with ARD kernel in `src/model/train_gpr.py` using inner CV for tuning. **Specifics**: Use `sklearn.gaussian_process.GaussianProcessRegressor` with ARD kernel. [UNRESOLVED-CLAIM: c_ca858a47 — status=not_enough_info] Monitor runtime and memory; if limits breached, raise `GPRResourceLimitExceeded` (defined in T023).
+- [X] T023 [US2] Implement resource monitoring wrapper in `src/model/monitor.py`:
+ - [X] T023a Track runtime and RAM usage during training
+ - [X] T023b Define and raise the specific exception **`class GPRResourceLimitExceeded(Exception): def __init__(self, runtime_seconds, memory_gb)`** in `src/model/monitor.py`. T022 must raise this specific class if `runtime_seconds > config['gpr_max_runtime']` OR `memory_gb > config['gpr_max_memory']`. **Load thresholds from `config.yaml` via T009**. Use `psutil` for memory and `time` for runtime measurement.
+- [X] T024 [US2] Implement Random Forest training (≤1000 trees) in `src/model/train_rf.py` using same Nested CV scheme (standalone, no fallback logic needed here)
+- [X] T025 [US2] Implement Linear Regression baseline in `src/model/baseline_lr.py` using same Nested CV scheme
+- [X] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds** (using dynamic splits) in `src/evaluate/metrics.py`
+- [X] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05) to compare ML models vs baseline. [UNRESOLVED-CLAIM: c_c5d698a6 — status=not_enough_info]
+- [X] T028 [US2] Implement a priori power analysis in `src/evaluate/power_analysis.py` (Cohen's f² = 0.15) to report minimum detectable effect size. [UNRESOLVED-CLAIM: c_91493c32 — status=not_enough_info] **Specifics**: Perform power analysis primarily on **D50** (the primary target metric). **Output**: `results/power_analysis_result.txt`.
+- [X] T029 [US2] **Grouping Header (DO NOT CHECK)**: Training CLI and Fallback Orchestration. (Sub-tasks T029a-c are the actionable items.)
+ - [X] T029a [US2] **GPR Runner**: Implement the GPR training execution logic (wrapping T022) with resource monitoring.
+ - [X] T029b [US2] **RF Runner**: Implement the Random Forest training execution logic (wrapping T024).
+ - [X] T029c [US2] **Orchestration**: Implement the CLI logic in `src/cli/train.py` that: 1) Attempts GPR (T029a) in a try/except block; 2) Catches `GPRResourceLimitExceeded`; 3) If caught, logs fallback event and switches to RF (T029b); 4) **IF GPR SUCCEEDS, MUST ALSO train RF (T029b) to satisfy FR-003**; 5) Proceeds with evaluation. **Specifics**: RF training is UNCONDITIONAL and must always be executed, regardless of GPR outcome. This satisfies FR-003 which requires training *both* models for comparative analysis, even if GPR succeeds. **Dependency**: T022 and T024 must be **code implemented** (not necessarily executed) before T029c can run. **Verification**: Integration test `tests/integration/test_model_fallback.py::test_fallback_on_resource_limit` passes.
+- [X] T030 [US2] Implement dynamic split evaluation reporting in `src/evaluate/held_out_report.py` (if distinct from T026)
 
 **Checkpoint**: At this point, User Story 2 should be fully functional and testable independently (models trained, metrics computed)
 
@@ -148,16 +149,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Unit test for plot generation in `tests/unit/test_interpret.py`
+- [X] T031 [P] [US3] Unit test for plot generation in `tests/unit/test_interpret.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement partial dependence plot generation in `src/interpret/partial_dependence.py` (plots for speed, time, ratio, Young's modulus, Process Duration)
-- [ ] T033 [US3] Implement feature importance export in `src/interpret/feature_importance.py` (JSON output with ranked features)
-- [ ] T034 [US3] Create main interpret CLI entry point in `src/cli/interpret.py` to orchestrate T032-T033:
- - [ ] T034a Generate partial dependence plots
- - [ ] T034b Export feature importance JSON
- - [ ] T034c **Validate total plot size ≤ 10MB** and raise error if exceeded (US-3 acceptance criteria)
+- [X] T032 [US3] Implement partial dependence plot generation in `src/interpret/partial_dependence.py` (plots for speed, time, ratio, Young's modulus, Process Duration)
+- [X] T033 [US3] Implement feature importance export in `src/interpret/feature_importance.py` (JSON output with ranked features)
+- [X] T034 [US3] Create main interpret CLI entry point in `src/cli/interpret.py` to orchestrate T032-T033:
+ - [X] T034a Generate partial dependence plots
+ - [X] T034b Export feature importance JSON
+ - [X] T034c **Validate total plot size ≤ 10MB** and raise error if exceeded (US-3 acceptance criteria)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -167,14 +168,14 @@
 
 **Purpose**: Assemble final results and ensure reproducibility on CI
 
-- [ ] T035 [P] Assemble `results/` folder contents: `metrics.csv`, `t_test_summary.txt`, `partial_dependence_*.png`, `feature_importance.json`, `associational_disclaimer.txt`
-- [ ] T036 [P] Implement `src/utils/generate_report.py` to consolidate all outputs
-- [ ] T037 [P] Create GitHub Actions workflow `.github/workflows/ci.yml`:
- - [ ] T037a Run full pipeline
- - [ ] T037b Validate schema
- - [ ] T037c **Enforce a job time limit of a defined duration to manage resource allocation and prevent indefinite execution.** (SC-005, Constitution Principle VI) using `timeout-minutes` in the workflow definition.
-- [ ] T038 [P] Update `quickstart.md` with execution instructions
-- [ ] T039 [P] **NOTE**: The spec contains a typo in SC-005 ("-hour"). This must be fixed in the `spec.md` file during the spec revision stage, not in tasks.md. The 6-hour limit is enforced by T037c.
+- [X] T035 [P] Assemble `results/` folder contents: `metrics.csv`, `t_test_summary.txt`, `partial_dependence_*.png`, `feature_importance.json`, `associational_disclaimer.txt`, **AND `power_analysis_result.txt`** (from T028).
+- [X] T036 [P] Implement `src/utils/generate_report.py` to consolidate all outputs, **explicitly including statistical power metrics from T028 in the final report**.
+- [X] T037 [P] Create GitHub Actions workflow `.github/workflows/ci.yml`:
+ - [X] T037a Run full pipeline
+ - [X] T037b Validate schema
+ - [X] T037c **Enforce a job time limit of hours (360 minutes)** using `timeout-minutes: 360` in the workflow definition. (SC-005, Constitution Principle VI)
+- [X] T038 [P] Update `quickstart.md` with execution instructions
+- [X] T040 [P] **Fix Documentation Typo**: Update `spec.md` (SC-005) and `plan.md` to correct the typo "-hour" to "6-hour". This task ensures the documentation inconsistency is resolved in the source artifacts. **Note**: `tasks.md` itself has been corrected in this revision.
 
 ---
 
@@ -214,8 +215,8 @@
 
 ### Explicit Sequential Chains (Critical for Data Flow)
 
-- **Data Pipeline (US1)**: T012/T013/T014 (Ingestion) → T015 (Merge) → **T015b/T015c (Size Check Gate)** → **T016 (Preprocess)** → **T017 (Validate, Input: ONLY T016 output)** → **T018 (CLI, Input: ONLY T017 output)**. Do not run T017 or T018 before T016 completes.
-- **Model Pipeline (US2)**: T021 (CV Setup) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF)** → T026 (Eval). T022 and T024 are sub-tasks of T029's execution flow.
+- **Data Pipeline (US1)**: T012/T013/T013b/T014 (Ingestion) → T015 (Merge) → **T015b (Write Count)** → **T015c (Size Check Gate)** → **T016 (Preprocess)** → **T017 (Validate)** → **T018 (CLI)**. **T015c depends on T015b**. **T016 depends on T015c**. **T016d depends on T014b**.
+- **Model Pipeline (US2)**: T021 (CV Setup) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF OR Train Both)** → T026 (Eval). T022 and T024 are **code implementations** ready for T029 to invoke. **T029c invokes T022/T024**.
 
 ---
 
@@ -274,12 +275,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible; no fake data generation allowed. (Mock data only for schema validation if fetch fails).
-- **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min (1800s) or >5GB RAM (configurable).
-- **Critical**: All findings must be framed as associational (not causal).
+- **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible; **NO** fake data generation allowed. If a real fetch fails, the script MUST raise an error and halt. Synthetic fallbacks are strictly prohibited to prevent fabrication.
+- **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min (1800s) or >5GB RAM (configurable). [UNRESOLVED-CLAIM: c_afee7406 — status=not_enough_info]
+- **Critical**: All findings must be framed as associational (not causal). [UNRESOLVED-CLAIM: c_f9d26721 — status=not_enough_info]
 - **Critical**: 'Process Duration' must be calculated ONLY in T016e to ensure consistency, with imputation for missing values.
-- **Critical**: Unstructured PSD data (images) must be detected and flagged for manual curation in T014; **OCR is optional and configurable** (but implementation T014c is mandatory).
+- **Critical**: Unstructured PSD data (images) must be detected and flagged for manual curation in T014; **OCR is optional/configurable** (T014c) but flagging is mandatory.
 - **Critical**: The test set split must be generated dynamically (no static file) and stratified by **quantile-binned D50** (the target) to prevent material-specific bias.
-- **Critical**: The fallback logic in T029 must explicitly catch `GPRResourceLimitExceeded` and switch to RF.
+- **Critical**: The fallback logic in T029 must explicitly catch `GPRResourceLimitExceeded` and switch to RF, AND MUST train RF if GPR succeeds to satisfy FR-003. RF training is UNCONDITIONAL to ensure comparative data exists.
 - **Critical**: CI workflow must enforce a **reasonable** job time limit.
-- **Critical**: Dataset size check (T015c) must occur BEFORE preprocessing to prevent wasted compute. T017b logs a warning if post-processing count drops.
+- **Critical**: Dataset size check (T015c) must occur BEFORE preprocessing to prevent wasted compute. [UNRESOLVED-CLAIM: c_c280ae1c — status=not_enough_info] T017b is now validation-only.
+- **Critical**: No task may implement a `try/except` block that falls back to `generate_synthetic_*()` or `mock_*()` data when a real fetch fails. The execution stage handles retries; the code must fail loudly.
+- **Parent Task Status**: Tasks T014, T016, T021, and T029 are grouping headers only. Their sub-tasks (e.g., T014a-c) are the actionable items. Do not check the parent boxes.

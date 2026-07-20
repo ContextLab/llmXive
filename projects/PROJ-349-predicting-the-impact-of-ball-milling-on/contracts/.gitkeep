@@ -1,2 +1,2 @@
-# This file ensures the contracts directory is tracked by git
-.
+# This directory stores data schemas and validation contracts
+# Contains dataset.schema.yaml and other contract definitions

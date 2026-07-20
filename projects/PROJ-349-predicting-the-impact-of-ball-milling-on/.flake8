@@ -8,9 +8,18 @@ exclude =
     dist,
     .eggs,
     *.egg-info,
-    .pytest_cache,
     venv,
-    .venv
+    .venv,
+    data
 per-file-ignores =
-    # Allow unused imports in __init__.py for public API exposure
+    # Allow wildcard imports for __init__.py files
     */__init__.py: F401
+    # Allow unused imports in test files for fixtures
+    tests/*: F401
+max-complexity = 10
+inline-quotes = double
+multiline-quotes = double
+docstring-quotes = double
+count = True
+statistics = True
+show-source = True

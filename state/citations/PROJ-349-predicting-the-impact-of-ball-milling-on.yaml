@@ -20,25 +20,14 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: b4a3d3778fe3bd562782db8714ffaed14bc4fb6bf48cc9a29d5cfc79f3807a5e
+- artifact_hash: 22ffd1a053ba989dc8fbea85ec960e632dc22f9451468ba89f7933568a5f3b01
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://api.materialsproject.org/v2/...`
-  verification_status: mismatch
-  verified_against_url: https://api.materialsproject.org/v2/
-  verified_at: '2026-07-18T16:11:50.196717Z'
-- artifact_hash: b4a3d3778fe3bd562782db8714ffaed14bc4fb6bf48cc9a29d5cfc79f3807a5e
-  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/materials-data-repository/ball-milling`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/materials-data-repository/ball-milling
-  verified_at: '2026-07-18T16:11:50.196717Z'
+  value: https://next-gen.materialsproject.org/`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-20T07:57:29.358921Z'

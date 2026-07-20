@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-349-predicting-the-impact-of-ball-milling-on",
+  "tasks": [
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/ingest/materials_project.py, data/raw/materials_project_raw.json",
+      "first_seen": "2026-07-20T07:57:34.971066+00:00",
+      "last_seen": "2026-07-20T07:57:34.971066+00:00"
+    }
+  ],
+  "updated_at": "2026-07-20T07:57:34.971066+00:00"
+}

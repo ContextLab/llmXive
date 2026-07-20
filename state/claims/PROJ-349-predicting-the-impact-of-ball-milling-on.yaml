@@ -512,3 +512,472 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T07:14:10Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: project structure includes src tests data/raw data/processed data/splits
+    results contracts and github/workflows directories
+  claim_id: c_fc6fbe21
+  context: 'Phase 1: Setup (Shared Infrastructure) - T001 Create project structure
+    per implementation plan.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_structure_includes_src_tests_data/raw_data/processed
+  kind: entity_fact
+  raw_text: 'Create project structure per implementation plan: `src/`, `tests/`, `data/raw`,
+    `data/processed`, `data/splits`, `results`, `contracts/`, `.github/workflows/`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:47:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with specific pinned dependency versions
+  claim_id: c_3c870431
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002 Initialize Python 3.11 project
+    with pinned dependencies.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned dependencies (pandas==2.2.*,
+    numpy==1.26.*, scikit-learn==1.5.*, statsmodels==0.14.*, matplotlib==3.9.*, seaborn==0.13.*,
+    requests==2.32.*, tqdm==4.66.*, pyarrow==16.*, pdfminer.six==20231228).
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T07:47:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: seed management utility implemented in src/utils/seed.py to pin all random
+    states
+  claim_id: c_6f7f1470
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 Implement seed management
+    utility.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seed_management_utility_implemented_in_src/utils/seed.py_to
+  kind: entity_fact
+  raw_text: Implement seed management utility in `src/utils/seed.py` to pin all random
+    states.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:47:51Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset schema defined with 12 explicit field requirements including
+    experiment_id and d50
+  claim_id: c_233dbf71
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007a Define dataset
+    schema.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define dataset schema in `contracts/dataset.schema.yaml` with explicit
+    field requirements (experiment_id, source, material_type, milling_speed, milling_time,
+    ball_to_powder_ratio, youngs_modulus, density, d10, d50, d90, process_duration).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:48:09Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: validate_schema function raises InsufficientDataError if row count is
+    less than 150
+  claim_id: c_4072b3ed
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007b Implement validation
+    logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_schema_function_raises_InsufficientDataError_if_row
+  kind: magnitude
+  raw_text: A fully functional `validate_schema(dataframe)` function that raises `InsufficientDataError`
+    if row count < 150 or schema validation fails.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:49:02Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: config.yaml template includes gpr_max_runtime in seconds and gpr_max_memory
+    in GB
+  claim_id: c_7bc7ddb1
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009 Setup environment
+    configuration management.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Config.yaml_template_includes_gpr_max_runtime_in_seconds_and
+  kind: entity_fact
+  raw_text: Create `config.yaml` template with keys for resource limits (`gpr_max_runtime`
+    in seconds, `gpr_max_memory` in GB).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:49:30Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: dataset target is 500 experiments with minimum viable threshold of 150
+    experiments
+  claim_id: c_5dab4154
+  context: 'Phase 3: User Story 1 - Data Aggregation and Preprocessing Pipeline (Priority:
+    P1) Goal.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_target_is_500_experiments_with_minimum_viable_thresh
+  kind: magnitude
+  raw_text: Automatically aggregate ball milling experimental data from public repositories
+    (Materials Project, NIST, arXiv) and preprocess it to include standardized features,
+    creating a clean, analysis-ready dataset of at least 500 experiments (target)
+    or 150 (minimum viable).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:50:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Materials Project API v2 used to query entries with ball milling keywords
+  claim_id: c_88c45d06
+  context: 'Phase 3: User Story 1 - Implementation - T012 Implement Materials Project
+    data fetcher.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_v2_used_to_query_entries_with_ball_mil
+  kind: entity_fact
+  raw_text: Use Materials Project API v2 (`https://next-gen.materialsproject.org/`)
+    to query for entries with 'ball milling' or 'milling' in keywords/abstracts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:50:44Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: NIST Materials Data Repository files parsed for required fields
+  claim_id: c_da756872
+  context: 'Phase 3: User Story 1 - Implementation - T013 Implement NIST repository
+    downloader.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Materials_Data_Repository_files_parsed_for_required_fie
+  kind: entity_fact
+  raw_text: Parse files to extract required fields from NIST Materials Data Repository
+    using the explicit accession ID.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:51:08Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: pdfminer.six used to scrape tables from arXiv PDFs
+  claim_id: c_2d2681bc
+  context: 'Phase 3: User Story 1 - Implementation - T013b Implement arXiv PDF extractor.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pdfminer.six_used_to_scrape_tables_from_arXiv_PDFs
+  kind: entity_fact
+  raw_text: Use `pdfminer.six` to scrape tables from arXiv PDFs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:51:21Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: merged dataframe row count written to data/processed/row_count.json
+  claim_id: c_ab8e405b
+  context: 'Phase 3: User Story 1 - Implementation - T015b Calculate Aggregated Count.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Merged_dataframe_row_count_written_to_data/processed/row_cou
+  kind: entity_fact
+  raw_text: Compute the row count of the merged dataframe and write it to `data/processed/row_count.json`
+    with key `count`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:51:44Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: IterativeImputer used for missing values in predictors excluding D10
+    D50 D90
+  claim_id: c_16139c5c
+  context: 'Phase 3: User Story 1 - Implementation - T016a Multiple imputation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IterativeImputer_used_for_missing_values_in_predictors_exclu
+  kind: entity_fact
+  raw_text: Multiple imputation (IterativeImputer) for missing values in ALL required
+    predictors (including Young's modulus, density) (EXCLUDING targets D10/D50/D90).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:52:05Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: process_duration imputation uses median or config default if all null
+  claim_id: c_726464c9
+  context: 'Phase 3: User Story 1 - Implementation - T016e Imputation Logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_duration_imputation_uses_median_or_config_default_if
+  kind: entity_fact
+  raw_text: If 'process_duration' is missing, use median of non-null 'process_duration'
+    in the dataset; if all null, use the default value from `config.yaml` key `default_process_duration`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:52:21Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR and RF models trained using Nested Cross-Validation Repeated
+  claim_id: c_c3aa5a9c
+  context: 'Phase 4: User Story 2 - Predictive Model Training and Validation (Priority:
+    P2) Goal.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPR_and_RF_models_trained_using_Nested_Cross-Validation_Repe
+  kind: entity_fact
+  raw_text: Train and validate Gaussian Process Regression (GPR) and Random Forest
+    (RF) models using Nested Cross-Validation (Repeated).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:52:59Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: sklearn GaussianProcessRegressor with ARD kernel used for GPR training
+  claim_id: c_ca858a47
+  context: 'Phase 4: User Story 2 - Implementation - T022 Implement GPR training with
+    ARD kernel.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sklearn_GaussianProcessRegressor_with_ARD_kernel_used_for_GP
+  kind: entity_fact
+  raw_text: Use `sklearn.gaussian_process.GaussianProcessRegressor` with ARD kernel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:53:24Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPRResourceLimitExceeded exception defined with runtime_seconds and memory_gb
+    arguments
+  claim_id: c_abd95516
+  context: 'Phase 4: User Story 2 - Implementation - T023b Define and raise the specific
+    exception.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPRResourceLimitExceeded_exception_defined_with_runtime_seco
+  kind: entity_fact
+  raw_text: 'Define and raise the specific exception `class GPRResourceLimitExceeded(Exception):
+    def __init__(self, runtime_seconds, memory_gb)`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:54:00Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest training implemented with maximum 1000 trees
+  claim_id: c_d1e7c515
+  context: 'Phase 4: User Story 2 - Implementation - T024 Implement Random Forest
+    training.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Random Forest training (\u22641000 trees) in `src/model/train_rf.py`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:54:00Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nadeau and Bengio corrected resampled t-test implemented with alpha 0.05
+  claim_id: c_c5d698a6
+  context: 'Phase 4: User Story 2 - Implementation - T027 Implement Nadeau & Bengio
+    corrected resampled t-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py`\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:54:30Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: A priori power analysis implemented with Cohen's f squared of 0.15
+  claim_id: c_91493c32
+  context: 'Phase 4: User Story 2 - Implementation - T028 Implement a priori power
+    analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a priori power analysis in `src/evaluate/power_analysis.py`\
+    \ (Cohen's f\xB2 = 0.15) to report minimum detectable effect size."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:55:22Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Power analysis performed primarily on D50 metric
+  claim_id: c_43b1349c
+  context: 'Phase 4: User Story 2 - Implementation - T028 Implement a priori power
+    analysis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_performed_primarily_on_D50_metric
+  kind: entity_fact
+  raw_text: Perform power analysis primarily on D50 (the primary target metric).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:55:48Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Results folder assembled with metrics.csv t_test_summary.txt partial_dependence
+    pngs feature_importance.json and power_analysis_result.txt
+  claim_id: c_6d033eb9
+  context: 'Phase 6: Reporting & CI Integration - T035 Assemble results folder contents.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_folder_assembled_with_metrics.csv_t_test_summary.txt
+  kind: entity_fact
+  raw_text: 'Assemble `results/` folder contents: `metrics.csv`, `t_test_summary.txt`,
+    `partial_dependence_*.png`, `feature_importance.json`, `associational_disclaimer.txt`,
+    AND `power_analysis_result.txt`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:56:07Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GitHub Actions job time limit enforced at 360 minutes
+  claim_id: c_72c7c6aa
+  context: 'Phase 6: Reporting & CI Integration - T037c Enforce a job time limit of
+    hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Enforce a job time limit of hours (360 minutes) using `timeout-minutes:
+    360` in the workflow definition.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:56:27Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback to Random Forest triggered if runtime exceeds 1800 seconds
+    or memory exceeds 5GB
+  claim_id: c_afee7406
+  context: 'Notes - Critical: GPR fallback to Random Forest must be automatic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM (configurable).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:56:27Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: All findings framed as associational not causal
+  claim_id: c_f9d26721
+  context: 'Notes - Critical: All findings must be framed as associational.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_findings_framed_as_associational_not_causal
+  kind: entity_fact
+  raw_text: All findings must be framed as associational (not causal).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:56:52Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Dataset size check occurs before preprocessing
+  claim_id: c_c280ae1c
+  context: 'Notes - Critical: Dataset size check must occur before preprocessing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_check_occurs_before_preprocessing
+  kind: entity_fact
+  raw_text: Dataset size check (T015c) must occur BEFORE preprocessing to prevent
+    wasted compute.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T07:57:29Z'
