@@ -4,13 +4,13 @@ import time
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-LOG_FILE_PATH = "data/results/simulation.log"
+LOG_DIR = "data/results"
+LOG_FILE_NAME = "simulation.log"
 
-def ensure_log_directory():
-    """Ensure the directory for the log file exists."""
-    dir_path = os.path.dirname(LOG_FILE_PATH)
-    if dir_path and not os.path.exists(dir_path):
-        os.makedirs(dir_path, exist_ok=True)
+def ensure_log_directory() -> str:
+    """Ensure the log directory exists."""
+    os.makedirs(LOG_DIR, exist_ok=True)
+    return LOG_DIR
 
 def log_simulation_run(
     N: int,
@@ -18,22 +18,25 @@ def log_simulation_run(
     seed: int,
     duration: float,
     vif_max: float,
-    metadata: Optional[Dict[str, Any]] = None
+    config_path: Optional[str] = None,
+    instance_id: Optional[str] = None
 ) -> None:
     """
-    Append a JSON log entry for a simulation run to data/results/simulation.log.
-
+    Append a single simulation run record to the JSON log file.
+    
     Args:
         N: Sample size used in the simulation.
-        rho: Target correlation coefficient.
+        rho: Target correlation coefficient used.
         seed: Random seed used for reproducibility.
-        duration: Duration of the simulation run in seconds.
-        vif_max: Maximum Variance Inflation Factor observed.
-        metadata: Optional dictionary of additional fields to include.
+        duration: Time taken for the simulation run in seconds.
+        vif_max: Maximum VIF observed in the generated dataset.
+        config_path: Optional path to the configuration file used.
+        instance_id: Optional unique identifier for the dataset instance.
     """
     ensure_log_directory()
-
-    entry = {
+    log_path = os.path.join(LOG_DIR, LOG_FILE_NAME)
+    
+    record = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "N": N,
         "rho": rho,
@@ -41,9 +44,13 @@ def log_simulation_run(
         "duration": duration,
         "vif_max": vif_max
     }
-
-    if metadata:
-        entry.update(metadata)
-
-    with open(LOG_FILE_PATH, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    
+    if config_path is not None:
+        record["config_path"] = config_path
+    if instance_id is not None:
+        record["instance_id"] = instance_id
+    
+    # Append as a JSON Lines file (one JSON object per line)
+    # This allows for easy streaming and avoids loading the whole file into memory
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")

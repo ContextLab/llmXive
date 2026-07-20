@@ -1,0 +1,42 @@
+T026:
+  c: false
+  h: 4f019cb75e8288ddbe33a79b30f72af8ba4c5b8c4ebb6e5561e5122652c0eebe
+  r: "The repository contains a partial `code/main.py` that defines `run_single_replication`\
+    \ but does not show the required orchestration loop or logic that aggregates results\
+    \ and writes them to `data/results/coverage_metrics.json` with the specified schema\
+    \ keys. Moreover, the expected output file `data/results/coverage_metrics.json`\
+    \ is missing entirely. The task\u2019s core requirements are therefore not satisfied."
+T031:
+  c: false
+  h: 03a3ece9230f7f2347587bf93ac45cf54946456ce2072b064e08a627b590da23
+  r: "The `code/validation/uci_runner.py` file exists, but the required `data/results/best_method_config.json`\
+    \ is missing, so the script cannot determine or run the \u201Cbest method\u201D\
+    \ as specified. Without this configuration file (or a stub that loads it), the\
+    \ implementation does not meet the task requirement."
+T036:
+  c: false
+  h: a3e2a69c77ea25b00876aa4dcbfbdec50a7cedb40a8f9b7aa5d6b371bcbbb735
+  r: The provided `verify_runtime.py` is incomplete (truncated) and does not show
+    logic that writes a `runtime_log.json` containing a `total_duration` field. Moreover,
+    the required `data/results/runtime_log.json` file is missing, and there is no
+    evidence that `run_full_simulation.sh` was updated to log a warning when the threshold
+    is exceeded. These essential artifacts are absent, so the task is not satisfied.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` was provided; there is no evidence of Installation, Usage,
+    Data Flow instructions, nor a Mermaid diagram of the data flow. The required documentation
+    artifact is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution logs, test result files, or reported pass rate are present.
+    The claim provides no evidence that any unit or integration tests were run, nor
+    that a pass percentage was achieved. The required artifact (pytest output showing
+    pass/fail statistics) is missing.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file was provided, nor any content showing the required sections\
+    \ (Abstract, Methods, Results, Discussion). The implementer\u2019s claim cannot\
+    \ be verified because the artifact is missing."

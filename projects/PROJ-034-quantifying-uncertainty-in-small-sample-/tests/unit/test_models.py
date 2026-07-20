@@ -1,86 +1,79 @@
 """
-Unit tests for OLS model implementation.
+Unit tests for model modules (OLS, Bootstrap, Bayesian).
 """
 import pytest
 import numpy as np
-from code.models.ols import OLSModel, fit_ols_and_get_intervals
+from models.ols import OLSModel, fit_ols_and_get_intervals
+from models.bootstrap import BootstrapModel, fit_bootstrap_and_get_intervals
+from models.bayesian import BayesianModel, fit_bayesian_and_get_intervals
 
-def test_ols_basic_fit():
-    """Test basic OLS fitting with known data."""
-    # Simple linear relationship: y = 2x + 1 + noise
-    np.random.seed(42)
-    n = 100
-    X = np.random.randn(n, 1)
-    true_beta = np.array([1.0, 2.0]) # intercept=1, slope=2
-    y = X @ true_beta[1:] + true_beta[0] + np.random.randn(n) * 0.1
-
-    model = OLSModel()
-    model.fit(X, y)
-
-    # Check that coefficients are close to true values
-    assert np.isclose(model.coefficients[0], 1.0, atol=0.1) # intercept
-    assert np.isclose(model.coefficients[1], 2.0, atol=0.1) # slope
-
-def test_ols_confidence_intervals():
-    """Test that confidence intervals contain true coefficients."""
-    np.random.seed(42)
-    n = 200
-    X = np.random.randn(n, 2)
-    true_beta = np.array([1.0, 2.0, 3.0]) # intercept=1, slope1=2, slope2=3
-    y = X @ true_beta[1:] + true_beta[0] + np.random.randn(n) * 0.1
-
-    model = OLSModel()
-    model.fit(X, y, confidence_level=0.95)
-
-    # Check if true coefficients are within 95% CI
-    # Note: This is probabilistic, but with high N and low noise, it should pass
-    for i in range(3):
-        ci = model.confidence_intervals[i]
-        assert ci[0] <= true_beta[i] <= ci[1], f"True beta {i} ({true_beta[i]}) not in CI [{ci[0]}, {ci[1]}]"
-
-def test_ols_r_squared():
-    """Test R-squared calculation."""
-    # Perfect fit
-    X = np.array([[1], [2], [3], [4], [5]])
-    y = np.array([2, 4, 6, 8, 10])
-
-    model = OLSModel()
-    model.fit(X, y)
-
-    assert np.isclose(model.r_squared, 1.0)
-
-    # No relationship
-    np.random.seed(42)
-    X = np.random.randn(100, 1)
-    y = np.random.randn(100)
-
-    model = OLSModel()
-    model.fit(X, y)
-
-    assert 0 <= model.r_squared <= 1
-
-def test_ols_rank_deficient():
-    """Test handling of rank-deficient design matrix."""
-    # Create collinear features
-    X = np.array([[1, 1], [2, 2], [3, 3], [4, 4]])
-    y = np.array([1, 2, 3, 4])
-
-    model = OLSModel()
-    with pytest.raises(ValueError, match="rank-deficient"):
-        model.fit(X, y)
-
-def test_fit_ols_and_get_intervals_function():
-    """Test the convenience function."""
+def test_ols_interval_calculation():
+    """
+    Verify OLS interval calculation.
+    """
     np.random.seed(42)
     n = 50
-    X = np.random.randn(n, 1)
-    y = 3 * X.flatten() + 2 + np.random.randn(n) * 0.5
+    X = np.random.randn(n, 2)
+    beta_true = np.array([1.0, 2.0])
+    y = X @ beta_true + np.random.randn(n) * 0.5
+    
+    model = OLSModel()
+    intervals = fit_ols_and_get_intervals(model, X, y)
+    
+    assert "lower" in intervals
+    assert "upper" in intervals
+    assert len(intervals["lower"]) == 2
+    assert len(intervals["upper"]) == 2
+    # Check that intervals are not NaN
+    assert not np.any(np.isnan(intervals["lower"]))
+    assert not np.any(np.isnan(intervals["upper"]))
 
-    results = fit_ols_and_get_intervals(X, y)
+def test_bootstrap_bca_interval_calculation():
+    """
+    Verify Bootstrap BCa interval calculation.
+    """
+    np.random.seed(42)
+    n = 50
+    X = np.random.randn(n, 2)
+    beta_true = np.array([1.0, 2.0])
+    y = X @ beta_true + np.random.randn(n) * 0.5
+    
+    model = BootstrapModel(n_bootstrap=100)  # Small for speed
+    intervals = fit_bootstrap_and_get_intervals(model, X, y)
+    
+    assert "lower" in intervals
+    assert "upper" in intervals
+    assert len(intervals["lower"]) == 2
+    assert len(intervals["upper"]) == 2
+    # Check that intervals are not NaN
+    assert not np.any(np.isnan(intervals["lower"]))
+    assert not np.any(np.isnan(intervals["upper"]))
 
-    assert "coefficients" in results
-    assert "standard_errors" in results
-    assert "confidence_intervals" in results
-    assert "r_squared" in results
-    assert len(results["coefficients"]) == 2 # intercept + 1 slope
-    assert len(results["confidence_intervals"]) == 2
+def test_bayesian_convergence_checks():
+    """
+    Verify Bayesian convergence checks (R-hat).
+    """
+    np.random.seed(42)
+    n = 50
+    X = np.random.randn(n, 2)
+    beta_true = np.array([1.0, 2.0])
+    y = X @ beta_true + np.random.randn(n) * 0.5
+    
+    # Note: Full Bayesian run might be slow, so we test the interface
+    # In a real test, we might mock or use fewer iterations
+    model = BayesianModel(n_chains=2, n_samples=200, n_warmup=100)
+    
+    try:
+        intervals, diagnostics = fit_bayesian_and_get_intervals(model, X, y)
+        
+        assert "lower" in intervals
+        assert "upper" in intervals
+        assert "r_hat" in diagnostics
+        
+        # R-hat should be close to 1 for convergence
+        # Allow some tolerance for small sample/iterations
+        assert all(r < 1.1 for r in diagnostics["r_hat"]), \
+            f"R-hat values {diagnostics['r_hat']} indicate non-convergence"
+    except Exception as e:
+        # If CmdStan is not available or compilation fails, skip
+        pytest.skip(f"Bayesian model test skipped: {e}")

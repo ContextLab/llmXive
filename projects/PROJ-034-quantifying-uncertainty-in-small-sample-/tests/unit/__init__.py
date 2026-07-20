@@ -1,3 +1,1 @@
-"""
-Initialization file for the unit tests module.
-"""
+# Unit tests

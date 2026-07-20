@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-034-quantifying-uncertainty-in-small-sample-
-last_run_id: 1970f94b-485f-47f8-985e-7bf1f9b39eeb
+last_run_id: 004900a4-224d-4621-9d0f-280b89b62206
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample
 title: Quantifying Uncertainty in Small Sample Regression Models
-updated_at: '2026-07-06T20:40:52.436094Z'
+updated_at: '2026-07-20T00:12:02.817477Z'

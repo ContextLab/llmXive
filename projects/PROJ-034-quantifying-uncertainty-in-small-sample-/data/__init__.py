@@ -1,3 +1,1 @@
-"""
-Initialization file for the data module.
-"""
+# Data package root

@@ -1,109 +1,44 @@
 """
-Shared fixtures and configuration for the llmXive project tests.
+Shared fixtures for pytest.
 """
-import os
-import sys
-import tempfile
-import shutil
-from pathlib import Path
-from typing import Iterator, Dict, Any, Optional
-
 import pytest
 import numpy as np
-from numpy.typing import ArrayLike
+import os
+import sys
+from pathlib import Path
 
-# Ensure the project root is in the path so imports work
-# This assumes tests are at project_root/tests/ and code is at project_root/code/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
-
-from simulation.config import SimulationConfig
-from simulation.engine import DatasetInstance, generate_dataset, calculate_vif
-
-
-@pytest.fixture(scope="session")
-def temp_project_root() -> Iterator[Path]:
-    """
-    Creates a temporary directory to act as the project root for testing.
-    This isolates file I/O tests from the actual repository.
-    """
-    tmp_dir = tempfile.mkdtemp(prefix="llmXive_test_")
-    tmp_path = Path(tmp_dir)
-    
-    # Create necessary subdirectories
-    (tmp_path / "data" / "raw").mkdir(parents=True)
-    (tmp_path / "data" / "simulated").mkdir(parents=True)
-    (tmp_path / "data" / "results").mkdir(parents=True)
-    (tmp_path / "code").mkdir(parents=True)
-    (tmp_path / "tests").mkdir(parents=True)
-
-    yield tmp_path
-
-    # Cleanup
-    shutil.rmtree(tmp_dir)
-
+# Add code directory to path for imports
+@pytest.fixture(autouse=True)
+def add_code_to_path():
+    code_path = Path(__file__).parent.parent / "code"
+    if str(code_path) not in sys.path:
+        sys.path.insert(0, str(code_path))
+    yield
+    if str(code_path) in sys.path:
+        sys.path.remove(str(code_path))
 
 @pytest.fixture
-def sample_config() -> SimulationConfig:
+def sample_data():
     """
-    Provides a standard SimulationConfig for small sample testing.
-    N=20, 3 predictors, low correlation, standard noise.
+    Generate a small sample dataset for testing.
     """
-    return SimulationConfig(
-        n=20,
-        n_predictors=3,
-        correlation=0.2,
-        noise_std=1.0,
-        true_coefficients=[1.5, -2.0, 0.5],
-        seed=42
-    )
-
+    np.random.seed(123)
+    n = 30
+    p = 2
+    X = np.random.randn(n, p)
+    beta_true = np.array([1.0, -1.0])
+    y = X @ beta_true + np.random.randn(n) * 0.5
+    return {"X": X, "y": y, "beta_true": beta_true}
 
 @pytest.fixture
-def sample_dataset(sample_config: SimulationConfig) -> DatasetInstance:
+def small_sample_data():
     """
-    Generates a valid DatasetInstance using the sample_config.
+    Generate a very small sample dataset (N < 10) for edge case testing.
     """
-    return generate_dataset(sample_config)
-
-
-@pytest.fixture
-def high_corr_config() -> SimulationConfig:
-    """
-    Configuration designed to produce high VIF (collinearity).
-    """
-    return SimulationConfig(
-        n=20,
-        n_predictors=3,
-        correlation=0.95,  # High correlation
-        noise_std=1.0,
-        true_coefficients=[1.0, 1.0, 1.0],
-        seed=123
-    )
-
-
-@pytest.fixture
-def low_sample_config() -> SimulationConfig:
-    """
-    Configuration with very low N to test rank-deficiency handling.
-    """
-    return SimulationConfig(
-        n=5,
-        n_predictors=3,
-        correlation=0.1,
-        noise_std=1.0,
-        true_coefficients=[1.0, 1.0, 1.0],
-        seed=999
-    )
-
-
-@pytest.fixture
-def mock_output_dir(temp_project_root: Path) -> Path:
-    """
-    Returns a specific directory within the temp root for saving outputs.
-    """
-    output_dir = temp_project_root / "data" / "simulated"
-    return output_dir
+    np.random.seed(456)
+    n = 5
+    p = 2
+    X = np.random.randn(n, p)
+    beta_true = np.array([1.0, 2.0])
+    y = X @ beta_true + np.random.randn(n) * 0.5
+    return {"X": X, "y": y, "beta_true": beta_true}

@@ -1,3 +1,1 @@
-"""
-Initialization file for the simulation module.
-"""
+# Simulation engine package

@@ -1,3 +1,1 @@
-"""
-Initialization file for the models module.
-"""
+# Models package (OLS, Bootstrap, Bayesian)

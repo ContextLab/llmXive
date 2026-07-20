@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a Monte Carlo simulation engine to empirically compare the coverage probabilities of three uncertainty quantification methods (OLS, Non-parametric Bootstrap with BCa intervals, Bayesian Regression with weakly informative priors) under small sample conditions ($N < 50$) with varying degrees of predictor collinearity. The implementation prioritizes CPU-tractability to ensure execution within GitHub Actions free-tier limits (2 CPU, 7GB RAM, 6h), focusing on generating synthetic data with controlled correlation structures and validating findings on a subsampled UCI dataset. A key methodological refinement is the grouping of results by *realized* collinearity metrics rather than target parameters to avoid ecological fallacy.
+This project implements a Monte Carlo simulation engine to empirically compare the coverage probabilities of three uncertainty quantification methods (OLS, Non-parametric Bootstrap with BCa intervals, Bayesian Regression with weakly informative priors) under small sample conditions ($N < 50$) with varying degrees of predictor collinearity. The implementation prioritizes CPU-tractability to ensure execution within GitHub Actions free-tier limits (Multiple CPUs, 7GB RAM, 6h), focusing on generating synthetic data with controlled correlation structures and validating findings on a subsampled UCI dataset. A key methodological refinement is the grouping of results by *realized* collinearity metrics rather than target parameters to avoid ecological fallacy.
 
 ## Technical Context
 

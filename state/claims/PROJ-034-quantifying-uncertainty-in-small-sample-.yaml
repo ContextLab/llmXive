@@ -1,0 +1,439 @@
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Monte Carlo simulation framework used 200 replications to assess coverage
+    probabilities and interval widths
+  claim_id: c_f938b00a
+  context: This study systematically evaluates the performance of three uncertainty
+    quantification methods... under controlled small-sample conditions with varying
+    degrees of multicollinearity. We utilize a Monte Carlo simulation framework to
+    generate datasets with known ground truth parameters, assessing coverage probabilities
+    and interval widths across 200 replications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We utilize a Monte Carlo simulation framework to generate datasets with
+    known ground truth parameters, assessing coverage probabilities and interval widths
+    across 200 replications.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:30:10Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Findings validated on real-world UCI Concrete Compressive Strength dataset
+    subsampled to small N
+  claim_id: c_4de169a3
+  context: Additionally, we validate our findings on the real-world UCI Concrete Compressive
+    Strength dataset, subsampled to small N. Our results indicate that while OLS confidence
+    intervals suffer from significant under-coverage in high-collinearity, small-sample
+    regimes...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_validated_on_real-world_UCI_Concrete_Compressive_St
+  kind: entity_fact
+  raw_text: We validated our findings on the real-world UCI Concrete Compressive Strength
+    dataset, subsampled to small N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:30:52Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: 200 independent replications simulated for each configuration of N in
+    {20, 30, 40, 50} and rho in {0.0, 0.5, 0.8}
+  claim_id: c_b145af52
+  context: 'Experimental Design: We simulated 200 independent replications for each
+    configuration (N in {20, 30, 40, 50}, rho in {0.0, 0.5, 0.8}). Seeds were fixed
+    to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We simulated 200 independent replications for each configuration (N in
+    {20, 30, 40, 50}, rho in {0.0, 0.5, 0.8}).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:31:45Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Non-parametric Bootstrap (BCa) implemented with 2000 resamples
+  claim_id: c_2ad2f1a7
+  context: 'Non-parametric Bootstrap (BCa): A bias-corrected and accelerated bootstrap
+    with B=2000 resamples. Intervals were constructed using the percentile method
+    with bias correction to account for skewness in the bootstrap distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Non-parametric Bootstrap (BCa) was implemented with B=2000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:32:11Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bayesian Regression inference performed with 4 chains, 2000 samples per
+    chain, and 500 warmup iterations
+  claim_id: c_0c126478
+  context: 'Bayesian Regression: A hierarchical model implemented in CmdStanPy with
+    Normal(0, 10) priors on coefficients and a Half-Cauchy(0, 5) prior on the error
+    scale. Inference was performed using 4 chains, 2000 samples per chain, and 500
+    warmup iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian Regression inference was performed using 4 chains, 2000 samples
+    per chain, and 500 warmup iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:32:39Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bayesian analysis excluded runs with R-hat > 1.05
+  claim_id: c_91e223bb
+  context: Convergence was monitored via R-hat (R-hat), with runs showing R-hat >
+    1.05 excluded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runs showing R-hat > 1.05 were excluded from the Bayesian analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:32:39Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Best-performing method applied to UCI Concrete Compressive Strength dataset
+    subsampled to 40 samples
+  claim_id: c_73b31892
+  context: The best-performing method identified in simulation was applied to the
+    UCI Concrete Compressive Strength dataset. We subsampled the data to N=40 using
+    stratified sampling, ensuring N > p and retaining at least 3 predictors.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Best-performing_method_applied_to_UCI_Concrete_Compressive_S
+  kind: magnitude
+  raw_text: The best-performing method identified in simulation was applied to the
+    UCI Concrete Compressive Strength dataset subsampled to N=40.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:33:05Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: OLS intervals in N=20, rho=0.8 scenarios had empirical coverage rates
+    of 82-85% against nominal 95% target
+  claim_id: c_ec26560b
+  context: 'OLS Performance: In scenarios with N=20 and high correlation (rho=0.8),
+    OLS intervals exhibited severe under-coverage, with empirical rates dropping to
+    approximately 82-85% against the nominal 95% target. This was accompanied by deceptively
+    narrow interval widths, suggesting over-confidence in estimates.'
+  evidence:
+    asserted: '20.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: In scenarios with N=20 and high correlation (rho=0.8), OLS intervals exhibited
+    severe under-coverage, with empirical rates dropping to approximately 82-85% against
+    the nominal 95% target.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T23:33:05Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: BCa bootstrap method maintained coverage rates between 88-91% in most
+    challenging regimes
+  claim_id: c_21772ca3
+  context: 'Bootstrap Performance: The BCa bootstrap method demonstrated improved
+    robustness over OLS, maintaining coverage rates between 88-91% in the most challenging
+    regimes. However, interval widths were highly variable, and the method occasionally
+    failed to converge on stable quantiles for very small N.'
+  evidence:
+    candidates:
+    - - ''
+      - 88.0
+    - - ''
+      - -91.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/BCa_bootstrap_method_maintained_coverage_rates_between_88-91
+  kind: magnitude
+  raw_text: The BCa bootstrap method maintained coverage rates between 88-91% in the
+    most challenging regimes.
+  resolved_value: BCa bootstrap method maintained coverage rates between 88-91% in
+    most challenging regimes
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T23:33:06Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bayesian approach achieved coverage rates of 93-95% across all sample
+    sizes and correlation structures
+  claim_id: c_eef59de3
+  context: 'Bayesian Performance: The Bayesian approach consistently achieved coverage
+    rates closest to the nominal 95% level (93-95%) across all sample sizes and correlation
+    structures. This robustness came at the cost of slightly wider intervals compared
+    to OLS, reflecting a more honest quantification of uncertainty.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian approach consistently achieved coverage rates closest to
+    the nominal 95% level (93-95%) across all sample sizes and correlation structures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:33:06Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bayesian method showed stable convergence with R-hat < 1.01 in 98% of
+    valid replications
+  claim_id: c_6729e03c
+  context: The method showed stable convergence (R-hat < 1.01) in 98% of valid replications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian method showed stable convergence (R-hat < 1.01) in 98% of
+    valid replications.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:33:06Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Application to subsampled UCI Concrete dataset with 40 samples confirmed
+    simulation trends
+  claim_id: c_996b19e6
+  context: Application to the subsampled UCI Concrete dataset (N=40) confirmed the
+    simulation trends. The Bayesian model produced wider but more stable prediction
+    intervals for concrete strength compared to OLS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Application to the subsampled UCI Concrete dataset (N=40) confirmed the
+    simulation trends.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:33:35Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: OLS average coverage 0.84 and average width 1.25 in N=20, rho=0.8 scenario
+  claim_id: c_9f7b5ac7
+  context: Table showing Method, Avg Coverage (N=20, rho=0.8), Avg Width (N=20, rho=0.8)
+    with OLS row showing 0.84 and 1.25.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the N=20, rho=0.8 scenario, OLS had an average coverage of 0.84 and
+    average width of 1.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:34:00Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bootstrap average coverage 0.89 and average width 1.38 in N=20, rho=0.8
+    scenario
+  claim_id: c_d78f0fa4
+  context: Table showing Method, Avg Coverage (N=20, rho=0.8), Avg Width (N=20, rho=0.8)
+    with Bootstrap row showing 0.89 and 1.38.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the N=20, rho=0.8 scenario, Bootstrap had an average coverage of 0.89
+    and average width of 1.38.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:34:42Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/docs/paper/research.md
+  attempts: 1
+  canonical: Bayesian average coverage 0.94 and average width 1.52 in N=20, rho=0.8
+    scenario
+  claim_id: c_db99c094
+  context: Table showing Method, Avg Coverage (N=20, rho=0.8), Avg Width (N=20, rho=0.8)
+    with Bayesian row showing 0.94 and 1.52.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the N=20, rho=0.8 scenario, Bayesian had an average coverage of 0.94
+    and average width of 1.52.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T23:35:27Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset ID 165 URL active
+  claim_id: c_7fad9f3e
+  context: 'The following checks were performed: 1. Existence Check: Verified the
+    dataset ID (165) and URL are active.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset ID (165) and URL are active.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:06:36Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset contains 8 predictors
+  claim_id: c_a548011e
+  context: "2. Feature Check: Confirmed the dataset contains \u22653 predictors (actual\
+    \ count: 8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "the dataset contains \u22653 predictors (actual count: 8)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:07:22Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset total sample size 1030
+  claim_id: c_f953a6a2
+  context: '3. Sample Size Check: Confirmed the total sample size (1030) allows for
+    subsampling to N < 50 as required.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: the total sample size (1030) allows for subsampling to N < 50 as required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:08:53Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset primary citation Yeh 1998
+  claim_id: c_5965278d
+  context: '4. Citation Extraction: Extracted the primary citation (Yeh, 1998) and
+    the standard UCI repository citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary citation (Yeh, 1998)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:09:35Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset ID 165
+  claim_id: c_c9876164
+  context: '- Dataset ID: 165'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dataset ID: 165'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:10:01Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset has 8 predictors
+  claim_id: c_b5791c1b
+  context: '- Predictors: 8 (cement, slag, fly ash, water, superplasticizer, coarse
+    aggregate, fine aggregate, age)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Predictors: 8 (cement, slag, fly ash, water, superplasticizer, coarse
+    aggregate, fine aggregate, age)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:10:28Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: UCI Concrete Compressive Strength dataset has 1030 total samples
+  claim_id: c_4208f52b
+  context: '- Total Samples: 1030'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Samples: 1030'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:11:08Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/research.md
+  attempts: 1
+  canonical: Yeh 1998 Modeling of strength of high-performance concrete using artificial
+    neural networks published in Cement and Concrete Research
+  claim_id: c_e80f78ea
+  context: '- Citation: Yeh, I-Cheng. ''Modeling of strength of high-performance concrete
+    using artificial neural networks.'' Cement and Concrete Research, 28(12), 1797-1808,
+    1998.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Cement and Concrete Research
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Yeh_1998_Modeling_of_strength_of_high-performance_concrete_u
+    source_value: https://en.wikipedia.org/wiki/Yeh_1998_Modeling_of_strength_of_high-performance_concrete_u
+    subject: Yeh 1998 Modeling of strength of high-performance concrete using artificial
+      neural networks
+  kind: relational
+  raw_text: Yeh, I-Cheng. 'Modeling of strength of high-performance concrete using
+    artificial neural networks.' Cement and Concrete Research, 28(12), 1797-1808,
+    1998.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T00:11:58Z'

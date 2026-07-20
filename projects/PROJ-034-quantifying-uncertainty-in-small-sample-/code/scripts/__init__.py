@@ -1,3 +1,1 @@
-"""
-Initialization file for the scripts module.
-"""
+# Scripts package

@@ -1,2 +1,2 @@
-# This file ensures the directory is tracked by git.
-# Simulated data will be generated here.
+# This file ensures the data/simulated directory is tracked by git.
+# Real simulated data files will be placed here by the execution scripts.

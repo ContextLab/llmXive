@@ -1,2 +1,2 @@
-# This file ensures the directory is tracked by git.
-# Real data will be downloaded here.
+# This file ensures the data/raw directory is tracked by git.
+# Real data files will be placed here by the execution scripts.

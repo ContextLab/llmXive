@@ -1,3 +1,1 @@
-"""
-Initialization file for the docs module.
-"""
+# Documentation package root
