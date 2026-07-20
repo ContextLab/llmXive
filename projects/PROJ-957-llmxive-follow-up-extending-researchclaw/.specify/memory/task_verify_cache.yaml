@@ -1,0 +1,8 @@
+T007:
+  c: false
+  h: 6635270af2e921944505b1848a2866ccaa56d0c538a213a781bff8dae57c35be
+  r: "The required `data/raw/checksum.txt` file does not exist, so the loader\u2019\
+    s checksum output is missing. Without this file the task\u2019s specification\
+    \ (writing the SHA\u2011256 checksum in plain text) is not satisfied. The implementer\
+    \ must add code that writes the checksum to `data/raw/checksum.txt` in the exact\
+    \ `sha256: <hex>` format and ensure the file is created."

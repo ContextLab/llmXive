@@ -20,15 +20,3 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-14T09:52:35.289246Z'
-- artifact_hash: e3ce10c26a43cf5ec5509db95c02646e68f3707bbaf7f44e0b9642df4dbd5031
-  artifact_path: projects/PROJ-957-llmxive-follow-up-extending-researchclaw/specs/001-llmxive-follow-up-extending-researchclaw/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2402.18749] Weighted strategies to guide a multi-objective evolutionary
-    algorithm for multi-UAV mission planning'
-  kind: url
-  value: https://arxiv.org/abs/2402.18749
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2402.18749
-  verified_at: '2026-07-17T04:43:55.478295Z'

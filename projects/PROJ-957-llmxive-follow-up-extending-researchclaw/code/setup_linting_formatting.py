@@ -1,103 +1,104 @@
+"""
+Setup script to ensure linting and formatting tools are configured.
+This script validates the pyproject.toml configuration.
+"""
+
 import json
 import os
 import sys
 from pathlib import Path
 
+try:
+    import tomli
+except ImportError:
+    try:
+        import tomllib as tomli
+    except ImportError:
+        # Fallback for older Python versions without tomllib
+        print("Installing tomli for parsing pyproject.toml...")
+        import subprocess
+
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "tomli"])
+        import tomli
+
+
 def create_ruff_config():
-    """
-    Creates a .ruff.toml configuration file for linting.
-    """
-    project_root = Path.cwd()
-    config_file = project_root / ".ruff.toml"
-    
-    config_content = """[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+    """Validate and return ruff configuration details."""
+    return {
+        "tool": "ruff",
+        "line_length": 88,
+        "target_version": "py311",
+        "checks": [
+            "E",
+            "W",
+            "F",
+            "I",
+            "B",
+            "C4",
+            "UP",
+        ],
+    }
 
-[lint.isort]
-known-first-party = ["code"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-"""
-    
-    if not config_file.exists():
-        config_file.write_text(config_content, encoding="utf-8")
-        print(f"Created .ruff.toml: {config_file}")
-    else:
-        print(f".ruff.toml already exists: {config_file}")
-    
-    return config_file
 
 def create_black_config():
-    """
-    Creates a pyproject.toml section for Black formatting configuration.
-    """
-    project_root = Path.cwd()
-    pyproject_file = project_root / "pyproject.toml"
-    
-    black_section = """[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+    """Validate and return black configuration details."""
+    return {
+        "tool": "black",
+        "line_length": 88,
+        "target_version": ["py311"],
+    }
 
-[tool.ruff]
-# If ruff is used for linting, we can reference the .ruff.toml here or inline config
-"""
-    
-    if pyproject_file.exists():
-        existing = pyproject_file.read_text(encoding="utf-8")
-        if "[tool.black]" not in existing:
-            with open(pyproject_file, "a", encoding="utf-8") as f:
-                f.write("\n" + black_section)
-            print(f"Updated pyproject.toml with Black config: {pyproject_file}")
-        else:
-            print(f"pyproject.toml already contains Black config: {pyproject_file}")
-    else:
-        pyproject_file.write_text(black_section, encoding="utf-8")
-        print(f"Created pyproject.toml with Black config: {pyproject_file}")
-    
-    return pyproject_file
 
 def main():
-    """
-    Main entry point to setup linting and formatting tools.
-    """
+    """Main entry point to validate linting configuration."""
+    project_root = Path(__file__).resolve().parent.parent
+    pyproject_path = project_root / "pyproject.toml"
+
+    if not pyproject_path.exists():
+        print("ERROR: pyproject.toml not found. Please run setup first.")
+        sys.exit(1)
+
     try:
-        create_ruff_config()
-        create_black_config()
-        print("Linting and formatting tools configured successfully.")
-        return 0
+        with open(pyproject_path, "rb") as f:
+            config = tomli.load(f)
     except Exception as e:
-        print(f"Error configuring linting/formatting: {e}", file=sys.stderr)
-        return 1
+        print(f"ERROR: Failed to parse pyproject.toml: {e}")
+        sys.exit(1)
+
+    # Validate Ruff
+    if "tool" not in config or "ruff" not in config["tool"]:
+        print("ERROR: [tool.ruff] section missing in pyproject.toml")
+        sys.exit(1)
+
+    ruff_config = config["tool"]["ruff"]
+    if ruff_config.get("line-length") != 88:
+        print(f"ERROR: Ruff line-length must be 88, got {ruff_config.get('line-length')}")
+        sys.exit(1)
+
+    if ruff_config.get("target-version") != "py311":
+        print(f"ERROR: Ruff target-version must be py311, got {ruff_config.get('target-version')}")
+        sys.exit(1)
+
+    print("✓ Ruff configuration valid")
+
+    # Validate Black
+    if "tool" not in config or "black" not in config["tool"]:
+        print("ERROR: [tool.black] section missing in pyproject.toml")
+        sys.exit(1)
+
+    black_config = config["tool"]["black"]
+    if black_config.get("line-length") != 88:
+        print(f"ERROR: Black line-length must be 88, got {black_config.get('line-length')}")
+        sys.exit(1)
+
+    target_versions = black_config.get("target-version", [])
+    if not isinstance(target_versions, list) or "py311" not in target_versions:
+        print(f"ERROR: Black target-version must include py311, got {target_versions}")
+        sys.exit(1)
+
+    print("✓ Black configuration valid")
+    print("Linting and formatting configuration validated successfully.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
