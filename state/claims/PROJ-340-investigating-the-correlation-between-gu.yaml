@@ -1,0 +1,146 @@
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: No single public dataset contains paired gut metagenomics and objective
+    sleep data
+  claim_id: c_cfa67a4f
+  context: 'Search Findings Section 1: Single-Cohort Paired Datasets. Status: None
+    Found.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_single_public_dataset_contains_paired_gut_metagenomics_an
+  kind: entity_fact
+  raw_text: Despite extensive searching, no single public dataset was identified that
+    contains both high-resolution gut metagenomic sequencing and simultaneous objective
+    sleep architecture data from the same subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:54:30Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Most existing gut-sleep studies have sample sizes less than 50
+  claim_id: c_8ea865f5
+  context: 'Search Findings Section 1: Single-Cohort Paired Datasets. Most existing
+    studies in this domain are small-scale...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Most_existing_gut-sleep_studies_have_sample_sizes_less_than
+  kind: magnitude
+  raw_text: Most existing studies in this domain are small-scale (N < 50).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:55:19Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: NHANES public cohort lacks available metagenomic data despite having
+    sleep and stool samples
+  claim_id: c_6891c175
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. NHANES Status
+    and Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NHANES_public_cohort_lacks_available_metagenomic_data_despit
+  kind: entity_fact
+  raw_text: NHANES contains sleep data (actigraphy and questionnaires) and stool samples,
+    but metagenomic data is not currently available for the public cohort.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:55:40Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: American Gut Project lacks objective sleep data like PSG or actigraphy
+  claim_id: c_39eeebdc
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. American Gut Project
+    Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/American_Gut_Project_lacks_objective_sleep_data_like_PSG_or
+  kind: entity_fact
+  raw_text: American Gut Project sleep data is limited to self-reported questionnaires,
+    not objective PSG or actigraphy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:14Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: UK Biobank metagenomic data not fully released for entire sleep cohort
+  claim_id: c_c737ec06
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. UK Biobank Status
+    and Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_Biobank_metagenomic_data_not_fully_released_for_entire_sl
+  kind: entity_fact
+  raw_text: UK Biobank contains sleep data (actigraphy) and stool samples for a subset,
+    but metagenomic data is not yet fully released for the entire sleep cohort.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:35Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query gut microbiome sleep actigraphy dataset returned 0 results
+  claim_id: c_5aac51cb
+  context: 'Appendix: Search Log. Query: ''gut microbiome sleep actigraphy dataset''
+    -> Result: 0 direct hits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'gut microbiome sleep actigraphy dataset' returned 0 direct hits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:47Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query metagenomics polysomnography public data returned 0 results
+  claim_id: c_7e057fe2
+  context: 'Appendix: Search Log. Query: ''metagenomics polysomnography public data''
+    -> Result: 0 direct hits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'metagenomics polysomnography public data' returned 0 direct hits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:57:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query dbGaP sleep microbiome returned 3 restricted access entries without
+    linked raw metagenomic PSG data
+  claim_id: c_76d1caf6
+  context: 'Appendix: Search Log. Query: ''dbGaP sleep microbiome'' -> Result: 3 entries...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'dbGaP sleep microbiome' returned 3 entries, all restricted access
+    with no raw metagenomic data linked to PSG.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:57:16Z'

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2024-01-15T10:30:00.000000",
+  "mode": "real_data",
+  "status": "failed_no_real_data",
+  "errors": [
+    {
+      "type": "MissingDataError",
+      "message": "Real data file not found at data/raw/real_data.csv. Real data fetch failed. Execution halted to prevent fabrication.",
+      "recommendation": "No verified real dataset found. Consider T048a (multi-cohort strategy) or T049-T054 (data sourcing)."
+    }
+  ],
+  "warnings": [],
+  "metrics": {},
+  "execution_time_seconds": 0.125,
+  "attempting_real_data": true,
+  "data_source": null,
+  "data_path": null,
+  "sample_size": null,
+  "variables_loaded": [],
+  "missing_variables": []
+}

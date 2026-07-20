@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-340-investigating-the-correlation-between-gu
-last_run_id: 634d2e75-28ec-48c9-87f2-97b2ab874259
+last_run_id: 43b81d69-1aa0-4738-a5d5-9cb0cde4baa8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Sleep
   Architecture
-updated_at: '2026-07-19T23:35:20.805823Z'
+updated_at: '2026-07-20T18:47:48.880519Z'

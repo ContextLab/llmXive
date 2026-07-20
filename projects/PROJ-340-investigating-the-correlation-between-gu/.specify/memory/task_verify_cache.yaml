@@ -22,3 +22,19 @@ T016:
     \ a JSON file to `data/results/timing_evidence.json`. Moreover, the required `data/results/timing_evidence.json`\
     \ file is absent from the repository. Both the implementation and the evidence\
     \ artifact are missing, so the task is not satisfied."
+T048b:
+  c: false
+  h: c346f1d6613f1f3cfb73d58c72ab6d5ee75c6bf0157efe6f994fe01b8d3a0849
+  r: The `code/validate_real_data.py` script exists, but the required output file
+    `data/results/real_data_validation_report.json` is missing, and the provided script
+    excerpt is truncated, leaving its completeness uncertain. The task is not satisfied
+    until the script reliably creates the JSON report (including handling simulated
+    failures) and the report file is present in the repository.
+T051:
+  c: false
+  h: 4d0b9d3a24645676ad5ba969ff153fdc7757d64b2b9f24898467a37ced577c19
+  r: "The repository lacks the required output files \u2013 there is no `data/raw/[dataset_name].csv`\
+    \ and the `data/results/dataset_validation_report.json` is missing. Moreover,\
+    \ `code/ingest.py` is truncated and does not contain a complete, verified data\u2011\
+    fetching implementation that writes those files. The task\u2019s deliverables\
+    \ are therefore not satisfied."

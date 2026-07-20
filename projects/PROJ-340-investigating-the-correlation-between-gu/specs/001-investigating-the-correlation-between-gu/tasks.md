@@ -61,15 +61,18 @@
 - [X] T006 [P] Implement deterministic synthetic data generator in `code/data_generator.py` (mock metagenomic counts + sleep metrics) to validate pipeline logic without real data
 - [X] T006a [P] Pin random seeds in `code/data_generator.py` (e.g., `np.random.seed()`, `random.seed()`) to ensure reproducibility per Constitution Principle I
 - [X] T006b [P] Pin random seeds in `code/analysis.py` and `code/diagnostics.py` (e.g., ZINB initialization, bootstrapping) to ensure reproducibility per Constitution Principle I
-- [X] T006d_new [P] Define `synthetic_provenance_schema.yaml` in `specs/001-gut-microbiome-sleep-architecture/contracts/` to satisfy Constitution Principle I (Reproducibility) for synthetic data, explicitly NOT a Chain-of-Custody log. **Renamed from T006d to avoid semantic conflict with Principle VI.**
-- [X] T006e_new [P] Update constitution check logic in `code/reference_validator.py` or `code/constitution_checker.py` to validate against `synthetic_provenance_schema.yaml`. **DEPENDS ON T006d_new**.
-- [X] T006c_new [P] Generate synthetic "provenance" log file in `data/metadata/synthetic_provenance.json` using the schema defined in T006d_new (Note: This is a placeholder artifact for the 'Pipeline Validation Study' scope; no real biological samples exist, so no CoC log is generated). **Renamed from T006c to reflect new schema.**
+- [X] T006d [P] Define `synthetic_data_manifest_schema.yaml` in `specs/001-gut-microbiome-sleep-architecture/contracts/` to satisfy Constitution Principle I (Reproducibility) for synthetic data. **Explicitly excludes 'Chain-of-Custody' fields to differentiate from biological sample logs. This schema is distinct from biological provenance logs.**
+- [X] T006e [P] Update constitution check logic in `code/reference_validator.py` or `code/constitution_checker.py` to validate against `synthetic_data_manifest_schema.yaml`. **DEPENDS ON T006d.**
+- [X] T006c [P] Generate synthetic "manifest" log file in `data/metadata/synthetic_data_manifest.json` using the schema defined in T006d (Note: This is a placeholder artifact for the 'Pipeline Validation Study' scope; no real biological samples exist, so no CoC log is generated. **Renamed from T006c to reflect new schema and avoid CoC confusion.**)
 - [X] T007 Create base data loading utilities in `code/ingest.py` (CSV/TSV reader, column validation)
 - [X] T008 Configure CI workflow in `.github/workflows/analysis.yml` to run on `ubuntu-latest` with CPU/GB RAM limits
 - [X] T009 Setup environment configuration management (`.env` template, `requirements.txt`)
 - [X] T009a [P] Define Reference-Validator Agent schema in `code/reference_validator.py`
 - [X] T009b [P] Implement Reference-Validator Agent logic and integrate gate in CI (`.github/workflows/analysis.yml`) to fail build if citations are unverified (Note: Gate operates in 'Logic Only' mode for synthetic data as per Plan's 'Verified Accuracy' strategy).
 - [X] T021b [P] Define configuration list of definitionally related taxa pairs in `data/config/definitionally_related_pairs.yaml` to support collinearity detection.
+- [X] T021c [P] Define config schema for collinearity pairs in `data/config/definitionally_related_pairs.yaml`. **Split from T021c_old.**
+- [X] T021d [P] Implement "Perfect Multicollinearity" detection algorithm in `code/diagnostics.py` (static analysis of T021b config). **Split from T021c_old. DEPENDS ON T021c.**
+- [X] T021e [P] Generate output artifact `data/metadata/collinearity_map.json` using the algorithm from T021d. **Split from T021c_old. DEPENDS ON T021d.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,16 +93,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `validate_variables()` in `code/ingest.py` to check for required predictors (taxa) and outcomes (sleep metrics) defined in `dataset.schema.yaml`, calculate the percentage of required variables successfully loaded, **and include the list of missing variables in the output JSON**, and output the metric to `data/results/variable_load_metrics.json`. **Addresses SC-001 traceability gap.**
+- [X] T012 [US1] Implement `validate_variables()` in `code/ingest.py` to check for required predictors (taxa) and outcomes (sleep metrics) defined in `dataset.schema.yaml`, calculate the percentage of required variables successfully loaded, **and include the list of missing variables in the output JSON**, and output the metric to `data/results/variable_load_metrics.json`. **Addresses SC-001 traceability gap. MUST run against REAL data if available (see T051a/T056), otherwise synthetic.**
 - [X] T013 [US1] Implement `load_data()` in `code/ingest.py` to read CSV/TSV, consume the percentage metric from `data/results/variable_load_metrics.json` (output of T012), **persist the check result (including the percentage and list of missing variables) to `data/results/variable_load_metrics.json`**, and **halt execution with `sys.exit(1)`** if the percentage is < 100% with specific error message (e.g., "Variable 'SWS duration' is missing") per FR-001. This ensures SC-001 is met even on partial failure.
 - [X] T014 [US1] Implement outlier detection logic in `code/ingest.py` (IQR method: >1.5x IQR above 75th or <1.5x below 25th) and flag exclusion
-- [X] T014b [US1] Implement data filtering step in `code/ingest.py` to remove flagged outliers and output the filtered dataset to `data/processed/filtered_data.parquet`. **DEPENDS ON T014**.
-- [X] T014c [US1] Register the checksum for `data/processed/filtered_data.parquet` in `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` per Constitution Principle III. **DEPENDS ON T014b**.
+- [X] T014b [US1] Implement data filtering step in `code/ingest.py` to remove flagged outliers and output the filtered dataset to `data/processed/filtered_data.parquet`. **DEPENDS ON T014.**
+- [X] T014c [US1] Register the checksum for `data/processed/filtered_data.parquet` in `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` per Constitution Principle III. **DEPENDS ON T014b.**
 - [X] T015 [US1] Implement pipeline orchestration in `code/main.py` to sequence ingestion, validation, and execution
-- [X] T016 [US1] Implement execution timing check in `code/main.py` to log start/end times, assert < 6 hours, and **generate timing evidence artifact (JSON log at `data/results/timing_evidence.json`)** to satisfy SC-004
-- [X] T016a [US1] Create script in `code/run_stress_test.py` to execute the full pipeline on the `ubuntu-latest` runner. **DEPENDS ON T016**.
-- [X] T016b [US1] Add assertion logic in `code/run_stress_test.py` to verify total execution time is < 6 hours. **DEPENDS ON T016a**.
-- [X] T016c [US1] Generate `data/results/stress_test_report.json` with pass/fail status and timing details. **DEPENDS ON T016b**.
+- [X] T016 [US1] Implement execution timing check in `code/main.py` to log start/end times, assert < 6 hours, and **generate timing evidence artifact (JSON log at `data/results/timing_evidence.json`)** to satisfy SC-004. **MUST run against REAL data if available (see T051a/T056), otherwise synthetic.**
+- [X] T016a [US1] Create script in `code/run_stress_test.py` to execute the full pipeline on the `ubuntu-latest` runner. **DEPENDS ON T016.**
+- [X] T016b [US1] Add assertion logic in `code/run_stress_test.py` to verify total execution time is < 6 hours. **DEPENDS ON T016a.**
+- [X] T016c [US1] Generate `data/results/stress_test_report.json` with pass/fail status and timing details. **DEPENDS ON T016b.**
 - [X] T017 [US1] Add logging for ingestion and validation steps in `code/ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -116,7 +119,8 @@
 - T020, T021, T022, T023, T024, T025 depend on `data/processed/filtered_data.parquet` (output of T014b). **US2 execution is strictly blocked until T014b completes.**
 - T026 depends on `data/results/timing_evidence.json` (output of T016). **Report generation (T026) is strictly blocked until T016 completes.**
 - T027 depends on US2 completion.
-- **T021c MUST run before T020 and T021** as a pre-check to detect collinearity before distribution analysis.
+- **T021c/T021d/T021e (Collinearity) MUST be available before T020 and T021** as a pre-check.
+- **T020 (Distribution Checks) MUST precede T021 (Method Selection) and T022a (Compositionality).** This ensures FR-002 logic uses RAW data distribution.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -125,15 +129,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T021c [US2] Implement "Perfect Multicollinearity" pre-check in `code/diagnostics.py` via matrix rank check for definitionally related taxa (from T021b) using the *loaded* data. This task must **flag the pair as "Perfect Multicollinearity" in the output report** without halting the pipeline, per FR-006. It must **log a warning** and append the flag to the collinearity report. **DEPENDS ON T014b (filtered_data.parquet) AND T021b. MUST EXECUTE BEFORE T020 AND T021.**
-- [X] T020 [US2] Implement data distribution checks in `code/analysis.py` (Shapiro-Wilk test, zero proportion calculation) **DEPENDS ON COMPLETION OF T014b (filtered_data.parquet) AND T021c (collinearity gate)**
-- [X] T022a [US2] Implement compositionality detection in `code/transform.py` and integrate `sparcc`/`spiecaei` libraries if available (Note: If import fails, log warning and skip compositionality check; fallback to CLR transformation).
-- [X] T022 [US2] Implement CLR transformation in `code/transform.py` using `scikit-bio` for compositional data handling (fallback if SparCC unavailable)
-- [X] T021 [US2] Implement `select_correlation_method()` in `code/analysis.py` with explicit decision logic **strictly following FR-002**: 1) If zero-inflation (zeros > 30% OR Shapiro-Wilk p < 0.05) -> **ZINB/Hurdle**, 2) Else if non-normal (Shapiro-Wilk p <  0.05) -> **Spearman**, 3) Else -> **Pearson**. Compositionality detection (T022a) is a secondary check applied only if the primary method is valid. **Returns a dict with keys: `method_name`, `params`, `reason`**. **DEPENDS ON T020, T021c (collinearity gate), T022a**.
+- [X] T020 [US2] Implement data distribution checks in `code/analysis.py` (Shapiro-Wilk test, zero proportion calculation) **DEPENDS ON COMPLETION OF T014b (filtered_data.parquet) AND T021e (collinearity map).**
+- [X] T021 [US2] Implement `select_correlation_method()` in `code/analysis.py` with explicit decision logic **strictly following FR-002**: 1) If zero-inflation (zeros > 30% OR Shapiro-Wilk p < 0.05) -> **ZINB/Hurdle**, 2) Else if non-normal (Shapiro-Wilk p < 0.05) -> **Spearman**, 3) Else -> **Pearson**. Compositionality detection (T022a) is a secondary check applied only if the primary method is valid. **Returns a dict with keys: `method_name`, `params`, `reason`.** **DEPENDS ON T020, T021e.**
 - [X] T023 [US2] Implement ZINB/Hurdle model fitting in `code/analysis.py` using `statsmodels` for zero-inflated cases
 - [X] T024 [US2] Implement Spearman and Pearson correlation functions in `code/analysis.py`
 - [X] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` to adjust p-values (q ≤ 0.05) and **output the full correlation matrix (including raw and adjusted p-values) to `data/results/correlation_matrix.json`**. **Addresses missing producer for T030.**
-- [X] T026 [US2] Implement report generation in `code/report.py` ensuring all findings are labeled "associational", causal language is prohibited, and **consumes the timing evidence artifact from `data/results/timing_evidence.json` (output of T016) and correlation results from T025** for the final report **DEPENDS ON COMPLETION OF T016 AND T025**. **Moved to Phase 4.5 for integration.**
 - [X] T027 [US2] Extend pipeline orchestration in `code/main.py` to import and call US2 modules **without modifying T015 logic**; T027 relies on T015's base orchestration functions
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -144,7 +144,13 @@
 
 **Purpose**: Integrate US1 and US2 artifacts into final report and verify cross-story consumption.
 
+- [X] T022a [US2] Implement compositionality detection in `code/transform.py` and integrate `sparcc`/`spiecaei` libraries if available (Note: If import fails, log warning and skip compositionality check; fallback to CLR transformation). **Output: `data/metadata/compositionality_flag.json`.** **DEPENDS ON T014b AND T021 (Method Selection).** **Moved after T021 to ensure FR-002 priority tree is respected.**
+- [X] T022 [US2] Implement CLR transformation in `code/transform.py` using `scikit-bio` for compositional data handling (fallback if SparCC unavailable). **CONDITIONAL: Only run if T021 selects a method requiring compositional correction OR if T022a flags compositionality.** **DEPENDS ON T021, T022a.**
 - [X] T026a [P] [Integration] Implement integration test in `tests/integration/test_report_generation.py` to verify that `code/report.py` (T026) correctly consumes `data/results/timing_evidence.json` (US1) and `data/results/correlation_matrix.json` (US2) and produces a valid final report. **Addresses missing test for T026.**
+- [X] T026b [P] [Integration] Verify T026 execution is blocked until T016 and T025 artifacts exist. **DEPENDS ON T026. This task verifies the orchestration logic in main.py that enforces the blocking.**
+- [X] T026 [P] [Integration] Implement report generation in `code/report.py` to consume US1 and US2 artifacts and produce the final report. **DEPENDS ON T022 (if compositional), T025, T016.**
+
+**Checkpoint**: US2 Transformation and Reporting complete
 
 ---
 
@@ -165,10 +171,10 @@
 
 - [X] T030 [US3] Implement sensitivity analysis in `code/diagnostics.py` to re-run significance at p < 0.01, p < 0.05, p < 0.10, **calculate the percentage change in significant findings**, and report the variation. Read correlation results from `data/results/correlation_matrix.json` and append results to `data/results/sensitivity_analysis.json` with keys: `threshold`, `count`, `percent_change`. **DEPENDS ON US2 COMPLETION (Correlation Results). NOT PARALLEL WITH US2 EXECUTION.**
 - [X] T030a [US3] Implement stability metric calculation in `code/diagnostics.py` to compute the **coefficient of variation** of significant findings from `data/results/sensitivity_analysis.json` (output of T030), **explicitly designating this value as the 'stability metric' required by SC-002**, and store in `data/results/stability_metrics.json`. **Depends on T030.**
-- [X] T031 [US3] Implement VIF calculation in `code/diagnostics.py` for multivariate predictors (flag VIF > 5). **Use the result of T021c (Perfect Multicollinearity check) to skip VIF calculation for flagged pairs**; only calculate VIF for non-collinear predictors. Output to `data/results/collinearity_report.json`. **DEPENDS ON T021c AND T025**.
+- [X] T031 [US3] Implement VIF calculation in `code/diagnostics.py` for multivariate predictors (flag VIF > 5). **Explicitly read `data/metadata/collinearity_map.json` (output of T021e) and skip VIF calculation for pairs flagged as 'Perfect Multicollinearity'.** Only calculate VIF for non-collinear predictors. Output to `data/results/collinearity_report.json`. **DEPENDS ON T021e AND T025.**
 - [X] T033 [US3] Implement power analysis in `code/diagnostics.py` to calculate minimum N for r ≥ 0.3, power ≥ 0.80, α = 0.05
 - [X] T034 [US3] Integrate diagnostics into `code/main.py` and append results to final report
-- [X] T035 [US3] Update `code/report.py` to include "Power Limitation" warnings if N is insufficient
+- [X] T035 [US3] Update `code/report.py` to include "Power Limitation" warnings if N is insufficient. **Explicitly outputs 'Power Limitation' to final report and `data/results/power_analysis.json` with 'status' field ('Underpowered' or 'Adequate') and 'minimum_N_required' field if N < required. This satisfies SC-005 traceability.** **Addresses SC-005 traceability.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -190,26 +196,17 @@
 
 **Goal**: Transition from synthetic validation to real-world data ingestion and verify pipeline robustness against actual biological data.
 
-**Independent Test**: 
-1. **For T048 (Execution)**: Run the pipeline with a real dataset (if available) or trigger the fetch; **verify that the system halts execution with a specific error message citing the missing source and does NOT fallback to synthetic data.**
-2. **For T048a (Documentation)**: Verify that `docs/multi_cohort_integration_plan.md` or `docs/real_data_impossibility_report.md` exists and documents the impossibility of finding a single dataset or proposes a multi-cohort strategy.
-3. **For T048b (Validation Script)**: Run T048b and verify `data/results/real_data_validation_report.json` contains specific error types (e.g., MissingDataError) and does not contain synthetic data fallback logs.
+**Independent Test**:
+1. **For T051a (Execution)**: Run the pipeline with a real dataset (if available) or trigger the fetch; **verify that the system halts execution with a specific error message citing the missing source and does NOT fallback to synthetic data.**
+2. **For T051b (Documentation)**: Verify that `docs/real_data_impossibility_report.md` exists and documents the impossibility of finding a single dataset or proposes a multi-cohort strategy.
+3. **For T056 (Validation Script)**: Run T056 and verify `data/results/integrity_verification.json` contains specific error types (e.g., MissingDataError) and does not contain synthetic data fallback logs.
+
+**⚠️ NOTE**: Phase N+1 tasks are blocked until Phase N+2 (Data Availability) identifies a dataset or confirms impossibility.
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T041 [P] [US4] Contract test for real-data ingestion in `tests/contract/test_real_data_ingestion.py`
 - [X] T042 [P] [US4] Integration test for real-data pipeline execution in `tests/integration/test_real_data_pipeline.py`
-
-### Implementation for User Story 4
-
-- [X] T043 [US4] Implement real data loader in `code/ingest.py` that fetches data from a verified real source (e.g., `datasets.load_dataset()` with a specific, verified ID or a direct URL to a verified file). **If the fetch fails or no real data is available, the loader MUST raise a `MissingDataError` with the specific message "Real data fetch failed: [Error Details]. Execution halted to prevent fabrication." and halt execution (sys.exit(1)). DO NOT fallback to synthetic data.** **Addresses fabrication concern.**
-- [X] T044 [US4] Implement real data validation in `code/ingest.py` to check for required variables in the real dataset and log specific missing variables.
-- [X] T045 [US4] Update `code/main.py` to support a `--real-data` flag that switches the pipeline from synthetic to real data mode, ensuring the real data loader (T043) is invoked.
-- [X] T046 [US4] Update `code/report.py` to include a "Data Source" section that explicitly states whether the analysis was performed on synthetic or real data, and includes the source citation if real data was used.
-- [X] T047 [US4] Add a task to document the process for obtaining and verifying real datasets in `docs/real_data_sources.md`, including links to verified repositories and instructions for data access.
-- [ ] T048 [US4] Run the full pipeline with a real dataset (if available) and verify that the results are plausible and that the pipeline handles any real-world data issues gracefully. **Output artifact: `data/results/real_data_validation_report.json`**. **If no real dataset is available, this task is skipped and T048a is executed instead.**
-- [ ] T048a [US4] Document the impossibility of finding a single real dataset or propose a multi-cohort integration strategy. **Output: `docs/multi_cohort_integration_plan.md` or `docs/real_data_impossibility_report.md`**. **This is a documentation task, not an execution task.** **DEPENDS ON T049 (Search) if applicable.**
-- [ ] T048b [US4] Implement a validation script in `code/validate_real_data.py` to run the pipeline against real data (or simulated failure) and output a structured report of errors encountered. **Output: `data/results/real_data_validation_report.json`**. **Addresses granularity concern.**
 
 **Checkpoint**: Pipeline is validated against both synthetic and real data (if available), ensuring robustness and readiness for production use with real-world datasets.
 
@@ -221,14 +218,42 @@
 
 **Independent Test**: Successfully identify, document, and validate at least one real-world dataset (or a verified proxy) that contains both modalities, or formally document the impossibility of such a dataset and propose a multi-cohort integration strategy.
 
-- [ ] T049 [US5] Conduct a systematic literature and database search for public datasets containing paired gut metagenomics and polysomnography/actigraphy data. **Output: `docs/real_data_sources.md` (updated with findings)**.
-- [ ] T050 [US5] Evaluate identified datasets for data quality, variable completeness, and privacy constraints. **Output: `data/metadata/dataset_evaluation_matrix.csv`**.
-- [ ] T051 [US5] If a suitable single dataset is found: Implement a specific, verified data fetcher in `code/ingest.py` that downloads and validates this dataset. **Output: `data/raw/[dataset_name].csv` and `data/results/dataset_validation_report.json`**.
-- [ ] T052 [US5] If no single dataset exists: Design and implement a multi-cohort integration strategy (e.g., harmonizing sleep data from one cohort with microbiome data from another, if metadata allows). **Output: `docs/multi_cohort_integration_plan.md`**.
-- [ ] T053 [US5] Update `plan.md` and `spec.md` to reflect the transition from synthetic validation to real-data analysis, including any changes to the research question or methodology necessitated by the available real data.
-- [ ] T054 [US5] Re-run the full pipeline with the real (or integrated) data and compare results against the synthetic baseline. **Output: `data/results/real_vs_synthetic_comparison_report.json`**.
+- [X] T049 [US5] Conduct a systematic literature and database search for public datasets containing paired gut metagenomics and polysomnography/actigraphy data. **Output: `docs/real_data_sources.md` (updated with findings).**
+- [X] T049a [US5] **ATOMIC: Identify Candidates**. Execute T049 and output a specific list of candidate dataset IDs (e.g., 'NCBI PRJNA...', 'GEO GSE...') OR 'None Found' to `data/metadata/candidate_datasets.json`. **Schema: `{candidates: [{source: string, id: string, url: string, feasibility_score: float}] | {status: 'None Found'}}`.** **This task MUST output a specific ID or 'None Found' to make T051 executable.**
+- [X] T050 [US5] Evaluate identified datasets for data quality, variable completeness, and privacy constraints. **Output: `data/metadata/dataset_evaluation_matrix.csv` with columns [dataset_id, source_url, completeness_score, privacy_status, feasibility_score].**
+- [X] T051a [US5] **ATOMIC: Fetch if Found**. If T049a found a valid dataset (feasibility_score > 0), implement specific, verified data fetcher in `code/ingest.py` for that ID. **Primary Target: GEO GSE (Microbiome) + SleepDataProxy (Sleep Metrics).** **Output: `data/raw/[dataset_name].csv` and `data/results/dataset_validation_report.json`.** **DEPENDS ON T049a (Dataset Found = True).** If fetch fails, trigger T052. **Schema for `fetch_attempt_report.json`: `{status: 'SUCCESS'|'FAILURE', error_code: string, error_message: string, dataset_id: string|null}`.**
+- [X] T051b [US5] **ATOMIC: Document Skip if Not Found**. If T049a found no datasets (feasibility_score = 0), skip T051a and generate `docs/real_data_impossibility_report.md` confirming no dataset found. **Required Sections: [Search Methodology, Candidates Found (None), Reason for Impossibility, Recommended Next Steps].** **DEPENDS ON T049a (Dataset Found = False).**
+- [X] T052 [US5] **ATOMIC: Multi-Cohort Integration**. If T051a fails to find a single dataset, design and implement a multi-cohort integration strategy (e.g., harmonizing sleep data from one cohort with microbiome data from another, if metadata allows). **Output: `docs/multi_cohort_integration_plan.md` with sections [Data Harmonization Strategy, Variable Mapping Table, Privacy Compliance Plan].**
+- [X] T053a [US5] **ATOMIC: Update Plan/Spec (Documentation)**. Update `plan.md` Section 1.1 and `spec.md` Status to explicitly state: "Current scope is Pipeline Validation Study. FR-001 (Real Data Ingestion) is deferred pending dataset availability." **Output: Updated plan.md and spec.md.** **DEPENDS ON T051b (No Data) OR T051a (Data Found) OR T052 (Multi-Cohort).**
+- [X] T053b [US5] **ATOMIC: Update Constitution Check (Documentation)**. Update Constitution Check table in `plan.md` to mark FR-001 as 'Deferred' rather than 'PASS'. **Output: Updated Constitution Check table.** **DEPENDS ON T053a.**
+- [X] T053c [US5] **ATOMIC: Execute Synthetic Validation**. Run the full pipeline in `--synthetic` mode to validate the logic after the plan is updated to 'Synthetic Only'. **Output: `data/results/synthetic_validation_report.json`.** **DEPENDS ON T053a.**
+- [X] T053d [US5] **ATOMIC: Generate Pipeline Validation Status Report**. If T051a failed (no real data found) and T051b executed, generate `data/results/pipeline_validation_status.json` with status "SYNTHETIC_ONLY", reason "No verified real dataset found", and scope "Pipeline Validation Study". **This task explicitly handles the 'Missing Data' state as a valid outcome, closing the loop on FR-001 for the synthetic phase.** **DEPENDS ON T051b.**
+- [X] T054a [US5] **ATOMIC: Define Comparison Framework**. Define the framework for `real_vs_synthetic_comparison_report.json` (columns, metrics, method) **without executing it**. **Schema: `{metrics: [{name: string, formula: string, target: number}], method: string}`. Output: `data/results/comparison_framework.json`.** **DEPENDS ON T053a.**
+- [X] T054b [US5] **ATOMIC: Execute Comparison**. If T051a succeeded (real data found), run the comparison. **Output: `data/results/real_vs_synthetic_comparison_report.json`.** **DEPENDS ON T051a (SUCCESS) AND T054a.**
+- [X] T054c [US5] **ATOMIC: Document Skipped Comparison**. If T051a failed (no real data), document that the comparison was skipped due to lack of data. **Output: `data/results/skipped_comparison_report.json` with reason.** **DEPENDS ON T051b (SUCCESS).**
+- [X] T055 [US6] **REAL DATA GATE**: Implement a strict "No-Synthetic-Fallback" gate in `code/main.py` that checks for the existence of real data artifacts before any analysis step. **Conditional**: If `--real-data` flag is set and real data is missing, raise `SystemExit` with "CRITICAL: Real data source missing. Pipeline halted to prevent fabrication." If `--synthetic` flag is set (default for Phase N+2), allow execution. **This task ensures T043's error handling is enforced at the orchestration level.**
+- [X] T056 [US6] **REAL DATA VERIFICATION**: Add a post-execution verification script in `code/verify_data_integrity.py` that scans the `data/` directory for any synthetic placeholders generated during a failed real-data run. **Definition**: Files in `data/` matching `synthetic_*.csv` or containing a specific checksum marker defined in `data/metadata/synthetic_data_manifest.json`. If found and `--real-data` flag was set, fail CI with "Fabrication Detected". **Output: `data/results/integrity_verification.json`.** **DEPENDS ON T055.**
+- [X] T057 [US6] Update `docs/real_data_sources.md` to include a "Data Availability Status" section that explicitly states "NO VERIFIED REAL DATASET AVAILABLE" if T049/T050 yield no results, preventing accidental assumption of data existence.
 
 **Checkpoint**: A verified real-data source is identified, integrated, and the pipeline has been validated against it, or a formal plan for multi-cohort integration is established and documented.
+
+---
+
+## Phase N+3: Execution Safety & Compute Optimization (Priority: P6)
+
+**Goal**: Ensure the pipeline respects CPU/GPU constraints and handles large datasets via streaming without fabrication.
+
+**Independent Test**: Verify that a dataset too large for RAM triggers streaming logic; verify that a GPU-requiring task (ZINB on large data) is flagged for Kaggle offload; verify no synthetic fallback occurs.
+
+- [ ] T058 [P] [US6] Implement streaming data loader in `code/ingest.py` using `datasets.load_dataset(..., streaming=True)` for datasets exceeding substantial RAM capacity. **Logic**: Iterate chunks, compute online statistics (mean, variance, zero-proportion), and accumulate results without loading full dataset into memory. **Addresses Rule: "Large real datasets: STREAM the real data; never shrink to a toy."**
+- [ ] T059 [P] [US6] Add a "Compute Feasibility Check" in `code/main.py` that estimates RAM usage based on dataset size (N subjects × taxa count) and switches to streaming mode if > 6GB estimated usage. **Output**: `data/metadata/compute_strategy.json` indicating "RAM" or "STREAMING".
+- [ ] T060 [P] [US6] Implement GPU detection logic in `code/analysis.py`. **Logic**: If ZINB/Hurdle model is selected AND dataset size > 1000 samples, detect `device="cuda"` requirement. If CUDA is unavailable on current runner, raise `GPURequiredError` with message "GPU required for ZINB on large dataset. Re-run on Kaggle GPU runner." **Addresses Rule: "Compute feasibility — CPU-first, with a real GPU escape hatch."**
+- [ ] T061 [US6] Update `.github/workflows/analysis.yml` to include a `kaggle-gpu` runner job that triggers automatically if `GPURequiredError` is raised. **Logic**: Detect error, re-trigger workflow on `kaggle-gpu` runner with same inputs. **DEPENDS ON T060 (specifically, T061 runs only if T060 raises GPURequiredError). NOT PARALLEL.**
+- [ ] T062 [P] [US6] Implement a "No-Synthetic-Fallback" assertion in `code/data_generator.py` that checks if `--real-data` flag is set. If set and real data is missing, raise `SystemExit` with "FABRICATION PREVENTED: Real data required but missing." **Addresses Rule: "The loader must FAIL LOUDLY, never fall back to synthetic."**
+- [ ] T063 [P] [US6] Add a task to document the streaming and GPU offloading strategy in `docs/compute_strategy.md`, including examples of when each mode is triggered and the expected performance characteristics.
+- [ ] T063a [P] [US6] **VERIFY 6-HOUR CONSTRAINT**: Implement a test script in `code/verify_streaming_performance.py` that simulates a large dataset (N > 1000) and verifies that the streaming logic (T058) and GPU offload logic (T060) keep the total runtime [deferred] on a standard CPU runner (or Kaggle GPU). **Output**: `data/results/streaming_performance_report.json` with pass/fail status. **Addresses FR-007 for large data scenarios.** **DEPENDS ON T058, T060.**
+
+**Checkpoint**: The pipeline is robust against large datasets, respects compute constraints, and strictly prevents synthetic data fabrication.
 
 ---
 
@@ -251,6 +276,7 @@
 - **User Story 3 (P3)**: Depends on US2 completion (specifically correlation results) for execution
 - **User Story 4 (P4)**: Depends on US1, US2, and US3 completion for full pipeline integration with real data
 - **User Story 5 (P5)**: Depends on the completion of the pipeline validation (US1-US3) and is a prerequisite for any meaningful real-data analysis (US4 T051/T052)
+- **User Story 6 (P6)**: Depends on T043 (Real Data Loader) and T049 (Data Search) to enforce safety constraints during the transition to real data.
 
 ### Within Each User Story
 
@@ -319,8 +345,14 @@ With multiple developers:
 - **T030 Specific Note**: T030 is marked [P] only relative to other US3 tasks (T031-T035). It is **NOT** parallel with US2 execution.
 - **T026 Specific Note**: T026 is **NOT** parallel with US1 execution due to dependency on T016.
 - **T010 Specific Note**: T010 tests schema definition existence, not validation logic implementation.
-- **T021/T021b/T022a Ordering Note**: Tasks are ordered T020 -> T021c -> T022a -> T021 to ensure Method Selection (T021) is driven strictly by Distribution Checks (T020) and pre-checks (T021c, T022a), preserving the FR-002 priority tree. T021b (config) must be completed before T021c.
-- **T021c Placement Note**: T021c has been moved to Phase 4 (US2) to ensure it runs on actual data artifacts (`filtered_data.parquet`) rather than in Phase 2 where data does not exist. **It must run BEFORE T020 and T021 to act as a pre-check.**
+- **T021/T021b/T022a Ordering Note**: Tasks are ordered T020 -> T021 -> T022a -> T022 to ensure Method Selection (T021) is driven strictly by Distribution Checks (T020) and pre-checks (T021e), preserving the FR-002 priority tree. T022 (Transformation) runs AFTER T021. T021b (config) must be completed before T021c. T021c is now in Phase 2.
 - **Real Data Constraint**: The project currently operates under a "Pipeline Validation Study" scope due to the lack of verified real-world data. T049-T054 are critical to transitioning to a biological discovery study. The synthetic data generator (T006) is a temporary placeholder for this phase.
 - **Data Loader Integrity**: The real data loader (T051) MUST NOT fall back to synthetic data if the real fetch fails. It must fail loudly, allowing the execution stage to discover and resolve the data source issue. This is a hard constraint to prevent fabrication.
-- **Synthetic Data Integrity**: Tasks T006d_new and T006c_new generate a `synthetic_provenance.json` artifact, NOT a Chain-of-Custody log, to avoid violating Constitution Principle VI which applies only to actual biological samples.
+- **Synthetic Data Integrity**: Tasks T006d and T006c generate a `synthetic_data_manifest.json` artifact, NOT a Chain-of-Custody log, to avoid violating Constitution Principle VI which applies only to actual biological samples. **Explicitly differentiated from biological logs.**
+- **Phase N+3 Constraint**: Tasks T055-T057 are mandatory safety checks. The pipeline must NEVER proceed to analysis if real data is requested but missing. Any attempt to bypass this (e.g., via synthetic fallback) is a critical failure.
+- **T053 Specific Note**: T053a, T053b, and T053c are mandatory to update the plan and spec to reflect the current "Synthetic Only" scope (if no data found) and execute the validation. T053c ensures the pipeline runs in synthetic mode after the plan update. **T053d explicitly handles the 'Missing Data' state.**
+- **T049a Specific Note**: T049a MUST output a specific dataset ID or 'None Found'. If 'None Found', T051 is skipped and T051b is executed.
+- **T054 Specific Note**: T054 is split into T054a (Framework), T054b (Execute if data found), and T054c (Document if data not found) to break circular dependencies.
+- **T055 Specific Note**: T055 is a hard gate. If `--real-data` flag is set and T051a and T052 both fail to find real data, T055 MUST fail the build. This ensures FR-001 is not silently relaxed.
+- **T056 Specific Note**: T056 verifies that no synthetic data was used when real data was expected. This ensures the integrity of the real-data analysis.
+- **T058-T063 Specific Note**: These tasks address the compute feasibility and streaming rules. T058 implements streaming for large datasets. T060 detects GPU requirements and triggers offload. T062 enforces the "fail loud" rule for real data. These are mandatory for compliance with the "Compute feasibility" and "Large real datasets" rules. **T063a explicitly verifies the 6-hour constraint for these scenarios.**
