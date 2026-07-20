@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.09863",
+  "judged_at": "2026-07-20T00:49:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+  "rationale": "The paper discusses \"quantum-like modeling\" of biological evolution and speciation mechanisms, which is a distinct construct from the user's specific question about predicting molecular surface charge distributions using standard quantum chemical calculations. The keywords \"quantum\" and \"molecular\" here refer to a theoretical framework for evolutionary biology rather than the computational chemistry task of calculating electrostatic properties, satisfying the rejection rule for distinct construc",
+  "relevant": false
+}

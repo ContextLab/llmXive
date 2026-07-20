@@ -39,7 +39,7 @@
 - [X] T003 [P] Setup environment variable management for dataset URLs (AGP, NHANES, UK Biobank)
 - [X] T004 [P] Implement `code/utils.py` with shared constants (read thresholds, abundance filters, age strata) and logging helpers
 - [X] T005 [P] Setup data schema validation using Pydantic or simple dict checks for `MicrobialTaxa` and `CognitiveScore` entities; output schema definitions to `contracts/dataset.schema.yaml` before T011 runs
-- [ ] T006 [P] Create base data loading functions in `code/utils.py` with retry logic (retry up to 3 times with exponential backoff) for API failures
+- [X] T006 [P] Create base data loading functions in `code/utils.py` with retry logic (retry up to 3 times with exponential backoff) for API failures
 - [ ] T007 [P] Configure `pytest` configuration and basic test runner script
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -54,11 +54,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/01_ingest.py` to fetch microbiome data from ANY valid source defined in spec FR-001 (AGP, Qiita Study 10313, NHANES, or UK Biobank) and save raw parquet; apply FR-001 filters (<10k reads, <0.1% abundance). **MUST use Qiita Study 10313 or AGP as primary source.**
-- [ ] T012 [US1] Implement `code/01_ingest.py` logic to fetch cognitive data from ANY valid source defined in spec FR-002 (NHANES Cognitive Battery or UK Biobank Field 20002) and save raw parquet. **MUST use UK Biobank Field 20002 or NHANES as primary source.** <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `code/02_preprocess.py` to load cognitive data, handle missing values via MICE (per FR-002), compute z-scores, and save processed parquet
-- [ ] T014 [US1] Implement `code/02_preprocess.py` logic to attempt individual-level merge of microbiome and cognitive data; if failed, invoke `code/07_gap_report.py` (T017)
-- [~] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
+- [X] T011 [US1] Implement `code/01_ingest.py` to fetch microbiome data from ANY valid source defined in spec FR-001 (AGP, Qiita Study 10313, NHANES, or UK Biobank) and save raw parquet; apply FR-001 filters (<10k reads, <0.1% abundance). **MUST use Qiita Study 10313 or AGP as primary source.** <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement `code/01_ingest.py` logic to fetch cognitive data from ANY valid source defined in spec FR-002 (NHANES Cognitive Battery or UK Biobank Field 20002) and save raw parquet. **MUST use UK Biobank Field 20002 or NHANES as primary source.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `code/02_preprocess.py` to load cognitive data, handle missing values via MICE (per FR-002), compute z-scores, and save processed parquet <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement `code/02_preprocess.py` logic to attempt individual-level merge of microbiome and cognitive data; if failed, invoke `code/07_gap_report.py` (T017)
+- [ ] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
 - [ ] T016 [US1] Add validation to ensure output parquet files match `contracts/dataset.schema.yaml`
 - [X] T017 [US1] Implement `code/07_gap_report.py` to execute the **Data Gap Report** path (FR-008 as redefined in plan.md): **DO NOT perform statistical synthesis**; instead, generate a structured "Data Gap Report" artifact documenting the inability to link individual-level data, logging the specific reason, and marking SC-001/SC-004 as "Not Measurable". This is the terminal step of Phase 3.
 
@@ -68,8 +68,8 @@
 > Note: These tasks depend on the existence of implementation code (T011-T017) to run, even if they fail.
 
 - [X] T008a [US1] Unit test for data filtering logic in `tests/unit/test_filtering.py` (specifically `test_remove_low_read_samples` and `test_remove_rare_taxa`)
-- [~] T009a [US1] Unit test for MICE imputation in `tests/unit/test_imputation.py` (specifically `test_mice_missing_values` and `test_zscore_normalization`)
-- [~] T010a [US1] Integration test for data merge logic in `tests/integration/test_merge.py` (specifically `test_linkage_failure_detection` and `test_gap_report_trigger`)
+- [ ] T009a [US1] Unit test for MICE imputation in `tests/unit/test_imputation.py` (specifically `test_mice_missing_values` and `test_zscore_normalization`)
+- [ ] T010a [US1] Integration test for data merge logic in `tests/integration/test_merge.py` (specifically `test_linkage_failure_detection` and `test_gap_report_trigger`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (or correctly report data gap)
 
@@ -87,13 +87,13 @@
 
 - [X] T018 [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`
 - [X] T019 [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_fdr.py`
-- [~] T020 [US2] Unit test for LASSO/Elastic Net regression in `tests/unit/test_regression.py`
+- [ ] T020 [US2] Unit test for LASSO/Elastic Net regression in `tests/unit/test_regression.py`
 
 ### Implementation for User Story 2
 
 - [X] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
 - [X] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
-- [~] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
+- [ ] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
 - [~] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
 - [~] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
 

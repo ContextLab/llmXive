@@ -84,14 +84,12 @@ def validate_dataframe_columns(df: pd.DataFrame, required_columns: List[str]) ->
 
 def sanitize_url(url: str) -> str:
     """Sanitizes a URL string."""
-    # Basic sanitization to prevent injection
     if not url.startswith(('http://', 'https://')):
         raise ValueError("Invalid URL scheme")
     return url
 
 def sanitize_file_path(path: str) -> str:
     """Sanitizes a file path string."""
-    # Prevent directory traversal
     if '..' in path:
         raise ValueError("Invalid file path")
     return path
@@ -99,7 +97,7 @@ def sanitize_file_path(path: str) -> str:
 def get_retry_session() -> requests.Session:
     """
     Creates a requests session with retry logic.
-    This is a helper for load_data_with_retry.
+    Implements retry up to 3 times with exponential backoff for API failures.
     """
     session = requests.Session()
     retry_strategy = Retry(
@@ -117,15 +115,21 @@ def load_data_with_retry(url: str, timeout: int = 30) -> pd.DataFrame:
     """
     Loads data from a URL with retry logic (up to 3 attempts with exponential backoff).
     This implements T006 requirements.
+    Raises RuntimeError if all retries fail.
     """
     session = get_retry_session()
-    try:
-        response = session.get(sanitize_url(url), timeout=timeout)
-        response.raise_for_status()
-        # Assume CSV for simplicity, can be extended
-        return pd.read_csv(pd.io.common.StringIO(response.text))
-    except Exception as e:
-        raise RuntimeError(f"Failed to load data from {url} after retries: {e}")
+    last_exception = None
+    for attempt in range(3):
+        try:
+            response = session.get(sanitize_url(url), timeout=timeout)
+            response.raise_for_status()
+            # Assume CSV for simplicity, can be extended
+            return pd.read_csv(pd.io.common.StringIO(response.text))
+        except Exception as e:
+            last_exception = e
+            logging.warning(f"Attempt {attempt + 1}/3 failed for {url}: {e}")
+            time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
+    raise RuntimeError(f"Failed to load data from {url} after 3 retries: {last_exception}")
 
 def compute_file_hash(path: Path) -> str:
     """Computes the SHA256 hash of a file."""

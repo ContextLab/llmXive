@@ -1,0 +1,17 @@
+status: none
+intent: download Qwen-Image-2.0 base and RL weights with COCO-2017 prompts python
+  package dataset
+required_fields:
+- model_name
+- file_name
+- sha256_checksum
+- download_url
+- image_id
+- caption
+- prompt_text
+- prompt_category
+- clip_confidence_score
+- cosine_similarity_to_qwenbench
+cache_key: 960ea4a3ed44993584ef5e8ceeeda33564173ce9fc56c38ad0034f3d9ef0ce09
+searched_at: '2026-07-20T01:07:57.889677+00:00'
+retry_count: 1

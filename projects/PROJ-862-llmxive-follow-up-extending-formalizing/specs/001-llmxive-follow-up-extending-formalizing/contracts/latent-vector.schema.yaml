@@ -1,39 +1,39 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Latent Vector Schema
-description: >
-  Schema for extracted hidden state vectors (baseline and perturbed).
-  Vectors must be L2-normalized and match the model's hidden dimension.
+description: Schema for extracted hidden state vectors (baseline and perturbed).
 type: object
 required:
-  - PairID
-  - sigma_applied
-  - vector_type
-  - vector_data
-  - dimension
+  - pair_id
+  - sigma
+  - vector
+  - is_baseline
+  - task_type
 properties:
-  PairID:
+  pair_id:
     type: integer
-    description: Links vector to the specific question pair.
-  sigma_applied:
+    description: Foreign key linking to the dataset schema.
+  sigma:
     type: number
-    format: float
-    description: The noise level (0.0 for baseline).
-  vector_type:
-    type: string
-    enum:
-      - baseline
-      - perturbed
-    description: Type of vector extraction.
-  vector_data:
+    description: The noise standard deviation used for perturbation (0.0 for baseline).
+  vector:
     type: array
     items:
       type: number
       format: float
-    description: The flattened L2-normalized hidden state vector.
-  dimension:
+    description: The L2-normalized hidden state vector (float32).
+  vector_shape:
     type: integer
-    description: The dimensionality of the vector (should match model hidden size).
+    description: Dimensionality of the vector (should match model hidden size).
+  is_baseline:
+    type: boolean
+    description: True if this vector is from the unperturbed baseline extraction.
+  task_type:
+    type: string
+    description: The task type for grouping analysis.
   extraction_step:
     type: integer
-    description: Position in the sequence where the vector was extracted.
-additionalProperties: false
+    description: The layer or step index if multi-layer extraction is performed.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of extraction.

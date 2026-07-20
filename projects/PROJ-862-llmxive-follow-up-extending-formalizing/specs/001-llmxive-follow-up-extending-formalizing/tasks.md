@@ -45,7 +45,7 @@
 
 - [X] T001 [P] Create `code/` directory and `code/__init__.py`
 - [X] T002 [P] Create `data/` directory and `data/raw/.gitkeep`, `data/processed/.gitkeep`
-- [ ] T003 [P] Create `tests/` directory and `tests/__init__.py`
+- [X] T003 [P] Create `tests/` directory and `tests/__init__.py`
 
 ---
 
@@ -55,9 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest)
+- [X] T004 [P] Create `code/requirements.txt` with pinned versions (transformers, torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest)
 - [X] T005 [P] Setup virtual environment instructions in `docs/` (or `code/scripts/setup.sh`)
-- [ ] T006 [P] Implement `code/data_loader.py` to fetch the reasoning dataset (BigBench subset) from a verified URL/HF dataset, ensuring `expected_answer` column exists, and **raise ConfigurationError and halt** if missing (NO synthetic fallback)
+- [X] T006 [P] Implement `code/data_loader.py` to fetch the reasoning dataset (BigBench subset) from a verified URL/HF dataset, ensuring `expected_answer` column exists, and **raise ConfigurationError and halt** if missing (NO synthetic fallback)
 - [X] T007 [P] Implement `code/model_utils.py` to load the frozen transformer model (Llama or distilled variant) in CPU-only mode with `torch.no_grad()` and `model.eval()`
 - [X] T008 [P] Implement `code/streaming_utils.py` to provide chunked/batched iteration over large datasets to respect the available RAM limit
 - [X] T008b [P] Implement `code/memory_monitor.py` to instrument `tracemalloc` and enforce a hard "peak RSS ≤ 7GB" failure condition; raise `MemoryLimitExceeded` if the threshold is breached during execution (SC-004)
@@ -84,7 +84,7 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `code/data_loader.py` function to pair questions by task type and assign unique `PairID`s (output: `data/processed/pairing_config.json`)
-- [ ] T014 [US1] Implement `code/model_utils.py` function `extract_thought_vector(model, input_ids, thought_token_pos)` to return the hidden state vector
+- [X] T014 [US1] Implement `code/model_utils.py` function `extract_thought_vector(model, input_ids, thought_token_pos)` to return the hidden state vector
 - [ ] T015 [US1] Implement `code/main.py` baseline extraction loop: Load data -> Extract vectors -> Normalize to unit length -> Save to `data/processed/baseline_vectors.csv`
 - [ ] T016 [US1] Add validation to ensure output vectors match model hidden dimension and are L2-normalized
 - [ ] T017 [US1] Add logging for baseline extraction progress and memory usage
@@ -101,12 +101,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for noise injection and token projection math in `tests/unit/test_perturbation.py`
-- [ ] T019 [P] [US2] Contract test for validity log schema in `tests/contract/test_validity_log.py`
+- [X] T018 [P] [US2] Unit test for noise injection and token projection math in `tests/unit/test_perturbation.py`
+- [X] T019 [P] [US2] Contract test for validity log schema in `tests/contract/test_validity_log.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/perturbation.py` function `inject_and_project(embedding, sigma, model_embedding_matrix)` that adds Gaussian noise and **projects to nearest valid token by minimizing Euclidean distance against model.embedding_matrix**, returning `perturbed_token_ids` and `perturbed_embeddings`
+- [X] T020 [P] [US2] Implement `code/perturbation.py` function `inject_and_project(embedding, sigma, model_embedding_matrix)` that adds Gaussian noise and **projects to nearest valid token by minimizing Euclidean distance against model.embedding_matrix**, returning `perturbed_token_ids` and `perturbed_embeddings`
 - [ ] T021 [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input, sbert_model)` using `sentence-transformers/all-MiniLM-L6-v2` (threshold ≥ 0.95); **explicitly exclude pairs failing this check (cosine similarity < 0.95) from the dataset immediately** and save the filtered pair set to `data/processed/filtered_pairs_input_drift.csv` (FR-009)
 - [ ] T022 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline); **if the dataset lacks an `expected_answer` column, raise a ConfigurationError and halt** (FR-006)
 - [ ] T023 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$

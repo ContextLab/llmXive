@@ -1,0 +1,41 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration file (e.g., `pytest.ini` or `conftest.py`) or test runner
+    script was presented, and the provided project excerpt concerns data ingestion
+    rather than test setup. The required artifacts are missing, so the task is not
+    satisfied.
+T009a:
+  c: false
+  h: 1f19d66d8812d47f75ee6c321fe2e2c9128644654307ccca651f962a554a952b
+  r: "The required file `tests/unit/test_imputation.py` is missing from the repository,\
+    \ so the unit tests for MICE imputation and z\u2011score normalization do not\
+    \ exist. Without this artifact, the task\u2019s deliverable is not present."
+T010a:
+  c: false
+  h: f1a5a35e2d5265783a8abbd0b81831dc7ef860286c7d797ef3dc3303a5e299a8
+  r: The required artifact `tests/integration/test_merge.py` does not exist in the
+    repository, so the integration tests for `test_linkage_failure_detection` and
+    `test_gap_report_trigger` are missing. The task cannot be considered completed
+    until this file is added with the specified tests.
+T015:
+  c: false
+  h: 649d1c26df48b55305584eb888586db872fc6e2a52b56fb0ceb4659f164ff10a
+  r: "The `code/02_preprocess.py` file is truncated and does not contain a complete\
+    \ outlier\u2011filtering implementation nor any code that writes a log to `data/qc/filtering_log.json`.\
+    \ Moreover, the required `filtering_log.json` file is absent from the repository.\
+    \ The task\u2019s core requirement is therefore unmet."
+T020:
+  c: false
+  h: ea0a908338222d8597ae90b3617458b6cde9c3b0d75575748cd3a6e3851d0e80
+  r: "The required artifact `tests/unit/test_regression.py` does not exist in the\
+    \ repository, so no unit test for the LASSO/Elastic Net regression is present.\
+    \ The implementer must add a non\u2011empty test file at that location that validates\
+    \ the regression functionality."
+T023:
+  c: false
+  h: 38c139bd6dc78e034f7e276cd8b45b43836411aee7aa0b4f79ea7abe54d33090
+  r: "The script exists but its missing\u2011data handling logs a generic warning\
+    \ (\u201CMerged dataset not found \u2026 Skipping regression analysis.\u201D)\
+    \ instead of the required exact message \u201CN/A - Data Gap\u201D. Consequently\
+    \ the implementation does not meet the specified logging requirement."

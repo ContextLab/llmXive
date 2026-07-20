@@ -1,45 +1,40 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Reasoning Dataset Schema
-description: >
-  Schema for the raw and processed reasoning dataset used in the
-  llmXive noise injection pipeline. Ensures presence of critical
-  fields like 'expected_answer' and 'PairID'.
+description: Schema for the raw and processed reasoning dataset used in the noise injection pipeline.
 type: object
 required:
-  - PairID
   - question
-  - task_type
   - expected_answer
-  - input_ids
+  - task_type
+  - pair_id
   - thought_token_pos
+  - input_ids
 properties:
-  PairID:
-    type: integer
-    description: Unique identifier for a paired question set.
   question:
     type: string
-    description: The raw question text.
-  task_type:
-    type: string
-    description: Category of the reasoning task (e.g., 'math', 'logic').
+    description: The original question text.
   expected_answer:
     type: string
-    description: The ground truth answer. REQUIRED for validity checks.
+    description: The ground truth answer for validity checking.
+  task_type:
+    type: string
+    description: Category of the reasoning task (e.g., 'math', 'logic', 'commonsense').
+  pair_id:
+    type: integer
+    description: Unique identifier for the question pair used in contrastive analysis.
+  thought_token_pos:
+    type: integer
+    description: Index of the token representing the 'thought' or reasoning step in the input sequence.
   input_ids:
     type: array
     items:
       type: integer
-    description: Tokenized input IDs from the model tokenizer.
-  thought_token_pos:
-    type: integer
-    description: Position index of the 'thought' token in input_ids.
-  perturbed_input_ids:
+    description: Tokenized input sequence IDs.
+  attention_mask:
     type: array
     items:
       type: integer
-    description: Optional. Token IDs after noise injection and projection.
-  sigma_applied:
-    type: number
-    format: float
-    description: Optional. The noise standard deviation applied.
-additionalProperties: true
+    description: Attention mask corresponding to input_ids.
+  metadata:
+    type: object
+    description: Optional metadata fields (source, difficulty, etc.).

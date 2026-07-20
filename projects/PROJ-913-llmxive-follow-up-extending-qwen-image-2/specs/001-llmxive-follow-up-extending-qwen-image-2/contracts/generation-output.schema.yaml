@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Generation Output Schema"
+description: "Schema for generated images and their metadata."
+type: "object"
+properties:
+  generation_run_id:
+    type: "string"
+    format: "uuid"
+  images:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        image_id:
+          type: "string"
+          format: "uuid"
+        prompt_id:
+          type: "string"
+          format: "uuid"
+        model_id:
+          type: "string"
+          enum:
+            - "Qwen-Image-2.0"
+            - "Qwen-Image-2.0-RL"
+        file_path:
+          type: "string"
+          description: "Relative path to the image file."
+        seed:
+          type: "integer"
+        steps:
+          type: "integer"
+        checksum:
+          type: "string"
+        generation_time_seconds:
+          type: "number"
+      required:
+        - image_id
+        - prompt_id
+        - model_id
+        - file_path
+        - seed
+        - steps
+        - checksum
+  metadata:
+    type: "object"
+    properties:
+      total_images:
+        type: "integer"
+        minimum: 0
+      models_processed:
+        type: "array"
+        items:
+          type: "string"
+      start_time:
+        type: "string"
+        format: "date-time"
+      end_time:
+        type: "string"
+        format: "date-time"
+      oom_events:
+        type: "integer"
+        minimum: 0
+    required:
+      - total_images
+      - models_processed
+      - start_time
+      - end_time
+required:
+  - generation_run_id
+  - images
+  - metadata
+additionalProperties: false

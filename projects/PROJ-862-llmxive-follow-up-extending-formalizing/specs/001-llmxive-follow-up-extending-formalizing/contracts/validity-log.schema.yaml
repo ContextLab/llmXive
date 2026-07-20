@@ -1,44 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validity Log Schema
-description: >
-  Schema for the log tracking which pairs passed or failed input drift
-  and output validity checks.
+description: Schema for logging validity check results (input drift and output validity).
 type: object
 required:
-  - PairID
-  - task_type
-  - sigma_applied
+  - pair_id
+  - sigma
   - input_drift_passed
   - output_validity_passed
-  - overall_passed
-  - failure_reasons
+  - overall_valid
+  - input_similarity_score
+  - output_f1_score
+  - output_perplexity_ratio
+  - failure_reason
 properties:
-  PairID:
+  pair_id:
     type: integer
-    description: Unique identifier for the pair.
-  task_type:
-    type: string
-    description: Category of the task.
-  sigma_applied:
+    description: Foreign key linking to the dataset.
+  sigma:
     type: number
-    format: float
-    description: Noise level applied.
+    description: The noise level applied.
   input_drift_passed:
     type: boolean
-    description: True if cosine similarity (SBERT) >= 0.95.
+    description: True if cosine similarity with baseline input >= 0.95.
+  input_similarity_score:
+    type: number
+    description: The actual cosine similarity score.
   output_validity_passed:
     type: boolean
-    description: True if BERTScore F1 >= 0.85 and perplexity bound met.
-  overall_passed:
+    description: True if BERTScore F1 >= 0.85 and perplexity ratio <= 2.0.
+  output_f1_score:
+    type: number
+    description: The BERTScore F1 metric.
+  output_perplexity_ratio:
+    type: number
+    description: Ratio of perturbed perplexity to baseline perplexity.
+  overall_valid:
     type: boolean
-    description: True only if both input and output checks passed.
-  failure_reasons:
-    type: array
-    items:
-      type: string
-    description: List of reasons for failure (e.g., 'input_drift_low', 'bertscore_low').
-  metrics_snapshot:
-    type: object
-    description: Optional snapshot of raw metrics (similarity scores, etc.).
-    additionalProperties: true
-additionalProperties: false
+    description: True if both input and output checks passed.
+  failure_reason:
+    type: string
+    enum: [none, input_drift, output_invalid, both]
+    description: Reason for failure if overall_valid is False.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the check.
