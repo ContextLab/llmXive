@@ -27,22 +27,19 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (see plan.md) (`src/`, `tests/`, `data/` directories)
-- [X] T002 Initialize Python project with pinned `requirements.txt`
-
-The research question is: Can large language models effectively assist in the automated generation of unit tests for Python code?
-The method is: We will employ a combination of automated code analysis and LLM-based test generation, evaluating the generated tests against a suite of existing, hand-written unit tests.
-References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `biopython`, `scikit-learn`, `ete3`, `pydantic`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools (see plan.md)
+- [X] T002 Initialize Python project with pinned `requirements.txt` (includes `rpy2`, `biopython`, `scikit-learn`, `ete3`, `pydantic`, `requests`, `tqdm`)
+- [ ] T003a [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003b [P] Create and execute system package installation scripts for HISAT2, fastp, and featureCounts (ensure binaries are installed and available in PATH)
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement configuration management (`src/utils/config.py`) for paths, seeds, and thresholds (see plan.md)
+- [X] T004 [P] Implement configuration management (`src/utils/config.py`) for paths, seeds, thresholds, and the **fixed list of housekeeping genes** (ACT, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30, CYP71A31, CYP71A32)
 - [ ] T005 [P] Implement logging and provenance tracking (`src/utils/logger.py`, `src/utils/provenance.py`) (see plan.md)
 - [ ] T006 [P] Create base data schemas (`src/utils/schemas.py`) derived from `data-model.md` (see plan.md)
 - [ ] T007 Setup directory structure for `data/raw`, `data/processed`, `data/traits`, `data/manifests`, and `data/synthetic` (see plan.md)
@@ -65,13 +62,15 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Create `src/data/synthetic_generator.py` to generate structurally valid synthetic FASTQ files **stored in `data/raw/`** (to satisfy Constitution VI). Produce a manifest `data/manifests/synthetic_manifest.json` with schema `{ "file_name": <string>, "checksum": <SHA256>, "source_type": "synthetic", "provenance": { "generated_at": <ISO8601>, "tool_versions": { "python": "3.11", "numpy": "...",... } } }`. Include checksums and provenance flags. **[FR-003][VI]**
-- [ ] T011 [US1] Implement `src/data/download.py` to fetch FASTQ from NCBI GEO/SRA **into `data/raw/`** and record checksums in a manifest under `data/manifests/`. If real data fetch fails, trigger T015 to generate synthetic data. Distinguish provenance via a `source_type` field (`"real"` or `"synthetic"`) and write a human‑readable log `data/manifests/provenance.log`. **[FR-001]**
-- [ ] T012 [US1] Implement `src/data/preprocess.py` wrappers for `fastp`, `HISAT2`, and `featureCounts` (CPU‑optimized, streaming) to produce TPM matrices. **[FR-002]**
-- [ ] T013 [US1] Implement `src/data/batch_correction.py` with ComBat‑seq logic. **Use the housekeeping genes defined in FR‑003**: ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30, CYP71A31, CYP71A32. Select the most stable subset based on GeNorm M‑value calculation, apply correction, and compute CV reduction; require ≥20% reduction for these genes. **[FR-003]**
-- [ ] T014 [US1] Implement QC logic to exclude studies with <2 replicates or missing tissue metadata, logging exclusion reasons. **[FR-001]**
+- [ ] T011 [US1] Implement `src/data/download.py` to fetch FASTQ from NCBI GEO/SRA **into `data/raw/`** and record checksums in a manifest under `data/manifests/`. **Primary Requirement**: Fetch real data. **Constraint**: `data/raw/` must contain ONLY unaltered files fetched from NCBI GEO/SRA. **Failure Policy**: If `--mode real` and fetch fails, raise critical error, log failure, and trigger `human_input_needed`. **Synthetic Mode**: If `--mode synthetic`, skip download and load pre-generated data from `data/synthetic/`. DO NOT generate synthetic data here. **[FR-001][VI]**
+- [ ] T015 [US1] [P] Create `src/data/synthetic_generator.py` to generate structurally valid synthetic **TPM count matrices** **stored in `data/synthetic/`** (NOT `data/raw/`). Produce a manifest `data/manifests/synthetic_manifest.json` with schema `{ "file_name": <string>, "checksum": <SHA256>, "source_type": "synthetic", "provenance": { "generated_at": <ISO8601>, "tool_versions": { "python": "3.11", "numpy": "...",... } } }`. **Constraint**: This task is for prototype validation only; it MUST NOT write to `data/raw/`. Include checksums and provenance flags. **[FR-003][VI]**
+- [ ] T012a [US1] [P] Implement `src/data/preprocess_fastp.py` wrapper for `fastp`. **Dependency**: Requires `fastp` installed via T003b. **Execution**: Use CPU-optimized, streaming modes to produce trimmed FASTQ. **[FR-002]**
+- [ ] T012b [US1] [P] Implement `src/data/preprocess_hisat2.py` wrapper for `HISAT2`. **Dependency**: Requires `HISAT2` installed via T003b. **Execution**: Align trimmed FASTQ to reference genome. **[FR-002]**
+- [ ] T012c [US1] [P] Implement `src/data/preprocess_featurecounts.py` wrapper for `featureCounts`. **Dependency**: Requires `featureCounts` installed via T003b. **Execution**: Quantify alignments into TPM matrices. **[FR-002]**
+- [ ] T013 [US1] Implement `src/data/batch_correction.py` with ComBat‑seq logic. **Input**: TPM matrix from T012. **Fixed Gene List**: Use the list defined in `src/utils/config.py` (CONFIG.HOUSEKEEPING_GENES) which contains a curated set of housekeeping genes (ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30, CYP71A31, CYP71A32). **Algorithm**: Calculate GeNorm M-value for these genes, select the top most stable, apply correction, and compute CV reduction; require ≥20% reduction. **[FR-003]**
+- [ ] T014 [US1] Implement QC logic to exclude studies with <2 replicates or missing tissue metadata, logging exclusion reasons and outputting a **post-QC species list** to `data/processed/post_qc_species_list.json`. **[FR-001]**
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (with real or synthetic data)
 
 ---
 
@@ -89,13 +88,14 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 ### Implementation for User Story 2
 
 - [ ] T018 [US2] Implement `src/analysis/de_analysis.py` to run DESeq2 (via `rpy2`) for each species‑tissue pair. **[FR-004]**
-- [ ] T025 [US2] Implement `src/data/traits.py` to compile defense trait data from TRY, with fallback to Phenoscape/GBIF. Calculate Defense Allocation Index (DAI) = (mean standardized chemical) / (mean standardized physical). **Log the count of species requiring fallback and write a summary file `data/processed/trait_fallback_summary.json` containing `{ "total_species": N, "missing_species": M, "missing_fraction": M/N }`. If `missing_fraction` > 0.30, raise `human_input_needed` with a clear message.** **[FR-006][FR-011]**
-- [ ] T038 [US2] Read `data/processed/trait_fallback_summary.json`, log the exclusion count, and if `missing_fraction` > 0.30, halt the pipeline and raise `human_input_needed`. **[FR-011]**
-- [ ] T019 [US2] Implement `src/analysis/feature_engineering.py` to construct herbivore‑response vectors (top‑ranked DE genes by -log10(p), exclude trait‑synthesis genes). **[FR-005]**
-- [ ] T020 [US2] Add logic to exclude trait‑synthesis genes (e.g., CYP79D16) from the predictor set to prevent circular validation. **[FR-005]**
+- [ ] T025a [US2] [P] Implement `src/data/traits_try.py` to fetch defense trait data from TRY database (Primary Source). **[FR-006][FR-011]**
+- [ ] T025b [US2] [P] Implement `src/data/traits_fallback.py` to fetch defense trait data from Phenoscape and GBIF if missing in TRY. **Endpoints**: Phenoscape (`), GBIF (`). **Target Schema**: Map to `{ species_name, trait_name, trait_value, unit, source_id }`. **[FR-006][FR-011]**
+- [ ] T039 [US2] Implement `src/analysis/defense_index.py` to calculate the **Defense Allocation Index (DAI)** = (mean standardized chemical traits) / (mean standardized physical traits) using the compiled data from T025a/T025b. **Logic**: Standardize traits (z-score) per trait type, compute means, then calculate the ratio. **Output**: Write DAI values to `data/processed/defense_allocation_index.csv`. **[FR-006][FR-011]**
+- [ ] T040 [US2] Implement `src/analysis/reproducibility.py` to fetch **published herbivory response gene lists** (from literature/DBs), compare against DE results from T018, and calculate **Jaccard similarity**. **Metric**: Report Jaccard similarity. **Halt Condition**: If Jaccard similarity < 0.75, halt the pipeline and raise `human_input_needed`. **[SC-002]**
+- [ ] T019 [US2] Implement `src/analysis/feature_engineering.py` to construct herbivore‑response vectors (top‑ranked DE genes by -log10(p)). **Crucial**: Implement a callable exclusion function `def get_trait_synthesis_exclusion_list(gene_list: List[str]) -> List[str]` in this file. **Usage**: T027 will import and call this function within each LOSO fold to exclude trait-synthesis genes (e.g., CYP79D16) to prevent data leakage. **[FR-005]**
 - [ ] T036 [US2] Generate KEGG/GO pathway mapping files (`data/processed/pathway_mappings.json`) by querying KEGG API or using GO annotations. Store mappings for all genes used in downstream aggregation. **[FR-012]**
 - [ ] T021 [US2] Implement KEGG/GO pathway aggregation to reduce herbivore‑response vectors to ≤50 pathway‑level features. **Requires output from T036** and writes aggregated matrix to `data/processed/aggregated_features.csv`. **[FR-012]**
-- [ ] T022 [US2] Implement LOSO‑aware feature selection: within each training fold, select features based on training‑only data (e.g., variance threshold) to avoid leakage. **Requires output from T036** (for pathway definitions) and runs as a sub‑routine of modeling. **[FR-012]**
+- [ ] T022 [US2] Pre-compute the **logic** for LOSO‑aware feature selection (e.g., variance threshold calculation) to be used as a sub‑routine in T027. **Requires output from T036** (for pathway definitions). This task defines the **logic module**; the execution happens inside T027. **[FR-012]**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,11 +114,12 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/analysis/validation.py` for Power Analysis. **If available species N < 15, halt and report Insufficient statistical power for reliable prediction **. **[FR-016]**
-- [ ] T027 [US3] Implement `src/analysis/modeling.py` for Elastic Net and Random Forest with LOSO CV. **Calls T021 (pathway aggregation) and T022 (feature selection) within each training fold**. **[FR-007]**
-- [ ] T028 [US3] Implement Phylogenetic Generalized Least Squares (PGLS) and Phylogenetic Null Model: fetch phylogenetic tree (Open Tree of Life API) and generate a null distribution by **shuffling species labels across the tree while preserving phylogenetic covariance**. Compare observed R² to a high percentile of this null distribution. **[FR-017]**
-- [ ] T029 [US3] Implement permutation testing (N=10,000) for Spearman correlation and apply Holm‑Bonferroni correction. **[FR-008][FR-010]**
-- [ ] T030 [US3] Implement sensitivity analysis varying DE gene count levels and report R² variation. **[FR-009]**
+- [ ] T038 [US3] **GATE TASK**: Read `data/processed/trait_fallback_summary.json` (from T025a/T025b) AND `data/processed/post_qc_species_list.json` (from T014). Calculate the missing fraction against the **post-QC species count** (denominator = count from T014). If `missing_fraction` > 0.30, halt the pipeline and raise `human_input_needed`. **This task must complete before T026 and T027 can start.** **[FR-011]**
+- [ ] T026 [US3] Implement `src/analysis/validation.py` for Power Analysis. **Gate**: Execute *before* model training. Calculate required N for target R² (low, moderate, high) with α=0.05, β=0.2. **Halt**: If available N < 15, halt and report "Insufficient statistical power". **[FR-016]**
+- [ ] T027 [US3] Implement `src/analysis/modeling.py` for Elastic Net and Random Forest with LOSO CV. **Calls T021 (pathway aggregation) and T022 (feature selection logic) within each training fold**. **MUST import and invoke `get_trait_synthesis_exclusion_list` from `src/analysis/feature_engineering.py` (T019) within each training fold** to prevent leakage. **[FR-007]**
+- [ ] T028 [US3] Implement Phylogenetic Generalized Least Squares (PGLS) and Phylogenetic Null Model: fetch phylogenetic tree (Open Tree of Life API). Generate a null distribution by **performing phylogenetic permutation of tip labels** (shuffling species labels while preserving tree topology and branch lengths) using `ete3` or `phylolm`. Compare observed R² to a high percentile of this null distribution. **[FR-017]**
+- [ ] T029 [US3] Implement permutation testing (N=10,000) for Spearman correlation and apply **Holm-Bonferroni correction** across all tissue-specific model tests and gene-set hypotheses. **[FR-008][FR-010]**
+- [ ] T030 [US3] Implement sensitivity analysis varying DE gene count levels. **Specific Levels**: Run analysis for top DE genes, **100** DE genes, and A set of differentially expressed genes (DE genes) will be identified to address the research question, employing the specified method, as supported by the relevant references.. **Reporting**: Output a table of R² variation across these levels. **[FR-009]**
 - [ ] T031 [US3] Create CLI entry point `src/cli/run_pipeline.py` to orchestrate the full pipeline (`--mode synthetic|real`). **[FR-010]**
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,10 +152,11 @@ References: [], (Fredrikson & Collins, 2021). (see plan.md) (includes `rpy2`, `b
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
- - **Note**: T025 (DAI compilation) must complete before T026 and T027 in US3.
+ - **Note**: T025a/T025b (Trait Compilation) must complete before T039 (DAI Calculation).
  - **Note**: T036 must complete before T021/T022.
+ - **Note**: T038 (Trait Data Check) must complete and pass before T026 and T027 in US3.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 features
- - **Note**: T026 and T027 explicitly require T025 completion. T021 and T022 are sub‑routines called by T027 but now have a clear upstream dependency on T036.
+ - **Note**: T038 is a hard gate before T026 and T027. T021 and T022 are sub‑routines called by T027 but now have a clear upstream dependency on T036.
 
 ### Within Each User Story
 
@@ -208,11 +210,9 @@ With multiple developers:
 
 ## Constraints & Compliance
 
-- **CPU‑only CI**: All tasks are designed to run on 2‑core, ~7 GB RAM runners within 6 h.
+- **CPU‑only CI**: Default runner is CPU-only; streaming and sampling used for large datasets.
 - **No GPU / Large LLMs**: All modeling uses Elastic Net, Random Forest, and classical statistics.
-- **Real Data Requirement**: Synthetic data is used only for prototype validation; real data pathways obey FR‑001 and Constitution VI.
-- **Data Hygiene**: Checksums, manifests, and provenance logs are generated for every raw file (real or synthetic).
+- **Real Data Requirement**: Synthetic data is used only for prototype validation; real data pathways obey FR‑001 and Constitution VI. `data/raw/` is strictly for real fetched FASTQ files. **No fallback to synthetic data is permitted for FR-001** (except via explicit `--mode synthetic` flag for structural validation).
+- **Data Hygiene**: Checksums, manifests, and provenance logs are generated for every raw file (real or synthetic). Synthetic data is stored in `data/synthetic/`.
 - **Versioning**: All artifacts will receive content hashes in the project state file.
-- **Statistical Rigor**: Power analysis, LOSO CV, PGLS, permutation testing, and Holm‑Bonferroni correction are implemented as specified.
-
-
+- **Statistical Rigor**: Power analysis, LOSO CV, PGLS, permutation testing, and Holm-Bonferroni correction are implemented as specified.

@@ -1,7 +1,13 @@
-T007:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided showing the required `data/raw`,
-    `data/processed`, `data/traits`, `data/manifests`, and `data/synthetic` folders,
-    nor any confirmation that they have been created. The claim lacks concrete evidence
-    of the requested structure.
+  r: No evidence of the required `src/`, `tests/`, and `data/` directories (or any
+    files within them) was presented; the implementer only supplied a textual description
+    of the overall project, not the actual project structure. The task remains undone
+    until those directories are created and populated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting configuration (e.g., `pyproject.toml` or `ruff.toml`) or Black formatting
+    setup is present, nor are there any scripts (e.g., shell or Conda files) that
+    install HISAT2, fastp, and featureCounts. The required artifacts are missing entirely.

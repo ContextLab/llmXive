@@ -1,1 +1,2 @@
-# Synthetic data storage for testing
+# This directory is for synthetic test data (used for prototype validation only)
+# Synthetic data must NEVER be written to data/raw/

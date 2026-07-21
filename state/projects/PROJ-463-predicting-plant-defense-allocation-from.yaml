@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T22:27:25.750881Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-463-predicting-plant-defense-allocation-from
-last_run_id: 417cce8e-af9d-425a-a94d-f24f7d4a0469
+last_run_id: 4a50a65d-3a44-45e6-81e1-1f7c700dfd86
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from
 title: Predicting Plant Defense Allocation from Publicly Available Transcriptomic
   Data
-updated_at: '2026-07-18T01:14:08.931584Z'
+updated_at: '2026-07-21T22:35:26.135155Z'

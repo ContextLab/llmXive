@@ -1,1 +1,2 @@
-# Raw data storage (FASTQ, etc.)
+# This directory is for raw downloaded data (FASTQ files from NCBI GEO/SRA)
+# Do not commit actual data files to git. Add to .gitignore.

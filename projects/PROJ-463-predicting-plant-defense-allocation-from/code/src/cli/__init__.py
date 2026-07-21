@@ -1,1 +1,3 @@
-# Placeholder for CLI modules to be implemented in T031
+"""
+Command-line interface for the plant defense allocation pipeline.
+"""

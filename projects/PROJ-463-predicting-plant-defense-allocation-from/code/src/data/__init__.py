@@ -1,1 +1,5 @@
-# Placeholder for data modules to be implemented in T011-T015
+"""
+Data acquisition, preprocessing, and management modules.
+
+Handles downloading, preprocessing, batch correction, and trait compilation.
+"""

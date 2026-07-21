@@ -1,57 +1,113 @@
+"""
+Project Structure Initialization Script.
+
+Creates the foundational directory structure for the llmXive plant defense allocation project.
+This script ensures all required directories exist before any data processing begins.
+
+Structure created:
+- code/ (source code)
+  - src/ (main source)
+    - utils/
+    - data/
+    - analysis/
+    - cli/
+  - tests/
+    - unit/
+    - integration/
+    - contract/
+- data/
+  - raw/ (unmodified downloaded data)
+  - processed/ (normalized matrices, QC results)
+  - traits/ (compiled trait data)
+  - manifests/ (data manifests)
+  - synthetic/ (synthetic test data)
+- specs/ (feature specifications)
+- docs/ (documentation)
+- figures/ (plots and visualizations)
+"""
 import os
 import sys
 from pathlib import Path
 
-def main():
+def create_directory_structure(root_path: Path) -> None:
     """
-    Creates the project directory structure as per the implementation plan.
-    This script ensures all required directories for data, source code, and tests exist.
-    """
-    project_root = Path(__file__).resolve().parent.parent
+    Create the complete project directory structure.
     
-    # Define directory structure based on tasks.md and plan.md
+    Args:
+        root_path: The root directory where the project structure will be created.
+    """
     directories = [
         # Source code structure
-        project_root / "src",
-        project_root / "src" / "utils",
-        project_root / "src" / "data",
-        project_root / "src" / "analysis",
-        project_root / "src" / "cli",
+        "code/src/utils",
+        "code/src/data",
+        "code/src/analysis",
+        "code/src/cli",
+        
+        # Test structure
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/tests/contract",
         
         # Data structure
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "traits",
-        project_root / "data" / "manifests",
-        project_root / "data" / "synthetic",
+        "data/raw",
+        "data/processed",
+        "data/traits",
+        "data/manifests",
+        "data/synthetic",
         
-        # Tests structure
-        project_root / "tests",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "contract",
+        # Documentation and specs
+        "specs",
+        "docs",
+        "figures",
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory.relative_to(project_root)}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {directory.relative_to(project_root)}")
+    for dir_path in directories:
+        full_path = root_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created: {full_path}")
     
-    # Create .gitkeep files to ensure directories are tracked in git
-    gitkeep_content = "# This file ensures the directory is tracked in version control.\n"
-    for directory in directories:
-        gitkeep_path = directory / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.write_text(gitkeep_content)
-            print(f"Created .gitkeep in: {directory.relative_to(project_root)}")
+    # Create placeholder __init__.py files for Python packages
+    init_files = [
+        "code/src/__init__.py",
+        "code/src/utils/__init__.py",
+        "code/src/data/__init__.py",
+        "code/src/analysis/__init__.py",
+        "code/src/cli/__init__.py",
+        "code/tests/__init__.py",
+        "code/tests/unit/__init__.py",
+        "code/tests/integration/__init__.py",
+        "code/tests/contract/__init__.py",
+    ]
     
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    return 0
+    for init_file in init_files:
+        full_path = root_path / init_file
+        if not full_path.exists():
+            full_path.touch()
+            print(f"Created: {full_path}")
+
+def main():
+    """Main entry point for directory setup."""
+    # Determine project root (parent of the script's directory)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent  # Go up one level to 'code', then we want the parent of 'code'
+    
+    # Actually, the script is in code/, so project root is the parent of code/
+    # But let's be explicit: we want to create structure relative to where this script is run from
+    # The task says "under code/, data/, tests/, specs/" relative to project root
+    # So we assume the script is run from the project root or we determine it from context
+    
+    # For safety, let's use the current working directory as the project root
+    # unless we detect we're in a 'code' subdirectory
+    cwd = Path.cwd()
+    if (cwd / "code").exists():
+        project_root = cwd
+    else:
+        # If we're running from inside code/, go up
+        project_root = script_dir.parent
+    
+    print(f"Initializing project structure at: {project_root}")
+    create_directory_structure(project_root)
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

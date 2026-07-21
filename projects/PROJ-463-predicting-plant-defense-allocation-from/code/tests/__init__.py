@@ -1,3 +1,3 @@
 """
-Plant Defense Allocation Project Tests.
+Test suite for the plant defense allocation pipeline.
 """

@@ -1,87 +1,81 @@
-"""
-Setup directory structure for the plant defense allocation project.
-
-Creates the required data subdirectories:
-- data/raw: For raw FASTQ/SRA downloads
-- data/processed: For normalized TPM matrices and corrected data
-- data/traits: For defense trait data from TRY/Phenoscape
-- data/manifests: For JSON manifests and provenance logs
-- data/synthetic: For synthetic data generated for testing
-"""
 import os
 import sys
 from pathlib import Path
 from .config import get_data_path, get_config
 from .logger import get_logger
 
-# Define the required subdirectories relative to the data root
-REQUIRED_DIRS = [
-    "raw",
-    "processed",
-    "traits",
-    "manifests",
-    "synthetic"
-]
-
 def setup_data_directories():
     """
-    Creates the standard directory structure for data artifacts.
+    Creates the required directory structure for the plant defense allocation project.
     
-    Uses the data path configured in src/utils/config.py.
-    Logs creation events and ensures all required subdirectories exist.
+    Creates the following directories under the data root (as defined in config):
+    - data/raw: For unaltered files fetched from NCBI GEO/SRA
+    - data/processed: For processed TPM matrices and QC outputs
+    - data/traits: For defense trait data from TRY/Phenoscape
+    - data/manifests: For JSON manifests tracking files and checksums
+    - data/synthetic: For synthetic TPM count matrices (prototype validation only)
     
     Returns:
-        Path: The root data directory path
-        
-    Raises:
-        RuntimeError: If directory creation fails
+        dict: A dictionary mapping directory names to their absolute Path objects
     """
-    logger = get_logger("setup_directories")
-    config = get_config()
+    logger = get_logger(__name__)
+    logger.info("Setting up data directory structure...")
     
-    # Get the base data directory from config
+    # Get the base data path from configuration
     data_root = get_data_path()
-    logger.info(f"Setting up data directories under: {data_root}")
+    if not data_root:
+        # Fallback to default if config not set
+        data_root = Path("data")
+        logger.warning(f"Data path not in config, using default: {data_root}")
     
-    # Ensure the base data directory exists
-    data_root_path = Path(data_root)
-    data_root_path.mkdir(parents=True, exist_ok=True)
+    # Ensure base data directory exists
+    data_root.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Base data directory: {data_root}")
     
-    created_dirs = []
-    failed_dirs = []
+    # Define required subdirectories
+    required_dirs = [
+        "raw",
+        "processed",
+        "traits",
+        "manifests",
+        "synthetic"
+    ]
     
-    for subdir in REQUIRED_DIRS:
-        dir_path = data_root_path / subdir
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
-            logger.debug(f"Created/verified directory: {dir_path}")
-        except OSError as e:
-            failed_dirs.append(str(dir_path))
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            raise RuntimeError(f"Failed to create directory {dir_path}: {e}")
+    created_paths = {}
     
-    if created_dirs:
-        logger.info(f"Successfully created/verified {len(created_dirs)} directories")
-    if failed_dirs:
-        logger.error(f"Failed to create {len(failed_dirs)} directories")
+    for dir_name in required_dirs:
+        dir_path = data_root / dir_name
         
-    return data_root_path
+        # Create directory if it doesn't exist
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+        else:
+            logger.info(f"Directory already exists: {dir_path}")
+        
+        created_paths[dir_name] = dir_path
+    
+    # Create .gitkeep files to ensure directories are tracked by git
+    for dir_name, dir_path in created_paths.items():
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            logger.debug(f"Created .gitkeep in {dir_path}")
+    
+    logger.info("Directory structure setup complete.")
+    return created_paths
 
 def main():
-    """
-    CLI entry point for directory setup.
-    
-    Can be run as a script: python -m src.utils.setup_directories
-    """
-    print("Initializing data directory structure...")
+    """Entry point for running directory setup as a script."""
+    logger = get_logger(__name__)
     try:
-        data_root = setup_data_directories()
-        print(f"✓ Data directory structure ready at: {data_root}")
-        print(f"  Subdirectories: {', '.join(REQUIRED_DIRS)}")
+        paths = setup_data_directories()
+        logger.info("Successfully created directory structure:")
+        for name, path in paths.items():
+            logger.info(f"  - {name}: {path}")
         return 0
     except Exception as e:
-        print(f"✗ Failed to setup directories: {e}")
+        logger.error(f"Failed to setup directory structure: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":

@@ -1,1 +1,2 @@
-# Processed data storage (TPM matrices, aggregated features)
+# This directory is for processed data (TPM matrices, QC results, etc.)
+# Do not commit large processed files to git. Add to .gitignore.

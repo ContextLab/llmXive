@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 34f611a30fdc77da268f94a374d680e4515b2401fe9f326b2841cb96f2081775
+  artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://phenoscape.org/api/observations`
+  verification_status: mismatch
+  verified_against_url: https://phenoscape.org/api/observations
+  verified_at: '2026-07-21T22:34:56.751155Z'
+- artifact_hash: 34f611a30fdc77da268f94a374d680e4515b2401fe9f326b2841cb96f2081775
+  artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: search
+  kind: url
+  value: https://api.gbif.org/v1/occurrence/search`
+  verification_status: pending
+  verified_against_url: https://api.gbif.org/v1/occurrence/search
+  verified_at: '2026-07-21T22:34:56.751155Z'

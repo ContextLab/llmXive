@@ -1,338 +1,183 @@
-"""
-Provenance tracking for data lineage and pipeline execution history.
-
-Records metadata about data sources, transformations, and processing steps
-to ensure reproducibility and auditability.
-"""
 import json
 import hashlib
 import datetime
 import platform
 import sys
+import os
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-from dataclasses import dataclass, asdict, field
-import logging
 
-from .config import get_config
-from .logger import get_logger
-
+from .config import get_config, get_data_path
+from .logger import get_logger, setup_logging
 
 @dataclass
 class ProvenanceRecord:
     """
-    A single provenance record capturing metadata about a data artifact or operation.
+    Represents a single provenance record for a data transformation or analysis step.
     """
-    artifact_id: str
-    artifact_type: str  # e.g., 'raw_data', 'processed_data', 'model', 'manifest'
-    source_type: str    # 'real', 'synthetic', 'derived'
-    created_at: str
-    created_by: str
-    input_artifacts: List[str] = field(default_factory=list)
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    checksum: Optional[str] = None
-    file_path: Optional[str] = None
-    notes: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return asdict(self)
-    
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize to JSON string."""
-        return json.dumps(self.to_dict(), indent=indent, default=str)
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProvenanceRecord':
-        """Create from dictionary."""
-        return cls(**data)
+    timestamp: str
+    step_name: str
+    input_files: List[str]
+    output_files: List[str]
+    parameters: Dict[str, Any]
+    code_hash: Optional[str] = None
+    environment: Dict[str, str] = field(default_factory=dict)
+    success: bool = True
+    error_message: Optional[str] = None
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "timestamp": self.timestamp,
+            "step_name": self.step_name,
+            "input_files": self.input_files,
+            "output_files": self.output_files,
+            "parameters": self.parameters,
+            "code_hash": self.code_hash,
+            "environment": self.environment,
+            "success": self.success,
+            "error_message": self.error_message
+        }
+
+    def compute_hash(self) -> str:
+        """Computes a SHA256 hash of the record for integrity checking."""
+        record_str = json.dumps(self.to_dict(), sort_keys=True, default=str)
+        return hashlib.sha256(record_str.encode('utf-8')).hexdigest()
 
 @dataclass
 class PipelineRun:
     """
-    Tracks a complete pipeline execution run.
+    Aggregates provenance records for a single execution of the pipeline.
     """
     run_id: str
-    started_at: str
-    ended_at: Optional[str] = None
+    start_time: str
+    end_time: Optional[str] = None
     status: str = "running"  # running, completed, failed
-    config_snapshot: Dict[str, Any] = field(default_factory=dict)
-    steps: List[Dict[str, Any]] = field(default_factory=list)
-    artifacts_created: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return asdict(self)
-    
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize to JSON string."""
-        return json.dumps(self.to_dict(), indent=indent, default=str)
+    records: List[ProvenanceRecord] = field(default_factory=list)
+    system_info: Dict[str, str] = field(default_factory=dict)
 
+    def __post_init__(self):
+        if not self.system_info:
+            self.system_info = {
+                "python_version": platform.python_version(),
+                "platform": platform.platform(),
+                "hostname": platform.node(),
+                "cwd": os.getcwd()
+            }
+
+    def add_record(self, record: ProvenanceRecord):
+        self.records.append(record)
+
+    def finish(self, status: str = "completed"):
+        self.end_time = datetime.datetime.now().isoformat()
+        self.status = status
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "run_id": self.run_id,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "status": self.status,
+            "system_info": self.system_info,
+            "records": [r.to_dict() for r in self.records]
+        }
+
+    def save(self, filepath: str):
+        with open(filepath, 'w') as f:
+            json.dump(self.to_dict(), f, indent=2)
 
 class ProvenanceTracker:
     """
-    Centralized provenance tracking system.
-    
-    Manages records of data lineage, transformations, and pipeline execution.
+    Singleton-like tracker for managing pipeline provenance across modules.
     """
-    
-    def __init__(self, manifest_dir: Optional[Path] = None):
-        """
-        Initialize the provenance tracker.
-        
-        Args:
-            manifest_dir: Directory to store provenance manifests. Defaults to data/manifests.
-        """
-        self.logger = get_logger("provenance")
-        config = get_config()
-        
-        if manifest_dir is None:
-            from .config import get_data_path
-            data_path = get_data_path()
-            manifest_dir = data_path / "manifests"
-        
-        self.manifest_dir = Path(manifest_dir)
-        self.manifest_dir.mkdir(parents=True, exist_ok=True)
-        
-        self.current_run: Optional[PipelineRun] = None
-        self.records: List[ProvenanceRecord] = []
-        self._run_counter = 0
-        
-        self.logger.info("Provenance tracker initialized. Manifest dir: %s", self.manifest_dir)
-    
-    def start_run(self, run_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None) -> str:
-        """
-        Start a new pipeline run.
-        
-        Args:
-            run_id: Optional custom run ID. If None, generates one.
-            config: Optional configuration snapshot to record.
-        
-        Returns:
-            The run ID.
-        """
-        if run_id is None:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            self._run_counter += 1
-            run_id = f"run_{timestamp}_{self._run_counter}"
-        
-        self.current_run = PipelineRun(
-            run_id=run_id,
-            started_at=datetime.datetime.now().isoformat(),
-            config_snapshot=config or {}
-        )
-        
-        self.logger.info("Started pipeline run: %s", run_id)
-        return run_id
-    
-    def end_run(self, status: str = "completed", error: Optional[str] = None) -> None:
-        """
-        End the current pipeline run.
-        
-        Args:
-            status: Final status ('completed' or 'failed').
-            error: Optional error message if failed.
-        """
-        if self.current_run is None:
-            self.logger.warning("No active run to end")
-            return
-        
-        self.current_run.ended_at = datetime.datetime.now().isoformat()
-        self.current_run.status = status
-        
-        if error:
-            self.current_run.errors.append(error)
-        
-        self._save_run()
-        self.logger.info("Ended pipeline run: %s with status: %s", self.current_run.run_id, status)
-    
-    def add_step(self, step_name: str, step_type: str, parameters: Dict[str, Any] = None) -> None:
-        """
-        Record a pipeline step execution.
-        
-        Args:
-            step_name: Name of the step.
-            step_type: Type of step (e.g., 'download', 'preprocess', 'analyze').
-        """
-        if self.current_run is None:
-            self.logger.warning("No active run to add step to")
-            return
-        
-        step_record = {
-            "step_name": step_name,
-            "step_type": step_type,
-            "parameters": parameters or {},
-            "executed_at": datetime.datetime.now().isoformat(),
-            "status": "completed"
-        }
-        
-        self.current_run.steps.append(step_record)
-        self.logger.debug("Added step: %s", step_name)
-    
-    def record_artifact(
-        self,
-        artifact_id: str,
-        artifact_type: str,
-        source_type: str,
-        file_path: Union[str, Path],
-        checksum: Optional[str] = None,
-        input_artifacts: Optional[List[str]] = None,
-        parameters: Optional[Dict[str, Any]] = None,
-        notes: Optional[str] = None
-    ) -> ProvenanceRecord:
-        """
-        Record the creation of a new artifact.
-        
-        Args:
-            artifact_id: Unique identifier for the artifact.
-            artifact_type: Type of artifact (e.g., 'raw_data', 'processed_data').
-            source_type: Source type ('real', 'synthetic', 'derived').
-            file_path: Path to the artifact file.
-            checksum: Optional SHA256 checksum.
-            input_artifacts: List of input artifact IDs used to create this one.
-            parameters: Parameters used in creation.
-            notes: Optional notes.
-        
-        Returns:
-            The created ProvenanceRecord.
-        """
-        record = ProvenanceRecord(
-            artifact_id=artifact_id,
-            artifact_type=artifact_type,
-            source_type=source_type,
-            created_at=datetime.datetime.now().isoformat(),
-            created_by=self._get_creator_info(),
-            input_artifacts=input_artifacts or [],
-            parameters=parameters or {},
-            checksum=checksum,
-            file_path=str(file_path),
-            notes=notes
-        )
-        
-        self.records.append(record)
-        
-        if self.current_run:
-            self.current_run.artifacts_created.append(artifact_id)
-        
-        self.logger.info("Recorded artifact: %s (type: %s, source: %s)", 
-                       artifact_id, artifact_type, source_type)
-        
-        return record
-    
-    def compute_checksum(self, file_path: Union[str, Path]) -> str:
-        """
-        Compute SHA256 checksum of a file.
-        
-        Args:
-            file_path: Path to the file.
-        
-        Returns:
-            Hex string of the SHA256 checksum.
-        """
-        sha256_hash = hashlib.sha256()
-        file_path = Path(file_path)
-        
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        return sha256_hash.hexdigest()
-    
-    def save_manifest(self, manifest_name: str = "provenance_manifest.json") -> Path:
-        """
-        Save all provenance records to a manifest file.
-        
-        Args:
-            manifest_name: Name of the manifest file.
-        
-        Returns:
-            Path to the saved manifest file.
-        """
-        manifest_path = self.manifest_dir / manifest_name
-        
-        manifest_data = {
-            "generated_at": datetime.datetime.now().isoformat(),
-            "run_id": self.current_run.run_id if self.current_run else None,
-            "total_records": len(self.records),
-            "records": [r.to_dict() for r in self.records]
-        }
-        
-        with open(manifest_path, "w") as f:
-            json.dump(manifest_data, f, indent=2, default=str)
-        
-        self.logger.info("Saved provenance manifest: %s", manifest_path)
-        return manifest_path
-    
-    def _get_creator_info(self) -> str:
-        """Get information about the creator/environment."""
-        return f"{platform.system()}|{platform.python_version()}|{sys.executable}"
-    
-    def _save_run(self) -> None:
-        """Save the current run record."""
-        if self.current_run is None:
-            return
-        
-        run_path = self.manifest_dir / f"run_{self.current_run.run_id}.json"
-        
-        with open(run_path, "w") as f:
-            f.write(self.current_run.to_json())
-        
-        self.logger.debug("Saved run record: %s", run_path)
+    _instance: Optional['ProvenanceTracker'] = None
+    _current_run: Optional[PipelineRun] = None
 
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self.logger = get_logger("provenance")
+        self._initialized = True
+
+    def start_run(self, run_id: Optional[str] = None) -> PipelineRun:
+        """Starts a new pipeline run."""
+        if run_id is None:
+            run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        self._current_run = PipelineRun(run_id=run_id, start_time=datetime.datetime.now().isoformat())
+        self.logger.info(f"Starting pipeline run: {run_id}")
+        return self._current_run
+
+    def get_current_run(self) -> Optional[PipelineRun]:
+        return self._current_run
+
+    def record_step(self, step_name: str, inputs: List[str], outputs: List[str], 
+                    params: Dict[str, Any], success: bool = True, error: Optional[str] = None):
+        """Records a single step's provenance."""
+        if not self._current_run:
+            raise RuntimeError("No active pipeline run. Call start_run() first.")
+        
+        record = ProvenanceRecord(
+            timestamp=datetime.datetime.now().isoformat(),
+            step_name=step_name,
+            input_files=inputs,
+            output_files=outputs,
+            parameters=params,
+            success=success,
+            error_message=error
+        )
+        
+        self._current_run.add_record(record)
+        self.logger.log_provenance_event(step_name, {
+            "inputs": inputs,
+            "outputs": outputs,
+            "success": success
+        })
+
+    def finish_run(self, status: str = "completed"):
+        """Finalizes the current run and saves the manifest."""
+        if not self._current_run:
+            self.logger.warning("No active run to finish.")
+            return
+
+        self._current_run.finish(status)
+        
+        try:
+            data_path = get_data_path()
+            manifest_dir = Path(data_path) / "manifests"
+            manifest_dir.mkdir(parents=True, exist_ok=True)
+            
+            filepath = manifest_dir / f"provenance_{self._current_run.run_id}.json"
+            self._current_run.save(str(filepath))
+            self.logger.info(f"Provenance manifest saved to {filepath}")
+        except Exception as e:
+            self.logger.error(f"Failed to save provenance manifest: {e}")
+            raise
+
+    def reset(self):
+        """Resets the tracker state."""
+        self._current_run = None
 
 # Global tracker instance
 _tracker: Optional[ProvenanceTracker] = None
 
-
 def get_provenance_tracker() -> ProvenanceTracker:
-    """
-    Get or create the global provenance tracker instance.
-    
-    Returns:
-        ProvenanceTracker instance.
-    """
+    """Returns the global provenance tracker instance."""
     global _tracker
     if _tracker is None:
         _tracker = ProvenanceTracker()
     return _tracker
 
-
-def record_provenance(
-    artifact_id: str,
-    artifact_type: str,
-    source_type: str,
-    file_path: Union[str, Path],
-    checksum: Optional[str] = None,
-    input_artifacts: Optional[List[str]] = None,
-    parameters: Optional[Dict[str, Any]] = None,
-    notes: Optional[str] = None
-) -> ProvenanceRecord:
+def record_provenance(step_name: str, inputs: List[str], outputs: List[str], 
+                      params: Dict[str, Any], success: bool = True, error: Optional[str] = None):
     """
-    Convenience function to record artifact provenance.
-    
-    Args:
-        artifact_id: Unique identifier for the artifact.
-        artifact_type: Type of artifact.
-        source_type: Source type ('real', 'synthetic', 'derived').
-        file_path: Path to the artifact file.
-        checksum: Optional SHA256 checksum.
-        input_artifacts: List of input artifact IDs.
-        parameters: Parameters used in creation.
-        notes: Optional notes.
-    
-    Returns:
-        The created ProvenanceRecord.
+    Convenience function to record a step without manually managing the tracker.
     """
     tracker = get_provenance_tracker()
-    return tracker.record_artifact(
-        artifact_id=artifact_id,
-        artifact_type=artifact_type,
-        source_type=source_type,
-        file_path=file_path,
-        checksum=checksum,
-        input_artifacts=input_artifacts,
-        parameters=parameters,
-        notes=notes
-    )
+    tracker.record_step(step_name, inputs, outputs, params, success, error)

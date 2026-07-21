@@ -1,1 +1,5 @@
-# Placeholder for analysis modules to be implemented in T018-T030
+"""
+Analysis modules for differential expression, modeling, and validation.
+
+Includes DE analysis, feature engineering, modeling, and statistical validation.
+"""

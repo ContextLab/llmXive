@@ -1,10 +1,3 @@
-"""
-Synthetic data generator for testing the preprocessing pipeline.
-
-Generates structurally valid synthetic FASTQ-like count data and TPM matrices
-to satisfy Constitution VI (provenance, checksums) and allow testing of
-batch correction and QC logic without external dependencies.
-"""
 import os
 import json
 import hashlib
@@ -12,161 +5,319 @@ import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-import sys
+from typing import Dict, List, Optional, Tuple, Any
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Import existing utilities to maintain API surface
+from src.utils.logger import get_logger
+from src.utils.config import get_config, get_housekeeping_genes, get_seed
+from src.utils.schemas import ManifestEntry, ProvenanceInfo
 
-from src.utils.config import get_data_path, get_housekeeping_genes
-from src.utils.schemas import ProvenanceInfo, ManifestEntry, DataManifest, compute_sha256, create_manifest_entry
+logger = get_logger(__name__)
 
-def generate_synthetic_counts(
-    n_genes: int = 5000,
-    n_samples: int = 10,
-    n_batches: int = 2,
-    seed: int = 42,
-    output_dir: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Generates a synthetic count matrix resembling RNA-seq output from featureCounts.
-    
-    Args:
-        n_genes: Number of genes to simulate.
-        n_samples: Number of samples.
-        n_batches: Number of batches to simulate (for batch correction testing).
-        seed: Random seed for reproducibility.
-        output_dir: Directory to save the CSV file.
-        
-    Returns:
-        pandas DataFrame with genes as index and samples as columns.
-    """
-    np.random.seed(seed)
-    
-    # Generate gene names
-    gene_names = [f"Gene_{i}" for i in range(n_genes)]
-    
-    # Generate sample names
-    sample_names = [f"Sample_{i}" for i in range(n_samples)]
-    
-    # Generate counts using negative binomial distribution (common for RNA-seq)
-    # n=5, p=0.3 gives a reasonable mean/variance relationship
-    counts_data = np.random.negative_binomial(n=5, p=0.3, size=(n_genes, n_samples))
-    
-    # Create DataFrame
-    df = pd.DataFrame(counts_data, index=gene_names, columns=sample_names)
-    
-    # Add batch effect to a subset of genes (e.g., housekeeping genes)
-    # This ensures the batch correction step has something to correct
-    hk_genes = get_housekeeping_genes()
-    for gene in hk_genes:
-        if gene in df.index:
-            # Add a systematic shift based on batch
-            batch_idx = [i // (n_samples // n_batches) for i in range(n_samples)]
-            shift = np.array([1000 if b == 1 else 0 for b in batch_idx])
-            df.loc[gene] += shift
-    
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "synthetic_counts.csv"
-        df.to_csv(output_file)
-    
-    return df
+def _calculate_sha256(file_path: str) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def generate_synthetic_fastq_study(
-    study_name: str = "synthetic_study_001",
-    n_samples: int = 10,
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Generates a synthetic study structure including FASTQ-like files (mocked as text)
-    and a manifest.
-    
-    Since we cannot generate real FASTQ without a sequencer, we generate text files
-    that mimic the structure and checksum requirements.
-    
-    Returns:
-        Dictionary containing paths to generated files and manifest info.
-    """
-    base_dir = output_dir or Path(get_data_path()) / "raw"
-    base_dir.mkdir(parents=True, exist_ok=True)
-    
-    manifest_entries = []
-    generated_files = []
-    
-    for i in range(n_samples):
-        file_name = f"{study_name}_sample_{i}.fastq.gz"
-        file_path = base_dir / file_name
-        
-        # Generate a mock FASTQ content (4 lines per read, repeated)
-        # This is not real sequence data but satisfies the file existence and checksum requirement
-        content_lines = []
-        for j in range(100): # 100 reads
-            content_lines.append(f"@READ_{i}_{j}")
-            content_lines.append("ACGT" * 25) # 100bp sequence
-            content_lines.append("+")
-            content_lines.append("!" * 100) # Quality scores
-        
-        content = "\n".join(content_lines)
-        with open(file_path, 'w') as f:
-            f.write(content)
-        
-        # Calculate checksum
-        checksum = compute_sha256(file_path)
-        
-        entry = create_manifest_entry(
-            file_name=file_name,
-            file_path=str(file_path),
-            source_type="synthetic",
-            provenance={
-                "generated_at": datetime.datetime.now().isoformat(),
-                "tool_versions": {
-                    "python": f"{sys.version_info.major}.{sys.version_info.minor}",
-                    "numpy": np.__version__
-                }
-            }
-        )
-        manifest_entries.append(entry)
-        generated_files.append(str(file_path))
-    
-    # Write manifest
-    manifest = DataManifest(entries=manifest_entries)
-    manifest_path = base_dir.parent / "manifests" / f"{study_name}_manifest.json"
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(manifest_path, 'w') as f:
-        f.write(manifest.model_dump_json(indent=2))
-    
+def _get_tool_versions() -> Dict[str, str]:
+    """Get versions of relevant tools for provenance."""
     return {
-        "study_name": study_name,
-        "files": generated_files,
-        "manifest_path": str(manifest_path)
+        "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+        "numpy": np.__version__,
+        "pandas": pd.__version__,
     }
 
-def calculate_tpm_from_counts(counts_df: pd.DataFrame, lengths: Optional[pd.Series] = None) -> pd.DataFrame:
+def generate_synthetic_counts(
+    n_genes: int = 2000,
+    n_samples: int = 50,
+    n_studies: int = 3,
+    output_dir: Optional[str] = None,
+    seed: Optional[int] = None,
+) -> Tuple[Dict[str, pd.DataFrame], str]:
     """
-    Calculates TPM (Transcripts Per Million) from a count matrix.
+    Generate structurally valid synthetic TPM count matrices.
+
+    This function creates synthetic expression data that mimics real RNA-seq
+    TPM matrices. It generates multiple "studies" (simulating batch effects)
+    with varying sample sizes and gene expression patterns.
+
+    Args:
+        n_genes: Number of genes to generate
+        n_samples: Total number of samples across all studies
+        n_studies: Number of distinct studies (batches) to simulate
+        output_dir: Directory to save the generated CSV files
+        seed: Random seed for reproducibility
+
+    Returns:
+        Tuple of (dict of DataFrames keyed by study name, path to manifest file)
+    """
+    if seed is None:
+        seed = get_seed()
+    
+    np.random.seed(seed)
+    logger.info(f"Generating synthetic counts with seed={seed}")
+    logger.info(f"Parameters: n_genes={n_genes}, n_samples={n_samples}, n_studies={n_studies}")
+
+    # Create output directory if specified
+    if output_dir:
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+    else:
+        # Default to project's synthetic data directory
+        config = get_config()
+        output_path = Path(config.data_dir) / "synthetic"
+        output_path.mkdir(parents=True, exist_ok=True)
+
+    # Housekeeping genes from config
+    housekeeping_genes = get_housekeeping_genes()
+    n_hk = len(housekeeping_genes)
+    
+    # Ensure we have enough genes for housekeeping set
+    if n_genes < n_hk:
+        logger.warning(f"n_genes ({n_genes}) < housekeeping genes ({n_hk}), adjusting n_genes")
+        n_genes = n_hk + 500
+
+    # Gene names
+    gene_names = [f"GENE_{i:05d}" for i in range(n_genes)]
+    # Insert housekeeping genes at specific positions for realism
+    hk_indices = np.random.choice(n_genes, size=min(n_hk, n_genes), replace=False)
+    for i, gene in enumerate(housekeeping_genes[:len(hk_indices)]):
+        gene_names[hk_indices[i]] = gene
+
+    # Study assignments and sample sizes
+    samples_per_study = np.random.randint(10, 30, size=n_studies)
+    total_samples = samples_per_study.sum()
+    if total_samples < n_samples:
+        # Adjust to meet minimum
+        samples_per_study[-1] += (n_samples - total_samples)
+    elif total_samples > n_samples:
+        samples_per_study = samples_per_study[:n_samples]
+    
+    study_names = [f"Study_{i:03d}" for i in range(n_studies)]
+    sample_assignments = []
+    for study, count in zip(study_names, samples_per_study):
+        sample_assignments.extend([study] * count)
+
+    # Generate expression matrix
+    # Base expression levels (log-normal distribution)
+    base_expression = np.random.lognormal(mean=5, sigma=1.5, size=n_genes)
+    
+    # Housekeeping genes have lower variance
+    hk_mask = np.array([g in housekeeping_genes for g in gene_names])
+    hk_base = base_expression[hk_mask] * 1.5  # Slightly higher expression
+    
+    data_dict = {}
+    manifest_entries = []
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    tool_versions = _get_tool_versions()
+
+    for study_name, samples in zip(study_names, samples_per_study):
+        # Create study-specific expression matrix
+        study_matrix = np.zeros((n_genes, samples))
+        
+        for i in range(n_genes):
+            gene_name = gene_names[i]
+            if gene_name in housekeeping_genes:
+                # Housekeeping: stable expression with small batch effect
+                batch_effect = np.random.normal(0, 0.2)
+                study_matrix[i, :] = np.random.lognormal(
+                    mean=np.log(hk_base[list(housekeeping_genes).index(gene_name)]) + batch_effect,
+                    sigma=0.1
+                )
+            else:
+                # Variable genes: higher variance, some batch effect
+                batch_effect = np.random.normal(0, 0.5)
+                study_matrix[i, :] = np.random.lognormal(
+                    mean=np.log(base_expression[i]) + batch_effect,
+                    sigma=1.0
+                )
+        
+        # Ensure non-negative and add small epsilon to avoid zeros
+        study_matrix = np.maximum(study_matrix, 1e-6)
+        
+        # Create DataFrame
+        df = pd.DataFrame(
+            study_matrix.T,
+            columns=gene_names,
+            index=[f"{study_name}_Sample_{j:03d}" for j in range(samples)]
+        )
+        
+        # Add metadata columns (simulating tissue/condition info)
+        tissues = ["Leaf", "Root", "Stem", "Flower"]
+        df["tissue"] = np.random.choice(tissues, size=samples)
+        df["condition"] = np.random.choice(["Control", "Herbivory"], size=samples)
+        
+        # Save to CSV
+        file_name = f"synthetic_{study_name.lower()}.csv"
+        file_path = output_path / file_name
+        df.to_csv(file_path, index=True)
+        
+        logger.info(f"Saved synthetic data for {study_name} to {file_path}")
+        
+        # Calculate checksum
+        checksum = _calculate_sha256(str(file_path))
+        
+        # Create manifest entry
+        entry = {
+            "file_name": file_name,
+            "checksum": checksum,
+            "source_type": "synthetic",
+            "provenance": {
+                "generated_at": timestamp,
+                "tool_versions": tool_versions,
+                "parameters": {
+                    "n_genes": n_genes,
+                    "n_samples": samples,
+                    "n_studies": n_studies,
+                    "seed": seed
+                }
+            }
+        }
+        manifest_entries.append(entry)
+        data_dict[study_name] = df
+
+    # Write manifest
+    manifest_path = output_path / "synthetic_manifest.json"
+    manifest_data = {
+        "manifest_version": "1.0",
+        "generated_at": timestamp,
+        "source_type": "synthetic",
+        "entries": manifest_entries
+    }
+    
+    with open(manifest_path, "w") as f:
+        json.dump(manifest_data, f, indent=2)
+    
+    logger.info(f"Saved manifest to {manifest_path}")
+    
+    return data_dict, str(manifest_path)
+
+def generate_synthetic_fastq_study(
+    study_id: str = "synthetic_001",
+    n_samples: int = 10,
+    read_length: int = 150,
+    output_dir: Optional[str] = None,
+    seed: Optional[int] = None,
+) -> str:
+    """
+    Generate synthetic FASTQ files for testing download pipeline.
+    
+    Note: This is for structural validation only. Real FASTQ generation
+    is not feasible; this creates minimal valid FASTQ structures.
     
     Args:
-        counts_df: DataFrame of raw counts.
-        lengths: Optional Series of gene lengths. If None, assumes uniform length.
-        
+        study_id: Identifier for the study
+        n_samples: Number of samples to generate
+        read_length: Length of reads
+        output_dir: Directory to save FASTQ files
+        seed: Random seed
+
     Returns:
-        DataFrame of TPM values.
+        Path to the study directory
     """
-    if lengths is None:
-        lengths = pd.Series(1000, index=counts_df.index) # Assume 1kb uniform length
+    if seed is None:
+        seed = get_seed()
     
-    # Calculate Reads Per Kilobase (RPK)
-    rpk = counts_df.div(lengths, axis=0) / 1000.0
+    np.random.seed(seed)
     
-    # Calculate scaling factor (per million)
-    scaling_factors = rpk.sum(axis=0) / 1e6
+    if output_dir:
+        output_path = Path(output_dir)
+    else:
+        config = get_config()
+        output_path = Path(config.data_dir) / "synthetic"
     
-    # Calculate TPM
-    tpm = rpk.div(scaling_factors, axis=1)
+    output_path.mkdir(parents=True, exist_ok=True)
+    study_dir = output_path / study_id
+    study_dir.mkdir(exist_ok=True)
+
+    logger.info(f"Generating synthetic FASTQ study: {study_id}")
+
+    for i in range(n_samples):
+        sample_name = f"{study_id}_Sample_{i:03d}"
+        fastq_path = study_dir / f"{sample_name}.fastq"
+        
+        # Generate minimal valid FASTQ (4 lines per read)
+        with open(fastq_path, "w") as f:
+            for read_num in range(100):  # 100 reads per sample
+                read_id = f"@{sample_name}_read_{read_num}"
+                sequence = "".join(np.random.choice(list("ACGT"), size=read_length))
+                plus_line = f"+{sample_name}_read_{read_num}"
+                quality = "".join(np.random.choice(list("!'+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"), size=read_length))
+                
+                f.write(f"{read_id}\n{sequence}\n{plus_line}\n{quality}\n")
+        
+        logger.info(f"Generated synthetic FASTQ: {fastq_path}")
+
+    return str(study_dir)
+
+def calculate_tpm_from_counts(
+    counts_df: pd.DataFrame,
+    gene_lengths: Optional[Dict[str, float]] = None,
+) -> pd.DataFrame:
+    """
+    Convert raw counts to TPM values.
+    
+    Args:
+        counts_df: DataFrame with counts (rows=samples, cols=genes)
+        gene_lengths: Dict mapping gene names to lengths in bp.
+                     If None, uses random lengths.
+    
+    Returns:
+        DataFrame with TPM values
+    """
+    if gene_lengths is None:
+        # Generate random lengths between 500 and 5000 bp
+        gene_lengths = {
+            gene: np.random.uniform(500, 5000) 
+            for gene in counts_df.columns
+        }
+    
+    # Convert to RPK (Reads Per Kilobase)
+    rpk = counts_df.div([gene_lengths[gene] / 1000.0 for gene in counts_df.columns], axis=1)
+    
+    # Calculate scaling factor (per sample)
+    scaling_factors = rpk.sum(axis=1) / 1e6
+    
+    # TPM = RPK / scaling factor
+    tpm = rpk.div(scaling_factors, axis=0)
     
     return tpm
+
+def main():
+    """Main entry point for synthetic data generation."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate synthetic TPM count matrices")
+    parser.add_argument("--n-genes", type=int, default=2000, help="Number of genes")
+    parser.add_argument("--n-samples", type=int, default=50, help="Total number of samples")
+    parser.add_argument("--n-studies", type=int, default=3, help="Number of studies")
+    parser.add_argument("--output-dir", type=str, default=None, help="Output directory")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed")
+    
+    args = parser.parse_args()
+    
+    data_dict, manifest_path = generate_synthetic_counts(
+        n_genes=args.n_genes,
+        n_samples=args.n_samples,
+        n_studies=args.n_studies,
+        output_dir=args.output_dir,
+        seed=args.seed,
+    )
+    
+    print(f"Synthetic data generation complete.")
+    print(f"Generated {len(data_dict)} study matrices.")
+    print(f"Manifest saved to: {manifest_path}")
+    
+    # Verify manifest content
+    with open(manifest_path, "r") as f:
+        manifest = json.load(f)
+    
+    print(f"Manifest contains {len(manifest['entries'])} entries.")
+    for entry in manifest['entries']:
+        print(f"  - {entry['file_name']}: {entry['checksum'][:16]}...")
+
+if __name__ == "__main__":
+    main()
