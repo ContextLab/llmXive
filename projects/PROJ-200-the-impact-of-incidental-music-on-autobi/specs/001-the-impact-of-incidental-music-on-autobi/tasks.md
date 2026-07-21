@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (`pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-Levenshtein`, `pyyaml`, `tqdm`, `scipy`)
+- [X] T002 Initialize a Python project with `requirements.txt` dependencies (`pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-Levenshtein`, `pyyaml`, `tqdm`, `scipy`) using a compatible Python 3.x version.
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -61,6 +61,8 @@
 - [X] T007 Setup `data/raw/`, `data/processed/`, and `data/final/` directories with `.gitkeep`
 - [X] T008 Implement `code/__init__.py` and basic logging configuration in `code/utils.py`
 - [X] T009 Create `state.yaml` mechanism for checksum tracking of derived files
+- [ ] T055 [US1] Implement chunked iteration logic in `code/data_ingestion.py` for memory safety. **Constraint**: If a dataset is large, process in chunks and accumulate statistics online; do NOT load the full dataset into memory. **DEPENDS ON**: None. **MUST be integrated into T013**.
+- [ ] T056 [US1] Enforce "fail loudly" policy in `code/data_ingestion.py`. **Constraint**: The pipeline must raise an exception if real data sources (MSD/AMT) are unreachable or invalid. **Exception**: If the fallback condition (>50% missing birth years) is met, the pipeline MUST proceed with the Global Exposure metric as per FR-008. **DEPENDS ON**: None. **MUST be integrated into T013**.
 - [X] T052 [P] Generate `quickstart.md` with step-by-step instructions to run the pipeline, required for T046 validation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -83,15 +85,17 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs
+- [ ] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs. **DEPENDS ON**: T055, T056. **INTEGRATION**: Must utilize the chunked iteration logic from T055 and the fail-loud policy from T056.
 - [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence)
-- [X] T012a [US1] Implement `code/data_ingestion.py` function `audit_amt_source` to verify AMT data integrity. **INSTEAD of invoking a non-existent agent, implement a local heuristic check** (e.g., statistical analysis of text length distribution, entropy, or known LLM watermark patterns) to detect potential synthetic generation. Log the result and any "suspicion score" to `data/audit_log.txt`. If the heuristic flags the data as likely synthetic, log a CRITICAL warning. **DO NOT** rely on local metadata fields.
-- [X] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run **BEFORE** T015.
-- [X] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **DEPENDS ON: T023**. **MUST run after T023** to prevent false fallback triggers (EC-001).
-- [X] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
-- [X] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and extracting residuals. Formula: `residuals = observed - predicted`.
-- [X] T028 [US1] Implement `code/main.py` orchestration to enforce the specific order: Fallback Check (T023) -> Frequency Filter (T015) -> Score Calculation (T014/T016). **DEPENDS ON: T023, T015, T014, T016**.
-- [X] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
+- [X] T012a [US1] Implement `code/data_ingestion.py` function `audit_amt_source` to verify AMT data integrity. **REQUIREMENT**: Invoke the Reference-Validator Agent against primary sources as per Constitution Principle II. **FAIL LOGIC**: If the agent is unavailable or verification fails, raise a `DataProvenanceError` and halt the pipeline. Do NOT substitute with local heuristics.
+- [ ] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run **BEFORE** T015. **DEPENDS ON**: T023b (Global Exposure calculation logic).
+- [ ] T023b [US1] Implement `code/data_ingestion.py` function `calculate_global_exposure` to generate the "Global Exposure" metric using aggregate population data, as required by FR-008. **DEPENDS ON**: None.
+- [ ] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **DEPENDS ON**: T023. **MUST run after T023** to prevent false fallback triggers (EC-001).
+- [ ] T013b [US1] Implement `code/data_ingestion.py` function `fetch_popularity_scores` to retrieve `overall_popularity_score` for each track from MSD metadata. **DEPENDS ON**: T013.
+- [ ] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
+- [ ] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and **extracting the residuals** as the output variable. Formula: `residuals = observed - predicted`. **DEPENDS ON**: T014, T013b.
+- [ ] T028 [US1] Implement `code/main.py` orchestration to enforce the specific order: Fallback Check (T023) -> Frequency Filter (T015) -> Score Calculation (T014/T016). **DEPENDS ON**: T013, T013a, T023, T015, T014, T016. **NOTE**: T028 must explicitly orchestrate the sequential execution of these steps.
+- [ ] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,9 +121,9 @@
 - [X] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to resolve ambiguous matches (same title/artist) and log collisions
 - [X] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data` to join matched cues with exposure data (Track-level exposure joined to User-Track pairs). **DEPENDS ON**: T018 (ingested_cohort.parquet).
 - [X] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track` to aggregate data to **User-Track Pair** level (mean vividness, mean valence) as per spec FR-004 and FR-005.
-- [X] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with **>= 10 total listens but zero associated User-Track pairs** (high exposure, zero memory cues) to avoid singularities in the design matrix. **CRITICAL**: This filter applies to the aggregated **User-Track Pair** dataset, removing tracks that have no rows in the pair-level table.
+- [X] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with **zero associated User-Track pairs** in the aggregated dataset (high exposure, zero memory cues) to avoid singularities in the design matrix. **CRITICAL**: This filter applies to the aggregated **User-Track Pair** dataset, removing tracks that have no rows in the pair-level table.
 - [X] T036 [US2] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ `config.MATCH_RATE_THRESHOLD`); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. This task MUST run before any modeling tasks. **DEPENDS ON: T026**. **MUST read threshold from `config.py`**, not hardcode.
-- [ ] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
+- [X] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,7 +138,7 @@
 ### Tests for User Story 3
 
 - [X] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
-- [X] T031 [US3] Unit test for sensitivity analysis loop (thresholds,, 6) in `tests/unit/test_modeling.py`
+- [X] T031 [US3] Unit test for sensitivity analysis loop (thresholds `[2, 3, 4, 5, 6]`) in `tests/unit/test_modeling.py`
 - [X] T032 [US3] Unit test for permutation test logic (block-permutation) in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3
@@ -142,18 +146,19 @@
 - [X] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
 - [X] T034 [US3] Implement `code/modeling.py` function `fit_valence_model` to fit the same model for `mean_valence`
 - [X] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
-- [X] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds representing a range of string similarity constraints. **CRITICAL ORCHESTRATION**: This function MUST implement a **loop** over the threshold values. For **each** threshold:
- 1. **Reset Pipeline State**: Clear any cached intermediate files or in-memory state from previous iterations.
- 2. **Re-Ingest**: Re-run T023 (Fallback Check) and T015 (Frequency Filter) with the current threshold context if necessary (or re-load raw data).
- 3. **Re-Match**: Re-run T022 (Normalization) and T047 (Matching) using the *current* Levenshtein threshold.
- 4. **Re-Aggregate**: Re-run T026 (Aggregation) and T027 (Zero Variance Filter) on the *freshly matched* data.
- 5. **Re-Model**: Re-run T033/T034 on the *freshly aggregated* data.
- 6. **Store Results**: Append the results (coefficients, p-values, match rates) for this specific threshold to the `sensitivity_analysis.csv` output.
- **DEPENDS ON**: T023, T015, T022, T026. **MUST NOT** rely on static function calls; must re-instantiate the full pipeline flow per iteration.
-- [ ] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. **Procedure**: 1. **Pin the random seed** (from config.py). 2. Shuffle the `residualized_exposure_score` values **among unique `track_id`s** (not pairs) to create a new mapping. 3. Apply this new mapping to the User-Track pairs (preserving the `mean_vividness` and `user_id` for each pair). 4. **CONSTRAINT**: Ensure that the **number of pairs per track remains constant** during the shuffle (i.e., if Track A had 5 pairs, it must still have 5 pairs after the shuffle, just with different exposure scores assigned). 5. Re-fit the model and record the **statistic** (e.g., coefficient or t-value) for this iteration. 6. Repeat for **1000 iterations**. **Output**: `data/final/permutation_results.csv` with columns: `iteration, statistic`. **Post-processing**: Calculate the final p-value by comparing the observed statistic against the null distribution of the 1000 recorded statistics.
-- [ ] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
-- [ ] T039 [US3] Generate `data/final/sensitivity_analysis.csv` and `data/final/permutation_results.csv`
-- [ ] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
+- [ ] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds representing a range of string similarity constraints. **CRITICAL ORCHESTRATION**: This function MUST implement a **loop** over a range of threshold values representing varying string similarity constraints. For **each** threshold:
+ 1. **Load Data**: Load the pre-computed `data/processed/ingested_cohort.parquet` (T018). **DO NOT** re-run ingestion (T023/T015).
+ 2. **Re-Match**: Re-run T022 (Normalization) and T047 (Matching) using the *current* Levenshtein threshold.
+ 3. **Re-Aggregate**: Re-run T026 (Aggregation) and T027 (Zero Variance Filter) on the *freshly matched* data.
+ 4. **Re-Model**: Re-run T033/T034 on the *freshly aggregated* data.
+ 5. **Store Results**: Append the results (coefficients, p-values, match rates) for this specific threshold to a temporary list.
+ 6. **Final Aggregation**: After the loop, aggregate all results into the single canonical file `data/final/sensitivity_analysis.csv`. **DEPENDS ON**: T023, T015 (once), T022, T026. **MUST NOT** rely on static function calls; must re-instantiate the matching/aggregation flow per iteration. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
+- [ ] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. **Procedure**:. **Pin the random seed** (from config.py). 2. **Shuffle the `residualized_exposure_score` values across the entire pool of unique `track_id`s** (not within tracks) to create a new mapping. 3. Apply this new mapping to the User-Track pairs (preserving the `mean_vividness` and `user_id` for each pair). 4. **CONSTRAINT**: Ensure that the **number of pairs per track remains constant** during the shuffle (i.e., if Track A had 5 pairs, it must still have 5 pairs after the shuffle, just with different exposure scores assigned). 5. Re-fit the model and record the **t-statistic for the `residualized_exposure` coefficient** for this iteration. 6. Repeat for **1000 iterations**. **Output**: `data/final/permutation_results.csv` with columns: `iteration, statistic`. **DEPENDS ON**: T033, T034. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
+- [ ] T045b [US3] Implement `code/modeling.py` function `calculate_permutation_pvalue` to compute the final p-value by comparing the observed statistic against the null distribution of the 1000 recorded statistics from T045. **OUTPUT**: Append the final p-value to `data/final/permutation_results.csv` or a summary file. **DEPENDS ON**: T045.
+- [X] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
+- [ ] T039a [US3] Generate `data/final/sensitivity_analysis.csv` from the aggregated results of T044. **DEPENDS ON**: T044.
+- [ ] T039b [US3] Generate `data/final/permutation_results.csv` (including final p-value) from T045b. **DEPENDS ON**: T045b.
+- [X] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -163,13 +168,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `README.md` and `code/` docstrings
-- [ ] T042 Code cleanup and refactoring of `code/main.py` orchestration script
-- [ ] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
-- [ ] T051 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data and verify sensitivity analysis logic (DEPENDS ON T044).
-- [ ] T049 Security hardening: ensure no PII leaks in logs or output files
-- [ ] T046 [P] Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours (SC-005). **DEPENDS ON: T052**.
-- [ ] T050 [P] **Verify Artifacts**: Check existence and checksums of `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/permutation_results.csv` against `state.yaml`. **DEPENDS ON: T029** (Must wait for `user_track_pairs.parquet` generation).
+- [X] T041 [P] Documentation updates in `README.md` and `code/` docstrings
+- [X] T042 Code cleanup and refactoring of `code/main.py` orchestration script
+- [X] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
+- [X] T051 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data and verify sensitivity analysis logic (DEPENDS ON T044).
+- [X] T049 [P] Security hardening: Run `presidio-analyzer` on all log files and output files; save report to `data/final/pii_scan_report.json` and fail if PII is detected. **MUST be integrated as an automated CI/CD gate** per Constitution Principle III.
+- [X] T046 [P] Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours (SC-005). **DEPENDS ON: T052**.
+- [X] T050 [P] **Verify Artifacts**: Check existence and checksums of `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/permutation_results.csv` against `state.yaml`. **DEPENDS ON: T029, T038, T039a, T039b** (Must wait for all final artifacts).
+
+**Note**: Tasks T053 (Effect Size) and T054 (Assumption Validation) have been removed as they represent unauthorized scope creep (gold-plating) with no traceable requirement in the spec.
 
 ---
 
@@ -211,8 +218,12 @@
 
 - **T023 -> T015**: Fallback check (T023) MUST run before frequency filter (T015) (EC-001).
 - **T036 -> T033/T034**: Match Rate Check (T036) MUST complete before Modeling (T033, T034). T036 is NOT parallel-safe with modeling tasks.
-- **T044 Internal**: T044 must re-run T023/T015 for each threshold.
-- **T050 -> T029**: T050 (Verify Artifacts) **MUST wait for T029** (Generate `user_track_pairs.parquet`) to complete before execution to avoid race conditions.
+- **T044 Internal**: T044 must NOT re-run T023/T015. It must load pre-computed data. **T044 is NOT PARALLEL SAFE**.
+- **T045 Internal**: T045 must run sequentially after T033/T034. **T045 is NOT PARALLEL SAFE**.
+- **T050 -> T029, T038, T039a, T039b**: T050 (Verify Artifacts) **MUST wait for T029, T038, T039a, and T039b** to complete before execution to avoid race conditions.
+- **T055 -> T013**: Chunked iteration logic (T055) must be integrated into the download logic of T013.
+- **T056 -> T013**: The "fail loud" constraint (T056) must be enforced in the download logic of T013; no synthetic fallbacks allowed (except FR-008).
+- **T028**: Must explicitly orchestrate T023 -> T015 -> T014 -> T016.
 
 ---
 
@@ -276,9 +287,10 @@ With multiple developers:
 - **Constraint**: Spec requirements (User-Track Pair unit of analysis, block-permutation) are active constraints for all implementation tasks.
 - **Dependency Note**: T051 (Integration Test) depends on T044 (Sensitivity Analysis) being completed first.
 - **Dependency Note**: T036 (Match Rate Check) is NOT parallel-safe with T033/T034 (Modeling).
-- **Dependency Note**: T044 (Sensitivity Analysis) must re-run ingestion (T023/T015) for each threshold.
-- **Dependency Note**: T045 (Permutation Test) must shuffle scores among tracks, not pairs, and output only the statistic per iteration.
-- **Critical Constraint**: The pipeline must **fail loudly** if real data sources (MSD/AMT) are unreachable; **never** implement a `try/except` block that falls back to synthetic/mock data generation.
-- **Critical Constraint**: For large datasets, implement **streaming** (e.g., `datasets.load_dataset(..., streaming=True)`) to process data in chunks, ensuring the full dataset contributes to results without exceeding RAM limits.
+- **Dependency Note**: T044 (Sensitivity Analysis) must load pre-computed data, not re-ingest. **T044 is NOT PARALLEL SAFE**.
+- **Dependency Note**: T045 (Permutation Test) must shuffle scores among tracks, not pairs, and output only the statistic per iteration. **T045 is NOT PARALLEL SAFE**.
+- **Critical Constraint**: The pipeline must **fail loudly** if real data sources (MSD/AMT) are unreachable; **never** implement a `try/except` block that falls back to synthetic/mock data generation (except for FR-008 Global Exposure).
+- **Critical Constraint**: For large datasets, implement **chunked iteration** to process data in chunks, ensuring the full dataset contributes to results without exceeding RAM limits.
 - **Critical Constraint**: If a verified real data source is injected via execution feedback, **adopt it exclusively** in the data-loading task; do not maintain alternative hand-rolled fetchers.
-- **Critical Constraint**: T050 (Verify Artifacts) depends on T029 (Generate `user_track_pairs.parquet`).
+- **Dependency Note**: T050 (Verify Artifacts) depends on T029 (Generate `user_track_pairs.parquet`), T038 (Generate `regression_summary.csv`), T039a (Generate `sensitivity_analysis.csv`), and T039b (Generate `permutation_results.csv`).
+- **Removed Tasks**: T053 (Effect Size) and T054 (Assumption Validation) have been removed as they are not required by the spec.

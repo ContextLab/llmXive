@@ -7,13 +7,10 @@ T012a:
     \ absent. These missing artifacts mean the task\u2019s requirement is not satisfied."
 T029:
   c: false
-  h: 1ce8045775353c27966d6476ba7b2fe9a1fcc413ee83778250ddf110167a4e07
-  r: "The required artifact `data/processed/user_track_pairs.parquet` is absent from\
-    \ the repository (the file does not exist), so no real dataset or checksum can\
-    \ be verified. Although `state.yaml` lists an entry for the file, the actual Parquet\
-    \ file is missing, violating the task requirement. The implementer must create\
-    \ the Parquet file (non\u2011empty) and ensure its checksum matches the entry\
-    \ in `state.yaml`."
+  h: a48afb0ffb0c82bc6730b15602162da6502cd2cc8bda24d0cefbffce4ce55282
+  r: The required `data/processed/user_track_pairs.parquet` file does not exist, and
+    `state.yaml` has not been updated with a checksum or entry for this file. Both
+    artifacts are missing, so the task is not satisfied.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,11 +22,11 @@ T043:
     \ processing, or logs) that verifies chunking is employed for >5\u202FGB datasets."
 T045:
   c: false
-  h: 60d11ede67d3deef08272d7e2b811d30c943559f1c481f8b06c6b503d823fed7
-  r: The repository lacks a `run_permutation_test` implementation in `code/modeling.py`
-    (the shown code ends inside `fit_mixed_model` and never defines the required function),
-    and the expected output file `data/final/permutation_results.csv` does not exist.
-    Both the core function and its result artifact are missing.
+  h: b0cadc3773eb2d708c6ca0eafdbd4771b83ae5c64c2c266697061974c220abfc
+  r: "The provided `code/modeling.py` excerpt does not contain a `run_permutation_test`\
+    \ function (the file is truncated before any such implementation) and the required\
+    \ output file `data/final/permutation_results.csv` is absent. Consequently the\
+    \ block\u2011permutation test, 1000 iterations, and result CSV are not present."
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
