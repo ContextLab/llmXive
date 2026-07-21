@@ -1,0 +1,170 @@
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Configuration manages seeds of 42 and N=200 examples
+  claim_id: c_d6add866
+  context: T007 Implement code/config.py to manage paths, seeds (42), and hyperparameters
+    (N=200 examples, MLP config, SHAP threshold placeholder).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/config.py to manage paths, seeds (42), and hyperparameters
+    (N=200 examples, MLP config, SHAP threshold placeholder).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:00:24Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Output coefficients must have variance greater than 1e-9 and no NaNs
+  claim_id: c_1af3cda0
+  context: 'Independent Test: Execute on a fixed subset of 200 GSM8K examples (seed=42)
+    and verify the output file contains a valid DelTA Coefficient for every token,
+    with variance > 1e-9 and no NaNs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_coefficients_must_have_variance_greater_than_1e-9_and
+  kind: magnitude
+  raw_text: Verify the output file contains a valid DelTA Coefficient for every token,
+    with variance > 1e-9 and no NaNs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:01:12Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset must contain at least 200 valid examples
+  claim_id: c_1929d021
+  context: 'T012 [US1] Implement code/data/download_gsm8k.py (FR-001): Download GSM8K
+    from HuggingFace, filter for verified correct solutions, save to data/raw/gsm8k_verified.parquet.
+    Ensure at least 200 examples are available.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_must_contain_at_least_200_valid_examples
+  kind: magnitude
+  raw_text: Ensure at least 200 examples are available from GSM8K dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:01:34Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: DelTA algorithm run on 200 stratified examples with seed 42 using Phi-3-mini
+  claim_id: c_d628b880
+  context: 'T013 [US1] Implement code/data/generate_oracle.py (FR-002): ... run DelTA
+    algorithm using explicit torch.autograd.grad logic with retain_graph=True on N=200
+    stratified examples (seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run DelTA algorithm on N=200 stratified examples (seed=42) using Phi-3-mini.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:01:46Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Semantic similarity extracted from first 50 GSM8K examples with seed
+    42
+  claim_id: c_edf26d7a
+  context: 'T018 [US2] Implement code/data/extract_features.py (FR-003): ... and semantic
+    similarity to the first 50 examples (seed=42, stratified by length) from the raw
+    GSM8K dataset (T012) (reference set) using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract semantic similarity to the first 50 examples (seed=42, stratified
+    by length) from the raw GSM8K dataset using sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:02:06Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Uniform baseline weight vector scaled to match test set coefficient variance
+  claim_id: c_5c10ea9c
+  context: 'T026b [US3] Implement uniform baseline generation in code/eval/metrics.py
+    (FR-005): Generate a uniform weight vector (scaled to match the variance of the
+    true coefficients in the test set) as the primary uniform baseline (SC-001 compliant).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uniform_baseline_weight_vector_scaled_to_match_test_set_coef
+  kind: entity_fact
+  raw_text: Generate a uniform weight vector scaled to match the variance of the true
+    coefficients in the test set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:02:25Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Diagnostic metric computes Spearman correlation using training split
+    mean coefficients
+  claim_id: c_17cf47fd
+  context: 'T026c [US3] Implement diagnostic baseline generation in code/eval/metrics.py:
+    Compute Spearman correlation using the mean of the true coefficients from the
+    TRAINING split (derived from T015) as a secondary diagnostic metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diagnostic_metric_computes_Spearman_correlation_using_traini
+  kind: entity_fact
+  raw_text: Compute Spearman correlation using the mean of the true coefficients from
+    the TRAINING split as a secondary diagnostic metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:02:45Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Spearman correlation compared against random baseline N(0,1) with seed
+    42
+  claim_id: c_e1bb540f
+  context: 'T026 [US3] Implement code/eval/metrics.py (FR-005, FR-006): Compute Spearman
+    rank correlation between predicted (T023) and true (T015) coefficients. Compare
+    against random baseline (N(0,1), seed=42), uniform baseline (from T026b), and
+    diagnostic baseline (T026c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare Spearman correlation against random baseline (N(0,1), seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:03:32Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Memory footprint must be less than 7 GB
+  claim_id: c_8cf42231
+  context: T032 Code cleanup and refactoring to ensure memory footprint < 7 GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_must_be_less_than_7_GB
+  kind: magnitude
+  raw_text: Code cleanup and refactoring must ensure memory footprint is less than
+    7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T17:04:16Z'

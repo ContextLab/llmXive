@@ -98,7 +98,7 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-descri/
 
 **Hardware**: GitHub Actions Free Tier (limited CPU, ~ GB RAM, limited disk, no GPU).
 
-**Deterministic Subset**: N=200 examples (reduced from 500 in original spec to ensure feasibility).
+**Deterministic Subset**: N=200 examples (reduced from the original specification to ensure feasibility).
 
 **Time Budget**:
 - Download/Filter: < 10 min
@@ -106,7 +106,7 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-descri/
 - Feature Extraction (sentence-transformers): < 30 min
 - Training (2-layer MLP): < 10 min
 - Evaluation (Spearman, permutation test, SHAP): < 10 min
-- **Total**: ~3–4 hours (well within 6-hour limit)
+- **Total**: Several hours (well within 6-hour limit)
 
 **Memory Budget**:
 - Phi-mini in full precision: ~ GB (peak)

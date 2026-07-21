@@ -1,8 +1,30 @@
+T012:
+  c: false
+  h: d5ddc7f5977b23109cd361ee22988465d010d033ecf14ddd456af2e10bd6c3d7
+  r: "The provided `download_gsm8k.py` is truncated (e.g., the `verify_solution_correctness`\
+    \ function ends mid\u2011line) and contains no logic to actually download the\
+    \ dataset, filter examples, assert >200 valid entries, or write a Parquet file.\
+    \ Moreover, the required output file `data/raw/gsm8k_verified.parquet` does not\
+    \ exist. The task therefore remains unfinished."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code or test output was provided showing that `generate_oracle.py` now computes\
+    \ the variance of the output coefficients and aborts when the variance \u2264\u202F\
+    1e\u20119. The required artifact (the updated script with the explicit variance\
+    \ validation) is missing."
+T018:
+  c: false
+  h: da088eb25dc0129dbd53b7254f28918b2989335b2f7a3828a9a2efa7c1d5b85c
+  r: "The repository contains `code/data/extract_features.py`, but the file is truncated\
+    \ and does not clearly implement selection of the first 50 GSM8K examples, n\u2011\
+    gram/POS extraction per token, or writing a Parquet file with columns `[token_id,\
+    \ feature_vector]`. Moreover, the required output `data/processed/static_features.parquet`\
+    \ is absent. The missing output file and incomplete script mean the task\u2019\
+    s requirements are not met."
 T022:
   c: false
-  h: da2da0d85c39c611e023baf49b2a487c61f59775030bd30e4ba418054f0cef5f
-  r: "The provided `code/models/train.py` is truncated and does not show a complete\
-    \ training loop, nor any code that saves the trained model to `data/processed/mlp_model.pt`.\
-    \ Additionally, the expected output file `mlp_model.pt` is missing. The implementation\
-    \ must include the full training procedure, enforce CPU\u2011only execution, and\
-    \ write the model checkpoint to the specified path."
+  h: 21616eb768a4b9d314ec75a016dc401e38bd89df28955dffbc3ad36d3a009156
+  r: "The `code/models/train.py` script exists, but the required output model file\
+    \ `data/processed/mlp_model.pt` is missing, so the implementation does not fulfill\
+    \ the task\u2019s requirement to save the trained model."
