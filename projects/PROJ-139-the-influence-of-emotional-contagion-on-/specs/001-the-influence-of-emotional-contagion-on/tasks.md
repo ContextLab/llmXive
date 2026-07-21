@@ -79,11 +79,11 @@
 - [ ] T007a [S] [US2] Implement Annotation Protocol:
  **Dependency**: T008 (Data Download).
  1. **Protocol Definition**: Create `docs/annotation_protocol.md` defining the protocol for human annotation (e.g., 5-point Likert scale, instructions for annotators).
- 2. **Sample Selection**: Create `code/data/sampling.py` to select a representative subset of comments from the dataset downloaded in T008. **Constraint**: If human annotations are unavailable, the script MUST attempt to load a public sentiment corpus (e.g., from HuggingFace datasets). **Stratification Logic**: 
-    - Calculate quartiles for `thread_length` and `sentiment` (using VADER on raw text as a proxy for sentiment distribution) to create a 2x2 stratification grid.
-    - Select a stratified random sample to ensure representation across all grid cells.
-    - **Fallback**: If the dataset is too small to form a valid grid (e.g., < 50 threads) OR if no public corpus is available, generate a validation report with `status: unvalidated` and `reason: insufficient_data_or_corpus`. Do NOT raise an error.
-    - **Constraint**: If the dataset size is < 50 AND no public corpus is found, generate `data/processed/vader_validation_report.json` with `status: unvalidated` and exit successfully.
+ 2. **Sample Selection**: Create `code/data/sampling.py` to select a representative subset of comments from the dataset downloaded in T008. **Constraint**: If human annotations are unavailable, the script MUST attempt to load a public sentiment corpus (e.g., from HuggingFace datasets). **Stratification Logic**:
+ - Calculate quartiles for `thread_length` and `sentiment` (using VADER on raw text as a proxy for sentiment distribution) to create a 2x2 stratification grid.
+ - Select a stratified random sample to ensure representation across all grid cells.
+ - **Fallback**: If the dataset is too small to form a valid grid (e.g., < 50 threads) OR if no public corpus is available, generate a validation report with `status: unvalidated` and `reason: insufficient_data_or_corpus`. Do NOT raise an error.
+ - **Constraint**: If the dataset size is < 50 AND no public corpus is found, generate `data/processed/vader_validation_report.json` with `status: unvalidated` and exit successfully.
  3. **Storage**: Store raw annotations (if available) in `data/raw/annotations.json`. This file MUST be checksummed.
  **Output**: `docs/annotation_protocol.md`, `data/processed/vader_validation_report.json` (if unvalidated).
  **Dependency**: Runs sequentially after T008. **T013 can proceed if T007a completes (even if status is unvalidated), but a warning flag will be set.**
@@ -108,7 +108,7 @@
 ### Implementation for User Story 1
 
 - [X] T019 [S] [US1] Implement `code/data/validation.py` to validate ground-truth availability (FR-009).
- **Logic**: 
+ **Logic**:
  1. For Stack Exchange threads: Classify as 'valid' if an 'accepted_answer_id' exists.
  2. For Reddit threads: Classify as 'valid_no_gt' (valid for dataset inclusion, but no ground truth for external validation) as per Assumption 2.
  **Constraint**: Do NOT exclude Reddit threads from the dataset; include them with the 'valid_no_gt' flag to satisfy FR-001 (≥2 subreddits).
@@ -176,7 +176,7 @@
 - [X] T023 [S] [US3] **Depends on T019a, T015, T019, T019b**: Implement sensitivity analysis in `code/data/modeling.py`:
  **Sweep**: Agreement cutoff across **{0.5, 0.6, 0.7}** and entropy threshold across **{0.2, 0.4, 0.6}**.
  **Metric**: Compute the **Pearson correlation between contagion_index and (1) agreement_proportion, (2) Shannon entropy, and (3) external validation score** for each sweep.
- **Requirement**: For valid threads, **compute and report False Positive and False Negative rates** of Consensus vs. Ground Truth for *each* threshold sweep. 
+ **Requirement**: For valid threads, **compute and report False Positive and False Negative rates** of Consensus vs. Ground Truth for *each* threshold sweep.
  **Consensus Logic**: Consensus=1 if upvotes > downvotes; Consensus=0 if downvotes > upvotes; Inconclusive if equal. FP/FN rates are calculated only on threads with a definitive consensus (exclude Inconclusive).
  **Input**: Read valid thread list from `data/processed/valid_threads.csv`. **Filter**: Use threads where `is_valid=True`. If T019b reports `sc_006_compliance: false`, FP/FN columns must be filled with `null` and a warning logged.
  **Output**: Write `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff` (float), `entropy_threshold` (float), `correlation_agreement` (float), `correlation_entropy` (float), `correlation_validation` (float), `false_positive_rate` (float/null), `false_negative_rate` (float/null), `grid_coverage` (boolean), `trend_summary` (text).
@@ -208,7 +208,7 @@
 - [X] T026 [S] Generate final report in `docs/paper.md` including SC-006 pass/fail status, ground truth percentage, model results, **and the correlation analysis between external validation score and decision quality (from T024)**.
 - [X] T027 [S] Record all artifact checksums: Update `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` with a map of file paths to SHA-256 hashes.
 - [ ] T028 [S] Verify reproducibility by re-running pipeline and matching checksums.
-- [ ] T029 [S] [US3] **Review Fix**: Create/Overwrite `docs/quickstart.md` with execution instructions for the full pipeline.
+- [X] T029 [S] [US3] **Review Fix**: Create/Overwrite `docs/quickstart.md` with execution instructions for the full pipeline.
  **Dependency**: T030, T031, T032.
  **Deliverable**: `docs/quickstart.md` MUST contain:
  1. **Prerequisites**: Python 3.11, dependencies.
@@ -219,9 +219,27 @@
 - [ ] T030 [S] [US3] **Review Fix**: Implement collinearity diagnostics (Variance Inflation Factor) for predictors **(sentiment, thread length, time-to-decision, external_validation_score)** in `code/data/modeling.py` as required by **Assumption 7**. Output VIF scores to `data/processed/collinearity_diagnostics.json`.
  **JSON Schema**: `{"vif_scores": {"sentiment": float, "thread_length": float, "time_to_decision": float, "external_validation_score": float}, "threshold": 5, "flagged": boolean}`.
  **Threshold Logic**: VIF > 5 is strict greater than. If any predictor has VIF > 5, set `flagged: true` and frame joint relationships descriptively in the final report.
-- [ ] T031 [S] **Review Fix**: Ensure `code/data/download.py` implements a strict "fail-loud" policy for data fetching: **Remove** any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data. If the primary Pushshift API, Reddit API, and HuggingFace archives all fail, the script MUST raise a `RuntimeError` with a clear message indicating the data source failure, ensuring the execution stage can re-try with a verified real source rather than proceeding with fabricated data.
+- [X] T031 [S] **Review Fix**: Ensure `code/data/download.py` implements a strict "fail-loud" policy for data fetching: **Remove** any `try/except` blocks that fall back to `generate_synthetic_*()` or mock data. If the primary Pushshift API, Reddit API, and HuggingFace archives all fail, the script MUST raise a `RuntimeError` with a clear message indicating the data source failure, ensuring the execution stage can re-try with a verified real source rather than proceeding with fabricated data.
  **Implementation**: Modify `download.py` to catch all API exceptions, attempt fallbacks, and if all fail, `raise RuntimeError("All data sources failed. No synthetic data generated.")`.
-- [ ] T032 [S] **Review Fix**: Update `code/data/metrics.py` to explicitly state the **streaming/sampling rule** in comments and logs: specify the exact split used, chunking strategy (if any), and the number of rows processed. If a sample is taken due to dataset size, the code MUST log the sample size and a statement of its representativeness limitation, ensuring no "toy" or "synthetic" data is used as a silent fallback.
+- [X] T032 [S] **Review Fix**: Update `code/data/metrics.py` to explicitly state the **streaming/sampling rule** in comments and logs: specify the exact split used, chunking strategy (if any), and the number of rows processed. If a sample is taken due to dataset size, the code MUST log the sample size and a statement of its representativeness limitation, ensuring no "toy" or "synthetic" data is used as a silent fallback.
+
+---
+
+## Phase 7: Final Validation & Reporting
+
+**Purpose**: Ensure all success criteria are met and document findings.
+
+- [ ] T033 [S] **Review Fix**: Generate `docs/analysis_summary.md` that explicitly addresses **Assumption 5** (Power Limitation).
+ **Logic**: Read `thread_count` from `state/performance_log.json`. If `thread_count < 100`, generate a warning block in the summary stating: "Power limitation detected: n < 100 threads. Results should be interpreted with caution due to limited statistical power."
+ **Constraint**: This task must run after T025.
+ **Output**: Append the power limitation statement to `docs/analysis_summary.md` if triggered; otherwise, state "Power sufficient (n ≥ 100)".
+- [ ] T034 [S] **Review Fix**: Ensure `docs/paper.md` explicitly frames all findings as **associational** (not causal) as required by **Assumption 4**.
+ **Logic**: Insert a "Limitations" section in `docs/paper.md` that states: "This study is observational with no random assignment. All reported relationships between emotional contagion and decision quality are correlational and should not be interpreted as causal."
+ **Constraint**: This task must run after T026 (Report Generation).
+- [ ] T035 [S] **Review Fix**: Verify **SC-004** (Threshold Sensitivity) compliance.
+ **Logic**: Read `data/processed/sensitivity_analysis.csv`. Verify that `agreement_cutoff` values {0.5, 0.6, 0.7} and `entropy_threshold` values {0.2, 0.4, 0.6} are all present (9 rows total).
+ **Action**: If any row is missing, log an error to `state/validation_errors.log`. If all present, log `sc_004_compliance: true` to `state/validation_summary.json`.
+ **Output**: `state/validation_summary.json` with `sc_004_compliance` (boolean).
 
 ---
 

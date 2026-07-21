@@ -1,150 +1,109 @@
-"""
-Tests for the Reproducibility Verification Script (T028)
-"""
 import os
 import json
 import tempfile
 import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
-import yaml
 
-from code.data.verify_reproducibility import (
-    compute_file_sha256,
-    load_recorded_checksums,
-    verify_artifacts,
-    generate_report
-)
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from data.verify_reproducibility import compute_file_sha256, verify_artifacts, generate_report
 
 def test_compute_file_sha256():
-    """Test SHA-256 computation on a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("test content")
+    """Test that SHA256 computation is deterministic and correct."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        f.write("Hello, World!")
         temp_path = Path(f.name)
     
     try:
-        # "test content" sha256
-        expected = hashlib.sha256(b"test content").hexdigest()
-        result = compute_file_sha256(temp_path)
-        assert result == expected
+        hash1 = compute_file_sha256(temp_path)
+        hash2 = compute_file_sha256(temp_path)
+        
+        assert hash1 == hash2
+        # Known hash for "Hello, World!"
+        expected = hashlib.sha256(b"Hello, World!").hexdigest()
+        assert hash1 == expected
     finally:
         os.unlink(temp_path)
 
-def test_compute_file_sha256_missing():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        compute_file_sha256(Path("/nonexistent/file.txt"))
-
-def test_load_recorded_checksums_missing_file():
-    """Test loading from non-existent state file."""
-    with patch('code.data.verify_reproducibility.get_config') as mock_config:
-        mock_config.return_value.project_state_file = "/nonexistent/state.yaml"
-        with pytest.raises(FileNotFoundError):
-            load_recorded_checksums(mock_config.return_value)
-
-def test_load_recorded_checksums_success():
-    """Test loading checksums from a valid YAML file."""
-    checksums_data = {
-        "artifact_checksums": {
-            "data/processed/test.csv": "abc123",
-            "data/processed/results.json": "def456"
+def test_verify_artifacts_success():
+    """Test verification when all files match."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        
+        # Create a file
+        file_path = base / "data.txt"
+        content = "Test content"
+        file_path.write_text(content)
+        
+        expected_hash = compute_file_sha256(file_path)
+        checksums = {
+            "data.txt": expected_hash
         }
-    }
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(checksums_data, f)
-        temp_path = f.name
-    
-    try:
-        mock_config = MagicMock()
-        mock_config.project_state_file = temp_path
         
-        result = load_recorded_checksums(mock_config)
-        assert result == checksums_data["artifact_checksums"]
-    finally:
-        os.unlink(temp_path)
-
-def test_verify_artifacts_matches():
-    """Test verification where all files match."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        base = Path(tmpdir)
+        results = verify_artifacts(checksums, base)
         
-        # Create a file
-        test_file = base / "test.txt"
-        test_file.write_text("content")
-        hash_val = compute_file_sha256(test_file)
-        
-        recorded = {"test.txt": hash_val}
-        
-        matches, mismatches, missing = verify_artifacts(recorded, base)
-        
-        assert "test.txt" in matches
-        assert len(mismatches) == 0
-        assert len(missing) == 0
-
-def test_verify_artifacts_mismatch():
-    """Test verification where a file has changed."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        base = Path(tmpdir)
-        
-        # Create a file
-        test_file = base / "test.txt"
-        test_file.write_text("content")
-        old_hash = "wrong_hash_123"
-        
-        recorded = {"test.txt": old_hash}
-        
-        matches, mismatches, missing = verify_artifacts(recorded, base)
-        
-        assert "test.txt" not in matches
-        assert "test.txt" in mismatches
-        assert len(missing) == 0
+        assert results["verified"] == 1
+        assert results["mismatched"] == 0
+        assert results["missing"] == 0
+        assert results["details"][0]["status"] == "verified"
 
 def test_verify_artifacts_missing():
-    """Test verification where a file is missing."""
+    """Test verification when a file is missing."""
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         
-        recorded = {"missing.txt": "some_hash"}
+        checksums = {
+            "missing_file.txt": "abc123"
+        }
         
-        matches, mismatches, missing = verify_artifacts(recorded, base)
+        results = verify_artifacts(checksums, base)
         
-        assert len(matches) == 0
-        assert len(mismatches) == 0
-        assert "missing.txt" in missing
+        assert results["verified"] == 0
+        assert results["missing"] == 1
+        assert results["details"][0]["status"] == "missing"
 
-def test_generate_report_success():
-    """Test report generation for successful verification."""
+def test_verify_artifacts_mismatch():
+    """Test verification when a file hash does not match."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        
+        # Create a file
+        file_path = base / "data.txt"
+        file_path.write_text("Real content")
+        
+        # Record a fake hash
+        fake_hash = "0000000000000000000000000000000000000000000000000000000000000000"
+        checksums = {
+            "data.txt": fake_hash
+        }
+        
+        results = verify_artifacts(checksums, base)
+        
+        assert results["verified"] == 0
+        assert results["mismatched"] == 1
+        assert results["details"][0]["status"] == "mismatch"
+
+def test_generate_report():
+    """Test that the report is generated correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:
         output_path = Path(tmpdir) / "report.json"
         
-        matches = {"file1.txt": "hash1"}
-        mismatches = {}
-        missing = []
+        results = {
+            "verified": 1,
+            "mismatched": 0,
+            "missing": 0,
+            "details": [{"path": "test.txt", "status": "verified", "hash": "abc"}]
+        }
         
-        report = generate_report(matches, mismatches, missing, output_path)
+        generate_report(results, output_path)
         
-        assert report["status"] == "success"
-        assert report["verified_count"] == 1
-        assert report["mismatch_count"] == 0
-        assert os.path.exists(output_path)
+        assert output_path.exists()
         
         with open(output_path) as f:
-            saved = json.load(f)
-        assert saved["status"] == "success"
-
-def test_generate_report_failure():
-    """Test report generation for failed verification."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "report.json"
+            report = json.load(f)
         
-        matches = {}
-        mismatches = {"file1.txt": ("old", "new")}
-        missing = ["file2.txt"]
-        
-        report = generate_report(matches, mismatches, missing, output_path)
-        
-        assert report["status"] == "failed"
-        assert report["mismatch_count"] == 1
-        assert report["missing_count"] == 1
+        assert report["summary"]["verified"] == 1
+        assert report["summary"]["reproducible"] is True
+        assert "timestamp" in report

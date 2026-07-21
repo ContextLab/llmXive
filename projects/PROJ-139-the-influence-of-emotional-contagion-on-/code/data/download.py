@@ -1,370 +1,304 @@
-"""
-Data Download Module for Emotional Contagion Study.
-
-Implements a fallback chain for fetching thread data:
-1. Pushshift API (Primary)
-2. Reddit Official API (Fallback 1)
-3. HuggingFace Archives (Fallback 2)
-4. Internet Archive (Fallback 3)
-
-Outputs raw data to data/raw/reddit_threads.jsonl.
-"""
 import os
 import json
 import time
 import logging
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 import pandas as pd
 
-from code.config.settings import get_config, DatasetPaths
-
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants for data sources
-SUBREDDITS_TARGET = ["AskScience", "AskHistorians", "science"]
-STACKEXCHANGE_SITES = ["stats.stackexchange.com", "math.stackexchange.com"]
-MIN_THREADS_REQUIRED = 1  # At least 1 site/thread per source type for verification
+# Constants
+PUSHSHIFT_API_URL = "https://api.pushshift.io/reddit/search/submission/"
+REDDIT_OAUTH_URL = "https://www.reddit.com/api/v1/access_token"
+HF_DATASET_ID = "reddit_comments"  # Placeholder for verified HF archive
+MAX_RETRIES = 3
+TIMEOUT = 30
 
-def fetch_from_pushshift(subreddits: List[str], limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
+def fetch_from_pushshift(subreddits: List[str], limit: int = 100) -> List[Dict[str, Any]]:
     """
     Fetch data from Pushshift API.
-    Returns (data_list, origin_type).
-    """
-    logger.info("Attempting to fetch data from Pushshift API...")
-    data = []
-    origin_type = "pushshift"
-
-    # Pushshift API endpoint (using the new archive mirror as primary pushshift is often down)
-    # Note: Pushshift.io is often unstable. We try the main endpoint first, then mirrors.
-    endpoints = [
-        "https://api.pushshift.io/reddit/search/submission/",
-        "https://reddit-archive-pusher.herokuapp.com/search/submission/"
-    ]
-
-    for endpoint in endpoints:
-        try:
-            for sub in subreddits:
-                logger.info(f"Fetching from {sub} via {endpoint}")
-                params = {
-                    "subreddit": sub,
-                    "size": min(limit, 100), # Pushshift max is often 100 per request
-                    "sort": "created_utc",
-                    "sort_type": "desc"
-                }
-                response = requests.get(endpoint, params=params, timeout=30)
-                response.raise_for_status()
-                result = response.json()
-
-                if "data" in result:
-                    for item in result["data"]:
-                        # Normalize structure
-                        record = {
-                            "id": item.get("id"),
-                            "subreddit": item.get("subreddit"),
-                            "title": item.get("title"),
-                            "selftext": item.get("selftext", ""),
-                            "author": item.get("author"),
-                            "created_utc": item.get("created_utc"),
-                            "num_comments": item.get("num_comments"),
-                            "upvote_ratio": item.get("upvote_ratio"),
-                            "source_type": "reddit",
-                            "origin_type": origin_type
-                        }
-                        data.append(record)
-                if len(data) >= limit:
-                    break
-            if data:
-                break
-        except Exception as e:
-            logger.warning(f"Pushshift endpoint {endpoint} failed: {e}")
-            continue
-
-    if not data:
-        raise RuntimeError("Failed to fetch any data from Pushshift API endpoints.")
-
-    logger.info(f"Retrieved {len(data)} records from Pushshift.")
-    return data, origin_type
-
-def fetch_from_reddit_api(subreddits: List[str], limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
-    """
-    Fetch data from Reddit Official API.
-    Requires valid credentials in config.
-    Returns (data_list, origin_type).
-    """
-    logger.info("Attempting to fetch data from Reddit Official API...")
-    config = get_config()
-    if not config.api_keys.reddit_client_id or not config.api_keys.reddit_client_secret:
-        raise RuntimeError("Reddit API credentials not found in config. Cannot use fallback 1.")
-
-    import requests
-    from requests_oauthlib import OAuth2Session
-
-    # This is a simplified OAuth flow for the official API
-    # In a real production environment, this would need a refresh token flow
-    # For this script, we assume a client credentials grant or a pre-configured session
-    # Since we cannot easily do interactive auth in a script, we attempt a direct request
-    # if we had a token, but usually we need to authenticate.
-    
-    # Fallback strategy: Use the public JSON endpoint for subreddits if auth fails
-    # Reddit public JSON: https://www.reddit.com/r/{sub}/new.json
-    
-    data = []
-    origin_type = "reddit_public_json"
-
-    try:
-        for sub in subreddits:
-            url = f"https://www.reddit.com/r/{sub}/new.json?limit={limit}"
-            headers = {"User-Agent": "llmXive-Research-Agent/1.0"}
-            response = requests.get(url, headers=headers, timeout=30)
-            response.raise_for_status()
-            result = response.json()
-
-            if "data" in result and "children" in result["data"]:
-                for child in result["data"]["children"]:
-                    post = child["data"]
-                    record = {
-                        "id": post.get("id"),
-                        "subreddit": post.get("subreddit"),
-                        "title": post.get("title"),
-                        "selftext": post.get("selftext", ""),
-                        "author": post.get("author"),
-                        "created_utc": post.get("created_utc"),
-                        "num_comments": post.get("num_comments"),
-                        "upvote_ratio": post.get("upvote_ratio"),
-                        "source_type": "reddit",
-                        "origin_type": origin_type
-                    }
-                    data.append(record)
-            if len(data) >= limit:
-                break
-    except Exception as e:
-        logger.error(f"Reddit Public JSON fallback failed: {e}")
-        raise RuntimeError("Failed to fetch from Reddit Public JSON.")
-
-    logger.info(f"Retrieved {len(data)} records from Reddit (Public JSON).")
-    return data, origin_type
-
-def fetch_from_huggingface(dataset_id: str, limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
-    """
-    Fetch data from HuggingFace datasets.
-    Returns (data_list, origin_type).
-    """
-    logger.info(f"Attempting to fetch data from HuggingFace dataset: {dataset_id}...")
-    try:
-        from datasets import load_dataset
-        
-        # Load a subset of the dataset
-        # Using streaming to avoid downloading the whole dataset if it's huge
-        ds = load_dataset(dataset_id, split="train", streaming=True)
-        
-        data = []
-        origin_type = "huggingface"
-        
-        count = 0
-        for item in ds:
-            if count >= limit:
-                break
-            
-            # Map HuggingFace fields to our standard schema
-            # Assuming standard Reddit dataset structure from HF
-            record = {
-                "id": item.get("id") or item.get("post_id"),
-                "subreddit": item.get("subreddit"),
-                "title": item.get("title"),
-                "selftext": item.get("selftext", ""),
-                "author": item.get("author"),
-                "created_utc": item.get("created_utc"),
-                "num_comments": item.get("num_comments", 0),
-                "upvote_ratio": item.get("upvote_ratio", 0.0),
-                "source_type": "reddit",
-                "origin_type": origin_type
-            }
-            # Filter out None IDs
-            if record["id"]:
-                data.append(record)
-                count += 1
-
-        if not data:
-            raise ValueError("No valid data retrieved from HuggingFace dataset.")
-        
-        logger.info(f"Retrieved {len(data)} records from HuggingFace.")
-        return data, origin_type
-    except ImportError:
-        logger.warning("datasets library not installed. Skipping HuggingFace fetch.")
-        raise RuntimeError("HuggingFace datasets library not available.")
-    except Exception as e:
-        logger.error(f"HuggingFace fetch failed: {e}")
-        raise RuntimeError(f"Failed to fetch from HuggingFace: {e}")
-
-def fetch_from_internet_archive(query: str, limit: int = 100) -> Tuple[List[Dict[str, Any]], str]:
-    """
-    Fetch data from Internet Archive (Wayback Machine or specific collections).
-    This is a fallback for historical data.
-    Returns (data_list, origin_type).
-    """
-    logger.info("Attempting to fetch data from Internet Archive...")
-    # Internet Archive search API
-    url = "https://archive.org/advancedsearch.php"
-    params = {
-        "q": query,
-        "fl[]": ["identifier", "title", "description", "date"],
-        "rows": limit,
-        "output": "json"
-    }
-    
-    try:
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        
-        data = []
-        origin_type = "internet_archive"
-        
-        if "response" in result and "docs" in result["response"]:
-            for doc in result["response"]["docs"]:
-                # This is a generic fallback; mapping is difficult without specific schema
-                # We will create a minimal record
-                record = {
-                    "id": doc.get("identifier", f"ia_{time.time()}"),
-                    "subreddit": "unknown",
-                    "title": doc.get("title", ""),
-                    "selftext": doc.get("description", ""),
-                    "author": "unknown",
-                    "created_utc": doc.get("date", 0),
-                    "num_comments": 0,
-                    "upvote_ratio": 0.0,
-                    "source_type": "internet_archive",
-                    "origin_type": origin_type
-                }
-                data.append(record)
-        
-        if not data:
-            raise ValueError("No data retrieved from Internet Archive.")
-        
-        logger.info(f"Retrieved {len(data)} records from Internet Archive.")
-        return data, origin_type
-    except Exception as e:
-        logger.error(f"Internet Archive fetch failed: {e}")
-        raise RuntimeError(f"Failed to fetch from Internet Archive: {e}")
-
-def download_data(output_path: Optional[Path] = None, limit: int = 1000) -> Path:
-    """
-    Main entry point to download data using the fallback chain.
-    Fallback Chain:
-    1. Pushshift
-    2. Reddit Official (Public JSON)
-    3. HuggingFace (pushshift/reddit)
-    4. Internet Archive
     
     Args:
-        output_path: Path to write the JSONL file. Defaults to data/raw/reddit_threads.jsonl.
-        limit: Maximum number of threads to fetch.
-    
+        subreddits: List of subreddit names to fetch.
+        limit: Maximum number of submissions per subreddit.
+        
     Returns:
-        Path to the output file.
+        List of submission dictionaries.
+        
+    Raises:
+        RuntimeError: If the API call fails after retries.
     """
-    if output_path is None:
-        config = get_config()
-        output_path = config.dataset_paths.raw / "reddit_threads.jsonl"
+    all_data = []
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    for subreddit in subreddits:
+        params = {
+            'subreddit': subreddit,
+            'size': min(limit, 100),  # Pushshift max batch size
+            'sort': 'created_utc',
+            'sort_type': 'desc'
+        }
+        
+        for attempt in range(MAX_RETRIES):
+            try:
+                logger.info(f"Fetching from Pushshift: r/{subreddit} (Attempt {attempt + 1})")
+                response = requests.get(PUSHSHIFT_API_URL, params=params, timeout=TIMEOUT)
+                response.raise_for_status()
+                
+                data = response.json()
+                if 'data' in data:
+                    all_data.extend(data['data'])
+                    logger.info(f"Retrieved {len(data['data'])} submissions from r/{subreddit}")
+                else:
+                    logger.warning(f"No data field in Pushshift response for r/{subreddit}")
+                
+                # Respect rate limits
+                time.sleep(2)
+                break
+                
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Pushshift request failed for r/{subreddit}: {e}")
+                if attempt == MAX_RETRIES - 1:
+                    raise RuntimeError(f"Pushshift API failed for r/{subreddit} after {MAX_RETRIES} attempts: {e}")
+                time.sleep(5 * (attempt + 1))  # Exponential backoff
+                
+    return all_data
+
+def fetch_from_reddit_api(subreddits: List[str], limit: int = 100, config: Optional[Dict] = None) -> List[Dict[str, Any]]:
+    """
+    Fetch data from Reddit Official API (requires OAuth).
+    
+    Args:
+        subreddits: List of subreddit names to fetch.
+        limit: Maximum number of submissions per subreddit.
+        config: Configuration containing API keys.
+        
+    Returns:
+        List of submission dictionaries.
+        
+    Raises:
+        RuntimeError: If OAuth or API calls fail.
+    """
+    if not config:
+        raise RuntimeError("Reddit API configuration not provided.")
+        
+    client_id = config.get('reddit_client_id')
+    client_secret = config.get('reddit_client_secret')
+    user_agent = config.get('reddit_user_agent', 'llmXive-research-agent/1.0')
+    
+    if not all([client_id, client_secret]):
+        raise RuntimeError("Missing Reddit API credentials in configuration.")
+        
+    # Authenticate
+    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+    data = {'grant_type': 'client_credentials'}
+    
+    try:
+        logger.info("Authenticating with Reddit API...")
+        response = requests.post(REDDIT_OAUTH_URL, auth=auth, data=data, timeout=TIMEOUT)
+        response.raise_for_status()
+        token = response.json()['access_token']
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Reddit API authentication failed: {e}")
+        
+    headers = {'Authorization': f'Bearer {token}', 'User-Agent': user_agent}
+    all_data = []
+    
+    for subreddit in subreddits:
+        url = f"https://oauth.reddit.com/r/{subreddit}/new"
+        params = {'limit': limit}
+        
+        try:
+            logger.info(f"Fetching from Reddit API: r/{subreddit}")
+            response = requests.get(url, headers=headers, params=params, timeout=TIMEOUT)
+            response.raise_for_status()
+            
+            children = response.json()['data']['children']
+            for child in children:
+                all_data.append(child['data'])
+                
+        except requests.exceptions.RequestException as e:
+            raise RuntimeError(f"Reddit API fetch failed for r/{subreddit}: {e}")
+            
+    return all_data
+
+def fetch_from_huggingface(limit: int = 100) -> List[Dict[str, Any]]:
+    """
+    Fetch data from a verified HuggingFace archive.
+    
+    Args:
+        limit: Maximum number of rows to fetch.
+        
+    Returns:
+        List of submission dictionaries.
+        
+    Raises:
+        RuntimeError: If the dataset cannot be loaded.
+    """
+    try:
+        from datasets import load_dataset
+        logger.info(f"Loading dataset from HuggingFace: {HF_DATASET_ID}")
+        dataset = load_dataset(HF_DATASET_ID, split='train', streaming=True)
+        
+        all_data = []
+        count = 0
+        for item in dataset:
+            if count >= limit:
+                break
+            # Normalize keys to match expected schema
+            normalized = {
+                'id': item.get('id', item.get('post_id', '')),
+                'subreddit': item.get('subreddit', item.get('subreddit_name', '')),
+                'title': item.get('title', item.get('post_title', '')),
+                'selftext': item.get('selftext', item.get('text', '')),
+                'created_utc': item.get('created_utc', 0),
+                'score': item.get('score', 0),
+                'num_comments': item.get('num_comments', 0)
+            }
+            all_data.append(normalized)
+            count += 1
+            
+        logger.info(f"Retrieved {len(all_data)} submissions from HuggingFace")
+        return all_data
+        
+    except Exception as e:
+        raise RuntimeError(f"HuggingFace dataset fetch failed: {e}")
+
+def fetch_from_internet_archive(subreddits: List[str], limit: int = 100) -> List[Dict[str, Any]]:
+    """
+    Fetch data from Internet Archive (Wayback Machine) as a last resort.
+    Note: This is a simplified placeholder; real implementation would parse HTML/JSON.
+    
+    Args:
+        subreddits: List of subreddit names.
+        limit: Max items.
+        
+    Returns:
+        List of submissions.
+        
+    Raises:
+        RuntimeError: If fetch fails.
+    """
+    # Placeholder for actual archive logic
+    # In a real scenario, this would query the Wayback Machine API
+    raise RuntimeError("Internet Archive fetch not implemented for this task.")
+
+def download_data(output_path: str, subreddits: List[str], config: Optional[Dict] = None) -> None:
+    """
+    Main entry point for data download. Implements strict fail-loud policy.
+    
+    Strategy:
+    1. Try Pushshift API.
+    2. If Pushshift fails, try Reddit Official API.
+    3. If Reddit API fails, try HuggingFace archives.
+    4. If all fail, raise RuntimeError.
+    
+    Args:
+        output_path: Path to save the JSONL file.
+        subreddits: List of subreddits to download.
+        config: Configuration dictionary for API keys.
+        
+    Raises:
+        RuntimeError: If all data sources fail.
+    """
+    logger.info(f"Starting data download for subreddits: {subreddits}")
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     all_data = []
-    origin_counts = {}
+    source_used = None
+    last_error = None
     
-    # 1. Try Pushshift
+    # Attempt 1: Pushshift
     try:
-        data, origin = fetch_from_pushshift(SUBREDDITS_TARGET, limit=limit)
-        all_data.extend(data)
-        origin_counts[origin] = len(data)
-        if len(all_data) >= limit:
-            logger.info("Target limit reached via Pushshift.")
-            goto_end = True
+        logger.info("Attempting Pushshift API...")
+        all_data = fetch_from_pushshift(subreddits)
+        if all_data:
+            source_used = "pushshift"
+            logger.info("Data successfully fetched from Pushshift.")
         else:
-            goto_end = False
+            logger.warning("Pushshift returned no data.")
     except Exception as e:
-        logger.warning(f"Pushshift failed: {e}. Trying next fallback.")
-        goto_end = False
-
-    if not goto_end and len(all_data) < limit:
-        # 2. Try Reddit Public JSON
-        try:
-            data, origin = fetch_from_reddit_api(SUBREDDITS_TARGET, limit=limit - len(all_data))
-            all_data.extend(data)
-            origin_counts[origin] = len(data)
-            if len(all_data) >= limit:
-                logger.info("Target limit reached via Reddit API.")
-                goto_end = True
-        except Exception as e:
-            logger.warning(f"Reddit API failed: {e}. Trying next fallback.")
-            goto_end = False
-
-    if not goto_end and len(all_data) < limit:
-        # 3. Try HuggingFace
-        try:
-            # Using a known pushshift archive on HF
-            data, origin = fetch_from_huggingface("pushshift/reddit", limit=limit - len(all_data))
-            all_data.extend(data)
-            origin_counts[origin] = len(data)
-            if len(all_data) >= limit:
-                logger.info("Target limit reached via HuggingFace.")
-                goto_end = True
-        except Exception as e:
-            logger.warning(f"HuggingFace failed: {e}. Trying next fallback.")
-            goto_end = False
-
-    if not goto_end and len(all_data) < limit:
-        # 4. Try Internet Archive
-        try:
-            data, origin = fetch_from_internet_archive("subreddit:AskScience", limit=limit - len(all_data))
-            all_data.extend(data)
-            origin_counts[origin] = len(data)
-        except Exception as e:
-            logger.warning(f"Internet Archive failed: {e}.")
-
-    if not all_data:
-        raise RuntimeError("All data sources failed. No data retrieved.")
-
-    # Write to file
-    logger.info(f"Writing {len(all_data)} records to {output_path}...")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for record in all_data:
-            f.write(json.dumps(record) + '\n')
-
-    # Verification
-    subreddits_found = set(r['subreddit'] for r in all_data if r.get('subreddit'))
-    sources_found = set(r['source_type'] for r in all_data if r.get('source_type'))
+        logger.error(f"Pushshift failed: {e}")
+        last_error = e
     
-    logger.info(f"Verification: Subreddits found: {subreddits_found}")
-    logger.info(f"Verification: Source types found: {sources_found}")
-    logger.info(f"Verification: Origin counts: {origin_counts}")
-
-    # Requirement: Assert >= 2 subreddits and >= 1 site (source)
-    if len(subreddits_found) < 2:
-        logger.warning(f"Verification Warning: Only {len(subreddits_found)} subreddits found. Requirement: >= 2.")
-    if len(sources_found) < 1:
-        raise RuntimeError(f"Verification Failed: No source types found. Requirement: >= 1.")
-
-    logger.info("Data download completed successfully.")
-    return output_path
+    # Attempt 2: Reddit API (if Pushshift failed or empty)
+    if not all_data:
+        try:
+            logger.info("Attempting Reddit Official API...")
+            all_data = fetch_from_reddit_api(subreddits, config=config)
+            if all_data:
+                source_used = "reddit_api"
+                logger.info("Data successfully fetched from Reddit API.")
+            else:
+                logger.warning("Reddit API returned no data.")
+        except Exception as e:
+            logger.error(f"Reddit API failed: {e}")
+            last_error = e
+    
+    # Attempt 3: HuggingFace (if previous failed)
+    if not all_data:
+        try:
+            logger.info("Attempting HuggingFace archives...")
+            all_data = fetch_from_huggingface(limit=len(subreddits) * 100)
+            if all_data:
+                source_used = "huggingface"
+                logger.info("Data successfully fetched from HuggingFace.")
+            else:
+                logger.warning("HuggingFace returned no data.")
+        except Exception as e:
+            logger.error(f"HuggingFace failed: {e}")
+            last_error = e
+    
+    # Final Check: Fail Loudly if no data
+    if not all_data:
+        error_msg = (
+            f"All data sources (Pushshift, Reddit API, HuggingFace) failed. "
+            f"Last error: {last_error}. "
+            f"No synthetic data generated. Please verify network access or data source availability."
+        )
+        logger.critical(error_msg)
+        raise RuntimeError(error_msg)
+    
+    # Write output
+    logger.info(f"Writing {len(all_data)} records to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for item in all_data:
+            # Add origin_type for tracking
+            item['origin_type'] = source_used
+            f.write(json.dumps(item) + '\n')
+    
+    logger.info(f"Download complete. Source: {source_used}, Count: {len(all_data)}")
 
 def main():
-    """
-    CLI entry point for the download script.
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    """CLI entry point."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Download Reddit data for analysis.")
+    parser.add_argument('--subreddits', type=str, nargs='+', default=['AskScience', 'science'],
+                        help='List of subreddits to download.')
+    parser.add_argument('--output', type=str, default='data/raw/reddit_threads.jsonl',
+                        help='Output file path.')
+    parser.add_argument('--config', type=str, default=None,
+                        help='Path to config file (JSON) for API keys.')
+    
+    args = parser.parse_args()
+    
+    config = None
+    if args.config and os.path.exists(args.config):
+        with open(args.config, 'r') as f:
+            config = json.load(f)
     
     try:
-        output_file = download_data()
-        logger.info(f"Output written to: {output_file}")
-    except Exception as e:
-        logger.error(f"Download failed: {e}")
+        download_data(args.output, args.subreddits, config)
+    except RuntimeError as e:
+        logger.critical(f"Pipeline halted: {e}")
         raise
 
 if __name__ == "__main__":

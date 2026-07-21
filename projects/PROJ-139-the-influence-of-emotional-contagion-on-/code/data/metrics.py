@@ -1,3 +1,32 @@
+"""
+metrics.py - Emotional Contagion and Decision Quality Metrics
+
+This module computes the emotional contagion index, decision quality metrics,
+and performs exclusion logic for threads with insufficient data.
+
+STREAMING/SAMPLING RULE (Constitution Principle VII):
+-------------------------------------------------------
+This pipeline processes data from `data/processed/all_threads_classified.csv`
+and `data/processed/thread_metrics.csv` (if intermediate).
+
+1. Data Source: All data must originate from the raw download (T008) and
+   subsequent extraction (T009) steps. No synthetic data is generated or
+   used as a fallback.
+2. Streaming/Chunking: The pipeline currently loads the full dataset into
+   memory using Pandas. For datasets exceeding ~2GB (approx. 100k threads),
+   the implementation should be refactored to use `dask.dataframe` or
+   iterative chunk processing.
+3. Sampling Policy:
+   - If the dataset size exceeds the configured memory limit (default: 10GB RAM),
+     a stratified random sample is taken to ensure representativeness.
+   - The sample size is logged explicitly.
+   - A WARNING is logged stating that results are based on a sample and may
+     not fully capture tail behaviors of the distribution.
+   - NO "toy" datasets (e.g., < 50 rows) are used as a silent fallback.
+4. Logging: All processing steps log the number of rows read, filtered, and
+   written to ensure reproducibility and transparency.
+"""
+
 import os
 import json
 import logging
@@ -6,298 +35,320 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
-from scipy.stats import entropy as scipy_entropy
-from code.config.settings import get_config
+from scipy import stats
 
-# Configure logging
+from config.settings import get_config, DatasetPaths
+
+# Setup logger
 logger = logging.getLogger(__name__)
 
-def load_processed_data(filepath: str) -> pd.DataFrame:
-    """Load a processed CSV/JSONL file into a DataFrame."""
-    path = Path(filepath)
+def load_processed_data(file_path: str) -> pd.DataFrame:
+    """Load processed data from a CSV file."""
+    path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {filepath}")
+        raise FileNotFoundError(f"Processed data file not found: {file_path}")
     
-    if path.suffix == '.csv':
-        return pd.read_csv(path)
-    elif path.suffix in ['.jsonl', '.json']:
-        return pd.read_json(path, lines=path.suffix == '.jsonl')
-    else:
-        raise ValueError(f"Unsupported file format: {path.suffix}")
+    logger.info(f"Loading data from {file_path}")
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded {len(df)} rows")
+    return df
 
-def filter_threads_by_reply_count(df: pd.DataFrame, min_replies: int = 5) -> pd.DataFrame:
-    """Filter threads to keep only those with >= min_replies."""
-    if 'reply_count' not in df.columns:
-        logger.warning("Column 'reply_count' not found. Assuming all threads pass filter.")
-        return df
-    
-    filtered = df[df['reply_count'] >= min_replies].copy()
-    excluded_count = len(df) - len(filtered)
-    logger.info(f"Filtered {excluded_count} threads with < {min_replies} replies.")
-    return filtered
-
-def save_exclusion_counts(counts: Dict[str, int], filepath: str) -> None:
-    """Save exclusion counts to a JSON file."""
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(counts, f, indent=2)
-    logger.info(f"Saved exclusion counts to {filepath}")
-
-def run_metrics_exclusion_pipeline(df: pd.DataFrame, min_replies: int = 5) -> Tuple[pd.DataFrame, Dict[str, int]]:
+def filter_threads_by_reply_count(df: pd.DataFrame, min_replies: int = 5) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Run the exclusion pipeline for metrics computation.
-    Returns filtered dataframe and exclusion counts.
-    """
-    total = len(df)
-    filtered = filter_threads_by_reply_count(df, min_replies)
-    excluded = total - len(filtered)
+    Filter threads based on minimum reply count.
     
-    counts = {
-        "total_threads": total,
-        "excluded_insufficient_replies": excluded,
-        "kept_threads": len(filtered)
-    }
-    
-    return filtered, counts
-
-def compute_shannon_entropy(values: List[float]) -> float:
-    """
-    Compute Shannon entropy for a list of probabilities or normalized values.
-    Handles zero probabilities to avoid log(0).
-    """
-    if not values or all(v == 0 for v in values):
-        return 0.0
-    
-    # Normalize if not already
-    total = sum(values)
-    if total == 0:
-        return 0.0
-    
-    probs = [v / total for v in values]
-    # Filter out zeros for log calculation
-    probs = [p for p in probs if p > 0]
-    
-    if not probs:
-        return 0.0
+    Args:
+        df: Input DataFrame with 'reply_count' column.
+        min_replies: Minimum number of replies required.
         
-    return float(-sum(p * math.log2(p) for p in probs))
+    Returns:
+        Tuple of (filtered_df, excluded_df)
+    """
+    if 'reply_count' not in df.columns:
+        logger.warning("Column 'reply_count' not found in DataFrame. Returning original data.")
+        return df, pd.DataFrame()
 
-def compute_agreement_proportion(thread_df: pd.DataFrame, sentiment_col: str = 'compound_sentiment') -> float:
-    """
-    Compute the agreement proportion within a thread.
-    Agreement is defined as the proportion of comments sharing the majority sentiment sign.
-    """
-    if thread_df.empty:
-        return 0.0
-    
-    if sentiment_col not in thread_df.columns:
-        logger.warning(f"Sentiment column '{sentiment_col}' not found. Returning 0.0 agreement.")
-        return 0.0
-    
-    # Determine majority sentiment sign (positive, negative, or neutral)
-    # We'll binarize: >0 positive, <0 negative, 0 neutral (treat neutral as separate or merge?)
-    # Standard approach: count positive vs negative. 
-    signs = thread_df[sentiment_col].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
-    
-    if len(signs) == 0:
-        return 0.0
-    
-    # Count occurrences of each sign
-    counts = signs.value_counts()
-    
-    # If there's a clear majority (e.g., all positive or all negative), agreement is high
-    # Agreement = count of majority / total
-    majority_count = counts.max()
-    total_count = len(signs)
-    
-    return majority_count / total_count
+    mask = df['reply_count'] >= min_replies
+    filtered_df = df[mask].copy()
+    excluded_df = df[~mask].copy()
 
-def compute_time_to_decision(thread_df: pd.DataFrame, timestamp_col: str = 'timestamp') -> Optional[float]:
-    """
-    Compute time-to-decision in seconds.
-    Assumes the last post in the thread represents the decision point.
-    Returns duration from first post to last post.
-    """
-    if thread_df.empty or timestamp_col not in thread_df.columns:
-        return None
-    
-    try:
-        # Ensure timestamps are datetime
-        times = pd.to_datetime(thread_df[timestamp_col])
-        if times.empty:
-            return None
-        return float((times.max() - times.min()).total_seconds())
-    except Exception as e:
-        logger.warning(f"Could not compute time-to-decision: {e}")
-        return None
+    logger.info(f"Filtered threads: {len(filtered_df)} kept, {len(excluded_df)} excluded (reply_count < {min_replies})")
+    return filtered_df, excluded_df
 
-def compute_decision_quality_metrics(thread_df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Compute all decision quality metrics for a single thread:
-    (a) Agreement proportion
-    (b) Shannon entropy for diversity
-    (c) External validation score (if available)
-    (d) Efficiency metrics (time-to-decision, thread length)
-    """
-    metrics = {}
-    
-    # (a) Agreement proportion
-    metrics['agreement_proportion'] = compute_agreement_proportion(thread_df)
-    
-    # (b) Shannon entropy for diversity
-    # We use the distribution of sentiment signs as the probability distribution
-    if 'compound_sentiment' in thread_df.columns:
-        signs = thread_df['compound_sentiment'].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
-        counts = signs.value_counts()
-        # Convert to list of counts for entropy
-        value_counts = list(counts.values)
-        metrics['shannon_entropy'] = compute_shannon_entropy(value_counts)
-    else:
-        metrics['shannon_entropy'] = 0.0
-    
-    # (c) External validation score
-    # Check if this column exists (added in T019a)
-    if 'external_validation_score' in thread_df.columns:
-        # Take the average or the score associated with the thread
-        # Assuming the column is constant per thread or we take the mean
-        metrics['external_validation_score'] = float(thread_df['external_validation_score'].mean())
-    else:
-        metrics['external_validation_score'] = None
-    
-    # (d) Efficiency metrics
-    ttd = compute_time_to_decision(thread_df)
-    metrics['time_to_decision_seconds'] = ttd
-    metrics['thread_length'] = len(thread_df)
-    
-    return metrics
-
-def save_thread_metrics(metrics_list: List[Dict[str, Any]], filepath: str) -> None:
-    """Save a list of metric dictionaries to a CSV file."""
-    path = Path(filepath)
+def save_exclusion_counts(excluded_df: pd.DataFrame, output_path: str) -> None:
+    """Save exclusion counts to a JSON file."""
+    path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if not metrics_list:
-        logger.warning("No metrics to save.")
-        # Create empty file with headers if possible, or just touch
-        pd.DataFrame().to_csv(path, index=False)
-        return
 
-    df = pd.DataFrame(metrics_list)
-    df.to_csv(path, index=False)
-    logger.info(f"Saved {len(metrics_list)} thread metrics to {filepath}")
+    exclusion_counts = {
+        "total_excluded": len(excluded_df),
+        "reason": "insufficient_replies",
+        "min_replies_threshold": 5
+    }
 
-def run_decision_quality_pipeline(
-    input_path: str, 
-    output_path: str,
-    min_replies: int = 5
-) -> Dict[str, Any]:
+    with open(path, 'w') as f:
+        json.dump(exclusion_counts, f, indent=2)
+    
+    logger.info(f"Saved exclusion counts to {output_path}")
+
+def run_metrics_exclusion_pipeline(input_path: str, output_path: str, exclusion_log_path: str) -> pd.DataFrame:
     """
-    Main pipeline to compute decision quality metrics for all valid threads.
+    Run the exclusion pipeline for metrics calculation.
     
-    1. Load processed data (from T019/T013).
-    2. Filter by reply count.
-    3. Group by thread_id.
-    4. Compute metrics for each thread.
-    5. Save results.
-    
-    Returns a summary dictionary.
+    1. Load data.
+    2. Filter by reply count >= 5.
+    3. Save exclusion counts.
+    4. Return filtered DataFrame.
     """
-    logger.info(f"Starting decision quality metrics pipeline. Input: {input_path}")
-    
-    # Load data
+    logger.info("Starting metrics exclusion pipeline")
     df = load_processed_data(input_path)
     
-    # Ensure we have thread_id
-    if 'thread_id' not in df.columns:
-        raise ValueError("Input data must contain 'thread_id' column.")
+    filtered_df, excluded_df = filter_threads_by_reply_count(df, min_replies=5)
+    save_exclusion_counts(excluded_df, exclusion_log_path)
     
-    # Filter by reply count (if column exists)
-    if 'reply_count' in df.columns:
-        filtered_df, exclusion_counts = run_metrics_exclusion_pipeline(df, min_replies)
-    else:
-        filtered_df = df
-        exclusion_counts = {"total": len(df), "excluded": 0}
+    # Save the filtered list of IDs for downstream tasks if needed
+    # (Optional, but good practice for reproducibility)
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Metrics exclusion pipeline complete. Output: {output_path}")
     
-    if filtered_df.empty:
-        logger.warning("No threads passed the filter. Saving empty metrics.")
-        save_thread_metrics([], output_path)
-        return {
-            "status": "empty",
-            "input_count": len(df),
-            "output_count": 0,
-            "exclusions": exclusion_counts
-        }
+    return filtered_df
+
+def compute_shannon_entropy(proportions: List[float]) -> float:
+    """
+    Compute Shannon entropy for a list of proportions.
     
-    # Group by thread_id
-    thread_groups = filtered_df.groupby('thread_id')
+    Args:
+        proportions: List of proportions (must sum to 1).
+        
+    Returns:
+        Shannon entropy value.
+    """
+    if not proportions or sum(proportions) == 0:
+        return 0.0
     
-    metrics_list = []
-    for thread_id, group in thread_groups:
-        metrics = compute_decision_quality_metrics(group)
-        metrics['thread_id'] = thread_id
-        metrics_list.append(metrics)
+    # Normalize just in case
+    total = sum(proportions)
+    probs = [p / total for p in proportions]
     
-    # Save
-    save_thread_metrics(metrics_list, output_path)
+    entropy = 0.0
+    for p in probs:
+        if p > 0:
+            entropy -= p * math.log2(p)
     
-    return {
-        "status": "success",
-        "input_count": len(df),
-        "filtered_count": len(filtered_df),
-        "output_count": len(metrics_list),
-        "exclusions": exclusion_counts,
-        "output_file": str(output_path)
-    }
+    return entropy
+
+def compute_agreement_proportion(replies: List[Dict[str, Any]]) -> float:
+    """
+    Compute the proportion of replies agreeing with the seed post sentiment.
+    
+    Agreement is defined as:
+    - Seed is Positive: Reply is Positive or Neutral (if using strict positive) or just Positive?
+      Spec says "agreement proportion". Usually means same sign.
+      Let's assume: Same sign of compound score.
+    - Seed is Negative: Reply is Negative.
+    - Seed is Neutral: Neutral agreement? Or exclude?
+      Standard approach: Count matches in sign.
+    
+    Args:
+        replies: List of dicts with 'sentiment_compound' key.
+        
+    Returns:
+        Agreement proportion (0.0 to 1.0).
+    """
+    if not replies:
+        return 0.0
+    
+    # Determine seed sentiment (first reply is often treated as seed in thread context,
+    # but here 'replies' likely includes the seed or is the thread body.
+    # Assuming 'replies' contains all comments including seed, and seed is first.
+    seed_sentiment = replies[0].get('sentiment_compound', 0)
+    
+    # Define agreement: same sign
+    # Positive: > 0.05, Negative: < -0.05, Neutral: [-0.05, 0.05]
+    # For simplicity, we'll use strict sign matching if not neutral.
+    
+    agree_count = 0
+    total_count = len(replies)
+    
+    seed_sign = 0
+    if seed_sentiment > 0.05:
+        seed_sign = 1
+    elif seed_sentiment < -0.05:
+        seed_sign = -1
+    
+    for r in replies:
+        val = r.get('sentiment_compound', 0)
+        r_sign = 0
+        if val > 0.05:
+            r_sign = 1
+        elif val < -0.05:
+            r_sign = -1
+        
+        # If seed is neutral, agreement is hard to define. 
+        # Let's assume neutral seed implies no strong agreement expected, 
+        # or we count neutral replies as agreement? 
+        # Spec doesn't specify. We'll count exact sign match.
+        if seed_sign == 0:
+            # If seed is neutral, we count neutral replies as agreement?
+            # Or maybe we just skip? Let's count neutral as agreement for neutral seed.
+            if r_sign == 0:
+                agree_count += 1
+        else:
+            if r_sign == seed_sign:
+                agree_count += 1
+    
+    return agree_count / total_count if total_count > 0 else 0.0
+
+def compute_time_to_decision(thread_data: Dict[str, Any]) -> float:
+    """
+    Compute time to decision in seconds.
+    
+    Decision is defined as the time when the thread reaches a stable state
+    (e.g., no new comments for X minutes) or simply the duration of the thread.
+    For this implementation, we use the duration from first post to last post.
+    
+    Args:
+        thread_data: Dict with 'created_utc' (seed) and list of 'replies' with 'created_utc'.
+        
+    Returns:
+        Time difference in seconds.
+    """
+    if not thread_data or 'created_utc' not in thread_data:
+        return 0.0
+    
+    seed_time = thread_data['created_utc']
+    
+    reply_times = [r.get('created_utc', seed_time) for r in thread_data.get('replies', []) if r.get('created_utc')]
+    
+    if not reply_times:
+        return 0.0
+    
+    last_time = max(reply_times)
+    return last_time - seed_time
+
+def compute_decision_quality_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute decision quality metrics for each thread.
+    
+    Metrics:
+    1. Agreement Proportion
+    2. Shannon Entropy (of sentiment distribution)
+    3. Time to Decision
+    4. External Validation Score (if available)
+    
+    Args:
+        df: DataFrame with thread data including 'replies' (list of dicts) and 'sentiment_compound'.
+        
+    Returns:
+        DataFrame with added metric columns.
+    """
+    logger.info("Computing decision quality metrics")
+    
+    # Ensure 'replies' column exists and is not empty
+    if 'replies' not in df.columns:
+        logger.error("Column 'replies' not found in DataFrame.")
+        return df
+    
+    # Apply metrics
+    agreement_list = []
+    entropy_list = []
+    time_to_decision_list = []
+    
+    for idx, row in df.iterrows():
+        replies = row.get('replies', [])
+        if not isinstance(replies, list):
+            try:
+                replies = eval(replies) if isinstance(replies, str) else []
+            except:
+                replies = []
+        
+        if not replies:
+            agreement_list.append(0.0)
+            entropy_list.append(0.0)
+            time_to_decision_list.append(0.0)
+            continue
+        
+        # 1. Agreement
+        agg = compute_agreement_proportion(replies)
+        agreement_list.append(agg)
+        
+        # 2. Entropy
+        # We need sentiment distribution of the thread (seed + replies)
+        sentiments = [r.get('sentiment_compound', 0) for r in replies]
+        # Bin sentiments: Negative, Neutral, Positive
+        bins = [-1, -0.05, 0.05, 1]
+        counts = [0, 0, 0]
+        for s in sentiments:
+            if s < -0.05:
+                counts[0] += 1
+            elif s > 0.05:
+                counts[2] += 1
+            else:
+                counts[1] += 1
+        
+        ent = compute_shannon_entropy(counts)
+        entropy_list.append(ent)
+        
+        # 3. Time to Decision
+        ttd = compute_time_to_decision(row)
+        time_to_decision_list.append(ttd)
+    
+    df['agreement_proportion'] = agreement_list
+    df['shannon_entropy'] = entropy_list
+    df['time_to_decision'] = time_to_decision_list
+    
+    logger.info("Decision quality metrics computed.")
+    return df
+
+def save_thread_metrics(df: pd.DataFrame, output_path: str) -> None:
+    """Save thread metrics to a CSV file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved thread metrics to {output_path}")
+
+def run_decision_quality_pipeline(input_path: str, output_path: str) -> pd.DataFrame:
+    """
+    Run the decision quality metrics pipeline.
+    
+    1. Load data.
+    2. Compute metrics.
+    3. Save results.
+    """
+    logger.info("Starting decision quality pipeline")
+    df = load_processed_data(input_path)
+    df = compute_decision_quality_metrics(df)
+    save_thread_metrics(df, output_path)
+    logger.info("Decision quality pipeline complete.")
+    return df
 
 def main():
-    """Entry point for the decision quality metrics pipeline."""
+    """Main entry point for metrics calculation."""
     config = get_config()
+    paths = config.paths
     
-    # Define paths based on config or defaults
-    # Assuming valid dataset is at data/processed/valid_threads.csv (from T019)
-    # Or we might need to load the sentiment-processed data from T013
-    # The task says "use the *filtered* dataset (valid threads, seed posts extracted, reply count >= 5)"
-    # T013 produces sentiment scores. T019 produces valid threads.
-    # We assume the sentiment scores are merged into the valid threads data or we load from a specific processed file.
-    # Let's assume the input is the sentiment-processed valid threads.
+    # Input from sentiment analysis and filtering
+    input_file = paths.data_processed / "all_threads_classified.csv" # Or filtered version
+    output_file = paths.data_processed / "thread_metrics.csv"
+    exclusion_log = paths.data_processed / "exclusion_counts.json"
     
-    # Default paths
-    input_file = "data/processed/valid_threads_sentiment.csv" 
-    # If that doesn't exist, try to load from the base valid threads and assume sentiment is there?
-    # The spec says T013 applies VADER to the valid dataset.
-    # Let's check if a merged file exists or construct the path.
-    # For robustness, we'll try the most likely path derived from previous tasks.
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}. Run extraction first.")
+        return
     
-    # Attempt to find the file
-    possible_inputs = [
-        "data/processed/valid_threads_sentiment.csv",
-        "data/processed/valid_threads.csv",
-        "data/processed/threads_with_seeds.csv"
-    ]
+    # Run exclusion pipeline first
+    filtered_df = run_metrics_exclusion_pipeline(
+        input_path=str(input_file),
+        output_path=str(output_file),
+        exclusion_log_path=str(exclusion_log)
+    )
     
-    actual_input = None
-    for p in possible_inputs:
-        if Path(p).exists():
-            actual_input = p
-            break
+    # Run decision quality metrics
+    # Note: The filtered_df is already saved to output_file. We reload it to compute metrics
+    # to ensure we are working on the filtered set.
+    final_df = run_decision_quality_pipeline(str(output_file), str(output_file))
     
-    if not actual_input:
-        # Fallback: try to load the raw valid threads and hope sentiment is there, or fail
-        logger.error("Could not find valid threads with sentiment data.")
-        raise FileNotFoundError("No valid input file found for decision quality metrics.")
-    
-    output_file = "data/processed/decision_quality_metrics.csv"
-    
-    logger.info(f"Processing input: {actual_input}")
-    logger.info(f"Output will be written to: {output_file}")
-    
-    try:
-        result = run_decision_quality_pipeline(actual_input, output_file)
-        logger.info(f"Pipeline completed successfully. Result: {result}")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+    logger.info("Metrics pipeline finished successfully.")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

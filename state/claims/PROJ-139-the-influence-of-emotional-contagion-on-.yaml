@@ -60,3 +60,208 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T01:57:10Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: dataset contains 2 or more subreddits and 1 Stack Exchange site
+  claim_id: c_4da89e2f
+  context: "Verification: Assert that the final dataset contains \u22652 subreddits\
+    \ and \u22651 Stack Exchange site. Log counts and origin_type distribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final dataset contains \u22652 subreddits and \u22651 Stack Exchange\
+    \ site."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:41:48Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: dataset size is less than 50 threads
+  claim_id: c_b3f1f69b
+  context: 'Fallback: If the dataset is too small to form a valid grid (e.g., < 50
+    threads) OR if no public corpus is available, generate a validation report with
+    status: unvalidated and reason: insufficient_data_or_corpus.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_less_than_50_threads
+  kind: magnitude
+  raw_text: The dataset size is < 50 threads.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:43:45Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa is less than 0.6
+  claim_id: c_f3b450c4
+  context: 'Reliability: Calculate inter-rater reliability (Cohen''s Kappa). If Kappa
+    < 0.6, generate data/processed/vader_validation_report.json with status: failed,
+    kappa: <value>, and exit successfully.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_is_less_than_0.6
+  kind: magnitude
+  raw_text: Inter-rater reliability (Cohen's Kappa) is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:46:36Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: valid threads are less than 30 percent of total threads
+  claim_id: c_d59ed021
+  context: 'Action: Calculate valid_thread_percentage = (count(valid) / count(total))
+    * 100. Constraint: If valid_thread_percentage < 30, DO NOT raise a RuntimeError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Valid_threads_are_less_than_30_percent_of_total_threads
+  kind: magnitude
+  raw_text: Valid threads comprise less than 30% of the total thread count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:49:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: metadata is complete for 95 percent of extracted threads
+  claim_id: c_8f64eff7
+  context: "Implement validation logic in code/data/extract.py to ensure metadata\
+    \ (timestamp, author, comment ID) is complete for \u226595% of extracted threads."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Metadata is complete for \u226595% of extracted threads."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:49:56Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: threads have fewer than 5 replies
+  claim_id: c_ce8c2775
+  context: 'Implement exclusion logic in code/data/metrics.py: Flag threads with <5
+    replies as insufficient for contagion analysis.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threads_have_fewer_than_5_replies
+  kind: magnitude
+  raw_text: Threads have fewer than 5 replies.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:52:06Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: sentiment change is calculated over first 20 comments
+  claim_id: c_cf2c1e80
+  context: 'Logic: Exclude threads with <5 replies. Calculate the change in sentiment
+    (delta) of subsequent replies over the first 20 comments OR the total available
+    replies (whichever is smaller).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sentiment change (delta) is calculated over the first 20 comments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:54:19Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: full pipeline runs on 500 threads
+  claim_id: c_837e3fd9
+  context: Run full pipeline on N=500 threads and verify completion within 6 hours
+    on CPU-only runner (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline runs on N=500 threads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:54:46Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: pipeline completes within 6 hours
+  claim_id: c_1f20e425
+  context: Run full pipeline on N=500 threads and verify completion within 6 hours
+    on CPU-only runner (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline completes within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:55:11Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: agreement cutoff is swept across 0.5, 0.6, and 0.7
+  claim_id: c_f32dea68
+  context: 'Sweep: Agreement cutoff across {0.5, 0.6, 0.7} and entropy threshold across
+    {0.2, 0.4, 0.6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The agreement cutoff is swept across {0.5, 0.6, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:57:51Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: entropy threshold is swept across 0.2, 0.4, and 0.6
+  claim_id: c_e03a497c
+  context: 'Sweep: Agreement cutoff across {0.5, 0.6, 0.7} and entropy threshold across
+    {0.2, 0.4, 0.6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entropy threshold is swept across {0.2, 0.4, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:58:17Z'
+- artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
+  attempts: 1
+  canonical: VIF threshold is 5
+  claim_id: c_b62ed599
+  context: 'Threshold Logic: VIF > 5 is strict greater than. If any predictor has
+    VIF > 5, set flagged: true and frame joint relationships descriptively in the
+    final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Inflation Factor (VIF) threshold is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:58:35Z'
