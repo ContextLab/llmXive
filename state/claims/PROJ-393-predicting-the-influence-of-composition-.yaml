@@ -1246,3 +1246,545 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T16:19:15Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties for 20 elements sourced from Pyykko 1988 including
+    specific electronegativity and atomic radii values
+  claim_id: c_c8d9fe0f
+  context: Task T006 requires creating data/raw/elemental_properties.csv with fixed
+    periodic table data for elements likely found in Heusler alloys.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Mn,1.55,127,7,Pyykko 1988; Co,1.88,125,9,Pyykko
+    1988; Fe,1.83,126,8,Pyykko 1988; Ga,1.81,135,3,Pyykko 1988; Al,1.61,143,3,Pyykko
+    1988; Ni,1.91,124,10,Pyykko 1988; Cu,1.90,128,11,Pyykko 1988; Sn,1.96,145,4,Pyykko
+    1988; In,1.78,167,3,Pyykko 1988; Ti,1.54,147,4,Pyykko 1988; V,1.63,134,5,Pyykko
+    1988; Zn,1.65,134,12,Pyykko 1988; Si,1.90,111,4,Pyykko 1988; Ge,2.01,122,4,Pyykko
+    1988; Sb,2.05,140,5,Pyykko 1988; Pb,2.33,175,4,Pyykko 1988; Mg,1.31,160,2,Pyykko
+    1988; Cr,1.66,128,6,Pyykko 1988; Nb,1.60,146,5,Pyykko 1988; Ta,1.50,146,5,Pyykko
+    1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:37:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation strategy threshold of 15% missing rate separating listwise
+    deletion from mean imputation
+  claim_id: c_14dccc72
+  context: Task T015 describes integration test logic for imputation, noting that
+    Spec FR-002 takes precedence over Plan mentions of MICE.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that if missing rate > 15%, listwise deletion is applied; if \u2264\
+    \ 15%, mean imputation is applied"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:37:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap validation uses 1000 resamples for R2 confidence interval calculation
+  claim_id: c_824c7423
+  context: "Task T042 implements bootstrap validation to compute a confidence interval\
+    \ for R\xB2 with a sufficient number of resamples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:38:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: periodic table data values for 20 elements sourced from Pyykko 1988
+  claim_id: c_d28fe12b
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys... Source: Pyykko 1988 and
+    standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Mn,1.55,127,7,Pyykko 1988; Co,1.88,125,9,Pyykko
+    1988; Fe,1.83,126,8,Pyykko 1988; Ga,1.81,135,3,Pyykko 1988; Al,1.61,143,3,Pyykko
+    1988; Ni,1.91,124,10,Pyykko 1988; Cu,1.90,128,11,Pyykko 1988; Sn,1.96,145,4,Pyykko
+    1988; In,1.78,167,3,Pyykko 1988; Ti,1.54,147,4,Pyykko 1988; V,1.63,134,5,Pyykko
+    1988; Zn,1.65,134,12,Pyykko 1988; Si,1.90,111,4,Pyykko 1988; Ge,2.01,122,4,Pyykko
+    1988; Sb,2.05,140,5,Pyykko 1988; Pb,2.33,175,4,Pyykko 1988; Mg,1.31,160,2,Pyykko
+    1988; Cr,1.66,128,6,Pyykko 1988; Nb,1.60,146,5,Pyykko 1988; Ta,1.50,146,5,Pyykko
+    1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:41:17Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: bootstrap validation uses 1000 resamples
+  claim_id: c_589b0369
+  context: "T042 [US3] Implement code/src/validation/bootstrap_validation.py to compute\
+    \ a confidence interval for R\xB2 with a sufficient number of resamples... Logic:\
+    \ Perform a sufficient number of bootstrap resamples to ensure robust statistical\
+    \ inference. Set n_resamples=1000 explicitly."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly for bootstrap resamples to ensure robust
+    statistical inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:42:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mn electronegativity 1.55 atomic radii 127 valence electrons 7 Pyykko
+    1988
+  claim_id: c_4bf86cc9
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Mn,1.55,127,7,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:44:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co electronegativity 1.88 atomic radii 125 valence electrons 9 Pyykko
+    1988
+  claim_id: c_834b1a5c
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Co,1.88,125,9,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:45:11Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Fe electronegativity 1.83 atomic radii 126 valence electrons 8 Pyykko
+    1988
+  claim_id: c_9e88e25c
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Fe,1.83,126,8,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:45:39Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ga electronegativity 1.81 atomic radii 135 valence electrons 3 Pyykko
+    1988
+  claim_id: c_6afb9829
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Ga,1.81,135,3,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:46:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Al electronegativity 1.61 atomic radii 143 valence electrons 3 Pyykko
+    1988
+  claim_id: c_c16afcd9
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Al,1.61,143,3,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:46:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ni electronegativity 1.91 atomic radii 124 valence electrons 10 Pyykko
+    1988
+  claim_id: c_54bb5528
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Ni,1.91,124,10,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:47:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cu electronegativity 1.90 atomic radii 128 valence electrons 11 Pyykko
+    1988
+  claim_id: c_3471fe16
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Cu,1.90,128,11,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:47:30Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sn electronegativity 1.96 atomic radii 145 valence electrons 4 Pyykko
+    1988
+  claim_id: c_b99befce
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Sn,1.96,145,4,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:47:48Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: In electronegativity 1.78 atomic radii 167 valence electrons 3 Pyykko
+    1988
+  claim_id: c_115ba7b7
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): In,1.78,167,3,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:48:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ti electronegativity 1.54 atomic radii 147 valence electrons 4 Pyykko
+    1988
+  claim_id: c_b8117d1d
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Ti,1.54,147,4,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:48:36Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: V electronegativity 1.63 atomic radii 134 valence electrons 5 Pyykko
+    1988
+  claim_id: c_0dab5ef3
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): V,1.63,134,5,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:49:49Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Zn electronegativity 1.65 atomic radii 134 valence electrons 12 Pyykko
+    1988
+  claim_id: c_39f67def
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Zn,1.65,134,12,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:50:07Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Si electronegativity 1.90 atomic radii 111 valence electrons 4 Pyykko
+    1988
+  claim_id: c_a07a86f7
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Si,1.90,111,4,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:50:41Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ge electronegativity 2.01 atomic radii 122 valence electrons 4 Pyykko
+    1988
+  claim_id: c_52a39d7e
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Ge,2.01,122,4,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:50:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sb electronegativity 2.05 atomic radii 140 valence electrons 5 Pyykko
+    1988
+  claim_id: c_481fdf28
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Sb,2.05,140,5,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:51:23Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pb electronegativity 2.33 atomic radii 175 valence electrons 4 Pyykko
+    1988
+  claim_id: c_8587bda8
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Pb,2.33,175,4,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:52:07Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mg electronegativity 1.31 atomic radii 160 valence electrons 2 Pyykko
+    1988
+  claim_id: c_2e69e32b
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Mg,1.31,160,2,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:52:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cr electronegativity 1.66 atomic radii 128 valence electrons 6 Pyykko
+    1988
+  claim_id: c_88e07c97
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Cr,1.66,128,6,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:52:56Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Nb electronegativity 1.60 atomic radii 146 valence electrons 5 Pyykko
+    1988
+  claim_id: c_a704dbfc
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Nb,1.60,146,5,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:53:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ta electronegativity 1.50 atomic radii 146 valence electrons 5 Pyykko
+    1988
+  claim_id: c_57d65695
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys... including columns: `element`,
+    `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`.
+    **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain
+    the following exact rows (values are representative of Pyykko and standard data)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data): Ta,1.50,146,5,Pyykko 1988'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:53:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap validation uses 1000 resamples
+  claim_id: c_92ed6be0
+  context: "Implement `code/src/validation/bootstrap_validation.py` to compute a confidence\
+    \ interval for R\xB2 with **a sufficient number of resamples** (SC-002). **Logic**:\
+    \ Perform a sufficient number of bootstrap resamples to ensure robust statistical\
+    \ inference. Set `n_resamples=1000` explicitly."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a sufficient number of bootstrap resamples to ensure robust statistical
+    inference. Set `n_resamples=1000` explicitly.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:54:01Z'

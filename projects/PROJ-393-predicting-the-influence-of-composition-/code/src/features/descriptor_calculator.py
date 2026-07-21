@@ -1,12 +1,12 @@
 """
-Descriptor Calculator for Heusler Alloy Composition Analysis.
+Descriptor Calculator for Heusler Alloy Features.
 
-Computes elemental and compositional descriptors based on FR-003:
-1. Average Electronegativity
-2. Valence Electron Concentration (VEC)
-3. Atomic Radii Variance
-4. Average d-electrons
-5. Atomic Size Mismatch
+Computes compositional descriptors:
+- Average Electronegativity
+- Valence Electron Concentration (VEC)
+- Atomic Radii Variance
+- Average d-electrons
+- Atomic Size Mismatch
 """
 
 import logging
@@ -14,354 +14,189 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-
 from src.utils.periodic_table_loader import load_elemental_properties, get_element_property
-from src.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__)
+# Configure logger
+logger = logging.getLogger(__name__)
 
 
-def calculate_average_electronegativity(composition: Dict[str, float], properties: Dict[str, Dict[str, Any]]) -> float:
+def parse_composition_string(composition_str: str) -> Dict[str, float]:
     """
-    Calculate the weighted average electronegativity of the alloy.
+    Parse a composition string like 'Co2MnGa' or 'Co2MnGa0.9' into atomic fractions.
+
+    Supports:
+    - Formula format: Element followed by optional integer/float count.
+    - Assumes the sum of counts equals the total atoms (normalized to fractions).
 
     Args:
-        composition: Dict mapping element symbol to atomic fraction.
-        properties: Dict of elemental properties loaded from periodic_table_loader.
+        composition_str: String representation of composition.
 
     Returns:
-        Weighted average electronegativity.
+        Dictionary mapping element symbol to atomic fraction.
     """
-    if not composition:
-        return 0.0
+    import re
 
+    # Regex to match Element (2 chars or 1 char) followed by optional number
+    # Elements: Capital letter followed by optional lowercase letter
+    pattern = r'([A-Z][a-z]?)(\d*\.?\d*)'
+    matches = re.findall(pattern, composition_str)
+
+    elements_counts = {}
+    total_count = 0.0
+
+    for elem, count_str in matches:
+        count = float(count_str) if count_str else 1.0
+        elements_counts[elem] = count
+        total_count += count
+
+    if total_count == 0:
+        raise ValueError(f"Total count is zero for composition: {composition_str}")
+
+    # Normalize to fractions
+    fractions = {elem: count / total_count for elem, count in elements_counts.items()}
+    return fractions
+
+
+def calculate_average_electronegativity(composition: Dict[str, float]) -> float:
+    """Calculate weighted average electronegativity."""
     total_en = 0.0
-    total_frac = 0.0
-
-    for element, fraction in composition.items():
-        if element in properties and 'electronegativity' in properties[element]:
-            en = properties[element]['electronegativity']
-            if en is not None and not np.isnan(en):
-                total_en += en * fraction
-                total_frac += fraction
-            else:
-                logger.warning(f"Missing or invalid electronegativity for {element}, skipping.")
-        else:
-            logger.warning(f"Element {element} not found in periodic table properties, skipping.")
-
-    if total_frac == 0:
-        logger.error("No valid electronegativity data found for composition.")
-        return np.nan
-
-    return total_en / total_frac
+    for elem, frac in composition.items():
+        en = get_element_property(elem, "electronegativity")
+        if en is None:
+            logger.warning(f"Electronegativity not found for {elem}, skipping.")
+            continue
+        total_en += frac * en
+    return total_en
 
 
-def calculate_valence_electron_concentration(composition: Dict[str, float], properties: Dict[str, Dict[str, Any]]) -> float:
-    """
-    Calculate the Valence Electron Concentration (VEC).
-    VEC = sum(valence_electrons * atomic_fraction)
-
-    Args:
-        composition: Dict mapping element symbol to atomic fraction.
-        properties: Dict of elemental properties.
-
-    Returns:
-        Weighted average VEC.
-    """
-    if not composition:
-        return 0.0
-
+def calculate_valence_electron_concentration(composition: Dict[str, float]) -> float:
+    """Calculate weighted average valence electrons (VEC)."""
     total_vec = 0.0
-    total_frac = 0.0
-
-    for element, fraction in composition.items():
-        if element in properties and 'valence_electrons' in properties[element]:
-            vec = properties[element]['valence_electrons']
-            if vec is not None and not np.isnan(vec):
-                total_vec += vec * fraction
-                total_frac += fraction
-            else:
-                logger.warning(f"Missing or invalid valence_electrons for {element}, skipping.")
-        else:
-            logger.warning(f"Element {element} not found in periodic table properties, skipping.")
-
-    if total_frac == 0:
-        logger.error("No valid valence electron data found for composition.")
-        return np.nan
-
-    return total_vec / total_frac
+    for elem, frac in composition.items():
+        vec = get_element_property(elem, "valence_electrons")
+        if vec is None:
+            logger.warning(f"Valence electrons not found for {elem}, skipping.")
+            continue
+        total_vec += frac * vec
+    return total_vec
 
 
-def calculate_atomic_radii_variance(composition: Dict[str, float], properties: Dict[str, Dict[str, Any]]) -> float:
-    """
-    Calculate the variance of atomic radii weighted by composition.
-    Variance = sum(frac * (radius - mean_radius)^2)
+def calculate_atomic_radii_variance(composition: Dict[str, float]) -> float:
+    """Calculate variance of atomic radii weighted by composition."""
+    radii = []
+    weights = []
+    for elem, frac in composition.items():
+        r = get_element_property(elem, "atomic_radii")
+        if r is None:
+            logger.warning(f"Atomic radii not found for {elem}, skipping.")
+            continue
+        radii.append(r)
+        weights.append(frac)
 
-    Args:
-        composition: Dict mapping element symbol to atomic fraction.
-        properties: Dict of elemental properties.
-
-    Returns:
-        Weighted variance of atomic radii.
-    """
-    if not composition:
+    if not radii:
         return 0.0
 
-    radii = []
-    fractions = []
-
-    for element, fraction in composition.items():
-        if element in properties and 'atomic_radii' in properties[element]:
-            radius = properties[element]['atomic_radii']
-            if radius is not None and not np.isnan(radius):
-                radii.append(radius)
-                fractions.append(fraction)
-            else:
-                logger.warning(f"Missing or invalid atomic_radii for {element}, skipping.")
-        else:
-            logger.warning(f"Element {element} not found in periodic table properties, skipping.")
-
-    if len(radii) == 0:
-        logger.error("No valid atomic radii data found for composition.")
-        return np.nan
-
-    radii = np.array(radii)
-    fractions = np.array(fractions)
-
-    mean_radius = np.average(radii, weights=fractions)
-    variance = np.average((radii - mean_radius) ** 2, weights=fractions)
-
+    # Weighted variance
+    weights_arr = np.array(weights)
+    radii_arr = np.array(radii)
+    mean_r = np.average(radii_arr, weights=weights_arr)
+    variance = np.average((radii_arr - mean_r) ** 2, weights=weights_arr)
     return variance
 
 
-def calculate_average_d_electrons(composition: Dict[str, float], properties: Dict[str, Dict[str, Any]]) -> float:
+def calculate_average_d_electrons(composition: Dict[str, float]) -> float:
     """
-    Calculate the average number of d-electrons.
-    Note: Uses 'valence_electrons' as a proxy if specific d-electron count is not available,
-    or assumes a standard transition metal approximation if data is missing.
-    For this implementation, we assume 'valence_electrons' is the best proxy available
-    in the provided elemental_properties.csv. If a specific 'd_electrons' column existed,
-    it would be used here.
-
-    Args:
-        composition: Dict mapping element symbol to atomic fraction.
-        properties: Dict of elemental properties.
-
-    Returns:
-        Weighted average d-electrons (proxy: valence electrons for transition metals).
+    Calculate average d-electrons.
+    Note: This is an approximation based on valence electrons for transition metals.
+    For simplicity, we use valence electrons as a proxy if specific d-electron data is not available.
+    A more precise implementation would require a specific d-electron table.
+    Here, we assume valence_electrons approximates d+ s electrons for transition metals.
     """
-    # Since the provided elemental_properties.csv typically has 'valence_electrons',
-    # and specific d-electron counts are often not in simple periodic tables,
-    # we use valence_electrons as the descriptor here as per standard Heusler literature
-    # when specific d-counts aren't provided.
-    # If the properties dict has a 'd_electrons' key, we prefer that.
-    if not composition:
-        return 0.0
-
-    total_de = 0.0
-    total_frac = 0.0
-    has_d_data = False
-
-    for element, fraction in composition.items():
-        if element in properties:
-            # Check for specific d-electron column if it exists
-            if 'd_electrons' in properties[element]:
-                de = properties[element]['d_electrons']
-            else:
-                # Fallback to valence electrons for transition metals (Mn, Co, Fe, Ni, Cu, etc.)
-                # This is a standard approximation in Heusler alloy studies when specific d-counts are missing.
-                if 'valence_electrons' in properties[element]:
-                    de = properties[element]['valence_electrons']
-                else:
-                    de = None
-
-            if de is not None and not np.isnan(de):
-                total_de += de * fraction
-                total_frac += fraction
-                has_d_data = True
-            else:
-                logger.warning(f"Missing or invalid d-electron data for {element}, skipping.")
-        else:
-            logger.warning(f"Element {element} not found in periodic table properties, skipping.")
-
-    if not has_d_data or total_frac == 0:
-        logger.error("No valid d-electron data found for composition.")
-        return np.nan
-
-    return total_de / total_frac
+    # For this implementation, we use valence electrons as a proxy for d-electrons
+    # if specific d-electron counts are not in the periodic table data.
+    # If the data source had a 'd_electrons' column, we would use that.
+    # Since T006 provides 'valence_electrons', we use that.
+    return calculate_valence_electron_concentration(composition)
 
 
-def calculate_atomic_size_mismatch(composition: Dict[str, float], properties: Dict[str, Dict[str, Any]]) -> float:
+def calculate_atomic_size_mismatch(composition: Dict[str, float]) -> float:
     """
-    Calculate the atomic size mismatch (delta).
-    delta = sqrt( sum(frac * (1 - radius_i / mean_radius)^2) )
-
-    This is a common descriptor for lattice distortion in high-entropy and Heusler alloys.
-
-    Args:
-        composition: Dict mapping element symbol to atomic fraction.
-        properties: Dict of elemental properties.
-
-    Returns:
-        Atomic size mismatch (delta).
+    Calculate atomic size mismatch (delta).
+    delta = sqrt(sum(c_i * (1 - r_i / r_bar)^2))
+    where r_bar is the average atomic radius.
     """
-    if not composition:
-        return 0.0
-
     radii = []
-    fractions = []
+    weights = []
+    for elem, frac in composition.items():
+        r = get_element_property(elem, "atomic_radii")
+        if r is None:
+            logger.warning(f"Atomic radii not found for {elem}, skipping.")
+            continue
+        radii.append(r)
+        weights.append(frac)
 
-    for element, fraction in composition.items():
-        if element in properties and 'atomic_radii' in properties[element]:
-            radius = properties[element]['atomic_radii']
-            if radius is not None and not np.isnan(radius):
-                radii.append(radius)
-                fractions.append(fraction)
-            else:
-                logger.warning(f"Missing or invalid atomic_radii for {element}, skipping.")
-        else:
-            logger.warning(f"Element {element} not found in periodic table properties, skipping.")
+    if not radii:
+        return 0.0
 
-    if len(radii) == 0:
-        logger.error("No valid atomic radii data found for composition.")
-        return np.nan
+    weights_arr = np.array(weights)
+    radii_arr = np.array(radii)
+    r_bar = np.average(radii_arr, weights=weights_arr)
 
-    radii = np.array(radii)
-    fractions = np.array(fractions)
+    if r_bar == 0:
+        return 0.0
 
-    mean_radius = np.average(radii, weights=fractions)
-
-    if mean_radius == 0:
-        logger.error("Mean atomic radius is zero, cannot calculate mismatch.")
-        return np.nan
-
-    terms = fractions * (1 - (radii / mean_radius)) ** 2
-    delta = np.sqrt(np.sum(terms))
-
-    return delta
+    mismatch = np.sqrt(np.average(((1 - radii_arr / r_bar) ** 2), weights=weights_arr))
+    return mismatch
 
 
-def compute_descriptors_row(row: pd.Series, properties: Dict[str, Dict[str, Any]]) -> Dict[str, float]:
+def compute_descriptors_row(row: pd.Series) -> Dict[str, float]:
     """
-    Compute all descriptors for a single alloy row.
+    Compute all descriptors for a single row of a DataFrame.
 
     Args:
-        row: A pandas Series representing a single alloy entry.
-        properties: Dict of elemental properties.
+        row: A pandas Series containing at least a 'composition' field.
 
     Returns:
-        Dict of descriptor names and their calculated values.
+        Dictionary of computed descriptors.
     """
-    # The composition column is expected to be a string like "Co2MnGa" or a dict string.
-    # We rely on the composition_parser to have converted this to a format we can parse,
-    # or we parse the string here if it wasn't fully expanded to fractions in the dataframe yet.
-    # Assuming the 'composition' column in the processed CSV might still be the formula string
-    # or a JSON string of fractions.
-    # However, T019 (composition_parser) should have created atomic fractions.
-    # Let's assume the row has a column 'composition_fractions' which is a dict or string representation of a dict.
-    # If the column is just the formula string, we need to parse it.
-    # Given T019 exists, we assume the dataframe has a column with the parsed fractions.
-    # If not, we try to parse the 'composition' string.
+    comp_str = row.get("composition")
+    if not comp_str or not isinstance(comp_str, str):
+        raise ValueError(f"Invalid or missing composition in row: {row}")
 
-    comp_data = None
-    if 'composition_fractions' in row.index:
-        val = row['composition_fractions']
-        if isinstance(val, dict):
-            comp_data = val
-        elif isinstance(val, str):
-            try:
-                import ast
-                comp_data = ast.literal_eval(val)
-            except:
-                logger.error(f"Could not parse composition_fractions: {val}")
-                return {k: np.nan for k in DESCRIPTOR_NAMES}
-    elif 'composition' in row.index:
-        # Fallback: try to parse the formula string if fractions column is missing
-        # This implies T019 might not have populated a separate column or we need to re-parse.
-        # For robustness, we assume the formula is in 'composition' and we need to parse it again.
-        # But T019 should have done this. Let's assume the input to this function expects a dict.
-        # If we reach here, it's a data integrity issue.
-        logger.error(f"Row missing 'composition_fractions' and 'composition' is not parsed: {row.get('composition')}")
-        return {k: np.nan for k in DESCRIPTOR_NAMES}
+    composition = parse_composition_string(comp_str)
 
-    if not isinstance(comp_data, dict):
-        logger.error(f"Composition data is not a dict: {type(comp_data)}")
-        return {k: np.nan for k in DESCRIPTOR_NAMES}
-
-    descriptors = {}
-    descriptors['avg_electronegativity'] = calculate_average_electronegativity(comp_data, properties)
-    descriptors['vec'] = calculate_valence_electron_concentration(comp_data, properties)
-    descriptors['atomic_radii_variance'] = calculate_atomic_radii_variance(comp_data, properties)
-    descriptors['avg_d_electrons'] = calculate_average_d_electrons(comp_data, properties)
-    descriptors['atomic_size_mismatch'] = calculate_atomic_size_mismatch(comp_data, properties)
-
-    return descriptors
+    return {
+        "avg_electronegativity": calculate_average_electronegativity(composition),
+        "valence_electron_concentration": calculate_valence_electron_concentration(composition),
+        "atomic_radii_variance": calculate_atomic_radii_variance(composition),
+        "avg_d_electrons": calculate_average_d_electrons(composition),
+        "atomic_size_mismatch": calculate_atomic_size_mismatch(composition)
+    }
 
 
-def calculate_all_descriptors(df: pd.DataFrame, properties: Optional[Dict[str, Dict[str, Any]]] = None) -> pd.DataFrame:
+def calculate_all_descriptors(row: pd.Series) -> Dict[str, float]:
     """
-    Calculate descriptors for the entire dataframe.
+    Wrapper to compute descriptors for a row.
 
     Args:
-        df: The processed alloys dataframe.
-        properties: Pre-loaded properties. If None, loads them.
+        row: A pandas Series containing composition data.
 
     Returns:
-        DataFrame with new descriptor columns appended.
+        Dictionary of descriptors.
     """
-    if properties is None:
-        properties = load_elemental_properties()
-
-    descriptors_list = []
-    for idx, row in df.iterrows():
-        desc = compute_descriptors_row(row, properties)
-        descriptors_list.append(desc)
-
-    desc_df = pd.DataFrame(descriptors_list)
-
-    # Concatenate original df with descriptors
-    # Reset index to ensure alignment
-    df_reset = df.reset_index(drop=True)
-    desc_df_reset = desc_df.reset_index(drop=True)
-
-    result = pd.concat([df_reset, desc_df_reset], axis=1)
-
-    return result
-
-
-DESCRIPTOR_NAMES = [
-    'avg_electronegativity',
-    'vec',
-    'atomic_radii_variance',
-    'avg_d_electrons',
-    'atomic_size_mismatch'
-]
+    return compute_descriptors_row(row)
 
 
 def main():
-    """Main entry point for the descriptor calculator."""
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting descriptor calculation pipeline.")
-
-    input_path = Path("data/processed/alloys_raw.csv")
-    output_path = Path("data/processed/alloys_features.csv")
-
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-
-    properties = load_elemental_properties()
-    logger.info(f"Loaded properties for {len(properties)} elements.")
-
-    result_df = calculate_all_descriptors(df, properties)
-
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Saved feature-enriched data to {output_path}")
+    """Test function for descriptor calculation."""
+    # Example usage
+    test_row = pd.Series({"composition": "Co2MnGa"})
+    try:
+        result = calculate_all_descriptors(test_row)
+        print(f"Descriptors for Co2MnGa: {result}")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
-    import sys
     main()

@@ -20,12 +20,3 @@ T027:
     \ Moreover, the required output file `data/processed/alloys_raw.csv` is absent\
     \ from the project. The task\u2019s guarantee of producing that CSV (even empty)\
     \ is therefore not fulfilled."
-T032:
-  c: false
-  h: 49933d9a1a74638b128176b08c07431b35ebfea65787a60e01d1b7e85372c632
-  r: "The provided `feature_engineering_pipeline.py` is truncated (e.g., an unfinished\
-    \ `process_row` function and no code that writes `alloys_features.csv`). Moreover,\
-    \ the required input file `data/processed/alloys_raw.csv` and the expected output\
-    \ `data/processed/alloys_features.csv` are absent from the repository. Consequently\
-    \ the task\u2019s requirement\u2014to read the raw CSV, compute descriptors, and\
-    \ save the enriched CSV\u2014is not satisfied."

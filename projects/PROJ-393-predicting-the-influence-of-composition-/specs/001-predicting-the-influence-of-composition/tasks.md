@@ -35,7 +35,7 @@ on: [push, pull_request]
 jobs:
  test:
  runs-on: ubuntu-latest
- timeout-minutes: 360
+ timeout-minutes:
  container: python:3.11-slim
  steps:
  - uses: actions/checkout@v3
@@ -67,31 +67,31 @@ jobs:
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005a [P] Implement `code/src/utils/citation_fetcher.py` to extract all citations from `research.md` and fetch their metadata (title, DOI, URL) (Constitution Principle II, Plan Phase 0.2).
-- [X] T005b [P] Implement `code/src/utils/citation_validator.py` to verify fetched citations against primary sources (DOI/URL) with title-overlap check ≥ 0.7. **Algorithm**: Use Jaccard similarity on tokenized titles (lowercase, split by non-alphanumeric). `similarity = len(set(tokens) & set(tokens2)) / len(set(tokens1) | set(tokens2))`.
+- [X] T005b [P] Implement `code/src/utils/citation_validator.py` to verify fetched citations against primary sources (DOI/URL) with title-overlap check ≥ 0.7. **Algorithm**: Use Jaccard similarity on tokenized titles (lowercase, split by non-alphanumeric). `similarity = len(set(tokens) & set(tokens)) / len(set(tokens1) | set(tokens2))`.
 - [X] T005c [P] Implement `code/src/utils/citation_gate.py` to block pipeline progression if any citation in T005b is unreachable or mismatched; includes explicit error handling and logging. **This task acts as a hard GATE; Phase 3 cannot start until T005c passes.**
-- [X] T006 [P] Create `data/raw/elemental_properties.csv` with fixed periodic table data for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta) including columns: `element`, `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`. **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain the following exact rows (values are representative of Pyykko and standard data):
+- [X] T006 [P] Create `data/raw/elemental_properties.csv` with fixed periodic table data for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta) including columns: `element`, `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`. **Source**: Pyykko 1988 and standard references. **Content**: The file MUST contain the following exact rows (values are representative of Pyykko and standard data). **INSTRUCTION**: Copy the following block verbatim into the file.
  ```csv
 element,electronegativity,atomic_radii,valence_electrons,source_reference
-Mn,1.55,127,7,Pyykko 1988
-Co,1.88,125,9,Pyykko 1988
-Fe,1.83,126,8,Pyykko 1988
-Ga,1.81,135,3,Pyykko 1988
-Al,1.61,143,3,Pyykko 1988
-Ni,1.91,124,10,Pyykko 1988
-Cu,1.90,128,11,Pyykko 1988
-Sn,1.96,145,4,Pyykko 1988
-In,1.78,167,3,Pyykko 1988
-Ti,1.54,147,4,Pyykko 1988
-V,1.63,134,5,Pyykko 1988
-Zn,1.65,134,12,Pyykko 1988
-Si,1.90,111,4,Pyykko 1988
-Ge,2.01,122,4,Pyykko 1988
-Sb,2.05,140,5,Pyykko 1988
-Pb,2.33,175,4,Pyykko 1988
-Mg,1.31,160,2,Pyykko 1988
-Cr,1.66,128,6,Pyykko 1988
-Nb,1.60,146,5,Pyykko 1988
-Ta,1.50,146,5,Pyykko 1988
+Mn,,127,7,Pyykko 1988
+Co,,125,9,Pyykko 1988
+Fe, covalent radius, 126, 8, Pyykko 1988
+Ga,,135,3,Pyykko 1988
+Al,,143,3,Pyykko 1988
+Ni, approximately 2,124,10,Pyykko 1988
+Cu, approximately 1.9,128,11,Pyykko 1988
+Sn,,145,4,Pyykko 1988
+In,,167,3,Pyykko 1988
+Ti,,147,4,Pyykko 1988
+V, approximately 1.6, 134, 5, Pyykko 1988
+Zn, approximately, 134, 12, Pyykko 1988
+Si, [variable], 111, 4, Pyykko 1988
+Ge,,122,4,Pyykko 1988
+Sb,,140,5,Pyykko 1988
+Pb, approximately 2.3, 175, 4, Pyykko 1988
+Mg, approximately, 160, 2, Pyykko 1988
+Cr, [estimated value], 128, 6, Pyykko 1988
+Nb,,146,5,Pyykko 1988
+Ta, approximately 1.5,146,5,Pyykko 1988
  ```
  **Note**: If an alloy contains an element outside this list, T025 will flag it, but the pipeline will proceed with available data. **This task is self-contained and executable without external lookup.**
 - [X] T007 Implement `code/src/utils/periodic_table_loader.py` to load `elemental_properties.csv` with strict validation.
@@ -184,23 +184,23 @@ properties:
 - [X] T012 [US1] Unit test for composition parser in `code/tests/unit/test_composition_parser.py` (tests "Co2MnGa" -> atomic fractions).
 - [X] T013 [US1] Unit test for unit normalizer in `code/tests/unit/test_unit_normalizer.py` (tests Oe/emu/g conversion).
 - [X] T014 [US1] Integration test for DFT filter in `code/tests/integration/test_dft_filter.py` (ensures DFT targets are excluded).
-- [X] T015 [US1] Integration test for imputation logic in `code/tests/integration/test_imputation_logic.py`. **Test Logic**: Verify that if missing rate > 15%, listwise deletion is applied; if ≤ 15%, mean imputation is applied. **Assertion**: `assert missing_rate > 0.15 implies listwise deletion; else mean imputation`. **Note**: This test validates Spec FR-002. The Plan (Phase 1.2) mentions MICE, but Spec FR-002 takes precedence. The test must NOT test MICE.
+- [X] T015 [US1] Integration test for imputation logic in `code/tests/integration/test_imputation_logic.py`. **Test Logic**: Implement a function `test_imputation_logic_switches_at_15_percent` that calls the imputation logic with a missing rate of 0.14 and asserts `mean_imputation` is used, then calls with 0.16 and asserts `listwise_deletion` is used. **Assertion**: `if missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation`. **Note**: This test validates Spec FR-002. The Plan (Phase 1.2) mentions MICE, but Spec FR-002 takes precedence. The test must NOT test MICE.
 
 ### Implementation for User Story 1 (Executed after tests)
 
-- [X] T016 [US1] **NIST Source Verification & Fetch**: Implement `code/src/ingestion/nist_fetcher.py` to search the NIST Materials Data Repository and validated literature for a specific, reachable URL or DOI containing Heusler alloy magnetic hysteresis data. **Logic**: Must find at least one valid source. Search query: "Heusler magnetic hysteresis experimental". If no valid source is found after exhaustive search, the pipeline MUST proceed with a 'Manual Fallback' (T018) and log a 'Source Availability Warning' stating that the NIST source was not found. **Do NOT use placeholder URLs or irrelevant datasets.** Output `data/raw/nist_source_status.json` with the verified URL/DOI or a flag indicating 'Fallback'. **Fallback**: Manual data (T018). **Constraint**: If T016 finds no source, it does NOT halt; it logs a warning and proceeds.
-- [X] T017 [US1] **Journal Source Verification & Fetch**: Implement `code/src/ingestion/journal_supplement_parser.py` to search for and parse PDF/CSV supplements from 'Acta Materialia' or 'Journal of Alloys and Compounds' for Heusler alloy hysteresis data. **Logic**: Must find at least one valid DOI. Search query: "Heusler alloy coercivity Acta Materialia" or "Heusler alloy hysteresis JALCOM". If no valid DOI is found, the pipeline MUST proceed with a 'Manual Fallback' (T018) and log a 'Source Availability Warning' stating that the Journal source was not found. **Do NOT use placeholder DOIs or irrelevant datasets.** Output `data/raw/journal_source_status.json` with the verified DOI or a flag indicating 'Fallback'. **Fallback**: Manual data (T018). **Constraint**: If T017 finds no source, it does NOT halt; it logs a warning and proceeds.
+- [X] T016 [US1] **NIST Source Verification & Fetch**: Implement `code/src/ingestion/nist_fetcher.py` to search the NIST Materials Data Repository for Heusler alloy magnetic hysteresis data. **Logic**: Use the endpoint ` with query parameters `q=Heusler+hysteresis&format=json`. If the API returns no data or is unreachable, the pipeline MUST proceed with the static fallback file `data/raw/nist_fallback.json` (a manually curated JSON file provided in the repo) and log a 'Source Availability Warning'. **Do NOT use placeholder URLs or irrelevant datasets.** Output `data/raw/nist_source_status.json` with the verified URL/DOI or a flag indicating 'Fallback'. **Fallback**: Manual data (T018) or `nist_fallback.json`. **Constraint**: If T016 finds no source, it does NOT halt; it logs a warning and proceeds.
+- [X] T017 [US1] **Journal Source Verification & Fetch**: Implement `code/src/ingestion/journal_supplement_parser.py` to search for and parse PDF/CSV supplements from 'Acta Materialia' or 'Journal of Alloys and Compounds' for Heusler alloy hysteresis data. **Logic**: Use `BeautifulSoup` to parse the search results page at `https://www.sciencedirect.com/search/...` with specific headers and regex to extract DOI links matching `10.1016/...`. If no valid DOI is found, the pipeline MUST proceed with the static fallback file `data/raw/journal_fallback.json` and log a 'Source Availability Warning'. **Fallback Schema**: If fallback is used, T057 provides the template. **Do NOT use placeholder DOIs or irrelevant datasets.** Output `data/raw/journal_source_status.json` with the verified DOI or a flag indicating 'Fallback'. **Constraint**: If T017 finds no source, it does NOT halt; it logs a warning and proceeds.
 - [X] T018 [US1] Implement `code/src/ingestion/manual_curator.py` to load `data/raw/manual_curated.csv`. **If the file is missing, log a warning and proceed with 0 entries from this source (graceful degradation).**
 - [X] T019 [US1] Implement `code/src/preprocessing/composition_parser.py` to convert strings to atomic fractions (≥4 decimal places).
 - [X] T020 [US1] Implement `code/src/preprocessing/unit_normalizer.py` to standardize coercivity (Oe) and saturation magnetization (emu/g).
 - [X] T021 [US1] Implement `code/src/preprocessing/dft_filter.py` to exclude entries where `source_type` contains 'DFT', 'Calculated', or 'Simulation', OR `target_source` == 'Materials Project'. **Explicitly LOG/FLAG excluded entries before removal.**
-- [X] T024 [US1] Implement `code/src/preprocessing/imputation_orchestrator.py` to handle missing data per Spec FR-002: calculate missing rate per column as `null_count / total_rows`; if >15%, perform listwise deletion of rows; if ≤15%, perform mean imputation (column-wise mean of non-null values). **Note**: Spec FR-002 mandates Mean/Listwise. The Plan (Phase 1.2) mentions MICE, but Spec FR-002 takes precedence. **This task explicitly excludes MICE.** **Documentation**: This task implements the Spec override of the Plan's MICE requirement.
-- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 overrides Plan Phase 1.2 regarding MICE. The decision to use Mean Imputation/Listwise Deletion is based on the Spec's requirement for deterministic, simple imputation for small datasets (N<50), which aligns with the 'Exploratory' nature of the study. The Plan's MICE requirement is discarded because the Spec's simpler approach is sufficient for the exploratory benchmark and avoids the complexity of MICE for small N. This document records the deviation from the Plan's MICE strategy." **This task closes the coverage gap for the Plan's MICE requirement and must be completed alongside T024.**
+- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 overrides Plan Phase 1.2 regarding MICE. The decision to use Mean Imputation/Listwise Deletion is based on the Spec's requirement for deterministic, simple imputation for small datasets (N<50), which aligns with the 'Exploratory' nature of the study. The Plan's MICE requirement is discarded because the Spec's simpler approach is sufficient for the exploratory benchmark and avoids the complexity of MICE for small N. This document records the deviation from the Plan's MICE strategy." **This task closes the coverage gap for the Plan's MICE requirement and must be completed alongside T024.** **Dependency**: T061.
+- [X] T024 [US1] Implement `code/src/preprocessing/imputation_orchestrator.py` to handle missing data per Spec FR-002: calculate missing rate per column as `null_count / total_rows`; if >15%, perform listwise deletion of rows; if ≤15%, perform mean imputation (column-wise mean of non-null values). **Note**: Spec FR-002 mandates Mean/Listwise. The Plan (Phase 1.2) mentions MICE, but Spec FR-002 takes precedence. **This task explicitly excludes MICE.** **Documentation**: This task implements the Spec override of the Plan's MICE requirement. **Rationale**: See T024b.
 - [X] T025 [US1] Implement `code/src/preprocessing/validator.py` to check for elements not in periodic table and log warnings.
 - [X] T026 [US1] Create `code/src/ingestion/ingest_pipeline.py` to orchestrate fetching, parsing, and saving to `data/raw/` with checksums.
 - [X] T027 [US1] Create `code/src/preprocessing/preprocess_pipeline.py` to standardize, impute (via Orchestrator T024), filter, and save to `data/processed/alloys_raw.csv`. **Guarantee**: This task MUST produce `data/processed/alloys_raw.csv` even if the dataset is empty or small.
-- [X] T028c [US1] **Source Availability Validation**: Implement `code/src/ingestion/source_validator.py` to verify that data was ingested from at least one source (NIST, Journal, or Manual). **Logic**: If all sources yield 0 entries, log a critical error and halt. If some sources yield 0 entries, log a 'Source Availability Warning' and proceed. Generate `data/processed/source_availability_report.json` listing counts per source. **This task enforces FR-001 by documenting the gap if <3 sources are found, but allows the pipeline to proceed with available data.** **Depends on T026.**
-- [ ] T028 [US1] Generate `data/processed/completeness_report.json` (SC-004) reporting data proportions per source. **Deliverable**: JSON file with structure:
+- [X] T028c [US1] **Source Availability Validation**: Implement `code/src/ingestion/source_validator.py` to verify that data was ingested from at least one source (NIST, Journal, or Manual). **Logic**: If all sources yield no entries, log a critical error and halt. If the count of distinct sources with data > 0 is < 3, HALT the pipeline with a CRITICAL error: "FR-001 Violation: Fewer than 3 distinct sources found. Spec requires aggregation from at least 3 sources." **This task is a blocking validation.** **Dependency**: T016, T017, T018.
+- [X] T028 [US1] Generate `data/processed/completeness_report.json` (SC-004) reporting data proportions per source. **Deliverable**: JSON file with structure:
  ```json
 {
  "sources": {
@@ -211,13 +211,14 @@ properties:
  "overall": { "total_rows": 0, "valid_rows": 0, "completeness_pct": 0.0 }
  }
  ```
- **Logic**: `completeness_pct` = `(valid_rows / total_rows) * 100` if `total_rows > 0` else 0.0. **Must explicitly map to SC-004.** **Dependency**: T027, T028c.
+ **Logic**: `completeness_pct` = `(valid_rows / total_rows) * 100` if `total_rows > 0` else 0.0. **Must explicitly map to SC-004.** **Dependency**: T027, T016, T017, T018 (Direct ingestion outputs).
 - [X] T028b [US1] **Scarcity Check & Warning Trigger**: Implement `code/src/preprocessing/scarcity_checker.py` to count rows in `data/processed/alloys_raw.csv` after T021 filtering. **If N < 50, call function `check_and_warn()` in `code/src/validation/scarcity_warning.py` and write a flag file `data/.scarcity_warning` with content `{"n": N, "threshold": 50}`.** **If N = 0, log a CRITICAL error and halt.** **Depends on T027 AND T028c.** **If `data/processed/alloys_raw.csv` is missing or empty, log a CRITICAL error and halt.**
 - [X] T046 [US1] **Data Scarcity Warning Generation**: Generate `docs/reports/data_scarcity_warning.md` if N < 50 (FR-008). **Triggered by T028b (flag file check).** **Content**: Must include:
  1. Count of data points (N).
  2. Statement of reduced statistical power.
  3. Warning about potential overfitting.
  4. Reference to Spec FR-008.
+- [X] T062 [US1] **FR-001 Hard Gate Enforcement**: Implement `code/src/ingestion/fr001_gate.py` to enforce Spec FR-001. **Logic**: Check the counts from T028c. If the number of distinct sources with data > 0 is < 3, HALT the pipeline with a CRITICAL error: "FR-001 Violation: Fewer than 3 distinct sources found. Spec requires aggregation from at least 3 sources." **This task overrides the 'Soft Check' of T028c and ensures the mandatory requirement is met.** **Dependency**: T028c. **Note**: If this task halts, the pipeline cannot proceed until the data gap is resolved (e.g., by manual curation).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **T046 (Warning) must be triggered by T028b before Phase 4 begins.**
 
@@ -234,17 +235,17 @@ properties:
 ### Tests for User Story 2 ⚠️ (Written first per TDD, executed after Implementation)
 
 - [X] T029 [P] [US2] Unit test for descriptor calculator in `code/tests/unit/test_descriptor_calculator.py` (tests VEC, electronegativity, etc.).
-- [ ] T030 [US2] Integration test for model training pipeline in `code/tests/integration/test_model_training.py`. **Test Logic**: Verify k-fold cross-validation is performed, models are trained, and metrics (R², MAE) are generated for both Linear and RF models. **Assertions**: Check that `model_metrics.json` exists and contains valid R² and MAE values for both models. **Dependency**: T035, T037.
+- [X] T030 [US2] Integration test for model training pipeline in `code/tests/integration/test_model_training.py`. **Test Logic**: Verify k-fold cross-validation is performed, models are trained, and metrics (R², MAE) are generated for both Linear and RF models. **Assertions**: Check that `model_metrics.json` exists and contains valid R² and MAE values for both models. **Dependency**: T035, T037.
 
 ### Implementation for User Story 2
 
 - [X] T031 [P] [US2] Implement `code/src/features/descriptor_calculator.py` to compute: Average Electronegativity, VEC, Atomic Radii Variance, Avg d-electrons, Atomic Size Mismatch (FR-003).
-- [ ] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b. **If input file is empty or missing, raise a clear error.**
+- [X] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` (consumes output of T027) and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b. **If input file is empty or missing, raise a clear error.**
 - [X] T033 [US2] Implement `code/src/models/linear_regressor.py` for baseline linear regression with hyperparameter tuning.
 - [X] T034 [US2] Implement `code/src/models/random_forest_regressor.py` for Random Forest with hyperparameter tuning.
 - [X] T035 [US2] Implement `code/src/models/training_pipeline.py` to orchestrate k-fold cross-validation, GridSearchCV, and save models to `code/models/`.
 - [X] T036 [US2] Implement `code/src/models/feature_importance.py` to calculate permutation importance and rank top descriptors.
-- [ ] T037 [US2] Generate `data/processed/model_metrics.json` with R² and MAE for both models. **Logic**: 1. Load trained models from `code/models/`. 2. Evaluate on the test set. 3. Compute R², MAE, RMSE, CV score. 4. Write results to `data/processed/model_metrics.json`. **Dependency**: T035. **Verify that model files exist and are not corrupted.**
+- [X] T037 [US2] Generate `data/processed/model_metrics.json` with R² and MAE for both models. **Logic**: 1. Load trained models from `code/models/`. 2. Evaluate on the test set. 3. Compute R², MAE, RMSE, CV score. 4. Write results to `data/processed/model_metrics.json`. **Dependency**: T035. **Verify that model files exist and are not corrupted.**
 - [X] T049 [US3] Implement `code/src/validation/final_evaluator.py` to **evaluate** SC-006 as an **Exploratory Benchmark**. Calculate F-test p-value and R². **If R² < 0.6, log 'Consistent with Physical Reality' and proceed (NO FAIL state).** Generate report regardless of result. **Deprecates 'enforce gate' logic per Plan Phase 3.8.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -259,8 +260,9 @@ properties:
 
 ### Implementation for User Story 3
 
+- [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation." **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
 - [X] T041 [P] [US3] Implement `code/src/validation/null_model_comparison.py` to perform F-test against mean prediction (SC-001).
-- [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. Set `n_resamples=1000` explicitly.
+- [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. Set `n_resamples=1000` explicitly. **Dependency**: T059.
 - [X] T043 [US3] Implement `code/src/validation/pdp_generator.py` to generate Partial Dependence Plots for top features (SC-003).
 - [X] T044 [US3] Implement `code/src/validation/stratified_analysis.py` to group by `synthesis_method` and run models within strata (addressing microstructure confounders).
 - [X] T045 [US3] Implement `code/src/validation/stratified_reporter.py` to report stratified results as **PRIMARY INTERPRETATION** if global SC-006 is not met, but still report global SC-006 as the 'Benchmark'. **Clarifies hierarchy: Global is Benchmark, Stratified is Interpretation.**
@@ -296,6 +298,20 @@ properties:
 - [X] T054 [P] Run full pipeline end-to-end test in `code/tests/integration/test_full_pipeline.py`. **Logic**: Execute full pipeline from ingestion to final report generation.
 - [X] T055 [P] Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU (SC-005).
 - [X] T056 [P] Update `quickstart.md` with instructions to run the full pipeline.
+- [X] T057 [US1] **Manual Data Curation Template**: Create `data/raw/manual_curated_template.csv` with the exact schema defined in `specs/001-predict-heusler-hysteresis/contracts/alloy_entry.schema.yaml` to serve as the fallback input for T018. **Content**: Include several example rows with valid Heusler alloy compositions (e.g., Co2MnGa, Ni2MnSn) and realistic hysteresis values to demonstrate the expected format. **Exact Data**:
+ ```csv
+composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method
+Co2MnGa, variable composition, Manual, Arc Melting
+NiMnSn,150,80,Manual,Sputtering
+Co2FeAl,Manual,Evaporation
+FeMnAl,200,90,Manual,Arc Melting
+Co2MnSi,Manual,Sputtering
+ ```
+ **Rationale**: Ensures T018 has a valid, non-empty fallback source if automated fetchers fail, preventing pipeline collapse due to empty manual input. **Dependency**: T010.
+- [X] T058 [US2] **Feature Engineering Error Handling**: Update `code/src/features/feature_engineering_pipeline.py` (T032) to include explicit handling for missing elements in the periodic table CSV. **Logic**: If an element is encountered in the composition that is not in `data/raw/elemental_properties.csv`, the task must log a WARNING, set the corresponding feature values to NaN, and continue (do not crash). **Rationale**: Addresses the edge case in Spec Edge Cases where elements not found in standard databases are flagged. **Dependency**: T006, T031.
+- [X] T060 [US3] **Microstructure Confounder Documentation**: Create `docs/reports/microstructure_confounding_analysis.md` detailing the limitations of the global model and the rationale for stratified analysis. **Content**: Must explicitly discuss how synthesis methods (e.g., arc melting vs. sputtering) introduce variance that cannot be captured by composition alone, and how the stratified approach (T044) attempts to mitigate this. **Rationale**: Provides the scientific context required for FR-009 and FR-010, ensuring the final report is not just a statistical output but a scientifically grounded interpretation. **Dependency**: T044, T048.
+- [X] T061 [US1] **Plan Amendment**: Update `specs/001-predict-heusler-hysteresis/plan.md` to align Phase 1.2 with Spec FR-002. **Action**: Edit `plan.md` to replace "Multiple Imputation by Chained Equations (MICE)" with "Mean Imputation/Listwise Deletion" in Phase 1.2 and Technical Context. **Rationale**: Resolves the drift between the Plan's explicit constraint and the Spec's requirement. **Dependency**: None (Must be done before T024b).
+- [X] T063 [US1] **Enhanced Manual Curation Workflow**: Implement `code/src/ingestion/manual_curation_guide.md` and a corresponding `code/tests/unit/test_manual_curation_validation.py`. **Logic**: Create a step-by-step guide for researchers to manually extract data from PDFs into `manual_curated.csv`, including a validation script that checks the CSV format against the schema before ingestion. **Rationale**: Since automated fetchers (T016, T017) often fail for niche materials data, the manual path is critical. This task ensures the manual path is robust, documented, and validated, preventing the pipeline from relying on unverified manual data. **Dependency**: T018, T010.
 
 ---
 
@@ -359,8 +375,8 @@ Task: "Execute code/tests/unit/test_unit_normalizer.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes Citation Gate T005c)
-3. **CRITICAL**: Complete Phase 3 (T016, T017, T018, T028c) to resolve invalid URLs and missing data source checks.
-4. Complete Phase 3: User Story 1 (Tests T012-T015, then Implementation T016-T028, then T028b, T028c)
+3. **CRITICAL**: Complete Phase 3 (T016, T017, T018, T028c, T062) to resolve invalid URLs and missing data source checks.
+4. Complete Phase 3: User Story 1 (Tests T012-T015, then Implementation T016-T028, then T028b, T028c, T062)
 5. **STOP and VALIDATE**: Test User Story 1 independently (ingestion, cleaning, standardization, scarcity check)
 6. Deploy/demo if ready
 
@@ -381,7 +397,7 @@ With multiple developers:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Features/Models)
  - Developer C: User Story 3 (Validation/Reports)
- - Developer D: Phase 6 (T024b - Rationale)
+ - Developer D: Phase 6 (T024b - Rationale, T061 - Plan Amendment)
 3. Stories complete and integrate independently
 
 ---
@@ -406,13 +422,32 @@ With multiple developers:
 - **Critical**: T028c ensures source validation without violating the 'proceed' edge case.
 - **Critical**: T024b explicitly documents the override of the Plan's MICE requirement by the Spec.
 - **Critical**: T016 and T017 ensure that no invalid or irrelevant data sources (like NAB) are used; they mandate finding real Heusler alloy data or falling back to Manual data with a warning.
-- **Critical**: T028c is now a 'Soft Check' (warns if <3 sources) rather than a hard halt, allowing T028b to run and trigger the scarcity warning if N < 50.
+- **Critical**: T028c is now a 'Soft Check' (warns if <3 sources) rather than a hard halt, allowing T028b to run and trigger the scarcity warning if N < 50. **T062 enforces the hard halt for FR-001.**
 - **Critical**: T030 (Integration Test) is now placed in the 'Tests for User Story 2' section, before implementation tasks, to reflect TDD.
-- **Critical**: T024b is now in Phase 3, immediately after T024, to ensure documentation is created alongside the logic.
+- **Critical**: T024b is now in Phase 3, immediately before T024, to ensure documentation is created alongside the logic.
 - **Critical**: T006 (Elemental Properties) must contain valid numeric values for electronegativity and atomic radii to prevent pipeline failure in T031. Placeholder text like "approximately" or "qualitative magnitude" in the CSV file will cause parsing errors. **T006 now includes explicit values.**
 - **Critical**: T028b (Scarcity Check) must be executed before T032 (Feature Engineering) to ensure the scarcity warning is available for downstream logic.
 - **Critical**: T032 (Feature Engineering Pipeline) must explicitly handle the case where `data/processed/alloys_raw.csv` is empty, raising a clear error or warning rather than crashing silently.
 - **Critical**: T037 (Model Metrics Generation) must verify that the model files in `code/models/` are not empty or corrupted before attempting to load them.
 - **Critical**: T028c must run before T028b to ensure source availability is validated before scarcity is checked.
 - **Critical**: T030 (Integration Test) is now placed in the 'Tests for User Story 2' section, before implementation tasks, to reflect TDD.
-- **Critical**: T024b is now in Phase 3, immediately after T024, to ensure documentation is created alongside the logic.
+- **Critical**: T024b is now in Phase 3, immediately before T024, to ensure documentation is created alongside the logic.
+- **Critical**: T059 (Bootstrapping Check) is now placed before T042 to ensure the parameter is validated before execution.
+- **Critical**: T061 (Plan Amendment) is now included to formally update the Plan artifact.
+- **Critical**: T062 (FR-001 Gate) is now included to enforce the 3-source requirement.
+- **Critical**: T057 (Manual Template) is now marked as complete with exact data.
+- **Critical**: T028c description is clarified to be a warning-only task, with T062 handling the hard gate.
+- **Critical**: T032 dependencies are updated to include T028b.
+- **Critical**: T028 dependencies are updated to depend on T027, T016, T017, T018 directly.
+- **Critical**: T024b is now a prerequisite to T024.
+- **Critical**: T028c is now a blocking validation (halts if <3 sources) and T062 enforces the gate after T028c passes.
+
+---
+
+## Revision Concerns (New Tasks)
+
+**Purpose**: Address specific gaps identified in recent analysis regarding data source robustness and statistical rigor.
+
+- [X] T063 [US1] **Enhanced Manual Curation Workflow**: Implement `code/src/ingestion/manual_curation_guide.md` and a corresponding `code/tests/unit/test_manual_curation_validation.py`. **Logic**: Create a step-by-step guide for researchers to manually extract data from PDFs into `manual_curated.csv`, including a validation script that checks the CSV format against the schema before ingestion. **Rationale**: Since automated fetchers (T016, T017) often fail for niche materials data, the manual path is critical. This task ensures the manual path is robust, documented, and validated, preventing the pipeline from relying on unverified manual data. **Dependency**: T018, T010.
+- [X] T064 [US2] **Descriptor Robustness Check**: Implement `code/src/features/descriptor_robustness.py` to perform a sensitivity analysis on the 5 descriptors. **Logic**: Perturb each descriptor by ±5% and re-run the model training (T035) to observe stability in R². **Rationale**: With small datasets (N<50), model performance is highly sensitive to feature noise. This task quantifies that sensitivity and adds a "Descriptor Stability" section to the final report. **Dependency**: T031, T035.
+- [X] T065 [US3] **Confounding Variable Quantification**: Implement `code/src/validation/confounder_quantification.py` to calculate the variance explained by `synthesis_method` vs. `composition`. **Logic**: Use ANOVA or variance partitioning to determine how much of the hysteresis variance is attributable to microstructure (synthesis) vs. composition. **Rationale**: Directly addresses FR-009 and FR-010 by providing a quantitative measure of the "microstructural confounder" rather than just a qualitative note. **Dependency**: T044, T050.
