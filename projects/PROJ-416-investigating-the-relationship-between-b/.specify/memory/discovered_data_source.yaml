@@ -1,0 +1,19 @@
+status: none
+intent: download OpenNeuro anxiety disorder resting state fMRI dataset with GAD-7
+  clinical scores BIDS python package dataset
+required_fields:
+- subject_id
+- session (pre/post)
+- run_number
+- fmri_file_path
+- motion_parameters (translation, rotation)
+- slice_timing_information
+- normalized_image_path
+- GAD-7_score
+- HAM-A_score
+- age
+- sex
+- diagnosis
+cache_key: 615d9b6b4a5d7520af06eea6d998d9995f061dc23ed45dbae73f3d377c8addf9
+searched_at: '2026-07-21T12:07:08.557652+00:00'
+retry_count: 1

@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-416-investigating-the-relationship-between-b",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/save_stats_results.py: self-declared fabricated metric \u2014 \u201c\u2026true\",         help=\"Generate dummy results for testing.\"     )\u2026\u201d; code/data/preprocess.py: self-declared fabricated metric \u2014 \u201c\u2026p.random.uniform(0.5, 2.0)  # Placeholder value for demonstration          is\u2026\u201d; code/data/save_metadata.py: self-declared fabricated metric \u2014 \u201c\u2026subject_info_path)          # Placeholder results     processed_results = [\u2026\u201d; 4 command(s) failed: python code/main.py --stage download (rc=1); python code/main.py --stage preprocess (rc=1); python code/main.py --stage compute (rc=1); 1 declared deliverable(s) absent: data/metrics/statistical_results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --stage download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/main.py --stage preprocess -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/main.py --stage compute -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/main.py --stage analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-21T12:06:04Z"
+}

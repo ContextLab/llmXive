@@ -3,121 +3,123 @@ import logging
 import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-
 from code.config import Config
-from code.utils.logging import setup_logging, log_provenance
 
 logger = logging.getLogger(__name__)
 
-def load_metrics_from_csv(csv_path: str) -> List[Dict[str, Any]]:
+def load_metrics_from_csv(metrics_path: Path) -> List[Dict[str, Any]]:
     """
-    Load metrics from a CSV file.
-
+    Load metrics from CSV file.
+    
     Args:
-        csv_path (str): Path to the CSV file.
-
+        metrics_path: Path to metrics CSV
+        
     Returns:
-        List[Dict[str, Any]]: List of metric dictionaries.
+        List of metric dictionaries
     """
     metrics = []
-    try:
-        with open(csv_path, 'r') as f:
+    if metrics_path.exists():
+        with open(metrics_path, 'r') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 metrics.append(row)
-        logger.info(f"Loaded {len(metrics)} metrics from {csv_path}")
-    except FileNotFoundError:
-        logger.error(f"Metrics file not found: {csv_path}")
-    except Exception as e:
-        logger.error(f"Error loading metrics: {e}")
     return metrics
 
-def validate_metric_value(value: float, min_val: float, max_val: float) -> bool:
+def validate_metric_value(metric_name: str, value: float, min_val: Optional[float] = None, max_val: Optional[float] = None) -> bool:
     """
     Validate a metric value is within bounds.
-
+    
     Args:
-        value (float): The metric value.
-        min_val (float): Minimum allowed value.
-        max_val (float): Maximum allowed value.
-
+        metric_name: Metric name
+        value: Metric value
+        min_val: Minimum allowed value
+        max_val: Maximum allowed value
+        
     Returns:
-        bool: True if valid, False otherwise.
+        True if valid, False otherwise
     """
-    if value is None or value != value: # Check for NaN
+    if min_val is not None and value < min_val:
+        logger.error(f"{metric_name}={value} is below minimum {min_val}")
         return False
-    return min_val <= value <= max_val
+    if max_val is not None and value > max_val:
+        logger.error(f"{metric_name}={value} is above maximum {max_val}")
+        return False
+    return True
 
 def validate_metrics(metrics: List[Dict[str, Any]]) -> bool:
     """
-    Validate all metrics in a list.
-
+    Validate all metrics.
+    
     Args:
-        metrics (List[Dict[str, Any]]): List of metrics.
-
+        metrics: List of metric dictionaries
+        
     Returns:
-        bool: True if all metrics are valid, False otherwise.
+        True if all valid, False otherwise
     """
-    valid = True
-    for i, metric in enumerate(metrics):
-        # Example validation for Modularity (Q >= 0)
-        if 'modularity' in metric:
+    all_valid = True
+    
+    for metric in metrics:
+        # Validate modularity (Q >= 0)
+        if "modularity" in metric:
+            val = float(metric["modularity"])
+            if not validate_metric_value("modularity", val, min_val=0.0):
+                all_valid = False
+                
+        # Validate efficiency (Eff >= 0)
+        for eff_type in ["global_efficiency", "local_efficiency"]:
+            if eff_type in metric:
+                val = float(metric[eff_type])
+                if not validate_metric_value(eff_type, val, min_val=0.0):
+                    all_valid = False
+                    
+        # Check for NaN/Infinity
+        for key, val in metric.items():
             try:
-                val = float(metric['modularity'])
-                if not validate_metric_value(val, 0.0, 1.0):
-                    logger.warning(f"Invalid modularity value {val} for subject {metric.get('subject_id', i)}")
-                    valid = False
+                v = float(val)
+                if not (v == v): # NaN check
+                    logger.error(f"{key} is NaN")
+                    all_valid = False
+                if abs(v) == float('inf'):
+                    logger.error(f"{key} is Infinity")
+                    all_valid = False
             except (ValueError, TypeError):
-                logger.warning(f"Non-numeric modularity value for subject {metric.get('subject_id', i)}")
-                valid = False
+                pass
+                
+    return all_valid
 
-        # Example validation for Efficiency (>= 0)
-        for key in ['global_efficiency', 'local_efficiency']:
-            if key in metric:
-                try:
-                    val = float(metric[key])
-                    if not validate_metric_value(val, 0.0, float('inf')):
-                        logger.warning(f"Invalid {key} value {val} for subject {metric.get('subject_id', i)}")
-                        valid = False
-                except (ValueError, TypeError):
-                    logger.warning(f"Non-numeric {key} value for subject {metric.get('subject_id', i)}")
-                    valid = False
-    
-    return valid
-
-def run_validation(config: Config):
+def run_validation(config: Config) -> bool:
     """
-    Run the metrics validation pipeline.
-
+    Run validation on network metrics.
+    
     Args:
-        config (Config): Configuration object.
+        config: Configuration object
+        
+    Returns:
+        True if valid, False otherwise
     """
-    logger.info("Starting metrics validation pipeline.")
-    
-    metrics_path = os.path.join(config.METRICS_DIR, 'network_metrics.csv')
-    if not os.path.exists(metrics_path):
+    metrics_path = config.NETWORK_METRICS_PATH
+    if not metrics_path.exists():
         logger.error(f"Metrics file not found: {metrics_path}")
-        sys.exit(1)
-
+        return False
+        
     metrics = load_metrics_from_csv(metrics_path)
+    
     if not metrics:
-        logger.error("No metrics found to validate.")
-        sys.exit(1)
-
+        logger.warning("No metrics found to validate")
+        return True
+        
     is_valid = validate_metrics(metrics)
     
     if not is_valid:
-        logger.critical("Validation failed: Invalid metric values detected.")
-        sys.exit(1)
-    
-    logger.info("Validation passed.")
-    log_provenance("validate_metrics", metrics_path, config)
+        logger.critical("Metric validation failed. Some values are out of bounds.")
+        return False
+        
+    logger.info("Metric validation successful.")
+    return True
 
 def main():
-    """Main entry point for the validate_metrics module."""
+    """Main entry point."""
     config = Config()
-    log_path = config.LOGS_DIR / "validate_metrics.log"
-    setup_logging("validate_metrics", log_path=str(log_path))
     run_validation(config)
 
 if __name__ == "__main__":

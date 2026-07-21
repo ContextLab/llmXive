@@ -1,10 +1,3 @@
-T017:
-  c: false
-  h: 7b1c85bc48797f75dc7a8dd482149a884acc101c1471711fc5a54e21dcec67de
-  r: "The required output file `data/metrics/subject_info.json` does not exist, and\
-    \ the provided `code/data/save_metadata.py` is incomplete (truncated) and contains\
-    \ no implementation that writes the subject list, exclusion reasons, and motion\
-    \ metrics to that JSON file. The task\u2019s core requirement is therefore unmet."
 T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

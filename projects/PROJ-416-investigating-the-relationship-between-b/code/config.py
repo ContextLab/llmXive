@@ -1,7 +1,6 @@
 """
-Configuration management for the Brain Network Dynamics pipeline.
-
-Handles environment variables, default paths, and random seeds for reproducibility.
+Configuration module for the project.
+Loads environment variables and defines paths.
 """
 import os
 from pathlib import Path
@@ -10,76 +9,68 @@ import random
 import numpy as np
 from typing import Optional
 
-# Load environment variables from .env file if it exists
+# Load .env file if present
 load_dotenv()
 
 class Config:
     """
-    Central configuration object for the pipeline.
-    
-    Attributes:
-        project_root: Path to the project root directory.
-        openneuro_id: The OpenNeuro dataset ID (e.g., 'ds000000').
-        n_subjects: Number of subjects to process (subset for CI).
-        stage: Current pipeline stage being executed.
-        random_seed: Seed for reproducibility.
-        data_raw: Path to raw data directory.
-        data_processed: Path to processed data directory.
-        data_metrics: Path to metrics output directory.
-        reports_dir: Path to reports directory.
+    Central configuration class.
     """
-    
-    def __init__(
-        self,
-        openneuro_id: Optional[str] = None,
-        n_subjects: int = 10,
-        stage: str = "all",
-        random_seed: int = 42,
-    ):
-        self.project_root = Path(__file__).resolve().parent.parent
+    def __init__(self):
+        # Project Root
+        self.ROOT_DIR = Path(__file__).resolve().parent.parent
         
-        # Load OpenNeuro ID from argument or environment
-        self.openneuro_id = openneuro_id or os.getenv("OPENNEURO_ID")
-        self.n_subjects = n_subjects
-        self.stage = stage
-        self.random_seed = random_seed
+        # Data Paths
+        self.DATA_RAW_DIR = self.ROOT_DIR / "data" / "raw"
+        self.DATA_PROCESSED_DIR = self.ROOT_DIR / "data" / "processed"
+        self.DATA_METRICS_DIR = self.ROOT_DIR / "data" / "metrics"
+        self.DATA_MATRICES_DIR = self.DATA_METRICS_DIR / "matrices"
         
-        # Set seeds for reproducibility
-        random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
+        # Reports
+        self.REPORTS_DIR = self.ROOT_DIR / "reports"
         
-        # Define directory paths
-        self.data_raw = self.project_root / "data" / "raw"
-        self.data_processed = self.project_root / "data" / "processed"
-        self.data_metrics = self.project_root / "data" / "metrics"
-        self.reports_dir = self.project_root / "reports"
-        self.figures_dir = self.project_root / "figures"
+        # Logs
+        self.LOGS_DIR = self.ROOT_DIR / "logs"
         
+        # Specific Output Paths (T035 requirement)
+        self.STAT_RESULTS_PATH = self.DATA_METRICS_DIR / "statistical_results.csv"
+        self.SUBJECT_INFO_PATH = self.DATA_METRICS_DIR / "subject_info.json"
+        self.NETWORK_METRICS_PATH = self.DATA_METRICS_DIR / "network_metrics.csv"
+        self.ANALYSIS_RESULTS_PATH = self.DATA_METRICS_DIR / "analysis_results.json"
+        
+        # OpenNeuro Configuration
+        self.OPENNEURO_ID = os.getenv("OPENNEURO_ID", "ds000030") # Default to a known dataset if needed, but T012 checks for verified
+        self.MAX_SUBJECTS = int(os.getenv("MAX_SUBJECTS", "10"))
+        
+        # Preprocessing Thresholds
+        self.MOTION_THRESHOLD_MM = float(os.getenv("MOTION_THRESHOLD_MM", "3.0"))
+        self.MOTION_THRESHOLD_DEG = float(os.getenv("MOTION_THRESHOLD_DEG", "3.0"))
+        
+        # Statistical Parameters
+        self.ALPHA = float(os.getenv("ALPHA", "0.05"))
+        self.POWER_TARGET = float(os.getenv("POWER_TARGET", "0.8"))
+        self.EFFECT_SIZE_F2 = float(os.getenv("EFFECT_SIZE_F2", "0.15"))
+        
+        # Random Seed
+        self.RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
+        random.seed(self.RANDOM_SEED)
+        np.random.seed(self.RANDOM_SEED)
+
         # Ensure directories exist
         self._ensure_directories()
-    
+
     def _ensure_directories(self):
-        """Create necessary directory structure if it doesn't exist."""
+        """Create necessary directories if they don't exist."""
         dirs = [
-            self.data_raw,
-            self.data_processed,
-            self.data_metrics,
-            self.reports_dir,
-            self.figures_dir,
-            self.project_root / "logs",
-            self.project_root / "code" / "data",
-            self.project_root / "code" / "analysis",
-            self.project_root / "tests" / "unit",
-            self.project_root / "tests" / "integration",
-            self.project_root / "docs",
+            self.DATA_RAW_DIR,
+            self.DATA_PROCESSED_DIR,
+            self.DATA_METRICS_DIR,
+            self.DATA_MATRICES_DIR,
+            self.REPORTS_DIR,
+            self.LOGS_DIR
         ]
         for d in dirs:
             d.mkdir(parents=True, exist_ok=True)
-    
-    def __repr__(self):
-        return (
-            f"Config(openneuro_id={self.openneuro_id}, "
-            f"n_subjects={self.n_subjects}, "
-            f"stage={self.stage}, "
-            f"seed={self.random_seed})"
-        )
+
+# Singleton instance
+config = Config()

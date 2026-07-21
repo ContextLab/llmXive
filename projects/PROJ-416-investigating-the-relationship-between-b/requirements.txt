@@ -8,4 +8,6 @@ matplotlib
 scipy
 pytest
 python-dotenv
-requests
+statsmodels
+bctpy
+openneuro

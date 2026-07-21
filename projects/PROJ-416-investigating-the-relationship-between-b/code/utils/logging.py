@@ -7,85 +7,66 @@ from typing import Optional, Dict, Any
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
-        log_record = {
-            "timestamp": datetime.utcnow().isoformat(),
+        log_obj = {
+            "timestamp": datetime.now().isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
             "line": record.lineno
         }
-        
-        # Add extra fields if present
-        if hasattr(record, "subject_id"):
-            log_record["subject_id"] = record.subject_id
-        if hasattr(record, "reason"):
-            log_record["reason"] = record.reason
-        if hasattr(record, "category"):
-            log_record["category"] = record.category
-        if hasattr(record, "details"):
-            log_record["details"] = record.details
+        if record.exc_info:
+            log_obj["exc_info"] = self.formatException(record.exc_info)
+        return json.dumps(log_obj)
 
-        return json.dumps(log_record)
-
-def setup_logging(log_file: Path, name: str = "pipeline") -> logging.Logger:
+def setup_logging(log_file: Path, level: str = "INFO") -> logging.Logger:
     """
-    Set up logging to both file and console.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    Setup logging configuration.
     
-    # Prevent duplicate handlers
-    if logger.handlers:
-        return logger
-
-    # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    Args:
+        log_file: Path to log file
+        level: Logging level
+        
+    Returns:
+        Root logger
+    """
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, level.upper()))
+    
+    # Clear existing handlers
+    logger.handlers = []
     
     # File handler
+    log_file.parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(JsonFormatter())
+    logger.addHandler(file_handler)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    ))
-    
-    logger.addHandler(file_handler)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger.addHandler(console_handler)
     
     return logger
 
-def log_provenance(logger: logging.Logger, step: str, details: Dict[str, Any]):
+def log_provenance(step: str, details: Dict[str, Any]) -> None:
     """
     Log provenance information for a pipeline step.
+    
+    Args:
+        step: Step name
+        details: Step details
     """
-    logger.info(json.dumps({
-        "event": "provenance",
-        "step": step,
-        "details": details
-    }))
+    logger = logging.getLogger(__name__)
+    logger.info(f"Provenance: {step} - {json.dumps(details)}")
 
-def log_exclusion(logger: logging.Logger, subject_id: str, reason: str, category: str, details: Optional[Dict[str, Any]] = None):
+def log_exclusion(subject_id: str, reason: str) -> None:
     """
-    Log an exclusion event for a subject.
-    This is the core function for T016: logging excluded subjects and reasons.
+    Log subject exclusion.
+    
+    Args:
+        subject_id: Subject ID
+        reason: Exclusion reason
     """
-    log_data = {
-        "event": "exclusion",
-        "subject_id": subject_id,
-        "reason": reason,
-        "category": category,
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    if details:
-        log_data["details"] = details
-    
-    # Log as a structured JSON message
-    logger.info(json.dumps(log_data))
-    
-    # Also log a standard message for readability in the log file
-    logger.warning(f"EXCLUDED: Subject {subject_id} - {reason} (Category: {category})")
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Excluded subject {subject_id}: {reason}")

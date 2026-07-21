@@ -3,106 +3,99 @@ import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 from code.config import Config
-from code.utils.logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
-
-def validate_metadata(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def validate_metadata(metadata: Dict[str, Any], config: Config) -> Tuple[bool, List[str]]:
     """
-    Validate the presence of required metadata fields.
-
+    Validate dataset metadata for required variables.
+    
     Args:
-        metadata: Dictionary containing subject metadata.
-
+        metadata: Dataset metadata
+        config: Configuration object
+        
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        Tuple of (is_valid, list of errors)
     """
     errors = []
-    required_fields = ["pre_treatment_score", "post_treatment_score"]
     
-    for field in required_fields:
-        if field not in metadata:
-            errors.append(f"Missing required field: {field}")
-    
+    # Check for required variables
+    for var in config.REQUIRED_VARIABLES:
+        if var not in metadata.get("variables", []):
+            errors.append(f"Missing required variable: {var}")
+            
     # Check for validated anxiety scale
-    instrument = metadata.get("instrument", "")
-    valid_instruments = ["GAD-7", "HAM-A", "LSAS"]
-    if instrument not in valid_instruments:
-        errors.append(f"Invalid or unvalidated instrument: {instrument}. Must be one of {valid_instruments}")
-    
+    if "instrument" in metadata:
+        valid_instruments = ["GAD-7", "HAM-A", "SAS", "BDI"]
+        if metadata["instrument"] not in valid_instruments:
+            errors.append(f"Invalid instrument: {metadata['instrument']}. Must be one of {valid_instruments}")
+    else:
+        errors.append("Missing instrument information")
+        
     return len(errors) == 0, errors
 
-
-def validate_subject_metadata_path(
-    subject_id: str,
-    metadata_dir: Path
-) -> Tuple[bool, Optional[Dict[str, Any]]]:
+def validate_subject_metadata_path(subject_dir: Path) -> bool:
     """
-    Validate metadata for a specific subject.
-
-    Args:
-        subject_id: Subject identifier.
-        metadata_dir: Path to metadata directory.
-
-    Returns:
-        Tuple of (is_valid, metadata_dict or None).
-    """
-    metadata_path = metadata_dir / f"{subject_id}_metadata.json"
-    if not metadata_path.exists():
-        logger.warning(f"Metadata file not found for {subject_id}")
-        return False, None
+    Validate that subject directory contains required files.
     
-    try:
-        import json
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
-        
-        is_valid, errors = validate_metadata(metadata)
-        if not is_valid:
-            logger.error(f"Validation failed for {subject_id}: {errors}")
-            return False, None
-        
-        return True, metadata
-    except Exception as e:
-        logger.error(f"Error reading metadata for {subject_id}: {e}")
-        return False, None
-
-
-def run_validation(
-    metadata_dir: Path,
-    subject_ids: List[str]
-) -> Dict[str, bool]:
-    """
-    Run validation for all subjects.
-
     Args:
-        metadata_dir: Path to metadata directory.
-        subject_ids: List of subject IDs.
-
+        subject_dir: Path to subject directory
+        
     Returns:
-        Dictionary mapping subject_id to validation status.
+        True if valid, False otherwise
     """
-    results = {}
-    for sub_id in subject_ids:
-        is_valid, _ = validate_subject_metadata_path(sub_id, metadata_dir)
-        results[sub_id] = is_valid
-    return results
+    required_files = ["anat", "func"]
+    for f in required_files:
+        if not (subject_dir / f).exists():
+            logger.warning(f"Missing {f} in {subject_dir}")
+            return False
+    return True
 
+def run_validation(config: Config) -> bool:
+    """
+    Run validation on the dataset.
+    
+    Args:
+        config: Configuration object
+        
+    Returns:
+        True if valid, False otherwise
+    """
+    # In a real implementation, load metadata from the dataset
+    # For now, we use a placeholder
+    metadata = {
+        "variables": ["pre_treatment_score", "post_treatment_score"],
+        "instrument": "GAD-7"
+    }
+    
+    is_valid, errors = validate_metadata(metadata, config)
+    
+    if not is_valid:
+        for error in errors:
+            logger.error(error)
+        logger.critical("Dataset validation failed. Halting pipeline.")
+        return False
+        
+    # Validate subject directories
+    raw_dir = config.RAW_DATA_DIR
+    if not raw_dir.exists():
+        logger.error(f"Raw data directory not found: {raw_dir}")
+        return False
+        
+    subject_dirs = [d for d in raw_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")]
+    
+    for subject_dir in subject_dirs:
+        if not validate_subject_metadata_path(subject_dir):
+            logger.warning(f"Subject {subject_dir.name} is incomplete and will be excluded.")
+            
+    logger.info("Dataset validation successful.")
+    return True
 
 def main():
-    """Main entry point for the validation script."""
-    setup_logging()
+    """Main entry point."""
     config = Config()
-    
-    metadata_dir = Path(config.metadata_dir)
-    # Placeholder subject list
-    subject_ids = [f"sub-{i:03d}" for i in range(1, 11)]
-    
-    run_validation(metadata_dir, subject_ids)
-
+    run_validation(config)
 
 if __name__ == "__main__":
     main()

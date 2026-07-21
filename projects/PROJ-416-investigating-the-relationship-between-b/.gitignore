@@ -2,35 +2,62 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.coverage
-htmlcov/
-*.egg-info/
-dist/
+*.so
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Environment
-.env
-.env.local
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# Data (Large files)
+# Data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 data/metrics/*
 !data/metrics/.gitkeep
-
-# Logs
-logs/
-*.log
+logs/*
+!logs/.gitkeep
 
 # Reports
-reports/*.md
+reports/*
 !reports/.gitkeep
+!reports/results.md
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+junit.xml
