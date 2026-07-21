@@ -1,8 +1,23 @@
-datasets>=2.14.0
+# Core dependencies
+pytest>=7.0.0
+black>=23.0.0
+ruff>=0.1.0
+pyyaml>=6.0
+jinja2>=3.0.0
+matplotlib>=3.7.0
 numpy>=1.24.0
 pandas>=2.0.0
-pyyaml>=6.0
-pytest>=7.0.0
-jinja2>=3.1.0
-matplotlib>=3.7.0
-pylint>=2.17.0
+scipy>=1.10.0
+networkx>=3.0.0
+astor>=0.8.1
+unidiff>=0.7.0
+tqdm>=4.65.0
+
+# HuggingFace datasets for real data fetching
+datasets>=2.14.0
+
+# Quantized model support (if needed for other tasks, kept minimal)
+# llama-cpp-python>=0.2.0; platform_machine == "x86_64"
+
+# Linting and formatting
+flake8>=6.0.0

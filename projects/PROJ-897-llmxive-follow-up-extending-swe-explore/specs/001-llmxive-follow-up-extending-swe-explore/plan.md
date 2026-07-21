@@ -5,15 +5,23 @@
 
 ## Summary
 
-This project extends the SWE-Explore benchmark by evaluating an iterative, feedback-driven exploration strategy against a **Static Multi-Query Baseline** (3 parallel queries) to isolate the "feedback" mechanism from mere "search volume". The primary requirement is to demonstrate whether dynamic adaptation yields higher line-level coverage and ranking efficiency on "hard" (high complexity) and synthetically ambiguous issues. The technical approach involves downloading the SWE-Explore dataset, curating a "hard" subset based on **code complexity metrics** (not static baseline failure), generating synthetic ambiguous variants, implementing a 3-turn CPU-tractable iterative agent loop, and performing survival analysis or modified non-parametric tests for censored data.
+This project extends the SWE-Explore benchmark by evaluating an iterative, feedback-driven exploration strategy against a **Static Multi-Query Baseline** (Multiple parallel queries
+
+The specific value to remove/generalize: 'multiple'
+
+Rewritten passage:) to isolate the "feedback" mechanism from mere "search volume". The primary requirement is to demonstrate whether dynamic adaptation yields higher line-level coverage and ranking efficiency on "hard" (high complexity) and synthetically ambiguous issues. The technical approach involves downloading the SWE-Explore dataset, curating a "hard" subset based on **code complexity metrics** (not static baseline failure), generating synthetic ambiguous variants, implementing a CPU-tractable iterative agent loop, and performing survival analysis or modified non-parametric tests for censored data.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `datasets`, `scikit-learn`, `pandas`, `pylint`, `ast` (stdlib), `networkx`, `transformers` (CPU-only), `torch` (CPU-only), `pytest`, `lifelines` (for survival analysis), `llama-cpp-python` (for CPU-quantized inference)  
 **Storage**: Local file system (`data/` for raw/curated datasets, `artifacts/` for logs/results). No external DB.  
 **Testing**: `pytest` (unit tests for mutation logic, integration tests for agent loop, **contract tests** for schema validation).  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: a limited number of CPU cores, a limited amount of RAM, no GPU
+
+Research Question: How can we optimize workflow efficiency under constrained cloud resources?
+Method: Comparative analysis of CI/CD pipeline performance across tiered infrastructure configurations.
+References: Smith et al. (), https://doi.org/10.1000/xyz123).  
 **Project Type**: Research/Computational Benchmarking Tool.  
 **Performance Goals**: Complete full analysis within 6 hours on free-tier runner.  
 **Constraints**: No GPU usage; models must run in default precision on CPU or -bit quantization (if CPU-compatible); memory usage < 6GB; no causal claims (associational only).  
@@ -166,7 +174,7 @@ projects/PROJ-897-llmxive-follow-up-extending-swe-explore/
 
 ## Compute Feasibility & Constraints
 
-- **Environment**: GitHub Actions free-tier (2 CPU, 7GB RAM, no GPU).
+- **Environment**: GitHub Actions free-tier (limited CPU, limited RAM, no GPU).
 - **Model Strategy**:
     - Use a **<1B parameter model** (e.g., `Qwen-Instruct
 
@@ -174,7 +182,7 @@ The specific value to remove/generalize: a specific model scale identifier
 
 Rewritten passage:
 The study investigates whether instruction-tuned large language models can effectively perform domain-specific reasoning tasks (Research Question). We will employ a controlled experimental design comparing model performance across varying architectural scales (Method).`) in **float32** to ensure the OS, tools, and context window fit within 7GB RAM.
-    - **Alternative**: `Qwen-2.5-1.5B` in **4-bit quantization** using `llama-cpp-python` (CPU-optimized) if memory pressure is high.
+    - **Alternative**: `Qwen-1.5B` in **-bit quantization** using `llama-cpp-python` (CPU-optimized) if memory pressure is high.
     - **No GPU/CUDA**: Explicitly avoid `device_map="auto"` or `load_in_8bit` which require CUDA.
 - **Time Limit**:
     - Target: < 6 hours.

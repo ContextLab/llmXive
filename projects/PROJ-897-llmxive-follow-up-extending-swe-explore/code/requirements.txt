@@ -1,0 +1,17 @@
+# Existing dependencies
+pytest
+black
+ruff
+flake8
+jinja2
+matplotlib
+numpy
+scipy
+networkx
+pandas
+pyyaml
+unidiff
+
+# New dependency for CPU-quantized LLM inference
+llama-cpp-python>=0.2.0
+huggingface_hub>=0.20.0

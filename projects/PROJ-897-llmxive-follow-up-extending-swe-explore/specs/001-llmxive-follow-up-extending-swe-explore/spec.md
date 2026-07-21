@@ -18,7 +18,7 @@ The researcher must be able to download the SWE-Explore dataset, filter for the 
 **Acceptance Scenarios**:
 
 1. **Given** the full SWE-Explore dataset is downloaded, **When** the system filters for the bottom [deferred] of initial coverage scores, **Then** a subset of "hard" instances is produced with a count matching 20% of the total.
-2. **Given** a set of solvable tasks, **When** the system mutates variable names, removes comments, and applies structural obfuscations, **Then** 50 synthetic ambiguous issues are generated that are syntactically valid but semantically obscured.
+2. **Given** a set of solvable tasks, **When** the system mutates variable names, removes comments, and applies structural obfuscations, **Then** A set of synthetic ambiguous issues is generated. that are syntactically valid but semantically obscured.
 3. **Given** the curated dataset, **When** a researcher inspects the synthetic issues, **Then** the issues must be verifiable as ambiguous versions of the original tasks without introducing syntax errors that prevent parsing.
 
 ---
@@ -50,8 +50,8 @@ The researcher must be able to compute line-level coverage and ranking efficienc
 **Acceptance Scenarios**:
 
 1. **Given** coverage metrics for the iterative and static agents on the same set of issues, **When** the statistical test is run, **Then** the Wilcoxon signed-rank test is applied to the paired differences, or an exact permutation test is used if ties exceed a non-negligible proportion of the data.
-2. **Given** a p-value of 0.03, **When** the result is evaluated against the threshold, **Then** the system reports a statistically significant improvement for the iterative agent.
-3. **Given** a p-value of 0.15, **When** the result is evaluated, **Then** the system reports no statistically significant difference between the two strategies.
+2. **Given** a statistically significant p-value, **When** the result is evaluated against the threshold, **Then** the system reports a statistically significant improvement for the iterative agent.
+3. **Given** a a non-significant p-value, **When** the result is evaluated, **Then** the system reports no statistically significant difference between the two strategies.
 
 ### Edge Cases
 
@@ -91,7 +91,7 @@ The researcher must be able to compute line-level coverage and ranking efficienc
 - **SC-002**: Ranking efficiency (position of first relevant line) is measured against the static one-shot baseline to determine retrieval speed (See FR-005).
 - **SC-003**: Statistical significance of the difference in coverage is measured against the p < 0.05 threshold using the Wilcoxon signed-rank test (with tie-handling as defined in FR-006) (See FR-006).
 - **SC-004**: Multiplicity correction is applied using the Bonferroni method to the family of hypothesis tests (coverage and ranking) to control the family-wise error rate (See US-3).
-- **SC-005**: Computational feasibility is measured against the constraint of running the full analysis on a 2-core, 7GB RAM, CPU-only runner within 6 hours (See FR-003).
+- **SC-005**: Computational feasibility is measured against the constraint of running the full analysis on a -core, 7GB RAM, CPU-only runner within 6 hours (See FR-003).
 - **SC-006**: Threshold sensitivity is measured by sweeping turn limits to verify result stability (See FR-003, See US-2).
 
 ## Assumptions

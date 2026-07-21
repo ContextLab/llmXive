@@ -145,3 +145,432 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T14:30:47Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate up to 50 synthetic ambiguous issues
+  claim_id: c_ba0e53da
+  context: 'Constraint: Generate **up to 50** issues. If the pool is insufficient,
+    **log a warning** and proceed with the generated count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 50 issues.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:53:32Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 20 issues with seed 42 stratified by complexity
+    quartiles
+  claim_id: c_4828ebf4
+  context: 'Logic: Generate a specific sample list file for N=20 issues (random sample
+    with **seed 42**, stratified by complexity quartiles from `data/curated/hard_subset.jsonl`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=20 issues (random sample with
+    seed 42, stratified by complexity quartiles from data/curated/hard_subset.jsonl).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:53:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Execute iterative agent loop for turn limits 1 to 5
+  claim_id: c_476987b7
+  context: 'Logic: Execute the iterative agent loop for each turn limit in `turn_limits
+    = [1, 2, 3, 4, 5]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the iterative agent loop for each turn limit in turn_limits =
+    [1, 2, 3, 4, 5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:54:11Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for baseline
+  claim_id: c_c3fb0301
+  context: 'Requirement: Run **5 parallel queries** per issue (matching the *maximum*
+    turn limit of the sweep in T024) to match iterative budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 5 parallel queries per issue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:54:30Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort non-critical sweeps if elapsed time exceeds 5.5 hours
+  claim_id: c_3489fd51
+  context: 'Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort remaining non-critical sweeps or reduce sample size if elapsed time
+    exceeds 5.5 hours to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:54:58Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Use 4-bit quantized model to fit within 7GB RAM
+  claim_id: c_92824ff1
+  context: 'Requirement: Update `code/agent/iterative.py` to use `llama-cpp-python`
+    with a 4-bit quantized model (e.g., `Qwen-1.5-0.5B-4bit`) to ensure inference
+    fits within 7GB RAM.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-1.5-0.5B-4bit) to ensure inference
+    fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T20:54:58Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of iterative.py below 15
+  claim_id: c_9be06e90
+  context: Refactor `code/agent/iterative.py` to reduce cyclomatic complexity below
+    15.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/agent/iterative.py to reduce cyclomatic complexity below
+    15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:56:32Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Wilcoxon signed-rank test as primary statistical method
+  claim_id: c_6f2dbff9
+  context: 'Requirement: Implement **Wilcoxon signed-rank test** as per **Spec FR-006**
+    and **SC-003** as the primary method.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Wilcoxon_signed-rank_test_as_primary_statistical_metho
+  kind: entity_fact
+  raw_text: Apply Wilcoxon signed-rank test as the primary method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:56:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to Coverage, Ranking Wilcoxon, and Ranking
+    Survival tests
+  claim_id: c_d6a21f0c
+  context: 'Correction: Apply **Bonferroni correction** to the family of tests: **Coverage
+    (T030-Wilcoxon)**, **Ranking Wilcoxon (T030-Wilcoxon)**, and **Ranking Survival
+    (T030-Survival)**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_Coverage,_Ranking_Wilcoxon,_a
+  kind: entity_fact
+  raw_text: 'Apply Bonferroni correction to the family of tests: Coverage, Ranking
+    Wilcoxon, and Ranking Survival.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:57:26Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Select bottom subset of initial coverage scores for hard instances
+  claim_id: c_dcab86b5
+  context: 'Logic: Select the bottom [deferred] of initial coverage scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_bottom_subset_of_initial_coverage_scores_for_hard_ins
+  kind: entity_fact
+  raw_text: Select the bottom [deferred] of initial coverage scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:57:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Select issues with Cyclomatic Complexity above threshold
+  claim_id: c_f2fd308c
+  context: 'Logic: Select issues with **Cyclomatic Complexity** (calculated via `networkx`)
+    above `COMPLEXITY_THRESHOLD`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_issues_with_Cyclomatic_Complexity_above_threshold
+  kind: entity_fact
+  raw_text: Select issues with Cyclomatic Complexity above COMPLEXITY_THRESHOLD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:58:15Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Detect repeated queries to break loops early
+  claim_id: c_13c1dbfc
+  context: 'Loop Detection: Detect repeated queries to break loops early.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detect_repeated_queries_to_break_loops_early
+  kind: entity_fact
+  raw_text: Detect repeated queries to break loops early.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:58:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Break loops if query matches previous turn within 3-turn window
+  claim_id: c_553614ab
+  context: 'Requirement: Enhance `code/agent/iterative.py` to explicitly detect and
+    break infinite loops if the reformulated query matches a previous turn''s query
+    string within the 3-turn window.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detect and break infinite loops if the reformulated query matches a previous
+    turn's query string within the 3-turn window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:59:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Handle censored data with penalty N+1
+  claim_id: c_a7570861
+  context: Implement `code/metrics/ranking.py` to calculate position of first relevant
+    line (handle censored data with penalty N+1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle censored data with penalty N+1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:59:29Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 0
+  canonical: Use 4-bit quantized model to fit inference within 7GB RAM
+  claim_id: c_bd7ccdb0
+  context: 'Requirement: Update code/agent/iterative.py to use llama-cpp-python with
+    a 4-bit quantized model (e.g., Qwen-1.5-0.5B-4bit) to ensure inference fits within
+    7GB RAM.'
+  evidence:
+    asserted: '4.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Use a 4-bit quantized model (e.g., Qwen-1.5-0.5B-4bit) to ensure inference
+    fits within 7GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T21:00:51Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate up to 50 synthetic ambiguous issues
+  claim_id: c_e960e12f
+  context: 'Logic: Apply mutations... to generate a representative set of issues.
+    Constraint: Generate up to 50 issues.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate up to 50 issues.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Execute iterative agent loop for turn limits 1, 2, 3, 4, and 5
+  claim_id: c_6eeb73bf
+  context: 'Logic: Execute the iterative agent loop for each turn limit in turn_limits
+    = [1, 2, 3, 4, 5].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the iterative agent loop for each turn limit in turn_limits =
+    [1, 2, 3, 4, 5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Generate sample list of 20 issues with seed 42 stratified by complexity
+  claim_id: c_47935a95
+  context: 'Logic: Generate a specific sample list file for N=20 issues (random sample
+    with seed 42, stratified by complexity quartiles from data/curated/hard_subset.jsonl).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a specific sample list file for N=20 issues (random sample with
+    seed 42, stratified by complexity quartiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run 5 parallel queries per issue for static baseline
+  claim_id: c_c4eed984
+  context: 'Requirement: Run 5 parallel queries per issue (matching the maximum turn
+    limit of the sweep in T024) to match iterative budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 5 parallel queries per issue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of iterative.py below 15
+  claim_id: c_e958a62e
+  context: Refactor code/agent/iterative.py to reduce cyclomatic complexity below
+    15.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/agent/iterative.py to reduce cyclomatic complexity below
+    15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Abort or reduce sample if elapsed time exceeds 5.5 hours to finish within
+    6 hours
+  claim_id: c_d63effa6
+  context: 'Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, abort remaining non-critical sweeps or reduce
+    sample size to ensure completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 2
+  canonical: Ensure inference fits within 7GB RAM on 2-core systems
+  claim_id: c_f321687c
+  context: 'CPU Feasibility: Ensure all model tasks use CPU-only, <1B param or 4-bit
+    quantized models on 2-core/7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure inference fits within 7GB RAM on 2-core systems.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:52Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 2
+  canonical: Use models with less than 1 billion parameters
+  claim_id: c_065f0f5a
+  context: 'CPU Feasibility: Ensure all model tasks use CPU-only, <1B param or 4-bit
+    quantized models on 2-core/7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_models_with_less_than_1_billion_parameters
+  kind: magnitude
+  raw_text: Ensure model parameters are less than 1B.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:54Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction to Coverage, Ranking Wilcoxon, and Ranking
+    Survival tests
+  claim_id: c_7cb87350
+  context: 'Correction: Apply Bonferroni correction to the family of tests: Coverage
+    (T030-Wilcoxon), Ranking Wilcoxon (T030-Wilcoxon), and Ranking Survival (T030-Survival).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_Coverage,_Ranking_Wilcoxon,_a
+  kind: entity_fact
+  raw_text: 'Apply Bonferroni correction to the family of tests: Coverage, Ranking
+    Wilcoxon, and Ranking Survival.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:00:55Z'
