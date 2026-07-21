@@ -83,12 +83,15 @@ class ChainExhausted(RuntimeError):
 class ExecutionResult:
     """The outcome of a successful :func:`execute`: the provider ``response``, the
     ``model_ref`` that produced it, the credits ``reserved`` for it (0 for free),
-    and per-candidate ``notes`` (skips / advances that preceded success)."""
+    per-candidate ``notes`` (skips / advances that preceded success), and the
+    winning candidate's ledger ``reservation_id`` (``None`` for a free winner —
+    FR-033a: the lane attributes settled Attempt cost by this id)."""
 
     response: ChatResponse
     model_ref: ModelRef
     reserved_credits: float
     notes: tuple[str, ...]
+    reservation_id: str | None = None
 
 
 def _sanitize_reservation_id(model_id: str, call_id: str) -> str:
@@ -307,6 +310,7 @@ def execute(
                 model_ref=ref,
                 reserved_credits=reserved_credits,
                 notes=tuple(notes),
+                reservation_id=reservation_id,
             )
         except Exception as exc:
             disp = disposition_of(exc)
