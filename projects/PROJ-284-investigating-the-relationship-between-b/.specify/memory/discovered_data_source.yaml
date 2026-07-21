@@ -1,11 +1,11 @@
 status: none
-intent: Human Connectome Project S1200 ICA-FIX dataset download python package dataset
+intent: openneuro-py download HCP S1200 ds000117 dataset python package dataset
 required_fields:
 - subject_id
-- rs_fmri_4d_nifti_path
-- motor_task_performance_score
 - age
 - sex
-cache_key: eb318230ac7266a39d0da8bea4d20e03aa9f334a8d1e227910d5ba3b5b75fc5c
-searched_at: '2026-07-17T11:55:55.180688+00:00'
+- motor_task_performance_score
+- resting_state_fmri_file_path
+cache_key: 44dedb16f92103dfddf58327067527a0d2a50aa872413393c7aa826252bc9da8
+searched_at: '2026-07-21T03:44:25.302820+00:00'
 retry_count: 1

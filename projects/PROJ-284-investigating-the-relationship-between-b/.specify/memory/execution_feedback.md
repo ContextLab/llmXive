@@ -8,81 +8,49 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…values. It does NOT     generate synthetic data or fall back to syn…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…tr) -> Path:     """     Generates a synthetic NIfTI file for CI valida…”
 - code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…et of subjects     using synthetic data to validate the pipeline…”
-- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…return False      # Use synthetic data for CI     temp_dir = te…”
-- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…for speed             # Generate synthetic input             raw_pa…”
-- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…cessing steps (no-op for synthetic data in this context)…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…sary subject info and we generate     synthetic but structurally valid c…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…in the simple fetch, we generate a synthetic time-series that represe…”
-- code/data/metrics.py: synthetic/fake INPUT data not authorized by the spec — “…HCP/ADHD.     """     # Generate synthetic time-series: 400 nodes,…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…# For CI validation, we generate synthetic NIfTI files     # and si…”
+- code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…n subject_ids:         # Generate synthetic input         raw_path =…”
+- code/tools/verify_batching.py: synthetic/fake INPUT data not authorized by the spec — “…ng_start")      # Create synthetic test data     n_subjects = 500…”
+- code/viz/network.py: synthetic/fake INPUT data not authorized by the spec — “…# Create realistic mock data for CI validation…”
+
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/download/fetch_hcp_behavioral.py --subjects 50 --output data/raw`
+- `python code/download/fetch_openneuro.py --subjects 50 --output data/raw`
+- `python code/main_pipeline.py --batch-size 5 --mode cpu`
+- `python code/preprocess/run_qc_only.py --input data/raw --output data/processed`
+- `python code/utils/checksums.py verify`
+- `python code/viz/generate_report.py --input data/analysis/correlation_results.csv --output reports/summary.md`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…5)) -> None:     """     Generates a synthetic NIfTI file for validatio…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…et of subjects     using synthetic data to validate the pipeline…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…return False      # Use synthetic data for CI     temp_dir = te…”; 4 command(s) failed: python code/main.py --step download_preprocess --subjects 50 (rc=1); python code/main.py --step extract_metrics (rc=1); python code/main.py --step analyze (rc=1); 3 declared deliverable(s) absent: data/analysis/factor_scores.csv; data/analysis/full_metrics.csv; data/analysis/pca_loadings.csv
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…values. It does NOT     generate synthetic data or fall back to syn…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…tr) -> Path:     """     Generates a synthetic NIfTI file for CI valida…”; code/data/download.py: synthetic/fake INPUT data not authorized by the spec — “…et of subjects     using synthetic data to validate the pipeline…”; 6 run-book script(s) missing (plan/impl path mismatch): python code/download/fetch_openneuro.py --subjects 50 --output data/raw; python code/download/fetch_hcp_behavioral.py --subjects 50 --output data/raw; python code/preprocess/run_qc_only.py --input data/raw --output data/processed; 3 declared deliverable(s) absent: data/analysis/aggregated_metrics.csv; data/analysis/factor_scores.csv; data/analysis/pca_loadings.csv
 
 ## Failing / missing run-book commands
 
-- python code/main.py --step download_preprocess --subjects 50 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 10, in <module>
-    from code.data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 15, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
-- python code/main.py --step extract_metrics -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 10, in <module>
-    from code.data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 15, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
-- python code/main.py --step analyze -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 10, in <module>
-    from code.data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 15, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
-- python code/main.py --step viz_report -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main.py", line 10, in <module>
-    from code.data.download import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/data/download.py", line 15, in <module>
-    from nilearn import datasets
-ImportError: cannot import name 'datasets' from 'nilearn' (/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/nilearn/__init__.py)
+- python code/download/fetch_openneuro.py --subjects 50 --output data/raw -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/download/fetch_openneuro.py': [Errno 2] No such file or directory
+- python code/download/fetch_hcp_behavioral.py --subjects 50 --output data/raw -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/download/fetch_hcp_behavioral.py': [Errno 2] No such file or directory
+- python code/preprocess/run_qc_only.py --input data/raw --output data/processed -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/preprocess/run_qc_only.py': [Errno 2] No such file or directory
+- python code/main_pipeline.py --batch-size 5 --mode cpu -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/main_pipeline.py': [Errno 2] No such file or directory
+- python code/viz/generate_report.py --input data/analysis/correlation_results.csv --output reports/summary.md -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/viz/generate_report.py': [Errno 2] No such file or directory
+- python code/utils/checksums.py verify -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-284-investigating-the-relationship-between-b/code/utils/checksums.py': [Errno 2] No such file or directory
 
 ## Declared deliverables still missing
 
+- data/analysis/aggregated_metrics.csv
 - data/analysis/factor_scores.csv
-- data/analysis/full_metrics.csv
 - data/analysis/pca_loadings.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real, installable source was discovered AND verified by actually loading data from it:
-
-- **Install**: add `nilearn` to the project's `requirements.txt` and `pip install nilearn`.
-- **Verified**: this loads **30** real records with fields: Unnamed: 0, Subject, Rest.Scan, MeanFD, NumFD_greater_than_0.20, rootMeanSquareFD, FDquartile.top1.4thFD., PercentFD_greater_than_0.20, MeanDVARS, MeanFD_Jenkinson, site, sibling_id, data_set, age, sex, handedness, full_2_iq, full_4_iq, viq, piq, iq_measure, tdc, adhd, adhd_inattentive, adhd_combined, adhd_subthreshold, diagnosis_using_cdis, notes, sess_1_anat_2, oppositional, cog_inatt, hyperac, anxious_shy, perfectionism, social_problems, psychosomatic, conn_adhd, restless_impulsive, emot_lability, conn_gi_tot, dsm_iv_inatt, dsm_iv_h_i, dsm_iv_tot, study, sess_1_rest_1, sess_1_rest_1_eyes, sess_1_rest_2, sess_1_rest_2_eyes, sess_1_rest_3, sess_1_rest_3_eyes, sess_1_rest_4, sess_1_rest_4_eyes, sess_1_rest_5, sess_1_rest_5_eyes, sess_1_rest_6, sess_1_rest_6_eyes, sess_1_anat_1, sess_1_which_anat, sess_2_rest_1, sess_2_rest_1_eyes, sess_2_rest_2, sess_2_rest_2_eyes, sess_2_anat_1, defacing_ok, defacing_notes.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import os
-from nilearn import datasets
-
-bunch = datasets.fetch_adhd(
-    data_dir=os.path.join(os.getenv("HOME"), "nilearn_data"),
-    verbose=0,
-)
-
-records = len(bunch.phenotypic)
-print(f"RECORDS={records}")
-
-fields = list(bunch.phenotypic.columns)
-print("FIELDS=" + ",".join(fields))
-```
-
-Write the loader to use this package/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a website endpoint.
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -94,37 +62,37 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `generate_scatter_plot` — defined in `code/viz/scatter.py`; called 1 way(s):
 
-- code/viz/scatter.py: plot_path = generate_scatter_plot(
+- code/viz/scatter.py: generate_scatter_plot(
 
 Make `generate_scatter_plot` in `code/viz/scatter.py` accept ALL of the above.
 
 ### `get_logger` — defined in `code/logging_config.py`; called 25 way(s):
 
-- code/logging_config.py: return get_logger().log(op, **kwargs)
 - code/main.py: logger = get_logger(__name__)
-- code/viz/network.py: logger = get_logger(__name__)
-- code/viz/scatter.py: logger = get_logger(__name__)
+- code/logging_config.py: return get_logger().log(op, **kwargs)
 - code/utils/memory_monitor.py: logger = get_logger(__name__)
-- code/analysis/correlation_main_runner.py: logger = get_logger(__name__)
-- code/analysis/power.py: logger = get_logger(__name__)
-- code/analysis/correlations.py: logger = get_logger(__name__)
-- code/analysis/generate_full_metrics.py: logger = get_logger(__name__)
-- code/analysis/run_analysis.py: logger = get_logger(__name__)
-- code/analysis/run_correlations.py: logger = get_logger(__name__)
-- code/analysis/pca_runner.py: logger = get_logger(__name__)
-- code/analysis/create_full_metrics.py: logger = get_logger(__name__)
-- code/report/generate.py: logger = get_logger(__name__)
-- code/data/download.py: logger = get_logger(__name__)
-- code/data/preprocess.py: logger = get_logger(__name__)
-- code/data/metrics.py: logger = get_logger(__name__)
-- code/tools/verify_imports.py: self.logger = get_logger(__name__)
-- code/tools/verify_imports.py: logger = get_logger(__name__)
-- code/tools/refactor.py: self.logger = get_logger(__name__)
-- code/tools/refactor.py: logger = get_logger(__name__)
+- code/tools/validate_quickstart.py: logger = get_logger(__name__)
 - code/tools/verify_batching.py: logger = get_logger(__name__)
 - code/tools/cleanup.py: self.logger = get_logger(__name__)
 - code/tools/cleanup.py: logger = get_logger(__name__)
-- code/tools/validate_quickstart.py: logger = get_logger(__name__)
+- code/tools/refactor.py: self.logger = get_logger(__name__)
+- code/tools/refactor.py: logger = get_logger(__name__)
+- code/tools/verify_imports.py: self.logger = get_logger(__name__)
+- code/tools/verify_imports.py: logger = get_logger(__name__)
+- code/viz/scatter.py: logger = get_logger(__name__)
+- code/viz/network.py: logger = get_logger(__name__)
+- code/report/generate.py: logger = get_logger(__name__)
+- code/data/metrics.py: logger = get_logger(__name__)
+- code/data/preprocess.py: logger = get_logger(__name__)
+- code/data/download.py: logger = get_logger(__name__)
+- code/analysis/correlation_main_runner.py: logger = get_logger(__name__)
+- code/analysis/correlations.py: logger = get_logger(__name__)
+- code/analysis/power.py: logger = get_logger(__name__)
+- code/analysis/run_analysis.py: logger = get_logger(__name__)
+- code/analysis/generate_full_metrics.py: logger = get_logger(__name__)
+- code/analysis/pca_runner.py: logger = get_logger(__name__)
+- code/analysis/create_full_metrics.py: logger = get_logger(__name__)
+- code/analysis/run_correlations.py: logger = get_logger(__name__)
 
 Make `get_logger` in `code/logging_config.py` accept ALL of the above.
 
@@ -212,16 +180,15 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/analysis/aggregated_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/viz/scatter.py` — NOT invoked by the run-book
+    - `code/analysis/correlations.py` — NOT invoked by the run-book
+    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/aggregated_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/factor_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlations.py` — NOT invoked by the run-book
     - `code/analysis/pca_runner.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/analysis/factor_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/analysis/full_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/correlations.py` — NOT invoked by the run-book
-    - `code/analysis/generate_full_metrics.py` — NOT invoked by the run-book
-    - `code/analysis/pca_runner.py` — NOT invoked by the run-book
-    - `code/analysis/create_full_metrics.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/analysis/full_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/analysis/pca_loadings.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlations.py` — NOT invoked by the run-book
     - `code/analysis/pca_runner.py` — NOT invoked by the run-book
@@ -236,9 +203,9 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 ### `data/analysis/correlations.csv`
 
 This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/viz/network.py`, `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/analysis/correlations.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/viz/network.py`, `code/viz/scatter.py`, `code/analysis/correlations.py`, `code/analysis/run_correlations.py`.
+Consumers waiting on it: `code/viz/scatter.py`, `code/viz/network.py`, `code/analysis/correlations.py`.
 
 ### `data/processed/aggregated_metrics.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`, `code/data/metrics.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/analysis/correlations.py`, `code/analysis/pca_runner.py`, `code/data/metrics.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/correlations.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/aggregated_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/viz/scatter.py`, `code/analysis/correlations.py`, `code/analysis/create_full_metrics.py`.

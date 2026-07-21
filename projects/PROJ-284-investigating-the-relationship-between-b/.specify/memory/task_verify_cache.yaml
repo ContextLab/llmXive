@@ -1,0 +1,30 @@
+T022:
+  c: false
+  h: aa2b2750c64e18a9619161b6a94810c0b7376666ce8c67630edc96610eca491d
+  r: "The repository lacks the required `data/analysis/aggregated_metrics.csv` file,\
+    \ and the provided `code/data/metrics.py` (shown excerpt) contains no code that\
+    \ reads `metrics_raw.csv`, computes mean Participation Coefficient and Within\u2011\
+    Module Degree, or writes the aggregated CSV. The aggregation logic and output\
+    \ artifact are missing."
+T023a:
+  c: false
+  h: 79f4efa343b4fc39b6f915dd349985d9f078c89691d052db5482b44f9576c01c
+  r: "The repository contains a `correlations.py` with PCA functions, but the required\
+    \ input file `data/analysis/aggregated_metrics.csv` is absent, and consequently\
+    \ the expected output files `data/analysis/pca_loadings.csv` and `data/analysis/factor_scores.csv`\
+    \ were never generated. Without the input data the PCA cannot be run, so the task\u2019\
+    s deliverables are not present."
+T023b:
+  c: false
+  h: e484732a95e85ed1f7944e589f3f169f40ee0807ee6ec1b65a9007dc29a37f48
+  r: "The required output file `data/analysis/full_metrics.csv` does not exist, and\
+    \ the provided `correlations.py` script contains no function that writes such\
+    \ a CSV (the code shown ends at `generate_full_metrics` without saving). Hence\
+    \ the task\u2019s file\u2011output requirement is not satisfied."
+T025:
+  c: false
+  h: fe2a4d078de5a54eabf41ebae90e9da4033e90ee7620c7d941081f626da9ae50
+  r: "The provided `correlations.py` contains data loading, PCA, and saving of PCA\
+    \ results but shows no implementation of Benjamini\u2011Hochberg FDR correction\
+    \ or merging of p\u2011values, and the required output file `data/analysis/fdr_corrected_results.csv`\
+    \ does not exist. The task\u2019s core requirement is therefore unmet."

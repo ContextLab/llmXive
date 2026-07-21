@@ -25,7 +25,7 @@ The research system MUST download resting-state fMRI data and corresponding beha
 
 ### User Story 2 - Network Metric Extraction and Correlation Analysis (Priority: P2)
 
-The research system MUST compute graph-theoretic metrics from functional connectivity matrices derived from the Schaefer 400-parcel atlas. Specifically, it MUST calculate **modularity** (global scalar), and **participation coefficient** and **within-module degree** (node-level vectors) which MUST be aggregated (mean across all nodes) to produce a single scalar per subject. The system MUST then perform Spearman/Pearson correlations between these metrics and the Motor Task Performance composite score (proxy for sensorimotor function) with multiple-comparison correction and motion covariates.
+The research system MUST compute graph-theoretic metrics from functional connectivity matrices derived from the Schaefer atlas. Specifically, it MUST calculate **modularity** (global scalar), and **participation coefficient** and **within-module degree** (node-level vectors) which MUST be aggregated (mean across all nodes) to produce a single scalar per subject. The system MUST then perform Spearman/Pearson correlations between these metrics and the Motor Task Performance composite score (proxy for sensorimotor function) with multiple-comparison correction and motion covariates.
 
 **Why this priority**: This implements the core scientific hypothesis testing. It transforms raw data into the specific statistical evidence required to answer the research question.
 
@@ -97,7 +97,7 @@ The research system MUST generate publication-quality scatter plots visualizing 
 ## Assumptions
 
 - **Assumption about data availability**: The HCP S1200 release does **not** contain direct proprioceptive acuity tests (joint position sense). The study will use the **Motor Task Performance composite score** (finger tapping + grip force) as a proxy for sensorimotor function. If fewer than 50 subjects have valid proxy data, the analysis will proceed with the maximum available N (≥ 30).
-- **Assumption about computational resources**: The Schaefer high-resolution parcel atlas and associated connectivity matrices will fit within the available RAM limit when processed in batches of subjects. If memory usage exceeds a high threshold, the batch size will be reduced dynamically (e.g., to 5 or 2 subjects), acknowledging this may increase total runtime beyond a moderate duration.
+- **Assumption about computational resources**: The Schaefer high-resolution parcel atlas and associated connectivity matrices will fit within the available RAM limit when processed in batches of subjects. If memory usage exceeds a high threshold, the batch size will be reduced dynamically (e.g., to a smaller number of subjects), acknowledging this may increase total runtime beyond a moderate duration.
 - **Assumption about methodological framing**: Since the study uses observational data (resting-state fMRI and behavioral scores without random assignment), all findings will be framed as **associational relationships** rather than causal effects, consistent with the study design.
 - **Assumption about multiple-comparison correction**: The Benjamini-Hochberg FDR procedure will be the primary correction method due to its higher power compared to Bonferroni.
 - **Assumption about measurement validity**: The Motor Task Performance composite score is a validated measure of motor function but is only a **proxy** for proprioceptive acuity. The final report MUST explicitly state this limitation.

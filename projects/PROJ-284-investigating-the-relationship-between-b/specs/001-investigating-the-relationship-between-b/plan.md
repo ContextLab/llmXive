@@ -9,7 +9,7 @@
 
 This project implements a computational neuroscience pipeline to investigate the correlational relationship between resting-state functional connectivity network metrics (modularity, participation coefficient, within-module degree, global efficiency) and **sensorimotor performance** (using Motor Task Performance as a measure of motor execution) in the Human Connectome Project (HCP) S1200 dataset. 
 
-The approach involves downloading **Minimal Preprocessed** (MNI normalized, ICA-FIX denoised) resting-state fMRI data and behavioral metrics from verified official sources (OpenNeuro ds000117 and HCP ConnectomeDB). The pipeline computes graph-theoretic metrics via the Schaefer 400-parcel atlas, performs Spearman correlations (controlling for FD), and applies FDR correction. The pipeline is optimized for execution on a CPU-limited GitHub Actions runner (multi-core, 7GB RAM) using batch processing and streaming, with a fallback to a scaled-down GPU run on Kaggle if fMRI volume loading exceeds memory limits.
+The approach involves downloading **Minimal Preprocessed** (MNI normalized, ICA-FIX denoised) resting-state fMRI data and behavioral metrics from verified official sources (OpenNeuro ds000117 and HCP ConnectomeDB). The pipeline computes graph-theoretic metrics via the Schaefer 400-parcel atlas, performs Spearman correlations (controlling for FD), and applies FDR correction. The pipeline is optimized for execution on a CPU-limited GitHub Actions runner (multi-core, constrained RAM) using batch processing and streaming, with a fallback to a scaled-down GPU run on Kaggle if fMRI volume loading exceeds memory limits.
 
 **Preprocessing Note**: The spec's generic requirement for "motion correction, slice-time correction, normalization" is satisfied by the **Minimal Preprocessed** release of HCP data (OpenNeuro ds000117), which is already MNI normalized and ICA-FIX denoised. Re-running these steps is unnecessary and computationally prohibitive on the target runner. The plan utilizes the pre-denoised data directly, performing only QC (tSNR/FD calculation) as defined in FR-002.
 
@@ -119,7 +119,7 @@ projects/PROJ-284-investigating-the-relationship-between-b/
 - **Note**: No custom motion correction/normalization is performed; the data is used as provided by the HCP Minimal Preprocessed pipeline. This satisfies the spec's requirement for a "standard preprocessing pipeline" by utilizing the pre-processed gold-standard release.
 
 ### Phase 2: Connectivity & Metrics
-- **Atlas**: Schaefer high-resolution parcel (100 networks).
+- **Atlas**: Schaefer high-resolution parcel (a set of networks).
 - **Connectivity**: Pearson correlation of time series between parcels (400x400 matrix).
 - **Metrics**:
   - **Modularity**: Global scalar (Louvain algorithm, **fixed random seed**).
@@ -180,5 +180,5 @@ The primary implementation runs on a GitHub Actions runner with a multi-core CPU
 If the **fMRI volume loading** (not matrix computation) exceeds CPU memory limits:
 - **Trigger**: `MemoryError` during `nibabel.load` or volume streaming of a single subject's 4D NIfTI.
 - **Action**: The pipeline script detects the error and switches to "GPU Mode" (if available) or reduces batch size to 1 and streams the volume in smaller chunks.
-- **Implementation**: Use `device="cuda"` for matrix operations if a GPU environment is detected, but only for a **scaled-down** subset (e.g., 5 subjects) to fit the ~16GB VRAM of a free Kaggle GPU.
+- **Implementation**: Use `device="cuda"` for matrix operations if a GPU environment is detected, but only for a **scaled-down** subset (e.g., 5 subjects) to fit the available VRAM of a free Kaggle GPU.
 - **Constraint**: Do **not** fabricate a CPU approximation for a GPU task. If the method requires GPU, plan the real scaled GPU run.

@@ -1,7 +1,3 @@
-"""
-Module for extracting time-series, calculating connectivity matrices,
-and computing/aggregating graph metrics.
-"""
 from __future__ import annotations
 
 import json
@@ -12,306 +8,472 @@ from typing import Dict, List, Optional, Tuple, Union, Any
 import numpy as np
 import pandas as pd
 import nibabel as nib
-import networkx as nx
 from nilearn import image, masking
-from sklearn.preprocessing import StandardScaler
+from nilearn.datasets import fetch_atlas_schaefer_2018
+from nilearn.input_data import NiftiLabelsMasker
+import networkx as nx
 
 from code.logging_config import get_logger
-from code.config import get_config
 
 logger = get_logger(__name__)
 
-# Constants
-SCHAEFER_ATLAS_URL = "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_400Parcels_17Networks_order_FSLMNI152_2mm.nii.gz"
-SCHAEFER_MAPPING_URL = "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_400Parcels_17Networks_order.txt"
 
-def download_schaefer_atlas() -> Path:
-    """Downloads the Schaefer 400-parcel atlas if not present."""
-    cache_dir = Path(os.getenv("HOME")) / "nilearn_data" / "schaefer"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    atlas_path = cache_dir / "Schaefer2018_400Parcels_17Networks_order_FSLMNI152_2mm.nii.gz"
-    
-    if not atlas_path.exists():
-        logger.log("download_schaefer_atlas", status="fetching", url=SCHAEFER_ATLAS_URL)
-        # In a real environment, we would use requests or urllib to fetch this.
-        # For this implementation, we assume the file is downloaded or use a placeholder
-        # if the real download is blocked, but strictly we must not fake data for analysis.
-        # However, since this is a dependency file, we implement the fetch logic.
-        import requests
-        response = requests.get(SCHAEFER_ATLAS_URL)
-        response.raise_for_status()
-        with open(atlas_path, 'wb') as f:
-            f.write(response.content)
-        logger.log("download_schaefer_atlas", status="completed", path=str(atlas_path))
-    
-    return atlas_path
-
-def load_atlas(atlas_path: Optional[Path] = None) -> np.ndarray:
-    """Loads the atlas NIfTI file and returns the 3D array of parcel IDs."""
-    if atlas_path is None:
-        atlas_path = download_schaefer_atlas()
-    
-    logger.log("load_atlas", path=str(atlas_path))
-    img = nib.load(str(atlas_path))
-    return img.get_fdata()
-
-def extract_time_series(nifti_path: Path, atlas_path: Path) -> np.ndarray:
+def download_schaefer_atlas(
+    n_rois: int = 400,
+    yeo_networks: int = 7,
+    resolution_mm: int = 2,
+    base_dir: Optional[Union[str, Path]] = None,
+) -> Path:
     """
-    Extracts time-series from a preprocessed NIfTI file using the Schaefer atlas.
-    Returns a matrix of shape (time_points, n_parcels).
+    Download the Schaefer atlas and return the path to the label file.
+
+    Args:
+        n_rois: Number of ROIs (parcels) in the atlas.
+        yeo_networks: Number of Yeo networks (7 or 17).
+        resolution_mm: Resolution in mm (2 or 3).
+        base_dir: Directory to download the atlas to.
+
+    Returns:
+        Path to the Schaefer atlas label file.
     """
-    logger.log("extract_time_series", nifti=str(nifti_path), atlas=str(atlas_path))
-    
-    # Load atlas
-    atlas_data = load_atlas(atlas_path)
-    atlas_img = nib.Nifti1Image(atlas_data.astype(np.int32), np.eye(4))
-    
-    # Load functional image
-    func_img = image.load_img(str(nifti_path))
-    
-    # Masking to extract signals
-    # We use nilearn's masking to get the mean signal within each parcel
-    # Since the atlas has integer labels, we need to extract time series per label
-    # nilearn's clean_img or masking can help, but for specific parcel extraction:
-    # We iterate or use a more efficient method if available.
-    # For simplicity and robustness with nilearn:
-    
-    from nilearn.input_data import NiftiLabelsMasker
-    
+    logger.log("download_schaefer_atlas", n_rois=n_rois, yeo_networks=yeo_networks)
+
+    atlas_data = fetch_atlas_schaefer_2018(
+        n_rois=n_rois,
+        yeo_networks=yeo_networks,
+        resolution_mm=resolution_mm,
+        data_dir=str(base_dir) if base_dir else None,
+    )
+
+    return Path(atlas_data.maps)
+
+
+def load_atlas(atlas_path: Union[str, Path]) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """
+    Load the Schaefer atlas and return the label image and metadata.
+
+    Args:
+        atlas_path: Path to the atlas NIfTI file.
+
+    Returns:
+        Tuple of (nibabel image, metadata dict).
+    """
+    logger.log("load_atlas", atlas_path=str(atlas_path))
+    atlas_img = nib.load(str(atlas_path))
+    return atlas_img, {"shape": atlas_img.shape, "affine": atlas_img.affine}
+
+
+def extract_time_series(
+    func_img: Union[str, Path, nib.Nifti1Image],
+    atlas_img: Union[str, Path, nib.Nifti1Image],
+    mask_img: Optional[Union[str, Path, nib.Nifti1Image]] = None,
+    standardize: bool = True,
+    detrend: bool = True,
+) -> np.ndarray:
+    """
+    Extract time series from fMRI data using the Schaefer atlas.
+
+    Args:
+        func_img: Path to functional image or NIfTI image object.
+        atlas_img: Path to atlas image or NIfTI image object.
+        mask_img: Optional brain mask.
+        standardize: Whether to standardize the time series.
+        detrend: Whether to detrend the time series.
+
+    Returns:
+        Array of shape (n_rois, n_timepoints).
+    """
+    logger.log(
+        "extract_time_series",
+        func_img=str(func_img) if isinstance(func_img, (str, Path)) else "NiftiImage",
+        atlas_img=str(atlas_img) if isinstance(atlas_img, (str, Path)) else "NiftiImage",
+        standardize=standardize,
+        detrend=detrend,
+    )
+
+    if isinstance(func_img, (str, Path)):
+        func_img = nib.load(str(func_img))
+    if isinstance(atlas_img, (str, Path)):
+        atlas_img = nib.load(str(atlas_img))
+    if mask_img and isinstance(mask_img, (str, Path)):
+        mask_img = nib.load(str(mask_img))
+
     masker = NiftiLabelsMasker(
         labels_img=atlas_img,
-        standardize=True,
-        detrend=True,
-        low_pass=None,
-        high_pass=None,
-        t_r=2.0, # Approximate TR for HCP
-        memory="memory_cache",
-        verbose=0
+        mask_img=mask_img,
+        standardize=standardize,
+        detrend=detrend,
+        resampling_target="labels",
     )
-    
     time_series = masker.fit_transform(func_img)
-    logger.log("extract_time_series", status="completed", shape=time_series.shape)
+
+    # NiftiLabelsMasker returns (n_timepoints, n_rois), we want (n_rois, n_timepoints)
+    return time_series.T
+
+
+def apply_motion_regression(
+    time_series: np.ndarray,
+    motion_params: Optional[np.ndarray] = None,
+    global_signal: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """
+    Regress out motion parameters and/or global signal from time series.
+
+    Args:
+        time_series: Time series of shape (n_rois, n_timepoints).
+        motion_params: Motion parameters of shape (n_timepoints, n_params).
+        global_signal: Global signal of shape (n_timepoints,).
+
+    Returns:
+        Regressed time series of shape (n_rois, n_timepoints).
+    """
+    logger.log(
+        "apply_motion_regression",
+        time_series_shape=time_series.shape,
+        has_motion_params=motion_params is not None,
+        has_global_signal=global_signal is not None,
+    )
+
+    if motion_params is None and global_signal is None:
+        return time_series
+
+    # Transpose to (n_timepoints, n_rois) for regression
+    ts_T = time_series.T
+    n_timepoints = ts_T.shape[0]
+
+    # Build regressors
+    regressors = []
+    if motion_params is not None:
+        regressors.append(motion_params)
+    if global_signal is not None:
+        regressors.append(global_signal.reshape(-1, 1))
+
+    if regressors:
+        X = np.hstack(regressors)
+        # Add intercept
+        X = np.column_stack([np.ones(n_timepoints), X])
+
+        # Compute residuals: Y - X @ beta
+        # beta = (X^T X)^-1 X^T Y
+        try:
+            beta = np.linalg.lstsq(X, ts_T, rcond=None)[0]
+            residuals = ts_T - X @ beta
+            return residuals.T
+        except np.linalg.LinAlgError:
+            logger.log("apply_motion_regression_error", error="Singular matrix")
+            return time_series
+
     return time_series
 
-def apply_motion_regression(time_series: np.ndarray, motion_params: np.ndarray) -> np.ndarray:
-    """
-    Regresses out motion parameters from the time series.
-    motion_params: (time_points, 6) array of realignment parameters.
-    """
-    logger.log("apply_motion_regression", ts_shape=time_series.shape, mp_shape=motion_params.shape)
-    
-    if motion_params is None or motion_params.shape[0] != time_series.shape[0]:
-        logger.log("apply_motion_regression", status="skipped", reason="motion_params mismatch")
-        return time_series
-    
-    # Linear regression: ts ~ motion_params
-    # We can use sklearn's LinearRegression or simple numpy solution
-    # X = [1, motion_params], y = time_series[:, i]
-    X = np.c_[np.ones(motion_params.shape[0]), motion_params]
-    residuals = np.empty_like(time_series)
-    
-    for i in range(time_series.shape[1]):
-        y = time_series[:, i]
-        # Solve least squares
-        coeffs, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
-        predicted = X @ coeffs
-        residuals[:, i] = y - predicted
-        
-    logger.log("apply_motion_regression", status="completed")
-    return residuals
 
-def calculate_connectivity_matrix(time_series: np.ndarray) -> np.ndarray:
+def calculate_connectivity_matrix(
+    time_series: np.ndarray,
+    method: str = "pearson",
+) -> np.ndarray:
     """
-    Calculates the Pearson correlation matrix from the time series.
-    Returns a (n_parcels, n_parcels) symmetric matrix.
+    Calculate functional connectivity matrix from time series.
+
+    Args:
+        time_series: Time series of shape (n_rois, n_timepoints).
+        method: Correlation method ('pearson', 'spearman', etc.).
+
+    Returns:
+        Connectivity matrix of shape (n_rois, n_rois).
     """
-    logger.log("calculate_connectivity_matrix", shape=time_series.shape)
-    
-    # Correlation across time points for each pair of parcels
-    # time_series shape: (T, N)
-    # corr shape: (N, N)
-    corr_matrix = np.corrcoef(time_series, rowvar=False)
-    
-    # Handle NaNs (if constant signal in a region)
+    logger.log("calculate_connectivity_matrix", method=method, shape=time_series.shape)
+
+    if method == "pearson":
+        corr_matrix = np.corrcoef(time_series)
+    else:
+        from scipy import stats
+        if method == "spearman":
+            corr_matrix, _ = stats.spearmanr(time_series, axis=1)
+        else:
+            raise ValueError(f"Unsupported correlation method: {method}")
+
+    # Handle NaNs (e.g., constant time series)
     corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-    
-    logger.log("calculate_connectivity_matrix", status="completed", shape=corr_matrix.shape)
+
     return corr_matrix
 
-def calculate_graph_metrics(connectivity_matrix: np.ndarray) -> Dict[str, float]:
+
+def calculate_graph_metrics(
+    connectivity_matrix: np.ndarray,
+    threshold: Optional[float] = None,
+    community_detection: bool = True,
+    n_modularity: int = 10,
+) -> Dict[str, Any]:
     """
-    Calculates graph metrics: Modularity, Global Efficiency, Participation Coefficient, Within-Module Degree.
-    Returns a dictionary of scalar metrics for the whole graph.
+    Calculate graph theory metrics from a connectivity matrix.
+
+    Args:
+        connectivity_matrix: Square connectivity matrix.
+        threshold: Optional threshold to binarize the network.
+        community_detection: Whether to detect communities for modularity.
+        n_modularity: Number of random restarts for modularity optimization.
+
+    Returns:
+        Dictionary containing:
+            - 'modularity': Modularity value (scalar)
+            - 'participation_coeff': Participation coefficient per node (array)
+            - 'within_module_degree': Within-module degree Z-score per node (array)
+            - 'global_efficiency': Global efficiency (scalar)
+            - 'community_labels': Community assignment per node (array, if detected)
     """
-    logger.log("calculate_graph_metrics", shape=connectivity_matrix.shape)
-    
+    logger.log(
+        "calculate_graph_metrics",
+        matrix_shape=connectivity_matrix.shape,
+        threshold=threshold,
+        community_detection=community_detection,
+    )
+
+    n_nodes = connectivity_matrix.shape[0]
+
+    # Create NetworkX graph
     G = nx.Graph()
-    n = connectivity_matrix.shape[0]
-    
-    # Add edges (thresholding might be needed, but we use all positive edges or weighted)
-    # For weighted networks, we can add edges with weights
-    # We'll use a simple threshold to avoid fully connected graph if needed, 
-    # but for now, let's assume we add all positive edges or use a fixed threshold.
-    # To match typical neuroimaging practices, we might threshold at a certain density.
-    # Here we add edges with weights > 0.
-    
-    for i in range(n):
-        G.add_node(i)
-        
-    for i in range(n):
-        for j in range(i+1, n):
-            w = connectivity_matrix[i, j]
-            if w > 0: # Only positive correlations
-                G.add_edge(i, j, weight=w)
-    
-    if len(G.edges()) == 0:
-        logger.log("calculate_graph_metrics", status="failed", reason="no edges")
-        return {
-            "modularity": 0.0,
-            "global_efficiency": 0.0,
-            "participation_coef": 0.0,
-            "within_module_degree": 0.0
-        }
-    
-    # Modularity (requires community detection)
-    try:
-        # Use Louvain community detection
-        import community as community_louvain
-        partition = community_louvain.best_partition(G, weight='weight')
-        modularity = community_louvain.modularity(partition, G, weight='weight')
-    except ImportError:
-        # Fallback if python-louvain not installed
-        logger.log("calculate_graph_metrics", warning="python-louvain not installed, using heuristic")
-        modularity = 0.0
-    
-    # Global Efficiency
-    try:
-        global_eff = nx.global_efficiency(G)
-    except:
-        global_eff = 0.0
-        
-    # Participation Coefficient and Within-Module Degree
-    # These are node-level metrics. We need to aggregate them to a scalar.
-    # Per T022, we aggregate by mean across nodes.
-    
-    # First, get community assignment
-    communities = {}
-    for node, comm in partition.items():
-        if comm not in communities:
-            communities[comm] = []
-        communities[comm].append(node)
-    
-    participation_coeffs = []
-    within_module_degrees = []
-    
-    for node in G.nodes():
-        # Degree
-        k = G.degree(node, weight='weight')
-        
-        # Degree within own module
-        node_comm = partition[node]
-        k_within = sum(G.degree(n, weight='weight') for n in G.neighbors(node) if partition.get(n) == node_comm)
-        
-        # Participation coefficient: 1 - sum((k_s / k)^2)
-        # k_s is the degree to module s
-        ks = {}
-        for neighbor in G.neighbors(node):
-            neighbor_comm = partition.get(neighbor)
-            w = G[node][neighbor]['weight']
-            ks[neighbor_comm] = ks.get(neighbor_comm, 0) + w
-        
-        k_total = sum(ks.values())
-        if k_total > 0:
-            p = 1 - sum((v / k_total) ** 2 for v in ks.values())
+    G.add_nodes_from(range(n_nodes))
+
+    # Add edges with weights
+    upper_tri_indices = np.triu_indices(n_nodes, k=1)
+    for i, j in zip(upper_tri_indices[0], upper_tri_indices[1]):
+        weight = connectivity_matrix[i, j]
+        if threshold is not None:
+            if abs(weight) >= threshold:
+                G.add_edge(i, j, weight=weight)
         else:
-            p = 0.0
-        
-        participation_coeffs.append(p)
-        within_module_degrees.append(k_within)
-    
-    avg_participation = float(np.mean(participation_coeffs)) if participation_coeffs else 0.0
-    avg_within_module = float(np.mean(within_module_degrees)) if within_module_degrees else 0.0
-    
+            # Add all edges (weighted graph)
+            G.add_edge(i, j, weight=weight)
+
+    # Calculate metrics
+    metrics = {}
+
+    # Modularity and communities
+    if community_detection:
+        try:
+            # Louvain community detection
+            communities = nx.community.louvain_communities(G, seed=42)
+            community_labels = np.zeros(n_nodes, dtype=int)
+            for idx, comm in enumerate(communities):
+                for node in comm:
+                    community_labels[node] = idx
+
+            # Modularity
+            modularity = nx.community.modularity(G, communities)
+            metrics['modularity'] = float(modularity)
+            metrics['community_labels'] = community_labels
+        except Exception as e:
+            logger.log("community_detection_failed", error=str(e))
+            metrics['modularity'] = 0.0
+            metrics['community_labels'] = np.zeros(n_nodes, dtype=int)
+    else:
+        metrics['modularity'] = 0.0
+        metrics['community_labels'] = np.zeros(n_nodes, dtype=int)
+
+    # Participation coefficient and within-module degree
+    # These require community labels
+    try:
+        pc, wmd = nx.community.participation_coefficient(
+            G,
+            community_labels,
+            weight='weight',
+        )
+        metrics['participation_coeff'] = pc
+        metrics['within_module_degree'] = wmd
+    except Exception as e:
+        logger.log("node_metrics_failed", error=str(e))
+        metrics['participation_coeff'] = np.zeros(n_nodes)
+        metrics['within_module_degree'] = np.zeros(n_nodes)
+
+    # Global efficiency
+    try:
+        # For weighted graphs, use weighted shortest paths
+        global_eff = nx.global_efficiency(G)
+        metrics['global_efficiency'] = float(global_eff)
+    except Exception as e:
+        logger.log("global_efficiency_failed", error=str(e))
+        metrics['global_efficiency'] = 0.0
+
+    return metrics
+
+
+def aggregate_node_metrics(
+    input_path: Union[str, Path],
+    output_path: Union[str, Path],
+) -> None:
+    """
+    Aggregate node-level metrics into subject-level scalars.
+
+    Reads metrics_raw.csv (containing Modularity, Global Efficiency,
+    Participation Coefficient, and Within-Module Degree) and produces
+    aggregated_metrics.csv where node-level metrics are averaged across nodes.
+
+    Args:
+        input_path: Path to metrics_raw.csv.
+        output_path: Path to write aggregated_metrics.csv.
+    """
+    logger.log("aggregate_node_metrics", input=str(input_path), output=str(output_path))
+
+    input_path = Path(input_path)
+    output_path = Path(output_path)
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    # Read the raw metrics
+    df = pd.read_csv(input_path)
+
+    # Identify columns
+    # Expected columns: subject_id, modularity, global_efficiency,
+    #                   participation_coeff (node-level), within_module_degree (node-level)
+    # The raw file might have multiple rows per subject if node-level metrics are stored per node.
+    # We need to aggregate participation_coeff and within_module_degree by subject_id.
+
+    # Check if we have node-level data (multiple rows per subject)
+    subject_counts = df['subject_id'].value_counts()
+    has_node_level = subject_counts.max() > 1
+
+    if has_node_level:
+        # Aggregate node-level metrics
+        # Participation coefficient and Within-module degree are node-level
+        # Modularity and Global Efficiency are already subject-level (should be repeated or single)
+
+        # Group by subject and aggregate
+        agg_dict = {}
+
+        # For node-level metrics, take the mean
+        node_level_cols = []
+        if 'participation_coeff' in df.columns:
+            node_level_cols.append('participation_coeff')
+            agg_dict['participation_coeff'] = 'mean'
+        if 'within_module_degree' in df.columns:
+            node_level_cols.append('within_module_degree')
+            agg_dict['within_module_degree'] = 'mean'
+
+        # For scalar metrics, take the first value (they should be constant per subject)
+        scalar_cols = []
+        if 'modularity' in df.columns:
+            scalar_cols.append('modularity')
+            agg_dict['modularity'] = 'first'
+        if 'global_efficiency' in df.columns:
+            scalar_cols.append('global_efficiency')
+            agg_dict['global_efficiency'] = 'first'
+
+        # Perform aggregation
+        if agg_dict:
+            aggregated = df.groupby('subject_id').agg(agg_dict).reset_index()
+        else:
+            # Fallback: just keep unique subjects
+            aggregated = df.drop_duplicates(subset=['subject_id'])
+    else:
+        # Already aggregated, just ensure we have the right columns
+        aggregated = df.copy()
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write to CSV
+    aggregated.to_csv(output_path, index=False)
+
+    logger.log(
+        "aggregate_node_metrics_complete",
+        input_rows=len(df),
+        output_rows=len(aggregated),
+        output_path=str(output_path),
+    )
+
+
+def process_subject(
+    subject_id: str,
+    func_path: Union[str, Path],
+    atlas_path: Union[str, Path],
+    motion_params_path: Optional[Union[str, Path]] = None,
+    threshold: Optional[float] = None,
+    output_dir: Optional[Union[str, Path]] = None,
+) -> Dict[str, Any]:
+    """
+    Process a single subject: extract time series, compute connectivity,
+    and calculate graph metrics.
+
+    Args:
+        subject_id: Subject identifier.
+        func_path: Path to functional fMRI image.
+        atlas_path: Path to atlas image.
+        motion_params_path: Optional path to motion parameters.
+        threshold: Optional threshold for network binarization.
+        output_dir: Optional directory to save intermediate results.
+
+    Returns:
+        Dictionary containing:
+            - 'subject_id': Subject identifier
+            - 'time_series_shape': Shape of extracted time series
+            - 'connectivity_matrix_shape': Shape of connectivity matrix
+            - 'metrics': Graph metrics dictionary
+    """
+    logger.log(
+        "process_subject",
+        subject_id=subject_id,
+        func_path=str(func_path),
+        atlas_path=str(atlas_path),
+        threshold=threshold,
+    )
+
+    # Extract time series
+    time_series = extract_time_series(func_path, atlas_path)
+
+    # Load motion parameters if available
+    motion_params = None
+    if motion_params_path and Path(motion_params_path).exists():
+        motion_params = np.loadtxt(str(motion_params_path))
+
+    # Apply motion regression
+    if motion_params is not None:
+        time_series = apply_motion_regression(time_series, motion_params)
+
+    # Calculate connectivity matrix
+    connectivity_matrix = calculate_connectivity_matrix(time_series)
+
+    # Calculate graph metrics
+    metrics = calculate_graph_metrics(connectivity_matrix, threshold=threshold)
+
     result = {
-        "modularity": float(modularity),
-        "global_efficiency": float(global_eff),
-        "participation_coef": avg_participation,
-        "within_module_degree": avg_within_module
+        'subject_id': subject_id,
+        'time_series_shape': time_series.shape,
+        'connectivity_matrix_shape': connectivity_matrix.shape,
+        'metrics': metrics,
     }
-    
-    logger.log("calculate_graph_metrics", status="completed", metrics=result)
+
+    # Save intermediate results if output_dir is provided
+    if output_dir:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save connectivity matrix
+        np.savetxt(
+            output_dir / f"{subject_id}_connectivity.csv",
+            connectivity_matrix,
+            delimiter=",",
+        )
+
+        # Save metrics
+        metrics_path = output_dir / f"{subject_id}_metrics.json"
+        with open(metrics_path, "w") as f:
+            json.dump(metrics, f, indent=2)
+
     return result
 
-def aggregate_node_metrics(node_metrics_list: List[np.ndarray]) -> float:
-    """
-    Aggregates node-level metrics into a single scalar per subject.
-    Per FR-003 and T022, this computes the mean across nodes.
-    
-    Args:
-        node_metrics_list: List of arrays, each containing node-level values for a metric.
-                           For Participation Coefficient and Within-Module Degree, 
-                           this list will contain the per-node values.
-    
-    Returns:
-        float: The mean value across all nodes.
-    """
-    if not node_metrics_list:
-        return 0.0
-    
-    # Concatenate all node values and take the mean
-    all_values = np.concatenate([np.array(m).flatten() for m in node_metrics_list])
-    return float(np.mean(all_values))
 
-def process_subject(subject_id: str, func_path: Path, atlas_path: Path, 
-                    motion_params: Optional[np.ndarray] = None) -> Dict[str, Any]:
+def main() -> None:
     """
-    Processes a single subject: extracts time series, calculates connectivity,
-    and computes graph metrics.
-    
-    Returns a dictionary containing:
-      - subject_id
-      - connectivity_matrix (flattened or saved path)
-      - graph_metrics (dict of scalars)
-      - time_series (optional, saved path)
+    Main entry point for metrics computation.
+    This function is intended to be called from a script that processes
+    all subjects and writes the metrics to a CSV file.
     """
-    logger.log("process_subject", subject=subject_id, func=str(func_path))
-    
-    try:
-        # 1. Extract Time Series
-        time_series = extract_time_series(func_path, atlas_path)
-        
-        # 2. Motion Regression
-        if motion_params is not None:
-            time_series = apply_motion_regression(time_series, motion_params)
-        
-        # 3. Connectivity Matrix
-        conn_matrix = calculate_connectivity_matrix(time_series)
-        
-        # 4. Graph Metrics
-        graph_metrics = calculate_graph_metrics(conn_matrix)
-        
-        result = {
-            "subject_id": subject_id,
-            "graph_metrics": graph_metrics,
-            "time_series_shape": time_series.shape,
-            "conn_matrix_shape": conn_matrix.shape
-        }
-        
-        logger.log("process_subject", status="completed", subject=subject_id)
-        return result
-        
-    except Exception as e:
-        logger.log("process_subject", status="failed", subject=subject_id, error=str(e))
-        raise
+    import argparse
 
-def main():
-    """
-    Main entry point for metrics extraction.
-    Can be run to process a list of subjects if paths are provided.
-    """
-    logger.log("main", entry="metrics")
-    # This would typically be called by the pipeline runner
-    pass
+    parser = argparse.ArgumentParser(description="Compute graph metrics from fMRI data")
+    parser.add_argument("--input", type=str, required=True, help="Path to input metrics_raw.csv")
+    parser.add_argument("--output", type=str, required=True, help="Path to output aggregated_metrics.csv")
+    args = parser.parse_args()
 
-if __name__ == "__main__":
-    main()
+    aggregate_node_metrics(args.input, args.output)
+    print(f"Aggregated metrics written to {args.output}")
