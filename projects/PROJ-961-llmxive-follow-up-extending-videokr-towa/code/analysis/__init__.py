@@ -1,4 +1,3 @@
 """
-Analysis module for VideoKR reasoning pipeline.
-Handles statistical testing, accuracy stratification, and threshold detection.
+Analysis module for threshold detection, sensitivity analysis, and plotting.
 """

@@ -1,17 +1,41 @@
-T021:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature description and user\
-    \ stories; there is no evidence of any changes to `detect_threshold.py`, no code,\
-    \ tests, or output demonstrating handling of small bin sizes. The required artifact\
-    \ (updated script handling small bins) is missing."
-T022:
+  r: "No evidence of the required `code/`, `tests/`, or `data/` directories is provided;\
+    \ the claim lacks any listed files or directory listings confirming their existence\
+    \ or non\u2011emptiness. The implementer must create these three top\u2011level\
+    \ folders and populate them with at least placeholder content to satisfy the task."
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and no actual artifacts such
-    as the annotated dataset, summary table, statistical test results, or the required
-    plots. Consequently, there is no evidence that the summary table and visualizations
-    were generated, so the requirement is not satisfied.
+  r: No evidence of the required `code/ingest/`, `code/analysis/`, or `code/utils/`
+    directories is provided; the claim lacks any artifact showing that these subdirectories
+    exist. The implementer must create and show these directories (e.g., a directory
+    listing or file paths) to satisfy the task.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the `tests/unit/` and `tests/integration/`
+    directories actually exist in the repository (e.g., a directory listing, file
+    paths, or any files within them). Without such artifacts, we cannot confirm the
+    required subdirectories were created.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` file in `data/raw/` was shown or described; the implementer provided
+    no artifact or proof that the file exists, so the requirement is not demonstrated.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `.gitkeep` file in the `data/processed/` directory was provided;
+    the implementer did not supply the required file or any proof of its existence.
+    The task remains undone until the placeholder file is created and shown.
+T014b:
+  c: false
+  h: 737bd78c7e5bf3ecaff822ec12a598b2ef478b015dd480e3dcd2bf9cd1228ad9
+  r: "The required `data/processed/annotation_coverage.json` file is missing, so the\
+    \ proportion of successfully annotated questions has not been calculated or logged\
+    \ as specified. The task\u2019s primary artifact is absent."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -86,3 +86,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T13:36:01Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: p-value 0.0012 for 2-hop threshold
+  claim_id: c_b9a98993
+  context: Results Summary table showing Threshold (Hops) 2 with P-Value 0.0012.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the 2-hop threshold is 0.0012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:37:08Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: accuracy drop 0.1450 for 2-hop threshold
+  claim_id: c_6523cd19
+  context: Results Summary table showing Threshold (Hops) 2 with Effect Size 0.1450.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size (accuracy drop) for the 2-hop threshold is 0.1450.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:39:40Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: p-value 0.0340 for 3-hop threshold
+  claim_id: c_15820c36
+  context: Results Summary table showing Threshold (Hops) 3 with P-Value 0.0340.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the 3-hop threshold is 0.0340.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:44:06Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: accuracy drop 0.0980 for 3-hop threshold
+  claim_id: c_8f680e6b
+  context: Results Summary table showing Threshold (Hops) 3 with Effect Size 0.0980.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size (accuracy drop) for the 3-hop threshold is 0.0980.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:46:44Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: p-value 0.1850 for 4-hop threshold
+  claim_id: c_f4a87e36
+  context: Results Summary table showing Threshold (Hops) 4 with P-Value 0.1850.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the 4-hop threshold is 0.1850.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:48:45Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: accuracy drop 0.0420 for 4-hop threshold
+  claim_id: c_886eab4a
+  context: Results Summary table showing Threshold (Hops) 4 with Effect Size 0.0420.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size (accuracy drop) for the 4-hop threshold is 0.0420.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:49:19Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: reasoning cliff significant in 2 out of 3 thresholds
+  claim_id: c_3cd92a75
+  context: 'Robustness Conclusion stating Total Significant Thresholds: 2 / 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reasoning cliff effect was significant in 2 out of 3 tested thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T06:49:44Z'

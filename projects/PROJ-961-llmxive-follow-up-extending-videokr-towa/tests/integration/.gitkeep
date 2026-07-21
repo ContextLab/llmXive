@@ -1,2 +1,2 @@
-# Integration tests directory for llmXive project
-# This directory contains integration tests for system components working together.
+# Integration tests for llmXive pipeline components
+# This directory contains integration tests for multi-module workflows.

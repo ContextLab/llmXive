@@ -1,4 +1,3 @@
 """
-Utility module for VideoKR pipeline.
-Provides config management, graph utilities, and entity linking.
+Utils module for configuration, versioning, graph operations, and entity linking.
 """
