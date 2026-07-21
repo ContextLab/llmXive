@@ -1,0 +1,325 @@
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Parquet file <= 1 GB with at least 10,000 sampled frames
+  claim_id: c_de1c6b7b
+  context: "Independent Test: Verify that extract_latents.py and preprocess.py produce\
+    \ a Parquet file \u2264 1 GB with valid columns (timestamp, semantic_feature,\
+    \ prosodic_feature, latent_delta_magnitude, turn_label) and at least 10,000 sampled\
+    \ frames including interruption/pause events."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parquet_file_%3C=_1_GB_with_at_least_10,000_sampled_frames
+  kind: magnitude
+  raw_text: "Verify that extract_latents.py and preprocess.py produce a Parquet file\
+    \ \u2264 1 GB with valid columns (timestamp, semantic_feature, prosodic_feature,\
+    \ latent_delta_magnitude, turn_label) and at least 10,000 sampled frames including\
+    \ interruption/pause events."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:11:33Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Reduce latency by >= 20% while keeping FID degradation <= 5%
+  claim_id: c_703e2aed
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    asserted: '20.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify that hybrid_engine.py and simulator.py reduce latency by \u2265\
+    \ 20% while keeping FID degradation \u2264 5% and passing TOST equivalence tests\
+    \ (\u0394=0.05)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T01:11:33Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Keep FID degradation <= 5%
+  claim_id: c_7fe5059c
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    asserted: '20.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify that hybrid_engine.py and simulator.py reduce latency by \u2265\
+    \ 20% while keeping FID degradation \u2264 5% and passing TOST equivalence tests\
+    \ (\u0394=0.05)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T01:11:33Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Model outputs tensor of shape [batch, 2]
+  claim_id: c_8588afe0
+  context: Implement code/models/gru_estimator.py defining the lightweight GRU architecture
+    with CPU-compatible operations; ensure the model outputs a tensor of shape [batch,
+    2] where column 0 is the predicted delta magnitude and column 1 is the UncertaintyScore
+    (0.0-1.0); save checkpoint to data/models/estimator_checkpoint.pt with a pending_validation
+    flag (FR-002, US-2); Do NOT finalize the checkpoint; save only as 'pending'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model outputs a tensor of shape [batch, 2] where column 0 is the predicted
+    delta magnitude and column 1 is the UncertaintyScore (0.0-1.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:11:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Randomized subset for forced skip is >= 5% of total
+  claim_id: c_b2ecf631
+  context: "Generate and log the specific 'forced skip' ground truth artifact data/processed/counterfactual_indices.parquet\
+    \ containing frame indices for the randomized subset (\u2265 5% of total) forced\
+    \ to be skipped, using a fixed seed for reproducibility; this artifact is required\
+    \ input for T045 and T048 (FR-008, FR-017, US-3)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate and log the specific 'forced skip' ground truth artifact data/processed/counterfactual_indices.parquet\
+    \ containing frame indices for the randomized subset (\u2265 5% of total) forced\
+    \ to be skipped"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:11:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Trigger full solver when uncertainty > 0.8
+  claim_id: c_d2b0079b
+  context: Implement code/inference/fallback_handler.py to trigger full solver when
+    uncertainty > 0.8 or delta magnitude is high, explicitly enforcing the precedence
+    rule (FR-017) where the randomized counterfactual intervention (T047) overrides
+    the deterministic fallback for frames in the randomized subset (FR-006, FR-009,
+    FR-017); depends on T047.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger full solver when uncertainty > 0.8 or delta magnitude is high
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:11:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Stratified bootstrap with propensity-score matching for latency validation
+  claim_id: c_4d090ef2
+  context: 'Implement analyze_latency_bias module: Implement stratified bootstrap
+    with propensity-score matching for latency reduction validation using independent
+    covariates (frame timestamp and audio energy, excluding estimator prediction)
+    via sklearn.linear_model.LogisticRegression; output data/metrics/latency_bootstrap_results.csv
+    (FR-005, FR-007, US-3, Constitution Principle VI); depends on T047.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_bootstrap_with_propensity-score_matching_for_late
+  kind: entity_fact
+  raw_text: Perform stratified bootstrap with propensity-score matching for latency
+    reduction validation using independent covariates (frame timestamp and audio energy,
+    excluding estimator prediction) via sklearn.linear_model.LogisticRegression
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:12:23Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence tests with delta=0.05 and p-value < 0.05
+  claim_id: c_c3f12993
+  context: "Implement Two One-Sided Tests (TOST) equivalence tests (\u0394=0.05) for\
+    \ quality metrics; output data/metrics/tost_results.csv and verify p-value < 0.05\
+    \ (FR-005, US-3, Constitution Principle VI); depends on T047."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Two One-Sided Tests (TOST) equivalence tests (\u0394=0.05)\
+    \ for quality metrics; output data/metrics/tost_results.csv and verify p-value\
+    \ < 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:12:50Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 0
+  canonical: Latency reduction >= 20% with FID degradation <= 5%
+  claim_id: c_0496177a
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    asserted: '20.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify that hybrid_engine.py and simulator.py reduce latency by \u2265\
+    \ 20% while keeping FID degradation \u2264 5% and passing TOST equivalence tests\
+    \ (\u0394=0.05)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T01:18:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 0
+  canonical: FID degradation <= 5%
+  claim_id: c_5a327c98
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    asserted: '20.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Verify that hybrid_engine.py and simulator.py reduce latency by \u2265\
+    \ 20% while keeping FID degradation \u2264 5% and passing TOST equivalence tests\
+    \ (\u0394=0.05)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T01:18:23Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Parquet file size <= 1 GB with at least 10,000 sampled frames
+  claim_id: c_fee16ee0
+  context: "Independent Test: Verify that extract_latents.py and preprocess.py produce\
+    \ a Parquet file \u2264 1 GB with valid columns (timestamp, semantic_feature,\
+    \ prosodic_feature, latent_delta_magnitude, turn_label) and at least 10,000 sampled\
+    \ frames including interruption/pause events."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parquet_file_size_%3C=_1_GB_with_at_least_10,000_sampled_frame
+  kind: magnitude
+  raw_text: "Verify that extract_latents.py and preprocess.py produce a Parquet file\
+    \ \u2264 1 GB with valid columns (timestamp, semantic_feature, prosodic_feature,\
+    \ latent_delta_magnitude, turn_label) and at least 10,000 sampled frames including\
+    \ interruption/pause events."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:18:25Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Randomized subset >= 5% of total frames forced to skip
+  claim_id: c_0de570d4
+  context: "T047 [US3] Critical Data Generation: Generate and log the specific 'forced\
+    \ skip' ground truth artifact data/processed/counterfactual_indices.parquet containing\
+    \ frame indices for the randomized subset (\u2265 5% of total) forced to be skipped,\
+    \ using a fixed seed for reproducibility."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate and log the specific 'forced skip' ground truth artifact data/processed/counterfactual_indices.parquet\
+    \ containing frame indices for the randomized subset (\u2265 5% of total) forced\
+    \ to be skipped, using a fixed seed for reproducibility."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:18:25Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test delta = 0.05
+  claim_id: c_a6406e23
+  context: "T049 [US3] Implement Two One-Sided Tests (TOST) equivalence tests (\u0394\
+    =0.05) for quality metrics; output data/metrics/tost_results.csv and verify p-value\
+    \ < 0.05 (FR-005, US-3, Constitution Principle VI); depends on T047."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Two One-Sided Tests (TOST) equivalence tests (\u0394=0.05)\
+    \ for quality metrics; output data/metrics/tost_results.csv and verify p-value\
+    \ < 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:18:25Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST test p-value < 0.05
+  claim_id: c_d9e74eed
+  context: "T049 [US3] Implement Two One-Sided Tests (TOST) equivalence tests (\u0394\
+    =0.05) for quality metrics; output data/metrics/tost_results.csv and verify p-value\
+    \ < 0.05 (FR-005, US-3, Constitution Principle VI); depends on T047."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Two One-Sided Tests (TOST) equivalence tests (\u0394=0.05)\
+    \ for quality metrics; output data/metrics/tost_results.csv and verify p-value\
+    \ < 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:18:25Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Fallback trigger when uncertainty > 0.8
+  claim_id: c_a6ae84fa
+  context: 'T045 [US3] Implement execute_fallback module: Implement code/inference/fallback_handler.py
+    to trigger full solver when uncertainty > 0.8 or delta magnitude is high, explicitly
+    enforcing the precedence rule (FR-017) where the randomized counterfactual intervention
+    (T047) overrides the deterministic fallback for frames in the randomized subset
+    (FR-006, FR-009, FR-017); depends on T047.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/inference/fallback_handler.py` to trigger full solver
+    when uncertainty > 0.8 or delta magnitude is high.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T01:18:25Z'

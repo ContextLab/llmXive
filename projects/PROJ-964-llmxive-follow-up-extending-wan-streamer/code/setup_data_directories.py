@@ -2,54 +2,58 @@ import os
 import sys
 from pathlib import Path
 
-def setup_data_directories(base_path: Path) -> None:
+def setup_data_directories():
     """
-    Create the required data subdirectories for the project.
+    Create the required data subdirectories:
+    - data/raw/
+    - data/processed/
+    - data/models/
     
-    Creates:
-    - data/raw: For raw, unprocessed dataset files (e.g., VoxCeleb2, logs)
-    - data/processed: For processed datasets, extracted latents, and intermediate artifacts
-    - data/models: For saved model checkpoints and weights
-    
-    Args:
-        base_path: The root directory of the project (where 'data' folder should be created)
+    Returns True if all directories were created or already exist.
     """
-    data_dir = base_path / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    models_dir = data_dir / "models"
+    project_root = Path(__file__).resolve().parent.parent
+    data_root = project_root / "data"
     
-    directories = [data_dir, raw_dir, processed_dir, models_dir]
+    required_dirs = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "models",
+    ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        # Optional: create a .gitkeep file to ensure the directory is tracked by git
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.write_text("# This directory is managed by the llmXive pipeline\n")
-        
-    print(f"Created data directories under: {data_dir}")
-    print(f"  - {raw_dir}")
-    print(f"  - {processed_dir}")
-    print(f"  - {models_dir}")
+    for dir_path in required_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        if not dir_path.is_dir():
+            raise RuntimeError(f"Failed to create directory: {dir_path}")
+    
+    return True
 
 def main():
-    """
-    Main entry point for creating data directories.
-    Assumes the script is run from the project root.
-    """
-    # Determine the project root (parent of 'code' directory)
-    script_path = Path(__file__).resolve()
-    code_dir = script_path.parent
-    project_root = code_dir.parent
-    
-    print(f"Project root detected at: {project_root}")
-    
+    """Entry point for script execution."""
     try:
-        setup_data_directories(project_root)
-        print("Data directory setup completed successfully.")
+        setup_data_directories()
+        print("Data directories created successfully.")
+        # Verification step as per task requirements
+        project_root = Path(__file__).resolve().parent.parent
+        data_root = project_root / "data"
+        
+        dirs_to_check = [
+            data_root / "raw",
+            data_root / "processed",
+            data_root / "models",
+        ]
+        
+        all_exist = True
+        for d in dirs_to_check:
+            exists = d.is_dir()
+            print(f"Checking {d}: {'EXISTS' if exists else 'MISSING'}")
+            if not exists:
+                all_exist = False
+        
+        assert all_exist, "One or more required directories are missing."
+        print("Verification passed: All required data directories exist.")
+        
     except Exception as e:
-        print(f"Error setting up data directories: {e}", file=sys.stderr)
+        print(f"Error during setup: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

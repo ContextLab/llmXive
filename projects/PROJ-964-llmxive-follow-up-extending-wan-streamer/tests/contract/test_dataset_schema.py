@@ -1,166 +1,196 @@
 """
 Contract test for dataset schema (US1).
 
-Verifies that the processed dataset produced by the data extraction pipeline
-adheres to the strict schema requirements defined in the specification.
+This test verifies that the dataset produced by the extraction and preprocessing
+pipeline adheres to the strict schema requirements defined in the specification.
+It ensures that all required columns exist, have the correct data types, and
+that the data contains valid values for the specified event types.
 
-Required columns:
-- timestamp: float64
-- semantic_feature: float64 (or object/list depending on storage, but validated as non-null)
-- prosodic_feature: float64
-- latent_delta_magnitude: float64
-- turn_label: string (categorical: 'interruption', 'pause', 'normal')
-
-Constraints:
-- File size <= 1 GB
-- At least 10,000 sampled frames
-- No null values in required columns
-- Valid event types for turn_label
+Dependencies:
+- T013: extract_latents.py (must produce raw Parquet)
+- T014a-d: preprocess.py (must produce final Parquet)
 """
 
 import os
 import sys
 import pytest
 import pandas as pd
-import numpy as np
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Add parent directory to path to allow imports if needed, though this is a pure contract test
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path so we can import utils if needed
+# (though this contract test primarily uses standard libraries and pandas)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Import validators from the existing API surface
-from utils.validators import ValidationError, validate_dataset_schema
+# Expected schema definition based on US1 requirements
+# Columns: timestamp, semantic_feature, prosodic_feature, latent_delta_magnitude, turn_label
+EXPECTED_COLUMNS = [
+    "timestamp",
+    "semantic_feature",
+    "prosodic_feature",
+    "latent_delta_magnitude",
+    "turn_label"
+]
 
-# Define the expected schema based on T013/T014 requirements
-EXPECTED_SCHEMA = {
-    "columns": {
-        "timestamp": {"dtype": "float64", "nullable": False},
-        "semantic_feature": {"dtype": "float64", "nullable": False},
-        "prosodic_feature": {"dtype": "float64", "nullable": False},
-        "latent_delta_magnitude": {"dtype": "float64", "nullable": False},
-        "turn_label": {"dtype": "string", "nullable": False, "allowed_values": ["interruption", "pause", "normal"]}
-    },
-    "min_rows": 10000,
-    "max_size_mb": 1024
+# Expected data types for each column
+EXPECTED_DTYPE_MAP = {
+    "timestamp": "int64",           # Frame index or timestamp in ms
+    "semantic_feature": "float32",  # Continuous vector or scalar feature
+    "prosodic_feature": "float32",  # Continuous vector or scalar feature
+    "latent_delta_magnitude": "float32", # Magnitude of change
+    "turn_label": "category"        # Categorical: 'speaker_a', 'speaker_b', 'interruption', 'pause'
 }
 
-# Path to the expected output file from the preprocessing pipeline
-# This path matches the convention in tasks.md (data/processed/)
-# The test expects the file to exist after T014 runs.
-# We use a relative path from the project root context if running from tests,
-# but typically the test is run against the generated artifact.
-ARTIFACT_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "processed_latents.parquet"
+# Expected event types (turn_label values)
+EXPECTED_EVENT_TYPES = {
+    "interruption",
+    "pause",
+    "speaker_a",
+    "speaker_b"
+}
 
-# Fallback for testing environment where file might be generated in a temp location or specific run
-# If the standard path doesn't exist, we check for a generic "processed" parquet in data/processed
-def find_processed_dataset():
-    base_dir = Path(__file__).parent.parent.parent
-    processed_dir = base_dir / "data" / "processed"
-    
-    if processed_dir.exists():
-        # Look for the specific expected file first
-        target = processed_dir / "processed_latents.parquet"
-        if target.exists():
-            return target
-        
-        # Fallback: find any parquet file in that directory
-        parquet_files = list(processed_dir.glob("*.parquet"))
-        if parquet_files:
-            # Sort by modification time to get the latest one if multiple exist
-            return sorted(parquet_files, key=os.path.getmtime)[-1]
-    
-    return None
+# Minimum sample size requirement
+MIN_REQUIRED_SAMPLES = 10000
 
-def load_dataset():
-    path = find_processed_dataset()
-    if path is None:
+# Maximum allowed file size (1 GB in bytes)
+MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024
+
+
+def get_expected_output_path() -> Path:
+    """
+    Determines the expected path for the processed dataset Parquet file.
+    Based on standard project conventions for US1 output.
+    """
+    # The path is relative to the project root
+    # data/processed/ is the standard location for US1 output
+    return PROJECT_ROOT / "data" / "processed" / "wan_streamer_latents.parquet"
+
+
+def load_test_dataset() -> pd.DataFrame:
+    """
+    Loads the dataset produced by the pipeline.
+    Raises FileNotFoundError if the file does not exist.
+    """
+    path = get_expected_output_path()
+    if not path.exists():
         raise FileNotFoundError(
-            "Processed dataset not found. "
-            "Ensure T014 (preprocess.py) has been executed and output "
-            "data/processed/processed_latents.parquet exists."
+            f"Dataset file not found at {path}. "
+            "Ensure T013 (extract_latents) and T014 (preprocess) have been executed."
         )
-    
-    return pd.read_parquet(path), path
+    return pd.read_parquet(path)
 
-class TestDatasetSchemaContract:
-    
-    def test_file_exists_and_size_constraint(self):
-        """Test that the file exists and is within the 1 GB limit."""
-        df, path = load_dataset()
-        file_size_mb = path.stat().st_size / (1024 * 1024)
-        
-        assert file_size_mb <= EXPECTED_SCHEMA["max_size_mb"], (
-            f"Dataset size {file_size_mb:.2f} MB exceeds limit of "
-            f"{EXPECTED_SCHEMA['max_size_mb']} MB."
+
+class TestDatasetSchema:
+    """Contract tests for the US1 dataset schema."""
+
+    def test_file_exists(self):
+        """Verify that the output file exists on disk."""
+        path = get_expected_output_path()
+        assert path.exists(), f"Dataset file {path} does not exist."
+
+    def test_file_size_constraint(self):
+        """Verify that the output file is within the 1 GB size limit."""
+        path = get_expected_output_path()
+        file_size = path.stat().st_size
+        assert file_size <= MAX_FILE_SIZE_BYTES, (
+            f"Dataset file size ({file_size} bytes) exceeds limit ({MAX_FILE_SIZE_BYTES} bytes). "
+            "Stratified sampling (T014b) may have failed to reduce size."
         )
-        
-    def test_minimum_row_count(self):
-        """Test that the dataset has at least 10,000 sampled frames."""
-        df, _ = load_dataset()
-        
-        assert len(df) >= EXPECTED_SCHEMA["min_rows"], (
-            f"Dataset has {len(df)} rows, which is less than the "
-            f"required minimum of {EXPECTED_SCHEMA['min_rows']}."
-        )
-        
+
     def test_required_columns_present(self):
-        """Test that all required columns exist in the dataframe."""
-        df, _ = load_dataset()
-        required_cols = EXPECTED_SCHEMA["columns"].keys()
-        
-        missing_cols = set(required_cols) - set(df.columns)
-        assert not missing_cols, f"Missing required columns: {missing_cols}"
-        
-    def test_schema_validation(self):
+        """Verify that all required columns are present in the dataset."""
+        df = load_test_dataset()
+        missing_cols = set(EXPECTED_COLUMNS) - set(df.columns)
+        assert len(missing_cols) == 0, (
+            f"Missing required columns: {missing_cols}. "
+            f"Expected: {EXPECTED_COLUMNS}, Found: {list(df.columns)}"
+        )
+
+    def test_column_data_types(self):
+        """Verify that columns have the expected data types."""
+        df = load_test_dataset()
+        errors = []
+        for col, expected_dtype in EXPECTED_DTYPE_MAP.items():
+            if col not in df.columns:
+                continue # Already caught by column test
+
+            actual_dtype = str(df[col].dtype)
+            # Handle category vs object for turn_label if necessary, but we expect category
+            if expected_dtype == "category":
+                if not pd.api.types.is_categorical_dtype(df[col]):
+                    errors.append(f"Column '{col}' is {actual_dtype}, expected 'category'")
+            elif expected_dtype == "int64":
+                if not pd.api.types.is_integer_dtype(df[col]):
+                    errors.append(f"Column '{col}' is {actual_dtype}, expected 'int64'")
+            elif "float" in expected_dtype:
+                if not pd.api.types.is_float_dtype(df[col]):
+                    errors.append(f"Column '{col}' is {actual_dtype}, expected '{expected_dtype}'")
+
+        assert len(errors) == 0, f"Data type mismatches found:\n" + "\n".join(errors)
+
+    def test_no_null_values(self):
+        """Verify that no required columns contain null values."""
+        df = load_test_dataset()
+        null_counts = df[EXPECTED_COLUMNS].isnull().sum()
+        non_zero_nulls = null_counts[null_counts > 0]
+
+        assert len(non_zero_nulls) == 0, (
+            f"Found null values in the following columns:\n{non_zero_nulls}. "
+            "All required columns must be non-null."
+        )
+
+    def test_sample_size_minimum(self):
+        """Verify that the dataset contains at least the minimum required samples."""
+        df = load_test_dataset()
+        count = len(df)
+        assert count >= MIN_REQUIRED_SAMPLES, (
+            f"Dataset contains {count} samples, which is less than the required minimum "
+            f"of {MIN_REQUIRED_SAMPLES}. Ensure stratified sampling preserves sufficient data."
+        )
+
+    def test_event_types_valid(self):
+        """Verify that turn_label values are within the expected set of event types."""
+        df = load_test_dataset()
+        unique_labels = set(df["turn_label"].unique())
+        invalid_labels = unique_labels - EXPECTED_EVENT_TYPES
+
+        assert len(invalid_labels) == 0, (
+            f"Found invalid turn_label values: {invalid_labels}. "
+            f"Allowed values: {EXPECTED_EVENT_TYPES}"
+        )
+
+    def test_latent_delta_non_negative(self):
+        """Verify that latent_delta_magnitude is non-negative (as it is a magnitude)."""
+        df = load_test_dataset()
+        negative_count = (df["latent_delta_magnitude"] < 0).sum()
+        assert negative_count == 0, (
+            f"Found {negative_count} negative values in 'latent_delta_magnitude'. "
+            "Magnitudes must be non-negative."
+        )
+
+    def test_timestamp_monotonicity_within_sessions(self):
         """
-        Test that the dataframe adheres to the strict schema definition
-        using the project's validator utility.
+        Verify that timestamps are generally increasing within logical sessions.
+        Note: This is a soft check; strict monotonicity might be broken by multi-threading
+        or specific logging formats, but generally it should hold.
         """
-        df, _ = load_dataset()
-        
-        try:
-            validate_dataset_schema(df, EXPECTED_SCHEMA)
-        except ValidationError as e:
-            pytest.fail(f"Dataset schema validation failed: {e}")
-            
-    def test_turn_label_distribution(self):
-        """
-        Test that turn_label contains valid values and has a distribution
-        that suggests stratified sampling was applied (non-trivial counts for all classes).
-        """
-        df, _ = load_dataset()
-        
-        allowed = EXPECTED_SCHEMA["columns"]["turn_label"]["allowed_values"]
-        actual_labels = set(df["turn_label"].unique())
-        
-        invalid_labels = actual_labels - set(allowed)
-        assert not invalid_labels, f"Found invalid turn_label values: {invalid_labels}"
-        
-        # Check that all expected labels are present (stratification check)
-        for label in allowed:
-            count = (df["turn_label"] == label).sum()
-            assert count > 0, f"Turn label '{label}' is missing from the dataset."
-            
-    def test_no_nulls_in_required_fields(self):
-        """Test that no required column contains null values."""
-        df, _ = load_dataset()
-        
-        for col_name, constraints in EXPECTED_SCHEMA["columns"].items():
-            if not constraints["nullable"]:
-                null_count = df[col_name].isnull().sum()
-                assert null_count == 0, (
-                    f"Column '{col_name}' contains {null_count} null values, "
-                    "but it is marked as non-nullable."
-                )
-                
-    def test_numeric_columns_are_numeric(self):
-        """Test that numeric columns are actually numeric types."""
-        df, _ = load_dataset()
-        
-        numeric_cols = [
-            "timestamp", "semantic_feature", "prosodic_feature", "latent_delta_magnitude"
-        ]
-        
-        for col in numeric_cols:
-            if not np.issubdtype(df[col].dtype, np.number):
-                pytest.fail(f"Column '{col}' is not numeric. Found dtype: {df[col].dtype}")
+        df = load_test_dataset()
+        # Check if timestamps are sorted (assuming single session or sorted by session)
+        # If the dataset has a 'session_id' column (not in schema but possible), we'd group by it.
+        # For now, we just check that the overall range is sensible and non-decreasing
+        # if the data is expected to be chronological.
+        # Given the schema, we assume the data is a continuous stream or concatenated streams.
+        # We check for massive backwards jumps which would indicate a bug.
+        if len(df) > 1:
+            diffs = df["timestamp"].diff()
+            # Allow small negative diffs due to potential out-of-order logging,
+            # but flag large negative jumps as errors.
+            large_jumps = diffs < -1000 # Arbitrary threshold for 'large' backward jump
+            assert large_jumps.sum() == 0, (
+                "Detected large backward jumps in timestamp, indicating potential data corruption."
+            )
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

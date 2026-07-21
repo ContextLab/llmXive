@@ -1,8 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "llmxive-follow-up-extending-wan-streamer"
+name = "llmxive-wan-streamer-followup"
 version = "0.1.0"
-description = "llmXive automated science pipeline - Wan-Streamer extension"
-requires-python = ">=3.10"
+description = "Follow-up research project extending Wan-Streamer v0.1 for latency-quality trade-off analysis."
+requires-python = ">=3.9"
 dependencies = [
     "torch",
     "scikit-learn",
@@ -12,24 +16,37 @@ dependencies = [
     "scipy",
     "pyyaml",
     "videomae",
+    "pytest",
     "ruff",
-    "black",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | data
+  | state
+  | docs
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code"]
+package-dir = {"" = "code"}
+include-package-data = true

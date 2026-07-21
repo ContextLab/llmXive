@@ -1,4 +1,4 @@
-# Core dependencies
+# Core dependencies (CPU-optimized)
 torch>=2.0.0
 scikit-learn>=1.2.0
 pandas>=2.0.0
@@ -8,9 +8,11 @@ scipy>=1.11.0
 pyyaml>=6.0.0
 videomae>=0.1.0
 
-# Linting and Formatting dependencies (Task T005c)
+# Linting and Formatting dependencies (Task T005c, T005d)
 ruff>=0.3.0
 black>=24.3.0
 pre-commit>=3.5.0
+
+# Testing dependencies
 pytest>=7.4.0
 pytest-cov>=4.1.0

@@ -1,3 +1,30 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or proof that the required `code/`, `code/data/`, `code/models/`,
+    `code/inference/`, `code/evaluation/`, `code/utils/`, `code/tasks/`, and `code/tests/`
+    folders actually exist were provided; without such evidence the `os.path.isdir`
+    checks cannot be satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directories `data/raw/`, `data/processed/`,
+    and `data/models/` actually exist; there is no script or output showing `os.path.isdir`
+    checks passing. The required subdirectories must be created and verified.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that `state/` and `docs/` directories actually
+    exist; there are no file listings, screenshots, or code confirming `os.path.isdir`
+    returns True for those paths. The implementer must create the directories and
+    provide proof (e.g., a directory tree listing or a test script that asserts their
+    existence).
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/`
+    directory actually exists (e.g., a screenshot, `os.path.exists` output, or a file
+    listing). Without such proof, the required artifact cannot be confirmed.
 T008:
   c: false
   h: d2d7746c6b099115ef7ed361732e3dbccc675546303cf9253de1ee40c66caadb
@@ -36,11 +63,3 @@ T018:
     2]` tensor with the required columns. Moreover, the required checkpoint file `data/models/estimator_checkpoint.pt`\
     \ is absent. Both the model output specification and the saved checkpoint are\
     \ missing, so the task is not fully satisfied."
-T021#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No extraction script, dataset file, training script, or model checkpoint was
-    supplied; the claim contains only a textual description of the intended work,
-    with no concrete artifacts to verify that an `UncertaintyScore` is computed or
-    that the required logic is implemented. The required code and output files are
-    missing.

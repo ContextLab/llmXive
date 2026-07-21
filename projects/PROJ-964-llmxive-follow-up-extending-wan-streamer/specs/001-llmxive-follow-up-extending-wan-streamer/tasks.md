@@ -43,28 +43,28 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project root directory structure: `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/`
-- [ ] T002 Create `code/` subdirectories: `code/`, `code/data/`, `code/models/`, `code/inference/`, `code/evaluation/`, `code/utils/`, `code/tasks/`, `code/tests/`
-- [ ] T003 Create `data/` subdirectories: `data/raw/`, `data/processed/`, `data/models/`
-- [ ] T004 Create `state/` and `docs/` directories
-- [ ] T005 [P] Create `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/` directory structure
-- [X] T005a [P] Create `code/requirements.txt` with CPU-only dependencies (`torch`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `scipy`, `pyyaml`, `videomae`)
-- [X] T005b [P] Implement `code/config.py` to pin the exact HuggingFace dataset revision for VoxCeleb2 (FR-019, Constitution Principle I)
-- [ ] T005c [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T002 Create `code/` subdirectories: `code/`, `code/data/`, `code/models/`, `code/inference/`, `code/evaluation/`, `code/utils/`, `code/tasks/`, `code/tests/`. **Verification**: Run `os.path.isdir` on each path and assert True.
+- [ ] T003 Create `data/` subdirectories: `data/raw/`, `data/processed/`, `data/models/`. **Verification**: Run `os.path.isdir` on each path and assert True.
+- [ ] T004 Create `state/` and `docs/` directories. **Verification**: Run `os.path.isdir` on each path and assert True.
+- [ ] T005 [P] Create `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/` directory structure. **Verification**: Run `os.path.exists` and assert True.
+- [X] T005a [P] Create `code/requirements.txt` with CPU-only dependencies (`torch`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `scipy`, `pyyaml`, `videomae`). **Verification**: Run `os.path.exists('code/requirements.txt')` and assert True.
+- [X] T005b [P] Implement `code/config.py` to pin the exact HuggingFace dataset revision for VoxCeleb2 (FR-019, Constitution Principle I). **Verification**: Run `os.path.exists('code/config.py')` and assert True.
+- [ ] T005c [P] Create `.ruff.toml` with specific linting rules for the project. **Verification**: Run `os.path.exists('.ruff.toml')` and assert True.
+- [X] T005d [P] Create `pyproject.toml` with black formatting configuration. **Verification**: Run `os.path.exists('pyproject.toml')` and assert True.
+- [X] T005e [P] Create `tests/unit/test_setup_verification.py` with automated assertions using `os.path.exists` and `os.path.isdir` to verify directory structure creation (FR-001, FR-002, FR-003, FR-004, FR-005). **Verification**: Run `pytest tests/unit/test_setup_verification.py` and assert pass.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T007 [P] Implement `code/utils/config.py` for seed pinning and path configuration
-- [X] T008 [P] Implement `code/utils/update_state_yaml.py` to update `state.yaml` with artifact hashes (Constitution Principle V, FR-020)
-- [X] T009 [P] Implement `code/data/validate_logs.py` to check for Wan-Streamer v0.1 logs; if missing, fetch the canonical VoxCeleb2 dataset using `datasets.load_dataset('voxceleb2', revision='...')`, compute and register the checksum in `state.yaml` (Constitution Principle III), and update configuration to use the fetched data (FR-019, FR-022, Assumption about dataset availability)
-- [X] T010 [P] Implement `code/utils/validators.py` for schema validation
-- [X] T016 [P] Implement `code/tasks/reduce_sample_size.py` module to reduce dataset sample size by [deferred] amount on power limit exceedance, or fail with "Power Limitation" error if minimum sample size is reached (FR-014, FR-023)
+- [X] T007 [P] Implement `code/utils/config.py` for seed pinning and path configuration.
+- [X] T008 [P] Implement `code/utils/update_state_yaml.py` to update `state.yaml` with artifact hashes (Constitution Principle V, FR-020).
+- [X] T009 [P] Implement `code/data/validate_logs.py` to check for Wan-Streamer v0.1 logs; if missing, fetch the canonical VoxCeleb2 dataset using `datasets.load_dataset('voxceleb2', revision='...')`, compute and register the checksum in `state.yaml` (Constitution Principle III), and update configuration to use the fetched data (FR-019, FR-022, Assumption about dataset availability). **Must assert checksum registration in `state.yaml` before returning. If checksum is not registered, the task must fail immediately.**
+- [X] T010 [P] Implement `code/utils/validators.py` for schema validation. **Dependency**: T009 must complete successfully before T010 runs.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,14 +81,20 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T011 [P] [US1] Contract test for dataset schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_dataset_schema.py`
-- [X] T012 [P] [US1] Integration test for data extraction pipeline in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_data_extraction.py` (US-1, FR-001)
+- [ ] T012 [P] [US1] Integration test for data extraction pipeline in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_data_extraction.py` (US-1, FR-001)
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] [FR-001] Implement `code/data/extract_latents.py` to parse Wan-Streamer v0.1 logs (or fetched VoxCeleb2) and output raw Parquet; define and implement the detection algorithm and thresholds for classifying 'interruption' and 'pause' events as a distinct, configurable component (e.g., audio energy > X dB defined in `code/config.py` or a dedicated config file) to ensure verifiability (FR-018, FR-001, US-1)
-- [X] T014 [US1] Implement `code/data/preprocess.py` to: 1) filter for interruption/pause events using the configured thresholds, 2) compute latent deltas, 3) apply stratified sampling by turn_label (interruption/pause/normal) to reduce dataset to ≤ 1 GB while preserving distribution, 4) label events as "high-priority" or "low-priority" with counts logged, 5) validate all required columns are non-null and correctly typed, and 6) explicitly reference T015b for validation of sampling distribution preservation (FR-001, US-1, FR-015)
-- [X] T014b [US1] Implement `code/data/validate_sampling.py` to explicitly validate that the stratified sampling process preserves the distribution of turn-taking events (FR-015) and log the distribution comparison results (US-1)
-- [X] T015 [US1] Implement logic in `code/data/preprocess.py` to enforce graceful degradation: if memory limits are approached, call the `code/tasks/reduce_sample_size.py` module (T016) to reduce the dataset sample size and retry the sampling process; only fail gracefully with a "Power Limitation" error if the minimum valid sample size cannot be maintained after reduction attempts (Constitution Principle I, Assumption about power limitations, FR-014)
+- [ ] T012a [P] [US1] [FR-018] **Define Thresholds**: Create `code/config.py` entries or a dedicated `code/config/detection_thresholds.yaml` to explicitly define the detection algorithm and thresholds for classifying 'interruption' and 'pause' events (e.g., audio energy > X dB). **Verification**: Run a schema check to ensure thresholds are present and non-null before T013 runs.
+- [ ] T013 [P] [US1] [FR-001] Implement `code/data/extract_latents.py` to parse Wan-Streamer v0.1 logs (or fetched VoxCeleb2) and output raw Parquet; use thresholds defined in T012a to classify events (FR-018, FR-001, US-1). **Dependency**: T012a.
+- [ ] T014a [US1] Implement `code/data/preprocess.py` filtering logic to filter for interruption/pause events using the configured thresholds (FR-001, US-1).
+- [ ] T014b [US1] Implement `code/data/preprocess.py` stratified sampling logic to reduce dataset to ≤ 1 GB while preserving distribution, using parameters from T029b (FR-015, US-1). **Dependency**: T029b.
+- [ ] T014c [US1] Implement `code/data/preprocess.py` event labeling logic to label events as "high-priority" or "low-priority" with counts logged (FR-001, US-1).
+- [ ] T014d [US1] Implement `code/data/preprocess.py` validation logic to ensure all required columns are non-null and correctly typed (FR-001, US-1).
+- [ ] T015 [US1] Implement `code/data/validate_sampling.py` to explicitly validate that the stratified sampling process preserves the distribution of turn-taking events (FR-015) and log the distribution comparison results (US-1). **Dependency**: T014b.
+- [ ] T016 [P] [US1] Implement `code/tasks/reduce_sample_size.py` module to reduce dataset sample size by [deferred] amount on power limit exceedance, or fail with "Power Limitation" error if minimum sample size is reached (FR-014, FR-023). **Note**: This module must be importable by Phase 4 tasks; define `MIN_SAMPLE_SIZE` constant explicitly.
+- [ ] T015b [US1] **Critical Validation**: Implement logic to validate sampling distribution preservation (FR-015) and log results. **Dependency**: T014b.
+- [ ] T029b [US1] **Critical Statistical Prep**: Perform 'a priori' power analysis to specify expected variance and minimum detectable effect size for the TOST test; log calculated parameters (variance, effect size) to `data/metrics/power_analysis.json` to justify sample size (FR-016, US-3); **must run after T013 (Extraction) to use pilot data for variance estimation, but before T014b (Sampling)**. **Dependency**: T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,20 +108,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Contract test for model output schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_model_output_schema.py`
-- [X] T022 [P] [US2] Integration test for training loop and memory constraints in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_training_constraints.py`
+- [ ] T021 [P] [US2] Contract test for model output schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_model_output_schema.py`
+- [ ] T022 [P] [US2] Integration test for training loop and memory constraints in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_training_constraints.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement `code/models/gru_estimator.py` defining the lightweight GRU architecture with CPU-compatible operations; ensure the model outputs a tensor of shape `[batch, 2]` where column 0 is the predicted delta magnitude and column 1 is the `UncertaintyScore` (0.0-1.0); save checkpoint to `data/models/estimator_checkpoint.pt` (FR-002, US-2); **depends on T024b**
-- [X] T019 [US2] Implement `code/models/trainer.py` with a CPU-optimized training loop, ensuring memory usage stays ≤ 7 GB (FR-002)
-- [X] T020 [US2] Implement baseline comparison logic (zero-delta predictor) to validate MSE improvement on the prediction task; output `data/metrics/baseline_comparison.json` with MSE values and p-values; explicitly defer the correlation with FID stability (r ≥ 0.7) to T042 in Phase 5 where the simulation data exists (SC-003, FR-010)
-- [ ] T021 [US2] Add logic to compute and output an `UncertaintyScore` alongside predictions (FR-002); explicitly reference T031 for MOS validation logic (FR-012, FR-013, SC-007)
-- [ ] T023 [US2] Implement job-level timeout monitoring logic in `code/models/trainer.py` to monitor wall-clock time (FR-014)
-- [ ] T023b [US2] Implement sample size reduction logic in `code/models/trainer.py` that calls the `code/tasks/reduce_sample_size.py` module (T016) if the 6-hour limit is approached; fail gracefully with "Power Limitation" error if the minimum sample size is reached (US-2, FR-014)
-- [ ] T023c [US2] Implement error logging for "Power Limitation" scenarios in `code/models/trainer.py` (FR-014, FR-023)
-- [ ] T024 [US2] Implement `code/metrics/uncertainty_calibration.py` to compute and validate the correlation (r ≥ 0.7) between the model's `UncertaintyScore` and actual prediction error (SC-006) on the validation set; log results and ensure the model is not saved if calibration fails (FR-002, SC-006)
-- [ ] T024b [US2] **Critical Validation**: Implement logic to compute the correlation (r ≥ 0.7) between `UncertaintyScore` and actual prediction error (SC-006) **before** the model checkpoint is saved in T018; if correlation < 0.7, raise an error and prevent saving (FR-002, SC-006, Constitution Principle VI)
+- [ ] T018 [US2] Implement `code/models/gru_estimator.py` defining the lightweight GRU architecture with CPU-compatible operations; ensure the model outputs a tensor of shape `[batch, 2]` where column 0 is the predicted delta magnitude and column 1 is the `UncertaintyScore` (0.0-1.0); save checkpoint to `data/models/estimator_checkpoint.pt` with a `pending_validation` flag (FR-002, US-2); **Do NOT finalize the checkpoint; save only as 'pending'**.
+- [ ] T019 [US2] Implement `code/models/trainer.py` with a CPU-optimized training loop, ensuring memory usage stays ≤ 7 GB (FR-002).
+- [ ] T020 [US2] Implement baseline comparison logic (zero-delta predictor) to validate MSE improvement on the prediction task; output `data/metrics/baseline_comparison.json` with MSE values and p-values; explicitly defer the correlation with FID stability (r ≥ 0.7) to T043 in Phase 5 where the simulation data exists (SC-003, FR-010).
+- [ ] T021b [US2] **Implementation**: Implement logic to compute and output an `UncertaintyScore` alongside predictions (FR-002); explicitly reference T044 for MOS validation logic (FR-012, FR-013, SC-007).
+- [ ] T023 [US2] Implement job-level timeout monitoring logic in `code/models/trainer.py` to monitor wall-clock time (FR-014).
+- [ ] T023b [US2] Implement sample size reduction logic in `code/models/trainer.py` that calls the `code/tasks/reduce_sample_size.py` module (T016) if the 6-hour limit is approached; fail gracefully with "Power Limitation" error if the minimum sample size is reached (US-2, FR-014).
+- [ ] T023c [US2] Implement error logging for "Power Limitation" scenarios in `code/models/trainer.py` (FR-014, FR-023).
+- [ ] T024 [US2] Implement `code/metrics/uncertainty_calibration.py` to compute and validate the correlation (r ≥ 0.7) between the model's `UncertaintyScore` and actual prediction error (SC-006) on the validation set; log results and ensure the model is not saved if calibration fails (FR-002, SC-006).
+- [ ] T024b [US2] **Critical Validation (Interim)**: Implement logic to compute the correlation (r ≥ 0.7) between `UncertaintyScore` and actual prediction error (SC-006) **after** T018 saves the 'pending' checkpoint and **before** T018a finalizes it; if correlation < 0.7, raise an error and prevent finalizing the checkpoint (FR-002, SC-006, Constitution Principle VI); **Depends on T021b**. **Note**: This task validates uncertainty calibration only; final FID-stability validation is deferred to T043. **Dependency**: T018.
+- [ ] T018a [US2] **Finalize Checkpoint**: Move or copy the `estimator_checkpoint.pt` from 'pending' state to 'finalized' state ONLY if T024b passes; update `state.yaml` to reflect the finalized checkpoint hash (FR-002, SC-006). **Dependency**: T024b.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,21 +137,19 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T028 [P] [US3] Contract test for hybrid output schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_hybrid_output_schema.py`
-- [ ] T029b [P] [US3] Integration test for end-to-end simulation and metrics in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_hybrid_simulation.py`
+- [ ] T029 [P] [US3] Integration test for end-to-end simulation and metrics in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_hybrid_simulation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `code/inference/counterfactual_generator.py` to generate and log the 'forced skip' ground truth artifact (`data/processed/counterfactual_ground_truth.parquet`) containing frame indices for the randomized subset (≥ 5% of total) forced to be skipped, using a fixed seed for reproducibility (FR-008, FR-017, US-3)
-- [ ] T025b [US3] **Critical Data Generation**: Generate and log the specific 'forced skip' ground truth dataset artifact `data/processed/counterfactual_indices.parquet` containing frame indices for the randomized subset (≥ 5% of total) forced to be skipped, using a fixed seed for reproducibility; this artifact is required input for T027 and T030 (FR-008, FR-017, US-3)
-- [ ] T026 [US3] Implement `code/inference/hybrid_engine.py` to conditionally skip flow-matching steps based on estimator predictions AND implement the randomized counterfactual intervention (FR-008) where a random subset of frames (≥ 5%) is forced to be skipped regardless of prediction; log forced skip indices to `data/processed/counterfactual_indices.parquet` matching T025b's artifact; use fixed seed for reproducibility (US-3, FR-003, FR-008)
-- [ ] T027 [US3] Implement `code/inference/fallback_handler.py` to trigger full solver when uncertainty > 0.8 or delta magnitude is high, explicitly enforcing the precedence rule (FR-017) where the randomized counterfactual intervention (T025b) overrides the deterministic fallback for frames in the randomized subset (FR-006, FR-009, FR-017); depends on T025b
-- [ ] T028 [US3] Implement `code/evaluation/metrics.py` to compute FID against the Wan-Streamer v0.1 baseline or VoxCeleb2 ground truth (as per spec) and proxy MOS using VideoMAE (FR-004, US-3)
-- [ ] T029 [US3] Implement `code/metrics/power_analysis.py` to perform the a priori power analysis, specifying expected variance and minimum detectable effect size for the TOST test, and log parameters to `data/metrics/power_analysis.json` (FR-016, US-3)
-- [ ] T029b [US3] **Critical Statistical Prep**: Perform 'a priori' power analysis to specify expected variance and minimum detectable effect size for the TOST test; log calculated parameters (variance, effect size) to `data/metrics/power_analysis.json` to justify sample size (FR-016, US-3); **must run before T030**
-- [ ] T030 [US3] Implement stratified bootstrap with propensity-score matching using *independent covariates* (not the estimator's prediction) for latency reduction validation AND Two One-Sided Tests (TOST) equivalence tests (Δ=0.05) for quality metrics; output `data/metrics/tost_results.csv` and verify p-value < 0.05 (FR-005, US-3, Constitution Principle VI); depends on T029b and T025b
-- [ ] T031 [US3] Add logic to calculate Pearson correlation between proxy MOS and human ratings (if available) to validate proxy; if human ratings are missing, explicitly log the string "Assumption Validated (No Human Data Available)" and skip this specific correlation test without failing the pipeline (US-3, SC-007, FR-012, FR-013)
-- [ ] T032 [US3] Implement fallback logic for ambiguous turn-taking signals to default to full solver, and explicitly handle the 'Power Limitation' error scenario (FR-014, FR-023) by logging the error and exiting gracefully if the minimum sample size is reached during fallback checks (Edge Case, FR-014, FR-023)
-- [ ] T042 [US3] Implement `code/metrics/fid_stability_corr.py` to calculate the correlation (r ≥ 0.7) between predicted delta magnitude and FID stability (relative change in FID between skipped and full-solver frames) as a specific metric, using data generated by the hybrid simulation (FR-010, FR-011, SC-003)
+- [ ] T047 [US3] **Critical Data Generation**: Generate and log the specific 'forced skip' ground truth artifact `data/processed/counterfactual_indices.parquet` containing frame indices for the randomized subset (≥ 5% of total) forced to be skipped, using a fixed seed for reproducibility; this artifact is required input for T045 and T048 (FR-008, FR-017, US-3).
+- [ ] T045 [US3] **Implement execute_fallback module**: Implement `code/inference/fallback_handler.py` to trigger full solver when uncertainty > 0.8 or delta magnitude is high, explicitly enforcing the precedence rule (FR-017) where the randomized counterfactual intervention (T047) overrides the deterministic fallback for frames in the randomized subset (FR-006, FR-009, FR-017); depends on T047.
+- [ ] T028 [US3] Implement `code/evaluation/metrics.py` to compute FID against the Wan-Streamer v0.1 baseline or VoxCeleb2 ground truth (as per spec) and proxy MOS using VideoMAE (FR-004, US-3).
+- [ ] T048 [US3] **Implement analyze_latency_bias module**: Implement stratified bootstrap with propensity-score matching for latency reduction validation using *independent covariates* (frame timestamp and audio energy, excluding estimator prediction) via `sklearn.linear_model.LogisticRegression`; output `data/metrics/latency_bootstrap_results.csv` (FR-005, FR-007, US-3, Constitution Principle VI); depends on T047.
+- [ ] T049 [US3] Implement Two One-Sided Tests (TOST) equivalence tests (Δ=0.05) for quality metrics; output `data/metrics/tost_results.csv` and verify p-value < 0.05 (FR-005, US-3, Constitution Principle VI); depends on T047.
+- [ ] T044 [US3] **Implement validate_proxy_mos module**: Add logic to calculate Pearson correlation between proxy MOS and human ratings (if available) to validate proxy (FR-012, FR-013, SC-007). **Dependency**: T044a.
+- [ ] T044a [US3] **Logging Logic**: Implement specific logic to log "Assumption Validated (No Human Data Available)" and skip the correlation test if human ratings are missing, ensuring the pipeline continues without failing (FR-024, US-3, SC-007).
+- [ ] T032 [US3] Implement fallback logic for ambiguous turn-taking signals to default to full solver, and explicitly handle the 'Power Limitation' error scenario (FR-014, FR-023) by logging the error and exiting gracefully if the minimum sample size is reached during fallback checks (Edge Case, FR-014, FR-023).
+- [ ] T043 [US3] **Implement calculate_fid_stability_corr module**: Implement `code/metrics/fid_stability_corr.py` to calculate the correlation (r ≥ 0.7) between predicted delta magnitude and FID stability (relative change in FID between skipped and full-solver frames) as a specific metric, using data generated by the hybrid simulation (FR-010, FR-011, SC-003); **If correlation >= 0.7, update `state.yaml` to mark the checkpoint from T018a as 'validated'; if < 0.7, flag Phase 5 results as 'invalidated' in `state.yaml` and prevent advancement**.
 
 **Checkpoint**: All user stories should now be independently functional
 
