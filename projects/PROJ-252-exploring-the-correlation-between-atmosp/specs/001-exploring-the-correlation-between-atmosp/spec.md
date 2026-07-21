@@ -67,7 +67,7 @@ The research system MUST validate the primary findings by repeating the analysis
 ### Functional Requirements
 
 - **FR-001**: System MUST download the NOAA NCEP/NCAR daily global surface pressure data (source resolution 2.5°) and the USGS earthquake catalog (2013-2023, M≥4.0, depth≤70km) from their respective public repositories. (See US-1)
-- **FR-002**: System MUST interpolate the 2.5° pressure fields to a 1°×1° grid and extract the nearest grid point (or 3-point average) for every earthquake epicenter to calculate daily pressure anomalies. (See US-1)
+- **FR-002**: System MUST interpolate the coarse pressure fields to a fine-resolution grid and extract the nearest grid point (or 3-point average) for every earthquake epicenter to calculate daily pressure anomalies. (See US-1)
 - **FR-003**: System MUST compute daily pressure anomalies by subtracting a moving average calculated from a left-censored window (excluding the event window and a preceding baseline period) to remove seasonal trends for every event and control window. (See US-1)
 - **FR-004**: System MUST perform a two-sample Kolmogorov–Smirnov test and a permutation test with a sufficient number of iterations to compare pressure anomaly distributions between event and control windows. (See US-2)
 - **FR-005**: System MUST frame all statistical findings as "associational" and explicitly avoid causal language in the generated report, acknowledging the observational nature of the data. (See US-2)

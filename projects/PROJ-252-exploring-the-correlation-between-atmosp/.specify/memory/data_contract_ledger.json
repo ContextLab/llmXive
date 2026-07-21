@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "data/processed/master_dataset.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/usgs_test_subset.json",
+    "required": []
+  }
+]

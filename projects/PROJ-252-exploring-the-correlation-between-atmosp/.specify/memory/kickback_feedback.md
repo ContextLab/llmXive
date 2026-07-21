@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T023` (rejected 1x): No code, script, function, or output file implementing the p‑value calculation (comparing the observed statistic to the 95th percentile of the permuted null array) is present. The claim lacks any artifact to verify that the required logic was added, nor any test or JSON result showing the computed p‑value. The task therefore remains unfinished.
+- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/master_dataset.csv, data/processed/master_dataset.csv.sha256, schema.yaml
 
 ## Required change
 

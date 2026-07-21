@@ -1,0 +1,47 @@
+status: verified
+kind: pypi_package
+ref: obspy
+access_python: 'import json
+
+  from obspy.clients.fdsn import Client
+
+  client = Client("USGS")
+
+  # Example query: all magnitude >=5 events in 2022
+
+  cat = client.get_events(starttime="2022-01-01", endtime="2022-12-31", minmagnitude=5)
+
+  records = len(cat)
+
+  print(f"RECORDS={records}")
+
+  # Map native attributes to required field names
+
+  fields = ["earthquake_id","origin_time","magnitude","depth_km","latitude","longitude"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 1725
+sample_fields:
+- earthquake_id
+- origin_time
+- magnitude
+- depth_km
+- latitude
+- longitude
+field_coverage: 0.667
+required_fields:
+- earthquake_id
+- origin_time
+- magnitude
+- depth_km
+- latitude
+- longitude
+- pressure_anomaly
+- pressure_grid_lat
+- pressure_grid_lon
+- pressure_time_window_start
+- pressure_time_window_end
+- seasonally_adjusted_pressure
+intent: download NOAA NCEP/NCAR global surface pressure reanalysis and USGS earthquake
+  catalog python package dataset
+cache_key: 1aba305539c9e6c5b9f280e3b55326482ff26d06d276e0a88d23761cee891ae4

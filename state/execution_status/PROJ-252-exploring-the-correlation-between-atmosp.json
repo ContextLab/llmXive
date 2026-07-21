@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/generate_master_dataset.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ure anomaly.     It also generates synthetic control windows for the\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/report.py; 3 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/master_dataset.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py -> rc=1\n    2026-07-21 00:07:16 - __main__ - INFO - Starting download pipeline (T012: Checksumming & Immutability)\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/download.py\", line 252, in <module>\n    exit(main())\n         ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/download.py\", line 218, in main\n    if not verify_deviations():\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/project",
+    "python code/preprocess.py -> rc=1\n    in load_raw_earthquake_data\n    raise FileNotFoundError(f\"Raw earthquake data not found at {raw_path}\")\nFileNotFoundError: Raw earthquake data not found at data/raw/usgs_test_subset.json\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py\", line 323, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/preprocess.py\", line 308, in main\n    eq_df, press_df, report = preprocess_dat",
+    "python code/analysis.py -> rc=1\n    2026-07-21 00:07:17 - __main__ - INFO - Starting analysis pipeline.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py\", line 320, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analysis.py\", line 313, in main\n    results = run_analysis()\n              ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/analy",
+    "python code/report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/code/report.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-21T00:07:18Z"
+}

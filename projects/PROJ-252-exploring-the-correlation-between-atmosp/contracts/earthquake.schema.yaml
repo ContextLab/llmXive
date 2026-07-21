@@ -1,31 +1,31 @@
-# Schema for Earthquake Data (T008/T009)
-# Required fields as per spec: magnitude, depth, lat, lon, timestamp
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Earthquake Event Schema"
+description: "Schema for earthquake event data"
+type: "object"
+properties:
+  event_id:
+    type: "string"
+    description: "Unique identifier for the earthquake event (e.g., USGS ID)"
+  magnitude:
+    type: "number"
+    description: "Magnitude of the earthquake"
+  depth:
+    type: "number"
+    description: "Depth of the earthquake in km"
+  lat:
+    type: "number"
+    description: "Latitude of the epicenter"
+  lon:
+    type: "number"
+    description: "Longitude of the epicenter"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of the event"
 required:
+  - event_id
   - magnitude
   - depth
   - lat
   - lon
   - timestamp
-  - event_id
-properties:
-  magnitude:
-    type: number
-    description: Earthquake magnitude (e.g., Mw)
-  depth:
-    type: number
-    description: Depth in kilometers
-  lat:
-    type: number
-    description: Latitude in degrees
-  lon:
-    type: number
-    description: Longitude in degrees
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the event
-  event_id:
-    type: string
-    description: Unique USGS event identifier
-additionalProperties: true
