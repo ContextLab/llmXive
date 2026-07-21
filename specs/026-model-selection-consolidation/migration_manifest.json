@@ -1580,6 +1580,28 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_model_selection_attempt_hooks.py",
+      "kind": "model_id_literal",
+      "line": 7,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_attempt_hooks.py",
+      "kind": "model_id_literal",
+      "line": 7,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_model_selection_enforcement.py",
       "kind": "model_id_literal",
       "line": 97,
