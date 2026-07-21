@@ -4,252 +4,248 @@ import random
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from datetime import datetime, timedelta
+from typing import Dict, List, Tuple, Optional
 
-# Ensure reproducibility
-def set_seeds(seed: int = 42) -> None:
-    """Set random seeds for reproducibility."""
+# Constants for reproducibility
+DEFAULT_SEED = 42
+SYNTHETIC_DATA_DIR = Path("data/processed")
+SYNTHETIC_MANIFEST_PATH = Path("data/metadata/synthetic_data_manifest.json")
+
+def set_seeds(seed: int = DEFAULT_SEED) -> None:
+    """
+    Set random seeds for reproducibility across all libraries.
+    """
     random.seed(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-def generate_metagenomic_counts(n_samples: int = 100, n_taxa: int = 50, seed: int = 42) -> pd.DataFrame:
+def generate_metagenomic_counts(
+    n_subjects: int,
+    n_taxa: int,
+    zero_inflation_rate: float = 0.35,
+    seed: Optional[int] = None
+) -> pd.DataFrame:
     """
     Generate synthetic metagenomic count data.
-    
+
     Args:
-        n_samples: Number of samples
-        n_taxa: Number of taxa
+        n_subjects: Number of subjects (rows)
+        n_taxa: Number of taxa (columns)
+        zero_inflation_rate: Proportion of zeros in the data
         seed: Random seed for reproducibility
-        
+
     Returns:
-        DataFrame with sample IDs and taxa counts
+        DataFrame with taxa counts
     """
-    set_seeds(seed)
-    
-    # Generate sample IDs
-    sample_ids = [f"SUBJ_{i:03d}" for i in range(1, n_samples + 1)]
-    
-    # Generate taxa names
-    phyla = ['Firmicutes', 'Bacteroidetes', 'Actinobacteria', 'Proteobacteria', 'Verrucomicrobia']
-    taxa = []
-    for i in range(n_taxa):
-        phylum = phyla[i % len(phyla)]
-        taxa.append(f"{phylum}_genus{i % 10}_species{i % 5}")
-    
-    # Generate count data with realistic properties
-    # Most counts are low, some are high (zero-inflated)
-    data = {}
-    for taxon in taxa:
-        # Base mean count varies by taxon
-        base_mean = np.random.lognormal(mean=2, sigma=1)
-        # Generate counts with zero-inflation
-        counts = []
-        for _ in range(n_samples):
-            if np.random.random() < 0.3:  # 30% zeros
-                counts.append(0)
-            else:
-                counts.append(max(0, int(np.random.negative_binomial(n=5, p=0.3) * base_mean / 100)))
-        data[taxon] = counts
-    
-    df = pd.DataFrame(data)
-    df.insert(0, 'sample_id', sample_ids)
-    
+    if seed is not None:
+        set_seeds(seed)
+
+    # Generate base counts (negative binomial-like distribution)
+    # Using a mixture of low and high abundance taxa
+    base_abundance = np.random.lognormal(mean=1.0, sigma=1.5, size=n_taxa)
+    counts = np.random.negative_binomial(n=2, p=0.3, size=(n_subjects, n_taxa))
+    counts = counts * base_abundance
+
+    # Apply zero inflation
+    mask = np.random.random((n_subjects, n_taxa)) < zero_inflation_rate
+    counts[mask] = 0
+
+    # Ensure non-negative integers
+    counts = np.maximum(counts, 0).astype(int)
+
+    # Create DataFrame with taxon names
+    taxon_names = [f"Taxon_{i}" for i in range(n_taxa)]
+    df = pd.DataFrame(counts, columns=taxon_names)
+    df['subject_id'] = range(n_subjects)
+    df = df[['subject_id'] + taxon_names]
+
     return df
 
-def generate_sleep_metrics(n_samples: int = 100, seed: int = 42) -> pd.DataFrame:
+def generate_sleep_metrics(
+    n_subjects: int,
+    seed: Optional[int] = None
+) -> pd.DataFrame:
     """
-    Generate synthetic sleep metrics data.
-    
+    Generate synthetic sleep architecture metrics.
+
     Args:
-        n_samples: Number of samples
+        n_subjects: Number of subjects
         seed: Random seed for reproducibility
-        
+
     Returns:
-        DataFrame with sample IDs and sleep metrics
+        DataFrame with sleep metrics
     """
-    set_seeds(seed)
-    
-    sample_ids = [f"SUBJ_{i:03d}" for i in range(1, n_samples + 1)]
-    
-    # Generate sleep metrics
+    if seed is not None:
+        set_seeds(seed)
+
     data = {
-        'sample_id': sample_ids,
-        'total_sleep_duration': np.random.normal(7.5, 1.2, n_samples),
-        'sws_duration': np.random.normal(1.8, 0.5, n_samples),
-        'rem_duration': np.random.normal(1.5, 0.4, n_samples),
-        'sleep_efficiency': np.random.normal(0.85, 0.08, n_samples),
-        'wake_after_sleep_onset': np.random.exponential(0.3, n_samples),
-        'sleep_latency': np.random.exponential(0.2, n_samples)
+        'subject_id': range(n_subjects),
+        'total_sleep_time': np.random.normal(loc=420, scale=45, size=n_subjects),  # minutes
+        'sleep_latency': np.random.normal(loc=15, scale=10, size=n_subjects),      # minutes
+        'sws_duration': np.random.normal(loc=90, scale=20, size=n_subjects),       # minutes (Slow Wave Sleep)
+        'rem_duration': np.random.normal(loc=100, scale=25, size=n_subjects),      # minutes (REM)
+        'wake_after_sleep_onset': np.random.normal(loc=30, scale=15, size=n_subjects), # minutes
+        'sleep_efficiency': np.random.normal(loc=0.85, scale=0.08, size=n_subjects)  # ratio
     }
-    
-    # Ensure realistic bounds
+
+    # Ensure positive values and reasonable bounds
     df = pd.DataFrame(data)
-    df['total_sleep_duration'] = df['total_sleep_duration'].clip(4, 10)
-    df['sws_duration'] = df['sws_duration'].clip(0, 3)
-    df['rem_duration'] = df['rem_duration'].clip(0, 2.5)
-    df['sleep_efficiency'] = df['sleep_efficiency'].clip(0.5, 1.0)
-    df['wake_after_sleep_onset'] = df['wake_after_sleep_onset'].clip(0, 2)
-    df['sleep_latency'] = df['sleep_latency'].clip(0, 1)
-    
+    df['total_sleep_time'] = np.clip(df['total_sleep_time'], 240, 540)
+    df['sleep_latency'] = np.clip(df['sleep_latency'], 0, 60)
+    df['sws_duration'] = np.clip(df['sws_duration'], 30, 150)
+    df['rem_duration'] = np.clip(df['rem_duration'], 40, 180)
+    df['wake_after_sleep_onset'] = np.clip(df['wake_after_sleep_onset'], 0, 90)
+    df['sleep_efficiency'] = np.clip(df['sleep_efficiency'], 0.5, 1.0)
+
     return df
 
-def generate_synthetic_dataset(n_samples: int = 100, seed: int = 42) -> tuple:
+def generate_synthetic_dataset(
+    n_subjects: int = 100,
+    n_taxa: int = 50,
+    seed: Optional[int] = None,
+    output_dir: Optional[Path] = None
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Generate complete synthetic dataset with microbiome and sleep data.
-    
+    Generate a complete synthetic dataset with metagenomic and sleep data.
+
     Args:
-        n_samples: Number of samples
-        seed: Random seed for reproducibility
-        
+        n_subjects: Number of subjects
+        n_taxa: Number of taxa
+        seed: Random seed
+        output_dir: Directory to save the dataset (optional)
+
     Returns:
         Tuple of (microbiome_df, sleep_df)
     """
-    microbiome_df = generate_metagenomic_counts(n_samples, seed=seed)
-    sleep_df = generate_sleep_metrics(n_samples, seed=seed)
-    
+    if seed is not None:
+        set_seeds(seed)
+
+    # Generate data
+    microbiome_df = generate_metagenomic_counts(n_subjects, n_taxa, seed=seed)
+    sleep_df = generate_sleep_metrics(n_subjects, seed=seed)
+
+    # Merge on subject_id
+    merged_df = pd.merge(microbiome_df, sleep_df, on='subject_id')
+
+    if output_dir:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        microbiome_path = output_dir / "synthetic_microbiome.csv"
+        sleep_path = output_dir / "synthetic_sleep.csv"
+        merged_path = output_dir / "synthetic_merged.csv"
+
+        microbiome_df.to_csv(microbiome_path, index=False)
+        sleep_df.to_csv(sleep_path, index=False)
+        merged_df.to_csv(merged_path, index=False)
+
     return microbiome_df, sleep_df
 
-def generate_coc_log(output_path: str = "data/metadata/synthetic_coc_log.json", seed: int = 42) -> None:
+def generate_coc_log(
+    n_subjects: int,
+    seed: int,
+    output_path: Optional[Path] = None
+) -> Dict:
     """
-    Generate synthetic chain-of-custody log file to satisfy Constitution Principle VI.
-    
+    Generate a synthetic data manifest log (NOT a Chain-of-Custody log for biological samples).
+    This artifact satisfies Constitution Principle I for synthetic data validation only.
+
     Args:
-        output_path: Path where the log file will be written
-        seed: Random seed for reproducibility
+        n_subjects: Number of subjects in the dataset
+        seed: Random seed used for generation
+        output_path: Path to save the manifest (optional)
+
+    Returns:
+        Dictionary representing the manifest
     """
     set_seeds(seed)
-    
-    # Create output directory if it doesn't exist
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Generate chain-of-custody events
-    base_time = datetime(2024, 1, 15, 9, 0, 0)
-    
-    coc_events = [
-        {
-            "event_id": "COC-001",
-            "timestamp": (base_time + timedelta(minutes=0)).isoformat(),
-            "action": "DATASET_GENERATION_INITIATED",
-            "actor": "system:data_generator",
-            "parameters": {
-                "n_samples": 100,
-                "n_taxa": 50,
-                "random_seed": seed,
-                "data_type": "synthetic"
-            },
-            "checksum": None
+
+    manifest = {
+        "type": "synthetic_data_manifest",
+        "schema_version": "1.0",
+        "generation_parameters": {
+            "n_subjects": n_subjects,
+            "seed": seed,
+            "zero_inflation_rate": 0.35,
+            "distribution_type": "negative_binomial_lognormal_mixture"
         },
-        {
-            "event_id": "COC-002",
-            "timestamp": (base_time + timedelta(minutes=2)).isoformat(),
-            "action": "MICROBIOME_DATA_GENERATED",
-            "actor": "system:data_generator",
-            "parameters": {
-                "n_samples": 100,
-                "n_taxa": 50,
-                "zero_inflation_rate": 0.3
-            },
-            "output_file": "data/raw/synthetic_microbiome.csv",
-            "checksum": "sha256:" + np.random.choice([
-                "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
-                "b2c3d4e5f67890123456789012345678901abcdef0234567890abcdef012345",
-                "c3d4e5f678901234567890123456789012abcdef012345678901abcdef0123456"
-            ])
+        "provenance": {
+            "generator_module": "code.data_generator",
+            "generator_function": "generate_synthetic_dataset",
+            "timestamp": str(pd.Timestamp.now()),
+            "note": "This is a synthetic dataset for pipeline validation. No biological samples exist."
         },
-        {
-            "event_id": "COC-003",
-            "timestamp": (base_time + timedelta(minutes=3)).isoformat(),
-            "action": "SLEEP_DATA_GENERATED",
-            "actor": "system:data_generator",
-            "parameters": {
-                "n_samples": 100,
-                "metrics": ["total_sleep_duration", "sws_duration", "rem_duration", 
-                           "sleep_efficiency", "wake_after_sleep_onset", "sleep_latency"]
-            },
-            "output_file": "data/raw/synthetic_sleep.csv",
-            "checksum": "sha256:" + np.random.choice([
-                "d4e5f67890123456789012345678901234abcdef567890123456789012345678",
-                "e5f6789012345678901234567890123456abcdef678901234567890123456789",
-                "f678901234567890123456789012345678abcdef789012345678901234567890"
-            ])
-        },
-        {
-            "event_id": "COC-004",
-            "timestamp": (base_time + timedelta(minutes=5)).isoformat(),
-            "action": "DATA_MERGED",
-            "actor": "system:data_generator",
-            "parameters": {
-                "merge_key": "sample_id",
-                "left_file": "data/raw/synthetic_microbiome.csv",
-                "right_file": "data/raw/synthetic_sleep.csv"
-            },
-            "output_file": "data/raw/synthetic_merged.csv",
-            "checksum": "sha256:" + np.random.choice([
-                "g789012345678901234567890123456789abcdef890123456789012345678901",
-                "h890123456789012345678901234567890abcdef901234567890123456789012",
-                "i901234567890123456789012345678901abcdef012345678901234567890123"
-            ])
-        },
-        {
-            "event_id": "COC-005",
-            "timestamp": (base_time + timedelta(minutes=7)).isoformat(),
-            "action": "DATA_VALIDATED",
-            "actor": "system:ingest",
-            "parameters": {
-                "schema_version": "1.0",
-                "validation_rules": ["missing_values", "range_checks", "type_checks"]
-            },
-            "status": "PASSED",
-            "output_file": "data/results/validation_report.json"
-        },
-        {
-            "event_id": "COC-006",
-            "timestamp": (base_time + timedelta(minutes=10)).isoformat(),
-            "action": "DATA_PROCESSED",
-            "actor": "system:ingest",
-            "parameters": {
-                "outlier_removal": "IQR_method",
-                "outliers_removed": np.random.randint(0, 5)
-            },
-            "output_file": "data/processed/filtered_data.parquet",
-            "checksum": "sha256:" + np.random.choice([
-                "j012345678901234567890123456789012abcdef123456789012345678901234",
-                "k123456789012345678901234567890123abcdef234567890123456789012345",
-                "l234567890123456789012345678901234abcdef345678901234567890123456"
-            ])
-        }
-    ]
-    
-    # Create the log structure
-    coc_log = {
-        "log_metadata": {
-            "version": "1.0",
-            "generated_at": base_time.isoformat(),
-            "generator": "data_generator.generate_coc_log",
-            "purpose": "Constitution Principle VI - Chain of Custody Artifact",
-            "dataset_type": "synthetic",
-            "seed_used": seed
-        },
-        "events": coc_events
+        "validation_status": "pending",
+        # Explicitly excluding 'Chain-of-Custody' fields as per task T006d requirements
+        "exclusions": [
+            "biological_sample_id",
+            "collection_date",
+            "collection_site",
+            "storage_conditions",
+            "chain_of_custody_log"
+        ]
     }
-    
-    # Write to file
-    with open(output_path, 'w') as f:
-        json.dump(coc_log, f, indent=2)
+
+    if output_path:
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+
+    return manifest
+
+def check_real_data_flag_and_fail(real_data_mode: bool) -> None:
+    """
+    Assert that if real_data_mode is True, we are not generating synthetic data.
+    This function raises SystemExit if real data is required but the generator is invoked.
+
+    Args:
+        real_data_mode: Boolean flag indicating if the pipeline is running in real-data mode.
+
+    Raises:
+        SystemExit: If real_data_mode is True (indicating a violation of the no-synthetic-fallback rule).
+    """
+    if real_data_mode:
+        raise SystemExit("FABRICATION PREVENTED: Real data required but missing. The data generator should not be called in real-data mode.")
+
+def main():
+    """
+    Main entry point for generating synthetic data.
+    Parses command line arguments to determine mode.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Generate synthetic microbiome and sleep data.")
+    parser.add_argument('--n-subjects', type=int, default=100, help='Number of subjects')
+    parser.add_argument('--n-taxon', type=int, default=50, help='Number of taxa')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--output-dir', type=str, default='data/processed', help='Output directory')
+    parser.add_argument('--real-data', action='store_true', help='Flag indicating real-data mode (should not generate synthetic)')
+
+    args = parser.parse_args()
+
+    # T062: Enforce No-Synthetic-Fallback
+    # If the --real-data flag is set, we must NOT generate synthetic data.
+    # The presence of this flag implies the caller expects real data.
+    # If we are in this function, we are about to generate synthetic data, which is forbidden.
+    if args.real_data:
+        print("ERROR: FABRICATION PREVENTED: Real data required but missing.")
+        print("The data generator was invoked with --real-data flag, which is a violation of the no-synthetic-fallback rule.")
+        raise SystemExit("FABRICATION PREVENTED: Real data required but missing.")
+
+    print(f"Generating synthetic dataset with {args.n_subjects} subjects and {args.n_taxon} taxa...")
+    microbiome_df, sleep_df = generate_synthetic_dataset(
+        n_subjects=args.n_subjects,
+        n_taxa=args.n_n_taxon,
+        seed=args.seed,
+        output_dir=args.output_dir
+    )
+
+    # Generate manifest
+    manifest_path = Path(args.output_dir).parent / "metadata" / "synthetic_data_manifest.json"
+    generate_coc_log(n_subjects=args.n_subjects, seed=args.seed, output_path=manifest_path)
+
+    print(f"Synthetic data generated and saved to {args.output_dir}")
+    print(f"Manifest saved to {manifest_path}")
 
 if __name__ == "__main__":
-    # Generate synthetic dataset
-    microbiome_df, sleep_df = generate_synthetic_dataset(n_samples=100, seed=42)
-    
-    # Save to CSV
-    microbiome_df.to_csv("data/raw/synthetic_microbiome.csv", index=False)
-    sleep_df.to_csv("data/raw/synthetic_sleep.csv", index=False)
-    
-    # Generate chain-of-custody log
-    generate_coc_log()
-    
-    print("Synthetic dataset and chain-of-custody log generated successfully.")
-    print(f"Microbiome data: {len(microbiome_df)} samples, {len(microbiome_df.columns) - 1} taxa")
-    print(f"Sleep data: {len(sleep_df)} samples, {len(sleep_df.columns) - 1} metrics")
-    print(f"Chain-of-custody log: data/metadata/synthetic_coc_log.json")
+    main()

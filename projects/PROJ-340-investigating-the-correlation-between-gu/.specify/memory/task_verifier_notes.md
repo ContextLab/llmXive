@@ -2,5 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T053** — No updated `plan.md` or `spec.md` files were provided; the response contains only the original task description and spec excerpt, with no evidence that the documents were edited to reflect the shift from synthetic validation to real‑data analysis or any resulting methodological changes. The required artifacts are missing.
-- **T054** — declared artifact(s) missing/empty/invalid: data/results/real_vs_synthetic_comparison_report.json
+- **T059** — The repository contains a partially‑implemented `code/main.py` with RAM‑estimation helpers, but the file is truncated (the `save_compute_strategy` function is incomplete) and there is no code that actually writes `data/metadata/compute_strategy.json`. Moreover, the required JSON output file does not exist on disk. The task’s core deliverable – generating the compute strategy JSON – is therefore missing.
+- **T061** — The required `.github/workflows/analysis.yml` file does not exist in the repository, so there is no workflow definition, let alone a `kaggle-gpu` job with the specified error‑detection and re‑trigger logic. The implementer must add the missing workflow file and implement the described behavior.

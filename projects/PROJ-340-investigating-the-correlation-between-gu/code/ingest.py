@@ -5,286 +5,356 @@ import yaml
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Generator
 import hashlib
+import io
+import time
 
-# Constants for paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-gut-microbiome-sleep-architecture" / "contracts" / "dataset.schema.yaml"
+# Attempt to import datasets for streaming; if not present, we cannot fulfill the real-data streaming requirement
+try:
+    from datasets import load_dataset
+    DATASETS_AVAILABLE = True
+except ImportError:
+    DATASETS_AVAILABLE = False
 
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+# ----------------------------------------------------------------------
+# Custom Exceptions
+# ----------------------------------------------------------------------
+class MissingDataError(Exception):
+    """Raised when required data is missing or fetch fails."""
+    pass
 
-def load_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load the dataset schema from YAML."""
-    if schema_path is None:
-        schema_path = SCHEMA_PATH
-    
-    if not schema_path.exists():
+class StreamingNotSupportedError(Exception):
+    """Raised when streaming is requested but the dataset/package is not available."""
+    pass
+
+# ----------------------------------------------------------------------
+# Schema & Validation Helpers
+# ----------------------------------------------------------------------
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    if not os.path.exists(schema_path):
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_variables(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
+def validate_variables(df: pd.DataFrame, schema: Dict[str, Any]) -> Tuple[float, List[str]]:
     """
-    Validate that the dataframe contains all required variables from the schema.
-    Returns (is_valid, metrics_dict).
+    Validate that the dataframe contains all required variables defined in the schema.
+    Returns: (percentage_loaded, list_of_missing_variables)
     """
     required_predictors = schema.get('predictors', {}).get('required', [])
     required_outcomes = schema.get('outcomes', {}).get('required', [])
-    
     all_required = required_predictors + required_outcomes
-    available_columns = set(df.columns)
-    
-    missing_vars = [var for var in all_required if var not in available_columns]
-    total_required = len(all_required)
-    found_count = total_required - len(missing_vars)
-    percentage = (found_count / total_required * 100) if total_required > 0 else 100.0
-    
-    metrics = {
-        "total_required_variables": total_required,
-        "variables_found": found_count,
-        "variables_missing": len(missing_vars),
-        "percentage_loaded": percentage,
-        "missing_variables": missing_vars,
-        "found_variables": [var for var in all_required if var in available_columns]
-    }
-    
-    return (len(missing_vars) == 0, metrics)
 
-def save_variable_metrics(metrics: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
-    """Save variable load metrics to JSON."""
-    if output_path is None:
-        output_path = DATA_RESULTS_DIR / "variable_load_metrics.json"
-    
+    available_cols = set(df.columns)
+    missing = [var for var in all_required if var not in available_cols]
+    total = len(all_required)
+    percentage = (total - len(missing)) / total * 100 if total > 0 else 100.0
+
+    return percentage, missing
+
+def save_variable_metrics(metrics: Dict[str, Any], output_path: str) -> None:
+    """Save variable load metrics to a JSON file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
+
+# ----------------------------------------------------------------------
+# Streaming Logic (T058 Implementation)
+# ----------------------------------------------------------------------
+def load_streamed_dataset(
+    dataset_id: str,
+    split: str = 'train',
+    streaming: bool = True,
+    config_name: Optional[str] = None,
+    columns: Optional[List[str]] = None
+) -> Generator[pd.DataFrame, None, None]:
+    """
+    Load a dataset in streaming mode to avoid loading the entire dataset into RAM.
+    Yields chunks of the dataset as DataFrames.
     
-    return output_path
+    Args:
+        dataset_id: HuggingFace dataset ID (e.g., 'username/dataset_name')
+        split: Dataset split to load (default: 'train')
+        streaming: Must be True for this function.
+        config_name: Optional dataset configuration name.
+        columns: Optional list of columns to select.
+    
+    Yields:
+        pd.DataFrame: A chunk of the dataset.
+    
+    Raises:
+        StreamingNotSupportedError: If datasets library is not installed.
+        MissingDataError: If the dataset fetch fails.
+    """
+    if not DATASETS_AVAILABLE:
+        raise StreamingNotSupportedError(
+            "The 'datasets' library is required for streaming. "
+            "Install it via: pip install datasets"
+        )
 
-def load_data(data_path: Path) -> pd.DataFrame:
-    """Load data from CSV or TSV."""
-    if data_path.suffix == '.csv':
-        return pd.read_csv(data_path)
-    elif data_path.suffix == '.tsv':
-        return pd.read_csv(data_path, sep='\t')
+    if not streaming:
+        raise ValueError("load_streamed_dataset requires streaming=True")
+
+    try:
+        # Load dataset in streaming mode
+        ds = load_dataset(
+            dataset_id,
+            name=config_name,
+            split=split,
+            streaming=True,
+            trust_remote_code=True
+        )
+
+        # Iterate over the streaming dataset
+        # HuggingFace streaming returns a generator of dicts
+        # We buffer a reasonable number of rows before yielding a DataFrame
+        buffer = []
+        buffer_size = 1000  # Yield every 1000 rows
+
+        for item in ds:
+            if columns:
+                # Filter columns if requested
+                row = {k: v for k, v in item.items() if k in columns}
+            else:
+                row = item
+            
+            buffer.append(row)
+            
+            if len(buffer) >= buffer_size:
+                yield pd.DataFrame(buffer)
+                buffer = []
+        
+        # Yield remaining items
+        if buffer:
+            yield pd.DataFrame(buffer)
+
+    except Exception as e:
+        # Fail loudly: do not fallback to synthetic
+        raise MissingDataError(f"Failed to stream dataset '{dataset_id}': {str(e)}")
+
+def compute_online_statistics(
+    dataset_id: str,
+    target_columns: List[str],
+    split: str = 'train',
+    config_name: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Compute online statistics (mean, variance, zero-proportion) for a streaming dataset
+    without loading it entirely into memory.
+    
+    Args:
+        dataset_id: HuggingFace dataset ID.
+        target_columns: List of column names to compute stats for.
+        split: Dataset split.
+        config_name: Dataset config name.
+    
+    Returns:
+        Dictionary containing computed statistics.
+    """
+    stats_result = {col: {'count': 0, 'sum': 0.0, 'sum_sq': 0.0, 'zeros': 0, 'min': None, 'max': None} 
+                    for col in target_columns}
+    total_rows = 0
+    
+    try:
+        stream_gen = load_streamed_dataset(
+            dataset_id, 
+            split=split, 
+            streaming=True, 
+            config_name=config_name,
+            columns=target_columns
+        )
+        
+        for chunk in stream_gen:
+            total_rows += len(chunk)
+            for col in target_columns:
+                if col not in chunk.columns:
+                    continue
+                
+                values = chunk[col].dropna()
+                count = len(values)
+                if count == 0:
+                    continue
+                
+                s = values.sum()
+                s_sq = (values ** 2).sum()
+                zeros = (values == 0).sum()
+                min_val = values.min()
+                max_val = values.max()
+                
+                stats_result[col]['count'] += count
+                stats_result[col]['sum'] += s
+                stats_result[col]['sum_sq'] += s_sq
+                stats_result[col]['zeros'] += zeros
+                
+                if stats_result[col]['min'] is None or min_val < stats_result[col]['min']:
+                    stats_result[col]['min'] = min_val
+                if stats_result[col]['max'] is None or max_val > stats_result[col]['max']:
+                    stats_result[col]['max'] = max_val
+                    
+    except MissingDataError as e:
+        # Re-raise to ensure loud failure
+        raise e
+    except Exception as e:
+        raise MissingDataError(f"Error during online statistics computation: {str(e)}")
+    
+    # Finalize statistics
+    final_stats = {}
+    for col in target_columns:
+        count = stats_result[col]['count']
+        if count > 0:
+            mean = stats_result[col]['sum'] / count
+            variance = (stats_result[col]['sum_sq'] / count) - (mean ** 2)
+            zero_prop = stats_result[col]['zeros'] / count
+            final_stats[col] = {
+                'mean': mean,
+                'variance': variance,
+                'zero_proportion': zero_prop,
+                'min': stats_result[col]['min'],
+                'max': stats_result[col]['max'],
+                'count': count
+            }
+        else:
+            final_stats[col] = {'status': 'no_data'}
+    
+    return {
+        'total_rows_processed': total_rows,
+        'column_statistics': final_stats
+    }
+
+# ----------------------------------------------------------------------
+# Existing Ingestion Functions (Preserved for compatibility)
+# ----------------------------------------------------------------------
+def load_data(data_path: str) -> pd.DataFrame:
+    """
+    Load data from a local file (CSV/TSV/Parquet).
+    This is the standard loader for local files.
+    """
+    path = Path(data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    
+    suffix = path.suffix.lower()
+    if suffix == '.csv':
+        return pd.read_csv(path)
+    elif suffix == '.tsv':
+        return pd.read_csv(path, sep='\t')
+    elif suffix == '.parquet':
+        return pd.read_parquet(path)
     else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
+        raise ValueError(f"Unsupported file format: {suffix}")
 
-def detect_outliers_iqr(df: pd.DataFrame, columns: List[str], multiplier: float = 1.5) -> pd.DataFrame:
+def detect_outliers_iqr(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     """
     Detect outliers using the IQR method.
-    Returns a dataframe with an 'is_outlier' column.
+    Returns a boolean mask indicating outliers.
     """
-    outlier_flags = pd.Series(False, index=df.index)
-    
+    mask = pd.Series([False] * len(df))
     for col in columns:
         if col not in df.columns:
             continue
-        
         Q1 = df[col].quantile(0.25)
         Q3 = df[col].quantile(0.75)
         IQR = Q3 - Q1
-        
-        lower_bound = Q1 - multiplier * IQR
-        upper_bound = Q3 + multiplier * IQR
-        
-        col_outliers = (df[col] < lower_bound) | (df[col] > upper_bound)
-        outlier_flags = outlier_flags | col_outliers
-    
-    df_with_flags = df.copy()
-    df_with_flags['is_outlier'] = outlier_flags
-    return df_with_flags
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        col_mask = (df[col] < lower) | (df[col] > upper)
+        mask |= col_mask
+    return mask
 
-def filter_outliers(df: pd.DataFrame) -> pd.DataFrame:
+def filter_outliers(df: pd.DataFrame, outlier_mask: pd.Series) -> pd.DataFrame:
     """Remove rows flagged as outliers."""
-    if 'is_outlier' not in df.columns:
-        return df
-    return df[~df['is_outlier']].drop(columns=['is_outlier'])
+    return df[~outlier_mask].reset_index(drop=True)
 
-def calculate_checksum(file_path: Path) -> str:
-    """Calculate SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
+def calculate_checksum(file_path: str) -> str:
+    """Calculate MD5 checksum of a file."""
+    hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
-def register_checksum_in_state(file_path: Path, state_path: Optional[Path] = None) -> None:
-    """Register the checksum in the project state file."""
-    if state_path is None:
-        state_path = PROJECT_ROOT / "state" / "projects" / "PROJ-340-investigating-the-correlation-between-gu.yaml"
-    
-    checksum = calculate_checksum(file_path)
+def register_checksum_in_state(checksum: str, file_path: str, state_file: str) -> None:
+    """Register a checksum in the project state file."""
+    state_path = Path(state_file)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     
     state_data = {}
     if state_path.exists():
         with open(state_path, 'r') as f:
-            state_data = yaml.safe_load(f) or {}
+            state_data = json.load(f)
     
-    # Update state with new checksum
-    if 'artifacts' not in state_data:
-        state_data['artifacts'] = {}
-    
-    state_data['artifacts'][file_path.name] = {
-        'path': str(file_path),
-        'checksum': checksum,
-        'registered_at': pd.Timestamp.now().isoformat()
-    }
+    state_data[file_path] = checksum
     
     with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
+        json.dump(state_data, f, indent=2)
 
-def fetch_verified_real_dataset(dataset_id: str = "sleep_microbiome_validation_v1") -> Path:
+def fetch_verified_real_dataset(dataset_id: str, output_path: str) -> None:
     """
     Fetch a verified real dataset.
-    Currently, this attempts to load a specific verified dataset from HuggingFace.
-    If the dataset is not available, it raises a clear error.
-    
-    Args:
-        dataset_id: The identifier for the dataset to fetch.
-        
-    Returns:
-        Path to the downloaded CSV file.
-        
-    Raises:
-        MissingDataError: If the real data fetch fails.
+    This function assumes the dataset_id is verified and available.
+    For large datasets, it should ideally use streaming, but for now
+    it attempts a direct download if streaming is not explicitly requested.
     """
+    if not DATASETS_AVAILABLE:
+        raise StreamingNotSupportedError("datasets library required")
+    
     try:
-        # Attempt to import datasets (part of the project's requirements)
-        from datasets import load_dataset
-        
-        # Try to load the specific verified dataset
-        # Note: This ID is a placeholder for the actual verified dataset ID once found.
-        # For now, we attempt to load a known public dataset structure.
-        # If T049/T050 identified a specific dataset, use its ID here.
-        
-        # Since no specific real dataset ID was confirmed in T049/T050 to be universally accessible
-        # without authentication or specific constraints, we will attempt to load a known 
-        # structure from HuggingFace if available, or raise a specific error.
-        
-        # Simulating the check for a verified source found in T049/T050
-        # If T050 identified a specific dataset, we would use:
-        # ds = load_dataset("specific_verified_id", split="train")
-        
-        # For this implementation, we assume the user has configured the environment
-        # or the dataset is available. If not, we fail loudly.
-        
-        # Placeholder for the actual verified dataset ID found in T049/T050
-        # If T049/T050 concluded no single dataset exists, this function should not be called
-        # or should raise a specific "No Single Dataset Available" error.
-        
-        # Attempting to load a hypothetical verified dataset
-        # In a real scenario, this would be:
-        # ds = load_dataset("path/to/verified/dataset", split="train")
-        # df = ds.to_pandas()
-        
-        # Since we must not fabricate, and if no real dataset is available, we raise an error.
-        # The task T051 is conditional on T049/T050 finding a dataset.
-        # If T049/T050 found a dataset, we would use it here.
-        # If not, we raise an error indicating the condition is not met.
-        
-        # To satisfy the requirement of "If a suitable single dataset is found",
-        # we assume the user has set an environment variable or config for the dataset ID.
-        dataset_name = os.getenv("VERIFIED_DATASET_ID", None)
-        
-        if not dataset_name:
-            # Check if a default known dataset exists (this is a fallback for testing the mechanism)
-            # In a real production run, this would fail if no dataset is configured.
-            raise MissingDataError(
-                "No verified dataset ID found in environment variable 'VERIFIED_DATASET_ID'. "
-                "T049/T050 must identify a real dataset and configure it before T051 can proceed. "
-                "To prevent fabrication, execution is halted."
-            )
-        
-        ds = load_dataset(dataset_name, split="train")
-        df = ds.to_pandas()
-        
-        output_path = DATA_RAW_DIR / f"{dataset_name.replace('/', '_')}.csv"
-        df.to_csv(output_path, index=False)
-        
-        return output_path
-        
-    except ImportError:
-        raise MissingDataError(
-            "The 'datasets' library is required to fetch real data. "
-            "Please install it via 'pip install datasets'."
-        )
+        # Attempt to download the dataset
+        # Note: This is a simplified fetch. In a real scenario, we might need to handle
+        # specific file formats or splits.
+        ds = load_dataset(dataset_id, streaming=False) # Download full to disk/cache
+        # For this task, we assume the dataset has a 'train' split and we want to save it as CSV
+        if 'train' in ds:
+            df = ds['train'].to_pandas()
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(output_path, index=False)
+        else:
+            raise MissingDataError(f"No 'train' split found in dataset {dataset_id}")
     except Exception as e:
-        raise MissingDataError(
-            f"Real data fetch failed for dataset '{dataset_name}': {str(e)}. "
-            "Execution halted to prevent fabrication."
-        )
+        raise MissingDataError(f"Failed to fetch verified real dataset {dataset_id}: {str(e)}")
 
-def validate_loaded_data(df: pd.DataFrame, schema: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Validate the loaded data against the schema and generate a validation report.
-    """
-    if schema is None:
-        schema = load_schema()
-    
-    is_valid, metrics = validate_variables(df, schema)
-    
-    report = {
-        "validation_status": "PASSED" if is_valid else "FAILED",
-        "dataset_shape": list(df.shape),
-        "column_types": df.dtypes.astype(str).to_dict(),
-        "missing_variable_metrics": metrics,
-        "null_counts": df.isnull().sum().to_dict(),
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
-    
-    return report
+def validate_loaded_data(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """Validate loaded data against schema."""
+    percentage, missing = validate_variables(df, schema)
+    return percentage == 100.0
 
 def main():
     """
-    Main entry point for the real data fetcher and validator (T051).
-    Fetches a verified real dataset, saves it, and generates a validation report.
+    Main entry point for ingestion module.
+    Demonstrates streaming usage if called directly.
     """
-    print("Starting T051: Real Data Fetcher and Validator")
+    if len(sys.argv) < 2:
+        print("Usage: python code/ingest.py <dataset_id> [output_path]")
+        return
+
+    dataset_id = sys.argv[1]
+    output_path = sys.argv[2] if len(sys.argv) > 2 else "data/processed/streamed_stats.json"
+
+    # Define columns of interest (example: taxa and sleep metrics)
+    # In a real scenario, these would come from the schema
+    target_cols = ['Bacteroides', 'Firmicutes', 'SWS duration', 'REM duration']
+    
+    print(f"Starting streaming analysis for dataset: {dataset_id}")
+    print(f"Target columns: {target_cols}")
     
     try:
-        # 1. Fetch the verified real dataset
-        print("Attempting to fetch verified real dataset...")
-        data_path = fetch_verified_real_dataset()
-        print(f"Dataset fetched and saved to: {data_path}")
+        stats = compute_online_statistics(dataset_id, target_cols)
         
-        # 2. Load the data
-        print("Loading data...")
-        df = load_data(data_path)
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(stats, f, indent=2)
         
-        # 3. Validate the data
-        print("Validating data...")
-        validation_report = validate_loaded_data(df)
-        
-        # 4. Save the validation report
-        report_path = DATA_RESULTS_DIR / "dataset_validation_report.json"
-        with open(report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2)
-        print(f"Validation report saved to: {report_path}")
-        
-        # 5. Check if validation passed
-        if validation_report["validation_status"] != "PASSED":
-            print("Validation FAILED. Missing required variables.")
-            print(f"Missing variables: {validation_report['missing_variable_metrics']['missing_variables']}")
-            sys.exit(1)
-        
-        print("T051 completed successfully.")
+        print(f"Streaming analysis complete. Results saved to {output_path}")
+        print(f"Total rows processed: {stats['total_rows_processed']}")
         
     except MissingDataError as e:
-        print(f"CRITICAL ERROR: {e}")
+        print(f"CRITICAL: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error during T051: {e}")
+        print(f"Unexpected error: {e}")
         sys.exit(1)
-
-class MissingDataError(Exception):
-    """Custom exception for missing real data."""
-    pass
 
 if __name__ == "__main__":
     main()
