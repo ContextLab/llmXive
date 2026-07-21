@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-200-the-impact-of-incidental-music-on-autobi",
+  "tasks": [
+    {
+      "task_key": "T040",
+      "reject_count": 1,
+      "last_reason": "No diagnostic plots (e.g., residual checks, QQ plots) were found in the required `data/final/plots/` directory, nor any evidence (files, screenshots, code) indicating they were generated and saved. The task\u2019s deliverable is missing.",
+      "first_seen": "2026-07-21T00:11:22.748664+00:00",
+      "last_seen": "2026-07-21T00:11:22.748664+00:00"
+    },
+    {
+      "task_key": "T041",
+      "reject_count": 1,
+      "last_reason": "No README.md or code docstring contents were provided; without the actual files we cannot confirm that documentation was updated to reflect the specification changes. The required artifacts are missing.",
+      "first_seen": "2026-07-21T00:11:22.749715+00:00",
+      "last_seen": "2026-07-21T00:11:22.749715+00:00"
+    }
+  ],
+  "updated_at": "2026-07-21T00:11:22.749715+00:00"
+}

@@ -1,173 +1,188 @@
-"""
-Unit tests for cue matching and aggregation logic.
-
-This module tests:
-- Text normalization (T019)
-- Fuzzy matching logic (T020)
-- Aggregation logic for User-Track pairs (T021)
-"""
-
 import pytest
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Any
+from pathlib import Path
+import sys
+import os
 
-# Import the aggregation logic we are testing.
-# Since the implementation is in code/aggregation.py (T026), we import from there.
-# If the function doesn't exist yet, we define a minimal mock version here for the test to run,
-# but the real implementation will be in code/aggregation.py.
-try:
-    from code.aggregation import aggregate_to_user_track
-except ImportError:
-    # Fallback if code/aggregation.py is not yet implemented or import path is different.
-    # In a real scenario, this would be the actual implementation.
-    def aggregate_to_user_track(df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Aggregates data to User-Track Pair level.
-        
-        Groups by 'user_id' and 'track_id', calculating mean vividness and mean valence.
-        
-        Args:
-            df: DataFrame with columns including 'user_id', 'track_id', 'vividness', 'valence'.
-        
-        Returns:
-            DataFrame with aggregated metrics per User-Track pair.
-        """
-        if df.empty:
-            return pd.DataFrame(columns=['user_id', 'track_id', 'mean_vividness', 'mean_valence', 'cue_count'])
-        
-        return df.groupby(['user_id', 'track_id'], as_index=False).agg(
-            mean_vividness=('vividness', 'mean'),
-            mean_valence=('valence', 'mean'),
-            cue_count=('vividness', 'count')
-        )
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from cue_matching import normalize_text, normalize_cues, build_inverse_index, match_cues, resolve_collisions
 
-class TestAggregationLogic:
-    """Tests for the aggregation logic (T021)."""
+class TestNormalizeText:
+    """Unit tests for text normalization logic (T019)."""
 
-    def test_aggregation_basic(self):
-        """Test basic aggregation of vividness and valence per User-Track pair."""
-        data = {
-            'user_id': ['U1', 'U1', 'U1', 'U2', 'U2'],
-            'track_id': ['T1', 'T1', 'T2', 'T1', 'T1'],
-            'vividness': [5.0, 7.0, 4.0, 6.0, 8.0],
-            'valence': [3.0, 5.0, 2.0, 4.0, 6.0],
-            'other_col': ['a', 'b', 'c', 'd', 'e']  # Should be dropped
-        }
-        df = pd.DataFrame(data)
-        
-        result = aggregate_to_user_track(df)
-        
-        # Expected results:
-        # U1-T1: vividness=(5+7)/2=6.0, valence=(3+5)/2=4.0, count=2
-        # U1-T2: vividness=4.0, valence=2.0, count=1
-        # U2-T1: vividness=(6+8)/2=7.0, valence=(4+6)/2=5.0, count=2
-        
-        expected_data = {
-            'user_id': ['U1', 'U1', 'U2'],
-            'track_id': ['T1', 'T2', 'T1'],
-            'mean_vividness': [6.0, 4.0, 7.0],
-            'mean_valence': [4.0, 2.0, 5.0],
-            'cue_count': [2, 1, 2]
-        }
-        expected_df = pd.DataFrame(expected_data)
-        
-        # Sort both for comparison
-        result = result.sort_values(['user_id', 'track_id']).reset_index(drop=True)
-        expected_df = expected_df.sort_values(['user_id', 'track_id']).reset_index(drop=True)
-        
-        pd.testing.assert_frame_equal(result, expected_df)
+    def test_lowercase_conversion(self):
+        """Test that text is converted to lowercase."""
+        assert normalize_text("Hello World") == "hello world"
+        assert normalize_text("HELLO") == "hello"
 
-    def test_aggregation_single_record(self):
-        """Test aggregation when there is only one record per User-Track pair."""
-        data = {
-            'user_id': ['U1'],
-            'track_id': ['T1'],
-            'vividness': [5.0],
-            'valence': [3.0]
-        }
-        df = pd.DataFrame(data)
+    def test_punctuation_removal(self):
+        """Test that punctuation is removed."""
+        assert normalize_text("Hello, World!") == "hello world"
+        assert normalize_text("It's a test.") == "its a test"
+
+    def test_whitespace_collapsing(self):
+        """Test that multiple whitespace is collapsed."""
+        assert normalize_text("Hello   World") == "hello world"
+        assert normalize_text("  Hello World  ") == "hello world"
+
+    def test_empty_string(self):
+        """Test handling of empty strings."""
+        assert normalize_text("") == ""
+
+    def test_non_string_input(self):
+        """Test handling of non-string input."""
+        assert normalize_text(123) == ""
+        assert normalize_text(None) == ""
+
+class TestNormalizeCues:
+    """Unit tests for cue normalization."""
+
+    def test_normalize_cues_dataframe(self):
+        """Test that normalize_cues adds normalized_cue column."""
+        df = pd.DataFrame({'cue_text': ['Hello World', 'Test, Case!']})
+        result = normalize_cues(df)
         
-        result = aggregate_to_user_track(df)
+        assert 'normalized_cue' in result.columns
+        assert result.loc[0, 'normalized_cue'] == "hello world"
+        assert result.loc[1, 'normalized_cue'] == "test case"
+
+    def test_normalize_cues_missing_column(self):
+        """Test that normalize_cues raises error for missing column."""
+        df = pd.DataFrame({'wrong_col': ['Hello']})
+        with pytest.raises(ValueError):
+            normalize_cues(df, cue_col='nonexistent')
+
+class TestBuildInverseIndex:
+    """Unit tests for inverse index building."""
+
+    def test_index_structure(self):
+        """Test that index maps normalized titles to candidates."""
+        tracks = pd.DataFrame({
+            'track_title': ['Hello World', 'Hello World', 'Test Song'],
+            'artist_name': ['Artist A', 'Artist B', 'Artist C']
+        })
+        index = build_inverse_index(tracks)
         
+        assert 'hello world' in index
+        assert len(index['hello world']) == 2
+        assert ('Hello World', 'Artist A') in index['hello world']
+        assert ('Hello World', 'Artist B') in index['hello world']
+
+    def test_missing_title_column(self):
+        """Test error when title column is missing."""
+        tracks = pd.DataFrame({'wrong_col': ['Hello']})
+        with pytest.raises(ValueError):
+            build_inverse_index(tracks, title_col='nonexistent')
+
+class TestFuzzyMatching:
+    """Unit tests for fuzzy matching logic (T020)."""
+
+    def test_exact_match(self):
+        """Test exact match returns distance 0."""
+        cues = pd.DataFrame({'cue_text': ['Hello World']})
+        tracks = pd.DataFrame({
+            'track_title': ['Hello World'],
+            'artist_name': ['Artist A']
+        })
+        
+        matched, unmatched = match_cues(cues, tracks, max_levenshtein=4)
+        
+        assert len(matched) == 1
+        assert len(unmatched) == 0
+        assert matched.loc[0, 'levenshtein_distance'] == 0
+
+    def test_within_threshold(self):
+        """Test match within Levenshtein threshold."""
+        cues = pd.DataFrame({'cue_text': ['Helo World']})  # 1 char diff
+        tracks = pd.DataFrame({
+            'track_title': ['Hello World'],
+            'artist_name': ['Artist A']
+        })
+        
+        matched, unmatched = match_cues(cues, tracks, max_levenshtein=4)
+        
+        assert len(matched) == 1
+        assert matched.loc[0, 'levenshtein_distance'] == 1
+
+    def test_outside_threshold(self):
+        """Test no match when distance exceeds threshold."""
+        cues = pd.DataFrame({'cue_text': ['Xyz']})
+        tracks = pd.DataFrame({
+            'track_title': ['Hello World'],
+            'artist_name': ['Artist A']
+        })
+        
+        matched, unmatched = match_cues(cues, tracks, max_levenshtein=1)
+        
+        assert len(matched) == 0
+        assert len(unmatched) == 1
+
+    def test_unmatched_logging(self, tmp_path):
+        """Test that unmatched cues are logged to file."""
+        cues = pd.DataFrame({'cue_text': ['NoMatch123']})
+        tracks = pd.DataFrame({
+            'track_title': ['Hello World'],
+            'artist_name': ['Artist A']
+        })
+        output_path = tmp_path / "unmatched.csv"
+        
+        match_cues(cues, tracks, max_levenshtein=1, output_path=output_path)
+        
+        assert output_path.exists()
+        unmatched_df = pd.read_csv(output_path)
+        assert len(unmatched_df) == 1
+
+class TestAggregation:
+    """Unit tests for aggregation logic (T021)."""
+    
+    # Note: Aggregation logic is primarily tested in test_aggregation.py
+    # These tests verify that match_cues produces data ready for aggregation
+    
+    def test_matched_data_structure(self):
+        """Test that matched data has required columns for aggregation."""
+        cues = pd.DataFrame({'cue_text': ['Hello'], 'user_id': ['U1']})
+        tracks = pd.DataFrame({
+            'track_title': ['Hello'],
+            'artist_name': ['Artist A']
+        })
+        
+        matched, _ = match_cues(cues, tracks)
+        
+        assert 'matched_track_title' in matched.columns
+        assert 'matched_artist' in matched.columns
+        assert 'levenshtein_distance' in matched.columns
+        assert 'user_id' in matched.columns  # Preserved from original
+
+class TestCollisionResolution:
+    """Unit tests for collision resolution."""
+
+    def test_resolve_collisions_returns_dataframe(self):
+        """Test that resolve_collisions returns a DataFrame."""
+        matched = pd.DataFrame({
+            'cue_text': ['Test'],
+            'matched_track_title': ['Test Song'],
+            'matched_artist': ['Artist A'],
+            'levenshtein_distance': [0]
+        })
+        
+        result = resolve_collisions(matched)
+        
+        assert isinstance(result, pd.DataFrame)
         assert len(result) == 1
-        assert result['mean_vividness'].iloc[0] == 5.0
-        assert result['mean_valence'].iloc[0] == 3.0
-        assert result['cue_count'].iloc[0] == 1
 
-    def test_aggregation_empty_dataframe(self):
-        """Test aggregation on an empty DataFrame."""
-        df = pd.DataFrame(columns=['user_id', 'track_id', 'vividness', 'valence'])
+    def test_resolve_collisions_preserves_data(self):
+        """Test that resolve_collisions preserves input data."""
+        matched = pd.DataFrame({
+            'cue_text': ['Test'],
+            'matched_track_title': ['Test Song'],
+            'matched_artist': ['Artist A'],
+            'levenshtein_distance': [0]
+        })
         
-        result = aggregate_to_user_track(df)
+        result = resolve_collisions(matched)
         
-        assert len(result) == 0
-        assert 'mean_vividness' in result.columns
-        assert 'mean_valence' in result.columns
-        assert 'cue_count' in result.columns
-
-    def test_aggregation_float_precision(self):
-        """Test that aggregation handles float precision correctly."""
-        data = {
-            'user_id': ['U1', 'U1'],
-            'track_id': ['T1', 'T1'],
-            'vividness': [1.1, 2.2],
-            'valence': [3.3, 4.4]
-        }
-        df = pd.DataFrame(data)
-        
-        result = aggregate_to_user_track(df)
-        
-        # (1.1 + 2.2) / 2 = 1.65
-        # (3.3 + 4.4) / 2 = 3.85
-        np.testing.assert_almost_equal(result['mean_vividness'].iloc[0], 1.65)
-        np.testing.assert_almost_equal(result['mean_valence'].iloc[0], 3.85)
-
-    def test_aggregation_large_dataset(self):
-        """Test aggregation performance and correctness on a larger dataset."""
-        np.random.seed(42)
-        n_records = 1000
-        users = [f'U{i}' for i in range(10)]
-        tracks = [f'T{i}' for i in range(20)]
-        
-        data = {
-            'user_id': np.random.choice(users, n_records),
-            'track_id': np.random.choice(tracks, n_records),
-            'vividness': np.random.uniform(1, 10, n_records),
-            'valence': np.random.uniform(1, 10, n_records)
-        }
-        df = pd.DataFrame(data)
-        
-        result = aggregate_to_user_track(df)
-        
-        # Verify that the sum of cue_counts equals the original number of records
-        assert result['cue_count'].sum() == n_records
-        
-        # Verify that mean_vividness is within the expected range [1, 10]
-        assert result['mean_vividness'].min() >= 1.0
-        assert result['mean_vividness'].max() <= 10.0
-
-    def test_aggregation_consistency_with_groupby(self):
-        """Verify that our aggregation function produces the same result as direct pandas groupby."""
-        data = {
-            'user_id': ['U1', 'U1', 'U1', 'U2', 'U2', 'U2', 'U3'],
-            'track_id': ['T1', 'T1', 'T2', 'T1', 'T1', 'T1', 'T1'],
-            'vividness': [10, 20, 30, 40, 50, 60, 70],
-            'valence': [1, 2, 3, 4, 5, 6, 7]
-        }
-        df = pd.DataFrame(data)
-        
-        result = aggregate_to_user_track(df)
-        
-        # Direct pandas groupby
-        expected = df.groupby(['user_id', 'track_id'], as_index=False).agg(
-            mean_vividness=('vividness', 'mean'),
-            mean_valence=('valence', 'mean'),
-            cue_count=('vividness', 'count')
-        )
-        
-        result = result.sort_values(['user_id', 'track_id']).reset_index(drop=True)
-        expected = expected.sort_values(['user_id', 'track_id']).reset_index(drop=True)
-        
-        pd.testing.assert_frame_equal(result, expected)
+        assert result.loc[0, 'cue_text'] == 'Test'
+        assert result.loc[0, 'matched_track_title'] == 'Test Song'

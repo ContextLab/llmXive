@@ -1,112 +1,99 @@
 """
-Unit tests for generate_user_track_pairs.py (T029).
+tests/unit/test_generate_user_track_pairs.py
 
-Tests verify:
-1. Checksum calculation is deterministic
-2. Loading aggregated data handles missing columns
-3. Saving and loading parquet preserves data integrity
-4. State registration works correctly
+Unit tests for T029: generate_user_track_pairs.py
 """
 import os
 import tempfile
 import pytest
 import pandas as pd
-import numpy as np
 from pathlib import Path
-import pyarrow.parquet as pq
-import hashlib
 import yaml
 
-# Mock config and state for testing
-from unittest.mock import patch, MagicMock
-from generate_user_track_pairs import calculate_file_checksum, load_aggregated_data, save_final_dataset
+# Mock the config and utils to avoid dependency on full project structure in tests
+# We will test the logic functions directly if possible, or mock the dependencies.
+
+# Since the script imports from `config` and `utils`, we need to ensure they are available
+# or mock them. For simplicity, we assume the project is set up and these modules exist.
+# We will test the core logic: checksum calculation and state update.
+
+from generate_user_track_pairs import calculate_file_checksum, save_state_entry
 
 
-def test_checksum_calculation():
-    """Test that checksum calculation is deterministic."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-        f.write("test content")
-        temp_path = Path(f.name)
-    
-    try:
-        checksum1 = calculate_file_checksum(temp_path)
-        checksum2 = calculate_file_checksum(temp_path)
-        assert checksum1 == checksum2
-        assert len(checksum1) == 64  # SHA-256 hex length
-    finally:
-        temp_path.unlink()
+class TestCalculateFileChecksum:
+    def test_calculate_checksum(self, tmp_path):
+        """Test that checksum is calculated correctly."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
+
+        checksum = calculate_file_checksum(test_file)
+        assert len(checksum) == 64  # SHA256 hex length
+        assert isinstance(checksum, str)
+
+    def test_calculate_checksum_empty_file(self, tmp_path):
+        """Test checksum for empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
+
+        checksum = calculate_file_checksum(test_file)
+        assert checksum == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 
-def test_load_aggregated_data_missing_columns():
-    """Test that load_aggregated_data raises error for missing columns."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = Path(tmpdir) / "aggregated_user_track_pairs.csv"
-        # Create CSV with missing columns
-        df = pd.DataFrame({'user_id': [1], 'track_id': [1]})
-        df.to_csv(input_path, index=False)
-        
-        with patch('generate_user_track_pairs.get_project_root') as mock_root:
-            mock_root.return_value = Path(tmpdir).parent
-            # Mock the path resolution to point to our temp file
-            with patch('generate_user_track_pairs.load_aggregated_data.__globals__') as mock_globals:
-                # Direct test of the logic
-                try:
-                    # We can't easily mock the internal path resolution, so we test the logic directly
-                    required_cols = ['user_id', 'track_id', 'mean_vividness', 'mean_valence', 
-                                     'residualized_exposure_score', 'overall_popularity_score', 'listen_count']
-                    missing_cols = [col for col in required_cols if col not in df.columns]
-                    assert 'mean_vividness' in missing_cols
-                except Exception:
-                    pass  # Expected to fail logic check
+class TestSaveStateEntry:
+    def test_save_state_entry_new(self, tmp_path):
+        """Test saving a new entry to state.yaml."""
+        state_file = tmp_path / "state.yaml"
+        # Create a dummy file to checksum
+        data_file = tmp_path / "data" / "test.parquet"
+        data_file.parent.mkdir()
+        data_file.write_bytes(b"test data")
 
+        checksum = calculate_file_checksum(data_file)
 
-def test_save_and_load_parquet():
-    """Test that saving and loading parquet preserves data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_user_track_pairs.parquet"
-        
-        # Create test data
-        df = pd.DataFrame({
-            'user_id': [1, 2, 3],
-            'track_id': [101, 102, 103],
-            'mean_vividness': [5.0, 4.5, 6.0],
-            'mean_valence': [0.8, 0.2, 0.9],
-            'residualized_exposure_score': [0.1, -0.2, 0.3],
-            'overall_popularity_score': [0.7, 0.5, 0.9],
-            'listen_count': [10, 5, 20]
-        })
-        
-        # Save
-        df.to_parquet(output_path, index=False, engine='pyarrow')
-        
-        # Load
-        loaded_df = pd.read_parquet(output_path)
-        
-        # Verify
-        assert len(loaded_df) == len(df)
-        assert list(loaded_df.columns) == list(df.columns)
-        pd.testing.assert_frame_equal(loaded_df, df)
+        # Mock get_project_root to return tmp_path
+        import generate_user_track_pairs as module
+        original_get_project_root = module.get_project_root
+        module.get_project_root = lambda: tmp_path
 
+        try:
+            save_state_entry(data_file, checksum)
 
-def test_state_registration_format():
-    """Test that state registration format is correct."""
-    state = {
-        'files': {},
-        'last_updated': None
-    }
-    
-    # Simulate registration logic
-    file_path = Path("/tmp/test.parquet")
-    checksum = "abc123"
-    task_id = "T029"
-    description = "Test dataset"
-    
-    state['files']['/tmp/test.parquet'] = {
-        'checksum': checksum,
-        'task_id': task_id,
-        'description': description,
-        'timestamp': '2023-01-01T00:00:00'
-    }
-    
-    assert state['files']['/tmp/test.parquet']['checksum'] == checksum
-    assert state['files']['/tmp/test.parquet']['task_id'] == task_id
+            assert state_file.exists()
+            with open(state_file, "r") as f:
+                state = yaml.safe_load(f)
+
+            relative_path = str(data_file.relative_to(tmp_path))
+            assert relative_path in state
+            assert state[relative_path]["checksum"] == checksum
+            assert "size_bytes" in state[relative_path]
+        finally:
+            module.get_project_root = original_get_project_root
+
+    def test_save_state_entry_update(self, tmp_path):
+        """Test updating an existing entry in state.yaml."""
+        state_file = tmp_path / "state.yaml"
+        # Initial state
+        initial_state = {"existing.txt": {"checksum": "old_checksum"}}
+        with open(state_file, "w") as f:
+            yaml.dump(initial_state, f)
+
+        data_file = tmp_path / "new.parquet"
+        data_file.write_bytes(b"new data")
+        checksum = calculate_file_checksum(data_file)
+
+        import generate_user_track_pairs as module
+        original_get_project_root = module.get_project_root
+        module.get_project_root = lambda: tmp_path
+
+        try:
+            save_state_entry(data_file, checksum)
+
+            with open(state_file, "r") as f:
+                state = yaml.safe_load(f)
+
+            assert "existing.txt" in state
+            assert "new.parquet" in state
+            assert state["new.parquet"]["checksum"] == checksum
+        finally:
+            module.get_project_root = original_get_project_root

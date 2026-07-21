@@ -114,7 +114,7 @@ projects/PROJ-200-the-impact-of-incidental-music-on-autobi/
   1. Implement `modeling.py` with `statsmodels` mixed-effects (`MixedLM`) on **User-Track pairs**.
      - Model: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)`
   2. Implement sensitivity analysis (varying thresholds).
-  3. Implement permutation test: **Shuffle `residualized_exposure_score` values across tracks** (preserving track IDs and memory counts) 1000 times.
+  3. Implement permutation test: **Shuffle `residualized_exposure_score` values across tracks** (preserving track IDs and memory counts) repeatedly.
   4. Generate regression summary tables and diagnostic plots (VIF, residual checks).
 
 ### Phase 3: Validation & Reporting

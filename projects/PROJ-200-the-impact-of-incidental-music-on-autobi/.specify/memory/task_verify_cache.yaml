@@ -1,47 +1,19 @@
-T016a:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided spec excerpt shows `spec.md`\u2019s FR\u2011001 now defines `residualized_exposure_score`,\
-    \ states it is the primary predictor, and includes the regression formula `adolescent_exposure\
-    \ ~ overall_popularity`. This satisfies the task\u2019s update requirement."
-T016f:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided spec excerpt shows FR\u2011006 now reads: \u201CThe system shall\
-    \ re\u2011run \u2026 using different Levenshtein distance thresholds (2,\u202F\
-    4,\u202F6)\u2026 The data must be **re\u2011aggregated to User\u2011Track pairs**\
-    \ for each threshold iteration,\u201D satisfying the required update."
-T016g:
+T012a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `spec.md` file or excerpt showing the Edge Cases section was provided, so
-    we cannot verify that the required sentence was added. The artifact needed to
-    confirm the update is missing.
-T018:
-  c: false
-  h: a21dda2e42ada4c69598de2bdb6faad3c20fb9787c70e1e3da7429afde2eb178
-  r: The required `data/processed/ingested_cohort.parquet` file does not exist, and
-    `state.yaml` contains no entry or checksum for it. Both the data artifact and
-    its checksum update are missing.
+  h: 7e3a924c47d993108a978ff2bb2536ebb35a943be8f5a760872f487bf4d2bd16
+  r: "The provided `code/data_ingestion.py` does not contain an `audit_amt_source`\
+    \ function, nor does it perform any check of a `source_type` field or write to\
+    \ `data/audit_log.txt`. Additionally, the required `data/audit_log.txt` file is\
+    \ absent. These missing artifacts mean the task\u2019s requirement is not satisfied."
 T029:
   c: false
-  h: 77f000a4d29297691247588c4bd2f069157c1e016a9f76dec38463d6e1da2f03
-  r: The required `data/processed/user_track_pairs.parquet` file does not exist, and
-    `state.yaml` has not been updated with any checksum entry for it (the `files`
-    map is empty). Consequently the task of generating the parquet file and recording
-    its checksum was not fulfilled.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No diagnostic plots (e.g., residual checks, QQ plots) were found in the required\
-    \ `data/final/plots/` directory, nor any evidence (files, screenshots, code) indicating\
-    \ they were generated and saved. The task\u2019s deliverable is missing."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md or code docstring contents were provided; without the actual files
-    we cannot confirm that documentation was updated to reflect the specification
-    changes. The required artifacts are missing.
+  h: 1ce8045775353c27966d6476ba7b2fe9a1fcc413ee83778250ddf110167a4e07
+  r: "The required artifact `data/processed/user_track_pairs.parquet` is absent from\
+    \ the repository (the file does not exist), so no real dataset or checksum can\
+    \ be verified. Although `state.yaml` lists an entry for the file, the actual Parquet\
+    \ file is missing, violating the task requirement. The implementer must create\
+    \ the Parquet file (non\u2011empty) and ensure its checksum matches the entry\
+    \ in `state.yaml`."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -51,13 +23,13 @@ T043:
     \ the performance optimization requirement is met. The implementer must provide\
     \ the relevant implementation or evidence (e.g., code snippet, test showing chunked\
     \ processing, or logs) that verifies chunking is employed for >5\u202FGB datasets."
-T045#1:
+T045:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided material only contains a research specification; there are no logs,\
-    \ code, configuration files, or any evidence that the pipeline was audited or\
-    \ modified to prevent PII from appearing in logs or output files. Consequently,\
-    \ the security\u2011hardening requirement (no PII leaks) is not demonstrated."
+  h: 60d11ede67d3deef08272d7e2b811d30c943559f1c481f8b06c6b503d823fed7
+  r: The repository lacks a `run_permutation_test` implementation in `code/modeling.py`
+    (the shown code ends inside `fit_mixed_model` and never defines the required function),
+    and the expected output file `data/final/permutation_results.csv` does not exist.
+    Both the core function and its result artifact are missing.
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
