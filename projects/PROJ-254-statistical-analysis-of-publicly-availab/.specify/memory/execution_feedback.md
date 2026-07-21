@@ -10,16 +10,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/ingest.py", line 12, in <module>
-    from datasets import load_dataset
-ModuleNotFoundError: No module named 'datasets'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/ingest.py", line 13, in <module>
+    from musicbrainzngs import musicbrainzngs as mb
+ImportError: cannot import name 'musicbrainzngs' from 'musicbrainzngs' (/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/musicbrainzngs/__init__.py)
 - python -m src.code.embeddings -> rc=1
-    2026-07-21 00:53:09 - root - INFO - Starting Word2Vec training...
-2026-07-21 00:53:09 - root - INFO - Parameters: dimensions=100, window=10, epochs=5
-2026-07-21 00:53:09 - root - ERROR - Error during training: Using a generator as corpus_iterable can't support 6 passes. Try a re-iterable sequence.
-2026-07-21 00:53:09 - root - ERROR - Failed to train model
+    2026-07-21 02:04:14 - root - INFO - Starting Word2Vec training...
+2026-07-21 02:04:14 - root - INFO - Parameters: dimensions=100, window=10, epochs=5
+2026-07-21 02:04:14 - root - ERROR - Error during training: Using a generator as corpus_iterable can't support 6 passes. Try a re-iterable sequence.
+2026-07-21 02:04:14 - root - ERROR - Failed to train model
 - python -m src.code.similarity -> rc=1
-    2026-07-21 00:53:09 - root - INFO - Starting similarity computation...
-2026-07-21 00:53:09 - root - ERROR - Embeddings directory not found: yearly_embeddings
+    2026-07-21 02:04:14 - root - INFO - Starting similarity computation...
+2026-07-21 02:04:14 - root - ERROR - Embeddings directory not found: yearly_embeddings
 - python -m src.code.run_all -> rc=1
     /home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/code/.venv/bin/python: No module named src.code.run_all

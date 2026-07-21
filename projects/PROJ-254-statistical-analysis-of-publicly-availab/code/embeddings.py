@@ -21,6 +21,9 @@ YEARLY_EMBEDDINGS_DIR = DATA_DERIVED_DIR.parent / "yearly_embeddings"
 def setup_embeddings_environment():
     """
     Setup environment for embeddings.
+
+    Raises:
+        RuntimeError: If gensim is not installed.
     """
     try:
         from gensim.models import Word2Vec
@@ -33,6 +36,12 @@ def setup_embeddings_environment():
 def load_metadata_batches() -> Iterator[pd.DataFrame]:
     """
     Load metadata batches from parquet files.
+
+    Yields:
+        Iterator[pd.DataFrame]: Chunks of the metadata DataFrame.
+
+    Raises:
+        FileNotFoundError: If the metadata file is not found.
     """
     path = DATA_DERIVED_DIR / "metadata_mpd.parquet"
     if not path.exists():
@@ -45,6 +54,12 @@ def load_metadata_batches() -> Iterator[pd.DataFrame]:
 def generate_track_sequences(df: pd.DataFrame) -> Iterator[List[str]]:
     """
     Generate sequences of genres per playlist for Word2Vec training.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing playlist and genre data.
+
+    Yields:
+        Iterator[List[str]]: Sequences of genres.
     """
     # Group by playlist_id and sort by year or index
     # For this demo, we assume a 'playlist_id' and 'genre' column
@@ -58,13 +73,35 @@ def generate_track_sequences(df: pd.DataFrame) -> Iterator[List[str]]:
         if len(genres) > 1:
             yield genres
 
-def train_global_word2vec(sequence_iterator: Iterator[List[str]], dim=100, window=10, epochs=5):
+def train_global_word2vec(sequence_iterator: Iterator[List[str]], dim: int = 100, window: int = 10, epochs: int = 5):
     """
     Train a global Word2Vec model on the sequence iterator.
+
+    Args:
+        sequence_iterator (Iterator[List[str]]): Iterator of genre sequences.
+        dim (int): Dimensionality of the word vectors.
+        window (int): Maximum distance between current and predicted word.
+        epochs (int): Number of epochs to train.
+
+    Returns:
+        Word2Vec: Trained Word2Vec model.
+
+    Raises:
+        RuntimeError: If training fails.
     """
     from gensim.models import Word2Vec
     
     logger.info("Starting Word2Vec training...")
+    logger.info(f"Parameters: dimensions={dim}, window={window}, epochs={epochs}")
+    
+    # Convert iterator to a list to allow multiple passes (required by gensim)
+    # In a real streaming scenario, we might need to cache or re-stream
+    try:
+        sequences = list(sequence_iterator)
+    except Exception as e:
+        logger.error(f"Failed to materialize sequence iterator: {e}")
+        raise
+    
     model = Word2Vec(
         vector_size=dim,
         window=window,
@@ -73,11 +110,11 @@ def train_global_word2vec(sequence_iterator: Iterator[List[str]], dim=100, windo
         epochs=epochs
     )
     
-    # Build vocabulary from iterator
-    model.build_vocab(sequence_iterator)
+    # Build vocabulary
+    model.build_vocab(sequences)
     
     # Train
-    model.train(sequence_iterator, total_examples=model.corpus_count, epochs=model.epochs)
+    model.train(sequences, total_examples=model.corpus_count, epochs=model.epochs)
     
     logger.info("Word2Vec training complete.")
     return model
@@ -85,7 +122,16 @@ def train_global_word2vec(sequence_iterator: Iterator[List[str]], dim=100, windo
 def aggregate_yearly_embeddings(model, df: pd.DataFrame) -> Dict[int, np.ndarray]:
     """
     Aggregate base track vectors by genre and year.
-    Handles low coverage years.
+
+    Args:
+        model: Trained Word2Vec model.
+        df (pd.DataFrame): DataFrame with 'year' and 'genre' columns.
+
+    Returns:
+        Dict[int, np.ndarray]: Dictionary mapping years to aggregated vectors.
+
+    Raises:
+        ValueError: If required columns are missing.
     """
     if 'year' not in df.columns or 'genre' not in df.columns:
         raise ValueError("DataFrame must contain 'year' and 'genre' columns.")
@@ -134,6 +180,9 @@ def aggregate_yearly_embeddings(model, df: pd.DataFrame) -> Dict[int, np.ndarray
 def save_yearly_embeddings(year_genre_vectors: Dict[int, np.ndarray]):
     """
     Save aggregated vectors to individual yearly files.
+
+    Args:
+        year_genre_vectors (Dict[int, np.ndarray]): Dictionary of year to vector.
     """
     for year, vector in year_genre_vectors.items():
         path = YEARLY_EMBEDDINGS_DIR / f"{year}.npy"

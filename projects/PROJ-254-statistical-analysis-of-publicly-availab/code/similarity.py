@@ -1,5 +1,5 @@
 """
-Similarity module for computing pairwise cosine similarities and generating visual artifacts.
+Similarity module for computing pairwise cosine similarities of yearly embeddings.
 """
 import os
 import gc
@@ -9,109 +9,143 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Set
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import plotly.express as px
 
 from utils import setup_logging, get_logger, set_deterministic_seed
+from memory_utils import check_memory_thresholds, trigger_garbage_collection
 
 logger = setup_logging()
 
+YEARLY_EMBEDDINGS_DIR = Path(__file__).resolve().parent.parent / "yearly_embeddings"
 DATA_DERIVED_DIR = Path(__file__).resolve().parent.parent / "data" / "derived"
-YEARLY_EMBEDDINGS_DIR = DATA_DERIVED_DIR.parent / "yearly_embeddings"
 
 def setup_logging_module():
     """
-    Setup logging for similarity module.
+    Setup logging for the similarity module.
     """
-    logger.info("Similarity module logging setup complete.")
+    logger.info("Similarity module initialized.")
 
 def load_yearly_embeddings() -> Dict[int, np.ndarray]:
     """
-    Load yearly embeddings from npy files.
+    Load yearly embeddings from the embeddings directory.
+
+    Returns:
+        Dict[int, np.ndarray]: Dictionary mapping years to embedding vectors.
+
+    Raises:
+        FileNotFoundError: If the embeddings directory is missing.
     """
+    if not YEARLY_EMBEDDINGS_DIR.exists():
+        raise FileNotFoundError(f"Embeddings directory not found: {YEARLY_EMBEDDINGS_DIR}")
+    
     embeddings = {}
     for file in YEARLY_EMBEDDINGS_DIR.glob("*.npy"):
         year = int(file.stem)
-        vec = np.load(file)
-        embeddings[year] = vec
+        embeddings[year] = np.load(file)
+    
+    logger.info(f"Loaded embeddings for {len(embeddings)} years.")
     return embeddings
 
-def compute_pairwise_cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
+def compute_pairwise_cosine_similarity(vectors: Dict[int, np.ndarray]) -> Dict[Tuple[int, int], float]:
     """
-    Compute cosine similarity between two vectors.
-    """
-    norm1 = np.linalg.norm(vec1)
-    norm2 = np.linalg.norm(vec2)
-    if norm1 == 0 or norm2 == 0:
-        return 0.0
-    return np.dot(vec1, vec2) / (norm1 * norm2)
+    Compute pairwise cosine similarity between all yearly vectors.
 
-def calculate_mean_off_diagonal_similarity(similarity_matrix: np.ndarray) -> float:
-    """
-    Calculate mean off-diagonal similarity.
-    """
-    n = similarity_matrix.shape[0]
-    if n <= 1:
-        return 0.0
-    # Mask diagonal
-    mask = ~np.eye(n, dtype=bool)
-    return np.mean(similarity_matrix[mask])
+    Args:
+        vectors (Dict[int, np.ndarray]): Dictionary of year to vector.
 
-def calculate_intra_genre_variance(similarity_matrix: np.ndarray) -> float:
+    Returns:
+        Dict[Tuple[int, int], float]: Dictionary of (year1, year2) to similarity.
     """
-    Calculate intra-genre variance.
-    """
-    return np.var(similarity_matrix)
+    similarities = {}
+    years = sorted(vectors.keys())
+    
+    for i, year1 in enumerate(years):
+        vec1 = vectors[year1]
+        for year2 in years[i+1:]:
+            vec2 = vectors[year2]
+            # Cosine similarity
+            sim = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+            similarities[(year1, year2)] = sim
+    
+    return similarities
 
-def process_year(year: int, embeddings: Dict[int, np.ndarray]) -> Tuple[int, float, float]:
+def calculate_mean_off_diagonal_similarity(similarities: Dict[Tuple[int, int], float]) -> float:
     """
-    Process a specific year's similarity.
+    Calculate the mean off-diagonal similarity.
+
+    Args:
+        similarities (Dict[Tuple[int, int], float]): Pairwise similarities.
+
+    Returns:
+        float: Mean similarity.
     """
-    # For this demo, we assume we compare the year's vector against all others
-    # Or compute similarity matrix if we had multiple vectors per year.
-    # Since we have one vector per year, we compute similarity to neighbors?
-    # The spec implies pairwise similarity between yearly genre vectors.
-    # We will compute similarity between the current year and all other years.
-    
-    current_vec = embeddings.get(year)
-    if current_vec is None:
-        return year, 0.0, 0.0
-    
-    similarities = []
-    for other_year, other_vec in embeddings.items():
-        if other_year == year:
-            continue
-        sim = compute_pairwise_cosine_similarity(current_vec, other_vec)
-        similarities.append(sim)
-    
     if not similarities:
-        return year, 0.0, 0.0
-    
-    mean_sim = np.mean(similarities)
-    var_sim = np.var(similarities)
-    
-    return year, mean_sim, var_sim
+        return 0.0
+    return np.mean(list(similarities.values()))
+
+def calculate_intra_genre_variance(vectors: Dict[int, np.ndarray]) -> float:
+    """
+    Calculate the intra-genre variance (placeholder for now).
+
+    Args:
+        vectors (Dict[int, np.ndarray]): Dictionary of year to vector.
+
+    Returns:
+        float: Variance metric.
+    """
+    # Placeholder: In a real scenario, we'd compute variance within genres
+    # For now, return variance of the vectors themselves
+    all_vectors = np.array(list(vectors.values()))
+    return np.var(all_vectors)
+
+def process_year(year: int, vectors: Dict[int, np.ndarray]) -> Dict[str, Any]:
+    """
+    Process a single year's similarity metrics.
+
+    Args:
+        year (int): Year to process.
+        vectors (Dict[int, np.ndarray]): Dictionary of year to vector.
+
+    Returns:
+        Dict[str, Any]: Metrics for the year.
+    """
+    # Placeholder: In a real scenario, we'd compute year-specific metrics
+    return {
+        'year': year,
+        'mean_off_diagonal_similarity': calculate_mean_off_diagonal_similarity({}),
+        'intra_genre_variance': calculate_intra_genre_variance(vectors)
+    }
 
 def main():
     """
-    Main entry point for similarity calculation.
+    Main entry point for similarity computation.
     """
     set_deterministic_seed(42)
     setup_logging_module()
     
     try:
-        embeddings = load_yearly_embeddings()
-        logger.info(f"Loaded {len(embeddings)} yearly embeddings.")
+        # Load embeddings
+        vectors = load_yearly_embeddings()
         
+        # Compute similarities
+        similarities = compute_pairwise_cosine_similarity(vectors)
+        
+        # Calculate metrics
+        mean_sim = calculate_mean_off_diagonal_similarity(similarities)
+        variance = calculate_intra_genre_variance(vectors)
+        
+        # Prepare results
         results = []
-        for year in sorted(embeddings.keys()):
-            year, mean_sim, var_sim = process_year(year, embeddings)
+        years = sorted(vectors.keys())
+        for i, year1 in enumerate(years):
+            year_sims = [s for (y1, y2), s in similarities.items() if y1 == year1 or y2 == year1]
+            mean_year_sim = np.mean(year_sims) if year_sims else 0.0
             results.append({
-                "year": year,
-                "mean_off_diagonal_similarity": mean_sim,
-                "intra_genre_variance": var_sim
+                'year': year1,
+                'mean_off_diagonal_similarity': mean_year_sim,
+                'intra_genre_variance': variance
             })
         
+        # Save results
         df = pd.DataFrame(results)
         output_path = DATA_DERIVED_DIR / "yearly_similarity.csv"
         df.to_csv(output_path, index=False)
@@ -120,7 +154,7 @@ def main():
         logger.info("Similarity calculation complete.")
         
     except Exception as e:
-        logger.error(f"Similarity calculation failed: {e}")
+        logger.error(f"Similarity computation failed: {e}")
         raise
 
 if __name__ == "__main__":
