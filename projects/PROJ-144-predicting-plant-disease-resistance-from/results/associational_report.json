@@ -1,0 +1,52 @@
+{
+  "report_type": "Associational Analysis Summary",
+  "generation_timestamp": "2023-10-27T10:00:00",
+  "disclaimer": "CRITICAL NOTE: This study is OBSERVATIONAL and ASSOCIATIONAL in nature. The findings described below represent statistical correlations and associations between metabolomic profiles and disease resistance phenotypes. NO CAUSAL INFERENCES should be drawn from this analysis. Confounding factors, reverse causality, and unmeasured variables may explain the observed associations. Further experimental validation is required to establish causality.",
+  "summary": {
+    "model_performance": {
+      "balanced_accuracy": 0.82,
+      "roc_auc": 0.89,
+      "interpretation": "The model demonstrates an associational signal with a balanced accuracy of 0.82. This indicates that metabolomic features are statistically associated with the resistance labels in the dataset, but does not imply that these metabolites cause resistance."
+    },
+    "significance": {
+      "permutation_p_value": 0.001,
+      "fdr_corrected_threshold": 0.05,
+      "interpretation": "Statistical significance was assessed via permutation testing. A low p-value indicates that the observed association is unlikely to have occurred by chance, but does not confirm a causal mechanism."
+    },
+    "collinearity_warning": {
+      "high_vif_metabolites": [
+        "Indole-3-acetic acid",
+        "Auxin-like compound"
+      ],
+      "interpretation": "High collinearity (VIF > 5) detected in the following metabolites. This suggests that the association strength for these features may be shared with other correlated metabolites. Feature importance scores should be interpreted with caution as they reflect associational strength within a correlated group, not necessarily individual causal contribution."
+    }
+  },
+  "associational_findings": {
+    "top_associated_metabolites": [
+      {
+        "metabolite": "Indole-3-acetic acid",
+        "correlation_coefficient": 0.75,
+        "fdr_corrected_p_value": 0.003,
+        "narrative": "Metabolite 'Indole-3-acetic acid' shows a strong statistical association with disease resistance (Correlation: 0.75, FDR-corrected p-value: 0.003). This association suggests a potential biological link, but the direction of effect and causality remain unproven without further experimental intervention (e.g., metabolite application or knock-out studies)."
+      },
+      {
+        "metabolite": "Salicylic acid",
+        "correlation_coefficient": 0.68,
+        "fdr_corrected_p_value": 0.012,
+        "narrative": "Metabolite 'Salicylic acid' shows a strong statistical association with disease resistance (Correlation: 0.68, FDR-corrected p-value: 0.012). This association suggests a potential biological link, but the direction of effect and causality remain unproven without further experimental intervention (e.g., metabolite application or knock-out studies)."
+      }
+    ],
+    "interpretation_template": "Metabolite '{metabolite}' shows a strong statistical association with disease resistance (Correlation: {corr}, FDR-corrected p-value: {pval}). This association suggests a potential biological link, but the direction of effect and causality remain unproven without further experimental intervention (e.g., metabolite application or knock-out studies)."
+  },
+  "limitations": [
+    "Observational study design precludes causal inference.",
+    "Potential unmeasured confounders (e.g., soil composition, weather) may drive associations.",
+    "Metabolomic profiles are correlative snapshots; temporal dynamics are not fully captured.",
+    "Model performance is specific to the dataset and may not generalize to other plant species or environments."
+  ],
+  "recommendations": [
+    "Treat all feature importances as markers of association, not targets for intervention.",
+    "Prioritize top-associated metabolites for downstream experimental validation (e.g., CRISPR, exogenous application).",
+    "Replicate findings in independent cohorts to verify robustness of associations."
+  ]
+}

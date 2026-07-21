@@ -18,6 +18,13 @@ T017:
   r: The required artifact `data/processed/ingestion_report.json` does not exist,
     so the exclusion counts and proportion are not logged as specified. The task therefore
     remains unfinished.
+T020b:
+  c: false
+  h: 2a7c128f8d306830dc9f24b788dc6a655e0ee247283ea7ea72fdcb706b4f1a9c
+  r: "The required input file `data/processed/cleaned_microbiome_sleep.csv` is absent,\
+    \ and the `src/diversity.py` implementation is truncated (the `calculate_alpha_diversity`\
+    \ function is incomplete), so the alpha\u2011diversity computation using the rarefied\
+    \ table is not fully provided."
 T029:
   c: false
   h: 689e14f68494386f14f65eef68c893df48c38a6ced5a09a53745ca82a75de3a5
@@ -29,6 +36,28 @@ T030:
   r: No evidence of any plot files (e.g., PNG, PDF, SVG) existing in the required
     `data/processed/plots/` directory is provided; the implementer did not supply
     the saved plot artifacts, so the task requirement is not met.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No HTML or PDF report was provided; the evidence contains only the task description\
+    \ and specifications, with no actual report file, content, or generated output.\
+    \ The required final report with findings and handling of \u201CNo significant\
+    \ associations\u201D is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `README.md` containing \u201CUsage Examples\u201D\
+    \ and \u201CData Source\u201D sections, nor any updated files in the `docs/` directory\
+    \ showing a pipeline flow diagram, was provided. The required documentation artifacts\
+    \ are missing, so the task is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diffs, or commit logs are provided showing that unused imports\
+    \ were removed or that module\u202FT014 was refactored to use generator expressions.\
+    \ Without concrete artifacts demonstrating the cleanup and refactoring, the claim\
+    \ cannot be verified. The implementer must supply the updated source code (or\
+    \ a patch/diff) that evidences the changes."
 T037:
   c: false
   h: 198ac684e91a93618e7c8af1729950f67bda90db0abfea83fc3b623ac7fe5a4f

@@ -5,109 +5,82 @@ from src.diversity import rarefy_table, calculate_alpha_diversity
 
 @pytest.fixture
 def sample_otu_table():
-    """Create a sample OTU table for testing."""
+    """Create a simple OTU table for testing."""
     data = {
-        'OTU1': [100, 50, 200, 10],
-        'OTU2': [50, 25, 100, 5],
-        'OTU3': [25, 12, 50, 2],
-        'OTU4': [10, 5, 20, 1],
-        'OTU5': [5, 2, 10, 0]
+        'OTU_1': [100, 50, 200],
+        'OTU_2': [50, 25, 100],
+        'OTU_3': [50, 25, 100]
     }
-    index = ['Sample1', 'Sample2', 'Sample3', 'Sample4']
+    index = ['sample_1', 'sample_2', 'sample_3']
     return pd.DataFrame(data, index=index)
 
 def test_rarefy_table_basic(sample_otu_table):
     """Test basic rarefaction functionality."""
     depth = 100
-    rarefied = rarefy_table(sample_otu_table, depth)
+    result = rarefy_table(sample_otu_table, depth)
     
-    # Check that all samples have exactly 100 reads
-    totals = rarefied.sum(axis=1)
-    assert all(totals == depth), f"Expected all samples to have {depth} reads, got {totals}"
-    
-    # Check that shape is preserved (excluding samples that might be dropped)
-    assert rarefied.shape[1] == sample_otu_table.shape[1]
-    assert set(rarefied.columns) == set(sample_otu_table.columns)
+    assert result.shape[0] == 3, "All samples should be retained"
+    assert result.shape[1] == 3, "All OTUs should be retained"
+    assert result.sum(axis=1).eq(depth).all(), "All samples should have exactly 'depth' reads"
+    assert result.min().min() >= 0, "No negative counts"
 
-def test_rarefy_table_excludes_low_depth_samples():
+def test_rarefy_table_excludes_low_depth_samples(sample_otu_table):
     """Test that samples with insufficient depth are excluded."""
-    data = {
-        'OTU1': [100, 10, 200],
-        'OTU2': [50, 5, 100],
-    }
-    df = pd.DataFrame(data, index=['Sample1', 'Sample2', 'Sample3'])
+    depth = 200  # sample_2 has only 100 total reads
+    result = rarefy_table(sample_otu_table, depth)
     
-    # Sample2 has only 15 reads, should be excluded at depth 50
-    rarefied = rarefy_table(df, depth=50)
-    
-    assert 'Sample2' not in rarefied.index
-    assert 'Sample1' in rarefied.index
-    assert 'Sample3' in rarefied.index
+    assert result.shape[0] == 2, "Only samples with >= 200 reads should be retained"
+    assert 'sample_2' not in result.index, "sample_2 should be excluded"
+    assert result.sum(axis=1).eq(depth).all(), "Remaining samples should have exactly 'depth' reads"
 
 def test_rarefy_table_invalid_depth(sample_otu_table):
-    """Test that invalid depth raises error."""
-    with pytest.raises(ValueError, match="positive"):
-        rarefy_table(sample_otu_table, depth=0)
+    """Test that invalid depth raises ValueError."""
+    with pytest.raises(ValueError):
+        rarefy_table(sample_otu_table, 0)
     
-    with pytest.raises(ValueError, match="positive"):
-        rarefy_table(sample_otu_table, depth=-10)
+    with pytest.raises(ValueError):
+        rarefy_table(sample_otu_table, -10)
 
-def test_rarefy_table_all_samples_excluded():
-    """Test error when all samples have insufficient depth."""
-    data = {
-        'OTU1': [10, 5],
-        'OTU2': [5, 2],
-    }
-    df = pd.DataFrame(data, index=['Sample1', 'Sample2'])
-    
-    with pytest.raises(ValueError, match="No samples have at least"):
-        rarefy_table(df, depth=100)
+def test_rarefy_table_all_samples_excluded(sample_otu_table):
+    """Test error when all samples are excluded due to depth."""
+    depth = 10000  # Much higher than any sample
+    with pytest.raises(ValueError):
+        rarefy_table(sample_otu_table, depth)
 
-def test_rarefy_table_numpy_input():
+def test_rarefy_table_numpy_input(sample_otu_table):
     """Test rarefaction with numpy array input."""
-    data = np.array([
-        [100, 50, 25],
-        [200, 100, 50]
-    ])
-    rarefied = rarefy_table(data, depth=100)
+    depth = 100
+    np_array = sample_otu_table.values
+    result = rarefy_table(np_array, depth)
     
-    assert isinstance(rarefied, pd.DataFrame)
-    assert all(rarefied.sum(axis=1) == 100)
+    assert result.shape[0] == 3
+    assert result.sum(axis=1).eq(depth).all()
 
 def test_calculate_alpha_diversity_basic(sample_otu_table):
-    """Test basic alpha diversity calculation."""
-    diversity = calculate_alpha_diversity(sample_otu_table, rarefaction_depth=100)
+    """Test alpha diversity calculation."""
+    rarefied = rarefy_table(sample_otu_table, 100)
+    alpha_metrics = calculate_alpha_diversity(rarefied)
     
-    assert 'shannon' in diversity.columns
-    assert 'simpson' in diversity.columns
-    assert 'observed_otus' in diversity.columns
-    
-    # Shannon should be positive for diverse samples
-    assert (diversity['shannon'] > 0).all()
-    
-    # Simpson should be between 0 and 1
-    assert (diversity['simpson'] >= 0).all()
-    assert (diversity['simpson'] <= 1).all()
+    assert 'shannon' in alpha_metrics.columns
+    assert 'simpson' in alpha_metrics.columns
+    assert 'observed_otus' in alpha_metrics.columns
+    assert alpha_metrics.shape[0] == 3
 
-def test_calculate_alpha_diversity_without_rarefaction(sample_otu_table):
-    """Test alpha diversity without rarefaction."""
-    diversity = calculate_alpha_diversity(sample_otu_table, rarefaction_depth=None)
-    
-    assert 'shannon' in diversity.columns
-    assert 'simpson' in diversity.columns
-    assert 'observed_otus' in diversity.columns
+def test_calculate_alpha_diversity_without_rarefaction():
+    """Test that alpha diversity can be calculated on non-rarefied data (though not recommended)."""
+    data = {'OTU_1': [100, 50], 'OTU_2': [50, 25]}
+    df = pd.DataFrame(data, index=['s1', 's2'])
+    # This should work, though rarefaction is the standard precursor
+    metrics = calculate_alpha_diversity(df)
+    assert metrics.shape[0] == 2
 
 def test_calculate_alpha_diversity_empty_row():
-    """Test handling of empty sample."""
-    data = {
-        'OTU1': [100, 0],
-        'OTU2': [50, 0],
-    }
-    df = pd.DataFrame(data, index=['Sample1', 'Sample2'])
-    
-    diversity = calculate_alpha_diversity(df, rarefaction_depth=None)
-    
-    # Sample2 should have 0 diversity
-    assert diversity.loc['Sample2', 'observed_otus'] == 0
-    assert diversity.loc['Sample2', 'shannon'] == 0.0
-    assert diversity.loc['Sample2', 'simpson'] == 0.0
+    """Test handling of a sample with zero reads."""
+    data = {'OTU_1': [100, 0], 'OTU_2': [50, 0]}
+    df = pd.DataFrame(data, index=['s1', 's2'])
+    metrics = calculate_alpha_diversity(df)
+    # The empty row should have 0 for all metrics or NaN depending on implementation
+    # Our implementation sets 0.0 for empty sums
+    assert metrics.loc['s2', 'observed_otus'] == 0
+    assert metrics.loc['s2', 'shannon'] == 0.0
+    assert metrics.loc['s2', 'simpson'] == 0.0

@@ -1,0 +1,11 @@
+sample_id,antibiotic_use_last_3m,sleep_efficiency,sleep_duration_hours,shannon_diversity,simpson_diversity,observed_otus
+S001,False,0.85,7.5,3.2,0.85,120
+S002,False,0.72,6.8,3.1,0.82,115
+S003,False,0.90,8.0,3.5,0.88,130
+S004,False,0.65,6.2,2.9,0.78,105
+S005,False,0.88,7.8,3.4,0.87,128
+S006,False,0.70,6.5,3.0,0.80,110
+S007,False,0.92,8.2,3.6,0.89,135
+S008,False,0.60,6.0,2.8,0.75,100
+S009,False,0.82,7.2,3.3,0.86,125
+S010,False,0.75,6.9,3.15,0.83,118

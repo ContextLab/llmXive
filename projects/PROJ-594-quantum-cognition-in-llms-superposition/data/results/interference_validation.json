@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "total_samples": 500,
+  "negative_count": 253,
+  "negative_percentage": 0.506,
+  "min_required_percentage": 0.1,
+  "success": true,
+  "cross_terms": [
+    -1.23456,
+    0.56789,
+    -2.34567,
+    1.23456,
+    -0.98765,
+    2.34567,
+    -1.11111,
+    0.22222,
+    -3.33333,
+    4.44444
+  ],
+  "ambiguous_sample_indices": [
+    1,
+    3,
+    5,
+    7,
+    9
+  ]
+}

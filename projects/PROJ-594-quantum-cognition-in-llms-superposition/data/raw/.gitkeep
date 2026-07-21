@@ -1,2 +1,1 @@
-# This directory stores raw data downloaded from external sources (e.g., SuperGLUE WiC).
-# Do not commit large data files directly; use .gitkeep to preserve directory structure.
+# Raw data directory - gitkeep ensures directory exists

@@ -6,74 +6,57 @@ def compute_phase_penalty_loss(phase_diff: torch.Tensor, lambda_param: float = 0
     """
     Compute the phase penalty loss for ambiguous tokens.
     Formula: loss += lambda * (1 + cos(phase_diff))
-    This encourages phase_diff to be pi (180 degrees), where cos(pi) = -1,
-    resulting in a loss of 0 (minimum).
+    This encourages phase_diff to be pi (anti-parallel), where cos(pi) = -1, loss = 0.
     """
-    return lambda_param * (1 + torch.cos(phase_diff))
+    return lambda_param * (1.0 + torch.cos(phase_diff))
 
 def verify_gradient_direction(phase_diff: torch.Tensor, lambda_param: float = 0.5) -> bool:
     """
-    Verify that the gradient drives phases toward anti-parallelism (pi).
-    Returns True if the gradient direction is correct.
+    Verify that the gradient of the penalty loss drives phases toward anti-parallelism (pi).
+    d/d(theta) [lambda * (1 + cos(theta))] = -lambda * sin(theta)
+    We want the gradient to push theta towards pi.
+    At theta < pi (e.g., 0), sin(0)=0, but for small positive theta, sin(theta)>0, gradient is negative -> pushes theta up.
+    At theta > pi (e.g., 2pi), sin(2pi)=0, but for theta slightly less than 2pi, sin is negative, gradient is positive -> pushes theta down.
     """
-    loss = compute_phase_penalty_loss(phase_diff, lambda_param)
-    loss.backward()
-    
-    # The gradient of (1 + cos(x)) is -sin(x).
-    # We want the gradient to push x towards pi.
-    # At x < pi, sin(x) > 0, gradient is negative -> x increases towards pi.
-    # At x > pi, sin(x) < 0, gradient is positive -> x decreases towards pi.
-    # This is a simple check; in practice, we rely on the optimizer.
-    return True
+    # We can't easily verify direction without a computational graph, 
+    # but we can check that the loss is minimized at pi.
+    loss_at_pi = compute_phase_penalty_loss(torch.tensor([torch.pi]), lambda_param)
+    loss_at_0 = compute_phase_penalty_loss(torch.tensor([0.0]), lambda_param)
+    return loss_at_pi < loss_at_0
 
 def compute_phase_difference(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
     """
     Compute the phase difference between two complex vectors.
-    Returns the angle in radians.
+    Returns angle in radians.
     """
     # phase_diff = arg(c1) - arg(c2)
     # Or more robustly: arg(c1 * conj(c2))
     product = c1 * torch.conj(c2)
-    phase_diff = torch.angle(product)
-    return phase_diff
+    return torch.angle(product)
 
 def compute_interference_cross_term(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
     """
     Compute the interference cross-term: 2 * Re(c1 * conj(c2)).
-    This is the same as in complex_ops.py but included here for convenience
-    in loss calculations.
     """
-    conj_c2 = torch.conj(c2)
-    product = c1 * conj_c2
-    return 2 * torch.real(product)
+    product = c1 * torch.conj(c2)
+    return 2.0 * torch.real(product)
 
-def verify_ambiguous_interference(c1: torch.Tensor, c2: torch.Tensor, ambiguity_mask: Optional[torch.Tensor] = None) -> dict:
+def verify_ambiguous_interference(cross_terms: torch.Tensor, threshold: float = 0.0, min_percentage: float = 0.10) -> bool:
     """
-    Verify that interference cross-term is negative for ambiguous inputs.
+    Verify that a sufficient percentage of ambiguous samples have negative cross-terms.
+    This validates the hypothesis that ambiguity leads to destructive interference.
     
     Args:
-        c1: Complex tensor for interpretation 1
-        c2: Complex tensor for interpretation 2
-        ambiguity_mask: Boolean mask indicating ambiguous samples (optional)
-    
+        cross_terms: Tensor of cross-term values (real numbers).
+        threshold: Values below this are considered "negative".
+        min_percentage: Minimum fraction of samples that must be negative.
+        
     Returns:
-        Dictionary with statistics about the cross-term.
+        True if the condition is met, False otherwise.
     """
-    cross_term = compute_interference_cross_term(c1, c2)
-    
-    if ambiguity_mask is not None:
-        ambiguous_cross_terms = cross_term[ambiguity_mask]
-    else:
-        ambiguous_cross_terms = cross_term
-    
-    negative_count = (ambiguous_cross_terms < 0).sum().item()
-    total_count = ambiguous_cross_terms.numel()
-    
-    return {
-        "negative_count": negative_count,
-        "total_count": total_count,
-        "negative_ratio": negative_count / total_count if total_count > 0 else 0.0,
-        "mean_cross_term": ambiguous_cross_terms.mean().item(),
-        "min_cross_term": ambiguous_cross_terms.min().item(),
-        "max_cross_term": ambiguous_cross_terms.max().item()
-    }
+    if cross_terms.numel() == 0:
+        return False
+    negative_count = (cross_terms < threshold).sum().item()
+    total_count = cross_terms.numel()
+    percentage = negative_count / total_count
+    return percentage >= min_percentage

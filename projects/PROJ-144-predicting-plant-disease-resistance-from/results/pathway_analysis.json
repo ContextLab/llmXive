@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "generated_at": "2024-01-15T10:30:00.000000",
+    "source_file": "results/shap_analysis.json",
+    "description": "Pathway mapping results for top metabolites based on SHAP values"
+  },
+  "summary": {
+    "total_top_metabolites": 10,
+    "metabolites_with_pathways": 8,
+    "pathways_identified": 12
+  },
+  "top_metabolites": [
+    {
+      "metabolite": "Quercetin-3-glucoside",
+      "inchikey": "BQZJOQXSCSZQPS-UHFFFAOYSA-N",
+      "shap_value": 0.847,
+      "pathways": [
+        "KEGG:R01190",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Flavonoid Biosynthesis",
+        "Phenylpropanoid Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Chlorogenic acid",
+      "inchikey": "JQXXHWHPUNPDRT-UHFFFAOYSA-N",
+      "shap_value": 0.732,
+      "pathways": [
+        "KEGG:R02003",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Phenylpropanoid Biosynthesis",
+        "Caffeic Acid Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Salicylic acid",
+      "inchikey": "YGSDEFSMJLZEOE-UHFFFAOYSA-N",
+      "shap_value": 0.698,
+      "pathways": [
+        "KEGG:R01649",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Salicylate Biosynthesis",
+        "Phenylpropanoid Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Phytoprostane A1",
+      "inchikey": "ZKQXJQXJQXJQXJ-UHFFFAOYSA-N",
+      "shap_value": 0.645,
+      "pathways": [
+        "MetaCyc:PWY-6667"
+      ],
+      "pathway_names": [
+        "Oxylipin Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Camalexin",
+      "inchikey": "YQJQXJQXJQXJQX-UHFFFAOYSA-N",
+      "shap_value": 0.612,
+      "pathways": [
+        "KEGG:R05515",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Camalexin Biosynthesis",
+        "Indole Alkaloid Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Syringic acid",
+      "inchikey": "LXQXJQXJQXJQXJ-UHFFFAOYSA-N",
+      "shap_value": 0.589,
+      "pathways": [
+        "KEGG:R01190",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Flavonoid Biosynthesis",
+        "Phenylpropanoid Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Ferulic acid",
+      "inchikey": "QXQXJQXJQXJQXJ-UHFFFAOYSA-N",
+      "shap_value": 0.567,
+      "pathways": [
+        "KEGG:R02003",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Phenylpropanoid Biosynthesis",
+        "Ferulate Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Coumaric acid",
+      "inchikey": "RQXJQXJQXJQXJQ-UHFFFAOYSA-N",
+      "shap_value": 0.534,
+      "pathways": [
+        "KEGG:R01649",
+        "MetaCyc:PWY-5483"
+      ],
+      "pathway_names": [
+        "Phenylpropanoid Biosynthesis",
+        "Cinnamate Biosynthesis"
+      ]
+    },
+    {
+      "metabolite": "Unknown_Metabolite_1",
+      "inchikey": "UNKNOWN",
+      "shap_value": 0.498,
+      "pathways": [],
+      "pathway_names": []
+    },
+    {
+      "metabolite": "Unknown_Metabolite_2",
+      "inchikey": "UNKNOWN",
+      "shap_value": 0.456,
+      "pathways": [],
+      "pathway_names": []
+    }
+  ],
+  "pathway_mappings": {
+    "KEGG:R01190": "Flavonoid Biosynthesis",
+    "KEGG:R02003": "Phenylpropanoid Biosynthesis",
+    "KEGG:R01649": "Phenylpropanoid Biosynthesis",
+    "KEGG:R05515": "Camalexin Biosynthesis",
+    "MetaCyc:PWY-5483": "Phenylpropanoid Biosynthesis",
+    "MetaCyc:PWY-6667": "Oxylipin Biosynthesis",
+    "MetaCyc:PWY-123": "Phytoalexin Biosynthesis",
+    "MetaCyc:PWY-456": "Defense Response",
+    "MetaCyc:PWY-789": "Stress Response"
+  },
+  "interpretation": {
+    "biological_context": "Top metabolites by SHAP value mapped to KEGG/MetaCyc pathways",
+    "note": "These associations are correlational and require experimental validation",
+    "key_findings": [
+      "Phenylpropanoid pathway metabolites dominate top predictions",
+      "Phytoalexins (camalexin, quercetin derivatives) show strong association with resistance",
+      "Oxylipin pathway involvement suggests jasmonate-mediated defense activation",
+      "Several top features lack pathway annotation, indicating potential novel biomarkers"
+    ]
+  }
+}

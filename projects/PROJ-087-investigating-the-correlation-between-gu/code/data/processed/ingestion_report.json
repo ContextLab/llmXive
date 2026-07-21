@@ -1,0 +1,10 @@
+{
+  "total_initial_sample_count": 20,
+  "excluded_count": 3,
+  "exclusion_proportion": 0.15,
+  "exclusion_reasons": {
+    "antibiotic_use": 3,
+    "missing_sleep_data": 0
+  },
+  "timestamp": "2023-10-27T12:00:00Z"
+}

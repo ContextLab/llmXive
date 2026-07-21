@@ -78,7 +78,7 @@ def get_code_completion_prompt(truncated_code: str, original_function_name: Opti
     Returns:
         A formatted prompt string ready for the LLM.
     """
-    context = f"Complete the following Python function."
+    context = "Complete the following Python function."
     if original_function_name:
         context = f"Complete the Python function '{original_function_name}'."
 

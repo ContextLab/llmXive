@@ -1,33 +1,101 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
-title: Metabolomics Data Schema
+title: Plant Disease Resistance Metabolomic Data Schemas
+description: |
+  Schema definitions for the MetaboliteProfile and ResistanceLabel data structures
+  used in the Predicting Plant Disease Resistance pipeline.
+
 definitions:
   MetaboliteProfile:
     type: object
-    properties:
-      sample_id:
-        type: string
-      metabolite_id:
-        type: string
-      intensity:
-        type: number
-      inchi_key:
-        type: string
+    description: |
+      Represents a single sample's metabolomic intensity profile.
+      Contains the sample identifier, study metadata, and a dictionary of
+      metabolite intensities keyed by InChIKey or metabolite ID.
     required:
       - sample_id
-      - metabolite_id
-      - intensity
-  ResistanceLabel:
-    type: object
+      - study_id
+      - species
+      - metabolites
     properties:
       sample_id:
         type: string
-      resistance_class:
-        type: string
-        enum: ["Resistant", "Susceptible", "Intermediate"]
-      batch_id:
-        type: string
+        description: Unique identifier for the biological sample.
       study_id:
         type: string
+        description: Identifier for the source study (e.g., from Metabolomics Workbench).
+      species:
+        type: string
+        description: Scientific name of the plant species.
+      treatment:
+        type: string
+        description: Treatment condition (e.g., 'control', 'pathogen-challenged').
+      sample_time:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of sample collection.
+      challenge_time:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of pathogen challenge (if applicable).
+      metabolites:
+        type: object
+        description: |
+          Dictionary mapping metabolite identifiers (InChIKey preferred) to 
+          normalized intensity values (float).
+        additionalProperties:
+          type: number
+          minimum: 0
+        minProperties: 1
+      batch_id:
+        type: string
+        description: Optional batch identifier for ComBat correction.
+      covariates:
+        type: object
+        description: |
+          Optional dictionary of biological confounders (e.g., age, weight, 
+          soil pH) used for residualization.
+        additionalProperties:
+          oneOf:
+            - type: number
+            - type: string
+            - type: boolean
+
+  ResistanceLabel:
+    type: object
+    description: |
+      Represents the resistance phenotype label for a sample.
+      Can be binary (Susceptible/Resistant) or ordinal (0-4 scale).
     required:
       - sample_id
-      - resistance_class
+      - resistance_value
+    properties:
+      sample_id:
+        type: string
+        description: Unique identifier matching the MetaboliteProfile.
+      resistance_value:
+        oneOf:
+          - type: integer
+            enum: [0, 1]
+            description: Binary label: 0 = Susceptible, 1 = Resistant.
+          - type: integer
+            minimum: 0
+            maximum: 4
+            description: Ordinal scale: 0 = Highly Susceptible, 4 = Highly Resistant.
+      resistance_category:
+        type: string
+        enum:
+          - "susceptible"
+          - "moderately_susceptible"
+          - "moderately_resistant"
+          - "resistant"
+          - "binary_resistant"
+          - "binary_susceptible"
+        description: Human-readable category derived from the numeric value.
+      measurement_method:
+        type: string
+        description: Method used to determine resistance (e.g., 'lesion_area', 'survival_rate').
+      z_score_normalized:
+        type: number
+        description: Optional z-score normalized resistance value if harmonization was applied.

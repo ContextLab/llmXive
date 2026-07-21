@@ -189,3 +189,24 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T07:27:42Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction threshold 0.05 cited as arXiv:1906.01701
+  claim_id: c_1e412d8e
+  context: "Run Permutation Testing (\u22651,000 permutations) to generate null distribution\
+    \ and assess significance (FR-007, SC-003). Apply Benjamini-Hochberg FDR correction\
+    \ (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701)) to pairwise metabolite-resistance\
+    \ correlations computed on the training fold only (FR-008, SC-002)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))\
+    \ to pairwise metabolite-resistance correlations computed on the training fold\
+    \ only"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:19:52Z'

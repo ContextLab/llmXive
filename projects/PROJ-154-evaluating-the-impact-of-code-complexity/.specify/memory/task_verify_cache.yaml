@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`code/`, `data/`, `results/`,
+    `tests/`) is present; the provided description contains only specifications and
+    no actual file system artifacts. The implementer must create and show these directories
+    (with at least placeholder files) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no linting or formatting configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, `.pre-commit-config.yaml`) or scripts that set up ruff and black.
+    Consequently, the required artifact for task T003 is missing.
+T004#1:
+  c: false
+  h: 26316712720490e986bb24b736104bc806ed91e8779364b14b686685c5859bea
+  r: The `code/utils/memory_guard.py` file is present but its content is truncated
+    (e.g., an unfinished `logging.error` line and missing function closure), so the
+    implementation is incomplete. Additionally, the required `config.yaml` file defining
+    the memory threshold does not exist. Both the missing configuration and the incomplete
+    Python module prevent the task from being fully satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that sets a deterministic
+    random seed, configures logging, or records the `radon` library version as required
+    by task T007. The implementer must supply the actual implementation (e.g., a Python
+    module or config script) that performs these actions.
+T010:
+  c: false
+  h: 49da8bb6ad40bcd2e5ec673395d4998e5e8f92abe3c3f5bdfba75d48997d4b60
+  r: "The required file `tests/unit/test_complexity_calc.py` does not exist, so no\
+    \ unit test for the radon metric calculation is present. The task\u2019s primary\
+    \ artifact is missing, making the claim unsubstantiated."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV file, verification script, log, or report was provided to demonstrate
+    that every row contains valid numeric values for the three metrics; thus the required
+    evidence of verification is missing.

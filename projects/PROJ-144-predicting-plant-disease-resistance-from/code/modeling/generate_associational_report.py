@@ -1,179 +1,152 @@
-"""
-Generate the final associational findings report to ensure FR-011 compliance.
-
-This script reads the model metrics and SHAP analysis results,
-and writes a human-readable markdown report that explicitly frames
-all findings as associational, avoiding causal language.
-"""
 import os
 import json
 import sys
 from pathlib import Path
 from datetime import datetime
-
-# Add project root to path for imports if necessary, though we are mostly reading files
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.constants import RESULTS_DIR, DATA_PROCESSED_DIR
 
-def load_json_file(filepath):
-    """Load a JSON file safely."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Required artifact not found: {filepath}")
-    with open(filepath, 'r') as f:
-        return json.load(f)
+def load_json_file(file_path: str) -> dict:
+    """Load a JSON file and return its contents as a dictionary."""
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Required metrics file not found: {file_path}. "
+                                "Ensure T021 (evaluate.py) has run successfully.")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in metrics file {file_path}: {e}")
 
-def generate_associational_report(metrics_data, shap_data, collinearity_data=None):
+def generate_associational_report(metrics_data: dict, correlations_data: dict, vif_data: dict) -> dict:
     """
-    Generate a markdown report framing all findings as associational.
+    Generate a report ensuring all findings are framed as ASSOCIATIONAL (FR-011).
     
-    Args:
-        metrics_data (dict): Metrics from evaluate.py (balanced_acc, auc, etc.)
-        shap_data (dict): SHAP analysis results (feature importances, values)
-        collinearity_data (dict, optional): Collinearity diagnostics (VIF)
-    
-    Returns:
-        str: The markdown content of the report.
+    This function takes the raw metrics, correlations, and collinearity diagnostics
+    and wraps them in a narrative that explicitly avoids causal language.
     """
-    report_lines = []
+    timestamp = datetime.now().isoformat()
     
-    # Header
-    report_lines.append("# Plant Disease Resistance Prediction: Associational Findings Report")
-    report_lines.append("")
-    report_lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    report_lines.append("")
-    report_lines.append("## Important Disclaimer")
-    report_lines.append("")
-    report_lines.append("> **This report presents ASSOCIATIONAL findings only.**")
-    report_lines.append("> The statistical relationships identified between metabolite profiles")
-    report_lines.append("> and disease resistance labels are **CORRELATIONS**, not evidence of")
-    report_lines.append("> **CAUSATION**. This analysis does not establish that specific metabolites")
-    report_lines.append("> cause disease resistance or susceptibility.")
-    report_lines.append("")
-    
-    # Model Performance Section
-    report_lines.append("## 1. Model Performance (Associational Predictive Power)")
-    report_lines.append("")
-    report_lines.append("The Random Forest model demonstrates the ability to **associate** metabolite")
-    report_lines.append("patterns with resistance labels in the held-out test set. These metrics")
-    report_lines.append("reflect predictive accuracy, not causal mechanisms.")
-    report_lines.append("")
-    
-    if 'balanced_accuracy' in metrics_data:
-        report_lines.append(f"- **Balanced Accuracy:** {metrics_data['balanced_accuracy']:.4f}")
-    if 'roc_auc' in metrics_data:
-        report_lines.append(f"- **ROC-AUC:** {metrics_data['roc_auc']:.4f}")
-    if 'permutation_p_value' in metrics_data:
-        report_lines.append(f"- **Permutation Test p-value:** {metrics_data['permutation_p_value']:.4f}")
-        report_lines.append("  - *Interpretation:* A low p-value indicates the observed association")
-        report_lines.append("    is unlikely to have occurred by random chance, but does not imply causality.")
-    
-    report_lines.append("")
-    
-    # Feature Importance Section
-    report_lines.append("## 2. Associated Metabolites")
-    report_lines.append("")
-    report_lines.append("The following metabolites show the strongest **statistical association**")
-    report_lines.append("with disease resistance status according to SHAP values. High SHAP values")
-    report_lines.append("indicate that the presence or concentration of these metabolites is")
-    report_lines.append("associated with the predicted class, but do not prove they drive the outcome.")
-    report_lines.append("")
-    
-    if shap_data and 'top_features' in shap_data:
-        report_lines.append("| Metabolite | Mean |SHAP| | Direction of Association |")
-        report_lines.append("|------------|------|------------------------|")
-        for feat in shap_data['top_features'][:10]:
-            name = feat.get('feature', 'Unknown')
-            importance = feat.get('importance', 0.0)
-            # Determine direction based on sign if available, else generic
-            direction = "Positive Association" if feat.get('sign', 0) >= 0 else "Negative Association"
-            report_lines.append(f"| {name} | {importance:.4f} | {direction} |")
-    else:
-        report_lines.append("*No SHAP data available.*")
-    
-    report_lines.append("")
-    
-    # Collinearity Section
-    if collinearity_data:
-        report_lines.append("## 3. Collinearity Diagnostics")
-        report_lines.append("")
-        report_lines.append("High collinearity among metabolites can affect the stability of")
-        report_lines.append("association estimates. The following metabolites exhibited high VIF (>5):")
-        report_lines.append("")
-        
-        high_vif = collinearity_data.get('high_vif_features', [])
-        if high_vif:
-            report_lines.append("| Metabolite | VIF |")
-            report_lines.append("|------------|-----|")
-            for item in high_vif:
-                report_lines.append(f"| {item.get('feature', 'Unknown')} | {item.get('vif', 0):.2f} |")
-        else:
-            report_lines.append("No metabolites exceeded the VIF > 5 threshold.")
-        report_lines.append("")
-    
-    # Conclusion Section
-    report_lines.append("## 4. Conclusion")
-    report_lines.append("")
-    report_lines.append("This analysis identifies a set of metabolites that are **statistically associated**")
-    report_lines.append("with plant disease resistance. While these associations may suggest biological")
-    report_lines.append("pathways worthy of further experimental investigation (e.g., via knockout studies"),
-    report_lines.append("or targeted perturbation), **no causal claims are made** based on this observational")
-    report_lines.append("data alone.")
-    report_lines.append("")
-    report_lines.append("Future work involving controlled experiments is required to determine if any of")
-    report_lines.append("these metabolites play a causal role in disease resistance mechanisms.")
-    report_lines.append("")
-    
-    return "\n".join(report_lines)
+    report = {
+        "report_type": "Associational Analysis Summary",
+        "generation_timestamp": timestamp,
+        "disclaimer": (
+          "CRITICAL NOTE: This study is OBSERVATIONAL and ASSOCIATIONAL in nature. "
+          "The findings described below represent statistical correlations and associations "
+          "between metabolomic profiles and disease resistance phenotypes. "
+          "NO CAUSAL INFERENCES should be drawn from this analysis. "
+          "Confounding factors, reverse causality, and unmeasured variables may explain "
+          "the observed associations. Further experimental validation is required to "
+          "establish causality."
+        ),
+        "summary": {
+            "model_performance": {
+                "balanced_accuracy": metrics_data.get("balanced_accuracy", "N/A"),
+                "roc_auc": metrics_data.get("roc_auc", "N/A"),
+                "interpretation": (
+                    f"The model demonstrates an associational signal with a "
+                    f"balanced accuracy of {metrics_data.get('balanced_accuracy', 'N/A')}. "
+                    "This indicates that metabolomic features are statistically "
+                    "associated with the resistance labels in the dataset, "
+                    "but does not imply that these metabolites cause resistance."
+                )
+            },
+            "significance": {
+                "permutation_p_value": metrics_data.get("permutation_p_value", "N/A"),
+                "fdr_corrected_threshold": metrics_data.get("fdr_threshold", 0.05),
+                "interpretation": (
+                    "Statistical significance was assessed via permutation testing. "
+                    "A low p-value indicates that the observed association is unlikely "
+                    "to have occurred by chance, but does not confirm a causal mechanism."
+                )
+            },
+            "collinearity_warning": {
+                "high_vif_metabolites": vif_data.get("high_vif_metabolites", []),
+                "interpretation": (
+                    "High collinearity (VIF > 5) detected in the following metabolites. "
+                    "This suggests that the association strength for these features "
+                    "may be shared with other correlated metabolites. "
+                    "Feature importance scores should be interpreted with caution "
+                    "as they reflect associational strength within a correlated group, "
+                    "not necessarily individual causal contribution."
+                )
+            }
+        },
+        "associational_findings": {
+            "top_associated_metabolites": [],
+            "interpretation_template": (
+                "Metabolite '{metabolite}' shows a strong statistical association "
+                "with disease resistance (Correlation: {corr}, FDR-corrected p-value: {pval}). "
+                "This association suggests a potential biological link, but the direction "
+                "of effect and causality remain unproven without further experimental "
+                "intervention (e.g., metabolite application or knock-out studies)."
+            )
+        },
+        "limitations": [
+            "Observational study design precludes causal inference.",
+            "Potential unmeasured confounders (e.g., soil composition, weather) may drive associations.",
+            "Metabolomic profiles are correlative snapshots; temporal dynamics are not fully captured.",
+            "Model performance is specific to the dataset and may not generalize to other plant species or environments."
+        ],
+        "recommendations": [
+            "Treat all feature importances as markers of association, not targets for intervention.",
+            "Prioritize top-associated metabolites for downstream experimental validation (e.g., CRISPR, exogenous application).",
+            "Replicate findings in independent cohorts to verify robustness of associations."
+        ]
+    }
+
+    # Populate top associated metabolites from correlation data
+    if "correlations" in correlations_data:
+        for item in correlations_data["correlations"]:
+            report["associational_findings"]["top_associated_metabolites"].append({
+                "metabolite": item.get("metabolite", "Unknown"),
+                "correlation_coefficient": item.get("correlation", 0.0),
+                "fdr_corrected_p_value": item.get("fdr_p_value", 1.0),
+                "narrative": report["associational_findings"]["interpretation_template"].format(
+                    metabolite=item.get("metabolite", "Unknown"),
+                    corr=item.get("correlation", 0.0),
+                    pval=item.get("fdr_p_value", 1.0)
+                )
+            })
+
+    return report
 
 def main():
-    """Main entry point to generate the associational report."""
-    results_dir = Path(RESULTS_DIR)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    metrics_path = results_dir / "metrics.json"
-    shap_path = results_dir / "shap_analysis.json"
-    collinearity_path = results_dir / "collinearity_diagnostics.json"
-    output_path = results_dir / "associational_findings_report.md"
-    
-    try:
-        # Load metrics
-        print(f"Loading metrics from {metrics_path}...")
-        metrics_data = load_json_file(metrics_path)
-        
-        # Load SHAP analysis
-        print(f"Loading SHAP analysis from {shap_path}...")
-        shap_data = load_json_file(shap_path)
-        
-        # Load collinearity diagnostics (optional)
-        collinearity_data = None
-        if os.path.exists(collinearity_path):
-            print(f"Loading collinearity diagnostics from {collinearity_path}...")
-            collinearity_data = load_json_file(collinearity_path)
-        
-        # Generate report
-        print("Generating associational report...")
-        report_content = generate_associational_report(metrics_data, shap_data, collinearity_data)
-        
-        # Write report
-        with open(output_path, 'w') as f:
-            f.write(report_content)
-        
-        print(f"Report successfully written to: {output_path}")
-        
-        # Verify the report contains the required disclaimer
-        if "ASSOCIATIONAL" in report_content and "CAUSATION" in report_content:
-            print("Verification passed: Report contains required associational framing.")
-        else:
-            print("WARNING: Report may be missing required associational framing.")
-            
-    except FileNotFoundError as e:
-        print(f"Error: Missing required input files. {e}")
-        print("Ensure the modeling pipeline (T021, T022) has run successfully first.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error generating report: {e}")
-        sys.exit(1)
+    """
+    Main entry point to generate the associational report.
+    Loads metrics, correlations, and VIF data, then writes the final report.
+    """
+    # Ensure results directory exists
+    results_path = Path(RESULTS_DIR)
+    results_path.mkdir(parents=True, exist_ok=True)
+
+    # Define input paths based on previous tasks (T021, T022)
+    metrics_path = results_path / "metrics.json"
+    correlations_path = results_path / "shap_analysis.json" # T021 output for correlations
+    vif_path = results_path / "collinearity.json" # T022 output
+
+    # Check for existence of prerequisite files
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Missing metrics file: {metrics_path}. Run T021 first.")
+    if not correlations_path.exists():
+        raise FileNotFoundError(f"Missing correlations/shap file: {correlations_path}. Run T021 first.")
+    if not vif_path.exists():
+        raise FileNotFoundError(f"Missing VIF file: {vif_path}. Run T022 first.")
+
+    # Load data
+    metrics_data = load_json_file(str(metrics_path))
+    correlations_data = load_json_file(str(correlations_path))
+    vif_data = load_json_file(str(vif_path))
+
+    # Generate report
+    report = generate_associational_report(metrics_data, correlations_data, vif_data)
+
+    # Write report
+    output_path = results_path / "associational_report.json"
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    print(f"Associational report generated successfully at: {output_path}")
+    print("WARNING: All findings in this report are framed as ASSOCIATIONAL only.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

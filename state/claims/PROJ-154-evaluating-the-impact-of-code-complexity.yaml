@@ -1,0 +1,216 @@
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini-4k-instruct used instead of CodeLlama-7b for 7GB RAM feasibility
+  claim_id: c_1972e554
+  context: The Plan mandates the use of `Phi-3-mini-4k-instruct` (CPU-tractable, default
+    precision float16/float32) instead of `codellama/CodeLlama-7b-Instruct-hf` (original
+    Spec FR-003) to ensure feasibility on 7GB RAM CI runners.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan mandates the use of `Phi-3-mini-4k-instruct` (CPU-tractable,
+    default precision float16/float32) instead of `codellama/CodeLlama-7b-Instruct-hf`
+    to ensure feasibility on 7GB RAM CI runners.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:35:51Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: No 4-bit or 8-bit quantization used
+  claim_id: c_c83c3cd3
+  context: No 4-bit/8-bit quantization is used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 4-bit/8-bit quantization is used in the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:36:57Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Radon library used for complexity metrics
+  claim_id: c_3ad2309d
+  context: 'Goal: Download CodeSearchNet Python subset, compute complexity metrics
+    using `radon`, preserve ground truth (docstrings), and store in structured CSV.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Radon_library_used_for_complexity_metrics
+  kind: entity_fact
+  raw_text: The `radon` library is used to compute complexity metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:37:11Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: CodeSearchNet Python subset downloaded
+  claim_id: c_cdce93c3
+  context: 'Goal: Download CodeSearchNet Python subset, compute complexity metrics
+    using `radon`, preserve ground truth (docstrings), and store in structured CSV.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeSearchNet_Python_subset_downloaded
+  kind: entity_fact
+  raw_text: The dataset downloaded is the CodeSearchNet Python subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:37:25Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Inference uses torch.float16 precision
+  claim_id: c_3e36dcbf
+  context: Implement `code/03_inference.py` to load `microsoft/Phi-3-mini-4k-instruct`
+    with `torch_dtype=torch.float16` and `device_map='cpu'` (Plan Amendment 1).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_uses_torch.float16_precision
+  kind: entity_fact
+  raw_text: The inference pipeline uses `torch.float16` precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:37:57Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Inference pipeline runs on CPU
+  claim_id: c_14b93d03
+  context: Implement `code/03_inference.py` to load `microsoft/Phi-3-mini-4k-instruct`
+    with `torch_dtype=torch.float16` and `device_map='cpu'` (Plan Amendment 1).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_pipeline_runs_on_CPU
+  kind: entity_fact
+  raw_text: '"The inference pipeline is configured to run on CPU (`device_map=''cpu''`).",'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:38:27Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Summarization metrics are BLEU-4 and ROUGE-L
+  claim_id: c_d6e32504
+  context: 'Summarization: BLEU-4, ROUGE-L (vs docstring)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Summarization task metrics include BLEU-4 and ROUGE-L.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:38:37Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Code Completion metric is Execution Pass Rate
+  claim_id: c_f709c5c8
+  context: 'Code Completion: Execution Pass Rate (execute model output against the
+    *original full function* stored in `truncated_code.csv` to verify logical equivalence,
+    as no external unit tests exist)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_Completion_metric_is_Execution_Pass_Rate
+  kind: entity_fact
+  raw_text: The Code Completion task metric is Execution Pass Rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:38:53Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: 95% of raw snippets must have non-empty responses
+  claim_id: c_5372e84c
+  context: "Verify inference log contains non-empty responses for \u2265 95% of the\
+    \ **total_raw_snippets** (as defined in `data/processed/metadata.json`, including\
+    \ all snippets from the raw dataset, not just those processed if some were skipped)\
+    \ (SC-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_of_raw_snippets_must_have_non-empty_responses
+  kind: magnitude
+  raw_text: The analysis must verify that inference log contains non-empty responses
+    for at least 95% of the total_raw_snippets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:39:12Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: GLM runs on PCA if VIF > 5
+  claim_id: c_b69fdc18
+  context: 'Logic: Calculate VIF. If VIF > 5, generate PCA components (retain [deferred]
+    variance, include all complexity metrics) and save to `results/pca_components.csv`,
+    then run GLM on PCA components.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLM_runs_on_PCA_if_VIF_%3E_5
+  kind: magnitude
+  raw_text: If the Variance Inflation Factor (VIF) is greater than 5, PCA components
+    are generated and GLM is run on them.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:39:44Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: Dynamic batch sizing caps at 6.5GB memory
+  claim_id: c_3308ca87
+  context: Refactor `code/03_inference.py` to implement dynamic batch sizing using
+    a binary search heuristic starting at batch_size=1, capping at max_memory=6.5GB
+    to maximize throughput while staying under 7GB RAM limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dynamic batch sizing heuristic caps at a maximum memory of 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:40:16Z'
+- artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/tasks.md
+  attempts: 1
+  canonical: CI runners have 7GB RAM limit
+  claim_id: c_57b5fa3c
+  context: The Plan mandates the use of `Phi-3-mini-4k-instruct` ... to ensure feasibility
+    on 7GB RAM CI runners.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runners_have_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: The CI runners have a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T16:40:25Z'

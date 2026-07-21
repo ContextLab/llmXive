@@ -1,3 +1,1 @@
-# This directory stores experiment output metrics and statistical reports.
-# Files generated: baseline_metrics.json, quantum_metrics.json, stats_report.json, etc.
-.
+# Results data directory - gitkeep ensures directory exists

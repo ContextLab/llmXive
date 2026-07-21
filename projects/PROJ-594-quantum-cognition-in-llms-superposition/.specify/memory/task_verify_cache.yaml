@@ -36,3 +36,46 @@ T003:
     \ with Black settings, or a pre\u2011commit hook) are present in the provided\
     \ evidence, and the claim does not include any such artifacts. Consequently the\
     \ requirement to configure flake/black linting tools is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation were provided that set a fixed
+    random seed, enforce CPU device usage, or define a batch size of 8. The claim
+    lacks any tangible artifact demonstrating that the environment configuration management
+    task has been implemented.
+T012:
+  c: false
+  h: 54ae53a90b2b14c6f16bdd01bbcb1a8295bc59d595bf55a0e604bb4d3e960ff4
+  r: The `run_baseline.py` script exists but the provided excerpt ends before any
+    code that writes the results to `data/results/baseline_metrics.json`, and the
+    expected JSON file is missing from the repository. Without generating the output
+    file, the task requirement is not met. The script must include logic to save the
+    computed metrics to the specified JSON path, and the resulting file must be present.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that error handling for\
+    \ `[UNK]` tokens was added to the WiC dataset processing pipeline. The required\
+    \ artifact (e.g., updated data\u2011loading module, unit test, or commit diff)\
+    \ is missing, so the task\u2019s requirement is not demonstrably satisfied."
+T024:
+  c: false
+  h: ae5d40209f2cf3b3366adf4f0ab1890d52c2f1b3e6c5ba08a644facca5d84f05
+  r: "The provided `run_quantum.py` is truncated (e.g., `num_epochs = c` is undefined)\
+    \ and does not contain code that writes a JSON file to `data/results/quantum_metrics.json`.\
+    \ Moreover, the expected output file is missing from the repository. The task\u2019\
+    s requirements are therefore not met."
+T031:
+  c: false
+  h: f7832f67b29e4aec9bf9ffe67dca613493818ab4bc4b76988e771989e059b5ff
+  r: "The `run_stats.py` script exists, but the required output file `data/results/stats_report.json`\
+    \ is missing, indicating the script either does not generate the report or has\
+    \ not been executed. The task\u2019s core requirement\u2014to produce `stats_report.json`\u2014\
+    is not satisfied."
+T032:
+  c: false
+  h: 70224a0c8f0ad2f10c845b98366757f4d7b22a01076a2ab1f72ca5b77cecf581
+  r: The required file `data/results/stats_report.json` does not exist, so there is
+    no evidence that it contains the p-value, t-statistic, Cohen's d, and 95% confidence
+    interval. The artifact must be created and populated with the specified statistical
+    fields.

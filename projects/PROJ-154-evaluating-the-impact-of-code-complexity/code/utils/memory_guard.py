@@ -4,157 +4,139 @@ import time
 import logging
 from typing import Optional, List, Any, Callable
 from dataclasses import dataclass
-
-# Import psutil for memory monitoring
-# Note: psutil is listed in requirements.txt (T002)
-try:
-    import psutil
-except ImportError:
-    raise ImportError(
-        "psutil is required for memory monitoring. "
-        "Please install it via 'pip install psutil' or check requirements.txt."
-    )
-
-logger = logging.getLogger(__name__)
+import yaml
+import psutil
+import gc
 
 @dataclass
 class MemoryConfig:
-    """Configuration for memory monitoring."""
+    """Configuration for memory monitoring thresholds."""
     memory_threshold_percent: float = 85.0
-    abort_on_exceed: bool = True
+    max_memory_gb: Optional[float] = None
     downsample_factor: float = 0.5
-    check_interval_seconds: float = 0.5
+    abort_on_exceed: bool = True
 
 def load_config(config_path: str = "config.yaml") -> MemoryConfig:
-    """
-    Load memory configuration from a YAML file.
-    Falls back to defaults if file is missing or key is missing.
-    """
-    import yaml
-    default_config = MemoryConfig()
-    
-    if not os.path.exists(config_path):
-        logger.warning(f"Config file {config_path} not found. Using defaults.")
-        return default_config
-
+    """Load memory configuration from YAML file."""
     try:
         with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
+            config_data = yaml.safe_load(f)
         
-        if not data:
-            return default_config
-
-        threshold = data.get('memory_threshold_percent')
-        if threshold is not None:
-            default_config.memory_threshold_percent = float(threshold)
+        if not isinstance(config_data, dict):
+            raise ValueError("Config file must contain a dictionary")
         
-        abort_flag = data.get('abort_on_exceed')
-        if abort_flag is not None:
-            default_config.abort_on_exceed = bool(abort_flag)
-        
-        downsample = data.get('downsample_factor')
-        if downsample is not None:
-            default_config.downsample_factor = float(downsample)
-        
-        interval = data.get('check_interval_seconds')
-        if interval is not None:
-            default_config.check_interval_seconds = float(interval)
-
-        return default_config
-    except Exception as e:
-        logger.error(f"Error loading config from {config_path}: {e}. Using defaults.")
-        return default_config
+        return MemoryConfig(
+            memory_threshold_percent=config_data.get('memory_threshold_percent', 85.0),
+            max_memory_gb=config_data.get('max_memory_gb'),
+            downsample_factor=config_data.get('downsample_factor', 0.5),
+            abort_on_exceed=config_data.get('abort_on_exceed', True)
+        )
+    except FileNotFoundError:
+        logging.warning(f"Config file {config_path} not found. Using defaults.")
+        return MemoryConfig()
+    except yaml.YAMLError as e:
+        logging.error(f"Error parsing config file: {e}")
+        raise
 
 def get_memory_usage_gb() -> float:
-    """
-    Get current process memory usage in GB.
-    Uses psutil to get RSS (Resident Set Size).
-    """
+    """Get current memory usage in GB."""
     process = psutil.Process(os.getpid())
     memory_info = process.memory_info()
-    # Convert bytes to GB
     return memory_info.rss / (1024 ** 3)
 
+def check_and_abort_or_downsample(
+    current_usage_gb: float,
+    config: MemoryConfig,
+    batch_data: Optional[List[Any]] = None
+) -> tuple[bool, Optional[List[Any]]]:
+    """
+    Check memory usage and decide whether to abort or downsample.
+    
+    Returns:
+        tuple: (should_abort, downsampled_data)
+        - should_abort: True if processing should stop
+        - downsampled_data: List with reduced size if downsampled, None otherwise
+    """
+    # Calculate threshold in GB if max_memory_gb is set
+    if config.max_memory_gb is not None:
+        threshold_gb = config.max_memory_gb
+    else:
+        # Use percentage of total system memory
+        total_memory_gb = psutil.virtual_memory().total / (1024 ** 3)
+        threshold_gb = total_memory_gb * (config.memory_threshold_percent / 100.0)
+    
+    if current_usage_gb > threshold_gb:
+        logging.warning(f"Memory usage {current_usage_gb:.2f}GB exceeds threshold {threshold_gb:.2f}GB")
+        
+        if not config.abort_on_exceed:
+            # Try to downsample
+            if batch_data is not None and len(batch_data) > 0:
+                new_size = max(1, int(len(batch_data) * config.downsample_factor))
+                downsampled_data = batch_data[:new_size]
+                logging.info(f"Downsampling batch from {len(batch_data)} to {new_size} items")
+                return False, downsampled_data
+            else:
+                logging.error("Cannot downsample: no batch data provided")
+                return True, None
+        else:
+            logging.error("Memory limit exceeded and abort_on_exceed is True. Aborting.")
+            return True, None
+    
+    return False, None
+
 class MemoryGuard:
-    """
-    Context manager and utility for monitoring memory usage.
-    Aborts or downsamples data if usage exceeds the configured threshold.
-    """
-    def __init__(self, config: Optional[MemoryConfig] = None, config_path: str = "config.yaml"):
-        self.config = config or load_config(config_path)
-        self.initial_memory: Optional[float] = None
-        self.process = psutil.Process(os.getpid())
-
+    """Context manager for monitoring memory usage during processing."""
+    
+    def __init__(self, config_path: str = "config.yaml"):
+        self.config = load_config(config_path)
+        self.initial_memory_gb = get_memory_usage_gb()
+        self.logger = logging.getLogger(__name__)
+        self._gc_collected = False
+    
     def __enter__(self):
-        self.initial_memory = get_memory_usage_gb()
-        logger.info(f"MemoryGuard initialized. Initial usage: {self.initial_memory:.2f} GB. Threshold: {self.config.memory_threshold_percent}%")
+        self.logger.info(f"MemoryGuard initialized. Initial usage: {self.initial_memory_gb:.2f}GB")
         return self
-
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
-        final_memory = get_memory_usage_gb()
-        logger.info(f"MemoryGuard exiting. Final usage: {final_memory:.2f} GB.")
-        return False
-
-    def check_and_abort_or_downsample(
-        self, 
-        current_batch_size: int, 
-        data_samples: Optional[List[Any]] = None
-    ) -> tuple[bool, Optional[int], Optional[List[Any]]]:
+        final_memory_gb = get_memory_usage_gb()
+        self.logger.info(f"MemoryGuard exiting. Final usage: {final_memory_gb:.2f}GB (Delta: {final_memory_gb - self.initial_memory_gb:.2f}GB)")
+        return False  # Don't suppress exceptions
+    
+    def check_and_handle(self, batch_data: Optional[List[Any]] = None) -> tuple[bool, Optional[List[Any]]]:
         """
-        Checks current memory usage against the threshold.
+        Check current memory usage and handle according to configuration.
         
         Args:
-            current_batch_size: The size of the current batch being processed.
-            data_samples: Optional list of data samples to downsample if needed.
+            batch_data: Optional batch of data to potentially downsample
         
         Returns:
-            tuple: (should_abort, new_batch_size, downsampled_data)
-                - should_abort: True if memory usage is critical and abort is enabled.
-                - new_batch_size: Reduced batch size if downsampled, else original.
-                - downsampled_data: Downsampled data list if applicable, else original.
+            tuple: (should_abort, processed_data)
         """
-        current_usage = get_memory_usage_gb()
-        # Calculate threshold in GB based on total system memory
-        total_system_memory_gb = psutil.virtual_memory().total / (1024 ** 3)
-        threshold_gb = total_system_memory_gb * (self.config.memory_threshold_percent / 100.0)
-
-        if current_usage > threshold_gb:
-            logger.warning(
-                f"Memory usage ({current_usage:.2f} GB) exceeds threshold ({threshold_gb:.2f} GB). "
-                f"Threshold percent: {self.config.memory_threshold_percent}%"
-            )
-
-            if self.config.abort_on_exceed:
-                logger.error("Memory threshold exceeded and abort is enabled. Terminating process.")
-                # Log stack trace for debugging
-                logger.error("Stack trace:", exc_info=True)
-                sys.exit(1)
-            
-            # If not aborting, attempt to downsample
-            if data_samples is not None and len(data_samples) > 0:
-                new_size = max(1, int(len(data_samples) * self.config.downsample_factor))
-                # Take the first 'new_size' items (could be random in a real scenario, but deterministic here)
-                downsampled = data_samples[:new_size]
-                logger.info(f"Downsampling batch from {len(data_samples)} to {new_size} samples.")
-                return False, new_size, downsampled
-            elif current_batch_size > 1:
-                new_size = max(1, int(current_batch_size * self.config.downsample_factor))
-                logger.info(f"Downsampling batch size from {current_batch_size} to {new_size}.")
-                return False, new_size, None
-            else:
-                logger.error("Memory critical and batch size is already 1. Cannot downsample further.")
-                sys.exit(1)
+        current_usage_gb = get_memory_usage_gb()
+        should_abort, processed_data = check_and_abort_or_downsample(
+            current_usage_gb, self.config, batch_data
+        )
         
-        return False, current_batch_size, data_samples
-
-def check_and_abort_or_downsample(
-    config_path: str = "config.yaml",
-    current_batch_size: int = 1,
-    data_samples: Optional[List[Any]] = None
-) -> tuple[bool, int, Optional[List[Any]]]:
-    """
-    Convenience function to check memory without instantiating a class.
-    Loads config from disk, checks usage, and returns action.
-    """
-    guard = MemoryGuard(config_path=config_path)
-    return guard.check_and_abort_or_downsample(current_batch_size, data_samples)
+        if should_abort:
+            self.logger.critical("Memory limit exceeded. Aborting execution.")
+            # Force garbage collection before aborting
+            gc.collect()
+            sys.exit(1)
+        
+        if processed_data is not None:
+            self.logger.info(f"Data downsampled to {len(processed_data)} items due to memory pressure")
+        
+        return should_abort, processed_data
+    
+    def get_memory_info(self) -> dict:
+        """Get current memory information."""
+        current_gb = get_memory_usage_gb()
+        total_gb = psutil.virtual_memory().total / (1024 ** 3)
+        
+        return {
+            'current_usage_gb': current_gb,
+            'total_memory_gb': total_gb,
+            'usage_percent': (current_gb / total_gb) * 100,
+            'threshold_percent': self.config.memory_threshold_percent,
+            'threshold_gb': self.config.max_memory_gb or (total_gb * self.config.memory_threshold_percent / 100)
+        }

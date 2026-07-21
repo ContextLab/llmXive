@@ -1,0 +1,3 @@
+# This file is a duplicate of the ruff configuration in pyproject.toml
+# kept for explicit tool discovery by some CI runners.
+extend = "pyproject.toml"

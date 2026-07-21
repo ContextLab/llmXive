@@ -1,3 +1,13 @@
+"""
+Report generation module for the Gut Microbiome and Sleep Quality study.
+
+This module compiles the final research report, including:
+- Loading correlation results and ingestion reports
+- Compiling a summary table of correlations
+- Generating a text-based report
+- Saving the report to disk
+"""
+
 import pandas as pd
 import json
 import logging
@@ -5,272 +15,290 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from src.config import load_config
-from src.utils.hashing import compute_sha256
 
+# Configure logger
 logger = logging.getLogger(__name__)
 
-def load_correlation_results() -> Optional[pd.DataFrame]:
+
+def load_correlation_results(config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Load the correlation results from the processed data directory.
-    
+    Load the correlation results from the processed CSV file.
+
+    Args:
+        config: Configuration dictionary containing file paths.
+
     Returns:
-        pd.DataFrame: The correlation results, or None if file not found.
+        DataFrame containing correlation results.
+
+    Raises:
+        FileNotFoundError: If the correlation results file does not exist.
+        ValueError: If the file is empty or malformed.
     """
-    config = load_config()
-    results_path = Path(config['data_dir']) / 'processed' / 'correlation_results.csv'
-    
-    if not results_path.exists():
-        logger.error(f"Correlation results file not found at {results_path}")
-        return None
-    
+    file_path = Path(config['DATA_PROCESSED']) / 'correlation_results.csv'
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Correlation results file not found at: {file_path}")
+
     try:
-        df = pd.read_csv(results_path)
-        logger.info(f"Loaded {len(df)} correlation results from {results_path}")
+        df = pd.read_csv(file_path)
+        if df.empty:
+            logger.warning("Correlation results file is empty.")
+            return df
+        logger.info(f"Loaded {len(df)} correlation results from {file_path}")
         return df
     except Exception as e:
-        logger.error(f"Failed to load correlation results: {e}")
-        return None
+        logger.error(f"Error loading correlation results: {e}")
+        raise
 
-def load_ingestion_report() -> Optional[Dict[str, Any]]:
+
+def load_ingestion_report(config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Load the ingestion report from the processed data directory.
-    
+    Load the ingestion report JSON file.
+
+    Args:
+        config: Configuration dictionary containing file paths.
+
     Returns:
-        Dict[str, Any]: The ingestion report, or None if file not found.
+        Dictionary containing ingestion statistics.
+
+    Raises:
+        FileNotFoundError: If the ingestion report file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    config = load_config()
-    report_path = Path(config['data_dir']) / 'processed' / 'ingestion_report.json'
-    
-    if not report_path.exists():
-        logger.warning(f"Ingestion report not found at {report_path}")
-        return None
-    
+    file_path = Path(config['DATA_PROCESSED']) / 'ingestion_report.json'
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Ingestion report file not found at: {file_path}")
+
     try:
-        with open(report_path, 'r') as f:
+        with open(file_path, 'r') as f:
             report = json.load(f)
-        logger.info(f"Loaded ingestion report from {report_path}")
+        logger.info(f"Loaded ingestion report from {file_path}")
         return report
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in ingestion report: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to load ingestion report: {e}")
-        return None
+        logger.error(f"Error loading ingestion report: {e}")
+        raise
+
 
 def compile_summary_table(correlation_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compile a summary table of significant correlations.
-    
+    Compile a summary table of correlations for the report.
+
+    This function filters for meaningful correlations (q-value < 0.05 AND |r| > 0.3)
+    and selects key columns for the summary table.
+
     Args:
-        correlation_df: The full correlation results DataFrame.
-        
+        correlation_df: DataFrame containing all correlation results.
+
     Returns:
-        pd.DataFrame: A summary table of meaningful correlations.
+        DataFrame containing the summary table of meaningful correlations.
     """
-    if correlation_df is None or correlation_df.empty:
-        logger.warning("No correlation data available for summary table")
+    if correlation_df.empty:
+        logger.warning("Correlation DataFrame is empty. Returning empty summary table.")
         return pd.DataFrame()
-    
-    # Filter for meaningful correlations (q-value < 0.05 AND |r| > 0.3)
-    meaningful = correlation_df[
-        (correlation_df['is_meaningful'] == True) | 
-        (correlation_df['q_value'] < 0.05)
+
+    # Filter for meaningful correlations
+    summary = correlation_df[
+        (correlation_df['is_meaningful'] == True) |
+        (correlation_df['is_moderate'] == True)
     ].copy()
-    
-    if meaningful.empty:
-        logger.info("No significant associations found")
-        # Return a DataFrame with the expected columns but no rows
-        return pd.DataFrame(columns=[
-            'diversity_metric', 'sleep_metric', 'correlation_coefficient', 
-            'p_value', 'q_value', 'is_moderate', 'is_meaningful'
-        ])
-    
-    # Select and order relevant columns
-    summary_cols = [
-        'diversity_metric', 'sleep_metric', 'correlation_coefficient', 
+
+    # Select and order columns for the report
+    columns_to_keep = [
+        'variable_x', 'variable_y', 'correlation_coefficient',
         'p_value', 'q_value', 'is_moderate', 'is_meaningful'
     ]
-    available_cols = [col for col in summary_cols if col in meaningful.columns]
-    
-    summary_table = meaningful[available_cols].sort_values(
-        by='q_value', ascending=True
-    ).reset_index(drop=True)
-    
-    logger.info(f"Compiled summary table with {len(summary_table)} meaningful correlations")
-    return summary_table
+
+    # Ensure all columns exist before selecting
+    available_columns = [col for col in columns_to_keep if col in summary.columns]
+    summary = summary[available_columns]
+
+    # Sort by absolute correlation coefficient descending
+    if 'correlation_coefficient' in summary.columns:
+        summary = summary.sort_values(
+            by='correlation_coefficient',
+            key=abs,
+            ascending=False
+        )
+
+    logger.info(f"Compiled summary table with {len(summary)} rows")
+    return summary
+
 
 def generate_report_text(
     summary_table: pd.DataFrame,
-    ingestion_report: Optional[Dict[str, Any]] = None
+    ingestion_report: Dict[str, Any],
+    config: Dict[str, Any]
 ) -> str:
     """
-    Generate a text report summarizing the findings.
-    
+    Generate a text-based research report.
+
     Args:
-        summary_table: The summary table of correlations.
-        ingestion_report: Optional ingestion report with exclusion statistics.
-        
+        summary_table: DataFrame containing the summary of correlations.
+        ingestion_report: Dictionary containing ingestion statistics.
+        config: Configuration dictionary.
+
     Returns:
-        str: The formatted report text.
+        Formatted string containing the research report.
     """
-    lines = []
-    lines.append("=" * 80)
-    lines.append("GUT MICROBIOME AND SLEEP QUALITY CORRELATION REPORT")
-    lines.append("=" * 80)
-    lines.append("")
-    
-    # Ingestion Summary
-    lines.append("DATA INGESTION SUMMARY")
-    lines.append("-" * 40)
-    if ingestion_report:
-        total = ingestion_report.get('total_initial_sample_count', 'N/A')
-        excluded = ingestion_report.get('excluded_count', 'N/A')
-        proportion = ingestion_report.get('exclusion_proportion', 'N/A')
-        lines.append(f"Initial samples: {total}")
-        lines.append(f"Excluded samples: {excluded}")
-        lines.append(f"Exclusion proportion: {proportion}")
-    else:
-        lines.append("Ingestion report not available.")
-    lines.append("")
-    
-    # Correlation Summary
-    lines.append("CORRELATION ANALYSIS RESULTS")
-    lines.append("-" * 40)
-    
+    report_lines = []
+    report_lines.append("=" * 80)
+    report_lines.append("GUT MICROBIOME COMPOSITION AND SLEEP QUALITY: FINAL REPORT")
+    report_lines.append("=" * 80)
+    report_lines.append("")
+
+    # Section 1: Data Ingestion Summary
+    report_lines.append("1. DATA INGESTION SUMMARY")
+    report_lines.append("-" * 40)
+    total_samples = ingestion_report.get('total_initial_sample_count', 'N/A')
+    excluded_samples = ingestion_report.get('excluded_count', 'N/A')
+    exclusion_proportion = ingestion_report.get('exclusion_proportion', 'N/A')
+
+    report_lines.append(f"   Total initial samples: {total_samples}")
+    report_lines.append(f"   Excluded samples: {excluded_samples}")
+    report_lines.append(f"   Exclusion proportion: {exclusion_proportion:.2%}" if isinstance(exclusion_proportion, (int, float)) else f"   Exclusion proportion: {exclusion_proportion}")
+    report_lines.append("")
+
+    # Section 2: Correlation Analysis Results
+    report_lines.append("2. CORRELATION ANALYSIS RESULTS")
+    report_lines.append("-" * 40)
+
     if summary_table.empty:
-        lines.append("No significant associations were found between gut microbiome")
-        lines.append("alpha-diversity metrics and sleep quality parameters.")
-        lines.append("")
-        lines.append("This suggests that, within the constraints of this dataset and")
-        lines.append("analysis pipeline, gut microbiome composition (as measured by")
-        lines.append("alpha-diversity indices) does not show strong correlations with")
-        lines.append("sleep efficiency or sleep duration.")
+        report_lines.append("   No significant or moderate correlations were found.")
+        report_lines.append("   All tested pairs failed to meet the criteria:")
+        report_lines.append("   - |r| > 0.3 (moderate correlation)")
+        report_lines.append("   - q-value < 0.05 (significant after FDR correction)")
     else:
-        lines.append(f"Found {len(summary_table)} significant correlation(s):")
-        lines.append("")
-        
-        for idx, row in summary_table.iterrows():
-            diversity = row.get('diversity_metric', 'Unknown')
-            sleep = row.get('sleep_metric', 'Unknown')
-            r = row.get('correlation_coefficient', 'N/A')
-            p = row.get('p_value', 'N/A')
-            q = row.get('q_value', 'N/A')
-            moderate = row.get('is_moderate', False)
-            meaningful = row.get('is_meaningful', False)
-            
-            lines.append(f"  {diversity} vs {sleep}:")
-            lines.append(f"    Correlation (r): {r}")
-            lines.append(f"    P-value: {p}")
-            lines.append(f"    Q-value (FDR): {q}")
-            lines.append(f"    Moderate (|r|>0.3): {moderate}")
-            lines.append(f"    Meaningful (q<0.05 & |r|>0.3): {meaningful}")
-            lines.append("")
-    
-    lines.append("=" * 80)
-    lines.append("END OF REPORT")
-    lines.append("=" * 80)
-    
-    return "\n".join(lines)
+        meaningful_count = summary_table['is_meaningful'].sum()
+        moderate_count = summary_table['is_moderate'].sum()
 
-def save_report(
-    report_text: str,
-    summary_table: pd.DataFrame,
-    output_dir: Optional[Path] = None
-) -> Dict[str, str]:
+        report_lines.append(f"   Total correlations analyzed: {len(summary_table)}")
+        report_lines.append(f"   Meaningful correlations (q < 0.05 AND |r| > 0.3): {meaningful_count}")
+        report_lines.append(f"   Moderate correlations (|r| > 0.3): {moderate_count}")
+        report_lines.append("")
+
+        report_lines.append("   Summary Table:")
+        report_lines.append("   " + "-" * 70)
+        report_lines.append(f"   {'Variable X':<25} {'Variable Y':<25} {'r':>8} {'q-value':>10}")
+        report_lines.append("   " + "-" * 70)
+
+        for _, row in summary_table.iterrows():
+            var_x = str(row.get('variable_x', 'N/A'))[:25]
+            var_y = str(row.get('variable_y', 'N/A'))[:25]
+            r_val = f"{row.get('correlation_coefficient', 0):.4f}"
+            q_val = f"{row.get('q_value', 0):.4f}"
+            sig_marker = " *" if row.get('is_meaningful', False) else ""
+            report_lines.append(f"   {var_x:<25} {var_y:<25} {r_val:>8} {q_val:>10}{sig_marker}")
+
+        report_lines.append("   " + "-" * 70)
+        report_lines.append("   * Indicates meaningful correlation (q < 0.05 AND |r| > 0.3)")
+
+    report_lines.append("")
+    report_lines.append("3. METHODOLOGY NOTES")
+    report_lines.append("-" * 40)
+    report_lines.append("   - Correlation method: Spearman rank correlation")
+    report_lines.append("   - Multiple testing correction: Benjamini-Hochberg FDR")
+    report_lines.append("   - Significance threshold: q-value < 0.05")
+    report_lines.append("   - Moderate correlation threshold: |r| > 0.3")
+    report_lines.append("   - Data filtering: Excluded samples with antibiotic use")
+    report_lines.append("     in last 3 months and missing sleep metrics.")
+    report_lines.append("")
+    report_lines.append("4. GENERATED FILES")
+    report_lines.append("-" * 40)
+    report_lines.append(f"   - Correlation results: {config['DATA_PROCESSED']}/correlation_results.csv")
+    report_lines.append(f"   - Ingestion report: {config['DATA_PROCESSED']}/ingestion_report.json")
+    report_lines.append(f"   - Plot artifacts: {config['DATA_PROCESSED']}/plots/")
+    report_lines.append("")
+    report_lines.append("=" * 80)
+    report_lines.append("END OF REPORT")
+    report_lines.append("=" * 80)
+
+    return "\n".join(report_lines)
+
+
+def save_report(report_text: str, config: Dict[str, Any]) -> Path:
     """
-    Save the report artifacts to disk.
-    
+    Save the generated report to a text file.
+
     Args:
-        report_text: The formatted report text.
-        summary_table: The summary table DataFrame.
-        output_dir: Optional output directory (defaults to config data/processed/).
-        
-    Returns:
-        Dict[str, str]: Paths to saved artifacts.
-    """
-    config = load_config()
-    if output_dir is None:
-        output_dir = Path(config['data_dir']) / 'processed'
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    saved_files = {}
-    
-    # Save text report
-    text_path = output_dir / 'final_report.txt'
-    with open(text_path, 'w', encoding='utf-8') as f:
-        f.write(report_text)
-    saved_files['text_report'] = str(text_path)
-    logger.info(f"Saved text report to {text_path}")
-    
-    # Save summary table as CSV
-    csv_path = output_dir / 'correlation_summary.csv'
-    summary_table.to_csv(csv_path, index=False)
-    saved_files['summary_csv'] = str(csv_path)
-    logger.info(f"Saved summary table to {csv_path}")
-    
-    # Save JSON version of summary
-    json_path = output_dir / 'correlation_summary.json'
-    summary_dict = summary_table.to_dict(orient='records')
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(summary_dict, f, indent=2)
-    saved_files['summary_json'] = str(json_path)
-    logger.info(f"Saved summary JSON to {json_path}")
-    
-    return saved_files
+        report_text: The formatted report string.
+        config: Configuration dictionary containing file paths.
 
-def run_report_generation() -> Dict[str, Any]:
-    """
-    Main entry point to compile and save the final report.
-    
     Returns:
-        Dict[str, Any]: Status and paths of generated artifacts.
+        Path to the saved report file.
     """
-    logger.info("Starting report generation...")
-    
-    # Load inputs
-    correlation_df = load_correlation_results()
-    ingestion_report = load_ingestion_report()
-    
-    if correlation_df is None:
-        logger.error("Cannot generate report: Correlation results not found")
-        return {
-            'status': 'failed',
-            'reason': 'Correlation results file not found',
-            'artifacts': {}
-        }
-    
+    output_path = Path(config['DATA_PROCESSED']) / 'final_report.txt'
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(report_text)
+
+    logger.info(f"Report saved to: {output_path}")
+    return output_path
+
+
+def run_report_generation(config: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Main function to run the complete report generation pipeline.
+
+    This function orchestrates:
+    1. Loading configuration
+    2. Loading correlation results
+    3. Loading ingestion report
+    4. Compiling summary table
+    5. Generating report text
+    6. Saving the report
+
+    Args:
+        config: Optional configuration dictionary. If None, loads from environment.
+
+    Returns:
+        Path to the generated report file.
+    """
+    if config is None:
+        config = load_config()
+
+    logger.info("Starting report generation pipeline...")
+
+    # Load data
+    correlation_df = load_correlation_results(config)
+    ingestion_report = load_ingestion_report(config)
+
     # Compile summary
     summary_table = compile_summary_table(correlation_df)
-    
-    # Generate report text
-    report_text = generate_report_text(summary_table, ingestion_report)
-    
-    # Save artifacts
-    saved_files = save_report(report_text, summary_table)
-    
-    logger.info("Report generation completed successfully")
-    return {
-        'status': 'success',
-        'artifacts': saved_files,
-        'summary_count': len(summary_table)
-    }
+
+    # Generate report
+    report_text = generate_report_text(summary_table, ingestion_report, config)
+
+    # Save report
+    report_path = save_report(report_text, config)
+
+    logger.info("Report generation pipeline completed successfully.")
+    return str(report_path)
+
 
 def main():
-    """CLI entry point for report generation."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    
-    result = run_report_generation()
-    
-    if result['status'] == 'success':
-        print("Report generation successful!")
-        print(f"Artifacts saved:")
-        for name, path in result['artifacts'].items():
-            print(f"  - {name}: {path}")
-        print(f"Summary count: {result['summary_count']}")
-    else:
-        print(f"Report generation failed: {result.get('reason', 'Unknown error')}")
-        exit(1)
+    """Entry point for running the report generation as a script."""
+    import sys
+    from src.logging_config import setup_logger
 
-if __name__ == '__main__':
+    # Setup logging
+    logger = setup_logger("report", level="INFO")
+
+    try:
+        report_path = run_report_generation()
+        print(f"Report successfully generated at: {report_path}")
+        sys.exit(0)
+    except FileNotFoundError as e:
+        logger.error(f"Required data file not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Report generation failed: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
     main()

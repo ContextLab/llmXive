@@ -34,3 +34,25 @@ T023:
     \ results to inspect, we cannot verify that the implementer has ensured all findings\
     \ are presented in an associational manner as required by FR\u2011011. The required\
     \ artifact is missing."
+T024:
+  c: false
+  h: 049dcc225f40d598036cbb6b30e0b0282f13aa04fb09e02701aa52ce42990a66
+  r: Both required output files (`results/metrics.json` and `results/shap_analysis.json`)
+    are missing from the repository, so no metrics or SHAP analysis have been logged
+    as the task demands. The implementer must generate and save these JSON files with
+    the appropriate logged data.
+T025:
+  c: false
+  h: 581f8b61ae458695fd8af0e25bf9ae76856d2ca3da52cd2465573360ca11d659
+  r: "The repository lacks the required `code/modeling/interpret.py` file entirely,\
+    \ and the provided `tests/unit/test_modeling.py` contains no test exercising `map_metabolites_to_pathways`\
+    \ (or any other interpret module functionality). Consequently, the unit test for\
+    \ pathway\u2011mapping logic is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim concerns updating `README.md` with execution instructions and adding
+    validation to `quickstart.md`, but no such files or their contents are provided
+    in the evidence. Without the updated README and quickstart documentation, the
+    requirement is not met. The next implementer must supply the modified `README.md`
+    and `quickstart.md` files showing the new instructions and validation steps.

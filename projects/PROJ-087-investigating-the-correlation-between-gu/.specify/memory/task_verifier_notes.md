@@ -8,14 +8,10 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T016** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_microbiome_sleep.csv
 - **T017** — The required artifact `data/processed/ingestion_report.json` does not exist, so the exclusion counts and proportion are not logged as specified. The task therefore remains unfinished.
 - **T037** — The required file `src/models/schemas.py` does not exist, so no Pydantic models (`MicrobiomeSample`, `SleepMetric`, `CorrelationResult`) are defined as required. The artifact is missing, making the task unfinished.
-- **T020a** — declared artifact(s) missing/empty/invalid: src/diversity.py
-- **T020b** — declared artifact(s) missing/empty/invalid: src/diversity.py, data/processed/cleaned_microbiome_sleep.csv
-- **T021** — declared artifact(s) missing/empty/invalid: src/correlation.py
-- **T022** — declared artifact(s) missing/empty/invalid: src/correlation.py
-- **T023** — declared artifact(s) missing/empty/invalid: src/correlation.py
+- **T020b** — The required input file `data/processed/cleaned_microbiome_sleep.csv` is absent, and the `src/diversity.py` implementation is truncated (the `calculate_alpha_diversity` function is incomplete), so the alpha‑diversity computation using the rarefied table is not fully provided.
 - **T024** — declared artifact(s) missing/empty/invalid: data/processed/correlation_results.csv
-- **T025** — declared artifact(s) missing/empty/invalid: src/correlation.py
-- **T027** — declared artifact(s) missing/empty/invalid: src/viz.py
-- **T028** — declared artifact(s) missing/empty/invalid: src/viz.py
 - **T029** — The required `src/report.py` file does not exist, so no report or summary table of correlations is present. The task’s core deliverable is missing.
 - **T030** — No evidence of any plot files (e.g., PNG, PDF, SVG) existing in the required `data/processed/plots/` directory is provided; the implementer did not supply the saved plot artifacts, so the task requirement is not met.
+- **T031** — No HTML or PDF report was provided; the evidence contains only the task description and specifications, with no actual report file, content, or generated output. The required final report with findings and handling of “No significant associations” is missing.
+- **T032** — No evidence of a modified `README.md` containing “Usage Examples” and “Data Source” sections, nor any updated files in the `docs/` directory showing a pipeline flow diagram, was provided. The required documentation artifacts are missing, so the task is not satisfied.
+- **T033** — No code files, diffs, or commit logs are provided showing that unused imports were removed or that module T014 was refactored to use generator expressions. Without concrete artifacts demonstrating the cleanup and refactoring, the claim cannot be verified. The implementer must supply the updated source code (or a patch/diff) that evidences the changes.

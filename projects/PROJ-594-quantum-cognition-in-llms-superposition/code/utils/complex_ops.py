@@ -1,55 +1,50 @@
 import torch
 from typing import Optional
 
-def to_complex(real_tensor: torch.Tensor, imag_tensor: Optional[torch.Tensor] = None) -> torch.Tensor:
+def to_complex(real: torch.Tensor, imag: Optional[torch.Tensor] = None) -> torch.Tensor:
     """
-    Convert real and imaginary tensors to a complex tensor.
-    If imag_tensor is None, assumes a zero imaginary part.
+    Convert real tensor to complex. If imag is None, imag=0.
     """
-    if imag_tensor is None:
-        imag_tensor = torch.zeros_like(real_tensor)
-    return torch.complex(real_tensor, imag_tensor)
+    if imag is None:
+        imag = torch.zeros_like(real)
+    return torch.stack([real, imag], dim=-1).to(torch.complex64)
 
-def phase_shift(complex_tensor: torch.Tensor, theta: torch.Tensor) -> torch.Tensor:
+def phase_shift(complex_vec: torch.Tensor, theta: torch.Tensor) -> torch.Tensor:
     """
-    Apply a phase shift exp(i*theta) to a complex tensor.
-    theta should be broadcastable to the tensor shape.
+    Apply phase shift exp(i*theta) to complex vector.
+    theta: [batch, seq_len] or broadcastable.
     """
-    # exp(i*theta) = cos(theta) + i*sin(theta)
-    cos_theta = torch.cos(theta)
-    sin_theta = torch.sin(theta)
-    shift_factor = torch.complex(cos_theta, sin_theta)
-    return complex_tensor * shift_factor
+    # theta shape should be broadcastable to complex_vec[..., 0]
+    phase = torch.exp(1j * theta)
+    return complex_vec * phase
 
-def vector_add(vec1: torch.Tensor, vec2: torch.Tensor) -> torch.Tensor:
+def vector_add(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
     """
-    Perform vector addition of two complex tensors.
+    Vector addition of two complex tensors.
     """
-    return vec1 + vec2
+    return c1 + c2
 
-def born_rule(complex_tensor: torch.Tensor) -> torch.Tensor:
+def born_rule(complex_vec: torch.Tensor) -> torch.Tensor:
     """
-    Apply the Born rule: P = |psi|^2 = real^2 + imag^2.
-    Returns the squared magnitude.
+    Compute squared magnitude (Born rule probability density).
+    Returns real tensor of shape same as input without last dim.
     """
-    return torch.abs(complex_tensor) ** 2
+    return torch.abs(complex_vec) ** 2
 
 def interference_cross_term(c1: torch.Tensor, c2: torch.Tensor) -> torch.Tensor:
     """
     Compute the interference cross-term: 2 * Re(c1 * conj(c2)).
-    
-    This term is responsible for constructive (positive) or destructive (negative)
-    interference in the quantum probability model.
+    This term determines whether interference is constructive (positive)
+    or destructive (negative).
     
     Args:
-        c1: Complex tensor of shape [batch, ...]
-        c2: Complex tensor of shape [batch, ...]
-    
+        c1: Complex tensor of shape [batch, seq_len, hidden]
+        c2: Complex tensor of shape [batch, seq_len, hidden]
+        
     Returns:
-        Tensor of shape [batch] containing the cross-term values.
+        Real tensor of shape [batch, seq_len, hidden] containing the cross-term values.
     """
     # c1 * conj(c2)
-    conj_c2 = torch.conj(c2)
-    product = c1 * conj_c2
+    product = c1 * torch.conj(c2)
     # 2 * Re(product)
-    return 2 * torch.real(product)
+    return 2.0 * torch.real(product)

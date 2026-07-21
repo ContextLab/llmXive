@@ -96,13 +96,13 @@ The researcher needs to compare the Pass@1 rates between the blind and guided co
 - **SC-001**: Recovery Rate (Pass@k in "guided" condition) is measured against the re-measured "blind" Pass@k for the same 200 tasks. The metric is defined as: `Pass@1_guided - Pass@1_blind` (See US-2).
 - **SC-002**: Statistical significance (p-value) is measured against the standard alpha threshold using a paired McNemar's test (See US-3).
 - **SC-003**: Error distribution (Syntax vs. Runtime vs. Logic Transfer Failure vs. Library) is measured against the total count of failures in the "guided" condition to identify the dominant failure mode (See US-3).
-- **SC-004**: Total Execution Time is measured against a hard constraint of ≤ 6 hours on a **GitHub Actions free-tier runner (multi-core, 7GB RAM)**. The system passes if the total time to process all 200 tasks is ≤ 6 hours under these specific hardware constraints (See US-1).
+- **SC-004**: Total Execution Time is measured against a hard constraint of ≤ 6 hours on a **GitHub Actions free-tier runner (multi-core, standard RAM allocation)**. The system passes if the total time to process all 200 tasks is ≤ 6 hours under these specific hardware constraints (See US-1).
 - **SC-005**: Sandbox Stability Rate (percentage of tasks where the runner did not crash or hang) is measured against a threshold of ≥ 99% (See US-2).
 
 ## Assumptions
 
 - **Assumption about data**: The Multi-LCB dataset contains ground-truth Python solutions for all selected tasks that are verified to be correct and executable.
-- **Assumption about compute**: The selected models (e.g., LlamaB, CodeLlamaB) can be quantized (e.g., low-bit or standard precision via `bitsandbytes` is NOT used; instead, standard CPU quantization or smaller context windows) to run within a memory footprint compatible with the GitHub Actions free tier (2-core, 7GB RAM) without GPU acceleration.
+- **Assumption about compute**: The selected models (e.g., LlamaB, CodeLlamaB) can be quantized (e.g., low-bit or standard precision via `bitsandbytes` is NOT used; instead, standard CPU quantization or smaller context windows) to run within a memory footprint compatible with the GitHub Actions free tier (multi-core, 7GB RAM) without GPU acceleration.
 - **Assumption about methodology**: The study treats the presence of the Partial Logic Trace as an observational intervention; findings will be framed as associational improvements in code generation, not causal proof of "reasoning transfer," unless the design explicitly includes randomization (which is not present here).
 - **Assumption about variables**: The Multi-LCB dataset provides sufficient test cases to perform a statistically powered paired test (n=200) after applying the 3-run stochasticity filter, without requiring external data collection.
 - **Assumption about thresholds**: The timeout per test case is sufficient to detect infinite loops while allowing complex algorithmic solutions to execute.; this threshold is based on standard competitive programming time limits.

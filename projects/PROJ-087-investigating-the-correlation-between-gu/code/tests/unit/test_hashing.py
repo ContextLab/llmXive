@@ -3,18 +3,17 @@ import tempfile
 import pytest
 from pathlib import Path
 import hashlib
-
 from src.utils.hashing import compute_sha256
 
 
 def test_compute_sha256_known_file():
-    """Test hashing a file with known content."""
-    test_content = b"Hello, World! This is a test file for hashing."
-    expected_hash = hashlib.sha256(test_content).hexdigest()
+    """Test hashing a file with a known content."""
+    content = b"Hello, World!"
+    expected_hash = hashlib.sha256(content).hexdigest()
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(test_content)
-        tmp_path = tmp_file.name
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(content)
+        tmp_path = tmp.name
 
     try:
         result = compute_sha256(tmp_path)
@@ -25,27 +24,29 @@ def test_compute_sha256_known_file():
 
 def test_compute_sha256_empty_file():
     """Test hashing an empty file."""
-    empty_hash = hashlib.sha256(b"").hexdigest()
+    expected_hash = hashlib.sha256(b"").hexdigest()
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_path = tmp_file.name
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp_path = tmp.name
 
     try:
         result = compute_sha256(tmp_path)
-        assert result == empty_hash
+        assert result == expected_hash
     finally:
         os.unlink(tmp_path)
 
 
 def test_compute_sha256_large_file_chunked():
-    """Test hashing a larger file to ensure chunked reading works."""
-    # Generate 1MB of data
-    large_content = b"0" * (1024 * 1024)
-    expected_hash = hashlib.sha256(large_content).hexdigest()
+    """Test hashing a large file to ensure chunked reading works."""
+    # Create a file larger than the default chunk size (64KB)
+    chunk_size = 65536
+    num_chunks = 100
+    content = b"A" * chunk_size * num_chunks
+    expected_hash = hashlib.sha256(content).hexdigest()
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_file.write(large_content)
-        tmp_path = tmp_file.name
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(content)
+        tmp_path = tmp.name
 
     try:
         result = compute_sha256(tmp_path)
@@ -55,7 +56,7 @@ def test_compute_sha256_large_file_chunked():
 
 
 def test_compute_sha256_file_not_found():
-    """Test that FileNotFoundError is raised for missing files."""
+    """Test that FileNotFoundError is raised for missing file."""
     with pytest.raises(FileNotFoundError):
         compute_sha256("/nonexistent/path/to/file.txt")
 

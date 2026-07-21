@@ -5,275 +5,213 @@ import seaborn as sns
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import logging
+import os
+
 from src.config import load_config
-from src.correlation import flag_correlations
+from src.utils.hashing import compute_sha256
 
 logger = logging.getLogger(__name__)
-
-def generate_boxplot_by_quartile(
-    df: pd.DataFrame,
-    diversity_col: str,
-    sleep_col: str,
-    output_path: Path,
-    plot_title: str = "Alpha Diversity by Sleep Quality Quartile"
-) -> None:
-    """
-    Generate a boxplot of a diversity metric grouped by sleep metric quartiles.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing diversity metrics and sleep metrics.
-    diversity_col : str
-        Name of the diversity column (e.g., 'shannon_index').
-    sleep_col : str
-        Name of the sleep metric column (e.g., 'sleep_efficiency').
-    output_path : Path
-        Path where the plot will be saved.
-    plot_title : str
-        Title for the plot.
-    """
-    if diversity_col not in df.columns or sleep_col not in df.columns:
-        raise ValueError(f"Columns '{diversity_col}' and/or '{sleep_col}' not found in DataFrame.")
-
-    # Create quartiles
-    df = df.copy()
-    df['sleep_quartile'] = pd.qcut(df[sleep_col], q=4, labels=['Q1 (Low)', 'Q2', 'Q3', 'Q4 (High)'], duplicates='drop')
-
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(x='sleep_quartile', y=diversity_col, data=df, palette="Set2", order=['Q1 (Low)', 'Q2', 'Q3', 'Q4 (High)'])
-    plt.title(plot_title)
-    plt.xlabel("Sleep Efficiency Quartile")
-    plt.ylabel(diversity_col.replace('_', ' ').title())
-    plt.tight_layout()
-
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    logger.info(f"Saved boxplot to {output_path}")
-
-def generate_all_quartile_boxplots(
-    df: pd.DataFrame,
-    diversity_cols: List[str],
-    sleep_col: str,
-    output_dir: Path
-) -> None:
-    """
-    Generate boxplots for all specified diversity columns grouped by sleep metric quartiles.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing diversity metrics and sleep metrics.
-    diversity_cols : List[str]
-        List of diversity column names.
-    sleep_col : str
-        Name of the sleep metric column.
-    output_dir : Path
-        Directory where plots will be saved.
-    """
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-    for col in diversity_cols:
-        if col in df.columns:
-            plot_filename = f"{col}_by_sleep_quartile.png"
-            output_path = output_dir / plot_filename
-            try:
-                generate_boxplot_by_quartile(
-                    df,
-                    diversity_col=col,
-                    sleep_col=sleep_col,
-                    output_path=output_path,
-                    plot_title=f"{col.replace('_', ' ').title()} by Sleep Efficiency Quartile"
-                )
-            except ValueError as e:
-                logger.warning(f"Skipping {col} due to missing data or invalid quartiles: {e}")
-        else:
-            logger.warning(f"Column '{col}' not found in DataFrame, skipping boxplot generation.")
 
 def generate_scatterplot_with_regression(
     df: pd.DataFrame,
     x_col: str,
     y_col: str,
+    title: str,
+    x_label: str,
+    y_label: str,
     output_path: Path,
-    title: str = "Correlation Analysis"
+    is_significant: bool = False
 ) -> None:
     """
-    Generate a scatterplot with a regression line.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the data.
-    x_col : str
-        Name of the x-axis column.
-    y_col : str
-        Name of the y-axis column.
-    output_path : Path
-        Path where the plot will be saved.
-    title : str
-        Title for the plot.
+    Generate a scatterplot with a regression line for a specific correlation.
     """
-    if x_col not in df.columns or y_col not in df.columns:
-        raise ValueError(f"Columns '{x_col}' and/or '{y_col}' not found in DataFrame.")
+    plt.figure(figsize=(10, 8))
+    sns.set_style("whitegrid")
 
-    plt.figure(figsize=(8, 6))
+    # Plot regression line and scatter
     sns.regplot(
         data=df,
         x=x_col,
         y=y_col,
-        scatter_kws={'alpha': 0.6},
-        line_kws={'color': 'red'}
+        scatter_kws={'alpha': 0.6, 's': 50},
+        line_kws={'color': 'red', 'lw': 2}
     )
-    plt.title(title)
-    plt.xlabel(x_col.replace('_', ' ').title())
-    plt.ylabel(y_col.replace('_', ' ').title())
-    plt.tight_layout()
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.xlabel(x_label, fontsize=12)
+    plt.ylabel(y_label, fontsize=12)
+
+    if is_significant:
+        plt.text(
+            0.05, 0.95, 'Significant (q < 0.05)',
+            transform=plt.gca().transAxes,
+            fontsize=10,
+            verticalalignment='top',
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        )
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
     logger.info(f"Saved scatterplot to {output_path}")
 
-def save_all_plot_artifacts(
-    correlation_results_path: Path,
-    diversity_results_path: Path,
-    output_dir: Path
-) -> List[Path]:
+def generate_boxplot_by_quartile(
+    df: pd.DataFrame,
+    value_col: str,
+    quartile_col: str,
+    title: str,
+    x_label: str,
+    y_label: str,
+    output_path: Path
+) -> None:
     """
-    Main function to orchestrate saving all plot artifacts.
-    Generates boxplots for diversity indices by sleep quartiles
-    and scatterplots for significant correlations.
+    Generate a boxplot of a value column grouped by sleep quartiles.
+    """
+    plt.figure(figsize=(10, 8))
+    sns.set_style("whitegrid")
 
-    Parameters
-    ----------
-    correlation_results_path : Path
-        Path to the correlation results CSV.
-    diversity_results_path : Path
-        Path to the diversity metrics CSV (merged with sleep data).
-    output_dir : Path
-        Directory where all plots will be saved.
+    # Ensure quartile column is categorical for correct ordering
+    if quartile_col in df.columns:
+        df[quartile_col] = df[quartile_col].astype('category')
+        # Sort categories if they are numeric strings or numbers
+        try:
+            df[quartile_col] = df[quartile_col].cat.reorder_categories(
+                sorted(df[quartile_col].cat.categories, key=lambda x: float(x) if x != 'Missing' else -1)
+            )
+        except (ValueError, TypeError):
+            pass  # Fallback to default order
 
-    Returns
-    -------
-    List[Path]
-        List of paths to generated plot files.
+        sns.boxplot(
+            data=df,
+            x=quartile_col,
+            y=value_col,
+            palette="Set2",
+            linewidth=1.5
+        )
+    else:
+        # Fallback if column missing (should be caught by caller)
+        logger.error(f"Column {quartile_col} not found in dataframe for boxplot")
+        plt.title(f"Error: Missing {quartile_col}")
+
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.xlabel(x_label, fontsize=12)
+    plt.ylabel(y_label, fontsize=12)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Saved boxplot to {output_path}")
+
+def generate_all_quartile_boxplots(
+    df: pd.DataFrame,
+    output_dir: Path,
+    metrics: List[str]
+) -> None:
+    """
+    Generate boxplots for all diversity metrics grouped by sleep quartile.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    quartile_col = "sleep_efficiency_quartile"
+
+    if quartile_col not in df.columns:
+        logger.warning(f"Quartile column '{quartile_col}' not found. Skipping boxplots.")
+        return
+
+    for metric in metrics:
+        if metric not in df.columns:
+            logger.warning(f"Metric '{metric}' not found in dataframe. Skipping.")
+            continue
+
+        filename = f"boxplot_{metric}_by_sleep_quartile.png"
+        filepath = output_dir / filename
+        title = f"{metric.replace('_', ' ').title()} by Sleep Efficiency Quartile"
+        generate_boxplot_by_quartile(
+            df=df,
+            value_col=metric,
+            quartile_col=quartile_col,
+            title=title,
+            x_label="Sleep Efficiency Quartile",
+            y_label=metric.replace('_', ' ').title(),
+            output_path=filepath
+        )
+
+def save_all_plot_artifacts() -> None:
+    """
+    Main entry point to generate and save all plot artifacts to data/processed/plots/.
+    This function orchestrates the generation of scatterplots for significant correlations
+    and boxplots for diversity metrics by sleep quartile.
     """
     config = load_config()
-    output_dir = Path(config.get('PLOTS_DIR', output_dir))
-    output_dir.mkdir(parents=True, exist_ok=True)
+    plots_dir = Path(config['plots_dir'])
+    plots_dir.mkdir(parents=True, exist_ok=True)
 
-    generated_files = []
+    # Load correlation results
+    results_path = Path(config['correlation_results_path'])
+    if not results_path.exists():
+        raise FileNotFoundError(f"Correlation results file not found: {results_path}")
+    
+    corr_df = pd.read_csv(results_path)
+    
+    # Load cleaned data for plotting
+    cleaned_data_path = Path(config['cleaned_data_path'])
+    if not cleaned_data_path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found: {cleaned_data_path}")
+    
+    data_df = pd.read_csv(cleaned_data_path)
 
-    # Load data
-    try:
-        corr_df = pd.read_csv(correlation_results_path)
-        diversity_df = pd.read_csv(diversity_results_path)
-    except FileNotFoundError as e:
-        logger.error(f"Required data file not found: {e}")
-        raise
-
-    # 1. Generate Boxplots for all diversity columns
-    # Identify diversity columns (exclude sample_id, sleep metrics, and correlation stats)
-    diversity_cols = [c for c in diversity_df.columns if c not in ['sample_id', 'sleep_efficiency', 'sleep_duration_hours', 'sleep_quartile']]
-    # Filter to likely diversity metrics based on naming convention or known list
-    # Assuming standard output from T020b: Shannon, Simpson, Observed_OTUs
-    known_diversity_cols = [c for c in diversity_cols if any(x in c.lower() for x in ['shannon', 'simpson', 'observed', 'chao', 'faith'])]
-
-    if known_diversity_cols:
-        generate_all_quartile_boxplots(
-            diversity_df,
-            diversity_cols=known_diversity_cols,
-            sleep_col='sleep_efficiency',
-            output_dir=output_dir
-        )
-        # Add generated files to list
-        for col in known_diversity_cols:
-            p = output_dir / f"{col}_by_sleep_quartile.png"
-            if p.exists():
-                generated_files.append(p)
+    # 1. Generate Scatterplots for Significant Correlations
+    significant_corrs = corr_df[corr_df['is_meaningful'] == True]
+    
+    if significant_corrs.empty:
+        logger.info("No significant correlations found to plot.")
     else:
-        logger.warning("No known diversity columns found for boxplot generation.")
-
-    # 2. Generate Scatterplots for significant correlations
-    # Filter for meaningful correlations (q < 0.05 AND |r| > 0.3)
-    significant = corr_df[(corr_df['is_meaningful'] == True) | (corr_df['is_moderate'] == True)]
-
-    # We need the actual values to plot, not just the summary stats.
-    # The correlation results table (T024) usually has: diversity_metric, sleep_metric, r, p, q.
-    # To plot, we need to join back to the raw data or assume the correlation results
-    # are summaries. The task T029 (Report) implies we have the data to plot.
-    # However, T024 saves "correlation results". If T024 only saves the summary table,
-    # we cannot plot the points without the original merged data.
-    # Assumption: T020b/T021 pipeline produced a merged dataframe with diversity and sleep columns.
-    # We will attempt to plot using the summary stats if the original data isn't directly linked here,
-    # BUT the task requires "scatterplots". This implies we need the original data.
-    # Since T016 saves 'cleaned_microbiome_sleep.csv', we assume diversity was calculated on that.
-    # We will try to load the diversity_df which should contain the sample-level data.
-
-    # Identify significant pairs to plot
-    for _, row in significant.iterrows():
-        div_metric = row['diversity_metric']
-        sleep_metric = row['sleep_metric']
-
-        if div_metric in diversity_df.columns and sleep_metric in diversity_df.columns:
-            plot_title = f"{div_metric.replace('_', ' ').title()} vs {sleep_metric.replace('_', ' ').title()}"
-            filename = f"{div_metric}_vs_{sleep_metric}.png"
-            output_path = output_dir / filename
-
-            try:
+        logger.info(f"Generating {len(significant_corrs)} scatterplots for significant correlations.")
+        for _, row in significant_corrs.iterrows():
+            diversity_metric = row['diversity_metric']
+            sleep_metric = row['sleep_metric']
+            
+            # Check if both columns exist in data_df
+            if diversity_metric in data_df.columns and sleep_metric in data_df.columns:
+                filename = f"scatterplot_{diversity_metric}_vs_{sleep_metric}.png"
+                filepath = plots_dir / filename
+                
+                title = f"{diversity_metric.replace('_', ' ').title()} vs {sleep_metric.replace('_', ' ').title()}"
                 generate_scatterplot_with_regression(
-                    diversity_df,
+                    df=data_df,
                     x_col=sleep_metric,
-                    y_col=div_metric,
-                    output_path=output_path,
-                    title=plot_title
+                    y_col=diversity_metric,
+                    title=title,
+                    x_label=sleep_metric.replace('_', ' ').title(),
+                    y_label=diversity_metric.replace('_', ' ').title(),
+                    output_path=filepath,
+                    is_significant=True
                 )
-                generated_files.append(output_path)
-            except Exception as e:
-                logger.error(f"Failed to generate scatterplot for {div_metric} vs {sleep_metric}: {e}")
+            else:
+                logger.warning(f"Columns {diversity_metric} or {sleep_metric} missing from data for scatterplot.")
 
-    return generated_files
+    # 2. Generate Boxplots by Sleep Quartile
+    diversity_metrics = ['shannon_diversity', 'simpson_diversity', 'observed_otus']
+    logger.info("Generating boxplots by sleep quartile.")
+    generate_all_quartile_boxplots(
+        df=data_df,
+        output_dir=plots_dir,
+        metrics=diversity_metrics
+    )
+
+    logger.info("All plot artifacts saved successfully.")
 
 def main():
     """
-    Entry point for saving plot artifacts.
+    CLI entry point for saving plot artifacts.
     """
-    config = load_config()
-    plots_dir = Path(config.get('PLOTS_DIR', 'data/processed/plots'))
-    cleaned_data_path = Path(config.get('CLEANED_DATA_PATH', 'data/processed/cleaned_microbiome_sleep.csv'))
-    correlation_results_path = Path(config.get('CORRELATION_RESULTS_PATH', 'data/processed/correlation_results.csv'))
-
-    # Note: The diversity metrics might be in a separate file or merged into cleaned_data.
-    # If T020b output is separate, we need that path. For now, we assume cleaned_data has diversity cols
-    # or we use the cleaned_data as the source for diversity if it was merged.
-    # If diversity is in a separate file, we'd need to load it.
-    # Let's assume the cleaned data (T016) was enriched with diversity metrics in T020b/T021 pipeline
-    # or we need to reload the diversity output.
-    # Given T024 output is correlation_results.csv, and T016 is cleaned data.
-    # We will use cleaned_data_path as the source for plotting if it contains diversity cols.
-    # If not, we might need to adjust. But per T020b, it calculates diversity.
-    # Let's assume the 'diversity_results_path' is actually the cleaned data with diversity added,
-    # or we need to find where T020b saved it.
-    # For robustness, we'll use the cleaned data path as the primary source for plotting
-    # assuming the pipeline merged diversity back into it.
-
-    logger.info(f"Starting plot artifact generation. Output Dir: {plots_dir}")
-    logger.info(f"Reading data from: {cleaned_data_path} and {correlation_results_path}")
-
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
     try:
-        files = save_all_plot_artifacts(
-            correlation_results_path=correlation_results_path,
-            diversity_results_path=cleaned_data_path,
-            output_dir=plots_dir
-        )
-        logger.info(f"Successfully generated {len(files)} plot artifacts.")
-        for f in files:
-            logger.info(f"  - {f}")
+        save_all_plot_artifacts()
+        logger.info("Task T030 completed successfully.")
     except Exception as e:
-        logger.error(f"Plot generation failed: {e}")
+        logger.error(f"Task T030 failed: {e}")
         raise
 
 if __name__ == "__main__":

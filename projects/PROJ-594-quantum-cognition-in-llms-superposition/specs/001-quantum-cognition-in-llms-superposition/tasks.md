@@ -66,7 +66,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
 - [X] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
 - [X] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
-- [~] T009 Setup environment configuration management (seed pinning, device selection `cpu`, batch size 8)
+- [ ] T009 Setup environment configuration management (seed pinning, device selection `cpu`, batch size 8)
 - [X] T009a [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,9 +88,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/experiments/run_baseline.py` to load frozen BERT, process WiC, and output `data/results/baseline_metrics.json`
+- [ ] T012 [P] [US1] Implement `code/experiments/run_baseline.py` to load frozen BERT, process WiC, and output `data/results/baseline_metrics.json`
 - [X] T013 [US1] Implement stability check in `code/experiments/run_baseline.py`: run multiple seeds, add an assertion that raises an error if metric variance > 0.02 across runs.
-- [~] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing
+- [ ] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,9 +117,9 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T022 [US2] Implement `code/models/bert_adapter.py`: Softmax normalization $P_{final} = \frac{e^{P_{raw}}}{e^{P_{raw}} + e^{P_{alt}}}$
 - [X] T023a [US2] [Foundational] Define the FR-009 loss function: Implement `code/models/loss_utils.py` with the specific formula `loss += lambda * (1 + torch.cos(phase_diff))` for ambiguous tokens, where lambda=0.5. Verify this function produces negative gradients for non-anti-parallel phases.
 - [X] T023 [US2] Implement `code/models/bert_adapter.py`: Loss function with penalty term. Depends on T023a. Integrate the specific phase-penalty logic from T023a into the training loop. Verify gradient drives phases toward anti-parallelism in unit test.
-- [~] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
+- [ ] T024 [US2] Implement `code/experiments/run_quantum.py` to train the adapter (a limited number of epochs), utilize `detect_nan_inf` from T005, and output `data/results/quantum_metrics.json`.
 - [X] T024a [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs.
-- [ ] T025 [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples, output validation to `data/results/interference_validation.json`.
+- [X] T025 [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples, output validation to `data/results/interference_validation.json`.
 - [X] T025b [US2] [SC-003] Implement stability check for the complex-valued model: Modify `code/experiments/run_quantum.py` to run multiple seeds, calculate variance of accuracy/F1, and assert variance < 0.02, satisfying SC-003 for the primary hypothesis.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,14 +139,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis/stats_test.py`: Paired t-test logic (α=0.05) across multiple seeds
-- [ ] T029a [US3] [SC-004] Implement runtime measurement: Add logging in `code/analysis/stats_test.py` to record wall-clock time and peak RAM usage for the full 5-seed run, verifying SC-004 (≤6h, ≤7GB).
-- [ ] T029b [US3] [Driver] Implement `code/experiments/run_seed_driver.py` to orchestrate the 5-seed loop for both baseline and complex models, aggregating results into a single JSON for the t-test.
-- [ ] T030 [US3] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference.
+- [X] T029 [P] [US3] Implement `code/analysis/stats_test.py`: Paired t-test logic (α=0.05) across multiple seeds
+- [X] T029a [US3] [SC-004] Implement runtime measurement: Add logging in `code/analysis/stats_test.py` to record wall-clock time and peak RAM usage for the full 5-seed run, verifying SC-004 (≤6h, ≤7GB).
+- [X] T029b [US3] [Driver] Implement `code/experiments/run_seed_driver.py` to orchestrate the 5-seed loop for both baseline and complex models, aggregating results into a single JSON for the t-test.
+- [X] T030 [US3] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference.
 - [ ] T031 [US3] Implement `code/experiments/run_stats.py` to aggregate `baseline_metrics.json` and `quantum_metrics.json` and output `data/results/stats_report.json`
-- [ ] T031b [US3] Implement FR-006 framing in `code/analysis/stats_test.py`: Ensure all generated text in `stats_report.json` explicitly frames results as "associational improvements" and avoids causal claims.
+- [X] T031b [US3] Implement FR-006 framing in `code/analysis/stats_test.py`: Ensure all generated text in `stats_report.json` explicitly frames results as "associational improvements" and avoids causal claims.
 - [ ] T032 [US3] Verify `data/results/stats_report.json` contains p-value, t-statistic, Cohen's d, and 95% CI
-- [ ] T033 [US3] Add a unit test in `tests/unit/test_stats_test.py` that mocks data to verify p-value logic (p < 0.05 when diff >= 0.05, p > 0.05 when diff < 0.01).
+- [X] T033 [US3] Add a unit test in `tests/unit/test_stats_test.py` that mocks data to verify p-value logic (p < 0.05 when diff >= 0.05, p > 0.05 when diff < 0.01).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,9 +158,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for Ablation & Validation
 
-- [ ] T034 [P] [Ablation] Implement `code/experiments/run_classical_baseline.py` for Classical Sum-of-Squares baseline ($P = \|c_1\|^2 + \|c_2\|^2$). This task implements the classical probability sum without interference cross-term, serving as the primary ablation condition.
-- [ ] T035 [P] [Ablation] Implement `code/experiments/run_magnitude_control.py` for Magnitude-Only control ($P = \|c_1\|^2 + \|c_2\|^2$ without phase shifts). This task serves as the control condition to isolate the interference cross-term in the Quantum model by removing phase interactions entirely.
-- [ ] T036 [Ablation] Implement `code/analysis/interference_check.py` to validate graded negative cross-term correlation with ambiguity. Input: list of (ambiguity_score, cross_term_value) pairs. Test: Spearman rank correlation. Output: `data/results/interference_correlation.json` containing correlation coefficient and p-value.
+- [X] T034 [P] [Ablation] Implement `code/experiments/run_classical_baseline.py` for Classical Sum-of-Squares baseline ($P = \|c_1\|^2 + \|c_2\|^2$). This task implements the classical probability sum without interference cross-term, serving as the primary ablation condition.
+- [X] T035 [P] [Ablation] Implement `code/experiments/run_magnitude_control.py` for Magnitude-Only control ($P = \|c_1\|^2 + \|c_2\|^2$ without phase shifts). This task serves as the control condition to isolate the interference cross-term in the Quantum model by removing phase interactions entirely.
+- [~] T036 [Ablation] Implement `code/analysis/interference_check.py` to validate graded negative cross-term correlation with ambiguity. Input: list of (ambiguity_score, cross_term_value) pairs. Test: Spearman rank correlation. Output: `data/results/interference_correlation.json` containing correlation coefficient and p-value.
 - [ ] T037 [Ablation] Generate `data/results/ablation_metrics.json` comparing Quantum vs. Classical vs. Magnitude-Only
 - [ ] T038 [Ablation] Verify that interference cross-term assumption (negative values for ambiguity) holds in ablation results
 

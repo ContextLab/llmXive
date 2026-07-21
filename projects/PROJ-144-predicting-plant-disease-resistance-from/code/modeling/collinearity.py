@@ -1,10 +1,10 @@
 """
-Collinearity diagnostics for selected metabolites.
+Collinearity diagnostics module for metabolomic data analysis.
 
 Implements Variance Inflation Factor (VIF) calculation to detect
-multicollinearity among features selected by the model.
+multicollinearity among selected metabolites.
 
-Requirement: FR-012 - Mandatory collinearity diagnostics.
+FR-012: Mandatory diagnostic for collinearity.
 """
 import os
 import sys
@@ -12,254 +12,206 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Any, Optional
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.constants import DATA_PROCESSED_DIR, RESULTS_DIR
-from utils.io import compute_file_hash, log_artifact
 
-# Threshold for flagging high collinearity
-VIF_THRESHOLD = 5.0
 
-def calculate_vif(data: pd.DataFrame, features: Optional[List[str]] = None) -> pd.DataFrame:
+def calculate_vif(df: pd.DataFrame, feature_columns: List[str]) -> pd.DataFrame:
     """
-    Calculate Variance Inflation Factor (VIF) for features in the dataset.
+    Calculate Variance Inflation Factor (VIF) for each feature.
     
     VIF measures how much the variance of an estimated regression coefficient
     increases if your predictors are correlated.
     
-    Formula: VIF_j = 1 / (1 - R_j^2)
-    where R_j^2 is the R-squared value when feature j is regressed against all other features.
+    VIF = 1 / (1 - R²)
+    where R² is the coefficient of determination when regressing the feature
+    against all other features.
     
     Args:
-        data: DataFrame containing the feature matrix (samples x features)
-        features: Optional list of specific features to calculate VIF for.
-                 If None, uses all numeric columns.
-                 
+        df: DataFrame containing the features
+        feature_columns: List of column names to calculate VIF for
+        
     Returns:
-        DataFrame with columns: ['feature', 'vif']
+        DataFrame with columns: 'feature', 'vif'
+        
+    Raises:
+        ValueError: If any feature has zero variance
     """
-    if features is None:
-        # Select only numeric columns
-        features = data.select_dtypes(include=[np.number]).columns.tolist()
+    vif_data = []
     
-    if len(features) == 0:
-        raise ValueError("No numeric features found in the dataset.")
+    # Use only the specified features
+    X = df[feature_columns].copy()
     
-    # Filter data to selected features
-    X = data[features].copy()
+    # Check for constant features (zero variance)
+    for col in X.columns:
+        if X[col].var() == 0:
+            raise ValueError(f"Feature '{col}' has zero variance. Cannot calculate VIF.")
     
-    # Drop rows with any NaN values (VIF calculation requires complete cases)
-    X = X.dropna()
-    
-    if X.shape[0] < 2:
-        raise ValueError("Not enough samples to calculate VIF (need at least 2).")
-    
-    if X.shape[0] <= X.shape[1]:
-        raise ValueError("Number of samples must be greater than number of features for VIF calculation.")
-    
-    vif_results = []
-    
-    for i, feature in enumerate(features):
-        # Independent variable
-        y = X[feature]
+    for i, col in enumerate(X.columns):
+        # Regress feature i against all other features
+        y = X[col]
+        X_other = X.drop(columns=[col])
         
-        # Dependent variables (all other features)
-        X_other = X.drop(columns=[feature])
-        
-        # Check if there are other features to regress against
+        # Handle case where only one feature exists
         if X_other.shape[1] == 0:
-            # Only one feature, VIF is undefined (or 1 by convention)
             vif = 1.0
         else:
-            # Calculate R-squared from regression of feature on all other features
-            # Using simple matrix algebra: R^2 = 1 - (SSE / SST)
-            # Or using numpy's lstsq to solve the linear system
+            # Fit linear regression: y ~ X_other
+            # Add intercept
+            X_with_intercept = sm.add_constant(X_other)
+            model = sm.OLS(y, X_with_intercept).fit()
+            r_squared = model.rsquared
             
-            # Add intercept column
-            X_other_with_intercept = np.column_stack([np.ones(X_other.shape[0]), X_other.values])
-            
-            try:
-                # Solve the least squares problem
-                coeffs, residuals, rank, s = np.linalg.lstsq(X_other_with_intercept, y.values, rcond=None)
-                
-                # Calculate predicted values
-                y_pred = X_other_with_intercept @ coeffs
-                
-                # Calculate SST (Total Sum of Squares)
-                ss_tot = np.sum((y.values - np.mean(y.values)) ** 2)
-                
-                # Calculate SSE (Sum of Squared Errors)
-                ss_res = np.sum((y.values - y_pred) ** 2)
-                
-                # Calculate R-squared
-                if ss_tot == 0:
-                    r_squared = 0.0
-                else:
-                    r_squared = 1 - (ss_res / ss_tot)
-                
-                # Calculate VIF
-                if r_squared >= 1.0:
-                    # Numerical edge case: perfect multicollinearity
-                    vif = np.inf
-                else:
-                    vif = 1.0 / (1.0 - r_squared)
-                    
-            except np.linalg.LinAlgError:
-                # Singular matrix, perfect multicollinearity
+            # Calculate VIF
+            if r_squared >= 1.0:
                 vif = np.inf
+            else:
+                vif = 1.0 / (1.0 - r_squared)
         
-        vif_results.append({
-            'feature': feature,
+        vif_data.append({
+            'feature': col,
             'vif': vif
         })
     
-    return pd.DataFrame(vif_results)
+    return pd.DataFrame(vif_data)
 
-def flag_high_collinearity(vif_df: pd.DataFrame, threshold: float = VIF_THRESHOLD) -> pd.DataFrame:
+
+def flag_high_collinearity(vif_df: pd.DataFrame, threshold: float = 5.0) -> Tuple[List[str], pd.DataFrame]:
     """
-    Flag features with VIF above the threshold.
+    Flag metabolites with VIF exceeding the threshold.
     
     Args:
-        vif_df: DataFrame from calculate_vif with 'feature' and 'vif' columns
-        threshold: VIF threshold for flagging (default: 5.0)
-                 
+        vif_df: DataFrame with 'feature' and 'vif' columns
+        threshold: VIF threshold above which collinearity is considered high (default: 5.0)
+        
     Returns:
-        DataFrame with added 'flagged' boolean column
+        Tuple of (list of high-VIF features, DataFrame with flags)
     """
-    result = vif_df.copy()
-    result['flagged'] = result['vif'] > threshold
-    return result
+    vif_df = vif_df.copy()
+    vif_df['high_collinearity'] = vif_df['vif'] > threshold
+    
+    high_vif_features = vif_df[vif_df['high_collinearity']]['feature'].tolist()
+    
+    return high_vif_features, vif_df
+
 
 def run_collinearity_diagnostics(
-    feature_matrix_path: Optional[str] = None,
-    labels_path: Optional[str] = None,
+    data_path: Optional[str] = None,
+    feature_columns: Optional[List[str]] = None,
+    threshold: float = 5.0,
     output_path: Optional[str] = None
-) -> Dict:
+) -> Dict[str, Any]:
     """
-    Main function to run collinearity diagnostics on processed data.
-    
-    This function:
-    1. Loads the batch-corrected feature matrix
-    2. Calculates VIF for all features
-    3. Flags features with VIF > 5
-    4. Saves results to JSON
+    Run full collinearity diagnostics on metabolomic data.
     
     Args:
-        feature_matrix_path: Path to the batch-corrected feature matrix CSV
-                            (default: data/processed/batch_corrected_matrix.csv)
-        labels_path: Path to labels CSV (optional, not used for VIF but for context)
-        output_path: Path for output JSON (default: results/collinearity_analysis.json)
-                     
+        data_path: Path to batch_corrected_matrix.csv. If None, uses default location.
+        feature_columns: Specific features to analyze. If None, uses all numeric columns.
+        threshold: VIF threshold for flagging (default: 5.0)
+        output_path: Path to save results. If None, uses default results directory.
+        
     Returns:
-        Dictionary containing the analysis results
+        Dictionary containing:
+            - vif_results: DataFrame with VIF values
+            - high_vif_features: List of features with VIF > threshold
+            - summary: Statistics about collinearity
     """
-    # Set default paths
-    if feature_matrix_path is None:
-        feature_matrix_path = os.path.join(DATA_PROCESSED_DIR, "batch_corrected_matrix.csv")
+    # Determine paths
+    if data_path is None:
+        data_path = os.path.join(DATA_PROCESSED_DIR, "batch_corrected_matrix.csv")
     
     if output_path is None:
-        # Ensure results directory exists
-        results_dir = Path(RESULTS_DIR)
-        results_dir.mkdir(parents=True, exist_ok=True)
         output_path = os.path.join(RESULTS_DIR, "collinearity_analysis.json")
     
     # Load data
-    print(f"Loading feature matrix from: {feature_matrix_path}")
-    if not os.path.exists(feature_matrix_path):
-        raise FileNotFoundError(f"Feature matrix not found at: {feature_matrix_path}")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
     
-    df = pd.read_csv(feature_matrix_path)
+    df = pd.read_csv(data_path)
     
-    # Identify feature columns (exclude metadata columns like sample_id, resistance_label, etc.)
-    # Typically, features are numeric columns that are not the target variable
-    exclude_cols = ['sample_id', 'resistance_label', 'resistance_class', 'study_id']
-    feature_cols = [col for col in df.columns if col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col])]
+    # Select features
+    if feature_columns is None:
+        # Use all numeric columns except metadata columns
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        # Exclude common metadata columns
+        exclude_cols = ['sample_id', 'subject_id', 'batch', 'resistance_label', 'resistance_binary']
+        feature_columns = [col for col in numeric_cols if col not in exclude_cols]
     
-    if len(feature_cols) == 0:
-        raise ValueError("No numeric feature columns found in the dataset.")
-    
-    print(f"Calculating VIF for {len(feature_cols)} features...")
+    if len(feature_columns) == 0:
+        raise ValueError("No features found to analyze for collinearity.")
     
     # Calculate VIF
-    vif_df = calculate_vif(df, features=feature_cols)
-    
-    # Sort by VIF descending
-    vif_df = vif_df.sort_values('vif', ascending=False).reset_index(drop=True)
+    vif_df = calculate_vif(df, feature_columns)
     
     # Flag high collinearity
-    flagged_df = flag_high_collinearity(vif_df)
+    high_vif_features, vif_df_flagged = flag_high_collinearity(vif_df, threshold)
     
-    # Generate summary statistics
-    high_collinearity_count = flagged_df['flagged'].sum()
-    max_vif = vif_df['vif'].max()
-    mean_vif = vif_df['vif'].mean()
-    median_vif = vif_df['vif'].median()
-    
-    # Get list of flagged features
-    flagged_features = flagged_df[flagged_df['flagged']]['feature'].tolist()
+    # Generate summary
+    summary = {
+        'total_features': len(feature_columns),
+        'high_collinearity_count': len(high_vif_features),
+        'threshold': threshold,
+        'max_vif': float(vif_df['vif'].max()),
+        'mean_vif': float(vif_df['vif'].mean()),
+        'median_vif': float(vif_df['vif'].median()),
+        'features_flagged': high_vif_features
+    }
     
     # Prepare results
     results = {
-        'metadata': {
-            'threshold': VIF_THRESHOLD,
-            'total_features': len(feature_cols),
-            'samples_used': df.shape[0],
-            'features_with_collinearity': int(high_collinearity_count),
-            'analysis_timestamp': pd.Timestamp.now().isoformat()
-        },
-        'summary': {
-            'max_vif': float(max_vif) if not np.isinf(max_vif) else "inf",
-            'mean_vif': float(mean_vif),
-            'median_vif': float(median_vif),
-            'high_collinearity_count': int(high_collinearity_count),
-            'high_collinearity_percentage': float(high_collinearity_count / len(feature_cols) * 100)
-        },
-        'flagged_features': flagged_features,
-        'all_vif_values': vif_df.to_dict(orient='records')
+        'vif_results': vif_df_flagged.to_dict(orient='records'),
+        'high_vif_features': high_vif_features,
+        'summary': summary
     }
     
-    # Save results to JSON
-    print(f"Saving collinearity analysis to: {output_path}")
+    # Save to file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+        json.dump(results, f, indent=2)
     
-    # Log artifact
-    log_artifact(output_path, description="Collinearity diagnostics (VIF analysis)")
-    
-    # Print summary
-    print("\n=== Collinearity Diagnostics Summary ===")
-    print(f"Total features analyzed: {len(feature_cols)}")
-    print(f"Features with VIF > {VIF_THRESHOLD}: {high_collinearity_count}")
-    print(f"Max VIF: {max_vif}")
-    print(f"Mean VIF: {mean_vif:.2f}")
-    
-    if flagged_features:
-        print(f"\nFlagged features (VIF > {VIF_THRESHOLD}):")
-        for feat in flagged_features:
-            feat_vif = vif_df[vif_df['feature'] == feat]['vif'].values[0]
-            print(f"  - {feat}: VIF = {feat_vif:.2f}")
-    else:
-        print(f"\nNo features flagged for high collinearity (VIF <= {VIF_THRESHOLD}).")
-    
-    print(f"\nResults saved to: {output_path}")
+    print(f"Collinearity diagnostics complete. Results saved to: {output_path}")
+    print(f"Summary: {summary['high_collinearity_count']}/{summary['total_features']} features have VIF > {threshold}")
     
     return results
 
+
 def main():
-    """Entry point for running collinearity diagnostics."""
+    """Main entry point for running collinearity diagnostics."""
+    print("Running collinearity diagnostics (VIF calculation)...")
+    
     try:
-        results = run_collinearity_diagnostics()
-        print("\nCollinearity diagnostics completed successfully.")
+        results = run_collinearity_diagnostics(
+            data_path=None,  # Use default path
+            feature_columns=None,  # Auto-detect
+            threshold=5.0,
+            output_path=None  # Use default output path
+        )
+        
+        # Print summary
+        summary = results['summary']
+        print(f"\n=== Collinearity Diagnostics Summary ===")
+        print(f"Total features analyzed: {summary['total_features']}")
+        print(f"Features with high collinearity (VIF > {summary['threshold']}): {summary['high_collinearity_count']}")
+        print(f"Max VIF: {summary['max_vif']:.2f}")
+        print(f"Mean VIF: {summary['mean_vif']:.2f}")
+        print(f"Median VIF: {summary['median_vif']:.2f}")
+        
+        if summary['features_flagged']:
+            print(f"\nFlagged metabolites:")
+            for feat in summary['features_flagged']:
+                print(f"  - {feat}")
+        
         return 0
+        
     except Exception as e:
-        print(f"\nError running collinearity diagnostics: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error running collinearity diagnostics: {str(e)}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

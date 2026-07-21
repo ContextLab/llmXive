@@ -109,7 +109,7 @@ found character '`' that cannot start any token
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for `code/modeling/train.py` verifying stratified split and hold-out reservation (FR-006) in `tests/unit/test_modeling.py`
-- [ ] T019 [P] [US2] Unit test for `code/modeling/evaluate.py` verifying permutation distribution generation in `tests/unit/test_modeling.py`
+- [X] T019 [P] [US2] Unit test for `code/modeling/evaluate.py` verifying permutation distribution generation in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 2
 
@@ -117,7 +117,7 @@ found character '`' that cannot start any token
  - Reserve **HOLD_OUT_FRACTION (0.20)** of samples as independent hold-out set *before* any feature selection (FR-006)
  - Train Random Forest (n_estimators=500, max_depth=10) with Stratified 5-fold CV (FR-005)
  - Perform GridSearchCV within the CV loop with `param_grid={'max_depth': [10, 15, 20]}` (tunable up to 20)
-- [ ] T021 [US2] Implement `code/modeling/evaluate.py` to:
+- [X] T021 [US2] Implement `code/modeling/evaluate.py` to: <!-- FAILED: unspecified -->
  - Compute Balanced Accuracy, ROC-AUC, Precision-Recall on theindependent hold-out set (SC-001)
  - Run Permutation Testing (≥1,000 permutations) to generate null distribution and assess significance (FR-007, SC-003)
  - Apply Benjamini-Hochberg FDR correction (≤0.05 (1906.01701, https://arxiv.org/abs/1906.01701)) to pairwise metabolite-resistance correlations **computed on the training fold only** (FR-008, SC-002)
@@ -147,7 +147,7 @@ found character '`' that cannot start any token
  - Extract top metabolites by **SHAP values (SHAP library)** (FR-010)
  - Map metabolites to KEGG/MetaCyc pathways using InChIKey or API lookups (FR-010)
  - Generate interpretation report discussing biological plausibility (e.g., phytoalexins, phenolics)
-- [ ] T027 [US3] Save pathway mapping results to `results/pathway_analysis.json`
+- [X] T027 [US3] Save pathway mapping results to `results/pathway_analysis.json`
 - [ ] T028 [US3] Generate visualization of top pathways and feature importances (e.g., `results/pathway_barplot.png`)
 
 **Checkpoint**: All user stories should now be independently functional
