@@ -3,24 +3,33 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hubble-isotropy-analysis"
+name = "llmxive-hubble-isotropy"
 version = "0.1.0"
-description = "Testing Hubble Constant Isotropy using Pantheon Supernova Sample"
-readme = "README.md"
+description = "Testing Hubble Constant Isotropy Using Pantheon Supernova Sample"
 requires-python = ">=3.10"
 dependencies = [
-    "pandas==2.2.0",
-    "numpy==1.26.0",
-    "scipy==1.12.0",
-    "astropy==6.0.0",
-    "healpy==1.16.5",
-    "scikit-learn==1.4.0",
-    "matplotlib==3.8.0",
-    "pecvel==1.2.0",
-    "pymc==5.9.0",
-    "ruff==0.3.0",
-    "black==24.3.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "astropy>=5.3.0",
+    "healpy>=1.16.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "tqdm>=4.65.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code.*"]
 
 [tool.black]
 line-length = 88
@@ -28,25 +37,50 @@ target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-# Inherits from ruff.toml if present, but here for completeness in pyproject
-target-version = "py310"
 line-length = 88
-select = ["E", "F", "I", "W"]
-ignore = []
+target-version = "py310"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.ruff.isort]
-known-first-party = ["src", "code"]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

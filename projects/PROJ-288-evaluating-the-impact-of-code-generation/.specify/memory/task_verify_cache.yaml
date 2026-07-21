@@ -1,0 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`code/data`, `code/analysis`, `data/raw`, `data/processed`, `data/baseline_corpus`,
+    `tests/unit`, `tests/integration`, `docs/reports`) actually exist; without such
+    proof the task requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or corresponding GitHub Action/workflow
+    files) were presented. Without these artifacts, the requirement to configure Ruff
+    and Black cannot be verified as satisfied. The next implementer should add the
+    appropriate configuration files and, if applicable, CI integration scripts.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation for managing GitHub API tokens
+    are present, and the provided project excerpt does not include any artifact related
+    to environment configuration management. Consequently, the required setup for
+    token handling is missing and the claim is not substantiated.
+T011:
+  c: false
+  h: 637f5adaae7de042168a2dabad5dac97a6101a22e304fabfd2057973c700ffbc
+  r: The required artifact `tests/unit/test_classify.py` does not exist in the repository,
+    so no unit test for the classification heuristic logic is present. The task cannot
+    be considered completed until this file is added with appropriate test code.
+T012:
+  c: false
+  h: e5abcce862045f958be1781854e2ed8f5b6fa60d51713ca512a89736ac2a9f5c
+  r: The required file `tests/integration/test_fetch_prs.py` does not exist in the
+    repository, so the integration test for the API fetch with a mock response is
+    missing. The task cannot be considered completed until this test file is added
+    with appropriate test code.
+T013:
+  c: false
+  h: c25697df53b7e3d75f0967e651807efb0cbe0ea0012ae440f7774d2550095043
+  r: "The required output file `data/raw/prs_raw.json` does not exist, and the provided\
+    \ `repo_list.txt` format does not match the script\u2019s expectations (the script\
+    \ expects \u201Crepo,star_count\u201D lines, but the file only contains repo names).\
+    \ Consequently the script cannot fetch PRs as specified, nor can it produce the\
+    \ required raw JSON output."

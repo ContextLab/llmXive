@@ -2,54 +2,16 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.hypothesis/
-coverage.xml
-*.cover
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 
 # Virtual environments
 env/
 venv/
 ENV/
-.env/
+.venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -60,12 +22,37 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Environment variables
-.env
-
 # Logs
 *.log
 logs/
+
+# Data (Raw data is managed externally or via DVC; processed results are tracked)
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/*.json
+data/processed/*.parquet
+data/processed/*.csv
+data/results/*.json
+data/results/*.parquet
+data/results/*.md
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Configuration overrides
+.env.local
+.env.*.local
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# Linting/Formatting caches
+.ruff_cache/
+.black_cache/

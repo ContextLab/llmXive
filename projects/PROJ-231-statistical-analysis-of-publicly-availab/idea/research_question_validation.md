@@ -1,27 +1,21 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
-**Verdict**: concern  
-The current wording asks “how can functional data analysis and PCA be applied…”, which focuses on the statistical technique rather than the substantive climate phenomenon. The underlying scientific question is about identifying the dominant modes of variability in CMIP ensembles and evaluating how robust projected climate trends are across models.
+**Verdict**: pass
+The question asks about the intrinsic structure of climate variability and the stability of trend projections within the CMIP6 ensemble, which are substantive scientific phenomena. While the methodology (fPCA) is explicitly named, the core inquiry focuses on *what* the dominant modes are and *how robust* the trends are, rather than evaluating the performance of the fPCA method itself against other algorithms.
 
 ### Circularity check
-
-**Verdict**: pass  
-The idea does not propose a predictor‑outcome relationship; it proposes an exploratory analysis of ensemble outputs. Hence there is no risk of using two views of the same primary signal as predictor and response.
+**Verdict**: pass
+The predictor (ensemble member selection and subsampling strategy) and the predicted variable (dominant modes of variability and trend projections) are derived from the same primary dataset (CMIP6 output), but this is not circular in a mechanical sense. The analysis seeks to discover emergent patterns and test their stability against data reduction, not to predict a variable that is mathematically defined as a function of the predictor; the robustness test is an empirical check of the ensemble's internal consistency, not a guaranteed construction.
 
 ### Triviality check
-
-**Verdict**: pass  
-Both a finding of strong, robust dominant modes and a finding of weak or non‑robust modes would be informative for climate science and for improving uncertainty quantification in projections.
+**Verdict**: pass
+A positive result confirming stable dominant modes across subsets would validate the robustness of current climate projections, while a null result (instability) would reveal that specific model families drive the consensus, fundamentally altering how uncertainty is quantified. Both outcomes provide critical, publishable insights into the reliability of climate science, as the stability of these modes is currently an open empirical question rather than a foregone conclusion.
 
 ### Question-narrowing check
-
-**Verdict**: fail  
-The question is framed as a constraint on the application of specific statistical methods (“how can functional data analysis and PCA be applied”) rather than posing a domain‑centered inquiry about climate variability and trend robustness.
+**Verdict**: pass
+The question names a specific domain relationship: the structure of spatiotemporal variability and the robustness of trends across model subsets. It does not frame the inquiry around implementation constraints (e.g., "Can fPCA run within 6 hours?") but rather uses the method as a lens to answer a fundamental question about climate system behavior and ensemble reliability.
 
 ### Overall verdict
-
-**Verdict**: validator_revise  
-[REVISED]What are the dominant modes of spatiotemporal variability in CMIP6 climate model ensembles, and how robust are the associated projected temperature and precipitation trends across different model subsets?[/REVISED]  
-Reframing removes the method‑centric phrasing and centers the question on the climate phenomena (dominant variability patterns and trend robustness). The proposed statistical techniques remain part of the methodology but no longer define the research question.
+**Verdict**: validated
+All four checks pass, confirming that the research question targets a substantive scientific phenomenon with independent data sources and non-trivial outcomes. The framing correctly focuses on the robustness of climate projections and the structure of variability rather than the mechanics of the statistical method itself.

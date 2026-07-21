@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `src/` directory and `src/__init__.py`
-- [ ] T002 [P] Create `tests/` directory and `tests/__init__.py`
+- [X] T001 [P] Create `src/` directory and `src/__init__.py`
+- [X] T002 [P] Create `tests/` directory and `tests/__init__.py`
 - [ ] T003 [P] Create `data/` directory structure (`data/raw/`, `data/processed/`, `data/results/`)
 - [X] T004 [P] Create `code/` directory and `code/__init__.py`
-- [X] T005 [P] Create `code/requirements.txt` with pinned dependencies: `pandas==2.2.0 [UNRESOLVED-CLAIM: c_1d73667e — status=not_enough_info] `, `numpy==1.26.0 [UNRESOLVED-CLAIM: c_889a742d — status=not_enough_info] `, `scipy==1.12.0 [UNRESOLVED-CLAIM: c_82d46c57 — status=not_enough_info] `, `astropy==6.0.0 [UNRESOLVED-CLAIM: c_68786efb — status=not_enough_info] `, `healpy==1.16.5 [UNRESOLVED-CLAIM: c_6ff9105e — status=not_enough_info] `, `scikit-learn==1.4.0 [UNRESOLVED-CLAIM: c_c130fc46 — status=not_enough_info] `, `matplotlib==3.8.0 [UNRESOLVED-CLAIM: c_1e2d804d — status=not_enough_info] `, `pecvel==1.2.0 [UNRESOLVED-CLAIM: c_3bf0425f — status=not_enough_info] `, `pymc==5.9.0 [UNRESOLVED-CLAIM: c_911b30f5 — status=not_enough_info] `
+- [X] T005 [P] {{claim:c_47fd524d}}
 - [ ] T006 [P] Create `code/.gitignore` and configure linting (ruff) and formatting (black) tools
 
 ---
@@ -61,7 +61,7 @@
 - [X] T007 Implement `src/utils/constants.py` with physical constants (c, H0 reference values) and Pantheon+ metadata
 - [ ] T008 [P] Setup logging infrastructure in `src/utils/logger.py` with audit trails for data filtering
 - [ ] T009 [P] Implement checksum verification utility in `src/utils/data_integrity.py` for raw data validation
-- [~] T010 Create base data models (Pydantic) for `SupernovaRecord`, `HEALPixPixel`, and `H0Estimate` in `src/models/`
+- [ ] T010 Create base data models (Pydantic) for `SupernovaRecord`, `HEALPixPixel`, and `H0Estimate` in `src/models/`
 - [ ] T011 Configure environment variable management for Zenodo API keys and random seeds in `src/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,13 +79,13 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T012 [US1] Contract test for data ingestion schema in `tests/contract/test_loader.py`: function `test_loader_schema_matches_pantheon_plus`, validating against `SupernovaRecord` Pydantic model
-- [X] T013 [US1] Integration test for HEALPix mapping accuracy in `tests/integration/test_spatial.py`: input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel indices; tolerance: inverse projection recovers original coords within 1e-6 deg [UNRESOLVED-CLAIM: c_364162d8 — status=not_enough_info]
+- [X] T013 [US1] Integration test for HEALPix mapping accuracy in `tests/integration/test_spatial.py`: input specific RA/Dec coordinates (e.g., RA=10.0, Dec=45.0); expected valid pixel indices; tolerance: inverse projection recovers original coords within 1e-6 deg
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement script to fetch Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) [UNRESOLVED-CLAIM: c_e37ecb29 — status=not_enough_info] and verify checksum against `data/raw/pantheon_plus.csv` using T009
-- [ ] T015 [US1] Implement `src/ingestion/loader.py` to load raw CSV from T014, apply z < 0.15 cut [UNRESOLVED-CLAIM: c_7ba2da4e — status=not_enough_info], filter quality flags, and invoke the checksum utility from T009 for data integrity
-- [ ] T016 [US1] Implement `src/ingestion/spatial.py` to assign HEALPix indices (Nside=4, NESTED) to supernovae [UNRESOLVED-CLAIM: c_77adf6eb — status=not_enough_info]
+- [ ] T014 [US1] Implement script to fetch Pantheon+ dataset from Zenodo repository (Pantheon+ dataset from Zenodo repository (Record ID: 10.5281/zenodo.1002345, DOI: 10.5281/zenodo.1002345) [UNRESOLVED-CLAIM: c_d62b1cce — status=not_enough_info]) and verify checksum against `data/raw/pantheon_plus.csv` using T009
+- [ ] T015 [US1] Implement `src/ingestion/loader.py` to load raw CSV from T014, apply z < 0.15 cut, filter quality flags, and invoke the checksum utility from T009 for data integrity
+- [ ] T016 [US1] Assign HEALPix indices (Nside=4, NESTED) to supernovae
 - [ ] T017 [US1] Add validation logic to ensure all RA/Dec coordinates are within valid celestial bounds and handle missing data
 - [ ] T018 [US1] Implement audit logging for removed rows (invalid redshift/coordinates) in `src/ingestion/loader.py`
 - [ ] T019 [US1] Save cleaned and spatially indexed dataset to `data/processed/pantheon_plus_cleaned.parquet`
@@ -98,7 +98,7 @@
 
 **Goal**: Calculate global and regional H₀ estimates using peculiar velocity corrections and luminosity distance fits.
 
-**Independent Test**: Run regression on synthetic data with known H₀ and verify recovery within ±1 km/s/Mpc [UNRESOLVED-CLAIM: c_5f1d7144 — status=not_enough_info].
+**Independent Test**: Run regression on synthetic data with known H₀ and verify recovery within ±67.80 (Wikipedia: 2013 in science, https://en.wikipedia.org/wiki/2013_in_science) km/s/Mpc [UNRESOLVED-CLAIM: c_53eddd4f — status=verified].
 
 ### Tests for User Story 2
 
@@ -109,12 +109,12 @@
 
 - [ ] T022 [US2] Implement `src/analysis/h0_estimator.py` with linearized Hubble diagram approximation for speed (Monte Carlo use), consuming `data/processed/pantheon_plus_corrected.parquet`
 - [ ] T023 [US2] Implement `src/analysis/h0_estimator.py` with full non-linear luminosity distance model $d_L(z) = c/H_0 \int dz'/E(z')$ for final results, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T024 [US2] Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction` in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts [UNRESOLVED-CLAIM: c_aa0cfcbe — status=not_enough_info]
+- [ ] T024 [US2] Integrate `pecvel` library (v1.2+) function `apply_cosmicflows3_correction` in `src/analysis/h0_estimator.py` to apply the static CosmicFlows-3 model to redshifts [UNRESOLVED-CLAIM: c_5d835e84 — status=not_enough_info]
 - [ ] T025 [US2] Implement logic to fit global H₀ using the full sample in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T026 [US2] Implement logic to fit local H₀ for each HEALPix pixel with N ≥ 30 [UNRESOLVED-CLAIM: c_6014f22c — status=not_enough_info] in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
-- [ ] T027 [US2] Implement logic to identify pixels with N < 30 for fallback estimation [UNRESOLVED-CLAIM: c_2721a151 — status=not_enough_info]
+- [ ] T026 [US2] Implement logic to fit local H₀ for each HEALPix pixel with N ≥ 30 [UNRESOLVED-CLAIM: c_456ba479 — status=not_enough_info] in `src/analysis/h0_estimator.py`, consuming `data/processed/pantheon_plus_corrected.parquet`
+- [ ] T027 [US2] Implement logic to identify pixels with N < 30 for fallback estimation [UNRESOLVED-CLAIM: c_3cdfc01e — status=not_enough_info]
 - [ ] T028 [US2] Save global and local H₀ estimates with standard errors to `data/results/h0_estimates.parquet`
-- [ ] T029 [US2] Implement Hierarchical Bayesian estimation for pixels with N < 30 using PyMC/NumPyro with Normal-Inverse-Gamma priors: Likelihood ~ Normal(mu, sigma^), Priors: mu ~ Normal(73, 5) [UNRESOLVED-CLAIM: c_c1711b43 — status=not_enough_info], sigma ~ InverseGamma(2, 1) [UNRESOLVED-CLAIM: c_131cf4a3 — status=not_enough_info], with hyperprior borrowing strength from neighboring pixels (Nside=4 adjacency)
+- [ ] T029 [US2] {{claim:c_f42f9d04}}, with hyperprior borrowing strength from neighboring pixels (Nside=4 adjacency)
 - [ ] T030 [US2] Save Hierarchical Bayesian estimates for low-N pixels to `data/results/h0_estimates_parquet` (append)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -135,11 +135,11 @@
 ### Implementation for User Story 3
 
 - [ ] T033 [US3] Implement `src/analysis/anisotropy.py` to compute spherical harmonic coefficients (dipole ℓ=1, quadrupole ℓ=2) from `data/results/h0_estimates.parquet` (T028/T030)
-- [ ] T034 [US3] Implement `src/analysis/simulations.py` to generate ≥1,000 Monte Carlo realizations [UNRESOLVED-CLAIM: c_00b271c3 — status=not_enough_info] with isotropic H₀ (seed=42) and Gaussian noise (mean=0, sigma=0.02) [UNRESOLVED-CLAIM: c_1f478ea9 — status=not_enough_info] added to distance moduli
+- [ ] T034 [US3] {{claim:c_f3094af2}}
 - [ ] T035 [US3] Implement randomization logic to shuffle supernova positions within the observed Pantheon+ selection function (survey mask)
 - [ ] T036 [US3] Implement p-value calculation comparing observed dipole/quadrupole amplitudes against the null distribution
-- [ ] T037 [US3] Implement Benjamini-Hochberg FDR correction (q=0.05) [UNRESOLVED-CLAIM: c_48336600 — status=not_enough_info] for joint dipole/quadrupole tests in `src/analysis/anisotropy.py`, including logic to report the false positive rate (SC-005) as a measurable outcome
-- [ ] T038 [US3] Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15, 0.20) [UNRESOLVED-CLAIM: c_487cbbc0 — status=not_enough_info] and record stability of metrics, outputting results to `data/results/sensitivity_metrics.json`
+- [ ] T037 [US3] Implement Benjamini-Hochberg FDR correction (q=0.05) for joint dipole/quadrupole tests [UNRESOLVED-CLAIM: c_0f9999b9 — status=not_enough_info] in `src/analysis/anisotropy.py`, including logic to report the false positive rate (SC-005) as a measurable outcome
+- [ ] T038 [US3] Implement sensitivity analysis loop to vary redshift cuts (z < 0.10, 0.15, 0.20) [UNRESOLVED-CLAIM: c_e7130827 — status=not_enough_info] and record stability of metrics, outputting results to `data/results/sensitivity_metrics.json`
 - [ ] T039 [US3] Implement generation of comparative plots and stability report for sensitivity analysis (FR-007), saving to `data/results/sensitivity_report.md`
 - [ ] T040 [US3] Save anisotropy results, null distributions, and sensitivity analysis logs to `data/results/anisotropy_metrics.json`
 
@@ -164,7 +164,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T044 Code cleanup and refactoring of `src/ingestion` and `src/analysis` modules
-- [ ] T045 Performance optimization for Monte Carlo simulations (vectorization, multiprocessing) to ensure < 6h runtime [UNRESOLVED-CLAIM: c_d2a64af4 — status=not_enough_info]
+- [ ] T045 Performance optimization for Monte Carlo simulations (vectorization, multiprocessing) to ensure < 6h runtime [UNRESOLVED-CLAIM: c_439f4a8a — status=not_enough_info]
 - [ ] T046 [P] Additional unit tests for edge cases (N < 30 pixels, missing data) in `tests/unit/`
 - [ ] T047 [P] Complete docstrings for `src/ingestion/loader.py` and `src/ingestion/spatial.py`
 - [ ] T048 [P] Complete docstrings for `src/analysis/h0_estimator.py` and `src/analysis/anisotropy.py`

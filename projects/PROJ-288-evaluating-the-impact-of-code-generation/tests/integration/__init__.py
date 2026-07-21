@@ -1,1 +1,1 @@
-"""Integration tests for the llmXive research pipeline."""
+"""Integration tests package."""

@@ -1,16 +1,15 @@
-? 'T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis
-  data/raw data/processed data/baseline_corpus tests/unit tests/integration docs/reports`.
-  (FR-001, FR-002)'
-: 2
-? 'T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
-  `pandas==2.0.3`, `numpy==1.24.3`, `requests==2.31.0`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`,
-  `matplotlib==3.7.2`, `seaborn==0.12.2`, `pyyaml==6.0.1`, `pytest==7.4.0`. (FR-001)'
-: 2
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-T005 [P] Implement `code/data/__init__.py` and base data utilities: 2
-T006 [P] Setup rate limiting infrastructure (Token Bucket algorithm) in `code/data/rate_limiter.py`: 2
-? 'T007 Create base data models/entities in `code/data/models.py`. Define: `PullRequest(repo_id:
-  str, pr_number: int, author: str, code_lines_changed: int, origin_label: str)`,
-  `ReviewMetrics(median_time: float, mean_time: float, std_dev: float, sample_size:
-  int)`. (FR-001)'
-: 1
+T001: 1
+T003: 1
+T008: 1
+T009: 1
+T011: 1
+T012: 1
+T013: 1
+T016: 1
+T017: 1
+T020: 1
+T023: 1
+T024: 1
+T025: 1
+T026: 1
+T027: 1

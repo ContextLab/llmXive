@@ -31,11 +31,11 @@ T018:
     source file or test results.
 T024:
   c: false
-  h: 97ced469001b45bf4df7a8f7fece1bb9de8b507657392a5fe3ce5b470645f43d
-  r: "The provided `metadata_stats.py` is truncated (ends mid\u2011line, lacks the\
-    \ logic to loop over all datasets and to write the required `metadata_stats_summary.csv`).\
-    \ Moreover, the expected output CSV does not exist on disk. Both the implementation\
-    \ and the required artifact are missing."
+  h: aaffdf83834301e97eab64427cb0a3e910d920988d74eb79f0902d5daf117546
+  r: "The required output file `data/processed/metadata_stats_summary.csv` does not\
+    \ exist, so the task\u2019s primary deliverable is missing. Consequently the implementation\
+    \ cannot be verified as having computed and saved the requested statistics for\
+    \ all datasets."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +45,39 @@ T026:
     \ implementation (and any associated tests), the requirement cannot be confirmed\
     \ as met. The next implementer should add the necessary code changes and include\
     \ the updated files or a diff as evidence."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files were provided that implement or demonstrate\
+    \ evaluation logic for held\u2011out test sets, nor any recorded AUC or RMSE values.\
+    \ The required artifact (evaluation module and its metric recordings) is missing,\
+    \ so the task is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for a JSON file named `metrics_conditioned_{run_id}.json` under `data/artifacts/`\
+    \ and found no such artifact present or referenced in the provided evidence. The\
+    \ required results file with the run\u2011ID linkage is missing, so the task is\
+    \ not satisfied."
+T031:
+  c: false
+  h: 813d6d508d27c619d8f80cb346543f20eceb1f4c394f4cbf49ea2411869b4dae
+  r: "The `code/analysis/correlation.py` script exists, but the required input file\
+    \ `data/artifacts/gpu_tuned_baselines.csv` is absent, so the script cannot perform\
+    \ the Recovery Ratio calculation as specified. The missing CSV prevents the implementation\
+    \ from being functional and meeting the task\u2019s requirement."
+T032a:
+  c: false
+  h: d8d34f86399afc4e6ee28eec9cf7e266b2dbab8fae919ac42ec9ac0b6a45af12
+  r: "The repository contains `code/pipelines/validate_baselines.py`, but the file\
+    \ is truncated (e.g., an unfinished fallback list) and does not include complete\
+    \ logic to write the required CSV. Moreover, the expected output file `data/artifacts/gpu_tuned_baselines.csv`\
+    \ is absent. The task\u2019s deliverables (a populated CSV with the specified\
+    \ schema and a gap report) are therefore not present."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file was presented that reads the validated\
+    \ CSV from T032a and extracts the \u201CGPU\u2011Tuned\u201D baseline entries\
+    \ from the MulTaBench paper. The required artifact (logic for fetching those baselines)\
+    \ is missing, so the task is not satisfied."

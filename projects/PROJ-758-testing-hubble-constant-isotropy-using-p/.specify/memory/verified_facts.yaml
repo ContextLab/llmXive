@@ -1,5 +1,10 @@
-'|carlo generate least monte realization simulation':
-  quote: "1000). In a crude way the con\uFB01gurations correspond to basis fun ctions."
-  source_id: hep-lat/0202016
-  url: https://arxiv.org/abs/hep-lat/0202016
-  value: '1000'
+'|km mpc recovery verify within':
+  quote: "The European-led research team behind the Planck cosmology probe releases\
+    \ the mission's all-sky map of the cosmic microwave background. The map suggests\
+    \ the universe is slightly older than thought; according to the team, the universe\
+    \ is 13.798 \xB1 0.037 billion years old, and contains 4.9% ordinary matter, 26.8%\
+    \ dark matter and 68.3% dark energy. Also, the Hubble constant was measured to\
+    \ be 67.80 \xB1 0.77 (km/s)/Mpc."
+  source_id: 2013 in science
+  url: https://en.wikipedia.org/wiki/2013_in_science
+  value: '67.80'

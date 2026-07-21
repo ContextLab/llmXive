@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T01:02:23.568477Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-231-statistical-analysis-of-publicly-availab
-last_run_id: c90a300c-be08-4f2b-b260-e6eb9c99c914
+last_run_id: 9a0599ab-e2ae-47e1-b08c-d807ffdf24e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Statistical Analysis of Publicly Available Climate Model Output Ensembles
-updated_at: '2026-07-19T04:55:47.986766Z'
+updated_at: '2026-07-21T13:13:18.633183Z'

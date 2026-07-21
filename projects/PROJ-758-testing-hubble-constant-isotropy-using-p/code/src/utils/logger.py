@@ -1,164 +1,186 @@
 """
-Logging infrastructure for the Hubble Constant Isotropy study.
+Logging infrastructure for the Hubble Constant Isotropy analysis pipeline.
 
-Provides a centralized logging setup with audit trails for data filtering
-operations, ensuring reproducibility and transparency in the analysis pipeline.
+This module provides a centralized logging configuration that supports:
+- Standard console and file output
+- Audit trails for data filtering operations
+- Structured error logging with timestamps and context
 """
-
 import logging
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-# Constants for log configuration
-LOG_DIR = Path("logs")
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-DEFAULT_LOG_LEVEL = logging.INFO
-
-# Global logger instance cache
+# Global logger instance registry
 _loggers: dict[str, logging.Logger] = {}
+_initialized: bool = False
 
+# Default log format
+DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+AUDIT_FORMAT = "%(asctime)s - AUDIT - %(levelname)s - %(message)s"
 
 def setup_logging(
-    log_level: int = DEFAULT_LOG_LEVEL,
-    log_dir: Optional[Path] = None,
-    console_output: bool = True,
-    file_output: bool = True,
+    log_level: int = logging.INFO,
+    log_file: Optional[Path] = None,
+    enable_audit: bool = True,
+    audit_file: Optional[Path] = None,
 ) -> None:
     """
-    Configure the root logger and ensure the log directory exists.
+    Configure the root logging infrastructure.
 
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_dir: Directory to store log files. Defaults to project root 'logs'.
-        console_output: Whether to log to stderr.
-        file_output: Whether to log to a file.
+        log_level: Minimum log level (e.g., logging.DEBUG, logging.INFO)
+        log_file: Path to main application log file. If None, only console output.
+        enable_audit: If True, enables separate audit logging for data operations.
+        audit_file: Path to audit log file. If None and enable_audit=True, uses 'audit.log'
+                    in the current working directory.
+
+    This function configures:
+    1. Root logger with console handler
+    2. Optional file handler for general logs
+    3. Optional 'audit' logger for data filtering trails
     """
-    if log_dir is None:
-        log_dir = LOG_DIR
+    global _initialized
 
-    # Ensure log directory exists
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create a timestamped log file name
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = log_dir / f"pipeline_{timestamp}.log"
-
-    # Get root logger
+    # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(log_level)
 
-    # Clear existing handlers to avoid duplicates
+    # Clear existing handlers to avoid duplicates on re-calls
     root_logger.handlers.clear()
 
-    # Create formatter
-    formatter = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
+    # Console Handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter(DEFAULT_FORMAT)
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
 
-    # Console handler
-    if console_output:
-        console_handler = logging.StreamHandler(sys.stderr)
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-    # File handler
-    if file_output:
+    # File Handler (General)
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
+        file_handler.setFormatter(console_formatter)
         root_logger.addHandler(file_handler)
 
-    # Log startup message
-    root_logger.info("Logging infrastructure initialized.")
-    root_logger.info(f"Log file: {log_file}")
+    # Audit Logger Setup
+    if enable_audit:
+        audit_logger = logging.getLogger("audit")
+        audit_logger.setLevel(log_level)
+        # Prevent propagation to root to avoid double logging if desired,
+        # but usually we want audit logs in the main file too if configured.
+        # Here we add a dedicated file handler for audit trails.
+        if audit_file:
+            audit_file.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            audit_file = Path.cwd() / "audit.log"
 
+        # Only add handler if not already present to avoid duplicates
+        if not audit_logger.handlers:
+            audit_handler = logging.FileHandler(audit_file)
+            audit_handler.setLevel(log_level)
+            audit_formatter = logging.Formatter(AUDIT_FORMAT)
+            audit_handler.setFormatter(audit_formatter)
+            audit_logger.addHandler(audit_handler)
+            # Ensure audit logs go to console as well for visibility during dev
+            audit_logger.addHandler(console_handler)
+
+    _initialized = True
+    logging.info("Logging infrastructure initialized.")
 
 def get_logger(name: str) -> logging.Logger:
     """
     Retrieve or create a named logger.
 
     Args:
-        name: The name of the logger (typically __name__ of the module).
+        name: Logger name (typically module name).
 
     Returns:
-        A configured logger instance.
+        Configured logger instance.
     """
-    if name not in _loggers:
-        logger = logging.getLogger(name)
-        # Ensure it inherits handlers from root
-        logger.propagate = True
-        _loggers[name] = logger
-    return _loggers[name]
+    if name in _loggers:
+        return _loggers[name]
 
+    logger = logging.getLogger(name)
+    # If setup_logging hasn't been called yet, basicConfig will handle it,
+    # but explicit setup is preferred.
+    if not _initialized:
+        # Fallback to basic config if not explicitly set up
+        logging.basicConfig(level=logging.INFO, format=DEFAULT_FORMAT)
+
+    _loggers[name] = logger
+    return logger
 
 def log_data_filtering(
-    operation: str,
-    input_count: int,
-    output_count: int,
-    criteria: str,
-    logger_name: Optional[str] = None,
+    source: str,
+    filter_type: str,
+    reason: str,
+    count_removed: int,
+    count_remaining: int,
+    details: Optional[str] = None,
 ) -> None:
     """
-    Log a data filtering operation for audit trail purposes.
+    Log a data filtering event to the audit trail.
 
-    This function creates a structured audit log entry that records:
-    - The type of filtering operation performed
-    - The number of records before filtering
-    - The number of records after filtering
-    - The specific criteria applied
+    This function is critical for reproducibility, ensuring that every
+    data reduction step is recorded with context.
 
     Args:
-        operation: Name of the filtering operation (e.g., 'redshift_cut', 'quality_flag').
-        input_count: Number of records before filtering.
-        output_count: Number of records after filtering.
-        criteria: Description of the filtering criteria applied.
-        logger_name: Optional logger name. Defaults to 'data_audit'.
+        source: Name of the dataset or file being filtered (e.g., 'pantheon_plus.csv')
+        filter_type: Type of filter applied (e.g., 'redshift_cut', 'quality_flag', 'coordinate_validation')
+        reason: Human-readable explanation of why the filter was applied.
+        count_removed: Number of records removed by this operation.
+        count_remaining: Number of records remaining after this operation.
+        details: Optional additional context (e.g., specific threshold values).
     """
-    logger = get_logger(logger_name or "data_audit")
-    removed_count = input_count - output_count
-    removal_percentage = (removed_count / input_count * 100) if input_count > 0 else 0.0
+    audit_logger = logging.getLogger("audit")
+    if not audit_logger.handlers:
+        # Fallback if audit logger wasn't fully initialized
+        audit_logger = get_logger("audit")
+        audit_logger.setLevel(logging.INFO)
+        audit_logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    logger.info(
-        "AUDIT: Filtering operation '%s' applied. "
-        "Criteria: '%s'. "
-        "Records: %d -> %d (removed: %d, %.2f%%).",
-        operation,
-        criteria,
-        input_count,
-        output_count,
-        removed_count,
-        removal_percentage,
-    )
+    message_parts = [
+        f"SOURCE={source}",
+        f"FILTER={filter_type}",
+        f"REASON={reason}",
+        f"REMOVED={count_removed}",
+        f"REMAINING={count_remaining}",
+    ]
+    if details:
+        message_parts.append(f"DETAILS={details}")
 
-    if removed_count > 0 and removal_percentage > 10:
-        logger.warning(
-            "AUDIT WARNING: Filtering '%s' removed >10%% of data (%.2f%%). "
-            "Review criteria: '%s'.",
-            operation,
-            removal_percentage,
-            criteria,
-        )
-
+    message = " | ".join(message_parts)
+    audit_logger.info(message)
 
 def log_error(
-    error: Exception,
-    context: str,
-    logger_name: Optional[str] = None,
+    operation: str,
+    exception: Exception,
+    context: Optional[dict] = None,
+    critical: bool = False,
 ) -> None:
     """
-    Log an exception with detailed context for debugging.
+    Log an error with structured context for debugging.
 
     Args:
-        error: The exception instance.
-        context: A string describing the context where the error occurred.
-        logger_name: Optional logger name. Defaults to 'error_handler'.
+        operation: The name of the operation that failed.
+        exception: The exception instance that was raised.
+        context: Optional dictionary of contextual variables (e.g., input file paths, parameters).
+        critical: If True, logs at CRITICAL level; otherwise ERROR.
     """
-    logger = get_logger(logger_name or "error_handler")
-    logger.exception(
-        "ERROR in context '%s': %s: %s",
-        context,
-        type(error).__name__,
-        str(error),
-    )
+    logger = get_logger("error_handler")
+    level = logging.CRITICAL if critical else logging.ERROR
+
+    log_msg = f"ERROR in {operation}: {type(exception).__name__}: {exception}"
+    logger.log(level, log_msg)
+
+    if context:
+        context_str = ", ".join(f"{k}={v}" for k, v in context.items())
+        logger.log(level, f"Context: {context_str}")
+
+    # Log traceback
+    import traceback
+    tb_str = traceback.format_exc()
+    logger.log(level, f"Traceback:\n{tb_str}")

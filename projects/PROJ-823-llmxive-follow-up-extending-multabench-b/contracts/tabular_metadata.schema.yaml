@@ -1,135 +1,192 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
 title: Tabular Metadata Schema
 description: >
-  Schema defining the structure for tabular metadata statistics generated
-  by the MulTaBench extension pipeline. This schema is used to validate
-  the output of code/analysis/metadata_stats.py and serves as the contract
-  for downstream tasks (T025, T033).
-
+  Schema defining the structure of tabular metadata statistics computed
+  for MulTaBench datasets. This schema is used to validate the output
+  of code/analysis/metadata_stats.py and ensure consistency for downstream
+  correlation analysis (US3).
 type: object
 required:
-  - schema_version
-  - generated_at
+  - dataset_id
   - run_id
-  - datasets
+  - feature_statistics
+  - summary_metrics
 properties:
-  schema_version:
+  dataset_id:
     type: string
-    description: Version of this schema (e.g., "1.0.0")
-    const: "1.0.0"
-
+    description: Unique identifier for the dataset (e.g., 'multabench_dataset_001')
+    pattern: '^[a-zA-Z0-9_-]+$'
+  
+  run_id:
+    type: string
+    description: >
+      Identifier for the pipeline run that generated these statistics.
+      Used to link metadata stats with embeddings and conditioned metrics.
+    pattern: '^[a-zA-Z0-9_-]+$'
+  
   generated_at:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the metadata was generated
-
-  run_id:
-    type: string
-    description: Unique identifier for the pipeline run that generated this metadata
-    pattern: "^[a-zA-Z0-9_-]+$"
-
-  datasets:
+    description: ISO 8601 timestamp of when the statistics were computed.
+  
+  feature_statistics:
     type: array
-    description: List of metadata entries for each processed dataset
+    description: >
+      Per-feature statistical summary. One entry per column in the tabular data.
     items:
       type: object
       required:
-        - dataset_id
-        - stats
+        - feature_name
+        - feature_type
+        - cardinality
+        - missingness_ratio
+        - variance
       properties:
-        dataset_id:
+        feature_name:
           type: string
-          description: Unique identifier for the dataset
-          pattern: "^[a-zA-Z0-9_-]+$"
+          description: Name of the tabular feature/column.
+        
+        feature_type:
+          type: string
+          enum: [numerical, categorical, boolean, datetime, mixed]
+          description: Inferred or declared type of the feature.
+        
+        cardinality:
+          type: integer
+          minimum: 1
+          description: >
+            Number of unique values in the feature.
+            For numerical features, this is the count of distinct values.
+            For categorical, it is the number of categories.
+        
+        missingness_ratio:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: >
+            Ratio of missing (NaN/null) values in the feature (0.0 to 1.0).
+        
+        sparsity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: >
+            Ratio of zero values for numerical features, or most frequent category
+            dominance for categorical. 0.0 means no zeros/dominance, 1.0 means all zeros.
+        
+        variance:
+          type: number
+          minimum: 0.0
+          description: >
+            Statistical variance of the feature. For categorical features,
+            this may be the variance of one-hot encoded representation or a
+            placeholder (e.g., 0.0) if not applicable.
+        
+        mean:
+          type: number
+          nullable: true
+          description: Mean value for numerical features. Null for non-numerical.
+        
+        std_dev:
+          type: number
+          nullable: true
+          description: Standard deviation for numerical features. Null for non-numerical.
+        
+        min_value:
+          type: number
+          nullable: true
+          description: Minimum value for numerical features.
+        
+        max_value:
+          type: number
+          nullable: true
+          description: Maximum value for numerical features.
+        
+        most_frequent_category:
+          type: string
+          nullable: true
+          description: Most frequent category for categorical features.
+        
+        zero_variance_flag:
+          type: boolean
+          description: >
+            True if the feature has zero variance (constant value across all rows).
+            Such features should be flagged for potential exclusion or imputation.
 
-        stats:
-          type: object
-          description: Statistical summary of tabular features
-          required:
-            - cardinality
-            - missingness
-            - sparsity
-            - variance
-          properties:
-            cardinality:
-              type: object
-              description: >
-                Number of unique values per feature. Keys are feature names,
-                values are integers representing unique value counts.
-              additionalProperties:
-                type: integer
-                minimum: 1
+  summary_metrics:
+    type: object
+    description: Aggregate statistics across all features in the dataset.
+    required:
+      - total_features
+      - numerical_features_count
+      - categorical_features_count
+      - avg_missingness_ratio
+      - total_zero_variance_features
+    properties:
+      total_features:
+        type: integer
+        minimum: 0
+        description: Total number of features in the dataset.
+      
+      numerical_features_count:
+        type: integer
+        minimum: 0
+        description: Count of features classified as numerical.
+      
+      categorical_features_count:
+        type: integer
+        minimum: 0
+        description: Count of features classified as categorical.
+      
+      boolean_features_count:
+        type: integer
+        minimum: 0
+        description: Count of features classified as boolean.
+      
+      avg_missingness_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Average missingness ratio across all features.
+      
+      total_zero_variance_features:
+        type: integer
+        minimum: 0
+        description: Count of features with zero variance (constant).
+      
+      high_sparsity_features:
+        type: integer
+        minimum: 0
+        description: Count of features with sparsity > 0.9.
+      
+      recommended_features_for_model:
+        type: integer
+        minimum: 0
+        description: >
+          Count of features recommended for inclusion in the projection model
+          (i.e., non-zero variance, reasonable missingness).
 
-            missingness:
-              type: object
-              description: >
-                Proportion of missing values per feature (0.0 to 1.0).
-                Keys are feature names, values are floats.
-              additionalProperties:
-                type: number
-                minimum: 0.0
-                maximum: 1.0
+  data_quality_flags:
+    type: object
+    description: Flags indicating potential data quality issues.
+    properties:
+      has_zero_variance_features:
+        type: boolean
+        description: True if any feature has zero variance.
+      
+      has_high_missingness_features:
+        type: boolean
+        description: True if any feature has missingness_ratio > 0.5.
+      
+      has_extreme_sparsity:
+        type: boolean
+        description: True if any feature has sparsity > 0.95.
+      
+      recommended_imputation:
+        type: string
+        enum: [none, mean_impute, median_impute, mode_impute, drop_features]
+        description: Recommended imputation strategy based on observed statistics.
 
-            sparsity:
-              type: object
-              description: >
-                Proportion of zero values per feature (0.0 to 1.0).
-                Keys are feature names, values are floats.
-              additionalProperties:
-                type: number
-                minimum: 0.0
-                maximum: 1.0
-
-            variance:
-              type: object
-              description: >
-                Variance of numeric features. Keys are feature names,
-                values are floats. Non-numeric features may be excluded or set to null.
-              additionalProperties:
-                type: number
-
-            feature_count:
-              type: integer
-              description: Total number of features analyzed
-              minimum: 0
-
-            row_count:
-              type: integer
-              description: Total number of rows analyzed
-              minimum: 0
-
-            categorical_features:
-              type: array
-              description: List of feature names identified as categorical
-              items:
-                type: string
-
-            numeric_features:
-              type: array
-              description: List of feature names identified as numeric
-              items:
-                type: string
-
-examples:
-  - schema_version: "1.0.0"
-    generated_at: "2023-10-27T10:00:00Z"
-    run_id: "baseline_run_20231027_001"
-    datasets:
-      - dataset_id: "multabench_dataset_A"
-        stats:
-          cardinality:
-            feature_1: 5
-            feature_2: 12
-          missingness:
-            feature_1: 0.02
-            feature_2: 0.00
-          sparsity:
-            feature_1: 0.15
-            feature_2: 0.00
-          variance:
-            feature_1: 2.34
-            feature_2: 15.67
-          feature_count: 2
-          row_count: 1000
-          categorical_features: ["feature_1"]
-          numeric_features: ["feature_2"]
+additionalProperties: false

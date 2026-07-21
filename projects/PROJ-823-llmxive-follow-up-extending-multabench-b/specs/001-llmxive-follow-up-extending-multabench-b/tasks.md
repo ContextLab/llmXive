@@ -116,8 +116,8 @@
 - [ ] T024 [US2] Implement `code/analysis/metadata_stats.py` to compute cardinality, missingness, sparsity, and variance for tabular features for **ALL available datasets**. Output must be a single summary CSV: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. This task must complete before T025.
 - [X] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
 - [ ] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by skipping or imputing constants
-- [~] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
-- [~] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
+- [ ] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
+- [ ] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,9 +136,9 @@
 
 ### Implementation for User Story 3
 
-- [~] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for all datasets. Generate `data/artifacts/gpu_tuned_baselines.csv` with explicit schema (dataset_id, task_type, baseline_value) and a 'Data Availability Gap' report listing missing entries.
-- [~] T032b [US3] Implement logic to fetch 'GPU-Tuned' baselines from MulTaBench paper data using the validated CSV from T032a. <!-- FAILED: unspecified -->
-- [~] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated) using the aggregated baseline from T019c and the **deterministic re-computed baseline** for consistency. Input: `data/artifacts/gpu_tuned_baselines.csv` from T032a.
+- [ ] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for all datasets. Generate `data/artifacts/gpu_tuned_baselines.csv` with explicit schema (dataset_id, task_type, baseline_value) and a 'Data Availability Gap' report listing missing entries.
+- [ ] T032b [US3] Implement logic to fetch 'GPU-Tuned' baselines from MulTaBench paper data using the validated CSV from T032a. <!-- FAILED: unspecified -->
+- [ ] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated) using the aggregated baseline from T019c and the **deterministic re-computed baseline** for consistency. Input: `data/artifacts/gpu_tuned_baselines.csv` from T032a.
 - [~] T033 [US3] Perform Pearson correlation between "Recovery Ratio" and metadata features (Cardinality, Missingness, Sparsity, Variance) for **ALL available datasets with complete data**.
 - [~] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons across metadata features AND for the one-sample t-test results. Input: p-values from T033 (correlation) and T035 (t-test). Output: JSON with adjusted p-values.
 - [~] T035 [US3] Perform one-sample t-test (or Wilcoxon if normality fails) comparing CPU-Conditioned performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**.

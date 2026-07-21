@@ -1,56 +1,72 @@
 """
-Script to initialize the project data directory structure.
-
-This script creates the necessary directory hierarchy for the Hubble Constant
-Isotropy analysis project, ensuring that data storage follows the standard
-convention:
-
-- data/raw:   For unmodified, downloaded source data (e.g., Pantheon+ CSV)
-- data/processed: For cleaned, filtered, and spatially indexed datasets
-- data/results: For final analysis outputs, plots, and reports
-
-This corresponds to Task T003 in the project plan.
+Script to initialize the data directory structure for the Hubble Constant Isotropy project.
+Creates the required directory hierarchy under 'data/' to support the pipeline's
+ingestion, processing, and results storage needs.
 """
 import os
 import sys
 from pathlib import Path
 
+
 def main():
-    # Determine the project root relative to this script location
-    # The script is located at code/setup_data_dirs.py
-    # We expect the project root to be the parent of the 'code' directory
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    """
+    Creates the data directory structure:
+    - data/raw/          : For raw downloaded datasets (e.g., Pantheon+ CSV)
+    - data/processed/    : For cleaned, filtered, and spatially indexed data
+    - data/results/      : For final analysis outputs (H0 estimates, anisotropy metrics)
     
-    data_dir = project_root / "data"
+    Exits with status 0 on success, 1 on failure.
+    """
+    # Determine the project root. 
+    # Based on project structure, this script is in code/, so root is parent.
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    
+    data_root = project_root / "data"
     
     directories = [
-        data_dir / "raw",
-        data_dir / "processed",
-        data_dir / "results",
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "results",
     ]
     
     created_count = 0
     existing_count = 0
     
-    print(f"Initializing data directories for project at: {project_root}")
+    print(f"Initializing data directories in: {data_root}")
     
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {directory}")
-            created_count += 1
-        else:
-            # Check if it is actually a directory
-            if directory.is_dir():
-                print(f"Exists: {directory}")
+    for dir_path in directories:
+        if dir_path.exists():
+            if dir_path.is_dir():
+                print(f"  [SKIP] {dir_path.relative_to(project_root)} (already exists)")
                 existing_count += 1
             else:
-                print(f"ERROR: Path exists but is not a directory: {directory}")
+                print(f"  [ERROR] {dir_path.relative_to(project_root)} exists but is not a directory")
+                return 1
+        else:
+            try:
+                dir_path.mkdir(parents=True, exist_ok=True)
+                print(f"  [CREATED] {dir_path.relative_to(project_root)}")
+                created_count += 1
+            except OSError as e:
+                print(f"  [FAILED] Could not create {dir_path.relative_to(project_root)}: {e}")
                 return 1
     
-    print(f"Data structure initialization complete. Created: {created_count}, Existing: {existing_count}")
+    print(f"\nData directory initialization complete.")
+    print(f"  Created: {created_count}")
+    print(f"  Existing: {existing_count}")
+    
+    # Create .gitkeep files to ensure directories are tracked by git
+    for dir_path in directories:
+        keep_file = dir_path / ".gitkeep"
+        if not keep_file.exists():
+            try:
+                keep_file.touch()
+            except OSError:
+                pass  # Ignore if we can't create .gitkeep, dir creation is the primary goal
+    
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
