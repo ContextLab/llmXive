@@ -1,8 +1,6 @@
 """
-Monolithic Runner for AdaPlanBench Evaluation.
-
-Executes the monolithic baseline agent on the filtered dataset and
-writes execution logs conforming to the execution-log schema.
+Runner script for the Monolithic Agent baseline.
+Executes the monolithic agent on the filtered dataset and logs results.
 """
 import os
 import sys
@@ -10,183 +8,165 @@ import json
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import pandas as pd
 
-# Add parent to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from config import Paths, ModelConfig, get_model_config, set_all_seeds
+from config import get_paths, get_model_config, set_all_seeds
 from agent.monolithic import MonolithicAgent, MonolithicAgentConfig
-from agent.base import ExecutionResult, TaskContext, ViolationType
-from datasets import load_dataset
+from agent.base import TaskContext, ExecutionResult, ViolationType
 
-
-def load_filtered_tasks(task_path: str) -> List[Dict[str, Any]]:
-    """
-    Load the filtered tasks from the CSV produced by T014.
-    Expects columns: task_id, prompt, progressive_constraints, constraint_count, etc.
-    """
-    import pandas as pd
-    if not os.path.exists(task_path):
-        raise FileNotFoundError(f"Filtered tasks file not found at {task_path}. "
-                                "Ensure T014 has been run successfully.")
+def load_filtered_tasks(input_path: str) -> List[Dict[str, Any]]:
+    """Load filtered tasks from CSV."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_csv(task_path)
-    # Parse the progressive_constraints column if it's stored as a string representation of a list
-    # The loader in T012/T013 should have saved it as a list, but CSV often stringifies it.
-    # We need to be robust here.
-    def parse_constraints(val):
-        if isinstance(val, list):
-            return val
-        if isinstance(val, str):
-            try:
-                # Attempt to eval safely or json.loads if it's JSON formatted
+    df = pd.read_csv(input_path)
+    # Ensure progressive_constraints is parsed if it's a string representation of a list
+    if 'progressive_constraints' in df.columns:
+        def parse_constraints(val):
+            if isinstance(val, list):
+                return val
+            if isinstance(val, str):
+                # Handle string representation of list
+                val = val.strip()
                 if val.startswith('[') and val.endswith(']'):
-                    return eval(val) # Safe in this controlled context as it comes from our own CSV
-                return []
-            except Exception:
-                return []
-        return []
-
-    records = df.to_dict('records')
-    for record in records:
-        if 'progressive_constraints' in record:
-            record['progressive_constraints'] = parse_constraints(record['progressive_constraints'])
-        # Ensure constraint_count is an int
-        if 'constraint_count' in record:
-            try:
-                record['constraint_count'] = int(record['constraint_count'])
-            except (ValueError, TypeError):
-                record['constraint_count'] = len(record.get('progressive_constraints', []))
-    
-    return records
-
-
-def run_monolithic(dataset: List[Dict[str, Any]], model_config: MonolithicAgentConfig) -> List[Dict[str, Any]]:
-    """
-    Execute the monolithic agent on each task in the dataset.
-    
-    Args:
-        dataset: List of task dictionaries loaded from filtered_tasks.csv.
-        model_config: Configuration for the monolithic agent model.
+                    try:
+                        # Safe evaluation of list string
+                        return eval(val, {"__builtins__": {}}, {})
+                    except Exception:
+                        return [val] if val else []
+            return [val] if val else []
         
-    Returns:
-        List of log entries conforming to execution-log.schema.yaml.
+        df['progressive_constraints'] = df['progressive_constraints'].apply(parse_constraints)
+    
+    tasks = df.to_dict('records')
+    return tasks
+
+def run_monolithic(dataset: List[Dict[str, Any]], model_name: str) -> List[Dict[str, Any]]:
     """
-    # Initialize the agent
-    agent = MonolithicAgent(config=model_config)
-    
-    logs = []
-    
+    Execute the monolithic agent on the provided dataset.
+
+    Args:
+        dataset: List of task dictionaries.
+        model_name: Name of the model to use.
+
+    Returns:
+        List of execution log entries conforming to the schema.
+    """
+    paths = get_paths()
+    model_config = get_model_config()
+
+    # Configure agent
+    agent_config = MonolithicAgentConfig(
+        model_name=model_name,
+        max_tokens=model_config.MAX_TOKENS,
+        temperature=model_config.TEMPERATURE,
+        device=model_config.DEVICE,
+        precision=model_config.PRECISION
+    )
+
+    agent = MonolithicAgent(agent_config)
+    results = []
+
     for task in dataset:
         task_id = task.get('task_id', 'unknown')
-        prompt = task.get('prompt', '')
         constraints = task.get('progressive_constraints', [])
-        constraint_count = task.get('constraint_count', len(constraints))
+        if isinstance(constraints, str):
+            try:
+                constraints = eval(constraints, {"__builtins__": {}}, {})
+            except Exception:
+                constraints = [constraints] if constraints else []
         
-        # Prepare context
+        constraint_count = len(constraints) if constraints else 0
+        raw_prompt = task.get('raw_prompt', '')
+
+        # Create task context
         context = TaskContext(
             task_id=task_id,
-            prompt=prompt,
+            raw_prompt=raw_prompt,
             constraints=constraints,
             constraint_count=constraint_count
         )
-        
+
         try:
-            # Execute the monolithic agent
+            # Execute agent
             result: ExecutionResult = agent.execute(context)
-            
-            # Determine violation status
-            # A violation occurs if the result contains any violations or if the final plan 
-            # does not satisfy the constraints (handled by agent logic, but we log what we get)
-            has_violation = len(result.violations) > 0
-            
+
+            # Determine violations
+            violation_bool = False
+            violation_reason = None
+            if result.violations:
+                violation_bool = True
+                # Aggregate reasons
+                reasons = [v.reason for v in result.violations if v.reason]
+                violation_reason = "; ".join(reasons) if reasons else "Constraint violation detected"
+
             log_entry = {
                 "task_id": task_id,
-                "architecture": "monolithic",
                 "constraint_count": constraint_count,
-                "final_score": result.score,
-                "has_violation": has_violation,
-                "violations": [
-                    {
-                        "type": v.type.value,
-                        "description": v.description,
-                        "constraint_id": v.constraint_id
-                    }
-                    for v in result.violations
-                ],
-                "execution_time": result.execution_time,
-                "raw_output": result.raw_output[:1000] if result.raw_output else "", # Truncate for log size
-                "status": "success" if result.status == "success" else "failed"
+                "generated_plan": result.generated_plan if result.generated_plan else "",
+                "violation_boolean": violation_bool,
+                "violation_reason": violation_reason,
+                "final_score": float(result.final_score) if result.final_score is not None else 0.0
             }
-            logs.append(log_entry)
-            
-        except Exception as e:
-            # Log error but continue processing other tasks
-            error_log = {
-                "task_id": task_id,
-                "architecture": "monolithic",
-                "constraint_count": constraint_count,
-                "final_score": 0.0,
-                "has_violation": True,
-                "violations": [],
-                "execution_time": 0.0,
-                "raw_output": "",
-                "status": "error",
-                "error_message": str(e)
-            }
-            logs.append(error_log)
-            
-    return logs
+            results.append(log_entry)
 
+        except Exception as e:
+            # Log error but continue
+            print(f"Error processing task {task_id}: {e}", file=sys.stderr)
+            log_entry = {
+                "task_id": task_id,
+                "constraint_count": constraint_count,
+                "generated_plan": "",
+                "violation_boolean": True,
+                "violation_reason": f"Execution error: {str(e)}",
+                "final_score": 0.0
+            }
+            results.append(log_entry)
+
+    return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Monolithic Baseline on Filtered Dataset")
-    parser.add_argument("--input", type=str, default=str(Paths.PROCESSED_DATA_DIR / "filtered_tasks.csv"),
-                        help="Path to the filtered tasks CSV file.")
-    parser.add_argument("--output", type=str, default=str(Paths.PROCESSED_DATA_DIR / "monolithic_logs.json"),
-                        help="Path to output JSON log file.")
-    parser.add_argument("--model", type=str, default="phi-3-mini",
-                        help="Model identifier to use.")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for reproducibility.")
-    
+    parser = argparse.ArgumentParser(description="Run Monolithic Agent on filtered dataset")
+    parser.add_argument("--input", type=str, default="data/processed/filtered_tasks.csv",
+                        help="Path to input filtered tasks CSV")
+    parser.add_argument("--output", type=str, default="data/processed/monolithic_logs.json",
+                        help="Path to output logs JSON")
+    parser.add_argument("--model", type=str, default="microsoft/phi-2",
+                        help="Model name to use")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
-    
+
     # Set seeds
     set_all_seeds(args.seed)
-    
+
+    paths = get_paths()
+
     # Load dataset
-    print(f"Loading filtered tasks from {args.input}...")
-    tasks = load_filtered_tasks(args.input)
-    print(f"Loaded {len(tasks)} tasks.")
-    
-    if not tasks:
-        print("No tasks found. Exiting.")
-        return
-    
-    # Configure model
-    # We use a minimal config for the monolithic agent to avoid heavy dependencies if not needed
-    # The actual model loading happens inside MonolithicAgent
-    model_cfg = MonolithicAgentConfig(
-        model_name=args.model,
-        max_tokens=512,
-        temperature=0.0, # Deterministic for baseline
-        top_p=1.0
-    )
-    
-    print(f"Running Monolithic Agent with model: {args.model}...")
-    logs = run_monolithic(tasks, model_cfg)
-    
+    if not os.path.exists(args.input):
+        print(f"Error: Input file not found: {args.input}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Loading tasks from {args.input}...")
+    dataset = load_filtered_tasks(args.input)
+    print(f"Loaded {len(dataset)} tasks.")
+
+    # Run monolithic agent
+    print(f"Running monolithic agent with model '{args.model}'...")
+    logs = run_monolithic(dataset, args.model)
+
     # Write output
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(logs, f, indent=2, ensure_ascii=False)
-        
-    print(f"Successfully wrote {len(logs)} logs to {output_path}")
 
+    print(f"Results written to {output_path}")
+    print(f"Processed {len(logs)} tasks.")
 
 if __name__ == "__main__":
     main()

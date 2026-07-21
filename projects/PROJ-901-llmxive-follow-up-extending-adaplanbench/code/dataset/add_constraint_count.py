@@ -1,79 +1,104 @@
 """
-Module to add constraint_count column to filtered tasks dataset.
-Ensures the constraint_count is an integer derived from len(progressive_constraints).
+Script to add the `constraint_count` metadata column to the filtered dataset.
+This column is derived from the length of the `progressive_constraints` field
+for each task, ensuring semantic alignment with US-1.
 """
 import os
 import sys
 import json
 from pathlib import Path
 from typing import List, Dict, Any
+
 import pandas as pd
-import argparse
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config import Paths, get_paths
+from config import get_paths, get_dataset_config
 
-def compute_constraint_count(constraints_field: Any) -> int:
+def compute_constraint_count(row: pd.Series) -> int:
     """
-    Compute constraint count from the progressive_constraints field.
-    Handles stringified JSON and list formats.
+    Compute the constraint count for a single row.
+    Extracts the 'progressive_constraints' field and returns its length.
+    If the field is missing or not a list, returns 0 (or raises an error if strict).
     """
-    if constraints_field is None:
+    progressive_constraints = row.get('progressive_constraints')
+    if progressive_constraints is None:
+        # This should not happen if filtering was done correctly
         return 0
-    
-    if isinstance(constraints_field, list):
-        return len(constraints_field)
-    
-    if isinstance(constraints_field, str):
+    if isinstance(progressive_constraints, str):
+        # Try to parse JSON string if it's stored as a string
         try:
-            parsed = json.loads(constraints_field)
-            if isinstance(parsed, list):
-                return len(parsed)
-        except (json.JSONDecodeError, TypeError):
-            pass
-    
+            progressive_constraints = json.loads(progressive_constraints)
+        except json.JSONDecodeError:
+            return 0
+    if isinstance(progressive_constraints, list):
+        return len(progressive_constraints)
     return 0
 
-def add_constraint_count_column(input_path: Path, output_path: Path):
+def add_constraint_count_column(input_path: Path, output_path: Path) -> pd.DataFrame:
     """
-    Read CSV, add constraint_count column, and write back.
+    Load the filtered tasks CSV, add the `constraint_count` column, and save.
     """
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    print(f"Reading {input_path}...")
+    # Load the dataset
     df = pd.read_csv(input_path)
 
+    # Verify that 'progressive_constraints' column exists
     if 'progressive_constraints' not in df.columns:
-        raise ValueError("Input CSV must contain 'progressive_constraints' column.")
+        raise ValueError(f"Input file missing required column 'progressive_constraints': {input_path}")
 
-    print("Computing constraint_count...")
-    df['constraint_count'] = df['progressive_constraints'].apply(compute_constraint_count)
+    # Compute constraint_count
+    df['constraint_count'] = df.apply(compute_constraint_count, axis=1)
 
-    # Ensure constraint_count is integer
+    # Ensure constraint_count is integer type
     df['constraint_count'] = df['constraint_count'].astype(int)
 
-    print(f"Writing to {output_path}...")
+    # Save to output path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    print(f"Added constraint_count column. Total rows: {len(df)}")
+
+    print(f"Added 'constraint_count' column to {len(df)} tasks.")
+    print(f"Output saved to: {output_path}")
+    print(f"Sample constraint counts: {df['constraint_count'].head().tolist()}")
+
+    return df
 
 def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Add constraint_count column to dataset")
-    parser.add_argument('--input', type=str, required=True, help="Input CSV path")
-    parser.add_argument('--output', type=str, required=True, help="Output CSV path")
-    
+    """Main entry point for the script."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Add constraint_count column to filtered tasks.")
+    parser.add_argument("--input", type=str, required=False,
+                        help="Path to input filtered tasks CSV. Defaults to config path.")
+    parser.add_argument("--output", type=str, required=False,
+                        help="Path to output CSV. Defaults to config path.")
     args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
+
+    paths = get_paths()
+    dataset_config = get_dataset_config()
+
+    input_path = Path(args.input) if args.input else paths.data_processed / "filtered_tasks.csv"
+    output_path = Path(args.output) if args.output else paths.data_processed / "filtered_tasks.csv"
+
+    # If input and output are the same, we overwrite (standard for this task)
+    # If different, we write to new location
 
     try:
-        add_constraint_count_column(input_path, output_path)
+        df = add_constraint_count_column(input_path, output_path)
+        # Verify the output
+        if output_path.exists():
+            print(f"Success: Output file created at {output_path}")
+            # Optional: validate a few rows
+            sample = df.sample(min(5, len(df)))
+            for _, row in sample.iterrows():
+                print(f"  Task {row['task_id']}: constraint_count={row['constraint_count']}")
+        else:
+            raise RuntimeError(f"Output file was not created: {output_path}")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

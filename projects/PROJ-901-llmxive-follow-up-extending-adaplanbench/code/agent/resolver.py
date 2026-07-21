@@ -1,197 +1,123 @@
+"""
+Constraint Resolver Module.
+
+This module orchestrates the resolution of constraints by delegating
+intent parsing and constraint matching to dedicated utility modules.
+"""
+
 import re
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
+from datetime import datetime
+import uuid
+
 from agent.base import ViolationType, ExecutionResult, TaskContext
 from agent.constraint_store import Constraint, ConstraintStore
 from agent.resolver_utils import parse_intent, match_constraint
 
+
 @dataclass
 class ResolutionLog:
-    """Log entry for constraint resolution events."""
-    constraint_id: str
-    constraint_text: str
-    resolution_status: str  # 'resolved', 'violation', 'implicit_unverified'
-    reason: str
-    timestamp: float = field(default_factory=lambda: 0.0)
-    is_implicit: bool = False
+    """Log entry for a constraint resolution attempt."""
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    task_id: str = ""
+    constraint_id: str = ""
+    plan_step: str = ""
+    matched: bool = False
+    reason: Optional[str] = None
+    violation_type: Optional[ViolationType] = None
+
 
 class ConstraintResolver:
     """
-    Resolves constraints against generated plans.
-    
-    Implements FR-007: Exact string matching, case-insensitive substring matching,
-    and explicit negation patterns.
-    
-    Implements FR-009: Logs "implicit_unverified" for constraints requiring
-    common-sense reasoning, excluding them from primary violation rate.
+    Resolves constraints against generated plan steps.
+
+    This class acts as the orchestrator for constraint checking. It uses
+    `parse_intent` to extract potential constraint targets from a plan step
+    and `match_constraint` to verify if the step satisfies the active constraints.
     """
-    
-    def __init__(self):
-        self.logs: List[ResolutionLog] = []
-        # Patterns that indicate common-sense/implicit reasoning requirements
-        # These are typically vague, context-dependent, or require world knowledge
-        self.implicit_patterns = [
-            r'\b(reasonable|appropriate|suitable|suitably)\b',
-            r'\b(common\s*sense|practical|logical)\b',
-            r'\b(typical|standard|normal)\b',
-            r'\b(consider|take\s*into\s*account)\b',
-            r'\b(ensure\s*that|make\s*sure)\b',
-            r'\b(avoid\s*unnecessary|minimize\s*effort)\b',
+
+    def __init__(self, negation_patterns: Optional[List[str]] = None):
+        """
+        Initialize the resolver.
+
+        Args:
+            negation_patterns: List of regex patterns or strings indicating negation.
+        """
+        self.negation_patterns = negation_patterns or [
+            r"\bnot\b", r"\bno\b", r"\bnever\b", r"\bdon't\b",
+            r"\bdo not\b", r"\bavoid\b", r"\bwithout\b"
         ]
-        self.implicit_regex = [re.compile(p, re.IGNORECASE) for p in self.implicit_patterns]
+        self.logs: List[ResolutionLog] = []
 
-    def _is_implicit_constraint(self, constraint_text: str) -> bool:
-        """
-        Determine if a constraint requires common-sense reasoning.
-        
-        Returns True if the constraint text matches patterns indicating
-        vague, context-dependent, or world-knowledge requirements.
-        """
-        for regex in self.implicit_regex:
-            if regex.search(constraint_text):
-                return True
-        return False
-
-    def resolve_constraint(
+    def resolve_step(
         self,
-        constraint: Constraint,
-        plan_text: str,
-        context: TaskContext
-    ) -> ResolutionLog:
-        """
-        Resolve a single constraint against a generated plan.
-        
-        Returns a ResolutionLog indicating:
-        - 'resolved': Constraint satisfied
-        - 'violation': Constraint explicitly violated
-        - 'implicit_unverified': Constraint requires common-sense reasoning,
-          excluded from primary violation rate
-        """
-        constraint_text = constraint.text
-        
-        # Check if this is an implicit/common-sense constraint (FR-009)
-        if self._is_implicit_constraint(constraint_text):
-            log_entry = ResolutionLog(
-                constraint_id=constraint.id,
-                constraint_text=constraint_text,
-                resolution_status='implicit_unverified',
-                reason='Constraint requires common-sense reasoning or world knowledge',
-                is_implicit=True
-            )
-            self.logs.append(log_entry)
-            return log_entry
-        
-        # Try exact match first (case-sensitive)
-        if constraint_text in plan_text:
-            log_entry = ResolutionLog(
-                constraint_id=constraint.id,
-                constraint_text=constraint_text,
-                resolution_status='resolved',
-                reason='Exact match found in plan'
-            )
-            self.logs.append(log_entry)
-            return log_entry
-        
-        # Try case-insensitive substring match
-        if constraint_text.lower() in plan_text.lower():
-            log_entry = ResolutionLog(
-                constraint_id=constraint.id,
-                constraint_text=constraint_text,
-                resolution_status='resolved',
-                reason='Case-insensitive match found in plan'
-            )
-            self.logs.append(log_entry)
-            return log_entry
-        
-        # Check for explicit negation patterns (e.g., "do not", "never", "avoid")
-        negation_pattern = r'\b(do\s+not|dont|never|avoid|without)\b'
-        if re.search(negation_pattern, constraint_text, re.IGNORECASE):
-            # For negation constraints, we look for the ABSENCE of the forbidden element
-            # Extract the forbidden element (simplified heuristic)
-            forbidden_match = re.search(negation_pattern + r'\s+(.+?)(?:\.|$)', constraint_text, re.IGNORECASE)
-            if forbidden_match:
-                forbidden_element = forbidden_match.group(1).strip()
-                if forbidden_element.lower() not in plan_text.lower():
-                    log_entry = ResolutionLog(
-                        constraint_id=constraint.id,
-                        constraint_text=constraint_text,
-                        resolution_status='resolved',
-                        reason='Negation constraint satisfied (forbidden element absent)'
-                    )
-                    self.logs.append(log_entry)
-                    return log_entry
-        
-        # If no match found, it's a violation
-        log_entry = ResolutionLog(
-            constraint_id=constraint.id,
-            constraint_text=constraint_text,
-            resolution_status='violation',
-            reason='Constraint not found in plan'
-        )
-        self.logs.append(log_entry)
-        return log_entry
-
-    def resolve_all(
-        self,
-        constraints: List[Constraint],
-        plan_text: str,
-        context: TaskContext
+        step: str,
+        active_constraints: List[Constraint],
+        task_id: str
     ) -> List[ResolutionLog]:
-        """Resolve all constraints against a plan."""
-        return [self.resolve_constraint(c, plan_text, context) for c in constraints]
-
-    def get_violation_rate(self) -> float:
         """
-        Calculate violation rate excluding implicit_unverified constraints.
-        
-        Per FR-009, implicit_unverified constraints are excluded from the
-        primary violation rate calculation.
+        Resolve a single plan step against a list of active constraints.
+
+        Args:
+            step: The generated plan step string.
+            active_constraints: List of constraints currently active for the task.
+            task_id: The ID of the current task.
+
+        Returns:
+            A list of ResolutionLog entries for each constraint checked.
         """
-        total_resolved = len([l for l in self.logs if l.resolution_status in ('resolved', 'violation')])
-        if total_resolved == 0:
-            return 0.0
-        
-        violations = len([l for l in self.logs if l.resolution_status == 'violation'])
-        return violations / total_resolved
+        step_logs = []
 
-    def get_implicit_count(self) -> int:
-        """Return count of implicit_unverified constraints."""
-        return len([l for l in self.logs if l.resolution_status == 'implicit_unverified'])
+        # Parse intent to see if we can identify specific constraint targets
+        intent = parse_intent(step)
 
-    def clear_logs(self):
-        """Clear all resolution logs."""
-        self.logs.clear()
+        for constraint in active_constraints:
+            is_matched, reason = match_constraint(
+                constraint,
+                step,
+                self.negation_patterns
+            )
+
+            log_entry = ResolutionLog(
+                task_id=task_id,
+                constraint_id=constraint.id,
+                plan_step=step,
+                matched=is_matched,
+                reason=reason
+            )
+
+            if not is_matched:
+                log_entry.violation_type = ViolationType.CONSTRAINT_VIOLATION
+
+            step_logs.append(log_entry)
+            self.logs.append(log_entry)
+
+        return step_logs
+
+    def get_violations(self) -> List[ResolutionLog]:
+        """Return all logs that represent violations."""
+        return [log for log in self.logs if log.violation_type is not None]
+
 
 def main():
-    """CLI entry point for testing constraint resolver."""
-    import sys
-    from agent.constraint_store import ConstraintStore
-    
-    # Create a simple test case
+    """CLI entry point for testing the resolver."""
+    print("Constraint Resolver Module loaded successfully.")
+    print("Use ConstraintResolver class to resolve steps against constraints.")
+
+    # Example usage
     store = ConstraintStore()
-    
-    # Add a mix of explicit and implicit constraints
-    store.add_constraint("Place the book on the table")  # Explicit
-    store.add_constraint("Do not touch the vase")       # Explicit negation
-    store.add_constraint("Ensure the room is reasonably tidy")  # Implicit
-    store.add_constraint("Make sure the task is completed logically")  # Implicit
-    
-    # Test plan
-    plan = "I will place the book on the table and avoid touching the vase."
-    
+    store.add_constraint("Do not touch the red button", "c1")
+    store.add_constraint("Pick up the blue key", "c2")
+
     resolver = ConstraintResolver()
-    context = TaskContext(task_id="test-001", constraints=store.get_active_constraints())
-    
-    results = resolver.resolve_all(store.get_active_constraints(), plan, context)
-    
-    print("Resolution Results:")
-    for log in results:
-        print(f"  [{log.resolution_status}] {log.constraint_text[:40]}...")
-    
-    print(f"\nViolation Rate (excluding implicit): {resolver.get_violation_rate():.2%}")
-    print(f"Implicit/Unverified Constraints: {resolver.get_implicit_count()}")
-    
-    return results
+    step = "I will pick up the blue key carefully."
+    logs = resolver.resolve_step(step, list(store.constraints.values()), "task-001")
+
+    for log in logs:
+        print(f"Constraint: {log.constraint_id} -> Matched: {log.matched}, Reason: {log.reason}")
+
 
 if __name__ == "__main__":
     main()

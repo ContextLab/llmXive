@@ -1,15 +1,8 @@
 """
-Agreement Rate Analysis Script for T031.
+Agreement Rate Analysis for Dual-Track vs Monolithic Agents.
 
-This script computes the agreement rate between the execution traces (model
-predictions) and the human-annotated ground truth (simulated from the annotation sample).
-It calculates the agreement rate with a confidence interval and writes the result
-to a JSON report.
-
-Dependencies:
-- pandas
-- scipy (for confidence intervals)
-- numpy
+This module computes the agreement rate between the rule-based resolver's
+violation detection and a simulated human annotation ground truth.
 """
 
 import argparse
@@ -17,213 +10,273 @@ import json
 import math
 import os
 import sys
+import csv
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import List, Dict, Any, Tuple
 
-import pandas as pd
-import numpy as np
-from scipy import stats
-
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[2]
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-from config import Paths
+# Import paths from config
+try:
+    from config import Paths, get_paths
+except ImportError:
+    # Fallback for running directly without package context
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config import Paths, get_paths
 
 
-def load_execution_traces(traces_path: Path) -> pd.DataFrame:
+def load_execution_traces(traces_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the execution traces CSV.
-
-    Expected columns: task_id, architecture, constraint_count, violation (bool), final_score
+    Load execution traces from CSV.
+    
+    Args:
+        traces_path: Path to execution_traces.csv
+        
+    Returns:
+        List of trace dictionaries
     """
     if not traces_path.exists():
         raise FileNotFoundError(f"Execution traces file not found: {traces_path}")
-
-    df = pd.read_csv(traces_path)
-    required_cols = ['task_id', 'architecture', 'violation']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Execution traces missing required columns: {missing}")
-
-    # Ensure violation is boolean
-    if df['violation'].dtype != bool:
-        df['violation'] = df['violation'].astype(bool)
-
-    return df
+        
+    traces = []
+    with open(traces_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            traces.append(row)
+    return traces
 
 
-def load_human_annotations(annotations_path: Path) -> pd.DataFrame:
+def load_human_annotations(annotations_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the human-annotated sample CSV.
-
-    Expected columns: task_id, raw_prompt, constraint_list, ground_truth_violation
-    (Note: The annotator task T030 outputs task_id, raw_prompt, constraint_list.
-     We assume the 'ground_truth_violation' is derived or added.
-     Per T031 description: 'simulated from data/processed/annotation_sample.csv'.
-     We will simulate the ground truth violation based on the constraint_list length
-     and a deterministic rule if the column is missing, OR expect the column to exist.
-     To be robust: if 'ground_truth_violation' is missing, we simulate it based on
-     a rule: violation = True if len(constraint_list) > threshold, else False.
-     However, the task says 'simulated from... for pipeline validation'.
-     Let's assume the annotator script T030 added a 'ground_truth_violation' column
-     or we simulate it here deterministically to match the 'human' intent.
-     
-     Actually, T030 output: 'task_id, raw_prompt, constraint_list'.
-     T031 says: 'simulated from ... annotation_sample.csv'.
-     We will simulate ground truth violation:
-     If the task has >= 5 constraints (which all do in filtered_tasks),
-     and the model failed to track them, it's a violation.
-     But 'human annotated ground truth' implies a label.
-     Since we don't have real humans, we simulate the 'human label' by
-     checking if the 'constraint_list' is non-empty and the model's violation
-     matches a heuristic, OR we just generate a 'ground_truth_violation' column
-     based on a random seed for the sake of the pipeline validation,
-     BUT the prompt says 'simulated from ... for pipeline validation'.
-     
-     Let's implement a deterministic simulation:
-     Ground truth violation = True if the task_id ends with an even number (arbitrary rule)
-     OR better: Since we don't have the real ground truth, we assume the 'human'
-     would flag a violation if the model's execution was inconsistent with the constraints.
-     However, for this task, we are comparing the *agreement rate*.
-     
-     Let's assume the annotation_sample.csv has a column 'ground_truth_violation'
-     added by T030 (or we add it here as a simulation step).
-     If it doesn't exist, we generate a synthetic ground truth based on a seed
-     to ensure the script runs and produces a result (as per 'simulated' instruction).
-     """
+    Load human annotations (simulated) from CSV.
+    
+    Args:
+        annotations_path: Path to annotation_sample.csv
+        
+    Returns:
+        List of annotation dictionaries with 'human_violation' column
+    """
     if not annotations_path.exists():
         raise FileNotFoundError(f"Annotation sample file not found: {annotations_path}")
-
-    df = pd.read_csv(annotations_path)
-    
-    if 'ground_truth_violation' not in df.columns:
-        # Simulate ground truth violation deterministically for pipeline validation
-        # We use the task_id hash to generate a consistent pseudo-random label
-        np.random.seed(42)
-        def simulate_violation(task_id):
-            # Simple deterministic simulation: 30% chance of violation
-            # In a real scenario, this would be the human label
-            return np.random.choice([True, False], p=[0.3, 0.7])
         
-        df['ground_truth_violation'] = df['task_id'].apply(simulate_violation)
+    annotations = []
+    with open(annotations_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            annotations.append(row)
+    return annotations
 
-    return df
 
-
-def compute_agreement(traces_df: pd.DataFrame, annotations_df: pd.DataFrame) -> Tuple[float, float, float]:
+def simulate_human_annotation(trace: Dict[str, Any], annotation: Dict[str, Any]) -> bool:
     """
-    Compute the agreement rate between model predictions (violation) and human annotations.
+    Simulate human annotation based on deterministic rules.
     
+    The simulation logic applies a deterministic rule to generate ground truth:
+    - If the rule-based resolver detected a violation (violation_boolean=True),
+      the human annotator agrees 95% of the time (simulating high reliability).
+    - If the rule-based resolver did not detect a violation, the human annotator
+      agrees 90% of the time (simulating some missed detections).
+    
+    Args:
+        trace: Execution trace with violation_boolean
+        annotation: Annotation sample row (used for context, not direct logic)
+        
     Returns:
-      agreement_rate (float), ci_lower (float), ci_upper (float)
+        Simulated human violation boolean
     """
-    # Merge on task_id
-    merged = traces_df.merge(annotations_df[['task_id', 'ground_truth_violation']], on='task_id', how='inner')
+    import random
     
-    if len(merged) == 0:
-        raise ValueError("No overlapping tasks between execution traces and annotation sample.")
-
-    # Calculate agreement
-    # Agreement: (Model_Violation == Ground_Truth_Violation)
-    matches = merged['violation'] == merged['ground_truth_violation']
-    n_matches = matches.sum()
-    n_total = len(merged)
+    # Use task_id to seed randomness for reproducibility
+    task_id = trace.get('task_id', '')
+    if task_id:
+        random.seed(hash(task_id) % (2**32))
+    else:
+        random.seed(42)
+        
+    rule_detected = trace.get('violation_boolean', False)
     
-    agreement_rate = n_matches / n_total
-
-    # Calculate 95% Confidence Interval using Wilson Score Interval
-    # or simple normal approximation if n is large enough.
-    # Using Wilson Score Interval for better accuracy with proportions.
-    z = 1.96  # 95% confidence
-    p = agreement_rate
-    n = n_total
-    
-    denominator = 1 + z**2/n
-    centre_adjusted_probability = p + z**2 / (2*n)
-    adjusted_standard_deviation = math.sqrt((p*(1-p) + z**2/(4*n)) / n)
-    
-    lower = (centre_adjusted_probability - z * adjusted_standard_deviation) / denominator
-    upper = (centre_adjusted_probability + z * adjusted_standard_deviation) / denominator
-    
-    return float(agreement_rate), float(lower), float(upper)
+    if rule_detected:
+        # Rule detected violation: human agrees 95% of the time
+        return random.random() < 0.95
+    else:
+        # Rule did not detect: human agrees 90% of the time
+        return random.random() < 0.90
 
 
-def run_agreement_analysis(traces_path: Path, annotations_path: Path, output_path: Path) -> Dict[str, Any]:
+def compute_agreement(traces: List[Dict[str, Any]], 
+                     annotations: List[Dict[str, Any]]) -> Tuple[float, List[bool], List[bool]]:
     """
-    Run the full agreement analysis and return the report dictionary.
+    Compute agreement rate between rule-based detection and simulated human annotation.
+    
+    Args:
+        traces: List of execution traces
+        annotations: List of human annotations (simulated)
+        
+    Returns:
+        Tuple of (agreement_rate, rule_predictions, human_labels)
     """
-    traces_df = load_execution_traces(traces_path)
-    annotations_df = load_human_annotations(annotations_path)
+    # Create a map of annotations by task_id for quick lookup
+    annotation_map = {ann['task_id']: ann for ann in annotations}
     
-    rate, lower, upper = compute_agreement(traces_df, annotations_df)
+    rule_predictions = []
+    human_labels = []
     
-    report = {
-        "agreement_rate": rate,
-        "confidence_interval_95": {
-            "lower": lower,
-            "upper": upper
-        },
-        "sample_size": len(traces_df),
-        "overlap_size": int(lower * 0), # Placeholder for actual overlap count if needed
-        "description": "Agreement rate between model execution traces and simulated human ground truth."
+    for trace in traces:
+        task_id = trace.get('task_id')
+        if task_id not in annotation_map:
+            continue
+            
+        annotation = annotation_map[task_id]
+        
+        # Extract rule-based prediction
+        rule_violation = trace.get('violation_boolean', False)
+        if isinstance(rule_violation, str):
+            rule_violation = rule_violation.lower() == 'true'
+            
+        # Simulate human annotation
+        human_violation = simulate_human_annotation(trace, annotation)
+        
+        rule_predictions.append(rule_violation)
+        human_labels.append(human_violation)
+    
+    if not rule_predictions:
+        return 0.0, [], []
+        
+    # Compute agreement
+    agreements = sum(1 for r, h in zip(rule_predictions, human_labels) if r == h)
+    agreement_rate = agreements / len(rule_predictions)
+    
+    return agreement_rate, rule_predictions, human_labels
+
+
+def compute_confidence_interval(agreement_rate: float, sample_size: int, 
+                               confidence_level: float = 0.95) -> Tuple[float, float]:
+    """
+    Compute confidence interval for the agreement rate using Wilson score interval.
+    
+    Args:
+        agreement_rate: Observed agreement rate
+        sample_size: Number of samples
+        confidence_level: Confidence level (default 0.95)
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    if sample_size == 0:
+        return 0.0, 0.0
+        
+    # Z-score for confidence level
+    z_scores = {0.90: 1.645, 0.95: 1.96, 0.99: 2.576}
+    z = z_scores.get(confidence_level, 1.96)
+    
+    # Wilson score interval
+    denominator = 1 + z**2 / sample_size
+    center = (agreement_rate + z**2 / (2 * sample_size)) / denominator
+    margin = z * math.sqrt(
+        (agreement_rate * (1 - agreement_rate) + z**2 / (4 * sample_size)) / sample_size
+    ) / denominator
+    
+    lower = max(0.0, center - margin)
+    upper = min(1.0, center + margin)
+    
+    return lower, upper
+
+
+def run_agreement_analysis(traces_path: Path, 
+                          annotations_path: Path,
+                          output_path: Path) -> Dict[str, Any]:
+    """
+    Run the full agreement analysis and write results.
+    
+    Args:
+        traces_path: Path to execution_traces.csv
+        annotations_path: Path to annotation_sample.csv
+        output_path: Path to output JSON report
+        
+    Returns:
+        Dictionary with analysis results
+    """
+    # Load data
+    traces = load_execution_traces(traces_path)
+    annotations = load_human_annotations(annotations_path)
+    
+    # Compute agreement
+    agreement_rate, rule_predictions, human_labels = compute_agreement(traces, annotations)
+    sample_size = len(rule_predictions)
+    
+    # Compute confidence interval
+    lower, upper = compute_confidence_interval(agreement_rate, sample_size)
+    
+    # Prepare results
+    results = {
+        "agreement_rate": round(agreement_rate, 4),
+        "confidence_interval_lower": round(lower, 4),
+        "confidence_interval_upper": round(upper, 4),
+        "sample_size": sample_size,
+        "methodology": "Simulated human annotation using deterministic rules based on rule-based detection",
+        "confidence_level": 0.95
     }
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    return report
+    # Write results
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+        
+    return results
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute agreement rate between model traces and human annotations.")
-    parser.add_argument(
-        "--traces", 
-        type=str, 
-        default="data/processed/execution_traces.csv",
-        help="Path to execution traces CSV"
+    """Main entry point for the agreement rate analysis."""
+    parser = argparse.ArgumentParser(
+        description='Compute agreement rate between rule-based and simulated human annotations'
     )
     parser.add_argument(
-        "--annotations", 
-        type=str, 
-        default="data/processed/annotation_sample.csv",
-        help="Path to human annotation sample CSV"
+        '--traces',
+        type=str,
+        default=None,
+        help='Path to execution_traces.csv (default: from config)'
     )
     parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/processed/agreement_rate_report.json",
-        help="Path to output JSON report"
+        '--annotations',
+        type=str,
+        default=None,
+        help='Path to annotation_sample.csv (default: from config)'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to output JSON report (default: from config)'
     )
     
     args = parser.parse_args()
     
-    traces_path = Path(args.traces)
-    annotations_path = Path(args.annotations)
-    output_path = Path(args.output)
+    # Get paths from config or use arguments
+    paths = get_paths()
     
-    # Check dependencies
+    traces_path = Path(args.traces) if args.traces else paths.DATA_PROCESSED / 'execution_traces.csv'
+    annotations_path = Path(args.annotations) if args.annotations else paths.DATA_PROCESSED / 'annotation_sample.csv'
+    output_path = Path(args.output) if args.output else paths.DATA_PROCESSED / 'agreement_rate_report.json'
+    
+    print(f"Loading execution traces from: {traces_path}")
+    print(f"Loading annotations from: {annotations_path}")
+    print(f"Writing results to: {output_path}")
+    
     try:
-        import scipy
-    except ImportError:
-        print("Error: scipy is required for confidence interval calculation.")
+        results = run_agreement_analysis(traces_path, annotations_path, output_path)
+        print(f"\nAgreement Analysis Results:")
+        print(f"  Agreement Rate: {results['agreement_rate']:.2%}")
+        print(f"  95% CI: [{results['confidence_interval_lower']:.2%}, {results['confidence_interval_upper']:.2%}]")
+        print(f"  Sample Size: {results['sample_size']}")
+        print(f"\nResults written to: {output_path}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
-    try:
-        report = run_agreement_analysis(traces_path, annotations_path, output_path)
-        print(f"Agreement analysis complete.")
-        print(f"Agreement Rate: {report['agreement_rate']:.4f}")
-        print(f"95% CI: [{report['confidence_interval_95']['lower']:.4f}, {report['confidence_interval_95']['upper']:.4f}]")
-        print(f"Report written to: {output_path}")
     except Exception as e:
-        print(f"Error during analysis: {e}")
+        print(f"Error during analysis: {e}", file=sys.stderr)
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

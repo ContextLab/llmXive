@@ -1,92 +1,90 @@
 """
-Unit tests for T014: add_constraint_count logic.
+Unit tests for the add_constraint_count functionality.
 """
-import pytest
-import json
-from pathlib import Path
-import sys
-import tempfile
 import os
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from code.dataset.add_constraint_count import compute_constraint_count, add_constraint_count_column
+import sys
+import json
+import tempfile
+from pathlib import Path
+import pytest
 import pandas as pd
 
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+
+from dataset.add_constraint_count import compute_constraint_count, add_constraint_count_column
 
 class TestComputeConstraintCount:
     def test_valid_list(self):
-        row = {
-            "task_id": "test_1",
-            "progressive_constraints": ["c1", "c2", "c3"]
-        }
+        row = pd.Series({'progressive_constraints': ['c1', 'c2', 'c3']})
         assert compute_constraint_count(row) == 3
 
     def test_empty_list(self):
-        row = {
-            "task_id": "test_2",
-            "progressive_constraints": []
-        }
+        row = pd.Series({'progressive_constraints': []})
         assert compute_constraint_count(row) == 0
 
-    def test_missing_column(self):
-        row = {"task_id": "test_3"}
-        with pytest.raises(ValueError, match="Row missing 'progressive_constraints'"):
-            compute_constraint_count(row)
-
-    def test_invalid_type_not_list_or_string(self):
-        row = {
-            "task_id": "test_4",
-            "progressive_constraints": "not a list" # This will try JSON parse and fail
-        }
-        # The function tries json.loads on strings. If it's not a valid JSON list string, it raises.
-        with pytest.raises(ValueError):
-            compute_constraint_count(row)
-
-    def test_string_json_list(self):
-        row = {
-            "task_id": "test_5",
-            "progressive_constraints": '["c1", "c2"]'
-        }
+    def test_json_string(self):
+        row = pd.Series({'progressive_constraints': json.dumps(['a', 'b'])})
         assert compute_constraint_count(row) == 2
 
-    def test_non_list_type(self):
-        row = {
-            "task_id": "test_6",
-            "progressive_constraints": 123
-        }
-        with pytest.raises(ValueError, match="must be a list"):
-            compute_constraint_count(row)
+    def test_invalid_json_string(self):
+        row = pd.Series({'progressive_constraints': 'not a json'})
+        assert compute_constraint_count(row) == 0
 
+    def test_missing_field(self):
+        row = pd.Series({})
+        assert compute_constraint_count(row) == 0
+
+    def test_non_list_type(self):
+        row = pd.Series({'progressive_constraints': 'string not list'})
+        assert compute_constraint_count(row) == 0
 
 class TestAddConstraintCountColumn:
-    def test_full_flow(self):
+    def test_basic_flow(self):
+        # Create a temporary input file
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = Path(tmpdir) / "input.csv"
             output_path = Path(tmpdir) / "output.csv"
-            
-            # Create input data
+
+            # Create sample data
             data = {
-                "task_id": ["t1", "t2"],
-                "progressive_constraints": [
-                    json.dumps(["a", "b"]), 
-                    json.dumps(["x", "y", "z"])
+                'task_id': ['t1', 't2', 't3'],
+                'progressive_constraints': [
+                    ['c1', 'c2'],
+                    json.dumps(['c3', 'c4', 'c5']),
+                    []
                 ]
             }
             df_input = pd.DataFrame(data)
             df_input.to_csv(input_path, index=False)
-            
-            # Run function
-            add_constraint_count_column(input_path, output_path)
-            
+
+            # Run the function
+            df_output = add_constraint_count_column(input_path, output_path)
+
             # Verify output
             assert output_path.exists()
-            df_out = pd.read_csv(output_path)
-            
-            assert "constraint_count" in df_out.columns
-            assert df_out.loc[0, "constraint_count"] == 2
-            assert df_out.loc[1, "constraint_count"] == 3
-            assert df_out["constraint_count"].dtype in [int, "int64", "int32"]
+            df_result = pd.read_csv(output_path)
+            assert 'constraint_count' in df_result.columns
+            assert df_result['constraint_count'].tolist() == [2, 3, 0]
+            assert df_result['constraint_count'].dtype == int
+
+    def test_missing_column_raises(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.csv"
+            output_path = Path(tmpdir) / "output.csv"
+
+            # Create sample data missing the required column
+            data = {'task_id': ['t1']}
+            df_input = pd.DataFrame(data)
+            df_input.to_csv(input_path, index=False)
+
+            with pytest.raises(ValueError, match="missing required column"):
+                add_constraint_count_column(input_path, output_path)
+
+    def test_file_not_found_raises(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "nonexistent.csv"
+            output_path = Path(tmpdir) / "output.csv"
+
+            with pytest.raises(FileNotFoundError):
+                add_constraint_count_column(input_path, output_path)

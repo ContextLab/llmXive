@@ -1,83 +1,89 @@
 """
-Configuration module for the llmXive AdaPlanBench extension project.
-Defines paths, resource limits, model configurations, and utility functions.
+Configuration module for llmXive project.
+Defines paths, resource limits, model settings, and dataset configurations.
 """
 import os
 import random
 import subprocess
 import sys
-from pathlib import Path
-from typing import Final, Optional, Dict, Any, List
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Optional, List, Dict, Any
 import numpy as np
 import torch
 
-# --- Paths Configuration ---
+# --- Paths ---
 @dataclass
 class Paths:
-    """Centralized path management for the project."""
-    ROOT: Path = field(init=False)
-    DATA_RAW: Path = field(init=False)
-    DATA_PROCESSED: Path = field(init=False)
-    CODE: Path = field(init=False)
-    TESTS: Path = field(init=False)
-    SPECS: Path = field(init=False)
-    CONTRACTS: Path = field(init=False)
-    FIGURES: Path = field(init=False)
+    """Project directory structure."""
+    root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
+    data_raw: Path = field(init=False)
+    data_processed: Path = field(init=False)
+    code: Path = field(init=False)
+    tests: Path = field(init=False)
+    contracts: Path = field(init=False)
+    specs: Path = field(init=False)
+    figures: Path = field(init=False)
 
     def __post_init__(self):
-        # Determine root based on where this file is located
-        current_file = Path(__file__).resolve()
-        self.ROOT = current_file.parent.parent
-        self.DATA_RAW = self.ROOT / "data" / "raw"
-        self.DATA_PROCESSED = self.ROOT / "data" / "processed"
-        self.CODE = self.ROOT / "code"
-        self.TESTS = self.ROOT / "tests"
-        self.SPECS = self.ROOT / "specs"
-        self.CONTRACTS = self.ROOT / "contracts"
-        self.FIGURES = self.ROOT / "figures"
+        self.data_raw = self.root / "data" / "raw"
+        self.data_processed = self.root / "data" / "processed"
+        self.code = self.root / "code"
+        self.tests = self.root / "tests"
+        self.contracts = self.root / "contracts"
+        self.specs = self.root / "specs"
+        self.figures = self.root / "figures"
 
         # Ensure directories exist
-        self.DATA_RAW.mkdir(parents=True, exist_ok=True)
-        self.DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
-        self.FIGURES.mkdir(parents=True, exist_ok=True)
+        ensure_directories(self)
 
 # --- Resource Limits ---
 @dataclass
 class ResourceLimits:
     """Resource constraints for execution."""
-    MAX_CPU_PERCENT: float = 80.0
-    MAX_MEMORY_GB: float = 12.0
-    TIMEOUT_SECONDS: int = 3600
+    max_cpu_percent: float = 80.0
+    max_memory_gb: float = 14.0
+    timeout_seconds: int = 3600  # 1 hour
 
 # --- Model Configuration ---
 @dataclass
 class ModelConfig:
-    """Configuration for LLM models."""
-    NAME: str = "phi-3-mini"
-    MAX_TOKENS: int = 2048
-    TEMPERATURE: float = 0.7
-    PRECISION: str = "float32"  # or "float16", "bfloat16"
-    DEVICE: str = "cpu"
+    """Configuration for LLM agents."""
+    default_model: str = "microsoft/phi-3-mini"
+    max_context_length: int = 4096
+    temperature: float = 0.7
+    top_p: float = 0.9
+    device: str = "cpu"  # Default to CPU for safety, override via env
+    dtype: str = "float32"
 
 # --- Dataset Configuration ---
 @dataclass
 class DatasetConfig:
-    """Configuration for dataset loading and processing."""
-    NAME: str = "adaplanbench/adaplanbench"
-    MIN_CONSTRAINTS: int = 5
-    RANDOM_SEED: int = 42
+    """Configuration for dataset loading."""
+    # AdaPlanBench official source
+    dataset_name: str = "AdaPlanBench"
+    # Fallback URL if HF dataset is unavailable or renamed
+    fallback_url: str = "https://huggingface.co/datasets/AdaPlanBench/AdaPlanBench"
+    # Local path if pre-downloaded
+    local_path: Optional[str] = None
+    # Filter settings
+    min_progressive_constraints: int = 5
+    # Streaming settings for large datasets
+    streaming: bool = True
 
 # --- Analysis Configuration ---
 @dataclass
 class AnalysisConfig:
     """Configuration for statistical analysis."""
-    TARGET_POWER: float = 0.80
-    EFFECT_SIZE_F2: float = 0.15
-    SIGNIFICANCE_LEVEL: float = 0.05
-    RANDOM_SEED: int = 42
+    # Power analysis settings
+    target_power: float = 0.80
+    target_effect_size: float = 0.15  # Cohen's f²
+    significance_level: float = 0.05
+    # GLMM settings
+    glmm_max_iter: int = 100
+    glmm_tol: float = 1e-4
 
-# --- Global Instances ---
+# --- Global Configuration Instances ---
 _paths: Optional[Paths] = None
 _resource_limits: Optional[ResourceLimits] = None
 _model_config: Optional[ModelConfig] = None
@@ -99,7 +105,9 @@ def get_resource_limits() -> ResourceLimits:
 def get_model_config() -> ModelConfig:
     global _model_config
     if _model_config is None:
-        _model_config = ModelConfig()
+        # Check environment for overrides
+        device = os.getenv("LLMXIVE_DEVICE", "cpu")
+        _model_config = ModelConfig(device=device)
     return _model_config
 
 def get_dataset_config() -> DatasetConfig:
@@ -114,7 +122,6 @@ def get_analysis_config() -> AnalysisConfig:
         _analysis_config = AnalysisConfig()
     return _analysis_config
 
-# --- Utility Functions ---
 def set_all_seeds(seed: int = 42):
     """Set random seeds for reproducibility."""
     random.seed(seed)
@@ -123,14 +130,27 @@ def set_all_seeds(seed: int = 42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def get_resource_limits() -> ResourceLimits:
-    return get_resource_limits()
+def ensure_directories(paths: Paths):
+    """Create necessary project directories."""
+    directories = [
+        paths.data_raw,
+        paths.data_processed,
+        paths.code,
+        paths.tests,
+        paths.contracts,
+        paths.specs,
+        paths.figures
+    ]
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
 
-def get_model_config() -> ModelConfig:
-    return get_model_config()
+# --- Utility Functions ---
+def get_env_var(name: str, default: str = "") -> str:
+    """Get environment variable with a default."""
+    return os.getenv(name, default)
 
-def get_dataset_config() -> DatasetConfig:
-    return get_dataset_config()
-
-def get_analysis_config() -> AnalysisConfig:
-    return get_analysis_config()
+def parse_bool(env_str: str, default: bool = False) -> bool:
+    """Parse a boolean from environment string."""
+    if not env_str:
+        return default
+    return env_str.lower() in ("true", "1", "yes", "on")
