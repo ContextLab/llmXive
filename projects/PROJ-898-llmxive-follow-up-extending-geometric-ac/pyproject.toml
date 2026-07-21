@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-gam-follow-up"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Geometric Action Model for Robot Policy Learning - Symbolic Planner Extension"
+description = "Extending Geometric Action Model for Robot Policy Learning"
 requires-python = ">=3.11"
 dependencies = [
     "pybullet",
@@ -16,17 +16,16 @@ dependencies = [
     "pandas",
     "numpy",
     "pytest",
-    "ruff",
-    "black"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -39,42 +38,11 @@ exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py311"
+# Same as ruff.toml but for pyproject consistency if needed
 line-length = 88
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
-
-[tool.ruff.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
-combine-as-imports = true
+target-version = "py311"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: marks tests as unit tests",
-    "integration: marks tests as integration tests",
-]
+addopts = "-v --tb=short"

@@ -1,17 +1,48 @@
-# PROJ-898: llmXive Follow-up - Extending Geometric Action Model
+# PROJ-898: llmXive Follow-up: Extending Geometric Action Model for Robot Policy Learning
 
-This project implements a symbolic-latent planner extension to the Geometric Action Model (GAM) for robot policy learning.
+## Overview
+This project extends the Geometric Action Model (GAM) for robot policy learning, focusing on symbolic planning, latent drift detection, and comparative statistical analysis.
 
-## Structure
+## Project Structure
+```
+projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/
+├── code/ # Core implementation modules
+│ ├── utils.py
+│ ├── config.py
+│ ├── gfm_wrapper.py
+│ ├── symbolic_solver.py
+│ ├── differentiable_solver.py
+│ ├── data_generation.py
+│ ├── inference_pipeline.py
+│ └──...
+├── data/ # Data storage (tracked via.gitkeep)
+│ ├── raw/ # Raw input data and baseline metadata
+│ ├── generated/ # Generated physics states and test sets
+│ └── results/ # Experiment results and logs
+├── tests/ # Test suites
+│ ├── unit/ # Unit tests
+│ └── integration/ # Integration tests
+├── scripts/ # Utility and execution scripts
+│ ├── init_project.py # Project initialization script
+│ └── generate_test_set.py
+├── specs/ # Design documents and specifications
+└── README.md
+```
 
-- `code/`: Python modules for simulation, solving, and analysis
-- `data/`: Raw data, generated datasets, and results
-- `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design documents
+## Getting Started
 
-## Quick Start
+### Initialization
+To create the project directory structure and necessary placeholder files:
+```bash
+python scripts/init_project.py
+```
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run data generation: `python scripts/generate_test_set.py`
-3. Run inference: `python scripts/run_inference.py`
-4. Run analysis: `python scripts/run_analysis.py`
+### Prerequisites
+- Python 3.11+
+- Required dependencies listed in `requirements.txt`
+
+### Running Experiments
+See individual script documentation in the `scripts/` directory for execution instructions.
+
+## License
+[Internal Use Only]

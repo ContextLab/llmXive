@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-14T01:39:33.490374Z'
-- artifact_hash: 5aa96d954abfa41759a955a16ca409aced9b16fb9aef56fae7a8fff4ae10ab27
+- artifact_hash: f22314aee6254db06d9cdc0696286160f75964fb77c78d54816d3dec728d0178
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,15 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-20T16:52:19.453688Z'
+  verified_at: '2026-07-21T07:31:39.584547Z'
+- artifact_hash: f22314aee6254db06d9cdc0696286160f75964fb77c78d54816d3dec728d0178
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Omnibus test - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Omnibus_test
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Omnibus_test
+  verified_at: '2026-07-21T07:31:39.584547Z'

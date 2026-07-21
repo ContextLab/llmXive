@@ -1,11 +1,17 @@
-pybullet>=3.2.5
-torch>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
-cvxpy>=1.4.0
-diffcp>=1.0.13
-scipy>=1.11.0
+# Core Dependencies
+pybullet>=3.2.0
+torch --index-url https://download.pytorch.org/whl/cpu
+cvxpy>=1.3.0
+diffcp>=1.0.0
+scipy>=1.10.0
 pandas>=2.0.0
 numpy>=1.24.0
+
+# Testing & Quality
 pytest>=7.0.0
-pyyaml>=6.0
 ruff>=0.1.0
 black>=23.0.0
+
+# Utilities
+pyyaml>=6.0
+matplotlib>=3.7.0

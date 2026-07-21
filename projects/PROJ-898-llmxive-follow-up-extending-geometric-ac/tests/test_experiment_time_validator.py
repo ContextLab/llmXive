@@ -1,146 +1,123 @@
-"""
-Tests for ExperimentTimeValidator (T008b)
-"""
+import json
 import os
 import tempfile
-import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-import numpy as np
+import pytest
+from dataclasses import dataclass
 
-from experiment_time_validator import ExperimentTimeValidator, BudgetResult, CI_TIME_LIMIT_SECONDS
-from config import Config, ExperimentConfig
+from experiment_time_validator import (
+    BudgetResult,
+    load_profiling_report,
+    calculate_experiment_budget,
+    save_validation_report
+)
 
+@pytest.fixture
+def temp_profiling_report():
+    """Create a temporary profiling report for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump({
+            "mean_step_time_ms": 5000.0,  # 5 seconds per step
+            "p95_step_time_ms": 8000.0
+        }, f)
+        return f.name
 
-class TestExperimentTimeValidator(unittest.TestCase):
+@pytest.fixture
+def cleanup_temp_files():
+    """Cleanup temporary files after test."""
+    yield
+    # Clean up any temp files created during test
+    for f in [temp_profiling_report] if 'temp_profiling_report' in locals() else []:
+        try:
+            if os.path.exists(f):
+                os.unlink(f)
+        except:
+            pass
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.profile_path = os.path.join(self.temp_dir, "solver_profile.csv")
+def test_load_profiling_report_success(temp_profiling_report):
+    """Test successful loading of profiling report."""
+    report = load_profiling_report(temp_profiling_report)
+    assert "mean_step_time_ms" in report
+    assert report["mean_step_time_ms"] == 5000.0
+
+def test_load_profiling_report_file_not_found():
+    """Test error handling for missing file."""
+    with pytest.raises(FileNotFoundError):
+        load_profiling_report("nonexistent_file.json")
+
+def test_calculate_experiment_budget_basic(temp_profiling_report):
+    """Test basic budget calculation."""
+    report = load_profiling_report(temp_profiling_report)
+    result = calculate_experiment_budget(report, trial_count=50)
+    
+    # 50 trials * 100 steps * 5000ms = 25,000,000ms = 6.94 hours
+    assert result.mean_step_time_ms == 5000.0
+    assert result.total_steps == 5000  # 50 * 100
+    assert result.estimated_total_time_ms == 25000000.0
+    assert result.ci_limit_hours == 6.0
+    assert not result.passes_budget  # 6.94 > 6.0
+    assert result.status == "FAIL"
+
+def test_calculate_experiment_budget_passes(temp_profiling_report):
+    """Test budget calculation when it passes."""
+    report = load_profiling_report(temp_profiling_report)
+    # Use a faster step time: 1000ms
+    report["mean_step_time_ms"] = 1000.0
+    
+    result = calculate_experiment_budget(report, trial_count=50)
+    
+    # 50 * 100 * 1000ms = 5,000,000ms = 1.39 hours
+    assert result.estimated_total_time_hours < 6.0
+    assert result.passes_budget
+    assert result.status in ["PASS", "WARNING"]
+
+def test_calculate_experiment_budget_missing_field(temp_profiling_report):
+    """Test error handling for missing required field."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump({"other_field": 123}, f)
+        bad_file = f.name
+    
+    try:
+        report = load_profiling_report(bad_file)
+        with pytest.raises(ValueError):
+            calculate_experiment_budget(report, trial_count=50)
+    finally:
+        if os.path.exists(bad_file):
+            os.unlink(bad_file)
+
+def test_save_validation_report(temp_profiling_report):
+    """Test saving validation report to file."""
+    report = load_profiling_report(temp_profiling_report)
+    result = calculate_experiment_budget(report, trial_count=50)
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        output_path = f.name
+    
+    try:
+        save_validation_report(result, output_path)
         
-        # Create a mock config
-        self.mock_config = Config(
-            topology={},
-            solver={},
-            experiment=ExperimentConfig(
-                trial_count=10,
-                steps_per_trial=50,
-                seed=42,
-                timeout_limits=300
-            )
-        )
-
-    def tearDown(self):
-        """Clean up test files."""
-        if os.path.exists(self.profile_path):
-            os.remove(self.profile_path)
-
-    def test_calculate_budget_within_limit(self):
-        """Test calculation when total time is within 6 hours."""
-        # Create mock profile data: 100ms per step
-        df = pd.DataFrame({'latency_ms': [100.0] * 10})
-        df.to_csv(self.profile_path, index=False)
-
-        validator = ExperimentTimeValidator()
-        # Mock load_config to return our mock config
-        with patch('experiment_time_validator.load_config', return_value=self.mock_config):
-            result = validator.calculate_budget()
-
-        # 10 trials * 50 steps * 0.1s = 50 seconds
-        expected_total = 10 * 50 * 0.1
+        with open(output_path, 'r') as f:
+            saved_data = json.load(f)
         
-        self.assertAlmostEqual(result.total_estimated_time_seconds, expected_total, places=1)
-        self.assertTrue(result.within_budget)
-        self.assertGreater(result.time_remaining_seconds, 0)
+        assert saved_data["status"] == result.status
+        assert saved_data["passes_budget"] == result.passes_budget
+        assert "validation_message" in saved_data
+    finally:
+        if os.path.exists(output_path):
+            os.unlink(output_path)
 
-    def test_calculate_budget_exceeds_limit(self):
-        """Test calculation when total time exceeds 6 hours."""
-        # Create mock profile data: 10000ms (10s) per step
-        # 10 trials * 50 steps * 10s = 5000s > 21600s (6h) -> Wait, 5000s < 21600s. 
-        # Let's increase trials to exceed.
-        # 100 trials * 50 steps * 10s = 50000s > 21600s
-        df = pd.DataFrame({'latency_ms': [10000.0] * 10})
-        df.to_csv(self.profile_path, index=False)
-
-        # Update mock config for more trials
-        mock_config_large = Config(
-            topology={},
-            solver={},
-            experiment=ExperimentConfig(
-                trial_count=100,
-                steps_per_trial=50,
-                seed=42,
-                timeout_limits=300
-            )
-        )
-
-        validator = ExperimentTimeValidator()
-        with patch('experiment_time_validator.load_config', return_value=mock_config_large):
-            result = validator.calculate_budget()
-
-        self.assertFalse(result.within_budget)
-        self.assertLess(result.time_remaining_seconds, 0)
-
-    def test_validate_and_abort_exits_on_failure(self):
-        """Test that validate_and_abort exits with code 1 when budget exceeded."""
-        # Create mock profile data that exceeds budget
-        df = pd.DataFrame({'latency_ms': [10000.0] * 10})
-        df.to_csv(self.profile_path, index=False)
-
-        mock_config_large = Config(
-            topology={},
-            solver={},
-            experiment=ExperimentConfig(
-                trial_count=100,
-                steps_per_trial=50,
-                seed=42,
-                timeout_limits=300
-            )
-        )
-
-        validator = ExperimentTimeValidator()
-        with patch('experiment_time_validator.load_config', return_value=mock_config_large):
-            with self.assertRaises(SystemExit) as context:
-                validator.validate_and_abort()
-            
-            self.assertEqual(context.exception.code, 1)
-
-    def test_file_not_found_error(self):
-        """Test that FileNotFoundError is raised if profile data missing."""
-        validator = ExperimentTimeValidator()
-        # Ensure file does not exist
-        if os.path.exists(self.profile_path):
-            os.remove(self.profile_path)
-        
-        with self.assertRaises(FileNotFoundError):
-            validator.load_profile_data()
-
-    def test_max_trials_calculation(self):
-        """Test that max_trials_allowed is calculated correctly."""
-        df = pd.DataFrame({'latency_ms': [1000.0] * 10}) # 1s per step
-        df.to_csv(self.profile_path, index=False)
-
-        mock_config = Config(
-            topology={},
-            solver={},
-            experiment=ExperimentConfig(
-                trial_count=1000, # High count
-                steps_per_trial=10,
-                seed=42,
-                timeout_limits=300
-            )
-        )
-
-        validator = ExperimentTimeValidator()
-        with patch('experiment_time_validator.load_config', return_value=mock_config):
-            result = validator.calculate_budget()
-
-        # 1s * 10 steps * X trials <= 21600s
-        # 10 * X <= 21600 => X <= 2160
-        expected_max = int(CI_TIME_LIMIT_SECONDS / (1.0 * 10))
-        self.assertEqual(result.max_trials_allowed, expected_max)
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_budget_result_dataclass():
+    """Test BudgetResult dataclass initialization."""
+    result = BudgetResult(
+        mean_step_time_ms=1000.0,
+        total_steps=1000,
+        estimated_total_time_ms=1000000.0,
+        estimated_total_time_hours=0.28,
+        ci_limit_hours=6.0,
+        passes_budget=True,
+        margin_hours=5.72,
+        status="PASS"
+    )
+    
+    assert result.mean_step_time_ms == 1000.0
+    assert result.passes_budget is True
+    assert result.status == "PASS"

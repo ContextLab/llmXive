@@ -2,64 +2,74 @@ import os
 import sys
 from typing import List, Optional
 
-def create_directory_structure(root_path: str) -> None:
-    """Create the complete project directory structure.
+def create_directory_structure(root_path: str, base_dirs: Optional[List[str]] = None) -> None:
+    """
+    Create the standard project directory structure.
     
     Args:
-        root_path: The project root directory path.
+        root_path: The root directory for the project structure.
+        base_dirs: Optional list of base directories to create. Defaults to standard structure.
     """
-    # Define the directory structure to create
-    directories = [
-        "code",
-        "data/raw",
-        "data/generated",
-        "data/results",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "scripts",
-        "figures",
-        "specs"
-    ]
+    if base_dirs is None:
+        base_dirs = [
+            "code",
+            "data/raw",
+            "data/generated",
+            "data/results",
+            "tests",
+            "tests/unit",
+            "tests/integration",
+            "scripts",
+            "specs"
+        ]
     
-    for dir_path in directories:
-        full_path = os.path.join(root_path, dir_path)
+    for directory in base_dirs:
+        full_path = os.path.join(root_path, directory)
         os.makedirs(full_path, exist_ok=True)
         print(f"Created directory: {full_path}")
 
-def create_gitkeep_files(root_path: str) -> None:
-    """Create .gitkeep files in all data subdirectories.
+def create_gitkeep_files(root_path: str, target_dirs: Optional[List[str]] = None) -> None:
+    """
+    Create .gitkeep files in specified directories to ensure they are tracked by git.
     
     Args:
-        root_path: The project root directory path.
+        root_path: The root directory of the project.
+        target_dirs: List of directories relative to root_path to place .gitkeep files.
     """
-    data_subdirs = [
-        "data/raw",
-        "data/generated",
-        "data/results"
-    ]
+    if target_dirs is None:
+        target_dirs = [
+            "data/raw",
+            "data/generated",
+            "data/results",
+            "tests/unit",
+            "tests/integration"
+        ]
     
-    for subdir in data_subdirs:
-        dir_path = os.path.join(root_path, subdir)
-        gitkeep_path = os.path.join(dir_path, ".gitkeep")
+    for directory in target_dirs:
+        full_path = os.path.join(root_path, directory, ".gitkeep")
+        # Create parent directory if it doesn't exist
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
         
-        if not os.path.exists(gitkeep_path):
-            with open(gitkeep_path, "w") as f:
-                f.write("# Git keeps this directory in version control\n")
-            print(f"Created: {gitkeep_path}")
+        # Create .gitkeep file if it doesn't exist
+        if not os.path.exists(full_path):
+            with open(full_path, 'w') as f:
+                f.write("# Keep this directory in git\n")
+            print(f"Created .gitkeep: {full_path}")
         else:
-            print(f"Exists: {gitkeep_path}")
+            print(f".gitkeep already exists: {full_path}")
 
 def main() -> None:
-    """Main entry point for setting up the complete project structure."""
-    # Determine project root (current directory)
-    root_path = os.getcwd()
-    print(f"Setting up project structure in: {root_path}")
+    """Main entry point for creating project structure."""
+    # Determine root path based on script location or argument
+    if len(sys.argv) > 1:
+        root_path = sys.argv[1]
+    else:
+        # Default to current directory
+        root_path = "."
     
-    # Create directory structure
+    print(f"Setting up project structure in: {os.path.abspath(root_path)}")
+    
     create_directory_structure(root_path)
-    
-    # Create .gitkeep files
     create_gitkeep_files(root_path)
     
     print("Project structure setup complete.")

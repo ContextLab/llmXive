@@ -1,23 +1,19 @@
-#!/usr/bin/env python3
 """
-Script to compute statistical reference distribution for T010b.
+Script to compute statistical reference distribution for latent drift detection.
 
-This script computes mean and covariance statistics from the generated
-physics states and saves them to data/raw/gam_reference_stats.json
-for use in latent drift detection.
-
-Usage:
-    python scripts/compute_reference_stats.py
+This script implements Task T010b:
+- Loads physics states from data/generated/physics_states.json
+- Computes mean and covariance
+- Saves reference statistics to data/raw/gam_reference_stats.json
 """
-
-import os
 import sys
+import os
 
-# Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.statistical_reference import main
+from statistical_reference import main
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

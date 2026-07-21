@@ -1,140 +1,169 @@
 """
-Unit Tests for Physics State Extractor (T010a)
+Unit tests for the physics_state_extractor module.
 
-Verifies that the extractor correctly serializes physics states to JSON
-and handles edge cases.
+Tests verify that physics states are correctly extracted and serialized
+for different object types (kinematic, rigid, deformable).
 """
 
 import json
 import os
 import tempfile
-import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 
-# Import the module under test
 from physics_state_extractor import PhysicsStateExtractor
+from utils import set_deterministic_seed
 
 
-class TestPhysicsStateExtractor(unittest.TestCase):
-    """Test cases for PhysicsStateExtractor."""
+class TestPhysicsStateExtractor:
+    """Test suite for PhysicsStateExtractor class."""
 
-    def setUp(self):
-        """Set up a temporary directory for test outputs."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.output_path = os.path.join(self.temp_dir, "test_physics_states.json")
-        self.extractor = PhysicsStateExtractor(output_path=self.output_path)
+    @pytest.fixture
+    def extractor(self):
+        """Create a PhysicsStateExtractor instance for testing."""
+        return PhysicsStateExtractor(seed=42)
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        if os.path.exists(self.output_path):
-            os.remove(self.output_path)
-        if os.path.exists(self.temp_dir):
-            os.rmdir(self.temp_dir)
+    @pytest.fixture
+    def mock_pybullet(self):
+        """Mock PyBullet functions for testing."""
+        with patch('physics_state_extractor.p') as mock_p:
+            # Setup mock responses
+            mock_p.getNumJoints.return_value = 7
+            mock_p.getJointState.return_value = (0.0, 0.0, 0.0, 0.0)
+            mock_p.getBasePositionAndOrientation.return_value = (
+                [0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0]
+            )
+            yield mock_p
 
-    def test_add_state_basic(self):
-        """Test adding a basic state with vertex positions and joint angles."""
-        timestamp = 1.0
-        body_id = 1
-        topology_id = "test_chain"
-        object_type = "kinematic_chain"
+    def test_extract_kinematic_state(self, extractor, mock_pybullet):
+        """Test extraction of kinematic state (joint angles)."""
+        mock_pybullet.getNumJoints.return_value = 7
+        mock_pybullet.getJointState.return_value = (0.5, 0.0, 0.0, 0.0)
 
-        vertices = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
-        joints = {0: 0.5, 1: 1.0}
+        state_vector = extractor._extract_kinematic_state(body_id=1)
 
-        self.extractor.add_state(
-            timestamp=timestamp,
-            body_id=body_id,
-            topology_id=topology_id,
-            object_type=object_type,
-            vertex_positions=vertices,
-            joint_angles=joints
+        assert len(state_vector) == 7
+        assert all(isinstance(x, float) for x in state_vector)
+        assert all(x == 0.5 for x in state_vector)
+
+    def test_extract_rigid_state(self, extractor, mock_pybullet):
+        """Test extraction of rigid body state (position + orientation)."""
+        mock_pybullet.getBasePositionAndOrientation.return_value = (
+            [1.0, 2.0, 3.0],
+            [0.0, 0.0, 0.0, 1.0]
         )
 
-        self.assertEqual(len(self.extractor.state_buffer), 1)
-        entry = self.extractor.state_buffer[0]
-        self.assertEqual(entry["timestamp"], timestamp)
-        self.assertEqual(entry["body_id"], body_id)
-        self.assertEqual(entry["topology_id"], topology_id)
-        self.assertEqual(entry["object_type"], object_type)
-        self.assertEqual(len(entry["vertex_positions"]), 2)
-        self.assertEqual(len(entry["joint_angles"]), 2)
+        state_vector = extractor._extract_rigid_state(body_id=1)
 
-    def test_serialize_writes_file(self):
-        """Test that serialization creates the JSON file."""
-        vertices = np.array([[0.0, 0.0, 0.0]])
-        self.extractor.add_state(
-            timestamp=0.0,
+        assert len(state_vector) == 7  # 3 position + 4 orientation
+        assert state_vector[0:3] == [1.0, 2.0, 3.0]
+        assert state_vector[3:7] == [0.0, 0.0, 0.0, 1.0]
+
+    def test_serialize_states(self, extractor):
+        """Test serialization of states to JSON."""
+        states = [
+            {
+                "body_id": 1,
+                "object_type": "kinematic",
+                "timestamp": 0.0,
+                "timestep_idx": 0,
+                "state_vector": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                "metadata": {"num_joints": 7}
+            }
+        ]
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            output_path = f.name
+
+        try:
+            content_hash = extractor.serialize_states(states, output_path)
+
+            # Verify file was created
+            assert os.path.exists(output_path)
+
+            # Verify content is valid JSON
+            with open(output_path, 'r') as f:
+                loaded_states = json.load(f)
+
+            assert len(loaded_states) == 1
+            assert loaded_states[0]["body_id"] == 1
+            assert content_hash is not None
+        finally:
+            # Cleanup
+            if os.path.exists(output_path):
+                os.unlink(output_path)
+
+    def test_extract_and_serialize(self, extractor, mock_pybullet):
+        """Test the full extraction and serialization pipeline."""
+        simulation_data = {
+            "body_ids": [1],
+            "object_types": ["kinematic"],
+            "timesteps": [
+                {"timestamp": 0.0, "timestep_idx": 0},
+                {"timestamp": 0.016, "timestep_idx": 1}
+            ]
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            output_path = f.name
+
+        try:
+            result = extractor.extract_and_serialize(simulation_data, output_path)
+
+            assert "output_path" in result
+            assert "num_states" in result
+            assert "content_hash" in result
+            assert result["num_states"] == 2  # 2 timesteps * 1 body
+            assert os.path.exists(result["output_path"])
+        finally:
+            # Cleanup
+            if os.path.exists(output_path):
+                os.unlink(output_path)
+
+    def test_extract_state_unknown_type(self, extractor):
+        """Test extraction with unknown object type."""
+        state = extractor.extract_state(
             body_id=1,
-            topology_id="test",
-            object_type="deformable",
-            vertex_positions=vertices,
-            joint_angles={}
-        )
-
-        self.extractor.serialize()
-
-        self.assertTrue(os.path.exists(self.output_path))
-
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
-
-        self.assertIn("metadata", data)
-        self.assertIn("states", data)
-        self.assertEqual(len(data["states"]), 1)
-
-    def test_serialize_empty_buffer(self):
-        """Test serialization with an empty buffer."""
-        self.extractor.serialize()
-
-        self.assertTrue(os.path.exists(self.output_path))
-
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
-
-        self.assertEqual(data["metadata"]["count"], 0)
-
-    def test_vertex_positions_serialization(self):
-        """Test that numpy arrays are correctly converted to lists."""
-        vertices = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-        self.extractor.add_state(
+            object_type="unknown_type",
             timestamp=0.0,
-            body_id=1,
-            topology_id="test",
-            object_type="deformable",
-            vertex_positions=vertices,
-            joint_angles={}
+            timestep_idx=0
         )
 
-        self.extractor.serialize()
+        assert state["state_vector"] == []
+        assert state["object_type"] == "unknown_type"
 
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
+    def test_extract_deformable_state_empty(self, extractor, mock_pybullet):
+        """Test extraction of deformable state with no vertices."""
+        mock_pybullet.getNumJoints.return_value = 0
 
-        # Verify the list structure matches the numpy array
-        serialized_verts = data["states"][0]["vertex_positions"]
-        self.assertEqual(serialized_verts, [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+        state_vector = extractor._extract_deformable_state(body_id=1)
 
-    def test_joint_angles_serialization(self):
-        """Test that joint angles dict is preserved."""
-        joints = {0: 0.1, 1: 0.2, 2: 0.3}
-        self.extractor.add_state(
-            timestamp=0.0,
+        assert state_vector == []
+
+    def test_deterministic_seeding(self):
+        """Test that deterministic seeding works correctly."""
+        extractor1 = PhysicsStateExtractor(seed=42)
+        extractor2 = PhysicsStateExtractor(seed=42)
+
+        # Both should have the same seed
+        assert extractor1.seed == extractor2.seed == 42
+
+    def test_extract_state_with_real_data(self, extractor):
+        """Test extraction with realistic state data."""
+        # Simulate a more complex kinematic chain state
+        state = extractor.extract_state(
             body_id=1,
-            topology_id="test",
-            object_type="kinematic_chain",
-            vertex_positions=np.array([[0.0, 0.0, 0.0]]),
-            joint_angles=joints
+            object_type="kinematic",
+            timestamp=0.123,
+            timestep_idx=5
         )
 
-        self.extractor.serialize()
-
-        with open(self.output_path, 'r') as f:
-            data = json.load(f)
-
-        self.assertEqual(data["states"][0]["joint_angles"], joints)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert state["body_id"] == 1
+        assert state["object_type"] == "kinematic"
+        assert state["timestamp"] == 0.123
+        assert state["timestep_idx"] == 5
+        assert "state_vector" in state
+        assert "metadata" in state

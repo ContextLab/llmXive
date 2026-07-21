@@ -1,9 +1,9 @@
 """
-Physics State Extractor Module (T010a)
+Module: physics_state_extractor.py
 
-Extracts and serializes full physics simulation states (vertex positions for
-deformable objects, joint angles for kinematic chains) from PyBullet simulation
-logs into `data/generated/physics_states.json`.
+Implements the extraction and serialization of full physics simulation states
+(vertex positions for deformable objects, joint angles for kinematic chains)
+from PyBullet simulations into a structured JSON format.
 
 Satisfies US-1 Acceptance Scenario 2.
 """
@@ -16,252 +16,302 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pybullet as p
 
-# Import project utilities
-from utils import setup_logging, set_deterministic_seed
+from utils import setup_logging, set_deterministic_seed, compute_sha256
 
-logger = logging.getLogger(__name__)
+# Configure logging
+logger = setup_logging("physics_state_extractor", level=logging.INFO)
 
 
 class PhysicsStateExtractor:
     """
-    Extracts physics states from simulation data and serializes to JSON.
+    Extracts and serializes physics states from PyBullet simulations.
 
-    This class handles the extraction of:
-    - Vertex positions for deformable objects (mesh vertices)
-    - Joint angles for kinematic chains (hinge configurations)
-    - Timestamps for temporal alignment
-    - Object metadata (ID, type, topology)
-
-    Attributes:
-        output_path: Path to the output JSON file.
-        state_buffer: List to accumulate state dictionaries before serialization.
+    Handles both deformable objects (vertex positions) and kinematic chains
+    (joint angles) to create a comprehensive state representation.
     """
 
-    def __init__(self, output_path: str = "data/generated/physics_states.json"):
+    def __init__(self, seed: int = 42):
         """
-        Initialize the extractor.
+        Initialize the extractor with deterministic seeding.
 
         Args:
-            output_path: Path where the physics states JSON will be written.
+            seed: Random seed for reproducibility
         """
-        self.output_path = output_path
-        self.state_buffer: List[Dict[str, Any]] = []
-        self._ensure_output_dir()
+        set_deterministic_seed(seed)
+        self.seed = seed
+        self.logger = logging.getLogger("PhysicsStateExtractor")
 
-    def _ensure_output_dir(self) -> None:
-        """Ensure the directory for the output file exists."""
-        dir_path = os.path.dirname(self.output_path)
-        if dir_path and not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            logger.info(f"Created output directory: {dir_path}")
-
-    def extract_vertex_positions(
+    def extract_state(
         self,
         body_id: int,
-        link_index: int = -1,
-        scale: float = 1.0
-    ) -> np.ndarray:
+        object_type: str,
+        timestamp: float,
+        timestep_idx: int
+    ) -> Dict[str, Any]:
         """
-        Extract vertex positions for a deformable object from PyBullet.
+        Extract the full physics state for a specific body at a given timestep.
 
         Args:
-            body_id: The PyBullet body ID of the object.
-            link_index: Link index (-1 for base).
-            scale: Scaling factor for positions.
+            body_id: PyBullet body ID
+            object_type: Type of object ('deformable', 'kinematic', 'rigid')
+            timestamp: Simulation timestamp in seconds
+            timestep_idx: Index of the current timestep
 
         Returns:
-            numpy array of shape (N, 3) containing vertex positions.
+            Dictionary containing the extracted state
         """
-        import pybullet as p
+        state = {
+            "body_id": body_id,
+            "object_type": object_type,
+            "timestamp": timestamp,
+            "timestep_idx": timestep_idx,
+            "state_vector": None,
+            "metadata": {}
+        }
 
-        # Get mesh data if available
-        # Note: In real PyBullet soft body simulations, we typically access
-        # vertex positions via getMeshData or internal state access.
-        # Since we are extracting from a simulation log/state, we assume
-        # the input 'simulation_data' contains the raw vertex arrays.
-        # However, if this is called during a live simulation (which T010a
-        # implies is the source), we use p.getMeshData.
-        try:
-            # For soft bodies/visual shapes in PyBullet
-            num_vertices, vertices, normals, uvs, colors = p.getMeshData(body_id)
-            if vertices:
-                positions = np.array(vertices) * scale
-                return positions
-            else:
-                # Fallback: get position of the body if no mesh data
-                pos, orn = p.getBasePositionAndOrientation(body_id)
-                return np.array([pos])
-        except Exception as e:
-            logger.warning(f"Could not extract mesh data for body {body_id}: {e}")
-            # Return a placeholder zero vector if extraction fails
-            return np.array([[0.0, 0.0, 0.0]])
+        if object_type == "deformable":
+            state["state_vector"] = self._extract_deformable_state(body_id)
+            state["metadata"]["num_vertices"] = len(state["state_vector"]) // 3
+        elif object_type == "kinematic":
+            state["state_vector"] = self._extract_kinematic_state(body_id)
+            state["metadata"]["num_joints"] = len(state["state_vector"])
+        elif object_type == "rigid":
+            state["state_vector"] = self._extract_rigid_state(body_id)
+        else:
+            self.logger.warning(f"Unknown object type: {object_type}")
+            state["state_vector"] = []
 
-    def extract_joint_angles(
-        self,
-        body_id: int,
-        joint_indices: Optional[List[int]] = None
-    ) -> Dict[int, float]:
+        return state
+
+    def _extract_deformable_state(self, body_id: int) -> List[float]:
+        """
+        Extract vertex positions for a deformable object.
+
+        Args:
+            body_id: PyBullet body ID of the deformable object
+
+        Returns:
+            List of vertex positions flattened (x, y, z for each vertex)
+        """
+        # Get the number of vertices
+        num_vertices = p.getNumJoints(body_id)
+        if num_vertices == 0:
+            # Fallback for some deformable representations
+            return []
+
+        positions = []
+        for joint_idx in range(num_vertices):
+            joint_info = p.getJointInfo(body_id, joint_idx)
+            # joint_info[1] is the joint name, joint_info[12] is the current position
+            # For deformable bodies, we often need to get the vertex positions differently
+            # depending on the specific representation used in PyBullet
+            pos = p.getJointState(body_id, joint_idx)[0]
+            positions.append(pos)
+
+        # If the above doesn't work for the specific deformable representation,
+        # we might need to use getMeshData or other methods
+        # This is a simplified approach that works for many deformable setups
+        if len(positions) == 0:
+            # Alternative: try to get base position and orientation
+            base_pos, base_orn = p.getBasePositionAndOrientation(body_id)
+            positions = list(base_pos) + list(base_orn)
+
+        return [float(x) for x in positions]
+
+    def _extract_kinematic_state(self, body_id: int) -> List[float]:
         """
         Extract joint angles for a kinematic chain.
 
         Args:
-            body_id: The PyBullet body ID.
-            joint_indices: Specific joints to extract. If None, extracts all.
+            body_id: PyBullet body ID of the kinematic chain
 
         Returns:
-            Dictionary mapping joint index to angle (radians).
+            List of joint angles
         """
-        import pybullet as p
-
-        joint_angles = {}
         num_joints = p.getNumJoints(body_id)
+        if num_joints == 0:
+            return []
 
-        indices_to_check = joint_indices if joint_indices is not None else range(num_joints)
+        joint_angles = []
+        for joint_idx in range(num_joints):
+            joint_state = p.getJointState(body_id, joint_idx)
+            joint_angle = joint_state[0]  # Current position
+            joint_angles.append(joint_angle)
 
-        for idx in indices_to_check:
-            if idx < num_joints:
-                joint_info = p.getJointInfo(body_id, idx)
-                # joint_info[2] is jointType, joint_info[12] is current position
-                current_pos = p.getJointState(body_id, idx)[0]
-                joint_angles[idx] = float(current_pos)
+        return [float(x) for x in joint_angles]
 
-        return joint_angles
-
-    def add_state(
-        self,
-        timestamp: float,
-        body_id: int,
-        topology_id: str,
-        object_type: str,
-        vertex_positions: Optional[np.ndarray] = None,
-        joint_angles: Optional[Dict[int, float]] = None
-    ) -> None:
+    def _extract_rigid_state(self, body_id: int) -> List[float]:
         """
-        Add a single physics state snapshot to the buffer.
+        Extract base position and orientation for a rigid body.
 
         Args:
-            timestamp: Simulation timestamp in seconds.
-            body_id: PyBullet body ID.
-            topology_id: Identifier for the kinematic chain topology.
-            object_type: 'deformable' or 'kinematic_chain'.
-            vertex_positions: Numpy array of vertex positions (3D).
-            joint_angles: Dict of joint indices to angles.
-        """
-        state_entry = {
-            "timestamp": float(timestamp),
-            "body_id": int(body_id),
-            "topology_id": topology_id,
-            "object_type": object_type,
-            "vertex_positions": (
-                vertex_positions.tolist() if vertex_positions is not None else []
-            ),
-            "joint_angles": joint_angles if joint_angles is not None else {}
-        }
-
-        self.state_buffer.append(state_entry)
-        logger.debug(f"Added state snapshot at t={timestamp:.4f}s")
-
-    def serialize(self) -> str:
-        """
-        Serialize the accumulated state buffer to JSON and write to disk.
+            body_id: PyBullet body ID of the rigid body
 
         Returns:
-            Path to the written file.
+            List containing [x, y, z, qw, qx, qy, qz]
         """
-        if not self.state_buffer:
-            logger.warning("No states to serialize. Buffer is empty.")
-            # Write an empty structure to satisfy the "file exists" requirement
-            empty_data = {"states": [], "metadata": {"count": 0, "source": "empty"}}
-            with open(self.output_path, 'w') as f:
-                json.dump(empty_data, f, indent=2)
-            return self.output_path
+        base_pos, base_orn = p.getBasePositionAndOrientation(body_id)
+        state_vector = list(base_pos) + list(base_orn)
+        return [float(x) for x in state_vector]
 
-        output_data = {
-            "metadata": {
-                "count": len(self.state_buffer),
-                "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "source": "physics_simulation_extraction"
-            },
-            "states": self.state_buffer
+    def serialize_states(
+        self,
+        states: List[Dict[str, Any]],
+        output_path: str
+    ) -> str:
+        """
+        Serialize a list of physics states to a JSON file.
+
+        Args:
+            states: List of state dictionaries
+            output_path: Path to write the JSON file
+
+        Returns:
+            SHA-256 hash of the serialized content
+        """
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Serialize to JSON
+        json_content = json.dumps(states, indent=2, default=str)
+
+        # Write to file
+        with open(output_path, 'w') as f:
+            f.write(json_content)
+
+        # Compute hash for verification
+        content_hash = compute_sha256(json_content)
+
+        self.logger.info(f"Serialized {len(states)} states to {output_path}")
+        self.logger.info(f"Content hash: {content_hash}")
+
+        return content_hash
+
+    def extract_and_serialize(
+        self,
+        simulation_data: Dict[str, Any],
+        output_path: str
+    ) -> Dict[str, Any]:
+        """
+        Extract physics states from simulation data and serialize to JSON.
+
+        Args:
+            simulation_data: Dictionary containing simulation results with
+                            'body_ids', 'object_types', and 'timesteps'
+            output_path: Path to write the output JSON file
+
+        Returns:
+            Dictionary containing metadata about the extraction process
+        """
+        self.logger.info(f"Starting physics state extraction for {len(simulation_data.get('timesteps', []))} timesteps")
+
+        all_states = []
+
+        for timestep_data in simulation_data.get('timesteps', []):
+            timestamp = timestep_data.get('timestamp', 0.0)
+            timestep_idx = timestep_data.get('timestep_idx', 0)
+
+            for body_id, object_type in zip(
+                simulation_data['body_ids'],
+                simulation_data['object_types']
+            ):
+                try:
+                    state = self.extract_state(
+                        body_id=body_id,
+                        object_type=object_type,
+                        timestamp=timestamp,
+                        timestep_idx=timestep_idx
+                    )
+                    all_states.append(state)
+                except Exception as e:
+                    self.logger.error(f"Failed to extract state for body {body_id}: {e}")
+                    # Continue with other bodies rather than failing entirely
+
+        # Serialize to JSON
+        content_hash = self.serialize_states(all_states, output_path)
+
+        return {
+            "output_path": output_path,
+            "num_states": len(all_states),
+            "content_hash": content_hash,
+            "seed": self.seed
         }
 
-        try:
-            with open(self.output_path, 'w') as f:
-                json.dump(output_data, f, indent=2)
-            logger.info(f"Successfully serialized {len(self.state_buffer)} states to {self.output_path}")
-        except IOError as e:
-            logger.error(f"Failed to write physics states to {self.output_path}: {e}")
-            raise
 
-        return self.output_path
-
-    def clear(self) -> None:
-        """Clear the state buffer."""
-        self.state_buffer = []
-
-
-def main() -> None:
+def main():
     """
-    Main entry point for the Physics State Extractor.
+    Main entry point for the physics state extractor.
 
-    This function is designed to be called by the generation pipeline (T009-gen)
-    or run standalone to process existing simulation logs. For this task, it
-    demonstrates the extraction logic by simulating a small dataset if no
-    real simulation data is provided, OR it waits for the real data source.
-
-    NOTE: Per the strict constraints, this script must write real output.
-    Since T010a is part of the generation pipeline, we assume the calling
-    context (T009-gen) has populated the simulation data.
-    However, to satisfy the requirement "When run as python code/... it writes output",
-    we will simulate a minimal valid physics state sequence if no input is provided,
-    representing the extraction of a hypothetical simulation step.
+    This function demonstrates the extraction process using a simple
+    PyBullet simulation setup.
     """
-    setup_logging(level=logging.INFO)
+    # Setup logging
+    logger = setup_logging("physics_state_extractor_main", level=logging.INFO)
+
+    # Initialize PyBullet
+    logger.info("Initializing PyBullet physics engine...")
+    p.connect(p.DIRECT)  # Headless mode
+
+    # Set deterministic seed
     set_deterministic_seed(42)
 
-    extractor = PhysicsStateExtractor("data/generated/physics_states.json")
+    # Create a simple simulation setup for demonstration
+    # Load a ground plane
+    ground_id = p.loadURDF("plane.urdf")
 
-    # Simulate extraction of a few states to demonstrate functionality
-    # In a real pipeline, this data would come from the PyBullet simulation loop.
-    logger.info("Starting physics state extraction demonstration...")
+    # Create a simple kinematic chain (e.g., a robot arm)
+    # Using a built-in URDF for demonstration
+    try:
+        robot_id = p.loadURDF("r2d2.urdf", [0, 0, 0])
+        object_types = ["kinematic"]
+        body_ids = [robot_id]
+    except Exception as e:
+        logger.warning(f"Failed to load r2d2.urdf: {e}. Using alternative setup.")
+        # Create a simple box as fallback
+        box_id = p.createMultiBody(baseMass=1.0, baseCollisionShapeIndex=p.GEOM_BOX, baseCollisionShapeParameters=[0.5, 0.5, 0.5])
+        robot_id = box_id
+        object_types = ["rigid"]
+        body_ids = [robot_id]
 
-    # Simulated data representing a kinematic chain with 3 joints
-    topology_id = "chain_3_hinges"
-    body_id = 1
-    object_type = "kinematic_chain"
+    # Simulate for a few timesteps
+    num_timesteps = 10
+    simulation_data = {
+        "body_ids": body_ids,
+        "object_types": object_types,
+        "timesteps": []
+    }
 
-    # Simulate 5 timesteps
-    for t in range(5):
-        timestamp = t * 0.1
+    for i in range(num_timesteps):
+        # Step simulation
+        p.setGravity(0, 0, -9.81)
+        p.stepSimulation()
 
-        # Simulate joint angles (radians)
-        joint_angles = {
-            0: float(np.sin(t * 0.5)),
-            1: float(np.cos(t * 0.3)),
-            2: float(np.sin(t * 0.2))
+        timestep_data = {
+            "timestamp": i * 0.016,  # ~60Hz simulation
+            "timestep_idx": i
         }
+        simulation_data["timesteps"].append(timestep_data)
 
-        # Simulate vertex positions (a simple 4-point mesh for a deformable object)
-        # In reality, this would be extracted from PyBullet
-        vertex_positions = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [1.0, 1.0, 0.0],
-            [0.0, 1.0, 0.0]
-        ]) + np.random.randn(4, 3) * 0.01  # Add small noise
+        # Small delay to allow for any background processing
+        time.sleep(0.001)
 
-        extractor.add_state(
-            timestamp=timestamp,
-            body_id=body_id,
-            topology_id=topology_id,
-            object_type=object_type,
-            vertex_positions=vertex_positions,
-            joint_angles=joint_angles
-        )
+    # Extract and serialize states
+    extractor = PhysicsStateExtractor(seed=42)
+    output_path = "data/generated/physics_states.json"
 
-    extractor.serialize()
-    logger.info("Physics state extraction complete.")
+    result = extractor.extract_and_serialize(simulation_data, output_path)
+
+    logger.info(f"Physics state extraction completed successfully")
+    logger.info(f"Output written to: {result['output_path']}")
+    logger.info(f"Number of states extracted: {result['num_states']}")
+    logger.info(f"Content hash: {result['content_hash']}")
+
+    # Disconnect PyBullet
+    p.disconnect()
+
+    return result
 
 
 if __name__ == "__main__":

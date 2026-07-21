@@ -1,3 +1,36 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory `projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/` or
+    any of its contents were presented; the claim provides no tangible artifact to
+    confirm the required project root structure exists. The task therefore remains
+    unverified and incomplete.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required `code/`, `data/`, and `tests/` directories
+    actually exist or contain any files; the claim cannot be verified from the given
+    artifacts. The implementer must supply a directory listing or screenshots showing
+    those three directories present in the repository.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that `.gitkeep` files exist in `data/raw`, `data/generated`,
+    or `data/results`; the artifact list is empty, so the required files are missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required linting and formatting configuration artifacts (e.g.,\
+    \ a `ruff.toml`, `pyproject.toml` entries for Black, or a `.pre-commit-config.yaml`\
+    \ referencing these tools) but none were presented or referenced. Without concrete,\
+    \ non\u2011empty configuration files, the task of configuring ruff and Black is\
+    \ not demonstrated as completed."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw`, `data/generated`, `data/results` directories\
+    \ or accompanying `.gitkeep` files is provided; without these artifacts the task\u2019\
+    s requirement cannot be confirmed as satisfied."
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,13 +38,6 @@ T008a:
     \ the claim provides no artifact demonstrating that solver steps were measured\
     \ and shown to be under 300\u202Fseconds on a 2\u2011core machine. The required\
     \ evidence is missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no code, configuration, tests, or documentation showing\
-    \ a timeout mechanism for solver steps; there is no artifact that implements or\
-    \ verifies a per\u2011step time limit. Consequently the required feature is not\
-    \ demonstrated."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,11 +54,3 @@ T019:
     \ relate to dataset generation and symbolic planning, which do not satisfy the\
     \ required latent drift detection feature. The task therefore lacks the necessary\
     \ implementation artifact."
-T019b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test script, logs, or output demonstrating a gradient verification test
-    are present; the claim provides only the task description and specifications,
-    without any artifact proving that gradients were computed and verified through
-    the loss, decoder, and solver parameters. The required implementation and its
-    execution results are missing.

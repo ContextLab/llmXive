@@ -91,3 +91,259 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T07:19:38Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: trial count of 50
+  claim_id: c_53dd7c07
+  context: 'Create code/config.yaml defining experiment parameters: topology_counts,
+    timeout_limits (configurable duration), seed, trial_count (50)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trial_count (50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:21:46Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: output list of 50 distinct topology IDs
+  claim_id: c_4d707038
+  context: 'Output: data/generated/unique_topology_ids.json (list of 50 distinct topology
+    IDs). Abort Condition: If < 50 distinct topologies are found, exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50 distinct topology IDs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:22:07Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: kinematic chains with hinge counts -10
+  claim_id: c_8d4a9821
+  context: Implement code/data_generation.py logic to generate a diverse set of novel
+    kinematic chains (hinge counts -10) and deformable materials...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hinge counts -10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:22:29Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: maintain state for 60 consecutive frames at 60Hz
+  claim_id: c_d9b5cb96
+  context: assert collision_flag == 0 AND distance to target object center < 5cm for
+    >= 1.0s (verified by maintaining state for 60 consecutive frames at 60Hz) to set
+    success=true.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 60 consecutive frames at 60Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:22:42Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: memory usage for 50 topologies
+  claim_id: c_e1491821
+  context: 'verification: memory usage < 7GB for 50 topologies, solve time reduced
+    by >10%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50 topologies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:23:07Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Generate kinematic chains with hinge counts -10 and deformable materials
+    with low-to-moderate stiffness
+  claim_id: c_343f112c
+  context: 'Phase 3: User Story 1 - Synthetic Topology-Shift Test Set Generation.
+    T009-gen [US1] Implement code/data_generation.py logic...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to generate a diverse set of novel kinematic chains (hinge
+    counts -10) and deformable materials (stiffness in a low-to-moderate range) in
+    PyBullet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:28:43Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Mean step time must be less than 300 seconds
+  claim_id: c_0d16c063
+  context: 'T008a-profile [US1] ...Verification: assert exit_code == 0 and mean_step_time_ms
+    < 300000 (300s).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_step_time_must_be_less_than_300_seconds
+  kind: magnitude
+  raw_text: assert mean_step_time_ms < 300000 (300s)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:29:06Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Decoder weights remain frozen with no gradients flowing into GFM backbone
+  claim_id: c_7c826b3a
+  context: T014a-verify [US2] ...validating that the decoder weights remain frozen
+    and no gradients flow into the GFM backbone.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Decoder_weights_remain_frozen_with_no_gradients_flowing_into
+  kind: entity_fact
+  raw_text: verify that the decoder weights remain frozen and no gradients flow into
+    the GFM backbone.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:29:21Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: 'Success metric: collision_flag equals 0, distance to target less than
+    5cm for at least 1.0s, verified by 60 consecutive frames at 60Hz'
+  claim_id: c_812bdc64
+  context: T021b [US2] ...assert collision_flag == 0 AND distance to target object
+    center < 5cm for >= 1.0s (verified by maintaining state for 60 consecutive frames
+    at 60Hz) to set success=true.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_metric:_collision_flag_equals_0,_distance_to_target
+  kind: magnitude
+  raw_text: assert collision_flag == 0 AND distance to target object center < 5cm
+    for >= 1.0s (verified by maintaining state for 60 consecutive frames at 60Hz)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:29:45Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7GB for 50 topologies
+  claim_id: c_5cb6a558
+  context: 'T031 [P] ...verification: memory usage < 7GB for 50 topologies, solve
+    time reduced by >10%'
+  evidence:
+    candidates:
+    - - Memory usage less than 7GB for
+      - 50.0
+    - - Please search for Memory usage less than
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB_for_50_topologies
+  kind: magnitude
+  raw_text: verify memory usage < 7GB for 50 topologies
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-21T07:29:57Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Solve time reduced by more than 10 percent
+  claim_id: c_5f33a777
+  context: 'T031 [P] ...verification: memory usage < 7GB for 50 topologies, solve
+    time reduced by >10%'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Solve_time_reduced_by_more_than_10_percent
+  kind: magnitude
+  raw_text: solve time reduced by >10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:30:57Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: State null hypothesis rejection status at alpha 0.05
+  claim_id: c_2b549a54
+  context: "T027 [US3] ...state null hypothesis rejection status (\u03B1=0.05) and\
+    \ validate SC-001 (one-second duration)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The omnibus F ANOVA test results above indicate significant differences\
+        \ between the days time-wait (P-Value =0.000 < 0.05, \u03B1 =0.05)."
+      source_id: Omnibus test
+      url: https://en.wikipedia.org/wiki/Omnibus_test
+      value: '0.000'
+    filled: true
+  kind: numeric
+  raw_text: "state null hypothesis rejection status (\u03B1=0.05)"
+  resolved_value: '0.000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T07:31:04Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Generate 50 distinct topology IDs
+  claim_id: c_38043a4f
+  context: 'T009-verify-uniqueness [US1] ...Output: data/generated/unique_topology_ids.json
+    (list of 50 distinct topology IDs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a list of 50 distinct topology IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:31:35Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Retry mechanism uses exponential backoff
+  claim_id: c_5a7e6c9e
+  context: T011 [US1] ...recovery mechanism (retry times with exponential backoff,
+    log to data/results/errors.log and skip trial)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retry_mechanism_uses_exponential_backoff
+  kind: entity_fact
+  raw_text: retry times with exponential backoff
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T07:31:39Z'

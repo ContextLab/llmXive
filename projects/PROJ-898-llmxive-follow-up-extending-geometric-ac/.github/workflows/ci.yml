@@ -1,4 +1,4 @@
-name: CI - Multi-core x86_64 CPU Only
+name: CI - Experimental Trial
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-# FR-004: Multi-core x86_64 runner, no GPU/CUDA, 6-hour timeout limit
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  test:
-    name: Run Tests (CPU Only)
+  experimental-trial:
+    name: Multi-core x86_64 CPU Trial
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6 hours (SC-005 hard cap)
-
+    
+    # Enforce hardware constraints: No GPU/CUDA, Multi-core CPU
+    # The runner is standard x86_64 (ubuntu-latest)
+    # CUDA is not installed/available by default on these runners
+    
+    timeout-minutes: 360  # 6 hours maximum (SC-005: 6-hour CI limit)
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,33 +25,49 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
+          pip install -r requirements.txt
 
-      - name: Run Linting (Ruff)
+      - name: Run Data Generation & Validation (US1)
+        # Depends on T009-gen, T009-verify-uniqueness, T009-hash, T009-serialize
         run: |
-          ruff check code/
+          python scripts/generate_test_set.py
+        env:
+          PYTHONHASHSEED: 0  # Ensure deterministic seeding
 
-      - name: Run Formatting Check (Black)
+      - name: Run Symbolic Solver Profiling (US2)
+        # Depends on T008a-profile
         run: |
-          black --check code/
+          python scripts/profile_solver.py
+        timeout-minutes: 300  # 300s limit per spec assumption check
 
-      - name: Run Unit Tests
+      - name: Run Inference Pipeline (US2)
+        # Depends on T016, T020, T021
         run: |
-          pytest tests/ -v --tb=short
+          python code/inference_pipeline.py
+        timeout-minutes: 300
 
-      - name: Run Time Budget Validation (FR-004 / SC-005)
+      - name: Run Baseline Comparison (US3)
+        # Depends on T022a
         run: |
-          python code/experiment_time_validator.py --validate-budget
+          python code/baseline_runner.py
+        timeout-minutes: 300
 
-      - name: Upload Test Results
-        if: always()
+      - name: Run Statistical Analysis (US3)
+        # Depends on T023, T024, T025, T026, T027
+        run: |
+          python scripts/run_analysis.py
+
+      - name: Upload Results Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: data/results/*.csv
-          if-no-files-found: warn
+          name: experimental-results
+          path: |
+            data/generated/
+            data/results/
+            data/raw/gam_reference_stats.json
+            data/raw/drift_threshold_validation.json
+          retention-days: 7

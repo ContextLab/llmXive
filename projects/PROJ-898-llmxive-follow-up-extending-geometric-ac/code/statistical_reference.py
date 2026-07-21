@@ -1,10 +1,9 @@
 """
-Statistical Reference Distribution Generator for T010b.
+Statistical Reference Distribution Module (Task T010b)
 
-Computes mean and covariance statistics from generated physics states
-and saves them to the reference stats file for use in latent drift detection.
+Computes statistical reference distribution (mean/covariance) from physics states
+and saves to data/raw/gam_reference_stats.json for latent drift detection.
 """
-
 import json
 import logging
 import os
@@ -13,230 +12,165 @@ from typing import Dict, Any, List, Optional, Tuple
 
 import numpy as np
 
-# Import existing utilities from the project
-try:
-    from utils import setup_logging
-except ImportError:
-    # Fallback for direct execution if utils is not in path
-    import utils
-    setup_logging = utils.setup_logging
+from utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
 
-def load_physics_states(filepath: str) -> Dict[str, Any]:
-    """Load physics states from JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Physics states file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
-        return json.load(f)
+def load_physics_states(file_path: str) -> List[Dict[str, Any]]:
+    """Load physics states from a JSON file."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Physics states file not found: {file_path}")
+
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of physics states, got {type(data)}")
+
+    return data
 
 
-def extract_state_vectors(states: Dict[str, Any]) -> np.ndarray:
+def extract_state_vectors(physics_states: List[Dict[str, Any]]) -> np.ndarray:
     """
-    Extract numeric state vectors from physics states for statistical analysis.
-    
-    Flattens all numeric state components (vertex positions, joint angles, etc.)
-    into a single feature vector per timestep.
-    
+    Extract state vectors from physics states.
+
     Args:
-        states: Dictionary containing physics states with structure:
-               {
-                 "topology_id": str,
-                 "timesteps": [
-                   {
-                     "vertex_positions": [[x,y,z], ...],
-                     "joint_angles": [angle1, angle2, ...],
-                     "timestamp": float,
-                     ...
-                   },
-                   ...
-                 ]
-               }
-    
+        physics_states: List of physics state dictionaries
+
     Returns:
-        np.ndarray of shape (n_timesteps, n_features)
+        numpy array of shape (n_samples, n_features) containing state vectors
     """
-    all_vectors = []
-    
-    if "topology_id" in states:
-        # Single topology structure
-        timesteps = states.get("timesteps", [])
-        vectors = _process_timesteps(timesteps)
-        all_vectors.extend(vectors)
-    elif "topologies" in states:
-        # Multiple topologies structure
-        for topology in states.get("topologies", []):
-            timesteps = topology.get("timesteps", [])
-            vectors = _process_timesteps(timesteps)
-            all_vectors.extend(vectors)
-    elif isinstance(states, list):
-        # List of topology states
-        for topology in states:
-            timesteps = topology.get("timesteps", [])
-            vectors = _process_timesteps(timesteps)
-            all_vectors.extend(vectors)
-    
-    if len(all_vectors) == 0:
-        raise ValueError("No valid state vectors found in physics states")
-    
-    return np.array(all_vectors, dtype=np.float64)
+    if not physics_states:
+        raise ValueError("Physics states list is empty")
+
+    state_vectors = []
+    for state in physics_states:
+        if 'state_vector' not in state:
+            raise ValueError(f"Missing 'state_vector' in state: {state}")
+
+        vector = state['state_vector']
+        if not isinstance(vector, list):
+            raise ValueError(f"state_vector must be a list, got {type(vector)}")
+
+        state_vectors.append(vector)
+
+    return np.array(state_vectors)
 
 
-def _process_timesteps(timesteps: List[Dict]) -> List[np.ndarray]:
-    """Process a list of timesteps into feature vectors."""
-    vectors = []
-    
-    for timestep in timesteps:
-        features = []
-        
-        # Extract vertex positions (flattened)
-        if "vertex_positions" in timestep:
-            positions = np.array(timestep["vertex_positions"], dtype=np.float64)
-            features.extend(positions.flatten())
-        
-        # Extract joint angles
-        if "joint_angles" in timestep:
-            angles = np.array(timestep["joint_angles"], dtype=np.float64)
-            features.extend(angles)
-        
-        # Extract other numeric state variables if present
-        for key, value in timestep.items():
-            if key not in ("vertex_positions", "joint_angles", "timestamp", "topology_id"):
-                if isinstance(value, (int, float)):
-                    features.append(float(value))
-                elif isinstance(value, list) and all(isinstance(v, (int, float)) for v in value):
-                    features.extend([float(v) for v in value])
-        
-        if features:
-            vectors.append(np.array(features, dtype=np.float64))
-    
-    return vectors
-
-
-def compute_statistics(vectors: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def compute_statistics(state_vectors: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute mean and covariance matrix from state vectors.
-    
+    Compute mean and covariance of state vectors.
+
     Args:
-        vectors: np.ndarray of shape (n_samples, n_features)
-    
+        state_vectors: numpy array of shape (n_samples, n_features)
+
     Returns:
-        Tuple of (mean, covariance) where:
-          - mean: np.ndarray of shape (n_features,)
-          - covariance: np.ndarray of shape (n_features, n_features)
+        Tuple of (mean_vector, covariance_matrix)
     """
-    if vectors.shape[0] < 2:
-        raise ValueError(f"Need at least 2 samples to compute covariance, got {vectors.shape[0]}")
-    
-    mean = np.mean(vectors, axis=0)
-    covariance = np.cov(vectors, rowvar=False)
-    
-    # Ensure covariance is positive semi-definite (add small regularization if needed)
-    min_eig = np.min(np.linalg.eigvalsh(covariance))
-    if min_eig < 0:
-        logger.warning(f"Covariance matrix has negative eigenvalue: {min_eig}. Adding regularization.")
-        covariance += np.eye(covariance.shape[0]) * (-min_eig + 1e-8)
-    
+    if state_vectors.ndim != 2:
+        raise ValueError(f"Expected 2D array, got {state_vectors.ndim}D")
+
+    n_samples, n_features = state_vectors.shape
+
+    if n_samples < 2:
+        raise ValueError(f"Need at least 2 samples for covariance, got {n_samples}")
+
+    mean = np.mean(state_vectors, axis=0)
+    covariance = np.cov(state_vectors, rowvar=False)
+
+    # Handle singular covariance matrix by adding small regularization
+    if np.linalg.cond(covariance) > 1e10:
+        logger.warning("Covariance matrix is nearly singular. Adding regularization.")
+        covariance += np.eye(n_features) * 1e-6
+
     return mean, covariance
 
 
 def save_reference_stats(
     mean: np.ndarray,
     covariance: np.ndarray,
-    output_path: str,
-    metadata: Optional[Dict[str, Any]] = None
+    output_path: str
 ) -> None:
     """
-    Save reference statistics to JSON file.
-    
+    Save reference statistics to a JSON file.
+
     Args:
         mean: Mean vector
         covariance: Covariance matrix
         output_path: Path to save the JSON file
-        metadata: Optional additional metadata to include
     """
     stats = {
         "mean": mean.tolist(),
         "covariance": covariance.tolist(),
-        "n_features": len(mean),
-        "n_samples": covariance.shape[0],
-        "description": "Reference distribution for latent drift detection (Mahalanobis distance)",
-        "created_at": metadata.get("created_at", "unknown") if metadata else "unknown"
+        "n_samples": mean.shape[0],
+        "n_features": mean.shape[0] if mean.ndim == 1 else mean.shape[1],
+        "covariance_shape": list(covariance.shape)
     }
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
-    
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     with open(output_path, 'w') as f:
         json.dump(stats, f, indent=2)
-    
-    logger.info(f"Saved reference statistics to {output_path}")
+
+    logger.info(f"Reference statistics saved to {output_path}")
 
 
 def compute_reference_stats_from_file(
     input_path: str,
-    output_path: str,
-    metadata: Optional[Dict[str, Any]] = None
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Main function to compute and save reference statistics from physics states.
-    
+    Load physics states, compute statistics, and save to output file.
+
     Args:
-        input_path: Path to physics_states.json
-        output_path: Path to save gam_reference_stats.json
-        metadata: Optional metadata to include in output
-    
+        input_path: Path to physics states JSON file
+        output_path: Path to save reference statistics JSON file
+
     Returns:
-        Dictionary with computation results
+        Dictionary containing computed statistics
     """
     logger.info(f"Loading physics states from {input_path}")
-    states = load_physics_states(input_path)
-    
+    physics_states = load_physics_states(input_path)
+    logger.info(f"Loaded {len(physics_states)} physics states")
+
     logger.info("Extracting state vectors")
-    vectors = extract_state_vectors(states)
-    logger.info(f"Extracted {vectors.shape[0]} vectors with {vectors.shape[1]} features")
-    
+    state_vectors = extract_state_vectors(physics_states)
+    logger.info(f"Extracted state vectors of shape {state_vectors.shape}")
+
     logger.info("Computing statistics")
-    mean, covariance = compute_statistics(vectors)
-    
+    mean, covariance = compute_statistics(state_vectors)
+    logger.info(f"Mean shape: {mean.shape}, Covariance shape: {covariance.shape}")
+
     logger.info(f"Saving reference statistics to {output_path}")
-    save_reference_stats(mean, covariance, output_path, metadata)
-    
+    save_reference_stats(mean, covariance, output_path)
+
     return {
-        "n_samples": vectors.shape[0],
-        "n_features": vectors.shape[1],
         "mean_shape": list(mean.shape),
         "covariance_shape": list(covariance.shape),
-        "output_path": output_path
+        "n_samples": state_vectors.shape[0],
+        "n_features": state_vectors.shape[1]
     }
 
 
-def main() -> None:
-    """Main entry point for T010b."""
-    # Setup logging
-    log_level = os.environ.get("LOG_LEVEL", "INFO")
-    setup_logging(level=log_level)
-    
-    # Define paths
+def main():
+    """Main entry point for computing reference statistics."""
+    setup_logging()
+
     input_path = "data/generated/physics_states.json"
     output_path = "data/raw/gam_reference_stats.json"
-    
-    # Check input file exists
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T010a has completed and generated physics_states.json")
-        sys.exit(1)
-    
-    # Compute and save statistics
+
+    logger.info(f"Computing reference statistics from {input_path}")
+    logger.info(f"Output will be saved to {output_path}")
+
     try:
-        result = compute_reference_stats_from_file(input_path, output_path)
-        logger.info(f"Successfully computed reference statistics: {result}")
+        stats = compute_reference_stats_from_file(input_path, output_path)
+        logger.info(f"Successfully computed reference statistics: {stats}")
+        return 0
     except Exception as e:
-        logger.error(f"Failed to compute reference statistics: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to compute reference statistics: {e}", exc_info=True)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

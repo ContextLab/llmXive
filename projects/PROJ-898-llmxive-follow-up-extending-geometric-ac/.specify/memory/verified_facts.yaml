@@ -1,0 +1,6 @@
+'|hypothesi null rejection state status':
+  quote: "The omnibus F ANOVA test results above indicate significant differences\
+    \ between the days time-wait (P-Value =0.000 < 0.05, \u03B1 =0.05)."
+  source_id: Omnibus test
+  url: https://en.wikipedia.org/wiki/Omnibus_test
+  value: '0.000'
