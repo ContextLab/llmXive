@@ -1,0 +1,47 @@
+{
+  "source_microbiome": "data/raw/microbiome_sample.csv",
+  "source_sleep": "data/raw/sleep_sample.csv",
+  "strategy_used": "id",
+  "initial_microbiome_count": 5,
+  "initial_sleep_count": 5,
+  "final_harmonized_count": 5,
+  "match_rate": 1.0,
+  "columns_microbiome": [
+    "subject_id",
+    "age",
+    "sex",
+    "bmi",
+    "bacteroides",
+    "firmicutes",
+    "actinobacteria",
+    "proteobacteria"
+  ],
+  "columns_sleep": [
+    "subject_id",
+    "age",
+    "sex",
+    "bmi",
+    "sleep_duration",
+    "sleep_efficiency",
+    "sws_duration",
+    "rem_duration"
+  ],
+  "columns_harmonized": [
+    "subject_id",
+    "age",
+    "sex",
+    "bmi",
+    "bacteroides",
+    "firmicutes",
+    "actinobacteria",
+    "proteobacteria",
+    "sleep_duration",
+    "sleep_efficiency",
+    "sws_duration",
+    "rem_duration"
+  ],
+  "checksum_microbiome": "placeholder_checksum_micro",
+  "checksum_sleep": "placeholder_checksum_sleep",
+  "timestamp": "2023-10-27T10:00:00",
+  "output_checksum": "placeholder_checksum_output"
+}

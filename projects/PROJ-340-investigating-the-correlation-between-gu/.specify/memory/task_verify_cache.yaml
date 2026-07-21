@@ -31,3 +31,19 @@ T063a:
     \ artifact is missing. The implementer must provide a complete script that runs\
     \ the simulation, evaluates the runtime against the 6\u2011hour limit, and creates\
     \ the pass/fail JSON report at the specified path."
+T068:
+  c: false
+  h: de89e6e7264868349a44bfbc050fbcbdd1fe82fef062c49b6f1ea86d89919f47
+  r: "The repository contains a `code/harmonize_data.py` file, but it is truncated\
+    \ and shows no code that actually merges datasets or writes the required `data/processed/harmonized_data.parquet`\
+    \ and `data/metadata/harmonization_metadata.json` files. Both expected output\
+    \ files are absent from the filesystem. Consequently, the task\u2019s deliverables\
+    \ are not present."
+T068#1:
+  c: false
+  h: de89e6e7264868349a44bfbc050fbcbdd1fe82fef062c49b6f1ea86d89919f47
+  r: "The repository contains a `code/harmonize_data.py` file, but it is truncated\
+    \ and does not show full ingestion\u2011and\u2011merging logic, nor does it create\
+    \ the required output files. Both `data/processed/harmonized_data.parquet` and\
+    \ `data/metadata/harmonization_metadata.json` are absent, so the task\u2019s deliverables\
+    \ are not present."

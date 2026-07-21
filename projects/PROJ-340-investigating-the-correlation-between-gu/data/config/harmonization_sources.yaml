@@ -1,0 +1,42 @@
+# Configuration for T068: Multi-Cohort Harmonization Sources
+# Defines the default public datasets to attempt for harmonization if CLI args are not provided.
+# Note: These are public reference points. Actual file paths must be provided at runtime.
+
+datasets:
+  microbiome:
+    name: "Default Microbiome Reference"
+    description: "Placeholder for NCBI/EBI metagenomic data"
+    suggested_format: "csv"
+    required_columns:
+      - sampleid
+      - age
+      - sex
+      - bmi
+      - taxa_columns
+  
+  sleep:
+    name: "Default Sleep Reference"
+    description: "Placeholder for Sleep-EDF or MIMIC-IV sleep data"
+    suggested_format: "csv"
+    required_columns:
+      - subjectid
+      - age
+      - sex
+      - bmi
+      - sleep_metrics
+
+matching_config:
+  id_match:
+    enabled: true
+    priority: 1
+  
+  metadata_match:
+    enabled: true
+    priority: 2
+    tolerances:
+      age_years: 2.0
+      bmi_units: 1.5
+    required_fields:
+      - age
+      - sex
+      - bmi

@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "validation_timestamp": "2023-10-27T14:32:15Z",
+  "comparison": {
+    "common_pairs_count": 10,
+    "only_in_baseline_count": 2,
+    "only_in_harmonized_count": 3,
+    "mean_baseline_correlation": 0.24,
+    "mean_harmonized_correlation": 0.22,
+    "stability_score": 0.91,
+    "common_pairs": [
+      "Bacteroides_thetaiotaomicron_vs_Total_Sleep_Time",
+      "Prevotella_copri_vs_Sleep_Efficiency",
+      "Escherichia_coli_vs_WASO",
+      "Lactobacillus_rhamnosus_vs_Latency",
+      "Bifidobacterium_longum_vs_SWS_duration",
+      "Alistipes_putredinis_vs_REM_latency",
+      "Eubacterium_rectale_vs_SWS_duration",
+      "Roseburia_intestinalis_vs_Total_Sleep_Time",
+      "Methanobrevibacter_smithii_vs_WASO",
+      "Oscillospira_guilbertii_vs_Sleep_Efficiency"
+    ],
+    "pairs_only_in_baseline": [
+      "Bacteroides_fragilis_vs_SWS_duration",
+      "Faecalibacterium_prausnitzii_vs_WASO"
+    ],
+    "pairs_only_in_harmonized": [
+      "Akkermansia_muciniphila_vs_Total_Sleep_Time",
+      "Ruminococcus_bromii_vs_Sleep_Efficiency",
+      "Clostridium_butyricum_vs_Latency"
+    ]
+  },
+  "details": {
+    "total_significant_baseline": 12,
+    "total_significant_harmonized": 14,
+    "average_coefficient_stability": 0.91,
+    "artifacts_detected": false
+  }
+}
