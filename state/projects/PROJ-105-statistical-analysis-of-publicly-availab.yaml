@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-105-statistical-analysis-of-publicly-availab
-last_run_id: e37bc908-6576-4c80-83c7-8a6ba06ed4f2
+last_run_id: b61bac2e-0d55-4083-bc3b-efcffd7ba625
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Flight Delay Data
-updated_at: '2026-07-21T04:44:54.587098Z'
+updated_at: '2026-07-21T06:38:43.119486Z'

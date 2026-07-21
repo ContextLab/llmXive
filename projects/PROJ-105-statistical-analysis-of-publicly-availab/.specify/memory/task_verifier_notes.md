@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T033** — The repository contains a partially‑implemented `code/diagnostics.py` (functions are defined but the file is truncated and never writes the required CSV or JSON). The expected output files `data/results/stability_curve.csv` and `data/results/tail_index_estimate.json` are absent. Consequently the task’s required artifacts and full functionality are not present.
-- **T034** — The `data/results/model_rejection.json` file does not exist, and the provided `code/diagnostics.py` snippet contains only Hill‑index utilities—there is no implementation of the log‑log R² calculation, OLS regression on tail data, bootstrap goodness‑of‑fit test, or code that writes the required JSON and updates `model_comparison.json`. These core pieces are missing, so the task is not fulfilled.
-- **T038** — The repository lacks the required `data/results/tail_ks.json` output file, and the shown portion of `code/diagnostics.py` contains only Hill‑estimator utilities with no implementation of a Kolmogorov‑Smirnov test on the tail or code that writes a JSON result. Consequently the task’s core requirement is not satisfied.

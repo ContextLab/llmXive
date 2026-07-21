@@ -1,390 +1,433 @@
 import numpy as np
 from scipy import stats
 from scipy.optimize import minimize_scalar, minimize
+from scipy import optimize
 import json
 import logging
+import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
-import os
-
-from config import MEMORY_LIMIT_GB, RANDOM_SEED
-from utils import check_memory_limit, log_peak_memory
-from models import fit_distribution, ConvergenceError
+from utils import PipelineError
 
 logger = logging.getLogger(__name__)
 
 def estimate_hill_index(data: np.ndarray, k: int) -> float:
     """
     Estimate the tail index (alpha) using the Hill estimator.
-    alpha_hat = (1/k) * sum_{i=1}^k (log(X_(n-i+1)) - log(X_(n-k)))
+    
+    Args:
+        data: Sorted array of delay values (ascending).
+        k: Number of top order statistics to use.
+        
+    Returns:
+        Hill estimate of the tail index alpha.
     """
     if k <= 0 or k >= len(data):
-        raise ValueError("k must be in range (0, n)")
+        raise ValueError(f"k must be between 0 and len(data) ({len(data)}), got {k}")
     
-    sorted_data = np.sort(data)[::-1]  # Descending order
-    log_data = np.log(sorted_data)
+    # Sort data descending to get largest values first
+    sorted_data = np.sort(data)[::-1]
     
-    # Hill estimator
-    # X_(n) >= X_(n-1) >= ... >= X_(n-k+1) are the top k values
-    # The estimator uses the top k values relative to the k-th largest
-    x_k = sorted_data[k-1]  # k-th largest (0-indexed k-1)
-    log_x_k = np.log(x_k)
-    
-    # Sum of log differences
-    sum_log_diff = np.sum(log_data[:k] - log_x_k)
-    alpha_hat = k / sum_log_diff if sum_log_diff != 0 else np.inf
+    # Hill estimator: alpha_hat = (1/k) * sum_{i=1}^k log(X_(i)/X_(k+1))
+    # where X_(i) are the order statistics (largest first)
+    log_ratios = np.log(sorted_data[:k] / sorted_data[k])
+    alpha_hat = 1.0 / np.mean(log_ratios)
     
     return alpha_hat
 
-def compute_hill_stability_curve(data: np.ndarray, k_range: Optional[List[int]] = None) -> Tuple[np.ndarray, np.ndarray]:
+def compute_hill_stability_curve(data: np.ndarray, k_min: int = 10, k_max: Optional[int] = None, window_size: int = 10) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compute Hill estimates for a range of k values to assess stability.
-    Returns (k_values, alpha_estimates).
+    Compute the Hill estimator stability curve.
+    
+    Args:
+        data: Array of delay values.
+        k_min: Minimum k to start the curve.
+        k_max: Maximum k (default: floor(0.1 * n)).
+        window_size: Size of sliding window for variance calculation.
+        
+    Returns:
+        Tuple of (k_values, alpha_estimates, variances).
     """
     n = len(data)
-    if k_range is None:
-        # Default: 10% to 50% of tail, constrained by k/n <= 0.1 per spec
-        # But we need a range to find stability, so use a reasonable grid
-        # Spec says constrained to k/n <= 0.1 for final selection, but stability curve needs range
-        # Let's use a range from 10 to min(100, int(n * 0.1))
-        max_k = min(100, int(n * 0.1))
-        if max_k < 10:
-            max_k = max(10, int(n * 0.05))
-        k_range = list(range(10, max_k + 1))
+    if k_max is None:
+        k_max = int(0.1 * n)
     
-    k_values = np.array(k_range)
-    alpha_estimates = np.zeros_like(k_range, dtype=float)
+    # Ensure k_max doesn't exceed bounds
+    k_max = min(k_max, n - 1)
+    k_max = max(k_max, k_min + window_size)  # Ensure we have enough points for variance
     
-    for i, k in enumerate(k_range):
-        try:
-            alpha_estimates[i] = estimate_hill_index(data, k)
-        except (ValueError, ZeroDivisionError):
-            alpha_estimates[i] = np.nan
+    if k_min >= k_max:
+        raise ValueError(f"k_min ({k_min}) must be less than k_max ({k_max})")
     
-    return k_values, alpha_estimates
+    k_values = np.arange(k_min, k_max + 1)
+    alpha_estimates = np.zeros(len(k_values))
+    
+    for i, k in enumerate(k_values):
+        alpha_estimates[i] = estimate_hill_index(data, k)
+    
+    # Compute variance over sliding window
+    variances = np.zeros(len(k_values))
+    for i in range(len(k_values)):
+        start_idx = max(0, i - window_size + 1)
+        window = alpha_estimates[start_idx:i + 1]
+        if len(window) > 1:
+            variances[i] = np.var(window)
+        else:
+            variances[i] = 0.0
+    
+    return k_values, alpha_estimates, variances
 
-def find_optimal_k_stability(k_values: np.ndarray, alpha_estimates: np.ndarray, window_size: int = 10) -> Tuple[int, float]:
+def find_optimal_k_stability(k_values: np.ndarray, variances: np.ndarray, alpha_estimates: np.ndarray, n: int) -> Tuple[int, float, float]:
     """
-    Find the optimal k by minimizing the variance of alpha estimates in a sliding window.
-    Constraint: k/n <= 0.1 is enforced by the caller when generating k_values.
-    """
-    if len(k_values) < window_size:
-        logger.warning(f"k_range too small ({len(k_values)}) for window_size {window_size}")
-        # Return the middle k if we can't do windowing
-        mid_idx = len(k_values) // 2
-        return k_values[mid_idx], alpha_estimates[mid_idx]
+    Find the k that minimizes variance in the stability curve.
     
-    # Compute sliding window variance
-    min_variance = np.inf
-    optimal_k = k_values[0]
-    optimal_alpha = alpha_estimates[0]
-    
-    for i in range(len(k_values) - window_size + 1):
-        window_alphas = alpha_estimates[i:i+window_size]
-        valid_alphas = window_alphas[~np.isnan(window_alphas)]
+    Args:
+        k_values: Array of k values.
+        variances: Array of variance values.
+        alpha_estimates: Array of alpha estimates.
+        n: Total number of data points.
         
-        if len(valid_alphas) < 2:
-            continue
+    Returns:
+        Tuple of (optimal_k, optimal_alpha, min_variance).
+    """
+    # Constraint: k/n <= 0.1
+    valid_mask = k_values / n <= 0.1
+    if not np.any(valid_mask):
+        raise ValueError("No valid k values satisfy k/n <= 0.1")
+    
+    valid_indices = np.where(valid_mask)[0]
+    valid_variances = variances[valid_indices]
+    valid_k = k_values[valid_indices]
+    valid_alpha = alpha_estimates[valid_indices]
+    
+    min_idx = np.argmin(valid_variances)
+    optimal_k = valid_k[min_idx]
+    optimal_alpha = valid_alpha[min_idx]
+    min_variance = valid_variances[min_idx]
+    
+    # Verify constraint
+    assert optimal_k / n <= 0.1, f"Constraint violation: {optimal_k}/{n} = {optimal_k/n} > 0.1"
+    
+    return int(optimal_k), optimal_alpha, min_variance
+
+def calculate_hill_confidence_interval(alpha: float, k: int, confidence: float = 0.95) -> Tuple[float, float]:
+    """
+    Calculate confidence interval for the Hill estimator.
+    
+    Args:
+        alpha: Estimated tail index.
+        k: Number of order statistics used.
+        confidence: Confidence level (e.g., 0.95).
         
-        variance = np.var(valid_alphas)
-        if variance < min_variance:
-            min_variance = variance
-            # Use the median k in the window for stability
-            optimal_k = k_values[i + window_size // 2]
-            optimal_alpha = np.median(valid_alphas)
+    Returns:
+        Tuple of (lower_bound, upper_bound).
+    """
+    # Asymptotic variance of Hill estimator is alpha^2 / k
+    # Standard error
+    se = alpha / np.sqrt(k)
     
-    return optimal_k, optimal_alpha
+    # Z-score for confidence level
+    z = stats.norm.ppf((1 + confidence) / 2)
+    
+    lower = alpha - z * se
+    upper = alpha + z * se
+    
+    return lower, upper
 
-def calculate_hill_confidence_interval(alpha_hat: float, n_tail: int, confidence_level: float = 0.95) -> Tuple[float, float]:
+def run_hill_stability_analysis(x_min: float, data_path: str, output_dir: str, window_size: int = 10) -> Dict[str, Any]:
     """
-    Calculate asymptotic confidence interval for Hill estimator.
-    Approximate variance: alpha^2 / k
+    Run the full Hill estimator stability analysis.
+    
+    Args:
+        x_min: Tail threshold from x_min_estimate.json.
+        data_path: Path to the zero-excluded dataset.
+        output_dir: Directory to save results.
+        window_size: Sliding window size for variance calculation.
+        
+    Returns:
+        Dictionary with analysis results.
     """
-    z = stats.norm.ppf((1 + confidence_level) / 2)
-    # Standard error approximation
-    se = alpha_hat / np.sqrt(n_tail)
-    lower = alpha_hat - z * se
-    upper = alpha_hat + z * se
-    return max(0.1, lower), upper  # Ensure positive
-
-def run_hill_stability_analysis(tail_data: np.ndarray, window_size: int = 10, max_k_fraction: float = 0.1) -> Dict[str, Any]:
-    """
-    Run full Hill stability analysis to find optimal k and alpha.
-    """
-    n = len(tail_data)
-    max_k = min(100, int(n * max_k_fraction))
+    # Load data
+    logger.info(f"Loading data from {data_path}")
+    df = pd.read_csv(data_path)
     
-    if max_k < 10:
-        max_k = max(10, int(n * 0.05))
-    
-    k_range = list(range(10, max_k + 1))
-    k_values, alpha_estimates = compute_hill_stability_curve(tail_data, k_range)
-    
-    optimal_k, optimal_alpha = find_optimal_k_stability(k_values, alpha_estimates, window_size)
-    ci_lower, ci_upper = calculate_hill_confidence_interval(optimal_alpha, optimal_k)
-    
-    # Prepare stability curve data
-    stability_curve = {
-        "k_values": k_values.tolist(),
-        "alpha_estimates": alpha_estimates.tolist(),
-        "variance": [np.var(alpha_estimates[i:i+window_size]) if i + window_size <= len(alpha_estimates) else np.nan 
-                    for i in range(len(alpha_estimates) - window_size + 1)]
-    }
-    
-    return {
-        "optimal_k": int(optimal_k),
-        "estimated_alpha": float(optimal_alpha),
-        "confidence_interval": [float(ci_lower), float(ci_upper)],
-        "n_tail": int(n),
-        "method": "Hill estimator with sliding window variance minimization",
-        "stability_curve": stability_curve
-    }
-
-def save_hill_results(results: Dict[str, Any], output_path: str) -> None:
-    """Save Hill analysis results to JSON."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Hill stability results saved to {output_path}")
-
-def calculate_r2_on_tail(data: np.ndarray, fitted_dist: Any, x_min: float) -> float:
-    """
-    Calculate R² for log-log survival plot on tail data.
-    Compares empirical survival to fitted distribution survival.
-    """
-    tail_mask = data >= x_min
-    tail_data = data[tail_mask]
-    
-    if len(tail_data) == 0:
-        return 0.0
-    
-    # Empirical survival function (Kaplan-Meier style for continuous)
-    sorted_tail = np.sort(tail_data)
-    n = len(sorted_tail)
-    # Empirical CDF: F(x) = i/n for sorted values
-    # Survival: S(x) = 1 - F(x) = (n - i) / n
-    # Log-log: log(-log(S(x))) vs log(x)
-    
-    log_x = np.log(sorted_tail)
-    # Avoid log(0) or log(1) issues
-    survival_probs = (np.arange(n, 0, -1) - 0.5) / n  # Midpoint adjustment
-    survival_probs = np.clip(survival_probs, 1e-10, 1 - 1e-10)
-    log_log_survival = np.log(-np.log(survival_probs))
-    
-    # Fitted survival
-    if hasattr(fitted_dist, 'cdf'):
-        # scipy.stats distribution
-        fitted_cdf = fitted_dist.cdf(sorted_tail)
-        fitted_survival = 1 - fitted_cdf
-        fitted_survival = np.clip(fitted_survival, 1e-10, 1 - 1e-10)
-        log_log_fitted = np.log(-np.log(fitted_survival))
-    else:
-        # Custom fitted object
-        fitted_cdf = fitted_dist.cdf(sorted_tail)
-        fitted_survival = 1 - fitted_cdf
-        fitted_survival = np.clip(fitted_survival, 1e-10, 1 - 1e-10)
-        log_log_fitted = np.log(-np.log(fitted_survival))
-    
-    # Linear regression
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_log_survival)
-    
-    # R² is r_value^2
-    r_squared = r_value ** 2
-    return float(r_squared)
-
-def bootstrap_goodness_of_fit(data: np.ndarray, fitted_dist: Any, x_min: float, n_bootstrap: int = 100) -> float:
-    """
-    Perform bootstrap goodness-of-fit test.
-    Generate bootstrap samples from fitted distribution, compute KS statistic,
-    compare to empirical KS.
-    """
-    # Empirical KS statistic
-    tail_data = data[data >= x_min]
-    if len(tail_data) == 0:
-        return 1.0
-    
-    # KS statistic against fitted distribution
-    ks_stat, _ = stats.kstest(tail_data, fitted_dist.cdf)
-    
-    # Bootstrap
-    bootstrap_ks = []
-    for _ in range(n_bootstrap):
-        # Sample from fitted distribution
-        bootstrap_sample = fitted_dist.rvs(size=len(tail_data), random_state=np.random.randint(0, 10000))
-        bootstrap_ks.append(stats.kstest(bootstrap_sample, fitted_dist.cdf)[0])
-    
-    # P-value: proportion of bootstrap KS >= empirical KS
-    p_value = np.mean(np.array(bootstrap_ks) >= ks_stat)
-    return float(p_value)
-
-def calculate_log_normal_curvature(data: np.ndarray, x_min: float, n_sims: int = 1000) -> Tuple[float, float, float]:
-    """
-    Calculate curvature statistic for Log-Normal discrimination.
-    
-    Algorithm:
-    1. Fit Log-Normal to tail data (x >= x_min)
-    2. Simulate n_sims datasets from fitted Log-Normal
-    3. For each, compute curvature of Hill plot
-    4. Compare empirical curvature to null distribution
-    
-    Curvature is measured as the second derivative of the Hill plot (log k vs log alpha).
-    """
-    tail_data = data[data >= x_min]
+    # Filter for tail data
+    tail_data = df[df['total_delay'] >= x_min]['total_delay'].values
     n = len(tail_data)
     
-    if n < 100:
-        logger.warning(f"Tail data too small ({n}) for reliable curvature test")
-        return 0.0, 0.0, 0.0
+    if n == 0:
+        raise PipelineError(f"No data points >= x_min ({x_min}) found in {data_path}")
     
-    # Fit Log-Normal to tail data
-    try:
-        log_norm_params = stats.lognorm.fit(tail_data, floc=x_min)
-        fitted_lognorm = stats.lognorm(*log_norm_params)
-    except Exception as e:
-        logger.error(f"Failed to fit Log-Normal: {e}")
-        return 0.0, 0.0, 0.0
+    logger.info(f"Found {n} tail data points (x >= {x_min})")
     
-    # Compute empirical curvature
-    k_range = list(range(10, min(100, int(n * 0.1)) + 1))
-    k_vals, alphas = compute_hill_stability_curve(tail_data, k_range)
+    # Compute stability curve
+    k_min = 10
+    k_max = None  # Will be set to floor(0.1 * n)
     
-    # Curvature: second difference of alpha vs log(k)
-    log_k = np.log(k_vals)
-    if len(log_k) < 3:
-        return 0.0, 0.0, 0.0
-    
-    # Simple curvature: second derivative approximation
-    curvature_empirical = np.mean(np.diff(alphas, n=2))
-    
-    # Generate null distribution from simulated Log-Normal data
-    curvature_null = []
-    for _ in range(n_sims):
-        # Simulate data from fitted Log-Normal
-        sim_data = fitted_lognorm.rvs(size=n, random_state=np.random.randint(0, 10000))
-        
-        # Compute Hill stability for simulated data
-        try:
-            sim_k_vals, sim_alphas = compute_hill_stability_curve(sim_data, k_range)
-            if len(sim_alphas) >= 3:
-                sim_curvature = np.mean(np.diff(sim_alphas, n=2))
-                curvature_null.append(sim_curvature)
-        except:
-            continue
-    
-    if len(curvature_null) == 0:
-        logger.warning("No valid curvature samples from simulation")
-        return curvature_empirical, 0.0, 0.0
-    
-    curvature_null = np.array(curvature_null)
-    
-    # P-value: two-sided test
-    p_value = 2 * min(
-        np.mean(curvature_null >= curvature_empirical),
-        np.mean(curvature_null <= curvature_empirical)
+    k_values, alpha_estimates, variances = compute_hill_stability_curve(
+        tail_data, k_min=k_min, k_max=k_max, window_size=window_size
     )
     
-    return curvature_empirical, float(p_value), float(np.mean(curvature_null))
-
-def perform_log_normal_discrimination(data: np.ndarray, x_min: float, n_sims: int = 1000) -> Dict[str, Any]:
-    """
-    Perform Log-Normal discrimination test per FR-015 and SC-003.
+    # Find optimal k
+    optimal_k, optimal_alpha, min_variance = find_optimal_k_stability(
+        k_values, variances, alpha_estimates, n
+    )
     
-    Rejection Rule:
-    If p > 0.05, cannot reject Log-Normal hypothesis (data consistent with Log-Normal).
-    If p <= 0.05, reject Log-Normal in favor of pure Power-Law.
-    """
-    curvature, p_value, null_mean = calculate_log_normal_curvature(data, x_min, n_sims)
+    # Calculate confidence interval
+    ci_lower, ci_upper = calculate_hill_confidence_interval(optimal_alpha, optimal_k)
     
-    # Determine conclusion
-    if p_value > 0.05:
-        conclusion = "cannot_reject_log_normal"
-        message = "Data is consistent with Log-Normal distribution (p > 0.05)"
-    else:
-        conclusion = "reject_log_normal"
-        message = "Log-Normal hypothesis rejected in favor of Power-Law (p <= 0.05)"
+    # Save stability curve
+    output_dir_path = Path(output_dir)
+    output_dir_path.mkdir(parents=True, exist_ok=True)
     
-    return {
-        "curvature_statistic": float(curvature),
-        "p_value": float(p_value),
-        "conclusion": conclusion,
-        "message": message,
-        "n_simulations": n_sims,
-        "n_observations": int(len(data)),
-        "x_min": float(x_min),
-        "null_mean_curvature": float(null_mean)
+    stability_curve_path = output_dir_path / "stability_curve.csv"
+    stability_df = pd.DataFrame({
+        'k': k_values,
+        'alpha_estimate': alpha_estimates,
+        'variance': variances
+    })
+    stability_df.to_csv(stability_curve_path, index=False)
+    logger.info(f"Saved stability curve to {stability_curve_path}")
+    
+    # Save tail index estimate
+    result = {
+        'optimal_k': int(optimal_k),
+        'estimated_alpha': float(optimal_alpha),
+        'confidence_interval': {
+            'lower': float(ci_lower),
+            'upper': float(ci_upper),
+            'confidence_level': 0.95
+        },
+        'min_variance': float(min_variance),
+        'n_tail_records': int(n),
+        'x_min': float(x_min),
+        'window_size': window_size,
+        'k_max_used': int(k_values[-1])
     }
+    
+    tail_index_path = output_dir_path / "tail_index_estimate.json"
+    with open(tail_index_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    logger.info(f"Saved tail index estimate to {tail_index_path}")
+    
+    return result
 
-def save_log_normal_test_results(results: Dict[str, Any], output_path: str) -> None:
-    """Save Log-Normal discrimination results to JSON."""
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+def save_hill_results(results: Dict[str, Any], output_path: str):
+    """Save Hill estimator results to JSON."""
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Log-Normal test results saved to {output_path}")
 
-def perform_model_rejection(data: np.ndarray, x_min: float, best_model: str, fitted_params: Dict[str, Any]) -> Dict[str, Any]:
+def calculate_r2_on_tail(data: np.ndarray, model_name: str, params: Dict[str, float], x_min: float) -> Tuple[float, Dict[str, Any]]:
     """
-    Perform model rejection logic per FR-015 and SC-004.
+    Calculate R² for a fitted model on the tail data using log-log survival.
     
-    Rejection Rule:
-    REJECT best model if R² < 0.95 OR Hill index is unstable.
+    Args:
+        data: Array of delay values.
+        model_name: Name of the distribution model.
+        params: Fitted parameters.
+        x_min: Tail threshold.
+        
+    Returns:
+        Tuple of (r_squared, plot_data).
     """
-    # Calculate R²
-    r_squared = calculate_r2_on_tail(data, fitted_params.get('fitted_dist'), x_min)
+    # Filter tail data
+    tail_data = data[data >= x_min]
+    if len(tail_data) == 0:
+        return 0.0, {}
     
-    # Hill stability check
-    hill_results = run_hill_stability_analysis(data[data >= x_min])
-    is_stable = True  # Simplified: assume stable if we got a result
+    # Sort descending
+    tail_data = np.sort(tail_data)[::-1]
+    n = len(tail_data)
     
-    # Rejection decision
-    rejected = r_squared < 0.95 or not is_stable
-    rejection_reasons = []
-    if r_squared < 0.95:
-        rejection_reasons.append(f"R² ({r_squared:.4f}) < 0.95")
-    if not is_stable:
-        rejection_reasons.append("Hill index unstable")
+    # Empirical survival function (rank-based)
+    # S(x) = (n - rank + 1) / n for sorted data
+    ranks = np.arange(1, n + 1)
+    empirical_survival = (n - ranks + 1) / n
+    
+    # Log-log transformation
+    log_x = np.log(tail_data)
+    log_s = np.log(empirical_survival)
+    
+    # Remove infinite values
+    valid_mask = np.isfinite(log_x) & np.isfinite(log_s)
+    log_x = log_x[valid_mask]
+    log_s = log_s[valid_mask]
+    
+    if len(log_x) < 2:
+        return 0.0, {}
+    
+    # OLS regression
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_s)
+    r_squared = r_value ** 2
+    
+    plot_data = {
+        'log_x': log_x.tolist(),
+        'log_s': log_s.tolist(),
+        'slope': float(slope),
+        'intercept': float(intercept),
+        'r_squared': float(r_squared)
+    }
+    
+    return r_squared, plot_data
+
+def perform_tail_ks_test(data: np.ndarray, model_name: str, params: Dict[str, float], x_min: float) -> Dict[str, Any]:
+    """
+    Perform Kolmogorov-Smirnov goodness-of-fit test on the tail.
+    
+    Args:
+        data: Array of delay values.
+        model_name: Name of the distribution model.
+        params: Fitted parameters.
+        x_min: Tail threshold.
+        
+    Returns:
+        Dictionary with KS test results.
+    """
+    # Filter tail data
+    tail_data = data[data >= x_min]
+    if len(tail_data) == 0:
+        raise PipelineError(f"No tail data found for x >= {x_min}")
+    
+    # Normalize tail data for testing (shift to start at 0)
+    # For Pareto, we test (X - x_min) / x_min or just X with scale=x_min
+    # scipy.stats.pareto uses scale parameter which is x_m (minimum value)
+    
+    try:
+        if model_name.lower() == 'pareto':
+            # Pareto distribution: scipy.stats.pareto(b, scale=x_min)
+            b = params.get('b', params.get('alpha', 1.0))
+            scale = x_min
+            cdf_func = lambda x: stats.pareto.cdf(x, b, scale=scale)
+        elif model_name.lower() == 'exponential':
+            # Exponential: scale = 1/lambda
+            loc = params.get('loc', 0)
+            scale = params.get('scale', 1.0)
+            cdf_func = lambda x: stats.expon.cdf(x, loc=loc, scale=scale)
+        elif model_name.lower() == 'gamma':
+            loc = params.get('loc', 0)
+            scale = params.get('scale', 1.0)
+            a = params.get('a', 1.0)
+            cdf_func = lambda x: stats.gamma.cdf(x, a, loc=loc, scale=scale)
+        elif model_name.lower() == 'lognormal':
+            loc = params.get('loc', 0)
+            scale = params.get('scale', 1.0)
+            s = params.get('s', 1.0)
+            cdf_func = lambda x: stats.lognorm.cdf(x, s, loc=loc, scale=scale)
+        elif model_name.lower() == 'weibull':
+            c = params.get('c', 1.0)
+            loc = params.get('loc', 0)
+            scale = params.get('scale', 1.0)
+            cdf_func = lambda x: stats.weibull_min.cdf(x, c, loc=loc, scale=scale)
+        else:
+            raise ValueError(f"Unknown model: {model_name}")
+        
+        # Perform KS test
+        ks_stat, p_value = stats.kstest(tail_data, cdf_func)
+        
+        result = {
+            'model_name': model_name,
+            'ks_statistic': float(ks_stat),
+            'p_value': float(p_value),
+            'tail_threshold': float(x_min),
+            'n_tail_records': int(len(tail_data))
+        }
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"KS test failed for {model_name}: {e}")
+        return {
+            'model_name': model_name,
+            'ks_statistic': float('nan'),
+            'p_value': float('nan'),
+            'tail_threshold': float(x_min),
+            'n_tail_records': int(len(tail_data)),
+            'error': str(e)
+        }
+
+def check_model_rejection(r_squared: float, hill_stable: bool, r2_threshold: float = 0.95, hill_variance_threshold: float = 0.1) -> Dict[str, Any]:
+    """
+    Check if a model should be rejected based on R² and Hill stability.
+    
+    Args:
+        r_squared: R² value from log-log fit.
+        hill_stable: Whether Hill index is stable.
+        r2_threshold: Minimum acceptable R².
+        hill_variance_threshold: Maximum acceptable variance for stability.
+        
+    Returns:
+        Dictionary with rejection status and reason.
+    """
+    if r_squared < r2_threshold:
+        return {
+            'status': 'rejected',
+            'reason': f"R² ({r_squared:.4f}) < threshold ({r2_threshold})"
+        }
+    
+    if not hill_stable:
+        return {
+            'status': 'rejected',
+            'reason': f"Hill index unstable (variance > {hill_variance_threshold})"
+        }
     
     return {
-        "best_model": best_model,
-        "r_squared": float(r_squared),
-        "hill_stable": is_stable,
-        "rejected": rejected,
-        "rejection_reasons": rejection_reasons,
-        "hill_results": hill_results
+        'status': 'accepted',
+        'reason': 'Model passes both R² and Hill stability checks'
     }
 
+def update_model_comparison(model_comparison_path: str, rejection_results: Dict[str, Any]):
+    """Update model_comparison.json with rejection status."""
+    try:
+        with open(model_comparison_path, 'r') as f:
+            data = json.load(f)
+        
+        # Add status to each model
+        if 'models' in data:
+            for model in data['models']:
+                model_name = model.get('model_name')
+                if model_name in rejection_results:
+                    model['status'] = rejection_results[model_name]['status']
+                    model['rejection_reason'] = rejection_results[model_name].get('reason', '')
+        
+        with open(model_comparison_path, 'w') as f:
+            json.dump(data, f, indent=2)
+            
+    except Exception as e:
+        logger.error(f"Failed to update model comparison: {e}")
+
 def main():
-    """Main entry point for diagnostics module."""
+    """Main entry point for Hill estimator stability analysis."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Flight delay diagnostics")
-    parser.add_argument("--input", required=True, help="Path to cleaned delays CSV")
-    parser.add_argument("--x_min", type=float, required=True, help="Threshold for tail analysis")
-    parser.add_argument("--output_hill", default="data/results/tail_index_estimate.json", help="Output path for Hill results")
-    parser.add_argument("--output_lognormal", default="data/results/log_normal_test.json", help="Output path for Log-Normal test")
-    parser.add_argument("--output_rejection", default="data/results/model_rejection.json", help="Output path for model rejection")
+    parser = argparse.ArgumentParser(description='Run Hill estimator stability analysis')
+    parser.add_argument('--x-min', type=float, required=True, help='x_min threshold')
+    parser.add_argument('--data', type=str, required=True, help='Path to zero-excluded CSV')
+    parser.add_argument('--output-dir', type=str, default='data/results', help='Output directory')
+    parser.add_argument('--window-size', type=int, default=10, help='Sliding window size')
     
     args = parser.parse_args()
     
-    # Load data
-    import pandas as pd
-    df = pd.read_csv(args.input)
-    data = df['total_delay'].values
+    # Load x_min if provided as file path
+    x_min = args.x_min
+    if not isinstance(x_min, float):
+        try:
+            with open(x_min, 'r') as f:
+                x_min_data = json.load(f)
+                x_min = x_min_data.get('estimated_x_min', x_min_data.get('x_min', 0.0))
+        except:
+            pass
     
-    # Run Hill stability
-    hill_results = run_hill_stability_analysis(data[data >= args.x_min])
-    save_hill_results(hill_results, args.output_hill)
+    logger.info(f"Starting Hill stability analysis with x_min={x_min}")
     
-    # Run Log-Normal discrimination
-    lognorm_results = perform_log_normal_discrimination(data, args.x_min)
-    save_log_normal_test_results(lognorm_results, args.output_lognormal)
+    result = run_hill_stability_analysis(
+        x_min=x_min,
+        data_path=args.data,
+        output_dir=args.output_dir,
+        window_size=args.window_size
+    )
     
-    # Run model rejection (placeholder - needs fitted model)
-    rejection_results = perform_model_rejection(data, args.x_min, "Pareto", {})
-    Path(args.output_rejection).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.output_rejection, 'w') as f:
-        json.dump(rejection_results, f, indent=2)
-    
-    logger.info("Diagnostics complete")
+    logger.info(f"Analysis complete. Optimal k={result['optimal_k']}, Alpha={result['estimated_alpha']:.4f}")
+    return result
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
