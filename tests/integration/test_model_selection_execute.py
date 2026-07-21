@@ -583,3 +583,36 @@ def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatc
                 reservation_authority=budget, route_audit=rec)
     # Backend ran; audit failed post-dispatch → fail closed, reservation RETAINED (not released).
     assert budget.retained
+
+
+def test_route_audit_predispatch_failure_paid_releases_reservation(repo, monkeypatch):
+    """FR-033a route-fatal branch, PAID candidate: the Attempt reservation has
+    ALREADY opened when a PRE-dispatch audit event (ReservationOpened /
+    DispatchStarted) fails. The route-fatal handler must release() the Attempt
+    reservation AND settle() the 026 hold, then re-raise — WITHOUT ever
+    dispatching to the backend. Guards execute.py:376-384."""
+    from llmxive.model_selection.attempt_hooks import RouteAuditError
+
+    import importlib
+    execmod = importlib.import_module("llmxive.model_selection.execute")
+
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")  # else the candidate is skipped pre-dispatch
+    budget = _Budget(10_000.0)
+    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+    call_id = "cpre1"
+    rid = execmod._sanitize_reservation_id(CLAUDE, call_id)
+
+    class _MustNotDispatch:
+        def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+            raise AssertionError("dispatched despite pre-dispatch audit failure")
+
+    with pytest.raises(RouteAuditError):
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=lambda name: _MustNotDispatch(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget, route_audit=rec, call_id=call_id)
+    # Pre-dispatch failure → the Attempt reservation is RELEASED, not stuck open
+    # and not retained (retained is reserved for post-dispatch fail-closed).
+    assert budget.open == {}
+    assert rid in budget.released
+    assert budget.retained == set()
