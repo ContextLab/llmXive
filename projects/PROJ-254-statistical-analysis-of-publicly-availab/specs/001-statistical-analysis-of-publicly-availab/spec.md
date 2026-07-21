@@ -13,7 +13,7 @@ This project analyzes the evolution of music genres over time using publicly ava
 ### 2.1 Primary Source: Spotify Million Playlist Dataset (MPD)
 - **Description**: A large-scale dataset containing millions of playlists from Spotify.
 - **Access**: Publicly available via Hugging Face Datasets (`spotify_million_playlist`).
-- **Scope**: Covers tracks from the mids to 2024.
+- **Scope**: Covers tracks from the mids to the present.
 - **Note**: The original requirement for Last.fm 1-Billion Listening Events (FR-001) has been **WAIVED** per Spec Amendment `spec_amendment_lastfm.md` (T061). The pipeline now operates on MPD data only.
 
 ### 2.2 Metadata Enrichment: MusicBrainz

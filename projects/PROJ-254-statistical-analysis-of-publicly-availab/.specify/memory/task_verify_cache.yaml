@@ -1,25 +1,3 @@
-T019:
-  c: false
-  h: a5ccce6cef31bad6b605c6460dec60abfdf73d9413a8c41b44b9dc19ac8efbe3
-  r: "The repository lacks the required `data/derived/track_count.txt` file, and the\
-    \ `ingest_mpd` function in `src/code/ingest.py` is truncated (no complete implementation,\
-    \ docstring, or atomic write of the track count). Consequently the logging of\
-    \ \u201CIngestion complete: X tracks processed\u201D and the memory\u2011management\
-    \ logic are not demonstrably present. The task therefore remains unfinished."
-T019b:
-  c: false
-  h: a5ccce6cef31bad6b605c6460dec60abfdf73d9413a8c41b44b9dc19ac8efbe3
-  r: The repository lacks `data/derived/track_count.txt` and the provided `src/code/ingest.py`
-    does not contain a `verify_track_count_file` implementation (the shown excerpt
-    ends before any such function). Consequently the required existence/format check
-    and FileNotFoundError behavior are not present.
-T020:
-  c: false
-  h: a5ccce6cef31bad6b605c6460dec60abfdf73d9413a8c41b44b9dc19ac8efbe3
-  r: The repository lacks the required `data/derived/track_count.txt` file, and the
-    shown portion of `src/code/ingest.py` does not contain a `validate_coverage` function
-    (or any implementation that reads the count and aborts when coverage is below
-    80%). Both the essential artifact and the core functionality are missing.
 T025:
   c: false
   h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443
