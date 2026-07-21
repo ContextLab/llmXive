@@ -1,49 +1,73 @@
 """
-Setup script for linting (ruff) and formatting (black) tools.
-This script ensures the tools are installed and can be run against the project.
+Script to install and configure linting (ruff) and formatting (black) tools.
+This script ensures the necessary tools are installed and configuration files are in place.
 """
 import subprocess
 import sys
 from pathlib import Path
 
-
-def run_command(command: list[str], check: bool = True) -> None:
-    """Run a shell command."""
-    print(f"Running: {' '.join(command)}")
+def run_command(command: list[str], description: str) -> bool:
+    """Run a shell command and report success/failure."""
+    print(f"Running: {description}")
     try:
-        subprocess.run(command, check=check)
+        subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f"✓ {description} completed successfully.")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}")
-        if check:
-            sys.exit(1)
+        print(f"✗ {description} failed: {e}")
+        return False
 
+def main():
+    """Main entry point for setting up linting and formatting."""
+    print("Setting up linting (ruff) and formatting (black) tools...")
 
-def main() -> None:
-    """Main entry point for setup_linting."""
-    project_root = Path(__file__).resolve().parent.parent
-    print(f"Project root: {project_root}")
+    # Install tools
+    success = True
+    success &= run_command(
+        [sys.executable, "-m", "pip", "install", "ruff", "black"],
+        "Installing ruff and black"
+    )
 
-    # Ensure dev dependencies are installed
-    print("\n--- Installing dev dependencies (ruff, black) ---")
-    run_command([sys.executable, "-m", "pip", "install", "-e", ".[dev]"])
+    if not success:
+        print("Failed to install tools. Please install manually: pip install ruff black")
+        sys.exit(1)
 
-    # Verify tools are available
-    print("\n--- Verifying ruff and black availability ---")
-    run_command(["ruff", "--version"])
-    run_command(["black", "--version"])
+    # Verify installation
+    run_command(
+        [sys.executable, "-m", "ruff", "--version"],
+        "Verifying ruff installation"
+    )
+    run_command(
+        [sys.executable, "-m", "black", "--version"],
+        "Verifying black installation"
+    )
 
-    # Run linter (check only)
-    print("\n--- Running ruff (check mode) ---")
-    # We run with --exit-zero to avoid failing the setup script if there are lint errors
-    # The goal here is to demonstrate the tool works; actual fixing is a separate step.
-    run_command(["ruff", "check", str(project_root), "--exit-zero"])
+    # Check existing configuration
+    root = Path(__file__).parent.parent
+    ruff_config = root / ".ruff.toml"
+    pyproject = root / "pyproject.toml"
 
-    # Run formatter (check only)
-    print("\n--- Running black (check mode) ---")
-    run_command(["black", "--check", str(project_root), "--diff"])
+    if ruff_config.exists():
+        print(f"Found existing ruff config at {ruff_config}")
+    else:
+        print(f"No ruff config found at {ruff_config}. Creating default...")
+        # Create a minimal ruff config if missing
+        ruff_config.write_text(
+            "[lint]\nselect = [\"E\", \"W\", \"F\", \"I\", \"B\", \"C4\"]\nignore = [\"E501\"]\n"
+        )
 
-    print("\n--- Setup complete. Run 'ruff check .' and 'black .' to fix issues. ---")
+    if pyproject.exists():
+        print(f"Found existing pyproject.toml at {pyproject}")
+    else:
+        print(f"No pyproject.toml found at {pyproject}. Creating default...")
+        pyproject.write_text(
+            "[tool.black]\nline-length = 88\ntarget-version = ['py310']\n"
+        )
 
+    print("Setup complete. You can now run:")
+    print("  ruff check .        # Check for linting issues")
+    print("  ruff format .       # Format code with ruff (or use black)")
+    print("  black .             # Format code with black")
 
 if __name__ == "__main__":
     main()

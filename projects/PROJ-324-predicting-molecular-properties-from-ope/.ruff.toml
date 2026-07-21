@@ -1,4 +1,33 @@
-# Extend the main pyproject.toml configuration if specific overrides are needed
-# Currently, all configuration is in pyproject.toml. This file exists to ensure
-# ruff can be invoked explicitly with a config file if desired.
-extend = "pyproject.toml"
+# Ruff configuration file
+# This file is redundant with pyproject.toml [tool.ruff] section
+# but provided for IDE compatibility and explicit linting configuration.
+
+target-version = "py310"
+line-length = 88
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    "data",
+    "figures",
+]
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]

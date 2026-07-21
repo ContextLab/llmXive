@@ -14,7 +14,7 @@ description: "Task list template for feature implementation"
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -26,11 +26,16 @@ description: "Task list template for feature implementation"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, linting, and performance configuration.
 
-- [ ] T001 Create `projects/PROJ-324-predicting-molecular-properties-from-ope/` directory structure including `code/`, `tests/`, `data/raw`, `data/processed`, `data/derived` subdirectories
+- [X] T001 Create `projects/PROJ-324-predicting-molecular-properties-from-ope/` directory structure including `code/`, `tests/`, `data/raw`, `data/processed`, `data/derived` subdirectories
 - [X] T002 Initialize Python 3.10+ project with `requirements.txt` (rdkit, scikit-learn, shap, pandas, numpy, datasets, requests, obabel-wrapper)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T036 [S] **Performance Configuration**: Implement specific runtime constraints in `code/utils/config.py`. **Requirements**: 
+  1. Set `MAX_DEPTH` = 15 for Random Forest (per Constitution VII).
+  2. Configure `joblib` parallel backend for fingerprint generation with `n_jobs=-1` but `max_memory=6GB`.
+  3. Implement a hard timeout check for `obabel` subprocess (max reasonable duration per molecule) to ensure the full pipeline completes within the **6-hour window** (Constitution VII) and targets the **4-hour goal** (Plan).
+  *Dependency: Must be completed before T019 and T020 to ensure configuration is applied.*
 
 ---
 
@@ -41,11 +46,15 @@ description: "Task list template for feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create base `code/__init__.py` and utility modules for logging and seed management
-- [X] T008 [P] [US1] Implement `code/data/download.py` to fetch a diverse dataset using **PubChemPy** (not molecule-net), targeting the **thermodynamics** subset (exact ID: `thermodynamics` from `pubchempy.get_compounds` or via PubChemPy `get_compounds` with filters). Ensure **real data only**. Filter strictly for **'Experimental'** property types where available. Target a substantial collection of molecules.
-- [ ] T009 [P] [US1] Implement `code/data/preprocess.py` to handle missing values generally: **drop rows with missing target properties** (logP, solubility, boiling point) and **impute or flag missing feature covariates** (e.g., temperature, pH). **Imputation Logic**: Use **median imputation** for numeric covariates and flag missing categorical/optional metadata with a specific sentinel value (`-999`). Log excluded entries and imputation flags to `data/derived/data_quality_report.csv` with a `missing_covariate` column (addressing FR-008). The report schema must strictly include columns: `smiles`, `exclusion_reason`, `missing_covariate_list`. **Deliverable**: Generate `data/derived/data_quality_report.csv` with the specified schema.
-- [X] T010 [US1] Implement `code/data/preprocess.py` to define the **MaxMin sampling strategy** for calculating Tanimoto similarity. This task must define the algorithm to select a diverse subset (Tanimoto < 0.7) from the preprocessed data. **Constraint**: Target a final diverse set of **5000 molecules** (reduced from the initial fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours. The algorithm must select the maximum subset satisfying the diversity constraint or the full set if <5,000 exist.
+- [ ] T008 [P] [US1] **Data Download**: Implement `code/data/download.py` using **PubChemPy** to fetch a diverse dataset of molecules with SMILES and experimental logP, solubility, boiling point. **CRITICAL**: This task supersedes any reference to `molecule-net` or GitHub URLs. Use `pubchempy.get_compounds()` or `pubchempy.get_cids()` to fetch data. Ensure real data only. Target: A large-scale dataset of molecules.
+- [ ] T009 [P] [US1] Implement `code/data/preprocess.py` to filter for **high-confidence measurements**. **Logic**: 
+  1. Exclude entries where `confidence_score < 0.8` (if available) or where target properties (logP, solubility, boiling point) are missing.
+  2. **Explicitly check for physical covariates**: Detect missing pH, temperature, and pressure fields in the source data. If these fields are absent, log them as "Missing" in the report. Do NOT conflate missing metadata flags with missing physical covariates.
+  3. Log the **experimental threshold** status (Plan Phase 0 Step 0.3) to `data/derived/data_quality_report.csv`.
+  **Schema**: `data/derived/data_quality_report.csv` must include columns: `smiles`, `exclusion_reason`, `missing_covariate_list` (list of missing physical fields), `experimental_flag`.
+- [X] T010 [P] [US1] Implement `code/data/preprocess.py` to define the **MaxMin sampling strategy** for calculating Tanimoto similarity. This task must define the algorithm to select a diverse subset (Tanimoto < 0.7) from the preprocessed data. **Constraint**: Target a final diverse set of **5000 molecules** (increased from 4000 to accommodate the 1000-molecule test set) to ensure O(N) feasibility on the 2-core runner within 6 hours, as authorized by Constitution VII (Computational Efficiency). The algorithm must select the maximum subset satisfying the diversity constraint or the full set if <5,000 exist.
 - [X] T011 [US1] Implement `code/data/preprocess.py` to **execute** the diversity filtering using the strategy defined in T010, producing the final diverse dataset of **5000 molecules**. This task consumes the output of T009.
-- [ ] T011.5 [US1/US2] Implement `code/data/preprocess.py` to **split** the diverse dataset into a training set and a strictly held-out test set. This task must ensure the split is random, **stratified by logP value quartiles**, and reproducible via random seed. Output `data/derived/train_set.csv` and `data/derived/test_set.csv`. *This task is critical for the Validation Protocol (FR-005) and must be completed after T009 and T010. **CRITICAL ORDERING**: This split MUST be performed BEFORE any fingerprint generation (T019) to prevent data leakage. The split must be strictly enforced before T019 begins.* (Note: **Not [P]** due to dependency on T009/T010).
+- [ ] T011.5 [US1/US2] Implement `code/data/preprocess.py` to **split** the diverse dataset into a training set and a strictly held-out test set. This task must ensure the split is random, stratified (if possible), and reproducible via random seed. Output `data/derived/train_set.csv` and `data/derived/test_set.csv`. *Status: Sequential after Phase 2 completion.*
 - [X] T031 [P] [US1/US2] Enhance `code/data/download.py` (T008) to explicitly document the **experimental source**, **measurement conditions** (e.g., temperature, pH if available), and **source confidence** in the dataset metadata (`data/raw/dataset_metadata.json`). **CRITICAL**: Perform a runtime schema check for the presence of `measurement_uncertainty` and `quantity_of_substance` fields. If absent, the code MUST derive and record `"measurement_uncertainty_status": "Not Available in Source"` and `"quantity_of_substance_status": "Not Available in Source"` based on the actual fetched schema, not hard-coded strings. This validates data hygiene immediately upon ingestion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel. **Note**: T011.5 (Split) must be completed before T019 (Fingerprints) to ensure valid data separation.
@@ -65,8 +74,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] **Depends on: T011.5**. Implement `code/models/baseline.py` to compute Crippen's atomic contributions for all molecules in the **held-out test set**, outputting `data/derived/baseline_predictions.csv`.
-- [ ] T015 [US1] Implement `code/analysis/stats.py` to calculate MAE/RMSE for baseline predictions **on the held-out test set** and generate residual distribution plots (`data/derived/baseline_residuals.png`).
+- [ ] T014 [US1] Implement `code/models/baseline.py` to compute Crippen's atomic contributions for **ALL molecules in the full dataset** (both training and test sets). **Schema**: `smiles`, `property_name`, `experimental_value`, `predicted_value`, `residual`. **Algorithm**: Use standard Crippen atomic contributions (per Plan). **Fallback**: If an atom type is undefined in the Crippen set, log a warning, set `predicted_value` to the **mean of the training set** for that property, and flag `prediction_status` as 'Partial'. This task must handle undefined atoms deterministically.
+- [ ] T014.5 [US1] Implement `code/models/baseline.py` to **extract** the test set predictions from the full dataset output of T014, saving specifically to `data/derived/baseline_test_predictions.csv` for use in the final statistical test (T021).
+- [ ] T015 [US1] Implement `code/analysis/stats.py` to calculate MAE/RMSE for baseline predictions **on the held-out test set** (consuming `baseline_test_predictions.csv` from T014.5) and generate residual distribution plots (`data/derived/baseline_residuals.png`).
 - [X] T016 [US1] Implement `code/analysis/stats.py` to log the "additive failure" magnitude. *Note: 3D conformational flagging is deferred to Phase 6 (T033).*
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently, establishing the additive ground truth.
@@ -86,13 +96,16 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] **Depends on: T011.5**. Implement `code/data/fingerprints.py` to generate Open Babel fingerprints (MACCS, ECFP4, FP2) by **invoking the `obabel` command-line tool via subprocess** (per FR-003). This task must prioritize ECFP4 > MACCS > FP2 to manage runtime (FR-009) and **consume the training set from T011.5**. *Dependency: Must wait for T011.5 completion. [P] indicates parallel execution with other Phase 4 tasks once Phase 2 is done.* It must produce the `fingerprints.parquet` artifact.
+- [ ] T019 [US2] Implement `code/data/fingerprints.py` to generate Open Babel fingerprints (MACCS, ECFP4, FP2) by **invoking the `obabel` command-line tool via subprocess** (per FR-003). **Execution Logic**: 
+  1. Generate ECFP4, MACCS, and FP2 for **all molecules** in the training set.
+  2. **Do NOT skip** any fingerprint type based on runtime. If `obabel` fails to complete within the 6-hour window, the script must **fail loudly** (raise an exception) to prevent partial feature sets.
+  3. This task must consume the **training set** from T011.5. *Dependency: Must wait for T011.5 completion.* It must produce the `fingerprints.parquet` artifact.
 - [X] T019.5 [US2] Implement `code/models/random_forest.py` to set up **Nested Cross-Validation** (outer loop for test set, inner loop for hyperparameter tuning) to generate valid error pairs for statistical testing, as required by the Plan's Complexity Tracking section.
-- [X] T020 [US2] Implement `code/models/random_forest.py` to train RF regressors using the Nested CV structure (T019.5) with hyperparameter tuning via 3-fold cross-validation **on the training set**, ensuring `max_depth` limits (≤15) and dataset sampling to fit CPU constraints (FR-004). **The outer loop must generate out-of-fold predictions for the training set** to ensure valid statistical inference. This task must produce a `final_model.pkl` artifact trained on the full training set for downstream SHAP analysis.
-- [ ] T020.5 [US2] **Depends on: T020**. Implement `code/models/random_forest.py` to **persist** the out-of-fold (OOF) predictions generated in the outer loop of T020 to `data/derived/oof_predictions.csv`. This artifact is required for T021. **Format**: CSV with columns `smiles`, `oof_prediction`, `experimental_value`.
-- [ ] T021 [US2] **Depends on: T020.5**. Implement `code/analysis/stats.py` to perform paired Wilcoxon signed-rank test on absolute errors (Baseline vs. RF). **CRITICAL**: This test MUST use the **out-of-fold (OOF) predictions from T020.5** (stored in `data/derived/oof_predictions.csv`) for the statistical comparison, NOT the held-out test set predictions. The held-out test set is reserved for final model evaluation only. Input: `data/derived/oof_predictions.csv` and `data/derived/baseline_predictions.csv`. Report p-values (FR-005).
+- [X] T020 [US2] Implement `code/models/random_forest.py` to train RF regressors using the Nested CV structure (T019.5) with hyperparameter tuning via -fold cross-validation **on the training set**, ensuring `max_depth` limits (≤15) and dataset sampling to fit CPU constraints (FR-004). This task must produce a `final_model.pkl` artifact trained on the full training set for downstream SHAP analysis.
+- [ ] T020.1 [US2] Implement `code/models/random_forest.py` to perform the **final model evaluation** on the **held-out test set** using the trained model (`final_model.pkl`) and generate `data/derived/rf_test_predictions.csv`. This step is critical for the paired Wilcoxon test (FR-005) to ensure valid error pairs are available.
+- [ ] T021 [US2] Implement `code/analysis/stats.py` to perform paired Wilcoxon signed-rank test on absolute errors (Baseline vs. RF) using the valid error pairs from the **held-out test set** (consuming `baseline_test_predictions.csv` from T014.5 and `rf_test_predictions.csv` from T020.1). **Critical Logic**: Before running the test, **check the experimental threshold status** (from T009). If <50% of the test set has experimental values, **skip the statistical test**, log a "Model Consistency" report, and output a placeholder report indicating the limitation. Do not crash or produce invalid p-values.
 - [ ] T022 [US2] Implement `code/analysis/stats.py` to generate comparison plots (Baseline vs. RF MAE/RMSE) **using the held-out test set** and save to `data/derived/model_comparison.png`.
-- [X] T023 [US2] Implement `code/models/random_forest.py` to include a runtime monitor that automatically reduces dataset size or skips lower-priority fingerprints if the 6-hour limit is approached (per Edge Cases).
+- [X] T023 [US2] Implement `code/models/random_forest.py` to include a runtime monitor that automatically reduces dataset size or skips lower-priority fingerprints if the 6-hour limit is approached (per Edge Cases). *Note: This monitor must NOT override the hard fail in T019, but can adjust parameters for future runs.*
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, providing a statistically significant comparison.
 
@@ -111,11 +124,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/analysis/explainability.py` to calculate SHAP interaction values for the trained RF model (T020) using the `final_model.pkl` artifact (FR-006). **Dependency**: This task MUST wait for T020 to complete and produce `final_model.pkl`. **Strictly Sequential**: This task cannot run in parallel with T020; it requires T020 to be fully completed and the artifact to be available. [P] indicates parallel execution with other Phase 5 tasks (e.g., T027, T028) once T020 is done, but NOT parallel to T020.
+- [ ] T030.1 [US3] **Create Rules File**: Implement `code/data/rules.py` to define and export the required SMARTS patterns (hydroxyl, carbonyl, aromatic, etc.) as a list of dictionaries or a constant. This file is a **prerequisite** for T030.
+- [X] T026 [US3] Implement `code/analysis/explainability.py` to calculate SHAP interaction values for the trained RF model (T020) using the `final_model.pkl` artifact (FR-006). *Dependency: Requires T020 completion.*
 - [ ] T027 [US3] Implement `code/analysis/explainability.py` to generate heatmaps of top interacting fingerprint bit pairs and save to `data/derived/shap_interactions.png`.
-- [ ] T028 [US3] Implement `code/analysis/explainability.py` to calculate the Jaccard similarity of identified sets across thresholds **using bootstrap resampling (Default: 20, Target: 100, subject to runtime budget)** of the test set with random seed 42 and report results to `data/derived/stability_analysis.csv` to assess the stability of top interacting bits. **Requirement**: This task implements **SC-001: Interaction Stability**, a required validation step for US3 to ensure robustness of the identified interaction zones. **Constraint**: If the runtime monitor (from T023) indicates the 6-hour limit is approaching, this task must abort early and report the number of resamples completed. *Note: A sufficient number of resamples is a required diagnostic default.*
-- [ ] T029 [US3] Implement `code/analysis/explainability.py` to map **top interacting bit pairs** (from T026 SHAP interaction values) back to **chemical substructure pairs** using RDKit. **Algorithm**: 1. Use `GetBitInfo` (or equivalent trace from the fingerprint generation step in T019) to map individual fingerprint bits to specific atom indices in the SMILES graph. 2. Identify pairs of atoms corresponding to the interacting bit pairs. 3. Perform graph traversal on the SMILES to identify the smallest substructure containing both atoms. 4. Match these substructures against a predefined set of SMARTS patterns in `code/data/rules.py`. Output `data/derived/shap_substructure_mapping.csv` (FR-007). *Note: Artifact renamed from `deviation_contexts.csv` to align with plan.md Phase 3.2. **Critical**: This task requires the fingerprint generation trace to be available; if not, use a fallback heuristic and log the limitation.*
-- [X] T030 [US3] Implement `code/analysis/explainability.py` to cross-reference identified substructures with **RDKit's built-in functional group detection** (`rdkit.Chem.Fragments`). **Global descriptors (MW, TPSA) are excluded from the mapping output** to ensure strict adherence to FR-007's local substructure requirement. **Method**: Use global descriptors ONLY as internal contextual filters to validate the topological nature of the findings; they must NOT appear in `shap_substructure_mapping.csv`. *Note: Steric descriptors are used as **topological proxies** for steric effects, consistent with the Plan's disclaimer that 2D fingerprints cannot capture true 3D steric hindrance.*
+- [ ] T029 [US3] Implement `code/analysis/explainability.py` to map top interacting bits back to chemical substructures using RDKit, outputting `data/derived/deviation_contexts.csv` (FR-007).
+- [X] T030 [US3] Implement `code/analysis/explainability.py` to cross-reference identified substructures with **RDKit's built-in functional group detection** (`rdkit.Chem.Fragments`) and **steric descriptors** (`rdkit.Chem.rdMolDescriptors` - e.g., Molecular Weight, TPSA, NumRotatableBonds) to correlate **topological proxies** for steric effects with model deviations (FR-010). **Requirement**: Explicitly compute and output the **Local Non-Additivity Index** (LNAI) as the correlation between RF residuals and Crippen baseline deviations, identifying specific **interaction zones** where RF outperforms the additive baseline, per Constitution Principle VI. **Dependency**: Load SMARTS patterns from `code/data/rules.py` (T030.1). *Note: Steric descriptors are used as **topological proxies** for steric effects, consistent with the Plan's disclaimer that 2D fingerprints cannot capture true 3D steric hindrance. Do NOT claim to distinguish physical phenomena.*
 - [X] T039 [US3] Implement `code/analysis/explainability.py` to explicitly frame findings as **associational** correlations, not causal mechanisms, in the output report (per Assumptions).
 
 **Checkpoint**: All user stories should now be independently functional.
@@ -126,14 +139,15 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Address specific feedback from Marie Curie (simulated) and Rosalind Franklin (simulated) regarding experimental validation, measurement uncertainty, and conformational limitations.
 
-- [X] T033 [P] [US3] Implement `code/analysis/explainability.py` to generate a "Conformational Limitation Report" that identifies molecules where 2D topology (fingerprints) likely fails to capture solution-phase conformational ensembles. **Method**: Use a spatial proxy heuristic (e.g., detecting specific steric clash patterns in the SMILES graph or high ring strain indicators) to flag potential 3D failures, addressing Rosalind Franklin's concern on static vs. dynamic structures.
-- [X] T043 [P] [US1/US2/US3] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Validation Protocol Summary** in the final report. This task must **explicitly state the absence** of `measurement_uncertainty` and `quantity_of_substance` data if T031 detected these fields as missing. It must **also report the held-out test set size and source of experimental values** for the test set, ensuring the model's output is framed as a comparison against verified experimental data, not just cross-validation scores.
-- [X] T045 [P] [US3] **Rosalind Franklin Review Response**: Implement `code/analysis/explainability.py` to generate a **Conformational Sensitivity Analysis**. This task must compare the RF predictions against a set of molecules known to have high conformational flexibility (e.g., long aliphatic chains) and report the **deviation magnitude** for these specific cases. The report must explicitly state that the model's "substructure" findings are **topological proxies** and may not reflect solution-phase conformational ensembles, addressing the concern that fingerprints are topological abstractions.
-- [ ] T036 [P] Implement specific performance optimizations: limit Random Forest `max_depth` to 15, use `joblib` for parallel fingerprint generation, and implement a **10-minute batch timeout check for the `obabel` subprocess** with a **retry mechanism for individual molecules** (rather than failing the whole batch). If a single molecule exceeds the timeout, log a warning to `data/derived/fingerprint_errors.log` and skip that molecule, ensuring the total pipeline does not exceed the 6-hour limit (per Constitution Principle VII).
-- [~] T037 [P] Code cleanup: ensure type hints in all modules, remove unused imports, and add docstrings to all public functions.
-- [ ] T046 [P] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Measurement Uncertainty Log** in `data/derived/measurement_uncertainty_report.csv`. **Logic**: Check if `measurement_uncertainty` is present in the source data (per T031). If present, list values for every data point. If **absent** (as identified in T031), generate a **summary report** quantifying the **fraction of data points with missing uncertainty** (expected [deferred]) and flagging the analysis as "Limited Confidence" for those subsets. Do NOT attempt to list values for non-existent data.
-- [ ] T047 [P] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Quantity of Substance Log** in `data/derived/quantity_of_substance_report.csv`. **Logic**: Check if `quantity_of_substance` is present in the source data (per T031). If present, list values for every data point. If **absent** (as identified in T031), generate a **summary report** quantifying the **fraction of data points with missing quantity** (expected [deferred]) and flagging the analysis as "Limited Physical Context" for those subsets. Do NOT attempt to list values for non-existent data.
-- [ ] T048 [P] **Rosalind Franklin Review Response**: Implement `code/analysis/explainability.py` to generate a **Conformational Ensemble Proxy Report** in `data/derived/conformational_proxy_report.csv`. This task must identify molecules with high rotatable bond counts (>5) and compare their RF prediction residuals against the additive baseline. The report must explicitly state that for these flexible molecules, the 2D fingerprint method may be capturing **topological averages** rather than specific solution-phase conformations, and flag any substructure correlations found in this subset as "Conformationally Ambiguous".
+- [X] T033 [P] [US3] Implement `code/analysis/explainability.py` to generate a "Conformational Limitation Report" that identifies molecules where 2D topology (fingerprints) likely fails to capture solution-phase conformational ensembles. **Method**: Use a topological proxy heuristic (specifically `NumRotatableBonds > 10` via RDKit) to flag potential 3D failures, addressing Rosalind Franklin's concern on static vs. dynamic structures.
+- [X] T043 [P] [US1/US2/US3] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Validation Protocol Summary** in the final report. This task must **explicitly state the absence** of `measurement_uncertainty` and `quantity_of_substance` data if T031 detected these fields as missing. It must NOT attempt to extract non-existent data, but rather report the source limitation as a derived fact. This task aggregates the metadata findings from T031 to ensure the final report reflects the actual state of the data.
+- [X] T044 [P] [US1/US2/US3] **Marie Curie Review Response**: Enhance `code/analysis/stats.py` to include a **Validation Protocol Summary** section in the final report. This section must explicitly state the **held-out test set size**, the **source of experimental values** for the test set, and the **measurement uncertainty** (or "Not Available" if missing) for the target properties, ensuring the model's output is framed as a comparison against verified experimental data, not just cross-validation scores.
+- [X] T045 [P] [US3] **Rosalind Franklin Review Response**: Implement `code/analysis/explainability.py` to generate a **Conformational Sensitivity Analysis**. This task must compare the RF predictions against a set of molecules identified by the `NumRotatableBonds > 10` heuristic and report the **deviation magnitude** for these specific cases. The report must explicitly state that the model's "substructure" findings are **topological proxies** and may not reflect solution-phase conformational ensembles, addressing the concern that fingerprints are topological abstractions.
+- [X] T046 [P] [US1/US2/US3] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Data Provenance & Uncertainty Ledger**. This task must iterate through the final dataset and create a structured log (JSON/CSV) that explicitly maps each molecule's property values to their specific source record (e.g., "PubChem CID 12345, Experimental LogP, Uncertainty: N/A"). If uncertainty data is missing, the ledger must explicitly record "Uncertainty: Not Reported in Source" for that entry, ensuring no silent assumption of zero error. This addresses the requirement for "measurement standards against which predictions will be tested."
+- [X] T047 [P] [US3] **Rosalind Franklin Review Response**: Implement `code/analysis/explainability.py` to generate a **Conformational Variance Proxy Plot**. This task must visualize the distribution of `NumRotatableBonds` for molecules where the RF model deviates significantly (>2σ) from the Crippen baseline, explicitly labeling these regions as "Potential Conformational Artifacts." The plot must include a disclaimer that D fingerprints cannot resolve solution-phase ensembles, directly addressing the concern that "fingerprint weights correspond to physical interactions rather than statistical artifacts."
+- [ ] T037 [P] **Code Quality**: Add docstrings to all public functions in `code/` (including `models/`, `analysis/`, and `data/`). **Verification**: Run `ruff --select D code/` to ensure compliance.
+- [ ] T048 [P] **Marie Curie Review Response**: Implement `code/analysis/stats.py` to generate a **Measurement Standards Audit**. This task must explicitly list the **uncertainty bounds** (if available) or **explicitly state "Not Reported"** for every data point in the held-out test set used for validation. It must produce `data/derived/measurement_standards_audit.csv` with columns: `smiles`, `property`, `experimental_value`, `reported_uncertainty`, `uncertainty_source_status`. This ensures the validation protocol meets the requirement for "measurement standards against which predictions will be tested."
+- [ ] T049 [P] **Rosalind Franklin Review Response**: Implement `code/analysis/explainability.py` to generate a **Conformational Ensemble Proxy Report**. This task must explicitly identify molecules where the **NumRotatableBonds > 10** heuristic suggests significant conformational flexibility and report the **RF prediction error** for these molecules compared to rigid molecules. The report must include a **qualitative assessment** of whether the 2D fingerprint method captures the "conformational ensemble" limitations, explicitly stating that the model cannot resolve solution-phase dynamics. This addresses the concern that "fingerprint weights correspond to physical interactions rather than statistical artifacts."
 
 ---
 
@@ -152,7 +166,7 @@ description: "Task list template for feature implementation"
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Setup (Phase 1)**: No dependencies - can start immediately. **T036 must complete before T019/T020**.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes T011.5 (Train/Test Split)**.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
@@ -177,7 +191,7 @@ description: "Task list template for feature implementation"
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
+- All Setup tasks marked [P] can run in parallel (except T036 which is [S])
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
@@ -211,7 +225,7 @@ Task: "Implement code/data/preprocess.py to filter for high-confidence measureme
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
+1. Complete Phase 1: Setup (including T036 configuration)
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
@@ -241,6 +255,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [S] tasks = sequential, must complete before dependent tasks
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -249,19 +264,24 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data must be REAL from verified sources; NO fabrication or synthetic data allowed.
 - **Critical**: All models must run on CPU-only free-tier runners; NO GPU or quantization.
-- **Critical**: Address reviewer concerns explicitly in Phase 6 tasks (T033, T043-T048).
+- **Critical**: Address reviewer concerns explicitly in Phase 6 tasks (T033, T043-T045, T046, T047, T048, T049).
 - **Critical**: Fingerprint generation MUST use `obabel` command-line tool (FR-003) via subprocess.
-- **Critical**: Stability analysis MUST calculate and report Jaccard similarity using **Default: 20 resamples** (target 100, subject to runtime budget) (T028). *Note: This is a required diagnostic (SC-001), not a primary success criterion.*
 - **Critical**: Findings MUST be framed as associational correlations, not causal mechanisms (Assumptions).
-- **Critical**: Diversity filtering MUST use a defined sampling strategy (MaxMin) to ensure feasibility (T010/T011). Target: 5000 molecules.
+- **Critical**: Diversity filtering MUST use a defined sampling strategy (MaxMin) to ensure feasibility (T010/T011). Target: **5000 molecules** (to allow 4000 train + 1000 test).
 - **Critical**: Nested Cross-Validation MUST be implemented to ensure valid statistical testing (T019.5).
-- **Critical**: Validation protocol (T011.5) must strictly separate training and test sets to prevent data leakage. Split: A substantial training set and a smaller test set. **Split must occur before fingerprint generation.**
-- **Critical**: Conformational limitations (T033, T045) must be explicitly reported as a constraint of the 2D fingerprint method.
-- **Critical**: Dataset size is fixed at a scale sufficient to ensure runtime feasibility and statistical power.
+- **Critical**: Validation protocol (T011.5) must strictly separate training and test sets to prevent data leakage. Split: molecules training, 1000 molecules test.
+- **Critical**: Conformational limitations (T033, T045, T047, T049) must be explicitly reported as a constraint of the 2D fingerprint method.
+- **Critical**: Dataset size is fixed at a scale sufficient to ensure runtime feasibility and statistical power (a train/test split).
 - **Critical**: Optional metadata fields (uncertainty, quantity) are logged as "Not Available" in metadata JSON based on **runtime schema validation** of the fetched data (T031), not hard-coded.
-- **Critical**: Chemical rule validation uses valid RDKit features (Lipinski, steric descriptors via `rdMolDescriptors`), used as **topological proxies** for steric effects (T030). **Global descriptors excluded from final output.**
-- **Critical**: Measurement uncertainty and quantity of substance must be explicitly documented or noted as absent in the final report (T043, T046, T047) to satisfy the requirement for experimental validation standards. If absent, generate summary reports, not row-per-point logs.
-- **Critical**: Conformational sensitivity analysis (T045, T048) must explicitly compare predictions for flexible molecules to highlight the limitations of 2D topological proxies.
-- **Critical**: Statistical comparison (T021) MUST use out-of-fold predictions from nested CV (persisted in T020.5), not held-out test set predictions, to prevent data leakage.
-- **Critical**: Batch-level timeout (T036) must be used to respect total pipeline constraints, not arbitrary per-molecule limits.
-- **Critical**: T029 mapping logic requires fingerprint generation traces (`GetBitInfo`) to map bits to atoms; if traces are unavailable, use a fallback heuristic and log the limitation.
+- **Critical**: Chemical rule validation uses valid RDKit features (Lipinski, steric descriptors via `rdMolDescriptors`), used as **topological proxies** for steric effects (T030).
+- **Critical**: Measurement uncertainty and quantity of substance must be explicitly documented or noted as absent in the final report (T043, T044, T046, T048) to satisfy the requirement for experimental validation standards.
+- **Critical**: Conformational sensitivity analysis (T045, T047, T049) must explicitly compare predictions for flexible molecules (NumRotatableBonds > 10) to highlight the limitations of 2D topological proxies.
+- **Critical**: T036 (Performance Config) must be completed before T019 and T020 to ensure runtime constraints are applied.
+- **Critical**: T030.1 must be completed before T030 to provide the required SMARTS patterns.
+- **Critical**: T014 must process the full dataset to support T030; T014.5 extracts test set predictions for T021.
+- **Critical**: T019 must NOT skip fingerprint generation; it must fail loudly if time constraints are exceeded.
+- **Critical**: T021 must include conditional logic to handle the 50% experimental threshold.
+- **Critical**: T008 must use PubChemPy as the data source.
+- **Critical**: T009 must explicitly check for physical covariates (pH, temperature) and log them as missing if absent.
+- **Critical**: T037 merges docstring tasks to reduce fragmentation.
+- **Critical**: T048 and T049 explicitly address the "Measurement Standards" and "Conformational Ensemble" concerns raised by Marie Curie and Rosalind Franklin respectively, ensuring the validation protocol is robust and the limitations of 2D fingerprints are clearly communicated.

@@ -123,94 +123,738 @@
   source_type: external
   status: verified
   updated_at: '2026-07-16T15:20:14Z'
-- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
   attempts: 1
-  canonical: diverse subset of 5000 molecules with Tanimoto less than 0.7
-  claim_id: c_99a562f4
-  context: 'Diversity: MaxMin sampling ensures a diverse subset of ~5000 molecules
-    (Tanimoto < 0.7).'
+  canonical: MaxMin sampling strategy targets 4000 molecules
+  claim_id: c_b4dbdc58
+  context: 'This task must define the algorithm to select a diverse subset (Tanimoto
+    < 0.7) from the preprocessed data. Constraint: Target a final diverse set of 4000
+    molecules (reduced from the initial fetch) to ensure O(N) feasibility on the 2-core
+    runner within 6 hours, as authorized by Constitution VII (Computational Efficiency).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MaxMin sampling strategy targets a final diverse set of 4000 molecules
+    reduced from the initial fetch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:29:16Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: diversity filtering produces 4000 molecules
+  claim_id: c_fa1e360b
+  context: Implement code/data/preprocess.py to execute the diversity filtering using
+    the strategy defined in T010, producing the final diverse dataset of 4000 molecules.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The diversity filtering process produces a final diverse dataset of 4000
+    molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:29:34Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: dataset split into 4000 training and 1000 test molecules
+  claim_id: c_45dd7578
+  context: Implement code/data/preprocess.py to split the diverse dataset into a training
+    set (4000 molecules) and a strictly held-out test set (1000 molecules).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is split into a training set of 4000 molecules and a held-out
+    test set of 1000 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:29:46Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: test set contains 1000 molecules
+  claim_id: c_96e7dc3a
+  context: Implement code/data/preprocess.py to split the diverse dataset into a training
+    set (4000 molecules) and a strictly held-out test set (1000 molecules).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test set contains 1000 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:29:58Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Random Forest max_depth limit is 15
+  claim_id: c_559f5981
+  context: "Implement code/models/random_forest.py to train RF regressors using the\
+    \ Nested CV structure (T019.5) with hyperparameter tuning via -fold cross-validation\
+    \ on the training set, ensuring max_depth limits (\u226415) and dataset sampling\
+    \ to fit CPU constraints (FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model training enforces a max_depth limit of 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:30:27Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: NumRotatableBonds greater than 10 flags 3D failures
+  claim_id: c_96ee7ac1
+  context: 'Method: Use a topological proxy heuristic (specifically NumRotatableBonds
+    > 10 via RDKit) to flag potential 3D failures, addressing Rosalind Franklin''s
+    concern on static vs. dynamic structures.'
   evidence:
     candidates:
-    - - Diverse subset of
-      - 5000.0
-    - - Tanimoto less than
-      - 0.7
+    - - Log in NumRotatableBonds greater than
+      - 10.0
+    - - NumRotatableBonds greater than 10 flags
+      - 3.0
     ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Diverse_subset_of_5000_molecules_with_Tanimoto_less_than_0.7
+    source_url: https://en.wikipedia.org/wiki/NumRotatableBonds_greater_than_10_flags_3D_failures
   kind: magnitude
-  raw_text: MaxMin sampling ensures a diverse subset of ~5000 molecules (Tanimoto
-    < 0.7).
+  raw_text: The algorithm flags potential 3D failures using a heuristic of NumRotatableBonds
+    greater than 10.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: refuted
-  updated_at: '2026-07-21T11:23:42Z'
-- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  updated_at: '2026-07-21T11:30:57Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
   attempts: 1
-  canonical: experimental data sourced from ChEMBL and MoleculeNet thermodynamics
-    subset
-  claim_id: c_81f8a076
-  context: Experimental data is sourced from ChEMBL and MoleculeNet (thermodynamics
-    subset).
+  canonical: runtime limit is 6 hours
+  claim_id: c_5185592c
+  context: Target a final diverse set of 4000 molecules (reduced from the initial
+    fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours, as authorized
+    by Constitution VII (Computational Efficiency).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime limit for the project is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:31:00Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: project runs on 2-core runner
+  claim_id: c_a938d34e
+  context: Target a final diverse set of 4000 molecules (reduced from the initial
+    fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours, as authorized
+    by Constitution VII (Computational Efficiency).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project runs on a 2-core runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:31:04Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: dataset sourced from molecule-net/thermodynamics
+  claim_id: c_9a2bf6bb
+  context: Implement code/data/download.py to fetch a diverse dataset from molecule-net/thermodynamics
+    (via datasets.load_dataset('molecule-net', 'thermodynamics') or verified GitHub
+    URL) with SMILES and experimental logP, solubility, boiling point, ensuring real
+    data only.
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Experimental_data_sourced_from_ChEMBL_and_MoleculeNet_thermo
+    source_url: https://en.wikipedia.org/wiki/Dataset_sourced_from_molecule-net/thermodynamics
   kind: entity_fact
-  raw_text: Experimental data is sourced from ChEMBL and MoleculeNet (thermodynamics
-    subset).
+  raw_text: The dataset is sourced from molecule-net/thermodynamics.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-21T11:24:07Z'
-- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  updated_at: '2026-07-21T11:31:11Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
   attempts: 1
-  canonical: nested cross-validation with outer 5-fold and inner 3-fold
-  claim_id: c_5895a1c5
-  context: 'Training: Nested Cross-Validation (Outer: 5-fold, Inner: 3-fold) for hyperparameter
-    tuning.'
+  canonical: Open Babel fingerprints include MACCS, ECFP4, and FP2
+  claim_id: c_3cee9bda
+  context: Implement code/data/fingerprints.py to generate Open Babel fingerprints
+    (MACCS, ECFP4, FP2) by invoking the obabel command-line tool via subprocess (per
+    FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Open_Babel_fingerprints_include_MACCS,_ECFP4,_and_FP2
+  kind: entity_fact
+  raw_text: Open Babel fingerprints generated include MACCS, ECFP4, and FP2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:31:16Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Tanimoto similarity threshold is 0.7
+  claim_id: c_639f57ca
+  context: This task must define the algorithm to select a diverse subset (Tanimoto
+    < 0.7) from the preprocessed data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tanimoto_similarity_threshold_is_0.7
+  kind: magnitude
+  raw_text: The Tanimoto similarity threshold for diversity is set to less than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:31:20Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Python version requirement is 3.10
+  claim_id: c_2f271022
+  context: Initialize Python 3.10+ project with requirements.txt (rdkit, scikit-learn,
+    shap, pandas, numpy, datasets, requests, obabel-wrapper)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Nested Cross-Validation (Outer: 5-fold, Inner: 3-fold) was used for hyperparameter
-    tuning.'
+  raw_text: The Python version requirement is 3.10 or higher.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-21T11:24:20Z'
-- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  updated_at: '2026-07-21T11:31:24Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
   attempts: 1
-  canonical: Jaccard similarity assessed across 100 bootstrap resamples
-  claim_id: c_d94a7c6b
-  context: 'Stability: Jaccard similarity across 100 bootstrap resamples assesses
-    robustness.'
+  canonical: Target diverse set of 4000 molecules for 2-core runner within 6 hours
+  claim_id: c_420f1a94
+  context: 'This task must define the algorithm to select a diverse subset (Tanimoto
+    < 0.7) from the preprocessed data. Constraint: Target a final diverse set of 4000
+    molecules (reduced from the initial fetch) to ensure O(N) feasibility on the 2-core
+    runner within 6 hours, as authorized by Constitution VII (Computational Efficiency).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Jaccard similarity across 100 bootstrap resamples assesses robustness.
+  raw_text: Target a final diverse set of 4000 molecules (reduced from the initial
+    fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-21T11:24:32Z'
-- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  updated_at: '2026-07-21T11:33:35Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
   attempts: 1
-  canonical: global random seed set to 42
-  claim_id: c_a0f6e24c
-  context: 'Seeds: Global random seed (42) set for all stochastic processes.'
+  canonical: Algorithm selects max subset satisfying diversity constraint or full
+    set if under 4000
+  claim_id: c_63f3e6d0
+  context: 'Constraint: Target a final diverse set of 4000 molecules (reduced from
+    the initial fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours,
+    as authorized by Constitution VII (Computational Efficiency). The algorithm must
+    select the maximum subset satisfying the diversity constraint or the full set
+    if <4,000 exist.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Global random seed 42 was set for all stochastic processes.
+  raw_text: The algorithm must select the maximum subset satisfying the diversity
+    constraint or the full set if <4,000 exist.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-21T11:24:54Z'
+  updated_at: '2026-07-21T11:33:35Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Split dataset into 4000 training and 1000 test molecules
+  claim_id: c_c117865d
+  context: Implement code/data/preprocess.py to split the diverse dataset into a training
+    set (4000 molecules) and a strictly held-out test set (1000 molecules). This task
+    must ensure the split is random, stratified (if possible), and reproducible via
+    random seed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/preprocess.py to split the diverse dataset into a
+    training set (4000 molecules) and a strictly held-out test set (1000 molecules).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:33:38Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Runtime schema check for measurement_uncertainty and quantity_of_substance
+    fields
+  claim_id: c_023a23b1
+  context: 'CRITICAL: Perform a runtime schema check for the presence of measurement_uncertainty
+    and quantity_of_substance fields. If absent, the code MUST derive and record ''measurement_uncertainty_status'':
+    ''Not Available in Source'' and ''quantity_of_substance_status'': ''Not Available
+    in Source'' based on the actual fetched schema, not hard-coded strings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_schema_check_for_measurement_uncertainty_and_quantit
+  kind: entity_fact
+  raw_text: Perform a runtime schema check for the presence of measurement_uncertainty
+    and quantity_of_substance fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:33:42Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Skip MACCS and FP2 if time remaining is under 1 hour
+  claim_id: c_ebb7f29f
+  context: 'Stopping Condition: Generate ECFP4; if time remaining < 1 hour, skip MACCS/FP2;
+    else if time remaining > 30 minutes, generate MACCS.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_MACCS_and_FP2_if_time_remaining_is_under_1_hour
+  kind: magnitude
+  raw_text: If time remaining is less than 1 hour, skip MACCS and FP2 fingerprint
+    generation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:33:48Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Generate MACCS if time remaining is over 30 minutes
+  claim_id: c_70f15bfb
+  context: 'Stopping Condition: Generate ECFP4; if time remaining < 1 hour, skip MACCS/FP2;
+    else if time remaining > 30 minutes, generate MACCS.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_MACCS_if_time_remaining_is_over_30_minutes
+  kind: magnitude
+  raw_text: If time remaining is greater than 30 minutes, generate MACCS fingerprints.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:33:55Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Set max_depth limits to 15 or less for Random Forest
+  claim_id: c_fa987b9b
+  context: "Implement code/models/random_forest.py to train RF regressors using the\
+    \ Nested CV structure (T019.5) with hyperparameter tuning via -fold cross-validation\
+    \ on the training set, ensuring max_depth limits (\u226415) and dataset sampling\
+    \ to fit CPU constraints (FR-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set max_depth limits to 15 or less for Random Forest regressors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:33:58Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Use NumRotatableBonds greater than 10 to flag potential 3D failures
+  claim_id: c_7b742fb4
+  context: 'Method: Use a topological proxy heuristic (specifically NumRotatableBonds
+    > 10 via RDKit) to flag potential 3D failures, addressing Rosalind Franklin''s
+    concern on static vs. dynamic structures.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_NumRotatableBonds_greater_than_10_to_flag_potential_3D_f
+  kind: magnitude
+  raw_text: Use a topological proxy heuristic specifically NumRotatableBonds > 10
+    via RDKit to flag potential 3D failures.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:34:03Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: data quality report schema includes smiles, exclusion_reason, missing_covariate_list
+    columns
+  claim_id: c_14bb3f4e
+  context: 'Implement code/data/preprocess.py to filter for high-confidence measurements...
+    log excluded entries to data/derived/data_quality_report.csv with a missing_covariate
+    column... The report schema must strictly include columns: smiles, exclusion_reason,
+    missing_covariate_list.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_quality_report_schema_includes_smiles,_exclusion_reason
+  kind: entity_fact
+  raw_text: 'The report must strictly include columns: smiles, exclusion_reason, missing_covariate_list.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:36:39Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: diverse dataset target size is 4000 molecules
+  claim_id: c_0e741d4d
+  context: 'This task must define the algorithm to select a diverse subset (Tanimoto
+    < 0.7) from the preprocessed data. Constraint: Target a final diverse set of 4000
+    molecules... to ensure O(N) feasibility on the 2-core runner within 6 hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target a final diverse set of 4000 molecules (reduced from the initial
+    fetch) to ensure O(N) feasibility on the 2-core runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:36:39Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: diversity filtering algorithm selects max subset or full set if under
+    4000
+  claim_id: c_7f6b0a55
+  context: The algorithm must select the maximum subset satisfying the diversity constraint
+    or the full set if <4,000 exist.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The algorithm must select the maximum subset satisfying the diversity
+    constraint or the full set if <4,000 exist.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:36:39Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: dataset split into 4000 training molecules and 1000 test molecules
+  claim_id: c_6c762bd9
+  context: Implement code/data/preprocess.py to split the diverse dataset into a training
+    set (4000 molecules) and a strictly held-out test set (1000 molecules).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split the diverse dataset into a training set (4000 molecules) and a strictly
+    held-out test set (1000 molecules).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:36:55Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: dataset split is random, stratified if possible, and reproducible
+  claim_id: c_c9f65286
+  context: This task must ensure the split is random, stratified (if possible), and
+    reproducible via random seed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_split_is_random,_stratified_if_possible,_and_reprodu
+  kind: entity_fact
+  raw_text: The split is random, stratified (if possible), and reproducible via random
+    seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:37:26Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: runtime schema check for measurement_uncertainty and quantity_of_substance
+    fields
+  claim_id: c_c7ed39f8
+  context: 'CRITICAL: Perform a runtime schema check for the presence of measurement_uncertainty
+    and quantity_of_substance fields. If absent, the code MUST derive and record measurement_uncertainty_status:
+    Not Available in Source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_schema_check_for_measurement_uncertainty_and_quantit
+  kind: entity_fact
+  raw_text: Runtime schema check for the presence of measurement_uncertainty and quantity_of_substance
+    fields.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:37:38Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: absent metadata fields recorded as Not Available in Source
+  claim_id: c_4eb30f8e
+  context: 'If absent, the code MUST derive and record ''measurement_uncertainty_status'':
+    ''Not Available in Source'' and ''quantity_of_substance_status'': ''Not Available
+    in Source'' based on the actual fetched schema...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Absent_metadata_fields_recorded_as_Not_Available_in_Source
+  kind: entity_fact
+  raw_text: 'If measurement_uncertainty and quantity_of_substance fields are absent,
+    the code MUST derive and record ''measurement_uncertainty_status'': ''Not Available
+    in Source'' and ''quantity_of_substance_status'': ''Not Available in Source''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:38:07Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Open Babel fingerprints generated via obabel command-line tool subprocess
+  claim_id: c_dac85044
+  context: Implement code/data/fingerprints.py to generate Open Babel fingerprints
+    (MACCS, ECFP4, FP2) by invoking the obabel command-line tool via subprocess (per
+    FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Open_Babel_fingerprints_generated_via_obabel_command-line_to
+  kind: entity_fact
+  raw_text: Generate Open Babel fingerprints (MACCS, ECFP4, FP2) by invoking the obabel
+    command-line tool via subprocess.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:38:19Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: fingerprint generation stopping condition based on time remaining
+  claim_id: c_8be68b09
+  context: 'Stopping Condition: Generate ECFP4; if time remaining < 1 hour, skip MACCS/FP2;
+    else if time remaining > 30 minutes, generate MACCS.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: 'Stopping Condition: Generate ECFP4; if time remaining < 1 hour, skip
+    MACCS/FP2; else if time remaining > 30 minutes, generate MACCS.'
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T11:38:22Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Random Forest max_depth limit is 15
+  claim_id: c_8b716d8b
+  context: "Train RF regressors... with hyperparameter tuning via -fold cross-validation\
+    \ on the training set, ensuring max_depth limits (\u226415)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperparameter tuning via k-fold cross-validation on the training set,\
+    \ ensuring max_depth limits (\u226415)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:38:22Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: paired Wilcoxon signed-rank test performed on Baseline vs RF absolute
+    errors
+  claim_id: c_69c31368
+  context: Implement code/analysis/stats.py to perform paired Wilcoxon signed-rank
+    test on absolute errors (Baseline vs. RF) using the valid error pairs from the
+    held-out test set...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_Wilcoxon_signed-rank_test_performed_on_Baseline_vs_RF
+  kind: entity_fact
+  raw_text: Perform a paired Wilcoxon signed-rank test on absolute errors (Baseline
+    vs. RF) using the valid error pairs from the held-out test set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:39:15Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: NumRotatableBonds greater than 10 used as topological proxy for 3D failure
+  claim_id: c_4b029659
+  context: 'Method: Use a topological proxy heuristic (specifically NumRotatableBonds
+    > 10 via RDKit) to flag potential 3D failures, addressing Rosalind Franklin''s
+    concern on static vs. dynamic structures.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NumRotatableBonds_greater_than_10_used_as_topological_proxy
+  kind: magnitude
+  raw_text: Use a topological proxy heuristic (specifically NumRotatableBonds > 10
+    via RDKit) to flag potential 3D failures.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:39:46Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: substructures cross-referenced with RDKit functional group detection
+    and steric descriptors
+  claim_id: c_76f226a6
+  context: Implement code/analysis/explainability.py to cross-reference identified
+    substructures with RDKit's built-in functional group detection (rdkit.Chem.Fragments)
+    and steric descriptors (rdkit.Chem.rdMolDescriptors - e.g., Molecular Weight,
+    TPSA, NumRotatableBonds)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Substructures_cross-referenced_with_RDKit_functional_group_d
+  kind: entity_fact
+  raw_text: Cross-reference identified substructures with RDKit's built-in functional
+    group detection (rdkit.Chem.Fragments) and steric descriptors (rdkit.Chem.rdMolDescriptors).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:39:52Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: findings framed as associational correlations not causal mechanisms
+  claim_id: c_e896f656
+  context: Implement code/analysis/explainability.py to explicitly frame findings
+    as associational correlations, not causal mechanisms, in the output report (per
+    Assumptions).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Findings_framed_as_associational_correlations_not_causal_mec
+  kind: entity_fact
+  raw_text: Explicitly frame findings as associational correlations, not causal mechanisms,
+    in the output report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:39:59Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: Validation Protocol Summary states test set size, source, and measurement
+    uncertainty status
+  claim_id: c_a1f1cf68
+  context: This section must explicitly state the held-out test set size, the source
+    of experimental values for the test set, and the measurement uncertainty (or 'Not
+    Available' if missing) for the target properties...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_Protocol_Summary_states_test_set_size,_source,_an
+  kind: entity_fact
+  raw_text: The Validation Protocol Summary must explicitly state the held-out test
+    set size, the source of experimental values for the test set, and the measurement
+    uncertainty (or 'Not Available' if missing).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:40:07Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: RF predictions compared against molecules with NumRotatableBonds greater
+    than 10
+  claim_id: c_125b4cf3
+  context: This task must compare the RF predictions against a set of molecules identified
+    by the NumRotatableBonds > 10 heuristic and report the deviation magnitude for
+    these specific cases.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RF_predictions_compared_against_molecules_with_NumRotatableB
+  kind: magnitude
+  raw_text: Compare the RF predictions against a set of molecules identified by the
+    NumRotatableBonds > 10 heuristic and report the deviation magnitude for these
+    specific cases.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:40:12Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: report states substructure findings are topological proxies not reflecting
+    conformational ensembles
+  claim_id: c_72c97144
+  context: The report must explicitly state that the model's 'substructure' findings
+    are topological proxies and may not reflect solution-phase conformational ensembles...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_states_substructure_findings_are_topological_proxies
+  kind: entity_fact
+  raw_text: The report must explicitly state that the model's 'substructure' findings
+    are topological proxies and may not reflect solution-phase conformational ensembles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:40:15Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope/tasks.md
+  attempts: 1
+  canonical: obabel subprocess timeout check ensures 6 hour runtime limit
+  claim_id: c_e2fcde6d
+  context: "Limit Random Forest max_depth to a moderate value., use joblib for parallel\
+    \ fingerprint generation, and implement a timeout check for the obabel subprocess\
+    \ to ensure \u22646h runtime."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a timeout check for the obabel subprocess to ensure \u2264\
+    6h runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:40:15Z'

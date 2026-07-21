@@ -1,148 +1,107 @@
 """
-Linting and formatting configuration and execution utilities.
-
-This module provides functions to run ruff (linting) and black (formatting)
-on the project codebase, check for issues, and apply fixes automatically.
+Configuration and execution utilities for Ruff linting and Black formatting.
 """
-
 import subprocess
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-# Configuration constants
-RUFF_COMMAND = "ruff"
-BLACK_COMMAND = "black"
-PROJECT_ROOT = Path(__file__).parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-TESTS_DIR = PROJECT_ROOT / "tests"
 
-def run_command(command: List[str], cwd: Optional[Path] = None) -> Tuple[int, str, str]:
+def run_command(cmd: List[str], check: bool = True) -> Tuple[int, str, str]:
     """
-    Execute a shell command and return the result.
+    Run a shell command and return the result.
 
     Args:
-        command: List of command arguments.
-        cwd: Working directory for the command.
+        cmd: Command and arguments as a list.
+        check: If True, raise CalledProcessError on non-zero exit.
 
     Returns:
-        Tuple of (return_code, stdout, stderr)
+        Tuple of (return_code, stdout, stderr).
     """
     try:
         result = subprocess.run(
-            command,
-            cwd=cwd or PROJECT_ROOT,
+            cmd,
             capture_output=True,
             text=True,
-            check=False
+            check=check,
+            cwd=Path(__file__).parent.parent
         )
         return result.returncode, result.stdout, result.stderr
-    except FileNotFoundError:
-        return -1, "", f"Command not found: {command[0]}"
-    except Exception as e:
-        return -1, "", str(e)
+    except subprocess.CalledProcessError as e:
+        return e.returncode, e.stdout, e.stderr
 
-def check_code() -> Tuple[int, str]:
+
+def check_code() -> int:
     """
-    Run ruff to check for linting errors and black to check formatting.
+    Run Ruff check on the codebase.
 
     Returns:
-        Tuple of (exit_code, message)
+        Exit code (0 for success, non-zero for errors).
     """
-    messages = []
-    exit_code = 0
+    code_dir = Path(__file__).parent.parent / "code"
+    cmd = [sys.executable, "-m", "ruff", "check", str(code_dir)]
+    print(f"Running: {' '.join(cmd)}")
+    returncode, stdout, stderr = run_command(cmd, check=False)
+    if stdout:
+        print(stdout)
+    if stderr:
+        print(stderr, file=sys.stderr)
+    return returncode
 
-    # Run ruff check
-    ruff_return, ruff_out, ruff_err = run_command([RUFF_COMMAND, "check", str(CODE_DIR), str(TESTS_DIR)])
-    if ruff_return != 0:
-        exit_code = 1
-        messages.append("Ruff check found issues:")
-        if ruff_out:
-            messages.append(ruff_out)
-        if ruff_err:
-            messages.append(ruff_err)
-    else:
-        messages.append("Ruff check passed.")
 
-    # Run black check (diff mode)
-    black_return, black_out, black_err = run_command([BLACK_COMMAND, "--check", str(CODE_DIR), str(TESTS_DIR)])
-    if black_return != 0:
-        exit_code = 1
-        messages.append("Black formatting check found issues:")
-        if black_out:
-            messages.append(black_out)
-        if black_err:
-            messages.append(black_err)
-    else:
-        messages.append("Black formatting check passed.")
-
-    return exit_code, "\n".join(messages)
-
-def fix_code() -> Tuple[int, str]:
+def fix_code() -> int:
     """
-    Run ruff to auto-fix linting issues and black to format code.
+    Run Ruff check --fix and Black to format the codebase.
 
     Returns:
-        Tuple of (exit_code, message)
+        Exit code (0 for success, non-zero for errors).
     """
-    messages = []
-    exit_code = 0
+    code_dir = Path(__file__).parent.parent / "code"
+    
+    # Run Ruff fix
+    print("Running Ruff fix...")
+    ruff_cmd = [sys.executable, "-m", "ruff", "check", "--fix", str(code_dir)]
+    returncode, stdout, stderr = run_command(ruff_cmd, check=False)
+    if stdout:
+        print(stdout)
+    if stderr:
+        print(stderr, file=sys.stderr)
+    
+    # Run Black
+    print("Running Black formatter...")
+    black_cmd = [sys.executable, "-m", "black", str(code_dir)]
+    returncode, stdout, stderr = run_command(black_cmd, check=False)
+    if stdout:
+        print(stdout)
+    if stderr:
+        print(stderr, file=sys.stderr)
+    
+    return returncode
 
-    # Run ruff check --fix
-    ruff_return, ruff_out, ruff_err = run_command([RUFF_COMMAND, "check", "--fix", str(CODE_DIR), str(TESTS_DIR)])
-    if ruff_return != 0 and ruff_return != 1:  # 1 is expected if issues remain after fix
-        exit_code = ruff_return
-        messages.append("Ruff fix encountered an error:")
-        if ruff_err:
-            messages.append(ruff_err)
-    else:
-        messages.append("Ruff fix completed.")
-        if ruff_out:
-            messages.append(ruff_out)
-
-    # Run black
-    black_return, black_out, black_err = run_command([BLACK_COMMAND, str(CODE_DIR), str(TESTS_DIR)])
-    if black_return != 0:
-        exit_code = black_return
-        messages.append("Black formatting encountered an error:")
-        if black_err:
-            messages.append(black_err)
-    else:
-        messages.append("Black formatting completed.")
-        if black_out:
-            messages.append(black_out)
-
-    return exit_code, "\n".join(messages)
 
 def main() -> int:
     """
-    Main entry point for CLI usage.
-
+    Main entry point for linting and formatting configuration.
+    
     Usage:
-        python code/lint_format_config.py [check|fix]
-
-    Returns:
-        Exit code (0 for success, non-zero for failure)
+        python code/lint_format_config.py check   -> Check code style
+        python code/lint_format_config.py fix     -> Fix issues and format
     """
     if len(sys.argv) < 2:
         print("Usage: python code/lint_format_config.py [check|fix]")
-        print("  check: Run linters and formatters in check mode")
-        print("  fix:   Run linters and formatters in fix mode")
+        print("  check: Run linter to detect issues")
+        print("  fix:   Run linter auto-fix and formatter")
         return 1
-
-    mode = sys.argv[1].lower()
-
-    if mode == "check":
-        exit_code, message = check_code()
-        print(message)
-        return exit_code
-    elif mode == "fix":
-        exit_code, message = fix_code()
-        print(message)
-        return exit_code
+    
+    action = sys.argv[1].lower()
+    if action == "check":
+        return check_code()
+    elif action == "fix":
+        return fix_code()
     else:
-        print(f"Unknown mode: {mode}. Use 'check' or 'fix'.")
+        print(f"Unknown action: {action}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
