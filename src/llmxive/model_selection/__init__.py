@@ -38,6 +38,7 @@ from llmxive.model_selection.types import (
     CreditGuardSnapshot,
     ExecutionOptions,
     IndependenceBaseline,
+    IndependenceDim,
     ModelChain,
     ModelRef,
     ModelRequirement,
@@ -58,6 +59,7 @@ __all__ = [
     "ExecutionOptions",
     "ExecutionResult",
     "IndependenceBaseline",
+    "IndependenceDim",
     "ModelChain",
     "ModelRef",
     "ModelRequirement",
@@ -69,6 +71,7 @@ __all__ = [
     "build_requirement",
     "execute",
     "profile",
+    "route_chat",
     "runtime_snapshot",
     "select",
 ]
@@ -78,4 +81,12 @@ def __getattr__(name: str):  # lazy: keep the networked snapshot layer optional
         from llmxive.model_selection.snapshot import runtime_snapshot
 
         return runtime_snapshot
+    if name == "route_chat":
+        # Lazy for the SAME reason as runtime_snapshot: route.py imports the
+        # networked snapshot layer at module scope, so eagerly exporting the
+        # chokepoint here would defeat that optionality. ``from
+        # llmxive.model_selection import route_chat`` resolves via PEP 562.
+        from llmxive.model_selection.route import route_chat
+
+        return route_chat
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
