@@ -1,268 +1,238 @@
-"""
-annotate_failures.py
-Annotates parsed reasoning traces with failure types and validates against schema.
-"""
 import json
 import sys
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from sibling utils
 from utils.logging import get_logger, log_stage_start, log_stage_end, log_resource_usage
-from utils.config import validate_resource_limits
+from utils.config import set_seed
+
+# Set seed for reproducibility
+set_seed(42)
 
 logger = get_logger(__name__)
 
-# Schema path constant
+# Constants
+ANNOTATION_OUTPUT_PATH = Path("data/derived/failure_cases.json")
 SCHEMA_PATH = Path("specs/001-llmxive-followup/contracts/failure_case.schema.yaml")
+PARSED_TRACES_PATH = Path("data/derived/parsed_traces.json")
 
-# Valid failure types based on task description
-VALID_FAILURE_TYPES = [
-    "Syntactic",
-    "Logical",
-    "Semantic",
+VALID_FEATURES = [
+    "Syntactic Error",
+    "Logical Loop",
+    "Semantic Ambiguity",
     "Missing Context",
     "Unstructured"
 ]
 
-def load_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load the failure case schema from YAML/JSON."""
-    path = schema_path or SCHEMA_PATH
-    if not path.exists():
-        logger.error(f"Schema file not found: {path}")
-        raise FileNotFoundError(f"Schema file not found: {path}")
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the JSON schema from a YAML file (simple parser for this specific schema)."""
+    if not schema_path.exists():
+        logger.error(f"Schema file not found: {schema_path}")
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    # Simple YAML/JSON loader (assuming JSON-like structure for validation)
-    # Since we don't have pyyaml in imports, we handle basic JSON or simple YAML parsing
+    content = schema_path.read_text()
+    # Simple YAML to dict parser for the specific structure we expect
+    # In a real scenario, we'd use pyyaml, but we stick to stdlib + existing deps
+    # The schema is small enough to parse manually or assume PyYAML is available via requirements.txt
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Try JSON first
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            pass
-        
-        # Simple YAML parsing for basic structures
-        # This is a minimal parser for the expected schema format
-        schema = {}
+        import yaml
+        return yaml.safe_load(content)
+    except ImportError:
+        # Fallback: manual parsing for the specific schema structure
+        # This is a minimal parser for the specific format we generated
         lines = content.split('\n')
+        schema = {}
         current_key = None
-        current_list = []
+        current_list = None
         
         for line in lines:
-            line = line.strip()
-            if not line or line.startswith('#'):
+            stripped = line.strip()
+            if not stripped or stripped.startswith('#'):
                 continue
             
-            if line.startswith('- '):
-                if current_key:
-                    current_list.append(line[2:].strip())
-            elif ':' in line:
+            if line.startswith('  ' * 2): # Level 2 indent
+                key = stripped.split(':')[0]
+                val = stripped.split(':', 1)[1].strip()
+                if key == 'enum':
+                    current_key = key
+                    current_list = []
+                elif current_key == 'enum':
+                    # It's an item in the list
+                    if val.startswith('-'):
+                        current_list.append(val[1:].strip().strip('"').strip("'"))
+                    elif val:
+                        current_list.append(val.strip('"').strip("'"))
+                elif current_key and current_list:
+                    schema[current_key] = current_list
+                    current_key = None
+                    current_list = None
+            elif line.startswith('  '): # Level 1 indent
                 if current_key and current_list:
                     schema[current_key] = current_list
-                    current_list = []
-                key, value = line.split(':', 1)
-                key = key.strip()
-                value = value.strip()
-                if value:
-                    schema[key] = value
-                else:
-                    current_key = key
+                    current_key = None
+                    current_list = None
+                key = stripped.split(':')[0]
+                val = stripped.split(':', 1)[1].strip()
+                schema[key] = val
         
         if current_key and current_list:
             schema[current_key] = current_list
         
         return schema
-    except Exception as e:
-        logger.error(f"Error loading schema: {e}")
-        raise
 
-def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
-    """Validate annotated failure data against the schema."""
-    # Check required fields
+def validate_against_schema(data: List[Dict[str, Any]], schema: Dict[str, Any]) -> bool:
+    """Validate data against the schema."""
     required_fields = schema.get('required', [])
-    for field in required_fields:
-        if field not in data:
-            logger.error(f"Missing required field in schema validation: {field}")
-            return False
+    enum_fields = {}
     
-    # Check field types if defined
-    properties = schema.get('properties', {})
-    for field, value in data.items():
-        if field in properties:
-            expected_type = properties[field].get('type')
-            if expected_type:
-                type_map = {
-                    'string': str,
-                    'integer': int,
-                    'number': (int, float),
-                    'boolean': bool,
-                    'array': list,
-                    'object': dict
-                }
-                expected_python_type = type_map.get(expected_type)
-                if expected_python_type and not isinstance(value, expected_python_type):
-                    logger.error(f"Field {field} has wrong type: expected {expected_type}, got {type(value)}")
-                    return False
+    # Extract enum constraints
+    if 'properties' in schema:
+        for prop, details in schema['properties'].items():
+            if 'enum' in details:
+                enum_fields[prop] = details['enum']
     
-    # Check enum values if defined
-    for field, value in data.items():
-        if field in properties:
-            enum_values = properties[field].get('enum')
-            if enum_values and value not in enum_values:
-                logger.error(f"Field {field} has invalid value: {value}. Must be one of {enum_values}")
+    for i, item in enumerate(data):
+        # Check required fields
+        for field in required_fields:
+            if field not in item:
+                logger.error(f"Item {i} missing required field: {field}")
+                return False
+        
+        # Check enum constraints
+        for field, allowed_values in enum_fields.items():
+            if field in item and item[field] not in allowed_values:
+                logger.error(f"Item {i} field '{field}' has invalid value: {item[field]}. Allowed: {allowed_values}")
+                return False
+        
+        # Check additional properties (simple check)
+        allowed_props = set(schema.get('properties', {}).keys())
+        for key in item.keys():
+            if key not in allowed_props and schema.get('additionalProperties') is False:
+                logger.error(f"Item {i} has unexpected field: {key}")
                 return False
     
     return True
 
-def load_parsed_traces(traces_path: Path) -> List[Dict[str, Any]]:
-    """Load parsed reasoning traces from JSON file."""
-    if not traces_path.exists():
-        logger.error(f"Parsed traces file not found: {traces_path}")
-        raise FileNotFoundError(f"Parsed traces file not found: {traces_path}")
+def load_parsed_traces(path: Path) -> List[Dict[str, Any]]:
+    """Load parsed traces from JSON file."""
+    if not path.exists():
+        logger.error(f"Parsed traces file not found: {path}")
+        raise FileNotFoundError(f"Parsed traces file not found: {path}")
     
-    with open(traces_path, 'r', encoding='utf-8') as f:
-        traces = json.load(f)
-    
-    return traces
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def classify_failure_heuristic(error_log: str) -> str:
+def classify_failure_heuristic(error_log: str, resolution: str) -> str:
     """
     Heuristic classification of failure type based on error log content.
-    Returns one of: Syntactic, Logical, Semantic, Missing Context, Unstructured
+    This is a placeholder for the actual annotation logic which might use an LLM.
     """
     error_lower = error_log.lower()
     
-    # Syntactic: syntax errors, indentation, missing brackets
+    # Syntactic Error patterns
     syntactic_patterns = [
-        r'syntaxerror', r'indentationerror', r'missing', r'parenthesis',
-        r'bracket', r'token', r'syntax', r'invalid syntax', r'expected'
+        r'syntaxerror', r'invalid syntax', r'indentationerror', 
+        r'nameerror.*not defined', r'attributeerror', r'importerror'
     ]
     for pattern in syntactic_patterns:
         if re.search(pattern, error_lower):
-            return "Syntactic"
+            return "Syntactic Error"
     
-    # Logical: logic errors, infinite loops, wrong algorithm
+    # Logical Loop patterns
     logical_patterns = [
-        r'logic', r'infinite loop', r'recursion', r'algorithm',
-        r'wrong', r'incorrect', r'miscalculation', r'off by one'
+        r'infinite loop', r'recursion.*limit', r'stack overflow',
+        r'while true', r'for.*for' # simplistic
     ]
     for pattern in logical_patterns:
         if re.search(pattern, error_lower):
-            return "Logical"
+            return "Logical Loop"
     
-    # Semantic: meaning errors, wrong interpretation
+    # Semantic Ambiguity patterns
     semantic_patterns = [
-        r'semantic', r'meaning', r'interpretation', r'context',
-        r'ambiguity', r'confusing', r'unclear'
+        r'ambiguous', r'conflicting', r'unclear', r'meaningless',
+        r'does not match expected', r'interpretation'
     ]
     for pattern in semantic_patterns:
         if re.search(pattern, error_lower):
-            return "Semantic"
+            return "Semantic Ambiguity"
     
-    # Missing Context: lack of information
-    context_patterns = [
-        r'missing', r'context', r'insufficient', r'unknown',
-        r'undefined', r'not found', r'cannot find'
+    # Missing Context patterns
+    missing_context_patterns = [
+        r'missing', r'not found', r'undefined variable', r'keyerror',
+        r'no such file', r'context.*missing'
     ]
-    for pattern in context_patterns:
+    for pattern in missing_context_patterns:
         if re.search(pattern, error_lower):
             return "Missing Context"
     
     # Default to Unstructured if no pattern matches
     return "Unstructured"
 
-def annotate_single_entry(entry: Dict[str, Any], schema: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Annotate a single trace entry with failure type.
-    Returns None if entry cannot be annotated.
-    """
-    try:
-        error_log = entry.get('error_log', '')
-        if not error_log:
-            logger.warning(f"Entry missing error_log: {entry.get('task_id', 'unknown')}")
-            return None
-        
-        # Classify failure type
-        failure_type = classify_failure_heuristic(error_log)
-        
-        # Create annotated entry
-        annotated = {
-            'task_id': entry.get('task_id', ''),
-            'topic': entry.get('topic', ''),
-            'error_log': error_log,
-            'ground_truth_resolution': entry.get('ground_truth_resolution', ''),
-            'failure_type': failure_type,
-            'confidence': 0.8,  # Heuristic confidence
-            'timestamp': None  # Will be set by caller if needed
-        }
-        
-        # Validate against schema
-        if not validate_against_schema(annotated, schema):
-            logger.error(f"Annotation failed schema validation for task {annotated['task_id']}")
-            return None
-        
-        return annotated
-    except Exception as e:
-        logger.error(f"Error annotating entry: {e}")
-        return None
+def annotate_single_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Annotate a single trace entry."""
+    task_id = entry.get('task_id', 'unknown')
+    raw_error_log = entry.get('raw_error_log', '')
+    ground_truth_resolution = entry.get('ground_truth_resolution', '')
+    
+    annotated_feature = classify_failure_heuristic(raw_error_log, ground_truth_resolution)
+    
+    return {
+        "task_id": task_id,
+        "raw_error_log": raw_error_log,
+        "ground_truth_resolution": ground_truth_resolution,
+        "annotated_structural_feature": annotated_feature
+    }
 
 def main():
-    """Main entry point for failure annotation pipeline."""
     log_stage_start("annotate_failures")
+    log_resource_usage()
     
-    # Validate resource limits
-    validate_resource_limits()
-    
-    # Load schema
-    schema = load_schema()
-    logger.info(f"Loaded schema with required fields: {schema.get('required', [])}")
-    
-    # Load parsed traces
-    traces_path = Path("data/derived/parsed_traces.json")
-    traces = load_parsed_traces(traces_path)
-    logger.info(f"Loaded {len(traces)} parsed traces")
-    
-    # Annotate all entries
-    annotated_failures = []
-    for i, entry in enumerate(traces):
-        if i % 100 == 0:
-            log_resource_usage()
+    try:
+        # Load schema
+        logger.info(f"Loading schema from {SCHEMA_PATH}")
+        schema = load_schema(SCHEMA_PATH)
         
-        annotated = annotate_single_entry(entry, schema)
-        if annotated:
-            annotated_failures.append(annotated)
-    
-    logger.info(f"Successfully annotated {len(annotated_failures)} out of {len(traces)} entries")
-    
-    # Count by failure type
-    failure_counts = {}
-    for item in annotated_failures:
-        ft = item['failure_type']
-        failure_counts[ft] = failure_counts.get(ft, 0) + 1
-    
-    logger.info(f"Failure type distribution: {failure_counts}")
-    
-    # Save annotated failures
-    output_path = Path("data/derived/annotated_failures.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(annotated_failures, f, indent=2)
-    
-    logger.info(f"Saved {len(annotated_failures)} annotated failures to {output_path}")
-    
-    # Final validation: ensure all entries match schema
-    for item in annotated_failures:
-        if not validate_against_schema(item, schema):
-            logger.error(f"Final validation failed for item: {item.get('task_id')}")
+        # Load parsed traces
+        logger.info(f"Loading parsed traces from {PARSED_TRACES_PATH}")
+        traces = load_parsed_traces(PARSED_TRACES_PATH)
+        
+        # Annotate each entry
+        annotated_data = []
+        for entry in traces:
+            annotated_entry = annotate_single_entry(entry)
+            annotated_data.append(annotated_entry)
+        
+        logger.info(f"Generated {len(annotated_data)} annotations")
+        
+        # Validate against schema BEFORE writing
+        logger.info("Validating output against schema...")
+        if not validate_against_schema(annotated_data, schema):
+            logger.error("Schema validation FAILED. Aborting write.")
             sys.exit(1)
-    
-    log_stage_end("annotate_failures")
-    return annotated_failures
+        
+        logger.info("Schema validation PASSED.")
+        
+        # Ensure output directory exists
+        ANNOTATION_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write to file
+        with open(ANNOTATION_OUTPUT_PATH, 'w', encoding='utf-8') as f:
+            json.dump(annotated_data, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Successfully wrote annotated failures to {ANNOTATION_OUTPUT_PATH}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during annotation: {e}")
+        sys.exit(1)
+    finally:
+        log_stage_end("annotate_failures")
 
 if __name__ == "__main__":
     main()

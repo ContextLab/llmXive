@@ -1,46 +1,29 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Failure Case Schema
-description: >
-  Schema for annotated failure cases extracted from ARC-Bench reasoning traces.
-  Used to validate output from annotate_failures.py before writing to data/derived/.
+description: Schema for annotated failure cases in the AutoResearchClaw pipeline.
 type: object
 required:
   - task_id
-  - failure_type
-  - error_log
+  - raw_error_log
   - ground_truth_resolution
-  - annotated_at
+  - annotated_structural_feature
 properties:
   task_id:
     type: string
-    description: Unique identifier for the ARC-Bench task
-    pattern: "^arc-bench-[0-9a-f]{8}$"
-  failure_type:
+    description: Unique identifier for the task.
+  raw_error_log:
     type: string
-    enum:
-      - Syntactic
-      - Logical
-      - Semantic
-      - Missing Context
-      - Unstructured
-    description: Classification of the failure mode
-  error_log:
-    type: string
-    description: Raw error log or traceback extracted from the reasoning trace
-    minLength: 10
+    description: The raw error log text extracted from the reasoning trace.
   ground_truth_resolution:
     type: string
-    description: The correct resolution or pivot action for this failure
-  annotated_at:
+    description: The correct resolution or pivot action for the failure.
+  annotated_structural_feature:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp of annotation
-  confidence_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Confidence score of the annotation (optional)
-  source_trace_id:
-    type: string
-    description: Reference to the original reasoning trace entry
+    description: The classified structural feature of the failure.
+    enum:
+      - "Syntactic Error"
+      - "Logical Loop"
+      - "Semantic Ambiguity"
+      - "Missing Context"
+      - "Unstructured"
 additionalProperties: false

@@ -1,40 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Pivot Attempt Result"
-description: "Schema for a single pivot attempt result in the rule engine vs baseline comparison."
-type: "object"
+title: Pivot Attempt Result
+description: >
+  Schema for a single pivot attempt result, whether from the rule engine or baseline.
+  Used in results.csv and statistical analysis.
+type: object
 required:
-  - "task_id"
-  - "method"
-  - "time_to_pivot"
-  - "success"
-  - "failure_type"
+  - task_id
+  - method
+  - time_to_pivot
+  - success
+  - failure_type
 properties:
   task_id:
-    type: "string"
-    description: "Unique identifier for the task."
+    type: string
+    description: Unique identifier for the task.
+    pattern: "^task_\\d+$"
   method:
-    type: "string"
-    description: "The method used (rule_engine or baseline)."
+    type: string
+    description: The method used for the pivot attempt.
     enum:
       - "rule_engine"
       - "baseline"
   time_to_pivot:
-    type: "number"
-    description: "Time in seconds to execute the pivot."
-    minimum: 0
+    type: number
+    description: Time taken to pivot in seconds.
+    minimum: 0.0
   success:
-    type: "integer"
-    description: "Binary indicator of success (1) or failure (0)."
-    enum:
-      - 0
-      - 1
+    type: boolean
+    description: Whether the pivot attempt was successful.
   failure_type:
-    type: "string"
-    description: "The type of failure that triggered the pivot."
+    type: string
+    description: The structural feature type of the original failure.
     enum:
-      - "Syntactic"
-      - "Logical"
-      - "Semantic"
+      - "Syntactic Error"
+      - "Logical Loop"
+      - "Semantic Ambiguity"
       - "Missing Context"
       - "Unstructured"
 additionalProperties: false

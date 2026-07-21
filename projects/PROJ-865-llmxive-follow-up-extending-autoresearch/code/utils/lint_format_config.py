@@ -1,80 +1,120 @@
 """
-Utility module to manage linting and formatting configurations.
-This module ensures that ruff and black are configured correctly
-and provides helper functions to run them programmatically if needed.
+Configuration and execution helpers for linting and formatting tools.
+Provides functions to run ruff and black checks/formats programmatically.
 """
-
 import subprocess
 import sys
 from pathlib import Path
+from typing import Tuple, Optional
+
+# Project root is assumed to be the parent of the 'code' directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
-def run_linter(check_only: bool = True) -> int:
+def run_linter(check_only: bool = True, fix: bool = False) -> Tuple[int, str]:
     """
-    Run ruff linter on the code directory.
+    Run ruff linter on the project code directory.
 
     Args:
-        check_only: If True, only check for errors (exit non-zero if found).
-                   If False, attempt to fix issues.
+        check_only: If True, only check for errors (exit code != 0 on failure).
+                   If False, attempt to fix issues automatically.
+        fix: Deprecated, kept for compatibility. If True, implies --fix.
 
     Returns:
-        Exit code of the ruff process.
+        Tuple of (exit_code, output_string)
     """
-    cmd = ["ruff", "check", "code/"]
-    if not check_only:
+    code_dir = PROJECT_ROOT / "code"
+    config_file = PROJECT_ROOT / "pyproject.toml"
+
+    cmd = [
+        sys.executable, "-m", "ruff",
+        "check" if check_only else "check",
+        str(code_dir),
+        "--config", str(config_file),
+    ]
+
+    if fix:
         cmd.append("--fix")
 
     try:
-        result = subprocess.run(cmd, check=False)
-        return result.returncode
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            cwd=str(PROJECT_ROOT)
+        )
+        return result.returncode, result.stdout + result.stderr
     except FileNotFoundError:
-        print("Error: ruff not found. Please install it via pip.", file=sys.stderr)
-        return 1
+        return 1, "Error: ruff is not installed. Please run 'pip install ruff'."
+    except Exception as e:
+        return 1, f"Error running ruff: {e}"
 
 
-def run_formatter(check_only: bool = True) -> int:
+def run_formatter(check_only: bool = True) -> Tuple[int, str]:
     """
-    Run black formatter on the code directory.
+    Run black formatter on the project code directory.
 
     Args:
-        check_only: If True, only check for formatting issues (exit non-zero if found).
-                   If False, attempt to fix formatting.
+        check_only: If True, only check formatting (exit code != 0 if unformatted).
+                   If False, reformat files in place.
 
     Returns:
-        Exit code of the black process.
+        Tuple of (exit_code, output_string)
     """
-    cmd = ["black", "code/"]
+    code_dir = PROJECT_ROOT / "code"
+    config_file = PROJECT_ROOT / "pyproject.toml"
+
+    cmd = [
+        sys.executable, "-m", "black",
+        "--config", str(config_file),
+    ]
+
     if check_only:
         cmd.append("--check")
+        cmd.append("--diff")
+
+    cmd.append(str(code_dir))
 
     try:
-        result = subprocess.run(cmd, check=False)
-        return result.returncode
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            cwd=str(PROJECT_ROOT)
+        )
+        return result.returncode, result.stdout + result.stderr
     except FileNotFoundError:
-        print("Error: black not found. Please install it via pip.", file=sys.stderr)
-        return 1
+        return 1, "Error: black is not installed. Please run 'pip install black'."
+    except Exception as e:
+        return 1, f"Error running black: {e}"
 
 
 def main():
     """
-    Main entry point for running linter and formatter checks.
-    Exits with code 0 if all checks pass, 1 otherwise.
+    Main entry point to run linting and formatting checks.
+    Useful for CI/CD pipelines or local verification scripts.
     """
-    print("Running linter (ruff)...")
-    lint_exit = run_linter(check_only=True)
-
-    print("Running formatter check (black)...")
-    fmt_exit = run_formatter(check_only=True)
-
-    if lint_exit == 0 and fmt_exit == 0:
-        print("All linting and formatting checks passed.")
-        sys.exit(0)
+    print("Running Linting (ruff)...")
+    lint_code, lint_out = run_linter(check_only=True)
+    if lint_code == 0:
+        print("✓ Linting passed.")
     else:
-        if lint_exit != 0:
-            print("Linter failed. Run 'ruff check --fix code/' to attempt fixes.")
-        if fmt_exit != 0:
-            print("Formatter check failed. Run 'black code/' to format code.")
+        print("✗ Linting failed:")
+        print(lint_out)
+
+    print("\nRunning Formatting Check (black)...")
+    fmt_code, fmt_out = run_formatter(check_only=True)
+    if fmt_code == 0:
+        print("✓ Formatting check passed.")
+    else:
+        print("✗ Formatting check failed:")
+        print(fmt_out)
+
+    if lint_code != 0 or fmt_code != 0:
         sys.exit(1)
+    else:
+        print("\n✓ All checks passed.")
+        sys.exit(0)
 
 
 if __name__ == "__main__":

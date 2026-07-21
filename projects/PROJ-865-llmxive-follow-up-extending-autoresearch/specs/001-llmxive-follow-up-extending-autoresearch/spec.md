@@ -95,7 +95,7 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 
 - The ARC-Bench dataset (25-topic subset) is accessible via the official repository linked in the *Claw AI Lab* paper and contains sufficient failure-resolution pairs for the analysis.
 - The "full-mode" baseline agent can be executed on standard resources (4 cores, 16 GB RAM) without exceeding hardware limits.
-- The small language model used for distillation (e.g., Llama-3-8B-INT4) will run within the 7 GB RAM limit on a 2-core CPU runner; if it exceeds this, the dataset will be sampled further to ensure feasibility.
+- The small language model used for distillation (e.g., Llama-8B-INT4) will run within the 7 GB RAM limit on a 2-core CPU runner; if it exceeds this, the dataset will be sampled further to ensure feasibility.
 - The structural features (syntactic vs. semantic) are mutually exclusive and can be reliably annotated with high inter-rater agreement using the defined taxonomy.
 - The "Time-to-Pivot" metric is measurable within the CI environment without requiring external network latency or GPU acceleration.
-- The mixed-effects logistic regression model can be fitted using standard Python libraries (e.g., `statsmodels` or `lme4` equivalent) within the 6-hour time limit for the given sample size.
+- The mixed-effects logistic regression model can be fitted using standard Python libraries (e.g., `statsmodels` or `lme` equivalent) within the 6-hour time limit for the given sample size.
