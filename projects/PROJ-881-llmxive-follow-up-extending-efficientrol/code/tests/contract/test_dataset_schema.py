@@ -35,12 +35,15 @@ def test_record_validation(schema):
     validate_json_schema(valid_record, schema)
 
 def test_record_missing_field(schema):
+    # This test specifically verifies that a record missing the 'validity' field
+    # raises a ValueError during schema validation.
     invalid_record = {
         "sequence_id": "test-123",
-        "tokens": ["token1"],
-        # Missing source
-        "validity": True,
-        "reason": "matched"
+        "tokens": ["token1", "token2"],
+        "source": "gsm8k",
+        # Missing 'validity' field
+        "reason": "matched",
+        "metadata": {}
     }
     with pytest.raises(ValueError):
         validate_json_schema(invalid_record, schema)
@@ -51,7 +54,8 @@ def test_record_wrong_type(schema):
         "tokens": "not-a-list",
         "source": "gsm8k",
         "validity": True,
-        "reason": "matched"
+        "reason": "matched",
+        "metadata": {}
     }
     with pytest.raises(ValueError):
         validate_json_schema(invalid_record, schema)

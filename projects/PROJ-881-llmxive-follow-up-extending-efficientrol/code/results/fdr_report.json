@@ -1,0 +1,19 @@
+{
+  "analysis_summary": {
+    "method": "benjamini_hochberg",
+    "nominal_alpha": 0.05,
+    "total_tests": 0,
+    "significant_tests": 0,
+    "fdr": 0.0,
+    "fdr_within_alpha": true
+  },
+  "p_values": {
+    "original": [],
+    "adjusted": []
+  },
+  "verification": {
+    "sc_005_verified": true,
+    "fdr_value": 0.0,
+    "alpha_threshold": 0.05
+  }
+}

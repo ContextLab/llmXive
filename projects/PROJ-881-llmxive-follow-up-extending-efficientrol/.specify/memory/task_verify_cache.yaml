@@ -1,9 +1,37 @@
+T007:
+  c: true
+  h: 8803e2f6d4e93800d39a3542ac3e4e0f3225e9c73815d491140f21d45e33ae5b
+  r: "The repository contains a non\u2011empty `code/src/data/download.py` (\u2248\
+    9\u202FKB) that implements streaming downloads of GSM8K and MiniGrid from HuggingFace\
+    \ with a configurable subset limit and no synthetic fallbacks, matching the task\
+    \ specification."
+T008:
+  c: false
+  h: 40db9efed9ce5eedfbfc7a4c553237ba0da5b76731fda494e45f6917b170ea5e
+  r: "The `.env.example` file is present and correctly defines the three required\
+    \ keys, but the `code/src/config.py` file is either missing or incomplete (the\
+    \ displayed content ends abruptly mid\u2011statement, indicating a broken or unfinished\
+    \ implementation). The required configuration loader is therefore not fully provided."
 T009:
   c: false
   h: 8233450ba8cbd420a5cbf7ee6b1e2a43523fb6668409b7c7926a266325cf8f2b
   r: "The required file `code/tests/contract/test_dataset_schema.py` is missing from\
     \ the repository, so no contract test for the dataset schema exists. Without this\
     \ artifact, the task\u2019s deliverable is not satisfied."
+T011:
+  c: false
+  h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
+  r: "The required `src/generation/generation.py` file is absent (the only file present\
+    \ is `code/src/generation/generation.py` and its contents are truncated, with\
+    \ no visible `generate_baseline` function). Consequently the deliverable\u2014\
+    a module containing a `generate_baseline` implementation\u2014is not provided."
+T012:
+  c: false
+  h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
+  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py`\
+    \ either does not exist or is incomplete, and the presented `code/src/generation/generation.py`\
+    \ snippet does not contain a `label_validity` function. The deliverable therefore\
+    \ fails to provide the requested ground\u2011truth matching logic."
 T015:
   c: true
   h: 221dbd000e23905a7ee9b86148dd9d490de34cd7759f345848bee3f796cf19d8

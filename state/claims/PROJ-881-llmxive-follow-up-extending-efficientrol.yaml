@@ -1,0 +1,339 @@
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: setup script exits with code 1 if paths missing
+  claim_id: c_ec7d140f
+  context: 'T001 [P] Create project directory structure: Create `setup.sh` containing
+    explicit `mkdir -p` commands for all listed paths... The script must check that
+    all paths exist after creation; if any are missing, it must exit with code 1 and
+    print ''Structure creation failed''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must check that all paths exist after creation; if any are
+    missing, it must exit with code 1 and print 'Structure creation failed'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:23:21Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: setup script prints success message and generates log
+  claim_id: c_34328011
+  context: T001 [P] Create project directory structure... If all exist, it must print
+    'Structure created' and generate `project_structure.log` confirming directory
+    existence.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Setup_script_prints_success_message_and_generates_log
+  kind: entity_fact
+  raw_text: The script must print 'Structure created' and generate `project_structure.log`
+    confirming directory existence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:24:20Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: entropy calculation clamps probabilities below 1e-9
+  claim_id: c_9f2d8187
+  context: T004 [P] [US1/US2] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/entropy_calc.py`
+    with Shannon entropy logic ($-\sum p_i \log p_i$). MUST clamp probability values
+    < 1e-9 to 1e-9 *before* taking the logarithm to prevent log(0) errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logic MUST clamp probability values < 1e-9 to 1e-9 before taking the
+    logarithm to prevent log(0) errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:24:36Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: preprocessing reduces batch size on memory error
+  claim_id: c_1fe1252e
+  context: T006 [P] [US1/US2] Create `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py`
+    with batched streaming mechanism. MUST implement logic to process sequences in
+    fixed batches of a manageable token count. If `MemoryError` is caught, the logic
+    MUST reduce the batch size by a significant margin and retry.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_reduces_batch_size_on_memory_error
+  kind: entity_fact
+  raw_text: The logic MUST reduce the batch size by a significant margin and retry
+    if `MemoryError` is caught.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:26:13Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: preprocessing test verifies memory backoff fallback
+  claim_id: c_d278bcad
+  context: 'T006 [P] [US1/US2] ... **Deliverable**: `src/data/preprocessing.py` with
+    `stream_batch` function and `tests/integration/test_preprocessing.py::test_memory_backoff`
+    verifying the fallback.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_test_verifies_memory_backoff_fallback
+  kind: entity_fact
+  raw_text: The test `tests/integration/test_preprocessing.py::test_memory_backoff`
+    verifies the fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:26:39Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: dataset schema test asserts ValueError for missing validity field
+  claim_id: c_d34590bf
+  context: 'T009 [P] [US1] Contract test for dataset schema... **Deliverable**: `tests/contract/test_dataset_schema.py::test_schema_validation_fails_on_missing_field`
+    that loads `contracts/dataset.schema.yaml` and asserts `ValueError` is raised
+    for a record missing the `validity` field.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_test_asserts_ValueError_for_missing_validity
+  kind: entity_fact
+  raw_text: The test `tests/contract/test_dataset_schema.py::test_schema_validation_fails_on_missing_field`
+    loads `contracts/dataset.schema.yaml` and asserts `ValueError` is raised for a
+    record missing the `validity` field.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:27:04Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: merged dataset jsonl contains specific fields
+  claim_id: c_0c05a3d3
+  context: 'T016 [US1] ... **Deliverable**: Output file `data/merged_dataset.jsonl`
+    with fields `[''prompt_id'', ''tokens'', ''validity'', ''entropy'']` (entropy
+    placeholder for now)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Merged_dataset_jsonl_contains_specific_fields
+  kind: entity_fact
+  raw_text: The output file `data/merged_dataset.jsonl` must have fields `['prompt_id',
+    'tokens', 'validity', 'entropy']`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:27:25Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: generation test verifies streaming writes
+  claim_id: c_2723c846
+  context: 'T021 [US2] ... **Deliverable**: `src/generation/generation.py::process_batch`
+    that appends JSONL records to `data/entropy_profiles.jsonl` after every 50 tokens
+    using `json.dumps` with `newline` delimiter, verified by `tests/integration/test_generation.py::test_streaming_writes`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generation_test_verifies_streaming_writes
+  kind: entity_fact
+  raw_text: The test `tests/integration/test_generation.py::test_streaming_writes`
+    verifies the streaming writes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:27:44Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: generation profiling requires RAM under 6.5GB for 500 tokens
+  claim_id: c_3ea9b9e6
+  context: T035 [P] Profile `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py`
+    using `cProfile` and verify RAM usage stays < 6.5GB for sequences up to 500 tokens
+    processed in batches of 50 tokens.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The profiling task requires verifying RAM usage stays < 6.5GB for sequences
+    up to 500 tokens processed in batches of 50 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:27:44Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: profile report contains batch size, peak RSS, and latency table
+  claim_id: c_008beaf5
+  context: T035 [P] ... and write `results/profile_report.txt` containing a table
+    of `['Batch Size', 'Peak RSS (MB)', 'Avg Latency (s)']`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Profile_report_contains_batch_size,_peak_RSS,_and_latency_ta
+  kind: entity_fact
+  raw_text: The profile report must contain a table of `['Batch Size', 'Peak RSS (MB)',
+    'Avg Latency (s)']`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:28:20Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses Benjamini-Hochberg method
+  claim_id: c_115b3665
+  context: T029 [US3] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/sensitivity.py`
+    to first **apply multiple-comparison correction (Benjamini-Hochberg method)**
+    to p-values, then calculate the resulting False Discovery Rate (FDR), and compare
+    against nominal alpha level (0.05) to verify SC-005.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_uses_Benjamini-Hochberg_method
+  kind: entity_fact
+  raw_text: The task `src/analysis/sensitivity.py::apply_correction` uses the Benjamini-Hochberg
+    method to apply multiple-comparison correction to p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:28:42Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: sensitivity function returns adjusted p-values and FDR dict
+  claim_id: c_0ce8d3a0
+  context: 'T029 [US3] ... **Deliverable**: `src/analysis/sensitivity.py::apply_correction`
+    using BH method, returning a dict `{''adjusted_p_values'': [...], ''fdr'': float}`
+    and writing `results/fdr_report.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_function_returns_adjusted_p-values_and_FDR_dict
+  kind: entity_fact
+  raw_text: 'The `sensitivity.py` function returns a dict `{''adjusted_p_values'':
+    [...], ''fdr'': float}`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:29:00Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: download script raises error on failure without fallback
+  claim_id: c_a32b3df8
+  context: T040 [P] [US1/US2] Refactor `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`
+    to remove ALL `try/except` blocks that fall back to `generate_synthetic_*()` or
+    `mock_*()` data. If `datasets.load_dataset` or `hf_hub_download` fails, the script
+    MUST raise a `ConnectionError` or `FileNotFoundError` immediately to let the run
+    fail loudly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_script_raises_error_on_failure_without_fallback
+  kind: entity_fact
+  raw_text: The script MUST raise a `ConnectionError` or `FileNotFoundError` immediately
+    if `datasets.load_dataset` or `hf_hub_download` fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:29:23Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: download test asserts ConnectionError on network error
+  claim_id: c_f9c68f4d
+  context: 'T040 [P] [US1/US2] ... **Deliverable**: `src/data/download.py` with no
+    fallbacks and `tests/unit/test_download.py::test_fail_loudly_on_network_error`
+    asserting `ConnectionError` is raised when HuggingFace is unreachable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_test_asserts_ConnectionError_on_network_error
+  kind: entity_fact
+  raw_text: The test `tests/unit/test_download.py::test_fail_loudly_on_network_error`
+    asserts `ConnectionError` is raised when HuggingFace is unreachable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:29:48Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: generation streams GSM8K and MiniGrid with 500 example limit
+  claim_id: c_a1101406
+  context: T041 [P] [US2] Update `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py`
+    to implement explicit streaming logic using `datasets.load_dataset(..., streaming=True)`
+    for GSM8K and MiniGrid, processing data in chunks of 500 rows **with a hard stop
+    after 500 total examples** to ensure compliance with FR-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The processing must use `datasets.load_dataset(..., streaming=True)` for
+    GSM8K and MiniGrid, processing data in chunks of 500 rows with a hard stop after
+    500 total examples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:30:09Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: data integrity script compares checksums and raises error on mismatch
+  claim_id: c_9d25ee48
+  context: T044 [P] [US1/US2] Add a verification step in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/validate_data_integrity.py`
+    that compares the checksum of the downloaded dataset against the HuggingFace dataset
+    info hash, raising an error if they mismatch.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_integrity_script_compares_checksums_and_raises_error_on
+  kind: entity_fact
+  raw_text: The verification step in `scripts/validate_data_integrity.py` compares
+    the checksum of the downloaded dataset against the HuggingFace dataset info hash,
+    raising an error if they mismatch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:30:27Z'
+- artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/tasks.md
+  attempts: 1
+  canonical: checksum recorder generates hashes and records in state yaml
+  claim_id: c_6112c463
+  context: T046 [P] [US1/US2] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/checksum_recorder.py`
+    to generate local checksums for all files in `data/` and record them in `state/projects/PROJ-881-llmxive-follow-up-extending-efficientrol.yaml`
+    under `artifact_hashes`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `scripts/checksum_recorder.py` generates local checksums for all files
+    in `data/` and records them in `state/projects/PROJ-881-llmxive-follow-up-extending-efficientrol.yaml`
+    under `artifact_hashes`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T14:30:46Z'

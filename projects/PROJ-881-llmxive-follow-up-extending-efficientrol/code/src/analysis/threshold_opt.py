@@ -1,8 +1,8 @@
 """
-Threshold Optimization Module for Entropy-Guided Validity Prediction.
+Threshold optimization module for entropy-guided validity prediction.
 
-This module implements the logic to find the optimal entropy threshold
-that minimizes the weighted sum of False Positives and False Negatives.
+This module implements logic to find the optimal entropy threshold that minimizes
+the weighted sum of false positives and false negatives for token validity prediction.
 """
 
 import json
@@ -14,292 +14,278 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
 
-from src.utils.validators import load_and_validate_jsonl, EntropyProfile
-from src.analysis.logistic_model import load_entropy_profiles_for_analysis
-
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
 def calculate_metrics_at_threshold(
-    y_true: np.ndarray,
-    entropy_values: np.ndarray,
+    entropies: List[float],
+    validity_labels: List[bool],
     threshold: float,
-    higher_entropy_is_valid: bool = True
-) -> Dict[str, float]:
+    fp_weight: float = 1.0,
+    fn_weight: float = 1.0
+) -> Dict[str, Any]:
     """
-    Calculate confusion matrix metrics at a specific entropy threshold.
+    Calculate classification metrics at a specific entropy threshold.
+
+    Entropy values below the threshold are predicted as 'valid' (true),
+    and values above are predicted as 'invalid' (false).
 
     Args:
-        y_true: Array of binary validity labels (1=valid, 0=invalid).
-        entropy_values: Array of entropy values for the tokens.
+        entropies: List of entropy values for each token.
+        validity_labels: List of ground truth validity labels (True=valid, False=invalid).
         threshold: The entropy threshold to evaluate.
-        higher_entropy_is_valid: If True, entropy > threshold implies valid.
-                                 If False, entropy < threshold implies valid.
-                                 (Default: True, as higher entropy often correlates
-                                 with uncertainty/invalidity in some contexts,
-                                 but here we assume we are predicting VALIDITY.
-                                 Usually, low entropy = high confidence = likely valid.
-                                 However, the task asks to minimize weighted error.
-                                 We will treat the direction as a parameter.)
+        fp_weight: Weight for false positive cost.
+        fn_weight: Weight for false negative cost.
 
     Returns:
-        Dict with 'tp', 'fp', 'tn', 'fn', 'precision', 'recall', 'f1'.
+        Dictionary containing:
+            - threshold: The evaluated threshold value.
+            - tp: True positives count.
+            - tn: True negatives count.
+            - fp: False positives count.
+            - fn: False negatives count.
+            - precision: Precision score.
+            - recall: Recall score.
+            - f1: F1 score.
+            - weighted_cost: Weighted sum of FP and FN.
     """
-    if higher_entropy_is_valid:
-        y_pred = (entropy_values >= threshold).astype(int)
-    else:
-        y_pred = (entropy_values < threshold).astype(int)
+    if len(entropies) != len(validity_labels):
+        raise ValueError("Entropies and validity_labels must have the same length")
 
-    tp = np.sum((y_true == 1) & (y_pred == 1))
-    fp = np.sum((y_true == 0) & (y_pred == 1))
-    tn = np.sum((y_true == 0) & (y_pred == 0))
-    fn = np.sum((y_true == 1) & (y_pred == 0))
+    if len(entropies) == 0:
+        return {
+            'threshold': threshold,
+            'tp': 0, 'tn': 0, 'fp': 0, 'fn': 0,
+            'precision': 0.0, 'recall': 0.0, 'f1': 0.0,
+            'weighted_cost': 0.0
+        }
 
+    entropies_arr = np.array(entropies)
+    labels_arr = np.array(validity_labels, dtype=bool)
+
+    # Prediction: entropy < threshold => valid (True), else invalid (False)
+    predictions = entropies_arr < threshold
+
+    tp = int(np.sum(predictions & labels_arr))
+    tn = int(np.sum(~predictions & ~labels_arr))
+    fp = int(np.sum(predictions & ~labels_arr))
+    fn = int(np.sum(~predictions & labels_arr))
+
+    # Calculate precision, recall, f1
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
 
+    weighted_cost = (fp * fp_weight) + (fn * fn_weight)
+
     return {
-        "tp": int(tp),
-        "fp": int(fp),
-        "tn": int(tn),
-        "fn": int(fn),
-        "precision": float(precision),
-        "recall": float(recall),
-        "f1": float(f1)
+        'threshold': float(threshold),
+        'tp': tp,
+        'tn': tn,
+        'fp': fp,
+        'fn': fn,
+        'precision': float(precision),
+        'recall': float(recall),
+        'f1': float(f1),
+        'weighted_cost': float(weighted_cost)
     }
 
 
 def find_optimal_threshold(
-    y_true: np.ndarray,
-    entropy_values: np.ndarray,
-    cost_fp: float = 1.0,
-    cost_fn: float = 1.0,
-    higher_entropy_is_valid: bool = False,
+    entropies: List[float],
+    validity_labels: List[bool],
+    fp_weight: float = 1.0,
+    fn_weight: float = 1.0,
     num_candidates: int = 100
-) -> Tuple[float, Dict[str, Any]]:
+) -> Dict[str, Any]:
     """
-    Find the optimal entropy threshold minimizing the weighted cost of errors.
+    Find the optimal entropy threshold that minimizes the weighted cost of errors.
 
-    The cost function is: Cost = (FP * cost_fp) + (FN * cost_fn).
+    This function evaluates a range of candidate thresholds and selects the one
+    that minimizes the weighted sum of false positives and false negatives.
 
     Args:
-        y_true: Array of binary validity labels.
-        entropy_values: Array of entropy values.
-        cost_fp: Weight for False Positives.
-        cost_fn: Weight for False Negatives.
-        higher_entropy_is_valid: Direction of the threshold logic.
-        num_candidates: Number of threshold candidates to search.
+        entropies: List of entropy values.
+        validity_labels: List of ground truth validity labels.
+        fp_weight: Weight for false positive cost.
+        fn_weight: Weight for false negative cost.
+        num_candidates: Number of candidate thresholds to evaluate.
 
     Returns:
-        Tuple of (optimal_threshold, best_metrics_dict).
+        Dictionary containing:
+            - optimal_threshold: The threshold that minimizes weighted cost.
+            - metrics: Full metrics dictionary at the optimal threshold.
+            - all_metrics: List of metrics for all evaluated thresholds.
     """
-    if len(y_true) == 0 or len(entropy_values) == 0:
-        raise ValueError("Input arrays cannot be empty.")
-    if len(y_true) != len(entropy_values):
-        raise ValueError("y_true and entropy_values must have the same length.")
+    if len(entropies) == 0 or len(validity_labels) == 0:
+        logger.warning("Empty input data for threshold optimization")
+        return {
+            'optimal_threshold': None,
+            'metrics': None,
+            'all_metrics': []
+        }
 
-    # Sort unique entropy values to use as candidate thresholds
-    # We also include the min and max to cover the full range
-    unique_values = np.sort(np.unique(entropy_values))
-    
-    if len(unique_values) < 2:
-        # If all values are the same, any threshold outside the range works,
-        # but we return the value itself as the threshold.
-        threshold = unique_values[0]
-        metrics = calculate_metrics_at_threshold(y_true, entropy_values, threshold, higher_entropy_is_valid)
-        return threshold, metrics
+    entropies_arr = np.array(entropies)
+    min_entropy = float(np.min(entropies_arr))
+    max_entropy = float(np.max(entropies_arr))
 
-    # Create candidates: midpoints between unique values + min and max
-    candidates = []
-    candidates.append(unique_values[0] - 1e-9) # Below min
-    for i in range(len(unique_values) - 1):
-        mid = (unique_values[i] + unique_values[i+1]) / 2.0
-        candidates.append(mid)
-    candidates.append(unique_values[-1] + 1e-9) # Above max
+    # Generate candidate thresholds
+    if min_entropy == max_entropy:
+        candidate_thresholds = [min_entropy]
+    else:
+        candidate_thresholds = np.linspace(min_entropy, max_entropy, num_candidates)
 
-    best_threshold = candidates[0]
-    min_cost = float('inf')
-    best_metrics = {}
+    all_metrics = []
+    best_threshold = None
+    best_cost = float('inf')
+    best_metrics = None
 
-    for threshold in candidates:
-        metrics = calculate_metrics_at_threshold(y_true, entropy_values, threshold, higher_entropy_is_valid)
-        
-        # Calculate weighted cost
-        cost = (metrics['fp'] * cost_fp) + (metrics['fn'] * cost_fn)
-        
-        if cost < min_cost:
-            min_cost = cost
-            best_threshold = threshold
+    for thresh in candidate_thresholds:
+        metrics = calculate_metrics_at_threshold(
+            entropies, validity_labels, thresh, fp_weight, fn_weight
+        )
+        all_metrics.append(metrics)
+
+        if metrics['weighted_cost'] < best_cost:
+            best_cost = metrics['weighted_cost']
+            best_threshold = metrics['threshold']
             best_metrics = metrics
 
-    best_metrics['optimal_threshold'] = float(best_threshold)
-    best_metrics['weighted_cost'] = float(min_cost)
-    best_metrics['cost_fp'] = cost_fp
-    best_metrics['cost_fn'] = cost_fn
-
-    return best_threshold, best_metrics
+    return {
+        'optimal_threshold': best_threshold,
+        'metrics': best_metrics,
+        'all_metrics': all_metrics
+    }
 
 
 def analyze_thresholds(
-    data_path: str,
-    output_path: str,
-    entropy_field: str = "entropy_mean",
-    validity_field: str = "validity",
-    cost_fp: float = 1.0,
-    cost_fn: float = 1.0,
-    higher_entropy_is_valid: bool = False
+    entropies: List[float],
+    validity_labels: List[bool],
+    output_path: Optional[str] = None,
+    fp_weight: float = 1.0,
+    fn_weight: float = 1.0
 ) -> Dict[str, Any]:
     """
-    Main analysis function to load data, find optimal threshold, and write results.
+    Perform comprehensive threshold analysis and optionally write results to disk.
 
     Args:
-        data_path: Path to the input JSONL file containing entropy profiles and labels.
-        output_path: Path to write the JSON results.
-        entropy_field: Name of the field containing entropy values.
-        validity_field: Name of the field containing validity labels.
-        cost_fp: Cost weight for False Positives.
-        cost_fn: Cost weight for False Negatives.
-        higher_entropy_is_valid: Logic direction for thresholding.
+        entropies: List of entropy values.
+        validity_labels: List of ground truth validity labels.
+        output_path: Optional path to write JSON results.
+        fp_weight: Weight for false positive cost.
+        fn_weight: Weight for false negative cost.
 
     Returns:
-        Dictionary containing the analysis results.
+        Dictionary containing analysis results.
     """
-    logger.info(f"Loading data from {data_path}")
-    
-    # Load and validate data
-    # The data is expected to be a list of records, each with 'entropy' (list) and 'validity'
-    # or flattened entropy values. Based on T022/T023, we expect merged EntropyProfile records.
-    # We assume the data has been flattened or we aggregate per-sequence.
-    # For threshold optimization, we typically look at token-level entropy vs token-level validity.
-    
-    records = load_and_validate_jsonl(data_path)
-    
-    if not records:
-        raise ValueError(f"No records found in {data_path}")
+    logger.info(f"Analyzing thresholds for {len(entropies)} data points")
 
-    # Extract entropy and validity. 
-    # If the data is per-sequence with a list of entropies, we flatten it.
-    # Assuming the merged data has a structure like:
-    # { "sequence_id": ..., "validity": 0/1, "entropy_profile": { "layers": [ ... ] } }
-    # Or if T022 flattened it: { "token_entropy": [ ... ], "token_validity": [ ... ] }
-    
-    # Let's assume a standard structure where we have a list of entropy values and a corresponding validity.
-    # If the input is per-sequence, we might need to aggregate. 
-    # For this implementation, we assume the input data has been pre-processed to have 
-    # a list of (entropy, validity) pairs or we flatten the sequence-level data.
-    
-    all_entropies = []
-    all_validities = []
-
-    for record in records:
-        # Try to find entropy values
-        if "entropy_values" in record:
-            ent_vals = record["entropy_values"]
-        elif "entropy" in record:
-            # Could be a single value or a list
-            val = record["entropy"]
-            if isinstance(val, list):
-                ent_vals = val
-            else:
-                ent_vals = [val]
-        else:
-            # Fallback to checking nested structures if standard keys missing
-            # Assuming T022 output structure
-            if "entropy_profile" in record and "layer_entropies" in record["entropy_profile"]:
-                ent_vals = record["entropy_profile"]["layer_entropies"]
-            else:
-                logger.warning(f"Record missing entropy field: {record.get('sequence_id', 'unknown')}")
-                continue
-
-        # Get validity (assuming sequence-level validity applies to all tokens, or token-level)
-        # If token-level validity exists:
-        if "token_validity" in record:
-            valid_vals = record["token_validity"]
-        else:
-            # Assume sequence validity applies to all tokens in the sequence
-            seq_validity = record.get("validity", 0)
-            valid_vals = [seq_validity] * len(ent_vals)
-
-        if len(ent_vals) != len(valid_vals):
-            logger.warning(f"Mismatch in entropy/validity length for {record.get('sequence_id', 'unknown')}. Skipping.")
-            continue
-
-        all_entropies.extend(ent_vals)
-        all_validities.extend(valid_vals)
-
-    if not all_entropies:
-        raise ValueError("No valid entropy/validity pairs found in the dataset.")
-
-    y_true = np.array(all_validities)
-    entropy_vals = np.array(all_entropies)
-
-    logger.info(f"Analyzing {len(y_true)} tokens for threshold optimization.")
-
-    optimal_threshold, metrics = find_optimal_threshold(
-        y_true, entropy_vals, 
-        cost_fp=cost_fp, cost_fn=cost_fn,
-        higher_entropy_is_valid=higher_entropy_is_valid
+    result = find_optimal_threshold(
+        entropies, validity_labels, fp_weight, fn_weight
     )
 
-    result = {
-        "optimal_threshold": float(optimal_threshold),
-        "metrics_at_optimal": metrics,
-        "dataset_size": len(y_true),
-        "valid_count": int(np.sum(y_true)),
-        "invalid_count": int(len(y_true) - np.sum(y_true)),
-        "parameters": {
-            "cost_fp": cost_fp,
-            "cost_fn": cost_fn,
-            "higher_entropy_is_valid": higher_entropy_is_valid
+    if output_path:
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Remove all_metrics from output file if too large, keep summary
+        export_result = {
+            'optimal_threshold': result['optimal_threshold'],
+            'metrics': result['metrics'],
+            'summary': {
+                'num_data_points': len(entropies),
+                'num_valid': sum(validity_labels),
+                'num_invalid': len(validity_labels) - sum(validity_labels),
+                'entropy_range': {
+                    'min': float(np.min(entropies)),
+                    'max': float(np.max(entropies))
+                },
+                'weights': {
+                    'fp_weight': fp_weight,
+                    'fn_weight': fn_weight
+                }
+            }
         }
-    }
 
-    logger.info(f"Optimal threshold found: {optimal_threshold:.4f}")
-    logger.info(f"Metrics: {metrics}")
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(export_result, f, indent=2)
 
-    # Write to disk
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Results written to {output_path}")
+        logger.info(f"Threshold analysis results written to {output_path}")
+
     return result
 
 
-def main():
-    """CLI entry point for threshold optimization."""
-    import argparse
+def main() -> None:
+    """
+    Main entry point for threshold optimization script.
+    Expects data in data/entropy_profiles_merged.jsonl format.
+    """
+    # Default paths relative to project root
+    base_path = Path(__file__).parent.parent.parent
+    data_path = base_path / "data" / "entropy_profiles_merged.jsonl"
+    output_path = base_path / "results" / "threshold_optimization.json"
 
-    parser = argparse.ArgumentParser(description="Find optimal entropy threshold for validity prediction.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input JSONL file with entropy profiles and labels.")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON results file.")
-    parser.add_argument("--cost-fp", type=float, default=1.0, help="Cost weight for False Positives.")
-    parser.add_argument("--cost-fn", type=float, default=1.0, help="Cost weight for False Negatives.")
-    parser.add_argument("--higher-entropy-valid", action="store_true", help="If set, higher entropy implies validity.")
-    
-    args = parser.parse_args()
+    # Allow override via command line arguments
+    if len(sys.argv) > 1:
+        data_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        output_path = Path(sys.argv[2])
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    if not data_path.exists():
+        logger.error(f"Data file not found: {data_path}")
+        sys.exit(1)
+
+    # Load data
+    entropies = []
+    validity_labels = []
+
+    logger.info(f"Loading data from {data_path}")
+    with open(data_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                # Extract entropy values (flatten layer-wise entropies)
+                if 'entropy_values' in record and isinstance(record['entropy_values'], list):
+                    entropies.extend(record['entropy_values'])
+                    # Extend validity labels to match (assuming one validity per token)
+                    validity = record.get('validity', False)
+                    validity_labels.extend([validity] * len(record['entropy_values']))
+                elif 'entropy' in record:
+                    # Handle single entropy value per record
+                    entropies.append(float(record['entropy']))
+                    validity_labels.append(record.get('validity', False))
+            except json.JSONDecodeError as e:
+                logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
+                continue
+
+    if len(entropies) == 0:
+        logger.error("No valid data points found in input file")
+        sys.exit(1)
+
+    logger.info(f"Loaded {len(entropies)} entropy values")
+
+    # Run analysis
+    result = analyze_thresholds(
+        entropies,
+        validity_labels,
+        output_path=str(output_path),
+        fp_weight=1.0,
+        fn_weight=1.0
     )
 
-    try:
-        analyze_thresholds(
-            data_path=args.input,
-            output_path=args.output,
-            cost_fp=args.cost_fp,
-            cost_fn=args.cost_fn,
-            higher_entropy_is_valid=args.higher_entropy_valid
-        )
-        print(f"Threshold optimization complete. Results saved to {args.output}")
-    except Exception as e:
-        logger.error(f"Threshold optimization failed: {e}", exc_info=True)
-        sys.exit(1)
+    if result['optimal_threshold'] is not None:
+        logger.info(f"Optimal threshold: {result['optimal_threshold']:.4f}")
+        logger.info(f"Weighted cost at optimal: {result['metrics']['weighted_cost']:.2f}")
+    else:
+        logger.warning("Could not determine optimal threshold")
 
 
 if __name__ == "__main__":

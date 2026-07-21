@@ -1,0 +1,39 @@
+# Black configuration for llmXive Follow-up
+# Explicit configuration file for the formatter.
+
+[tool.black]
+# Line length (standard Google/PEP8 style)
+line-length = 88
+
+# Target Python version
+target-version = ['py39']
+
+# Files to include (regex)
+include = '\.pyi?$'
+
+# Files to exclude (regex)
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+)/
+'''
+
+# Optional: Force skip magic trailing comma (default is false, keeping it)
+skip-magic-trailing-comma = false
+
+# Optional: Line length for docstrings (default is line-length)
+# preview = true # Enable preview style if desired
+
+# Input formatting
+# We assume standard double quotes and spaces as per project conventions.
+quote-style = "double"
+indent-style = "space"

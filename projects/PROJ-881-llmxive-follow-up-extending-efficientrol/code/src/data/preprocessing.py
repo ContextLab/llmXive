@@ -1,336 +1,325 @@
 """
-Preprocessing module for entropy-guided validity prediction pipeline.
+Data preprocessing module for batched streaming and memory management.
 
-Handles data loading, batch processing, entropy profile merging, and validation.
+Implements streaming mechanisms that process sequences in fixed batches,
+with automatic memory backoff when MemoryError is encountered.
 """
+
 import json
 import logging
-from typing import List, Iterator, Any, Optional, Generator, Dict, Union
+import sys
+import os
 from pathlib import Path
-import numpy as np
-from src.utils.validators import EntropyProfile, validate_json_schema, load_and_validate_jsonl
-import yaml
+from typing import List, Iterator, Any, Optional, Generator, Dict, Union
 
-# Configure logging
-logger = logging.getLogger(__name__)
-
+# Custom exception for batch size issues
 class BatchSizeError(Exception):
-    """Custom exception for invalid batch sizes."""
+    """Raised when batch size validation fails."""
     pass
 
-def validate_batch_size(batch_size: int) -> int:
+logger = logging.getLogger(__name__)
+
+def validate_batch_size(batch_size: int, min_size: int = 1, max_size: int = 10000) -> None:
     """
-    Validate that batch size is within acceptable limits.
+    Validate that batch size is within acceptable bounds.
     
     Args:
-        batch_size: The requested batch size.
-        
-    Returns:
-        The validated batch size.
+        batch_size: The proposed batch size
+        min_size: Minimum allowed batch size
+        max_size: Maximum allowed batch size
         
     Raises:
-        BatchSizeError: If batch size is <= 0 or > 50.
+        BatchSizeError: If batch size is out of bounds
     """
-    if batch_size <= 0:
-        raise BatchSizeError(f"Batch size must be positive, got {batch_size}")
-    if batch_size > 50:
-        raise BatchSizeError(
-            f"Batch size {batch_size} exceeds maximum allowed size of 50 "
-            "(FR-007: 7GB RAM limit)"
-        )
-    return batch_size
+    if batch_size < min_size:
+        raise BatchSizeError(f"Batch size {batch_size} is below minimum {min_size}")
+    if batch_size > max_size:
+        raise BatchSizeError(f"Batch size {batch_size} exceeds maximum {max_size}")
 
 def stream_tokens_in_batches(
-    token_stream: Iterator[List[Dict[str, Any]]], 
-    batch_size: int = 50
-) -> Iterator[List[Dict[str, Any]]]:
+    tokens: Union[List[str], Generator[str, None, None]], 
+    batch_size: int
+) -> Iterator[List[str]]:
     """
-    Stream tokens from an iterator in fixed-size batches.
+    Stream tokens in fixed-size batches.
     
     Args:
-        token_stream: Iterator yielding token dictionaries.
-        batch_size: Number of tokens per batch (default 50).
+        tokens: List or generator of tokens to batch
+        batch_size: Number of tokens per batch
         
     Yields:
-        Lists of token dictionaries, each of size <= batch_size.
+        Lists of tokens, each of size at most batch_size
     """
     validate_batch_size(batch_size)
-    batch = []
-    for token in token_stream:
-        batch.append(token)
-        if len(batch) >= batch_size:
-            yield batch
-            batch = []
-    if batch:
-        yield batch
-
-def process_batch_with_entropy(
-    batch: List[Dict[str, Any]], 
-    model: Any, 
-    layer_indices: List[int]
-) -> List[Dict[str, Any]]:
-    """
-    Process a batch of tokens to compute entropy profiles.
     
-    Args:
-        batch: List of token dictionaries.
-        model: The model used for inference.
-        layer_indices: List of layer indices to extract probabilities from.
-        
-    Returns:
-        List of token dictionaries with added entropy profiles.
-    """
-    results = []
-    # Placeholder for actual entropy computation logic
-    # This would integrate with the model's forward pass hooks
-    for token_data in batch:
-        token_data['entropy_profile'] = {
-            'layers': {
-                str(idx): np.nan  # Placeholder - actual implementation computes real entropy
-                for idx in layer_indices
-            }
-        }
-        results.append(token_data)
-    return results
+    if isinstance(tokens, list):
+        for i in range(0, len(tokens), batch_size):
+            yield tokens[i:i + batch_size]
+    else:
+        # Handle generator case
+        batch = []
+        for token in tokens:
+            batch.append(token)
+            if len(batch) >= batch_size:
+                yield batch
+                batch = []
+        if batch:
+            yield batch
 
-def stream_process_sequence(
-    token_stream: Iterator[List[Dict[str, Any]]], 
-    model: Any, 
-    layer_indices: List[int], 
-    batch_size: int = 50
+def stream_batch(
+    data_source: Union[str, Path, List[Dict[str, Any]]],
+    batch_size: int = 100,
+    output_path: Optional[Union[str, Path]] = None,
+    min_batch_size: int = 10,
+    reduction_factor: float = 0.5
 ) -> Generator[Dict[str, Any], None, None]:
     """
-    Stream and process a sequence of tokens with entropy calculation.
+    Stream data in batches with automatic memory backoff.
+    
+    This function processes sequences in fixed batches of a manageable token count.
+    If a MemoryError is caught, it reduces the batch size by a significant margin
+    and retries.
     
     Args:
-        token_stream: Iterator yielding token batches.
-        model: The model used for inference.
-        layer_indices: List of layer indices to extract probabilities from.
-        batch_size: Number of tokens per batch (default 50).
+        data_source: Path to JSONL file or list of data records
+        batch_size: Initial batch size for processing
+        output_path: Optional path to write batched output
+        min_batch_size: Minimum batch size before failing
+        reduction_factor: Factor to reduce batch size on MemoryError (0.5 = halve)
         
     Yields:
-        Processed token dictionaries with entropy profiles.
+        Batches of data records
+        
+    Raises:
+        MemoryError: If batch size cannot be reduced further
+        FileNotFoundError: If data source file doesn't exist
+        BatchSizeError: If initial batch size is invalid
     """
-    for batch in stream_tokens_in_batches(token_stream, batch_size):
-        processed_batch = process_batch_with_entropy(batch, model, layer_indices)
-        for token_data in processed_batch:
-            yield token_data
+    validate_batch_size(batch_size)
+    
+    current_batch_size = batch_size
+    data_iter = None
+    
+    # Prepare data iterator
+    if isinstance(data_source, (str, Path)):
+        data_path = Path(data_source)
+        if not data_path.exists():
+            raise FileNotFoundError(f"Data source not found: {data_path}")
+        
+        def file_generator():
+            with open(data_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        yield json.loads(line)
+        
+        data_iter = file_generator()
+    elif isinstance(data_source, list):
+        data_iter = iter(data_source)
+    else:
+        raise TypeError(f"Unsupported data source type: {type(data_source)}")
+    
+    # Prepare output file if specified
+    output_file = None
+    if output_path:
+        output_file = open(output_path, 'w', encoding='utf-8')
+    
+    try:
+        batch = []
+        for record in data_iter:
+            batch.append(record)
+            
+            if len(batch) >= current_batch_size:
+                yield batch
+                
+                if output_file:
+                    for rec in batch:
+                        output_file.write(json.dumps(rec) + '\n')
+                
+                batch = []
+        
+        # Yield remaining items
+        if batch:
+            yield batch
+            
+            if output_file:
+                for rec in batch:
+                    output_file.write(json.dumps(rec) + '\n')
+    
+    except MemoryError as e:
+        logger.warning(f"MemoryError encountered with batch size {current_batch_size}: {e}")
+        
+        if output_file:
+            output_file.close()
+        
+        # Reduce batch size and retry
+        new_batch_size = max(min_batch_size, int(current_batch_size * reduction_factor))
+        
+        if new_batch_size >= current_batch_size:
+            raise MemoryError(
+                f"Cannot reduce batch size further. Current: {current_batch_size}, "
+                f"Minimum: {min_batch_size}"
+            ) from e
+        
+        logger.info(f"Retrying with reduced batch size: {new_batch_size}")
+        
+        # Recreate iterator and retry with smaller batch
+        if isinstance(data_source, (str, Path)):
+            data_iter = file_generator()
+        else:
+            data_iter = iter(data_source)
+        
+        # Recursively call with smaller batch size
+        yield from stream_batch(
+            data_source=data_iter,
+            batch_size=new_batch_size,
+            output_path=output_path,
+            min_batch_size=min_batch_size,
+            reduction_factor=reduction_factor
+        )
+    
+    finally:
+        if output_file:
+            output_file.close()
 
-def load_tokens_from_file(file_path: Union[str, Path]) -> Generator[Dict[str, Any], None, None]:
+def load_tokens_from_file(file_path: Union[str, Path]) -> Iterator[str]:
     """
-    Load tokens from a JSONL file.
+    Load tokens from a JSONL file where each line contains a token.
     
     Args:
-        file_path: Path to the JSONL file.
+        file_path: Path to the JSONL file
         
     Yields:
-        Token dictionaries from the file.
+        Individual tokens as strings
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Token file not found: {file_path}")
+        raise FileNotFoundError(f"Token file not found: {path}")
     
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if line:
                 try:
-                    yield json.loads(line)
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Failed to parse JSON line: {e}")
-                    continue
+                    token = json.loads(line)
+                    if isinstance(token, str):
+                        yield token
+                    elif isinstance(token, dict) and 'token' in token:
+                        yield token['token']
+                except json.JSONDecodeError:
+                    # Assume raw token if not JSON
+                    yield line
 
 def merge_entropy_profiles(
-    labeled_dataset_path: Union[str, Path], 
-    entropy_profiles_path: Union[str, Path], 
-    output_path: Union[str, Path],
-    schema_path: Union[str, Path]
-) -> Path:
+    entropy_profiles_path: Union[str, Path],
+    labeled_dataset_path: Union[str, Path],
+    output_path: Union[str, Path]
+) -> None:
     """
-    Merge entropy profiles with the labeled dataset.
+    Merge entropy profiles with labeled dataset.
     
     Args:
-        labeled_dataset_path: Path to the labeled dataset JSONL file.
-        entropy_profiles_path: Path to the entropy profiles JSONL file.
-        output_path: Path for the merged output JSONL file.
-        schema_path: Path to the entropy_profile.schema.yaml file.
-        
-    Returns:
-        Path to the created merged output file.
-        
-    Raises:
-        FileNotFoundError: If input files or schema are missing.
-        ValueError: If schema validation fails.
+        entropy_profiles_path: Path to entropy profiles JSONL file
+        labeled_dataset_path: Path to labeled dataset JSONL file
+        output_path: Path for merged output JSONL file
     """
-    labeled_path = Path(labeled_dataset_path)
-    entropy_path = Path(entropy_profiles_path)
-    output_file = Path(output_path)
-    schema_file = Path(schema_path)
+    entropy_profiles_path = Path(entropy_profiles_path)
+    labeled_dataset_path = Path(labeled_dataset_path)
+    output_path = Path(output_path)
     
-    if not labeled_path.exists():
-        raise FileNotFoundError(f"Labeled dataset not found: {labeled_dataset_path}")
-    if not entropy_path.exists():
+    if not entropy_profiles_path.exists():
         raise FileNotFoundError(f"Entropy profiles not found: {entropy_profiles_path}")
-    if not schema_file.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-        
-    # Load and validate schema
-    with open(schema_file, 'r') as f:
-        schema = yaml.safe_load(f)
+    if not labeled_dataset_path.exists():
+        raise FileNotFoundError(f"Labeled dataset not found: {labeled_dataset_path}")
     
-    # Create output directory if needed
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Load entropy profiles into dict by sequence_id
+    entropy_dict = {}
+    with open(entropy_profiles_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                record = json.loads(line)
+                seq_id = record.get('sequence_id') or record.get('prompt_id')
+                if seq_id:
+                    entropy_dict[seq_id] = record
     
-    # Build index of entropy profiles by sequence_id
-    entropy_index = {}
-    for record in load_and_validate_jsonl(str(entropy_path)):
-        seq_id = record.get('sequence_id')
-        if seq_id:
-            entropy_index[seq_id] = record
+    # Merge with labeled dataset
+    with open(output_path, 'w', encoding='utf-8') as out_f:
+        with open(labeled_dataset_path, 'r', encoding='utf-8') as in_f:
+            for line in in_f:
+                line = line.strip()
+                if line:
+                    record = json.loads(line)
+                    seq_id = record.get('sequence_id') or record.get('prompt_id')
+                    
+                    if seq_id and seq_id in entropy_dict:
+                        # Merge entropy data
+                        merged_record = {**record, **entropy_dict[seq_id]}
+                        # Remove duplicate keys that might conflict
+                        if 'sequence_id' in merged_record and 'prompt_id' in merged_record:
+                            if merged_record['sequence_id'] != merged_record['prompt_id']:
+                                logger.warning(
+                                    f"Sequence ID mismatch for {seq_id}: "
+                                    f"sequence_id={merged_record['sequence_id']}, "
+                                    f"prompt_id={merged_record['prompt_id']}"
+                                )
+                    
+                    else:
+                        merged_record = record
+                    
+                    out_f.write(json.dumps(merged_record) + '\n')
     
-    merged_count = 0
-    with open(output_file, 'w', encoding='utf-8') as out_f:
-        for labeled_record in load_and_validate_jsonl(str(labeled_path)):
-            seq_id = labeled_record.get('sequence_id')
-            if seq_id and seq_id in entropy_index:
-                entropy_record = entropy_index[seq_id]
-                # Merge the records
-                merged_record = {**labeled_record, **entropy_record}
-                # Validate against schema
-                validate_json_schema(merged_record, schema)
-                out_f.write(json.dumps(merged_record) + '\n')
-                merged_count += 1
-            else:
-                logger.warning(f"Missing entropy profile for sequence_id: {seq_id}")
-    
-    logger.info(f"Merged {merged_count} records to {output_file}")
-    return output_file
+    logger.info(f"Merged dataset written to {output_path}")
 
-def validate_entropy_profile(
-    record: Dict[str, Any], 
-    schema_path: Optional[Union[str, Path]] = None
-) -> bool:
+def validate_entropy_profile(record: Dict[str, Any]) -> bool:
     """
-    Validate an EntropyProfile record against the schema.
-    
-    This function ensures that:
-    1. The record matches the EntropyProfile schema structure.
-    2. All layers and tokens in the record have valid (non-None) entropy values.
-    3. No entropy values are missing.
+    Validate an entropy profile record against schema requirements.
     
     Args:
-        record: The dictionary to validate as an EntropyProfile.
-        schema_path: Optional path to the entropy_profile.schema.yaml file.
-                    If not provided, uses the default path relative to the project.
-                    
+        record: The entropy profile record to validate
+        
     Returns:
-        True if the record is valid.
+        True if valid
         
     Raises:
-        ValueError: If any layer/token in the record is None or missing entropy values,
-                   or if the record does not conform to the schema.
-        FileNotFoundError: If the schema file is not found.
+        ValueError: If record is invalid
     """
-    if schema_path is None:
-        schema_path = Path(__file__).parent.parent.parent / "contracts" / "entropy_profile.schema.yaml"
+    required_fields = ['prompt_id', 'entropy_values']
     
-    schema_file = Path(schema_path)
-    if not schema_file.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    for field in required_fields:
+        if field not in record:
+            raise ValueError(f"Missing required field: {field}")
     
-    # Load schema
-    with open(schema_file, 'r') as f:
-        schema = yaml.safe_load(f)
+    if not isinstance(record['prompt_id'], str):
+        raise ValueError("prompt_id must be a string")
     
-    # Validate structure against schema
-    try:
-        validate_json_schema(record, schema)
-    except ValueError as e:
-        raise ValueError(f"Record does not match EntropyProfile schema: {e}")
+    if not isinstance(record['entropy_values'], list):
+        raise ValueError("entropy_values must be a list")
     
-    # Check for None or missing entropy values in layers
-    if 'layers' not in record:
-        raise ValueError("EntropyProfile record is missing 'layers' field")
-    
-    layers = record['layers']
-    if not isinstance(layers, dict):
-        raise ValueError("'layers' field must be a dictionary")
-    
-    if not layers:
-        raise ValueError("EntropyProfile record has empty 'layers' dictionary")
-    
-    for layer_id, layer_data in layers.items():
-        if layer_data is None:
-            raise ValueError(f"Layer '{layer_id}' in EntropyProfile record is None")
-        
-        if not isinstance(layer_data, dict):
-            raise ValueError(f"Layer '{layer_id}' data must be a dictionary")
-        
-        if 'entropy' not in layer_data:
-            raise ValueError(f"Layer '{layer_id}' in EntropyProfile record is missing 'entropy' values")
-        
-        entropy_values = layer_data['entropy']
-        
-        if entropy_values is None:
-            raise ValueError(f"Layer '{layer_id}' in EntropyProfile record has None entropy values")
-        
-        if not isinstance(entropy_values, list):
-            raise ValueError(f"Layer '{layer_id}' entropy must be a list")
-        
-        if not entropy_values:
-            raise ValueError(f"Layer '{layer_id}' in EntropyProfile record has empty entropy list")
-        
-        for idx, val in enumerate(entropy_values):
-            if val is None:
-                raise ValueError(
-                    f"Layer '{layer_id}', token {idx} in EntropyProfile record "
-                    f"has missing (None) entropy value"
-                )
-            if not isinstance(val, (int, float)):
-                raise ValueError(
-                    f"Layer '{layer_id}', token {idx} in EntropyProfile record "
-                    f"has non-numeric entropy value: {type(val)}"
-                )
+    for i, val in enumerate(record['entropy_values']):
+        if val is None:
+            raise ValueError(f"entropy_values[{i}] is None")
+        if not isinstance(val, (int, float)):
+            raise ValueError(f"entropy_values[{i}] is not numeric: {type(val)}")
     
     return True
 
 def main():
-    """Main entry point for preprocessing module CLI."""
-    import argparse
+    """Main entry point for preprocessing module."""
+    logging.basicConfig(level=logging.INFO)
     
-    parser = argparse.ArgumentParser(description="Preprocessing utilities for entropy-guided validity prediction")
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    # Example usage demonstration
+    logger.info("Preprocessing module loaded successfully")
     
-    # Merge command
-    merge_parser = subparsers.add_parser('merge', help='Merge entropy profiles with labeled dataset')
-    merge_parser.add_argument('--labeled', required=True, help='Path to labeled dataset JSONL')
-    merge_parser.add_argument('--entropy', required=True, help='Path to entropy profiles JSONL')
-    merge_parser.add_argument('--output', required=True, help='Path for merged output JSONL')
-    merge_parser.add_argument('--schema', required=True, help='Path to entropy_profile.schema.yaml')
-    
-    # Validate command
-    validate_parser = subparsers.add_parser('validate', help='Validate entropy profile records')
-    validate_parser.add_argument('--input', required=True, help='Path to JSONL file with entropy profiles')
-    validate_parser.add_argument('--schema', help='Path to entropy_profile.schema.yaml (optional)')
-    
-    args = parser.parse_args()
-    
-    if args.command == 'merge':
-        merge_entropy_profiles(args.labeled, args.entropy, args.output, args.schema)
-    elif args.command == 'validate':
-        schema_path = args.schema if args.schema else None
-        count = 0
-        error_count = 0
-        for record in load_and_validate_jsonl(args.input):
-            try:
-                validate_entropy_profile(record, schema_path)
-                count += 1
-            except ValueError as e:
-                error_count += 1
-                logger.error(f"Validation failed: {e}")
-        logger.info(f"Validated {count} records, {error_count} failures")
-    else:
-        parser.print_help()
+    # Test with sample data if arguments provided
+    if len(sys.argv) > 1:
+        input_file = sys.argv[1]
+        output_file = sys.argv[2] if len(sys.argv) > 2 else None
+        
+        logger.info(f"Processing {input_file} with streaming batches")
+        
+        for i, batch in enumerate(stream_batch(input_file, batch_size=50, output_path=output_file)):
+            logger.info(f"Processed batch {i+1}: {len(batch)} records")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

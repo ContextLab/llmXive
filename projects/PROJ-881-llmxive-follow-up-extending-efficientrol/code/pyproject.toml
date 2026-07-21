@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,58 +17,63 @@ dependencies = [
     "h5py",
     "pytest",
     "statsmodels",
+    "psutil",
+    "huggingface_hub"
+]
+
+[project.optional-dependencies]
+dev = [
     "ruff",
-    "black",
+    "black"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
 target-version = "py39"
-
-# Assume Python 3.9
-[tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assertions in tests
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning",
-]
+[tool.ruff.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+combine-as-imports = true

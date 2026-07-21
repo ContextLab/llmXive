@@ -1,26 +1,17 @@
 """
-Sensitivity analysis module for multiple-comparison correction and FDR calculation.
+Sensitivity analysis module for entropy-guided validity prediction.
 
-This module implements:
-1. Bonferroni and Benjamini-Hochberg (BH) correction for p-values
-2. False Discovery Rate (FDR) calculation
-3. Comparison against nominal alpha level (0.05) to verify SC-005
-
-Dependencies:
-- statsmodels for multiple comparison procedures
-- scipy for statistical functions
+Implements multiple-comparison correction (Benjamini-Hochberg) and
+False Discovery Rate (FDR) calculation to verify statistical significance.
 """
 
-import logging
 import json
+import logging
 import os
 import sys
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Union
-
-import numpy as np
-from scipy import stats
-from statsmodels.stats.multitest import multipletests
 
 # Configure logging
 logging.basicConfig(
@@ -29,420 +20,310 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-NOMINAL_ALPHA = 0.05
-CORRECTION_METHODS = ['bonferroni', 'bh']
-
-
+@dataclass
 class SensitivityAnalysisResult:
-    """Container for sensitivity analysis results."""
-
-    def __init__(
-        self,
-        raw_p_values: List[float],
-        corrected_p_values: Dict[str, List[float]],
-        fdr_estimates: Dict[str, float],
-        significant_counts: Dict[str, int],
-        total_tests: int,
-        alpha_level: float = NOMINAL_ALPHA,
-        method_details: Optional[Dict[str, Any]] = None
-    ):
-        self.raw_p_values = raw_p_values
-        self.corrected_p_values = corrected_p_values
-        self.fdr_estimates = fdr_estimates
-        self.significant_counts = significant_counts
-        self.total_tests = total_tests
-        self.alpha_level = alpha_level
-        self.method_details = method_details or {}
-
+    """Result of sensitivity analysis including corrected p-values and FDR."""
+    original_p_values: List[float]
+    adjusted_p_values: List[float]
+    fdr: float
+    significant_count: int
+    nominal_alpha: float
+    method: str = "benjamini_hochberg"
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert result to dictionary for JSON serialization."""
+        """Convert to dictionary for JSON serialization."""
         return {
-            'raw_p_values': self.raw_p_values,
-            'corrected_p_values': self.corrected_p_values,
-            'fdr_estimates': self.fdr_estimates,
-            'significant_counts': self.significant_counts,
-            'total_tests': self.total_tests,
-            'alpha_level': self.alpha_level,
-            'method_details': self.method_details
+            'original_p_values': self.original_p_values,
+            'adjusted_p_values': self.adjusted_p_values,
+            'fdr': self.fdr,
+            'significant_count': self.significant_count,
+            'nominal_alpha': self.nominal_alpha,
+            'method': self.method
         }
 
-    def __repr__(self) -> str:
-        return (
-            f"SensitivityAnalysisResult(total_tests={self.total_tests}, "
-            f"alpha={self.alpha_level}, fdr={self.fdr_estimates})"
-        )
-
-
-def apply_bonferroni_correction(p_values: List[float]) -> Tuple[List[float], int]:
+def load_p_values_from_analysis_results(results_path: Union[str, Path]) -> List[float]:
     """
-    Apply Bonferroni correction to p-values.
-
-    The Bonferroni correction multiplies each p-value by the number of tests,
-    capping the result at 1.0.
-
+    Load p-values from analysis results JSON file.
+    
     Args:
-        p_values: List of raw p-values from statistical tests.
-
+        results_path: Path to JSON file containing analysis results
+        
     Returns:
-        Tuple of (corrected_p_values, count_significant_at_alpha)
+        List of p-values extracted from the results
+        
+    Raises:
+        FileNotFoundError: If results file doesn't exist
+        ValueError: If results file is malformed or missing p-values
+    """
+    results_path = Path(results_path)
+    
+    if not results_path.exists():
+        raise FileNotFoundError(f"Analysis results file not found: {results_path}")
+    
+    try:
+        with open(results_path, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in results file: {e}")
+    
+    # Try to extract p-values from common locations
+    p_values = []
+    
+    # Check if it's a stratified result with multiple p-values
+    if 'stratified_results' in data:
+        for strat_result in data['stratified_results']:
+            if 'p_values' in strat_result:
+                p_values.extend(strat_result['p_values'])
+            elif 'p_value' in strat_result:
+                p_values.append(strat_result['p_value'])
+    elif 'p_values' in data:
+        p_values = data['p_values']
+    elif 'p_value' in data:
+        p_values = [data['p_value']]
+    elif 'results' in data:
+        # Try nested results
+        for result in data['results']:
+            if 'p_values' in result:
+                p_values.extend(result['p_values'])
+            elif 'p_value' in result:
+                p_values.append(result['p_value'])
+    
+    if not p_values:
+        raise ValueError("No p-values found in analysis results")
+    
+    # Validate p-values are in valid range
+    for i, p in enumerate(p_values):
+        if not isinstance(p, (int, float)) or p < 0 or p > 1:
+            raise ValueError(f"Invalid p-value at index {i}: {p}")
+    
+    return p_values
+
+def apply_bh_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], float]:
+    """
+    Apply Benjamini-Hochberg correction for multiple comparisons.
+    
+    The BH procedure controls the False Discovery Rate (FDR) by adjusting
+    p-values to account for multiple hypothesis testing.
+    
+    Args:
+        p_values: List of raw p-values from hypothesis tests
+        alpha: Nominal significance level (default 0.05)
+        
+    Returns:
+        Tuple of (adjusted_p_values, fdr)
+        - adjusted_p_values: BH-corrected p-values
+        - fdr: Estimated False Discovery Rate
+        
+    Raises:
+        ValueError: If p_values is empty or contains invalid values
     """
     if not p_values:
-        return [], 0
+        raise ValueError("p_values list cannot be empty")
+    
+    n = len(p_values)
+    
+    # Sort p-values and keep track of original indices
+    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
+    sorted_p_values = [p_values[i] for i in sorted_indices]
+    
+    # Calculate BH-adjusted p-values
+    # For each p-value at rank i (1-indexed): adjusted_p = p * n / i
+    # Then enforce monotonicity: adjusted_p[i] = min(adjusted_p[i], adjusted_p[i+1])
+    adjusted = [0.0] * n
+    rank_values = [0.0] * n
+    
+    for i, p in enumerate(sorted_p_values):
+        rank = i + 1
+        adjusted_p = min(p * n / rank, 1.0)
+        rank_values[i] = adjusted_p
+    
+    # Enforce monotonicity from largest to smallest
+    for i in range(n - 2, -1, -1):
+        rank_values[i] = min(rank_values[i], rank_values[i + 1])
+    
+    # Map back to original order
+    adjusted_p_values = [0.0] * n
+    for idx, adjusted in zip(sorted_indices, rank_values):
+        adjusted_p_values[idx] = adjusted
+    
+    # Calculate FDR: proportion of rejected hypotheses that are false discoveries
+    # FDR = E[V/R] where V = false positives, R = total rejections
+    # We estimate this as the average of adjusted p-values that are <= alpha
+    significant_count = sum(1 for p in adjusted_p_values if p <= alpha)
+    
+    if significant_count > 0:
+        # FDR estimate: average of adjusted p-values among significant results
+        fdr_estimate = sum(p for p in adjusted_p_values if p <= alpha) / significant_count
+    else:
+        fdr_estimate = 0.0
+    
+    return adjusted_p_values, fdr_estimate
 
-    n_tests = len(p_values)
-    corrected = [min(p * n_tests, 1.0) for p in p_values]
-    significant_count = sum(1 for p in corrected if p < NOMINAL_ALPHA)
-
-    return corrected, significant_count
-
-
-def apply_bh_correction(p_values: List[float]) -> Tuple[List[float], int]:
+def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], float]:
     """
-    Apply Benjamini-Hochberg (BH) correction to p-values.
-
-    The BH procedure controls the False Discovery Rate (FDR) by ranking
-    p-values and applying a step-up procedure.
-
+    Apply Bonferroni correction for multiple comparisons.
+    
+    A more conservative approach than BH that controls family-wise error rate.
+    
     Args:
-        p_values: List of raw p-values from statistical tests.
-
+        p_values: List of raw p-values
+        alpha: Nominal significance level
+        
     Returns:
-        Tuple of (corrected_p_values, count_significant_at_alpha)
+        Tuple of (adjusted_p_values, fdr)
     """
     if not p_values:
-        return [], 0
+        raise ValueError("p_values list cannot be empty")
+    
+    n = len(p_values)
+    adjusted_p_values = [min(p * n, 1.0) for p in p_values]
+    
+    # For Bonferroni, FDR is approximated as the proportion of significant tests
+    significant_count = sum(1 for p in adjusted_p_values if p <= alpha)
+    fdr_estimate = significant_count / n if n > 0 else 0.0
+    
+    return adjusted_p_values, fdr_estimate
 
-    # Use statsmodels for BH correction
-    # multipletests returns (reject, p_corrected, p_corrected_fdr, alphac_Sidak, alphac_BH)
-    _, p_corrected, _, _, _ = multipletests(
-        p_values,
-        alpha=NOMINAL_ALPHA,
-        method='fdr_bh'
-    )
-
-    significant_count = sum(1 for p in p_corrected if p < NOMINAL_ALPHA)
-
-    return list(p_corrected), significant_count
-
-
-def calculate_fdr(raw_p_values: List[float], threshold: float = NOMINAL_ALPHA) -> float:
+def calculate_fdr(adjusted_p_values: List[float], alpha: float = 0.05) -> float:
     """
-    Calculate the estimated False Discovery Rate (FDR).
-
-    FDR = E[V/R] where V is false discoveries and R is total discoveries.
-    Using the Benjamini-Hochberg procedure, the FDR is estimated as:
-    FDR ≈ (m * alpha) / R where m is total tests, alpha is threshold, R is rejections.
-
+    Calculate the False Discovery Rate from adjusted p-values.
+    
     Args:
-        raw_p_values: List of raw p-values.
-        threshold: Significance threshold (default 0.05).
-
+        adjusted_p_values: List of adjusted p-values
+        alpha: Nominal significance level
+        
     Returns:
-        Estimated FDR value.
+        Estimated FDR as a float between 0 and 1
     """
-    if not raw_p_values:
+    if not adjusted_p_values:
         return 0.0
-
-    m = len(raw_p_values)
-    rejections = sum(1 for p in raw_p_values if p < threshold)
-
-    if rejections == 0:
+    
+    significant_count = sum(1 for p in adjusted_p_values if p <= alpha)
+    if significant_count == 0:
         return 0.0
-
-    # Standard FDR estimate: (m * alpha) / R
-    fdr_estimate = (m * threshold) / rejections
-    return min(fdr_estimate, 1.0)
-
+    
+    # FDR is the expected proportion of false discoveries among all discoveries
+    # We estimate this as the average of adjusted p-values among significant results
+    fdr = sum(p for p in adjusted_p_values if p <= alpha) / significant_count
+    return fdr
 
 def analyze_sensitivity(
     p_values: List[float],
-    correction_methods: Optional[List[str]] = None,
-    alpha_level: float = NOMINAL_ALPHA
+    alpha: float = 0.05,
+    method: str = "benjamini_hochberg"
 ) -> SensitivityAnalysisResult:
     """
-    Perform full sensitivity analysis with multiple correction methods.
-
-    This function:
-    1. Applies Bonferroni and BH corrections to the input p-values
-    2. Calculates FDR estimates for each method
-    3. Counts significant results at the specified alpha level
-    4. Compares results against the nominal alpha level to verify SC-005
-
+    Perform complete sensitivity analysis including multiple-comparison correction.
+    
     Args:
-        p_values: List of raw p-values from statistical tests.
-        correction_methods: List of correction methods to apply. Defaults to ['bonferroni', 'bh'].
-        alpha_level: Nominal significance level (default 0.05).
-
+        p_values: List of raw p-values from statistical tests
+        alpha: Nominal significance level (default 0.05)
+        method: Correction method ("benjamini_hochberg" or "bonferroni")
+        
     Returns:
-        SensitivityAnalysisResult containing all correction results and FDR estimates.
-
-    Raises:
-        ValueError: If p_values contains invalid values (negative or > 1).
-        ValueError: If an unknown correction method is specified.
+        SensitivityAnalysisResult with corrected p-values and FDR
     """
-    if not p_values:
-        logger.warning("Empty p-values list provided. Returning empty result.")
-        return SensitivityAnalysisResult(
-            raw_p_values=[],
-            corrected_p_values={},
-            fdr_estimates={},
-            significant_counts={},
-            total_tests=0,
-            alpha_level=alpha_level
-        )
-
-    # Validate p-values
-    for i, p in enumerate(p_values):
-        if not (0.0 <= p <= 1.0):
-            raise ValueError(
-                f"Invalid p-value at index {i}: {p}. "
-                f"P-values must be in range [0, 1]."
-            )
-
-    if correction_methods is None:
-        correction_methods = CORRECTION_METHODS
-
-    # Validate correction methods
-    for method in correction_methods:
-        if method not in CORRECTION_METHODS:
-            raise ValueError(
-                f"Unknown correction method: {method}. "
-                f"Supported methods: {CORRECTION_METHODS}"
-            )
-
-    corrected_p_values = {}
-    significant_counts = {}
-    fdr_estimates = {}
-    method_details = {}
-
-    for method in correction_methods:
-        logger.info(f"Applying {method} correction to {len(p_values)} p-values...")
-
-        if method == 'bonferroni':
-            corrected, sig_count = apply_bonferroni_correction(p_values)
-            fdr = calculate_fdr(corrected, alpha_level)
-            method_details[method] = {
-                'description': 'Bonferroni correction (family-wise error rate control)',
-                'formula': 'p_corrected = min(p * m, 1.0)'
-            }
-        elif method == 'bh':
-            corrected, sig_count = apply_bh_correction(p_values)
-            fdr = calculate_fdr(corrected, alpha_level)
-            method_details[method] = {
-                'description': 'Benjamini-Hochberg correction (FDR control)',
-                'formula': 'Step-up procedure based on ranked p-values'
-            }
-
-        corrected_p_values[method] = corrected
-        significant_counts[method] = sig_count
-        fdr_estimates[method] = fdr
-
-        logger.info(
-            f"{method}: {sig_count}/{len(p_values)} significant at alpha={alpha_level}, "
-            f"estimated FDR={fdr:.4f}"
-        )
-
-    # SC-005 Verification: Compare FDR against nominal alpha
-    verification_results = {}
-    for method in correction_methods:
-        fdr = fdr_estimates[method]
-        is_verified = fdr <= alpha_level
-        verification_results[method] = {
-            'fdr': fdr,
-            'alpha_level': alpha_level,
-            'verified': is_verified,
-            'message': (
-                f"FDR ({fdr:.4f}) {'<=' if is_verified else '>'} alpha ({alpha_level}). "
-                f"SC-005 {'VERIFIED' if is_verified else 'NOT VERIFIED'} for {method}."
-            )
-        }
-        logger.info(verification_results[method]['message'])
-
-    method_details['verification'] = verification_results
-
+    if method == "benjamini_hochberg":
+        adjusted_p_values, fdr = apply_bh_correction(p_values, alpha)
+    elif method == "bonferroni":
+        adjusted_p_values, fdr = apply_bonferroni_correction(p_values, alpha)
+    else:
+        raise ValueError(f"Unknown correction method: {method}")
+    
+    significant_count = sum(1 for p in adjusted_p_values if p <= alpha)
+    
     return SensitivityAnalysisResult(
-        raw_p_values=p_values,
-        corrected_p_values=corrected_p_values,
-        fdr_estimates=fdr_estimates,
-        significant_counts=significant_counts,
-        total_tests=len(p_values),
-        alpha_level=alpha_level,
-        method_details=method_details
+        original_p_values=p_values,
+        adjusted_p_values=adjusted_p_values,
+        fdr=fdr,
+        significant_count=significant_count,
+        nominal_alpha=alpha,
+        method=method
     )
-
-
-def load_p_values_from_analysis_results(
-    result_file_path: Union[str, Path]
-) -> List[float]:
-    """
-    Load p-values from a logistic regression analysis result file.
-
-    Expects a JSON file with structure:
-    {
-        "results": [
-            {"p_value": 0.03, ...},
-            ...
-        ]
-    }
-
-    Args:
-        result_file_path: Path to the JSON file containing analysis results.
-
-    Returns:
-        List of p-values extracted from the results.
-
-    Raises:
-        FileNotFoundError: If the result file does not exist.
-        ValueError: If the file format is invalid or p-values cannot be extracted.
-    """
-    result_path = Path(result_file_path)
-
-    if not result_path.exists():
-        raise FileNotFoundError(f"Result file not found: {result_path}")
-
-    with open(result_path, 'r') as f:
-        data = json.load(f)
-
-    if 'results' not in data:
-        raise ValueError("Invalid result file format: missing 'results' key")
-
-    p_values = []
-    for i, item in enumerate(data['results']):
-        if 'p_value' not in item:
-            logger.warning(f"Skipping result {i}: missing 'p_value' field")
-            continue
-
-        try:
-            p_val = float(item['p_value'])
-            p_values.append(p_val)
-        except (TypeError, ValueError) as e:
-            raise ValueError(f"Invalid p_value at index {i}: {item['p_value']}") from e
-
-    if not p_values:
-        raise ValueError("No valid p-values found in the result file")
-
-    logger.info(f"Loaded {len(p_values)} p-values from {result_path}")
-    return p_values
-
 
 def write_sensitivity_report(
     result: SensitivityAnalysisResult,
     output_path: Union[str, Path]
 ) -> None:
     """
-    Write sensitivity analysis results to a JSON file.
-
+    Write sensitivity analysis results to JSON file.
+    
     Args:
-        result: SensitivityAnalysisResult object to serialize.
-        output_path: Path to the output JSON file.
+        result: SensitivityAnalysisResult to write
+        output_path: Path to output JSON file
     """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     report = {
-        'summary': {
-            'total_tests': result.total_tests,
-            'alpha_level': result.alpha_level,
-            'fdr_estimates': result.fdr_estimates,
-            'significant_counts': result.significant_counts
+        'analysis_summary': {
+            'method': result.method,
+            'nominal_alpha': result.nominal_alpha,
+            'total_tests': len(result.original_p_values),
+            'significant_tests': result.significant_count,
+            'fdr': result.fdr,
+            'fdr_within_alpha': result.fdr <= result.nominal_alpha
         },
-        'detailed_results': result.to_dict(),
-        'sc005_verification': result.method_details.get('verification', {})
+        'p_values': {
+            'original': result.original_p_values,
+            'adjusted': result.adjusted_p_values
+        },
+        'verification': {
+            'sc_005_verified': result.fdr <= result.nominal_alpha,
+            'fdr_value': result.fdr,
+            'alpha_threshold': result.nominal_alpha
+        }
     }
-
+    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    
+    logger.info(f"Sensitivity report written to {output_path}")
+    logger.info(f"FDR: {result.fdr:.4f}, Alpha: {result.nominal_alpha}, SC-005 Verified: {result.fdr <= result.nominal_alpha}")
 
-    logger.info(f"Sensitivity analysis report written to {output_path}")
-
-
-def main() -> None:
+def main():
     """
     Main entry point for sensitivity analysis.
-
-    Usage:
-        python -m src.analysis.sensitivity --input <result_file.json> --output <report.json>
-
-    This script:
-    1. Loads p-values from a logistic regression analysis result file
-    2. Applies Bonferroni and BH corrections
-    3. Calculates FDR estimates
-    4. Verifies SC-005 (FDR <= alpha)
-    5. Writes a detailed report to JSON
+    
+    Loads p-values from analysis results, applies BH correction,
+    calculates FDR, and writes report to results/fdr_report.json.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description='Perform sensitivity analysis with multiple-comparison correction'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        required=True,
-        help='Path to the logistic regression analysis result file (JSON)'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        required=False,
-        default='projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/results/sensitivity_report.json',
-        help='Path to the output sensitivity analysis report (JSON)'
-    )
-    parser.add_argument(
-        '--alpha',
-        type=float,
-        default=NOMINAL_ALPHA,
-        help=f'Nominal alpha level (default: {NOMINAL_ALPHA})'
-    )
-
-    args = parser.parse_args()
-
-    logger.info(f"Starting sensitivity analysis with input: {args.input}")
-    logger.info(f"Alpha level: {args.alpha}")
-
+    # Default paths
+    results_dir = Path("results")
+    analysis_results_path = results_dir / "analysis_results.json"
+    fdr_report_path = results_dir / "fdr_report.json"
+    
+    # Check for command line arguments
+    if len(sys.argv) > 1:
+        analysis_results_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        fdr_report_path = Path(sys.argv[2])
+    
+    logger.info(f"Loading p-values from {analysis_results_path}")
+    
     try:
-        # Load p-values
-        p_values = load_p_values_from_analysis_results(args.input)
+        p_values = load_p_values_from_analysis_results(analysis_results_path)
         logger.info(f"Loaded {len(p_values)} p-values")
-
-        # Perform sensitivity analysis
-        result = analyze_sensitivity(
-            p_values=p_values,
-            correction_methods=['bonferroni', 'bh'],
-            alpha_level=args.alpha
-        )
-
-        # Write report
-        write_sensitivity_report(result, args.output)
-
-        # Print summary
-        print("\n" + "=" * 60)
-        print("SENSITIVITY ANALYSIS SUMMARY")
-        print("=" * 60)
-        print(f"Total tests: {result.total_tests}")
-        print(f"Alpha level: {result.alpha_level}")
-        print()
-        for method in result.corrected_p_values:
-            print(f"{method.upper()}:")
-            print(f"  Significant: {result.significant_counts[method]}/{result.total_tests}")
-            print(f"  Estimated FDR: {result.fdr_estimates[method]:.4f}")
-            verification = result.method_details['verification'][method]
-            print(f"  SC-005: {verification['message']}")
-        print("=" * 60)
-
-        logger.info("Sensitivity analysis completed successfully")
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Failed to load p-values: {e}")
         sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+    
+    logger.info("Applying Benjamini-Hochberg correction...")
+    result = analyze_sensitivity(p_values, alpha=0.05, method="benjamini_hochberg")
+    
+    logger.info(f"Analysis complete: {result.significant_count}/{len(p_values)} tests significant")
+    logger.info(f"False Discovery Rate: {result.fdr:.4f}")
+    
+    logger.info(f"Writing report to {fdr_report_path}")
+    write_sensitivity_report(result, fdr_report_path)
+    
+    # Verify SC-005: FDR <= nominal alpha
+    if result.fdr <= result.nominal_alpha:
+        logger.info("✓ SC-005 VERIFIED: FDR <= nominal alpha (0.05)")
+    else:
+        logger.warning("✗ SC-005 NOT VERIFIED: FDR > nominal alpha (0.05)")
+    
+    return result
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

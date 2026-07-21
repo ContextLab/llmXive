@@ -1,15 +1,40 @@
-# Explicit ruff configuration file for clarity, though pyproject.toml is also used.
-# This file is picked up automatically by `ruff check`.
+# Ruff configuration for llmXive Follow-up
+# This file extends or overrides settings from pyproject.toml if needed,
+# but primarily serves as the entry point for ruff check/format.
 
 extend = "pyproject.toml"
 
-# Override line length if needed for specific ruff runs
-line-length = 88
-
 [lint]
-# Ensure we are using the same set of rules as defined in pyproject.toml
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501", "B008", "C901"]
+# Enable specific rule sets
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "N", # pep8-naming
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+]
 
+# Ignore specific rules that conflict with project style or are noisy
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in fastapi/pytest)
+    "ARG001", # Unused function argument (sometimes valid in protocols)
+    "ARG002", # Unused method argument
+]
+
+# Per-file ignores
 [lint.per-file-ignores]
-"tests/*" = ["S101"]
+"tests/*" = ["ARG", "S101"] # Allow asserts in tests, ignore unused args in fixtures
+"src/*/main.py" = ["T201"] # Allow print in main entry points
+
+[format]
+# Format settings matching Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

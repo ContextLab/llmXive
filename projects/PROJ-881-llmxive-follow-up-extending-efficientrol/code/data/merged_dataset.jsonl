@@ -1,0 +1,2 @@
+{"sequence_id": "1", "tokens": ["answer", "42"], "source": "gsm8k", "validity": true, "reason": "matched", "entropy": 0.0, "metadata": {"length": 2}}
+{"sequence_id": "2", "tokens": ["wrong", "answer"], "source": "gsm8k", "validity": false, "reason": "mismatch", "entropy": 0.0, "metadata": {"length": 2}}

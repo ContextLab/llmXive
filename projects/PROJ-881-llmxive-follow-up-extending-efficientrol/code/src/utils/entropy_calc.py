@@ -131,3 +131,37 @@ def compute_layer_wise_entropy(
     probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
 
     return compute_batch_entropy(probs)
+
+
+def calculate_entropy(logits: np.ndarray) -> float:
+    """
+    Calculate Shannon entropy from raw logits.
+
+    This is the primary API function required by T004. It converts
+    logits to probabilities using softmax and then computes the
+    Shannon entropy with clamping to prevent log(0) errors.
+
+    Args:
+        logits: A 1D numpy array of raw logit values.
+
+    Returns:
+        float: The calculated Shannon entropy.
+
+    Example:
+        >>> logits = np.array([2.0, 1.0, 0.0])
+        >>> calculate_entropy(logits)
+        0.693147...
+    """
+    if not isinstance(logits, np.ndarray):
+        raise TypeError(f"Expected numpy array, got {type(logits)}")
+    
+    if logits.ndim != 1:
+        raise ValueError(f"Expected 1D input, got {logits.ndim}D")
+
+    # Apply softmax to convert logits to probabilities
+    # Subtract max for numerical stability
+    exp_logits = np.exp(logits - np.max(logits))
+    probs = exp_logits / np.sum(exp_logits)
+
+    # Compute entropy using the clamped logic
+    return compute_shannon_entropy(probs)

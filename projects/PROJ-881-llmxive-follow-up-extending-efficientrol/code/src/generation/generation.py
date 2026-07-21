@@ -4,218 +4,410 @@ import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Set
+import torch
+import torch.nn as nn
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from dataclasses import dataclass, field
+import time
 
-import yaml
+# Import from project utils
+from src.utils.entropy_calc import calculate_entropy
+from src.utils.validators import TokenSequence, ValidityLabel, validate_token_sequence, validate_validity_label
+from src.config import Config
 
-from src.utils.validators import (
-    validate_json_schema,
-    load_and_validate_jsonl,
-    TokenSequence,
-    ValidityLabel,
-)
+# Configure logging
+def setup_logging(log_file: str = "logs/generation.log") -> logging.Logger:
+    """Setup JSON-formatted logging to file and console."""
+    logger = logging.getLogger("generation")
+    logger.setLevel(logging.INFO)
+    
+    # Create logs directory if it doesn't exist
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Clear existing handlers
+    logger.handlers = []
+    
+    # File handler with JSON formatter
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    
+    class JSONFormatter(logging.Formatter):
+        def format(self, record):
+            log_obj = {
+                "timestamp": self.formatTime(record, self.datefmt),
+                "level": record.levelname,
+                "message": record.getMessage(),
+                "module": record.module,
+                "function": record.funcName
+            }
+            # Add extra fields if present
+            if hasattr(record, 'token_count'):
+                log_obj['token_count'] = record.token_count
+            if hasattr(record, 'validity_distribution'):
+                log_obj['validity_distribution'] = record.validity_distribution
+            return json.dumps(log_obj)
+    
+    file_handler.setFormatter(JSONFormatter())
+    logger.addHandler(file_handler)
+    
+    # Console handler for visibility
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+    logger.addHandler(console_handler)
+    
+    return logger
 
-# Configure logger (placeholder for actual setup logic)
-logger = logging.getLogger(__name__)
-
-
+@dataclass
 class GenerationConfig:
-    """Configuration for generation parameters."""
-    def __init__(
-        self,
-        model_path: str,
-        dataset_name: str,
-        output_dir: str,
-        batch_size: int = 50,
-        temperature: float = 0.0,
-    ):
-        self.model_path = model_path
-        self.dataset_name = dataset_name
-        self.output_dir = output_dir
-        self.batch_size = batch_size
-        self.temperature = temperature
-
-
-def setup_logging(log_path: Optional[str] = None) -> logging.Logger:
-    """Set up JSON-formatted logging."""
-    if log_path:
-        os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        handler = logging.FileHandler(log_path)
-        handler.setFormatter(logging.Formatter('%(message)s'))
-        logging.basicConfig(
-            level=logging.INFO,
-            handlers=[handler, logging.StreamHandler()],
-        )
-    else:
-        logging.basicConfig(level=logging.INFO)
-    return logging.getLogger(__name__)
-
-
-def load_model_for_cpu_inference(model_path: str):
-    """Load a small model suitable for CPU inference."""
-    # Placeholder for actual model loading logic
-    logger.info(f"Loading model from {model_path} for CPU inference")
-    return {"model_path": model_path, "device": "cpu"}
-
+    """Configuration for baseline generation."""
+    model_name: str = "distilgpt2"
+    temperature: float = 0.0
+    max_new_tokens: int = 128
+    batch_size: int = 1
+    seed: int = 42
+    dataset_name: str = "gsm8k"
+    sample_size: int = 100
 
 class LayerProbabilityHook:
     """Hook to capture layer-wise probability distributions."""
-    def __init__(self, layer_idx: int):
-        self.layer_idx = layer_idx
-        self.probabilities: Optional[List[List[float]]] = None
+    def __init__(self):
+        self.layer_outputs = []
+        self.layer_logits = []
+    
+    def forward_hook(self, module, input, output):
+        """Capture output logits from attention layers."""
+        if isinstance(output, tuple) and len(output) > 0:
+            self.layer_logits.append(output[0].detach().cpu())
 
-    def __call__(self, module, input, output):
-        # Placeholder for hook logic
-        pass
+def load_model_for_cpu_inference(model_name: str, logger: logging.Logger) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    """Load a model optimized for CPU inference."""
+    logger.info(f"Loading model {model_name} for CPU inference")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float32,
+        device_map="cpu",
+        low_cpu_mem_usage=True
+    )
+    model.eval()
+    logger.info("Model loaded successfully")
+    return model, tokenizer
 
+def generate_single_pass(
+    prompt: str,
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    config: GenerationConfig,
+    logger: logging.Logger,
+    hook: Optional[LayerProbabilityHook] = None
+) -> Dict[str, Any]:
+    """Generate a single sequence using greedy decoding (temperature=0.0)."""
+    inputs = tokenizer(prompt, return_tensors="pt")
+    input_ids = inputs["input_ids"]
+    attention_mask = inputs["attention_mask"]
+    
+    if hook:
+        # Register hook on transformer layers
+        for name, module in model.named_modules():
+            if isinstance(module, nn.Linear) and "lm_head" not in name:
+                hook.forward_hook = module.register_forward_hook(hook.forward_hook)
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            input_ids,
+            attention_mask=attention_mask,
+            max_new_tokens=config.max_new_tokens,
+            temperature=config.temperature,
+            do_sample=(config.temperature > 0),
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id
+        )
+    
+    generated_ids = outputs[0][input_ids.shape[1]:]
+    generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
+    
+    tokens = tokenizer.convert_ids_to_tokens(generated_ids)
+    
+    return {
+        "prompt": prompt,
+        "generated_text": generated_text,
+        "tokens": tokens,
+        "token_ids": generated_ids.tolist(),
+        "length": len(tokens)
+    }
 
-def capture_layer_logits(model, layer_idx: int):
-    """Capture logits from a specific layer."""
-    # Placeholder for actual implementation
-    return None
+def generate_baseline(
+    dataset: List[Dict[str, Any]],
+    model_name: str,
+    config: GenerationConfig,
+    logger: logging.Logger,
+    hook: Optional[LayerProbabilityHook] = None
+) -> List[Dict[str, Any]]:
+    """Generate baseline sequences for a dataset."""
+    model, tokenizer = load_model_for_cpu_inference(model_name, logger)
+    results = []
+    
+    logger.info(f"Starting baseline generation for {len(dataset)} examples")
+    
+    for idx, example in enumerate(dataset):
+        prompt = example.get("prompt", example.get("question", ""))
+        prompt_id = example.get("id", f"prompt_{idx}")
+        
+        try:
+            generation_result = generate_single_pass(
+                prompt, model, tokenizer, config, logger, hook
+            )
+            generation_result["prompt_id"] = prompt_id
+            generation_result["original_example"] = example
+            results.append(generation_result)
+            
+            if (idx + 1) % 10 == 0:
+                logger.info(f"Generated {idx + 1}/{len(dataset)} sequences")
+        except Exception as e:
+            logger.error(f"Generation failed for prompt {prompt_id}: {str(e)}")
+            continue
+    
+    logger.info(f"Baseline generation complete. Generated {len(results)} sequences.")
+    return results
 
-
-def generate_single_pass(model, prompt: str, config: GenerationConfig) -> List[str]:
-    """Generate a single sequence with temperature 0.0."""
-    # Placeholder for actual generation logic
-    logger.info(f"Generating single pass for prompt: {prompt[:50]}...")
-    return ["token1", "token2", "token3"]
-
-
-def validate_against_ground_truth(
-    generated_tokens: List[str],
-    ground_truth_paths: List[List[str]],
-    source: str,
-) -> Tuple[bool, str]:
-    """
-    Validate generated tokens against ground truth.
-    Returns (is_valid, reason).
-    """
-    # Placeholder for validation logic
-    # In real implementation: check against ground_truth_paths
-    if generated_tokens == ground_truth_paths[0] if ground_truth_paths else []:
-        return True, "matched"
-    return False, "ambiguous"
-
-
-def write_labeled_dataset(
-    records: List[Dict[str, Any]],
-    output_path: Path,
-    schema_path: Path,
-) -> None:
-    """
-    Write labeled dataset to JSONL, validating against schema.
-    """
-    # Load and validate schema
-    if schema_path.exists():
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-    else:
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-
-    with open(output_path, 'w') as f:
-        for record in records:
-            # Validate record against schema
-            validate_json_schema(record, schema)
-            f.write(json.dumps(record) + '\n')
-    logger.info(f"Wrote {len(records)} records to {output_path}")
-
-
-def load_and_merge_outputs(
-    generation_output_path: Path,
-    labels_output_path: Path,
-    schema_path: Path,
+def label_validity(
+    generated_sequences: List[Dict[str, Any]],
+    dataset: List[Dict[str, Any]],
+    logger: logging.Logger
 ) -> List[Dict[str, Any]]:
     """
-    Merge generation outputs with ground truth labels.
-    Explicitly references dataset.schema.yaml for validation.
+    Label token sequences with ground truth validity flags.
+    
+    For GSM8K: Check if the generated answer matches the ground truth solution.
+    For MiniGrid: Handle multiple valid paths - check if the generated action
+    sequence matches ANY of the known valid ground-truth paths.
+    
+    If no match is found after checking all paths:
+    - Log a warning to logs/generation.log with JSON format {"prompt_id": "...", "reason": "no_match"}
+    - Retain the data point with validity=false
     """
-    if not generation_output_path.exists():
-        raise FileNotFoundError(f"Generation output not found: {generation_output_path}")
-    if not labels_output_path.exists():
-        raise FileNotFoundError(f"Labels output not found: {labels_output_path}")
-
-    # Load generation outputs
-    generation_records = load_and_validate_jsonl(generation_output_path)
-    labels_records = load_and_validate_jsonl(labels_output_path)
-
-    # Create lookup for labels by sequence_id
-    labels_lookup = {r['sequence_id']: r for r in labels_records}
-
-    merged_records = []
-    for gen_rec in generation_records:
-        seq_id = gen_rec['sequence_id']
-        if seq_id not in labels_lookup:
-            logger.warning(f"Sequence {seq_id} found in generation but not in labels. Skipping.")
-            continue
-
-        label_rec = labels_lookup[seq_id]
-
-        # Merge records according to schema
-        merged = {
-            'sequence_id': seq_id,
-            'tokens': gen_rec.get('tokens', []),
-            'source': gen_rec.get('source', label_rec.get('source', 'unknown')),
-            'validity': label_rec.get('validity', False),
-            'reason': label_rec.get('reason', 'unknown'),
-            'metadata': {
-                'generation_id': gen_rec.get('id'),
-                'label_id': label_rec.get('id'),
-            },
+    # Create a lookup map for ground truth answers
+    gt_map = {}
+    for example in dataset:
+        prompt_id = example.get("id", f"prompt_{dataset.index(example)}")
+        gt_map[prompt_id] = example
+    
+    labeled_results = []
+    no_match_count = 0
+    valid_count = 0
+    invalid_count = 0
+    
+    for seq in generated_sequences:
+        prompt_id = seq.get("prompt_id")
+        generated_text = seq.get("generated_text", "")
+        original_example = seq.get("original_example", {})
+        
+        # Determine dataset type and ground truth
+        dataset_name = original_example.get("dataset", "gsm8k")
+        ground_truth = None
+        
+        if dataset_name == "gsm8k":
+            # GSM8K: Extract answer from generated text and compare to solution
+            ground_truth = original_example.get("answer", "")
+            # Extract the final answer from generation (usually after "####")
+            generated_answer = ""
+            if "####" in generated_text:
+                generated_answer = generated_text.split("####")[-1].strip()
+            else:
+                # Try to extract last number
+                import re
+                numbers = re.findall(r'\d+', generated_text)
+                if numbers:
+                    generated_answer = numbers[-1]
+            
+            is_valid = generated_answer == ground_truth or (generated_answer and ground_truth and 
+                    generated_answer.replace(',', '') == ground_truth.replace(',', ''))
+            
+        elif dataset_name == "minigrid":
+            # MiniGrid: Check against multiple valid paths
+            valid_paths = original_example.get("valid_paths", [])
+            generated_actions = generated_text.strip().split()
+            
+            is_valid = False
+            if valid_paths:
+                # Check if generated actions match ANY valid path
+                for path in valid_paths:
+                    path_actions = path.strip().split()
+                    # Check for exact match or prefix match
+                    if generated_actions == path_actions or (len(generated_actions) > 0 and 
+                        generated_actions[:len(path_actions)] == path_actions):
+                        is_valid = True
+                        break
+            else:
+                # No valid paths defined - treat as invalid
+                is_valid = False
+        else:
+            # Unknown dataset type - default to invalid
+            is_valid = False
+        
+        # Create validity label
+        validity_label = {
+            "prompt_id": prompt_id,
+            "is_valid": is_valid,
+            "ground_truth": ground_truth,
+            "reason": "match" if is_valid else "no_match"
         }
-        merged_records.append(merged)
+        
+        # Log warnings for no-match cases
+        if not is_valid:
+            no_match_count += 1
+            logger.warning(json.dumps({
+                "prompt_id": prompt_id,
+                "reason": "no_match",
+                "dataset": dataset_name
+            }))
+        else:
+            valid_count += 1
+        
+        invalid_count = len(generated_sequences) - valid_count
+        
+        # Combine generation result with validity label
+        labeled_seq = {
+            **seq,
+            "validity_label": validity_label,
+            "validity": is_valid
+        }
+        labeled_results.append(labeled_seq)
+    
+    # Log distribution stats
+    logger.info(json.dumps({
+        "total": len(generated_sequences),
+        "valid": valid_count,
+        "invalid": invalid_count,
+        "no_match_logged": no_match_count,
+        "validity_distribution": {
+            "valid": valid_count / len(generated_sequences) if generated_sequences else 0,
+            "invalid": invalid_count / len(generated_sequences) if generated_sequences else 0
+        }
+    }))
+    
+    return labeled_results
 
-    logger.info(f"Merged {len(merged_records)} records from generation and labels.")
-    return merged_records
+def write_jsonl(
+    data: List[Dict[str, Any]],
+    output_path: str,
+    logger: logging.Logger
+) -> None:
+    """Write labeled data to JSONL file."""
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for record in data:
+            # Validate record before writing
+            try:
+                validate_token_sequence(record)
+                if "validity_label" in record:
+                    validate_validity_label(record["validity_label"])
+            except Exception as e:
+                logger.warning(f"Invalid record skipped: {str(e)}")
+                continue
+            
+            f.write(json.dumps(record) + '\n')
+    
+    logger.info(f"Wrote {len(data)} records to {output_path}")
 
+def write_labeled_dataset(
+    labeled_data: List[Dict[str, Any]],
+    output_path: str,
+    logger: logging.Logger
+) -> None:
+    """Write labeled dataset to JSONL with standardized fields."""
+    standardized_data = []
+    
+    for record in labeled_data:
+        standardized_record = {
+            "prompt_id": record.get("prompt_id"),
+            "tokens": record.get("tokens", []),
+            "validity": record.get("validity", False),
+            "ground_truth": record.get("validity_label", {}).get("ground_truth"),
+            "reason": record.get("validity_label", {}).get("reason")
+        }
+        standardized_data.append(standardized_record)
+    
+    write_jsonl(standardized_data, output_path, logger)
+
+def load_and_merge_outputs(
+    generation_output: str,
+    dataset_path: str,
+    logger: logging.Logger
+) -> List[Dict[str, Any]]:
+    """Load generated sequences and merge with ground truth labels."""
+    # Load generated sequences
+    generated_sequences = []
+    with open(generation_output, 'r', encoding='utf-8') as f:
+        for line in f:
+            generated_sequences.append(json.loads(line))
+    
+    # Load original dataset for ground truth
+    dataset = []
+    with open(dataset_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            dataset.append(json.loads(line))
+    
+    # Label validity
+    labeled_data = label_validity(generated_sequences, dataset, logger)
+    
+    return labeled_data
 
 def process_dataset(
+    dataset: List[Dict[str, Any]],
+    model_name: str,
     config: GenerationConfig,
-    generation_output_path: Path,
-    labels_output_path: Path,
-    merged_output_path: Path,
+    output_path: str,
+    logger: logging.Logger
 ) -> None:
-    """
-    Orchestrate the full pipeline: load, merge, validate, and write.
-    """
-    schema_path = Path("code/contracts/dataset.schema.yaml")
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Required schema not found: {schema_path}")
+    """Process a complete dataset: generate, label, and write output."""
+    # Generate baseline sequences
+    generated_sequences = generate_baseline(dataset, model_name, config, logger)
+    
+    # Label validity
+    labeled_data = label_validity(generated_sequences, dataset, logger)
+    
+    # Write output
+    write_labeled_dataset(labeled_data, output_path, logger)
 
-    logger.info("Loading and merging generation outputs with ground truth labels...")
-    merged_records = load_and_merge_outputs(
-        generation_output_path,
-        labels_output_path,
-        schema_path,
-    )
-
-    logger.info(f"Writing merged labeled dataset to {merged_output_path}...")
-    write_labeled_dataset(merged_records, merged_output_path, schema_path)
-
-
-def load_tokens_from_file(file_path: Path) -> List[str]:
-    """Load tokens from a JSONL file."""
-    return load_and_validate_jsonl(file_path)
-
+def process_batch(
+    batch: List[Dict[str, Any]],
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    config: GenerationConfig,
+    logger: logging.Logger,
+    output_file: Path
+) -> None:
+    """Process a batch of examples and append to output file."""
+    hook = LayerProbabilityHook()
+    
+    for example in batch:
+        try:
+            result = generate_single_pass(
+                example.get("prompt", ""),
+                model, tokenizer, config, logger, hook
+            )
+            result["prompt_id"] = example.get("id", f"prompt_{hash(example)}")
+            result["original_example"] = example
+            
+            # Append to output file immediately
+            with open(output_file, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(result) + '\n')
+        except Exception as e:
+            logger.error(f"Failed to process batch item: {str(e)}")
 
 def main():
-    """Entry point for generation and merging."""
-    setup_logging("code/logs/generation.log")
-    config = GenerationConfig(
-        model_path="code/data/models/tiny_model",
-        dataset_name="gsm8k",
-        output_dir="code/data/outputs",
-    )
-
-    gen_path = Path("code/data/outputs/generation.jsonl")
-    labels_path = Path("code/data/outputs/labels.jsonl")
-    merged_path = Path("code/data/outputs/labeled_dataset.jsonl")
-
-    if not gen_path.exists() or not labels_path.exists():
-        logger.error("Generation or labels outputs not found. Run generation first.")
-        sys.exit(1)
-
-    process_dataset(config, gen_path, labels_path, merged_path)
-
+    """Main entry point for baseline generation."""
+    config = GenerationConfig()
+    logger = setup_logging()
+    
+    # Example usage - in practice, load from actual dataset
+    logger.info("Generation module loaded successfully")
+    logger.info(f"Default config: {config}")
 
 if __name__ == "__main__":
     main()
