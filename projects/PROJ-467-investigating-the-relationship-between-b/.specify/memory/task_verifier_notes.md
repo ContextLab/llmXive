@@ -6,6 +6,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T002** — No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or a virtual environment) were provided, and there is no evidence that a Python 3.11 project was created or that the listed dependencies were installed. The required artifact is missing.
 - **T003** — No linting or formatting configuration files (e.g., pyproject.toml, .flake8, .ruff.toml, .isort.cfg) or setup scripts are present in the provided evidence, so the task of configuring ruff/flake8, black, and isort has not been demonstrated. The required artifacts are missing.
 - **T005** — No `.gitignore` file or its contents were supplied; without the artifact we cannot confirm that data‑artifact and Python‑cache patterns are listed as required. The implementer must add a `.gitignore` containing entries such as `__pycache__/`, `*.pyc`, `*.pyo`, `*.pyd`, `*.egg-info/`, `*.egg`, `*.ipynb_checkpoints/`, and any data directories (e.g., `data/`, `*.nii`, `*.csv`) to satisfy the task.
-- **T006** — declared artifact(s) missing/empty/invalid: src/brainnet/utils.py
 - **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T008** — declared artifact(s) missing/empty/invalid: src/brainnet/preprocessing.py

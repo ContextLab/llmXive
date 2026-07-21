@@ -1,0 +1,44 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "There are no unit test files, test suites, or any code artifacts provided that\
+    \ target the project's configuration or logging utilities. The only evidence shown\
+    \ relates to avian vocal\u2011complexity feature specifications, not to unit tests\
+    \ for config/logging, so the required tests are missing."
+T015:
+  c: false
+  h: 35b70f2122bc3d3ac9e2bd1c9516ee5b892bebadcd4daac7f8268b529129bb50
+  r: "The required `src/data/acquisition.py` script does not exist, and the expected\
+    \ output files `data/interim/noise_mapped.csv` and `data/interim/dropped_missing_osm.csv`\
+    \ are also missing. Consequently, the task\u2019s core functionality and deliverables\
+    \ are not present."
+T017a:
+  c: false
+  h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
+  r: The `filter_by_snr_threshold` function in `src/data/preprocessing.py` is only
+    partially shown (truncated) and does not contain a concrete implementation that
+    reads, filters, and writes the CSV files. Moreover, the required output file `data/interim/filtered_snr.csv`
+    is absent from the repository. Both the core logic and the expected artifact are
+    missing, so the task is not genuinely completed.
+T021:
+  c: false
+  h: 72d8e33168345de4cb8483256a346d203f4ce5756cfa1f6aa0206337934bc9ab
+  r: "The required artifact `data/interim/dropped_records.csv` does not exist on disk,\
+    \ so the logging of excluded records cannot be verified. The implementer must\
+    \ create the CSV file with the appropriate records to satisfy US\u20111 Acceptance\
+    \ Scenario\u202F3."
+T022:
+  c: false
+  h: 3dc4bdc86c2eca8d8341d93ba3cfadd46288a3555f6c0eaa64fe5e75692e4454
+  r: "The provided `tests/contract/test_output_schema.py` is present but the implementation\
+    \ of `test_numeric_columns_are_valid` is truncated, so the test suite is incomplete.\
+    \ Additionally, the required `data/processed/model_results.csv` file is missing,\
+    \ causing the existence check to fail. The test file must be fully implemented\
+    \ (including the numeric\u2011column validation logic) and the CSV file must be\
+    \ present for the contract test to pass."
+T023:
+  c: false
+  h: 18bd68ce61ce895b52a91ff2f13ccb527855fbcd44a438d2faf33e88f6ed32e2
+  r: The required artifact `tests/unit/test_loso_cv.py` does not exist in the repository,
+    so the unit test for LOSO cross-validation split logic is missing. The task cannot
+    be considered completed until this file is added with appropriate test code.

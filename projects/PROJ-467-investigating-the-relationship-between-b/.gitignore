@@ -1,89 +1,96 @@
-# Python
+# Python bytecode and cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+*.pyo
+*.pyd
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
+*.manifest
+*.spec
 
-# Virtual Environments
-venv/
-ENV/
-env/
+# Virtual environments
 .venv/
+venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
 
-# IDEs
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .project
-.pydevproject
 .settings/
+.metadata/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb_checkpoints
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
 
-# PyCharm
-.idea/
-
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-.pytest_cache/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Ruff
-.ruff_cache/
-
-# Data Artifacts (Generated)
+# Data artifacts (raw and processed)
 data/raw/
 data/processed/
+data/external/
 data/temp/
-data/cache/
+*.nii
+*.nii.gz
+*.dcm
+*.bval
+*.bvec
+*.csv
+*.parquet
+*.npz
+*.npy
+*.h5
+*.hdf5
 
-# Results and Figures
+# Results and figures
 results/
 figures/
-metadata/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+*.gif
 
-# Logs
+# Metadata and logs
+metadata/
 *.log
 logs/
 
-# OS Files
+# Contracts and schemas (keep these if they are source files, but ignore generated ones)
+# Note: contracts/*.yaml are source files, but generated validation reports should be ignored
+contracts/generated/
+
+# OS specific files
 .DS_Store
 Thumbs.db
-
-# Local configuration (sensitive)
-.env
-.env.local
-*.pem
-*.key
+desktop.ini
 
 # Testing
 .pytest_cache/
-.hypothesis/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Build and distribution
+dist/
+build/
+bdist/
+*.so
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Lock files (optional - uncomment if you don't want to track them)
+# poetry.lock
+# Pipfile.lock

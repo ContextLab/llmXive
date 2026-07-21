@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Metric Schema
+description: Schema for computed network metrics (static and dynamic).
+type: object
+required:
+  - subject_id
+  - modularity
+  - segregation_index
+  - flexibility
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  modularity:
+    type: number
+    description: Louvain modularity Q value.
+  segregation_index:
+    type: number
+    description: Network segregation index.
+  flexibility:
+    type: number
+    description: Average flexibility of nodes across windows.
+  static_metrics:
+    type: object
+    description: Additional static metrics.
+  dynamic_metrics:
+    type: object
+    description: Additional dynamic metrics.

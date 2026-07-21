@@ -1,74 +1,30 @@
-# Brain Network Dynamics and Tactile Discrimination Study
+# llmXive: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Tactile Discrimination
 
-This project investigates the relationship between brain network dynamics and individual differences in tactile discrimination.
+## Project Overview
+This project investigates the relationship between brain network dynamics (derived from fMRI data) and individual differences in tactile discrimination abilities.
 
-## Setup
-
-### Prerequisites
-- Python 3.11+
-- pip
-
-### Installation
-
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-### Project Structure
-
-```
-.
-├── code/
-│ ├── src/
-│ │ └── brainnet/
-│ │ ├── __init__.py
-│ │ ├── utils.py
-│ │ ├── preprocessing.py
-│ │ └──...
-│ ├── tests/
-│ │ ├── unit/
-│ │ └── contract/
-│ ├── data/
-│ │ ├── raw/
-│ │ └── processed/
-│ ├── results/
-│ │ └── figures/
-│ ├── metadata/
-│ ├── contracts/
-│ └── requirements.txt
-├── pyproject.toml
-└── README.md
-```
-
-## Usage
-
-### Preprocessing
-
-Run the preprocessing pipeline on fMRI data:
-
-```python
-from src.brainnet.preprocessing import preprocess_pipeline
-
-output_path = preprocess_pipeline(
- input_file="data/raw/subject_001_func.nii.gz",
- output_dir="data/processed",
- t_r=2.0
-)
-```
-
-### Running Tests
-
+## Quick Start
 ```bash
-pytest code/tests/
+# Setup environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run preprocessing
+python -m src.brainnet.preprocessing --input data/raw/ --output data/processed/
+
+# Run analysis
+python -m src.brainnet.analysis --max-subjects 100
 ```
+
+## Structure
+- `src/brainnet/`: Main source code
+- `data/raw/`: Raw input data
+- `data/processed/`: Preprocessed data
+- `results/`: Analysis results
+- `tests/`: Unit and integration tests
 
 ## License
-
-MIT License
+MIT

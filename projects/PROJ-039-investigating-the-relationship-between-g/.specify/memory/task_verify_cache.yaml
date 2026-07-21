@@ -1,0 +1,42 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, scripts, or documentation for MD5/SHA256 checksum utility functions
+    were presented, nor any `artifacts/checksums.txt` or related test showing the
+    functions enforce the protocol. The required artifact is missing, so the task
+    is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No seed\u2011management module or script is present in the provided evidence;\
+    \ there is no importable utility, documentation, or example showing how a random\
+    \ seed is set and propagated across analysis scripts. The required artifact is\
+    \ missing, so the task is not satisfied."
+T012:
+  c: false
+  h: 8acbd842c6869f2d718c7cbe66229aa4d2b430e01fe537912a85a9e54adc93ac
+  r: "The repository contains the `code/preprocess_microbiome.py` script, but the\
+    \ required output file `data/processed/microbiome_features.csv` is missing, so\
+    \ the pipeline\u2019s data\u2011preparation result does not exist. The task is\
+    \ therefore not fully satisfied."
+T013:
+  c: false
+  h: f0f97f49284f89a94f656df2b4ad202125359c01ca853c3e28308615ee47ef7f
+  r: "The repository contains `code/preprocess_eeg.py`, but the file is truncated\
+    \ and does not show a full implementation of downloading, filtering, ICA, epoching,\
+    \ alpha\u2011power computation, or subject\u2011level filtering. Moreover, the\
+    \ required output `data/processed/eeg_features.csv` is absent. Without a generated\
+    \ CSV and a complete script, the task requirements are not met."
+T019:
+  c: false
+  h: 4fa6c8d4f9e4b4269ab1d7bac965de511668d12dc1a45a446bfc6c4ca4a0cd3c
+  r: "The required artifact `tests/unit/test_statistics.py` does not exist in the\
+    \ repository, so no unit test for the FDR correction (Benjamini\u2011Hochberg\
+    \ logic) is present. The task therefore remains unfinished."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/analysis_results.json` file containing VIF values (or group\u2011\
+    separation statistics for Path\u202FB) is present, and no evidence of the required\
+    \ calculations is provided. The implementer has not supplied the mandated output,\
+    \ so the task remains unfinished."

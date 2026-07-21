@@ -19,8 +19,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual Environments
+# Virtual environments
 venv/
 ENV/
 env/
@@ -33,27 +34,23 @@ env/
 *.swo
 *~
 
+# Jupyter
+.ipynb_checkpoints/
+notebooks/
+
 # Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
+data/
+data/raw/
+data/processed/
+*.nii
+*.nii.gz
+*.csv
+*.parquet
+*.json
 
 # Results
-results/*
-!results/.gitkeep
-results/figures/*
-!results/figures/.gitkeep
-
-# Metadata
-metadata/*
-!metadata/.gitkeep
-
-# Contracts
-contracts/*
-!contracts/.gitkeep
+results/
+figures/
 
 # Logs
 *.log
@@ -62,12 +59,3 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-# Jupyter
-.ipynb_checkpoints
-
-# Coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/

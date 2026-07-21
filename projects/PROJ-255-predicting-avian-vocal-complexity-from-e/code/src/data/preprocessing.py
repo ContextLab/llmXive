@@ -4,171 +4,174 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import yaml
-import pandas as pd
 
 from src.utils.config import get_project_root, get_interim_data_dir, get_processed_data_dir
+from src.utils.logging import setup_logger
 
-logger = logging.getLogger(__name__)
+# Initialize logger for this module
+logger = setup_logger("preprocessing")
 
-def load_csv(file_path: Path) -> pd.DataFrame:
-    """Load a CSV file into a pandas DataFrame."""
+def load_csv(file_path: Path) -> List[Dict]:
+    """Load a CSV file into a list of dictionaries."""
     if not file_path.exists():
-        raise FileNotFoundError(f"CSV file not found: {file_path}")
-    return pd.read_csv(file_path)
-
-def save_csv(df: pd.DataFrame, file_path: Path) -> None:
-    """Save a DataFrame to a CSV file."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(file_path, index=False)
-    logger.info(f"Saved CSV to {file_path} with {len(df)} rows")
-
-def validate_against_schema(df: pd.DataFrame, schema_path: Path) -> bool:
-    """Validate a DataFrame against a YAML schema definition."""
-    if not schema_path.exists():
-        logger.warning(f"Schema file not found: {schema_path}. Skipping validation.")
-        return True
+        raise FileNotFoundError(f"Input file not found: {file_path}")
     
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
+    records = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            records.append(row)
+    return records
+
+def save_csv(records: List[Dict], file_path: Path, fieldnames: Optional[List[str]] = None):
+    """Save a list of dictionaries to a CSV file."""
+    if not records:
+        logger.warning(f"No records to save to {file_path}")
+        # Create empty file with headers if provided, otherwise empty
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
+            if fieldnames:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+            else:
+                f.write("")
+        return
+
+    if fieldnames is None:
+        fieldnames = list(records[0].keys())
     
-    required_columns = schema.get('required_columns', [])
-    for col in required_columns:
-        if col not in df.columns:
-            logger.error(f"Missing required column: {col}")
-            return False
-    return True
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(records)
 
-def combine_datasets(dfs: List[pd.DataFrame]) -> pd.DataFrame:
-    """Combine multiple DataFrames vertically."""
-    if not dfs:
-        return pd.DataFrame()
-    return pd.concat(dfs, ignore_index=True)
-
-def filter_by_snr_threshold(
-    df: pd.DataFrame, 
-    threshold_db: float, 
-    snr_column: str = 'snr_db',
-    output_path: Optional[Path] = None,
-    dropped_path: Optional[Path] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def filter_species_by_min_recordings(
+    input_path: Path, 
+    output_path: Path, 
+    excluded_path: Path,
+    min_recordings_per_location: int = 5,
+    location_col: str = 'location_id',
+    species_col: str = 'species_id',
+    record_id_col: str = 'record_id'
+) -> Tuple[List[Dict], List[Dict]]:
     """
-    Filter records based on SNR threshold.
+    Filter records to keep only species that have >= min_recordings_per_location 
+    valid recordings at each location.
+    
+    This implements the logic for T018: 
+    "Filter species with <5 valid recordings per location and log exclusions."
     
     Args:
-        df: Input DataFrame containing SNR data
-        threshold_db: Minimum SNR threshold in dB
-        snr_column: Name of the SNR column
+        input_path: Path to input CSV (e.g., filtered_snr.csv)
         output_path: Path to save filtered records
-        dropped_path: Path to save dropped records
+        excluded_path: Path to save excluded species/records
+        min_recordings_per_location: Minimum count required (default 5)
+        location_col: Column name for location identifier
+        species_col: Column name for species identifier
+        record_id_col: Column name for unique record identifier
         
     Returns:
-        Tuple of (filtered_df, dropped_df)
+        Tuple of (kept_records, excluded_records)
     """
-    if snr_column not in df.columns:
-        raise ValueError(f"SNR column '{snr_column}' not found in DataFrame")
+    logger.info(f"Loading input data from {input_path}")
+    records = load_csv(input_path)
     
-    # Filter records where SNR > threshold
-    filtered_df = df[df[snr_column] > threshold_db].copy()
-    dropped_df = df[df[snr_column] <= threshold_db].copy()
+    if not records:
+        logger.warning("Input file is empty. Creating empty outputs.")
+        save_csv([], output_path)
+        save_csv([], excluded_path, fieldnames=['species_id', 'location_id', 'reason'])
+        return [], []
     
-    # Add reason for dropping if dropped_df is not empty
-    if not dropped_df.empty:
-        dropped_df['drop_reason'] = f'snr_below_{threshold_db}db'
+    # Count records per (species, location) pair
+    counts = {}
+    for rec in records:
+        species = rec.get(species_col, 'unknown')
+        location = rec.get(location_col, 'unknown')
+        key = (species, location)
+        counts[key] = counts.get(key, 0) + 1
     
-    # Save outputs if paths provided
-    if output_path:
-        save_csv(filtered_df, output_path)
-    if dropped_path:
-        dropped_path.parent.mkdir(parents=True, exist_ok=True)
-        save_csv(dropped_df, dropped_path)
+    # Identify valid (species, location) pairs
+    valid_pairs = {k for k, v in counts.items() if v >= min_recordings_per_location}
+    logger.info(f"Found {len(valid_pairs)} valid (species, location) pairs "
+               f"(>= {min_recordings_per_location} recordings each)")
+    
+    # Separate records
+    kept_records = []
+    excluded_records = []
+    
+    for rec in records:
+        species = rec.get(species_col, 'unknown')
+        location = rec.get(location_col, 'unknown')
+        key = (species, location)
         
-    logger.info(f"Filtered at {threshold_db}dB: kept {len(filtered_df)}, dropped {len(dropped_df)}")
-    return filtered_df, dropped_df
-
-def run_sensitivity_analysis(
-    input_path: Path,
-    thresholds: List[float],
-    output_dir: Path,
-    counts_path: Path
-) -> None:
-    """
-    Execute sensitivity analysis by running SNR filter with multiple thresholds.
+        if key in valid_pairs:
+            kept_records.append(rec)
+        else:
+            excluded_records.append({
+                'record_id': rec.get(record_id_col, ''),
+                species_col: species,
+                location_col: location,
+                'reason': f"insufficient_recordings (count={counts.get(key, 0)}, min={min_recordings_per_location})"
+            })
     
-    Args:
-        input_path: Path to the input dataset (filtered_snr.csv)
-        thresholds: List of SNR thresholds to test
-        output_dir: Directory to save sensitivity output files
-        counts_path: Path to save the sensitivity counts summary
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    logger.info(f"Kept {len(kept_records)} records, excluded {len(excluded_records)} records")
     
-    df = load_csv(input_path)
-    logger.info(f"Loaded input dataset with {len(df)} records")
+    # Save outputs
+    save_csv(kept_records, output_path)
     
-    results = []
+    # For excluded file, we need specific fieldnames
+    excluded_fieldnames = [record_id_col, species_col, location_col, 'reason']
+    save_csv(excluded_records, excluded_path, fieldnames=excluded_fieldnames)
     
-    for threshold in thresholds:
-        output_filename = f"sensitivity_{int(threshold)}db.csv"
-        dropped_filename = f"filtered_records_{int(threshold)}db.csv"
-        
-        output_path = output_dir / output_filename
-        dropped_path = output_dir / dropped_filename
-        
-        filtered_df, dropped_df = filter_by_snr_threshold(
-            df=df,
-            threshold_db=threshold,
-            snr_column='snr_db',
-            output_path=output_path,
-            dropped_path=dropped_path
-        )
-        
-        results.append({
-            'threshold': threshold,
-            'sample_size': len(filtered_df),
-            'dropped_count': len(dropped_df)
-        })
-        
-        logger.info(f"Threshold {threshold}dB: {len(filtered_df)} records retained")
+    logger.info(f"Saved filtered dataset to {output_path}")
+    logger.info(f"Saved excluded records to {excluded_path}")
     
-    # Save sensitivity counts summary
-    counts_df = pd.DataFrame(results)
-    counts_path.parent.mkdir(parents=True, exist_ok=True)
-    save_csv(counts_df, counts_path)
-    logger.info(f"Saved sensitivity counts to {counts_path}")
+    return kept_records, excluded_records
 
 def main():
-    """Main entry point for sensitivity analysis execution."""
-    project_root = get_project_root()
+    """
+    Main entry point for T018: Filter species with <5 valid recordings per location.
+    
+    Reads from data/interim/filtered_snr.csv (output of T017b)
+    Writes to:
+      - data/interim/species_filtered.csv (kept records)
+      - data/interim/species_excluded.csv (excluded records for audit trail)
+    """
+    root = get_project_root()
     interim_dir = get_interim_data_dir()
-    processed_dir = get_processed_data_dir()
     
-    # Input file from T017b
-    input_path = interim_dir / "filtered_snr.csv"
+    input_file = interim_dir / "filtered_snr.csv"
+    output_file = interim_dir / "species_filtered.csv"
+    excluded_file = interim_dir / "species_excluded.csv"
     
-    # Output directories and files
-    output_dir = processed_dir
-    counts_path = interim_dir / "sensitivity_counts.csv"
-    
-    # Thresholds to test (including 10 and 15 dB as required)
-    thresholds = [5.0, 10.0, 15.0]
-    
-    logger.info(f"Starting sensitivity analysis with thresholds: {thresholds}")
-    logger.info(f"Input: {input_path}")
-    logger.info(f"Output dir: {output_dir}")
+    logger.info("=" * 60)
+    logger.info("T018: Species Filter by Minimum Recordings per Location")
+    logger.info("=" * 60)
     
     try:
-        run_sensitivity_analysis(
-            input_path=input_path,
-            thresholds=thresholds,
-            output_dir=output_dir,
-            counts_path=counts_path
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
         )
-        logger.info("Sensitivity analysis completed successfully")
+        
+        logger.info("T018 completed successfully.")
+        logger.info(f"  - Input: {input_file} ({len(kept) + len(excluded)} total records)")
+        logger.info(f"  - Output: {output_file} ({len(kept)} kept)")
+        logger.info(f"  - Excluded: {excluded_file} ({len(excluded)} excluded)")
+        
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        logger.error("Ensure T017b (default SNR filter) has been run first.")
+        return 1
     except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}")
-        raise
+        logger.error(f"Error during species filtering: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    exit(main())

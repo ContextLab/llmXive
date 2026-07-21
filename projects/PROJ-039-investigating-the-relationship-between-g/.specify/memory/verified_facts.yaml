@@ -1,5 +1,5 @@
-'|applied pseudocount':
-  quote: '0.5'
-  source_id: Rule of succession
-  url: https://en.wikipedia.org/wiki/Rule_of_succession
-  value: '0.5'
+'|csv data found if matched pair processed valid write':
+  quote: 'P910: Q3920019'
+  source_id: Q28389
+  url: https://www.wikidata.org/wiki/Q28389
+  value: '10'

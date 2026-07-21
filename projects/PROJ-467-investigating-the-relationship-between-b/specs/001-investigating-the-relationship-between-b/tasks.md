@@ -57,7 +57,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Implement `src/brainnet/utils.py`: Seed handling (`np.random.seed(42)`), logging setup, and memory profiling decorators
+- [X] T006 [P] Implement `src/brainnet/utils.py`: Seed handling (`np.random.seed(42)`), logging setup, and memory profiling decorators
 - [ ] T007 [P] Create `contracts/raw_dataset.schema.yaml` and `contracts/network_metric.schema.yaml` per `data-model.md`
 - [ ] T008 [P] Implement `src/brainnet/preprocessing.py`: Motion correction, band-pass filtering (0.01–0.1 Hz), and MNI152 normalization using `nilearn`
 - [ ] T009 [P] Implement `src/brainnet/preprocessing.py`: ROI extraction using Schaefer-200 atlas (scale=200)

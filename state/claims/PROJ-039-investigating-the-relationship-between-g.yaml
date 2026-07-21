@@ -629,3 +629,348 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T13:24:58Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: QIIME2 version 2023.5 used for genus-level abundance generation
+  claim_id: c_7caf2f80
+  context: Implement code/preprocess_microbiome.py to download AGP data... Run QIIME2
+    version 2023.5 with CLI command...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run QIIME2 version 2023.5 with CLI command qiime feature-table summarize
+    --i-table table.qza --o-visualization table.qzv followed by qiime taxa barplot
+    to generate genus-level abundances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:06:29Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Pseudocount of 0.5 applied in microbiome preprocessing
+  claim_id: c_bfefae00
+  context: Run QIIME2 version 2023.5... Apply pseudocount=0.5. Output data/processed/microbiome_features.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply pseudocount=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:06:51Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: 'EEG preprocessing: 0.5-45 Hz filter, 20 FastICA components, 2-min epoch,
+    Welch''s alpha power'
+  claim_id: c_e59c5736
+  context: "Implement code/preprocess_eeg.py to download OpenNeuro dataset ds000248...\
+    \ Filter (0.5\u201345 Hz), run FastICA (20 components)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter (0.5\u201345 Hz), run FastICA (20 components), epoch (2-min),\
+    \ compute alpha power (Welch's method)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:07:24Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG subjects filtered if less than 80% valid epochs
+  claim_id: c_cd0c2530
+  context: "Filter (0.5\u201345 Hz), run FastICA (20 components)... Filter subjects\
+    \ with <80% valid epochs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EEG_subjects_filtered_if_less_than_80%25_valid_epochs
+  kind: magnitude
+  raw_text: Filter subjects with <80% valid epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:08:02Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Target of at least 50 EEG subjects for output
+  claim_id: c_a489a2f6
+  context: "Output data/processed/eeg_features.csv. NOTE: Output the available subjects\
+    \ (target \u226550)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_of_at_least_50_EEG_subjects_for_output
+  kind: magnitude
+  raw_text: "Output the available subjects (target \u226550)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:08:51Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Virtual Cohort Matching uses Nearest-Neighbor on Age, Sex, BMI as primary
+    method
+  claim_id: c_fce0eee1
+  context: 'Path A (Matching): Match AGP and OpenNeuro subjects based on (Age, Sex,
+    BMI) using Nearest-Neighbor matching...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Virtual_Cohort_Matching_uses_Nearest-Neighbor_on_Age,_Sex,_B
+  kind: entity_fact
+  raw_text: Match AGP and OpenNeuro subjects based on (Age, Sex, BMI) using Nearest-Neighbor
+    matching (scikit-learn NearestNeighbors) as the PRIMARY method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:09:14Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Propensity Score matching used as fallback if Nearest-Neighbor yields
+    fewer than 10 pairs
+  claim_id: c_5c5ef411
+  context: 'Fallback Logic: If Nearest-Neighbor fails to converge or returns <10 pairs,
+    attempt Propensity Score matching...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Propensity_Score_matching_used_as_fallback_if_Nearest-Neighb
+  kind: magnitude
+  raw_text: If Nearest-Neighbor fails to converge or returns <10 pairs, attempt Propensity
+    Score matching as a secondary method.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:10:03Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Path A selected and matched_pairs.csv written if at least 10 valid pairs
+    found
+  claim_id: c_c41cc4e3
+  context: "Decision Criterion: If \u226510 valid matched pairs are found... Write\
+    \ data/processed/matched_pairs.csv."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P910: Q3920019'
+      source_id: Q28389
+      url: https://www.wikidata.org/wiki/Q28389
+      value: '10'
+    filled: true
+  kind: magnitude
+  raw_text: "If \u226510 valid matched pairs are found... Write data/processed/matched_pairs.csv."
+  resolved_value: '10'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T19:10:16Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Distributional comparison uses median split of top taxa to create High/Low
+    groups
+  claim_id: c_3b19a55a
+  context: 'Path B (Fallback): If <10 valid pairs are found... Split AGP data into
+    High/Low abundance groups (median split) for top taxa.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distributional_comparison_uses_median_split_of_top_taxa_to_c
+  kind: entity_fact
+  raw_text: Split AGP data into High/Low abundance groups (median split) for top taxa.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:10:44Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Spearman correlation calculated for top 20 taxa against mean alpha power
+  claim_id: c_1438e937
+  context: 'If Path A (matched_pairs.csv exists): Perform Spearman correlation between
+    the 20 taxa with the highest mean relative abundance...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_calculated_for_top_20_taxa_against_mean
+  kind: magnitude
+  raw_text: Perform Spearman correlation between the 20 taxa with the highest mean
+    relative abundance and mean alpha power per matched pair.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:11:15Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR applied with q < 0.1
+  claim_id: c_a5dc77ec
+  context: Perform Spearman correlation... Apply Benjamini-Hochberg FDR (q<0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg FDR (q<0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:11:15Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Mann-Whitney U or Kolmogorov-Smirnov tests used for Path B distributional
+    comparison
+  claim_id: c_97d6d3e6
+  context: 'If Path B (distribution_groups.csv exists): Perform Mann-Whitney U or
+    Kolmogorov-Smirnov tests comparing alpha power distributions...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mann-Whitney_U_or_Kolmogorov-Smirnov_tests_used_for_Path_B_d
+  kind: entity_fact
+  raw_text: Perform Mann-Whitney U or Kolmogorov-Smirnov tests comparing alpha power
+    distributions between High/Low abundance groups.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:12:05Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation test passed if statistic exceeds 95th percentile of null
+    distribution
+  claim_id: c_9873428b
+  context: Pass the random seed... Set perm_test_passed boolean if observed statistic
+    exceeds the 95th percentile of null distribution...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_passed_if_statistic_exceeds_95th_percentile
+  kind: entity_fact
+  raw_text: Set perm_test_passed boolean if observed statistic exceeds the 95th percentile
+    of null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:12:32Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Associational disclaimer string injected into all result JSONs and reports
+  claim_id: c_1112522a
+  context: 'Inject the exact string ''Note: This analysis is associational only; no
+    causal inference is made.'' into all result JSONs and reports'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Associational_disclaimer_string_injected_into_all_result_JSO
+  kind: entity_fact
+  raw_text: 'Inject the exact string ''Note: This analysis is associational only;
+    no causal inference is made.'' into all result JSONs and reports.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:12:59Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Performance report generated with max memory, runtime, and peak CPU metrics
+  claim_id: c_bd068944
+  context: Optimize memory usage... Generate artifacts/performance_report.json containing...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_report_generated_with_max_memory,_runtime,_and_p
+  kind: entity_fact
+  raw_text: 'Generate artifacts/performance_report.json containing {"max_memory_mb":
+    <int>, "total_runtime_seconds": <int>, "peak_cpu_percent": <int>} to prove constraints
+    were met.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:13:07Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage optimized to less than 5GB and runtime under 6 hours
+  claim_id: c_995f4052
+  context: Optimize memory usage in code/preprocess_eeg.py and code/match_cohorts.py
+    to ensure <5GB RAM usage; verify runtime <6 hours.
+  evidence:
+    candidates:
+    - - GB and runtime under
+      - 6.0
+    - - Memory usage optimized to less than
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_optimized_to_less_than_5GB_and_runtime_under_6
+  kind: magnitude
+  raw_text: Optimize memory usage... to ensure <5GB RAM usage; verify runtime <6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-21T19:13:30Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity reduced to less than 10 in correlation analysis
+    script
+  claim_id: c_b8634aaf
+  context: Refactor code/correlation_analysis.py to reduce cyclomatic complexity (<10)
+    and improve readability
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_reduced_to_less_than_10_in_correlation
+  kind: magnitude
+  raw_text: Refactor code/correlation_analysis.py to reduce cyclomatic complexity
+    (<10) and improve readability.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:13:53Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Discrepancy noted between plan.md (ds000246) and spec/constitution (ds000248)
+    dataset IDs
+  claim_id: c_43c4d44e
+  context: 'CRITICAL: The plan.md references ''ds000246'' while tasks and constitution
+    reference ''ds000248''.'
+  evidence:
+    entailment_evidence: Discrepancy noted between plan.md (ds000246) and spec/consti
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Discrepancy_noted_between_plan.md_(ds000246)_and_spec/consti
+  kind: entity_fact
+  raw_text: The plan.md references 'ds000246' while tasks and constitution reference
+    'ds000248'.
+  resolved_value: Discrepancy noted between plan.md (ds000246) and spec/constitution
+    (ds000248) dataset IDs
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T19:13:55Z'

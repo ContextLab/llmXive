@@ -364,7 +364,24 @@
   status: not_enough_info
   updated_at: '2026-07-17T04:17:45Z'
 - artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 2
+  attempts: 1
+  canonical: HCP dataset expected subject count 1200 plus or minus 50; alternative
+    custom dataset expected count 1000 plus or minus 100
+  claim_id: c_a6fa7bfb
+  context: "Validates subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "expected N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:53:33Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 3
   canonical: Custom study tactile measurement protocol requires at least 50 subjects
   claim_id: c_be6f44e0
   context: "Add tactile measurement protocol to a custom study (2\u2011point discrimination\
@@ -380,4 +397,183 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-17T04:19:19Z'
+  updated_at: '2026-07-21T18:54:29Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein DOI citation 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_62953167
+  context: 'Implement src/brainnet/data_loader.py: Function to load tactile instrument
+    metadata and cite cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+    per FR-007'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 10.1016/j.neuropsychologia.2011.04.012
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:54:30Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA fallback retains at least 90 percent variance
+  claim_id: c_14727293
+  context: "perform PCA retaining \u226590% variance; save data/processed/pca_components.parquet\
+    \ and flag analysis"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_fallback_retains_at_least_90_percent_variance
+  kind: magnitude
+  raw_text: "\u226590% variance"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:54:57Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Band-pass filtering range set to 0.01 to 0.1 Hz
+  claim_id: c_1baf0308
+  context: "Motion correction, band-pass filtering (0.01\u20130.1 Hz), and MNI152\
+    \ normalization using nilearn"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "0.01\u20130.1 Hz"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:55:20Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Network dynamics computation subject constraint of 100 subjects or less
+  claim_id: c_47684c64
+  context: "Compute static and dynamic network metrics (modularity, segregation, flexibility)\
+    \ within \u22643 hours for \u2264100 subjects and \u22646.5GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u2264100 subjects"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:55:20Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Network dynamics computation memory constraint of 6.5 GB RAM or less
+  claim_id: c_ffe6acec
+  context: "Compute static and dynamic network metrics (modularity, segregation, flexibility)\
+    \ within \u22643 hours for \u2264100 subjects and \u22646.5GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u22646.5GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:55:20Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Data completeness validation requires at least 95 percent subjects
+  claim_id: c_a0684242
+  context: "Load HCP dataset, validate tactile score presence, and ensure data completeness\
+    \ (\u226595% subjects)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_validation_requires_at_least_95_percent_su
+  kind: magnitude
+  raw_text: "\u226595% subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:55:22Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP dataset expected subject count 1200 plus or minus 50
+  claim_id: c_4f3c8d93
+  context: "Function validate_completeness() to compute missing value rates. Validates\
+    \ subject count matches the selected dataset documentation (expected N\u22481200\xB1\
+    50 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate subject count matches the selected dataset documentation (expected\
+    \ N\u22481200\xB150 for HCP or N\u22481000\xB1100 for alternative/custom)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:56:49Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dynamic modularity time-series computed using Louvain algorithm per window
+  claim_id: c_1f81f87b
+  context: 'Implement src/brainnet/dynamic_metrics.py: Compute dynamic modularity
+    time-series (Louvain per window)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dynamic_modularity_time-series_computed_using_Louvain_algori
+  kind: entity_fact
+  raw_text: Compute dynamic modularity time-series (Louvain per window)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:57:16Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Flexibility metric defined as count of community changes per node across
+    windows
+  claim_id: c_32a00931
+  context: 'Implement src/brainnet/dynamic_metrics.py: Compute Flexibility metric
+    (count of community changes per node across windows) per research.md'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flexibility_metric_defined_as_count_of_community_changes_per
+  kind: entity_fact
+  raw_text: Compute Flexibility metric (count of community changes per node across
+    windows) per research.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:57:57Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction q less than or equal to 0.05 applied
+    to 5 or more hypothesis tests
+  claim_id: c_e1a2491f
+  context: "Implement src/brainnet/analysis.py: Apply Benjamini-Hochberg FDR (q\u2264\
+    0.05) to all \u22655 hypothesis tests"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_q_less_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: "Apply Benjamini-Hochberg FDR (q\u22640.05) to all \u22655 hypothesis\
+    \ tests"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T18:58:21Z'

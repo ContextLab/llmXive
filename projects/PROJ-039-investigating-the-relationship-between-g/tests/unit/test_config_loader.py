@@ -1,16 +1,12 @@
-"""
-Unit tests for the configuration loader module.
-"""
 import os
-import sys
-import yaml
 import tempfile
-from pathlib import Path
+import yaml
 import pytest
+from pathlib import Path
 
-# Add code directory to path for imports
-code_dir = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
+# Add parent directory to path to allow imports from code/
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from config_loader import (
     load_preprocess_config,
@@ -18,223 +14,115 @@ from config_loader import (
     get_ica_settings,
     get_pseudocount,
     validate_config,
-    _apply_defaults
+    DEFAULT_CONFIG
 )
 
-
-class TestLoadPreprocessConfig:
-    """Tests for load_preprocess_config function."""
-
-    def test_load_from_default_path(self, tmp_path):
-        """Test loading config from default path when file exists."""
-        # Create a temporary config file
-        processed_dir = tmp_path / "data" / "processed"
-        processed_dir.mkdir(parents=True)
+class TestConfigLoader:
+    def test_load_default_config(self):
+        """Test that loading a non-existent file returns defaults."""
+        config = load_preprocess_config("/nonexistent/path.yaml")
         
-        config_content = {
-            "filter_bands": {"low_cutoff": 1.0, "high_cutoff": 40.0},
-            "ica_settings": {"n_components": 15},
-            "pseudocount": 0.25
-        }
-        
-        config_file = processed_dir / "preprocess.yaml"
-        with open(config_file, 'w') as f:
-            yaml.dump(config_content, f)
-        
-        # Mock get_project_root to return tmp_path
-        import config_loader
-        original_get_project_root = config_loader.get_project_root
-        config_loader.get_project_root = lambda: tmp_path
-        
-        try:
-            config = load_preprocess_config()
-            assert config["filter_bands"]["low_cutoff"] == 1.0
-            assert config["filter_bands"]["high_cutoff"] == 40.0
-            assert config["ica_settings"]["n_components"] == 15
-            assert config["pseudocount"] == 0.25
-        finally:
-            config_loader.get_project_root = original_get_project_root
-
-    def test_load_from_custom_path(self, tmp_path):
-        """Test loading config from a custom path."""
-        config_content = {
-            "filter_bands": {"low_cutoff": 0.5, "high_cutoff": 45.0},
-            "pseudocount": 0.5
-        }
-        
-        custom_config = tmp_path / "custom_config.yaml"
-        with open(custom_config, 'w') as f:
-            yaml.dump(config_content, f)
-        
-        config = load_preprocess_config(str(custom_config))
-        assert config["filter_bands"]["low_cutoff"] == 0.5
+        assert config["filter_bands"]["low_cut"] == 0.5
+        assert config["filter_bands"]["high_cut"] == 45.0
+        assert config["ica_settings"]["n_components"] == 20
         assert config["pseudocount"] == 0.5
 
-    def test_missing_config_file_raises_error(self, tmp_path):
-        """Test that missing config file raises FileNotFoundError."""
-        import config_loader
-        original_get_project_root = config_loader.get_project_root
-        config_loader.get_project_root = lambda: tmp_path / "nonexistent"
-        
-        try:
-            with pytest.raises(FileNotFoundError):
-                load_preprocess_config()
-        finally:
-            config_loader.get_project_root = original_get_project_root
-
-    def test_empty_config_uses_defaults(self, tmp_path):
-        """Test that empty config file uses all default values."""
-        processed_dir = tmp_path / "data" / "processed"
-        processed_dir.mkdir(parents=True)
-        
-        config_file = processed_dir / "preprocess.yaml"
-        with open(config_file, 'w') as f:
-            f.write("")  # Empty file
-        
-        import config_loader
-        original_get_project_root = config_loader.get_project_root
-        config_loader.get_project_root = lambda: tmp_path
-        
-        try:
-            config = load_preprocess_config()
-            assert config["filter_bands"]["low_cutoff"] == 0.5
-            assert config["ica_settings"]["n_components"] == 20
-            assert config["pseudocount"] == 0.5
-        finally:
-            config_loader.get_project_root = original_get_project_root
-
-
-class TestGetFilterBands:
-    """Tests for get_filter_bands function."""
-
-    def test_extract_filter_bands(self, tmp_path):
-        """Test extraction of filter band parameters."""
-        config = {
+    def test_load_custom_config(self):
+        """Test loading a custom configuration file."""
+        custom_config = {
             "filter_bands": {
-                "low_cutoff": 1.0,
-                "high_cutoff": 40.0,
-                "notch_freq": 50.0
-            }
+                "low_cut": 1.0,
+                "high_cut": 40.0,
+                "order": 2
+            },
+            "pseudocount": 1.0
         }
         
-        bands = get_filter_bands(config)
-        assert bands["low_cutoff"] == 1.0
-        assert bands["high_cutoff"] == 40.0
-        assert bands["notch_freq"] == 50.0
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(custom_config, f)
+            temp_path = f.name
+        
+        try:
+            config = load_preprocess_config(temp_path)
+            
+            # Custom values should be present
+            assert config["filter_bands"]["low_cut"] == 1.0
+            assert config["filter_bands"]["high_cut"] == 40.0
+            assert config["pseudocount"] == 1.0
+            
+            # Default values should be merged in
+            assert config["ica_settings"]["n_components"] == 20
+        finally:
+            os.unlink(temp_path)
 
+    def test_get_filter_bands(self):
+        """Test extraction of filter band settings."""
+        config = load_preprocess_config()
+        fb = get_filter_bands(config)
+        
+        assert "low_cut" in fb
+        assert "high_cut" in fb
+        assert "order" in fb
+        assert isinstance(fb["low_cut"], float)
 
-class TestGetICASettings:
-    """Tests for get_ica_settings function."""
-
-    def test_extract_ica_settings(self, tmp_path):
+    def test_get_ica_settings(self):
         """Test extraction of ICA settings."""
-        config = {
-            "ica_settings": {
-                "n_components": 25,
-                "algorithm": "infomax",
-                "random_state": 123,
-                "max_iter": 1000
-            }
-        }
-        
+        config = load_preprocess_config()
         ica = get_ica_settings(config)
-        assert ica["n_components"] == 25
-        assert ica["algorithm"] == "infomax"
-        assert ica["random_state"] == 123
-        assert ica["max_iter"] == 1000
+        
+        assert "n_components" in ica
+        assert "method" in ica
+        assert "random_state" in ica
+        assert ica["method"] in ["fastica", "infomax", "picard"]
 
+    def test_get_pseudocount(self):
+        """Test extraction of pseudocount."""
+        config = load_preprocess_config()
+        pc = get_pseudocount(config)
+        
+        assert isinstance(pc, float)
+        assert pc >= 0
 
-class TestGetPseudocount:
-    """Tests for get_pseudocount function."""
-
-    def test_extract_pseudocount(self, tmp_path):
-        """Test extraction of pseudocount value."""
-        config = {"pseudocount": 0.75}
-        assert get_pseudocount(config) == 0.75
-
-
-class TestValidateConfig:
-    """Tests for validate_config function."""
-
-    def test_valid_config(self, tmp_path):
+    def test_validate_config_valid(self):
         """Test validation of a valid configuration."""
         config = {
-            "filter_bands": {
-                "low_cutoff": 0.5,
-                "high_cutoff": 45.0,
-                "notch_freq": 60.0
-            },
-            "ica_settings": {
-                "n_components": 20,
-                "max_iter": 500
-            },
+            "filter_bands": {"low_cut": 0.5, "high_cut": 45.0, "order": 4},
+            "ica_settings": {"n_components": 20, "method": "fastica"},
             "pseudocount": 0.5
         }
         
         errors = validate_config(config)
         assert len(errors) == 0
 
-    def test_invalid_low_cutoff(self, tmp_path):
-        """Test validation catches negative low_cutoff."""
+    def test_validate_config_invalid_filter_bands(self):
+        """Test validation catches invalid filter bands."""
         config = {
-            "filter_bands": {
-                "low_cutoff": -1.0,
-                "high_cutoff": 45.0
-            }
+            "filter_bands": {"low_cut": 50.0, "high_cut": 40.0, "order": 4},
+            "ica_settings": {"n_components": 20, "method": "fastica"},
+            "pseudocount": 0.5
         }
         
         errors = validate_config(config)
-        assert len(errors) > 0
-        assert any("low_cutoff" in e for e in errors)
+        assert any("low_cut" in e for e in errors)
 
-    def test_invalid_high_low_order(self, tmp_path):
-        """Test validation catches high_cutoff <= low_cutoff."""
+    def test_validate_config_invalid_ica(self):
+        """Test validation catches invalid ICA settings."""
         config = {
-            "filter_bands": {
-                "low_cutoff": 50.0,
-                "high_cutoff": 45.0
-            }
+            "filter_bands": {"low_cut": 0.5, "high_cut": 45.0, "order": 4},
+            "ica_settings": {"n_components": 0, "method": "invalid_method"},
+            "pseudocount": 0.5
         }
         
         errors = validate_config(config)
-        assert len(errors) > 0
-        assert any("high_cutoff" in e and "low_cutoff" in e for e in errors)
+        assert any("n_components" in e or "method" in e for e in errors)
 
-    def test_invalid_n_components(self, tmp_path):
-        """Test validation catches non-positive n_components."""
+    def test_validate_config_invalid_pseudocount(self):
+        """Test validation catches negative pseudocount."""
         config = {
-            "ica_settings": {
-                "n_components": 0
-            }
+            "filter_bands": {"low_cut": 0.5, "high_cut": 45.0, "order": 4},
+            "ica_settings": {"n_components": 20, "method": "fastica"},
+            "pseudocount": -1.0
         }
         
         errors = validate_config(config)
-        assert len(errors) > 0
-        assert any("n_components" in e for e in errors)
-
-
-class TestApplyDefaults:
-    """Tests for _apply_defaults function."""
-
-    def test_defaults_filled_for_missing_keys(self, tmp_path):
-        """Test that missing keys get default values."""
-        config = {}
-        result = _apply_defaults(config)
-        
-        assert "filter_bands" in result
-        assert "ica_settings" in result
-        assert "pseudocount" in result
-        assert result["pseudocount"] == 0.5
-        assert result["ica_settings"]["n_components"] == 20
-
-    def test_user_values_preserved(self, tmp_path):
-        """Test that user-provided values override defaults."""
-        config = {
-            "pseudocount": 1.0,
-            "ica_settings": {"n_components": 10}
-        }
-        result = _apply_defaults(config)
-        
-        assert result["pseudocount"] == 1.0
-        assert result["ica_settings"]["n_components"] == 10
-        assert result["ica_settings"]["algorithm"] == "fastica"  # default preserved
+        assert any("pseudocount" in e for e in errors)

@@ -1,3 +1,8 @@
+"""
+Unit tests for T018: Species filtering by minimum recordings per location.
+
+Tests the filter_species_by_min_recordings function in src/data/preprocessing.py
+"""
 import os
 import sys
 import tempfile
@@ -5,165 +10,236 @@ import csv
 import pytest
 from pathlib import Path
 
-# Add the project root to the path
+# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from src.data.preprocessing import filter_species_by_recording_count
+from src.data.preprocessing import filter_species_by_min_recordings, load_csv, save_csv
 
 class TestSpeciesFilter:
-    """Tests for the species filtering logic (T018b)."""
+    """Test suite for species filtering logic."""
 
-    def test_filter_species_by_recording_count_basic(self):
-        """Test basic filtering: keep groups with >= 5 records, drop others."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            audit_file = tmpdir / "audit.csv"
-
-            # Create test data
-            # Group 1: 5 records (should be kept)
-            # Group 2: 3 records (should be dropped)
-            # Group 3: 6 records (should be kept)
-            data = [
-                {"species_id": "A", "location_id": "L1", "value": 1},
-                {"species_id": "A", "location_id": "L1", "value": 2},
-                {"species_id": "A", "location_id": "L1", "value": 3},
-                {"species_id": "A", "location_id": "L1", "value": 4},
-                {"species_id": "A", "location_id": "L1", "value": 5},
-                {"species_id": "B", "location_id": "L1", "value": 1},
-                {"species_id": "B", "location_id": "L1", "value": 2},
-                {"species_id": "B", "location_id": "L1", "value": 3},
-                {"species_id": "C", "location_id": "L2", "value": 1},
-                {"species_id": "C", "location_id": "L2", "value": 2},
-                {"species_id": "C", "location_id": "L2", "value": 3},
-                {"species_id": "C", "location_id": "L2", "value": 4},
-                {"species_id": "C", "location_id": "L2", "value": 5},
-                {"species_id": "C", "location_id": "L2", "value": 6},
-            ]
-
-            with open(input_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=["species_id", "location_id", "value"])
+    def _create_test_csv(self, records, filepath):
+        """Helper to create a test CSV file."""
+        if records:
+            fieldnames = list(records[0].keys())
+            with open(filepath, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                writer.writerows(data)
+                writer.writerows(records)
+        else:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write("")
 
-            retained, excluded = filter_species_by_recording_count(
-                input_file=str(input_file),
-                min_count=5,
-                output_file=str(output_file),
-                audit_file=str(audit_file)
-            )
+    def test_filter_keeps_species_with_sufficient_recordings(self, tmp_path):
+        """Test that species with >=5 recordings per location are kept."""
+        # Create test data: Species A has 5 recordings at Loc1, Species B has 3
+        records = [
+            {'record_id': '1', 'species_id': 'A', 'location_id': 'L1'},
+            {'record_id': '2', 'species_id': 'A', 'location_id': 'L1'},
+            {'record_id': '3', 'species_id': 'A', 'location_id': 'L1'},
+            {'record_id': '4', 'species_id': 'A', 'location_id': 'L1'},
+            {'record_id': '5', 'species_id': 'A', 'location_id': 'L1'},  # Exactly 5
+            {'record_id': '6', 'species_id': 'B', 'location_id': 'L1'},
+            {'record_id': '7', 'species_id': 'B', 'location_id': 'L1'},
+            {'record_id': '8', 'species_id': 'B', 'location_id': 'L1'},  # Only 3
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        # Species A should be kept (5 records)
+        assert len(kept) == 5
+        assert all(rec['species_id'] == 'A' for rec in kept)
+        
+        # Species B should be excluded (3 records)
+        assert len(excluded) == 3
+        assert all(rec['species_id'] == 'B' for rec in excluded)
 
-            # Group A (5 records) and Group C (6 records) should be retained
-            # Group B (3 records) should be excluded
-            assert len(retained) == 11  # 5 + 6
-            assert len(excluded) == 3   # 3
+    def test_filter_exactly_at_threshold(self, tmp_path):
+        """Test boundary condition: exactly 5 recordings should be kept."""
+        records = [
+            {'record_id': str(i), 'species_id': 'X', 'location_id': 'Y'}
+            for i in range(1, 6)  # Exactly 5 records
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        assert len(kept) == 5
+        assert len(excluded) == 0
 
-            # Check that excluded records have the reason
-            for rec in excluded:
-                assert "exclusion_reason" in rec
-                assert "insufficient_count" in rec["exclusion_reason"]
+    def test_filter_below_threshold(self, tmp_path):
+        """Test that species with 4 recordings are excluded."""
+        records = [
+            {'record_id': str(i), 'species_id': 'Z', 'location_id': 'M'}
+            for i in range(1, 5)  # Only 4 records
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        assert len(kept) == 0
+        assert len(excluded) == 4
 
-            # Verify output file content
-            with open(output_file, 'r') as f:
-                reader = csv.DictReader(f)
-                output_data = list(reader)
-                assert len(output_data) == 11
+    def test_multiple_locations_same_species(self, tmp_path):
+        """Test species with sufficient records at one location but not another."""
+        records = [
+            # Species A: 5 at L1 (keep), 3 at L2 (exclude those)
+            {'record_id': f'A_L1_{i}', 'species_id': 'A', 'location_id': 'L1'} for i in range(1, 6)
+        ] + [
+            {'record_id': f'A_L2_{i}', 'species_id': 'A', 'location_id': 'L2'} for i in range(1, 4)
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        # Only L1 records should be kept
+        assert len(kept) == 5
+        assert all(rec['location_id'] == 'L1' for rec in kept)
+        
+        # L2 records should be excluded
+        assert len(excluded) == 3
+        assert all(rec['location_id'] == 'L2' for rec in excluded)
 
-            # Verify audit file content
-            with open(audit_file, 'r') as f:
-                reader = csv.DictReader(f)
-                audit_data = list(reader)
-                assert len(audit_data) == 3
-                # Check species_id of excluded records
-                excluded_species = [r['species_id'] for r in audit_data]
-                assert all(s == 'B' for s in excluded_species)
+    def test_empty_input(self, tmp_path):
+        """Test handling of empty input file."""
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        # Create empty file
+        input_file.touch()
+        
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        assert len(kept) == 0
+        assert len(excluded) == 0
 
-    def test_filter_species_all_excluded(self):
-        """Test when all groups have fewer than min_count records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            audit_file = tmpdir / "audit.csv"
+    def test_output_files_created(self, tmp_path):
+        """Test that output files are actually written to disk."""
+        records = [
+            {'record_id': str(i), 'species_id': 'S', 'location_id': 'L'}
+            for i in range(1, 6)
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=5,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        
+        assert output_file.exists(), "Output file should be created"
+        assert excluded_file.exists(), "Excluded file should be created"
+        
+        # Verify content
+        kept_records = load_csv(output_file)
+        assert len(kept_records) == 5
 
-            data = [
-                {"species_id": "A", "location_id": "L1", "value": 1},
-                {"species_id": "A", "location_id": "L1", "value": 2},
-                {"species_id": "B", "location_id": "L2", "value": 1},
-            ]
+    def test_custom_min_threshold(self, tmp_path):
+        """Test with different minimum threshold values."""
+        records = [
+            {'record_id': str(i), 'species_id': 'T', 'location_id': 'X'}
+            for i in range(1, 8)  # 7 records
+        ]
+        
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        excluded_file = tmp_path / "excluded.csv"
+        
+        self._create_test_csv(records, input_file)
+        
+        # Test with threshold 3: should keep all
+        kept, _ = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=3,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        assert len(kept) == 7
 
-            with open(input_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=["species_id", "location_id", "value"])
-                writer.writeheader()
-                writer.writerows(data)
-
-            retained, excluded = filter_species_by_recording_count(
-                input_file=str(input_file),
-                min_count=5,
-                output_file=str(output_file),
-                audit_file=str(audit_file)
-            )
-
-            assert len(retained) == 0
-            assert len(excluded) == 3
-
-    def test_filter_species_all_retained(self):
-        """Test when all groups have >= min_count records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            audit_file = tmpdir / "audit.csv"
-
-            data = [
-                {"species_id": "A", "location_id": "L1", "value": 1},
-                {"species_id": "A", "location_id": "L1", "value": 2},
-                {"species_id": "A", "location_id": "L1", "value": 3},
-                {"species_id": "A", "location_id": "L1", "value": 4},
-                {"species_id": "A", "location_id": "L1", "value": 5},
-                {"species_id": "B", "location_id": "L2", "value": 1},
-                {"species_id": "B", "location_id": "L2", "value": 2},
-                {"species_id": "B", "location_id": "L2", "value": 3},
-                {"species_id": "B", "location_id": "L2", "value": 4},
-                {"species_id": "B", "location_id": "L2", "value": 5},
-            ]
-
-            with open(input_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=["species_id", "location_id", "value"])
-                writer.writeheader()
-                writer.writerows(data)
-
-            retained, excluded = filter_species_by_recording_count(
-                input_file=str(input_file),
-                min_count=5,
-                output_file=str(output_file),
-                audit_file=str(audit_file)
-            )
-
-            assert len(retained) == 10
-            assert len(excluded) == 0
-
-    def test_empty_input(self):
-        """Test with an empty input file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            audit_file = tmpdir / "audit.csv"
-
-            with open(input_file, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=["species_id", "location_id", "value"])
-                writer.writeheader()
-                # No data rows
-
-            retained, excluded = filter_species_by_recording_count(
-                input_file=str(input_file),
-                min_count=5,
-                output_file=str(output_file),
-                audit_file=str(audit_file)
-            )
-
-            assert len(retained) == 0
-            assert len(excluded) == 0
+        # Test with threshold 8: should exclude all
+        kept, excluded = filter_species_by_min_recordings(
+            input_path=input_file,
+            output_path=output_file,
+            excluded_path=excluded_file,
+            min_recordings_per_location=8,
+            location_col='location_id',
+            species_col='species_id',
+            record_id_col='record_id'
+        )
+        assert len(kept) == 0
+        assert len(excluded) == 7

@@ -39,7 +39,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `src/utils/config.py` for paths, seeds, and constants <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T004 Create `src/utils/config.py` for paths, seeds, and constants <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 6, column 5:
  * **Seeds**: `SEED` and `RANDO...
  ^
@@ -47,7 +47,7 @@ expected alphabetic or numeric character, but found ' '
  in "<unicode string>", line 6, column 6:
  * **Seeds**: `SEED` and `RANDOM...
  ^) -->
-- [ ] T005 Create `src/utils/logging.py` for error handling and filtered logs
+- [X] T005 Create `src/utils/logging.py` for error handling and filtered logs
 - [ ] T006 Create `contracts/dataset.schema.yaml` defining input/output schemas
 - [ ] T007 Create `contracts/output.schema.yaml` defining model result schemas
 - [ ] T009 [P] Implement unit tests for config and logging utilities
@@ -66,7 +66,7 @@ expected alphabetic or numeric character, but found ' '
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Write contract test for the `noise_mapped.csv` schema definition in `tests/contract/test_dataset_schema.py`
+- [X] T010 [P] [US1] Write contract test for the `noise_mapped.csv` schema definition in `tests/contract/test_dataset_schema.py`
 - [X] T011 [P] [US1] Write contract test for the `vocal_metrics.csv` schema definition in `tests/contract/test_dataset_schema.py`
 - [X] T012 [P] [US1] Unit test for OSM land-use to noise mapping logic in `tests/unit/test_osm_mapping.py`
 - [X] T013 [P] [US1] Unit test for SNR calculation and filtering logic in `tests/unit/test_snr_filter.py`
@@ -74,13 +74,13 @@ expected alphabetic or numeric character, but found ' '
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] Implement `src/data/acquisition.py` to fetch metadata/audio from Xeno-canto API and save to `data/raw/`
-- [~] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to query OpenStreetMap via `osmnx` for land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30). **Constraint**: If OSM data is missing, **drop the record** (Plan Summary). Output: `data/interim/noise_mapped.csv`. Log dropped records to `data/interim/dropped_missing_osm.csv`.
+- [ ] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to query OpenStreetMap via `osmnx` for land-use at coordinates and map to noise levels (Urban=60, Rural=40, Wild=30). **Constraint**: If OSM data is missing, **drop the record** (Plan Summary). Output: `data/interim/noise_mapped.csv`. Log dropped records to `data/interim/dropped_missing_osm.csv`.
 - [ ] T015c [US1] **Validation**: Implement logic to validate OSM noise proxies against the Global Soundscapes dataset (if available) with ≤2 dB(A) deviation. If Global Soundscapes is unavailable, log the deviation and the justification for using OSM-only data in `data/interim/validation_log.csv` to satisfy FR-002.
 - [ ] T017a [US1] **Filtering Engine**: Implement the core parameterized filtering logic in `src/data/preprocessing.py` that accepts an SNR threshold argument and returns filtered records and exclusion logs. Output: `data/interim/filtered_snr.csv`.
 - [ ] T017b [US1] **Default Execution**: Execute the filtering engine from T017a with the default dB threshold to generate the primary `data/interim/filtered_snr.csv`.
-- [ ] T018 [US1] Implement `src/data/preprocessing.py` to filter species with <5 valid recordings per location and log exclusions.
+- [X] T018 [US1] Implement `src/data/preprocessing.py` to filter species with <5 valid recordings per location and log exclusions.
 - [ ] T018b [US1] **Audit Trail**: Generate `data/interim/species_filtered.csv` containing all species excluded by T018.
-- [~] T021 [US1] **Logging**: Generate `data/interim/dropped_records.csv` containing all records excluded by T015 (missing OSM), T017 (SNR ≤ 10 dB), and T018 (species count) to satisfy US-1 Acceptance Scenario 3.
+- [ ] T021 [US1] **Logging**: Generate `data/interim/dropped_records.csv` containing all records excluded by T015 (missing OSM), T017 (SNR ≤ 10 dB), and T018 (species count) to satisfy US-1 Acceptance Scenario 3.
 - [ ] T019 [US1] Implement `src/data/extraction.py` to extract vocal metrics (syllable count, duration, bandwidth, spectral entropy) using `librosa` (CPU-only).
 - [ ] T020 [US1] Implement `src/data/preprocessing.py` to combine filtered data and extracted metrics to generate `data/processed/final_dataset.csv` and validate against `contracts/dataset.schema.yaml`.
 
@@ -98,8 +98,8 @@ expected alphabetic or numeric character, but found ' '
 
 ### Tests for User Story 2
 
-- [~] T022 [P] [US2] Contract test for `data/processed/model_results.csv` in `tests/contract/test_output_schema.py`
-- [~] T023 [P] [US2] Unit test for LOSO cross-validation split logic in `tests/unit/test_loso_cv.py`
+- [ ] T022 [P] [US2] Contract test for `data/processed/model_results.csv` in `tests/contract/test_output_schema.py`
+- [ ] T023 [P] [US2] Unit test for LOSO cross-validation split logic in `tests/unit/test_loso_cv.py`
 
 ### Implementation for User Story 2
 

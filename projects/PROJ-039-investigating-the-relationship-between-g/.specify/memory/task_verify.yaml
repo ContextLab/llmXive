@@ -1,12 +1,7 @@
-T006 [P] Create utility functions for checksum verification (MD5/SHA256) to enforce `artifacts/checksums.txt` protocol: 2
-? T007 Implement random seed management utility to ensure reproducibility across statistical
-  runs (must be importable by all analysis scripts)
-: 2
-T008 Create base configuration loader to read `preprocess.yaml` parameters (filter bands, ICA settings, pseudocount): 2
-? T010 [P] [US1] Contract test for data loading in `tests/contract/test_data_loading.py`
-  (verify schema compliance for matched pairs or distribution groups)
-: 2
-? 'T011 [P] [US1] Integration test for full preprocessing and matching pipeline in
-  `tests/integration/test_preprocessing.py` (verify file existence, row counts, and
-  successful path selection) <!-- ATOMIZE: requested -->'
-: 2
+T006: 1
+T007: 1
+T008: 1
+T012: 1
+T013: 1
+T019: 1
+T023: 1
