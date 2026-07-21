@@ -16,6 +16,7 @@ Outputs:
     data/raw/synthetic_mfq.csv
     data/raw/synthetic_stories.csv
     data/raw/synthetic_vr_logs.csv
+    data/processed/simulated_data.csv (merged output from ingest)
     state/simulation_manifest.yaml (checksums)
 """
 
@@ -28,9 +29,11 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.config import ensure_directories, init_random_seeds, get_path
+from code.config import ensure_directories, init_random_seeds, get_path, validate_data_mode
 from code.data.simulation_mfq import main as generate_mfq
 from code.data.simulation_stories import main as generate_stories
+from code.data.ingest import main as run_ingest
+from code.data.preprocess import main as run_preprocess
 from code.utils.hashing import checksum_derived_datasets, update_state_yaml
 from code.utils.logging_utils import get_logger, log_pipeline_step
 
@@ -45,7 +48,8 @@ def main():
     # 1. Setup
     ensure_directories()
     init_random_seeds()
-    logger.info("Directories initialized and random seeds set.")
+    validate_data_mode()
+    logger.info("Directories initialized, random seeds set, and data mode validated.")
 
     # 2. Generate Synthetic MFQ Data
     # Dependency: T013 (simulation_mfq.py)
@@ -67,7 +71,27 @@ def main():
         logger.error(f"Failed to generate stories/VR logs: {e}")
         raise
 
-    # 4. Checksum Artifacts
+    # 4. Ingest and Merge Data
+    # Dependency: T015 (ingest.py)
+    logger.info("Ingesting and merging datasets...")
+    try:
+        run_ingest()
+        logger.info("Data ingestion and merging completed.")
+    except Exception as e:
+        logger.error(f"Failed to ingest/merge data: {e}")
+        raise
+
+    # 5. Preprocess Data (Salience Mapping)
+    # Dependency: T016 (preprocess.py)
+    logger.info("Preprocessing data (salience mapping)...")
+    try:
+        run_preprocess()
+        logger.info("Data preprocessing completed.")
+    except Exception as e:
+        logger.error(f"Failed to preprocess data: {e}")
+        raise
+
+    # 6. Checksum Artifacts
     # Dependency: T018 (hashing integration)
     logger.info("Checksumming generated artifacts...")
     try:
@@ -75,7 +99,9 @@ def main():
         output_files = [
             get_path("data/raw/synthetic_mfq.csv"),
             get_path("data/raw/synthetic_stories.csv"),
-            get_path("data/raw/synthetic_vr_logs.csv")
+            get_path("data/raw/synthetic_vr_logs.csv"),
+            get_path("data/processed/merged_data.csv"),
+            get_path("data/processed/preprocessed_data.csv")
         ]
 
         # Verify files exist before checksumming

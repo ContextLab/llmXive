@@ -10,50 +10,42 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/analysis/model_comparison.py: self-declared fabricated metric — “…ion     # For this script, we simulate the results based on the data to ensure…”
 - code/analysis/model_comparison.py: self-declared fabricated metric — “…ment of the data,     # not a mock value.      # Baseline Model: Judgm…”
-- code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) — a reported value computed from no real input
 - code/analysis/model_comparison.py: synthetic/fake INPUT data not authorized by the spec — “…lated_data: DataFrame of simulated data from posterior.…”
 - code/analysis/model_comparison.py: synthetic/fake INPUT data not authorized by the spec — “…e)      # Perform PPC if simulated data is available (simulated…”
+- code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…MODE is 'simulation', it generates synthetic data. If DATA_MODE is 'r…”
 - code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…Load MFQ data from the generated synthetic dataset or real source.…”
-- code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…al Stories data from the generated synthetic dataset.     """     dat…”
-- code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…nteraction logs from the generated synthetic dataset.     """     dat…”
+- code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic MFQ data...")         generate_mf…”
+- code/data/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…aise FileNotFoundError(f"Synthetic MFQ data not found at {data_path}…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 25 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/model_comparison.py: self-declared fabricated metric — “…ion     # For this script, we simulate the results based on the data to ensure…”; code/analysis/model_comparison.py: self-declared fabricated metric — “…ment of the data,     # not a mock value.      # Baseline Model: Judgm…”; code/data/simulation_stories.py: function `generate_story_text` returns a bare RNG draw (line 43) — a reported value computed from no real input; 8 command(s) failed: python code/data/ingest.py (rc=1); python code/data/simulation.py (rc=1); python code/data/preprocess.py (rc=1)
+**Summary**: 31 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/model_comparison.py: self-declared fabricated metric — “…ion     # For this script, we simulate the results based on the data to ensure…”; code/analysis/model_comparison.py: self-declared fabricated metric — “…ment of the data,     # not a mock value.      # Baseline Model: Judgm…”; code/analysis/model_comparison.py: synthetic/fake INPUT data not authorized by the spec — “…lated_data: DataFrame of simulated data from posterior.…”; 8 command(s) failed: python code/data/ingest.py (rc=1); python code/data/simulation.py (rc=1); python code/data/preprocess.py (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/data/ingest.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/ingest.py", line 9, in <module>
-    from utils.logging_utils import get_exclusion_log_path, log_exclusion, get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/ingest.py", line 21, in <module>
+    from utils.logging import get_logger, get_exclusion_log_path, log_exclusion, log_pipeline_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/data/simulation.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation.py", line 32, in <module>
     from code.data.simulation_mfq import main as generate_mfq
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation_mfq.py", line 14, in <module>
-    from code.utils.logging_utils import log_pipeline_step
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'code.utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/simulation_mfq.py", line 28, in <module>
+    from code.utils.norms import load_norms_data, get_means, get_std_devs, get_covariance_matrix
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'code.utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/data/preprocess.py -> rc=1
-    ying-intu/code/data/preprocess.py", line 26, in <module>
-    from utils.logging_utils import log_vr_mapping, get_vr_mapping_log_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/preprocess.py", line 31, in <module>
-    from utils.logging_utils import log_vr_mapping, get_vr_mapping_log_path
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/data/preprocess.py", line 25, in <module>
+    from utils.logging import get_logger, get_vr_mapping_log_path, log_vr_mapping
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/models/bayesian.py -> rc=1
     /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/.venv/lib/python3.11/site-packages/arviz/__init__.py:50: FutureWarning: 
 ArviZ is undergoing a major refactor to improve flexibility and extensibility while maintaining a user-friendly interface.
@@ -61,37 +53,39 @@ Some upcoming changes may be backward incompatible.
 For details and migration guidance, visit: https://python.arviz.org/en/latest/user_guide/migration_guide.html
   warn(
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/models/bayesian.py", line 19, in <module>
-    from sklearn.linear_model import LinearRegression
-ModuleNotFoundError: No module named 'sklearn'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/models/bayesian.py", line 23, in <module>
+    from utils.logging_utils import get_logger, log_pipeline_step
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/analysis/model_comparison.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/model_comparison.py", line 14, in <module>
     from utils.logging_utils import get_logger, log_pipeline_step
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/analysis/validation.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/analysis/validation.py", line 19, in <module>
     from utils.logging_utils import get_logger, log_pipeline_step
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 18, in <module>
-    from .hashing import (
-ImportError: cannot import name 'update_state_checksums' from 'utils.hashing' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/__init__.py", line 22, in <module>
+    from .norms import (
+ImportError: cannot import name 'load_gervais_norms' from 'utils.norms' (/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/norms.py)
 - python code/utils/hashing.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 168, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 159, in main
-    state_file = get_path("state", "pipeline_state.yaml")
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 2 were given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/hashing.py", line 15, in <module>
+    import logging
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/code/utils/logging.py", line 25, in <module>
+    def get_logger(name: str) -> logging.Logger:
+                                 ^^^^^^^^^^^^^^
+AttributeError: partially initialized module 'logging' has no attribute 'Logger' (most likely due to a circular import)
 - python code/reports/generate_report.py -> rc=1
-    2026-07-18 23:23:17,651 - __main__ - INFO - Starting report generation...
-2026-07-18 23:23:17,651 - __main__ - INFO - Running in True mode
-2026-07-18 23:23:17,651 - __main__ - WARNING - Result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json
-2026-07-18 23:23:17,651 - __main__ - ERROR - No result data found. Cannot generate report.
-2026-07-18 23:23:17,652 - __main__ - INFO - Failure report written to /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/reports/final_validation_report.txt
+    2026-07-21 03:27:11,443 - __main__ - INFO - Starting report generation...
+2026-07-21 03:27:11,443 - __main__ - INFO - Running in True mode
+2026-07-21 03:27:11,443 - __main__ - WARNING - Result file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json
+2026-07-21 03:27:11,443 - __main__ - ERROR - No result data found. Cannot generate report.
+2026-07-21 03:27:11,444 - __main__ - INFO - Failure report written to /home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/reports/final_validation_report.txt
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -101,31 +95,33 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_path` — defined in `code/config.py`; called 23 way(s):
+### `get_path` — defined in `code/config.py`; called 25 way(s):
 
+- code/config.py: 1. get_path("data/processed/output.csv") -> Returns PROJECT_ROOT / "data/processed/output.csv"
+- code/config.py: 2. get_path("data", "logs/exclusion.log") -> Returns PROJECT_ROOT / "data" / "logs/exclusion.log"
+- code/config.py: 3. get_path("", "data/raw/file.csv") -> Returns PROJECT_ROOT / "data/raw/file.csv"
+- code/config.py: raise ValueError("get_path() requires at least one path argument")
 - code/config.py: full_path = get_path(file_path)
 - code/models/bayesian.py: data_path = get_path("data/processed/merged_data.csv")
 - code/models/bayesian.py: output_path = get_path("data/processed/model_result.json")
+- code/utils/logging.py: log_dir = get_path("data/logs")
+- code/utils/logging.py: log_file = get_path("data/logs", "pipeline.log")
+- code/utils/logging.py: return get_path("data/logs", filename)
+- code/utils/logging.py: return get_path("data/logs", "exclusion.log")
+- code/utils/logging.py: return get_path("data/logs", "vr_mapping.log")
+- code/utils/norms.py: config_path = get_path(NORMS_CONFIG_PATH)
+- code/utils/norms.py: config_path = get_path(config_path)
+- code/utils/norms.py: output_path = get_path("data/raw/synthetic_mfq_norms_sample.csv")
+- code/utils/norms.py: report_path = get_path("data/logs/norms_validation_report.json")
 - code/utils/hashing.py: state_file = str(get_path("state", "pipeline_state.yaml"))
-- code/utils/hashing.py: full_path = get_path("", rel_path)
-- code/utils/hashing.py: state_file = get_path("state", "pipeline_state.yaml")
+- code/utils/logging_utils.py: LOG_DIR = Path(get_path("data/logs"))
 - code/reports/generate_report.py: logging.FileHandler(get_path('data/logs/report_generation.log'))
 - code/reports/generate_report.py: results_path = get_path('data/processed/model_results.json')
 - code/reports/generate_report.py: output_path = get_path('reports/final_validation_report.txt')
-- code/data/ingest_real.py: local_path = get_path("data/raw/osf_mfq_data.csv")
-- code/data/ingest_real.py: local_path = get_path("data/raw/hf_moral_stories.csv")
-- code/data/ingest_real.py: local_path = get_path("data/raw/vr_interaction_logs.csv")
-- code/data/simulation.py: get_path("data/raw/synthetic_mfq.csv"),
-- code/data/simulation.py: get_path("data/raw/synthetic_stories.csv"),
-- code/data/simulation.py: get_path("data/raw/synthetic_vr_logs.csv")
-- code/data/preprocess.py: config_path = get_path(CONFIG_PATH)
-- code/data/preprocess.py: data_path = get_path(MERGED_DATA_PATH)
-- code/data/preprocess.py: output_path = get_path(PREPROCESSED_OUTPUT_PATH)
-- code/analysis/validation.py: data_path = get_path("data/processed/merged_data.csv")
-- code/analysis/validation.py: model_results_path = get_path("data/processed/model_results.json")
-- code/analysis/validation.py: output_path = get_path("data/processed/validation_report.json")
-- code/analysis/model_comparison.py: data_path = get_path("data/processed/preprocessed_data.csv")
-- code/analysis/model_comparison.py: output_path = get_path("data/processed/model_comparison.json")
+- code/data/ingest.py: data_path = get_path("data/raw/synthetic_mfq.csv")
+- code/data/ingest.py: data_path = get_path("data/raw/synthetic_stories.csv")
+- code/data/ingest.py: data_path = get_path("data/raw/synthetic_vr_logs.csv")
+- code/data/ingest.py: output_path = get_path("data/processed/merged_data.csv")
 
 Make `get_path` in `code/config.py` accept ALL of the above.
 
@@ -137,5 +133,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/reports/generate_report.py`, `code/analysis/validation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/reports/generate_report.py`, `code/analysis/validation.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/utils/hashing.py`, `code/reports/generate_report.py`, `code/analysis/validation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/data/processed/model_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/utils/hashing.py`, `code/reports/generate_report.py`, `code/analysis/validation.py`.

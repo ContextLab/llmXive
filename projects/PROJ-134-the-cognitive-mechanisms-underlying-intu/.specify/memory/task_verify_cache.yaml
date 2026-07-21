@@ -28,3 +28,18 @@ T040:
     is no evidence of running a `quickstart.md` validation, nor any checksum files
     or logs confirming that all artifacts have been checksummed. The required validation
     and checksum verification artifacts are missing.
+T046:
+  c: true
+  h: f57bd4ae52706e2dbe0e5ebce3d9b246d1ca3ca3c38667fd75cb5f2872aaf4c4
+  r: "The repository contains a non\u2011empty `code/analysis/validation.py` that\
+    \ reads `state/mdes_report.yaml`, checks that the provided simulated sample size\
+    \ equals 200, and raises a `ValueError` on mismatch (or `FileNotFoundError` if\
+    \ the YAML is absent). This fulfills the specified validation script requirement."
+T053:
+  c: false
+  h: 0ef2781f4ffc2ff8c274f5c203c03b4b930bb874a2864966fa136fbebfd8fdc7
+  r: "The repository contains `code/data/simulation.py` which imports and runs the\
+    \ required modules, but the expected output file `data/processed/simulated_data.csv`\
+    \ is not present (the file is missing) and the truncated script does not show\
+    \ that it creates this CSV. The task\u2019s verification step therefore fails.\
+    \ The missing `simulated_data.csv` (or code to generate it) must be added."
