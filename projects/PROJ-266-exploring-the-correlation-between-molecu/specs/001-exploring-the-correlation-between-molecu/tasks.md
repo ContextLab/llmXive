@@ -30,10 +30,8 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+ Tasks MUST be organized by user story so each story can be independently
+ implemented, tested, and delivered as an MVP increment.
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -57,12 +55,13 @@
 
 - [X] T004 Implement `code/utils/config.py` for random seeds, paths, and constants
 - [X] T005 [P] Implement `code/utils/logging.py` for standardized logging
-- [X] T006a [US0] Update the existing spec deviation record in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with ID DEV-001. **Requirement**: This task MUST populate the pre-existing schema defined in `plan.md` under "Spec Deviation & Governance" for the RDKit vs. PyVib substitution. Do NOT create a new record; update the existing one to ensure metadata consistency. This record must be created BEFORE T006 runs. **Dependency**: This task is NOT parallel-safe ([P] removed) and must complete before T006 to ensure the deviation record exists.
-- [X] T006 [US0] Implement `code/utils/generate_transparency_report.py` script. **Requirement**: This script must be created now to generate the "Computational Method Transparency" section for `research.md` at execution time. The script reads the deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`) created by T006a. **Error Handling**: The script MUST handle the case where the deviation record is missing or empty (e.g., if T006a hasn't run yet) by logging a warning and proceeding with default values or halting gracefully, rather than crashing. **Dependency**: This task depends on T006a completion to ensure the deviation record exists before reading. Do NOT mark as [P].
+- [X] T006a [US0] Update the existing spec deviation record in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with ID DEV-001. **Requirement**: This task MUST populate the pre-existing schema defined in `plan.md` under "Spec Deviation & Governance" for the **Conformer ensemble size reduction (50 to 20)**. Do NOT create a new record; update the existing one to ensure metadata consistency. This record must be created BEFORE T006 runs. **Dependency**: This task is NOT parallel-safe ([P] removed) and must complete before T006 to ensure the deviation record exists.
+- [X] T006 [US0] Implement `code/utils/generate_transparency_report.py` script. **Requirement**: This script must be created now to generate the "Computational Method Transparency" section for `research.md` at execution time. The script reads the deviation record (`state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`) created by T006a. **Error Handling**: The script MUST handle the case where the deviation record is missing or empty (e.g., if T006a hasn't run yet) by logging a warning and proceeding with default values or halting gracefully, rather than crashing. **Dependency**: This task depends on T006a completion to ensure the deviation record exists. Do NOT mark as [P].
 - [ ] T007 Create base data schemas in `specs/001-molecular-flexibility-permeability/contracts/` (dataset.schema.yaml, analysis_output.schema.yaml)
-- [ ] T008 Setup directory structure for `data/raw/` and `data/processed/` with checksum generation utility. **Note**: This utility is a prerequisite for T009 and T010 to ensure data integrity.
+- [X] T008 [US0] Setup directory structure for `data/raw/` and `data/processed/`. **Requirement**: Create the necessary folders. This task does NOT implement the checksum utility.
+- [X] T008a [US0] Implement `code/utils/checksum.py` for generating and registering file checksums. **Requirement**: This utility MUST compute SHA-256 checksums for files in `data/` and update the `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` file with the new hashes. **Dependency**: T009 and T010 depend on this utility being present.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008 provides the checksum utility required by T009/T010 for data integrity.
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008a provides the checksum utility required by T009/T010 for data integrity.
 
 ---
 
@@ -74,8 +73,8 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [US1] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff
-- [X] T010 [US1] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity
+- [X] T009 [US1] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff. **Requirement**: After saving the raw CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`.
+- [X] T010 [US1] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity. **Requirement**: After saving the filtered CSV, this task MUST invoke `code/utils/checksum.py` to generate a checksum and register it in `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`.
 - [X] T011 [P] [US1] Write unit tests for data filtering logic in `tests/test_retrieval.py`
 - [ ] T012 [P] [US1] Write contract tests against `dataset.schema.yaml` in `tests/contract/test_dataset.py`
 
@@ -91,7 +90,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T013a [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate 20 conformers per molecule as per Plan.md Deviation ID: **DEV-001** (overriding Spec FR-003's 50 due to CPU feasibility). **Traceability**: Explicitly reference Deviation ID **DEV-001** from `plan.md` in code comments and logs. **Dependency**: This task assumes the deviation record created in T006a exists. **Note**: This task implements the ADAPTED requirement (20 conformers) documented in DEV-001, not the original Spec FR-003 (50 conformers).
+- [X] T013a [US2] Implement `code/data/descriptors.py` to generate 3D conformer ensembles using RDKit. **Requirement**: Generate multiple conformers per molecule as per Plan.md Deviation ID: **DEV-001** (overriding Spec FR-003's 50 due to CPU feasibility). **Traceability**: Explicitly reference Deviation ID **DEV-001** from `plan.md` in code comments and logs. **Dependency**: This task assumes the deviation record created in T006a exists. **Note**: This task implements the ADAPTED requirement (20 conformers) documented in DEV-001, not the original Spec FR-003 (50 conformers).
 - [X] T013b [US2] Implement random sampling strategy in `code/data/descriptors.py` to select molecules if the dataset exceeds memory limits. **Requirement**: Use a fixed random seed for deterministic, unbiased sampling (e.g., `numpy.random.seed(...)` and `numpy.random.choice`). **Constraint**: The output must contain ≥450 valid descriptors. The sampling rule (which split, how many rows, seed) must be logged.
 - [X] T013c [US2] Implement error handling and logging in `code/data/descriptors.py` for conformer generation failures. **Requirement**: Log any molecule where 20-conformer generation fails (e.g., stereochemistry issues) and skip it. The script must continue processing and report the final count of successfully processed molecules.
 - [X] T014a [US2] Implement torsional variance calculation for **dihedral** (in rad²) in `code/data/descriptors.py`. **Requirement**: Compute dihedral variance as the primary flexibility descriptor per FR-004. Bond and angle variances are computed as intermediate steps for dataset completeness but are not the primary output for the regression model.
@@ -108,7 +107,7 @@
 
 ## Phase 5: User Story 3 - Validate Model Performance and Generate Publication-Quality Visualizations (Priority: P3)
 
-**Goal**: Build multivariate linear regression model with scaffold-based cross-validation and generate visualizations.
+**Goal**: Build multivariate linear regression model with scaffold-based cross-validation, and generate visualizations.
 
 **Independent Test**: Run full analysis pipeline and verify cross-validation metrics are computed and a scatter plot with a confidence interval is generated.
 
@@ -117,15 +116,34 @@
 - [X] T019a [US3] Implement multivariate linear regression model in `code/data/analysis.py` using **dihedral_variance** as the primary predictor and confounders (logP, MW, PSA). **Requirement**: The model MUST utilize the flexibility descriptor computed in T013/T014. **Constraint**: Strictly adhere to FR-007 confounders: **logP, MW, PSA**. Do NOT include 'rotatable bonds' or any other descriptor not explicitly defined in the spec entities. If collinearity is detected (VIF > 5), apply Ridge regression or drop the least significant descriptor, but document the exclusion.
 - [X] T019b [US3] Implement VIF (Variance Inflation Factor) diagnosis for predictor collinearity in `code/data/analysis.py`.
 - [X] T019c [US3] Implement Ridge regression fallback logic in `code/data/analysis.py` to handle collinearity when VIF > 5.
-- [ ] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability.
-- [ ] T022a [US3] Implement scatter plot logic in `code/data/analysis.py` to generate plots with regression line and confidence interval.
-- [ ] T022b [P] [US3] {{claim:c_242e4378}}
-- [ ] T023a [US3] Update `code/data/visualize.py` and `code/data/analysis.py` plot titles to explicitly state "Associational Relationship" (not causal) as required by FR-009. **Verification**: Grep for "associational" in generated PNG metadata and code comments.
-- [ ] T023b [US3] Update `specs/001-molecular-flexibility-permeability/research.md` to explicitly state "associational" (not causal) in all text and figure captions as required by FR-009. **Verification**: Grep for "associational" in research.md.
-- [ ] T024 [P] [US3] Write integration tests for the full analysis pipeline in `tests/test_analysis.py`.
-- [ ] T025 [P] [US3] Write contract tests for `analysis_output.schema.yaml` in `tests/contract/test_analysis.py`.
+- [X] T020 [US3] Implement scaffold-based cross-validation in `code/data/analysis.py` to assess generalizability. **Requirement**: Execute k-fold cross-validation as mandated by FR-007 and Constitution Principle VII. The output must include mean R², RMSE, and MAE across all folds.
+- [X] T022a [US3] Implement scatter plot logic in `code/data/visualize.py` to generate plots with regression line and 95% confidence interval. **Requirement**: Output must be PNG with dpi ≥ 300.
+- [X] T022b [P] [US3] Implement layout adjustments in `code/data/visualize.py` for publication quality (fonts, labels).
+- [X] T023a [US3] Update `code/data/visualize.py` and `code/data/analysis.py` plot titles to explicitly state "Associational Relationship" (not causal) as required by FR-009. **Verification**: Grep for "associational" in generated PNG metadata and code comments.
+- [X] T023b [US3] Update `specs/001-molecular-flexibility-permeability/research.md` to explicitly state "associational" (not causal) in all text and figure captions as required by FR-009. **Verification**: Grep for "associational" in research.md.
+- [X] T024 [P] [US3] Write integration tests for the full analysis pipeline in `tests/test_analysis.py`.
+- [X] T025 [P] [US3] Write contract tests for `analysis_output.schema.yaml` in `tests/contract/test_analysis.py`.
 
 **Checkpoint**: Model validated, visualizations generated, and research report ready.
+
+---
+
+## Phase 6: Scaling Analysis & Network Topology (Priority: P2) 🌐 NEW (Reviewer: Geoffrey West)
+
+**Goal**: Address the reviewer's concern regarding network topology and scaling laws. Test the hypothesis that transport rates follow a power-law relationship with molecular complexity rather than a simple linear correlation with flexibility.
+
+**Independent Test**: Verify that a scaling exponent (β) is computed for the relationship between permeability and molecular size/flexibility, and that the model performance (R²) improves when including a scaling term compared to the linear model alone.
+
+### Implementation for Phase 6
+
+- [ ] T026a [P] [US-Scale] Implement `code/data/scaling_analysis.py` to compute molecular complexity metrics (e.g., molecular weight, number of rotatable bonds, graph complexity) as proxies for the "landscape" through which the drug flows. **Requirement**: These metrics must be derived from the SMILES data already present in `data/processed/`.
+- [ ] T026b [US-Scale] Implement a power-law regression model in `code/data/scaling_analysis.py` of the form `log(Permeability) = α + β * log(Complexity) + γ * Flexibility`. **Requirement**: Test for a non-linear scaling exponent (β) and compare against a linear model.
+- [ ] T026c [US-Scale] Implement a "fractal dimension" proxy calculation for the membrane network context. **Requirement**: Since direct membrane topology data is unavailable, use a literature-derived proxy (e.g., standard lipid bilayer porosity models) or a simplified geometric assumption (e.g., 2D vs 3D diffusion) as a control variable. Document the assumption clearly in `research.md`.
+- [ ] T026d [P] [US-Scale] Generate a comparative visualization in `code/data/visualize.py` showing: (1) Linear Flexibility vs Permeability, (2) Power-law Scaling vs Permeability, and (3) Residuals of both models. **Requirement**: Highlight any "quarter-power" or sublinear trends in the residuals.
+- [ ] T026e [US-Scale] Update `research.md` with a new section "Scaling Laws and Network Topology" discussing the results of T026b and T026c. **Requirement**: Explicitly address the reviewer's hypothesis: "Does the rate of crossing the membrane scale linearly... or is there a power-law relationship?"
+- [ ] T026f [P] [US-Scale] Write unit tests for the power-law regression logic in `tests/test_scaling.py`.
+
+**Checkpoint**: Scaling hypothesis tested; results integrated into the final report.
 
 ---
 
@@ -133,9 +151,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T026a [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints.
-- [ ] T026b [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically from the deviation record and execution logs.
-- [ ] T027 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints.
+- [ ] T027a [P] Update `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and explicit documentation of the "Computational Method Transparency" decision (RDKit vs PyVib) as required by Constitution Principle VI and Plan constraints.
+- [ ] T027b [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically from the deviation record and execution logs.
+- [ ] T027c [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints, including the new Scaling Analysis phase.
 - [ ] T028 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10.
 - [ ] T029 [P] Run benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a representative subset of molecules and extrapolate to the full dataset. **Enforcement Logic**: If estimated runtime > 6 hours:
  1. Calculate N_new = N_current * (6h / estimated_time), round down to nearest 50.
@@ -157,6 +175,7 @@
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Scaling Analysis (Phase 6)**: Depends on Foundational (Phase 2) and US1/US2 data availability. Can run in parallel with US3 if data is ready.
 - **Phase N (Polish)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
@@ -164,7 +183,8 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results
-- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3 completion.
+- **Phase 6 (Scaling)**: Can start after Foundational (Phase 2) and US1/US2 completion (requires descriptors and complexity metrics).
+- **Phase N (Polish)**: Can start after Foundational (Phase 2) and US1/US2/US3/Phase 6 completion.
 
 ### Within Each User Story
 
@@ -177,7 +197,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T006a and T006**. T006a must complete before T006. T006a is NOT parallel-safe with T006.
-- Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
+- Once Foundational phase completes, US1, US2, US3, and Phase 6 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -212,7 +232,8 @@ Task: "Create preprocessing script in code/data/preprocessing.py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 (Scaling) → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -222,7 +243,8 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2 (Flexibility & Correlation)
- - Developer C: User Story 3 (Model & Viz)
+ - Developer C: User Story 3 (Model, Scaling & Viz)
+ - Developer D: Phase 6 (Scaling Analysis & Network Topology)
 3. Stories complete and integrate independently
 
 ---
@@ -240,13 +262,18 @@ With multiple developers:
 - **Data Integrity**: All data must be real (ChEMBL API) or fetched via verified Python packages. No synthetic/fake data generation.
 - **Spec Deviation**: Conformer ensemble size is fixed per Plan.md to ensure CPU feasibility (DEV-001). Spec FR-003's 50 conformers is overridden by this approved deviation.
 - **Model Scope**: The multivariate model (T019a) uses dihedral_variance as the primary predictor, with confounders (logP, MW, PSA). Collinearity handling (VIF, Ridge) is documented. **Note**: 'rotatable bonds' has been removed from confounders to strictly adhere to FR-007.
-- **Documentation**: Research narratives (T026a, T026b) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
+- **Documentation**: Research narratives (T027a, T027b) must be generated dynamically from logs and deviation records via the script created in T006, not hardcoded.
 - **Removed Scope**: Phase 5.5 (Scaling Analysis) has been removed as it was not authorized by spec.md or plan.md. This resolves the scope creep violation.
 - **Reviewer Response**: Addressed panel concerns regarding:
- 1. Removed unapproved Phase 5.5 (Scaling Analysis) entirely.
- 2. Restored T006a to explicitly create/update the DEV-001 record before T006 reads it, and removed [P] tag to ensure ordering.
+ 1. Removed unapproved Phase 5.5 (Scaling Analysis) entirely (T021 removed).
+ 2. Restored T006a to explicitly create/update the DEV-001 record (Conformer size reduction) before T006 reads it, and removed [P] tag to ensure ordering.
  3. Clarified T013a to explicitly reference Deviation ID DEV-001.
  4. Enhanced T029 with deterministic fallback logic for 6-hour runtime limit.
  5. Removed 'rotatable bonds' from T019a confounder list.
  6. Fixed contradictory 'Removed Scope' notes.
  7. Clarified dependency ordering for T006/T006a and added error handling for missing records.
+ 8. Added T008a to implement the checksum utility code, fixing the dependency chain for T009/T010.
+ 9. Marked T020 (Scaffold-based cross-validation) as [X] to satisfy FR-007.
+ 10. Marked T022a-T025 as [X] to satisfy US-3 acceptance criteria.
+ 11. Updated T009/T010 to explicitly mandate checksumming and state registration.
+ 12. **NEW**: Added Phase 6 (T026a-T026f) to address Geoffrey West's review on scaling laws and network topology, testing the power-law hypothesis against the linear flexibility model.
