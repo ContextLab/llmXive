@@ -33,17 +33,17 @@ T063a:
     \ the pass/fail JSON report at the specified path."
 T068:
   c: false
-  h: de89e6e7264868349a44bfbc050fbcbdd1fe82fef062c49b6f1ea86d89919f47
-  r: "The repository contains a `code/harmonize_data.py` file, but it is truncated\
-    \ and shows no code that actually merges datasets or writes the required `data/processed/harmonized_data.parquet`\
-    \ and `data/metadata/harmonization_metadata.json` files. Both expected output\
-    \ files are absent from the filesystem. Consequently, the task\u2019s deliverables\
-    \ are not present."
+  h: 6938674462fdbd567710a7eafd8712fa88a3c926355942e1688b78b209f06b32
+  r: "The repository contains `code/harmonize_data.py`, but it only contains placeholder\
+    \ comments and never produces the required output files; both `data/processed/harmonized_data.parquet`\
+    \ and `data/metadata/harmonization_metadata.json` are missing. Consequently the\
+    \ task\u2019s core deliverables (the harmonized dataset and its metadata) are\
+    \ not present."
 T068#1:
   c: false
-  h: de89e6e7264868349a44bfbc050fbcbdd1fe82fef062c49b6f1ea86d89919f47
-  r: "The repository contains a `code/harmonize_data.py` file, but it is truncated\
-    \ and does not show full ingestion\u2011and\u2011merging logic, nor does it create\
-    \ the required output files. Both `data/processed/harmonized_data.parquet` and\
-    \ `data/metadata/harmonization_metadata.json` are absent, so the task\u2019s deliverables\
-    \ are not present."
+  h: 6938674462fdbd567710a7eafd8712fa88a3c926355942e1688b78b209f06b32
+  r: "The repository contains `code/harmonize_data.py`, but it only has placeholder\
+    \ fetch functions and a simple merge; it does not implement a synthetic linkage\
+    \ strategy or detailed matching logic. Moreover, the required output files `data/processed/harmonized_data.parquet`\
+    \ and `data/metadata/harmonization_metadata.json` are absent. The task\u2019s\
+    \ deliverables are therefore not satisfied."

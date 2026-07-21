@@ -1,4 +1,3 @@
-# Existing dependencies
 pandas
 scipy
 statsmodels
@@ -9,7 +8,4 @@ scikit-bio
 pytest
 spiec-easi
 sparcc
-# New dependencies for real data pipeline
-requests
 pyarrow
-fastparquet

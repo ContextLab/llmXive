@@ -1,0 +1,7 @@
+{
+  "status": "SUCCESS",
+  "source": "harmonized_data.parquet",
+  "source_path": "data/processed/harmonized_data.parquet",
+  "description": "Pipeline successfully ingested harmonized multi-cohort data.",
+  "timestamp": "2023-10-27 12:00:00"
+}

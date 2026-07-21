@@ -1,0 +1,21 @@
+# Configuration for T068 Multi-Cohort Harmonization
+# This file defines the sources and paths for the datasets to be merged.
+
+# Microbiome Dataset Configuration
+microbiome_source_id: "NCBI_PRJNA99999" # Placeholder ID, updated if real data found
+microbiome_file_path: "data/raw/microbiome_counts.csv" # Expected path for real/proxy data
+
+# Sleep Dataset Configuration
+sleep_source_id: "SleepEDF" # Placeholder ID
+sleep_file_path: "data/raw/sleep_metrics.csv" # Expected path for real/proxy data
+
+# Matching Configuration
+# If direct subject_id matching fails, these keys are used for synthetic linkage
+synthetic_linkage_keys:
+  - age
+  - sex
+  - bmi
+
+# Output Configuration
+output_harmonized_path: "data/processed/harmonized_data.parquet"
+output_metadata_path: "data/metadata/harmonization_metadata.json"

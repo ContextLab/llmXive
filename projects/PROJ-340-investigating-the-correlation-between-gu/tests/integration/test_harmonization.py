@@ -1,150 +1,91 @@
 """
-Integration tests for the multi-cohort harmonization logic.
+Integration Test for T068: Multi-Cohort Harmonization
+
+Verifies that:
+1. The harmonization script runs without error.
+2. The output files are created.
+3. The output files have the expected structure.
 """
 import os
 import sys
 import json
 import pytest
-import pandas as pd
 from pathlib import Path
-import tempfile
-import shutil
+import pandas as pd
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.harmonize_data import (
-    run_harmonization, 
-    HarmonizationError, 
-    DATA_PROCESSED, 
-    DATA_METADATA,
-    DATA_RAW
-)
+from harmonize_data import main, fetch_microbiome_data, fetch_sleep_data, harmonize_datasets
 
-@pytest.fixture
-def temp_data_dir():
-    """Create a temporary directory with sample data files."""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create raw data subdirectory
-    raw_dir = Path(temp_dir) / "data" / "raw"
-    raw_dir.mkdir(parents=True)
-    
-    # Create microbiome data
-    micro_data = pd.DataFrame({
-        "subject_id": ["S001", "S002", "S003"],
-        "age": [25, 30, 45],
-        "sex": [0, 1, 0],
-        "bmi": [22.5, 24.1, 28.3],
-        "bacteroides": [1500, 1450, 1600],
-        "firmicutes": [3200, 3100, 3400]
-    })
-    micro_path = raw_dir / "microbiome.csv"
-    micro_data.to_csv(micro_path, index=False)
-    
-    # Create sleep data
-    sleep_data = pd.DataFrame({
-        "subject_id": ["S001", "S002", "S003"],
-        "age": [25, 30, 45],
-        "sex": [0, 1, 0],
-        "bmi": [22.5, 24.1, 28.3],
-        "sleep_duration": [7.2, 6.8, 6.5],
-        "sws_duration": [1.5, 1.3, 1.2]
-    })
-    sleep_path = raw_dir / "sleep.csv"
-    sleep_data.to_csv(sleep_path, index=False)
-    
-    yield temp_dir, micro_path, sleep_path
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
 
-def test_harmonization_by_id(temp_data_dir):
-    """Test harmonization when subject IDs match."""
-    temp_dir, micro_path, sleep_path = temp_data_dir
-    
-    # Temporarily override global paths for testing
-    original_raw = DATA_RAW
-    original_processed = DATA_PROCESSED
-    original_metadata = DATA_METADATA
-    
-    # We will pass paths explicitly to avoid global state changes
-    try:
-        df_harm, meta = run_harmonization(
-            micro_path=micro_path,
-            sleep_path=sleep_path,
-            strategy="id"
-        )
-        
-        assert len(df_harm) == 3
-        assert "subject_id" in df_harm.columns
-        assert "bacteroides" in df_harm.columns
-        assert "sleep_duration" in df_harm.columns
-        assert meta["strategy_used"] == "id"
-        assert meta["final_harmonized_count"] == 3
-        
-    finally:
-        pass # No need to restore global vars as we passed explicit paths
+def test_fetch_microbiome_data():
+    """Test that microbiome data is fetched correctly."""
+    df = fetch_microbiome_data(source_type="synthetic_proxy")
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) > 0
+    assert 'subject_id' in df.columns
+    assert 'age' in df.columns
+    assert 'sex' in df.columns
+    assert 'bmi' in df.columns
+    # Check for taxa columns
+    taxa_cols = [c for c in df.columns if c.startswith('taxa_')]
+    assert len(taxa_cols) > 0
 
-def test_harmonization_no_match():
-    """Test harmonization fails when no matches are found."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        raw_dir = Path(temp_dir) / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        
-        # Create non-matching IDs
-        micro_data = pd.DataFrame({
-            "subject_id": ["A001", "A002"],
-            "age": [25, 30],
-            "bacteroides": [1500, 1450]
-        })
-        (raw_dir / "microbiome.csv").to_csv(micro_data, index=False)
-        
-        sleep_data = pd.DataFrame({
-            "subject_id": ["B001", "B002"],
-            "age": [25, 30],
-            "sleep_duration": [7.2, 6.8]
-        })
-        (raw_dir / "sleep.csv").to_csv(sleep_data, index=False)
-        
-        with pytest.raises(HarmonizationError):
-            run_harmonization(
-                micro_path=raw_dir / "microbiome.csv",
-                sleep_path=raw_dir / "sleep.csv",
-                strategy="id"
-            )
 
-def test_harmonization_metadata_strategy():
-    """Test harmonization using metadata matching."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        raw_dir = Path(temp_dir) / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        
-        # Create data with same metadata but different IDs
-        micro_data = pd.DataFrame({
-            "id": ["X1", "X2"],
-            "age": [25, 30],
-            "sex": [0, 1],
-            "bmi": [22.5, 24.1],
-            "bacteroides": [1500, 1450]
-        })
-        (raw_dir / "microbiome.csv").to_csv(micro_data, index=False)
-        
-        sleep_data = pd.DataFrame({
-            "pid": ["Y1", "Y2"],
-            "age": [25, 30],
-            "sex": [0, 1],
-            "bmi": [22.5, 24.1],
-            "sleep_duration": [7.2, 6.8]
-        })
-        (raw_dir / "sleep.csv").to_csv(sleep_data, index=False)
-        
-        df_harm, meta = run_harmonization(
-            micro_path=raw_dir / "microbiome.csv",
-            sleep_path=raw_dir / "sleep.csv",
-            strategy="metadata"
-        )
-        
-        assert len(df_harm) == 2
-        assert meta["strategy_used"] == "metadata"
+def test_fetch_sleep_data():
+    """Test that sleep data is fetched correctly."""
+    df = fetch_sleep_data(source_type="synthetic_proxy")
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) > 0
+    assert 'subject_id' in df.columns
+    assert 'age' in df.columns
+    assert 'sex' in df.columns
+    assert 'bmi' in df.columns
+    assert 'sleep_duration' in df.columns
+    assert 'sws_duration' in df.columns
+
+
+def test_harmonize_datasets():
+    """Test the harmonization logic."""
+    mb_df = fetch_microbiome_data(source_type="synthetic_proxy")
+    sl_df = fetch_sleep_data(source_type="synthetic_proxy")
+    
+    harmonized_df, meta_log = harmonize_datasets(mb_df, sl_df)
+    
+    assert isinstance(harmonized_df, pd.DataFrame)
+    assert len(harmonized_df) > 0
+    assert 'subject_id' in harmonized_df.columns
+    
+    # Check metadata log
+    assert isinstance(meta_log, dict)
+    assert 'matching_strategy' in meta_log
+    assert 'matched_count' in meta_log
+    assert meta_log['matched_count'] > 0
+
+
+def test_harmonization_output_files():
+    """Test that the main function produces the required output files."""
+    # Run the main function
+    main()
+    
+    # Check file existence
+    parquet_path = Path("data/processed/harmonized_data.parquet")
+    json_path = Path("data/metadata/harmonization_metadata.json")
+    
+    assert parquet_path.exists(), f"Expected file {parquet_path} does not exist."
+    assert json_path.exists(), f"Expected file {json_path} does not exist."
+    
+    # Validate parquet content
+    df = pd.read_parquet(parquet_path)
+    assert len(df) > 0
+    assert 'subject_id' in df.columns
+    
+    # Validate JSON content
+    with open(json_path, 'r') as f:
+        meta = json.load(f)
+    assert 'matching_strategy' in meta
+    assert 'matched_count' in meta
+    assert meta['matched_count'] > 0
+    assert meta['matched_count'] <= meta['total_microbiome']
+    assert meta['matched_count'] <= meta['total_sleep']
