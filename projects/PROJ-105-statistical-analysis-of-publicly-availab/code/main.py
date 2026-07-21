@@ -3,178 +3,160 @@ import sys
 import json
 import time
 import logging
+import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+from preprocessing import preprocess_flight_delays, save_summary_report, main as preprocessing_main
+from data_loader import download_bts_data, main as data_loader_main
+from models import (
+    fit_all_base_distributions, fit_pareto_tail, calculate_tail_metrics,
+    save_model_comparison, perform_vuong_test, save_vuong_test_results,
+    compare_component_distributions, main as models_main
+)
+from diagnostics import (
+    run_hill_stability_analysis, save_hill_results, perform_log_normal_discrimination,
+    save_log_normal_test_results, perform_model_rejection, main as diagnostics_main
+)
+from validation import run_validation, main as validation_main
+from config import TARGET_YEAR, MEMORY_LIMIT_GB
+from utils import setup_logging, check_memory_limit, log_peak_memory
 
-from utils import setup_logging, log_peak_memory, check_memory_limit
-from config import RANDOM_SEED
-from preprocessing import main as run_stage1
-from models import main as run_stage2
-from diagnostics import main as run_stage3
+logger = logging.getLogger(__name__)
 
-# Configure logging
-logger = setup_logging()
+def load_json_safe(path: str) -> dict:
+    """Load JSON file safely."""
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load {path}: {e}")
+        return {}
 
-def load_json_safe(path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file if it exists, return None otherwise."""
-    if path.exists():
-        try:
-            with open(path, 'r') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not load {path}: {e}")
-            return None
-    return None
-
-def run_stage4(results_dir: Path) -> Dict[str, Any]:
-    """
-    Stage 4: Compile final summary report.
-    Aggregates results from Stages 1, 2, and 3 into a single summary_report.json.
-    """
-    start_time = time.time()
-    logger.info("Starting Stage 4: Final Report Compilation")
-
-    # Ensure results directory exists
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load outputs from previous stages
-    # Stage 1 outputs
-    summary_report_path = results_dir / "summary_report.json"
-    stage1_data = load_json_safe(results_dir / "summary_report.json")
-    if stage1_data is None:
-        # Fallback if the file was named differently or not found immediately
-        # Try to find the most recent summary report if it exists
-        logger.warning("Stage 1 summary_report.json not found. Attempting to proceed with defaults.")
-        stage1_data = {"retention_rate": 0.0, "valid_records": 0}
-
-    # Stage 2 outputs
-    model_comparison = load_json_safe(results_dir / "model_comparison.json")
-    vuong_results = load_json_safe(results_dir / "vuong_test_results.json")
-    x_min_estimate = load_json_safe(results_dir / "x_min_estimate.json")
-
-    # Stage 3 outputs
-    tail_index = load_json_safe(results_dir / "tail_index_estimate.json")
-    bootstrap_gof = load_json_safe(results_dir / "bootstrap_gof.json")
-    log_normal_test = load_json_safe(results_dir / "log_normal_test.json")
-    tail_ks = load_json_safe(results_dir / "tail_ks.json")
-
-    # Compile model rankings
-    model_rankings = []
-    if model_comparison and "models" in model_comparison:
-        # Sort by AIC (lower is better)
-        models = model_comparison["models"]
-        sorted_models = sorted(models, key=lambda m: m.get("aic", float('inf')))
-        model_rankings = [
-            {
-                "rank": i + 1,
-                "model": m["name"],
-                "aic": m.get("aic"),
-                "bic": m.get("bic"),
-                "ks_stat": m.get("ks_stat"),
-                "ad_stat": m.get("ad_stat")
-            }
-            for i, m in enumerate(sorted_models)
-        ]
-
-    best_model = model_rankings[0]["model"] if model_rankings else "None"
-
-    # Compile p-values
-    p_values = {}
-    if vuong_results:
-        p_values["vuong"] = vuong_results.get("p_value")
-    if tail_ks:
-        p_values["tail_ks"] = tail_ks.get("p_value")
-    if bootstrap_gof:
-        p_values["bootstrap_gof"] = bootstrap_gof.get("p_value")
-
-    # Calculate runtime
-    runtime_seconds = time.time() - start_time
-
-    # Construct final report
-    final_report = {
-        "runtime_seconds": round(runtime_seconds, 2),
-        "retention_rate": stage1_data.get("retention_rate", 0.0),
-        "valid_records": stage1_data.get("valid_records", 0),
-        "total_records": stage1_data.get("total_records", 0),
-        "model_rankings": model_rankings,
-        "best_model": best_model,
-        "x_min_estimate": x_min_estimate.get("x_min") if x_min_estimate else None,
-        "tail_index": tail_index.get("tail_index") if tail_index else None,
-        "p_values": p_values,
-        "diagnostics": {
-            "bootstrap_gof_pass": bootstrap_gof.get("pass", False) if bootstrap_gof else False,
-            "log_normal_rejected": log_normal_test.get("rejected", False) if log_normal_test else False,
-            "stability_window_valid": tail_index.get("stable", False) if tail_index else False
-        },
-        "causality_disclaimer": (
-            "This analysis identifies statistical distributions of flight delays. "
-            "Correlation with specific factors (weather, mechanical) is not inferred "
-            "from distribution shape alone. Heavy tails indicate a higher probability "
-            "of extreme events than short-tailed models, but do not specify the root "
-            "cause of those events."
-        ),
-        "metadata": {
-            "random_seed": RANDOM_SEED,
-            "pipeline_version": "1.0.0",
-            "stages_completed": [1, 2, 3, 4]
-        }
+def run_stage1(year: int) -> dict:
+    """Stage 1: Data Acquisition and Pre-processing."""
+    logger.info("Executing Stage 1: Data Acquisition and Pre-processing")
+    
+    # Download data
+    raw_output = download_bts_data(year=year, output_dir="data/raw")
+    
+    # Preprocess
+    cleaned_output, summary = preprocess_flight_delays(raw_output)
+    save_summary_report(summary, "data/results/summary_report.json")
+    
+    return {
+        "cleaned_delays": cleaned_output,
+        "summary": summary
     }
 
-    # Save final report
-    output_path = results_dir / "summary_report.json"
-    with open(output_path, 'w') as f:
-        json.dump(final_report, f, indent=2)
+def run_stage2(cleaned_delays_path: str) -> dict:
+    """Stage 2: Parametric Model Fitting and Goodness-of-Fit."""
+    logger.info("Executing Stage 2: Model Fitting")
+    
+    # Load x_min estimate
+    x_min_path = "data/results/x_min_estimate.json"
+    x_min_data = load_json_safe(x_min_path)
+    x_min = x_min_data.get("x_min", 10.0)
+    
+    # Fit models
+    metrics = fit_all_base_distributions(cleaned_delays_path, x_min)
+    save_model_comparison(metrics, "data/results/model_comparison.json")
+    
+    # Vuong test
+    vuong_results = perform_vuong_test(cleaned_delays_path, x_min)
+    save_vuong_test_results(vuong_results, "data/results/vuong_test_results.json")
+    
+    return metrics
 
-    logger.info(f"Final summary report saved to {output_path}")
-    log_peak_memory()
+def run_stage3(cleaned_delays_path: str) -> dict:
+    """Stage 3: Heavy-Tail Diagnostics and Visualization."""
+    logger.info("Executing Stage 3: Diagnostics")
+    
+    # Load x_min
+    x_min_path = "data/results/x_min_estimate.json"
+    x_min_data = load_json_safe(x_min_path)
+    x_min = x_min_data.get("x_min", 10.0)
+    
+    # Hill stability
+    import pandas as pd
+    df = pd.read_csv(cleaned_delays_path)
+    data = df['total_delay'].values
+    tail_data = data[data >= x_min]
+    
+    hill_results = run_hill_stability_analysis(tail_data)
+    save_hill_results(hill_results, "data/results/tail_index_estimate.json")
+    
+    # Log-Normal discrimination
+    lognorm_results = perform_log_normal_discrimination(data, x_min)
+    save_log_normal_test_results(lognorm_results, "data/results/log_normal_test.json")
+    
+    # Model rejection
+    rejection_results = perform_model_rejection(data, x_min, "Pareto", {})
+    Path("data/results/model_rejection.json").parent.mkdir(parents=True, exist_ok=True)
+    with open("data/results/model_rejection.json", 'w') as f:
+        json.dump(rejection_results, f, indent=2)
+    
+    return {
+        "hill": hill_results,
+        "log_normal": lognorm_results,
+        "rejection": rejection_results
+    }
 
-    return final_report
+def run_stage4() -> dict:
+    """Stage 4: Final Validation and Reporting."""
+    logger.info("Executing Stage 4: Validation")
+    validation_results = run_validation()
+    return validation_results
 
 def main():
-    """
-    Main entry point for the pipeline.
-    Executes Stages 1 through 4 sequentially.
-    """
+    """Main pipeline entry point."""
+    parser = argparse.ArgumentParser(description="Flight Delay Analysis Pipeline")
+    parser.add_argument("--input", required=True, help="Path to input CSV (for stages 2-4)")
+    parser.add_argument("--output", required=True, help="Path to output CSV (for stage 1)")
+    parser.add_argument("--summary", default="data/results/summary_report.json", help="Path to summary report")
+    parser.add_argument("--year", type=int, help="Year for data download (stage 1 only)")
+    
+    args = parser.parse_args()
+    
+    setup_logging()
     logger.info("Starting Flight Delay Analysis Pipeline")
-
-    # Define paths
-    data_dir = PROJECT_ROOT / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    results_dir = data_dir / "results"
-
-    # Ensure directories exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    results_dir.mkdir(parents=True, exist_ok=True)
-
+    
+    start_time = time.time()
+    
     try:
-        # Stage 1: Data Acquisition and Pre-processing
-        logger.info("Executing Stage 1: Data Acquisition and Pre-processing")
-        run_stage1()
-
-        # Stage 2: Parametric Model Fitting
-        logger.info("Executing Stage 2: Parametric Model Fitting")
-        run_stage2()
-
-        # Stage 3: Heavy-Tail Diagnostics
-        logger.info("Executing Stage 3: Heavy-Tail Diagnostics")
-        run_stage3()
-
-        # Stage 4: Final Report Compilation
-        logger.info("Executing Stage 4: Final Report Compilation")
-        final_report = run_stage4(results_dir)
-
-        logger.info("Pipeline completed successfully.")
-        print(json.dumps(final_report, indent=2))
-
+        if args.year:
+            # Stage 1: Download and preprocess
+            stage1_results = run_stage1(args.year)
+            cleaned_path = stage1_results["cleaned_delays"]
+        else:
+            cleaned_path = args.input
+        
+        # Stage 2: Model fitting
+        stage2_results = run_stage2(cleaned_path)
+        
+        # Stage 3: Diagnostics
+        stage3_results = run_stage3(cleaned_path)
+        
+        # Stage 4: Validation
+        stage4_results = run_stage4()
+        
+        # Compile final report
+        final_report = {
+            "runtime": time.time() - start_time,
+            "stage1": stage1_results if args.year else None,
+            "stage2": stage2_results,
+            "stage3": stage3_results,
+            "stage4": stage4_results
+        }
+        
+        Path("data/results/final_report.json").parent.mkdir(parents=True, exist_ok=True)
+        with open("data/results/final_report.json", 'w') as f:
+            json.dump(final_report, f, indent=2)
+        
+        logger.info(f"Pipeline complete in {time.time() - start_time:.2f}s")
+        
     except Exception as e:
-        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
