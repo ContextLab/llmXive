@@ -501,3 +501,30 @@ def test_reservation_authority_none_is_behavior_preserving(repo, monkeypatch):
                      backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
                      credit_observer=_observer(), balance_fetch=_balance())
     assert result.reservation_id is not None
+
+
+def test_reservation_authority_released_when_026_reserve_fails(repo, monkeypatch):
+    # FR-033b step ii rollback: the Attempt reserve opens (budget has ample
+    # headroom), then the 026 daily reserve() raises LedgerError (fault-injected,
+    # same seam as test_reserve_ledger_error_skips_not_aborts above) → the ALREADY
+    # OPEN Attempt reservation must be released (open -> released), never left
+    # open and never retained — the candidate is skipped, not aborted.
+    import importlib
+    execmod = importlib.import_module("llmxive.model_selection.execute")
+    from llmxive.model_selection.ledger_transport import LedgerContention
+
+    def _contend(*_a, **_k):
+        raise LedgerContention("could not fast-forward after 8 attempts (sustained contention)")
+
+    monkeypatch.setattr(execmod, "reserve", _contend)
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)  # ample — the Attempt reserve itself succeeds
+    with pytest.raises(ChainExhausted) as ei:
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget)
+    assert "could not reserve" in str(ei.value) and "LedgerContention" in str(ei.value)
+    assert budget.open == {}            # released, not left open
+    assert len(budget.released) == 1    # the Attempt reserve WAS opened, then released
+    assert budget.retained == set()     # never dispatched
