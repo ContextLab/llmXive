@@ -3,277 +3,200 @@ import json
 import math
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import pandas as pd
+import numpy as np
 from statsmodels.stats.power import GofChisquarePower
-from statsmodels.stats.power import tt_ind_solve_power
-from statsmodels.stats.power import FTestAnovaPower
 
-from config import Paths
-
+# Import from sibling modules if needed, but mostly standard/statsmodels
+# from config import Paths, AnalysisConfig # Not strictly needed if we hardcode or pass args, but good for consistency
 
 def calculate_effect_size_for_logistic(
-    prop_control: float,
-    prop_treatment: float,
-    base_rate: float = 0.5
+    group1_prop: float, group2_prop: float, p_pool: Optional[float] = None
 ) -> float:
     """
-    Estimate Cohen's h for logistic comparison of proportions.
-    Used as a proxy for effect size in binary violation outcomes.
-    
-    Args:
-        prop_control: Proportion of violations in baseline (monolithic)
-        prop_treatment: Proportion of violations in dual-track
-        base_rate: Not used in simple h calculation, kept for signature compatibility
-    
-    Returns:
-        Cohen's h effect size
-    """
-    # Fisher's z-transformation for proportions
-    z1 = 2 * math.asin(math.sqrt(prop_control))
-    z2 = 2 * math.asin(math.sqrt(prop_treatment))
-    return abs(z2 - z1)
+    Calculate Cohen's h (effect size for proportions) or similar metric.
+    For power analysis in logistic regression context, we often use the
+    proportion difference or odds ratio derived effect size.
+    Here we use Cohen's h for two proportions as a proxy for the effect size
+    in a chi-square test of independence (which underlies the GLMM binomial test).
 
+    Cohen's h = 2 * (arcsin(sqrt(p1)) - arcsin(sqrt(p2)))
+    """
+    if p_pool is None:
+        # Simple difference approach or standard Cohen's h
+        # For power analysis of a chi-square test (2x2), we can use the effect size w.
+        # w = sqrt( sum((p_obs - p_exp)^2 / p_exp) )
+        # However, statsmodels GofChisquarePower expects 'effect_size' (w) or we can compute it.
+        # Let's compute Cohen's h which is standard for proportions.
+        if not (0 < group1_prop < 1 and 0 < group2_prop < 1):
+            return 0.0
+        h = 2 * (math.asin(math.sqrt(group1_prop)) - math.asin(math.sqrt(group2_prop)))
+        return abs(h)
+    return 0.0
 
 def estimate_required_sample_size(
     effect_size: float,
     alpha: float = 0.05,
     power: float = 0.80,
-    n_groups: int = 2
+    df: int = 1
 ) -> int:
     """
-    Estimate the total sample size required to detect a given effect size
-    with specified power and alpha.
-    
-    Uses GofChisquarePower for proportion differences (binary outcomes).
-    
-    Args:
-        effect_size: Cohen's h (or f for ANOVA)
-        alpha: Significance level
-        power: Target statistical power
-        n_groups: Number of groups being compared (default 2)
-    
-    Returns:
-        Estimated total sample size required
+    Estimate the required total sample size for a chi-square test given an effect size.
+    Uses statsmodels GofChisquarePower.
     """
-    # For binary outcome (violation vs no violation), we use proportion test
-    # GofChisquarePower is appropriate for goodness-of-fit or test of proportions
+    if effect_size <= 0:
+        return -1 # Cannot calculate
     solver = GofChisquarePower()
-    
-    # Solve for nobs1 (sample size per group)
-    # effect_size here is Cohen's h
-    n_per_group = solver.solve(effect_size=effect_size, 
-                               power=power, 
-                               alpha=alpha, 
-                               n_groups=n_groups)
-    
-    return int(math.ceil(n_per_group * n_groups))
-
+    try:
+        # nobs is total sample size
+        n = solver.solve_power(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            n_groups=2, # 2x2 table
+            df_divisor=df # df for the test
+        )
+        return int(math.ceil(n))
+    except Exception:
+        return -1
 
 def perform_power_analysis(
-    execution_traces_path: Path,
+    monolithic_logs: list,
+    dual_track_logs: list,
     target_effect_size: float = 0.15,
-    target_power: float = 0.80,
-    alpha: float = 0.05
+    alpha: float = 0.05,
+    target_power: float = 0.80
 ) -> Dict[str, Any]:
     """
-    Perform power analysis on the filtered subset of execution traces.
-    
-    Calculates the achieved power given the current sample size and estimated
-    effect size between architectures.
-    
-    Args:
-        execution_traces_path: Path to data/processed/execution_traces.csv
-        target_effect_size: Target f² (medium effect size per task spec)
-        target_power: Target power (0.80)
-        alpha: Significance level (0.05)
-    
-    Returns:
-        Dictionary containing:
-            - calculated_power: The achieved power given current sample
-            - required_sample_size: Sample size needed for target power
-            - current_sample_size: Actual number of observations
-            - effect_size_estimate: Estimated effect size from data
-            - pass_fail: True if calculated_power >= target_power
-            - details: Additional metrics
+    Perform power analysis based on observed violation rates.
+    Returns a report with calculated power, effect size, and pass/fail.
     """
-    if not execution_traces_path.exists():
-        raise FileNotFoundError(
-            f"Execution traces file not found: {execution_traces_path}. "
-            "Run T024 (generate_execution_traces) first."
-        )
-    
-    df = pd.read_csv(execution_traces_path)
-    
-    # Ensure required columns exist
-    required_cols = ['architecture', 'violation', 'constraint_count']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(
-            f"Execution traces missing required columns: {missing}. "
-            "Expected columns: {required_cols}"
-        )
-    
-    # Calculate group sizes
-    group_sizes = df['architecture'].value_counts()
-    total_n = len(df)
-    
-    if len(group_sizes) < 2:
+    if not monolithic_logs or not dual_track_logs:
         return {
             "calculated_power": 0.0,
-            "required_sample_size": 0,
-            "current_sample_size": total_n,
-            "effect_size_estimate": 0.0,
-            "pass_fail": False,
-            "details": {
-                "error": "Insufficient groups in data",
-                "group_counts": group_sizes.to_dict()
-            }
-        }
-    
-    # Calculate violation rates by architecture
-    violation_rates = df.groupby('architecture')['violation'].mean()
-    
-    # Estimate effect size (Cohen's h for proportions)
-    if len(violation_rates) >= 2:
-        rates = violation_rates.values
-        effect_size = calculate_effect_size_for_logistic(
-            prop_control=rates[0],
-            prop_treatment=rates[1]
-        )
-    else:
-        effect_size = 0.0
-    
-    # Use F-test power analysis for ANOVA-style comparison (2 groups)
-    # This is more appropriate for comparing means across groups
-    solver = FTestAnovaPower()
-    
-    # Calculate achieved power
-    try:
-        achieved_power = solver.solve(
-            effect_size=effect_size,
-            nobs=total_n,
-            alpha=alpha,
-            k_groups=len(group_sizes)
-        )
-    except Exception:
-        # Fallback: if effect size is 0 or very small
-        achieved_power = 0.0
-    
-    # Calculate required sample size for target power
-    try:
-        required_n = estimate_required_sample_size(
-            effect_size=effect_size,
-            alpha=alpha,
-            power=target_power,
-            n_groups=len(group_sizes)
-        )
-    except Exception:
-        required_n = total_n * 2  # Conservative estimate
-    
-    return {
-        "calculated_power": round(float(achieved_power), 4),
-        "required_sample_size": required_n,
-        "current_sample_size": total_n,
-        "effect_size_estimate": round(float(effect_size), 4),
-        "pass_fail": bool(achieved_power >= target_power),
-        "details": {
-            "target_effect_size": target_effect_size,
+            "effect_size": 0.0,
             "target_power": target_power,
-            "alpha": alpha,
-            "group_counts": group_sizes.to_dict(),
-            "violation_rates": {k: round(float(v), 4) for k, v in violation_rates.to_dict().items()},
-            "analysis_method": "FTestAnovaPower (ANOVA-style for 2+ groups)"
+            "pass": False,
+            "error": "Insufficient data in logs"
         }
+
+    # Extract violation rates
+    n_mono = len(monolithic_logs)
+    violations_mono = sum(1 for log in monolithic_logs if log.get("violated", False))
+    prop_mono = violations_mono / n_mono if n_mono > 0 else 0.0
+
+    n_dual = len(dual_track_logs)
+    violations_dual = sum(1 for log in dual_track_logs if log.get("violated", False))
+    prop_dual = violations_dual / n_dual if n_dual > 0 else 0.0
+
+    # Calculate effect size (Cohen's h)
+    effect_size = calculate_effect_size_for_logistic(prop_mono, prop_dual)
+
+    # Calculate achieved power given the observed effect size and sample sizes
+    # We treat this as a test of two proportions (chi-square equivalent)
+    # statsmodels GofChisquarePower can compute power if we provide nobs
+    # But GofChisquarePower is for goodness of fit. For two proportions, we use TTestIndPower or similar?
+    # Actually, for a 2x2 contingency table, the test is a Chi-Square test of independence.
+    # We can use the GofChisquarePower but we need to construct the expected proportions.
+    # Alternatively, use TTestIndPower for proportions (approximation) or use the effect size w.
+    # Let's use the effect size w (Cohen's w) which is equivalent to sqrt(chi2/N).
+    # For 2x2, w = h / 2? No, h is for proportions.
+    # Let's stick to the statsmodels TTestIndPower for difference in means (proportions are means of 0/1).
+    from statsmodels.stats.power import TTestIndPower
+
+    # Effect size for T-test (Cohen's d) for proportions:
+    # d = (p1 - p2) / sqrt(p(1-p)) where p is pooled proportion
+    if n_mono + n_dual > 0:
+        p_pool = (violations_mono + violations_dual) / (n_mono + n_dual)
+        if 0 < p_pool < 1:
+            pooled_std = math.sqrt(p_pool * (1 - p_pool))
+            cohens_d = abs(prop_mono - prop_dual) / pooled_std
+        else:
+            cohens_d = 0.0
+    else:
+        cohens_d = 0.0
+
+    solver = TTestIndPower()
+    try:
+        # Power calculation for two independent samples
+        # nobs1, nobs2
+        calculated_power = solver.power(
+            effect_size=cohens_d,
+            nobs1=n_mono,
+            ratio=n_dual/n_mono if n_mono > 0 else 1.0,
+            alpha=alpha,
+            alternative='two-sided'
+        )
+    except Exception:
+        calculated_power = 0.0
+
+    pass_flag = calculated_power >= target_power
+
+    return {
+        "calculated_power": float(calculated_power),
+        "effect_size": float(cohens_d), # Using Cohen's d for interpretability
+        "prop_monolithic": float(prop_mono),
+        "prop_dual_track": float(prop_dual),
+        "sample_size_monolithic": n_mono,
+        "sample_size_dual_track": n_dual,
+        "target_power": target_power,
+        "target_effect_size": target_effect_size,
+        "pass": pass_flag
     }
 
-
 def run_power_analysis(
-    input_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> Dict[str, Any]:
+    monolithic_logs_path: Path,
+    dual_track_logs_path: Path,
+    output_path: Path,
+    target_effect_size: float = 0.15,
+    target_power: float = 0.80
+) -> None:
     """
-    Main entry point for power analysis.
-    
-    Args:
-        input_path: Path to execution_traces.csv (default: from config)
-        output_path: Path for output JSON (default: from config)
-    
-    Returns:
-        Power analysis results dictionary
+    Main entry point to run power analysis and write report.
     """
-    paths = Paths()
-    
-    if input_path is None:
-        input_path = paths.data_processed / "execution_traces.csv"
-    
-    if output_path is None:
-        output_path = paths.data_processed / "power_report.json"
-    
+    # Load logs
+    with open(monolithic_logs_path, 'r') as f:
+        monolithic_logs = json.load(f)
+    with open(dual_track_logs_path, 'r') as f:
+        dual_track_logs = json.load(f)
+
+    report = perform_power_analysis(
+        monolithic_logs,
+        dual_track_logs,
+        target_effect_size=target_effect_size,
+        target_power=target_power
+    )
+
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Perform analysis
-    results = perform_power_analysis(input_path)
-    
-    # Write results to JSON
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    return results
 
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    print(f"Power analysis report written to {output_path}")
+    print(f"Calculated Power: {report['calculated_power']:.4f}")
+    print(f"Effect Size (Cohen's d): {report['effect_size']:.4f}")
+    print(f"Target Power: {target_power}")
+    print(f"Pass: {report['pass']}")
 
 def main():
-    """CLI entry point for power analysis."""
     import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="Perform power analysis on execution traces"
-    )
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=None,
-        help="Path to execution_traces.csv"
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=None,
-        help="Path for output JSON report"
-    )
-    parser.add_argument(
-        "--effect-size",
-        type=float,
-        default=0.15,
-        help="Target effect size f² (default: 0.15)"
-    )
-    parser.add_argument(
-        "--power",
-        type=float,
-        default=0.80,
-        help="Target power (default: 0.80)"
-    )
-    
-    args = parser.parse_args()
-    
-    results = run_power_analysis(
-        input_path=args.input,
-        output_path=args.output
-    )
-    
-    print(f"Power Analysis Complete")
-    print(f"  Current Sample Size: {results['current_sample_size']}")
-    print(f"  Calculated Power: {results['calculated_power']:.4f}")
-    print(f"  Required Sample Size: {results['required_sample_size']}")
-    print(f"  Effect Size Estimate: {results['effect_size_estimate']:.4f}")
-    print(f"  Pass/Fail (Power >= 0.80): {'PASS' if results['pass_fail'] else 'FAIL'}")
-    print(f"\nReport written to: {paths.data_processed / 'power_report.json'}")
-    
-    if not results['pass_fail']:
-        print("\n⚠ WARNING: Current sample size is insufficient for target power.")
-        print(f"  Need {results['required_sample_size']} samples for 80% power.")
+    parser = argparse.ArgumentParser(description="Run Power Analysis")
+    parser.add_argument("--monolithic-logs", type=str, required=True, help="Path to monolithic logs JSON")
+    parser.add_argument("--dual-track-logs", type=str, required=True, help="Path to dual track logs JSON")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON report")
+    parser.add_argument("--target-power", type=float, default=0.80, help="Target power")
+    parser.add_argument("--target-effect-size", type=float, default=0.15, help="Target effect size (f2)")
 
+    args = parser.parse_args()
+
+    run_power_analysis(
+        Path(args.monolithic_logs),
+        Path(args.dual_track_logs),
+        Path(args.output),
+        target_power=args.target_power,
+        target_effect_size=args.target_effect_size
+    )
 
 if __name__ == "__main__":
     main()

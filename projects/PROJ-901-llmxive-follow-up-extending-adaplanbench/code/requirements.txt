@@ -7,3 +7,5 @@ pytest>=7.4.0
 ruff>=0.1.0
 black>=23.0.0
 torch>=2.0.0
+numpy  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

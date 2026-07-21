@@ -1,10 +1,3 @@
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No test files or code snippets were presented showing new unit tests in `tests/unit/`
-    for the three specified edge cases (implicit constraint handling, parsing failures,
-    empty constraint lists). The required artifacts are missing, so the task is not
-    satisfied.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

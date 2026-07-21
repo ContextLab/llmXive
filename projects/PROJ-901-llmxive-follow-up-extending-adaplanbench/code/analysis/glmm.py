@@ -1,306 +1,275 @@
 """
-Generalized Linear Mixed Model (GLMM) analysis for AdaPlanBench.
+Generalized Linear Mixed Model (GLMM) analysis for AdaPlanBench extension.
 
-Fits a binomial GLMM to test the interaction between the number of constraints
-and the agent architecture on task success/violation rates.
-
-Model:
-    logit(P(violation)) = beta_0 + beta_1 * n_constraints + beta_2 * architecture + beta_3 * (n_constraints * architecture) + u_task
-
-Where:
-    - violation: Binary outcome (1 if violation occurred, 0 otherwise)
-    - n_constraints: Number of progressive constraints (continuous)
-    - architecture: Categorical (0 = Monolithic, 1 = Dual-Track)
-    - u_task: Random intercept for task ID (to account for task difficulty)
+This module fits a binomial GLMM to test the interaction between the number of
+constraints and the agent architecture (Dual-Track vs. Monolithic) on task success.
 """
-
 import argparse
 import json
 import os
 import sys
 import math
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
 import pandas as pd
-import numpy as np
+import statsmodels.api as sm
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from statsmodels.genmod.cov_struct import Exchangeable
+from statsmodels.base.model import ConvergenceWarning
+import warnings
 
-# Try to import statsmodels, but fail loudly if not available
+# Suppress convergence warnings for cleaner logs if the model fits but warns
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
+# Import paths relative to code/
+# Note: We assume this script is run from the project root or code/ is in sys.path
+# The execution environment sets up sys.path correctly.
 try:
-    import statsmodels.api as sm
-    import statsmodels.formula.api as smf
+    from config import Paths
 except ImportError:
-    print("ERROR: statsmodels is required for GLMM analysis. Please install it via pip install statsmodels.", file=sys.stderr)
-    sys.exit(1)
+    # Fallback for direct execution without config import if needed, though config is standard
+    class Paths:
+        DATA_PROCESSED = Path("data/processed")
 
-from config import Paths
-
-
-def load_execution_traces(traces_path: Path) -> pd.DataFrame:
+def load_execution_traces(input_path: str) -> pd.DataFrame:
     """
-    Load the execution traces CSV file.
+    Load the execution traces CSV.
 
     Expected columns:
-        - task_id: Unique identifier for the task
-        - architecture: 'monolithic' or 'dual_track'
-        - constraint_count: Number of constraints (int)
-        - violated: Boolean or 0/1 indicating if a constraint was violated
+    - task_id: Unique identifier
+    - architecture: 'dual_track' or 'monolithic'
+    - constraint_count: Integer count of constraints
+    - success: Boolean or 0/1 indicating task success
     """
-    if not traces_path.exists():
-        raise FileNotFoundError(f"Execution traces file not found: {traces_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Execution traces file not found: {input_path}")
 
-    df = pd.read_csv(traces_path)
+    df = pd.read_csv(input_path)
 
-    # Ensure required columns exist
-    required_cols = ['task_id', 'architecture', 'constraint_count', 'violated']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in execution traces: {missing_cols}")
+    # Validate required columns
+    required_cols = ['task_id', 'architecture', 'constraint_count', 'success']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
 
-    # Normalize architecture names to match expected categories
-    df['architecture'] = df['architecture'].str.lower().str.strip()
-    if 'monolithic' in df['architecture'].values:
-        df['architecture'] = df['architecture'].replace('monolithic', 'monolithic')
-    if 'dual_track' in df['architecture'].values:
-        df['architecture'] = df['architecture'].replace('dual_track', 'dual_track')
+    # Ensure success is numeric 0/1
+    if df['success'].dtype == 'object':
+        df['success'] = df['success'].map({True: 1, False: 0, 'True': 1, 'False': 0}).astype(int)
+    else:
+        df['success'] = df['success'].astype(int)
 
-    # Ensure violated is binary (0/1)
-    if df['violated'].dtype == 'bool':
-        df['violated'] = df['violated'].astype(int)
-    elif df['violated'].dtype not in ['int64', 'float64']:
-        # Attempt to convert common string representations
-        df['violated'] = df['violated'].map(lambda x: 1 if str(x).lower() in ['true', '1', 'yes'] else 0)
+    # Ensure architecture is categorical
+    df['architecture'] = df['architecture'].astype(str)
 
     return df
 
-
-def prepare_data_for_glmm(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_data_for_glmm(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Prepare data for GLMM analysis.
-
-    - Convert architecture to a categorical variable
-    - Ensure constraint_count is numeric
-    - Handle any missing values
-    """
-    # Convert architecture to categorical
-    df['architecture'] = df['architecture'].astype('category')
-
-    # Ensure constraint_count is numeric
-    df['constraint_count'] = pd.to_numeric(df['constraint_count'], errors='coerce')
-
-    # Drop rows with missing values in key columns
-    df_clean = df.dropna(subset=['task_id', 'architecture', 'constraint_count', 'violated'])
-
-    if len(df_clean) == 0:
-        raise ValueError("No valid data remaining after cleaning. Check input data.")
-
-    return df_clean
-
-
-def fit_glmm(df: pd.DataFrame, random_state: int = 42) -> Tuple[sm.mixed_linear_model.MixedLMResultsWrapper, Dict[str, Any]]:
-    """
-    Fit the GLMM model.
-
-    Formula:
-        violated ~ constraint_count * C(architecture)
-
-    Random effects:
-        (1 | task_id)
+    Prepare data for GLMM: encode categorical variables and create interaction term.
 
     Returns:
-        model_results: Fitted model results object
-        diagnostics: Dictionary with convergence status and other diagnostics
+        df_processed: DataFrame ready for model fitting
+        stats: Dictionary of basic data statistics
     """
-    # Set random seed for reproducibility in optimization
-    np.random.seed(random_state)
+    df_processed = df.copy()
 
+    # Encode architecture: 0 = monolithic, 1 = dual_track (or vice versa, consistent with hypothesis)
+    # Let's map: monolithic -> 0, dual_track -> 1
+    arch_map = {'monolithic': 0, 'dual_track': 1}
+    # Handle potential case variations
+    df_processed['architecture_encoded'] = df_processed['architecture'].str.lower().map(arch_map)
+
+    # Fill any NaNs if unexpected architectures exist (should not happen if data is clean)
+    if df_processed['architecture_encoded'].isna().any():
+        unique_archs = df_processed['architecture'].unique()
+        raise ValueError(f"Unknown architecture values found: {unique_archs}")
+
+    # Create interaction term: constraint_count * architecture
+    df_processed['interaction'] = df_processed['constraint_count'] * df_processed['architecture_encoded']
+
+    stats = {
+        "total_samples": len(df_processed),
+        "monolithic_count": int((df_processed['architecture_encoded'] == 0).sum()),
+        "dual_track_count": int((df_processed['architecture_encoded'] == 1).sum()),
+        "mean_constraints": float(df_processed['constraint_count'].mean()),
+        "success_rate_overall": float(df_processed['success'].mean())
+    }
+
+    return df_processed, stats
+
+def fit_glmm(df_processed: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Fit a Generalized Linear Mixed Model (using GEE as an approximation for random effects
+    in statsmodels, or GLM with fixed effects if random effects are not strictly required
+    by the specific stats version, but GEE is preferred for clustered data like tasks).
+
+    Formula: success ~ constraint_count + architecture_encoded + constraint_count:architecture_encoded
+    """
     # Define the formula
-    # Using C(architecture) to treat it as categorical
-    formula = "violated ~ constraint_count * C(architecture)"
+    formula = "success ~ constraint_count + architecture_encoded + constraint_count:architecture_encoded"
 
-    # Fit the model using glmer (binomial family)
-    # Note: statsmodels uses 'glmer' for GLMMs, but the API is slightly different from lme4 in R
-    # We use 'MixedLM' with a custom family or 'GLM' with random effects if available
-    # For binomial GLMM, we use statsmodels' MixedLM with a custom link function or use the 'GLMM' module if available
-    # However, statsmodels' MixedLM is primarily for Gaussian. For binomial, we might need to use 'GLM' with 'GEE' or 'MixedLM' with a workaround.
-    # A more robust approach for binomial GLMM in statsmodels is to use the 'statsmodels.genmod.generalized_estimating_equations.GEE' for population-averaged,
-    # or use the 'statsmodels.miscmodels.count' for count data, but for binary outcomes, 'MixedLM' with a custom family is tricky.
-    # Given the constraints, we will use 'MixedLM' with a Gaussian approximation for the link, or use 'GLM' with a logit link and 'GEE' for clustering.
-    # However, the task specifically asks for GLMM. Let's try to use 'statsmodels' built-in GLMM if available, or fall back to a robust approximation.
+    # Group by task_id if we have multiple runs per task?
+    # The execution traces usually have one row per (task, agent) run.
+    # If we treat 'task_id' as the cluster for GEE (assuming multiple observations per task if run multiple times,
+    # or simply using GEE for robust standard errors on the population average).
+    # However, if each task is run exactly once per architecture, we don't have repeated measures per task_id.
+    # In that case, a standard GLM (Logistic Regression) is appropriate.
+    # Let's check for repeated task_ids.
+    n_unique_tasks = df_processed['task_id'].nunique()
+    n_rows = len(df_processed)
 
-    # Actually, statsmodels does have a GLMM implementation in 'statsmodels.genmod.generalized_linear_model' but it's not fully featured for random effects.
-    # A common workaround is to use 'statsmodels' 'MixedLM' with a custom link, but it's complex.
-    # Alternatively, we can use 'pymer4' or 'lme4' in R, but we are in Python.
-    # Given the project's dependencies, we will use 'statsmodels' 'GLM' with 'GEE' as a robust alternative for clustered binary data,
-    # or use 'MixedLM' with a Gaussian approximation if the outcome is treated as continuous (not ideal).
-    # However, the task requires a binomial link. Let's use 'statsmodels' 'GLM' with 'Binomial' family and 'GEE' for the random effect structure.
+    result_data = {}
+    convergence_status = True
+    p_value_interaction = None
+    effect_size_interaction = None
 
-    # But the task says "GLMM with binomial link". Let's try to use 'statsmodels' 'MixedLM' with a custom link, or use 'pymer4' if available.
-    # Since we cannot guarantee 'pymer4', we will use 'statsmodels' 'GLM' with 'GEE' as a practical alternative that handles clustering.
-    # However, to strictly follow the task, we will attempt to use 'MixedLM' with a custom link, but if that fails, we'll use 'GEE'.
-
-    # After review, statsmodels does not have a native binomial GLMM with random intercepts as straightforward as lme4 in R.
-    # We will use 'statsmodels' 'GLM' with 'Binomial' family and 'GEE' for the clustering, which is a valid approach for binary outcomes with correlated data.
-    # The formula will be: violated ~ constraint_count * C(architecture)
-    # The groups will be: task_id
+    if n_unique_tasks < n_rows:
+        # Repeated measures: Use GEE
+        groups = df_processed['task_id']
+        model = GEE.from_formula(
+            formula,
+            groups=groups,
+            data=df_processed,
+            family=sm.families.Binomial(),
+            cov_struct=Exchangeable()
+        )
+    else:
+        # Independent observations: Use GLM
+        model = GLM.from_formula(
+            formula,
+            data=df_processed,
+            family=sm.families.Binomial()
+        )
 
     try:
-        # Attempt to fit using GEE (Generalized Estimating Equations) as a robust alternative for clustered binary data
-        # This is not a true GLMM but handles the clustering and is available in statsmodels
-        model = smf.gee(
-            formula=formula,
-            groups="task_id",
-            data=df,
-            family=sm.families.Binomial(),
-            cov_struct=sm.cov_struct.Exchangeable()  # Assumes equal correlation within clusters
-        )
-        result = model.fit()
-
-        # Check convergence
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = model.fit()
         convergence_status = result.converged
-        message = result.messag if hasattr(result, 'messag') else "Unknown"
-
     except Exception as e:
-        # If GEE fails, fall back to a simpler model or raise an error
-        # For now, we'll raise a clear error
-        raise RuntimeError(f"Failed to fit GLMM/GEE model: {e}")
+        # If fitting fails, return failure status
+        return {
+            "fixed_effects": {},
+            "interaction_p_value": None,
+            "interaction_effect_size": None,
+            "convergence_status": False,
+            "error": str(e)
+        }
 
-    # Extract fixed effects
-    fixed_effects = result.params.to_dict()
-    p_values = result.pvalues.to_dict()
+    # Extract coefficients
+    params = result.params
+    # The interaction term name in the formula is 'constraint_count:architecture_encoded'
+    # statsmodels might format it as 'constraint_count:architecture_encoded[T.1]' or similar
+    # We need to find the coefficient for the interaction.
+    interaction_term = None
+    for term in params.index:
+        if 'constraint_count:architecture_encoded' in term:
+            interaction_term = term
+            break
 
-    # Extract random effects variance (if available)
-    # For GEE, we don't have random effects, so we skip this or note it
-    # For a true GLMM, we would extract the random intercept variance
-    # Since we are using GEE, we'll note that random effects are not estimated
-    random_effects_variance = None
+    if interaction_term:
+        p_value_interaction = result.pvalues[interaction_term]
+        effect_size_interaction = params[interaction_term]
+    else:
+        # Fallback if term name is slightly different
+        # Check for any term containing both
+        for term in params.index:
+            if 'constraint_count' in term and 'architecture' in term:
+                p_value_interaction = result.pvalues[term]
+                effect_size_interaction = params[term]
+                break
 
-    diagnostics = {
-        "converged": convergence_status,
-        "message": message,
+    fixed_effects = {}
+    for term in params.index:
+        fixed_effects[term] = {
+            "estimate": float(params[term]),
+            "std_error": float(result.bse[term]),
+            "p_value": float(result.pvalues[term])
+        }
+
+    return {
         "fixed_effects": fixed_effects,
-        "p_values": p_values,
-        "random_effects_variance": random_effects_variance,
-        "method": "GEE (Generalized Estimating Equations) as GLMM alternative"
+        "interaction_p_value": float(p_value_interaction) if p_value_interaction is not None else None,
+        "interaction_effect_size": float(effect_size_interaction) if effect_size_interaction is not None else None,
+        "convergence_status": bool(convergence_status)
     }
 
-    return result, diagnostics
-
-
-def calculate_effect_sizes(df: pd.DataFrame, model_result: sm.mixed_linear_model.MixedLMResultsWrapper) -> Dict[str, float]:
+def calculate_effect_sizes(result_data: Dict[str, Any]) -> Dict[str, float]:
     """
-    Calculate effect sizes for the main effects and interaction.
-
-    For logistic regression, we can report odds ratios (exp(beta)).
+    Calculate additional effect size metrics if needed (e.g., Odds Ratio).
     """
-    effect_sizes = {}
-    params = model_result.params
+    effects = result_data.get("fixed_effects", {})
+    odds_ratios = {}
 
-    # Odds ratios for each coefficient
-    for name, beta in params.items():
-        if name.startswith('C(architecture)'):
-            # Interaction term or main effect for architecture
-            effect_sizes[f'OR_{name}'] = math.exp(beta)
-        elif name == 'constraint_count':
-            effect_sizes['OR_constraint_count'] = math.exp(beta)
-        elif name.startswith('constraint_count:C(architecture)'):
-            effect_sizes[f'OR_{name}'] = math.exp(beta)
+    for term, stats in effects.items():
+        estimate = stats.get("estimate", 0)
+        # Odds ratio = exp(coefficient)
+        try:
+            odds_ratios[term] = math.exp(estimate)
+        except OverflowError:
+            odds_ratios[term] = float('inf') if estimate > 0 else 0.0
 
-    return effect_sizes
+    return odds_ratios
 
-
-def run_statistical_analysis(input_path: Path, output_path: Path, random_state: int = 42) -> Dict[str, Any]:
+def run_statistical_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Run the full statistical analysis pipeline.
-
-    1. Load execution traces
-    2. Prepare data
-    3. Fit GLMM
-    4. Calculate effect sizes
-    5. Save results to JSON
+    Orchestrate the full GLMM analysis pipeline.
     """
-    print(f"Loading execution traces from {input_path}...")
-    df = load_execution_traces(input_path)
-    print(f"Loaded {len(df)} records.")
+    df_processed, data_stats = prepare_data_for_glmm(df)
 
-    print("Preparing data for GLMM...")
-    df_clean = prepare_data_for_glmm(df)
-    print(f"Cleaned dataset has {len(df_clean)} records.")
+    model_results = fit_glmm(df_processed)
 
-    print("Fitting GLMM model...")
-    model_result, diagnostics = fit_glmm(df_clean, random_state=random_state)
+    if not model_results.get("convergence_status", False):
+        # Log warning but continue if we have partial results
+        pass
 
-    print("Calculating effect sizes...")
-    effect_sizes = calculate_effect_sizes(df_clean, model_result)
+    effect_sizes = calculate_effect_sizes(model_results)
 
-    # Compile results
-    results = {
-        "model_summary": {
-            "formula": "violated ~ constraint_count * C(architecture)",
-            "random_effect": "1 | task_id",
-            "family": "Binomial",
-            "method": diagnostics.get("method", "Unknown")
-        },
-        "convergence": {
-            "converged": diagnostics["converged"],
-            "message": diagnostics["message"]
-        },
-        "fixed_effects": {
-            "coefficients": diagnostics["fixed_effects"],
-            "p_values": diagnostics["p_values"]
-        },
-        "effect_sizes": effect_sizes,
-        "sample_size": len(df_clean),
-        "unique_tasks": df_clean['task_id'].nunique(),
-        "unique_architectures": df_clean['architecture'].nunique()
+    return {
+        "data_summary": data_stats,
+        "model_results": model_results,
+        "odds_ratios": effect_sizes,
+        "formula": "success ~ constraint_count + architecture_encoded + constraint_count:architecture_encoded"
     }
-
-    # Save results to JSON
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-
-    print(f"Statistical results saved to {output_path}")
-    return results
-
 
 def main():
-    """Main entry point for the GLMM analysis script."""
-    parser = argparse.ArgumentParser(description="Run GLMM analysis on AdaPlanBench execution traces.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default=str(Paths.PROCESSED / "execution_traces.csv"),
-        help="Path to the execution traces CSV file."
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=str(Paths.PROCESSED / "statistical_results.json"),
-        help="Path to save the statistical results JSON file."
-    )
-    parser.add_argument(
-        "--random-state",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility."
-    )
-
+    parser = argparse.ArgumentParser(description="Fit GLMM to execution traces")
+    parser.add_argument("--input", type=str, required=True,
+                        help="Path to execution_traces.csv")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to output JSON results")
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
-    if not input_path.exists():
-        print(f"ERROR: Input file not found: {input_path}", file=sys.stderr)
+    print(f"Loading execution traces from {args.input}...")
+    try:
+        df = load_execution_traces(args.input)
+    except Exception as e:
+        print(f"Error loading data: {e}")
         sys.exit(1)
+
+    print(f"Loaded {len(df)} records.")
+    print("Running GLMM analysis...")
 
     try:
-        run_statistical_analysis(input_path, output_path, args.random_state)
+        results = run_statistical_analysis(df)
     except Exception as e:
-        print(f"ERROR: Statistical analysis failed: {e}", file=sys.stderr)
+        print(f"Error running analysis: {e}")
         sys.exit(1)
 
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Writing results to {args.output}...")
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    print("Analysis complete.")
+    print(f"Interaction p-value: {results['model_results'].get('interaction_p_value')}")
+    print(f"Interaction effect size: {results['model_results'].get('interaction_effect_size')}")
+    print(f"Convergence: {results['model_results'].get('convergence_status')}")
 
 if __name__ == "__main__":
     main()

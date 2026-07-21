@@ -1,161 +1,116 @@
 """
-Dataset loader and filter for AdaPlanBench.
-
-This module handles fetching the raw AdaPlanBench dataset and filtering
-it to isolate tasks with progressive constraint reveals (>= 5).
+Module for loading and filtering the AdaPlanBench dataset.
+Fetches real data from HuggingFace datasets and applies constraint filtering.
 """
-
 import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
 from datasets import load_dataset
 import pandas as pd
+import argparse
 
-from config import Paths, DatasetConfig
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Constants
-MIN_CONSTRAINT_REVEALS = 5
-DATASET_NAME = "adaplanbench/adaplanbench"
+from config import Paths, get_paths, get_dataset_config
 
-def load_adaplanbench() -> pd.DataFrame:
+def load_adaplanbench() -> List[Dict[str, Any]]:
     """
-    Load the raw AdaPlanBench dataset from Hugging Face.
+    Load the AdaPlanBench dataset from HuggingFace.
+    This function fetches REAL data and will fail loudly if the fetch fails.
+    No synthetic fallback is implemented.
+    """
+    config = get_dataset_config()
+    print(f"Loading dataset: {config.NAME}")
     
-    Returns:
-        pd.DataFrame: The full dataset.
-        
-    Raises:
-        RuntimeError: If the dataset cannot be fetched.
-    """
     try:
-        # Attempt to load the dataset
-        # Using streaming=False to load into memory as a DataFrame
-        # If the dataset is too large, the runner environment will fail, which is the desired behavior
-        # over fabricating a synthetic subset.
-        dataset = load_dataset(DATASET_NAME, split="train")
+        # Load the dataset
+        dataset = load_dataset(config.NAME, split="train")
         
-        # Convert to pandas DataFrame for easier manipulation
-        df = dataset.to_pandas()
-        
-        return df
-        
+        # Convert to list of dicts
+        data_list = dataset.to_pandas().to_dict(orient='records')
+        print(f"Successfully loaded {len(data_list)} tasks.")
+        return data_list
     except Exception as e:
-        raise RuntimeError(
-            f"Failed to load AdaPlanBench dataset '{DATASET_NAME}'. "
-            f"Ensure internet connectivity and correct dataset ID. "
-            f"Error: {str(e)}"
-        ) from e
+        raise RuntimeError(f"Failed to load AdaPlanBench dataset: {str(e)}")
 
-def filter_progressive_constraints(df: pd.DataFrame, min_reveals: int = MIN_CONSTRAINT_REVEALS) -> pd.DataFrame:
+def filter_progressive_constraints(data: List[Dict[str, Any]], min_constraints: int = 5) -> List[Dict[str, Any]]:
     """
-    Filter the dataset to include only tasks with >= min_reveals progressive constraints.
-    
-    This implements the core logic for User Story 1: isolating the independent variable
-    (number of progressive constraint reveals).
-    
-    Args:
-        df: The raw dataset DataFrame.
-        min_reveals: Minimum number of constraint reveals required (default: 5).
-        
-    Returns:
-        pd.DataFrame: Filtered dataset containing only tasks meeting the criteria.
-        
-    Raises:
-        ValueError: If the expected column 'constraint_count' or 'progressive_constraints' is missing.
+    Filter tasks to include only those with >= min_constraints progressive constraints.
     """
-    # Validate presence of required columns
-    # The dataset schema should have 'progressive_constraints' (list of constraints revealed over time)
-    # or a pre-calculated 'constraint_count' field.
+    filtered = []
+    for task in data:
+        # Check if 'progressive_constraints' exists and is a list
+        constraints = task.get('progressive_constraints', [])
+        if isinstance(constraints, list) and len(constraints) >= min_constraints:
+            filtered.append(task)
     
-    if 'progressive_constraints' in df.columns:
-        # Calculate constraint_count if not present
-        if 'constraint_count' not in df.columns:
-            df = df.copy()
-            df['constraint_count'] = df['progressive_constraints'].apply(
-                lambda x: len(x) if isinstance(x, list) else 0
-            )
-    elif 'constraint_count' in df.columns:
-        # Ensure constraint_count is numeric
-        df = df.copy()
-        df['constraint_count'] = pd.to_numeric(df['constraint_count'], errors='coerce').fillna(0)
-    else:
-        raise ValueError(
-            "Dataset missing required column for filtering: "
-            "Expected 'progressive_constraints' (list) or 'constraint_count' (int). "
-            f"Available columns: {list(df.columns)}"
-        )
-    
-    # Apply filter: constraint_count >= min_reveals
-    filtered_df = df[df['constraint_count'] >= min_reveals].reset_index(drop=True)
-    
-    return filtered_df
+    print(f"Filtered dataset: {len(filtered)} tasks with >= {min_constraints} constraints.")
+    return filtered
 
-def save_filtered_dataset(df: pd.DataFrame, output_path: str) -> None:
+def save_filtered_dataset(data: List[Dict[str, Any]], output_path: Path, min_constraints: int = 5):
     """
-    Save the filtered dataset to a CSV file.
-    
-    Args:
-        df: The filtered DataFrame.
-        output_path: Absolute or relative path to the output CSV file.
+    Save filtered dataset to CSV, adding a constraint_count column.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(output_file, index=False)
-    print(f"Saved filtered dataset to {output_file} ({len(df)} tasks)")
+    if not data:
+        print("Warning: No data to save.")
+        # Create empty file with headers
+        df = pd.DataFrame(columns=['task_id', 'task_name', 'progressive_constraints', 'constraint_count'])
+        df.to_csv(output_path, index=False)
+        return
+
+    # Prepare data for CSV
+    rows = []
+    for task in data:
+        constraints = task.get('progressive_constraints', [])
+        rows.append({
+            'task_id': task.get('task_id', ''),
+            'task_name': task.get('task_name', ''),
+            'progressive_constraints': json.dumps(constraints),
+            'constraint_count': len(constraints)
+        })
+
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
+    print(f"Saved {len(rows)} tasks to {output_path}")
 
 def main():
-    """
-    Main entry point for dataset preparation (T013 + T014).
+    """Main entry point for dataset loading and filtering."""
+    parser = argparse.ArgumentParser(description="Load and filter AdaPlanBench dataset")
+    parser.add_argument('--verify-only', action='store_true', help="Only verify dataset availability")
+    parser.add_argument('--filter-min-constraints', type=int, default=5, help="Minimum number of constraints")
+    parser.add_argument('--output', type=str, help="Output path for filtered dataset")
     
-    1. Loads raw AdaPlanBench.
-    2. Filters for tasks with >= 5 progressive constraints.
-    3. Adds/ensures 'constraint_count' column.
-    4. Saves to data/processed/filtered_tasks.csv.
-    """
-    print("Starting dataset loading and filtering (T013)...")
-    
-    # 1. Load raw data
-    print(f"Loading dataset: {DATASET_NAME}...")
-    raw_df = load_adaplanbench()
-    print(f"Loaded {len(raw_df)} raw tasks.")
-    
-    # 2. Filter
-    print(f"Filtering for tasks with >= {MIN_CONSTRAINT_REVEALS} progressive constraints...")
-    filtered_df = filter_progressive_constraints(raw_df, min_reveals=MIN_CONSTRAINT_REVEALS)
-    
-    if len(filtered_df) == 0:
-        raise ValueError(
-            f"No tasks found with >= {MIN_CONSTRAINT_REVEALS} constraints. "
-            "Check dataset schema or lower the threshold if appropriate."
-        )
-    
-    print(f"Filtered dataset contains {len(filtered_df)} tasks.")
-    
-    # 3. Ensure constraint_count column exists (T014 requirement)
-    if 'constraint_count' not in filtered_df.columns:
-        # Fallback calculation if somehow missed
-        if 'progressive_constraints' in filtered_df.columns:
-            filtered_df['constraint_count'] = filtered_df['progressive_constraints'].apply(
-                lambda x: len(x) if isinstance(x, list) else 0
-            )
-        else:
-            # This should not happen if filter logic is correct, but safe guard
-            filtered_df['constraint_count'] = MIN_CONSTRAINT_REVEALS 
-    
-    # 4. Save output
-    output_path = str(Paths.PROCESSED_DATA / "filtered_tasks.csv")
-    save_filtered_dataset(filtered_df, output_path)
-    
-    print("Dataset preparation complete.")
+    args = parser.parse_args()
+    paths = get_paths()
+    config = get_dataset_config()
+
+    # Default output path
+    output_path = Path(args.output) if args.output else paths.DATA_PROCESSED / "filtered_tasks.csv"
+
+    if args.verify_only:
+        print("Verifying dataset availability...")
+        try:
+            data = load_adaplanbench()
+            print(f"Dataset verified: {len(data)} tasks available.")
+        except Exception as e:
+            print(f"Verification failed: {e}")
+            sys.exit(1)
+        return
+
+    # Load dataset
+    print("Loading dataset...")
+    data = load_adaplanbench()
+
+    # Filter dataset
+    print(f"Filtering tasks with >= {args.filter_min_constraints} constraints...")
+    filtered_data = filter_progressive_constraints(data, args.filter_min_constraints)
+
+    # Save dataset
+    print(f"Saving filtered dataset to {output_path}...")
+    save_filtered_dataset(filtered_data, output_path, args.filter_min_constraints)
+    print("Done.")
 
 if __name__ == "__main__":
     main()

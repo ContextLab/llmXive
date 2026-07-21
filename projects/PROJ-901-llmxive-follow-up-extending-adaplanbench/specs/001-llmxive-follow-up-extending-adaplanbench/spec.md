@@ -67,7 +67,7 @@ The researcher needs to perform a Generalized Linear Mixed Model (GLMM) with a b
 - **FR-003**: System MUST implement a rule-based conflict resolution module that checks the SLM's proposed action against the stored constraint state and forces a revision if a violation is detected (See US-2).
 - **FR-004**: System MUST execute the dual-track agent and the monolithic baseline on the filtered dataset using the original AdaPlanBench automated judges to score task success and constraint adherence (See US-2).
 - **FR-005**: System MUST perform a Generalized Linear Mixed Model (GLMM) with a binomial link function to test for the interaction between "number of constraints" and "agent architecture" on the constraint violation rate (See US-3).
-- **FR-006**: System MUST log CPU usage and memory footprint during execution to verify the process remains within the 2 vCPU and 7GB RAM limits (See US-3).
+- **FR-006**: System MUST log CPU usage and memory footprint during execution to verify the process remains within the allocated vCPU and RAM limits (See US-3).
 - **FR-007**: System MUST define violation detection logic using exact string matching, case-insensitive substring matching, and explicit negation patterns; if a constraint is implicit or the pattern fails, the system MUST log the event as "unverified" and flag it for human review (See US-2).
 - **FR-008**: If the rule-based module fails to parse the intent of a generated action, the system MUST log a "false_negative" event, retain the original plan, and increment a "parsing_failure" counter (See US-2).
 - **FR-009**: For tasks where constraints are implicit or require common-sense reasoning, the system MUST NOT classify them as violations; instead, it MUST log them as "implicit_unverified" and exclude them from the primary violation rate calculation (See US-2).
@@ -95,7 +95,7 @@ The researcher needs to perform a Generalized Linear Mixed Model (GLMM) with a b
 ## Assumptions
 
 - The AdaPlanBench dataset (specifically the household tasks) is publicly accessible via the official repository or arXiv supplementary materials and contains the necessary variables for progressive constraint tracking.
-- The Phi-mini model (or similar SLM) can be loaded and run on a CPU-only environment within the 2 vCPU and 7GB RAM limits without requiring GPU acceleration or 8-bit quantization.
+- The Phi-mini model (or similar SLM) can be loaded and run on a CPU-only environment within the limited vCPU and RAM constraints. without requiring GPU acceleration or 8-bit quantization.
 - The "constraint violation" can be reliably detected via a rule-based module using keyword matching and simple logical inference for explicit constraints; implicit constraints are handled by logging as "unverified" rather than forcing a binary decision.
 - The Generalized Linear Mixed Model (GLMM) is the appropriate statistical test for the experimental design, assuming the data meets convergence criteria for binary repeated measures.
 - The monolithic baseline models (e.g., GPT-4, Llama-3-70b) will be evaluated using the same API or weights available at the time of execution, acknowledging potential availability constraints.

@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Log Schema
+description: Schema for agent execution logs (both monolithic and dual-track).
+type: object
+required:
+  - task_id
+  - architecture
+  - constraint_count
+  - violations
+  - final_score
+  - execution_log
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the task.
+  architecture:
+    type: string
+    enum:
+      - monolithic
+      - dual-track
+    description: The agent architecture used.
+  constraint_count:
+    type: integer
+    description: Number of progressive constraints for this task.
+  violations:
+    type: array
+    items:
+      type: object
+      required:
+        - constraint_id
+        - type
+        - description
+        - corrected
+      properties:
+        constraint_id:
+          type: string
+        type:
+          type: string
+          enum:
+            - explicit
+            - implicit_unverified
+            - false_negative
+        description:
+          type: string
+        corrected:
+          type: boolean
+  final_score:
+    type: number
+    description: Final task completion score (0.0 to 1.0).
+  execution_log:
+    type: array
+    items:
+      type: object
+      required:
+        - step
+        - timestamp
+        - details
+      properties:
+        step:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: string
+        violation_logged:
+          type: boolean

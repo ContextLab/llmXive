@@ -1,0 +1,11 @@
+status: none
+intent: AdaPlanBench dataset download Python package site:github.com python package
+  dataset
+required_fields:
+- task_id
+- constraint_count
+- constraints
+- task_description
+cache_key: 740139f80acac097e1c25d79346fd19404e830deb5bbde1dca56385cfacfaba2
+searched_at: '2026-07-21T06:07:40.761831+00:00'
+retry_count: 1

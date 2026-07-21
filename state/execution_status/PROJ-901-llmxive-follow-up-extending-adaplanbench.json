@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-901-llmxive-follow-up-extending-adaplanbench",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/dataset/loader.py --verify-only (rc=1); python code/dataset/loader.py --filter-min-constraints 5 --output data/processed/filtered_tasks.csv (rc=1); python code/analysis/power.py --input data/processed/filtered_tasks.csv (rc=1); 3 declared deliverable(s) absent: data/processed/annotation_sample.csv; data/processed/execution_traces.csv; data/processed/filtered_tasks.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/dataset/loader.py --verify-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/dataset/loader.py\", line 22, in <module>\n    from config import Paths, DatasetConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined",
+    "python code/dataset/loader.py --filter-min-constraints 5 --output data/processed/filtered_tasks.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/dataset/loader.py\", line 22, in <module>\n    from config import Paths, DatasetConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined",
+    "python code/analysis/power.py --input data/processed/filtered_tasks.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/analysis/power.py\", line 12, in <module>\n    from config import Paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined",
+    "python code/main.py --mode full --model phi-3-mini --output data/processed/execution_logs.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/main.py\", line 25, in <module>\n    from config import Paths, ResourceLimits, set_all_seeds, AnalysisConfig\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined",
+    "python code/analysis/glmm.py --input data/processed/execution_logs.csv --output data/processed/results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/analysis/glmm.py\", line 36, in <module>\n    from config import Paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined",
+    "python code/dataset/annotator.py --input data/processed/execution_logs.csv --target-kappa-precision 0.10 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/dataset/annotator.py\", line 14, in <module>\n    from config import Paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/config.py\", line 161, in <module>\n    @dataclass\n     ^^^^^^^^^\nNameError: name 'dataclass' is not defined"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-21T06:06:38Z"
+}

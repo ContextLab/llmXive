@@ -1,9 +1,7 @@
 """
-Generate execution_traces.csv from agent execution logs.
-
-This script reads the execution logs produced by the dual-track and monolithic
-agents (from T023), extracts the relevant fields (architecture type, constraint
-count, violation boolean, final score), and writes them to a CSV file.
+Module to generate execution traces CSV from agent execution logs.
+This script consolidates monolithic and dual-track logs into a unified format
+for statistical analysis.
 """
 import os
 import sys
@@ -12,175 +10,143 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import Paths
+from config import Paths, get_dataset_config, get_analysis_config
 
+def load_execution_logs(log_path: Path) -> List[Dict[str, Any]]:
+    """Load execution logs from a JSON file."""
+    if not log_path.exists():
+        raise FileNotFoundError(f"Log file not found: {log_path}")
 
-def load_execution_logs(log_dir: Path) -> List[Dict[str, Any]]:
-    """
-    Load all JSON execution logs from the specified directory.
+    with open(log_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-    Args:
-        log_dir: Path to directory containing execution log JSON files.
+    # Handle both single list and dict with 'logs' key
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'logs' in data:
+        return data['logs']
+    else:
+        # Assume it's a dict containing a single log entry or list of entries
+        return [data] if not isinstance(data, list) else data
 
-    Returns:
-        List of parsed log dictionaries.
-    """
-    logs = []
-    if not log_dir.exists():
-        raise FileNotFoundError(f"Execution log directory not found: {log_dir}")
+def load_filtered_tasks_map(tasks_path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load filtered tasks and create a mapping by task_id."""
+    if not tasks_path.exists():
+        raise FileNotFoundError(f"Tasks file not found: {tasks_path}")
 
-    for log_file in sorted(log_dir.glob("*.json")):
-        try:
-            with open(log_file, 'r', encoding='utf-8') as f:
-                log_data = json.load(f)
-                logs.append(log_data)
-        except json.JSONDecodeError as e:
-            print(f"Warning: Failed to parse {log_file}: {e}", file=sys.stderr)
-            continue
-        except Exception as e:
-            print(f"Warning: Failed to read {log_file}: {e}", file=sys.stderr)
-            continue
+    tasks_map = {}
+    with open(tasks_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            task_id = row.get('task_id')
+            if task_id:
+                tasks_map[task_id] = row
+    return tasks_map
 
-    if not logs:
-        raise ValueError(f"No valid execution logs found in {log_dir}")
+def extract_trace_data(log_entry: Dict[str, Any], tasks_map: Dict[str, Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """Extract relevant fields from a log entry for the execution trace."""
+    task_id = log_entry.get('task_id')
+    if not task_id or task_id not in tasks_map:
+        return None
 
-    return logs
+    task_meta = tasks_map[task_id]
+    
+    # Determine architecture type
+    source_file = log_entry.get('source', '').lower()
+    if 'dual' in source_file:
+        architecture = 'dual_track'
+    elif 'monolithic' in source_file:
+        architecture = 'monolithic'
+    else:
+        architecture = log_entry.get('architecture', 'unknown')
 
+    # Extract constraint count from metadata
+    constraint_count = int(task_meta.get('constraint_count', 0))
 
-def extract_trace_data(logs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Extract trace data from execution logs.
+    # Determine violation status
+    violations = log_entry.get('violations', [])
+    has_violation = len(violations) > 0
 
-    Expected log structure (based on agent implementation):
-    {
-        "task_id": "...",
-        "architecture": "dual_track" | "monolithic",
-        "constraint_count": int,
-        "violations": [
-            {
-                "type": "violation_type",
-                "description": "...",
-                "corrected": bool,
-                ...
-            }
-        ],
-        "final_score": float,
-        ...
+    # Extract final score (success/failure or numeric score)
+    # Assuming log structure has 'success' or 'final_score'
+    final_score = log_entry.get('final_score', log_entry.get('success', False))
+    if isinstance(final_score, bool):
+        final_score = 1.0 if final_score else 0.0
+    
+    return {
+        'task_id': task_id,
+        'architecture': architecture,
+        'constraint_count': constraint_count,
+        'has_violation': has_violation,
+        'final_score': final_score,
+        'raw_log': json.dumps(log_entry)  # Store full log for debugging
     }
 
-    Args:
-        logs: List of execution log dictionaries.
-
-    Returns:
-        List of trace dictionaries with required fields.
-    """
-    traces = []
-
-    for log in logs:
-        task_id = log.get("task_id", "unknown")
-        architecture = log.get("architecture", "unknown")
-        constraint_count = log.get("constraint_count", 0)
-        final_score = log.get("final_score", 0.0)
-
-        # Determine if any violation occurred
-        violations = log.get("violations", [])
-        has_violation = len(violations) > 0
-
-        # Extract violation type if present (for debugging, not required in CSV)
-        violation_types = [v.get("type", "unknown") for v in violations]
-
-        trace = {
-            "task_id": task_id,
-            "architecture": architecture,
-            "constraint_count": constraint_count,
-            "has_violation": has_violation,
-            "final_score": final_score,
-            "violation_types": ",".join(violation_types) if violation_types else ""
-        }
-        traces.append(trace)
-
-    return traces
-
-
-def load_filtered_tasks_map(filtered_csv_path: Path) -> Dict[str, Dict[str, Any]]:
-    """
-    Load filtered tasks CSV to create a task_id -> task_data map.
-    This is used to verify constraint counts if needed.
-
-    Args:
-        filtered_csv_path: Path to filtered_tasks.csv.
-
-    Returns:
-        Dictionary mapping task_id to task data.
-    """
-    task_map = {}
-    if not filtered_csv_path.exists():
-        print(f"Warning: Filtered tasks file not found: {filtered_csv_path}", file=sys.stderr)
-        return task_map
-
-    try:
-        import pandas as pd
-        df = pd.read_csv(filtered_csv_path)
-        for _, row in df.iterrows():
-            task_id = str(row.get("task_id", ""))
-            if task_id:
-                task_map[task_id] = row.to_dict()
-    except Exception as e:
-        print(f"Warning: Failed to load filtered tasks: {e}", file=sys.stderr)
-
-    return task_map
-
-
-def write_traces_csv(traces: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Write execution traces to a CSV file.
-
-    Args:
-        traces: List of trace dictionaries.
-        output_path: Path to output CSV file.
-    """
+def write_traces_csv(traces: List[Dict[str, Any]], output_path: Path):
+    """Write execution traces to a CSV file."""
     if not traces:
-        raise ValueError("No traces to write")
+        print("Warning: No traces to write.")
+        # Create empty file with headers
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['task_id', 'architecture', 'constraint_count', 'has_violation', 'final_score', 'raw_log'])
+            writer.writeheader()
+        return
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    fieldnames = ["task_id", "architecture", "constraint_count", "has_violation", "final_score", "violation_types"]
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    fieldnames = ['task_id', 'architecture', 'constraint_count', 'has_violation', 'final_score', 'raw_log']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for trace in traces:
-            writer.writerow(trace)
+        writer.writerows(traces)
 
-    print(f"Wrote {len(traces)} traces to {output_path}")
-
-
-def main() -> None:
+def main():
     """Main entry point for generating execution traces."""
-    paths = Paths()
+    paths = get_paths()
+    dataset_config = get_dataset_config()
+    analysis_config = get_analysis_config()
 
-    # Define paths
-    log_dir = paths.data_processed / "agent_logs"
-    output_path = paths.data_processed / "execution_traces.csv"
+    # Define input and output paths
+    tasks_path = paths.DATA_PROCESSED / "filtered_tasks.csv"
+    monolithic_logs_path = paths.DATA_PROCESSED / "monolithic_logs.json"
+    dual_track_logs_path = paths.DATA_PROCESSED / "dual_track_logs.json"
+    output_path = paths.DATA_PROCESSED / "execution_traces.csv"
 
-    print(f"Loading execution logs from: {log_dir}")
-    logs = load_execution_logs(log_dir)
-    print(f"Loaded {len(logs)} execution logs")
+    print(f"Loading filtered tasks from: {tasks_path}")
+    tasks_map = load_filtered_tasks_map(tasks_path)
 
-    print("Extracting trace data...")
-    traces = extract_trace_data(logs)
-    print(f"Extracted {len(traces)} traces")
+    all_traces = []
 
-    print(f"Writing execution traces to: {output_path}")
-    write_traces_csv(traces, output_path)
+    # Process monolithic logs
+    if monolithic_logs_path.exists():
+        print(f"Processing monolithic logs from: {monolithic_logs_path}")
+        monolithic_logs = load_execution_logs(monolithic_logs_path)
+        for log in monolithic_logs:
+            trace = extract_trace_data(log, tasks_map)
+            if trace:
+                trace['source_file'] = 'monolithic_logs.json'
+                all_traces.append(trace)
+    else:
+        print(f"Warning: Monolithic logs not found at {monolithic_logs_path}")
 
+    # Process dual-track logs
+    if dual_track_logs_path.exists():
+        print(f"Processing dual-track logs from: {dual_track_logs_path}")
+        dual_track_logs = load_execution_logs(dual_track_logs_path)
+        for log in dual_track_logs:
+            trace = extract_trace_data(log, tasks_map)
+            if trace:
+                trace['source_file'] = 'dual_track_logs.json'
+                all_traces.append(trace)
+    else:
+        print(f"Warning: Dual-track logs not found at {dual_track_logs_path}")
+
+    # Write output
+    print(f"Writing {len(all_traces)} traces to: {output_path}")
+    write_traces_csv(all_traces, output_path)
     print("Execution traces generation complete.")
-
 
 if __name__ == "__main__":
     main()
