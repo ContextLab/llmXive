@@ -114,3 +114,285 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T16:45:38Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: COCO 2017 dataset stream configuration
+  claim_id: c_692d44a7
+  context: Task T006.1 requires streaming images from the COCO 2017 train split to
+    calculate object density.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream images from COCO 2017 using datasets.load_dataset('coco_2017',
+    split='train', streaming=True).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:12:14Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image complexity Q1-Q3 range requirement
+  claim_id: c_3a14ffd7
+  context: Task T006.1 specifies filtering the fetched image set to ensure the Q1-Q3
+    range is at least 0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a representative sample spanning Q1-Q3 with a range >= 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:12:28Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Target mean complexity 0.5 std 0.15
+  claim_id: c_c6523038
+  context: Task T006.2 defines the target mean and standard deviation for the baseline
+    complexity score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target mean complexity score is 0.5 with a standard deviation of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:12:41Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate 20 minor object assets
+  claim_id: c_7c791d4d
+  context: Task T015.1 requires creating a script to generate 20 minor object PNG
+    assets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a set of 20 minor object PNG assets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:12:55Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Output image shape 512x512x3
+  claim_id: c_11496db4
+  context: Task T050 unit test requires asserting fixed dimensions of 512x512x3 for
+    enhanced images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that output_image.shape == (512, 512, 3) after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:13:10Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Object count 5 after enhancement
+  claim_id: c_fe481fab
+  context: Task T050 unit test requires asserting that exactly 5 objects are added
+    to the image.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that object_count == 5 after calling add_minor_objects().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:14:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Standard deviation reduction factor 0.1
+  claim_id: c_7a302f9d
+  context: Task T051 unit test requires the standard deviation of the output region
+    to be less than 10% of the input region.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that std_dev(output_region) < 0.1 * std_dev(input_region).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:14:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Baseline image display duration 10 seconds plus or minus 0.5 seconds
+  claim_id: c_a595b2da
+  context: Task T025 requires enforcing a specific display duration for baseline images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce 10-second display duration (\xB10.5s) for baseline images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:14:53Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration 2 minutes plus or minus 10 seconds
+  claim_id: c_d56c4781
+  context: Task T026 requires enforcing a specific duration for the arithmetic distractor
+    task.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce 2-minute duration (\xB110s) for the distractor task."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:15:02Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration range 110 to 130 seconds
+  claim_id: c_f977ee21
+  context: Task T026 verification requires the task duration to fall within the 110
+    to 130 second range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify task duration is within [110s, 130s].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:15:16Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool size 50
+  claim_id: c_85fbf8c5
+  context: Task T027.1 requires generating a mock object pool with 50 distinct items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/assets/mock_objects.json containing a list of 50 distinct
+    object names and categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:15:33Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters alpha 0.05 power 0.80 Cohen f 0.25
+  claim_id: c_d77f13ce
+  context: Task T012 specifies the statistical parameters for the power analysis calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required sample size for alpha=0.05, power=0.80, effect_size=medium
+    (Cohen's f=0.25).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:16:49Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Minimum sample size requirement 50
+  claim_id: c_0ef6956b
+  context: Task T012 imposes a constraint that the calculated sample size must be
+    at least 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If calculated N < 50, the task MUST raise an error and halt the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:16:49Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis gate total N at least 50
+  claim_id: c_6846a646
+  context: Task T012.1 acts as a gate to verify the total sample size is at least
+    50.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_gate_total_N_at_least_50
+  kind: magnitude
+  raw_text: Validate that total_n >= 50 in the power report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:17:37Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image manipulation performance under 30 seconds per image
+  claim_id: c_4b990dcc
+  context: Task T046 sets a performance constraint for the image manipulation pipeline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_manipulation_performance_under_30_seconds_per_image
+  kind: magnitude
+  raw_text: Performance optimization must ensure image manipulation takes less than
+    30s/image.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:20:25Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Citation of Loftus and Schacter for false memory mechanism
+  claim_id: c_2bdf0be8
+  context: Task T061.2 requires updating the theoretical framework with specific citations
+    from Loftus and Schacter.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_of_Loftus_and_Schacter_for_false_memory_mechanism
+  kind: entity_fact
+  raw_text: Cite Loftus et al. (misinformation effect) and Schacter (seven sins of
+    memory) to explain the psychological mechanism.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:21:57Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Contrast with Kandel's Aplysia work
+  claim_id: c_83e0dcae
+  context: Task T061.2 requires distinguishing the behavioral study from biological
+    mechanism mapping, referencing Kandel's work.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Contrast_with_Kandel's_Aplysia_work
+  kind: entity_fact
+  raw_text: Explicitly contrast the study with biological mechanisms such as Kandel's
+    Aplysia work.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T02:22:27Z'

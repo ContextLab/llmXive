@@ -1,3 +1,13 @@
+T010:
+  c: false
+  h: 9f0d30afa61bea99ae3134c05e0da18a2e8ae534f7d369dfff9403a5f7318acc
+  r: "The two generated files exist, but they lack the required \u201CData Usage\u201D\
+    \ clause, a GDPR\u2011compliant anonymization workflow referencing GDPR Art.\u202F\
+    6\u202F&\u202F7, the project ID\u202FPROJ\u2011317, and a verification step that\
+    \ checks for a real IRB approval document. Moreover, the source template `docs/ethics/gdpr_consent_template.md`\
+    \ is missing, so the files could not have been created \u201Cusing the template\
+    \ as the base.\u201D These omissions mean the task\u2019s requirements are not\
+    \ met."
 T032:
   c: false
   h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
@@ -10,12 +20,6 @@ T033:
   r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
     \ no unit test for multiple-comparison correction is present. The task\u2019s\
     \ primary deliverable is missing."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no actual files or code in `tests/unit/` and no evidence of
-    added unit tests covering dropout or network timeout edge cases. Without concrete
-    test artifacts, the requirement is not satisfied.
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -17,7 +17,7 @@ This project implements a computational psychology pipeline to investigate how v
 **Project Type**: Research pipeline / Web application  
 **Performance Goals**: Image manipulation < 30s/image; Analysis < 30min on CPU; Interface latency < 1s  
 **Constraints**: ≤ 7 GB RAM, ≤ 14 GB disk, no local GPU, IRB compliance mandatory  
-**Scale/Scope**: 30+ baseline images (validated for annotation density), 50+ participant sessions, 1000+ total responses  
+**Scale/Scope**: A sufficient number of baseline images (validated for annotation density), + participant sessions, A substantial number of total responses  
 
 > Empirical specifics (exact counts, dataset sizes) are deferred to the research phase but constrained by compute feasibility. The "30 baseline images" target is contingent on the successful implementation of the "skip and log" logic (T018) and the "Annotation Density Check".
 
