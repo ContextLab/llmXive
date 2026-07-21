@@ -1,3 +1,15 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `simulation/student_model.py` file or any code implementing a CPU\u2011only\
+    \ wrapper for the simplified diffusion model is present. The required artifact\
+    \ is missing entirely, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `evaluation/clip_evaluator.py` file or its contents were provided, so there\
+    \ is no evidence that a frozen CLIP\u2011ViT model is being loaded without gradients\
+    \ for temporal coherence scoring. The required artifact is missing."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,19 +24,6 @@ T014:
     4,\u202F8) at runtime, nor any test showing the quantization rounding logic can\
     \ be re\u2011initialized without restarting the program. The required artifact\
     \ is missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test, or documentation was provided showing that error handling for
-    NaN/Inf model collapse was added and that a "Collapse" status is recorded. The
-    required implementation artifact is missing, so the task is not satisfied.
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, data file, or result report) showing the N=10,000\
-    \ noise samples, the computed KL\u2011divergence, or verification that it is \u2264\
-    5\u202F% of the theoretical uniform distribution was provided. The claim lacks\
-    \ any concrete evidence of the required analysis."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

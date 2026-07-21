@@ -1,9 +1,8 @@
 """
-CLIP-based Temporal Coherence Evaluator.
+CLIP-based temporal coherence evaluator for video generation.
 
-This module implements a frozen CLIP-ViT model loader for scoring the temporal
-coherence of video clips. It ensures no gradients are computed and the model
-remains in evaluation mode.
+This module provides a frozen CLIP-ViT model to score the temporal coherence
+of generated video clips. It operates in CPU-only mode with gradients disabled.
 """
 
 import torch
@@ -13,184 +12,255 @@ from transformers import CLIPModel, CLIPProcessor
 from typing import List, Union, Optional, Tuple
 import numpy as np
 import os
-import sys
 from pathlib import Path
 
-# Ensure project root is in path for imports if run as script
-if __name__ == "__main__" and __package__ is None:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-class ClipTemporalEvaluator:
-    """
-    Evaluates temporal coherence of video clips using a frozen CLIP-ViT model.
+# Ensure we can import from project root if needed
+try:
+    from config import get_path_str, ensure_dirs_exist
+except ImportError:
+    # Fallback for standalone execution
+    def get_path_str(key: str) -> str:
+        return str(Path.cwd() / key)
     
-    The model is loaded in eval mode with gradients disabled to ensure
-    efficient inference and prevent any updates.
-    """
+    def ensure_dirs_exist(path_str: str) -> None:
+        Path(path_str).mkdir(parents=True, exist_ok=True)
 
-    def __init__(self, model_name: str = "openai/clip-vit-base-patch32", device: Optional[str] = None):
+
+class ClipTemporalEvaluator(nn.Module):
+    """
+    A wrapper around a frozen CLIP-ViT model for temporal coherence scoring.
+    
+    This evaluator:
+    1. Loads a pre-trained CLIP model (ViT-B/32 or similar)
+    2. Freezes all parameters (no gradients)
+    3. Processes video clips as sequences of frames
+    4. Computes a coherence score based on frame-to-frame similarity
+    
+    Attributes:
+        model (CLIPModel): The frozen CLIP model
+        processor (CLIPProcessor): The processor for input normalization
+        device (torch.device): The device to run inference on (CPU)
+    """
+    
+    def __init__(self, model_name: str = "openai/clip-vit-base-patch32", device: str = "cpu"):
         """
-        Initialize the evaluator with a frozen CLIP model.
+        Initialize the CLIP temporal evaluator.
         
         Args:
-            model_name: HuggingFace model identifier for CLIP.
-            device: Device to run inference on (default: cuda if available, else cpu).
+            model_name: Name of the CLIP model to load from HuggingFace
+            device: Device to run inference on (default: "cpu")
         """
-        self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
+        super().__init__()
+        self.device = torch.device(device)
         self.model_name = model_name
         
         # Load model and processor
-        # We explicitly set torch.no_grad() context during forward passes, 
-        # but also load the model in eval mode.
-        self.model = CLIPModel.from_pretrained(model_name)
-        self.model.to(self.device)
-        self.model.eval()
+        try:
+            self.model = CLIPModel.from_pretrained(model_name)
+            self.processor = CLIPProcessor.from_pretrained(model_name)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load CLIP model '{model_name}': {e}")
         
-        # Freeze all parameters explicitly
+        # Freeze all parameters
+        self.model.eval()
         for param in self.model.parameters():
             param.requires_grad = False
         
-        self.processor = CLIPProcessor.from_pretrained(model_name)
+        # Move to device
+        self.model.to(self.device)
         
-        # Cache for processed inputs to avoid re-processing if needed (optional optimization)
-        self._input_cache = {}
-
-    def encode_video_frames(self, frames: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
+    @torch.inference_mode()
+    def encode_frames(self, frames: Union[torch.Tensor, np.ndarray]) -> torch.Tensor:
         """
-        Encodes a sequence of video frames into feature vectors.
+        Encode a batch of video frames into feature vectors.
         
         Args:
-            frames: A tensor or numpy array of shape (T, H, W, C) where T is time (frames).
-                    Values should be in range [0, 255] if uint8, or [0, 1] if float.
-                    
+            frames: Input frames. Can be:
+                - torch.Tensor of shape (N, H, W, C) or (N, C, H, W)
+                - np.ndarray of shape (N, H, W, C)
+                N is the number of frames, H/W are height/width, C is channels (3)
+                
         Returns:
-            A tensor of shape (T, D) containing frame embeddings.
+            torch.Tensor of shape (N, feature_dim) containing frame embeddings
         """
+        # Convert to tensor if numpy array
         if isinstance(frames, np.ndarray):
             frames = torch.from_numpy(frames)
         
-        # Normalize to [0, 1] if uint8
-        if frames.dtype == torch.uint8:
+        # Ensure correct shape: (N, H, W, C) -> (N, C, H, W) for CLIP
+        if frames.dim() == 4:
+            if frames.shape[-1] == 3 and frames.shape[1] != 3:
+                # Assume (N, H, W, C) format
+                frames = frames.permute(0, 3, 1, 2)
+            elif frames.shape[1] == 3:
+                # Already (N, C, H, W)
+                pass
+            else:
+                raise ValueError(f"Expected 4-channel or 3-channel frames, got shape {frames.shape}")
+        
+        # Normalize to [0, 1] if values are in [0, 255]
+        if frames.max() > 1.0:
             frames = frames.float() / 255.0
         
-        # Ensure shape is (T, H, W, C) -> (T, C, H, W) for CLIP processor
-        if frames.dim() == 4 and frames.shape[-1] == 3:
-            frames = frames.permute(0, 3, 1, 2) # (T, C, H, W)
-        
-        # Process frames
-        # CLIP expects a list of PIL images or a batch of tensors (B, C, H, W)
-        # We process each frame individually or batch if memory allows.
-        # For robustness, we process as a batch if T is small, otherwise chunk.
-        
-        # Convert to list of tensors for processor
-        frame_list = [frames[i] for i in range(frames.shape[0])]
-        
-        inputs = self.processor(images=frame_list, return_tensors="pt", padding=True)
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        # Process through CLIP
+        inputs = self.processor(
+            images=frames,
+            return_tensors="pt",
+            padding=True,
+            truncation=True
+        ).to(self.device)
         
         with torch.no_grad():
-            # Get image embeddings
-            # CLIPModel.image_model returns a BaseModelOutputWithPooling
-            image_outputs = self.model.get_image_features(**inputs)
-            # image_outputs shape: (T, D)
-            
-        return image_outputs
-
+            # Get image embeddings (visual encoder output)
+            image_features = self.model.get_image_features(**inputs)
+            # Normalize embeddings
+            image_features = F.normalize(image_features, dim=-1)
+        
+        return image_features
+    
+    @torch.inference_mode()
     def compute_temporal_coherence(self, frames: Union[torch.Tensor, np.ndarray]) -> float:
         """
-        Computes a temporal coherence score for a video clip.
+        Compute a temporal coherence score for a video clip.
         
-        The score is based on the cosine similarity between consecutive frame embeddings.
-        Higher scores indicate more consistent motion/temporal flow.
+        The score is based on the average cosine similarity between consecutive
+        frame embeddings. Higher scores indicate smoother temporal transitions.
         
         Args:
-            frames: Video frames of shape (T, H, W, C).
-                    
+            frames: Input frames (N, H, W, C) or (N, C, H, W)
+            
         Returns:
-            A float score between -1 and 1 (typically > 0 for coherent videos).
+            float: Temporal coherence score in range [-1, 1]
         """
-        if frames.shape[0] < 2:
-            return 1.0 # Trivial case: single frame is perfectly coherent with itself
+        if len(frames) < 2:
+            # Not enough frames for coherence calculation
+            return 0.0
         
-        embeddings = self.encode_video_frames(frames)
+        # Encode all frames
+        embeddings = self.encode_frames(frames)
         
-        # Compute cosine similarity between consecutive frames
-        # embeddings: (T, D)
-        # embeddings[1:] vs embeddings[:-1]
+        # Compute pairwise similarities between consecutive frames
+        # embeddings shape: (N, D)
+        # We want similarity between frame i and frame i+1
         
-        v1 = embeddings[:-1]
-        v2 = embeddings[1:]
+        # Shift embeddings to compare consecutive frames
+        embeddings_prev = embeddings[:-1]
+        embeddings_next = embeddings[1:]
         
-        # Normalize vectors
-        v1_norm = F.normalize(v1, p=2, dim=1)
-        v2_norm = F.normalize(v2, p=2, dim=1)
-        
-        # Cosine similarity
-        similarities = torch.sum(v1_norm * v2_norm, dim=1)
+        # Compute cosine similarity (embeddings are already normalized)
+        similarities = torch.sum(embeddings_prev * embeddings_next, dim=1)
         
         # Average similarity
-        avg_similarity = similarities.mean().item()
+        avg_similarity = torch.mean(similarities).item()
         
         return avg_similarity
-
-    def score_batch(self, clips: List[Union[torch.Tensor, np.ndarray]]) -> List[float]:
+    
+    @torch.inference_mode()
+    def score_clip(self, frames: Union[torch.Tensor, np.ndarray]) -> Dict[str, float]:
         """
-        Scores a batch of video clips.
+        Score a video clip with detailed metrics.
         
         Args:
-            clips: List of video frames, each of shape (T, H, W, C).
-                    
+            frames: Input frames
+            
         Returns:
-            List of coherence scores.
+            dict: Dictionary containing:
+                - 'coherence': Temporal coherence score
+                - 'mean_frame_embedding': Mean of all frame embeddings (for debugging)
         """
-        return [self.compute_temporal_coherence(clip) for clip in clips]
+        coherence = self.compute_temporal_coherence(frames)
+        
+        # Compute mean embedding for reference
+        embeddings = self.encode_frames(frames)
+        mean_embedding = torch.mean(embeddings, dim=0).tolist()
+        
+        return {
+            'coherence': coherence,
+            'mean_frame_embedding': mean_embedding
+        }
 
 
-def create_clip_evaluator(model_name: str = "openai/clip-vit-base-patch32", device: Optional[str] = None) -> ClipTemporalEvaluator:
+def create_clip_evaluator(
+    model_name: str = "openai/clip-vit-base-patch32",
+    device: str = "cpu"
+) -> ClipTemporalEvaluator:
     """
-    Factory function to create a ClipTemporalEvaluator instance.
+    Factory function to create a CLIP temporal evaluator.
     
     Args:
-        model_name: HuggingFace model identifier.
-        device: Target device.
+        model_name: Name of the CLIP model to load
+        device: Device to run inference on
         
     Returns:
-        Initialized ClipTemporalEvaluator.
+        ClipTemporalEvaluator: Initialized evaluator instance
     """
     return ClipTemporalEvaluator(model_name=model_name, device=device)
 
 
 def main():
     """
-    Main entry point for running the evaluator as a standalone script.
-    This demonstrates loading the model and scoring a synthetic (or real) clip.
+    Main function to demonstrate the CLIP evaluator.
+    
+    This function:
+    1. Creates a CLIP evaluator
+    2. Generates synthetic test frames (for demonstration only)
+    3. Computes and prints the temporal coherence score
+    
+    Note: In production, this would load real video frames from disk.
     """
     print("Initializing CLIP Temporal Evaluator...")
-    evaluator = create_clip_evaluator()
-    print(f"Model loaded on device: {evaluator.device}")
     
-    # Create a dummy clip for testing (e.g., 4 seconds @ 15 fps = 60 frames)
-    # Shape: (60, 224, 224, 3)
-    num_frames = 60
+    # Create evaluator
+    evaluator = create_clip_evaluator(device="cpu")
+    print(f"Model loaded: {evaluator.model_name}")
+    print(f"Device: {evaluator.device}")
+    
+    # Generate synthetic test frames for demonstration
+    # In real usage, load frames from data/derived or data/external
+    print("\nGenerating synthetic test frames for demonstration...")
+    num_frames = 10
     height, width = 224, 224
-    dummy_clip = np.random.randint(0, 255, (num_frames, height, width, 3), dtype=np.uint8)
+    channels = 3
     
-    print(f"Scoring dummy clip of shape {dummy_clip.shape}...")
-    score = evaluator.compute_temporal_coherence(dummy_clip)
-    print(f"Temporal Coherence Score: {score:.4f}")
+    # Create smooth transitioning frames (high coherence)
+    frames_smooth = []
+    for i in range(num_frames):
+        # Create a frame with a moving gradient
+        frame = np.zeros((height, width, channels), dtype=np.float32)
+        for c in range(channels):
+            frame[:, :, c] = np.linspace(
+                0.0, 1.0, height
+            ).reshape(-1, 1) * np.cos(i * 0.5 + c * 0.3)
+        frames_smooth.append(frame)
+    frames_smooth = np.stack(frames_smooth)
     
-    # Verify model is frozen
-    has_grad = False
-    for name, param in evaluator.model.named_parameters():
-        if param.requires_grad:
-            has_grad = True
-            break
+    # Create abrupt transitioning frames (low coherence)
+    frames_abrupt = []
+    for i in range(num_frames):
+        # Random frame with abrupt changes
+        frame = np.random.rand(height, width, channels).astype(np.float32)
+        frames_abrupt.append(frame)
+    frames_abrupt = np.stack(frames_abrupt)
     
-    if has_grad:
-        print("ERROR: Model parameters are not frozen!")
-        sys.exit(1)
+    # Score smooth frames
+    print("\n--- Testing Smooth Transitions ---")
+    result_smooth = evaluator.score_clip(frames_smooth)
+    print(f"Temporal Coherence Score: {result_smooth['coherence']:.4f}")
+    
+    # Score abrupt frames
+    print("\n--- Testing Abrupt Transitions ---")
+    result_abrupt = evaluator.score_clip(frames_abrupt)
+    print(f"Temporal Coherence Score: {result_abrupt['coherence']:.4f}")
+    
+    # Verify expected behavior
+    print("\n--- Verification ---")
+    if result_smooth['coherence'] > result_abrupt['coherence']:
+        print("✓ PASS: Smooth frames have higher coherence than abrupt frames")
     else:
-        print("SUCCESS: Model is frozen (no gradients).")
+        print("✗ FAIL: Expected smooth frames to have higher coherence")
+    
+    print("\nCLIP Temporal Evaluator test completed.")
+
 
 if __name__ == "__main__":
     main()

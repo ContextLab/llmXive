@@ -53,21 +53,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Create `projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code/requirements.txt` with dependencies: `torch`, `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`, `bayesian-optimization`, `psutil`, `scipy`
+- [ ] T002 [P] Create `projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code/requirements.txt` with dependencies: `torch`, `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`, `bayesian-optimization`, `psutil`
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort)
-- [ ] T004 [P] Implement `config.py` with constants for seeds, bit-widths (2, 3, 4, 5, 6), and path configurations
-- [ ] T005 [P] Setup `data/loader.py` to stream Kinetics-400 subsets via `datasets.load_dataset(..., streaming=True)` with explicit error handling (fail loud, no synthetic fallback, no UCF101 fallback)
-- [ ] T005a [P] Implement `data/downsampler.py` to extract short-duration clips and downsample the Kinetics-400 stream to fit within 7GB RAM, ensuring the transformation logic is explicit and reproducible. **MUST utilize the cache eviction policy from T006** to enforce the 7GB limit during downsampling. **MUST generate and record a checksum** (SHA-256) for the derived dataset artifact `data/derived/kinetics_4s_subset_v1.parquet`. **Verify** output size is ≤ 7GB.
-- [ ] T005b [P] Add memory profiling and assertion logic to `data/downsampler.py` to verify a constrained RAM limit during execution. **Depends on: T006, T005a**. **MUST verify checksum** recorded in T005a matches the derived file.
-- [X] T006 [P] Create `data/__init__.py` and implement a cache eviction policy (LRU, configurable maximum size) to ensure dataset caching respects the system's disk storage constraints.
-- [ ] T007a [P] Implement `simulation/quantization_emulator.py` core logic. **MUST implement TWO modes**: 1) **Stochastic Rounding** (add uniform noise before floor/ceil) to emulate bit-width precision noise on 32-bit floats, and 2) **True Integer Quantization Emulation** using `torch.quantize_per_tensor` to emulate reduced dynamic range and integer-accumulation behavior. **MUST expose a factory function** to switch between bit-widths (2, 3, 4, 5, 6) dynamically.
-- [ ] T007b [P] Implement verification script in `simulation/quantization_emulator.py` to verify noise distribution matches theoretical uniform within 5% KL-divergence. **MUST perform a statistical power analysis** to determine the minimum sample size required to detect the [deferred] divergence with power ≥ 0.8 for each bit-width (2-6) and seed, rather than using a fixed N. Write results to `data/results/kl_divergence_per_bitwidth.json`.
+- [ ] T004 [P] Implement `config.py` with constants for seeds and bit-widths **[2, 4, 8]** as mandated by Constitution Principle VII and FR-001, and path configurations. **MUST include** `BIT_WIDTHS = [2, 4, 8]` to align with the experimental design for threshold detection.
+- [ ] T006 [P] Create `data/__init__.py` and implement a cache eviction policy (LRU, configurable maximum size) to ensure dataset caching respects the system's disk storage constraints.
+- [ ] T005a [P] Implement `data/downsampler.py` to extract short-duration clips and downsample the Kinetics-400 dataset to fit within 7GB RAM. **MUST import and utilize** `CacheEvictionPolicy` from `data/__init__.py` (T006) to enforce the 7GB limit during downsampling. **MUST generate and record a checksum** (SHA-256) for the derived dataset artifact `data/derived/kinetics_4s_subset_v1.parquet`. **Verify** output size is ≤ 7GB.
+- [ ] T005b [P] Verify that the checksum recorded in T005a matches the derived file, ensuring data integrity. **Depends on: T006, T005a.** **Executes sequentially after T005a completes** to resolve the logical deadlock and ensure the artifact exists before verification.
+- [ ] T007a [P] Implement `simulation/quantization_emulator.py` core logic. **MUST implement TWO modes**: 1) **Stochastic Rounding** (add uniform noise before floor/ceil) to emulate bit-width precision noise on 32-bit floats (REQUIRED for FR-009), and 2) **True Integer Quantization Emulation** using `torch.quantize_per_tensor` to emulate reduced dynamic range. **MUST expose a factory function** to switch between bit-widths **[2, 4, 8]** dynamically.
+- [ ] T007b [P] Implement verification script in `simulation/quantization_emulator.py` to verify noise distribution matches theoretical uniform within 5% KL-divergence. **MUST perform a statistical power analysis** to determine the minimum sample size required to detect the divergence with power ≥ 0.8 for each bit-width **[2, 4, 8]** and seed. **MUST test ONLY the Stochastic Rounding mode** defined in T007a. Write results to `data/results/kl_divergence_per_bitwidth.json`.
 - [ ] T008 [P] Implement `simulation/student_model.py` wrapper for the simplified diffusion model compatible with CPU-only execution
 - [ ] T009 [P] Setup `evaluation/clip_evaluator.py` to load a frozen CLIP-ViT model (no gradients) for temporal coherence scoring.
 - [ ] T009a [P] [Foundational] Implement `evaluation/benchmark.py` to measure CLIP-ViT inference time per clip on CPU. **MUST verify** inference time is ≤ 5 minutes per clip before integration. Record baseline in `data/results/clip_inference_benchmark.json`. **Depends on: T009**. **Blocks: T020, T023**.
-- [ ] T038 [P] [Foundational] Implement `data/discontinuity_generator.py` to programmatically generate a 'synthetic human-labeled subset' with known discontinuities (frame swaps/cuts) for validation. **Depends on: T005a**. **Blocks: T038b**.
-- [ ] T038c [P] [Foundational] **Acquire real human-labeled data**: Source, download, and integrate a verified public benchmark subset (e.g., ActivityNet Captions or UCF101-Validation with human coherence labels) containing at least 50 clips. **MUST specify the exact dataset name, URL, and download script**. Store in `data/external/human_labeled_clips/`. **Depends on: None**. **Blocks: T038b**.
-- [ ] T038b [P] [Foundational] Implement `data/bridging_validation.py` to compute correlation between the synthetic proxy (T038) and the **real human-labeled clips from T038c** to prove correlation >= 0.7 (FR-007). Store results in `data/results/fr007_bridging_validation.json`. **Depends on: T038, T038c**.
+- [ ] T038 [P] [Foundational] Implement `data/discontinuity_generator.py` to generate a 'synthetic human-labeled subset' with known discontinuities (frame swaps/cuts) for validation. **Depends on: T005a.**
+- [ ] T038c [P] [Foundational] Generate synthetic discontinuities using `data/discontinuity_generator.py`. Store in `data/derived/synthetic_discontinuities.parquet`. **MUST specify the exact injection parameters** (e.g., swap 2 frames at t=2s).
+- [ ] T038d [P] [Foundational] Manually annotate a held-out subset of clips from `data/derived/synthetic_discontinuities.parquet` with human coherence labels (0=Incoherent, 1=Coherent). Store in `data/external/human_labeled_clips/annotations.csv`.
+- [ ] T038e [P] [Foundational] Implement `data/bridging_validation.py` to compute correlation between the synthetic proxy and the human labels to prove correlation >= 0.7 (FR-007). **Depends on: T038, T038c, T038d**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,8 +81,6 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
 - [X] T010 Implement unit test for stochastic rounding noise distribution in `tests/unit/test_quantization_emulator.py` (depends on T007; NOT marked [P] as it requires T007 completion)
 - [X] T011 [P] [US1] Memory footprint test for training loop in `tests/unit/test_memory_footprint.py`
 
@@ -90,7 +88,7 @@
 
 - [ ] T012 [US1] Implement `simulation/training_loop.py` with CPU-only forward/backward pass using the **stochastic rounding logic from T007a**
 - [ ] T013 [US1] Integrate `data/downsampler.py` (T005a) into the training loop to fetch 4-second video clips via streaming
-- [ ] T014 [US1] Implement error handling for model collapse (NaN/Inf) to record "Collapse" status. **MUST dynamically switch bit-width (2, 3, 4, 5, 6) without code restart** using the **factory function interface defined in T007a**, ensuring full range support. This task consolidates both error handling and dynamic switching logic. **Blocks: T012**.
+- [ ] T014 [US1] Implement error handling for model collapse (NaN/Inf) to record "Collapse" status. **MUST dynamically switch bit-width [2, 4, 8] using a factory function pattern and a runtime ConfigObj instance loaded at startup** to allow hot-reloading of parameters without code restart, satisfying the "no code restart" constraint. **Depends on: T012**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,7 +109,7 @@
 
 - [ ] T020 [P] [US2] Implement `evaluation/metrics.py` to calculate temporal coherence scores per video clip
 - [ ] T021 [US2] Integrate `evaluation/clip_evaluator.py` with the training loop to score generated outputs
-- [ ] T022 [US2] Implement validation logic for FR-007: Load synthetic subset from T038, validate against T038c results, compute Pearson correlation coefficient >= 0.7 on a held-out subset of 50 clips. **Depends on: T038, T038c, T038b**. Store results in `data/results/fr007_validation.json`.
+- [ ] T022 [US2] **Validate against statistical results from task T038e** using data produced by that task (not direct loading of synthetic data). **Depends on: T038c, T038d, T038e.**
 - [ ] T023 [US2] Ensure evaluation completes within 5 minutes per clip on CPU (verified by **T009a benchmark**). **Depends on: T009a**.
 - [ ] T024 [US2] Add handling for clips exceeding memory limits (abort with clear error or fallback to smaller subset)
 
@@ -132,14 +130,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `analysis/aggregation.py` to collect results from varied bit-widths across multiple seeds
+- [ ] T027 [P] [US3] Implement `analysis/aggregation.py` to collect results from varied bit-widths **[2, 4, 8]** across multiple seeds
 - [ ] T028 [US3] Implement `analysis/visualization.py` to generate precision-consistency curve and regression plots
 - [ ] T029a [US3] Define the piecewise linear function for non-linear regression in `analysis/aggregation.py`
-- [ ] T029 [US3] Implement non-linear regression (piecewise linear with multiple segments using `scipy.optimize.curve_fit`) to model the precision-consistency data for a range of bit-widths.
+- [ ] T029 [US3] Implement non-linear regression (piecewise linear with multiple segments using `scipy.optimize.curve_fit`) to model the precision-consistency data for bit-widths **[2, 4, 8]**.
 - [ ] T029b [US3] Implement the break-point detection algorithm in `analysis/aggregation.py` to identify the specific bit-width threshold where narrative consistency degrades non-linearly (FR-008)
 - [ ] T030 [US3] Perform statistical analysis (paired t-tests, Bayesian Model Comparison) to validate significance (FR-005)
 - [ ] T031 [US3] Generate final CSV output with all metrics and theoretical memory comparison (SC-005)
-- [ ] T031a [US3] **Theoretical Memory Validation**: Implement logic to calculate the theoretical memory footprint using the formula `(Parameter Count × Bit Width / bytes_per_word) + 1.2GB` and compare it against the **Python runtime overhead model** (1.2GB constant). **MUST NOT use runtime profiling** of the model for the primary memory footprint claim. **Runtime profiling is strictly FOR INTERNAL SANITY CHECKS ONLY** to verify the simulation is not leaking memory; it MUST NEVER be used to justify the primary memory footprint claim in the final report. If the theoretical calculation logic is flawed or if profiling data is attempted as the primary source, **Raise ValueError**. Log results to `data/results/memory_theoretical_validation.log`.
+- [ ] T031a [US3] **Theoretical Memory Validation**: Implement logic to calculate the theoretical memory footprint using the formula `(Parameter Count × Bit Width / 8) + 1.2GB`. **MUST ALSO perform a lightweight runtime profiling pass** to record actual memory usage for the SC-005 comparison. **Runtime profiling is strictly FOR SC-005 VERIFICATION ONLY**; the primary claim in the report MUST use the theoretical value. If the theoretical calculation logic is flawed, **Raise ValueError**. Log results to `data/results/memory_theoretical_validation.log`.
+- [ ] T031b [US3] **Variance Calculation**: Read theoretical memory from T031a and runtime profiling data. Calculate variance using the formula: `abs(theoretical - (profiling - 1.2GB)) / theoretical`. **MUST verify variance <= 15%** to satisfy SC-005. Log result to `data/results/sc005_variance_check.json`.
 - [ ] T032 [US3] Verify total execution time of full suite stays within 6-hour CI limit (SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -193,50 +192,6 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Memory footprint test for training loop in tests/unit/test_memory_footprint.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement simulation/training_loop.py with CPU-only forward/backward pass"
-Task: "Integrate data/downsampler.py into the training loop to fetch 4-second video clips"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
 
 ---
 

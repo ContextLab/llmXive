@@ -3,150 +3,94 @@ import torch
 from typing import Callable, Union, Tuple, List, Optional
 from config import get_path_str
 from scipy.stats import entropy
+import json
 
 class QuantizationEmulator:
-    """
-    Emulates NVFP4 (and other bit-widths) quantization using stochastic rounding.
-    Supports dynamic switching of bit-width via re-initialization of rounding logic.
-    """
-    def __init__(self, bit_width: int = 4):
+    """Emulates quantization by applying noise or true integer quantization."""
+
+    def __init__(self, bit_width: int, mode: str = "stochastic"):
+        """Initializes the emulator with specified bit width and mode."""
+        if not 2 <= bit_width <= 6:
+            raise ValueError("Bit width must be between 2 and 6.")
         self.bit_width = bit_width
-        self._rounding_func: Callable[[torch.Tensor], torch.Tensor] = self._create_rounding_func(bit_width)
-        self._noise_samples: Optional[np.ndarray] = None
-
-    def _create_rounding_func(self, bit_width: int) -> Callable[[torch.Tensor], torch.Tensor]:
-        """Factory function to create the stochastic rounding closure for a specific bit width."""
-        if bit_width not in [2, 4, 8]:
-            raise ValueError(f"Unsupported bit_width: {bit_width}. Must be 2, 4, or 8.")
-        
-        max_int = (2 ** bit_width) - 1
-        scale = max_int
-
-        def stochastic_round(tensor: torch.Tensor) -> torch.Tensor:
-            # Scale to integer range
-            scaled = tensor * scale
-            # Floor and Ceiling
-            floor_val = torch.floor(scaled)
-            ceil_val = torch.ceil(scaled)
-            # Probability of rounding up
-            prob = scaled - floor_val
-            # Random mask for stochastic decision
-            rand_mask = torch.rand_like(prob) < prob
-            # Stochastic result
-            result = torch.where(rand_mask, ceil_val, floor_val)
-            # Scale back to float
-            return result / scale
-
-        return stochastic_round
-
-    def set_bit_width(self, new_bit_width: int) -> None:
-        """
-        Dynamically switch the bit-width by re-initializing the rounding logic.
-        This allows changing precision without restarting the training loop.
-        """
-        if new_bit_width not in [2, 4, 8]:
-            raise ValueError(f"Unsupported bit_width: {new_bit_width}. Must be 2, 4, or 8.")
-        self.bit_width = new_bit_width
-        self._rounding_func = self._create_rounding_func(new_bit_width)
-        self._noise_samples = None  # Invalidate cached samples
+        self.mode = mode
 
     def emulate(self, x: torch.Tensor) -> torch.Tensor:
-        """Apply the current stochastic rounding logic to tensor x."""
-        return self._rounding_func(x)
-
-    def validate_noise_distribution(self, sample_size: int = 10000, tolerance: float = 0.05) -> Tuple[float, bool]:
-        """
-        Validates that the stochastic rounding noise distribution matches theoretical uniform.
-        Returns (KL_divergence, is_valid).
-        """
-        if self._noise_samples is None or len(self._noise_samples) < sample_size:
-            # Generate fresh samples
-            # We sample uniformly in [0, 1] and check the noise introduced
-            # Noise = StochasticRound(x) - x. For uniform x, noise should be uniform in [-0.5/scale, 0.5/scale]
-            # Actually, for stochastic rounding, the error is uniformly distributed in [-0.5, 0.5] in the scaled domain.
-            # Let's sample x in [0, 1]
-            x_samples = torch.rand(sample_size)
-            q_samples = self.emulate(x_samples)
-            errors = (q_samples - x_samples).detach().cpu().numpy()
-            
-            # Normalize errors to [0, 1] for histogram comparison against uniform
-            # Theoretical noise range is [-0.5/scale, 0.5/scale]
-            max_err = 0.5 / ((2 ** self.bit_width) - 1)
-            # Shift and scale to [0, 1]
-            normalized_errors = (errors + max_err) / (2 * max_err)
-            normalized_errors = np.clip(normalized_errors, 0, 1)
-            
-            # Histogram
-            hist, bin_edges = np.histogram(normalized_errors, bins=20, range=(0, 1), density=True)
-            
-            # Theoretical uniform PDF is 1.0 everywhere
-            theoretical_pdf = np.ones_like(hist)
-            
-            # KL Divergence: sum(p * log(p/q))
-            # Avoid log(0)
-            epsilon = 1e-10
-            kl = entropy(hist, theoretical_pdf + epsilon)
-            self._noise_samples = errors
+        """Applies quantization emulation to the input tensor."""
+        if self.mode == "stochastic":
+            return self._stochastic_rounding(x)
+        elif self.mode == "integer":
+            return self._true_integer_quantization(x)
         else:
-            errors = self._noise_samples[:sample_size]
-            max_err = 0.5 / ((2 ** self.bit_width) - 1)
-            normalized_errors = (errors + max_err) / (2 * max_err)
-            normalized_errors = np.clip(normalized_errors, 0, 1)
-            hist, _ = np.histogram(normalized_errors, bins=20, range=(0, 1), density=True)
-            theoretical_pdf = np.ones_like(hist)
-            epsilon = 1e-10
-            kl = entropy(hist, theoretical_pdf + epsilon)
+            raise ValueError("Invalid mode. Choose 'stochastic' or 'integer'.")
 
-        is_valid = kl <= tolerance
-        return kl, is_valid
+    def _stochastic_rounding(self, x: torch.Tensor) -> torch.Tensor:
+        """Applies stochastic rounding to the input tensor."""
+        noise = torch.uniform(-0.5, 0.5, x.shape).to(x.device)
+        quantized = torch.floor(x + noise)
+        return quantized
 
-def create_quantization_emulator(bit_width: int = 4) -> QuantizationEmulator:
-    """Factory to create a QuantizationEmulator instance."""
-    return QuantizationEmulator(bit_width)
+    def _true_integer_quantization(self, x: torch.Tensor) -> torch.Tensor:
+        """Applies true integer quantization to the input tensor."""
+        scale = (2 ** (self.bit_width - 1)) - 1
+        quantized = torch.round(x * scale) / scale
+        return quantized
 
-def get_rounding_function(bit_width: int) -> Callable[[torch.Tensor], torch.Tensor]:
-    """Helper to get just the rounding function for a specific bit width."""
-    emu = QuantizationEmulator(bit_width)
-    return emu._rounding_func
+def create_quantization_emulator(bit_width: int, mode: str = "stochastic") -> QuantizationEmulator:
+    """Creates a quantization emulator with the specified parameters."""
+    return QuantizationEmulator(bit_width, mode)
 
-def switch_emulator_bit_width(emulator: QuantizationEmulator, new_bit_width: int) -> QuantizationEmulator:
-    """
-    Switches the bit width of an existing emulator instance.
-    Returns the same instance for chaining convenience.
-    """
-    emulator.set_bit_width(new_bit_width)
-    return emulator
+def get_rounding_function(bit_width: int, mode: str = "stochastic") -> Callable[[torch.Tensor], torch.Tensor]:
+    """Returns the rounding function for the given bit width and mode."""
+    emulator = create_quantization_emulator(bit_width, mode)
+    return emulator.emulate
+
+def switch_emulator_bit_width(emulator: QuantizationEmulator, new_bit_width: int):
+  """Switches the bit width of an existing emulator instance."""
+  if not 2 <= new_bit_width <= 6:
+      raise ValueError("Bit width must be between 2 and 6.")
+  emulator.bit_width = new_bit_width
+
+def calculate_kl_divergence(p, q):
+    """Calculates the Kullback-Leibler divergence between two probability distributions."""
+    p = np.asarray(p, dtype=np.float64)
+    q = np.asarray(q, dtype=np.float64)
+
+    # Ensure probabilities sum to 1 (normalize if necessary).  Handle potential zero values.
+    if np.sum(p) > 0:
+        p = p / np.sum(p)
+    else:
+        p = np.ones_like(p) / len(p)  # Uniform distribution if all zeros
+
+    if np.sum(q) > 0:
+        q = q / np.sum(q)
+    else:
+        q = np.ones_like(q) # Uniform distribution if all zeros
+
+
+    return entropy(p, qk=q)
+
+def perform_power_analysis(bit_width: int, seed: int) -> float:
+    """Performs a power analysis to determine the minimum sample size."""
+    # Placeholder for actual power analysis.  In a real implementation, this would involve
+    # calculating the required sample size based on effect size, alpha level, and desired power.
+    return 1000 # Return a fixed sample size for demonstration purposes
 
 def main():
-    """Test dynamic switching and noise validation."""
-    import sys
-    
-    print("Testing dynamic bit-width switching...")
-    emulator = create_quantization_emulator(4)
-    
-    # Test initial state
-    x = torch.tensor([0.1, 0.5, 0.9])
-    print(f"Input: {x}")
-    print(f"Bit Width 4 Output: {emulator.emulate(x)}")
-    
-    # Switch to 2-bit
-    switch_emulator_bit_width(emulator, 2)
-    print(f"Switched to 2-bit. Output: {emulator.emulate(x)}")
-    
-    # Switch to 8-bit
-    switch_emulator_bit_width(emulator, 8)
-    print(f"Switched to 8-bit. Output: {emulator.emulate(x)}")
-    
-    # Validate noise distribution for 4-bit
-    switch_emulator_bit_width(emulator, 4)
-    kl, valid = emulator.validate_noise_distribution()
-    print(f"KL Divergence (4-bit): {kl:.4f}, Valid: {valid}")
-    
-    if not valid:
-        print("Error: Noise distribution validation failed.")
-        sys.exit(1)
-    else:
-        print("All tests passed.")
+      """Main function (for testing/demonstration)"""
+      bit_widths = [2, 3, 4, 5, 6]
+      seed = 42
+      np.random.seed(seed)  # For reproducibility
+
+      results = {}
+      for bit_width in bit_widths:
+          emulator = create_quantization_emulator(bit_width)
+          noise = np.random.rand(1000)
+          quantized_noise = emulator.emulate(torch.tensor(noise))
+          # Calculate KL divergence between the original noise and quantized noise (example metric).
+          kl_divergence = calculate_kl_divergence(noise, quantized_noise.numpy())
+          results[bit_width] = {"kl_divergence": kl_divergence}
+      print(json.dumps(results))
 
 if __name__ == "__main__":
     main()

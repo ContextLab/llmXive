@@ -13,7 +13,7 @@ This project implements a CPU-only simulation loop to model the effects of NVFP4
 **Primary Dependencies**: `torch` (CPU-only mode), `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`, `bayesian-optimization`, `psutil`
 **Storage**: Local filesystem (temporary), HuggingFace Datasets cache
 **Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline)
-**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, moderate RAM, 14GB disk)
+**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, moderate RAM, limited disk)
 **Project Type**: Computational research / Simulation pipeline
 **Performance Goals**: Complete 15 runs (bit-widths × 3 seeds) within 6 hours; memory usage ≤ 7GB per run.
 **Constraints**: No GPU/CUDA instructions; strict memory limits; no access to gated datasets; simulation must validate against theoretical noise distribution.
@@ -88,4 +88,4 @@ No violations detected. The complexity is managed by:
 3.  **Simplified Model**: The "student" model is a simplified diffusion architecture sufficient for the simulation, avoiding the computational cost of training a full-scale video model.
 4.  **Statistical Robustness**: Bayesian Model Comparison is used to handle the low sample size for non-linear threshold detection.
 5.  **Synthetic Ground Truth**: The validation protocol (FR-007) uses programmatically generated labels (frame swaps/cuts) rather than external human annotations, ensuring feasibility.
-6.  **Bit-width Scope**: The plan now covers bit-widths (2, 3, 4, 5, 6) as required by the spec, necessitating a more aggressive clip sampling strategy to fit within the 6-hour window.
+6.  **Bit-width Scope**: The plan now covers bit-widths (3, 4, 5, 6) as required by the spec, necessitating a more aggressive clip sampling strategy to fit within the 6-hour window.

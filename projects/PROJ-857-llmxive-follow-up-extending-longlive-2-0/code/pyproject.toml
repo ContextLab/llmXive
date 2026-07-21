@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-simulation"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "LLM-Xive Precision Threshold Simulation"
+description = "llmXive follow-up: extending LongLive-2.0"
 requires-python = ">=3.9"
 dependencies = [
     "torch",
@@ -18,17 +18,56 @@ dependencies = [
     "seaborn",
     "bayesian-optimization",
     "psutil",
-    "scipy"
+    "scipy",
 ]
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.isort]
 profile = "black"
 line_length = 100
+known_first_party = ["simulation", "data", "evaluation", "analysis"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist"]
 
 [tool.flake8]
 max-line-length = 100
-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+]
+ignore = [
+    "E203",  # Whitespace before ':' (conflicts with black)
+    "W503",  # Line break before binary operator (conflicts with black)
+]
+per-file-ignores = [
+    "__init__.py:F401",  # Unused imports in __init__.py are acceptable for API exposure
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

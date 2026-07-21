@@ -1,0 +1,718 @@
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum generated for kinetics_4s_subset_v1.parquet
+  claim_id: c_14c5328a
+  context: Task T005a requires downsampling the Kinetics-400 stream and generating
+    a checksum for the output artifact.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate and record a checksum (SHA-256) for the derived dataset
+    artifact data/derived/kinetics_4s_subset_v1.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:57:10Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Downsampled Kinetics-400 subset size is less than or equal to 7GB
+  claim_id: c_5b65a648
+  context: Task T005a requires downsampling the Kinetics-400 stream to fit within
+    7GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Downsampled_Kinetics-400_subset_size_is_less_than_or_equal_t
+  kind: magnitude
+  raw_text: "Verify output size is \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:57:32Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Stochastic rounding noise distribution matches uniform within 5% KL-divergence
+  claim_id: c_ddbb3b9f
+  context: Task T007b requires verifying the noise distribution of the quantization
+    emulator.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST verify noise distribution matches theoretical uniform within 5% KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:57:32Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis ensures power greater than or equal to 0.8
+    for bit-widths 2 to 6
+  claim_id: c_32550ad1
+  context: Task T007b requires a statistical power analysis for the verification script.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_ensures_power_greater_than_or_equ
+  kind: magnitude
+  raw_text: "MUST perform a statistical power analysis to determine the minimum sample\
+    \ size required to detect the [deferred] divergence with power \u2265 0.8 for\
+    \ each bit-width (2-6) and seed."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:58:24Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Real human-labeled benchmark subset contains at least 50 clips
+  claim_id: c_8d34dc5c
+  context: Task T038c requires acquiring a verified public benchmark subset for validation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_human-labeled_benchmark_subset_contains_at_least_50_cli
+  kind: magnitude
+  raw_text: Acquire real human-labeled data... containing at least 50 clips.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:58:54Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: CLIP-ViT inference time is less than or equal to 5 minutes per clip
+  claim_id: c_b53f940f
+  context: Task T009a requires benchmarking CLIP-ViT inference time on CPU.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CLIP-ViT_inference_time_is_less_than_or_equal_to_5_minutes_p
+  kind: magnitude
+  raw_text: "MUST verify inference time is \u2264 5 minutes per clip before integration."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T09:59:25Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient is greater than or equal to 0.7 on a
+    held-out subset of 50 clips
+  claim_id: c_42ddc9b7
+  context: Task T022 requires validating FR-007 using a held-out subset.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_is_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: validate against T038c results, compute Pearson correlation coefficient
+    >= 0.7 on a held-out subset of 50 clips.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:00:13Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Evaluation completes within 5 minutes per clip on CPU
+  claim_id: c_888f98f1
+  context: Task T023 requires ensuring the evaluation pipeline meets the time constraint
+    verified by T009a.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure evaluation completes within 5 minutes per clip on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:00:59Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Theoretical memory footprint calculated using formula with 1.2GB constant
+  claim_id: c_cf0a3e1a
+  context: Task T031a defines the formula for theoretical memory validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to calculate the theoretical memory footprint using the\
+    \ formula (Parameter Count \xD7 Bit Width / bytes_per_word) + 1.2GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:01:40Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Generate SHA-256 checksum for kinetics_4s_subset_v1.parquet
+  claim_id: c_29ae08a7
+  context: T005a Implement data/downsampler.py to extract short-duration clips and
+    downsample the Kinetics-400 stream to fit within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate and record a checksum (SHA-256) for the derived dataset
+    artifact data/derived/kinetics_4s_subset_v1.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:08:36Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify Kinetics-400 subset output size is less than or equal to 7GB
+  claim_id: c_09842fe0
+  context: T005a Implement data/downsampler.py to extract short-duration clips and
+    downsample the Kinetics-400 stream.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Kinetics-400_subset_output_size_is_less_than_or_equal
+  kind: magnitude
+  raw_text: "Verify output size is \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:08:38Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis for KL-divergence with power greater than
+    or equal to 0.8 for bit-widths 2 to 6
+  claim_id: c_ac56bf19
+  context: T007b Implement verification script in simulation/quantization_emulator.py
+    to verify noise distribution matches theoretical uniform within 5% KL-divergence.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_for_KL-divergence_with_power_grea
+  kind: magnitude
+  raw_text: "MUST perform a statistical power analysis to determine the minimum sample\
+    \ size required to detect the [deferred] divergence with power \u2265 0.8 for\
+    \ each bit-width (2-6) and seed."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:08:40Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Acquire public benchmark subset containing at least 50 clips with human
+    coherence labels
+  claim_id: c_0d796ed7
+  context: 'T038c Acquire real human-labeled data: Source, download, and integrate
+    a verified public benchmark subset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Acquire_public_benchmark_subset_containing_at_least_50_clips
+  kind: magnitude
+  raw_text: Source, download, and integrate a verified public benchmark subset (e.g.,
+    ActivityNet Captions or UCF101-Validation with human coherence labels) containing
+    at least 50 clips.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:09:33Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify noise distribution matches uniform within 5% KL-divergence per
+    bit-width
+  claim_id: c_18139a57
+  context: "Independent Test for User Story 1: Run a single epoch on a downsampled\
+    \ Kinetics-400 subset; verify memory \u2264 7GB, disk \u2264 14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the T007b artifact exists and passes (noise distribution matches
+    uniform within 5% KL-divergence per bit-width).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:09:46Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify memory usage is less than or equal to 7GB and disk usage is less
+    than or equal to 14GB
+  claim_id: c_23d9feba
+  context: 'Independent Test for User Story 1: Run a single epoch on a downsampled
+    Kinetics-400 subset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_memory_usage_is_less_than_or_equal_to_7GB_and_disk_us
+  kind: magnitude
+  raw_text: "verify memory \u2264 7GB, disk \u2264 14GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:10:02Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Compute Pearson correlation coefficient greater than or equal to 0.7
+    on a held-out subset of 50 clips
+  claim_id: c_00141a50
+  context: 'T022 Implement validation logic for FR-007: Load synthetic subset from
+    T038, validate against T038c results.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_correlation_coefficient_greater_than_or_equa
+  kind: magnitude
+  raw_text: validate against T038c results, compute Pearson correlation coefficient
+    >= 0.7 on a held-out subset of 50 clips.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:10:04Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Ensure CLIP-ViT evaluation completes within 5 minutes per clip on CPU
+  claim_id: c_06c4d7a5
+  context: T023 Ensure evaluation completes within 5 minutes per clip on CPU (verified
+    by T009a benchmark).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure evaluation completes within 5 minutes per clip on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:10:04Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Calculate theoretical memory footprint using formula Parameter Count
+    times Bit Width divided by bytes per word plus 1.2GB
+  claim_id: c_e9672cc2
+  context: 'T031a Theoretical Memory Validation: Implement logic to calculate the
+    theoretical memory footprint using the formula.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to calculate the theoretical memory footprint using the\
+    \ formula (Parameter Count \xD7 Bit Width / bytes_per_word) + 1.2GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:10:04Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: acquire public benchmark subset with at least 50 clips for human coherence
+    labels
+  claim_id: c_084bdb2c
+  context: 'T038c [P] [Foundational] Acquire real human-labeled data: Source, download,
+    and integrate a verified public benchmark subset (e.g., ActivityNet Captions or
+    UCF101-Validation with human coherence labels) containing at least 50 clips.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Acquire_public_benchmark_subset_with_at_least_50_clips_for_h
+  kind: magnitude
+  raw_text: 'Acquire real human-labeled data: Source, download, and integrate a verified
+    public benchmark subset (e.g., ActivityNet Captions or UCF101-Validation with
+    human coherence labels) containing at least 50 clips.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:16:44Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: verify output size is less than or equal to 7GB
+  claim_id: c_d183d3e0
+  context: "T005a [P] ... MUST generate and record a checksum (SHA-256) for the derived\
+    \ dataset artifact `data/derived/kinetics_4s_subset_v1.parquet`. Verify output\
+    \ size is \u2264 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_size_is_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: "Verify output size is \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:16:59Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: verify noise distribution matches uniform within 5% KL-divergence per
+    bit-width
+  claim_id: c_3e66a078
+  context: "Independent Test: Run a single epoch on a downsampled Kinetics-400 subset;\
+    \ verify memory \u2264 7GB, disk \u2264 14GB, and verify that the T007b artifact\
+    \ exists and passes (noise distribution matches uniform within 5% KL-divergence\
+    \ per bit-width)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the T007b artifact exists and passes (noise distribution matches
+    uniform within 5% KL-divergence per bit-width).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:16:59Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: verify noise distribution matches theoretical uniform within 5% KL-divergence
+  claim_id: c_7a2131bf
+  context: T007b [P] Implement verification script in `simulation/quantization_emulator.py`
+    to verify noise distribution matches theoretical uniform within 5% KL-divergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement verification script in `simulation/quantization_emulator.py`
+    to verify noise distribution matches theoretical uniform within 5% KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:16:59Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: determine minimum sample size required to detect divergence with power
+    >= 0.8 for bit-widths 2 to 6
+  claim_id: c_3b38fbf3
+  context: "T007b [P] ... MUST perform a statistical power analysis to determine the\
+    \ minimum sample size required to detect the [deferred] divergence with power\
+    \ \u2265 0.8 for each bit-width (2-6) and seed, rather than using a fixed N."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a statistical power analysis to determine the minimum sample\
+    \ size required to detect the [deferred] divergence with power \u2265 0.8 for\
+    \ each bit-width (2-6) and seed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:16:59Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: verify CLIP-ViT inference time is less than or equal to 5 minutes per
+    clip
+  claim_id: c_e9b40bad
+  context: "T009a [P] [Foundational] Implement `evaluation/benchmark.py` to measure\
+    \ CLIP-ViT inference time per clip on CPU. MUST verify inference time is \u2264\
+    \ 5 minutes per clip before integration."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_CLIP-ViT_inference_time_is_less_than_or_equal_to_5_mi
+  kind: magnitude
+  raw_text: "Implement `evaluation/benchmark.py` to measure CLIP-ViT inference time\
+    \ per clip on CPU. MUST verify inference time is \u2264 5 minutes per clip before\
+    \ integration."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:17:25Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: ensure evaluation completes within 5 minutes per clip on CPU
+  claim_id: c_a3d37224
+  context: T023 [US2] Ensure evaluation completes within 5 minutes per clip on CPU
+    (verified by T009a benchmark).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure evaluation completes within 5 minutes per clip on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:17:25Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 2
+  canonical: downsample Kinetics-400 stream to fit within 7GB RAM
+  claim_id: c_1b03940a
+  context: T005a [P] Implement `data/downsampler.py` to extract short-duration clips
+    and downsample the Kinetics-400 stream to fit within 7GB RAM, ensuring the transformation
+    logic is explicit and reproducible.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `data/downsampler.py` to extract short-duration clips and downsample
+    the Kinetics-400 stream to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:17:25Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 2
+  canonical: verify memory <= 7GB and disk <= 14GB for single epoch on downsampled
+    Kinetics-400 subset
+  claim_id: c_2de5830e
+  context: "Independent Test: Run a single epoch on a downsampled Kinetics-400 subset;\
+    \ verify memory \u2264 7GB, disk \u2264 14GB, and verify that the T007b artifact\
+    \ exists and passes (noise distribution matches uniform within 5% KL-divergence\
+    \ per bit-width)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run a single epoch on a downsampled Kinetics-400 subset; verify memory\
+    \ \u2264 7GB, disk \u2264 14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:17:39Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: collect results from varied bit-widths across multiple seeds
+  claim_id: c_b9da9036
+  context: T027 [P] [US3] Implement `analysis/aggregation.py` to collect results from
+    varied bit-widths across multiple seeds
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Collect_results_from_varied_bit-widths_across_multiple_seeds
+  kind: entity_fact
+  raw_text: Implement `analysis/aggregation.py` to collect results from varied bit-widths
+    across multiple seeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:18:01Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: model precision-consistency data for a range of bit-widths using non-linear
+    regression
+  claim_id: c_c1e6965d
+  context: T029 [US3] Implement non-linear regression (piecewise linear with multiple
+    segments using `scipy.optimize.curve_fit`) to model the precision-consistency
+    data for a range of bit-widths.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_precision-consistency_data_for_a_range_of_bit-widths_u
+  kind: entity_fact
+  raw_text: Implement non-linear regression (piecewise linear with multiple segments
+    using `scipy.optimize.curve_fit`) to model the precision-consistency data for
+    a range of bit-widths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:18:35Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: calculate theoretical memory footprint using formula Parameter Count
+    times Bit Width divided by bytes_per_word plus 1.2GB
+  claim_id: c_b1112e07
+  context: "T031a [US3] Theoretical Memory Validation: Implement logic to calculate\
+    \ the theoretical memory footprint using the formula `(Parameter Count \xD7 Bit\
+    \ Width / bytes_per_word) + 1.2GB` and compare it against the Python runtime overhead\
+    \ model (1.2GB constant)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to calculate the theoretical memory footprint using the\
+    \ formula `(Parameter Count \xD7 Bit Width / bytes_per_word) + 1.2GB` and compare\
+    \ it against the Python runtime overhead model (1.2GB constant)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:18:49Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: fetch 4-second video clips via streaming from Kinetics-400 stream
+  claim_id: c_8e59d3fc
+  context: T013 [US1] Integrate `data/downsampler.py` (T005a) into the training loop
+    to fetch 4-second video clips via streaming
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `data/downsampler.py` to extract short-duration clips and downsample
+    the Kinetics-400 stream to fetch 4-second video clips via streaming.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:19:09Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Acquire verified public benchmark subset with at least 50 clips containing
+    human coherence labels
+  claim_id: c_958f2a35
+  context: 'T038c [P] [Foundational] Acquire real human-labeled data: Source, download,
+    and integrate a verified public benchmark subset (e.g., ActivityNet Captions or
+    UCF101-Validation with human coherence labels) containing at least 50 clips. MUST
+    specify the exact dataset name, URL, and download script.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Acquire_verified_public_benchmark_subset_with_at_least_50_cl
+  kind: magnitude
+  raw_text: 'Acquire real human-labeled data: Source, download, and integrate a verified
+    public benchmark subset (e.g., ActivityNet Captions or UCF101-Validation with
+    human coherence labels) containing at least 50 clips.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:10Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify derived dataset artifact output size is less than or equal to
+    7GB
+  claim_id: c_f7ff5aa5
+  context: "T005a [P] Implement data/downsampler.py to extract short-duration clips\
+    \ and downsample the Kinetics-400 stream to fit within 7GB RAM... MUST generate\
+    \ and record a checksum (SHA-256) for the derived dataset artifact data/derived/kinetics_4s_subset_v1.parquet.\
+    \ Verify output size is \u2264 7GB."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_derived_dataset_artifact_output_size_is_less_than_or
+  kind: magnitude
+  raw_text: "Verify output size is \u2264 7GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:12Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify noise distribution matches theoretical uniform within 5% KL-divergence
+  claim_id: c_6e13efc5
+  context: T007b [P] Implement verification script in simulation/quantization_emulator.py
+    to verify noise distribution matches theoretical uniform within 5% KL-divergence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement verification script... to verify noise distribution matches
+    theoretical uniform within 5% KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:12Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Perform statistical power analysis for minimum sample size with power
+    >= 0.8 for bit-widths 2 to 6
+  claim_id: c_5ffb6fd1
+  context: "T007b [P] ...MUST perform a statistical power analysis to determine the\
+    \ minimum sample size required to detect the [deferred] divergence with power\
+    \ \u2265 0.8 for each bit-width (2-6) and seed, rather than using a fixed N."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a statistical power analysis to determine the minimum sample\
+    \ size required to detect the [deferred] divergence with power \u2265 0.8 for\
+    \ each bit-width (2-6) and seed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:12Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Verify CLIP-ViT inference time is less than or equal to 5 minutes per
+    clip
+  claim_id: c_f4ea4e47
+  context: "T009a [P] [Foundational] Implement evaluation/benchmark.py to measure\
+    \ CLIP-ViT inference time per clip on CPU. MUST verify inference time is \u2264\
+    \ 5 minutes per clip before integration."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_CLIP-ViT_inference_time_is_less_than_or_equal_to_5_mi
+  kind: magnitude
+  raw_text: "MUST verify inference time is \u2264 5 minutes per clip before integration."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:15Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Validate Pearson correlation coefficient >= 0.7 on held-out subset of
+    50 clips
+  claim_id: c_3c9567fe
+  context: 'T022 [US2] Implement validation logic for FR-007: Load synthetic subset
+    from T038, validate against T038c results, compute Pearson correlation coefficient
+    >= 0.7 on a held-out subset of 50 clips.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate Pearson correlation coefficient >= 0.7 on a held-out subset of
+    50 clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:23:40Z'
+- artifact_path: projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/specs/001-llmxive-follow-up-extending-longlive-2-0/tasks.md
+  attempts: 1
+  canonical: Calculate theoretical memory footprint using formula (Parameter Count
+    * Bit Width / bytes_per_word) + 1.2GB
+  claim_id: c_20c13db6
+  context: "T031a [US3] Theoretical Memory Validation: Implement logic to calculate\
+    \ the theoretical memory footprint using the formula (Parameter Count \xD7 Bit\
+    \ Width / bytes_per_word) + 1.2GB and compare it against the Python runtime overhead\
+    \ model (1.2GB constant)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Theoretical Memory Validation: Implement logic to calculate the theoretical\
+    \ memory footprint using the formula (Parameter Count \xD7 Bit Width / bytes_per_word)\
+    \ + 1.2GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:24:01Z'
