@@ -1,7 +1,11 @@
 # Development dependencies
--r code/requirements.txt
+# Linting and Formatting
 ruff==0.1.6
 black==23.12.1
+
+# Testing
 pytest==7.4.3
 pytest-cov==4.1.0
-mypy==1.8.0
+
+# Environment loading
+python-dotenv==1.0.0

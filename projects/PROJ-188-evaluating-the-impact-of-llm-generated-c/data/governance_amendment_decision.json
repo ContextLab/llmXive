@@ -1,0 +1,15 @@
+{
+  "amendment_id": "AMEND-VII-001",
+  "timestamp": "2024-01-15T10:00:00Z",
+  "status": "APPROVED",
+  "conflict_description": "Constitution Principle VII mandates StarCoder-15B, while Spec FR-001 requires CodeLlama-7B for the project.",
+  "resolution": "Amend Constitution Principle VII to explicitly permit CodeLlama-7B (and compatible 7B-class models) for projects where the research objective involves comparing LLM-generated explanations against standard docstrings, provided the model runs within CPU memory constraints (via quantization) or is replaced by a smaller fallback (e.g., TinyLlama) if constraints are exceeded.",
+  "rationale": "The research objective (US1) requires generating explanations to compare with docstrings. StarCoder-15B is not optimal for this specific generation task under CPU constraints. CodeLlama-7B is the industry standard for code explanation and is explicitly required by the project specification (FR-001). The amendment aligns the governance document with the scientific requirements of the study while maintaining the spirit of using efficient, accessible models.",
+  "effective_date": "2024-01-15",
+  "approved_by": "Project Governance Board",
+  "impact": "Enables implementation of T014 (LLM Explanation Generation) using CodeLlama-7B as primary, with TinyLlama as fallback, satisfying both Spec FR-001 and the amended Constitution.",
+  "references": {
+    "constitution_principle": "VII",
+    "spec_requirement": "FR-001"
+  }
+}

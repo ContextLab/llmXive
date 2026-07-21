@@ -1,23 +1,62 @@
 # PROJ-188: Evaluating the Impact of LLM-Generated Code Explanations on Comprehension
 
-## Overview
-This project investigates how LLM-generated code explanations affect developer comprehension compared to code-only and code-with-docstring conditions.
+## Setup
 
-## Structure
-- `code/`: Implementation scripts
-- `tests/`: Unit and integration tests
-- `data/`: Raw, intermediate, and processed data
-- `specs/`: Feature specifications and design documents
+### Prerequisites
+- Python 3.11+
+- pip
 
-## Prerequisites
-- Python 3.11
-- See `code/requirements.txt` for dependencies
+### Installation
+1. Create a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate
+ ```
 
-## Quick Start
-1. Install dependencies: `pip install -r code/requirements.txt`
-2. Run data curation: `python code/01_data_curation.py`
-3. Run survey logic: `python code/02_survey_logic.py`
-4. Run analysis: `python code/03_analysis.py`
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ pip install -r requirements-dev.txt
+ ```
 
-## Governance
-This project requires the Constitution to be amended to align Principle VII with Spec FR-001 before execution of T014.
+3. Configure environment variables:
+ ```bash
+ cp.env.example.env
+ # Edit.env and add your HF_TOKEN
+ ```
+
+4. Install pre-commit hooks:
+ ```bash
+ pre-commit install
+ ```
+
+## Linting and Formatting
+
+This project uses **ruff** for linting and **black** for formatting.
+
+### Run manually
+```bash
+# Format code
+black code/ tests/
+
+# Lint code
+ruff check code/ tests/
+```
+
+### Fix automatically
+```bash
+ruff check --fix code/ tests/
+black code/ tests/
+```
+
+## Testing
+```bash
+pytest
+```
+
+## Project Structure
+- `code/`: Source code modules
+- `tests/`: Test suites
+- `data/`: Data artifacts (raw, intermediate, processed)
+- `specs/`: Feature specifications
+- `projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/`: Project root (this directory)

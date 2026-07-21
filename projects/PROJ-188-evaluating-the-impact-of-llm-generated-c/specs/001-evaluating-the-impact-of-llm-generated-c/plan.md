@@ -37,7 +37,7 @@ The research question is: How can parameter-efficient fine-tuning be optimized f
 | **IV. Single Source of Truth** | **PASS** | All stats trace to `data/` files. No hand-typed numbers in reports. |
 | **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes. State updated on change. |
 | **VI. Human-Subject Data Integrity** | **PASS** | Participant data anonymized (IDs only). Cleaning rules (time-based filter) applied via scripts. |
-| **VII. Controlled Explanation Generation** | **AMENDMENT_REQUIRED** | **Conflict**: The Constitution mandates **StarCoder-15B** (200 tokens). The active `spec.md` mandates **CodeLlama-7B** (150 tokens). The plan follows the `spec.md` (CodeLlama-7B, 150 tokens) as the immediate implementation target. This constitutes a violation of Principle VII until the Constitution is formally amended to align with the spec. **Action**: Flagged for kickback to update Constitution or Spec. |
+| **VII. Controlled Explanation Generation** | **AMENDMENT_REQUIRED** | **Conflict**: The Constitution mandates **StarCoder-15B** (200 tokens). The active `spec.md` mandates **CodeLlama** (approximately 150 tokens). The plan follows the `spec.md` (CodeLlama-7B, 150 tokens) as the immediate implementation target. This constitutes a violation of Principle VII until the Constitution is formally amended to align with the spec. **Action**: Flagged for kickback to update Constitution or Spec. |
 
 ## Project Structure
 

@@ -8,22 +8,15 @@ T010: Asserts that model_loaded == True when CodeLlama fails and TinyLlama is us
 import pytest
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock, Mock, PropertyMock
 
 # Add project root to path to allow imports from code/
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 # Import the function we are testing.
-# Since T013 (implementation) is not done yet, this import will fail
-# or the function will not exist, causing the test to fail as required.
-try:
-    from code.curation_utils import calculate_complexity_label
-except ImportError:
-    # If the module doesn't exist yet, we define a stub that raises
-    # to ensure the test fails as expected for T009.
-    def calculate_complexity_label(code_snippet: str) -> str:
-        raise NotImplementedError("Complexity labeling logic not implemented yet (T013).")
+# T013 (implementation) is now complete, so this import should succeed.
+from code.curation_utils import calculate_complexity_label, label_complexity, calculate_cyclomatic_complexity
 
 
 def test_complexity_labeling():
@@ -31,23 +24,28 @@ def test_complexity_labeling():
     Test that the complexity label is one of the valid categories:
     'low', 'medium', or 'high'.
     
-    This test currently fails because the implementation is not present.
+    This test verifies T009: the function must return a valid label.
     """
     test_snippets = [
-        "x = 1",  # Simple
-        "if x > 0:\n    for i in range(x):\n        print(i)",  # Medium
-        "def complex_func(a, b):\n    if a:\n        if b:\n            return a + b\n        else:\n            return a - b\n    else:\n        return 0"  # High
+        "x = 1",  # Simple: complexity 1 -> 'low'
+        "if x > 0:\n    for i in range(x):\n        print(i)",  # Medium: complexity 3 (if, for) -> 'low' (<=5)
+        "def complex_func(a, b):\n    if a:\n        if b:\n            return a + b\n        else:\n            return a - b\n    else:\n        return 0"  # High: multiple ifs
     ]
 
     for snippet in test_snippets:
-        # This call will raise NotImplementedError or fail logic checks
-        # because the function is not implemented (per T009 requirement).
         label = calculate_complexity_label(snippet)
         
         # Assert the constraint: label must be in valid set
         assert label in ['low', 'medium', 'high'], (
             f"Invalid complexity label '{label}' returned for snippet. "
             "Expected one of ['low', 'medium', 'high']."
+        )
+        
+        # Additional check: ensure the label matches the calculated score
+        score = calculate_cyclomatic_complexity(snippet)
+        expected_label = label_complexity(score)
+        assert label == expected_label, (
+            f"Label mismatch for snippet. Score: {score}, Got: {label}, Expected: {expected_label}"
         )
 
 
@@ -58,20 +56,11 @@ def test_model_fallback():
     Asserts that model_loaded == True when CodeLlama fails (simulated by exception)
     and TinyLlama is used as a fallback.
     
-    This test currently fails because the fallback logic is not implemented in
-    code.curation_utils (T014 is not done yet).
+    This test verifies T010: the fallback logic must work.
     """
     # Import the function we are testing.
-    # We expect this to fail or the function to not exist yet.
-    try:
-        from code.curation_utils import load_model_with_fallback
-    except ImportError:
-        # Define a stub that raises to ensure the test fails as expected for T010.
-        def load_model_with_fallback(primary_model_id: str, fallback_model_id: str):
-            raise NotImplementedError(
-                "Model fallback logic not implemented yet (T014). "
-                "Expected to attempt loading CodeLlama and fall back to TinyLlama."
-            )
+    # We expect this to succeed now that T014 is complete.
+    from code.curation_utils import load_model_with_fallback
 
     # Simulate the scenario: CodeLlama fails, TinyLlama succeeds.
     # We mock torch and transformers to simulate the failure of the primary model
@@ -83,9 +72,11 @@ def test_model_fallback():
         
         # Configure mocks
         mock_torch.cuda.is_available.return_value = False
-        mock_torch.cuda.mem_get_info.return_value = (0, 0) # Simulate low memory or just not available
+        # Simulate low memory or just not available
+        type(mock_torch.cuda).mem_get_info = PropertyMock(return_value=(0, 0))
         
-        # Simulate CodeLlama loading failure
+        # Simulate CodeLlama loading failure on the first call
+        # Return a MagicMock for the fallback (TinyLlama) on the second call
         mock_transformers.AutoModelForCausalLM.from_pretrained.side_effect = [
             Exception("MemoryError: CodeLlama failed to load"), # First call (CodeLlama)
             MagicMock() # Second call (TinyLlama) - returns a mock model
