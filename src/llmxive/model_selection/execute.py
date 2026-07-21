@@ -137,7 +137,14 @@ def _open_paid_reservation(
     """Twice-check + reserve a paid candidate. Returns
     ``(reservation_id, reserved_credits, skip_reason)`` — exactly one of
     ``reservation_id`` / ``skip_reason`` is non-None. A ``skip_reason`` means the
-    candidate is fail-closed skipped (advance the chain), never an abort."""
+    candidate is fail-closed skipped (advance the chain), never an abort.
+
+    ``reservation_authority``, when given, is the Attempt-budget gate (FR-033b)
+    consulted BEFORE the 026 daily reserve: its own reserve opens first, and is
+    released again on ANY pre-dispatch failure — a 026 ``LedgerError`` (skip) or
+    any other exception (re-raised) — so the Attempt reservation never outlives
+    a candidate that was never actually dispatched.
+    """
     from llmxive.backends.credits import paid_call_allowed
 
     ref = candidate.model_ref
@@ -194,7 +201,9 @@ def _open_paid_reservation(
     # ledger (LedgerAuthError) — means we cannot SAFELY reserve, so the paid
     # candidate is ineligible at call time → skip-candidate (advance), never an
     # abort (FR-010). A ValueError (e.g. a negative amount = programmer/data bug) is
-    # NOT a LedgerError and deliberately surfaces.
+    # NOT a LedgerError and deliberately surfaces uncaught — but EITHER way (skipped
+    # on LedgerError, or re-raised on any other exception) any already-open Attempt
+    # reservation is released first (open → released), never left leaking.
     lease_expires = now + timedelta(seconds=lease_duration_for(options.deadline_s))
     try:
         reserve(
@@ -214,6 +223,15 @@ def _open_paid_reservation(
         if reservation_authority is not None:
             reservation_authority.release(rid)
         return None, 0.0, f"paid {ref.model_id!r} skipped: could not reserve ({type(exc).__name__}: {exc})"
+    except Exception:
+        # Any OTHER exception (e.g. a ValueError for a negative amount — a
+        # programmer/data bug, deliberately NOT a LedgerError) also occurs AFTER
+        # the Attempt reserve opened, so it must release the SAME way before
+        # re-raising unchanged — otherwise the Attempt reservation leaks (stuck
+        # "open" forever), permanently shrinking the Attempt budget.
+        if reservation_authority is not None:
+            reservation_authority.release(rid)
+        raise
     return rid, reserve_credits, None
 
 

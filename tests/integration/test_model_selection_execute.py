@@ -528,3 +528,31 @@ def test_reservation_authority_released_when_026_reserve_fails(repo, monkeypatch
     assert budget.open == {}            # released, not left open
     assert len(budget.released) == 1    # the Attempt reserve WAS opened, then released
     assert budget.retained == set()     # never dispatched
+
+
+def test_reservation_authority_released_on_non_ledger_error_from_026_reserve(repo, monkeypatch):
+    # Review finding 1 (regression): the 026 reserve() can raise a NON-LedgerError
+    # (e.g. a ValueError for a negative amount — deliberately surfaced uncaught, see
+    # test_reserve_unexpected_error_surfaces above). When an Attempt authority is
+    # engaged, that exception must NOT leak the Attempt reservation: release() must
+    # still run (then the ValueError re-raises) — same rollback as the LedgerError
+    # branch, just for a different exception type.
+    import importlib
+    execmod = importlib.import_module("llmxive.model_selection.execute")
+
+    def _bug(*_a, **_k):
+        raise ValueError("programmer bug: reservation invariant violated")
+
+    monkeypatch.setattr(execmod, "reserve", _bug)
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)  # ample — the Attempt reserve itself succeeds
+    call_id = "cbug1"
+    rid = execmod._sanitize_reservation_id(CLAUDE, call_id)
+    with pytest.raises(ValueError, match="programmer bug"):
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget, call_id=call_id)
+    assert budget.open == {}       # released, NOT leaked (the bug this test guards against)
+    assert rid in budget.released  # the Attempt reserve WAS opened, then released
+    assert budget.retained == set()  # never dispatched
