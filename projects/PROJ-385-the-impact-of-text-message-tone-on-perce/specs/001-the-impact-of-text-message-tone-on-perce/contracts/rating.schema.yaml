@@ -1,43 +1,56 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Rating Schema
-description: |
-  Schema for participant ratings of text message stimuli.
-  Contains the participant ID, stimulus ID, context provided to the participant,
-  and the Likert scale rating for perceived emotional support.
+description: >-
+  Defines the structure for human ratings of text message stimuli.
+  Captures participant responses regarding perceived emotional support.
 type: object
 required:
   - rating_id
   - participant_id
   - stimulus_id
-  - context_type
-  - support_rating
+  - relationship_context
+  - support_score
+  - warmth_score
+  - competence_score
   - timestamp
 properties:
   rating_id:
     type: string
     description: Unique identifier for the rating record
-    pattern: "^R[0-9]{6}$"
+    pattern: "^RAT_\\d{6}$"
   participant_id:
     type: string
-    description: Prolific-style participant ID
-    pattern: "^P-[A-Z0-9]{8}$"
+    description: Anonymized participant identifier (Prolific ID hash or mock ID)
+    minLength: 1
   stimulus_id:
     type: string
     description: Reference to the stimulus being rated
-    pattern: "^S[0-9]{3}$"
-  context_type:
+    pattern: "^STIM_\\d{4}$"
+  relationship_context:
     type: string
-    description: Relationship context presented to the participant
     enum:
       - friend
       - acquaintance
-  support_rating:
+      - family
+      - colleague
+    description: The relationship context provided to the participant
+  support_score:
     type: integer
-    description: Perceived emotional support rating on a 1-7 Likert scale
     minimum: 1
     maximum: 7
+    description: Likert scale rating of perceived emotional support (1=Not at all, 7=Very much)
+  warmth_score:
+    type: integer
+    minimum: 1
+    maximum: 7
+    description: Likert scale rating of perceived warmth
+  competence_score:
+    type: integer
+    minimum: 1
+    maximum: 7
+    description: Likert scale rating of perceived competence
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the rating was submitted
+    description: ISO 8601 timestamp of the rating submission
 additionalProperties: false

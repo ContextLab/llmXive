@@ -1,107 +1,113 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Analysis Result Schema
-description: |
-  Schema for Linear Mixed-Effects Model analysis results.
-  Contains fixed effects estimates, random effects variance components,
-  p-values, and post-hoc test results.
+description: >-
+  Defines the structure for the output of the Linear Mixed-Effects Model (LMM)
+  analysis, including fixed effects, variance components, and post-hoc tests.
 type: object
 required:
   - analysis_id
   - model_formula
   - fixed_effects
-  - random_effects
-  - p_values
-  - n_observations
-  - n_participants
-  - n_stimuli
-  - run_timestamp
+  - variance_components
+  - model_fit
+  - post_hoc_results
+  - generated_at
 properties:
   analysis_id:
     type: string
-    description: Unique identifier for the analysis run
-    pattern: "^A[0-9]{4}$"
+    description: Unique identifier for this analysis run
+    pattern: "^ANALYSIS_\\d{4}$"
   model_formula:
     type: string
-    description: The R-style formula used for the LMM
+    description: The R-style formula used for the LMM (e.g., "score ~ cue * context + (1|participant)")
   fixed_effects:
-    type: array
-    description: List of fixed effect estimates
-    items:
-      type: object
-      required:
-        - term
-        - estimate
-        - std_error
-        - t_value
-      properties:
-        term:
-          type: string
-        estimate:
-          type: number
-        std_error:
-          type: number
-        t_value:
-          type: number
-  random_effects:
     type: object
-    description: Variance components for random effects
+    description: Estimates for fixed effects
+    required:
+      - estimates
+      - std_errors
+      - t_values
+      - p_values
+    properties:
+      estimates:
+        type: object
+        additionalProperties:
+          type: number
+        description: Coefficient estimates for each term
+      std_errors:
+        type: object
+        additionalProperties:
+          type: number
+        description: Standard errors for each term
+      t_values:
+        type: object
+        additionalProperties:
+          type: number
+        description: T-statistics for each term
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
+        description: P-values for each term
+  variance_components:
+    type: object
+    description: Random effect variance components
     required:
       - participant
       - stimulus
     properties:
       participant:
         type: number
-        description: Variance of the random intercept for participants
+        minimum: 0
+        description: Variance attributed to participant random intercept
       stimulus:
         type: number
-        description: Variance of the random intercept for stimuli
+        minimum: 0
+        description: Variance attributed to stimulus random intercept
       residual:
         type: number
+        minimum: 0
         description: Residual variance
-  p_values:
+  model_fit:
     type: object
-    description: P-values for fixed effects
-    additionalProperties:
-      type: number
-      minimum: 0
-      maximum: 1
-  n_observations:
-    type: integer
-    description: Total number of observations used
-    minimum: 1
-  n_participants:
-    type: integer
-    description: Number of unique participants
-    minimum: 1
-  n_stimuli:
-    type: integer
-    description: Number of unique stimuli
-    minimum: 1
-  run_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the analysis run
+    description: Model fit statistics
+    required:
+      - aic
+      - bic
+      - log_likelihood
+      - num_observations
+    properties:
+      aic:
+        type: number
+      bic:
+        type: number
+      log_likelihood:
+        type: number
+      num_observations:
+        type: integer
+        minimum: 1
   post_hoc_results:
     type: array
-    description: Tukey-corrected pairwise comparisons (optional)
+    description: Tukey-corrected pairwise comparisons
     items:
       type: object
       required:
         - comparison
         - estimate
         - p_value
-        - adjusted
+        - adjusted_p_value
       properties:
         comparison:
           type: string
+          description: String representation of the pair (e.g., "High vs Low")
         estimate:
           type: number
         p_value:
           type: number
-        adjusted:
-          type: boolean
-        ci_lower:
+        adjusted_p_value:
           type: number
-        ci_upper:
-          type: number
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of analysis generation
 additionalProperties: false

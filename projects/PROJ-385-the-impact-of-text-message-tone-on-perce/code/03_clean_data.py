@@ -4,165 +4,139 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Set
 import sys
-import pandas as pd
 import numpy as np
 
-from config import get_project_root, get_raw_data_dir, get_processed_data_dir
-from logging_config import setup_logging, get_logger, log_pipeline_step, log_exclusion
+from config import get_raw_data_dir, get_processed_data_dir
+from logging_config import get_logger, log_exclusion
 
-def load_stimuli() -> pd.DataFrame:
-    """
-    Load the stimuli dataset from data/raw/stimuli.csv.
-    Returns a DataFrame containing stimulus metadata.
-    """
-    root = get_project_root()
-    raw_dir = get_raw_data_dir(root)
-    stimuli_path = raw_dir / "stimuli.csv"
-    
-    if not stimuli_path.exists():
-        raise FileNotFoundError(f"Stimuli file not found at {stimuli_path}. "
-                                "Please run 01_generate_stimuli.py first.")
-    
-    return pd.read_csv(stimuli_path)
+logger = get_logger(__name__)
 
-def load_ratings() -> pd.DataFrame:
+def load_stimuli(stimuli_path: Path) -> List[str]:
     """
-    Load the ratings dataset from data/raw/ratings.csv.
-    Returns a DataFrame containing participant ratings.
-    """
-    root = get_project_root()
-    raw_dir = get_raw_data_dir(root)
-    ratings_path = raw_dir / "ratings.csv"
-    
-    if not ratings_path.exists():
-        raise FileNotFoundError(f"Ratings file not found at {ratings_path}. "
-                                "Please run 02_simulate_ratings.py first.")
-    
-    return pd.read_csv(ratings_path)
-
-def detect_straight_lining(stimuli_df: pd.DataFrame, ratings_df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Detect participants who provided identical ratings across all stimuli (straight-lining).
-    
-    A participant is flagged if:
-    1. They have ratings for the full set of stimuli (24 in this study).
-    2. The variance of their ratings is exactly 0.0.
+    Load stimulus IDs from a CSV file.
     
     Args:
-        stimuli_df: DataFrame with stimulus metadata (must contain 'stimulus_id').
-        ratings_df: DataFrame with ratings (must contain 'prolific_id', 'stimulus_id', 'rating').
+        stimuli_path: Path to the stimuli CSV file.
         
     Returns:
-        List of dictionaries with exclusion details for flagged participants.
+        List of stimulus IDs.
     """
-    logger = get_logger()
-    log_pipeline_step(logger, "Starting straight-lining detection")
-    
-    # Ensure we are working with the expected columns
-    required_cols = {'prolific_id', 'stimulus_id', 'rating'}
-    if not required_cols.issubset(ratings_df.columns):
-        raise ValueError(f"Ratings DataFrame missing required columns: {required_cols - set(ratings_df.columns)}")
-    
-    # Determine the total number of unique stimuli expected
-    total_stimuli_count = stimuli_df['stimulus_id'].nunique()
-    logger.info(f"Total unique stimuli expected: {total_stimuli_count}")
-    
-    # Group by participant
-    straight_liners = []
-    
-    # Group by participant and check variance
-    # We calculate variance per participant
-    participant_stats = ratings_df.groupby('prolific_id').agg(
-        n_stimuli=('stimulus_id', 'nunique'),
-        rating_variance=('rating', 'var')
-    ).reset_index()
-    
-    # Filter for participants who rated all stimuli AND have zero variance
-    # Note: var() returns NaN for single value, but we expect 24 values here.
-    # We check for exactly 0.0 variance.
-    flagged = participant_stats[
-        (participant_stats['n_stimuli'] == total_stimuli_count) & 
-        (participant_stats['rating_variance'] == 0.0)
-    ]
-    
-    for _, row in flagged.iterrows():
-        pid = row['prolific_id']
-        reason = f"Straight-lining detected: Zero variance across {total_stimuli_count} stimuli."
-        straight_liners.append({
-            "prolific_id": pid,
-            "exclusion_reason": reason,
-            "n_stimuli_rated": int(row['n_stimuli']),
-            "rating_variance": float(row['rating_variance'])
-        })
-        log_exclusion(logger, pid, reason)
-    
-    log_pipeline_step(logger, f"Straight-lining detection complete. Flagged {len(straight_liners)} participants.")
-    return straight_liners
+    stimuli_ids = []
+    with open(stimuli_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            stimuli_ids.append(row['stimulus_id'])
+    return stimuli_ids
 
-def save_cleaning_log(exclusion_records: List[Dict[str, Any]]) -> Path:
+def load_ratings(ratings_path: Path) -> List[Dict[str, Any]]:
     """
-    Save the cleaning log (exclusion records) to data/processed/cleaning_log.csv.
+    Load ratings from a CSV file.
     
     Args:
-        exclusion_records: List of dictionaries containing exclusion details.
+        ratings_path: Path to the ratings CSV file.
         
     Returns:
-        Path to the saved CSV file.
+        List of rating dictionaries.
     """
-    root = get_project_root()
-    proc_dir = get_processed_data_dir(root)
-    log_path = proc_dir / "cleaning_log.csv"
+    ratings = []
+    with open(ratings_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            ratings.append(row)
+    return ratings
+
+def detect_straight_lining(stimuli_path: Path, ratings_path: Path) -> Set[str]:
+    """
+    Detect participants who exhibit straight-lining behavior (zero variance in ratings).
     
-    if not exclusion_records:
-        # Create an empty file with headers if no exclusions
-        with open(log_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["prolific_id", "exclusion_reason", "n_stimuli_rated", "rating_variance"])
-            writer.writeheader()
-        logger = get_logger()
-        log_pipeline_step(logger, "No exclusions found. Empty cleaning log created.")
-    else:
-        with open(log_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["prolific_id", "exclusion_reason", "n_stimuli_rated", "rating_variance"])
-            writer.writeheader()
-            writer.writerows(exclusion_records)
+    A participant is flagged if they provide the same score for ALL stimuli they rated.
+    This function checks the variance of the 'support_score' column for each participant.
     
-    logger = get_logger()
-    log_pipeline_step(logger, f"Cleaning log saved to {log_path}")
-    return log_path
+    Args:
+        stimuli_path: Path to the stimuli CSV file.
+        ratings_path: Path to the ratings CSV file.
+        
+    Returns:
+        A set of participant IDs who are flagged for straight-lining.
+    """
+    stimuli_ids = load_stimuli(stimuli_path)
+    expected_count = len(stimuli_ids)
+    
+    if expected_count == 0:
+        logger.warning("No stimuli found in the stimuli file. Cannot detect straight-lining.")
+        return set()
+    
+    ratings = load_ratings(ratings_path)
+    
+    # Group ratings by participant
+    participant_ratings = {}
+    for rating in ratings:
+        pid = rating['participant_id']
+        score = float(rating['support_score'])
+        if pid not in participant_ratings:
+            participant_ratings[pid] = []
+        participant_ratings[pid].append(score)
+    
+    flagged_participants = set()
+    
+    for pid, scores in participant_ratings.items():
+        # Calculate variance
+        # If a participant has fewer ratings than the total stimuli, we still check
+        # the variance of the ratings they *did* provide.
+        if len(scores) == 0:
+            continue
+        
+        # If only one rating, variance is 0 (or undefined, but we treat as 0 for this check)
+        if len(scores) == 1:
+            variance = 0.0
+        else:
+            variance = np.var(scores)
+        
+        if variance == 0.0:
+            flagged_participants.add(pid)
+            logger.info(f"Participant {pid} flagged for straight-lining (variance=0.0) with {len(scores)} ratings.")
+    
+    return flagged_participants
+
+def save_cleaning_log(flagged_participants: Set[str], output_path: Path):
+    """
+    Save the cleaning log with exclusion flags.
+    
+    Args:
+        flagged_participants: Set of participant IDs flagged for straight-lining.
+        output_path: Path to save the cleaning log CSV.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["participant_id", "exclusion_reason"])
+        for pid in flagged_participants:
+            writer.writerow([pid, "straight-lining"])
+    
+    logger.info(f"Saved cleaning log with {len(flagged_participants)} exclusions to {output_path}")
 
 def main():
-    """
-    Main entry point for the data cleaning pipeline.
-    Loads stimuli and ratings, detects straight-lining, and saves the cleaning log.
-    """
-    setup_logging()
-    logger = get_logger()
-    logger.info("Starting data cleaning pipeline (T016)")
+    """Main function to run the data cleaning pipeline."""
+    raw_data_dir = get_raw_data_dir()
+    processed_data_dir = get_processed_data_dir()
     
-    try:
-        # Load data
-        logger.info("Loading stimuli...")
-        stimuli_df = load_stimuli()
-        
-        logger.info("Loading ratings...")
-        ratings_df = load_ratings()
-        
-        # Detect straight-lining
-        logger.info("Running straight-lining detection...")
-        exclusion_records = detect_straight_lining(stimuli_df, ratings_df)
-        
-        # Save results
-        logger.info("Saving cleaning log...")
-        output_path = save_cleaning_log(exclusion_records)
-        
-        logger.info(f"Pipeline complete. Output: {output_path}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
+    stimuli_path = raw_data_dir / "stimuli.csv"
+    ratings_path = raw_data_dir / "ratings.csv"
+    cleaning_log_path = processed_data_dir / "cleaning_log.csv"
+    
+    if not stimuli_path.exists():
+        logger.error(f"Stimuli file not found: {stimuli_path}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Pipeline failed with unexpected error: {e}")
-        raise
+    
+    if not ratings_path.exists():
+        logger.error(f"Ratings file not found: {ratings_path}")
+        sys.exit(1)
+    
+    logger.info("Starting straight-lining detection...")
+    flagged = detect_straight_lining(stimuli_path, ratings_path)
+    save_cleaning_log(flagged, cleaning_log_path)
+    logger.info("Straight-lining detection complete.")
 
 if __name__ == "__main__":
     main()

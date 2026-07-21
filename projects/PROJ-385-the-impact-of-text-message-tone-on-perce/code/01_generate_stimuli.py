@@ -81,15 +81,6 @@ def generate_message(context: str, length: str, emoji_level: str, punct_type: st
     punct_str = PUNCT_MAP[punct_type]
 
     # Format the base template
-    # Note: The template string contains {emoji} and {punct} placeholders
-    # We need to be careful with the curly braces in the template if they are part of the text,
-    # but here they are our format keys.
-    
-    # For "long" variants, we might want to ensure the filler is included if the template logic was split,
-    # but our templates above already include the full text for "long".
-    
-    # However, the template above for "long" already has the full text.
-    # Let's just format.
     message = template_data.format(emoji=emoji_str, punct=punct_str)
     
     return message

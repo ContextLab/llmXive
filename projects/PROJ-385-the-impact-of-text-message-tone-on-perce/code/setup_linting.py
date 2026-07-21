@@ -1,13 +1,13 @@
 """
-Script to verify ruff and black installation and configuration.
-This script checks if the tools are available and validates basic configuration.
+Setup script for linting and formatting tools.
+Verifies ruff and black are installed and configuration files exist.
 """
 import subprocess
 import sys
 from pathlib import Path
 
 def check_tool(tool_name: str) -> bool:
-    """Check if a tool is installed and accessible."""
+    """Check if a tool is installed and available."""
     try:
         result = subprocess.run(
             [sys.executable, "-m", tool_name, "--version"],
@@ -18,59 +18,47 @@ def check_tool(tool_name: str) -> bool:
         print(f"✓ {tool_name} is installed: {result.stdout.strip()}")
         return True
     except subprocess.CalledProcessError:
-        print(f"✗ {tool_name} is not installed or not accessible.")
+        print(f"✗ {tool_name} is not installed or not in PATH.")
         return False
 
+def check_config_files() -> bool:
+    """Check if configuration files exist in the code directory."""
+    config_files = ["pyproject.toml", ".ruff.toml", ".black.toml"]
+    code_dir = Path(__file__).parent
+    all_exist = True
+
+    for config_file in config_files:
+        file_path = code_dir / config_file
+        if file_path.exists():
+            print(f"✓ Configuration file found: {config_file}")
+        else:
+            print(f"✗ Configuration file missing: {config_file}")
+            all_exist = False
+
+    return all_exist
+
 def main():
-    """Main entry point for the setup_linting script."""
-    project_root = Path(__file__).parent
-    pyproject_path = project_root / "pyproject.toml"
+    """Main entry point for setup_linting."""
+    print("Checking linting and formatting setup...")
+    print("-" * 40)
 
-    print("Checking linting and formatting tools configuration...")
-    print("-" * 50)
+    tools_ok = True
+    for tool in ["black", "ruff"]:
+        if not check_tool(tool):
+            tools_ok = False
 
-    # Check installations
-    black_ok = check_tool("black")
-    ruff_ok = check_tool("ruff")
+    print("-" * 40)
+    config_ok = check_config_files()
 
-    if not (black_ok and ruff_ok):
-        print("\n❌ One or more tools are missing. Please install them:")
-        print("   pip install black ruff")
-        sys.exit(1)
-
-    # Verify configuration file exists
-    if not pyproject_path.exists():
-        print(f"\n❌ Configuration file not found at {pyproject_path}")
-        sys.exit(1)
-
-    print(f"✓ Configuration file found at {pyproject_path}")
-
-    # Run a dry-run check to ensure config is valid
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "--config", str(pyproject_path), "--output-format", "concise", "."],
-            cwd=project_root,
-            capture_output=True,
-            check=False
-        )
-        print("✓ Ruff configuration is valid.")
-    except Exception as e:
-        print(f"⚠ Ruff configuration check failed: {e}")
-
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "black", "--config", str(pyproject_path), "--check", "--diff", "."],
-            cwd=project_root,
-            capture_output=True,
-            check=False
-        )
-        print("✓ Black configuration is valid.")
-    except Exception as e:
-        print(f"⚠ Black configuration check failed: {e}")
-
-    print("-" * 50)
-    print("✅ Linting and formatting tools are configured successfully.")
-    print("Run 'ruff check .' to lint and 'black .' to format.")
+    print("-" * 40)
+    if tools_ok and config_ok:
+        print("✓ Linting and formatting setup is complete.")
+        return 0
+    else:
+        print("✗ Setup incomplete. Please install missing tools or add config files.")
+        if not tools_ok:
+            print("  To install tools, run: pip install black ruff")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

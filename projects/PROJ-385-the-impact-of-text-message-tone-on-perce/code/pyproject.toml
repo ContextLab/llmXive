@@ -1,40 +1,19 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "text-tone-emotional-support"
-version = "0.1.0"
-description = "Analysis of text message tone on perceived emotional support"
-requires-python = ">=3.9"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "linearmodels",
-    "pyyaml",
-    "pytest",
-    "jsonschema",
-    "ruff",
-    "black"
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -46,19 +25,21 @@ select = [
     "W",   # pycodestyle warnings
     "F",   # pyflakes
     "I",   # isort
+    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
+    "ANN", # flake8-annotations (basic)
 ]
 ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in pandas/statsmodels)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in data pipelines)
+    "ANN101", # missing type annotation for self in method
+    "ANN102", # missing type annotation for cls in classmethod
 ]
 
-[tool.ruff.per-file-ignores]
-"code/0*_generate*.py" = ["E402"]
-"tests/*" = ["F401", "E501"]
-
 [tool.ruff.isort]
-known-first-party = ["config", "logging_config", "setup_data_dirs", "setup_linting", "validate_schemas"]
-force-single-line = true
+known-first-party = ["config", "logging_config", "setup_data_dirs", "setup_project_structure", "validate_schemas", "verify_logging", "setup_linting", "09_power_analysis", "09_power_curve_plotter", "01_generate_stimuli", "02_simulate_ratings", "03_clean_data", "04_collect_real_data", "04_run_lmm"]
+force-sort-within-sections = true
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["ANN"] # Skip annotation checks in tests for now

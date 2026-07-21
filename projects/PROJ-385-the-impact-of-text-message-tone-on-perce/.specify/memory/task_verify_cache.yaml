@@ -1,25 +1,70 @@
-T014:
+T001:
   c: false
-  h: 31a491ee92131b14662c32b5cd330df4932b908eebbbe17099b3de7380b64a6d
-  r: "The repository contains the simulation script with the correct regex and logic\
-    \ to read the target N, but the required output file `data/raw/ratings.csv` is\
-    \ not present (the file is missing). Without the generated CSV, the task\u2019\
-    s core deliverable is not satisfied."
-T016:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `tests/`, `specs/`)
+    is present in the provided artifacts; the implementer did not supply any file
+    or folder listings showing that the project structure has been created. The task
+    therefore remains unfinished.
+T003:
   c: false
-  h: 8d809d5031c2b0c8e454874b41a4784f381978e8a120ab352ed7e8075001eb96
-  r: "The required input files `data/raw/stimuli.csv` and `data/raw/ratings.csv` are\
-    \ absent, and the expected output `data/processed/cleaning_log.csv` was not generated.\
-    \ Moreover, the provided `code/03_clean_data.py` is truncated and does not contain\
-    \ the full straight\u2011lining detection logic or the code to write the exclusion\
-    \ flags. These missing artifacts prevent the task from being considered complete."
-T019:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., a `pyproject.toml` or `.ruff.toml`
+    enabling ruff, and a `pyproject.toml` or `black` config) were presented, nor any
+    evidence of these tools being set up in the `code/` directory. The required artifacts
+    are missing, so the task is not satisfied.
+T004:
   c: false
-  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
-  r: The required integration test file `tests/integration/test_lmm_pipeline.py` does
-    not exist, so the claimed implementation provides no evidence of a functional
-    test for the full LMM pipeline. The task cannot be considered completed until
-    this file is created with appropriate test code.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `specs/001-text-tone-emotional-support/data-model.md` file was
+    provided, nor any content showing the required entities (Stimulus, Participant,
+    Rating, AnalysisResult) or validation against the specification. The necessary
+    artifact is missing, so the task is not satisfied.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/consent/`)\
+    \ being present or populated is provided; the only artifacts shown are project\
+    \ specifications, not the filesystem structure. The implementer must create the\
+    \ three data sub\u2011directories (and optionally add placeholder files) to satisfy\
+    \ the task."
+T006:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required schema files (`stimulus.schema.yaml`, `rating.schema.yaml`, `analysis_result.schema.yaml`)
+    are missing from the `specs/001-text-tone-emotional-support/contracts/` directory;
+    no schemas are present to validate the JSON/YAML data. The task therefore is not
+    satisfied.
+T008:
+  c: false
+  h: eb3fb89cfcec278a660b06bde9a18acfd52f80bdf244c50857eb11eb7af20d2b
+  r: '`code/logging_config.py` exists and correctly configures a logger to write to
+    `data/pipeline.log`, but the required `data/pipeline.log` file is missing, and
+    there is no evidence that a dummy pipeline run produced log entries. The verification
+    step is not satisfied. The implementer must run the logging code (e.g., call `log_pipeline_step`
+    and `log_exclusion`) to generate `data/pipeline.log` with actual log lines.'
+T011:
+  c: false
+  h: e01c3b5d980881ee99d222b5f80288290f4ba6060b1e535dd8b7ce737ec40014
+  r: The `tests/contract/test_rating_schema.py` file is present but truncated (e.g.,
+    an unfinished string in the `raise FileNotFoundError` line) and thus not a valid,
+    runnable test. Moreover, the required `data/raw/ratings.csv` file does not exist,
+    so the contract test cannot actually validate anything. The missing/invalid code
+    and absent CSV prevent the task from being genuinely completed.
+T014b:
+  c: false
+  h: 3e5ae361b63b943feed00543abde61afb1c8a12185b2384beddb2cc5f1eaa275
+  r: "The provided `code/02_simulate_ratings.py` does not contain any logic that creates\
+    \ or writes mock consent records to `data/consent/mock_consent_log.csv`, and the\
+    \ expected CSV file is absent from the repository. Consequently, the task\u2019\
+    s requirement of generating anonymized mock consent records is not satisfied."
+T015:
+  c: false
+  h: dbeadc0f499585bdffa469e64c7a6e48fdf03dada6770e9251a8ccd3fb5b572e
+  r: "The repository lacks the required `data/raw/real_ratings.csv` file, and the\
+    \ provided `code/04_collect_real_data.py` is only a partial stub (no Qualtrics/Prolific\
+    \ API integration, no CI\u2011safe mocking, missing imports, and no handling of\
+    \ API keys, rate limits, or failure modes). Both the artifact and the functional\
+    \ requirements are absent."
 T020:
   c: true
   h: 8002693646a420b051281e78dfac67c717d0940034c4bd11525526153f599a31

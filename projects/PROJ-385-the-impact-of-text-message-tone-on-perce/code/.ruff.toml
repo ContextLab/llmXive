@@ -1,4 +1,6 @@
-# Extends pyproject.toml settings if needed, or provides local overrides
-# Current project relies on [tool.ruff] in pyproject.toml.
-# This file exists to satisfy IDE discovery or future local overrides.
-extend = "pyproject.toml"
+# Ruff configuration file
+# This file is a legacy alternative to pyproject.toml configuration
+# but is included for compatibility with older ruff versions or specific editor setups.
+# Primary configuration is in pyproject.toml.
+
+extend = "../pyproject.toml"

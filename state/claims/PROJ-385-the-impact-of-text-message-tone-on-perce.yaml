@@ -584,3 +584,180 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T21:03:25Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: Power analysis conducted using simulation-based approach
+  claim_id: c_1132c4d4
+  context: 'Power analysis was conducted using simulation-based approach: 1. Simulated
+    datasets with varying sample sizes (N)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_conducted_using_simulation-based_approach
+  kind: entity_fact
+  raw_text: Power analysis was conducted using simulation-based approach.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:57:24Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: Required sample size of 120 participants for power analysis
+  claim_id: c_a435b12e
+  context: 'Results - Required Sample Size (N): 120 participants'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Required Sample Size (N): 120 participants'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:58:02Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: Achieved power of 0.82 at sample size of 120
+  claim_id: c_8f316104
+  context: 'Results - Achieved Power at N=120: 0.82'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Achieved Power at N=120: 0.82'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:58:52Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: 12 stimuli per participant in factorial design
+  claim_id: c_b5181fdc
+  context: 'Results - Stimuli per Participant: 12 (factorial design)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Stimuli per Participant: 12 (factorial design)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:59:11Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: Total of 1440 observations in the study design
+  claim_id: c_5ff7d3f9
+  context: 'Results - Total Observations: 1,440'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Observations: 1,440'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:00:00Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: 120 participants required for 80% power to detect medium interaction
+    effect
+  claim_id: c_743eb4d1
+  context: 'Based on the simulation results, the required sample size to achieve 80%
+    power for detecting a medium interaction effect is: N = 120 participants. This
+    target accounts for: Expected attrition rate (~10%)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Based on the simulation results, the required sample size to achieve
+    80% power for detecting a medium interaction effect is: N = 120 participants'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:07:26Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: estimated power 0.82 at sample size 120
+  claim_id: c_aa775ec2
+  context: "The power curve (see data/processed/power_curve.png) demonstrates: Power\
+    \ increases monotonically with sample size. At N=120, estimated power \u2248 0.82."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At N=120, estimated power \u2248 0.82"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:07:46Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: estimated power 0.72 at sample size 100
+  claim_id: c_22f82cba
+  context: "At N=120, estimated power \u2248 0.82. At N=100, estimated power \u2248\
+    \ 0.72. At N=150, estimated power \u2248 0.91."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At N=100, estimated power \u2248 0.72"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:08:06Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: estimated power 0.91 at sample size 150
+  claim_id: c_8a177963
+  context: "At N=100, estimated power \u2248 0.72. At N=150, estimated power \u2248\
+    \ 0.91."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At N=150, estimated power \u2248 0.91"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:08:32Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: recruit 135 participants to account for 10% attrition
+  claim_id: c_4897f4b9
+  context: 'Implications for Study Design: 1. Recruitment Target: Aim to recruit 135
+    participants to account for ~10% attrition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Aim to recruit 135 participants to account for ~10% attrition
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:08:55Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/research.md
+  attempts: 1
+  canonical: minimum 20 to 25 stimuli required to support random effects estimation
+  claim_id: c_de6df56d
+  context: 'Stimulus Set: Ensure sufficient stimuli (minimum 20-25) to support random
+    effects estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure sufficient stimuli (minimum 20-25) to support random effects estimation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:09:13Z'

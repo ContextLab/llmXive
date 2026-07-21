@@ -1,231 +1,302 @@
 """
-Power analysis for Linear Mixed-Effects Model (LMM) interaction effect.
+Power analysis for Linear Mixed-Effects Models (LMM).
 
-This script performs a simulation-based power analysis to determine the
-required sample size (number of participants) to detect a medium interaction
-effect between relationship type and cue intensity with alpha=0.05 and power=0.80.
+This module performs a simulation-based power analysis to determine the required
+sample size (N) for detecting a medium interaction effect between relationship type
+and cue intensity in a text message emotional support study.
 
-It uses the `statsmodels` library to fit LMMs and simulation to estimate power.
-The result is saved to `data/processed/power_analysis_results.json`.
+Methodology:
+- Simulates data based on a planned LMM design (Fixed effects: Relationship, CueIntensity, Interaction)
+- Random intercepts for Participant and Stimulus
+- Iteratively increases N until power >= 0.80 at alpha=0.05
 """
 
 import json
 import os
 import warnings
 from pathlib import Path
+from typing import Tuple, Dict, Any
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 from statsmodels.formula.api import mixedlm
-from scipy import stats
+
+from config import get_processed_data_dir
 
 # Suppress convergence warnings for cleaner output during simulation
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=sm.tools.sm_exceptions.ConvergenceWarning)
 
-# Configuration
-RANDOM_SEED = 42
-N_SIMULATIONS = 1000  # Number of simulation iterations
+# Simulation parameters
+N_SIMULATIONS = 100  # Number of Monte Carlo simulations per N
 ALPHA = 0.05
 TARGET_POWER = 0.80
-EFFECT_SIZE = 0.5  # Medium effect size (Cohen's f or similar standard)
+EFFECT_SIZE = 0.25  # Medium effect size (Cohen's f^2 approx)
 
-# Output path
-OUTPUT_PATH = Path("data/processed/power_analysis_results.json")
+# Design parameters
+N_STIMULI_BASE = 10  # Base number of unique stimuli
+N_CONDITIONS = 4     # 2 (Relationship: Friend/Acquaintance) x 2 (Cue: Low/High)
 
-def simulate_data(n_participants, n_stimuli_per_participant=24, effect_size=EFFECT_SIZE, seed=None):
+def simulate_data(
+    n_participants: int,
+    n_stimuli: int,
+    effect_size: float = EFFECT_SIZE,
+    seed: int = 42
+) -> pd.DataFrame:
     """
-    Simulate data for the LMM power analysis.
-
-    Model structure:
-    Rating ~ Relationship * CueIntensity + (1 | Participant) + (1 | Stimulus)
-
-    We simulate a specific interaction effect and check if the model detects it.
+    Simulate dataset for power analysis.
+    
+    Args:
+        n_participants: Number of participants (N)
+        n_stimuli: Number of unique stimuli
+        effect_size: The interaction effect size to detect
+        seed: Random seed for reproducibility
+        
+    Returns:
+        DataFrame with simulated ratings
     """
-    if seed is not None:
-        np.random.seed(seed)
-
-    # Define factors
-    relationships = ["friend", "acquaintance"]
-    # Cue intensity is a composite of emoji, punctuation, length (simplified for simulation)
-    # We'll simulate it as a continuous or ordinal factor for the power analysis
-    cue_levels = np.linspace(-1, 1, n_stimuli_per_participant // 2) # Approximate levels
-    # Actually, let's stick to the factorial design: 3 emoji x 2 punct x 2 length x 2 context = 24
-    # For power analysis, we need to simulate the specific interaction.
-    # Let's assume the interaction effect is the difference in slopes between relationships.
-
+    np.random.seed(seed)
+    
+    # Create design matrix
+    # Each participant rates all stimuli (fully crossed)
     data = []
-    for p_id in range(n_participants):
-        rel = relationships[p_id % 2] # Alternate or randomize
-        # Generate 24 stimuli per participant
-        for s_id in range(n_stimuli_per_participant):
-            # Simulate Cue Intensity (0 to 1)
-            cue_intensity = np.random.beta(2, 2) # Random distribution
-            # Simulate Relationship Effect (main effect)
-            rel_effect = 0.5 if rel == "friend" else 0.0
-            # Simulate Interaction Effect
-            # If interaction exists, the slope of cue on rating differs by relationship
-            interaction_term = effect_size * cue_intensity if rel == "friend" else 0.0
+    
+    # Generate participant IDs
+    p_ids = [f"P{str(i).zfill(3)}" for i in range(n_participants)]
+    # Generate stimulus IDs
+    s_ids = [f"S{str(i).zfill(3)}" for i in range(n_stimuli)]
+    
+    # Create full crossed design
+    for p_id in p_ids:
+        for s_id in s_ids:
+            # Randomly assign relationship context (Friend vs Acquaintance)
+            # 0: Acquaintance, 1: Friend
+            relationship = np.random.choice([0, 1])
             
-            # Random effects
-            p_random = np.random.normal(0, 0.5) # Participant random intercept
-            s_random = np.random.normal(0, 0.3) # Stimulus random intercept
+            # Randomly assign cue intensity (Low vs High)
+            # 0: Low, 1: High
+            cue_intensity = np.random.choice([0, 1])
             
-            # Residual error
-            error = np.random.normal(0, 1.0)
+            # Generate base rating (intercept ~ 3.0 on 1-5 scale)
+            rating = 3.0
             
-            # Base rating
-            base_rating = 3.0
+            # Add random noise
+            noise = np.random.normal(0, 1.0)
             
-            rating = base_rating + rel_effect + interaction_term + p_random + s_random + error
-            rating = np.clip(rating, 1, 7) # Likert scale 1-7
-
+            # Add main effects (small)
+            rating += 0.1 * relationship  # Friend slightly higher
+            rating += 0.1 * cue_intensity # High cue slightly higher
+            
+            # Add interaction effect (the target we want to detect)
+            # Interaction: High cue is much more supportive with Friends than Acquaintances
+            if relationship == 1 and cue_intensity == 1:
+                rating += effect_size * 2.0  # Boost for interaction
+            
+            # Add random intercepts for participant and stimulus
+            # (Simulating the mixed model structure)
+            p_intercept = np.random.normal(0, 0.5)
+            s_intercept = np.random.normal(0, 0.3)
+            
+            final_rating = rating + p_intercept + s_intercept + noise
+            
+            # Clip to 1-5 scale
+            final_rating = np.clip(final_rating, 1.0, 5.0)
+            
             data.append({
-                "participant_id": f"P-{p_id:04d}",
-                "stimulus_id": f"S-{s_id:04d}",
-                "relationship": rel,
+                "participant_id": p_id,
+                "stimulus_id": s_id,
+                "relationship": relationship,
                 "cue_intensity": cue_intensity,
-                "rating": rating
+                "rating": final_rating
             })
-
+    
     return pd.DataFrame(data)
 
-def run_lmm(df):
+def run_lmm(df: pd.DataFrame) -> Tuple[float, float]:
     """
-    Fit the LMM and return the p-value for the interaction term.
-    Formula: rating ~ relationship * cue_intensity + (1 | participant_id) + (1 | stimulus_id)
+    Run the LMM and return the p-value for the interaction term.
+    
+    Args:
+        df: Simulated dataset
+        
+    Returns:
+        Tuple of (p_value, converged)
     """
     try:
-        # Convert categorical variables
-        df["relationship"] = df["relationship"].astype("category")
+        # Formula: rating ~ relationship * cue_intensity + (1|participant_id) + (1|stimulus_id)
+        # Note: statsmodels mixedlm uses a slightly different syntax for random effects
+        # We use a simplified approach: random intercepts for participant and stimulus
+        
+        # Convert categorical to numeric for formula (already 0/1)
+        df['relationship'] = df['relationship'].astype(float)
+        df['cue_intensity'] = df['cue_intensity'].astype(float)
         
         # Fit model
-        # Note: statsmodels mixedlm syntax
+        # Using a simplified random effects structure:
+        # We'll use a group for participant and another for stimulus, 
+        # but statsmodels mixedlm typically handles one grouping variable.
+        # To handle crossed random effects, we might need a workaround or 
+        # use linearmodels if available. For this simulation, we'll use 
+        # a simplified single-group approach or aggregate if necessary.
+        
+        # Alternative: Use a single group for participant and treat stimulus as fixed?
+        # No, we need crossed. Let's try a workaround: 
+        # Since statsmodels mixedlm doesn't natively support crossed random effects 
+        # in the standard formula interface easily without complex grouping, 
+        # we will use a simplified model for power estimation:
+        # rating ~ relationship * cue_intensity + (1|participant_id)
+        # And assume stimulus variance is captured or negligible for this specific 
+        # power calculation approximation, OR use a fixed effect for stimulus if N_stimuli is small.
+        
+        # Given the constraints of standard statsmodels formula interface for crossed effects,
+        # we will implement a "within-subjects" style approximation where we treat 
+        # stimulus as a fixed effect if N is small, or use a simplified random effect.
+        # For robust power analysis, we simulate the specific structure.
+        
+        # Let's use a simpler approach for the simulation: 
+        # Fit a model with random intercept for participant, and fixed effects for 
+        # relationship, cue, and their interaction. 
+        # This is a conservative estimate if stimulus variance is ignored, 
+        # but sufficient for determining N if the effect is strong.
+        
         model = mixedlm(
-            "rating ~ relationship + cue_intensity + relationship:cue_intensity",
-            df,
+            "rating ~ relationship * cue_intensity", 
+            df, 
             groups=df["participant_id"]
         )
-        # Note: Random intercept for stimulus is harder to fit directly with mixedlm in one go
-        # without expanding the formula syntax or using linearmodels.
-        # For power analysis simulation, we often simplify to random intercept for participant
-        # and assume stimulus variance is captured in error or a second grouping if possible.
-        # However, to be rigorous, let's try to include stimulus random effect if possible.
-        # statsmodels mixedlm supports only one grouping variable in the standard formula.
-        # We will use a simplified model for the power analysis simulation that captures
-        # the main source of non-independence (participant) and treats stimulus as fixed or
-        # aggregated, OR we assume the stimulus random effect is small compared to participant.
-        # Given the constraints of statsmodels mixedlm, we will fit:
-        # rating ~ relationship * cue_intensity + (1 | participant_id)
-        # This is a standard approximation for power analysis in LMMs when stimulus random effects
-        # are secondary or when we are focusing on participant power.
         
-        result = model.fit(reml=False)
+        # Fit with reml=False for p-values (ML) or REML=True (standard)
+        # We use REML for variance components, but ML for fixed effects comparison sometimes.
+        # Standard practice: REML.
+        result = model.fit(reml=True)
         
         # Extract p-value for the interaction term
-        # The parameter name will be "relationship[T.friend]:cue_intensity" or similar
-        p_values = result.pvalues
-        interaction_p = None
+        # The interaction term is 'relationship:cue_intensity'
+        p_value = result.pvalues.get("relationship:cue_intensity", 1.0)
         
-        for param, p_val in p_values.items():
-            if "relationship" in param and "cue_intensity" in param:
-                interaction_p = p_val
-                break
+        return p_value, True
         
-        return interaction_p
     except Exception as e:
-        # If model fails to converge, return None (treat as non-significant for power calc)
-        return None
+        # If model fails to converge, return high p-value (fail to reject)
+        return 1.0, False
 
-def estimate_power(n_participants, n_simulations=N_SIMULATIONS, seed=RANDOM_SEED):
+def estimate_power(
+    n_participants: int,
+    n_stimuli: int,
+    n_sims: int = N_SIMULATIONS,
+    seed_base: int = 42
+) -> float:
     """
-    Estimate statistical power for a given number of participants.
+    Estimate power for a given sample size.
+    
+    Args:
+        n_participants: Number of participants
+        n_stimuli: Number of stimuli
+        n_sims: Number of simulations
+        seed_base: Base seed
+        
+    Returns:
+        Estimated power (0.0 to 1.0)
     """
     significant_count = 0
     
-    for i in range(n_simulations):
-        sim_seed = seed + i
-        df = simulate_data(n_participants, seed=sim_seed)
-        p_val = run_lmm(df)
+    for i in range(n_sims):
+        # Simulate data
+        df = simulate_data(n_participants, n_stimuli, seed=seed_base + i)
         
-        if p_val is not None and p_val < ALPHA:
+        # Run model
+        p_val, converged = run_lmm(df)
+        
+        if converged and p_val < ALPHA:
             significant_count += 1
     
-    power = significant_count / n_simulations
-    return power
+    return significant_count / n_sims
 
-def find_required_n(target_power=TARGET_POWER, start_n=10, step=5, max_n=500):
+def find_required_n(
+    n_stimuli: int = N_STIMULI_BASE,
+    min_n: int = 20,
+    max_n: int = 500,
+    step: int = 10,
+    n_sims: int = N_SIMULATIONS
+) -> Tuple[int, Dict[int, float]]:
     """
-    Perform a binary search or linear scan to find the minimum N required.
+    Find the required sample size (N) to achieve target power.
+    
+    Args:
+        n_stimuli: Number of stimuli
+        min_n: Minimum participants to test
+        max_n: Maximum participants to test
+        step: Increment step
+        n_sims: Simulations per N
+        
+    Returns:
+        Tuple of (required_n, power_curve_dict)
     """
-    current_n = start_n
-    current_power = 0.0
+    power_curve = {}
+    required_n = None
     
-    print(f"Starting power analysis search. Target power: {target_power}")
+    print(f"Starting power analysis for interaction effect (target power={TARGET_POWER})...")
+    print(f"Stimuli: {n_stimuli}, Alpha: {ALPHA}")
     
-    while current_n <= max_n:
-        power = estimate_power(current_n)
-        print(f"N={current_n}: Power={power:.3f}")
+    for n in range(min_n, max_n + 1, step):
+        power = estimate_power(n, n_stimuli, n_sims)
+        power_curve[n] = power
         
-        if power >= target_power:
-            return current_n, power
+        print(f"N={n}: Power={power:.3f}")
         
-        current_n += step
+        if power >= TARGET_POWER and required_n is None:
+            required_n = n
+            print(f"--> Target power reached at N={n}")
+            break
     
-    return max_n, estimate_power(max_n)
+    if required_n is None:
+        # If not reached, return max_n or raise warning
+        print(f"WARNING: Target power not reached within range. Max power at N={max_n} was {power_curve.get(max_n, 0):.3f}")
+        required_n = max_n
+        
+    return required_n, power_curve
 
 def main():
     """
     Main entry point for power analysis.
+    Runs the analysis and saves results to data/processed/power_analysis_results.json
     """
-    print("Running Power Analysis for LMM Interaction Effect...")
+    processed_dir = get_processed_data_dir()
+    output_path = processed_dir / "power_analysis_results.json"
     
-    # Ensure output directory exists
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # Find required N
-    # We start with a small N and increase until power >= 0.80
-    # Using a step of 10 for efficiency, then refining if needed
-    required_n, final_power = find_required_n(
-        target_power=TARGET_POWER, 
-        start_n=20, 
-        step=10, 
-        max_n=300
+    # Run analysis
+    required_n, power_curve = find_required_n(
+        n_stimuli=N_STIMULI_BASE,
+        min_n=20,
+        max_n=300,
+        step=10,
+        n_sims=50  # Reduced for speed in initial run, can be increased for final
     )
     
-    # Refine if the step was too large (optional, but good practice)
-    # If final_power is just above target, we might want to check N-10
-    if required_n > 20:
-        prev_n = required_n - 10
-        prev_power = estimate_power(prev_n)
-        if prev_power >= TARGET_POWER:
-            required_n = prev_n
-            final_power = prev_power
-    
-    result = {
-        "analysis_type": "LMM Interaction Power Analysis",
-        "method": "Simulation-based (Monte Carlo)",
-        "parameters": {
-            "alpha": ALPHA,
-            "target_power": TARGET_POWER,
-            "effect_size": EFFECT_SIZE,
-            "n_simulations": N_SIMULATIONS,
-            "random_seed": RANDOM_SEED,
-            "model_formula": "rating ~ relationship + cue_intensity + relationship:cue_intensity + (1 | participant_id)"
-        },
-        "result": {
-            "target_sample_size_n": required_n,
-            "achieved_power_at_n": final_power,
-            "description": f"Minimum number of participants required to detect a medium interaction effect (f={EFFECT_SIZE}) with {TARGET_POWER} power and alpha={ALPHA} is {required_n}."
-        }
+    # Prepare results
+    results = {
+        "target_power": TARGET_POWER,
+        "alpha": ALPHA,
+        "effect_size_assumed": EFFECT_SIZE,
+        "n_stimuli": N_STIMULI_BASE,
+        "required_participants": required_n,
+        "power_curve": {str(k): float(v) for k, v in power_curve.items()},
+        "methodology": "Monte Carlo simulation of LMM with random intercepts for Participant",
+        "timestamp": str(pd.Timestamp.now())
     }
     
-    # Write results to JSON
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(result, f, indent=2)
+    # Save to JSON
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    print(f"Power analysis complete. Required N: {required_n}")
-    print(f"Results saved to: {OUTPUT_PATH}")
+    print(f"\nPower analysis complete.")
+    print(f"Required sample size (N): {required_n} participants")
+    print(f"Results saved to: {output_path}")
+    
+    return required_n
 
 if __name__ == "__main__":
     main()

@@ -1,53 +1,58 @@
 """
-Script to initialize the data directory structure for the project.
-Creates raw, processed, and consent directories as required by T005.
+Script to create the required data directory structure.
+This implements Task T005: Create data directory structure.
 """
 import os
 from pathlib import Path
-
-# Import project root utilities from the existing config module
 from config import get_project_root
 
-
-def main():
-    """
-    Creates the required data directory structure:
-    - data/raw/
-    - data/processed/
-    - data/consent/
-    """
+def create_directories():
+    """Create the required data subdirectories: raw, processed, consent."""
     project_root = get_project_root()
     data_dir = project_root / "data"
 
-    # Define required subdirectories
-    subdirs = ["raw", "processed", "consent"]
+    # Define the required subdirectories
+    subdirs = [
+        "raw",
+        "processed",
+        "consent"
+    ]
 
-    created_dirs = []
+    created_count = 0
     for subdir_name in subdirs:
-        dir_path = data_dir / subdir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
+        subdir_path = data_dir / subdir_name
+        if not subdir_path.exists():
+            subdir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {subdir_path}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {subdir_path}")
 
-    # Create a README in the consent directory to indicate it is empty
-    # as per the project policy (no mock consent records for simulated data)
-    consent_dir = data_dir / "consent"
-    readme_path = consent_dir / ".gitkeep"
-    if not readme_path.exists():
-        with open(readme_path, "w") as f:
-            f.write(
-                "This directory is reserved for consent records.\n"
-                "Per Constitution Principle VI, no mock consent records are generated\n"
-                "for simulated studies. This directory remains empty.\n"
-            )
-        print(f"Created placeholder: {readme_path}")
+    # Create .gitkeep files to ensure directories are tracked by git
+    for subdir_name in subdirs:
+        keep_file = data_dir / subdir_name / ".gitkeep"
+        keep_file.touch(exist_ok=True)
+        print(f"Created .gitkeep in: {keep_file}")
 
-    print("Data directory structure initialization complete.")
-    return 0
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} directory(ies).")
 
+    return True
+
+def main():
+    """Entry point for the script."""
+    try:
+        success = create_directories()
+        if success:
+            print("Data directory structure setup complete.")
+        else:
+            print("Data directory structure setup failed.")
+            exit(1)
+    except Exception as e:
+        print(f"Error during setup: {e}")
+        exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()
