@@ -616,3 +616,403 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T03:41:42Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: Run sensitivity experiments for N=1, N=3, and N=5
+  claim_id: c_02448373
+  context: 'Critical: T028a-d must test exactly N=1, N=3, N=5 and output sensitivity_analysis.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T028a-d must test exactly N=1, N=3, N=5 and output sensitivity_analysis.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:07:36Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: pre-annotated subset of at least 10 traces generated with deterministic
+    labels
+  claim_id: c_5af04b36
+  context: "T015b [US1] Automated Synthetic Ground Truth Generation: Implement code/data/golden_set_generator.py\
+    \ to programmatically generate a pre-annotated subset (\u226510 traces) with deterministic\
+    \ labels based on T015's seed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-annotated_subset_of_at_least_10_traces_generated_with_de
+  kind: magnitude
+  raw_text: The system generates a pre-annotated subset of at least 10 traces with
+    deterministic labels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:17:31Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: floating-point values compared with tolerance of 1e-6
+  claim_id: c_03cca7fe
+  context: 'T011 [US1] Implement Normalization Protocol in code/classification/heuristics.py.
+    Steps: (a) Compare floating-point values with a tolerance of 1e-6, (b) Strip timestamps
+    and random IDs, (c) Canonicalize object references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system compares floating-point values with a tolerance of 1e-6 during
+    normalization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:17:45Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: pipeline halts if state reconstruction accuracy is less than 0.95
+  claim_id: c_9851e334
+  context: "T013b [US1] Gate: Execute State Reconstruction validation in code/classification/state_validator.py,\
+    \ parse the JSON output for reconstruction_accuracy, and halt pipeline if accuracy\
+    \ < 0.95 (i.e., fail to meet \u226595% threshold as per FR-009)."
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if state reconstruction accuracy is less than 0.95.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T13:17:45Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: context checkpointing intervention uses a 7B model
+  claim_id: c_1b8c0e28
+  context: 'Goal: Implement a lightweight wrapper around a 7B model to regenerate
+    and inject state summaries every N steps.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Context_checkpointing_intervention_uses_a_7B_model
+  kind: entity_fact
+  raw_text: The context checkpointing intervention uses a 7B model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:18:01Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: task runner ensures execution stays within 7GB RAM
+  claim_id: c_04c75b2f
+  context: T022 [US2] Add memory monitoring and timeout logging in code/intervention/runner.py
+    to ensure execution stays within 7GB RAM and 6h limit
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Task_runner_ensures_execution_stays_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The task runner ensures execution stays within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:18:23Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: task runner ensures execution stays within a 6-hour limit
+  claim_id: c_e21fe0c6
+  context: T022 [US2] Add memory monitoring and timeout logging in code/intervention/runner.py
+    to ensure execution stays within 7GB RAM and 6h limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task runner ensures execution stays within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:19:04Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiments run for checkpoint intervals N=1, N=3, and N=5
+  claim_id: c_c2f85bf6
+  context: T028a [US3] Run sensitivity experiment for N=1... T028b [US3] Run sensitivity
+    experiment for N=3... T028c [US3] Run sensitivity experiment for N=5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity experiments are run for checkpoint intervals N=1, N=3, and
+    N=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:19:37Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: system uses McNemar's test for statistical significance of paired binary
+    outcomes
+  claim_id: c_a60ecd3f
+  context: T026 [P] [US3] Implement McNemar's test (primary) for paired binary outcomes
+    in code/analysis/stats.py... This explicitly implements Spec FR-005, overriding
+    the Plan.md's 'Mixed-Effects Logistic Regression' to ensure compliance with the
+    Spec.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_McNemar%27s_test_for_statistical_significance_of_p
+  kind: entity_fact
+  raw_text: The system uses McNemar's test for statistical significance of paired
+    binary outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:19:48Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: 42 state persistence errors in 100 synthetic traces
+  claim_id: c_a37e0f93
+  context: 'The automated classifier identified the following distribution of failure
+    modes in the initial baseline runs: State Persistence Error 42, Proportion 0.42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The automated classifier identified 42 State Persistence Errors out of
+    100 synthetic traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:20:33Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: 38 reasoning deficits in 100 synthetic traces
+  claim_id: c_8062f06f
+  context: 'The automated classifier identified the following distribution of failure
+    modes in the initial baseline runs: Reasoning Deficit 38, Proportion 0.38.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The automated classifier identified 38 Reasoning Deficits out of 100 synthetic
+    traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:20:36Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: baseline pass rate 0.42 for synthetic ALE dataset
+  claim_id: c_1c7c85a3
+  context: 'The following table summarizes the pass rates across different checkpoint
+    intervals: Baseline (N=0) Pass Rate 0.42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline pass rate for the synthetic ALE dataset was 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:08Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: pass rate 0.64 for checkpoint interval N=3
+  claim_id: c_b9af26c6
+  context: 'The following table summarizes the pass rates across different checkpoint
+    intervals: N=3 Pass Rate 0.64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The checkpoint interval N=3 resulted in a pass rate of 0.64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:16Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: pass rate 0.58 for checkpoint interval N=1
+  claim_id: c_7a2ec150
+  context: 'The following table summarizes the pass rates across different checkpoint
+    intervals: N=1 Pass Rate 0.58.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The checkpoint interval N=1 resulted in a pass rate of 0.58.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:21Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: pass rate 0.55 for checkpoint interval N=5
+  claim_id: c_9f37564a
+  context: 'The following table summarizes the pass rates across different checkpoint
+    intervals: N=5 Pass Rate 0.55.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The checkpoint interval N=5 resulted in a pass rate of 0.55.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:28Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: McNemar's Chi-Square 12.45 for baseline vs N=3 intervention
+  claim_id: c_4640841a
+  context: We compared the Baseline (N=0) against the optimal Intervention (N=3).
+    McNemar's Chi-Square 12.45.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's Chi-Square value was 12.45 when comparing baseline to the N=3
+    intervention.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:34Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: p-value 0.0004 for baseline vs N=3 intervention
+  claim_id: c_7ffcfaa6
+  context: We compared the Baseline (N=0) against the optimal Intervention (N=3).
+    p-value 0.0004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the comparison between baseline and N=3 intervention was
+    0.0004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:36Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/docs/report.md
+  attempts: 1
+  canonical: state reconstruction validator accuracy >95%
+  claim_id: c_75fe95ac
+  context: A state reconstruction validator (T013) confirmed >95% accuracy against
+    the golden subset before classification proceeded.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/state_reconstruction_validator_accuracy_%3E95%25
+  kind: magnitude
+  raw_text: The state reconstruction validator confirmed greater than 95% accuracy
+    against the golden subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:21:38Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: floating-point comparison tolerance is 1e-6
+  claim_id: c_e79802a3
+  context: 'T011 [US1] Implement Normalization Protocol in `code/classification/heuristics.py`.
+    Steps: (a) Compare floating-point values with a tolerance of 1e-6, (b) Strip timestamps
+    and random IDs, (c) Canonicalize object references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare floating-point values with a tolerance of 1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:29:22Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: execution memory limit is 7GB and time limit is 6 hours
+  claim_id: c_682cfef2
+  context: T022 [US2] Add memory monitoring and timeout logging in `code/intervention/runner.py`
+    to ensure execution stays within 7GB RAM and 6h limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure execution stays within 7GB RAM and 6h limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:29:39Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiment run for checkpoint interval 1
+  claim_id: c_74e6c592
+  context: T028a [US3] Run sensitivity experiment for N=1. Invoke the intervention
+    runner logic from T023 with `checkpoint_interval=1`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity experiment for N=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:30:20Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiment run for checkpoint interval 3
+  claim_id: c_dab4e564
+  context: T028b [US3] Run sensitivity experiment for N=3. Invoke the intervention
+    runner logic from T023 with `checkpoint_interval=3`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity experiment for N=3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:30:20Z'
+- artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  attempts: 1
+  canonical: sensitivity experiment run for checkpoint interval 5
+  claim_id: c_c78b8684
+  context: T028c [US3] Run sensitivity experiment for N=5. Invoke the intervention
+    runner logic from T023 with `checkpoint_interval=5`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sensitivity experiment for N=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T13:30:21Z'

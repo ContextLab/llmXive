@@ -17,35 +17,15 @@ T031:
     \ without seeing the actual documentation files, we cannot confirm that the required\
     \ documentation updates exist. The implementer must supply the updated docs (e.g.,\
     \ a non\u2011empty `docs/quickstart.md` reflecting the new feature)."
-T031#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `docs/` directory or an updated `quickstart.md` file was provided;\
-    \ without seeing the actual documentation files, we cannot confirm that the required\
-    \ documentation updates exist. The implementer must supply the updated docs (e.g.,\
-    \ a non\u2011empty `docs/quickstart.md` reflecting the new feature)."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `tests/unit/` directory or any unit test files were provided; the only evidence
     is a feature specification and narrative, not actual test code. The required additional
     unit tests are missing, so the task is not satisfied.
-T034#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or test files were provided; the implementer supplied
-    only a feature specification without any actual unit test code, so the required
-    additional unit tests are missing.
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No validation output, logs, or report for running the `quickstart.md` validation
     were provided; the claim lacks any artifact demonstrating that the quickstart
     documentation was successfully validated. The required evidence is missing.
-T035#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a quickstart.md validation run was provided\u2014there is no\
-    \ log, report, or output file showing that the quickstart documentation was parsed,\
-    \ checked for correctness, or any errors were identified. Consequently the required\
-    \ artifact is missing."

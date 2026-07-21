@@ -1,0 +1,16 @@
+status: none
+intent: download agent execution trace logs with failure mode labels python package
+  dataset
+required_fields:
+- trace_id
+- step_number
+- raw_log
+- environment_state_snapshot
+- agent_action
+- claimed_context
+- failure_type_label
+- timestamp
+- normalized_state_representation
+cache_key: 8f66f2fbfcb086853829568ffe60a6521af09d906f4e55132b227f1891e89c01
+searched_at: '2026-07-21T13:00:21.179880+00:00'
+retry_count: 1

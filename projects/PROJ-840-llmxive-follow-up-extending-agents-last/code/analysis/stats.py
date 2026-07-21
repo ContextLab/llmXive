@@ -5,277 +5,161 @@ from scipy.stats import chi2
 import json
 import os
 
-def mcnemar_test(baseline_results: List[bool], intervention_results: List[bool]) -> Dict[str, Any]:
+def load_json_file(path: str) -> List[Dict[str, Any]]:
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def calculate_pass_rates(baseline_results: List[Dict[str, Any]], intervention_results: List[Dict[str, Any]]) -> Tuple[float, float]:
     """
-    Perform McNemar's test on paired binary outcomes.
+    Calculates pass rates for baseline and intervention.
+    """
+    baseline_pass = sum(1 for r in baseline_results if r.get('pass', False))
+    baseline_total = len(baseline_results)
+    baseline_rate = baseline_pass / baseline_total if baseline_total > 0 else 0.0
     
-    Args:
-        baseline_results: List of boolean outcomes (True=Pass, False=Fail) for baseline.
-        intervention_results: List of boolean outcomes (True=Pass, False=Fail) for intervention.
+    intervention_pass = sum(1 for r in intervention_results if r.get('pass', False))
+    intervention_total = len(intervention_results)
+    intervention_rate = intervention_pass / intervention_total if intervention_total > 0 else 0.0
+    
+    return baseline_rate, intervention_rate
+
+def verify_strict_pairing(baseline_results: List[Dict[str, Any]], intervention_results: List[Dict[str, Any]]) -> bool:
+    """
+    Verifies that baseline and intervention results are strictly paired.
+    """
+    baseline_ids = set(r['task_id'] for r in baseline_results)
+    intervention_ids = set(r['task_id'] for r in intervention_results)
+    
+    return baseline_ids == intervention_ids
+
+def mcnemar_test(baseline_results: List[Dict[str, Any]], intervention_results: List[Dict[str, Any]]) -> Tuple[float, float]:
+    """
+    Performs McNemar's test on paired binary outcomes.
+    Returns (chi2_statistic, p_value)
+    """
+    # Create contingency table
+    # a: baseline pass, intervention pass
+    # b: baseline pass, intervention fail
+    # c: baseline fail, intervention pass
+    # d: baseline fail, intervention fail
+    
+    a = b = c = d = 0
+    
+    baseline_map = {r['task_id']: r['pass'] for r in baseline_results}
+    intervention_map = {r['task_id']: r['pass'] for r in intervention_results}
+    
+    for task_id in baseline_map:
+        baseline_pass = baseline_map[task_id]
+        intervention_pass = intervention_map[task_id]
         
-    Returns:
-        Dictionary containing test statistic, p-value, and contingency counts.
+        if baseline_pass and intervention_pass:
+            a += 1
+        elif baseline_pass and not intervention_pass:
+            b += 1
+        elif not baseline_pass and intervention_pass:
+            c += 1
+        else:
+            d += 1
+    
+    # McNemar's test statistic: (|b - c| - 1)^2 / (b + c) with continuity correction
+    if b + c == 0:
+        return 0.0, 1.0
+    
+    chi2_stat = (abs(b - c) - 1) ** 2 / (b + c)
+    p_value = 1 - chi2.cdf(chi2_stat, 1)
+    
+    return chi2_stat, p_value
+
+def mcnemar_asymptotic(baseline_results: List[Dict[str, Any]], intervention_results: List[Dict[str, Any]]) -> Tuple[float, float]:
     """
-    if len(baseline_results) != len(intervention_results):
-        raise ValueError("Baseline and intervention results must have the same length.")
+    Asymptotic version of McNemar's test.
+    """
+    return mcnemar_test(baseline_results, intervention_results)
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+    """
+    Applies Bonferroni correction to p-values.
+    """
+    n = len(p_values)
+    corrected = [min(p * n, 1.0) for p in p_values]
+    return corrected
+
+def fdr_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+    """
+    Applies Benjamini-Hochberg FDR correction to p-values.
+    """
+    n = len(p_values)
+    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
+    corrected = [0.0] * n
     
-    n = len(baseline_results)
-    # Contingency table counts
-    # n_11: Both pass, n_00: Both fail
-    # n_10: Baseline pass, Intervention fail
-    # n_01: Baseline fail, Intervention pass
+    for i in sorted_indices:
+        rank = sorted_indices.index(i) + 1
+        corrected[i] = min(p_values[i] * n / rank, 1.0)
     
-    n_11 = sum(1 for b, i in zip(baseline_results, intervention_results) if b and i)
-    n_00 = sum(1 for b, i in zip(baseline_results, intervention_results) if not b and not i)
-    n_10 = sum(1 for b, i in zip(baseline_results, intervention_results) if b and not i)
-    n_01 = sum(1 for b, i in zip(baseline_results, intervention_results) if not b and i)
-    
-    # McNemar's test statistic (chi-squared with continuity correction)
-    # chi2 = (|n_01 - n_10| - 1)^2 / (n_01 + n_10)
-    if (n_01 + n_10) == 0:
-        statistic = 0.0
-        p_value = 1.0
+    return corrected
+
+def apply_multiple_comparison_correction(p_values: List[float], method: str = 'bonferroni', alpha: float = 0.05) -> List[float]:
+    """
+    Applies multiple comparison correction based on the specified method.
+    """
+    if method == 'bonferroni':
+        return bonferroni_correction(p_values, alpha)
+    elif method == 'fdr':
+        return fdr_correction(p_values, alpha)
     else:
-        statistic = (abs(n_01 - n_10) - 1)**2 / (n_01 + n_10)
-        p_value = 1 - chi2.cdf(statistic, 1)
-        
-    return {
-        "statistic": float(statistic),
-        "p_value": float(p_value),
-        "n_11": n_11,
-        "n_00": n_00,
-        "n_10": n_10,
-        "n_01": n_01,
-        "total_pairs": n
-    }
+        return p_values
 
-def mcnemar_asymptotic(baseline_results: List[bool], intervention_results: List[bool]) -> Dict[str, Any]:
+def run_analysis(baseline_path: str, intervention_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Perform McNemar's test without continuity correction (asymptotic).
-    
-    Args:
-        baseline_results: List of boolean outcomes.
-        intervention_results: List of boolean outcomes.
-        
-    Returns:
-        Dictionary containing test statistic and p-value.
+    Runs the full statistical analysis and generates the report.
     """
-    if len(baseline_results) != len(intervention_results):
-        raise ValueError("Baseline and intervention results must have the same length.")
-        
-    n_10 = sum(1 for b, i in zip(baseline_results, intervention_results) if b and not i)
-    n_01 = sum(1 for b, i in zip(baseline_results, intervention_results) if not b and i)
+    baseline_results = load_json_file(baseline_path)
+    intervention_results = load_json_file(intervention_path)
     
-    if (n_01 + n_10) == 0:
-        statistic = 0.0
-        p_value = 1.0
-    else:
-        # Asymptotic version: chi2 = (n_01 - n_10)^2 / (n_01 + n_10)
-        statistic = (n_01 - n_10)**2 / (n_01 + n_10)
-        p_value = 1 - chi2.cdf(statistic, 1)
-        
-    return {
-        "statistic": float(statistic),
-        "p_value": float(p_value),
-        "n_10": n_10,
-        "n_01": n_01
-    }
-
-def calculate_pass_rates(results: List[bool]) -> Dict[str, float]:
-    """
-    Calculate the pass rate from a list of boolean outcomes.
+    # Verify strict pairing
+    if not verify_strict_pairing(baseline_results, intervention_results):
+        raise ValueError("Baseline and intervention results are not strictly paired")
     
-    Args:
-        results: List of boolean outcomes.
-        
-    Returns:
-        Dictionary with 'pass_rate' and 'total_count'.
-    """
-    if not results:
-        return {"pass_rate": 0.0, "total_count": 0}
+    baseline_rate, intervention_rate = calculate_pass_rates(baseline_results, intervention_results)
+    chi2_stat, p_value = mcnemar_test(baseline_results, intervention_results)
     
-    passes = sum(1 for r in results if r)
-    total = len(results)
-    return {
-        "pass_rate": float(passes) / float(total),
-        "total_count": total
-    }
-
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Apply Bonferroni correction to a list of p-values.
-    
-    Args:
-        p_values: List of raw p-values.
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        Dictionary containing corrected p-values and boolean significance flags.
-    """
-    n_tests = len(p_values)
-    if n_tests == 0:
-        return {
-            "corrected_p_values": [],
-            "significant": [],
-            "alpha": alpha,
-            "n_tests": 0
-        }
-        
-    corrected_p_values = [min(p * n_tests, 1.0) for p in p_values]
-    significant = [p < alpha for p in corrected_p_values]
-    
-    return {
-        "corrected_p_values": corrected_p_values,
-        "significant": significant,
-        "alpha": alpha,
-        "n_tests": n_tests
-    }
-
-def fdr_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Apply Benjamini-Hochberg False Discovery Rate (FDR) correction.
-    
-    Args:
-        p_values: List of raw p-values.
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        Dictionary containing corrected p-values and boolean significance flags.
-    """
-    n_tests = len(p_values)
-    if n_tests == 0:
-        return {
-            "corrected_p_values": [],
-            "significant": [],
-            "alpha": alpha,
-            "n_tests": 0
-        }
-        
-    # Sort p-values and track original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = [p_values[i] for i in sorted_indices]
-    
-    # Calculate BH critical values
-    # q_i = (i / m) * alpha
-    # Corrected p-value = min(p_j * m / j for j >= i)
-    
-    corrected_sorted = []
-    running_min = 1.0
-    
-    # Iterate backwards to ensure monotonicity
-    for i in range(n_tests - 1, -1, -1):
-        rank = i + 1
-        raw_p = sorted_p_values[i]
-        critical_value = (rank / n_tests) * alpha
-        
-        # BH adjusted p-value calculation
-        # p_adj = min(p_j * m / j for j >= i)
-        # But we can compute it incrementally backwards
-        adj_p = min(running_min, raw_p * n_tests / rank)
-        running_min = adj_p
-        corrected_sorted.append(adj_p)
-        
-    corrected_sorted.reverse()
-    
-    # Map back to original order
-    corrected_p_values = [0.0] * n_tests
-    for i, idx in enumerate(sorted_indices):
-        corrected_p_values[idx] = corrected_sorted[i]
-        
-    significant = [p < alpha for p in corrected_p_values]
-    
-    return {
-        "corrected_p_values": corrected_p_values,
-        "significant": significant,
-        "alpha": alpha,
-        "n_tests": n_tests
-    }
-
-def run_analysis(baseline_file: str, intervention_file: str, output_file: str, 
-                 correction_method: str = "bonferroni", alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Run full statistical analysis including McNemar's test and multiple comparison correction.
-    
-    Args:
-        baseline_file: Path to JSON file containing baseline results.
-        intervention_file: Path to JSON file containing intervention results.
-        output_file: Path to write the analysis report.
-        correction_method: 'bonferroni' or 'fdr'.
-        alpha: Significance level.
-        
-    Returns:
-        Dictionary containing the full analysis results.
-    """
-    # Load data
-    with open(baseline_file, 'r') as f:
-        baseline_data = json.load(f)
-    with open(intervention_file, 'r') as f:
-        intervention_data = json.load(f)
-        
-    # Extract outcomes (assuming 'outcomes' key with boolean values)
-    baseline_outcomes = baseline_data.get('outcomes', [])
-    intervention_outcomes = intervention_data.get('outcomes', [])
-    
-    if len(baseline_outcomes) != len(intervention_outcomes):
-        raise ValueError(f"Outcome counts mismatch: {len(baseline_outcomes)} vs {len(intervention_outcomes)}")
-    
-    # Run McNemar's test
-    mcnemar_result = mcnemar_test(baseline_outcomes, intervention_outcomes)
-    
-    # Calculate pass rates
-    baseline_rates = calculate_pass_rates(baseline_outcomes)
-    intervention_rates = calculate_pass_rates(intervention_outcomes)
-    
-    # Prepare p-values for correction (in this case, we have one test, but the structure supports multiple)
-    p_values = [mcnemar_result['p_value']]
-    
-    # Apply correction
-    if correction_method.lower() == "bonferroni":
-        correction_result = bonferroni_correction(p_values, alpha)
-    elif correction_method.lower() == "fdr":
-        correction_result = fdr_correction(p_values, alpha)
-    else:
-        raise ValueError(f"Unknown correction method: {correction_method}")
-    
-    # Compile report
     report = {
-        "mcnemar_test": mcnemar_result,
-        "baseline_pass_rate": baseline_rates,
-        "intervention_pass_rate": intervention_rates,
-        "correction_method": correction_method,
-        "alpha": alpha,
-        "correction_result": correction_result,
-        "conclusion": "Significant improvement" if correction_result['significant'][0] else "No significant improvement"
+        "baseline_pass_rate": baseline_rate,
+        "intervention_pass_rate": intervention_rate,
+        "mcnemar_chi2": chi2_stat,
+        "mcnemar_p_value": p_value,
+        "significant": p_value < 0.05
     }
     
-    # Write output
-    os.makedirs(os.path.dirname(output_file) if os.path.dirname(output_file) else '.', exist_ok=True)
-    with open(output_file, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-        
+    
     return report
 
 def main():
-    """Main entry point for CLI execution."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Statistical Analysis for ALE Intervention")
-    parser.add_argument("--baseline", type=str, required=True, help="Path to baseline results JSON")
-    parser.add_argument("--intervention", type=str, required=True, help="Path to intervention results JSON")
-    parser.add_argument("--output", type=str, required=True, help="Path to output report JSON")
-    parser.add_argument("--method", type=str, default="bonferroni", choices=["bonferroni", "fdr"], 
-                        help="Multiple comparison correction method")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
+    parser = argparse.ArgumentParser(description="Run statistical analysis on baseline and intervention results")
+    parser.add_argument("--baseline", type=str, default="data/processed/baseline_results.json", help="Baseline results JSON")
+    parser.add_argument("--intervention", type=str, default="data/processed/intervention_results.json", help="Intervention results JSON")
+    parser.add_argument("--output", type=str, default="data/processed/stats_report.json", help="Output stats report JSON")
     
     args = parser.parse_args()
     
-    try:
-        result = run_analysis(args.baseline, args.intervention, args.output, args.method, args.alpha)
-        print(f"Analysis complete. Report saved to {args.output}")
-        print(f"Conclusion: {result['conclusion']} (p={result['mcnemar_test']['p_value']:.4f}, corrected p={result['correction_result']['corrected_p_values'][0]:.4f})")
-    except Exception as e:
-        print(f"Error during analysis: {e}")
-        raise
+    if not os.path.exists(args.baseline):
+        print(f"Error: Baseline file not found: {args.baseline}")
+        sys.exit(1)
+    
+    if not os.path.exists(args.intervention):
+        print(f"Error: Intervention file not found: {args.intervention}")
+        sys.exit(1)
+    
+    report = run_analysis(args.baseline, args.intervention, args.output)
+    print(f"Analysis complete. Report saved to {args.output}")
+    print(f"Baseline pass rate: {report['baseline_pass_rate']:.4f}")
+    print(f"Intervention pass rate: {report['intervention_pass_rate']:.4f}")
+    print(f"McNemar p-value: {report['mcnemar_p_value']:.4f}")
+    print(f"Significant: {report['significant']}")
 
 if __name__ == "__main__":
     main()
