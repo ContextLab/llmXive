@@ -15,29 +15,35 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pyyaml",
-    "scipy"
+    "scipy",
 ]
 
-[tool.setuptools]
-packages = ["code", "code.utils", "tests"]
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "black>=23.0",
+]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501"] # Let black handle line length
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
 ]

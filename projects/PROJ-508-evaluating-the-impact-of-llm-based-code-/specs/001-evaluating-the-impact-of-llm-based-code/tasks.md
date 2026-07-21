@@ -47,12 +47,12 @@
 
 - [X] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->
  - **FR-008 Text**: "The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit message contains 'fix', 'hotfix', or 'patch'."
- - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types. [UNRESOLVED-CLAIM: c_9aaf648a — status=not_enough_info]"
+ - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types. "
  - **Rationale**: Authorizes the 'Signal Separation' analysis (Phase 7) to address Feynman's concern.
 
 - [X] T005 [US3] **Spec Update**: Update `spec.md` to add **FR-009** and **SC-009**.
  - **FR-009 Text**: "The final report MUST include a 'Theoretical Grounding' section citing Holland et al. on distributed cognition and a 'Data Gap' section explicitly stating the unavailability of self-report scales (e.g., NASA-TLX)."
- - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' [UNRESOLVED-CLAIM: c_ca959e0f — status=not_enough_info] "
+ - **SC-009 Text**: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' "
  - **Rationale**: Authorizes specific report content (Phase 5) not previously in the spec.
 
 - [X] T006 [US2] **Spec Update**: Update `spec.md` **FR-003** to replace "linear regression analysis" with "Mixed-Effects Models (GLMM) with random intercepts for repositories; Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes."
@@ -81,11 +81,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 Initialize Python 3.11 project with `requirements.txt` dependencies: `pandas`, `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`
+- [X] T011 Initialize Python 3.11 project with `requirements.txt` dependencies: `pandas`, `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`
 - [ ] T012 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T013 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
-- [ ] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
-- [ ] T015 Create `code/utils/config.py` for environment variables and API key handling
+- [X] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
+- [X] T015 Create `code/utils/config.py` for environment variables and API key handling
 - [ ] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
 - [X] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
 
@@ -117,11 +117,11 @@
 - [X] T023 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-UPDATED]**:
  - **Logic**: Count TOTAL push events between PR open and merge (NO exclusions).
  - **Rationale**: Per updated `spec.md` FR-002 (Task T007).
-- [~] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
-- [~] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
+- [ ] T024 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
+- [ ] T025 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
 - [X] T026 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis
-- [~] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
-- [ ] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
+- [ ] T027 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
+- [X] T028 [US1] Generate `data/derived/master_dataset.csv` with all required columns
 - [ ] T029 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -142,7 +142,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T033 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
+- [X] T033 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
 - [~] T034 [US2] Implement Mixed-Effects Models (GLMM) with random intercepts for repositories **[FR-003-UPDATED]**:
  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and plan.md "Critical Methodological Update".
 - [~] T035 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[FR-003-UPDATED]**:

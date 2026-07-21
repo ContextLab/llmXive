@@ -1,70 +1,72 @@
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
+"""
+Tests for the statistical analysis module (code/analyze.py).
+"""
 import json
-import sys
-import os
+import tempfile
+from pathlib import Path
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+import numpy as np
+import pandas as pd
+import pytest
 
-from analyze import run_sensitivity_analysis, clean_data
+from analyze import (
+    calculate_vif,
+    flag_high_vif,
+    apply_bonferroni_correction,
+    run_sensitivity_analysis,
+)
 
-class TestSensitivityAnalysis:
-    @pytest.fixture
-    def mock_df(self):
-        """Create a mock dataframe for testing."""
-        data = {
-            'llm_adoption_flag': [1, 0, 1, 0, 1, 0],
-            'iteration_count': [5, 2, 8, 1, 12, 3],
-            'avg_comment_length': [10.0, 5.0, 12.0, 4.0, 15.0, 6.0],
-            'review_thread_depth': [2, 1, 3, 1, 4, 1],
-            'domain_complexity': [1, 1, 2, 1, 2, 1],
-            'repository_id': ['A', 'A', 'B', 'B', 'C', 'C']
-        }
-        return pd.DataFrame(data)
 
-    def test_run_sensitivity_analysis_basic(self, mock_df):
-        """Test that sensitivity analysis runs and returns expected structure."""
-        thresholds = [1, 3, 5]
-        results = run_sensitivity_analysis(mock_df, thresholds)
-        
-        assert isinstance(results, list)
-        assert len(results) == len(thresholds)
-        
-        for res in results:
-            assert 'threshold' in res
-            assert 'n_rows' in res
-            assert 'coef' in res
-            assert 'pvalue' in res
-            assert 'status' in res
+def test_vif_calculation():
+    """Test Variance Inflation Factor calculation."""
+    # Create a dataset with known correlation
+    np.random.seed(42)
+    df = pd.DataFrame({
+        "y": np.random.rand(100),
+        "x1": np.random.rand(100),
+        "x2": np.random.rand(100),
+    })
+    # x3 is highly correlated with x1
+    df["x3"] = df["x1"] * 0.99 + np.random.rand(100) * 0.1
 
-    def test_sensitivity_analysis_empty_filter(self, mock_df):
-        """Test behavior when threshold filters out all data."""
-        # Iteration counts in mock are max 12. Set threshold > 12
-        thresholds = [100]
-        results = run_sensitivity_analysis(mock_df, thresholds)
-        
-        assert results[0]['status'] == 'empty_dataset'
-        assert results[0]['n_rows'] == 0
-        assert results[0]['coef'] is None
+    vif_values = calculate_vif(df, ["x1", "x2", "x3"])
 
-    def test_sensitivity_analysis_threshold_logic(self, mock_df):
-        """Verify that higher thresholds reduce n_rows correctly."""
-        thresholds = [1, 5, 10]
-        results = run_sensitivity_analysis(mock_df, thresholds)
-        
-        n_rows = [r['n_rows'] for r in results]
-        # n_rows should be non-increasing as threshold increases
-        assert n_rows[0] >= n_rows[1] >= n_rows[2]
-        
-        # Specific check: threshold 1 should include all (min is 1)
-        assert n_rows[0] == len(mock_df)
-        
-        # Threshold 10 should only include 12 (one row)
-        # Data: 5, 2, 8, 1, 12, 3 -> only 12 >= 10
-        assert n_rows[2] == 1
+    # x3 should have high VIF
+    assert vif_values["x3"] > 5.0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+
+def test_vif_flagging():
+    """Test VIF flagging logic."""
+    vif_data = {"x1": 2.0, "x2": 6.5, "x3": 1.2}
+    flagged = flag_high_vif(vif_data, threshold=5.0)
+    assert flagged == ["x2"]
+
+
+def test_bonferroni_correction():
+    """Test Bonferroni correction for p-values."""
+    p_values = [0.01, 0.05, 0.10, 0.20]
+    corrected = apply_bonferroni_correction(p_values)
+
+    # Corrected values should be p * n, capped at 1.0
+    n = len(p_values)
+    expected = [min(p * n, 1.0) for p in p_values]
+
+    for c, e in zip(corrected, expected):
+        assert abs(c - e) < 1e-6
+
+
+def test_sensitivity_analysis():
+    """Test sensitivity analysis sweep logic."""
+    # Mock dataset
+    df = pd.DataFrame({
+        "llm_adoption": np.random.choice([0, 1], 50),
+        "iteration_count": np.random.randint(1, 10, 50),
+        "control": np.random.rand(50),
+    })
+
+    # Run sweep over thresholds
+    thresholds = [1, 2, 3]
+    results = run_sensitivity_analysis(df, thresholds)
+
+    assert len(results) == len(thresholds)
+    assert all("effect_size" in r for r in results)

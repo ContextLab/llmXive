@@ -1,0 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`code/src/generators`, `code/src/estimators`,
+    `code/src/metrics`, `code/src/viz`, `code/tests/unit`, `code/tests/integration`,
+    `data/`, `results/`, `contracts/`, `config/`) is provided; the implementer did
+    not supply any file or folder listings confirming the structure exists. The task
+    remains unfinished until the full project layout is present.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.flake8`,
+    `ruff.toml`, or a `pre-commit` hook) or any evidence that ruff/flake8 and black
+    have been set up in the repository is present. The required artifacts to satisfy
+    task T003 are missing.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test output was provided that implements the required validation\
+    \ logic (the MCAR p\u2011value check and the MAR/MNAR p\u2011value checks) or\
+    \ demonstrates the \u201CFAIL simulation\u201D behavior and mapping to US\u2011\
+    1 acceptance scenarios. Without an actual artifact (e.g., a Python module, function,\
+    \ or test results) the claim cannot be verified. The missing implementation must\
+    \ be added and evidence (e.g., source file and example run showing the correct\
+    \ p\u2011value thresholds) supplied."

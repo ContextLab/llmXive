@@ -102,6 +102,8 @@ def run_pilot():
         }
         
         # Save metrics to pilot_log.json (T007 requirement)
+        # Ensure parent directory exists before writing
+        PILOT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(PILOT_LOG_PATH, "w") as f:
             json.dump(metrics, f, indent=2)
         
@@ -123,6 +125,8 @@ def run_pilot():
             "timestamp": datetime.now().isoformat()
         }
         
+        # Ensure parent directory exists before writing
+        PILOT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(PILOT_LOG_PATH, "w") as f:
             json.dump(metrics, f, indent=2)
         

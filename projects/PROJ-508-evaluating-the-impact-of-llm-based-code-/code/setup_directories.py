@@ -3,30 +3,40 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required directory structure for the project.
-    Specifically implements T010: Create docs/output directory.
-    Also ensures raw and derived data directories exist if they don't already.
+    Creates all necessary directories for the project structure.
+    This function ensures that the docs/output directory exists as required by T010.
     """
-    base_path = Path("projects/PROJ-508-evaluating-the-impact-of-llm-based-code-")
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Directories to create
+    # Define all required directories
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "derived",
-        base_path / "docs" / "output",
+        "data/raw",
+        "data/derived",
+        "docs/output",
+        "tests",
+        "code/utils",
+        "specs/001-evaluating-the-impact-of-llm-based-code"
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
+    created = []
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
         else:
-            print(f"Directory already exists: {directory}")
+            # Ensure it is a directory, not a file
+            if not full_path.is_dir():
+                raise ValueError(f"Path exists but is not a directory: {full_path}")
     
-    return created_count
+    return created
 
 if __name__ == "__main__":
-    count = create_directories()
-    print(f"Total directories created: {count}")
+    new_dirs = create_directories()
+    print(f"Directories created/verified: {new_dirs}")
+    # Explicitly verify T010 requirement
+    t010_path = Path(__file__).resolve().parent.parent / "docs" / "output"
+    if t010_path.exists() and t010_path.is_dir():
+        print(f"SUCCESS: T010 directory exists: {t010_path}")
+    else:
+        raise RuntimeError(f"FAILED: T010 directory missing: {t010_path}")

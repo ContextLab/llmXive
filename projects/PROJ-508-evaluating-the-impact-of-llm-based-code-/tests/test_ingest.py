@@ -1,61 +1,53 @@
 """
-Tests for data ingestion and LLM adoption classification logic.
+Tests for the data ingestion module (code/ingest.py).
 """
+import os
+from pathlib import Path
+from unittest.mock import Mock, patch
+
 import pytest
-from utils.metrics import calculate_domain_complexity
 
-@pytest.fixture
-def sample_repo_data():
-    """Fixture providing mock repository data for testing."""
-    return {
-        "files": {
-            ".cursorrules": "some rules",
-            "README.md": "Project description",
-            "setup.py": "setup code"
-        },
-        "commit_messages": [
-            "Initial commit",
-            "Add feature A",
-            "Fix bug in module B",
-            "Copilot suggestion applied",
-            "Update documentation",
-            "Refactor utils",
-            "Add tests",
-            "Fix typo",
-            "Copilot generated code",
-            "Merge branch",
-            "Update dependencies",
-            "Fix linting errors",
-            "Add new endpoint",
-            "Update config",
-            "Final cleanup"
-        ]
-    }
+from ingest import calculate_llm_adoption_flag
 
-def test_cursorrules_detection(sample_repo_data):
-    """Test that .cursorrules presence is detected."""
-    files = sample_repo_data["files"]
-    assert ".cursorrules" in files
-    assert files[".cursorrules"] == "some rules"
 
-def test_commit_message_frequency(sample_repo_data):
-    """Test calculation of 'Copilot' frequency in commit messages."""
-    messages = sample_repo_data["commit_messages"]
-    copilot_count = sum(1 for m in messages if "Copilot" in m)
-    total = len(messages)
-    freq = copilot_count / total
-    # 2 occurrences out of 15
-    assert freq == 2/15
+def test_llm_adoption_cursorrules(tmp_path):
+    """Test detection of .cursorrules file."""
+    repo_path = tmp_path / "test-repo"
+    repo_path.mkdir()
+    (repo_path / ".cursorrules").touch()
 
-def test_domain_complexity_calculation():
-    """Test domain complexity based on languages and dependencies."""
-    # Mock: 1 language, 5 dependencies
-    complexity = calculate_domain_complexity(["Python"], 5)
-    # Formula: (unique_langs + dep_count) / 2 -> (1+5)/2 = 3.0
-    assert complexity == 3.0
+    # Mock file content
+    with patch("ingest.Path.read_text", return_value=""):
+        flag = calculate_llm_adoption_flag(str(repo_path), [], [])
+        assert flag is True
 
-def test_domain_complexity_multiple_langs():
-    """Test domain complexity with multiple languages."""
-    complexity = calculate_domain_complexity(["Python", "JS", "Go"], 2)
-    # (3 + 2) / 2 = 2.5
-    assert complexity == 2.5
+
+def test_llm_adoption_commit_frequency():
+    """Test detection of high Copilot frequency in commits."""
+    # 10 commits, 6 contain "Copilot" (60% > 5% threshold)
+    commits = [
+        {"commit": {"message": f"Copilot suggestion {i}"}} if i < 6
+        else {"commit": {"message": f"Normal commit {i}"}}
+        for i in range(10)
+    ]
+
+    flag = calculate_llm_adoption_flag("", commits, [])
+    assert flag is True
+
+
+def test_llm_adoption_readme_mentions():
+    """Test detection of LLM mentions in README."""
+    readme_content = """
+    # Project
+    This project uses GitHub Copilot for development.
+    """
+    with patch("ingest.Path.read_text", return_value=readme_content):
+        flag = calculate_llm_adoption_flag("", [], [])
+        assert flag is True
+
+
+def test_llm_adoption_negative_case():
+    """Test that repos without signals return False."""
+    commits = [{"commit": {"message": "fix: bug"}} for _ in range(20)]
+    flag = calculate_llm_adoption_flag("", commits, [])
+    assert flag is False

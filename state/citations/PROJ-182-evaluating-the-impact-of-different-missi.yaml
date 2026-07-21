@@ -1,4 +1,4 @@
-- artifact_hash: d11b96b3f3c3f6b2eeebc71980946dec5ce81ea9b3070148a4fbd5c022807d26
+- artifact_hash: 8bdfe78039b5d3674999707ebd47838e74a38bdb4533d2a4439b6ebf6ede325e
   artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: Tor tambroides - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/Tor_tambroides
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Tor_tambroides
-  verified_at: '2026-07-01T13:15:11.418414Z'
+  verified_at: '2026-07-21T05:04:51.410366Z'

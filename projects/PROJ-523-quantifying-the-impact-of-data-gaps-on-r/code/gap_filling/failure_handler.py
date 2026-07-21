@@ -1,47 +1,39 @@
 """
-Convergence failure handling module for gap-filling algorithms.
+Failure Handler Module for Gap Filling Analysis.
 
-Implements FR-008: Add convergence failure handling: log failure, record gap config,
-exclude from analysis.
+This module implements FR-008: Convergence failure handling.
+It provides mechanisms to log convergence failures, record the specific
+gap configuration that caused the failure, and exclude these realizations
+from downstream analysis.
 """
+
 import os
 import json
 import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
-import yaml
+from typing import List, Dict, Any, Optional, Set
 
-# Import from existing project modules
-from config import (
-    DATA_DERIVED_DIR,
-    DATA_RESULTS_DIR,
-    N_SIDE,
-    GAP_FRACTIONS,
-    GAP_MORPHOLOGIES,
-    get_dtype
-)
-from data_io import save_metadata
+# Import project constants and paths from config
+try:
+    from config import DATA_DERIVED_DIR, DATA_RESULTS_DIR
+except ImportError:
+    # Fallback for standalone execution or different project root structure
+    DATA_DERIVED_DIR = Path("data/derived")
+    DATA_RESULTS_DIR = Path("data/results")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Ensure the failure log directory exists
+FAILURE_LOG_DIR = DATA_DERIVED_DIR / "failure_logs"
+
 logger = logging.getLogger(__name__)
 
-# Constants
-FAILURE_LOG_FILE = "data/results/convergence_failures.json"
-EXCLUDED_REALIZATIONS_FILE = "data/results/excluded_realizations.csv"
-
-
 def ensure_failure_log_dir():
-    """Ensure the directory for failure logs exists."""
-    failure_dir = Path(FAILURE_LOG_FILE).parent
-    failure_dir.mkdir(parents=True, exist_ok=True)
-    logger.debug(f"Ensured failure log directory exists: {failure_dir}")
-
+    """Create the failure log directory if it does not exist."""
+    if not FAILURE_LOG_DIR.exists():
+        logger.info(f"Creating failure log directory: {FAILURE_LOG_DIR}")
+        FAILURE_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return FAILURE_LOG_DIR
 
 def log_convergence_failure(
     realization_id: str,
@@ -49,294 +41,188 @@ def log_convergence_failure(
     gap_fraction: float,
     gap_morphology: str,
     error_message: str,
-    exec_time_sec: float,
-    stack_trace: Optional[str] = None
-) -> Dict[str, Any]:
+    timestamp: Optional[str] = None
+) -> str:
     """
-    Log a convergence failure with full context.
-    
+    Log a convergence failure to a JSON file.
+
     Args:
-        realization_id: Unique identifier for the realization
-        algo_name: Name of the algorithm that failed
-        gap_fraction: Target gap fraction
-        gap_morphology: Type of gap morphology
-        error_message: Error message from the exception
-        exec_time_sec: Execution time before failure
-        stack_trace: Optional full stack trace string
-    
+        realization_id: Unique identifier for the realization.
+        algo_name: Name of the algorithm that failed.
+        gap_fraction: The gap fraction used in this realization.
+        gap_morphology: The morphology type of the gap mask.
+        error_message: The specific error message or exception string.
+        timestamp: Optional ISO format timestamp. Defaults to now.
+
     Returns:
-        Dictionary containing the failure record
+        The path to the log file where this failure was recorded.
     """
     ensure_failure_log_dir()
-    
-    failure_record = {
-        "timestamp": datetime.utcnow().isoformat(),
+    if timestamp is None:
+        timestamp = datetime.utcnow().isoformat()
+
+    failure_entry = {
         "realization_id": realization_id,
-        "algorithm": {
-            "name": algo_name,
-            "version": "unknown"  # Could be extended to get actual version
-        },
-        "gap_configuration": {
+        "algorithm": algo_name,
+        "gap_config": {
             "fraction": gap_fraction,
             "morphology": gap_morphology
         },
-        "error": {
-            "message": error_message,
-            "stack_trace": stack_trace
-        },
-        "execution_time_sec": exec_time_sec,
-        "status": "CONVERGENCE_FAILURE"
+        "error": error_message,
+        "timestamp": timestamp
     }
-    
-    # Load existing failures if any
-    failure_log_path = Path(FAILURE_LOG_FILE)
-    if failure_log_path.exists():
-        with open(failure_log_path, 'r') as f:
-            existing_log = json.load(f)
-    else:
-        existing_log = {"failures": []}
-    
-    # Append new failure
-    existing_log["failures"].append(failure_record)
-    
-    # Save updated log
-    with open(failure_log_path, 'w') as f:
-        json.dump(existing_log, f, indent=2)
-    
-    logger.warning(
-        f"Convergence failure logged: realization={realization_id}, "
-        f"algo={algo_name}, gap={gap_fraction}%, morphology={gap_morphology}"
-    )
-    
-    return failure_record
 
+    # Append to a central log file for this realization/algorithm combo
+    # or a global failure log. Let's use a global failure log for the run.
+    failure_log_path = FAILURE_LOG_DIR / "convergence_failures.json"
+
+    # Load existing failures if any
+    existing_failures = []
+    if failure_log_path.exists():
+        try:
+            with open(failure_log_path, 'r') as f:
+                existing_failures = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning(f"Corrupted failure log at {failure_log_path}, starting fresh.")
+            existing_failures = []
+
+    existing_failures.append(failure_entry)
+
+    with open(failure_log_path, 'w') as f:
+        json.dump(existing_failures, f, indent=2)
+
+    logger.error(f"Convergence failure logged: {realization_id} - {algo_name}: {error_message}")
+    return str(failure_log_path)
 
 def record_excluded_realization(
     realization_id: str,
-    algo_name: str,
-    gap_fraction: float,
-    gap_morphology: str,
-    reason: str = "CONVERGENCE_FAILURE"
+    reason: str = "convergence_failure",
+    timestamp: Optional[str] = None
 ):
     """
-    Record an excluded realization to the CSV file for downstream filtering.
-    
+    Record a realization ID to the exclusion list.
+
     Args:
-        realization_id: Unique identifier for the realization
-        algo_name: Name of the algorithm
-        gap_fraction: Target gap fraction
-        gap_morphology: Type of gap morphology
-        reason: Reason for exclusion (default: CONVERGENCE_FAILURE)
+        realization_id: The ID of the realization to exclude.
+        reason: The reason for exclusion (default: convergence_failure).
+        timestamp: Optional ISO format timestamp.
     """
     ensure_failure_log_dir()
-    
-    fieldnames = [
-        "realization_id",
-        "algorithm",
-        "gap_fraction",
-        "gap_morphology",
-        "reason",
-        "excluded_at"
-    ]
-    
-    csv_path = Path(EXCLUDED_REALIZATIONS_FILE)
-    
-    # Check if file exists to determine if we need headers
-    file_exists = csv_path.exists()
-    
-    with open(csv_path, 'a', newline='') as f:
-        import csv
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        
-        if not file_exists:
-            writer.writeheader()
-        
-        writer.writerow({
-            "realization_id": realization_id,
-            "algorithm": algo_name,
-            "gap_fraction": gap_fraction,
-            "gap_morphology": gap_morphology,
-            "reason": reason,
-            "excluded_at": datetime.utcnow().isoformat()
-        })
-    
-    logger.info(
-        f"Excluded realization recorded: {realization_id} ({algo_name}) - {reason}"
-    )
+    if timestamp is None:
+        timestamp = datetime.utcnow().isoformat()
 
+    exclusion_entry = {
+        "realization_id": realization_id,
+        "reason": reason,
+        "timestamp": timestamp
+    }
+
+    exclusion_log_path = FAILURE_LOG_DIR / "excluded_realizations.json"
+
+    existing_exclusions = []
+    if exclusion_log_path.exists():
+        try:
+            with open(exclusion_log_path, 'r') as f:
+                existing_exclusions = json.load(f)
+        except json.JSONDecodeError:
+            logger.warning(f"Corrupted exclusion log at {exclusion_log_path}, starting fresh.")
+            existing_exclusions = []
+
+    existing_exclusions.append(exclusion_entry)
+
+    with open(exclusion_log_path, 'w') as f:
+        json.dump(existing_exclusions, f, indent=2)
+
+    logger.warning(f"Realization {realization_id} marked as excluded: {reason}")
 
 def handle_convergence_failure(
-    exception: Exception,
     realization_id: str,
     algo_name: str,
     gap_fraction: float,
     gap_morphology: str,
-    exec_time_sec: float
-) -> Dict[str, Any]:
+    exception: Exception
+):
     """
     Central handler for convergence failures.
-    
-    This function:
-    1. Logs the failure with full context
-    2. Records the exclusion
-    3. Returns a status dict for the calling code
-    
+    1. Logs the specific failure details.
+    2. Records the realization as excluded.
+    3. Returns a flag indicating the failure was handled (for pipeline control).
+
     Args:
-        exception: The exception that was raised
-        realization_id: Unique identifier for the realization
-        algo_name: Name of the algorithm
-        gap_fraction: Target gap fraction
-        gap_morphology: Type of gap morphology
-        exec_time_sec: Execution time before failure
-    
+        realization_id: ID of the realization.
+        algo_name: Algorithm name.
+        gap_fraction: Gap fraction.
+        gap_morphology: Gap morphology.
+        exception: The caught exception object.
+
     Returns:
-        Dictionary with status information for the caller
+        bool: Always True, indicating the failure was handled and logged.
     """
-    import traceback
+    error_msg = f"{type(exception).__name__}: {str(exception)}"
     
-    # Get full stack trace
-    stack_trace = traceback.format_exc()
-    
-    # Log the failure
-    failure_record = log_convergence_failure(
+    # Log the detailed failure
+    log_convergence_failure(
         realization_id=realization_id,
         algo_name=algo_name,
         gap_fraction=gap_fraction,
         gap_morphology=gap_morphology,
-        error_message=str(exception),
-        exec_time_sec=exec_time_sec,
-        stack_trace=stack_trace
+        error_message=error_msg
     )
-    
-    # Record exclusion
+
+    # Record as excluded
     record_excluded_realization(
         realization_id=realization_id,
-        algo_name=algo_name,
-        gap_fraction=gap_fraction,
-        gap_morphology=gap_morphology,
-        reason="CONVERGENCE_FAILURE"
+        reason=f"convergence_failure_{algo_name}"
     )
-    
-    return {
-        "status": "EXCLUDED",
-        "realization_id": realization_id,
-        "algorithm": algo_name,
-        "reason": "CONVERGENCE_FAILURE",
-        "failure_record": failure_record
-    }
 
+    return True
 
-def get_excluded_realization_ids() -> List[str]:
+def get_excluded_realization_ids() -> Set[str]:
     """
-    Load list of excluded realization IDs from the CSV file.
-    
+    Load all excluded realization IDs from the exclusion log.
+
     Returns:
-        List of realization IDs that should be excluded from analysis
+        A set of realization IDs that have been excluded.
     """
-    excluded_ids = []
-    csv_path = Path(EXCLUDED_REALIZATIONS_FILE)
-    
-    if not csv_path.exists():
-        logger.debug("No excluded realizations file found")
-        return excluded_ids
-    
-    import csv
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            excluded_ids.append(row['realization_id'])
-    
-    logger.info(f"Loaded {len(excluded_ids)} excluded realization IDs")
-    return excluded_ids
+    exclusion_log_path = FAILURE_LOG_DIR / "excluded_realizations.json"
+    if not exclusion_log_path.exists():
+        return set()
 
+    try:
+        with open(exclusion_log_path, 'r') as f:
+            data = json.load(f)
+        return {entry["realization_id"] for entry in data}
+    except (json.JSONDecodeError, KeyError):
+        logger.error("Could not parse excluded realizations log.")
+        return set()
 
 def is_realization_excluded(realization_id: str) -> bool:
     """
-    Check if a realization ID is in the excluded list.
-    
+    Check if a specific realization ID is in the exclusion list.
+
     Args:
-        realization_id: The ID to check
-    
+        realization_id: The ID to check.
+
     Returns:
-        True if excluded, False otherwise
+        True if excluded, False otherwise.
     """
     excluded_ids = get_excluded_realization_ids()
     return realization_id in excluded_ids
 
-
 def run_failure_handler_pipeline():
     """
-    Main entry point for the failure handler pipeline.
-    
-    This function can be called to:
-    1. Initialize the failure logging infrastructure
-    2. Provide a summary of current failures
+    Standalone entry point to run the failure handler pipeline.
+    Currently, this is a placeholder as the logic is integrated into
+    the main analysis loop. It ensures directories are ready.
     """
     ensure_failure_log_dir()
-    
-    failure_log_path = Path(FAILURE_LOG_FILE)
-    excluded_path = Path(EXCLUDED_REALIZATIONS_FILE)
-    
-    summary = {
-        "failure_log_exists": failure_log_path.exists(),
-        "excluded_csv_exists": excluded_path.exists(),
-        "total_failures": 0,
-        "excluded_count": 0
-    }
-    
-    if failure_log_path.exists():
-        with open(failure_log_path, 'r') as f:
-            log_data = json.load(f)
-            summary["total_failures"] = len(log_data.get("failures", []))
-    
-    if excluded_path.exists():
-        import csv
-        with open(excluded_path, 'r') as f:
-            reader = csv.DictReader(f)
-            summary["excluded_count"] = sum(1 for _ in reader)
-    
-    logger.info(f"Failure handler pipeline summary: {summary}")
-    return summary
-
+    logger.info("Failure handler pipeline initialized.")
+    return True
 
 def main():
-    """Command-line entry point for testing the failure handler."""
-    import sys
-    
-    if len(sys.argv) > 1 and sys.argv[1] == "--test":
-        # Test the failure handler
-        logger.info("Running failure handler test...")
-        
-        # Simulate a failure
-        result = handle_convergence_failure(
-            exception=Exception("Test convergence failure"),
-            realization_id="test_001",
-            algo_name="harmonic_interpolation",
-            gap_fraction=0.15,
-            gap_morphology="clustered",
-            exec_time_sec=12.5
-        )
-        
-        logger.info(f"Test result: {result}")
-        
-        # Verify exclusion
-        is_excluded = is_realization_excluded("test_001")
-        logger.info(f"Is test_001 excluded? {is_excluded}")
-        
-        # Run pipeline summary
-        summary = run_failure_handler_pipeline()
-        logger.info(f"Pipeline summary: {summary}")
-        
-        print("Failure handler test completed successfully")
-        return 0
-    
-    else:
-        # Normal operation - just initialize
-        run_failure_handler_pipeline()
-        print("Failure handler initialized. Use --test to run self-test.")
-        return 0
-
+    """Main entry point for CLI execution."""
+    logging.basicConfig(level=logging.INFO)
+    run_failure_handler_pipeline()
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

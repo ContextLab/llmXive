@@ -162,3 +162,388 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T13:08:47Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 36 configurations in Monte-Carlo simulation
+  claim_id: c_6b21e33c
+  context: Create Monte-Carlo loop in `code/main.py` to iterate **[deferred] times**
+    per configuration (**3 mechanisms x 3 rates x 4 estimators = 36 configs **) as
+    per FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 36 configs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:57:02Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: numpy version requirement >= 1.24.0
+  claim_id: c_b6ad29f1
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy>=1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:57:15Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pandas version requirement >= 2.0.0
+  claim_id: c_e095dc2e
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:57:33Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version requirement >= 1.3.0
+  claim_id: c_d38590f7
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:58:23Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: statsmodels version requirement >= 0.14.0
+  claim_id: c_f80dc133
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:58:55Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: seaborn version requirement >= 0.12.0
+  claim_id: c_485384f4
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn>=0.12.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:58:58Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: matplotlib version requirement >= 3.7.0
+  claim_id: c_fe5017cf
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib>=3.7.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:59:03Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pyyaml version requirement >= 6.0
+  claim_id: c_b75df7c0
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml>=6.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:59:06Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pytest version requirement >= 7.0.0
+  claim_id: c_bc2411ec
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest>=7.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:59:08Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_2eb58c8e
+  context: Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0,
+    pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T04:59:14Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 36 total configuration combinations (3 mechanisms, 3 rates, 4 estimators)
+  claim_id: c_2fb22488
+  context: Task T034 iterates [deferred] times per configuration (3 mechanisms x 3
+    rates x 4 estimators = 36 configs) as per FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 mechanisms x 3 rates x 4 estimators = 36 configs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:00:35Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 36 configurations in Monte-Carlo loop
+  claim_id: c_d7af2f5d
+  context: Create Monte-Carlo loop in code/main.py to iterate [deferred] times per
+    configuration (3 mechanisms x 3 rates x 4 estimators = 36 configs) as per FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 36 configs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:01Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 3 missingness mechanisms
+  claim_id: c_a709a625
+  context: 3 mechanisms x 3 rates x 4 estimators = 36 configs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 mechanisms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:21Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: 4 estimation procedures
+  claim_id: c_bdb4aa17
+  context: 3 mechanisms x 3 rates x 4 estimators = 36 configs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 estimators
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:50Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: numpy version requirement 1.24.0
+  claim_id: c_0b85e034
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy>=1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:50Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pandas version requirement 2.0.0
+  claim_id: c_5242685e
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:50Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version requirement 1.3.0
+  claim_id: c_6376c623
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn>=1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:50Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: statsmodels version requirement 0.14.0
+  claim_id: c_463d3996
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:50Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: seaborn version requirement 0.12.0
+  claim_id: c_b90a1a9f
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn>=0.12.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:51Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: matplotlib version requirement 3.7.0
+  claim_id: c_c470140b
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib>=3.7.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:51Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pyyaml version requirement 6.0
+  claim_id: c_1a21439e
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml>=6.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:51Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: pytest version requirement 7.0.0
+  claim_id: c_74b7f55f
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest>=7.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:51Z'
+- artifact_path: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi/tasks.md
+  attempts: 1
+  canonical: project Python version 3.11
+  claim_id: c_f8fe0b75
+  context: Initialize Python 3.11 project with requirements.txt (numpy>=1.24.0, pandas>=2.0.0,
+    scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0,
+    pyyaml>=6.0, pytest>=7.0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T05:04:51Z'

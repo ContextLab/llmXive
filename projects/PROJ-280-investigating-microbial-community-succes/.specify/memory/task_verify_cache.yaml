@@ -1,0 +1,14 @@
+T007:
+  c: false
+  h: 30384b0f0e0ada8a0618afa65674989b923c94f2cefae7b2ca2b1120fcbf8421
+  r: The `code/data_models.py` file defines a complete `Sample` model but the `Taxon`
+    class is truncated/incomplete, and the required `contracts/feature-table.schema.yaml`
+    file is missing entirely, so the models cannot be verified against the schema.
+    The task is therefore not fully satisfied.
+T014:
+  c: false
+  h: 63e9e56ad46066a59994320c6447129a3f04a0ab40e5fea3172e266e694365fc
+  r: "The required output files (`data/processed/low_depth_results.json`, `medium_depth_results.json`,\
+    \ `high_depth_results.json`, and `sensitivity_sweep_results.json`) are missing,\
+    \ indicating the sensitivity analysis and robustness report were not generated.\
+    \ Consequently the task\u2019s deliverables are not present."

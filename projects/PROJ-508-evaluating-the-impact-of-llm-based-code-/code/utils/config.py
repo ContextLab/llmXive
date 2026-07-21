@@ -1,109 +1,34 @@
-"""
-Configuration management for the LLM Impact Study.
-
-Handles environment variables, API keys, and project settings.
-"""
-
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-
+import json
 
 class Config:
-    """
-    Centralized configuration handler for the project.
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        self.config_dict = config_dict or {}
+        self._load_from_env()
+    
+    def _load_from_env(self):
+        self.github_token = os.getenv("GITHUB_TOKEN", "")
+        self.project_root = os.getenv("PROJECT_ROOT", str(Path(__file__).parent.parent.parent))
+        self.repo_list_path = os.getenv("REPO_LIST_PATH", "")
+        self.default_repo_list = os.getenv("DEFAULT_REPO_LIST", "").split(",") if os.getenv("DEFAULT_REPO_LIST") else []
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        if key == "github_token":
+            return self.github_token
+        elif key == "project_root":
+            return self.project_root
+        elif key == "repo_list_path":
+            return self.repo_list_path or self.config_dict.get("repo_list_path", "")
+        elif key == "default_repo_list":
+            return self.default_repo_list or self.config_dict.get("default_repo_list", [])
+        return self.config_dict.get(key, default)
 
-    Loads settings from environment variables or defaults.
-    """
+_config_instance: Optional[Config] = None
 
-    # Project Paths
-    PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
-    DATA_RAW_DIR: Path = PROJECT_ROOT / "data" / "raw"
-    DATA_DERIVED_DIR: Path = PROJECT_ROOT / "data" / "derived"
-    DOCS_OUTPUT_DIR: Path = PROJECT_ROOT / "docs" / "output"
-
-    # GitHub API Configuration
-    GITHUB_TOKEN: Optional[str] = os.getenv("GITHUB_TOKEN")
-    GITHUB_API_BASE_URL: str = "https://api.github.com"
-    GITHUB_REQUEST_TIMEOUT: int = 30
-    GITHUB_RETRY_DELAY: float = 2.0
-    GITHUB_MAX_RETRIES: int = 5
-
-    # Analysis Configuration
-    MIN_PR_COUNT_THRESHOLD: int = 10
-    LLMA_ADOPTION_COMMIT_THRESHOLD: float = 0.05  # 5% frequency
-    DIFF_COMPLEXITY_THRESHOLD: float = 0.3
-    HIGH_VIF_THRESHOLD: float = 5.0
-    ITERATION_THRESHOLD_RANGE: list = [1, 2, 3, 4, 5]
-
-    # Logging Configuration
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
-    LOG_FILE: Optional[str] = os.getenv("LOG_FILE")
-
-    # Report Configuration
-    REPORT_TITLE: str = "Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load"
-    REPORT_AUTHOR: str = "llmXive Research Team"
-
-    @classmethod
-    def validate_environment(cls) -> Dict[str, Any]:
-        """
-        Validates that required environment variables are set.
-
-        Returns:
-            Dict with validation status and missing keys if any.
-        """
-        missing_keys = []
-
-        # Check for required keys that have no safe default
-        # Note: GITHUB_TOKEN is required for most operations
-        if not cls.GITHUB_TOKEN:
-            missing_keys.append("GITHUB_TOKEN")
-
-        return {
-            "valid": len(missing_keys) == 0,
-            "missing_keys": missing_keys,
-            "project_root": str(cls.PROJECT_ROOT)
-        }
-
-    @classmethod
-    def ensure_directories(cls) -> None:
-        """
-        Ensures all required output directories exist.
-        """
-        dirs = [
-            cls.DATA_RAW_DIR,
-            cls.DATA_DERIVED_DIR,
-            cls.DOCS_OUTPUT_DIR
-        ]
-
-        for dir_path in dirs:
-            dir_path.mkdir(parents=True, exist_ok=True)
-
-    @classmethod
-    def get_api_headers(cls) -> Dict[str, str]:
-        """
-        Returns standard API headers for GitHub requests.
-
-        Returns:
-            Dict of headers including Authorization if token is available.
-        """
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "llmXive-Research-Client"
-        }
-
-        if cls.GITHUB_TOKEN:
-            headers["Authorization"] = f"token {cls.GITHUB_TOKEN}"
-
-        return headers
-
-
-# Convenience function for quick access
 def get_config() -> Config:
-    """
-    Returns the Config instance for easy access to settings.
-
-    Returns:
-        Config instance with current settings.
-    """
-    return Config
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance

@@ -1,13 +1,12 @@
 """
-Preprocessing pipeline for constructed wetlands microbial community data.
+Preprocessing pipeline for microbial community data in constructed wetlands.
 
 This module handles:
-1. Loading sample metadata and feature tables
-2. Filtering for constructed wetlands with nutrient removal metrics
-3. Subsampling to uniform depth
-4. Calculating diversity metrics
-5. Running sensitivity analysis on subsampling depth
-6. Validation and error handling for missing metadata fields
+- Loading and validating sample metadata
+- Filtering for constructed wetlands with nutrient removal metrics
+- Subsampling to uniform depth
+- Sensitivity analysis for subsampling depth
+- Logging exclusion reasons for transparency
 """
 
 import json
@@ -17,9 +16,15 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-import pandas as pd
 import numpy as np
-from scipy.stats import entropy
+import pandas as pd
+from scipy.stats import shannon_entropy
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from utils import log_data_gap_flag, generate_checksum
+from data_models import Sample, FeatureTable
 
 # Configure logging
 logging.basicConfig(
@@ -29,428 +34,397 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-MIN_READS_THRESHOLD = 1000
-SUBSAMPLE_DEPTHS = {
-    'low': 1000,
-    'medium': 5000,
-    'high': 10000
-}
-
-# Required metadata fields for nutrient removal analysis
-REQUIRED_METADATA_FIELDS = ['nutrient_removal_rate_N', 'nutrient_removal_rate_P', 'wetland_stage']
+MIN_READ_DEPTH = 1000  # Conservative minimum for exclusion
+NUTRIENT_FIELDS = ['n_removal_rate', 'p_removal_rate']
 
 def load_sample_metadata(metadata_path: Path) -> pd.DataFrame:
-    """Load sample metadata from JSON or CSV file."""
+    """Load sample metadata from a CSV or JSON file."""
     if not metadata_path.exists():
         raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
     
-    if metadata_path.suffix == '.json':
-        with open(metadata_path, 'r') as f:
-            data = json.load(f)
-        df = pd.DataFrame(data)
-    elif metadata_path.suffix == '.csv':
-        df = pd.read_csv(metadata_path)
+    if metadata_path.suffix == '.csv':
+        return pd.read_csv(metadata_path)
+    elif metadata_path.suffix == '.json':
+        return pd.read_json(metadata_path)
     else:
         raise ValueError(f"Unsupported metadata format: {metadata_path.suffix}")
-    
-    logger.info(f"Loaded {len(df)} samples from {metadata_path}")
-    return df
 
 def load_feature_table(table_path: Path) -> pd.DataFrame:
-    """Load feature table (OTU/ASV counts) from CSV or TSV."""
+    """Load feature table from a CSV or BIOM-like format."""
     if not table_path.exists():
         raise FileNotFoundError(f"Feature table not found: {table_path}")
     
-    if table_path.suffix == '.tsv':
-        df = pd.read_csv(table_path, sep='\t', index_col=0)
-    elif table_path.suffix == '.csv':
-        df = pd.read_csv(table_path, index_col=0)
+    if table_path.suffix == '.csv':
+        return pd.read_csv(table_path, index_col=0)
     else:
         raise ValueError(f"Unsupported feature table format: {table_path.suffix}")
-    
-    logger.info(f"Loaded feature table with {df.shape[0]} taxa and {df.shape[1]} samples")
-    return df
 
-def filter_constructed_wetlands(metadata_df: pd.DataFrame) -> pd.DataFrame:
+def filter_constructed_wetlands(metadata: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
     """Filter samples to only include constructed wetlands."""
-    if 'wetland_type' not in metadata_df.columns:
-        logger.warning("Column 'wetland_type' not found in metadata. Skipping wetland type filter.")
-        return metadata_df
+    initial_count = len(metadata)
     
-    # Filter for constructed wetlands (case-insensitive)
-    constructed_mask = metadata_df['wetland_type'].str.lower().str.contains('constructed', na=False)
-    filtered_df = metadata_df[constructed_mask].copy()
+    # Assuming 'wetland_type' column exists and 'constructed' is a valid value
+    if 'wetland_type' in metadata.columns:
+        filtered = metadata[metadata['wetland_type'].str.lower() == 'constructed']
+    else:
+        # If column doesn't exist, assume all are constructed wetlands for now
+        # In a real scenario, this would be a data gap
+        filtered = metadata
+        logger.warning("Column 'wetland_type' not found in metadata. Assuming all samples are constructed wetlands.")
     
-    excluded_count = len(metadata_df) - len(filtered_df)
-    logger.info(f"Filtered for constructed wetlands: {excluded_count} samples excluded, {len(filtered_df)} retained")
-    
-    return filtered_df
+    excluded_count = initial_count - len(filtered)
+    logger.info(f"Filtered constructed wetlands: {initial_count} -> {len(filtered)} (excluded {excluded_count})")
+    return filtered, excluded_count
 
-def validate_metadata_fields(metadata_df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+def validate_metadata_fields(metadata: pd.DataFrame, required_fields: List[str]) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
-    Validate that required metadata fields exist and are not missing.
+    Validate that required metadata fields exist and are populated.
     
     Returns:
-        Tuple of (filtered DataFrame with valid rows, list of excluded sample IDs)
+        Tuple of (filtered_metadata, exclusion_counts_by_field)
     """
-    missing_fields = []
-    for field in REQUIRED_METADATA_FIELDS:
-        if field not in metadata_df.columns:
-            missing_fields.append(field)
+    exclusion_counts = {}
+    current_metadata = metadata.copy()
     
-    if missing_fields:
-        logger.error(f"Missing required metadata fields: {missing_fields}")
-        raise ValueError(f"Missing required metadata fields: {missing_fields}")
+    for field in required_fields:
+        if field not in current_metadata.columns:
+            exclusion_counts[field] = len(current_metadata)
+            logger.warning(f"Required field '{field}' not found in metadata. All samples excluded.")
+            return pd.DataFrame(), exclusion_counts
+        
+        # Count missing values (NaN, None, empty string)
+        missing_mask = current_metadata[field].isna() | (current_metadata[field] == '')
+        missing_count = missing_mask.sum()
+        
+        if missing_count > 0:
+            exclusion_counts[field] = missing_count
+            logger.info(f"Field '{field}' has {missing_count} missing values. Excluding these samples.")
+            current_metadata = current_metadata[~missing_mask]
     
-    # Check for missing values in required fields
-    excluded_samples = []
-    valid_mask = pd.Series([True] * len(metadata_df), index=metadata_df.index)
-    
-    for field in REQUIRED_METADATA_FIELDS:
-        null_mask = metadata_df[field].isna()
-        if null_mask.any():
-            excluded_samples.extend(metadata_df.index[null_mask].tolist())
-            valid_mask = valid_mask & ~null_mask
-            logger.warning(f"Found {null_mask.sum()} samples with missing '{field}' values")
-    
-    filtered_df = metadata_df[valid_mask].copy()
-    
-    if len(excluded_samples) > 0:
-        logger.info(f"Excluded {len(excluded_samples)} samples due to missing metadata fields")
-    
-    return filtered_df, excluded_samples
+    return current_metadata, exclusion_counts
 
-def filter_nutrient_removal_metrics(metadata_df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+def filter_nutrient_removal_metrics(metadata: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
     """
-    Filter samples to only include those with valid nutrient removal metrics.
-    
-    This function validates that N/P removal rate fields exist and contain
-    numeric values, excluding samples with missing or invalid data.
+    Filter samples that have nutrient removal metrics (N/P rates).
     
     Returns:
-        Tuple of (filtered DataFrame, list of excluded sample IDs)
+        Tuple of (filtered_metadata, exclusion_count)
     """
-    # First validate metadata fields exist
-    filtered_df, excluded_samples = validate_metadata_fields(metadata_df)
+    initial_count = len(metadata)
     
-    # Ensure nutrient removal rates are numeric
-    for field in ['nutrient_removal_rate_N', 'nutrient_removal_rate_P']:
-        filtered_df[field] = pd.to_numeric(filtered_df[field], errors='coerce')
-        null_count = filtered_df[field].isna().sum()
-        if null_count > 0:
-            # Re-validate after coercion
-            new_null_mask = filtered_df[field].isna()
-            new_excluded = filtered_df.index[new_null_mask].tolist()
-            excluded_samples.extend(new_excluded)
-            filtered_df = filtered_df[~new_null_mask].copy()
-            logger.warning(f"After numeric conversion, {null_count} samples still missing '{field}'")
+    # Check for nutrient removal columns
+    has_n = 'n_removal_rate' in metadata.columns
+    has_p = 'p_removal_rate' in metadata.columns
     
-    logger.info(f"Final nutrient metric validation: {len(excluded_samples)} total samples excluded")
-    return filtered_df, excluded_samples
+    if not has_n and not has_p:
+        logger.error("Neither 'n_removal_rate' nor 'p_removal_rate' columns found in metadata.")
+        log_data_gap_flag("No nutrient removal rate columns found in metadata")
+        return pd.DataFrame(), initial_count
+    
+    # Filter for samples that have at least one nutrient metric
+    if has_n and has_p:
+        valid_mask = metadata['n_removal_rate'].notna() & metadata['p_removal_rate'].notna()
+    elif has_n:
+        valid_mask = metadata['n_removal_rate'].notna()
+    else:
+        valid_mask = metadata['p_removal_rate'].notna()
+    
+    filtered = metadata[valid_mask]
+    excluded_count = initial_count - len(filtered)
+    
+    logger.info(f"Filtered nutrient removal metrics: {initial_count} -> {len(filtered)} (excluded {excluded_count})")
+    return filtered, excluded_count
 
-def subsample_minimum_depth(feature_df: pd.DataFrame, min_depth: int = MIN_READS_THRESHOLD) -> pd.DataFrame:
+def subsample_minimum_depth(feature_table: pd.DataFrame, min_depth: int = MIN_READ_DEPTH) -> Tuple[pd.DataFrame, int]:
     """
     Exclude samples with read depth below the minimum threshold.
     
     Args:
-        feature_df: Feature table with samples as columns
-        min_depth: Minimum read depth threshold (default: 1000)
+        feature_table: DataFrame with samples as rows and taxa as columns
+        min_depth: Minimum read depth required
     
     Returns:
-        Filtered feature table with only samples meeting minimum depth
+        Tuple of (filtered_feature_table, exclusion_count)
     """
-    sample_sums = feature_df.sum(axis=0)
-    valid_samples = sample_sums[sample_sums >= min_depth].index.tolist()
-    excluded_count = len(feature_df.columns) - len(valid_samples)
+    initial_count = len(feature_table)
     
-    logger.info(f"Subsampled to minimum depth {min_depth}: {excluded_count} samples excluded, {len(valid_samples)} retained")
+    # Calculate read depth for each sample
+    sample_depths = feature_table.sum(axis=1)
     
-    return feature_df[valid_samples]
+    # Filter samples
+    valid_mask = sample_depths >= min_depth
+    filtered = feature_table[valid_mask]
+    excluded_count = initial_count - len(filtered)
+    
+    logger.info(f"Subsampled to minimum depth {min_depth}: {initial_count} -> {len(filtered)} (excluded {excluded_count})")
+    return filtered, excluded_count
 
-def subsample_to_depth(feature_df: pd.DataFrame, target_depth: int, random_state: int = 42) -> pd.DataFrame:
+def subsample_to_depth(feature_table: pd.DataFrame, target_depth: int) -> pd.DataFrame:
     """
-    Subsample all samples to a uniform sequencing depth.
+    Subsample all samples to a uniform read depth.
     
     Args:
-        feature_df: Feature table with samples as columns
-        target_depth: Target sequencing depth
-        random_state: Random seed for reproducibility
+        feature_table: DataFrame with samples as rows and taxa as columns
+        target_depth: Target read depth for all samples
     
     Returns:
         Subsampled feature table
     """
-    np.random.seed(random_state)
-    subsampled_data = {}
+    subsampled = pd.DataFrame()
     
-    for sample in feature_df.columns:
-        counts = feature_df[sample].values
-        total = counts.sum()
-        
-        if total < target_depth:
-            logger.warning(f"Sample {sample} has {total} reads, less than target {target_depth}. Skipping.")
+    for sample_id, sample_data in feature_table.iterrows():
+        current_depth = sample_data.sum()
+        if current_depth < target_depth:
+            logger.warning(f"Sample {sample_id} has depth {current_depth} < {target_depth}, skipping")
             continue
         
-        # Multinomial subsampling
-        proportions = counts / total
-        subsampled_counts = np.random.multinomial(target_depth, proportions)
-        subsampled_data[sample] = subsampled_counts
+        # Perform subsampling
+        counts = sample_data.values
+        total = counts.sum()
+        
+        # Use multinomial sampling for subsampling
+        probs = counts / total
+        subsampled_counts = np.random.multinomial(target_depth, probs)
+        
+        subsampled_row = pd.Series(subsampled_counts, index=sample_data.index, name=sample_id)
+        subsampled = pd.concat([subsampled, subsampled_row.to_frame().T])
     
-    result_df = pd.DataFrame(subsampled_data, index=feature_df.index)
-    logger.info(f"Subsampled to depth {target_depth}: {len(result_df.columns)} samples retained")
-    
-    return result_df
+    return subsampled
 
-def calculate_alpha_diversity(feature_df: pd.DataFrame) -> pd.DataFrame:
+def calculate_alpha_diversity(feature_table: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate alpha diversity metrics (Shannon, Simpson) for each sample.
     
     Args:
-        feature_df: Feature table with samples as columns
+        feature_table: DataFrame with samples as rows and taxa as columns
     
     Returns:
         DataFrame with alpha diversity metrics
     """
-    results = {}
+    diversity_metrics = pd.DataFrame(index=feature_table.index)
     
-    for sample in feature_df.columns:
-        counts = feature_df[sample].values
-        total = counts.sum()
+    for sample_id, sample_data in feature_table.iterrows():
+        # Shannon entropy
+        shannon = shannon_entropy(sample_data.values)
         
-        if total == 0:
-            results[sample] = {'shannon': np.nan, 'simpson': np.nan}
-            continue
+        # Simpson index
+        total = sample_data.sum()
+        if total > 0:
+            probs = sample_data.values / total
+            simpson = 1 - np.sum(probs ** 2)
+        else:
+            simpson = 0
         
-        # Relative abundances
-        probs = counts / total
-        probs = probs[probs > 0]  # Remove zeros for log calculation
-        
-        # Shannon index
-        shannon = -np.sum(probs * np.log(probs))
-        
-        # Simpson index (1 - D)
-        simpson = 1 - np.sum(probs ** 2)
-        
-        results[sample] = {'shannon': shannon, 'simpson': simpson}
+        diversity_metrics.loc[sample_id, 'shannon'] = shannon
+        diversity_metrics.loc[sample_id, 'simpson'] = simpson
     
-    return pd.DataFrame(results).T
+    return diversity_metrics
 
-def run_sensitivity_sweep(
-    feature_df: pd.DataFrame,
-    metadata_df: pd.DataFrame,
-    depths: Optional[Dict[str, int]] = None
-) -> Dict[str, Any]:
+def run_sensitivity_sweep(feature_table: pd.DataFrame, depths: List[int]) -> Dict[str, Any]:
     """
-    Run sensitivity analysis across multiple subsampling depths.
+    Perform sensitivity analysis by subsampling at different depths.
     
     Args:
-        feature_df: Filtered feature table
-        metadata_df: Filtered metadata with nutrient rates
-        depths: Dictionary of depth labels to values (default: SUBSAMPLE_DEPTHS)
+        feature_table: Filtered feature table
+        depths: List of target depths to test
     
     Returns:
-        Dictionary containing sensitivity analysis results
+        Dictionary with results for each depth and correlation metrics
     """
-    if depths is None:
-        depths = SUBSAMPLE_DEPTHS
-    
     results = {}
-    alpha_diversities = {}
+    diversity_by_depth = {}
     
-    for label, depth in depths.items():
-        logger.info(f"Running sensitivity sweep at depth: {label} ({depth})")
+    for depth in depths:
+        logger.info(f"Running sensitivity sweep at depth {depth}")
         
-        # Subsample to target depth
-        subsampled_features = subsample_to_depth(feature_df, depth)
+        # Subsample
+        subsampled = subsample_to_depth(feature_table, depth)
         
         # Calculate alpha diversity
-        alpha_div = calculate_alpha_diversity(subsampled_features)
-        alpha_diversities[label] = alpha_div
+        diversity = calculate_alpha_diversity(subsampled)
+        diversity_by_depth[depth] = diversity
         
-        # Correlate with nutrient removal rates (only samples present in both)
-        common_samples = set(alpha_div.index) & set(metadata_df.index)
+        # Save intermediate results
+        result_file = Path(f"data/processed/low_depth_results.json" if depth == depths[0] else 
+                         "data/processed/medium_depth_results.json" if depth == depths[1] else 
+                         "data/processed/high_depth_results.json")
         
-        if len(common_samples) < 3:
-            logger.warning(f"Not enough common samples for correlation at depth {label}")
-            results[label] = {
-                'n_samples': len(common_samples),
-                'n_taxa': len(subsampled_features),
-                'correlation_with_N': None,
-                'correlation_with_P': None
-            }
-            continue
-        
-        # Merge with metadata
-        merged = alpha_div.loc[common_samples].join(metadata_df.loc[common_samples, ['nutrient_removal_rate_N', 'nutrient_removal_rate_P']])
-        
-        # Calculate correlations
-        corr_N = merged['shannon'].corr(merged['nutrient_removal_rate_N'])
-        corr_P = merged['shannon'].corr(merged['nutrient_removal_rate_P'])
-        
-        results[label] = {
-            'n_samples': len(common_samples),
-            'n_taxa': len(subsampled_features),
-            'correlation_with_N': corr_N,
-            'correlation_with_P': corr_P,
-            'alpha_diversity_stats': {
-                'shannon_mean': float(merged['shannon'].mean()),
-                'shannon_std': float(merged['shannon'].std()),
-                'simpson_mean': float(merged['simpson'].mean()),
-                'simpson_std': float(merged['simpson'].std())
+        results[depth] = {
+            'sample_count': len(subsampled),
+            'diversity_summary': {
+                'shannon_mean': float(diversity['shannon'].mean()),
+                'shannon_std': float(diversity['shannon'].std()),
+                'simpson_mean': float(diversity['simpson'].mean()),
+                'simpson_std': float(diversity['simpson'].std())
             }
         }
+        
+        # Save subsampled data (as summary for now)
+        with open(result_file, 'w') as f:
+            json.dump(results[depth], f, indent=2)
     
-    # Calculate rank correlation between depths for robustness check
-    if len(alpha_diversities) >= 2:
-        labels = list(alpha_diversities.keys())
-        first_label = labels[0]
-        rank_correlations = {}
+    # Calculate Spearman rank correlation between depths
+    if len(depths) >= 2:
+        # Compare rankings of alpha diversity across depths
+        first_depth = depths[0]
+        second_depth = depths[1]
         
-        for i in range(1, len(labels)):
-            second_label = labels[i]
-            common = set(alpha_diversities[first_label].index) & set(alpha_diversities[second_label].index)
+        # Ensure same samples are compared
+        common_samples = set(diversity_by_depth[first_depth].index) & set(diversity_by_depth[second_depth].index)
+        
+        if len(common_samples) > 1:
+            shannon_first = diversity_by_depth[first_depth].loc[common_samples, 'shannon']
+            shannon_second = diversity_by_depth[second_depth].loc[common_samples, 'shannon']
             
-            if len(common) > 0:
-                ranks1 = alpha_diversities[first_label].loc[common]['shannon'].rank()
-                ranks2 = alpha_diversities[second_label].loc[common]['shannon'].rank()
-                
-                spearman_corr, _ = entropy(ranks1, ranks2), 0  # Placeholder, using scipy
-                from scipy.stats import spearmanr
-                spearman_corr, _ = spearmanr(ranks1, ranks2)
-                
-                rank_correlations[f"{first_label}_vs_{second_label}"] = float(spearman_corr)
-        
-        results['spearman_rank_correlation'] = rank_correlations
+            from scipy.stats import spearmanr
+            correlation, p_value = spearmanr(shannon_first, shannon_second)
+            
+            results['sensitivity_summary'] = {
+                'spearman_rank_correlation': float(correlation),
+                'p_value': float(p_value),
+                'robustness_pass': correlation > 0.9
+            }
+            
+            logger.info(f"Spearman correlation between depths {first_depth} and {second_depth}: {correlation:.3f}")
     
     return results
 
-def save_exclusion_log(excluded_samples: List[str], output_path: Path):
-    """Save exclusion log to JSON file."""
-    log_data = {
-        'excluded_samples': excluded_samples,
-        'count': len(excluded_samples),
-        'reason': 'Missing N/P metadata fields'
-    }
+def save_exclusion_log(exclusion_data: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save exclusion log to JSON file.
+    
+    Args:
+        exclusion_data: Dictionary containing exclusion counts and reasons
+        output_path: Path to save the exclusion log
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
+        json.dump(exclusion_data, f, indent=2)
     
     logger.info(f"Exclusion log saved to {output_path}")
 
 def preprocess_data(
-    raw_data_dir: Path,
-    processed_data_dir: Path,
-    config_path: Optional[Path] = None
+    raw_metadata_path: Path,
+    raw_feature_table_path: Path,
+    processed_dir: Path,
+    sensitivity_depths: Optional[List[int]] = None
 ) -> Dict[str, Any]:
     """
     Main preprocessing pipeline.
     
     Args:
-        raw_data_dir: Directory containing raw data files
-        processed_data_dir: Directory for processed output
-        config_path: Optional path to configuration file
+        raw_metadata_path: Path to raw metadata file
+        raw_feature_table_path: Path to raw feature table
+        processed_dir: Directory to save processed data
+        sensitivity_depths: List of depths for sensitivity analysis (optional)
     
     Returns:
-        Dictionary containing processing summary
+        Dictionary with processing results and exclusion counts
     """
-    # Ensure output directories exist
-    processed_data_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
     # Load data
-    metadata_path = raw_data_dir / 'sample_metadata.json'
-    feature_table_path = raw_data_dir / 'feature_table.csv'
-    
     logger.info("Loading metadata and feature table...")
-    metadata_df = load_sample_metadata(metadata_path)
-    feature_df = load_feature_table(feature_table_path)
+    metadata = load_sample_metadata(raw_metadata_path)
+    feature_table = load_feature_table(raw_feature_table_path)
     
     # Filter for constructed wetlands
     logger.info("Filtering for constructed wetlands...")
-    filtered_metadata = filter_constructed_wetlands(metadata_df)
+    metadata, cw_excluded = filter_constructed_wetlands(metadata)
     
-    # Filter and validate nutrient removal metrics
-    logger.info("Validating and filtering nutrient removal metrics...")
-    valid_metadata, excluded_samples = filter_nutrient_removal_metrics(filtered_metadata)
+    # Validate metadata fields
+    logger.info("Validating metadata fields...")
+    required_fields = ['wetland_type'] + NUTRIENT_FIELDS
+    metadata, field_exclusions = validate_metadata_fields(metadata, required_fields)
     
-    # Save exclusion log
-    exclusion_log_path = processed_data_dir / 'exclusion_log.json'
-    save_exclusion_log(excluded_samples, exclusion_log_path)
-    
-    # Filter feature table to match valid samples
-    valid_sample_ids = set(valid_metadata.index)
-    feature_df = feature_df[feature_df.columns.intersection(valid_sample_ids)]
-    
-    logger.info(f"Feature table filtered to {feature_df.shape[1]} samples matching valid metadata")
+    # Filter for nutrient removal metrics
+    logger.info("Filtering for nutrient removal metrics...")
+    metadata, nutrient_excluded = filter_nutrient_removal_metrics(metadata)
     
     # Subsample to minimum depth
     logger.info("Subsampling to minimum depth...")
-    feature_df = subsample_minimum_depth(feature_df, MIN_READS_THRESHOLD)
+    feature_table = feature_table.loc[metadata.index]  # Align feature table with filtered metadata
+    feature_table, depth_excluded = subsample_minimum_depth(feature_table)
     
-    # Run sensitivity sweep
-    logger.info("Running sensitivity analysis...")
-    sensitivity_results = run_sensitivity_sweep(feature_df, valid_metadata)
-    
-    # Save results
-    results = {
-        'preprocessing_summary': {
-            'initial_samples': len(metadata_df),
-            'constructed_wetland_samples': len(filtered_metadata),
-            'valid_nutrient_samples': len(valid_metadata),
-            'excluded_due_to_missing_metadata': len(excluded_samples),
-            'final_samples_after_min_depth': feature_df.shape[1],
-            'final_taxa_count': feature_df.shape[0]
+    # Prepare exclusion log
+    exclusion_log = {
+        'total_initial_samples': len(metadata) + cw_excluded + sum(field_exclusions.values()) + nutrient_excluded + depth_excluded,
+        'exclusions': {
+            'constructed_wetlands_filter': cw_excluded,
+            'missing_metadata_fields': field_exclusions,
+            'missing_nutrient_metrics': nutrient_excluded,
+            'insufficient_read_depth': depth_excluded
         },
-        'sensitivity_analysis': sensitivity_results
+        'final_sample_count': len(metadata)
     }
     
-    # Save intermediate depth results
-    for label, depth in SUBSAMPLE_DEPTHS.items():
-        if label in sensitivity_results:
-            depth_result_path = processed_data_dir / f'{label}_depth_results.json'
-            with open(depth_result_path, 'w') as f:
-                json.dump({
-                    'depth': depth,
-                    'n_samples': sensitivity_results[label]['n_samples'],
-                    'n_taxa': sensitivity_results[label]['n_taxa'],
-                    'correlation_with_N': sensitivity_results[label]['correlation_with_N'],
-                    'correlation_with_P': sensitivity_results[label]['correlation_with_P']
-                }, f, indent=2)
+    # Save exclusion log
+    exclusion_log_path = processed_dir / 'exclusion_log.json'
+    save_exclusion_log(exclusion_log, exclusion_log_path)
     
-    # Save sensitivity sweep results
-    sweep_path = processed_data_dir / 'sensitivity_sweep_results.json'
-    with open(sweep_path, 'w') as f:
-        json.dump(sensitivity_results, f, indent=2)
+    # Run sensitivity analysis if requested
+    if sensitivity_depths:
+        logger.info("Running sensitivity analysis...")
+        sensitivity_results = run_sensitivity_sweep(feature_table, sensitivity_depths)
+        
+        # Save sensitivity sweep results
+        sensitivity_path = processed_dir / 'sensitivity_sweep_results.json'
+        with open(sensitivity_path, 'w') as f:
+            json.dump(sensitivity_results, f, indent=2)
+        
+        exclusion_log['sensitivity_analysis'] = sensitivity_results.get('sensitivity_summary', {})
+        
+        # Update exclusion log
+        save_exclusion_log(exclusion_log, exclusion_log_path)
     
-    # Save final processed data
-    feature_df.to_csv(processed_data_dir / 'processed_feature_table.csv')
-    valid_metadata.to_csv(processed_data_dir / 'processed_metadata.csv')
+    # Calculate final alpha diversity
+    logger.info("Calculating final alpha diversity...")
+    final_diversity = calculate_alpha_diversity(feature_table)
     
-    logger.info(f"Preprocessing complete. Results saved to {processed_data_dir}")
+    # Save processed data
+    diversity_path = processed_dir / 'diversity_metrics.json'
+    final_diversity.to_json(diversity_path, orient='index', indent=2)
     
-    return results
+    feature_table_path = processed_dir / 'feature_table.csv'
+    feature_table.to_csv(feature_table_path)
+    
+    return exclusion_log
 
 def main():
-    """Main entry point for preprocessing script."""
-    # Default paths
-    raw_data_dir = Path('data/raw')
-    processed_data_dir = Path('data/processed')
+    """Main entry point for preprocessing."""
+    # Define paths
+    project_root = Path(__file__).parent.parent
+    raw_metadata_path = project_root / 'data' / 'raw' / 'metadata.csv'
+    raw_feature_table_path = project_root / 'data' / 'raw' / 'feature_table.csv'
+    processed_dir = project_root / 'data' / 'processed'
     
-    # Check for command line arguments
-    if len(sys.argv) > 1:
-        raw_data_dir = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        processed_data_dir = Path(sys.argv[2])
+    # Check if files exist
+    if not raw_metadata_path.exists():
+        logger.error(f"Metadata file not found: {raw_metadata_path}")
+        log_data_gap_flag("Metadata file not found in data/raw/")
+        sys.exit(1)
     
-    logger.info(f"Starting preprocessing pipeline")
-    logger.info(f"Raw data directory: {raw_data_dir}")
-    logger.info(f"Processed data directory: {processed_data_dir}")
+    if not raw_feature_table_path.exists():
+        logger.error(f"Feature table not found: {raw_feature_table_path}")
+        log_data_gap_flag("Feature table not found in data/raw/")
+        sys.exit(1)
     
-    try:
-        results = preprocess_data(raw_data_dir, processed_data_dir)
-        logger.info("Pipeline completed successfully")
-        return results
-    except Exception as e:
-        logger.error(f"Pipeline failed with error: {str(e)}")
-        raise
+    # Define sensitivity depths (low, medium, high)
+    # These should be determined based on the data distribution
+    sensitivity_depths = [5000, 10000, 15000]  # Example values, should be optimized
+    
+    # Run preprocessing
+    logger.info("Starting preprocessing pipeline...")
+    results = preprocess_data(
+        raw_metadata_path,
+        raw_feature_table_path,
+        processed_dir,
+        sensitivity_depths
+    )
+    
+    logger.info(f"Preprocessing complete. Final sample count: {results['final_sample_count']}")
+    logger.info(f"Exclusion log saved to {processed_dir / 'exclusion_log.json'}")
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SimulationConfig
-description: Configuration for the RD simulation study parameters.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Config"
+description: "Configuration schema for the RD simulation parameters"
 type: object
 required:
   - sample_size
@@ -10,32 +10,30 @@ required:
 properties:
   sample_size:
     type: integer
-    description: Number of observations to generate.
+    description: "Number of samples to generate"
     minimum: 1
   true_effect:
     type: number
-    description: The ground truth treatment effect (tau).
+    description: "The true causal effect (tau) used in data generation"
   seed:
     type: integer
-    description: Random seed for reproducibility.
+    description: "Random seed for reproducibility"
   exclusion_restriction:
     type: number
-    description: The coefficient for the exclusion restriction variable Z* in the outcome equation.
-  noise_sigma:
-    type: number
-    description: Standard deviation of the error term epsilon.
-    default: 1.0
-    minimum: 0
+    description: "The coefficient for the exclusion restriction variable Z* in the outcome equation"
   beta0:
     type: number
-    description: Intercept of the outcome equation.
+    description: "Intercept term (optional, defaults to 0.0 in generator)"
     default: 0.0
   beta1:
     type: number
-    description: Slope coefficient for the running variable X.
+    description: "Coefficient for running variable X (optional, defaults to 1.0)"
     default: 1.0
   beta2:
     type: number
-    description: Slope coefficient for the covariate Z.
+    description: "Coefficient for covariate Z (optional, defaults to 0.5)"
     default: 0.5
-additionalProperties: false
+  sigma:
+    type: number
+    description: "Standard deviation of the error term (optional, defaults to 1.0)"
+    default: 1.0

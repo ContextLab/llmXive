@@ -1,15 +1,12 @@
-# Missingness mechanism configuration
-rates:
-  mcar: 0.2
-  mar: 0.2
-  mnar: 0.2
+# Missingness Configuration
+# Defines rates and mechanisms for missing data generation
 
 mechanisms:
-  mcar: completely_at_random
-  mar: at_random
-  mnar: not_at_random
+  - mcar
+  - mar
+  - mnar
 
-# Default rates (used if not overridden above)
-default_mcar_rate: 0.2
-default_mar_rate: 0.2
-default_mnar_rate: 0.2
+rates:
+  mcar: 0.1
+  mar: 0.2
+  mnar: 0.15

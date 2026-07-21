@@ -1,0 +1,44 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`
+    actually exists or contains any files; the artifact list is empty. The required
+    directory must be created and visible in the repository for the task to be considered
+    complete.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
+    \ for Black, a `.ruff.toml` or `ruff` section, or a pre\u2011commit hook setup)\
+    \ are present in the provided evidence, so the requirement to configure ruff and\
+    \ Black is not demonstrated. The implementer must add the appropriate configuration\
+    \ artifacts."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for a pytest configuration file (e.g.,\u202Fpytest.ini,\u202Fpyproject.toml\u202F\
+    with a\u202F[tool.pytest]\u202Fsection, or\u202Ftox.ini) and for a\u202Ftests/\u202F\
+    directory containing at least an\u202F__init__.py\u202Fand a sample test file,\
+    \ but no such artifacts were presented in the evidence. Without these files the\
+    \ task\u2019s requirement is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or documentation implementing the extraction of `avg_comment_length`,
+    `review_thread_depth`, or `revert_frequency` were found in the provided artifacts.
+    The claim lacks any tangible artifact demonstrating that these metrics are computed,
+    stored, or integrated into the pipeline.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or documentation artifact showing the implementation\
+    \ of a filter that excludes repositories with fewer than 10 pull requests in the\
+    \ past 12 months was provided. Without such evidence, the requirement of SC\u2011\
+    001 cannot be verified as satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, script, or dataset implementing the domain complexity calculation\
+    \ (unique languages\u202F+\u202Fdependency count from manifests) is present in\
+    \ the provided artifacts. The required implementation is missing, so the task\
+    \ is not satisfied."

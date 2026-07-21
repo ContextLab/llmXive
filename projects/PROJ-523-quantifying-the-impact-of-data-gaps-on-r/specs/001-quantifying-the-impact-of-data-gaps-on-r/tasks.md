@@ -162,8 +162,8 @@
 
 - [ ] T035 [P] Documentation updates in `quickstart.md` with environment setup and pilot run instructions.
 - [ ] T036 Code cleanup and refactoring of `code/pipeline/run_analysis.py` to use a generator pattern for memory safety, ensuring peak RAM < 7GB.
-- [~] T037 Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM.
-- [~] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
+- [ ] T037 Performance optimization: ensure float32 usage where precision allows to fit within 7GB RAM.
+- [ ] T038 [P] Additional unit tests for `mode_coupling.py` and `parameter_est.py` in `tests/unit/`.
 - [ ] T039 Run full pipeline on a small subset to verify memory and time constraints (Task 3.2).
 - [ ] T040 Run `quickstart.md` validation to ensure reproducibility.
 

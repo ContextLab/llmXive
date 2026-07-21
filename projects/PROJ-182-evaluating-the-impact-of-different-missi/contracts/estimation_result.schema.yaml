@@ -1,46 +1,48 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EstimationResult
-description: Result of a single RD estimation run.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Estimation Result"
+description: "Schema for the output of a single RD estimation run"
 type: object
 required:
   - estimate
   - se
-  - ci_lower
-  - ci_upper
   - mechanism
   - rate
   - estimator_name
+  - success
 properties:
   estimate:
     type: number
-    description: Point estimate of the treatment effect.
+    description: "Point estimate of the treatment effect"
   se:
     type: number
-    description: Standard error of the estimate.
+    description: "Standard error of the estimate"
   ci_lower:
     type: number
-    description: Lower bound of the confidence interval.
+    description: "Lower bound of the confidence interval (optional)"
   ci_upper:
     type: number
-    description: Upper bound of the confidence interval.
+    description: "Upper bound of the confidence interval (optional)"
   mechanism:
     type: string
-    description: Missingness mechanism used (MCAR, MAR, MNAR).
+    description: "The missingness mechanism used (MCAR, MAR, MNAR)"
     enum:
       - MCAR
       - MAR
       - MNAR
   rate:
     type: number
-    description: Missingness rate applied.
+    description: "The missingness rate applied"
+    minimum: 0.0
+    maximum: 1.0
   estimator_name:
     type: string
-    description: Name of the estimator used (e.g., Naive, MICE, IPW, Heckman).
-  converged:
+    description: "Name of the estimator used (e.g., Naive, MICE, IPW, Heckman)"
+  success:
     type: boolean
-    description: Whether the estimation algorithm converged.
-    default: true
-  n_obs:
-    type: integer
-    description: Number of observations used in estimation.
-additionalProperties: false
+    description: "Whether the estimation converged successfully"
+  error_message:
+    type: string
+    description: "Error message if estimation failed (optional)"
+  bandwidth:
+    type: number
+    description: "Bandwidth used for local regression (if applicable)"

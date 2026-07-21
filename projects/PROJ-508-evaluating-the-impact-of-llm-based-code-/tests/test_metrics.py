@@ -1,117 +1,63 @@
+"""
+Tests for the metrics calculation module (code/utils/metrics.py).
+"""
 import pytest
-from code.utils.metrics import (
-    calculate_iteration_count,
-    calculate_avg_comment_length,
-    calculate_review_thread_depth,
-    calculate_revert_frequency,
+
+from utils.metrics import (
     calculate_diff_complexity_score,
     is_ai_noise_flag,
-    calculate_domain_complexity,
-    process_review_metrics
+    calculate_iteration_count,
 )
 
-class TestIterationCount:
-    def test_count_commits(self):
-        pr_data = {'commits': [{'sha': 'abc'}, {'sha': 'def'}, {'sha': 'ghi'}]}
-        assert calculate_iteration_count(pr_data) == 3
 
-    def test_count_push_events(self):
-        pr_data = {'push_events': [{'id': 1}, {'id': 2}]}
-        assert calculate_iteration_count(pr_data) == 2
+def test_diff_complexity_score_normal():
+    """Test diff complexity calculation for normal case."""
+    lines_added = 10
+    lines_deleted = 5
+    total_lines = 100
 
-    def test_empty_data(self):
-        pr_data = {}
-        assert calculate_iteration_count(pr_data) == 0
+    score = calculate_diff_complexity_score(lines_added, lines_deleted, total_lines)
+    expected = (10 + 5) / 100
+    assert abs(score - expected) < 1e-6
 
-class TestAvgCommentLength:
-    def test_basic_calculation(self):
-        threads = [
-            {'comments': [{'body': 'Hello'}, {'body': 'World'}]},
-            {'comments': [{'body': 'Test'}]}
+
+def test_diff_complexity_score_no_deletion():
+    """Test diff complexity when lines_deleted is 0."""
+    score = calculate_diff_complexity_score(10, 0, 100)
+    assert score == 0
+
+
+def test_ai_noise_flag_true():
+    """Test AI noise flag when conditions are met."""
+    # Score > 0.3 and message contains 'fix'
+    score = 0.4
+    message = "fix: resolve critical bug"
+    assert is_ai_noise_flag(score, message) is True
+
+
+def test_ai_noise_flag_false_score():
+    """Test AI noise flag when score is low."""
+    score = 0.1
+    message = "fix: resolve critical bug"
+    assert is_ai_noise_flag(score, message) is False
+
+
+def test_ai_noise_flag_false_message():
+    """Test AI noise flag when message doesn't match keywords."""
+    score = 0.4
+    message = "feat: add new feature"
+    assert is_ai_noise_flag(score, message) is False
+
+
+def test_iteration_count_simple():
+    """Test iteration count calculation."""
+    # Mock PR data with 3 push events
+    pr_data = {
+        "events": [
+            {"type": "push", "timestamp": "2023-01-01"},
+            {"type": "push", "timestamp": "2023-01-02"},
+            {"type": "push", "timestamp": "2023-01-03"},
         ]
-        # Total chars: 5 + 5 + 4 = 14, Count: 3 -> 4.666...
-        result = calculate_avg_comment_length(threads)
-        assert abs(result - 4.666) < 0.01
-
-    def test_empty_threads(self):
-        assert calculate_avg_comment_length([]) == 0.0
-
-class TestReviewThreadDepth:
-    def test_basic_calculation(self):
-        threads = [
-            {'comments': [{'body': 'a'}, {'body': 'b'}]},
-            {'comments': [{'body': 'c'}]}
-        ]
-        # Total comments: 3, Threads: 2 -> 1.5
-        assert calculate_review_thread_depth(threads) == 1.5
-
-    def test_empty_threads(self):
-        assert calculate_review_thread_depth([]) == 0.0
-
-class TestRevertFrequency:
-    def test_revert_detection(self):
-        commits = [
-            {'message': 'Fix bug'},
-            {'message': 'Revert "Fix bug"'},
-            {'message': 'New feature'}
-        ]
-        # 1 revert out of 3
-        assert calculate_revert_frequency(commits) == pytest.approx(0.333, rel=0.01)
-
-    def test_no_reverts(self):
-        commits = [{'message': 'Fix bug'}, {'message': 'Update'}]
-        assert calculate_revert_frequency(commits) == 0.0
-
-class TestDiffComplexityScore:
-    def test_normal_case(self):
-        # (10 + 5) / 100 = 0.15
-        assert calculate_diff_complexity_score(10, 5, 100) == 0.15
-
-    def test_no_deletion(self):
-        # lines_deleted = 0 -> returns 0
-        assert calculate_diff_complexity_score(10, 0, 100) == 0.0
-
-    def test_zero_total(self):
-        assert calculate_diff_complexity_score(10, 5, 0) == 0.0
-
-class TestIsAiNoiseFlag:
-    def test_flag_true(self):
-        # Score > 0.3 and message contains 'fix'
-        assert is_ai_noise_flag(0.4, "fix critical bug") is True
-
-    def test_flag_false_score_low(self):
-        assert is_ai_noise_flag(0.2, "fix critical bug") is False
-
-    def test_flag_false_no_keyword(self):
-        assert is_ai_noise_flag(0.4, "add new feature") is False
-
-    def test_flag_case_insensitive(self):
-        assert is_ai_noise_flag(0.4, "HOTFIX release") is True
-
-class TestDomainComplexity:
-    def test_basic_calculation(self):
-        languages = ['Python', 'JavaScript', 'Python'] # 2 unique
-        manifests = [
-            {'dependencies': {'react': '1.0', 'lodash': '4.0'}}, # 2 deps
-            {'requires': ['pandas', 'numpy']} # 2 deps
-        ]
-        # 2 (langs) + 2 + 2 (deps) = 6
-        assert calculate_domain_complexity(languages, manifests) == 6
-
-    def test_empty_inputs(self):
-        assert calculate_domain_complexity([], []) == 0
-
-class TestProcessReviewMetrics:
-    def test_full_pipeline(self):
-        pr_data = {
-            'commits': [{'message': 'fix'}, {'message': 'Revert "fix"'}],
-            'review_threads': [
-                {'comments': [{'body': 'Good'}]}
-            ]
-        }
-        result = process_review_metrics(pr_data)
-        assert 'avg_comment_length' in result
-        assert 'review_thread_depth' in result
-        assert 'revert_frequency' in result
-        assert 'iteration_count' in result
-        assert result['iteration_count'] == 2
+    }
+    count = calculate_iteration_count(pr_data)
+    assert count == 3

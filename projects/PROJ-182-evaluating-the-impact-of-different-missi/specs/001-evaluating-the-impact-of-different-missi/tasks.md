@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `code/src/generators`, `code/src/estimators`, `code/src/metrics`, `code/src/viz`, `code/tests/unit`, `code/tests/integration`, `data/`, `results/`, `contracts/`, `config/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0, pandas>=2.0.0, scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0, pyyaml>=6.0, pytest>=7.0.0)
+- [X] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f8fe0b75 — status=not_enough_info] project with `requirements.txt` (numpy>=1.24.0 [UNRESOLVED-CLAIM: c_0b85e034 — status=not_enough_info], pandas>=2.0.0 [UNRESOLVED-CLAIM: c_5242685e — status=not_enough_info], scikit-learn>=1.3.0 [UNRESOLVED-CLAIM: c_6376c623 — status=not_enough_info], statsmodels>=0.14.0 [UNRESOLVED-CLAIM: c_463d3996 — status=not_enough_info], seaborn>=0.12.0 [UNRESOLVED-CLAIM: c_b90a1a9f — status=not_enough_info], matplotlib>=3.7.0 [UNRESOLVED-CLAIM: c_c470140b — status=not_enough_info], pyyaml>=6.0 [UNRESOLVED-CLAIM: c_1a21439e — status=not_enough_info], pytest>=7.0.0 [UNRESOLVED-CLAIM: c_74b7f55f — status=not_enough_info])
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -37,11 +37,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Create contract schemas in `contracts/` (`simulation_config.schema.yaml`, `estimation_result.schema.yaml`, `aggregated_metric.schema.yaml`) with JSON Schema structure ($schema, type, properties with types, required fields)
-- [ ] T005 [P] Implement configuration loader in `code/src/config_loader.py` to read `config/simulation.yaml` (sample_size, true_effect, seed), `config/missingness.yaml` (rates, mechanisms), `config/estimation.yaml` (bandwidth_rule, imputation_count)
-- [ ] T006 Create base data model classes in `code/src/models.py` (`SimulationConfig`: sample_size:int, true_effect:float, **exclusion_restriction:float**; `MissingnessPattern`: mask:bool; `EstimationResult`: estimate:float, se:float; `AggregatedMetric`: bias:float, rmse:float, coverage:float)
+- [X] T005 [P] Implement configuration loader in `code/src/config_loader.py` to read `config/simulation.yaml` (sample_size, true_effect, seed), `config/missingness.yaml` (rates, mechanisms), `config/estimation.yaml` (bandwidth_rule, imputation_count)
+- [X] T006 Create base data model classes in `code/src/models.py` (`SimulationConfig`: sample_size:int, true_effect:float, **exclusion_restriction:float**; `MissingnessPattern`: mask:bool; `EstimationResult`: estimate:float, se:float; `AggregatedMetric`: bias:float, rmse:float, coverage:float)
 - [X] T007 Setup validation utility in `code/src/validators.py` to enforce contract schemas on all generated/processed data
 - [X] T008 Configure logging infrastructure in `code/src/logging_config.py` to track simulation progress and errors
-- [ ] T009 Create orchestration script `code/main.py` with placeholder logic to validate configuration before simulation starts
+- [X] T009 Create orchestration script `code/main.py` with placeholder logic to validate configuration before simulation starts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,10 +55,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement synthetic RD data generator in `code/src/generators/rd_data.py`: Formula `Y = beta0 + beta1*X + beta2*Z + tau*D + epsilon`, where `X~Uniform(-1,1)`, `Z~Normal(0,1)`, `D=(X>0)`, `epsilon~Normal(0, sigma)`. **Include exclusion restriction Z* (independent of X, affects missingness)**. *Note: Implements Linear Model as resolved in spec amendment.*
+- [X] T013 [US1] Implement synthetic RD data generator in `code/src/generators/rd_data.py`: Formula `Y = beta0 + beta1*X + beta2*Z + tau*D + epsilon`, where `X~Uniform(-1,1)`, `Z~Normal(0,1)`, `D=(X>0)`, `epsilon~Normal(0, sigma)`. **Include exclusion restriction Z* (independent of X, affects missingness)**. *Note: Implements Linear Model as resolved in spec amendment.*
 - [X] T014 [US1] Implement MCAR mask generator in `code/src/generators/missingness.py`: Read missingness rate from `config/missingness.yaml`; apply Bernoulli(p=rate) mask independent of all variables.
-- [ ] T015 [US1] Implement MAR mask generator in `code/src/generators/missingness.py`: Logistic regression on Z (covariate) to generate mask; target rate from config.
-- [ ] T016 [US1] Implement MNAR mask generator in `code/src/generators/missingness.py`: Probit link on Y (outcome) to generate mask; target rate from config. **Include exclusion restriction Z* logic for Heckman identification**. *Note: Uses ground truth Y for generation, but resulting dataset passed to estimators has Y masked.*
+- [X] T015 [US1] Implement MAR mask generator in `code/src/generators/missingness.py`: Logistic regression on Z (covariate) to generate mask; target rate from config.
+- [X] T016 [US1] Implement MNAR mask generator in `code/src/generators/missingness.py`: Probit link on Y (outcome) to generate mask; target rate from config. **Include exclusion restriction Z* logic for Heckman identification**. *Note: Uses ground truth Y for generation, but resulting dataset passed to estimators has Y masked.*
 - [ ] T018 [US1] Add validation logic to ensure missingness patterns match definitions: **FAIL simulation** if MCAR p < 0.05 (dependence) OR if MAR/MNAR p >= 0.05 (no correlation). Explicitly map to US-1 Acceptance Scenario 1 (p > 0.05 for MCAR success) and Scenarios 2/3 (p < 0.05 for MAR/MNAR success).
 - [ ] T017 [US1] Integrate generators into `code/main.py` to produce initial dataset and save to `data/simulated_raw.csv`
 
@@ -112,7 +112,7 @@
 
 - [ ] T032 [P] [US3] Implement aggregation logic in `code/src/metrics/aggregation.py`: **Bias = mean(est - true); RMSE = sqrt(mean((est - true)^2)); Coverage = mean(L <= true <= U)**. **Use nominal confidence level from `config/estimation.yaml` (default 0.95) as per SC-001**.
 - [ ] T033 [P] [US3] Implement visualization script in `code/src/viz/heatmaps.py` (Bias and Coverage heatmaps)
-- [ ] T034 [US3] Create Monte-Carlo loop in `code/main.py` to iterate **[deferred] times** per configuration (**3 mechanisms x 3 rates x 4 estimators = 36 configs **) as per FR-006.
+- [ ] T034 [US3] Create Monte-Carlo loop in `code/main.py` to iterate **[deferred] times** per configuration (**3 mechanisms [UNRESOLVED-CLAIM: c_a709a625 — status=not_enough_info] x 3 rates x 4 estimators [UNRESOLVED-CLAIM: c_bdb4aa17 — status=not_enough_info] = 36 configs [UNRESOLVED-CLAIM: c_d7af2f5d — status=not_enough_info] **) as per FR-006.
 - [ ] T035 [US3] Integrate aggregation into `code/main.py` to save `results/metrics.csv` and `results/best_estimators.json`
 - [ ] T036 [US3] Generate final visualizations and save to `results/` (e.g., `bias_heatmap.png`, `coverage_heatmap.png`)
 - [ ] T037 [US3] Add logic to identify and report the estimator with lowest RMSE for each mechanism
@@ -136,7 +136,7 @@
 - [ ] T041 [P] Additional unit tests for edge cases (zero bandwidth, missingness rate = 0/1) in `code/tests/unit/`
 - [ ] T042 Security hardening: Validate all user inputs and configuration files against schemas
 - [ ] T043 Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T045 [P] **Run feasibility benchmark**: Execute multiple replications of all 36 configs; verify total time < 6 hours (scaled) before full run.
+- [ ] T045 [P] **Run feasibility benchmark**: Execute multiple replications of all 36 configs [UNRESOLVED-CLAIM: c_d7af2f5d — status=not_enough_info]; verify total time < 6 hours (scaled) before full run.
 
 ---
 

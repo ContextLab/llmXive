@@ -1,0 +1,42 @@
+T011b:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt for `specs/001-predicting-solubility-in-mixed-solvents/spec.md`\
+    \ contains an explicit \u201CExcluded Sources: DSSTox is explicitly excluded\u201D\
+    \ line under FR\u2011001, with a rationale that cites the Plan\u2019s \u201CAssumptions\
+    \ & Gaps\u201D section, fulfilling the task\u2019s documentation requirement."
+T013:
+  c: false
+  h: fa0257b91dc5ab6ed1a40837608c2dcda239febacd65ceeaa3d812b765fc6e49
+  r: "The required source file `code/01_data_ingestion.py` and the log file `data/artifacts/imputation_log.txt`\
+    \ are both missing, so no KNN imputation implementation, row\u2011dropping logic,\
+    \ or logging of the imputation rate is present. The task\u2019s deliverables are\
+    \ absent."
+T016:
+  c: false
+  h: dd7c3912fddb9d113a312f971c69dab0030f1faba4ca6e84dd84233deaff5cb8
+  r: The provided `code/02_feature_engineering.py` does not show any implementation
+    of explicit interaction term generation (polynomial or ratio), and the file is
+    truncated before any such logic could appear. Moreover, the required output file
+    `data/processed/solubility_features.csv` is absent, so no new columns have been
+    appended. The task is therefore not fulfilled.
+T017b:
+  c: false
+  h: ec98883aea6a4fc12f56293bdad742973cfe03a02cb65e5ff29b05316e37ac9e
+  r: The required file `data/artifacts/pivot_decision.json` does not exist, so the
+    condition to trigger the task cannot be evaluated, and there is no evidence that
+    `tasks.md` was updated accordingly. Both the pivot decision artifact and the updated
+    task definitions are missing.
+T017c:
+  c: false
+  h: ec98883aea6a4fc12f56293bdad742973cfe03a02cb65e5ff29b05316e37ac9e
+  r: The required artifact `data/artifacts/pivot_decision.json` is missing, and there
+    is no evidence that `tasks.md` was updated to reflect a pivot decision. Consequently
+    the verification step cannot be performed as specified.
+T023:
+  c: false
+  h: df64a85d7f09e8363832213a9f33ed8674524247e69d7cfb5e4ac4462dfd0175
+  r: The required `data/artifacts/trained_models.pkl` file does not exist, so the
+    evaluation script cannot load any models. Moreover, `code/04_evaluation.py` is
+    incomplete (syntax errors, truncated logic, missing implementation of metric calculations).
+    Both the necessary artifact and a functional evaluation implementation are absent.

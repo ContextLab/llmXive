@@ -84,16 +84,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data (DSSTox excluded per Plan) and filter for molecules with MW < 500 Da
-- [ ] T011b [US1] **Formal Scope Amendment**: Create or update `specs/001-predicting-solubility-in-mixed-solvents/spec.md` to explicitly document the exclusion of DSSTox from FR-001, citing the Plan's "Assumptions & Gaps" section.
-- [ ] T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject or normalize rows where composition sum != 1.0 (within tolerance) and write filtered data to `data/processed/cleaned_compositions.csv`
-- [~] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`.
+- [ ] T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data (DSSTox excluded per Plan) and filter for molecules with MW < 500 Da <!-- FAILED: unspecified -->
+- [X] T011b [US1] **Formal Scope Amendment**: Create or update `specs/001-predicting-solubility-in-mixed-solvents/spec.md` to explicitly document the exclusion of DSSTox from FR-001, citing the Plan's "Assumptions & Gaps" section.
+- [ ] T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject or normalize rows where composition sum != 1.0 (within tolerance) and write filtered data to `data/processed/cleaned_compositions.csv` <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`.
  - **Failure Mode**: If imputation rate > 15%, write `ERROR: Imputation rate exceeded [deferred]` to `data/artifacts/imputation_error.log` and exit with code 1.
  - Target imputation rate <15%.
-- [ ] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit
-- [ ] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions)
+- [X] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit
+- [X] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions)
 - [ ] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py` **IF** mixed-solvent data exists; otherwise, apply to pure solvent descriptors; append columns to `data/processed/solubility_features.csv`
-- [~] T017 [US1] Implement pivot logic in `code/02_feature_engineering.py`: if mixed-solvent entries < 100, flag dataset as "Pure Solvent", drop the "non-linear mixing" hypothesis per Plan. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T017 [US1] Implement pivot logic in `code/02_feature_engineering.py`: if mixed-solvent entries < 100, flag dataset as "Pure Solvent", drop the "non-linear mixing" hypothesis per Plan. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 5:
  * Implemented `execute_pivot_l...
  ^
@@ -103,8 +103,8 @@ expected alphabetic or numeric character, but found ' '
  ^) -->
  - **Mandatory Deliverable**: Write a JSON flag file `data/artifacts/pivot_decision.json` with schema: `{"status": "pivoted" | "normal", "reason": "string"}`.
  - This file acts as the hard trigger signal for downstream re-scoping tasks.
-- [~] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
-- [~] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
+- [ ] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
+- [ ] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
 - [ ] T018 [US1] Write final processed dataset to `data/processed/solubility_features.csv` with checksum
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -124,8 +124,8 @@ expected alphabetic or numeric character, but found ' '
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with -fold cross-validation and hyperparameter grid (limit ≤30 mins/trial)
-- [ ] T022 [US2] Implement Abraham solvation parameter model baseline in `code/03_model_training.py`:
+- [X] T021 [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with -fold cross-validation and hyperparameter grid (limit ≤30 mins/trial)
+- [X] T022 [US2] Implement Abraham solvation parameter model baseline in `code/03_model_training.py`:
  - Primary: Use `solv` package.
  - Fallback: If `solv` unavailable, implement `scikit-learn LinearRegression` using **Abraham parameters (a, b, c, s, v, r)** as features X.
  - **Requirement**: Fallback must replicate the exact output schema and behavior of the `solv` package's 'Abraham solvation parameter model'.
@@ -133,7 +133,7 @@ expected alphabetic or numeric character, but found ' '
 - [ ] T024 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl`. Implement paired t-test on absolute errors per Constitution Principle VII **[OVERRIDES FR-005]** in `code/04_evaluation.py`; write statistical test results (p-value, t-statistic) to `data/artifacts/statistical_test_results.json`.
 - [ ] T024b [US2] **Document Override**: In `data/artifacts/training_report.json`, explicitly document the override of Spec FR-005 (Wilcoxon) by Constitution Principle VII (t-test).
 - [ ] T025 [US2] Generate comparison report in `data/artifacts/training_report.json` including metrics, statistical significance (p < 0.05), and **explicit check/report of the absolute R² > 0.70 threshold** (per Constitution VII).
-- [~] T026 [US2] **Enforce Resource Limits**: Wrap the execution of `code/03_model_training.py` in a **subprocess wrapper** that spawns an external monitoring process.
+- [X] T026 [US2] **Enforce Resource Limits**: Wrap the execution of `code/03_model_training.py` in a **subprocess wrapper** that spawns an external monitoring process.
  - **Mechanism**: The monitoring process must poll the training process ID (PID) using `psutil`.
  - **Action**: If RAM > 7.0 GB or Disk > 14.0 GB, the monitor must immediately kill the training process and exit with code 1.
  - **Logging**: The monitor must write status updates to `data/artifacts/resource_monitor.log` and stderr (reusing `code/utils/logging.py` logic where possible).
@@ -174,7 +174,7 @@ expected alphabetic or numeric character, but found ' '
 
 - [~] T036 [P] Update `research.md`: append verified source URLs and pivot decisions to the "Data Sources" section
 - [~] T037 Ensure type hints are added to `code/utils/*.py` and remove unused imports
-- [~] T038 [P] Refactor `code/02_feature_engineering.py` to use batch processing for RDKit calls (batch size 1000).
+- [X] T038 [P] Refactor `code/02_feature_engineering.py` to use batch processing for RDKit calls (batch size 1000).
  - **Dependency**: Depends on completion of T014-T016.
  - **Goal**: Targeting a reduction in **wall-clock time** for the feature engineering step.
 - [X] T039 [P] Add `tests/unit/test_edge_cases.py` containing functions `test_missing_data_handling` and `test_small_dataset_split`

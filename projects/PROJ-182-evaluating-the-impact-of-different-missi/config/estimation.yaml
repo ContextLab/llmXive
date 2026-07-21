@@ -1,5 +1,9 @@
-# Estimation configuration
-bandwidth_rule: ik
+# Estimation Configuration
+# Defines parameters for the RD estimators
+
+bandwidth_rule: IK
 imputation_count: 5
 nominal_confidence: 0.95
-bandwidth_floor: 0.05
+# Additional parameters for specific estimators
+local_linear: true
+kernel_type: triangular

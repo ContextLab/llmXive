@@ -1,44 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AggregatedMetric
-description: Aggregated performance metrics across Monte Carlo replications.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Metric"
+description: "Schema for Monte-Carlo aggregated performance metrics"
 type: object
 required:
-  - bias
-  - rmse
-  - coverage
   - mechanism
   - rate
   - estimator_name
+  - bias
+  - rmse
+  - coverage
   - n_replications
 properties:
-  bias:
-    type: number
-    description: Mean bias across replications (mean(est - true_effect)).
-  rmse:
-    type: number
-    description: Root Mean Squared Error across replications.
-  coverage:
-    type: number
-    description: Empirical coverage rate of confidence intervals (0 to 1).
   mechanism:
     type: string
-    description: Missingness mechanism.
+    description: "The missingness mechanism"
     enum:
       - MCAR
       - MAR
       - MNAR
   rate:
     type: number
-    description: Missingness rate.
+    description: "The missingness rate"
+    minimum: 0.0
+    maximum: 1.0
   estimator_name:
     type: string
-    description: Name of the estimator.
+    description: "Name of the estimator"
+  bias:
+    type: number
+    description: "Mean Bias (mean(estimate - true_effect))"
+  rmse:
+    type: number
+    description: "Root Mean Squared Error"
+  coverage:
+    type: number
+    description: "Coverage probability (proportion of CIs containing true effect)"
+    minimum: 0.0
+    maximum: 1.0
   n_replications:
     type: integer
-    description: Number of Monte Carlo replications aggregated.
+    description: "Number of Monte-Carlo replications"
     minimum: 1
-  nominal_coverage:
+  nominal_level:
     type: number
-    description: The nominal confidence level used (e.g., 0.95).
+    description: "Nominal confidence level used for coverage calculation"
     default: 0.95
-additionalProperties: false

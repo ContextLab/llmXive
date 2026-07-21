@@ -88,7 +88,7 @@ The system must ingest raw solubility data from verified public sources.
 
 ## 5. Assumptions & Gaps
 
-- **DSSTox Exclusion**: As noted in FR-001, DSSTox is excluded due to stoichiometry complexity.
+- **DSSTox Exclusion**: As noted in FR-001, DSSTox is excluded due to stoichiometry complexity. This exclusion is formally documented per the project Plan's "Assumptions & Gaps" section to prevent scope creep regarding complex stoichiometry normalization in the MVP.
 - **Mixed Solvent Data**: If insufficient mixed-solvent data exists (< 100 rows), the system will pivot to pure solvent prediction logic.
 - **Abraham Parameters**: If the `solv` package is unavailable, a fallback linear regression using standard Abraham parameters (a, b, c, s, v, r) will be used.
 

@@ -1,22 +1,4 @@
-? 'T001 Create project structure per implementation plan: `code/src/generators`, `code/src/estimators`,
-  `code/src/metrics`, `code/src/viz`, `code/tests/unit`, `code/tests/integration`,
-  `data/`, `results/`, `contracts/`, `config/`'
-: 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0, pandas>=2.0.0,
-  scikit-learn>=1.3.0, statsmodels>=0.14.0, seaborn>=0.12.0, matplotlib>=3.7.0, pyyaml>=6.0,
-  pytest>=7.0.0)
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
-? T004 [P] Create contract schemas in `contracts/` (`simulation_config.schema.yaml`,
-  `estimation_result.schema.yaml`, `aggregated_metric.schema.yaml`) with JSON Schema
-  structure ($schema, type, properties with types, required fields)
-: 1
-? T005 [P] Implement configuration loader in `code/src/config_loader.py` to read `config/simulation.yaml`
-  (sample_size, true_effect, seed), `config/missingness.yaml` (rates, mechanisms),
-  `config/estimation.yaml` (bandwidth_rule, imputation_count)
-: 1
-? 'T006 Create base data model classes in `code/src/models.py` (`SimulationConfig`:
-  sample_size:int, true_effect:float, **exclusion_restriction:float**; `MissingnessPattern`:
-  mask:bool; `EstimationResult`: estimate:float, se:float; `AggregatedMetric`: bias:float,
-  rmse:float, coverage:float)'
-: 1
+T001: 1
+T003: 1
+T004: 1
+T018: 1

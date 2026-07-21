@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T23:25:37.121749Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-280-investigating-microbial-community-succes
-last_run_id: 7d39a73a-53c6-4cc8-a49c-685fffcf378a
+last_run_id: 34e9a03b-b09f-48b2-a08c-75a3013b73f1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-280-investigating-microbial-community-succes/specs/001-investigating-microbial-community-succes
 title: Investigating Microbial Community Succession in Constructed Wetlands
-updated_at: '2026-07-15T00:11:41.621155Z'
+updated_at: '2026-07-21T04:54:07.548478Z'
