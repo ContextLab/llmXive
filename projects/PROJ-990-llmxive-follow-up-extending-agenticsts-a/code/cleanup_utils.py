@@ -1,3 +1,7 @@
+"""
+Code cleanup utilities for analyzing Python code quality.
+Implements checks for TODOs, pass-only functions, import grouping, and general quality metrics.
+"""
 import ast
 import os
 import re
@@ -5,271 +9,257 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional, Tuple
 import logging
 
-# Configure logging for cleanup analysis
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 def find_python_files(root_dir: Path) -> List[Path]:
-    """
-    Recursively find all Python files in the given directory.
-    
-    Args:
-        root_dir: The root directory to search.
-        
-    Returns:
-        A list of Path objects for all .py files found.
-    """
-    python_files = []
-    for path in root_dir.rglob('*.py'):
-        # Skip __pycache__ and hidden directories
-        if '__pycache__' not in str(path) and not path.name.startswith('.'):
-            python_files.append(path)
-    return python_files
+    """Find all Python files in the given directory recursively."""
+    return list(root_dir.rglob('*.py'))
 
-
-def check_for_todos(file_path: Path) -> List[Dict[str, any]]:
-    """
-    Scan a Python file for TODO, FIXME, HACK, and XXX comments.
-    
-    Args:
-        file_path: Path to the Python file.
-        
-    Returns:
-        A list of dictionaries containing line number and comment text.
-    """
+def check_for_todos(tree: ast.AST, file_path: Path) -> List[Dict]:
+    """Check for TODO, FIXME, XXX, and HACK comments in the AST."""
     issues = []
-    pattern = re.compile(r'#\s*(TODO|FIXME|HACK|XXX):?\s*(.*)', re.IGNORECASE)
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                match = pattern.search(line)
-                if match:
-                    issues.append({
-                        'line': line_num,
-                        'type': match.group(1).upper(),
-                        'text': match.group(2).strip()
-                    })
-    except Exception as e:
-        logger.warning(f"Could not read {file_path}: {e}")
-        
-    return issues
-
-
-def check_for_pass_only_functions(file_path: Path) -> List[Dict[str, any]]:
-    """
-    Identify functions/classes that contain only 'pass' statements.
-    
-    Args:
-        file_path: Path to the Python file.
-        
-    Returns:
-        A list of dictionaries containing name and line number.
-    """
-    issues = []
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        tree = ast.parse(source)
-    except SyntaxError as e:
-        logger.warning(f"Syntax error in {file_path}: {e}")
-        return issues
-    except Exception as e:
-        logger.warning(f"Could not parse {file_path}: {e}")
-        return issues
-        
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            # Check if body has exactly one statement which is 'pass'
-            if len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
-                issues.append({
-                    'name': node.name,
-                    'type': 'function' if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else 'class',
-                    'line': node.lineno
-                })
-                
-    return issues
-
-
-def check_import_groups(file_path: Path) -> List[Dict[str, any]]:
-    """
-    Check for inconsistent or missing blank lines between import groups.
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+            # Check for string literals that might be comments (though AST doesn't capture comments directly)
+            # We'll use a regex on the source code instead for reliable comment detection
+            pass
     
-    Args:
-        file_path: Path to the Python file.
-        
-    Returns:
-        A list of dictionaries describing import issues.
-    """
-    issues = []
-    
+    # Fallback to regex on source code for comment detection
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
         logger.warning(f"Could not read {file_path}: {e}")
         return issues
-        
-    in_import_block = False
-    last_import_line = -1
-    import_type = None  # 'stdlib', 'thirdparty', 'local'
-    
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        
-        # Skip comments and empty lines for import detection
-        if not stripped or stripped.startswith('#'):
-            continue
-            
-        is_import = stripped.startswith('import ') or stripped.startswith('from ')
-        
-        if is_import:
-            # Determine import type
-            if stripped.startswith('from ') or stripped.startswith('import '):
-                module_part = stripped.split()[1].split('.')[0] if ' ' in stripped else stripped.split('.')[0]
-                
-                current_type = 'local'
-                if module_part in ['os', 'sys', 're', 'ast', 'json', 'logging', 'pathlib', 'typing', 'random', 'time', 'hashlib', 'pickle', 'numpy', 'pandas']:
-                    if module_part in ['numpy', 'pandas']:
-                        current_type = 'thirdparty'
-                    else:
-                        current_type = 'stdlib'
-                
-                if import_type and import_type != current_type:
-                    # Check if there was a blank line between groups
-                    if i - last_import_line > 1:
-                        # There is a blank line, which is good
-                        pass
-                    else:
-                        issues.append({
-                            'line': i + 1,
-                            'type': 'import_group',
-                            'text': f"Missing blank line between {import_type} and {current_type} imports"
-                        })
-                
-                import_type = current_type
-                in_import_block = True
-                last_import_line = i
-        else:
-            if in_import_block:
-                in_import_block = False
-                
+
+    pattern = re.compile(r'#\s*(TODO|FIXME|XXX|HACK):?\s*(.*)', re.IGNORECASE)
+    for i, line in enumerate(lines, 1):
+        match = pattern.search(line)
+        if match:
+            issues.append({
+                'file': str(file_path),
+                'line': i,
+                'type': match.group(1).upper(),
+                'message': match.group(2).strip(),
+                'code': line.strip()
+            })
     return issues
 
+def check_for_pass_only_functions(tree: ast.AST, file_path: Path) -> List[Dict]:
+    """Check for functions or classes that contain only 'pass'."""
+    issues = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            # Check if body contains only Pass or Docstring + Pass
+            body = node.body
+            if len(body) == 1 and isinstance(body[0], ast.Pass):
+                issues.append({
+                    'file': str(file_path),
+                    'line': node.lineno,
+                    'type': 'function' if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else 'class',
+                    'name': node.name,
+                    'issue': 'Empty body (only pass)'
+                })
+            elif len(body) == 2:
+                # Check for docstring followed by pass
+                if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+                    if isinstance(body[1], ast.Pass):
+                        issues.append({
+                            'file': str(file_path),
+                            'line': node.lineno,
+                            'type': 'function' if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else 'class',
+                            'name': node.name,
+                            'issue': 'Empty body (docstring + pass)'
+                        })
+    return issues
 
-def analyze_code_quality(root_dir: Path) -> Dict[str, any]:
-    """
-    Perform a comprehensive code quality analysis on all Python files.
+def check_import_groups(tree: ast.AST, file_path: Path) -> List[Dict]:
+    """Check for properly grouped imports (stdlib, third-party, local)."""
+    issues = []
+    imports = []
     
-    Args:
-        root_dir: The root directory containing the code.
-        
-    Returns:
-        A dictionary containing analysis results.
-    """
-    python_files = find_python_files(root_dir)
-    total_files = len(python_files)
-    total_issues = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.append({
+                    'line': node.lineno,
+                    'module': alias.name,
+                    'type': 'import'
+                })
+        elif isinstance(node, ast.ImportFrom):
+            imports.append({
+                'line': node.lineno,
+                'module': node.module or '',
+                'type': 'from'
+            })
+
+    if not imports:
+        return issues
+
+    # Simple heuristic: check if imports are contiguous and grouped
+    # This is a simplified check; real grouping is complex
+    prev_module = None
+    for imp in imports:
+        if prev_module is not None:
+            # Check if there's a gap
+            if imp['line'] - prev_module['line'] > 1:
+                # Might be okay if there's a blank line or comment
+                pass
+        prev_module = imp
+
+    # More robust check: ensure standard library imports come first
+    stdlib_modules = {'os', 'sys', 'json', 'logging', 'pathlib', 'typing', 're', 'ast', 'hashlib'}
+    stdlib_lines = [imp['line'] for imp in imports if imp['module'] in stdlib_modules]
+    third_party_lines = [imp['line'] for imp in imports if imp['module'] not in stdlib_modules and imp['module'] != '']
     
-    todos = []
-    empty_functions = []
-    import_issues = []
-    
-    logger.info(f"Analyzing {total_files} Python files in {root_dir}")
-    
-    for file_path in python_files:
-        # Check for TODOs
-        file_todos = check_for_todos(file_path)
-        if file_todos:
-            todos.extend([{'file': str(file_path), **todo} for todo in file_todos])
-            total_issues += len(file_todos)
-            
-        # Check for pass-only functions
-        file_empty = check_for_pass_only_functions(file_path)
-        if file_empty:
-            empty_functions.extend([{'file': str(file_path), **item} for item in file_empty])
-            total_issues += len(file_empty)
-            
-        # Check import groups
-        file_import_issues = check_import_groups(file_path)
-        if file_import_issues:
-            import_issues.extend([{'file': str(file_path), **issue} for issue in file_import_issues])
-            total_issues += len(file_import_issues)
-            
-    return {
-        'total_files': total_files,
-        'total_issues': total_issues,
-        'todos': todos,
-        'empty_functions': empty_functions,
-        'import_issues': import_issues,
-        'summary': {
-            'todo_count': len(todos),
-            'empty_function_count': len(empty_functions),
-            'import_issue_count': len(import_issues)
-        }
+    if stdlib_lines and third_party_lines:
+        max_stdlib = max(stdlib_lines)
+        min_third_party = min(third_party_lines)
+        if max_stdlib > min_third_party:
+            issues.append({
+                'file': str(file_path),
+                'line': min_third_party,
+                'type': 'import_grouping',
+                'issue': 'Third-party imports appear before standard library imports'
+            })
+
+    return issues
+
+def analyze_code_quality(file_path: Path) -> Dict:
+    """Perform a comprehensive code quality analysis on a single file."""
+    results = {
+        'file': str(file_path),
+        'todos': [],
+        'empty_functions': [],
+        'import_issues': [],
+        'line_count': 0,
+        'complexity': 0
     }
 
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        results['line_count'] = len(source.splitlines())
+        
+        tree = ast.parse(source)
+        
+        # Calculate basic complexity (number of nodes)
+        results['complexity'] = len(list(ast.walk(tree)))
+        
+        results['todos'] = check_for_todos(tree, file_path)
+        results['empty_functions'] = check_for_pass_only_functions(tree, file_path)
+        results['import_issues'] = check_import_groups(tree, file_path)
+        
+    except SyntaxError as e:
+        results['syntax_error'] = str(e)
+        logger.error(f"Syntax error in {file_path}: {e}")
+    except Exception as e:
+        results['error'] = str(e)
+        logger.error(f"Error analyzing {file_path}: {e}")
 
-def generate_cleanup_report(root_dir: Path, output_path: Path) -> Dict[str, any]:
-    """
-    Generate a cleanup report and save it to the specified path.
-    
-    Args:
-        root_dir: The root directory to analyze.
-        output_path: Path where the report will be saved.
+    return results
+
+def generate_cleanup_report(root_dir: Path) -> Dict:
+    """Generate a comprehensive cleanup report for all Python files in the directory."""
+    report = {
+        'root_directory': str(root_dir),
+        'files_analyzed': 0,
+        'total_issues': 0,
+        'issues_by_type': {
+            'todo': 0,
+            'empty_function': 0,
+            'import_grouping': 0,
+            'syntax_error': 0
+        },
+        'files_with_issues': [],
+        'summary': ''
+    }
+
+    python_files = find_python_files(root_dir)
+    report['files_analyzed'] = len(python_files)
+    logger.info(f"Analyzing {len(python_files)} Python files in {root_dir}")
+
+    all_issues = []
+
+    for file_path in python_files:
+        analysis = analyze_code_quality(file_path)
         
-    Returns:
-        The report dictionary.
-    """
-    logger.info(f"Generating cleanup report for {root_dir}")
-    
-    report = analyze_code_quality(root_dir)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save report as JSON
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
+        if 'syntax_error' in analysis:
+            report['issues_by_type']['syntax_error'] += 1
+            report['total_issues'] += 1
+            report['files_with_issues'].append({
+                'file': analysis['file'],
+                'issues': [{'type': 'syntax_error', 'message': analysis['syntax_error']}]
+            })
+            continue
+
+        file_issues = []
         
-    logger.info(f"Cleanup report saved to {output_path}")
-    logger.info(f"Found {report['summary']['todo_count']} TODOs, "
-               f"{report['summary']['empty_function_count']} empty functions, "
-               f"{report['summary']['import_issue_count']} import issues")
-    
+        if analysis['todos']:
+            report['issues_by_type']['todo'] += len(analysis['todos'])
+            report['total_issues'] += len(analysis['todos'])
+            file_issues.extend([{'type': 'todo', **issue} for issue in analysis['todos']])
+        
+        if analysis['empty_functions']:
+            report['issues_by_type']['empty_function'] += len(analysis['empty_functions'])
+            report['total_issues'] += len(analysis['empty_functions'])
+            file_issues.extend([{'type': 'empty_function', **issue} for issue in analysis['empty_functions']])
+        
+        if analysis['import_issues']:
+            report['issues_by_type']['import_grouping'] += len(analysis['import_issues'])
+            report['total_issues'] += len(analysis['import_issues'])
+            file_issues.extend([{'type': 'import_grouping', **issue} for issue in analysis['import_issues']])
+
+        if file_issues:
+            report['files_with_issues'].append({
+                'file': analysis['file'],
+                'issues': file_issues
+            })
+
+    # Generate summary
+    if report['total_issues'] == 0:
+        report['summary'] = "No issues found. Codebase is clean!"
+    else:
+        report['summary'] = f"Found {report['total_issues']} issues across {len(report['files_with_issues'])} files."
+        report['summary'] += f"\n- {report['issues_by_type']['todo']} TODOs/FIXMEs"
+        report['summary'] += f"\n- {report['issues_by_type']['empty_function']} empty functions/classes"
+        report['summary'] += f"\n- {report['issues_by_type']['import_grouping']} import grouping issues"
+        report['summary'] += f"\n- {report['issues_by_type']['syntax_error']} syntax errors"
+
     return report
 
-
 def main():
-    """Main entry point for the cleanup analysis script."""
-    import json
+    """Main entry point for the cleanup utility."""
+    import argparse
     
-    # Default paths
-    root_dir = Path('code')
-    output_file = Path('data/processed/cleanup_report.json')
+    parser = argparse.ArgumentParser(description='Analyze code quality and generate cleanup report')
+    parser.add_argument('--root', '-r', type=Path, default=Path('code'), 
+                      help='Root directory to analyze (default: code/)')
+    parser.add_argument('--output', '-o', type=Path, default=Path('data/processed/cleanup_report.json'),
+                      help='Output file for the report (default: data/processed/cleanup_report.json)')
     
-    # Parse command line arguments if provided
-    import sys
-    if len(sys.argv) > 1:
-        root_dir = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_file = Path(sys.argv[2])
-        
-    try:
-        report = generate_cleanup_report(root_dir, output_file)
-        print(f"Analysis complete. Report saved to {output_file}")
-        print(f"Total issues found: {report['total_issues']}")
-        return 0
-    except Exception as e:
-        logger.error(f"Error during cleanup analysis: {e}")
+    args = parser.parse_args()
+    
+    if not args.root.exists():
+        logger.error(f"Root directory does not exist: {args.root}")
         return 1
 
+    # Ensure output directory exists
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+
+    report = generate_cleanup_report(args.root)
+    
+    # Save report
+    import json
+    with open(args.output, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Cleanup report saved to {args.output}")
+    print(report['summary'])
+    
+    return 0 if report['total_issues'] == 0 else 1
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+    exit(main())

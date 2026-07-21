@@ -1,91 +1,98 @@
-# llmXive: AgenticSTS Follow-up Project
+# llmXive: AgenticSTS Follow-up
 
 ## Project Overview
 
-This project implements an automated science pipeline for extending the "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents" research. The system analyzes LLM agent trajectories, performs ablation studies to determine memory layer utility, trains a lightweight classifier to predict optimal retrieval strategies, and validates a dynamic policy against static baselines.
+This project extends the "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon LLM Agents" research.
+It implements a dynamic memory retrieval policy for LLM agents, comparing it against static and random baselines
+to evaluate token efficiency and task performance.
 
 ## Key Features
 
-- **Dynamic Retrieval Policy**: Uses a trained classifier to select memory layers based on turn-level entropy and token budget constraints.
-- **Ablation Study Engine**: Computes ground-truth utility scores for memory layers via systematic ablation.
-- **Baseline Comparisons**: Implements "Static All-Layers" and "No-Store Random" baselines for rigorous comparison.
-- **Statistical Validation**: Performs McNemar's tests (paired) or Permutation tests (unpaired) with Bonferroni correction to validate efficacy.
-- **Bounded-Memory Simulation**: Enforces hard token budgets (4096) and minimum context floors (256) during simulation.
-
-## Quick Start
-
-See [`quickstart.md`](quickstart.md) for step-by-step instructions on running the full pipeline, including data validation, training, simulation, and statistical reporting.
+- **Dynamic Layer Selection**: Uses a trained classifier to predict optimal memory layers based on turn entropy.
+- **Bounded Memory**: Enforces a hard token budget (4096 tokens) with a minimum context floor (256 tokens).
+- **Statistical Validation**: Performs McNemar's tests and Bonferroni corrections to validate efficacy.
+- **Ablation Studies**: Generates ground-truth utility labels via ablation on specific dataset splits.
 
 ## Project Structure
 
 ```
 .
-├── code/ # Core implementation modules
+├── code/ # Core implementation
 │ ├── config.py # Configuration constants (TOKEN_BUDGET, MIN_CONTEXT)
 │ ├── parser.py # Trajectory parsing and metric extraction
 │ ├── entropy.py # Shannon entropy calculation for move distributions
-│ ├── splitter.py # Stratified data splitting
+│ ├── splitter.py # Stratified data splitting (Train, Ablation, Validation, Test)
 │ ├── ablation.py # Ablation study engine
-│ ├── classifier.py # Utility prediction model training and validation
-│ ├── simulator.py # Dynamic and baseline simulation logic
+│ ├── classifier.py # Utility classifier training and validation
+│ ├── simulator.py # Dynamic and baseline simulation execution
+│ ├── engine_runner.py # Engine invocation wrapper
 │ ├── stats.py # Statistical testing (McNemar, Permutation, t-test)
-│ └── main.py # Pipeline orchestration
+│ └── main.py # Pipeline orchestrator
 ├── data/
-│ ├── raw/ # Input trajectory logs (checksum-verified)
-│ └── processed/ # Derived metrics, splits, and analysis outputs
+│ ├── raw/ # Input trajectory logs
+│ └── processed/ # Derived metrics, splits, and simulation logs
 ├── models/ # Trained classifier artifacts
 ├── tests/ # Unit and integration tests
 ├── requirements.txt # Python dependencies
-└── quickstart.md # Execution guide
+├── README.md # This file
+└── quickstart.md # Step-by-step execution guide
 ```
 
-## Dependencies
+## Prerequisites
 
 - Python 3.11+
-- pandas, numpy, scikit-learn, pytest, pyyaml
-- (Optional) ruff, black for linting/formatting
+- Standard scientific stack (pandas, numpy, scikit-learn)
+- CPU-only environment (no GPU required)
 
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Quick Start
 
-## Execution Workflow
+1. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-1. **Data Validation**: Ensure `data/raw/` contains valid, checksum-verified trajectory files.
-2. **Parsing**: Extract per-turn metrics and move distributions (`code/parser.py`).
-3. **Entropy Calculation**: Compute Shannon entropy of legal move distributions (`code/entropy.py`).
-4. **Data Splitting**: Stratified split into training and hold-out sets (`code/splitter.py`).
-5. **Ablation Study**: Run ablation on both sets to generate utility labels (`code/ablation.py`).
-6. **Validation**: Verify proxy correlation and sample size sufficiency (`code/classifier.py`, `code/validator.py`).
-7. **Training**: Train the layer utility classifier (`code/classifier.py`).
-8. **Simulation**: Run Dynamic, Static, and Random agents (`code/simulator.py`).
-9. **Aggregation**: Compute win rates and token usage statistics (`code/stats.py`).
-10. **Statistical Testing**: Perform significance tests with Bonferroni correction (`code/stats.py`).
-11. **Reporting**: Generate final statistical and baseline comparison reports.
+2. **Prepare Data**:
+ Ensure raw trajectory logs are placed in `data/raw/`. The parser will validate checksums automatically.
 
-## Configuration
+3. **Run the Pipeline**:
+ ```bash
+ python code/main.py
+ ```
+ This executes the full pipeline: parsing, splitting, ablation, training, simulation, and statistical analysis.
 
-Key parameters are defined in `code/config.py`:
-- `TOKEN_BUDGET`: Maximum token limit per prompt (default: 4096)
-- `MIN_CONTEXT`: Minimum context floor (default: 256)
-- Random seeds for reproducibility
+4. **Dry Run Mode** (Recommended for verification):
+ ```bash
+ python code/main.py --dry-run
+ ```
+ Runs the pipeline on a single trajectory to verify data flow and edge case handling.
 
 ## Output Artifacts
 
-The pipeline produces the following key artifacts in `data/processed/`:
-- `metrics_with_moves.csv`: Parsed trajectory metrics with move distributions.
-- `train_set.csv`, `holdout_set.csv`: Stratified dataset splits.
-- `ablation_labels_train.json`, `ablation_labels_holdout.json`: Utility scores from ablation.
-- `proxy_validation_report.json`: Correlation analysis between static proxy and ablation utility.
+The pipeline generates the following key artifacts in `data/processed/`:
+
+- `metrics_with_moves.csv`: Extracted per-turn metrics and move distributions.
+- `validation_set.csv`, `test_set.csv`, etc.: Stratified dataset splits.
+- `ablation_labels_train.json`: Ground-truth utility scores from ablation.
+- `simulation_logs_dynamic.json`: Results from the dynamic policy.
 - `baseline_comparison.csv`: Aggregated win rates and token usage.
-- `statistical_results.json`: Final significance test results with effect sizes.
-- `divergence_report.json`: Trajectory divergence detection results.
+- `statistical_results.json`: Final p-values, effect sizes, and test types.
 
-## Contributing
+## Configuration
 
-This project follows a strict task-based implementation workflow. See `tasks.md` for the current task list and execution order.
+Key hyperparameters are defined in `code/config.py`:
+
+- `TOKEN_BUDGET`: 4096 (Maximum tokens per prompt)
+- `MIN_CONTEXT`: 256 (Minimum tokens required, enforced by appending 'Current Objective')
+- `RANDOM_SEED`: Fixed for reproducibility.
+
+## Testing
+
+Run unit tests to verify edge cases (e.g., NaN entropy, token budget enforcement):
+
+```bash
+pytest tests/ -v
+```
 
 ## License
 
-(Insert license information here)
+Research use only. See project documentation for details.

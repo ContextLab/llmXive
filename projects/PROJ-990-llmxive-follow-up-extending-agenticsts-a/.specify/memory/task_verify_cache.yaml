@@ -21,16 +21,25 @@ T024a:
     \ a pre\u2011generated report and does not implement the required analysis of\
     \ paired trajectories. Moreover, the expected output file `data/processed/divergence_report.json`\
     \ is absent. Both the implementation and the required artifact are missing."
-T032:
+T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no evidence of any files under `tests/unit/` containing\
-    \ new tests for the \u201Cn\u202F<\u202F300\u201D warning edge case; no test code,\
-    \ file list, or content is presented. Consequently the required additional unit\
-    \ tests are missing."
-T033:
+  r: "No evidence of updated `README.md` or `quickstart.md` files was provided; the\
+    \ claim lacks the required documentation artifacts, so the task\u2019s documentation\
+    \ update requirement is not satisfied."
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that `quickstart.md` was executed or validated is present;
-    there are no logs, screenshots, or reports confirming reproducibility, so the
-    required validation has not been demonstrated.
+  r: "No code, diff, or documentation showing that any cleanup or refactoring was\
+    \ performed is present; the only evidence is a feature specification unrelated\
+    \ to a code\u2011cleanup task. Without actual cleaned source files, commit history,\
+    \ or a report of refactoring changes, the requirement cannot be verified."
+T031:
+  c: false
+  h: 8d377362ab705ee3d3b1e7b91cd49b70ab7c0984f7055d77185e8a95ac5bf995
+  r: The provided `code/benchmark.py` is truncated and does not show any code that
+    writes timing results to `data/processed/benchmark_log.json`. Moreover, the JSON
+    file contains only placeholder values and a note that it will be populated when
+    the script is run, indicating no actual benchmark data has been logged. The task
+    requires a script that records execution times per phase and total runtime into
+    that JSON file, which is not demonstrated.

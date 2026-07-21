@@ -1,0 +1,370 @@
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Dynamic policy reduces token usage by at least 30 percent
+  claim_id: c_d2e6ac81
+  context: "Baseline Comparison (data/processed/baseline_comparison.csv): Win rates\
+    \ and token usage for Dynamic, Static, and Random policies. Expected: Dynamic\
+    \ should reduce token usage by \u226530%"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dynamic_policy_reduces_token_usage_by_at_least_30_percent
+  kind: magnitude
+  raw_text: "Expected: Dynamic should reduce token usage by \u226530%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:56:36Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Full pipeline execution takes less than 6 hours on standard CPU
+  claim_id: c_d111d374
+  context: 'Expected Performance On a standard CPU environment: Full pipeline: <6
+    hours Dry-run: <5 minutes Memory usage: <7GB (with streaming)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_takes_less_than_6_hours_on_standard
+  kind: magnitude
+  raw_text: 'On a standard CPU environment: Full pipeline: <6 hours'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:57:24Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Dry-run execution takes less than 5 minutes on standard CPU
+  claim_id: c_133045a3
+  context: 'Expected Performance On a standard CPU environment: Full pipeline: <6
+    hours Dry-run: <5 minutes Memory usage: <7GB (with streaming)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dry-run_execution_takes_less_than_5_minutes_on_standard_CPU
+  kind: magnitude
+  raw_text: 'On a standard CPU environment: Dry-run: <5 minutes'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:58:11Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Memory usage is less than 7GB with streaming on standard CPU
+  claim_id: c_0d4211ee
+  context: 'Expected Performance On a standard CPU environment: Full pipeline: <6
+    hours Dry-run: <5 minutes Memory usage: <7GB (with streaming)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_is_less_than_7GB_with_streaming_on_standard_CPU
+  kind: magnitude
+  raw_text: 'On a standard CPU environment: Memory usage: <7GB (with streaming)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T19:58:56Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: System requires at least 8GB RAM with 14GB recommended for full dataset
+  claim_id: c_4e92eabe
+  context: Prerequisites Python 3.11 or higher pip package manager At least 8GB RAM
+    (14GB recommended for full dataset) CPU-only environment (no GPU required)
+  evidence:
+    candidates:
+    - - System requires at least 8GB RAM with
+      - 14.0
+    - - Log in System requires at least
+      - 8.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/System_requires_at_least_8GB_RAM_with_14GB_recommended_for_f
+  kind: magnitude
+  raw_text: At least 8GB RAM (14GB recommended for full dataset)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-21T19:59:14Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Pipeline triggers fallback if sample size is less than 300
+  claim_id: c_3b3c8389
+  context: 'Issue: Sample size too small (n < 300) Solution: The pipeline automatically
+    generates fallback k=2 labels.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_triggers_fallback_if_sample_size_is_less_than_300
+  kind: magnitude
+  raw_text: Sample size too small (n < 300)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:00:11Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Pipeline fails if proxy correlation is less than 0.7
+  claim_id: c_16d34dee
+  context: "Issue: Proxy correlation < 0.7 Solution: This is a hard failure. Verify:\
+    \ 1. Static proxy extraction (T007b) ran correctly 2. Ablation labels (T008b)\
+    \ are valid 3. Validation set has \u226520 trajectories"
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Proxy correlation < 0.7
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T20:00:11Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/quickstart.md
+  attempts: 1
+  canonical: Validation set requires at least 20 trajectories
+  claim_id: c_dad80ea4
+  context: "Issue: Proxy correlation < 0.7 Solution: This is a hard failure. Verify:\
+    \ 1. Static proxy extraction (T007b) ran correctly 2. Ablation labels (T008b)\
+    \ are valid 3. Validation set has \u226520 trajectories"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_set_requires_at_least_20_trajectories
+  kind: magnitude
+  raw_text: "Validation set has \u226520 trajectories"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:00:45Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Validation set length assertion greater than or equal to 20
+  claim_id: c_95dcfd46
+  context: 'T014 [US1] Implement proxy validation logic in `code/classifier.py`. **Logic**:
+    Assert `len(validation_set) >= 20` (raise error if not).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_set_length_assertion_greater_than_or_equal_to_20
+  kind: magnitude
+  raw_text: The system must assert that the length of the validation set is greater
+    than or equal to 20 and raise an error if not.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:06:03Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pearson correlation between static log proxy and ablation utility must
+    be at least 0.7
+  claim_id: c_7617f9b1
+  context: "T014 [US1] Implement proxy validation logic in `code/classifier.py`. **Logic**:\
+    \ Assert `len(validation_set) >= 20` (raise error if not). Check Pearson correlation\
+    \ (\u2265 0.7) between **static log proxy** (from T007b) and ablation utility\
+    \ (from T008b) on the **Validation set**."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_static_log_proxy_and_ablation_ut
+  kind: magnitude
+  raw_text: A Pearson correlation of at least 0.7 must be checked between the static
+    log proxy and ablation utility on the Validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:06:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Classifier training split is 80/20
+  claim_id: c_0403823a
+  context: 'T009 [US1] Implement `code/classifier.py` to train lightweight CPU-tractable
+    models (Decision Tree/Logistic Regression). **Input**: `data/processed/ablation_labels_train.json`
+    (ablation-derived ground-truth utility from T008) OR `data/processed/fallback_k2_labels.csv`
+    (from T008c if n < 300). **Target**: `utility_score`. **Split**: 80/20 (within
+    train set).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The classifier training split is 80/20 within the train set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:07:00Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Maximum token budget is 4096
+  claim_id: c_7a848184
+  context: T004 Implement `code/config.py` for paths, seeds, and hyperparameters.
+    Define `TOKEN_BUDGET=4096`, `MIN_CONTEXT=256` as explicit constants loaded from
+    config or env vars.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum token budget is 4096 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:07:15Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Minimum context floor is 256
+  claim_id: c_2aae0281
+  context: T004 Implement `code/config.py` for paths, seeds, and hyperparameters.
+    Define `TOKEN_BUDGET=4096`, `MIN_CONTEXT=256` as explicit constants loaded from
+    config or env vars.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum context floor is 256 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:07:45Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Truncate layers if predicted token count exceeds 4096
+  claim_id: c_144c88ae
+  context: "T016 [US1] Add logic to enforce a hard token budget and a minimum context\
+    \ floor in `code/simulator.py`. **Logic**: 1. **Maximum Budget**: If predicted\
+    \ token count > 4096, truncate or prune the least useful layers until the prompt\
+    \ size is \u2264 4096."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Truncate_layers_if_predicted_token_count_exceeds_4096
+  kind: magnitude
+  raw_text: If the predicted token count exceeds 4096, the system must truncate or
+    prune the least useful layers until the prompt size is less than or equal to 4096.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:08:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Append Current Objective layer if token count is less than 256
+  claim_id: c_4046017e
+  context: 'T016 [US1] Add logic to enforce a hard token budget and a minimum context
+    floor in `code/simulator.py`. **Logic**: 2. **Minimum Floor**: If the selected
+    layers result in a token count < 256 tokens, **append the ''Current Objective''
+    layer** to enforce the minimum context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Append_Current_Objective_layer_if_token_count_is_less_than_2
+  kind: causal
+  raw_text: If the selected layers result in a token count less than 256 tokens, the
+    system must append the 'Current Objective' layer to enforce the minimum context.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:08:39Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Random baseline selects k layers uniformly at random per turn
+  claim_id: c_dd412f81
+  context: 'T020 [US2] Implement ''No-Store Random'' baseline execution. **Logic**:
+    Invoke `code/engine_runner.py` (T018) with policy=''Random'' on the **test set**.
+    **Logic**: **Select k layers uniformly at random** for each turn (no memory of
+    past layers).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_baseline_selects_k_layers_uniformly_at_random_per_tur
+  kind: entity_fact
+  raw_text: The 'Random' baseline selects k layers uniformly at random for each turn
+    with no memory of past layers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:10:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction verification passes if reduction is at least 30%
+  claim_id: c_42f68a98
+  context: "T022a [US2] Implement verification logic to calculate percentage reduction\
+    \ in token usage. **Output**: Generate `data/processed/token_reduction_verification.json`\
+    \ containing a boolean field `passed` (true if reduction \u2265 30%) and a numeric\
+    \ field `actual_reduction_percent`."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_reduction_verification_passes_if_reduction_is_at_least
+  kind: magnitude
+  raw_text: The token reduction verification passes if the reduction is greater than
+    or equal to 30%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:10:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Refactor code if total runtime exceeds 6 hours
+  claim_id: c_0aed4d3e
+  context: 'T031b [P] **Optimize code based on benchmark results**. **Logic**: If
+    total runtime > 6 hours, refactor code to reduce runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total runtime exceeds 6 hours, the code must be refactored to reduce
+    runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:11:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage must stay below 7GB
+  claim_id: c_73a12139
+  context: T039 [P] Add a `--stream` flag to `code/parser.py` to support chunked processing
+    of large trajectory files, ensuring memory usage stays below 7GB even if the raw
+    dataset grows beyond current expectations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_stay_below_7GB
+  kind: entity_fact
+  raw_text: Memory usage must stay below 7GB even if the raw dataset grows beyond
+    current expectations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T20:11:28Z'

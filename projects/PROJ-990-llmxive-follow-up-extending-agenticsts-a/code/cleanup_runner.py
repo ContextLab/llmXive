@@ -1,85 +1,82 @@
+"""
+Runner script for code cleanup and refactoring analysis.
+Orchestrates the cleanup process and generates a comprehensive report.
+"""
 import os
 import sys
 import json
 from pathlib import Path
 import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 from cleanup_utils import generate_cleanup_report, main as cleanup_main
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def save_report(report: dict, output_path: Path) -> None:
-    """
-    Save the cleanup report to a JSON file.
-    
-    Args:
-        report: The report dictionary to save.
-        output_path: Path where the report will be saved.
-    """
+    """Save the cleanup report to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-        
     logger.info(f"Report saved to {output_path}")
 
-
-def run_cleanup_analysis(root_dir: Path = None, output_file: Path = None) -> dict:
+def run_cleanup_analysis(root_dir: Path, output_path: Path) -> dict:
     """
-    Run the cleanup analysis on the specified directory.
+    Run the full cleanup analysis on the given directory.
     
     Args:
-        root_dir: The root directory to analyze. Defaults to 'code'.
-        output_file: Path for the output report. Defaults to 'data/processed/cleanup_report.json'.
+        root_dir: Root directory containing the code to analyze
+        output_path: Path where the report will be saved
         
     Returns:
-        The generated report dictionary.
+        The cleanup report dictionary
     """
-    if root_dir is None:
-        root_dir = Path('code')
-    if output_file is None:
-        output_file = Path('data/processed/cleanup_report.json')
-        
-    logger.info(f"Running cleanup analysis on {root_dir}")
+    logger.info(f"Starting cleanup analysis for {root_dir}")
     
-    try:
-        report = generate_cleanup_report(root_dir, output_file)
-        return report
-    except Exception as e:
-        logger.error(f"Error running cleanup analysis: {e}")
-        raise
-
+    # Generate the cleanup report
+    report = generate_cleanup_report(root_dir)
+    
+    # Save the report
+    save_report(report, output_path)
+    
+    # Print summary
+    print("\n" + "="*60)
+    print("CODE CLEANUP ANALYSIS COMPLETE")
+    print("="*60)
+    print(report['summary'])
+    print("="*60)
+    
+    if report['files_with_issues']:
+        print(f"\nFiles requiring attention ({len(report['files_with_issues'])}):")
+        for file_info in report['files_with_issues'][:10]:  # Show first 10
+            print(f"  - {file_info['file']}: {len(file_info['issues'])} issues")
+        if len(report['files_with_issues']) > 10:
+            print(f"  ... and {len(report['files_with_issues']) - 10} more")
+    
+    return report
 
 def main():
-    """Main entry point for the cleanup runner script."""
-    # Default paths
-    root_dir = Path('code')
-    output_file = Path('data/processed/cleanup_report.json')
+    """Main entry point for the cleanup runner."""
+    import argparse
     
-    # Parse command line arguments if provided
-    if len(sys.argv) > 1:
-        root_dir = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_file = Path(sys.argv[2])
-        
+    parser = argparse.ArgumentParser(description='Run code cleanup analysis')
+    parser.add_argument('--root', '-r', type=Path, default=Path('code'),
+                      help='Root directory to analyze (default: code/)')
+    parser.add_argument('--output', '-o', type=Path, default=Path('data/processed/cleanup_report.json'),
+                      help='Output file for the report (default: data/processed/cleanup_report.json)')
+    
+    args = parser.parse_args()
+    
+    if not args.root.exists():
+        logger.error(f"Root directory does not exist: {args.root}")
+        return 1
+    
     try:
-        report = run_cleanup_analysis(root_dir, output_file)
-        print(f"Cleanup analysis complete.")
-        print(f"Total issues found: {report['total_issues']}")
-        print(f"  - TODOs: {report['summary']['todo_count']}")
-        print(f"  - Empty functions: {report['summary']['empty_function_count']}")
-        print(f"  - Import issues: {report['summary']['import_issue_count']}")
-        return 0
+        report = run_cleanup_analysis(args.root, args.output)
+        return 0 if report['total_issues'] == 0 else 1
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error(f"Cleanup analysis failed: {e}")
         return 1
 
-
 if __name__ == '__main__':
-    sys.exit(main())
+    exit(main())

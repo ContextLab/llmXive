@@ -20,7 +20,7 @@ The research question is to evaluate the effectiveness of current agentic workfl
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn` (for classifier and stats), `pytest`, `pyyaml`, `agenticsts-engine` (cited source)  
 **Storage**: Local CSV/JSON files under `data/` (derived from raw trajectory logs)  
 **Testing**: `pytest` (unit tests for entropy calc, integration tests for simulation loops)  
-**Target Platform**: Linux (GitHub Actions free-tier: limited CPU resources, ~7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier: limited CPU resources, limited RAM, no GPU)  
 **Project Type**: Computational Research / Data Analysis Pipeline  
 **Performance Goals**: Complete simulation of 298 trajectories + statistical analysis within 6 hours on CPU-only runner.  
 **Constraints**:

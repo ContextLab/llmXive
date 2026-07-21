@@ -1,91 +1,109 @@
 # Quick Start Guide: llmXive AgenticSTS Follow-up
 
-This guide walks you through the execution of the full llmXive pipeline, from data validation to statistical reporting.
+This guide provides a step-by-step walkthrough to reproduce the AgenticSTS dynamic memory retrieval experiments.
 
-## Prerequisites
+## 1. Environment Setup
 
-- Python 3.11 or higher
-- `pip` package manager
-- Access to the project root directory
-
-## Step 1: Install Dependencies
+Ensure you have Python 3.11 or higher installed.
 
 ```bash
+# Create a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Step 2: Validate Data Source
+Required packages:
+- `pandas`
+- `numpy`
+- `scikit-learn`
+- `pytest`
+- `pyyaml`
+- `scipy`
 
-Before running the pipeline, ensure that `data/raw/` contains valid trajectory files. The parser will automatically validate checksums and file integrity. If files are missing or corrupted, the pipeline will fail with a clear error message.
+## 2. Data Preparation
 
-```bash
-python code/parser.py --validate-only
-```
+The pipeline expects raw trajectory logs in the `data/raw/` directory.
 
-## Step 3: Run the Full Pipeline
+- **Input Format**: JSON or CSV files containing turn-by-turn agent trajectories.
+- **Validation**: The `code/parser.py` module will automatically verify file checksums and ensure non-empty data.
+- **Missing Data**: If `data/raw/` is empty or files are corrupted, the pipeline will raise a clear error (Task T034).
 
-Execute the main pipeline script to run all stages in sequence:
+## 3. Execution Modes
+
+### Full Pipeline Run
+
+Executes the complete data processing, model training, simulation, and statistical analysis.
 
 ```bash
 python code/main.py
 ```
 
-This command performs:
-1. Data parsing and metric extraction
-2. Entropy calculation
-3. Stratified data splitting
-4. Ablation study (training and hold-out sets)
-5. Proxy validation and sample size checks
-6. Classifier training
-7. Dynamic and baseline simulations
-8. Statistical aggregation and testing
-9. Report generation
+**Expected Duration**: Varies based on dataset size (typically < 6 hours on CPU).
+**Outputs**: All artifacts in `data/processed/` and `models/`.
 
-## Step 4: Dry-Run Mode (Optional)
+### Dry-Run Mode (Verification)
 
-To verify the pipeline on a small subset before full execution, use dry-run mode:
+Runs the pipeline on the first 5 trajectories to verify logic without full computation.
 
 ```bash
 python code/main.py --dry-run
 ```
 
-This processes only the first 5 trajectories, checking for edge cases (NaN entropy, budget truncation) without generating full-scale outputs.
+**Use Case**: Debugging data flow, checking edge cases (NaN entropy, budget truncation).
+**Outputs**: Minimal logs in `data/processed/`.
 
-## Step 5: Review Outputs
+## 4. Understanding the Workflow
 
-Upon successful completion, check the following artifacts in `data/processed/`:
+The pipeline follows this strict dependency chain:
 
-- `baseline_comparison.csv`: Win rates and token usage by condition.
-- `statistical_results.json`: Significance test results (p-values, effect sizes).
-- `token_reduction_verification.json`: Verification of ≥30% token reduction.
-- `divergence_report.json`: Trajectory divergence status.
+1. **Parsing** (`code/parser.py`): Extracts metrics and move distributions.
+ - Output: `data/processed/metrics_with_moves.csv`
+2. **Splitting** (`code/splitter.py`): Creates Train, Ablation-Train, Validation, and Test sets.
+ - Constraint: Validation set must have ≥ 20 trajectories.
+3. **Ablation** (`code/ablation.py`): Generates utility labels for training.
+ - Output: `data/processed/ablation_labels_train.json`
+4. **Validation** (`code/classifier.py`): Checks proxy correlation (r ≥ 0.7).
+5. **Training** (`code/classifier.py`): Trains the utility classifier.
+ - Output: `models/layer_utility_classifier.pkl`
+6. **Simulation** (`code/simulator.py`): Runs Dynamic, Static, and Random policies.
+ - Output: `data/processed/simulation_logs_*.json`
+7. **Statistics** (`code/stats.py`): Computes significance (McNemar's, Bonferroni).
+ - Output: `data/processed/statistical_results.json`
 
-The trained model is saved to `models/layer_utility_classifier.pkl`.
+## 5. Key Artifacts
 
-## Troubleshooting
+After a successful run, review these files:
 
-### Data Validation Errors
-If the parser reports missing or corrupted data files, ensure that `data/raw/` contains the expected trajectory logs and that checksums are valid.
+- **`data/processed/baseline_comparison.csv`**:
+ Compares Win Rate and Avg Tokens across Dynamic, Static, and Random policies.
+- **`data/processed/token_reduction_verification.json`**:
+ Reports if the Dynamic policy achieved ≥ 30% token reduction.
+- **`data/processed/statistical_results.json`**:
+ Contains p-values, effect sizes, and the specific statistical tests used (e.g., McNemar's).
 
-### Proxy Validation Failure
-If the proxy correlation (static log vs. ablation utility) is < 0.7, the pipeline will raise an exception. Review the ablation study configuration and data quality.
+## 6. Troubleshooting
 
-### Sample Size Warning
-If the sample count is < 300, the pipeline will log a warning and generate fallback k=2 labels. This is expected behavior per specification.
+- **Error: "Data source validation failed"**:
+ Ensure `data/raw/` contains valid, non-empty trajectory files.
+- **Error: "Validation set size < 20"**:
+ The dataset split is too small. Check input data volume.
+- **Error: "Proxy correlation < 0.7"**:
+ The static log proxy does not correlate well with ablation utility. Check `data/processed/proxy_validation_report.json`.
+- **Fallback Mode**:
+ If the ablation sample size is < 300, the pipeline automatically generates fallback k=2 labels and logs a warning (Task T008c).
 
-### Token Budget Enforcement
-If entropy calculations return NaN/Inf, the simulator defaults to retrieving all layers. Check `data/processed/simulation_logs.json` for audit trails of minimum context floor enforcement.
+## 7. Reproducibility
 
-## Performance Optimization
+To ensure exact reproducibility:
+- Run `code/generate_analysis_config.py` to snapshot seeds and hyperparameters.
+- The pipeline uses fixed random seeds defined in `code/config.py`.
+- All statistical tests include Bonferroni corrections for family-wise error control.
 
-For CPU-only environments, the pipeline is optimized to complete within 6 hours. Use the `--dry-run` flag for rapid testing. For large datasets, consider chunked processing (see `code/perf_optimizer.py`).
+## 8. Next Steps
 
-## Next Steps
-
-- Review the statistical results in `data/processed/statistical_results.json`.
-- Analyze the baseline comparison in `data/processed/baseline_comparison.csv`.
-- Iterate on hyperparameters in `code/config.py` if needed.
-- Run unit tests to verify edge cases:
- ```bash
- pytest tests/
- ```
+- **Benchmarking**: Run `python code/benchmark.py` to profile execution time per phase.
+- **Optimization**: Review `data/processed/optimization_report.md` for performance insights.
+- **Contribution**: See `CONTRIBUTING.md` (if available) for guidelines on extending the pipeline.
