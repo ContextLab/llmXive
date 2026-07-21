@@ -1910,6 +1910,39 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 228,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 238,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_execute.py",
+      "kind": "model_id_literal",
+      "line": 246,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "chain"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_model_selection_inventory.py",
       "kind": "model_id_literal",
       "line": 52,

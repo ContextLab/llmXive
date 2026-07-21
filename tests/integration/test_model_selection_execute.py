@@ -556,3 +556,30 @@ def test_reservation_authority_released_on_non_ledger_error_from_026_reserve(rep
     assert budget.open == {}       # released, NOT leaked (the bug this test guards against)
     assert rid in budget.released  # the Attempt reserve WAS opened, then released
     assert budget.retained == set()  # never dispatched
+
+
+# --------------------------------------------------------------------------- #
+# Task 4 (spec 025 slice-0): route_audit outbox — the PAID post-dispatch
+# fail-closed-with-reservation-retained case (needs the real ledger fixture;
+# the FREE-path outbox/route-fatal/none-preserving cases are in
+# tests/unit/test_model_selection_execute.py).
+# --------------------------------------------------------------------------- #
+
+from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder
+
+
+def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatch):
+    from llmxive.model_selection.attempt_hooks import RouteAuditError
+
+    # Without this, paid_call_allowed refuses before ever reaching dispatch,
+    # and the test would pass for the wrong reason (the Task 3 lesson).
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)
+    rec = _FailingRecorder(fail_on={"DispatchCompleted"})
+    with pytest.raises(RouteAuditError):
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget, route_audit=rec)
+    # Backend ran; audit failed post-dispatch → fail closed, reservation RETAINED (not released).
+    assert budget.retained

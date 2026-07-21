@@ -49,7 +49,15 @@ from llmxive.backends.router import (
     disposition_of,
     make_backend,
 )
-from llmxive.model_selection.attempt_hooks import ReservationAuthority
+from llmxive.model_selection.attempt_hooks import (
+    CandidateOutcome,
+    DispatchCompleted,
+    DispatchStarted,
+    ReservationAuthority,
+    ReservationOpened,
+    RouteAudit,
+    RouteAuditError,
+)
 from llmxive.model_selection.ledger_transport import (
     LedgerConfig,
     LedgerError,
@@ -235,6 +243,20 @@ def _open_paid_reservation(
     return rid, reserve_credits, None
 
 
+def _audit(route_audit: RouteAudit | None, event) -> None:
+    """Emit one mandatory audit event. A sink exception is NEVER swallowed — it is
+    re-raised as RouteAuditError so the caller can apply the route-fatal (pre-dispatch)
+    or fail-closed (post-dispatch) rule. A None sink is a no-op."""
+    if route_audit is None:
+        return
+    try:
+        route_audit.record(event)
+    except RouteAuditError:
+        raise
+    except Exception as exc:  # mandatory sink: surface, never swallow
+        raise RouteAuditError(f"route_audit.record({type(event).__name__}) failed: {exc}") from exc
+
+
 def execute(
     chain: ModelChain,
     messages: Iterable[ChatMessage],
@@ -249,6 +271,7 @@ def execute(
     now: datetime | None = None,
     call_id: str | None = None,
     reservation_authority: ReservationAuthority | None = None,
+    route_audit: RouteAudit | None = None,
 ) -> ExecutionResult:
     """Execute ``chain`` against ``messages`` and return the first successful
     :class:`ExecutionResult`.
@@ -262,6 +285,18 @@ def execute(
     ``LedgerError`` releases the already-open Attempt reservation. A dispatched paid
     candidate's Attempt reservation is marked retained (never released) alongside the
     026 settle. Default ``None`` is a no-op — behavior is unchanged from today.
+
+    **Outbox audit (FR-033a).** An optional ``route_audit`` receives the per-candidate
+    outbox lifecycle: a paid candidate's opened reservation emits ``ReservationOpened``,
+    then every candidate emits ``DispatchStarted`` immediately before the backend call —
+    both durable and pre-dispatch, so a sink failure there is ROUTE-FATAL (raises
+    ``RouteAuditError``; if a reservation had opened it is released + settled first, and
+    the chain does NOT advance). A successful call emits ``DispatchCompleted`` then
+    ``CandidateOutcome("success", ...)``; a sink failure on either fails the call CLOSED
+    (raises ``RouteAuditError``) with the reservation left RETAINED — the existing
+    ``finally`` still settles + marks it. Skip/advance/abort dispositions each emit their
+    own ``CandidateOutcome``. Default ``None`` is a no-op — zero audit calls, behavior
+    byte-for-byte unchanged.
 
     **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
     ``None`` = the PRODUCTION config, resolved via
@@ -316,6 +351,7 @@ def execute(
                     f"paid {ref.model_id!r} skipped: production ledger not configured "
                     f"({ledger_config_error}) — fail closed"
                 )
+                _audit(route_audit, CandidateOutcome(ref.model_id, "skip", "production ledger not configured"))
                 continue
             reservation_id, reserved_credits, skip = _open_paid_reservation(
                 candidate, chain, options=options, retries=retries,
@@ -325,7 +361,27 @@ def execute(
             )
             if skip is not None:
                 notes.append(skip)
+                _audit(route_audit, CandidateOutcome(ref.model_id, "skip", skip))
                 continue
+
+        # Pre-dispatch audits (FR-033a outbox), durable BEFORE the backend call.
+        # A failure of EITHER ReservationOpened OR DispatchStarted is ROUTE-FATAL:
+        # do NOT advance. If a reservation opened, release it (definitively did not
+        # dispatch) and settle the 026 hold, then re-raise. Both are inside ONE try
+        # so a ReservationOpened failure cannot leak the reservation.
+        try:
+            if reservation_id is not None:
+                _audit(route_audit, ReservationOpened(reservation_id, ref.model_id, reserved_credits))
+            _audit(route_audit, DispatchStarted(ref.model_id, reservation_id))
+        except RouteAuditError:
+            if reservation_id is not None:
+                if reservation_authority is not None:
+                    reservation_authority.release(reservation_id)
+                try:
+                    settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
+                except Exception as exc:  # best-effort; the sweeper backstops a lost settle
+                    logger.warning("execute: settle(%s) after audit-abort failed: %s", reservation_id, exc)
+            raise
 
         lease = (
             ReservationLease(
@@ -350,6 +406,11 @@ def execute(
                     deadline_s=options.deadline_s,
                     retries=retries,
                 )
+            # Post-dispatch (FR-033a/F2): a failure here fails the call CLOSED, but the
+            # reservation stays RETAINED (the finally settles/marks it) — the backend
+            # already ran, so we never advance.
+            _audit(route_audit, DispatchCompleted(ref.model_id, reservation_id))
+            _audit(route_audit, CandidateOutcome(ref.model_id, "success", "ok"))
             return ExecutionResult(
                 response=response,
                 model_ref=ref,
@@ -357,12 +418,16 @@ def execute(
                 notes=tuple(notes),
                 reservation_id=reservation_id,
             )
+        except RouteAuditError:
+            raise  # route-fatal — never a candidate disposition
         except Exception as exc:
             disp = disposition_of(exc)
             if disp is CandidateDisposition.ABORT:
                 # Request-level permanent refusal — stop the chain and re-raise.
+                _audit(route_audit, CandidateOutcome(ref.model_id, "abort", f"{type(exc).__name__}: {exc}"))
                 raise
             notes.append(f"{ref.model_id!r}: {disp.value}: {type(exc).__name__}: {exc}")
+            _audit(route_audit, CandidateOutcome(ref.model_id, "advance", f"{disp.value}: {type(exc).__name__}"))
         finally:
             if reservation_id is not None:
                 # Retain the hold (settle → settling) on ANY outcome — never

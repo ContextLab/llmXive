@@ -210,3 +210,40 @@ def test_paid_candidate_skipped_on_non_live_credit_snapshot():
         execute(chain, MSG, options=ExecutionOptions(max_tokens=512), backend_factory=_factory(be))
     assert "C6" in str(ei.value) and "live" in str(ei.value)
     assert be.calls == []
+
+
+# --------------------------------------------------------------------------- #
+# Task 4 (spec 025 slice-0): route_audit outbox lifecycle threaded through
+# execute (FR-033a) — the FREE-path cases. The PAID post-dispatch fail-closed
+# case lives in tests/integration/test_model_selection_execute.py (it needs
+# the real ledger fixture to open an actual reservation).
+# --------------------------------------------------------------------------- #
+
+from llmxive.model_selection.attempt_hooks import RouteAuditError
+from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
+
+
+def test_route_audit_emits_dispatch_lifecycle_free_chain():
+    rec = _Recorder()
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_factory(ScriptedBackend({})), route_audit=rec)
+    kinds = [type(e).__name__ for e in rec.events]
+    assert kinds == ["DispatchStarted", "DispatchCompleted", "CandidateOutcome"]
+    assert rec.events[-1].outcome == "success"
+
+
+def test_route_audit_predispatch_failure_is_route_fatal():
+    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    with pytest.raises(RouteAuditError):
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_factory(ScriptedBackend({})), route_audit=rec)
+    assert "DispatchCompleted" not in [type(e).__name__ for e in rec.events]
+
+
+def test_route_audit_none_is_behavior_preserving():
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    result = execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                     backend_factory=_factory(ScriptedBackend({})))
+    assert result.response is not None
