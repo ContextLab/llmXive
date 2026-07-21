@@ -21,39 +21,16 @@ T024a:
     \ a pre\u2011generated report and does not implement the required analysis of\
     \ paired trajectories. Moreover, the expected output file `data/processed/divergence_report.json`\
     \ is absent. Both the implementation and the required artifact are missing."
-T026:
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data logs, CSV summary, or statistical test results were provided; without
-    any tangible artifacts, we cannot confirm that the dynamic memory policy, baseline
-    simulations, or significance reporting were implemented as specified. The required
-    outputs are missing.
-T027:
+  r: "The submission provides no evidence of any files under `tests/unit/` containing\
+    \ new tests for the \u201Cn\u202F<\u202F300\u201D warning edge case; no test code,\
+    \ file list, or content is presented. Consequently the required additional unit\
+    \ tests are missing."
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or output artifacts (e.g., dynamic policy implementation, baseline
-    simulation logs, aggregation CSV, or statistical test results) are present to
-    confirm that the three user stories have been realized. The claim cannot be verified
-    without concrete files or evidence.
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `README.md` and `quickstart.md` files or their updated
-    contents is provided; without seeing the files we cannot confirm they exist or
-    contain the documentation changes. The implementer must supply the actual updated
-    markdown files.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, diff, or documentation showing that any cleanup or refactoring was performed
-    was provided; the only evidence is a feature specification unrelated to code cleanup,
-    so the required artifact is missing.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (code, benchmarks, logs, or documentation) were provided to demonstrate\
-    \ that the system has been optimized to run within a 6\u2011hour limit on a CPU\u2011\
-    only runner. Without performance measurements, profiling data, or an implementation\
-    \ of the claimed optimizations, the requirement cannot be verified. The implementer\
-    \ must supply the optimized code and empirical evidence (e.g., runtime logs showing\
-    \ \u22646\u202Fh execution on a CPU\u2011only environment)."
+  r: No artifact showing that `quickstart.md` was executed or validated is present;
+    there are no logs, screenshots, or reports confirming reproducibility, so the
+    required validation has not been demonstrated.

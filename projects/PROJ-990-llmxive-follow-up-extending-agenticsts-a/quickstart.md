@@ -1,93 +1,91 @@
-# Quick Start Guide: llmXive AgenticSTS Extension
+# Quick Start Guide: llmXive AgenticSTS Follow-up
 
-This guide walks you through running the full research pipeline to reproduce the results of the Dynamic Policy experiment.
+This guide walks you through the execution of the full llmXive pipeline, from data validation to statistical reporting.
 
-## 1. Environment Setup
+## Prerequisites
 
-Ensure you are using Python 3.11 or higher.
+- Python 3.11 or higher
+- `pip` package manager
+- Access to the project root directory
+
+## Step 1: Install Dependencies
 
 ```bash
-# Create virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-## 2. Data Preparation
+## Step 2: Validate Data Source
 
-The pipeline expects raw trajectory logs in `data/raw/`.
+Before running the pipeline, ensure that `data/raw/` contains valid trajectory files. The parser will automatically validate checksums and file integrity. If files are missing or corrupted, the pipeline will fail with a clear error message.
 
-- **Input**: `data/raw/trajectories.csv`
-- **Schema**: Must contain `trajectory_id`, `turn`, `health`, `threat_level`, `deck_size`, `legal_moves`, `action`.
-
-If you do not have raw data, ensure you have downloaded the AgenticSTS dataset and placed it in the correct directory. The pipeline will fail loudly if data is missing.
-
-## 3. Running the Pipeline
-
-Execute the pipeline tasks in the following order. Each script writes its output to `data/processed/` or `models/`.
-
-### Step 1: Parse & Extract Metrics
 ```bash
-python code/parser.py
-python code/entropy.py
+python code/parser.py --validate-only
 ```
-*Outputs*: `data/processed/turn_metrics.csv`, `data/processed/entropy_scores.csv`
 
-### Step 2: Ablation Study (Ground Truth)
+## Step 3: Run the Full Pipeline
+
+Execute the main pipeline script to run all stages in sequence:
+
 ```bash
-python code/ablation.py
-python code/extractor.py
-python code/validator.py
+python code/main.py
 ```
-*Outputs*: `data/processed/ablation_labels_full.json`, `data/processed/utility_labels.csv`
 
-### Step 3: Data Splitting & Model Training
+This command performs:
+1. Data parsing and metric extraction
+2. Entropy calculation
+3. Stratified data splitting
+4. Ablation study (training and hold-out sets)
+5. Proxy validation and sample size checks
+6. Classifier training
+7. Dynamic and baseline simulations
+8. Statistical aggregation and testing
+9. Report generation
+
+## Step 4: Dry-Run Mode (Optional)
+
+To verify the pipeline on a small subset before full execution, use dry-run mode:
+
 ```bash
-python code/splitter.py
-python code/classifier.py
+python code/main.py --dry-run
 ```
-*Outputs*: `data/processed/train_set.csv`, `data/processed/holdout_set.csv`, `models/layer_utility_classifier.pkl`
 
-### Step 4: Validation (Proxy Check)
-```bash
-python code/classifier.py --mode validate
-```
-*Outputs*: `data/processed/proxy_validation_report.json`
-*Constraint*: Exits with error if correlation < 0.7.
+This processes only the first 5 trajectories, checking for edge cases (NaN entropy, budget truncation) without generating full-scale outputs.
 
-### Step 5: Simulation (Dynamic & Baselines)
-```bash
-python code/simulator.py --mode dynamic
-python code/simulator.py --mode static
-python code/simulator.py --mode random
-```
-*Outputs*: Logs in `data/processed/simulations/`
+## Step 5: Review Outputs
 
-### Step 6: Aggregation & Statistics
-```bash
-python code/generate_baseline_comparison.py
-python code/token_reduction_verifier.py
-python code/generate_statistical_report.py
-```
-*Outputs*:
-- `data/processed/baseline_comparison.csv`
-- `data/processed/token_reduction_verification.json`
-- `data/processed/statistical_results.json`
+Upon successful completion, check the following artifacts in `data/processed/`:
 
-## 4. Interpreting Results
+- `baseline_comparison.csv`: Win rates and token usage by condition.
+- `statistical_results.json`: Significance test results (p-values, effect sizes).
+- `token_reduction_verification.json`: Verification of ≥30% token reduction.
+- `divergence_report.json`: Trajectory divergence status.
 
-- **Token Reduction**: Check `token_reduction_verification.json`. `passed: true` indicates ≥ 30% reduction.
-- **Statistical Significance**: Open `statistical_results.json`. Look for `bonferroni_adjusted` p-values < 0.05.
-- **Win Rates**: Compare `win_rate` columns in `baseline_comparison.csv`.
+The trained model is saved to `models/layer_utility_classifier.pkl`.
 
-## 5. Troubleshooting
+## Troubleshooting
 
-- **Missing Data**: Ensure `data/raw/trajectories.csv` exists. The parser will raise an error if not found.
-- **Low Correlation**: If proxy validation fails (r < 0.7), the pipeline stops. This indicates the static log features are poor predictors of utility.
-- **Token Budget Errors**: If the simulator logs "Budget Exceeded", check `code/config.py` for `TOKEN_BUDGET` settings. The system should automatically prune layers.
+### Data Validation Errors
+If the parser reports missing or corrupted data files, ensure that `data/raw/` contains the expected trajectory logs and that checksums are valid.
 
-## 6. Verification
+### Proxy Validation Failure
+If the proxy correlation (static log vs. ablation utility) is < 0.7, the pipeline will raise an exception. Review the ablation study configuration and data quality.
 
-To ensure reproducibility, run the full sequence from Step 1 to Step 6. All intermediate files in `data/processed/` should match the schema defined in `specs/`.
+### Sample Size Warning
+If the sample count is < 300, the pipeline will log a warning and generate fallback k=2 labels. This is expected behavior per specification.
+
+### Token Budget Enforcement
+If entropy calculations return NaN/Inf, the simulator defaults to retrieving all layers. Check `data/processed/simulation_logs.json` for audit trails of minimum context floor enforcement.
+
+## Performance Optimization
+
+For CPU-only environments, the pipeline is optimized to complete within 6 hours. Use the `--dry-run` flag for rapid testing. For large datasets, consider chunked processing (see `code/perf_optimizer.py`).
+
+## Next Steps
+
+- Review the statistical results in `data/processed/statistical_results.json`.
+- Analyze the baseline comparison in `data/processed/baseline_comparison.csv`.
+- Iterate on hyperparameters in `code/config.py` if needed.
+- Run unit tests to verify edge cases:
+ ```bash
+ pytest tests/
+ ```

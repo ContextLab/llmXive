@@ -1,234 +1,134 @@
 """
-Unit tests for validator edge cases, specifically the n < 300 warning logic.
+Unit tests for T032: Additional unit tests for edge cases (n < 300 warning logic).
 
-This module tests the behavior of code/validator.py when sample counts
-fall below the critical threshold of 300, ensuring proper warning generation
-and fallback to heuristic (fixed k=2).
+This module tests the validator logic in code/validator.py, specifically
+the mandatory fallback behavior when sample count is less than 300.
 """
+
 import os
-import sys
+import json
 import logging
+import tempfile
 import pytest
-import pandas as pd
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Adjust import path to match project structure
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from validator import check_sample_count, run_validation
 
+# Configure logging for test visibility
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
 
-class TestCheckSampleCount:
-    """Tests for the check_sample_count function in validator.py"""
+class TestSampleCountEdgeCases:
+    """Test cases for n < 300 warning and fallback logic."""
 
-    def test_sample_count_above_threshold(self, caplog):
-        """Test that no warning is raised when n >= 300"""
+    def test_sample_count_above_threshold_no_warning(self, caplog):
+        """Test that n >= 300 does not trigger a warning."""
         with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=300)
-            assert result is True
-            assert "warning" not in caplog.text.lower()
+            result = check_sample_count(n=300, threshold=300)
+            assert result == {"status": "pass", "n": 300, "threshold": 300}
+            assert "WARNING" not in caplog.text
+            assert "fallback" not in caplog.text.lower()
 
-    def test_sample_count_just_above_threshold(self, caplog):
-        """Test that no warning is raised when n = 301"""
+    def test_sample_count_just_below_threshold_triggers_warning(self, caplog):
+        """Test that n = 299 triggers a warning and fallback logic."""
         with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=301)
-            assert result is True
-            assert "warning" not in caplog.text.lower()
+            result = check_sample_count(n=299, threshold=300)
+            assert result == {"status": "fallback_required", "n": 299, "threshold": 300}
+            assert "WARNING" in caplog.text
+            assert "n < 300" in caplog.text
+            assert "fallback" in caplog.text.lower()
 
-    def test_sample_count_below_threshold(self, caplog):
-        """Test that warning is raised when n < 300"""
+    def test_sample_count_zero_triggers_warning(self, caplog):
+        """Test that n = 0 triggers a warning and fallback logic."""
         with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=299)
-            assert result is False
-            assert "warning" in caplog.text.lower()
-            assert "sample count" in caplog.text.lower()
-            assert "300" in caplog.text
+            result = check_sample_count(n=0, threshold=300)
+            assert result == {"status": "fallback_required", "n": 0, "threshold": 300}
+            assert "WARNING" in caplog.text
+            assert "n < 300" in caplog.text
 
-    def test_sample_count_very_low(self, caplog):
-        """Test that warning is raised for very low sample counts"""
+    def test_sample_count_negative_triggers_warning(self, caplog):
+        """Test that negative n triggers a warning."""
         with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=50)
-            assert result is False
-            assert "warning" in caplog.text.lower()
-            assert "50" in caplog.text
+            result = check_sample_count(n=-5, threshold=300)
+            assert result == {"status": "fallback_required", "n": -5, "threshold": 300}
+            assert "WARNING" in caplog.text
+            assert "n < 300" in caplog.text
 
-    def test_sample_count_zero(self, caplog):
-        """Test that warning is raised when n = 0"""
+    def test_fallback_logic_generates_k2_labels(self, tmp_path):
+        """Test that the fallback logic generates the required k=2 labels file."""
+        # Create a temporary output directory
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+        fallback_path = output_dir / "fallback_k2_labels.csv"
+
+        # Mock the file writing to ensure it happens
+        with patch("pandas.DataFrame.to_csv") as mock_to_csv:
+            result = check_sample_count(n=100, threshold=300, output_path=str(fallback_path))
+            
+            assert result["status"] == "fallback_required"
+            # Verify to_csv was called to create the fallback file
+            mock_to_csv.assert_called_once()
+            # Verify the path used matches the expected output
+            call_args = mock_to_csv.call_args
+            assert call_args[0][0] == str(fallback_path)
+
+    def test_run_validation_with_low_sample_count(self, tmp_path):
+        """Test that run_validation handles low sample count correctly."""
+        # Create a dummy input file
+        input_file = tmp_path / "ablation_labels_train.json"
+        input_file.write_text(json.dumps([{"layer_id": 1, "utility_score": 0.5}]))
+        
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+        fallback_path = output_dir / "fallback_k2_labels.csv"
+
+        with patch("pandas.DataFrame.to_csv") as mock_to_csv:
+            result = run_validation(
+                input_path=str(input_file),
+                output_dir=str(output_dir),
+                threshold=300
+            )
+            
+            assert result["status"] == "fallback_required"
+            mock_to_csv.assert_called_once()
+            assert "fallback_k2_labels.csv" in str(mock_to_csv.call_args[0][0])
+
+    def test_run_validation_with_high_sample_count(self, tmp_path):
+        """Test that run_validation proceeds normally with sufficient samples."""
+        # Create a dummy input file with enough samples (mocked via patch)
+        input_file = tmp_path / "ablation_labels_train.json"
+        # Create a list of 301 items to simulate sufficient data
+        data = [{"layer_id": i, "utility_score": 0.5} for i in range(301)]
+        input_file.write_text(json.dumps(data))
+        
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+        
+        # Mock the file writing to avoid actual disk I/O for this test
+        with patch("pandas.DataFrame.to_csv") as mock_to_csv:
+            result = run_validation(
+                input_path=str(input_file),
+                output_dir=str(output_dir),
+                threshold=300
+            )
+            
+            assert result["status"] == "pass"
+            # In a real scenario, this would process the data, but we're just checking flow
+            # The mock ensures we don't actually write files during unit tests
+
+    def test_threshold_parameter_variations(self, caplog):
+        """Test that the threshold parameter can be adjusted."""
         with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=0)
-            assert result is False
-            assert "warning" in caplog.text.lower()
+            # Test with threshold = 100
+            result = check_sample_count(n=99, threshold=100)
+            assert result["status"] == "fallback_required"
+            assert "n < 100" in caplog.text
 
-    def test_sample_count_negative(self, caplog):
-        """Test that warning is raised for negative sample counts"""
-        with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=-10)
-            assert result is False
-            assert "warning" in caplog.text.lower()
-
-    def test_sample_count_exact_threshold(self, caplog):
-        """Test that no warning is raised when n = 300 exactly"""
-        with caplog.at_level(logging.WARNING):
-            result = check_sample_count(n=300)
-            assert result is True
-            assert "warning" not in caplog.text.lower()
-
-    def test_fallback_heuristic_k2(self):
-        """Test that fallback heuristic k=2 is triggered when n < 300"""
-        # The function should return False and trigger fallback logic
-        # We verify the return value indicates the need for fallback
-        result = check_sample_count(n=100)
-        assert result is False
-
-
-class TestRunValidation:
-    """Tests for the run_validation function with edge cases"""
-
-    def test_validation_with_small_dataset(self, tmp_path):
-        """Test validation with a dataset smaller than 300 samples"""
-        # Create a small test dataset
-        small_data = pd.DataFrame({
-            'feature1': [1.0] * 100,
-            'feature2': [2.0] * 100,
-            'utility_score': [0.5] * 100
-        })
-        
-        data_file = tmp_path / "small_dataset.csv"
-        small_data.to_csv(data_file, index=False)
-        
-        with patch('validator.check_sample_count') as mock_check:
-            mock_check.return_value = False  # Simulate n < 300
-            
-            result = run_validation(str(data_file))
-            
-            # Verify that check_sample_count was called
-            mock_check.assert_called_once()
-            # Result should reflect the validation failure due to small sample
-            assert result is not None
-
-    def test_validation_with_large_dataset(self, tmp_path):
-        """Test validation with a dataset larger than 300 samples"""
-        # Create a large test dataset
-        large_data = pd.DataFrame({
-            'feature1': [1.0] * 500,
-            'feature2': [2.0] * 500,
-            'utility_score': [0.5] * 500
-        })
-        
-        data_file = tmp_path / "large_dataset.csv"
-        large_data.to_csv(data_file, index=False)
-        
-        with patch('validator.check_sample_count') as mock_check:
-            mock_check.return_value = True  # Simulate n >= 300
-            
-            result = run_validation(str(data_file))
-            
-            # Verify that check_sample_count was called
-            mock_check.assert_called_once()
-            # Result should reflect successful validation
-            assert result is not None
-
-    def test_validation_with_missing_file(self):
-        """Test validation with a non-existent file"""
-        with pytest.raises(FileNotFoundError):
-            run_validation("/nonexistent/path/to/file.csv")
-
-    def test_validation_with_invalid_csv(self, tmp_path):
-        """Test validation with an invalid CSV file"""
-        invalid_file = tmp_path / "invalid.csv"
-        invalid_file.write_text("not,a,valid\n1,2,3\n4,5")  # Missing column in last row
-        
-        # Should handle gracefully or raise appropriate error
-        with pytest.raises((ValueError, pd.errors.ParserError)):
-            run_validation(str(invalid_file))
-
-    def test_validation_log_warning_for_small_sample(self, tmp_path, caplog):
-        """Test that validation logs warning for small sample size"""
-        small_data = pd.DataFrame({
-            'feature1': [1.0] * 100,
-            'feature2': [2.0] * 100,
-            'utility_score': [0.5] * 100
-        })
-        
-        data_file = tmp_path / "small_dataset.csv"
-        small_data.to_csv(data_file, index=False)
-        
-        with caplog.at_level(logging.WARNING):
-            with patch('validator.check_sample_count') as mock_check:
-                mock_check.return_value = False
-                
-                run_validation(str(data_file))
-                
-                assert "warning" in caplog.text.lower()
-                assert "sample count" in caplog.text.lower()
-
-
-class TestIntegration:
-    """Integration tests for the validator module"""
-
-    def test_full_validation_pipeline_small_sample(self, tmp_path):
-        """Test the full validation pipeline with small sample size"""
-        # Create a realistic small dataset
-        data = pd.DataFrame({
-            'layer_id': list(range(100)),
-            'utility_score': [i / 100.0 for i in range(100)],
-            'entropy': [0.1 * i for i in range(100)],
-            'token_count': [100 + i for i in range(100)]
-        })
-        
-        data_file = tmp_path / "test_data.csv"
-        data.to_csv(data_file, index=False)
-        
-        with patch('validator.check_sample_count') as mock_check:
-            mock_check.return_value = False
-            
-            result = run_validation(str(data_file))
-            
-            # Verify the pipeline handles small samples correctly
-            assert result is not None
-            mock_check.assert_called_once()
-
-    def test_full_validation_pipeline_large_sample(self, tmp_path):
-        """Test the full validation pipeline with large sample size"""
-        # Create a realistic large dataset
-        data = pd.DataFrame({
-            'layer_id': list(range(500)),
-            'utility_score': [i / 500.0 for i in range(500)],
-            'entropy': [0.1 * i for i in range(500)],
-            'token_count': [100 + i for i in range(500)]
-        })
-        
-        data_file = tmp_path / "test_data.csv"
-        data.to_csv(data_file, index=False)
-        
-        with patch('validator.check_sample_count') as mock_check:
-            mock_check.return_value = True
-            
-            result = run_validation(str(data_file))
-            
-            # Verify the pipeline handles large samples correctly
-            assert result is not None
-            mock_check.assert_called_once()
-
-    def test_boundary_conditions(self, tmp_path):
-        """Test boundary conditions around the 300 threshold"""
-        for n in [299, 300, 301]:
-            data = pd.DataFrame({
-                'layer_id': list(range(n)),
-                'utility_score': [i / n for i in range(n)],
-            })
-            
-            data_file = tmp_path / f"test_data_{n}.csv"
-            data.to_csv(data_file, index=False)
-            
-            expected_result = n >= 300
-            
-            with patch('validator.check_sample_count') as mock_check:
-                mock_check.return_value = expected_result
-                
-                result = run_validation(str(data_file))
-                
-                assert result is not None
-                mock_check.assert_called_once()
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
