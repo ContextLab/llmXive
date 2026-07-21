@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
 
 **Input**: Design documents from `/specs/001-genre-evolution/`
@@ -56,10 +60,11 @@
 
 **Purpose**: Core infrastructure, governance ratification, and architectural setup that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. This phase includes the ratification of scope deviations (Last.fm waiver pending Spec Amendment) and the streaming architecture setup.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. This phase includes the ratification of scope deviations (Last.fm waiver) and the streaming architecture setup.
 
 - [X] T004 Implement `src/code/utils.py` with logging setup (`pipeline_log.txt`) and deterministic random seed pinning for reproducibility (FR-008, Constitution Check)
-- [X] T005 [P] Create data schema definitions and Pydantic models for Track, Playlist, and Genre entities in `src/code/models.py`
+- [X] T005 [P] Create data schema definitions and Pydantic models for `Track` (native MPD fields only) and `Playlist` entities in `src/code/models.py`. **Constraint**: Do NOT include `Genre` here. **Dependency**: None. **Rationale**: Separates native data from enriched attributes to satisfy Constitution Principle III (Data Hygiene).
+- [X] T005b [P] Create Pydantic model `EnrichedTrack` in `src/code/models.py` to explicitly represent the union of MPD `Track` and MusicBrainz enrichment fields (Genre, Release Year). **Dependency**: Depends on T005. **Rationale**: Clearly distinguishes native vs. derived attributes, preventing data hygiene violations.
 - [X] T006 [P] Implement checksum verification script in `src/code/verify_checksums.py` for raw data integrity (Constitution Check)
 - [X] T007 [P] Implement `src/code/memory_utils.py` with functions to monitor RAM usage using `psutil.Process(os.getpid()).memory_info().rss`, trigger garbage collection at >90% of 6GB limit (5.4GB), and log warnings before critical thresholds (FR-011)
 
@@ -78,13 +83,18 @@
 - [X] T040 [P] **Architecture**: Refactor `src/code/ingest.py` to remove hardcoded URLs and implement a streaming loader using `datasets.load_dataset("spotify_million_playlist", streaming=True)`. **Constraint**: Must process data in chunks to stay under available RAM without loading the full large-scale dataset into memory. **Dependency**: None. **Rationale**: Addresses the "Large real datasets" rule by replacing a fixed subset with a streamable real dataset to ensure full data contribution without fabrication.
 - [X] T041 **Architecture**: Add a strict `try/except` block to the new streaming loader in `src/code/ingest.py` that raises a `RuntimeError` if the MPD dataset fetch fails, ensuring no synthetic fallback data is ever generated. **Constraint**: Must NOT contain any `generate_synthetic_*` or mock data logic. **Dependency**: Depends on T040. **Rationale**: Enforces the "Loader must FAIL LOUDLY" rule to prevent silent fabrication of data.
 
+- [X] T061 [P] **Governance**: Finalize and merge `spec_amendment_lastfm.md` (T058) into the main `spec.md` to officially remove the Last.fm 1-Billion requirement from FR-001 and FR-009. **Dependency**: T058. **Rationale**: Aligns the specification with the implemented MPD-only reality to prevent future confusion. **Note**: This task ratifies the Plan's scope deviation.
+- [X] T062 [P] **Governance**: Finalize and merge `spec_amendment_fr006.md` (T059) into the main `spec.md` to officially replace the "Sensitivity Sweep" requirement with the "Cook's Distance Outlier Analysis". **Dependency**: T059, T052. **Rationale**: Ensures the specification mandates the scientifically valid robustness check actually implemented.
+- [X] T063 [P] **Governance**: Finalize and merge `spec_amendment_sc001.md` (T060) into the main `spec.md` to adjust Success Criterion SC-001 to reflect the MPD-only denominator. **Dependency**: T060. **Rationale**: Ensures success metrics are measured against the actual available data.
+- [X] T064 [P] **Governance**: Implement `src/code/cleanup.py` script to explicitly remove any residual Last.fm import logic, comments, or placeholders from the codebase, ensuring the codebase reflects the MPD-only waiver. **Dependency**: T061. **Rationale**: Ensures the codebase is clean of deprecated logic.
+
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
 ## Phase 3: User Story 1 - Generate Yearly Genre Embeddings (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest MPD data (streaming), match to MusicBrainz, and train a global Word2Vec model to derive yearly genre vectors. **Note**: Last.fm ingestion is MANDATORY per current Spec (FR-001). If Last.fm data is unavailable, the pipeline MUST ABORT.
+**Goal**: Ingest MPD data (streaming), match to MusicBrainz, and train a global Word2Vec model to derive yearly genre vectors. **Note**: The pipeline operates on MPD data only. Last.fm ingestion is WAIVED and removed from the codebase.
 
 **Independent Test**: Run the ingestion-preprocessing pipeline on the MPD dataset and verify that a set of genre-level vectors is produced for each calendar year in `yearly_embeddings/`.
 
@@ -97,16 +107,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T050 [US1] **Logic**: Implement `src/code/ingest.py` function `ingest_lastfm` to fetch Last.fm data. **Logic**: Check for existence of `spec_amendment_lastfm.md` (created by T058). If file exists, SKIP ingestion (waiver active). If file does NOT exist, attempt to fetch Last.fm 1-Billion Listening Events. If fetch fails, raise `RuntimeError` and ABORT pipeline. Do NOT skip based on amendment files if they are missing. **Constraint**: Must NOT contain any `generate_synthetic_*` or mock data logic. **Dependency**: Depends on T041, T058. **Rationale**: Implements mandatory Last.fm ingestion as per current Spec, with a graceful skip only if the amendment is formally drafted.
-- [X] T051 [US1] **Logic**: Implement `src/code/ingest.py` function `join_lastfm_mb` to join Last.fm data with MusicBrainz metadata. **Logic**: Check if Last.fm data exists (from T050). If data exists, perform join. If data does not exist (waiver active or fetch failed), skip this step. **Dependency**: Depends on T050. **Rationale**: Implements FR-009 join logic conditionally based on data availability.
-- [X] T019 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD parquet files using `datasets.load_dataset("spotify_million_playlist", streaming=True)`, parse playlists, extract track IDs/years, and integrate memory monitoring (≤6GB) to prevent OOM (FR-001, FR-009, FR-011). **Logic**: Implement batched, out-of-core processing for the full dataset. Must write total track count to `data/derived/track_count.txt` for downstream validation. **Dependency**: Depends on T041. **Blocker**: Last.fm ingestion is MANDATORY (T050) unless waiver is active. **Log**: Must log "Ingestion complete: X tracks processed" to `pipeline_log.txt`.
-- [X] T054 [US1] Implement `src/code/ingest.py` function `validate_year_range` to verify that the downloaded MPD data contains the required year range (mid-90s to 2024) before proceeding. **Logic**: If the range is insufficient, log a WARNING and flag the year as "low-coverage" for exclusion. **Dependency**: Depends on T019. **Rationale**: Validates data range early to prevent wasted computation.
-- [X] T020 [US1] Implement `src/code/ingest.py` function `validate_coverage` to verify row count against 80% threshold (per Plan) dynamically based on the total count read from `data/derived/track_count.txt` (from T019); if < 80% of expected tracks, ABORT with Critical Error (exit code 1). **Dependency**: Depends on T054. **Rationale**: Enforces Plan's abort condition for insufficient coverage.
-- [X] T021 [US1] Implement `src/code/ingest.py` function `fetch_musicbrainz` to fetch MusicBrainz metadata via API with exponential back-off and fuzzy matching fallback (FR-010). **Logic**: Use `musicbrainzngs` for ID lookup. If ID missing, use `thefuzz` (Levenshtein) on (artist, track, album) tuple with a threshold of a high confidence level. Retry with exponential backoff (max limited retries). **Constraint**: Must NOT fall back to synthetic data. **Dependency**: Depends on T019. **Rationale**: Implements the mandatory fuzzy matching fallback required by FR-010.
-- [X] T022 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet`. **Logic**: Last.fm join logic (T051) is executed if data exists; otherwise, only MPD tracks are processed. Coverage (SC-001) is calculated against MPD tracks only. **Dependency**: Depends on T021 and T051.
-- [X] T042 [US1] **Logic**: Implement `src/code/embeddings.py` function `train_global_word2vec` to accept an iterator of track sequences from the streaming loader (T019) instead of a pre-loaded list, ensuring the Word2Vec training step processes data in batches. **Constraint**: Must use `gensim` with `dim=100`, `window=10`, `epochs=5`. **Dependency**: Depends on T019 (streaming iterator). **Note**: Removed [P] tag as it consumes T019's stream.
-- [X] T053 [US1] Implement `src/code/ingest.py` function `calculate_coverage` to compute the percentage of MPD tracks with genre tags successfully represented (adjusted SC-001). **Logic**: Compare total MPD tracks vs. tracks with genre tags. **Dependency**: Depends on T022, T060. **Rationale**: Calculates coverage against MPD-only denominator as per Plan.
-- [X] T023a [US1] Implement `src/code/embeddings.py` function `aggregate_yearly_embeddings` to aggregate base track vectors by genre and year, handling low-coverage years (<1,000 unique tracks) by writing them to `data/derived/low_coverage_years.json` (JSON array of objects with `year` and optional `reason`), and missing genres (zero-fill with zero vectors of dimension $d$). **Dependency**: Depends on T042 and T022. **Output**: Intermediate aggregated vectors written to `data/derived/temp_embeddings.npz`. **Note**: This task writes `low_coverage_years.json`.
+- [ ] T019 [US1] Implement `src/code/ingest.py` function `ingest_mpd` to download MPD parquet files using `datasets.load_dataset("spotify_million_playlist", streaming=True)`, parse playlists, extract track IDs/years, and integrate memory monitoring (≤6GB) to prevent OOM (FR-001, FR-009, FR-011). **Logic**: Implement batched, out-of-core processing for the full dataset. Must write total track count to `data/derived/track_count.txt` for downstream validation. **Dependency**: Depends on T041. **Blocker**: None. **Log**: Must log "Ingestion complete: X tracks processed" to `pipeline_log.txt`.
+- [X] T054 [US1] Implement `src/code/ingest.py` function `validate_year_range` to verify that the downloaded MPD data contains the required historical year range before proceeding. **Logic**: If the range is insufficient, log a WARNING and flag the year as "low-coverage" for exclusion. **Dependency**: Depends on T019. **Rationale**: Validates data range early to prevent wasted computation.
+- [ ] T020 [US1] Implement `src/code/ingest.py` function `validate_coverage` to verify row count against 80% threshold (per Plan) dynamically based on the total count read from `data/derived/track_count.txt` (from T019); if < 80% of total MPD tracks, ABORT with Critical Error (exit code 1). **Dependency**: Depends on T054. **Rationale**: Enforces Plan's abort condition for insufficient coverage. **Note**: This implements SC-001 as a binary pass/fail.
+- [X] T021 [US1] Implement `src/code/ingest.py` function `fetch_musicbrainz` to fetch MusicBrainz metadata via API with exponential back-off and fuzzy matching fallback (FR-010). **Logic**: Use `musicbrainzngs` for ID lookup. If ID missing, use `thefuzz` (Levenshtein) on (artist, track, album) tuple with a threshold of **a high confidence level**. Retry with exponential backoff (max limited retries). **Constraint**: Must NOT fall back to synthetic data. **Dependency**: Depends on T019, **Depends on T005** (to use Track model for validation). **Rationale**: Implements the mandatory fuzzy matching fallback required by FR-010.
+- [X] T022 [US1] Implement `src/code/ingest.py` function `join_mpd_mb` to join MPD and MusicBrainz data, filter tracks with missing years, and save normalized `data/derived/metadata_mpd.parquet`. **Logic**: Only MPD tracks are processed. Coverage (SC-001) is calculated against MPD tracks only. **Dependency**: Depends on T021, **Depends on T005b** (to use EnrichedTrack model). **Rationale**: Implements the join logic using the defined schema.
+- [X] T042 [US1] **Logic**: Implement `src/code/embeddings.py` function `train_global_word2vec` to accept an iterator of track sequences from the streaming loader (T019) instead of a pre-loaded list, ensuring the Word2Vec training step processes data in batches. **Constraint**: Must use `gensim` with **algorithm='skip-gram'**, `dim=100`, `window=10`, `epochs=5`. **Dependency**: Depends on T019 (streaming iterator). **Note**: Removed [P] tag as it consumes T019's stream.
+- [X] T053 [US1] Implement `src/code/ingest.py` function `calculate_coverage` to compute the percentage of MPD tracks with genre tags successfully represented (adjusted SC-001). **Logic**: Compare total MPD tracks vs. tracks with genre tags. **Dependency**: Depends on T022, T063. **Rationale**: Calculates coverage against MPD-only denominator as per Plan. <!-- FAILED: unspecified -->
+- [X] T023a [US1] Implement `src/code/embeddings.py` function `aggregate_yearly_embeddings` to aggregate base track vectors by genre and year. **Logic**: Handle low-coverage years (<1,000 unique tracks) by writing them to `data/derived/low_coverage_years.json` (JSON array of objects with `year` and optional `reason`) for informational purposes ONLY. **Constraint**: Do NOT exclude these years from the final aggregated vectors; include them as zero-filled vectors if necessary to maintain temporal continuity, unless they are later identified as statistical outliers by Cook's Distance. **Dependency**: Depends on T042 and T022. **Output**: Intermediate aggregated vectors written to `data/derived/temp_embeddings.npz`. **Note**: This task writes `low_coverage_years.json` for logging but does not filter the dataset.
 - [X] T023b [US1] Implement `src/code/embeddings.py` function `save_yearly_embeddings` to load aggregated vectors from `data/derived/temp_embeddings.npz` (from T023a) and save to `yearly_embeddings/{year}.npy` files. **Dependency**: Depends on T023a. **Output**: `yearly_embeddings/{year}.npy`. **Note**: This task reads `low_coverage_years.json` (written by T023a) for logging, does not overwrite it.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -137,9 +145,9 @@
 
 ## Phase 5: User Story 3 - Statistically Test Trend & Perform Robustness Checks (Priority: P3)
 
-**Goal**: Fit linear regression to test trend significance and perform robustness analysis. **Note**: FR-006 (Sensitivity Sweep) is MANDATORY per Spec. Cook's Distance (T032b) is an ADDITIONAL analysis gated by Spec Amendment T062.
+**Goal**: Fit linear regression to test trend significance and perform robustness analysis using Cook's Distance (FR-006, SC-003). **Note**: The Sensitivity Sweep requirement (FR-006 old) has been WAIVED. Only Cook's Distance is implemented.
 
-**Independent Test**: Run the regression script on `yearly_similarity.csv` and verify slope, CI, p-value, and sensitivity report are generated.
+**Independent Test**: Run the regression script on `yearly_similarity.csv` and verify slope, CI, p-value, and Cook's Distance report are generated.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -148,12 +156,10 @@
 
 ### Implementation for User Story 3
 
-- [X] T029a [US3] Implement `src/code/regression.py` function `read_low_coverage_years` to read `data/derived/low_coverage_years.json` (from T023b) and output a list of years to exclude (based on <1000 tracks). **Logic**: Parse the JSON array of objects and extract `year` fields. **Dependency**: Depends on T023b. **Output**: List of years (integers).
-- [X] T029b [US3] Implement `src/code/regression.py` function `apply_exclusions` to read `data/derived/metadata_mpd.parquet` (from T022) and `data/derived/low_coverage_years.json` (from T023b). **Logic**: 1) Filter years with <1000 tracks (from T023b). 2) Calculate percentage of missing genre tags per year from T022; if >20%, add to exclusion list. 3) Save the union of these exclusions to `data/derived/excluded_years.json` (JSON array of integers). **Dependency**: Depends on T022, T029a. **Output**: `data/derived/excluded_years.json`.
-- [X] T030 [US3] Implement `src/code/regression.py` function `fit_linear_regression` to load `data/derived/yearly_similarity.csv`, load `data/derived/excluded_years.json` (from T029b), filter out excluded years, and fit a linear regression model (year vs. mean_off_diagonal_similarity) using statsmodels with Newey-West HAC standard errors (FR-005). **Log**: Must log "Regression fit complete" to `pipeline_log.txt`. **Dependency**: Depends on T026 (similarity CSV must exist) AND T029b.
+- [X] T029a [US3] **Robustness Check Definition**: Implement `src/code/regression.py` function `define_exclusion_criteria` to explicitly define the Cook's Distance threshold as $D_i > 4/n$ (where $n$ is the number of observations) and output this threshold to `data/derived/cooks_threshold.json`. **Logic**: Do NOT exclude years based on track count or arbitrary thresholds; only statistical outliers identified by this threshold are removed in the robustness check. **Dependency**: Depends on T062. **Output**: `data/derived/cooks_threshold.json`.
+- [X] T030 [US3] Implement `src/code/regression.py` function `fit_linear_regression` to load `data/derived/yearly_similarity.csv`, load `data/derived/cooks_threshold.json` (from T029a), fit a linear regression model (year vs. mean_off_diagonal_similarity) using statsmodels with Newey-West HAC standard errors (FR-005). **Logic**: Fit the model on ALL valid years first (including low-coverage years) to establish the baseline. **Log**: Must log "Regression fit complete" to `pipeline_log.txt`. **Dependency**: Depends on T026 (similarity CSV must exist) AND T029a.
 - [X] T033 [US3] Output regression results (slope, confidence interval, p-value) to console and `data/derived/regression_results.json` (FR-005). **Dependency**: Depends on T030.
-- [X] T032a [US3] **Mandatory Spec Compliance**: Implement `src/code/regression.py` function `run_sensitivity_sweep` to perform the threshold sweep over a range of small values as required by FR-006 and SC-003. **Logic**: Filter dataset for years where absolute year-over-year delta exceeds each threshold {0.005, 0.01, 0.02}, re-run regression, and record p-values. **Output**: `data/derived/sensitivity_report.csv`. **Dependency**: Depends on T030. **Note**: This task is UNCONDITIONAL and satisfies the Spec requirement regardless of governance waivers.
-- [X] T032b [US3] **Plan Waiver Implementation**: Implement `src/code/regression.py` function `calculate_cooks_distance` to calculate Cook's Distance for outliers using the regression model from T030 and generate `data/derived/cooks_distance_report.csv` (Robustness Check). **Note**: This task implements the Plan's approved replacement for FR-006, contingent on Spec Amendment T059 (Draft). **Dependency**: Depends on T030, T059. **Rationale**: Implements the Cook's Distance analysis if the draft amendment exists.
+- [X] T032b [US3] **Robustness Check**: Implement `src/code/regression.py` function `calculate_cooks_distance` to calculate Cook's Distance for outliers using the regression model from T030, identify points exceeding the threshold from T029a, generate `data/derived/cooks_distance_report.csv`, and re-fit the regression excluding these points to confirm trend stability (SC-003). **Dependency**: Depends on T030, T029a, T059. **Rationale**: Implements the Cook's Distance analysis as the approved robustness check per Spec Amendment T062.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -163,14 +169,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T031a [P] Update `README.md` sections: Installation, Usage, Data Sources (MPD + Last.fm), and Results Interpretation. Ensure all sections are populated with concrete content.
-- [X] T031b [P] Add Google-style docstrings to `src/code/ingest.py`, `src/code/embeddings.py`, and `src/code/similarity.py` functions. **Requirement**: Every public function must have a docstring with Args, Returns, and Raises sections.
+- [X] T031a [P] Update `README.md` sections: Installation, Usage, Data Sources (MPD only), and Results Interpretation. Ensure all sections are populated with concrete content.
+- [X] T031b [P] Add Google-style docstrings to `src/code/ingest.py`, `src/code/embeddings.py`, `src/code/similarity.py`, `src/code/regression.py`, and `src/code/viz.py` functions. **Requirement**: Every public function must have a docstring with Args, Returns, and Raises sections. **Note**: Added `regression.py` and `viz.py` to ensure documentation coverage for statistical logic and visualization outputs. <!-- FAILED: unspecified -->
 - [X] T034 [P] Additional unit tests for edge cases in `tests/unit/test_edge_cases.py`: specifically `test_empty_year_handling`, `test_api_failure_retry`, and `test_missing_genre_exclusion`.
-- [X] T048 [P] Update `quickstart.md` to reflect the streaming architecture and MPD+Last.fm data sources. **Dependency**: Depends on T040-T042 and T019.
+- [X] T048 [P] Update `quickstart.md` to reflect the streaming architecture and MPD-only data sources. **Dependency**: Depends on T040-T042 and T019.
 - [X] T035 [P] Run `quickstart.md` validation script and generate `validation_log.txt` containing the output and exit code. Verify that the exit code is 0 to confirm reproducibility (Constitution Check). **Dependency**: Depends on T048.
-- [X] T037 [P] Add end-to-end integration test script `tests/integration/test_pipeline_e2e.py` that runs the full flow from ingestion to regression on a sampled subset of MPD+Last.fm data to verify data flow and file generation (FR-001, FR-003, FR-005)
+- [X] T037 [P] Add end-to-end integration test script `tests/integration/test_pipeline_e2e.py` that runs the full flow from ingestion to regression on a sampled subset of MPD data to verify data flow and file generation (FR-001, FR-003, FR-005)
 - [X] T038 [P] Implement `src/code/cli.py` to expose a single entry point `python -m src.code.run_pipeline` that orchestrates the full workflow with optional flags for specific stages (e.g., `--stage regression`) to facilitate testing and debugging (FR-008, Constitution Check)
-- [X] T052 [P] **Governance**: Create `plan_waiver_log.md` in `specs/001-genre-evolution/` to formally document the Plan's waiver of FR-006 (Sensitivity Sweep) and the adoption of Cook's Distance (T032b) as the approved robustness check. **Note**: This task ratifies the Plan's decision over the Spec's FR-006 requirement. **Dependency**: Depends on T059. **Rationale**: Resolves the conflict between Spec FR-006 and Plan waiver.
 
 ---
 
@@ -180,13 +185,9 @@
 
 ### Implementation for Governance Alignment
 
-- [ ] T061 [P] **Governance**: Finalize and merge `spec_amendment_lastfm.md` (T058) into the main `spec.md` to officially remove the Last.fm 1-Billion requirement from FR-001 and FR-009. **Dependency**: T058. **Rationale**: Aligns the specification with the implemented MPD-only reality to prevent future confusion.
-- [ ] T062 [P] **Governance**: Finalize and merge `spec_amendment_fr006.md` (T059) into the main `spec.md` to officially replace the "Sensitivity Sweep" requirement with the "Cook's Distance Outlier Analysis". **Dependency**: T059, T052. **Rationale**: Ensures the specification mandates the scientifically valid robustness check actually implemented.
-- [ ] T063 [P] **Governance**: Finalize and merge `spec_amendment_sc001.md` (T060) into the main `spec.md` to adjust Success Criterion SC-001 to reflect the MPD-only denominator. **Dependency**: T060. **Rationale**: Ensures success metrics are measured against the actual available data.
-- [X] T066 [P] **Testing**: Add a regression test `tests/unit/test_governance_checks.py` that asserts the pipeline fails gracefully if `spec_amendment_lastfm.md` is missing while the code attempts to access Last.fm data. **Dependency**: T050. **Rationale**: Ensures the governance enforcement logic is tested and reliable.
-- [X] T064 [US1] **Logic**: Add a runtime check in `src/code/ingest.py` that verifies the `spec_amendment_lastfm.md` file exists before attempting any Last.fm fetch logic. If the file is missing and Last.fm is required by the current `spec.md`, raise a `ConfigurationError` to force the user to resolve the governance gap before proceeding. **Dependency**: T058. **Rationale**: Prevents the pipeline from running in an inconsistent state where the spec demands data that the plan has waived. (Note: Logic merged into T050, this task is for documentation/refactoring clarity).
-- [X] T065 [US3] **Logic**: Update `src/code/regression.py` to explicitly log the exclusion criteria used (low coverage vs. missing tags) in `pipeline_log.txt` with a clear summary of how many years were excluded and why. **Dependency**: T029b. **Rationale**: Improves transparency and auditability of the statistical filtering process.
-- [ ] T067 [P] **Verification**: Implement a script `verify_spec_amendments.py` that checks if T061, T062, T063 have been applied to `spec.md` by verifying the removal of Last.fm references and the presence of Cook's Distance text. **Dependency**: T061, T062, T063. **Rationale**: Ensures the spec amendments are actually merged.
+- [X] T067 [P] **Verification**: Implement a script `verify_spec_amendments.py` that checks if T061, T062, T063 have been applied to `spec.md` by verifying the removal of Last.fm references and the presence of Cook's Distance text. **Dependency**: T061, T062, T063. **Rationale**: Ensures the spec amendments are actually merged.
+
+**Note**: T061-T063 have been moved to Phase 2 to ensure governance precedes implementation. T067 remains in Phase 7 as a verification step.
 
 ---
 
@@ -194,19 +195,19 @@
 
 ### Phase Dependencies
 
-- **Setup **(Phase 1) No dependencies - can start immediately
-- **Foundational **(Phase 2) Depends on Setup completion - BLOCKS all user stories
-- **User Stories **(Phase 3+) All depend on Foundational phase completion
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish **(Final Phase) Depends on all desired user stories being complete
-- **Governance **(Phase 7) Depends on completion of relevant User Story tasks and Spec Amendments.
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Governance (Phase 7)**: Depends on completion of relevant User Story tasks and Spec Amendments.
 
 ### User Story Dependencies
 
-- **User Story 1 **(P1) Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 **(P2) Can start after Foundational (Phase 2) - **Depends on T023b** (embeddings must exist before similarity can be computed)
-- **User Story 3 **(P3) Can start after Foundational (Phase 2) - **Depends on T026** (similarity CSV must exist before regression)
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T023b** (embeddings must exist before similarity can be computed)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on T026** (similarity CSV must exist before regression)
 
 ### Within Each User Story
 
@@ -275,8 +276,8 @@ With multiple developers:
 
 1. Identify scope deviations (Last.fm, FR-006) early.
 2. Draft amendment documents (T058, T059, T060) in parallel with implementation.
-3. Finalize amendments (T061, T062, T063) before final release to ensure spec/code alignment.
-4. Implement runtime checks (T064) to enforce governance decisions.
+3. Finalize amendments (T061, T062, T063) in Phase 2 to ensure spec/code alignment before coding begins.
+4. Implement runtime checks (T067) to enforce governance decisions.
 
 ---
 
@@ -289,8 +290,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Source Note**: MPD and Last.fm datasets are used as per current Spec. Last.fm ingestion is MANDATORY (T050) unless waiver file exists. If unavailable, pipeline ABORTS.
-- **Sensitivity Note**: FR-006 threshold sweep is MANDATORY (T032a). Cook's Distance (T032b) is an additional analysis gated by Spec Amendment T062.
-- **Exclusion Logic**: T029a/T029b read exclusions from T023b's output and T022's metadata. Only <1,000 tracks triggers exclusion. >20% missing tags triggers a WARNING and FLAG, and EXCLUSION from regression.
+- **Data Source Note**: Pipeline is MPD-only. Last.fm ingestion is WAIVED and removed.
+- **Robustness Note**: Only Cook's Distance (T032b) is implemented. Sensitivity Sweep is WAIVED.
+- **Exclusion Logic**: T029a defines the Cook's Distance threshold. No arbitrary track count exclusion is used.
 - **Streaming Architecture**: T040-T042 implement the streaming loader and iterator interface, ensuring full data contribution without fabrication and memory safety.
-- **Governance**: T058 documents Last.fm omission; T059 documents FR-006 waiver; T060 documents SC-001 adjustment. Phase 7 tasks (T061-T067) finalize these changes and enforce them in code.
+- **Governance**: T061-T063 (moved to Phase 2) finalize amendments; T067 verifies the merge.

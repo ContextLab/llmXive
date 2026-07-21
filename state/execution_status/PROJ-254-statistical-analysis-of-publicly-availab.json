@@ -1,21 +1,23 @@
 {
   "project_id": "PROJ-254-statistical-analysis-of-publicly-availab",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Mock response             data = {                 'id'\u2026\u201d; 6 command(s) failed: python -m src.code.ingest (rc=1); python -m src.code.embeddings (rc=1); python -m src.code.similarity (rc=1)",
-  "artifacts": [],
+  "reason": "4 command(s) failed: python -m src.code.ingest (rc=1); python -m src.code.embeddings (rc=1); python -m src.code.similarity (rc=1)",
+  "artifacts": [
+    "data/derived/cooks_distance_report.csv",
+    "data/derived/regression_results.json",
+    "figures/similarity_trend.png"
+  ],
   "failures": [
-    "python -m src.code.ingest -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/ingest.py\", line 9, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python -m src.code.embeddings -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/embeddings.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python -m src.code.similarity -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/similarity.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python -m src.code.regression -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/regression.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python -m src.code.viz -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/viz.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python -m src.code.ingest -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/src/code/ingest.py\", line 12, in <module>\n    from datasets import load_dataset\nModuleNotFoundError: No module named 'datasets'",
+    "python -m src.code.embeddings -> rc=1\n    2026-07-21 00:53:09 - root - INFO - Starting Word2Vec training...\n2026-07-21 00:53:09 - root - INFO - Parameters: dimensions=100, window=10, epochs=5\n2026-07-21 00:53:09 - root - ERROR - Error during training: Using a generator as corpus_iterable can't support 6 passes. Try a re-iterable sequence.\n2026-07-21 00:53:09 - root - ERROR - Failed to train model",
+    "python -m src.code.similarity -> rc=1\n    2026-07-21 00:53:09 - root - INFO - Starting similarity computation...\n2026-07-21 00:53:09 - root - ERROR - Embeddings directory not found: yearly_embeddings",
     "python -m src.code.run_all -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-254-statistical-analysis-of-publicly-availab/code/.venv/bin/python: No module named src.code.run_all"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-20T20:35:38Z"
+  "updated_at": "2026-07-21T00:53:14Z"
 }

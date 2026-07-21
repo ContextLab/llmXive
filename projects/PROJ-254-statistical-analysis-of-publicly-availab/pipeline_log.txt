@@ -23,4 +23,25 @@
 [INFO] ==================================================
 [INFO] Regression results saved to data/derived/regression_results.json
 [INFO] Cook's Distance report saved to data/derived/cooks_distance_report.csv
-[INFO] Regression analysis pipeline completed successfully.
+[INFO] Regression analysis pipeline completed successfully.2026-07-21 00:53:09 - root - INFO - Starting Word2Vec training...
+2026-07-21 00:53:09 - root - INFO - Parameters: dimensions=100, window=10, epochs=5
+2026-07-21 00:53:09 - root - ERROR - Error during training: Using a generator as corpus_iterable can't support 6 passes. Try a re-iterable sequence.
+2026-07-21 00:53:09 - root - ERROR - Failed to train model
+2026-07-21 00:53:09 - root - INFO - Starting similarity computation...
+2026-07-21 00:53:09 - root - ERROR - Embeddings directory not found: yearly_embeddings
+2026-07-21 00:53:11 - root - INFO - Flagging low coverage years...
+2026-07-21 00:53:11 - root - ERROR - Error flagging low coverage: Could not open Parquet input source '<Buffer>': Parquet magic bytes not found in footer. Either the file is corrupted or this is not a parquet file.
+2026-07-21 00:53:11 - root - INFO - Fitting linear regression...
+2026-07-21 00:53:11 - root - INFO - Regression slope: 0.001099 (p=0.0000)
+2026-07-21 00:53:11 - root - INFO - Saved regression results to data/derived/regression_results.json
+2026-07-21 00:53:11 - root - INFO - Calculating Cook's Distance...
+2026-07-21 00:53:11 - root - INFO - Found 0 outliers using Cook's Distance
+2026-07-21 00:53:11 - root - INFO - Saved Cook's Distance report to data/derived/cooks_distance_report.csv
+2026-07-21 00:53:11 - root - INFO - Regression analysis completed
+2026-07-21 00:53:11 - root - INFO - Generating similarity trend plot...
+2026-07-21 00:53:11 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
+2026-07-21 00:53:12 - matplotlib.font_manager - INFO - generated new fontManager
+2026-07-21 00:53:12 - root - INFO - Saved trend plot to figures/similarity_trend.png
+2026-07-21 00:53:12 - root - INFO - Generating genre similarity heatmap...
+2026-07-21 00:53:12 - root - INFO - Saved heatmap to figures/genre_similarity_heatmap.html
+2026-07-21 00:53:12 - root - INFO - Visualization generation completed

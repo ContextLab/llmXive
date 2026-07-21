@@ -1,3 +1,18 @@
+T019:
+  c: false
+  h: a5ccce6cef31bad6b605c6460dec60abfdf73d9413a8c41b44b9dc19ac8efbe3
+  r: "The repository contains a non\u2011empty `src/code/ingest.py`, but the required\
+    \ output file `data/derived/track_count.txt` is absent, and there is no evidence\
+    \ that `ingest_mpd` writes the track count or logs the exact \u201CIngestion complete:\
+    \ X tracks processed\u201D message to `pipeline_log.txt`. The task\u2019s core\
+    \ deliverable is therefore not satisfied."
+T020:
+  c: false
+  h: a5ccce6cef31bad6b605c6460dec60abfdf73d9413a8c41b44b9dc19ac8efbe3
+  r: "The repository lacks the required `data/derived/track_count.txt` file, and the\
+    \ provided `src/code/ingest.py` excerpt does not contain a `validate_coverage`\
+    \ function implementing the 80\u202F% coverage check. Both the needed artifact\
+    \ and the specified function are missing."
 T025:
   c: false
   h: 36bb7834a36efdaac14c3f618dab62801a9e0dfcaa58b318514a29ec4090c443
@@ -26,31 +41,3 @@ T052:
   r: No `plan_waiver_log.md` file in `specs/001-genre-evolution/` was presented; the
     claim lacks any artifact or content showing the waiver documentation, so the required
     deliverable is missing.
-T061:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `spec_amendment_lastfm.md` file or merged changes to `spec.md` are provided;
-    the evidence lacks the required documentation confirming the Last.fm requirement
-    removal. The task remains undone until the amendment file and its integration
-    into the main specification are shown.
-T062:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The response only shows an updated spec excerpt mentioning the Cook\u2019s Distance\
-    \ amendment, but provides no actual `spec_amendment_fr006.md` file nor evidence\
-    \ that it was merged into `spec.md`. Without those concrete artifacts, we cannot\
-    \ confirm the governance task was truly completed."
-T063:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim only describes that `spec_amendment_sc001.md` exists and has been incorporated,
-    but no actual file content or merged `spec.md` is provided as evidence. The required
-    artifacts (the amendment file and the updated main specification) are missing,
-    so the governance task is not demonstrably completed.
-T067:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `verify_spec_amendments.py` script is present, nor any evidence that a verification\
-    \ routine checks `spec.md` for the removal of Last.fm references and the inclusion\
-    \ of Cook\u2019s Distance text. The required artifact is missing, so the task\
-    \ is not satisfied."

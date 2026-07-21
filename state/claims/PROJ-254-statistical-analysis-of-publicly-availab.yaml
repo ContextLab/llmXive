@@ -236,3 +236,83 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T05:30:03Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec_amendment_fr006.md
+  attempts: 1
+  canonical: Threshold selection lacked statistical basis leading to cherry-picking
+  claim_id: c_7661dbf3
+  context: 'The original specification mandated a ''Sensitivity Sweep'' where the
+    regression model would be re-run across multiple arbitrary threshold values to
+    assess stability. Issues Identified: Arbitrary Thresholds: The selection of thresholds
+    (e.g., 0.005, 0.01, 0.02) lacked a statistical basis, leading to potential cherry-picking
+    of results.'
+  evidence:
+    asserted: '0.005'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The selection of thresholds (e.g., 0.005, 0.01, 0.02) lacked a statistical
+    basis, leading to potential cherry-picking of results.
+  resolved_value: '3.142'
+  resolver: approximate
+  source_hash: ab2c5c81357403e93b4277fc0e90d99c2ec0bd437245b579f88ac613e8444789
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T00:33:48Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec_amendment_fr006.md
+  attempts: 1
+  canonical: Re-running regression 10-20 times provided diminishing returns
+  claim_id: c_992f229d
+  context: 'Computational Redundancy: Re-running the regression 10-20 times for marginal
+    threshold changes provided diminishing returns compared to direct influence diagnostics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-running the regression 10-20 times for marginal threshold changes provided
+    diminishing returns compared to direct influence diagnostics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T00:34:11Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec_amendment_fr006.md
+  attempts: 1
+  canonical: Cook's Distance based on influence function theory Cook 1977
+  claim_id: c_9a4b66aa
+  context: 'Advantages: Statistical Rigor: Based on established influence function
+    theory (Cook, 1977).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cook's Distance is based on established influence function theory (Cook,
+    1977).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T00:34:39Z'
+- artifact_path: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec_amendment_fr006.md
+  attempts: 1
+  canonical: Cook's Distance threshold is 4/n
+  claim_id: c_a52e5d5a
+  context: 'FR-006: The pipeline must perform a Cook''s Distance Outlier Analysis
+    to identify influential years in the regression model. The analysis must calculate
+    Cook''s Distance for each data point, flag points exceeding the threshold $D_i
+    > 4/n$ (where $n$ is the number of observations), and generate a report (cooks_distance_report.csv)
+    detailing influential points.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must calculate Cook's Distance for each data point, flag
+    points exceeding the threshold $D_i > 4/n$ (where $n$ is the number of observations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T00:34:40Z'

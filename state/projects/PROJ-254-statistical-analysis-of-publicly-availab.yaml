@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-254-statistical-analysis-of-publicly-availab
-last_run_id: cea676df-c58e-4630-a269-9969feeab86b
+last_run_id: 9919cdf2-179a-40cb-8680-023855e93698
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-254-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
-updated_at: '2026-07-20T22:11:55.435446Z'
+updated_at: '2026-07-21T00:52:32.687850Z'

@@ -1,9 +1,13 @@
 {
-  "slope": 0.0015,
-  "intercept": -2.5678,
-  "p_value": 0.0023,
-  "rsquared": 0.7845,
-  "std_err": 0.0005,
-  "ci_lower": 0.0005,
-  "ci_upper": 0.0025
+  "slope": 0.001099021978022073,
+  "intercept": -2.08557476923096,
+  "r_squared": 0.9999551618759197,
+  "p_value": 0.0,
+  "confidence_interval_95": [
+    0.0010953596169247506,
+    0.0011026843391193954
+  ],
+  "years_included": 13,
+  "years_excluded": 0,
+  "excluded_years": []
 }
