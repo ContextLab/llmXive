@@ -62,6 +62,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/utils/logging_config.py` — NOT invoked by the run-book
     - `code/src/features/descriptor_calculator.py` — NOT invoked by the run-book
     - `code/src/preprocessing/validator.py` — NOT invoked by the run-book
+    - `code/scripts/generate_elemental_properties.py` — NOT invoked by the run-book
     - `code/tests/unit/test_descriptor_calculator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/elemental_properties.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/manual_curated.csv` is declared but was NOT written. Scripts referencing it:

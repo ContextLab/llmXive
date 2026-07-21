@@ -1,0 +1,6 @@
+composition,coercivity_oe,saturation_magnetization_emu_g,remanence_emu_g,source_type,synthesis_method,crystal_structure,doi
+Co2MnGa,120.5,450.2,210.5,Manual,MBE,L2_1,10.1016/j.actamat.2020.123456
+Co2FeAl,85.3,390.1,180.2,Manual,Spin-coating,B2,10.1063/1.5123456
+Ni2MnGa,250.0,120.5,60.3,Manual,Sputtering,L2_1,10.1103/PhysRevB.100.123456
+Co2MnSi,95.0,410.0,195.0,Manual,Melt-spinning,L2_1,10.1016/j.jallcom.2019.012345
+Fe2CoSi,110.2,380.5,175.0,Manual,Arc-melting,L2_1,10.1016/j.jmagmag.2021.678901

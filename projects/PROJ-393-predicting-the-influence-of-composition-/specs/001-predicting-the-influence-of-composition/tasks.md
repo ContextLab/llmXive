@@ -200,7 +200,7 @@ properties:
 - [X] T026 [US1] Create `code/src/ingestion/ingest_pipeline.py` to orchestrate fetching, parsing, and saving to `data/raw/` with checksums.
 - [X] T027 [US1] Create `code/src/preprocessing/preprocess_pipeline.py` to standardize, impute (via Orchestrator T024), filter, and save to `data/processed/alloys_raw.csv`. **Guarantee**: This task MUST produce `data/processed/alloys_raw.csv` even if the dataset is empty or small.
 - [X] T028c [US1] **Source Availability Validation**: Implement `code/src/ingestion/source_validator.py` to verify that data was ingested from at least one source (NIST, Journal, or Manual). **Logic**: If all sources yield 0 entries, log a critical error and halt. If some sources yield 0 entries, log a 'Source Availability Warning' and proceed. Generate `data/processed/source_availability_report.json` listing counts per source. **This task enforces FR-001 by documenting the gap if <3 sources are found, but allows the pipeline to proceed with available data.** **Depends on T026.**
-- [X] T028 [US1] Generate `data/processed/completeness_report.json` (SC-004) reporting data proportions per source. **Deliverable**: JSON file with structure:
+- [ ] T028 [US1] Generate `data/processed/completeness_report.json` (SC-004) reporting data proportions per source. **Deliverable**: JSON file with structure:
  ```json
 {
  "sources": {
@@ -234,17 +234,17 @@ properties:
 ### Tests for User Story 2 ⚠️ (Written first per TDD, executed after Implementation)
 
 - [X] T029 [P] [US2] Unit test for descriptor calculator in `code/tests/unit/test_descriptor_calculator.py` (tests VEC, electronegativity, etc.).
-- [X] T030 [US2] Integration test for model training pipeline in `code/tests/integration/test_model_training.py`. **Test Logic**: Verify k-fold cross-validation is performed, models are trained, and metrics (R², MAE) are generated for both Linear and RF models. **Assertions**: Check that `model_metrics.json` exists and contains valid R² and MAE values for both models. **Dependency**: T035, T037.
+- [ ] T030 [US2] Integration test for model training pipeline in `code/tests/integration/test_model_training.py`. **Test Logic**: Verify k-fold cross-validation is performed, models are trained, and metrics (R², MAE) are generated for both Linear and RF models. **Assertions**: Check that `model_metrics.json` exists and contains valid R² and MAE values for both models. **Dependency**: T035, T037.
 
 ### Implementation for User Story 2
 
 - [X] T031 [P] [US2] Implement `code/src/features/descriptor_calculator.py` to compute: Average Electronegativity, VEC, Atomic Radii Variance, Avg d-electrons, Atomic Size Mismatch (FR-003).
-- [X] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b. **If input file is empty or missing, raise a clear error.**
+- [ ] T032 [US2] Implement `code/src/features/feature_engineering_pipeline.py` to apply descriptors to `data/processed/alloys_raw.csv` and save to `data/processed/alloys_features.csv`. **Logic**: 1. Check if `data/processed/alloys_raw.csv` exists; if not, raise `FileNotFoundError`. 2. Load the CSV. 3. Apply `descriptor_calculator` (T031) to each row. 4. Save the result to `data/processed/alloys_features.csv`. **Dependency**: T027, T028b. **If input file is empty or missing, raise a clear error.**
 - [X] T033 [US2] Implement `code/src/models/linear_regressor.py` for baseline linear regression with hyperparameter tuning.
 - [X] T034 [US2] Implement `code/src/models/random_forest_regressor.py` for Random Forest with hyperparameter tuning.
 - [X] T035 [US2] Implement `code/src/models/training_pipeline.py` to orchestrate k-fold cross-validation, GridSearchCV, and save models to `code/models/`.
 - [X] T036 [US2] Implement `code/src/models/feature_importance.py` to calculate permutation importance and rank top descriptors.
-- [X] T037 [US2] Generate `data/processed/model_metrics.json` with R² and MAE for both models. **Logic**: 1. Load trained models from `code/models/`. 2. Evaluate on the test set. 3. Compute R², MAE, RMSE, CV score. 4. Write results to `data/processed/model_metrics.json`. **Dependency**: T035. **Verify that model files exist and are not corrupted.**
+- [ ] T037 [US2] Generate `data/processed/model_metrics.json` with R² and MAE for both models. **Logic**: 1. Load trained models from `code/models/`. 2. Evaluate on the test set. 3. Compute R², MAE, RMSE, CV score. 4. Write results to `data/processed/model_metrics.json`. **Dependency**: T035. **Verify that model files exist and are not corrupted.**
 - [X] T049 [US3] Implement `code/src/validation/final_evaluator.py` to **evaluate** SC-006 as an **Exploratory Benchmark**. Calculate F-test p-value and R². **If R² < 0.6, log 'Consistent with Physical Reality' and proceed (NO FAIL state).** Generate report regardless of result. **Deprecates 'enforce gate' logic per Plan Phase 3.8.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

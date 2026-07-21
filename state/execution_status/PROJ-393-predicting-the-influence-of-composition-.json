@@ -8,11 +8,11 @@
     "python -m src.ingestion.fetch_journal_data -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/code/.venv/bin/python: No module named src.ingestion.fetch_journal_data",
     "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-20T23:25:16Z"
+  "updated_at": "2026-07-21T15:39:14Z"
 }

@@ -1,111 +1,127 @@
-"""
-Unit tests for the Completeness Reporter module.
-"""
 import pytest
 import pandas as pd
-import json
 import tempfile
-from pathlib import Path
-import sys
 import os
+from pathlib import Path
+import json
+import sys
 
-# Ensure src is in path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add code to path if running directly
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.preprocessing.completeness_reporter import (
-    load_processed_data,
-    calculate_source_proportions,
-    generate_completeness_report,
-    REQUIRED_SOURCE_COLUMN
-)
+from src.preprocessing.completeness_reporter import calculate_source_proportions, generate_completeness_report, run_completeness_report_pipeline
 
+@pytest.fixture
+def sample_df():
+    """Create a sample dataframe with various source types and nulls."""
+    data = {
+        "composition": ["Co2MnGa", "Fe3Al", "Ni2MnGa", "CoFeCr", "Mn3Ga"],
+        "source_type": ["NIST", "NIST", "Journal", "Manual", "NIST"],
+        "coercivity_oe": [10.0, 20.0, None, 5.0, 15.0],
+        "saturation_magnetization_emu_g": [100.0, 200.0, 150.0, 80.0, None],
+        "remanence_emu_g": [50.0, 100.0, 75.0, 40.0, 60.0]
+    }
+    return pd.DataFrame(data)
 
-class TestCompletenessReporter:
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    return tmp_path
 
-    @pytest.fixture
-    def sample_df(self):
-        """Create a sample DataFrame with source_type column."""
-        data = {
-            "alloy": ["Co2MnGa", "Co2FeAl", "NiMnSb", "Co2MnSi"],
-            "source_type": ["NIST", "NIST", "Journal", "Manual"]
-        }
-        return pd.DataFrame(data)
+def test_calculate_source_proportions_valid_data(sample_df):
+    """Test that proportions are calculated correctly for valid data."""
+    result = calculate_source_proportions(sample_df)
+    
+    # NIST: 3 rows total. Row 1 (10, 100, 50) valid. Row 2 (20, 200, 100) valid. Row 5 (15, None, 60) invalid (saturation null).
+    # NIST: 2 valid, 3 total.
+    assert result["sources"]["NIST"]["total_rows"] == 3
+    assert result["sources"]["NIST"]["valid_rows"] == 2
+    assert result["sources"]["NIST"]["completeness_pct"] == pytest.approx(66.67, rel=0.1)
+    
+    # Journal: 1 row total. Row 3 (None, 150, 75) invalid (coercivity null).
+    assert result["sources"]["Journal"]["total_rows"] == 1
+    assert result["sources"]["Journal"]["valid_rows"] == 0
+    assert result["sources"]["Journal"]["completeness_pct"] == 0.0
+    
+    # Manual: 1 row total. Row 4 (5, 80, 40) valid.
+    assert result["sources"]["Manual"]["total_rows"] == 1
+    assert result["sources"]["Manual"]["valid_rows"] == 1
+    assert result["sources"]["Manual"]["completeness_pct"] == 100.0
+    
+    # Overall: 5 total, 3 valid (NIST 2 + Manual 1).
+    assert result["overall"]["total_rows"] == 5
+    assert result["overall"]["valid_rows"] == 3
+    assert result["overall"]["completeness_pct"] == pytest.approx(60.0, rel=0.1)
 
-    @pytest.fixture
-    def temp_csv_path(self, sample_df):
-        """Create a temporary CSV file for testing."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            sample_df.to_csv(f, index=False)
-            path = Path(f.name)
-        yield path
-        path.unlink(missing_ok=True)
+def test_generate_completeness_report_writes_file(sample_df, temp_output_dir):
+    """Test that the report is written to a JSON file."""
+    output_path = temp_output_dir / "test_report.json"
+    proportions = calculate_source_proportions(sample_df)
+    generate_completeness_report(proportions, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, "r") as f:
+        loaded = json.load(f)
+    
+    assert "sources" in loaded
+    assert "overall" in loaded
+    assert "NIST" in loaded["sources"]
+    assert "Journal" in loaded["sources"]
+    assert "Manual" in loaded["sources"]
 
-    def test_load_processed_data_success(self, temp_csv_path):
-        """Test successful loading of processed data."""
-        df = load_processed_data(temp_csv_path)
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 4
-        assert REQUIRED_SOURCE_COLUMN in df.columns
+def test_empty_dataframe():
+    """Test behavior with an empty dataframe."""
+    df = pd.DataFrame(columns=["composition", "source_type", "coercivity_oe", "saturation_magnetization_emu_g", "remanence_emu_g"])
+    result = calculate_source_proportions(df)
+    
+    assert result["overall"]["total_rows"] == 0
+    assert result["overall"]["valid_rows"] == 0
+    assert result["overall"]["completeness_pct"] == 0.0
+    for src in ["NIST", "Journal", "Manual"]:
+        assert result["sources"][src]["total_rows"] == 0
+        assert result["sources"][src]["valid_rows"] == 0
+        assert result["sources"][src]["completeness_pct"] == 0.0
 
-    def test_load_processed_data_missing_file(self):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_processed_data(Path("non_existent_file.csv"))
+def test_missing_source_type_column():
+    """Test behavior when source_type column is missing (defaults to Manual)."""
+    data = {
+        "composition": ["Co2MnGa"],
+        "coercivity_oe": [10.0],
+        "saturation_magnetization_emu_g": [100.0],
+        "remanence_emu_g": [50.0]
+    }
+    df = pd.DataFrame(data)
+    result = calculate_source_proportions(df)
+    
+    # All rows should be counted as Manual
+    assert result["sources"]["Manual"]["total_rows"] == 1
+    assert result["sources"]["Manual"]["valid_rows"] == 1
+    assert result["sources"]["NIST"]["total_rows"] == 0
+    assert result["sources"]["Journal"]["total_rows"] == 0
 
-    def test_load_processed_data_missing_column(self):
-        """Test error handling for missing required column."""
-        data = {"alloy": ["A", "B"], "value": [1, 2]}
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            pd.DataFrame(data).to_csv(f, index=False)
-            path = Path(f.name)
-
-        try:
-            with pytest.raises(ValueError) as exc_info:
-                load_processed_data(path)
-            assert REQUIRED_SOURCE_COLUMN in str(exc_info.value)
-        finally:
-            path.unlink(missing_ok=True)
-
-    def test_calculate_source_proportions(self, sample_df):
-        """Test proportion calculation logic."""
-        result = calculate_source_proportions(sample_df)
-
-        assert "counts" in result
-        assert "proportions" in result
-        assert "total_records" in result
-
-        assert result["total_records"] == 4
-        assert result["counts"]["NIST"] == 2
-        assert result["counts"]["Journal"] == 1
-        assert result["counts"]["Manual"] == 1
-
-        # Check proportions (allowing for float precision)
-        assert abs(result["proportions"]["NIST"] - 0.5) < 0.01
-        assert abs(result["proportions"]["Journal"] - 0.25) < 0.01
-        assert abs(result["proportions"]["Manual"] - 0.25) < 0.01
-
-    def test_calculate_source_proportions_empty_df(self):
-        """Test behavior with empty DataFrame."""
-        empty_df = pd.DataFrame(columns=["alloy", REQUIRED_SOURCE_COLUMN])
-        result = calculate_source_proportions(empty_df)
-
-        assert result["total_records"] == 0
-        assert result["counts"] == {}
-        assert result["proportions"] == {}
-
-    def test_generate_completeness_report(self, sample_df):
-        """Test full report generation and file writing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_report.json"
-            report = generate_completeness_report(sample_df, output_path)
-
-            # Verify file exists
-            assert output_path.exists()
-
-            # Verify content
-            with open(output_path, 'r') as f:
-                loaded_report = json.load(f)
-
-            assert loaded_report["total_records"] == 4
-            assert loaded_report["report_type"] == "data_completeness"
-            assert "proportions" in loaded_report
+def test_run_completeness_report_pipeline(tmp_path):
+    """Test the full pipeline with a temporary file."""
+    # Create input file
+    input_dir = tmp_path / "data" / "processed"
+    input_dir.mkdir(parents=True)
+    input_path = input_dir / "alloys_raw.csv"
+    
+    data = {
+        "composition": ["Co2MnGa"],
+        "source_type": ["NIST"],
+        "coercivity_oe": [10.0],
+        "saturation_magnetization_emu_g": [100.0],
+        "remanence_emu_g": [50.0]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(input_path, index=False)
+    
+    output_path = tmp_path / "data" / "processed" / "completeness_report.json"
+    
+    run_completeness_report_pipeline(input_path, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, "r") as f:
+        report = json.load(f)
+    
+    assert report["sources"]["NIST"]["valid_rows"] == 1
+    assert report["overall"]["completeness_pct"] == 100.0

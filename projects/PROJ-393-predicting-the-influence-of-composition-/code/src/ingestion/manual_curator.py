@@ -30,8 +30,8 @@ def load_manual_curated_data(
     Args:
         file_path: Path to the CSV file. Defaults to data/raw/manual_curated.csv.
         required_columns: Optional list of columns that must be present.
-                         If a column is missing, a warning is logged but
-                         the DataFrame is returned with the available columns.
+                        If a column is missing, a warning is logged but
+                        the DataFrame is returned with the available columns.
 
     Returns:
         pd.DataFrame: The loaded data. Returns an empty DataFrame with no columns

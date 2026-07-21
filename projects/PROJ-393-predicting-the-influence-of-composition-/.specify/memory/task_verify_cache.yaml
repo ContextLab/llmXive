@@ -7,21 +7,19 @@ T012:
     \ artifact is absent."
 T018:
   c: true
-  h: 096f4278906b4aaeff315e0dd6e7f8866016ee52f49de877cf853ad2c585fdd0
-  r: "The provided `code/src/ingestion/manual_curator.py` contains a `load_manual_curated_data`\
-    \ function that checks for the presence of `data/raw/manual_curated.csv`, logs\
-    \ a warning when it is absent, and returns an empty DataFrame (0 entries), fulfilling\
-    \ the graceful\u2011degradation requirement. The file exists and implements the\
-    \ required loading logic."
+  h: 7e265118f107f76b2a3b6c766f4b8d741d35adf85c4135f52381cea2f4d7b2f3
+  r: "The `manual_curator.py` file defines `load_manual_curated_data` that checks\
+    \ for `data/raw/manual_curated.csv`, logs a warning when it is absent, and returns\
+    \ an empty DataFrame, fulfilling the graceful\u2011degradation requirement. The\
+    \ required artifact is present and implements the specified behavior."
 T027:
-  c: true
-  h: 3be5355a40dc14ac5ef0d4b0761d36efa200631653963c9f7c7a9df4ec500003
-  r: "The `code/src/preprocessing/preprocess_pipeline.py` file exists, is non\u2011\
-    empty, and contains functions for loading raw data, standardizing compositions,\
-    \ normalizing units, invoking the imputation orchestrator, and references to filtering\
-    \ and validation, with a constant pointing to `data/processed/alloys_raw.csv`\
-    \ for output. This satisfies the task\u2019s requirement to create a pipeline\
-    \ script that performs those steps and saves the processed CSV."
+  c: false
+  h: a1c2623a07e75f59bd25a8fec29cb67a46449cba402dfe54fcb9bed32e7fbcaf
+  r: "The repository contains `code/src/preprocessing/preprocess_pipeline.py`, but\
+    \ the script is truncated and does not show any logic that writes `data/processed/alloys_raw.csv`.\
+    \ Moreover, the required output file `data/processed/alloys_raw.csv` is absent\
+    \ from the project. The task\u2019s guarantee of producing that CSV (even empty)\
+    \ is therefore not fulfilled."
 T032:
   c: false
   h: 49933d9a1a74638b128176b08c07431b35ebfea65787a60e01d1b7e85372c632

@@ -1,170 +1,236 @@
 """
-Periodic Table Loader Module
+Periodic Table Loader for Heusler Alloy Analysis.
 
 Loads and validates elemental properties from the raw data CSV.
-Provides strict validation and lookup utilities for the pipeline.
+Provides strict validation and caching for efficient access.
 """
-
 import csv
 import logging
+import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 
-# Import logging setup from sibling module
 from .logging_config import setup_logging
 
-# Constants
-REQUIRED_COLUMNS = ['element', 'electronegativity', 'atomic_radii', 'valence_electrons']
-DEFAULT_FILE_PATH = "data/raw/elemental_properties.csv"
+# Initialize logger
+logger = logging.getLogger(__name__)
 
-# Global cache for loaded properties
+# Default path relative to project root
+DEFAULT_DATA_PATH = Path("data/raw/elemental_properties.csv")
+
+# Cache for loaded properties
 _properties_cache: Optional[Dict[str, Dict[str, Any]]] = None
-_logger: Optional[logging.Logger] = None
+_cache_path: Optional[Path] = None
 
-def _get_logger() -> logging.Logger:
-    """Get or create the module logger."""
-    global _logger
-    if _logger is None:
-        _logger = setup_logging(__name__)
-    return _logger
+def _calculate_file_hash(file_path: Path) -> str:
+    """Calculate SHA256 hash of the file for validation."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def load_elemental_properties(file_path: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
+def load_elemental_properties(data_path: Optional[Path] = None) -> Dict[str, Dict[str, Any]]:
     """
-    Load elemental properties from the CSV file with strict validation.
+    Load elemental properties from CSV with strict validation.
 
     Args:
-        file_path: Path to the CSV file. Defaults to DEFAULT_FILE_PATH.
+        data_path: Path to the elemental_properties.csv file.
+                   Defaults to data/raw/elemental_properties.csv.
 
     Returns:
         Dictionary mapping element symbols to their properties.
 
     Raises:
-        FileNotFoundError: If the specified file does not exist.
-        ValueError: If the file is missing required columns or has invalid data.
+        FileNotFoundError: If the data file does not exist.
+        ValueError: If the data file is empty or missing required columns.
+        KeyError: If an element has missing required properties.
     """
-    global _properties_cache
-    logger = _get_logger()
+    global _properties_cache, _cache_path
 
-    if file_path is None:
-        # Resolve relative to project root (code/)
-        base_dir = Path(__file__).resolve().parent.parent.parent
-        file_path = str(base_dir / DEFAULT_FILE_PATH)
+    # Use default path if none provided
+    if data_path is None:
+        data_path = DEFAULT_DATA_PATH
 
-    path_obj = Path(file_path)
+    # Resolve to absolute path relative to project root
+    if not data_path.is_absolute():
+        # Assume project root is parent of 'code' directory
+        project_root = Path(__file__).resolve().parent.parent.parent.parent
+        data_path = project_root / data_path
 
-    if not path_obj.exists():
-        logger.error(f"Elemental properties file not found: {file_path}")
-        raise FileNotFoundError(f"Elemental properties file not found: {file_path}")
+    # Check if file exists
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"Elemental properties file not found at: {data_path}. "
+            "Please ensure T006 has generated data/raw/elemental_properties.csv."
+        )
 
-    # Check cache first
-    if _properties_cache is not None:
-        logger.debug("Loading elemental properties from cache")
+    # Check cache validity
+    if _properties_cache is not None and _cache_path == data_path:
+        logger.debug(f"Using cached properties from {data_path}")
         return _properties_cache
 
-    logger.info(f"Loading elemental properties from {file_path}")
+    # Load and validate data
+    logger.info(f"Loading elemental properties from {data_path}")
     properties = {}
+    required_columns = {'element', 'electronegativity', 'atomic_radii', 'valence_electrons', 'source_reference'}
 
     try:
-        with open(path_obj, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
+        with open(data_path, 'r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
 
-            # Validate headers
+            # Validate header
             if reader.fieldnames is None:
-                raise ValueError("CSV file is empty or has no header row")
+                raise ValueError("CSV file is empty or has no header.")
 
-            missing_cols = set(REQUIRED_COLUMNS) - set(reader.fieldnames)
+            header_set = set(reader.fieldnames)
+            missing_cols = required_columns - header_set
             if missing_cols:
-                raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+                raise ValueError(f"Missing required columns: {missing_cols}")
 
             row_count = 0
-            for row in reader:
+            for row_num, row in enumerate(reader, start=2): # Start at 2 (header is 1)
                 row_count += 1
+
+                # Validate element symbol
                 element = row['element'].strip()
                 if not element:
-                    logger.warning(f"Skipping row {row_count}: Empty element symbol")
-                    continue
+                    raise ValueError(f"Row {row_num}: Empty element symbol.")
 
-                # Validate and parse numeric fields
+                # Validate numeric fields
                 try:
                     electronegativity = float(row['electronegativity'])
                     atomic_radii = float(row['atomic_radii'])
-                    valence_electrons = float(row['valence_electrons'])
+                    valence_electrons = int(row['valence_electrons'])
                 except ValueError as e:
-                    logger.error(f"Invalid numeric data in row {row_count} for element {element}: {e}")
-                    raise ValueError(f"Invalid numeric data for element {element}: {e}")
+                    raise ValueError(f"Row {row_num}: Invalid numeric value for element {element}: {e}")
 
-                # Basic sanity checks
-                if electronegativity < 0:
-                    raise ValueError(f"Negative electronegativity for {element}: {electronegativity}")
-                if atomic_radii <= 0:
-                    raise ValueError(f"Non-positive atomic radii for {element}: {atomic_radii}")
-                if valence_electrons < 0:
-                    raise ValueError(f"Negative valence electrons for {element}: {valence_electrons}")
+                # Validate ranges (basic sanity checks)
+                if not (0 < electronegativity < 5.0):
+                    logger.warning(f"Row {row_num}: Electronegativity {electronegativity} for {element} seems unusual.")
+                if not (50 < atomic_radii < 250): # Angstroms * 100 approx
+                    logger.warning(f"Row {row_num}: Atomic radii {atomic_radii} for {element} seems unusual.")
+                if not (1 <= valence_electrons <= 18):
+                    logger.warning(f"Row {row_num}: Valence electrons {valence_electrons} for {element} seems unusual.")
 
                 properties[element] = {
                     'electronegativity': electronegativity,
                     'atomic_radii': atomic_radii,
-                    'valence_electrons': valence_electrons
+                    'valence_electrons': valence_electrons,
+                    'source_reference': row['source_reference'].strip()
                 }
 
             if row_count == 0:
-                logger.warning(f"No data rows found in {file_path}")
+                raise ValueError("CSV file contains no data rows.")
 
-        logger.info(f"Successfully loaded {len(properties)} elemental properties")
-        _properties_cache = properties
-        return properties
+            logger.info(f"Loaded {row_count} elements from {data_path}")
+
+            # Update cache
+            _properties_cache = properties
+            _cache_path = data_path
+
+            return properties
 
     except csv.Error as e:
-        logger.error(f"CSV parsing error in {file_path}: {e}")
-        raise
+        raise ValueError(f"CSV parsing error: {e}")
 
-def get_element_property(element: str, property_name: str, file_path: Optional[str] = None) -> Optional[float]:
+def get_element_property(element: str, property_name: str, data_path: Optional[Path] = None) -> Any:
     """
     Get a specific property for an element.
 
     Args:
         element: Element symbol (e.g., 'Fe', 'Co').
-        property_name: Name of the property to retrieve.
-        file_path: Optional path to override default file location.
+        property_name: Name of the property (e.g., 'electronegativity', 'atomic_radii').
+        data_path: Optional path to override default data file.
 
     Returns:
-        The property value if found, None otherwise.
+        The property value.
 
     Raises:
-        ValueError: If the property name is invalid.
+        KeyError: If element or property is not found.
+        FileNotFoundError: If data file is missing.
     """
-    valid_properties = {'electronegativity', 'atomic_radii', 'valence_electrons'}
-    if property_name not in valid_properties:
-        raise ValueError(f"Invalid property name '{property_name}'. Must be one of {valid_properties}")
+    properties = load_elemental_properties(data_path)
 
-    properties = load_elemental_properties(file_path)
-    element_upper = element.strip().upper()
+    if element not in properties:
+        raise KeyError(f"Element '{element}' not found in periodic table data. "
+                       f"Available elements: {list(properties.keys())}")
 
-    if element_upper not in properties:
-        _get_logger().warning(f"Element '{element}' not found in periodic table data.")
-        return None
+    if property_name not in properties[element]:
+        raise KeyError(f"Property '{property_name}' not found for element '{element}'. "
+                       f"Available properties: {list(properties[element].keys())}")
 
-    return properties[element_upper][property_name]
+    return properties[element][property_name]
 
-def main() -> None:
+def get_all_elements(data_path: Optional[Path] = None) -> List[str]:
+    """
+    Get a list of all available element symbols.
+
+    Args:
+        data_path: Optional path to override default data file.
+
+    Returns:
+        List of element symbols.
+    """
+    properties = load_elemental_properties(data_path)
+    return list(properties.keys())
+
+def validate_elements_in_dataset(elements: List[str], data_path: Optional[Path] = None) -> Tuple[List[str], List[str]]:
+    """
+    Validate a list of elements against the loaded periodic table.
+
+    Args:
+        elements: List of element symbols to validate.
+        data_path: Optional path to override default data file.
+
+    Returns:
+        Tuple of (valid_elements, invalid_elements).
+    """
+    available = set(get_all_elements(data_path))
+    valid = []
+    invalid = []
+
+    for elem in elements:
+        if elem in available:
+            valid.append(elem)
+        else:
+            invalid.append(elem)
+
+    return valid, invalid
+
+def main():
     """
     Main entry point for command-line execution.
-    Loads the file and prints a summary.
+    Validates the data file and prints summary.
     """
-    logger = setup_logging(__name__, level=logging.INFO)
-    logger.info("Running periodic_table_loader main function")
+    setup_logging(level=logging.INFO)
+    logger.info("Running periodic table loader validation...")
 
     try:
         props = load_elemental_properties()
-        logger.info(f"Loaded {len(props)} elements:")
-        for elem, data in sorted(props.items()):
-            logger.info(f"  {elem}: EN={data['electronegativity']}, R={data['atomic_radii']}, VE={data['valence_electrons']}")
+        logger.info(f"Successfully loaded {len(props)} elements.")
+        logger.info(f"Elements: {', '.join(sorted(props.keys()))}")
+
+        # Verify specific known elements for Heusler alloys
+        expected = ['Mn', 'Co', 'Fe', 'Ga', 'Al', 'Ni', 'Cu', 'Sn']
+        missing = [e for e in expected if e not in props]
+        if missing:
+            logger.warning(f"Missing expected Heusler elements: {missing}")
+        else:
+            logger.info("All expected Heusler elements present.")
+
+        return 0
+
     except FileNotFoundError as e:
-        logger.error(f"File error: {e}")
-        raise
+        logger.error(f"Data file missing: {e}")
+        return 1
     except ValueError as e:
         logger.error(f"Validation error: {e}")
-        raise
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

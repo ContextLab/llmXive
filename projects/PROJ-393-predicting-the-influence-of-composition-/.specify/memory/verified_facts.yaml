@@ -1,5 +1,12 @@
-'|call check function if warn':
-  quote: 45 197
-  source_id: A000040
-  url: https://oeis.org/A000040
-  value: '197'
+143 3|aluminum atomic electron electronegativity radius valence:
+  quote: An aluminium atom has 13 electrons with an electron configuration of [Ne]
+    3s2 3p1, with three electrons beyond a stable noble gas configuration. Accordingly,
+    the combined first three ionization energies of aluminium are far lower than the
+    fourth ionization energy alone. Such an electron configuration is shared with
+    the other well-characterized members of its group, boron, gallium, indium, and
+    thallium; it is also expected for nihonium. Aluminium can surrender its three
+    outermost electrons in many chemical reactions (see below). The electronegativity
+    of aluminium is 1.61 on the Pauling scale.
+  source_id: Aluminium
+  url: https://en.wikipedia.org/wiki/Aluminium
+  value: '1.61'
