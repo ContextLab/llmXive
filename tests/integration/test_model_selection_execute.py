@@ -31,6 +31,7 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
+from tests.unit.test_model_selection_attempt_hooks import _Budget, _FailingRecorder
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 EPOCH = "2026-07-17T03:45:00Z"
@@ -457,8 +458,7 @@ def test_route_chat_reaches_paid_after_free_down_and_local_unavailable(repo, mon
 # Task 3 (spec 025 slice-0): reservation_authority threaded through execute
 # (FR-033b) — the Attempt-budget gate consulted BEFORE the 026 daily reserve.
 # --------------------------------------------------------------------------- #
-
-from tests.unit.test_model_selection_attempt_hooks import _Budget  # the real in-memory authority
+# _Budget is the real in-memory ReservationAuthority (imported at module top).
 
 
 def _ok_factory():
@@ -564,8 +564,7 @@ def test_reservation_authority_released_on_non_ledger_error_from_026_reserve(rep
 # the FREE-path outbox/route-fatal/none-preserving cases are in
 # tests/unit/test_model_selection_execute.py).
 # --------------------------------------------------------------------------- #
-
-from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder
+# _FailingRecorder is the real in-memory failing sink (imported at module top).
 
 
 def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatch):
@@ -585,15 +584,54 @@ def test_route_audit_postdispatch_failure_fails_closed_retained(repo, monkeypatc
     assert budget.retained
 
 
+class _RaisingRetainedBudget(_Budget):
+    """A REAL in-memory ReservationAuthority (subclass of the real ``_Budget``)
+    whose ``mark_retained`` raises — used to prove the money-path guard (Finding
+    #3): a lane authority whose ``mark_retained`` blows up must NEVER discard an
+    already-charged, already-returned successful response."""
+
+    def mark_retained(self, reservation_id: str) -> None:
+        raise RuntimeError("simulated mark_retained failure (e.g. lane DB down)")
+
+
+def test_mark_retained_failure_does_not_discard_successful_response(repo, monkeypatch):
+    # Finding #3: on the SUCCESS path, execute()'s `finally` calls settle() (already
+    # best-effort guarded) THEN reservation_authority.mark_retained() — both run
+    # AFTER the ExecutionResult is built. A raising mark_retained must be guarded
+    # the same way settle() is: log and continue, never propagate and discard the
+    # already-returned response. Non-vacuity: WITHOUT the guard this raises
+    # RuntimeError instead of returning (see the companion assertion below).
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _RaisingRetainedBudget(10_000.0)
+    result = execute(
+        _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+        backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+        credit_observer=_observer(), balance_fetch=_balance(),
+        reservation_authority=budget,
+    )
+    # The successful, already-charged response is NOT discarded despite the
+    # raising mark_retained.
+    assert result.response.text == f"ok:{CLAUDE}"
+    assert result.reservation_id is not None
+    # mark_retained raised before it could record anything — proves the guard
+    # actually caught a REAL raise (non-vacuous), not a no-op subclass.
+    assert budget.retained == set()
+    # The 026 ledger hold is still retained (settle() ran fine; unaffected by the
+    # authority-side failure).
+    (r,) = project(read_events(repo)).values()
+    assert r.state == STATE_SETTLING
+
+
 def test_route_audit_predispatch_failure_paid_releases_reservation(repo, monkeypatch):
     """FR-033a route-fatal branch, PAID candidate: the Attempt reservation has
     ALREADY opened when a PRE-dispatch audit event (ReservationOpened /
     DispatchStarted) fails. The route-fatal handler must release() the Attempt
     reservation AND settle() the 026 hold, then re-raise — WITHOUT ever
     dispatching to the backend. Guards execute.py:376-384."""
+    import importlib
+
     from llmxive.model_selection.attempt_hooks import RouteAuditError
 
-    import importlib
     execmod = importlib.import_module("llmxive.model_selection.execute")
 
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")  # else the candidate is skipped pre-dispatch

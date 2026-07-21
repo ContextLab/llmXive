@@ -439,8 +439,17 @@ def execute(
                     logger.warning("execute: settle(%s) failed: %s", reservation_id, exc)
                 if reservation_authority is not None:
                     # Dispatched (success OR advance) → reconciliation-pending, never
-                    # released (mirrors the 026 settle → settling transition).
-                    reservation_authority.mark_retained(reservation_id)
+                    # released (mirrors the 026 settle → settling transition). Best-effort,
+                    # like the settle() call above: this finally runs AFTER a successful
+                    # candidate's ExecutionResult is already built, so a raising
+                    # mark_retained must never discard an already-charged, already-returned
+                    # response — log and continue (the sweeper backstops reconciliation).
+                    try:
+                        reservation_authority.mark_retained(reservation_id)
+                    except Exception as exc:  # best-effort; never discard a built result
+                        logger.warning(
+                            "execute: mark_retained(%s) failed: %s", reservation_id, exc
+                        )
 
     raise ChainExhausted(
         f"execute: chain of {len(chain.candidates)} candidate(s) exhausted without success; "

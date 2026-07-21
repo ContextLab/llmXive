@@ -486,3 +486,41 @@ def test_route_chat_emits_selection_failure_and_reraises():
             route_audit=rec,
         )
     assert any(isinstance(e, SelectionFailure) for e in rec.events)
+
+
+def _selection_failure_digest(*, profile: str, max_tokens: int = 32) -> tuple[str, str]:
+    """Drive route_chat to a ModelUnavailable and return the recorded
+    ``SelectionFailure``'s ``(requirement_digest, snapshot's own digest)``."""
+    from llmxive.model_selection.route import route_chat
+
+    rec = _Recorder()
+    snap = _no_eligible_snapshot()
+    with pytest.raises(ModelUnavailable):
+        route_chat(
+            _MSGS, profile=profile, max_tokens=max_tokens,
+            snapshot=snap,
+            backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec,
+        )
+    (failure,) = (e for e in rec.events if isinstance(e, SelectionFailure))
+    return failure.requirement_digest, snap.digest
+
+
+def test_selection_failure_requirement_digest_is_deterministic_and_distinct_from_snapshot():
+    # Finding #1: SelectionFailure.requirement_digest must identify WHAT was
+    # requested (the ModelRequirement), NOT the snapshot — the two are distinct
+    # signals (FR-002/FR-027). (a) same requirement -> same digest across two
+    # independent calls; (b) the digest is NOT the snapshot's own digest.
+    digest_1, snap_digest_1 = _selection_failure_digest(profile="standard_generation")
+    digest_2, snap_digest_2 = _selection_failure_digest(profile="standard_generation")
+    assert digest_1 == digest_2  # deterministic across calls
+    assert digest_1 != snap_digest_1  # NOT the snapshot digest (they're the same "TEST-DIGEST")
+    assert snap_digest_1 == snap_digest_2 == "TEST-DIGEST"
+
+
+def test_selection_failure_requirement_digest_changes_with_requirement():
+    # (c) a genuinely different requirement (a different profile => different
+    # capability/required_features) must yield a different digest.
+    digest_standard, _ = _selection_failure_digest(profile="standard_generation")
+    digest_cheap, _ = _selection_failure_digest(profile="cheap_structured")
+    assert digest_standard != digest_cheap

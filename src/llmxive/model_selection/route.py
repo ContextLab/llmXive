@@ -30,6 +30,8 @@ local candidate carries ``backend=="local"``); the legacy ``default_backend`` /
 
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import replace
@@ -138,6 +140,42 @@ def _promote_primary(chain: ModelChain, caller_model: str | None) -> ModelChain:
     return replace(chain, candidates=tuple(cands))
 
 
+def _requirement_digest(requirement: ModelRequirement) -> str:
+    """Stable SHA-256 over the requirement's canonical fields — identifies WHAT
+    was requested (FR-027: detect a candidate that changed the request), distinct
+    from the snapshot digest (which identifies the world ``select`` ran against).
+    Deterministic + cross-process-stable: sorted keys, sets flattened to sorted
+    lists, no object identity/repr involved."""
+    payload = {
+        "capability": requirement.capability,
+        "required_features": sorted(requirement.required_features),
+        "min_context_tokens": requirement.min_context_tokens,
+        "independence_against": {
+            "models": sorted(requirement.independence_against.models),
+            "families": sorted(requirement.independence_against.families),
+            "vendors": sorted(requirement.independence_against.vendors),
+            "endpoints": sorted(requirement.independence_against.endpoints),
+        },
+        "required_independence": sorted(requirement.required_independence),
+        "preferred_independence": sorted(requirement.preferred_independence),
+        "exclude_models": sorted(requirement.exclude_models),
+        "exclude_families": sorted(requirement.exclude_families),
+        "exclude_vendors": sorted(requirement.exclude_vendors),
+        "exclude_endpoints": sorted(requirement.exclude_endpoints),
+        "allow_paid": requirement.allow_paid,
+        "require_paid": requirement.require_paid,
+        "max_credits": requirement.max_credits,
+        "max_catalog_age_s": requirement.max_catalog_age_s,
+        "max_candidates": requirement.max_candidates,
+        "require_fresh_snapshot": requirement.require_fresh_snapshot,
+        "call_budget": [
+            requirement.call_budget.max_input_tokens,
+            requirement.call_budget.max_output_tokens,
+        ],
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+
 def _select_audited(
     requirement: ModelRequirement, snap: RuntimeSnapshot, route_audit: RouteAudit | None
 ) -> ModelChain:
@@ -152,7 +190,7 @@ def _select_audited(
             prov = ",".join(f"{k}={v.source}" for k, v in snap.sources.items())
             route_audit.record(SelectionFailure(
                 exception_type=type(exc).__name__, message=str(exc),
-                requirement_digest=snap.digest, snapshot_provenance=prov,
+                requirement_digest=_requirement_digest(requirement), snapshot_provenance=prov,
             ))
         raise
 
