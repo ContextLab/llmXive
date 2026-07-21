@@ -1,4 +1,17 @@
-"""Evaluation runner with mandatory scientific integrity disclaimers."""
+"""
+Evaluation Runner for Success Criteria Validation (Task T019a).
+
+This script validates the success criteria for the surrogate model by calculating
+the Mean Absolute Percentage Error (MAPE) against held-out families and logging
+the result against the defined threshold.
+
+It consumes:
+- predictions.json (from T018b)
+- split_indices.json (from T017/T013f)
+
+It produces:
+- data/results/success_criteria_validation.json
+"""
 from __future__ import annotations
 
 import argparse
@@ -7,206 +20,246 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
+
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
 from utils.logger import get_logger, log_operation
 
-logger = get_logger(__name__)
+# Constants
+MAPE_THRESHOLD = 0.15  # 15% MAPE threshold for success criteria
+REQUIRED_KEYS = ["youngs_modulus", "shear_modulus", "poisson_ratio"]
+PREDICTIONS_FILE = PROJECT_ROOT / "data" / "processed" / "predictions.json"
+SPLIT_INDICES_FILE = PROJECT_ROOT / "data" / "processed" / "split_indices.json"
+OUTPUT_FILE = PROJECT_ROOT / "data" / "results" / "success_criteria_validation.json"
 
-SURROGATE_DISCLAIMER = (
-    "These results are derived from a machine learning surrogate model "
-    "interpolating pre-computed DFT data. They do not represent first-principles "
-    "calculations or solutions to the Schrödinger equation."
+# Initialize logger
+logger = get_logger("eval_runner")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-SCIENTIFIC_INTEGRITY_STATEMENT = (
-    "Scientific Integrity Statement: This model is a statistical surrogate "
-    "trained on existing Density Functional Theory (DFT) datasets. It is designed "
-    "for rapid interpolation within the chemical space covered by the training data. "
-    "It does NOT solve the Schrödinger equation, does NOT perform new quantum "
-    "mechanical calculations, and its predictions are not guaranteed outside the "
-    "domain of the training distribution."
-)
-
-# Success criteria threshold for inter-family generalization (MAPE %)
-GENERALIZATION_MAPE_THRESHOLD = 15.0
 
 def load_json_file(path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents as a dictionary."""
+    """Load a JSON file."""
     if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+        raise FileNotFoundError(f"Required file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def save_json_file(path: Path, data: Dict[str, Any]) -> None:
-    """Save a dictionary to a JSON file with pretty formatting."""
+    """Save data to a JSON file."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Saved JSON to {path}")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, default=str)
+    logger.info(f"Saved results to {path}")
 
-def run_success_criteria_assertion(
-    training_logs_path: Optional[Path] = None,
-    generalization_metrics_path: Optional[Path] = None,
-) -> None:
+
+def calculate_mape(y_true: List[float], y_pred: List[float], epsilon: float = 1e-8) -> float:
     """
-    Validate success criteria against generalization metrics and log pass/fail status.
-    
-    Ensures the surrogate disclaimer and integrity statement are present in the output.
+    Calculate Mean Absolute Percentage Error.
+
+    Args:
+        y_true: List of true values.
+        y_pred: List of predicted values.
+        epsilon: Small value to avoid division by zero.
+
+    Returns:
+        MAPE as a float (0.0 to 1.0+).
     """
-    if generalization_metrics_path is None:
-        generalization_metrics_path = Path("data/results/generalization_metrics.json")
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
 
-    if not generalization_metrics_path.exists():
-        logger.warning(f"Generalization metrics file not found at {generalization_metrics_path}")
-        failure_report = {
-            "status": "failed",
-            "reason": "generalization_metrics_file_not_found",
-            "message": f"File not found: {generalization_metrics_path}",
-            "metadata": {
-                "surrogate_disclaimer": SURROGATE_DISCLAIMER,
-                "integrity_statement": SCIENTIFIC_INTEGRITY_STATEMENT
-            }
-        }
-        save_json_file(generalization_metrics_path, failure_report)
-        logger.error("Generalization metrics file not found. Created failure report.")
-        return
-
-    try:
-        data = load_json_file(generalization_metrics_path)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON in {generalization_metrics_path}: {e}")
-        failure_report = {
-            "status": "failed",
-            "reason": "invalid_json",
-            "message": str(e),
-            "metadata": {
-                "surrogate_disclaimer": SURROGATE_DISCLAIMER,
-                "integrity_statement": SCIENTIFIC_INTEGRITY_STATEMENT
-            }
-        }
-        save_json_file(generalization_metrics_path, failure_report)
-        return
-
-    # Extract metrics
-    intra_mape = data.get("intra_family_mape")
-    inter_mape = data.get("inter_family_mape")
-
-    pass_status = False
-    reason = "unknown"
-
-    if inter_mape is None:
-        reason = "inter_family_mape_missing"
-        logger.warning("inter_family_mape not found in metrics")
-    elif intra_mape is None:
-        reason = "intra_family_mape_missing"
-        logger.warning("intra_family_mape not found in metrics")
-    elif inter_mape <= GENERALIZATION_MAPE_THRESHOLD:
-        pass_status = True
-        reason = "threshold_met"
-        logger.info(f"Success criteria PASSED: Inter-family MAPE ({inter_mape:.2f}%) <= Threshold ({GENERALIZATION_MAPE_THRESHOLD}%)")
-    else:
-        reason = "threshold_exceeded"
-        logger.warning(f"Success criteria FAILED: Inter-family MAPE ({inter_mape:.2f}%) > Threshold ({GENERALIZATION_MAPE_THRESHOLD}%)")
-
-    data["validation"] = {
-        "status": "pass" if pass_status else "fail",
-        "threshold_mape": GENERALIZATION_MAPE_THRESHOLD,
-        "reason": reason,
-        "intra_family_mape": intra_mape,
-        "inter_family_mape": inter_mape
-    }
-
-    if "metadata" not in data:
-        data["metadata"] = {}
-    
-    # Ensure disclaimers are present
-    data["metadata"]["surrogate_disclaimer"] = SURROGATE_DISCLAIMER
-    data["metadata"]["integrity_statement"] = SCIENTIFIC_INTEGRITY_STATEMENT
-
-    save_json_file(generalization_metrics_path, data)
-    logger.info(f"Validation results written to {generalization_metrics_path}")
-
-def main():
-    """Entry point for validating success criteria and logging results."""
-    parser = argparse.ArgumentParser(
-        description="Validate success criteria against generalization metrics and log results."
-    )
-    parser.add_argument(
-        "--generalization-metrics",
-        type=Path,
-        default=None,
-        help="Path to generalization metrics JSON file (default: data/results/generalization_metrics.json)"
-    )
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-
-def calculate_mape(predictions: List[float], targets: List[float]) -> float:
-    """Calculate Mean Absolute Percentage Error."""
-    if not predictions or not targets:
+    if len(y_true) == 0:
         return 0.0
-    errors = [abs(p - t) / abs(t) if t != 0 else 0.0 for p, t in zip(predictions, targets)]
-    return sum(errors) / len(errors) * 100
+
+    errors = []
+    for t, p in zip(y_true, y_pred):
+        if abs(t) < epsilon:
+            # Skip near-zero values to avoid infinite percentage errors
+            continue
+        errors.append(abs(t - p) / abs(t))
+
+    if not errors:
+        return float('nan')
+
+    return sum(errors) / len(errors)
+
 
 def run_success_criteria_assertion(
-    predictions_path: str,
-    test_indices_path: str,
-    output_path: str,
-    mape_threshold: float = 15.0
+    predictions: Dict[str, Any],
+    test_indices: List[int],
+    mape_threshold: float = MAPE_THRESHOLD
 ) -> Dict[str, Any]:
     """
-    Run evaluation and assert success criteria.
-    Loads predictions, calculates MAPE, and writes results with disclaimer.
+    Validate success criteria by calculating MAPE on test set.
+
+    Args:
+        predictions: Dictionary containing predictions and ground truth.
+        test_indices: List of indices belonging to the test set.
+        mape_threshold: Maximum allowed MAPE for success.
+
+    Returns:
+        Dictionary containing validation results.
     """
-    logger = get_logger("eval_runner")
-    logger.log("start_evaluation")
+    logger.info(f"Running success criteria assertion with threshold: {mape_threshold}")
 
-    # Load data (mocked for structure demonstration if files missing)
-    # In a real run, these files exist from previous stages
-    try:
-        predictions_data = load_json_file(predictions_path)
-        predictions = predictions_data.get("predictions", [])
-        targets = predictions_data.get("targets", [])
-    except FileNotFoundError:
-        logger.log("warning", message="Predictions file not found. Writing empty result.")
-        predictions = []
-        targets = []
+    # Filter predictions to test set only
+    test_predictions = []
+    test_ground_truth = {key: [] for key in REQUIRED_KEYS}
+    test_pred_values = {key: [] for key in REQUIRED_KEYS}
 
-    mape = calculate_mape(predictions, targets)
-    passed = mape <= mape_threshold
+    # Assuming predictions structure: {"data": [{"index": int, "targets": {...}, "predictions": {...}}, ...]}
+    # Adjust based on actual structure of predictions.json from T018b
+    data_list = predictions.get("data", predictions if isinstance(predictions, list) else [])
 
-    result = {
-        "mape": mape,
-        "threshold": mape_threshold,
-        "passed": passed,
-        "metrics": {
-            "youngs_moduli_mape": mape,
-            "shear_moduli_mape": mape,
-            "poissons_ratio_mape": mape
-        }
+    for item in data_list:
+        idx = item.get("index")
+        if idx is None:
+            # Try to infer index if not present, or skip
+            continue
+
+        if idx in test_indices:
+            targets = item.get("targets", {})
+            preds = item.get("predictions", {})
+
+            for key in REQUIRED_KEYS:
+                if key in targets and key in preds:
+                    test_ground_truth[key].append(targets[key])
+                    test_pred_values[key].append(preds[key])
+
+    # Calculate MAPE for each modulus
+    results = {
+        "mape_threshold": mape_threshold,
+        "test_sample_size": len(test_indices),
+        "metrics": {},
+        "passed": True,
+        "disclaimer": "These results are derived from a machine learning surrogate model interpolating pre-computed DFT data. They do not represent first-principles calculations or solutions to the Schrödinger equation."
     }
 
-    save_json_file(output_path, result)
-    logger.log("finish_evaluation", mape=mape, passed=passed)
+    overall_mapes = []
 
-    return result
+    for key in REQUIRED_KEYS:
+        y_true = test_ground_truth[key]
+        y_pred = test_pred_values[key]
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluation Runner")
-    parser.add_argument("--predictions", type=str, required=True)
-    parser.add_argument("--test-indices", type=str, required=True)
-    parser.add_argument("--output", type=str, default="data/results/eval_results.json")
-    parser.add_argument("--threshold", type=float, default=15.0)
+        if len(y_true) == 0:
+            results["metrics"][key] = {
+                "mape": None,
+                "sample_size": 0,
+                "status": "SKIPPED (No data)"
+            }
+            continue
+
+        mape = calculate_mape(y_true, y_pred)
+        results["metrics"][key] = {
+            "mape": mape,
+            "sample_size": len(y_true),
+            "status": "PASS" if mape <= mape_threshold else "FAIL"
+        }
+        overall_mapes.append(mape)
+
+    # Determine overall pass/fail
+    # If any metric has a valid MAPE > threshold, fail
+    valid_mapes = [m for m in overall_mapes if not (m is None or (isinstance(m, float) and (m != m)))] # Check for NaN
+    if valid_mapes:
+        max_mape = max(valid_mapes)
+        results["overall_mape"] = max_mape
+        results["passed"] = max_mape <= mape_threshold
+        results["status"] = "SUCCESS" if results["passed"] else "FAILURE"
+    else:
+        results["overall_mape"] = None
+        results["passed"] = False
+        results["status"] = "INCONCLUSIVE (No valid metrics)"
+
+    return results
+
+
+def main() -> int:
+    """Main entry point for the evaluation runner."""
+    parser = argparse.ArgumentParser(description="Evaluate model success criteria")
+    parser.add_argument(
+        "--predictions",
+        type=str,
+        default=str(PREDICTIONS_FILE),
+        help="Path to predictions.json"
+    )
+    parser.add_argument(
+        "--split",
+        type=str,
+        default=str(SPLIT_INDICES_FILE),
+        help="Path to split_indices.json"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(OUTPUT_FILE),
+        help="Path to output validation JSON"
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=MAPE_THRESHOLD,
+        help="MAPE threshold for success criteria"
+    )
+
     args = parser.parse_args()
 
-    result = run_success_criteria_assertion(
-        args.predictions,
-        args.test_indices,
-        args.output,
-        args.threshold
-    )
-    print(f"Evaluation complete: MAPE={result['mape']:.2f}%, Passed={result['passed']}")
-    print(f"Output written to {args.output} with mandatory disclaimer.")
+    try:
+        # Load inputs
+        logger.info(f"Loading predictions from {args.predictions}")
+        predictions = load_json_file(Path(args.predictions))
+
+        logger.info(f"Loading split indices from {args.split}")
+        split_data = load_json_file(Path(args.split))
+        # Handle potential structure variations
+        test_indices = split_data.get("test_indices", split_data.get("test", []))
+        if not isinstance(test_indices, list):
+            raise ValueError("test_indices must be a list in split_indices.json")
+
+        # Run validation
+        validation_result = run_success_criteria_assertion(
+            predictions,
+            test_indices,
+            args.threshold
+        )
+
+        # Save results
+        save_json_file(Path(args.output), validation_result)
+
+        # Log summary
+        status = validation_result["status"]
+        passed = validation_result["passed"]
+        overall_mape = validation_result.get("overall_mape")
+
+        if overall_mape is not None:
+            logger.info(f"Overall MAPE: {overall_mape:.4f} (Threshold: {args.threshold})")
+        else:
+            logger.warning("Could not calculate overall MAPE.")
+
+        logger.info(f"Validation Status: {status}")
+
+        if not passed:
+            logger.warning("Success criteria NOT met. Model performance is below threshold.")
+            return 1
+        else:
+            logger.info("Success criteria MET.")
+            return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON format: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during evaluation: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

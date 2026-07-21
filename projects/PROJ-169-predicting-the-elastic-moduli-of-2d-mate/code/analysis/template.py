@@ -7,6 +7,7 @@ skeletons required by T027c.
 """
 
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 
 REPORT_TEMPLATE = """
 # Feature Importance Report: Structure-Only Surrogate Model

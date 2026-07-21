@@ -1,211 +1,129 @@
 """
-Terminology Audit Script for PROJ-169.
+Terminology Audit Utility.
 
-Scans code/, docs/, and data/results/ for forbidden terminology:
-- "First-Principles" (case insensitive, variations)
-- "Schrödinger" (case insensitive)
-
-Replaces occurrences with "Surrogate" or "Interpolation" where appropriate.
-Logs all changes to state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml
-under the key `terminology_audit`.
+This module provides functions to load/save project state and scan files
+for terminology compliance. It is used by the terminology_scanner.py
+to update the project state file.
 """
-
 import os
 import re
 import sys
 import logging
 import yaml
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Set
+from typing import List, Dict, Any, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
 logger = logging.getLogger(__name__)
 
-# Project root (assuming this script is in code/utils/)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+STATE_FILE_PATH = "state/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml"
 
-# Directories to scan
-SCAN_DIRS = [
-    PROJECT_ROOT / "code",
-    PROJECT_ROOT / "docs",
-    PROJECT_ROOT / "data" / "results",
-]
-
-# Forbidden patterns (case-insensitive)
-FORBIDDEN_PATTERNS = [
-    (re.compile(r'\bFirst[- ]?Principles\b', re.IGNORECASE), "Surrogate"),
-    (re.compile(r'\bSchrödinger\b', re.IGNORECASE), "Quantum Mechanical"),
-    (re.compile(r'\bSolve.*Schrödinger\b', re.IGNORECASE), "Interpolate DFT"),
-]
-
-# Files to exclude from scanning (e.g., this script, logs)
-EXCLUDED_FILES = {
-    "terminology_audit.py",
-    "terminology_audit.log",
-    ".git",
-    "__pycache__",
-}
-
-# State file path
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-169-predicting-the-elastic-moduli-of-2d-mate.yaml"
-
-
-def load_state() -> Dict[str, Any]:
-    """Load the project state YAML file."""
-    if not STATE_FILE.exists():
-        logger.warning(f"State file not found: {STATE_FILE}. Creating a new one.")
+def load_state(project_root: Path) -> Dict[str, Any]:
+    """Loads the project state YAML file."""
+    state_path = project_root / STATE_FILE_PATH
+    if not state_path.exists():
+        logger.warning(f"State file not found at {state_path}. Creating new state.")
         return {"artifact_hashes": {}, "terminology_audit": []}
 
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f) or {}
-            # Ensure required keys exist
-            if "artifact_hashes" not in state:
-                state["artifact_hashes"] = {}
-            if "terminology_audit" not in state:
-                state["terminology_audit"] = []
-            return state
+        with open(state_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {"artifact_hashes": {}, "terminology_audit": []}
     except Exception as e:
         logger.error(f"Failed to load state file: {e}")
         return {"artifact_hashes": {}, "terminology_audit": []}
 
+def save_state(project_root: Path, state: Dict[str, Any]):
+    """Saves the project state YAML file."""
+    state_path = project_root / STATE_FILE_PATH
+    state_path.parent.mkdir(parents=True, exist_ok=True)
 
-def save_state(state: Dict[str, Any]) -> None:
-    """Save the project state YAML file."""
     try:
-        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(STATE_FILE, "w", encoding="utf-8") as f:
-            yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
-        logger.info(f"State file updated: {STATE_FILE}")
+        with open(state_path, 'w', encoding='utf-8') as f:
+            yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"State saved to {state_path}")
     except Exception as e:
         logger.error(f"Failed to save state file: {e}")
+        raise
 
-
-def scan_file(file_path: Path) -> List[Dict[str, Any]]:
+def scan_file(file_path: Path, patterns: List[re.Pattern]) -> List[Dict[str, Any]]:
     """
-    Scan a single file for forbidden terminology.
-    Returns a list of findings (replacements made).
+    Scans a file for forbidden patterns.
+    Returns a list of found violations.
     """
-    findings = []
+    violations = []
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
-    except UnicodeDecodeError:
-        logger.debug(f"Skipping binary file: {file_path}")
-        return findings
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
     except Exception as e:
         logger.warning(f"Could not read file {file_path}: {e}")
-        return findings
+        return violations
 
-    original_content = content
-    modified = False
+    for i, line in enumerate(lines):
+        for pattern in patterns:
+            matches = pattern.findall(line)
+            if matches:
+                for match in matches:
+                    violations.append({
+                        "file": str(file_path),
+                        "line": i + 1,
+                        "term": match,
+                        "context": line.strip()[:100]
+                    })
+    return violations
 
-    for pattern, replacement in FORBIDDEN_PATTERNS:
-        matches = list(pattern.finditer(content))
-        if matches:
-            for match in matches:
-                # Record the finding before replacement
-                context_start = max(0, match.start() - 20)
-                context_end = min(len(content), match.end() + 20)
-                context = content[context_start:context_end].replace("\n", " ")
-                findings.append({
-                    "file": str(file_path.relative_to(PROJECT_ROOT)),
-                    "pattern": pattern.pattern,
-                    "replacement": replacement,
-                    "matched_text": match.group(),
-                    "context": context,
-                    "line_number": content[:match.start()].count("\n") + 1
-                })
+def run_audit(project_root: Path) -> Dict[str, Any]:
+    """
+    Runs a full audit and updates the state file.
+    """
+    # Define patterns (simplified version of scanner patterns)
+    patterns = [
+        re.compile(r'\b(First-Principles|First Principles|Schrödinger|Hamiltonian)\b', re.IGNORECASE)
+    ]
 
-            # Perform replacement
-            new_content = pattern.sub(replacement, content)
-            if new_content != content:
-                modified = True
-                content = new_content
+    state = load_state(project_root)
+    audit_log = []
 
-    if modified:
-        try:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(content)
-            logger.info(f"Updated forbidden terminology in: {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to write to file {file_path}: {e}")
+    scan_dirs = ["code", "docs"]
+    exclude_dirs = ["data", "__pycache__", ".git"]
+    extensions = {".py", ".md", ".txt", ".yaml", ".yml"}
 
-    return findings
-
-
-def run_audit() -> None:
-    """Run the terminology audit across all specified directories."""
-    all_findings = []
-    scanned_files = 0
-
-    logger.info(f"Starting terminology audit from root: {PROJECT_ROOT}")
-
-    for scan_dir in SCAN_DIRS:
-        if not scan_dir.exists():
-            logger.warning(f"Scan directory does not exist: {scan_dir}")
+    for dir_name in scan_dirs:
+        target_dir = project_root / dir_name
+        if not target_dir.exists():
             continue
 
-        logger.info(f"Scanning directory: {scan_dir}")
-        for root, dirs, files in os.walk(scan_dir):
-            # Skip excluded directories
-            dirs[:] = [d for d in dirs if d not in EXCLUDED_FILES and not d.startswith('.')]
+        for root, dirs, files in os.walk(target_dir):
+            dirs[:] = [d for d in dirs if d not in exclude_dirs]
+            for file_name in files:
+                if Path(file_name).suffix in extensions:
+                    file_path = Path(root) / file_name
+                    violations = scan_file(file_path, patterns)
+                    if violations:
+                        audit_log.extend(violations)
 
-            for file in files:
-                if file in EXCLUDED_FILES or file.startswith('.'):
-                    continue
+    # Update state
+    state["terminology_audit"] = audit_log
+    save_state(project_root, state)
 
-                file_path = Path(root) / file
-                if not file_path.is_file():
-                    continue
-
-                scanned_files += 1
-                findings = scan_file(file_path)
-                all_findings.extend(findings)
-
-    # Log summary
-    logger.info(f"Audit complete. Scanned {scanned_files} files.")
-    if all_findings:
-        logger.warning(f"Found {len(all_findings)} instances of forbidden terminology.")
-        for finding in all_findings:
-            logger.warning(
-                f"  - File: {finding['file']}, Line: {finding['line_number']}, "
-                f"Match: '{finding['matched_text']}' -> '{finding['replacement']}'"
-            )
-    else:
-        logger.info("No forbidden terminology found.")
-
-    # Update state file
-    state = load_state()
-    if not state.get("terminology_audit"):
-        state["terminology_audit"] = []
-
-    audit_entry = {
-        "timestamp": os.popen("date -u +%Y-%m-%dT%H:%M:%SZ").read().strip(),
-        "files_scanned": scanned_files,
-        "findings_count": len(all_findings),
-        "findings": all_findings
+    return {
+        "violations_found": len(audit_log),
+        "audit_log": audit_log
     }
-    state["terminology_audit"].append(audit_entry)
-    save_state(state)
-
-    if all_findings:
-        logger.info("Audit findings logged to state file. Please review and commit changes.")
-        sys.exit(1) # Exit with error to signal findings were made
-    else:
-        logger.info("Audit passed. No forbidden terminology found.")
-        sys.exit(0)
-
 
 def main():
-    """Entry point for the script."""
-    run_audit()
+    import argparse
+    parser = argparse.ArgumentParser(description="Run terminology audit and update state.")
+    parser.add_argument("--project-root", type=str, default=".", help="Project root path.")
+    args = parser.parse_args()
 
+    project_root = Path(args.project_root).resolve()
+    result = run_audit(project_root)
+
+    print(f"Audit complete. Found {result['violations_found']} violations.")
+    if result['violations_found'] > 0:
+        for v in result['audit_log'][:5]: # Print first 5
+            print(f"  - {v['file']}:{v['line']}: {v['term']}")
+        if result['violations_found'] > 5:
+            print(f"  ... and {result['violations_found'] - 5} more.")
 
 if __name__ == "__main__":
     main()

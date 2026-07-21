@@ -1,10 +1,12 @@
-"""Inference benchmarking for the elastic moduli surrogate model.
+"""
+Inference Benchmark for T036: Verify inference time constraint (SC-003).
 
-This script measures the inference latency per material on CPU, detects the CPU
-model for portability, and updates the generalization metrics with the measured
-time. It satisfies SC-003 (inference time constraint < 100ms).
+Measures latency per material on CPU, detects CPU model, and updates
+data/results/generalization_metrics.json with inference_time_ms, cpu_model,
+and a pass/fail status against the 100ms threshold.
 
-It relies on the trained model from T018b and the split indices from T017.
+Dependency: T018b (produces data/processed/model_v1.pt and predictions.json)
+Dependency: T017 (produces data/processed/split_indices.json)
 """
 from __future__ import annotations
 
@@ -13,339 +15,397 @@ import gc
 import json
 import logging
 import os
-import platform
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
 import torch
-from torch_geometric.data import Batch, Data
+from torch_geometric.data import Data
 
-# Project imports
-from model.gnn import LightweightGNN
-from model.train import convert_to_pyg_graph, load_graphs_from_parquet, load_split_indices
-from utils.config import enforce_reproducibility, get_config
+# Import project utilities
+# Note: Using relative imports to ensure compatibility with project structure
+try:
+    from model.gnn import LightweightGNN, create_model
+    from utils.config import enforce_reproducibility
+except ImportError:
+    # Fallback for execution environment where sys.path might be different
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    from model.gnn import LightweightGNN, create_model
+    from utils.config import enforce_reproducibility
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_NUM_RUNS = 10
-DEFAULT_OUTPUT_PATH = "data/results/generalization_metrics.json"
-DEFAULT_MODEL_PATH = "data/processed/model_v1.pt"
-DEFAULT_SPLIT_PATH = "data/processed/split_indices.json"
-DEFAULT_DATA_PATH = "data/processed/graphs_v1.parquet"
+NUM_RUNS = 10  # Number of inference runs to average
 WARMUP_RUNS = 3
+THRESHOLD_MS = 100.0
+OUTPUT_PATH = Path("data/results/generalization_metrics.json")
+MODEL_PATH = Path("data/processed/model_v1.pt")
+SPLIT_PATH = Path("data/processed/split_indices.json")
+PARQUET_PATH = Path("data/processed/graphs_v1.parquet")
 
 
 def get_cpu_model() -> str:
-    """Detect and return the CPU model string.
-
-    Tries `lscpu` first (Linux), then `sysctl` (macOS), then falls back to
-    platform.machine() or a generic string.
-    """
-    # Try lscpu (Linux)
+    """Detect the specific CPU model using lscpu or psutil."""
     try:
+        # Try lscpu first (common on Linux)
         result = subprocess.run(
             ["lscpu"],
             capture_output=True,
             text=True,
-            check=True,
             timeout=5
         )
-        for line in result.stdout.splitlines():
-            if line.startswith("Model name:"):
-                return line.split(":", 1)[1].strip()
-    except (subprocess.SubprocessError, FileNotFoundError):
+        if result.returncode == 0:
+            for line in result.stdout.split('\n'):
+                if line.startswith("Model name:"):
+                    return line.split(":", 1)[1].strip()
+    except Exception:
         pass
 
-    # Try sysctl (macOS)
     try:
-        result = subprocess.run(
-            ["sysctl", "-n", "machdep.cpu.brand_string"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5
-        )
-        return result.stdout.strip()
-    except (subprocess.SubprocessError, FileNotFoundError):
+        # Fallback to psutil if available
+        import psutil
+        # psutil doesn't directly give model name, but we can try /proc/cpuinfo
+        if os.path.exists('/proc/cpuinfo'):
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if 'model name' in line:
+                        return line.split(":", 1)[1].strip()
+    except ImportError:
+        pass
+    except Exception:
         pass
 
-    # Fallback
-    processor = platform.processor() or platform.machine()
-    if processor:
-        return f"Unknown (processor={processor})"
-    return "Unknown CPU"
+    # Ultimate fallback
+    return "Unknown CPU Model"
 
 
 def load_test_data_and_indices(
-    data_path: str,
-    split_path: str
-) -> List[Dict[str, Any]]:
-    """Load the full graph dataset and test indices.
-
-    Returns the list of graphs corresponding to the test split.
+    parquet_path: Path,
+    split_path: Path
+) -> Tuple[List[Dict[str, Any]], List[int]]:
     """
-    logger.info(f"Loading graphs from {data_path}")
-    all_graphs = load_graphs_from_parquet(data_path)
+    Load test data from parquet and test indices from split_indices.json.
 
-    logger.info(f"Loading split indices from {split_path}")
-    split_data = load_split_indices(split_path)
+    Returns:
+        Tuple of (list of graph dicts, list of test indices)
+    """
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
+    if not split_path.exists():
+        raise FileNotFoundError(f"Split indices file not found: {split_path}")
 
-    test_indices = split_data.get("test_indices", [])
+    try:
+        import pandas as pd
+        df = pd.read_parquet(parquet_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read parquet file: {e}")
+
+    with open(split_path, 'r') as f:
+        split_data = json.load(f)
+
+    test_indices = split_data.get('test_indices', [])
     if not test_indices:
-        raise ValueError(f"No test indices found in {split_path}")
+        raise ValueError("No test indices found in split file")
 
-    logger.info(f"Selecting {len(test_indices)} test graphs")
-    test_graphs = [all_graphs[i] for i in test_indices if i < len(all_graphs)]
+    # Extract test samples
+    test_samples = df.iloc[test_indices].to_dict('records')
+    logger.info(f"Loaded {len(test_samples)} test samples for benchmarking")
 
-    if len(test_graphs) != len(test_indices):
-        logger.warning(
-            f"Requested {len(test_indices)} test indices but only found {len(test_graphs)}. "
-            "Some indices may be out of bounds."
-        )
-
-    return test_graphs
+    return test_samples, test_indices
 
 
-def convert_graphs_to_pyg(graphs: List[Dict[str, Any]]) -> Batch:
-    """Convert a list of material graph dicts to a PyG Batch."""
-    pyg_data_list = []
-    for g in graphs:
-        pyg_data = convert_to_pyg_graph(g)
-        pyg_data_list.append(pyg_data)
+def convert_graphs_to_pyg(graph_dicts: List[Dict[str, Any]]) -> List[Data]:
+    """
+    Convert list of graph dictionaries to PyTorch Geometric Data objects.
 
-    if not pyg_data_list:
-        raise ValueError("No graphs to convert to PyG Batch.")
+    Expected dict keys:
+        - node_features: np.ndarray or list
+        - edge_index: np.ndarray or list (2, num_edges)
+        - edge_features: np.ndarray or list (optional)
+        - target_moduli: dict or list (optional)
+    """
+    pyg_graphs = []
+    for graph_dict in graph_dicts:
+        try:
+            node_features = torch.tensor(graph_dict['node_features'], dtype=torch.float32)
+            edge_index = torch.tensor(graph_dict['edge_index'], dtype=torch.long)
 
-    return Batch.from_data_list(pyg_data_list)
+            # Handle optional edge features
+            edge_attr = None
+            if 'edge_features' in graph_dict and graph_dict['edge_features'] is not None:
+                edge_attr = torch.tensor(graph_dict['edge_features'], dtype=torch.float32)
+
+            # Create PyG Data object
+            data = Data(
+                x=node_features,
+                edge_index=edge_index,
+                edge_attr=edge_attr
+            )
+            pyg_graphs.append(data)
+        except Exception as e:
+            logger.warning(f"Failed to convert graph: {e}")
+            continue
+
+    return pyg_graphs
 
 
-def load_model_and_config(model_path: str) -> LightweightGNN:
-    """Load the trained model weights."""
-    logger.info(f"Loading model from {model_path}")
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+def load_model_and_config(model_path: Path) -> LightweightGNN:
+    """Load the trained model from checkpoint."""
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model checkpoint not found: {model_path}")
 
-    # Load state dict to determine input dimension
-    state_dict = torch.load(model_path, map_location="cpu", weights_only=True)
-    # Heuristic: infer input dim from first linear layer if available, or assume default
-    # The model constructor expects num_features. We need to match the training config.
-    # Since we don't have the exact config here, we assume the standard feature count
-    # used in T018b (typically derived from Magpie/CIF parsing).
-    # Let's assume a standard dimension of 20 for node features as a placeholder if not inferable,
-    # but ideally we'd read it from a config file. For robustness, we'll try to infer from state_dict keys
-    # or use a default that matches the pipeline.
-    # A safer bet: The training script T018b saves the model. We need to know the input dim.
-    # Let's assume the standard feature count is 20 (common for composition features) or read from a sidecar.
-    # However, T018b doesn't explicitly save a config sidecar in the prompt.
-    # We will use a reasonable default or try to infer.
-    # Let's assume the model was trained with 20 features. If this fails, it's a config mismatch.
-    # Better: Check if 'model.num_features' is in state_dict or similar.
-    # Since we can't guarantee that, we will use a default of 20 and hope it matches T018b.
-    # In a real scenario, T018b would save a config.json alongside model.pt.
-    # For this implementation, we assume 20 features.
-    num_features = 20  # Default assumption based on typical composition features
-    hidden_dim = 64
-    num_classes = 3  # Young's, Shear, Poisson
+    # Load config from the checkpoint or use defaults
+    # Assuming the model was saved with a specific architecture
+    # We need to reconstruct the model based on the saved state dict
+    checkpoint = torch.load(model_path, map_location='cpu', weights_only=True)
 
-    model = LightweightGNN(num_features=num_features, hidden_dim=hidden_dim, num_classes=num_classes)
+    # Extract input/output dimensions from the state dict if possible
+    # This is a heuristic; in a real scenario, we'd store config with the model
+    input_dim = 128  # Default assumption, adjust if needed
+    hidden_dim = 64  # Default assumption
+    output_dim = 3   # Young's, Shear, Poisson
 
-    # Load state
-    model.load_state_dict(state_dict)
+    if 'input_dim' in checkpoint:
+        input_dim = checkpoint['input_dim']
+    if 'hidden_dim' in checkpoint:
+        hidden_dim = checkpoint['hidden_dim']
+    if 'output_dim' in checkpoint:
+        output_dim = checkpoint['output_dim']
+
+    model = create_model(input_dim=input_dim, hidden_dim=hidden_dim, output_dim=output_dim)
+
+    # Load state dict
+    model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
-    model.to("cpu")
 
-    logger.info("Model loaded successfully")
+    logger.info(f"Model loaded from {model_path}")
     return model
 
 
 def run_benchmark(
     model: LightweightGNN,
-    batch: Batch,
-    num_runs: int = DEFAULT_NUM_RUNS,
+    graphs: List[Data],
+    num_runs: int = NUM_RUNS,
     warmup_runs: int = WARMUP_RUNS
 ) -> float:
-    """Run the inference benchmark and return average latency in ms.
-
-    Measures time per material (averaged over the batch).
     """
-    logger.info(f"Running benchmark: {warmup_runs} warmup, {num_runs} measurement runs")
+    Run inference benchmark on the provided graphs.
 
-    # Warmup
+    Returns:
+        Average inference time per graph in milliseconds.
+    """
+    model.eval()
+    device = torch.device('cpu')
+    model.to(device)
+
+    times = []
+
+    # Warmup runs
+    logger.info(f"Running {warmup_runs} warmup iterations...")
     with torch.no_grad():
         for _ in range(warmup_runs):
-            _ = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            for graph in graphs:
+                graph = graph.to(device)
+                _ = model(graph)
+            torch.cuda.empty_cache() if torch.cuda.is_available() else None
+            gc.collect()
 
-    gc.collect()
-    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+    # Actual benchmark runs
+    logger.info(f"Running {num_runs} benchmark iterations...")
+    for run in range(num_runs):
+        start = time.perf_counter()
+        with torch.no_grad():
+            for graph in graphs:
+                graph = graph.to(device)
+                _ = model(graph)
+        end = time.perf_counter()
+        elapsed = (end - start) * 1000  # Convert to ms
+        times.append(elapsed)
+        logger.debug(f"Run {run + 1}/{num_runs}: {elapsed:.4f} ms total for {len(graphs)} graphs")
 
-    # Measurement
-    times = []
-    with torch.no_grad():
-        for _ in range(num_runs):
-            start = time.perf_counter()
-            _ = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-            end = time.perf_counter()
-            times.append((end - start) * 1000)  # Convert to ms
+    # Calculate average time per graph
+    total_time = sum(times)
+    avg_time_per_graph = (total_time / num_runs) / len(graphs)
 
-    avg_time_total = np.mean(times)
-    # Per material latency
-    num_materials = len(batch.batch.unique())
-    avg_time_per_material = avg_time_total / num_materials
-
-    logger.info(f"Total batch time: {avg_time_total:.2f} ms")
-    logger.info(f"Number of materials in batch: {num_materials}")
-    logger.info(f"Average time per material: {avg_time_per_material:.2f} ms")
-
-    return avg_time_per_material
+    logger.info(f"Average inference time per graph: {avg_time_per_graph:.4f} ms")
+    return avg_time_per_graph
 
 
 def update_generalization_metrics(
-    output_path: str,
+    output_path: Path,
     inference_time_ms: float,
     cpu_model: str,
-    threshold_ms: float = 100.0
-) -> None:
-    """Update or create the generalization metrics file with inference time.
-
-    If the file exists, it loads it and updates the relevant fields.
-    If not, it creates a new one.
+    threshold_ms: float = THRESHOLD_MS
+) -> Dict[str, Any]:
     """
-    metrics: Dict[str, Any] = {}
+    Update or create the generalization metrics file with inference benchmark results.
 
-    if os.path.exists(output_path):
-        logger.info(f"Loading existing metrics from {output_path}")
+    Args:
+        output_path: Path to the generalization metrics JSON file
+        inference_time_ms: Measured average inference time per graph
+        cpu_model: Detected CPU model string
+        threshold_ms: Threshold for passing the constraint
+
+    Returns:
+        Updated metrics dictionary
+    """
+    metrics = {}
+
+    # Load existing metrics if file exists
+    if output_path.exists():
         try:
-            with open(output_path, "r") as f:
+            with open(output_path, 'r') as f:
                 metrics = json.load(f)
-        except json.JSONDecodeError:
-            logger.warning("Existing metrics file is invalid JSON. Overwriting.")
-            metrics = {}
+            logger.info(f"Loaded existing metrics from {output_path}")
+        except Exception as e:
+            logger.warning(f"Failed to load existing metrics: {e}. Starting fresh.")
 
-    # Update fields
-    metrics["inference_time_ms"] = inference_time_ms
-    metrics["cpu_model"] = cpu_model
-    metrics["threshold_ms"] = threshold_ms
-    metrics["constraint_satisfied"] = inference_time_ms < threshold_ms
+    # Update with benchmark results
+    metrics['inference_time_ms'] = round(inference_time_ms, 4)
+    metrics['cpu_model'] = cpu_model
+    metrics['inference_threshold_ms'] = threshold_ms
+    metrics['inference_constraint_met'] = inference_time_ms < threshold_ms
 
-    # Add disclaimer if not present
-    if "disclaimer" not in metrics:
-        metrics["disclaimer"] = (
+    # Ensure disclaimer is present (from T046)
+    if 'disclaimer' not in metrics:
+        metrics['disclaimer'] = (
             "These results are derived from a machine learning surrogate model "
             "interpolating pre-computed DFT data. They do not represent first-principles "
             "calculations or solutions to the Schrödinger equation."
         )
 
-    # Write back
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w") as f:
+    # Save updated metrics
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
 
-    logger.info(f"Updated metrics written to {output_path}")
+    logger.info(f"Updated generalization metrics saved to {output_path}")
+    return metrics
 
 
-def main() -> None:
+def main():
     """Main entry point for the inference benchmark."""
-    parser = argparse.ArgumentParser(
-        description="Benchmark inference time for the elastic moduli model."
-    )
+    parser = argparse.ArgumentParser(description="Inference Benchmark for SC-003")
     parser.add_argument(
-        "--data-path",
+        '--model-path',
         type=str,
-        default=DEFAULT_DATA_PATH,
-        help="Path to the processed graphs parquet file."
+        default=str(MODEL_PATH),
+        help=f"Path to the trained model checkpoint (default: {MODEL_PATH})"
     )
     parser.add_argument(
-        "--split-path",
+        '--split-path',
         type=str,
-        default=DEFAULT_SPLIT_PATH,
-        help="Path to the split indices JSON file."
+        default=str(SPLIT_PATH),
+        help=f"Path to the split indices file (default: {SPLIT_PATH})"
     )
     parser.add_argument(
-        "--model-path",
+        '--parquet-path',
         type=str,
-        default=DEFAULT_MODEL_PATH,
-        help="Path to the trained model weights."
+        default=str(PARQUET_PATH),
+        help=f"Path to the graphs parquet file (default: {PARQUET_PATH})"
     )
     parser.add_argument(
-        "--output-path",
+        '--output-path',
         type=str,
-        default=DEFAULT_OUTPUT_PATH,
-        help="Path to the output generalization metrics JSON file."
+        default=str(OUTPUT_PATH),
+        help=f"Path to the output generalization metrics file (default: {OUTPUT_PATH})"
     )
     parser.add_argument(
-        "--num-runs",
+        '--num-runs',
         type=int,
-        default=DEFAULT_NUM_RUNS,
-        help="Number of inference runs to average."
+        default=NUM_RUNS,
+        help=f"Number of benchmark runs (default: {NUM_RUNS})"
     )
     parser.add_argument(
-        "--warmup-runs",
+        '--warmup-runs',
         type=int,
         default=WARMUP_RUNS,
-        help="Number of warmup runs."
+        help=f"Number of warmup runs (default: {WARMUP_RUNS})"
     )
 
     args = parser.parse_args()
 
     # Enforce reproducibility
-    config = get_config()
-    enforce_reproducibility(config.seed)
+    enforce_reproducibility()
 
     logger.info("Starting inference benchmark...")
 
+    # Detect CPU model
+    cpu_model = get_cpu_model()
+    logger.info(f"Detected CPU: {cpu_model}")
+
+    # Load data
     try:
-        # Load data
-        test_graphs = load_test_data_and_indices(args.data_path, args.split_path)
-        if not test_graphs:
-            raise ValueError("No test graphs found. Check data and split files.")
+        test_samples, test_indices = load_test_data_and_indices(
+            Path(args.parquet_path),
+            Path(args.split_path)
+        )
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        sys.exit(1)
 
-        # Convert to PyG Batch
-        batch = convert_graphs_to_pyg(test_graphs)
+    # Convert to PyG graphs
+    pyg_graphs = convert_graphs_to_pyg(test_samples)
+    if not pyg_graphs:
+        logger.error("No valid graphs converted for benchmarking")
+        sys.exit(1)
 
-        # Load model
-        model = load_model_and_config(args.model_path)
+    logger.info(f"Converted {len(pyg_graphs)} graphs for benchmarking")
 
-        # Detect CPU
-        cpu_model = get_cpu_model()
-        logger.info(f"Running on CPU: {cpu_model}")
+    # Load model
+    try:
+        model = load_model_and_config(Path(args.model_path))
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
 
-        # Run benchmark
-        inference_time_ms = run_benchmark(
+    # Run benchmark
+    try:
+        avg_time_ms = run_benchmark(
             model,
-            batch,
+            pyg_graphs,
             num_runs=args.num_runs,
             warmup_runs=args.warmup_runs
         )
+    except Exception as e:
+        logger.error(f"Benchmark failed: {e}")
+        sys.exit(1)
 
-        # Update metrics
-        update_generalization_metrics(
-            args.output_path,
-            inference_time_ms,
+    # Update metrics
+    try:
+        metrics = update_generalization_metrics(
+            Path(args.output_path),
+            avg_time_ms,
             cpu_model
         )
-
-        # Final status
-        if inference_time_ms < 100.0:
-            logger.info(f"SUCCESS: Inference time ({inference_time_ms:.2f} ms) is under 100ms threshold.")
-        else:
-            logger.warning(f"FAILURE: Inference time ({inference_time_ms:.2f} ms) exceeds 100ms threshold.")
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Benchmark failed with error: {e}")
-        raise
+        logger.error(f"Failed to update metrics: {e}")
+        sys.exit(1)
+
+    # Report results
+    logger.info("=" * 50)
+    logger.info("INFERENCE BENCHMARK RESULTS")
+    logger.info("=" * 50)
+    logger.info(f"CPU Model: {metrics['cpu_model']}")
+    logger.info(f"Average Inference Time: {metrics['inference_time_ms']:.4f} ms/graph")
+    logger.info(f"Threshold: {metrics['inference_threshold_ms']} ms")
+    logger.info(f"Constraint Met: {'YES' if metrics['inference_constraint_met'] else 'NO'}")
+    logger.info("=" * 50)
+
+    if not metrics['inference_constraint_met']:
+        logger.warning("WARNING: Inference time exceeds the 100ms threshold!")
+        sys.exit(0)  # Exit 0 even if constraint not met, as this is a measurement task
+
+    logger.info("Benchmark completed successfully.")
 
 
 if __name__ == "__main__":

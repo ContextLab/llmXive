@@ -1,10 +1,3 @@
-T008a:
-  c: false
-  h: 7ddef3ce65613e32eb4ffe707a76a590228c412d247290fdb851eb79e6d25fad
-  r: The provided test file generates a synthetic dataset instead of loading the first
-    50 entries from `graphs_v1.parquet` and does not read `split_indices.json`. Moreover,
-    the required output file `data/results/memory_test.log` is missing. The implementation
-    therefore does not satisfy the stated requirements.
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -13,32 +6,6 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
-T013d:
-  c: false
-  h: a13946f2a54c3a8a41e14c3ed980a3fd8945d462272d44cf3fb14a63af15cd04
-  r: 'The pipeline script is only partially shown and does not demonstrate saving
-    a Parquet file with the required columns, nor does it record a SHA256 checksum
-    in the YAML state file. Moreover, `data/processed/graphs_v1.parquet` is absent
-    and the YAML file remains empty (`artifact_hashes: {}`), so the core outputs and
-    checksum update are missing.'
-T013e:
-  c: false
-  h: aa0ee4bcca8144c981a013a3d6b0e83ee67db2f6f0efcd0e2ef486ba5a0f9a00
-  r: "The pipeline file never shows the required post\u2011processing check (reading\
-    \ `data/processed/graphs_v1.parquet`, counting unique 2D entries, logging a critical\
-    \ error, and exiting with code\u202F1). Moreover, the referenced `graphs_v1.parquet`\
-    \ file is missing, so the check cannot even be performed. The task\u2019s volume\u2011\
-    constraint verification is not implemented."
-T013f:
-  c: false
-  h: 760e33614acf5eaafcb9aedaf3a0c0a18df7d0e1b2848df312a736aa19bbbd45
-  r: "The script `code/ingest/split_generator.py` exists and uses the correct `train_test_split`\
-    \ with `random_state=42` and stratification on `family_id`, but the required output\
-    \ file `data/processed/split_indices.json` is missing and the provided code snippet\
-    \ is truncated before any JSON\u2011writing logic, so we cannot verify that the\
-    \ script actually overwrites the file with the disclaimer. The implementation\
-    \ must include the code to dump the split dictionary to `split_indices.json` and\
-    \ the file should be present."
 T017:
   c: false
   h: e894ef91677b94ed33386b75f94dccb055f29ddbb74b3fee902a5f80238ae170
@@ -46,23 +13,14 @@ T017:
     \ not include the required runtime assertion to abort on family overlap, nor does\
     \ it write the resulting split to `data/processed/split_indices.json` (the file\
     \ is missing). Consequently the task\u2019s core requirements are not fulfilled."
-T018b:
+T018c:
   c: false
-  h: b08e02aacff7d76db70551c6ec1002869a25b72b084bb848013a910d55469a16
-  r: "The provided `train.py` is truncated and shows no code that reads `split_indices.json`,\
-    \ logs `memory_peak` per epoch, checks the 7\u202FGB limit, saves weights to `data/processed/model_v1.pt`,\
-    \ or writes `predictions.json`. Additionally, the required `model_v1.pt` file\
-    \ is missing, indicating the training loop has not been executed or implemented\
-    \ fully. The missing functionality must be added to satisfy all task requirements."
-T021a:
-  c: false
-  h: 5c187d17c9ab7680f2f97aeb57f3c614ae26aaa6caf3c7a35acfcc96d0218234
-  r: The repository lacks the required data files (`data/processed/graphs_v1.parquet`,
-    `predictions.json`, and the split indices from T017) and the expected output file
-    (`data/results/generalization_metrics.json`). Moreover, the provided `generalization_test.py`
-    is truncated and does not show the full implementation of MAPE computation, consumption
-    of the predictions, or writing of the results with the required disclaimer. These
-    essential components are missing, so the task is not genuinely completed.
+  h: 2188559b27a8f2bf6ff201e79ac6f3dc8adc021a4d4cd95d9f88c791411ffd49
+  r: "The provided `train_logger.py` is truncated (ends with an incomplete method)\
+    \ and does not contain any code that actually writes to `data/results/training_logs.json`.\
+    \ Moreover, the disclaimer text does not match the required exact string. The\
+    \ required JSON log file is missing entirely. These issues mean the task\u2019\
+    s logging and checkpointing requirements are not satisfied."
 T021b:
   c: false
   h: 9282178fbea83f2ac8b1e4a77c02908199cfc1490c2a965ced933d1f46d5e4a7
@@ -70,6 +28,21 @@ T021b:
     never invokes the aggregation logic to write `data/results/generalization_metrics.json`.
     Moreover, the required JSON output file does not exist. The implementation does
     not actually combine T020a and T021a results into the specified location.
+T023:
+  c: false
+  h: cfc8f96d60280c8fc908b58890d4e38b58ec9d7563daa0be5f9f17feb79cd39e
+  r: "The repository lacks the required `data/results/shap_pvalues.json` file, and\
+    \ the provided `code/analysis/importance.py` implements permutation importance\
+    \ rather than SHAP interaction values or a bootstrap test with p\u2011value generation.\
+    \ Consequently the task\u2019s output and calculation requirements are not satisfied."
+T024:
+  c: false
+  h: a7b3f5ab88a2dcc5f1798a7247d42ea34710ccac55670be7da08bb7d349f45c6
+  r: "The repository contains a partially shown `code/analysis/importance.py`, but\
+    \ the file is truncated and provides no evidence of a full permutation\u2011importance\
+    \ implementation or generation of p\u2011values. Moreover, the required output\
+    \ `data/results/permutation_pvalues.json` is missing, so the task\u2019s core\
+    \ deliverable and verification step are not satisfied."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -86,13 +59,11 @@ T032:
     \ task requirement."
 T036:
   c: false
-  h: a2c4ffff14d96b79803b9bc91e72c424ffa9ed3f4e398931d2779956d32a2f39
-  r: "The repository contains `code/model/inference_benchmark.py`, but the file is\
-    \ truncated and does not show the full implementation of latency measurement or\
-    \ JSON writing. Moreover, the required output file `data/results/generalization_metrics.json`\
-    \ is absent, so the script cannot have produced the `inference_time_ms` entry\
-    \ confirming <\u202F100\u202Fms. The task\u2019s deliverable is therefore not\
-    \ satisfied."
+  h: b59f2c4ff0cc6bb6f5967c2a27ccdf10cd71bdbbded5aa276129b16b4ebcaa7c
+  r: "The required output file `data/results/generalization_metrics.json` is missing,\
+    \ so the benchmark\u2019s results (including `inference_time_ms`, `cpu_model`,\
+    \ and the <\u202F100\u202Fms check) are not present. The implementation script\
+    \ exists, but without the generated JSON the task\u2019s deliverable is incomplete."
 T037:
   c: true
   h: 2c1ab07af4267b954220c7215969bc55d6b0ce589b1bede676ad5c9e4007c726
