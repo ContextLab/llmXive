@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 import pytest
 
 from llmxive.backends.base import ChatMessage, ChatResponse, TransientBackendError
+from llmxive.model_selection.attempt_hooks import ChainResolved, SelectionFailure
 from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import (
     Candidate,
@@ -30,6 +31,7 @@ from llmxive.model_selection.types import (
     RuntimeSnapshot,
     SnapshotProvenance,
 )
+from tests.unit.test_model_selection_attempt_hooks import _Recorder
 
 NOW = datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC)
 DARTMOUTH_EP = "https://chat.dartmouth.edu"
@@ -81,6 +83,15 @@ def _snapshot(
         health={m.model_id: "ok" for m in models}, credit=credit,
         observed_at=NOW, sources=sources, digest="TEST-DIGEST",
     )
+
+
+def _no_eligible_snapshot() -> RuntimeSnapshot:
+    """A snapshot ``select`` must raise ``ModelUnavailable`` against: the same
+    cold-start technique ``test_model_selection_select.py`` uses
+    (``test_cold_start_no_models_raises`` / already exercised in this file by
+    ``test_route_chat_cold_start_fails_closed_model_unavailable``) — no models at
+    all, with the catalog explicitly unavailable, so nothing is eligible."""
+    return _snapshot(model_ids=[], catalog_source="unavailable")
 
 
 @dataclass
@@ -441,3 +452,37 @@ def test_overrides_none_preserves_snapshot_derived_allow_paid(monkeypatch):
         backend_factory=_factory(be),
     )
     assert captured["req"].allow_paid is True  # from snapshot opt-in (unchanged behavior)
+
+
+# --------------------------------------------------------------------------- #
+# Task 5: reservation_authority / route_audit threading through route_chat
+# (spec 025 slice 0) — ChainResolved on success, SelectionFailure + re-raise on
+# ModelUnavailable. Default None on both hooks leaves every test above unchanged.
+# --------------------------------------------------------------------------- #
+
+
+def test_route_chat_emits_chain_resolved():
+    from llmxive.model_selection.route import route_chat
+
+    rec = _Recorder()
+    resp = route_chat(
+        _MSGS, profile="standard_generation", max_tokens=32,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+        route_audit=rec,
+    )
+    assert isinstance(resp, ChatResponse)
+    assert any(isinstance(e, ChainResolved) for e in rec.events)
+
+
+def test_route_chat_emits_selection_failure_and_reraises():
+    from llmxive.model_selection.route import route_chat
+
+    rec = _Recorder()
+    with pytest.raises(ModelUnavailable):
+        route_chat(
+            _MSGS, profile="standard_generation", max_tokens=32,
+            snapshot=_no_eligible_snapshot(),
+            backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec,
+        )
+    assert any(isinstance(e, SelectionFailure) for e in rec.events)
