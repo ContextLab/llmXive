@@ -1582,7 +1582,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_attempt_hooks.py",
       "kind": "model_id_literal",
-      "line": 7,
+      "line": 18,
       "models": [
         "qwen3.5"
       ],
@@ -1593,7 +1593,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_attempt_hooks.py",
       "kind": "model_id_literal",
-      "line": 7,
+      "line": 18,
       "models": [
         "qwen.qwen3.5-122b"
       ],

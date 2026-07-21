@@ -1,3 +1,14 @@
+import subprocess
+import sys
+
+from llmxive.model_selection.attempt_hooks import (
+    ChainResolved,
+    DispatchStarted,
+    ReservationAuthority,
+    RouteAudit,
+    RouteAuditError,
+    SelectionFailure,
+)
 from llmxive.model_selection.execute import ExecutionResult
 from llmxive.model_selection.types import ModelRef
 
@@ -16,12 +27,6 @@ def test_execution_result_carries_reservation_id():
 def test_execution_result_reservation_id_defaults_none():
     r = ExecutionResult(response=None, model_ref=_ref(), reserved_credits=0.0, notes=())
     assert r.reservation_id is None
-
-
-from llmxive.model_selection.attempt_hooks import (
-    ChainResolved, DispatchStarted, ReservationAuthority, RouteAudit,
-    RouteAuditError, SelectionFailure,
-)
 
 
 class _Budget:
@@ -95,3 +100,36 @@ def test_selection_failure_carries_structured_reason():
     ev = SelectionFailure(exception_type="ModelUnavailable", message="none eligible",
                           requirement_digest="rq", snapshot_provenance="catalog=live")
     assert ev.exception_type == "ModelUnavailable"
+
+
+def test_public_exports_resolve():
+    import llmxive.model_selection as ms
+    for name in ("ReservationAuthority", "RouteAudit", "RouteAuditError",
+                 "ChainResolved", "SelectionFailure", "ReservationOpened",
+                 "DispatchStarted", "DispatchCompleted", "DispatchUnknown",
+                 "CandidateOutcome"):
+        assert hasattr(ms, name), name
+
+
+def test_eager_export_does_not_load_networked_snapshot():
+    # attempt_hooks is pure types; importing the package must NOT pull in the
+    # networked snapshot layer (the laziness 026 preserves).
+    #
+    # sys.modules is process-wide: a delete-then-reimport of
+    # llmxive.model_selection.* IN THIS PROCESS (even carefully saved and
+    # restored afterward) creates transient new class/module objects and
+    # rebinds the parent llmxive package's own `.model_selection` attribute
+    # as a side effect of Python's import machinery — corrupting
+    # isinstance/exception identity and monkeypatch attribute resolution for
+    # any other test in this session that already bound the originals. A
+    # subprocess gives a genuinely clean interpreter, so the only thing this
+    # test observes is the one import under test, with zero leakage into the
+    # running test process.
+    code = (
+        "import sys, importlib; "
+        "importlib.import_module('llmxive.model_selection'); "
+        "assert 'llmxive.model_selection.snapshot' not in sys.modules, "
+        "'eager package import pulled in the networked snapshot module'"
+    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr

@@ -18,6 +18,18 @@ migrations.
 
 from __future__ import annotations
 
+from llmxive.model_selection.attempt_hooks import (
+    CandidateOutcome,
+    ChainResolved,
+    DispatchCompleted,
+    DispatchStarted,
+    DispatchUnknown,
+    ReservationAuthority,
+    ReservationOpened,
+    RouteAudit,
+    RouteAuditError,
+    SelectionFailure,
+)
 from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.policy import (
     CAPABILITY_POLICY,
@@ -53,9 +65,14 @@ __all__ = [
     "SELECTION_POLICY_VERSION",
     "CallBudget",
     "Candidate",
+    "CandidateOutcome",
     "CapabilityPolicy",
     "ChainExhausted",
+    "ChainResolved",
     "CreditGuardSnapshot",
+    "DispatchCompleted",
+    "DispatchStarted",
+    "DispatchUnknown",
     "ExecutionOptions",
     "ExecutionResult",
     "IndependenceBaseline",
@@ -66,7 +83,12 @@ __all__ = [
     "ModelUnavailable",
     "PolicyEntry",
     "RequirementProfile",
+    "ReservationAuthority",
+    "ReservationOpened",
+    "RouteAudit",
+    "RouteAuditError",
     "RuntimeSnapshot",
+    "SelectionFailure",
     "SnapshotProvenance",
     "build_requirement",
     "execute",
