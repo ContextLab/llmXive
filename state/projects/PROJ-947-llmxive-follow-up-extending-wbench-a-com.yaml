@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T14:06:12.010218Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-947-llmxive-follow-up-extending-wbench-a-com
-last_run_id: null
+last_run_id: 7869aed9-fafe-435a-afb2-442cd6848a7f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "WBench: A Comprehensive Multi-turn Benchmark
   for Interactive Video Wor"'
-updated_at: '2026-07-03T14:06:12.010218Z'
+updated_at: '2026-07-21T01:05:01.139116Z'

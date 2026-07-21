@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file contents were provided, so we cannot verify that
+    the required `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, and `artifacts/`
+    folders exist, nor that `src/__init__.py` and `tests/__init__.py` were created.
+    The implementer must supply evidence (e.g., a tree view or file list) showing
+    these directories and files.
+T007:
+  c: false
+  h: 236c783e845e1d7081145271f1fca0fb18b5eba305e94101639ebc51b592a731
+  r: "The repository contains `src/data/download.py` with checksum functions, but\
+    \ the required output file `data/metadata.yaml` is absent, and the shown code\
+    \ is truncated before any logic that would write metadata. Without the metadata\
+    \ file, the task\u2019s requirement to store SHA\u2011256 checksums is not fulfilled."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/processed/` and `figures/` directories or\
+    \ their accompanying README files is provided; without these artifacts present,\
+    \ the task requirement is not satisfied. The implementer must add the two directories\
+    \ and include non\u2011empty README files in each."

@@ -4,29 +4,65 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_level: Optional[str] = None, log_file: Optional[str] = None) -> logging.Logger:
-    """Configure logging for the application."""
-    logger = logging.getLogger("llmXive")
-    if not logger.handlers:
-        logger.setLevel(getattr(logging, log_level.upper() if log_level else "INFO"))
+_logger: Optional[logging.Logger] = None
+
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = None
+) -> logging.Logger:
+    """
+    Setup the root logger with console and optional file handlers.
+
+    Args:
+        log_level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional path to a log file.
+
+    Returns:
+        The configured logger instance.
+    """
+    global _logger
+    if _logger is not None:
+        return _logger
+
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(log_level)
+
+    # Avoid adding handlers multiple times if called repeatedly
+    if not _logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
         # Console handler
         ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setLevel(log_level)
         ch.setFormatter(formatter)
-        logger.addHandler(ch)
+        _logger.addHandler(ch)
 
-        # File handler if specified
+        # File handler (optional)
         if log_file:
-            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+            log_path = Path(log_file)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
             fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.DEBUG)
+            fh.setLevel(log_level)
             fh.setFormatter(formatter)
-            logger.addHandler(fh)
+            _logger.addHandler(fh)
 
-    return logger
+    return _logger
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """Get a logger instance."""
-    return logging.getLogger(name)
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance, optionally named.
+
+    Args:
+        name: Name for the logger (e.g., __name__).
+
+    Returns:
+        A configured logger instance.
+    """
+    if _logger is None:
+        setup_logging()
+    
+    if name:
+        return _logger.getChild(name)
+    return _logger

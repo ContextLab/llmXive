@@ -159,6 +159,10 @@
     "classified_at": "2026-07-16T13:05:47Z",
     "verdict": false
   },
+  "PROJ-1074-llmxive-follow-up-extending-function-awa::1.6.0": {
+    "classified_at": "2026-07-21T01:08:15Z",
+    "verdict": false
+  },
   "PROJ-111-exploring-the-potential-for-machine-lear::1.6.0": {
     "classified_at": "2026-07-14T01:58:49Z",
     "verdict": false
@@ -1549,6 +1553,10 @@
   },
   "PROJ-945-llmxive-follow-up-extending-enterprisecl::1.6.0": {
     "classified_at": "2026-07-06T16:45:02Z",
+    "verdict": false
+  },
+  "PROJ-947-llmxive-follow-up-extending-wbench-a-com::1.6.0": {
+    "classified_at": "2026-07-21T01:04:36Z",
     "verdict": false
   },
   "PROJ-951-llmxive-follow-up-extending-physisforcin::1.6.0": {

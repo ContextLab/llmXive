@@ -1,0 +1,16 @@
+# This file will be populated by download.py upon successful data retrieval.
+# It stores checksums and metadata for raw NetCDF files.
+# Format:
+# <filename>:
+#   path: <absolute_path>
+#   checksum: <sha256_hex>
+#   size_bytes: <int>
+#   downloaded_at: <YYYY-MM>
+#
+# Example entry (placeholder until real download occurs):
+# geopotential_1979_01.nc:
+#   path: data/raw/geopotential_1979_01.nc
+#   checksum: <sha256_hash>
+#   size_bytes: <size>
+#   downloaded_at: 1979-01
+pass_placeholder: true

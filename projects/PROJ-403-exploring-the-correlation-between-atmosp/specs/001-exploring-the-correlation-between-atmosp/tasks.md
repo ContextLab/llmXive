@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Initialize project structure: Create `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/` directories at repository root and create `__init__.py` files in `src/` and `tests/` subdirectories.
-- [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools in `pyproject.toml`.
+- [X] T002 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools in `pyproject.toml`.
 
 ---
 
@@ -35,15 +35,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0, numpy>=1.26.0, pandas>=2.1.0, scipy>=1.11.0, statsmodels>=0.14.0, matplotlib>=3.8.0, cartopy>=0.22.0, netCDF4>=1.6.5, cftime>=1.6.2, dask[complete]>=2023.9.0, h5netcdf>=0.14.0, requests>=2.31.0, tqdm>=4.66.0, nitime>=0.10.0, pytest>=7.4.0, pytest-cov
-- [ ] T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration.
-- [ ] T005 [P] Setup `src/utils/logger.py` for logging and `src/utils/config.py` for environment variable management (data paths, thresholds).
-- [ ] T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023, **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.
+- [X] T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0, numpy>=1.26.0, pandas>=2.1.0, scipy>=1.11.0, statsmodels>=0.14.0, matplotlib>=3.8.0, cartopy>=0.22.0, netCDF4>=1.6.5, cftime>=1.6.2, dask[complete]>=2023.9.0, h5netcdf>=0.14.0, requests>=2.31.0, tqdm>=4.66.0, nitime>=0.10.0, pytest>=7.4.0, pytest-cov
+- [X] T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration.
+- [X] T005 [P] Setup `src/utils/logger.py` for logging and `src/utils/config.py` for environment variable management (data paths, thresholds).
+- [X] T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023, **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.
 - [ ] T007 Implement `src/data/download.py` checksum verification (`sha256`) for raw NetCDF files and store in `data/metadata.yaml`.
-- [ ] T008 [P] Create base data processing utilities in `src/data/preprocess.py` for loading chunked NetCDFs with `dask`.
+- [X] T008 [P] Create base data processing utilities in `src/data/preprocess.py` for loading chunked NetCDFs with `dask`.
 - [ ] T009 [P] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure. **Constraint**: This entry point must orchestrate phases that strictly adhere to the **regional domain (20°N-60°N, 100°E-60°W)**; global scope processing is explicitly prohibited to satisfy FR-009 resource constraints.
 - [ ] T010 [P] Implement `src/cli/run_analysis.py` phase routing logic for selective execution (e.g., `--phase 0-9`).
-- [~] T011 [P] Create `data/processed/` and `figures/` directory structures with READMEs.
+- [ ] T011 [P] Create `data/processed/` and `figures/` directory structures with READMEs.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,15 +63,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (late 20th to early 21st century) per grid cell on the REGIONAL dataset (20°N-60°N, 100°E-60°W). <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
-  in "<unicode string>", line 6, column 3:
-    - [ ] T015 [US1] Implement `src/da ... 
-      ^
+- [X] T015 [US1] Implement `src/data/preprocess.py`: Compute monthly climatology (late 20th to early 21st century) per grid cell on the REGIONAL dataset (20°N-60°N, 100°E-60°W). <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+ in "<unicode string>", line 6, column 3:
+ - [ ] T015 [US1] Implement `src/da...
+ ^
 expected <block end>, but found '<scalar>'
-  in "<unicode string>", line 6, column 7:
-    - [ ] T015 [US1] Implement `src/data/p ... 
-          ^) -->
-- [ ] T016 [US1] Implement `src/data/preprocess.py`: Calculate geopotential height anomalies by subtracting the 1979–2023 monthly climatology from raw geopotential height data. **Do NOT apply linear detrending** (per Spec FR-003).
+ in "<unicode string>", line 6, column 7:
+ - [ ] T015 [US1] Implement `src/data/p...
+ ^) -->
+- [X] T016 [US1] Implement `src/data/preprocess.py`: Calculate geopotential height anomalies by subtracting the 1979–2023 monthly climatology from raw geopotential height data. **Do NOT apply linear detrending** (per Spec FR-003).
 - [ ] T017 [US1] Implement `src/data/preprocess.py`: Slice the regional data into latitudinal bands of varying width to enable granular spatial analysis. and handle missing months by excluding time steps (no imputation).
 - [ ] T018 [US1] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (-neighbor), duration >24h, baseline threshold kg m⁻¹ s⁻¹; output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.
 - [ ] T019 [US1] Implement `src/data/analysis.py`: Compute **Pearson correlation coefficients** and raw p-value per grid cell between AR frequency and Z500 anomaly time series. **Follow Spec FR-004** (not the Plan's Spearman revision).
