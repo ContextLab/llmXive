@@ -1,272 +1,275 @@
+"""
+Data preprocessing module for molecular property prediction.
+
+This module handles data loading, missing value handling, diversity filtering,
+and train/test splitting.
+"""
 import os
 import sys
-from pathlib import Path
-import pandas as pd
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import AllChem
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+import json
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple, Set
+import numpy as np
+import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import Descriptors
+from rdkit import DataStructs
+from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
 
-# Add project root to path if needed
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Configure logging
+logger = logging.getLogger(__name__)
 
-from logging_utils import setup_logger
-
-logger = setup_logger("preprocess")
-
-# Constants
-DATA_RAW_DIR = Path("data/raw")
-DATA_DERIVED_DIR = Path("data/derived")
-PREPROCESSED_FILE = DATA_DERIVED_DIR / "preprocessed_data.csv"
-QUALITY_REPORT_FILE = DATA_DERIVED_DIR / "data_quality_report.csv"
-
-# Thresholds
-MIN_CONFIDENCE_SCORE = 0.7  # Example threshold for high confidence
-MAX_MISSING_VALUE_RATIO = 0.1 # Max ratio of missing values allowed per column
-
-def load_preprocessed_data(input_file: Optional[Path] = None) -> pd.DataFrame:
+def load_preprocessed_data(raw_path: str) -> pd.DataFrame:
     """
-    Load the raw dataset. If input_file is None, attempts to find the latest raw data file.
+    Load raw data and perform initial cleaning.
+
+    Args:
+        raw_path: Path to the raw data file.
+
+    Returns:
+        Cleaned DataFrame.
     """
-    if input_file is None:
-        # Look for CSV or Parquet in data/raw
-        candidates = list(DATA_RAW_DIR.glob("*.csv")) + list(DATA_RAW_DIR.glob("*.parquet"))
-        if not candidates:
-            raise FileNotFoundError(f"No raw data files found in {DATA_RAW_DIR}")
-        # Sort by modification time, take latest
-        input_file = max(candidates, key=lambda p: p.stat().st_mtime)
-        logger.info(f"Loading raw data from {input_file}")
-    else:
-        logger.info(f"Loading raw data from {input_file}")
+    df = pd.read_csv(raw_path)
+    # Remove rows with invalid SMILES
+    valid_indices = []
+    for idx, smiles in enumerate(df['smiles']):
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is not None:
+            valid_indices.append(idx)
 
-    if input_file.suffix == '.csv':
-        df = pd.read_csv(input_file)
-    elif input_file.suffix == '.parquet':
-        df = pd.read_parquet(input_file)
-    else:
-        raise ValueError(f"Unsupported file format: {input_file.suffix}")
-
+    df = df.iloc[valid_indices].reset_index(drop=True)
+    logger.info(f"Loaded {len(df)} valid molecules")
     return df
 
-def filter_high_confidence(df: pd.DataFrame, confidence_col: str = "confidence_score") -> Tuple[pd.DataFrame, pd.DataFrame]:
+def detect_missing_covariates(df: pd.DataFrame, covariate_columns: List[str]) -> pd.Series:
+    """
+    Detect missing values in covariate columns.
+
+    Args:
+        df: Input DataFrame.
+        covariate_columns: List of covariate column names.
+
+    Returns:
+        Series indicating missing covariates for each row.
+    """
+    missing_flags = df[covariate_columns].isnull().any(axis=1)
+    return missing_flags
+
+def handle_missing_values(
+    df: pd.DataFrame,
+    target_columns: List[str],
+    covariate_columns: List[str]
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Handle missing values by dropping rows with missing targets and flagging missing covariates.
+
+    Args:
+        df: Input DataFrame.
+        target_columns: List of target column names.
+        covariate_columns: List of covariate column names.
+
+    Returns:
+        Tuple of (cleaned DataFrame, list of excluded entries).
+    """
+    excluded_entries = []
+
+    # Drop rows with missing target values
+    mask_targets = df[target_columns].isnull().any(axis=1)
+    excluded_reasons = df[mask_targets].apply(lambda row: {
+        'smiles': row['smiles'],
+        'exclusion_reason': 'missing_target',
+        'missing_covariate_list': []
+    }, axis=1).tolist()
+    excluded_entries.extend(excluded_reasons)
+
+    df_clean = df[~mask_targets].copy()
+
+    # Flag missing covariates (but don't drop)
+    mask_covariates = df_clean[covariate_columns].isnull().any(axis=1)
+    covariate_flags = df_clean[mask_covariates][covariate_columns].isnull()
+    missing_covariate_list = covariate_flags.apply(
+        lambda row: list(row[row].index), axis=1
+    ).tolist()
+
+    excluded_reasons = df_clean[mask_covariates].apply(lambda row: {
+        'smiles': row['smiles'],
+        'exclusion_reason': 'missing_covariate',
+        'missing_covariate_list': missing_covariate_list
+    }, axis=1).tolist()
+    excluded_entries.extend(excluded_reasons)
+
+    logger.info(f"Dropped {mask_targets.sum()} rows with missing targets")
+    logger.info(f"Flagged {mask_covariates.sum()} rows with missing covariates")
+
+    return df_clean, excluded_entries
+
+def generate_quality_report(excluded_entries: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Generate a data quality report for excluded entries.
+
+    Args:
+        excluded_entries: List of excluded entry dictionaries.
+        output_path: Path to save the report.
+    """
+    report_df = pd.DataFrame(excluded_entries)
+    report_df.to_csv(output_path, index=False)
+    logger.info(f"Quality report saved to {output_path}")
+
+def save_quality_report(report_df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the quality report to disk.
+
+    Args:
+        report_df: DataFrame with quality report data.
+        output_path: Path to save the report.
+    """
+    report_df.to_csv(output_path, index=False)
+
+def filter_high_confidence(df: pd.DataFrame, confidence_threshold: float = 0.8) -> pd.DataFrame:
     """
     Filter for high-confidence measurements.
-    Returns (filtered_df, excluded_df)
+
+    Args:
+        df: Input DataFrame.
+        confidence_threshold: Minimum confidence score.
+
+    Returns:
+        Filtered DataFrame.
     """
-    if confidence_col not in df.columns:
-        logger.warning(f"Column '{confidence_col}' not found. Skipping confidence filter.")
-        return df, pd.DataFrame()
+    if 'confidence' in df.columns:
+        df = df[df['confidence'] >= confidence_threshold]
+    logger.info(f"Filtered to {len(df)} high-confidence molecules")
+    return df
 
-    # Assume confidence is numeric; if not, try to coerce or skip
-    try:
-        df[confidence_col] = pd.to_numeric(df[confidence_col], errors='coerce')
-    except Exception as e:
-        logger.warning(f"Could not convert {confidence_col} to numeric: {e}")
-        return df, pd.DataFrame()
-
-    filtered = df[df[confidence_col] >= MIN_CONFIDENCE_SCORE].copy()
-    excluded = df[df[confidence_col] < MIN_CONFIDENCE_SCORE].copy()
-    logger.info(f"Filtered {len(excluded)} low-confidence entries (threshold: {MIN_CONFIDENCE_SCORE})")
-    return filtered, excluded
-
-def handle_missing_values(df: pd.DataFrame, strategy: str = "drop") -> Tuple[pd.DataFrame, pd.DataFrame]:
+def save_processed_data(df: pd.DataFrame, output_path: str) -> None:
     """
-    Handle missing values.
-    Strategy: 'drop' removes rows with any missing values in key columns (SMILES, target property).
-    Returns (cleaned_df, excluded_df)
+    Save processed data to disk.
+
+    Args:
+        df: Processed DataFrame.
+        output_path: Path to save the data.
     """
-    key_cols = ["smiles", "logP", "solubility", "boiling_point"]
-    present_key_cols = [c for c in key_cols if c in df.columns]
-    
-    if not present_key_cols:
-        logger.warning("No key columns (smiles, logP, etc.) found. Skipping missing value handling.")
-        return df, pd.DataFrame()
-
-    # Identify rows with missing values in key columns
-    mask = df[present_key_cols].isnull().any(axis=1)
-    cleaned = df[~mask].copy()
-    excluded = df[mask].copy()
-
-    logger.info(f"Dropped {len(excluded)} entries with missing values in {present_key_cols}")
-    return cleaned, excluded
-
-def detect_missing_covariates(df: pd.DataFrame, covariate_cols: Optional[List[str]] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Detect missing covariates (e.g., temperature, pH).
-    If covariate_cols is None, tries to infer common names.
-    Returns (filtered_df, excluded_df)
-    """
-    if covariate_cols is None:
-        covariate_cols = ["temperature", "pH", "pressure"] # Common covariates
-    
-    present_covariates = [c for c in covariate_cols if c in df.columns]
-    
-    if not present_covariates:
-        logger.info("No common covariate columns found. Skipping covariate check.")
-        return df, pd.DataFrame()
-
-    # Check for missing values in covariate columns
-    mask = df[present_covariates].isnull().any(axis=1)
-    filtered = df[~mask].copy()
-    excluded = df[mask].copy()
-    
-    # Log specific missing covariates for the excluded rows
-    if len(excluded) > 0:
-        missing_info = excluded[present_covariates].isnull()
-        # Create a string representation of missing covariates for each row
-        excluded["missing_covariate"] = missing_info.apply(
-            lambda row: ",".join(present_covariates[row]), axis=1
-        )
-        logger.info(f"Detected missing covariates in {len(excluded)} entries: {present_covariates}")
-    else:
-        excluded["missing_covariate"] = ""
-
-    return filtered, excluded
-
-def generate_quality_report(excluded_data: List[pd.DataFrame], reason_labels: List[str]) -> pd.DataFrame:
-    """
-    Combine excluded dataframes into a single quality report.
-    reason_labels should match the order of excluded_data.
-    """
-    if not excluded_data:
-        return pd.DataFrame()
-
-    report_dfs = []
-    for df, reason in zip(excluded_data, reason_labels):
-        if df.empty:
-            continue
-        df_report = df.copy()
-        df_report["exclusion_reason"] = reason
-        # Ensure missing_covariate column exists if it was set by detect_missing_covariates
-        if "missing_covariate" not in df_report.columns:
-            df_report["missing_covariate"] = ""
-        report_dfs.append(df_report)
-
-    if not report_dfs:
-        return pd.DataFrame()
-
-    combined = pd.concat(report_dfs, ignore_index=True)
-    
-    # Reorder columns to put 'missing_covariate' and 'exclusion_reason' at the end
-    cols = [c for c in combined.columns if c not in ["missing_covariate", "exclusion_reason"]]
-    cols += ["missing_covariate", "exclusion_reason"]
-    combined = combined[cols]
-
-    return combined
-
-def save_processed_data(df: pd.DataFrame, output_path: Optional[Path] = None):
-    """
-    Save the processed dataframe to CSV.
-    """
-    if output_path is None:
-        output_path = PREPROCESSED_FILE
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data to {output_path} ({len(df)} rows)")
+    logger.info(f"Processed data saved to {output_path}")
 
-def save_quality_report(df: pd.DataFrame, output_path: Optional[Path] = None):
+def tanimoto_similarity(fp1: DataStructs.ExplicitBitVect, fp2: DataStructs.ExplicitBitVect) -> float:
     """
-    Save the quality report to CSV.
-    """
-    if output_path is None:
-        output_path = QUALITY_REPORT_FILE
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    if df.empty:
-        # Create empty file with headers if no data
-        df.to_csv(output_path, index=False)
-    else:
-        df.to_csv(output_path, index=False)
-    logger.info(f"Saved quality report to {output_path} ({len(df)} rows)")
+    Calculate Tanimoto similarity between two fingerprints.
 
-def maxmin_sampling(df: pd.DataFrame, smiles_col: str = "smiles", target_size: int = 5000) -> pd.DataFrame:
-    """
-    Placeholder for MaxMin sampling. 
-    T010/T011 will implement the actual diversity filtering logic.
-    This function returns the input dataframe for now to allow T009 to complete.
-    """
-    logger.info("MaxMin sampling is a placeholder for T010/T011. Returning full dataset.")
-    if len(df) <= target_size:
-        return df
-    # Simple random sample if implementation is deferred
-    return df.sample(n=target_size, random_state=42)
+    Args:
+        fp1: First fingerprint.
+        fp2: Second fingerprint.
 
-def tanimoto_similarity(fp1: List[int], fp2: List[int]) -> float:
+    Returns:
+        Tanimoto similarity score.
     """
-    Placeholder for Tanimoto similarity calculation.
-    """
-    # Basic implementation for testing
-    intersection = sum(a & b for a, b in zip(fp1, fp2))
-    union = sum(a | b for a, b in zip(fp1, fp2))
-    return intersection / union if union > 0 else 0.0
+    return DataStructs.TanimotoSimilarity(fp1, fp2)
 
-def main():
+def maxmin_sampling(
+    smiles_list: List[str],
+    target_size: int = 5000,
+    similarity_threshold: float = 0.7,
+    fingerprint_radius: int = 2,
+    fingerprint_size: int = 2048
+) -> List[str]:
     """
-    Main entry point for preprocessing pipeline.
-    Executes: Load -> Filter Confidence -> Handle Missing -> Detect Covariates -> Report -> Save
+    Select a diverse subset of molecules using MaxMin sampling.
+
+    Args:
+        smiles_list: List of SMILES strings.
+        target_size: Target number of molecules.
+        similarity_threshold: Maximum allowed Tanimoto similarity.
+        fingerprint_radius: Radius for Morgan fingerprint.
+        fingerprint_size: Size of the fingerprint.
+
+    Returns:
+        List of selected SMILES strings.
     """
-    logger.info("Starting preprocessing pipeline...")
-    
-    # 1. Load Data
-    try:
-        raw_df = load_preprocessed_data()
-        logger.info(f"Loaded {len(raw_df)} rows from raw data.")
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
+    logger.info(f"Starting MaxMin sampling for {len(smiles_list)} molecules, target: {target_size}")
+
+    # Convert SMILES to fingerprints
+    fps = []
+    valid_smiles = []
+    for smiles in smiles_list:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is not None:
+            fp = GetMorganFingerprintAsBitVect(mol, radius=fingerprint_radius, nBits=fingerprint_size)
+            fps.append(fp)
+            valid_smiles.append(smiles)
+
+    if len(fps) == 0:
+        logger.warning("No valid molecules found")
+        return []
+
+    selected_indices = [0]  # Start with first molecule
+    remaining_indices = list(range(1, len(fps)))
+
+    while len(selected_indices) < target_size and remaining_indices:
+        # Calculate min distance from each remaining molecule to selected set
+        min_distances = []
+        for i in remaining_indices:
+            max_sim = 0
+            for j in selected_indices:
+                sim = tanimoto_similarity(fps[i], fps[j])
+                max_sim = max(max_sim, sim)
+            min_distances.append((i, 1 - max_sim))  # Distance = 1 - similarity
+
+        # Sort by distance (descending) and pick the farthest
+        min_distances.sort(key=lambda x: x[1], reverse=True)
+
+        # Check if the farthest is still too similar
+        if min_distances[0][1] < (1 - similarity_threshold):
+            # All remaining are too similar, stop
+            logger.info(f"Reached similarity threshold, stopping with {len(selected_indices)} molecules")
+            break
+
+        # Add the farthest molecule
+        next_idx = min_distances[0][0]
+        selected_indices.append(next_idx)
+        remaining_indices.remove(next_idx)
+
+    selected_smiles = [valid_smiles[i] for i in selected_indices]
+    logger.info(f"MaxMin sampling complete: {len(selected_smiles)} molecules selected")
+    return selected_smiles
+
+def main() -> None:
+    """
+    Main entry point for the preprocessing pipeline.
+    """
+    # Set up logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    raw_path = project_root / 'data' / 'raw' / 'chembl_thermodynamics.csv'
+    output_dir = project_root / 'data' / 'derived'
+
+    if not raw_path.exists():
+        logger.error(f"Raw data not found: {raw_path}")
         sys.exit(1)
 
-    excluded_records = []
-    reasons = []
+    # Load data
+    logger.info("Loading raw data...")
+    df = load_preprocessed_data(str(raw_path))
 
-    # 2. Filter High Confidence
-    try:
-        # Determine if confidence column exists, else skip
-        if "confidence_score" in raw_df.columns:
-            filtered_df, excluded_conf = filter_high_confidence(raw_df)
-            if not excluded_conf.empty:
-                excluded_records.append(excluded_conf)
-                reasons.append("low_confidence")
-        else:
-            filtered_df = raw_df
-            logger.warning("No confidence_score column found. Skipping confidence filter.")
-    except Exception as e:
-        logger.error(f"Error in confidence filtering: {e}")
-        sys.exit(1)
+    # Handle missing values
+    target_columns = ['logP', 'solubility', 'boiling_point']
+    covariate_columns = ['temperature', 'pH']
+    df_clean, excluded_entries = handle_missing_values(df, target_columns, covariate_columns)
 
-    # 3. Handle Missing Values
-    try:
-        cleaned_df, excluded_missing = handle_missing_values(filtered_df)
-        if not excluded_missing.empty:
-            excluded_records.append(excluded_missing)
-            reasons.append("missing_values")
-    except Exception as e:
-        logger.error(f"Error in missing value handling: {e}")
-        sys.exit(1)
+    # Generate quality report
+    generate_quality_report(excluded_entries, str(output_dir / 'data_quality_report.csv'))
 
-    # 4. Detect Missing Covariates
-    try:
-        final_df, excluded_cov = detect_missing_covariates(cleaned_df)
-        if not excluded_cov.empty:
-            excluded_records.append(excluded_cov)
-            reasons.append("missing_covariates")
-    except Exception as e:
-        logger.error(f"Error in covariate detection: {e}")
-        sys.exit(1)
+    # Diversity filtering
+    logger.info("Performing diversity filtering...")
+    selected_smiles = maxmin_sampling(df_clean['smiles'].tolist(), target_size=5000)
+    df_diverse = df_clean[df_clean['smiles'].isin(selected_smiles)].reset_index(drop=True)
 
-    # 5. Generate Quality Report
-    quality_report = generate_quality_report(excluded_records, reasons)
-    save_quality_report(quality_report)
+    # Save processed data
+    save_processed_data(df_diverse, str(output_dir / 'diverse_dataset.csv'))
 
-    # 6. Save Processed Data
-    save_processed_data(final_df)
-
-    logger.info("Preprocessing pipeline completed successfully.")
-    logger.info(f"Final dataset size: {len(final_df)}")
-    logger.info(f"Total excluded entries: {len(quality_report)}")
+    logger.info("Preprocessing complete")
 
 if __name__ == "__main__":
     main()

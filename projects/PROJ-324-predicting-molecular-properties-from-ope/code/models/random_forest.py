@@ -1,264 +1,298 @@
+"""
+Random Forest model training and validation module.
+
+This module implements nested cross-validation, hyperparameter tuning,
+and model training for molecular property prediction using Open Babel fingerprints.
+"""
 import os
 import sys
 import pickle
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-import pandas as pd
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_score
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from joblib import Parallel, delayed
 import joblib
 
-from logging_utils import setup_logger
-from seed_manager import set_global_seed
+# Configure logging
+logger = logging.getLogger(__name__)
 
-# Configure logger
-logger = setup_logger(__name__)
+def load_fingerprints_and_targets(train_path: str, target_column: str = 'logP') -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    """
+    Load fingerprints and target values from the training set.
 
-# Constants for Runtime Monitoring
-MAX_RUNTIME_SECONDS = 6 * 3600  # 6 hours
-MIN_DATASET_SIZE = 1000
-FINGERPRINT_PRIORITY = ["ecfp4", "maccs", "fp2"]
+    Args:
+        train_path: Path to the training set CSV file.
+        target_column: Name of the target column.
 
-def load_fingerprints_and_targets(
-    fingerprint_path: Path,
-    target_property: str,
-    max_samples: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+    Returns:
+        Tuple of (fingerprints array, target array, feature names).
     """
-    Load fingerprints and targets from parquet file.
-    Optionally limits samples for runtime monitoring.
-    """
-    logger.info(f"Loading fingerprints from {fingerprint_path}")
-    df = pd.read_parquet(fingerprint_path)
-    
-    # Ensure we have the target column
-    if target_property not in df.columns:
-        raise ValueError(f"Target property '{target_property}' not found in dataset. Available: {df.columns.tolist()}")
-    
-    # Filter non-null targets
-    df = df.dropna(subset=[target_property])
-    
-    # Apply max_samples limit if specified (for runtime monitoring)
-    if max_samples is not None and len(df) > max_samples:
-        logger.info(f"Limiting dataset to {max_samples} samples for runtime constraints")
-        df = df.head(max_samples)
-    
-    X = df.drop(columns=[target_property]).values
-    y = df[target_property].values
-    
-    logger.info(f"Loaded {len(X)} samples with shape {X.shape}")
-    return X, y
+    df = pd.read_csv(train_path)
+    # Assume first column is SMILES, last is target, rest are fingerprints
+    smiles_col = df.columns[0]
+    target_col = df.columns[-1]
+    fingerprint_cols = df.columns[1:-1]
 
-def tune_hyperparameters(
-    X: np.ndarray,
-    y: np.ndarray,
-    param_grid: Dict[str, Any],
-    n_jobs: int = -1
-) -> GridSearchCV:
+    fingerprints = df[fingerprint_cols].values
+    targets = df[target_col].values
+    feature_names = fingerprint_cols.tolist()
+
+    return fingerprints, targets, feature_names
+
+def tune_hyperparameters(X: np.ndarray, y: np.ndarray, n_splits: int = 3) -> Dict[str, Any]:
     """
-    Perform grid search for hyperparameter tuning.
+    Tune Random Forest hyperparameters using cross-validation.
+
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        n_splits: Number of CV splits.
+
+    Returns:
+        Dictionary of best hyperparameters.
     """
-    logger.info("Starting hyperparameter tuning...")
-    rf = RandomForestRegressor(random_state=42, n_jobs=1)
+    param_grid = {
+        'n_estimators': [100, 200],
+        'max_depth': [10, 15],
+        'min_samples_split': [2, 5],
+        'min_samples_leaf': [1, 2]
+    }
+
+    rf = RandomForestRegressor(random_state=42, n_jobs=-1)
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+    # For regression, we need to create dummy classes for stratification
+    # Use quartiles of y for stratification
+    y_quantiles = pd.qcut(y, q=n_splits, labels=False)
+
     grid_search = GridSearchCV(
-        estimator=rf,
-        param_grid=param_grid,
-        cv=3,
-        scoring='neg_mean_absolute_error',
-        n_jobs=n_jobs,
-        verbose=1
+        rf, param_grid, cv=cv, scoring='neg_mean_absolute_error', n_jobs=-1
     )
-    grid_search.fit(X, y)
-    logger.info(f"Best parameters: {grid_search.best_params_}")
-    return grid_search
+    grid_search.fit(X, y, y=y_quantiles)
+
+    best_params = grid_search.best_params_
+    logger.info(f"Best hyperparameters: {best_params}")
+    return best_params
 
 def run_nested_cross_validation(
     X: np.ndarray,
     y: np.ndarray,
-    param_grid: Dict[str, Any],
-    n_jobs: int = -1
-) -> Dict[str, Any]:
+    outer_n_splits: int = 5,
+    inner_n_splits: int = 3
+) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     """
-    Run nested cross-validation to get unbiased performance estimates.
-    Outer loop: 5-fold CV for testing
-    Inner loop: GridSearchCV for tuning
+    Run nested cross-validation for unbiased error estimation.
+
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        outer_n_splits: Number of outer CV splits.
+        inner_n_splits: Number of inner CV splits.
+
+    Returns:
+        Tuple of (out-of-fold predictions, true values, best params).
     """
-    logger.info("Starting nested cross-validation...")
-    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    
-    # We need to convert y to integer bins for StratifiedKFold if it's continuous
-    # Discretize y into 10 bins for stratification
-    y_bins = pd.qcut(y, q=10, labels=False, duplicates='drop')
-    
-    outer_scores = []
-    
-    for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y_bins)):
-        logger.info(f"Processing outer fold {fold_idx + 1}/5")
-        
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        
-        # Inner loop: Hyperparameter tuning
-        inner_search = tune_hyperparameters(X_train, y_train, param_grid, n_jobs=n_jobs)
-        best_model = inner_search.best_estimator_
-        
-        # Evaluate on test set
-        y_pred = best_model.predict(X_test)
-        mae = mean_absolute_error(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        
-        outer_scores.append({'mae': mae, 'rmse': rmse})
-        logger.info(f"Fold {fold_idx + 1} - MAE: {mae:.4f}, RMSE: {rmse:.4f}")
-    
-    avg_mae = np.mean([s['mae'] for s in outer_scores])
-    avg_rmse = np.mean([s['rmse'] for s in outer_scores])
-    
-    return {
-        'mae': avg_mae,
-        'rmse': avg_rmse,
-        'fold_scores': outer_scores
+    n_samples = len(y)
+    oof_predictions = np.zeros(n_samples)
+    best_params_list = []
+
+    outer_cv = StratifiedKFold(n_splits=outer_n_splits, shuffle=True, random_state=42)
+    y_quantiles = pd.qcut(y, q=outer_n_splits, labels=False)
+
+    for fold_idx, (train_idx, val_idx) in enumerate(outer_cv.split(X, y_quantiles)):
+        logger.info(f"Processing outer fold {fold_idx + 1}/{outer_n_splits}")
+
+        X_train, X_val = X[train_idx], X[val_idx]
+        y_train, y_val = y[train_idx], y[val_idx]
+
+        # Tune hyperparameters on training fold
+        best_params = tune_hyperparameters(X_train, y_train, n_splits=inner_n_splits)
+        best_params_list.append(best_params)
+
+        # Train model with best params
+        model = RandomForestRegressor(**best_params, random_state=42, n_jobs=-1)
+        model.fit(X_train, y_train)
+
+        # Predict on validation fold
+        oof_predictions[val_idx] = model.predict(X_val)
+
+    # Average best params
+    avg_params = {
+        'n_estimators': int(np.mean([p['n_estimators'] for p in best_params_list])),
+        'max_depth': int(np.mean([p['max_depth'] for p in best_params_list])),
+        'min_samples_split': int(np.mean([p['min_samples_split'] for p in best_params_list])),
+        'min_samples_leaf': int(np.mean([p['min_samples_leaf'] for p in best_params_list]))
     }
 
-def train_final_model(
-    X: np.ndarray,
-    y: np.ndarray,
-    param_grid: Dict[str, Any],
-    n_jobs: int = -1
-) -> RandomForestRegressor:
-    """
-    Train the final model on the full dataset with best parameters.
-    """
-    logger.info("Training final model on full dataset...")
-    grid_search = tune_hyperparameters(X, y, param_grid, n_jobs=n_jobs)
-    return grid_search.best_estimator_
+    return oof_predictions, y, avg_params
 
-def save_model(model: RandomForestRegressor, output_path: Path):
+def train_final_model(X: np.ndarray, y: np.ndarray, params: Dict[str, Any]) -> RandomForestRegressor:
+    """
+    Train the final model on the full training set.
+
+    Args:
+        X: Full feature matrix.
+        y: Full target vector.
+        params: Hyperparameters to use.
+
+    Returns:
+        Trained Random Forest model.
+    """
+    logger.info("Training final model...")
+    model = RandomForestRegressor(**params, random_state=42, n_jobs=-1)
+    model.fit(X, y)
+    return model
+
+def save_model(model: RandomForestRegressor, output_path: str) -> None:
     """
     Save the trained model to disk.
+
+    Args:
+        model: Trained model.
+        output_path: Path to save the model.
     """
-    logger.info(f"Saving model to {output_path}")
     with open(output_path, 'wb') as f:
         pickle.dump(model, f)
-    logger.info("Model saved successfully")
+    logger.info(f"Model saved to {output_path}")
 
 def save_results(
-    results: Dict[str, Any],
-    output_path: Path
-):
+    oof_predictions: np.ndarray,
+    true_values: np.ndarray,
+    metrics: Dict[str, float],
+    output_path: str
+) -> None:
     """
-    Save evaluation results to CSV.
-    """
-    logger.info(f"Saving results to {output_path}")
-    df_results = pd.DataFrame(results)
-    df_results.to_csv(output_path, index=False)
-    logger.info("Results saved successfully")
+    Save cross-validation results to disk.
 
-def check_runtime_elapsed(start_time: float) -> bool:
+    Args:
+        oof_predictions: Out-of-fold predictions.
+        true_values: True target values.
+        metrics: Dictionary of performance metrics.
+        output_path: Path to save the results.
     """
-    Check if the elapsed time exceeds the maximum allowed runtime.
-    Returns True if time limit is exceeded.
+    results_df = pd.DataFrame({
+        'true': true_values,
+        'predicted': oof_predictions
+    })
+    results_df.to_csv(output_path, index=False)
+
+    with open(output_path.replace('.csv', '_metrics.json'), 'w') as f:
+        import json
+        json.dump(metrics, f, indent=2)
+
+    logger.info(f"Results saved to {output_path}")
+
+def check_runtime_elapsed(start_time: float, max_time: float = 21600) -> bool:
+    """
+    Check if the runtime has exceeded the maximum allowed time.
+
+    Args:
+        start_time: Start time of the process.
+        max_time: Maximum allowed time in seconds (default 6 hours).
+
+    Returns:
+        True if time limit exceeded, False otherwise.
     """
     elapsed = time.time() - start_time
-    if elapsed > MAX_RUNTIME_SECONDS:
-        logger.warning(f"Runtime limit exceeded: {elapsed:.1f}s > {MAX_RUNTIME_SECONDS}s")
+    if elapsed > max_time:
+        logger.warning(f"Runtime limit exceeded: {elapsed:.1f}s > {max_time}s")
         return True
     return False
 
-def reduce_dataset_size(
-    X: np.ndarray,
-    y: np.ndarray,
-    reduction_factor: float = 0.5
-) -> Tuple[np.ndarray, np.ndarray]:
+def reduce_dataset_size(X: np.ndarray, y: np.ndarray, max_samples: int = 5000) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Reduce dataset size by sampling.
+    Reduce dataset size if it exceeds the maximum allowed.
+
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        max_samples: Maximum number of samples.
+
+    Returns:
+        Reduced feature matrix and target vector.
     """
-    n_samples = len(X)
-    new_size = max(MIN_DATASET_SIZE, int(n_samples * reduction_factor))
-    logger.info(f"Reducing dataset from {n_samples} to {new_size} samples")
-    
-    indices = np.random.choice(n_samples, size=new_size, replace=False)
+    if len(X) <= max_samples:
+        return X, y
+
+    logger.info(f"Reducing dataset from {len(X)} to {max_samples} samples")
+    indices = np.random.choice(len(X), max_samples, replace=False)
     return X[indices], y[indices]
 
-def skip_fingerprint(fingerprint_type: str) -> bool:
+def skip_fingerprint(fingerprint_name: str, time_budget_remaining: float) -> bool:
     """
-    Determine if a fingerprint type should be skipped based on priority.
-    Returns True if it should be skipped (lower priority).
-    """
-    priority_index = FINGERPRINT_PRIORITY.index(fingerprint_type) if fingerprint_type in FINGERPRINT_PRIORITY else len(FINGERPRINT_PRIORITY)
-    # Skip if it's the lowest priority (fp2) and we are under time pressure
-    return priority_index == len(FINGERPRINT_PRIORITY) - 1
+    Determine if a fingerprint should be skipped due to time constraints.
 
-def main():
+    Args:
+        fingerprint_name: Name of the fingerprint.
+        time_budget_remaining: Remaining time budget in seconds.
+
+    Returns:
+        True if fingerprint should be skipped, False otherwise.
     """
-    Main entry point for Random Forest training with runtime monitoring.
+    # Prioritize ECFP4 > MACCS > FP2
+    priority = {'ECFP4': 1, 'MACCS': 2, 'FP2': 3}
+    current_priority = priority.get(fingerprint_name, 999)
+
+    if time_budget_remaining < 3600:  # Less than 1 hour left
+        return current_priority > 1
+
+    return False
+
+def main() -> None:
     """
-    set_global_seed(42)
-    
-    # Configuration
-    fingerprint_file = Path("data/derived/fingerprints.parquet")
-    target_property = "logP"  # Can be configured
-    model_output = Path("data/derived/final_model.pkl")
-    results_output = Path("data/derived/nested_cv_results.csv")
-    
-    # Hyperparameter grid
-    param_grid = {
-        'n_estimators': [100, 200],
-        'max_depth': [10, 20, None],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2]
-    }
-    
+    Main entry point for the Random Forest training pipeline.
+    """
+    # Set up logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    train_path = project_root / 'data' / 'derived' / 'train_set.csv'
+    output_dir = project_root / 'data' / 'derived'
+
+    if not train_path.exists():
+        logger.error(f"Training set not found: {train_path}")
+        sys.exit(1)
+
     start_time = time.time()
-    
-    try:
-        # Load data
-        if not fingerprint_file.exists():
-            raise FileNotFoundError(f"Fingerprint file not found: {fingerprint_file}")
-        
-        X, y = load_fingerprints_and_targets(fingerprint_file, target_property)
-        
-        # Initial runtime check
-        if check_runtime_elapsed(start_time):
-            logger.error("Time limit exceeded before starting training")
-            sys.exit(1)
-        
-        # Check if dataset is too large and reduce if necessary
-        if len(X) > 5000:
-            logger.warning(f"Dataset size ({len(X)}) exceeds recommended limit (5000). Reducing...")
-            X, y = reduce_dataset_size(X, y, 0.6)
-        
-        # Run nested cross-validation
-        cv_results = run_nested_cross_validation(X, y, param_grid)
-        
-        # Check runtime after CV
-        if check_runtime_elapsed(start_time):
-            logger.error("Time limit exceeded during cross-validation")
-            sys.exit(1)
-        
-        # Train final model
-        final_model = train_final_model(X, y, param_grid)
-        
-        # Check runtime after training
-        if check_runtime_elapsed(start_time):
-            logger.error("Time limit exceeded during final model training")
-            sys.exit(1)
-        
-        # Save artifacts
-        save_model(final_model, model_output)
-        save_results(cv_results['fold_scores'], results_output)
-        
-        logger.info(f"Training completed successfully. MAE: {cv_results['mae']:.4f}, RMSE: {cv_results['rmse']:.4f}")
-        
-    except Exception as e:
-        logger.error(f"Error during training: {e}")
-        raise
-    finally:
-        elapsed = time.time() - start_time
-        logger.info(f"Total runtime: {elapsed:.1f}s")
+
+    # Load data
+    logger.info("Loading training data...")
+    X, y, feature_names = load_fingerprints_and_targets(str(train_path))
+
+    # Check dataset size
+    X, y = reduce_dataset_size(X, y, max_samples=5000)
+
+    # Run nested cross-validation
+    logger.info("Running nested cross-validation...")
+    oof_predictions, true_values, best_params = run_nested_cross_validation(X, y, outer_n_splits=5, inner_n_splits=3)
+
+    # Calculate metrics
+    mae = mean_absolute_error(true_values, oof_predictions)
+    rmse = np.sqrt(mean_squared_error(true_values, oof_predictions))
+    metrics = {
+        'MAE': mae,
+        'RMSE': rmse,
+        'n_samples': len(y),
+        'best_params': best_params
+    }
+
+    # Train final model
+    final_model = train_final_model(X, y, best_params)
+
+    # Save results
+    save_results(oof_predictions, true_values, metrics, str(output_dir / 'rf_oof_predictions.csv'))
+    save_model(final_model, str(output_dir / 'final_model.pkl'))
+
+    elapsed = time.time() - start_time
+    logger.info(f"Training complete in {elapsed:.1f}s")
+    logger.info(f"Nested CV MAE: {mae:.4f}, RMSE: {rmse:.4f}")
 
 if __name__ == "__main__":
     main()

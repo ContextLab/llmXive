@@ -123,3 +123,94 @@
   source_type: external
   status: verified
   updated_at: '2026-07-16T15:20:14Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  attempts: 1
+  canonical: diverse subset of 5000 molecules with Tanimoto less than 0.7
+  claim_id: c_99a562f4
+  context: 'Diversity: MaxMin sampling ensures a diverse subset of ~5000 molecules
+    (Tanimoto < 0.7).'
+  evidence:
+    candidates:
+    - - Diverse subset of
+      - 5000.0
+    - - Tanimoto less than
+      - 0.7
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Diverse_subset_of_5000_molecules_with_Tanimoto_less_than_0.7
+  kind: magnitude
+  raw_text: MaxMin sampling ensures a diverse subset of ~5000 molecules (Tanimoto
+    < 0.7).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-21T11:23:42Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  attempts: 1
+  canonical: experimental data sourced from ChEMBL and MoleculeNet thermodynamics
+    subset
+  claim_id: c_81f8a076
+  context: Experimental data is sourced from ChEMBL and MoleculeNet (thermodynamics
+    subset).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experimental_data_sourced_from_ChEMBL_and_MoleculeNet_thermo
+  kind: entity_fact
+  raw_text: Experimental data is sourced from ChEMBL and MoleculeNet (thermodynamics
+    subset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:24:07Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  attempts: 1
+  canonical: nested cross-validation with outer 5-fold and inner 3-fold
+  claim_id: c_5895a1c5
+  context: 'Training: Nested Cross-Validation (Outer: 5-fold, Inner: 3-fold) for hyperparameter
+    tuning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Nested Cross-Validation (Outer: 5-fold, Inner: 3-fold) was used for hyperparameter
+    tuning.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:24:20Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  attempts: 1
+  canonical: Jaccard similarity assessed across 100 bootstrap resamples
+  claim_id: c_d94a7c6b
+  context: 'Stability: Jaccard similarity across 100 bootstrap resamples assesses
+    robustness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Jaccard similarity across 100 bootstrap resamples assesses robustness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:24:32Z'
+- artifact_path: projects/PROJ-324-predicting-molecular-properties-from-ope/docs/research.md
+  attempts: 1
+  canonical: global random seed set to 42
+  claim_id: c_a0f6e24c
+  context: 'Seeds: Global random seed (42) set for all stochastic processes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Global random seed 42 was set for all stochastic processes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T11:24:54Z'

@@ -1,2 +1,1 @@
-# This directory stores raw, unprocessed molecular datasets downloaded from external sources.
-# Files here should not be modified directly.
+# Directory for raw downloaded data (e.g., SDF, CSV from external sources)

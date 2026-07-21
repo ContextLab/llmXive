@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-properties-pipeline"
+name = "predicting-molecular-properties-from-ope"
 version = "0.1.0"
 description = "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests"
-readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "rdkit",
@@ -16,59 +15,23 @@ dependencies = [
     "numpy",
     "datasets",
     "requests",
-    "obabel-wrapper",
+    "pubchempy",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "pytest>=7.0.0",
-]
-
-[tool.ruff]
-# Target Python version
-target-version = "py310"
-
-# Line length configuration
-line-length = 100
-
-# Enable specific linting rules
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-
-# Ignore specific rules if needed
-ignore = [
-    "E501", # Line too long (handled by black)
-]
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    "data",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
 ]
 
 [tool.black]
-# Line length configuration
 line-length = 100
-target-version = ['py310']
-
-# Exclude directories
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -77,12 +40,49 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | data
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.ruff]
+# Same as Black.
+line-length = 100
+target-version = "py310"
+
+# Assume Python 3.10
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files from linting.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]

@@ -1,29 +1,4 @@
-# Ruff configuration file
-# This file mirrors settings from pyproject.toml for IDE compatibility
-
-target-version = "py310"
-line-length = 100
-
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-
-ignore = [
-    "E501",
-]
-
-exclude = [
-    ".git",
-    "__pycache__",
-    "data",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
+# Extend the main pyproject.toml configuration if specific overrides are needed
+# Currently, all configuration is in pyproject.toml. This file exists to ensure
+# ruff can be invoked explicitly with a config file if desired.
+extend = "pyproject.toml"

@@ -1,3 +1,1 @@
-"""
-Test suite for the Molecular Property Prediction Pipeline.
-"""
+# Test suite for PROJ-324

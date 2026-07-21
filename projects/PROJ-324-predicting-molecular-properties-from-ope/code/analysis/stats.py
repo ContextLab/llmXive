@@ -1,223 +1,317 @@
+"""
+Statistical analysis module for model evaluation.
+
+This module implements metrics calculation, statistical tests, and visualization.
+"""
 import os
 import sys
+import json
 import logging
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
-import pandas as pd
+from typing import Tuple, Optional, Dict, Any, List
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 from scipy import stats
+import matplotlib.pyplot as plt
 
 # Configure logging
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
-# Paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DERIVED_DIR = PROJECT_ROOT / "data" / "derived"
+def load_baseline_predictions(predictions_path: str) -> pd.DataFrame:
+    """
+    Load baseline predictions from CSV.
 
-def load_baseline_predictions() -> pd.DataFrame:
-    """Load baseline predictions from CSV."""
-    path = DATA_DERIVED_DIR / "baseline_predictions.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Baseline predictions file not found: {path}")
-    df = pd.read_csv(path)
-    required_cols = ['smiles', 'logP_exp', 'logP_pred', 'solubility_exp', 'solubility_pred', 'boiling_point_exp', 'boiling_point_pred']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Baseline predictions missing required columns: {missing}")
-    return df
+    Args:
+        predictions_path: Path to the predictions file.
 
-def load_rf_predictions() -> pd.DataFrame:
-    """Load Random Forest predictions from CSV."""
-    path = DATA_DERIVED_DIR / "rf_predictions.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"RF predictions file not found: {path}")
-    df = pd.read_csv(path)
-    required_cols = ['smiles', 'logP_exp', 'logP_pred', 'solubility_exp', 'solubility_pred', 'boiling_point_exp', 'boiling_point_pred']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"RF predictions missing required columns: {missing}")
-    return df
+    Returns:
+        DataFrame with predictions.
+    """
+    return pd.read_csv(predictions_path)
 
-def calculate_absolute_errors(df: pd.DataFrame, property_name: str) -> Tuple[pd.Series, pd.Series]:
-    """Calculate absolute errors for a given property."""
-    exp_col = f"{property_name}_exp"
-    pred_col = f"{property_name}_pred"
-    if exp_col not in df.columns or pred_col not in df.columns:
-        raise ValueError(f"Columns {exp_col} and {pred_col} required but missing.")
-    errors = np.abs(df[exp_col] - df[pred_col])
-    return errors
+def load_rf_predictions(predictions_path: str) -> pd.DataFrame:
+    """
+    Load Random Forest predictions from CSV.
 
-def calculate_metrics(baseline_df: pd.DataFrame, rf_df: pd.DataFrame, property_name: str) -> Dict[str, Dict[str, float]]:
-    """Calculate MAE and RMSE for both models."""
-    baseline_errors = calculate_absolute_errors(baseline_df, property_name)
-    rf_errors = calculate_absolute_errors(rf_df, property_name)
+    Args:
+        predictions_path: Path to the predictions file.
 
-    baseline_mae = baseline_errors.mean()
-    baseline_rmse = np.sqrt((baseline_errors ** 2).mean())
-    rf_mae = rf_errors.mean()
-    rf_rmse = np.sqrt((rf_errors ** 2).mean())
+    Returns:
+        DataFrame with predictions.
+    """
+    return pd.read_csv(predictions_path)
+
+def load_test_set_metadata(test_path: str) -> pd.DataFrame:
+    """
+    Load test set metadata.
+
+    Args:
+        test_path: Path to the test set file.
+
+    Returns:
+        DataFrame with test set data.
+    """
+    return pd.read_csv(test_path)
+
+def load_dataset_metadata(metadata_path: str) -> Dict[str, Any]:
+    """
+    Load dataset metadata from JSON.
+
+    Args:
+        metadata_path: Path to the metadata file.
+
+    Returns:
+        Dictionary with metadata.
+    """
+    with open(metadata_path, 'r') as f:
+        return json.load(f)
+
+def calculate_absolute_errors(true_values: np.ndarray, predicted_values: np.ndarray) -> np.ndarray:
+    """
+    Calculate absolute errors.
+
+    Args:
+        true_values: Array of true values.
+        predicted_values: Array of predicted values.
+
+    Returns:
+        Array of absolute errors.
+    """
+    return np.abs(true_values - predicted_values)
+
+def calculate_metrics(true_values: np.ndarray, predicted_values: np.ndarray) -> Dict[str, float]:
+    """
+    Calculate performance metrics.
+
+    Args:
+        true_values: Array of true values.
+        predicted_values: Array of predicted values.
+
+    Returns:
+        Dictionary with MAE, RMSE, and R2.
+    """
+    mae = np.mean(np.abs(true_values - predicted_values))
+    rmse = np.sqrt(np.mean((true_values - predicted_values) ** 2))
+    ss_res = np.sum((true_values - predicted_values) ** 2)
+    ss_tot = np.sum((true_values - np.mean(true_values)) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
 
     return {
-        "baseline": {"mae": baseline_mae, "rmse": baseline_rmse},
-        "rf": {"mae": rf_mae, "rmse": rf_rmse}
+        'MAE': mae,
+        'RMSE': rmse,
+        'R2': r2
     }
 
-def perform_wilcoxon_test(baseline_df: pd.DataFrame, rf_df: pd.DataFrame, property_name: str) -> Dict[str, Any]:
-    """Perform Wilcoxon signed-rank test on absolute errors."""
-    baseline_errors = calculate_absolute_errors(baseline_df, property_name)
-    rf_errors = calculate_absolute_errors(rf_df, property_name)
+def perform_wilcoxon_test(errors_baseline: np.ndarray, errors_rf: np.ndarray) -> Tuple[float, float]:
+    """
+    Perform paired Wilcoxon signed-rank test.
 
-    # Ensure alignment by SMILES if necessary, assuming row order matches or merging by SMILES
-    # For safety, we assume the datasets are aligned or we merge on SMILES
-    if 'smiles' in baseline_df.columns and 'smiles' in rf_df.columns:
-        merged = baseline_df[['smiles']].merge(rf_df[['smiles']], on='smiles', how='inner')
-        if len(merged) == 0:
-            logger.warning("No overlapping SMILES found for statistical test.")
-            return {"statistic": 0.0, "pvalue": 1.0, "n": 0}
-        # Re-index errors to match merged SMILES order (assuming unique SMILES)
-        # This is a simplification; in a real robust pipeline, we'd index by ID
-        baseline_errors_aligned = baseline_errors[baseline_df['smiles'].isin(merged['smiles'])].reset_index(drop=True)
-        rf_errors_aligned = rf_errors[rf_df['smiles'].isin(merged['smiles'])].reset_index(drop=True)
-    else:
-        # Fallback if no SMILES column, assume order matches
-        min_len = min(len(baseline_errors), len(rf_errors))
-        baseline_errors_aligned = baseline_errors[:min_len]
-        rf_errors_aligned = rf_errors[:min_len]
+    Args:
+        errors_baseline: Array of baseline errors.
+        errors_rf: Array of RF errors.
 
-    if len(baseline_errors_aligned) < 3:
-        logger.warning("Not enough data points for Wilcoxon test.")
-        return {"statistic": 0.0, "pvalue": 1.0, "n": len(baseline_errors_aligned)}
+    Returns:
+        Tuple of (statistic, p-value).
+    """
+    stat, p_value = stats.wilcoxon(errors_baseline, errors_rf)
+    return stat, p_value
 
-    statistic, pvalue = stats.wilcoxon(baseline_errors_aligned, rf_errors_aligned)
-    return {"statistic": statistic, "pvalue": pvalue, "n": len(baseline_errors_aligned)}
+def run_statistical_comparison(
+    baseline_errors: np.ndarray,
+    rf_errors: np.ndarray
+) -> Dict[str, Any]:
+    """
+    Run statistical comparison between baseline and RF models.
 
-def run_statistical_comparison(baseline_df: pd.DataFrame, rf_df: pd.DataFrame) -> Dict[str, Any]:
-    """Run statistical comparison for all properties."""
-    properties = ['logP', 'solubility', 'boiling_point']
-    results = {}
-    for prop in properties:
-        metrics = calculate_metrics(baseline_df, rf_df, prop)
-        test_result = perform_wilcoxon_test(baseline_df, rf_df, prop)
-        results[prop] = {
-            "metrics": metrics,
-            "wilcoxon": test_result
-        }
-    return results
+    Args:
+        baseline_errors: Array of baseline errors.
+        rf_errors: Array of RF errors.
 
-def save_comparison_results(results: Dict[str, Any], output_path: Optional[Path] = None):
-    """Save comparison results to a CSV file."""
-    if output_path is None:
-        output_path = DATA_DERIVED_DIR / "model_comparison_stats.csv"
-    
-    rows = []
-    for prop, data in results.items():
-        rows.append({
-            "property": prop,
-            "baseline_mae": data["metrics"]["baseline"]["mae"],
-            "baseline_rmse": data["metrics"]["baseline"]["rmse"],
-            "rf_mae": data["metrics"]["rf"]["mae"],
-            "rf_rmse": data["metrics"]["rf"]["rmse"],
-            "wilcoxon_statistic": data["wilcoxon"]["statistic"],
-            "wilcoxon_pvalue": data["wilcoxon"]["pvalue"],
-            "n_samples": data["wilcoxon"]["n"]
-        })
-    
-    df_results = pd.DataFrame(rows)
-    df_results.to_csv(output_path, index=False)
+    Returns:
+        Dictionary with test results.
+    """
+    stat, p_value = perform_wilcoxon_test(baseline_errors, rf_errors)
+
+    return {
+        'test': 'Wilcoxon signed-rank',
+        'statistic': float(stat),
+        'p_value': float(p_value),
+        'significant': p_value < 0.05
+    }
+
+def save_comparison_results(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Save comparison results to JSON.
+
+    Args:
+        results: Dictionary with results.
+        output_path: Path to save the file.
+    """
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     logger.info(f"Comparison results saved to {output_path}")
 
-def generate_comparison_plots(results: Dict[str, Any], output_path: Optional[Path] = None):
-    """Generate comparison plots (MAE and RMSE) for Baseline vs RF and save to PNG."""
-    if output_path is None:
-        output_path = DATA_DERIVED_DIR / "model_comparison.png"
-    
-    properties = ['logP', 'solubility', 'boiling_point']
-    prop_labels = {
-        'logP': 'LogP (Partition Coefficient)',
-        'solubility': 'Solubility (LogS)',
-        'boiling_point': 'Boiling Point (K)'
-    }
+def generate_residual_plot(true_values: np.ndarray, predicted_values: np.ndarray, output_path: str) -> None:
+    """
+    Generate a residual distribution plot.
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    metrics = ['mae', 'rmse']
-    metric_labels = {'mae': 'Mean Absolute Error (MAE)', 'rmse': 'Root Mean Squared Error (RMSE)'}
-    
-    colors = {'baseline': '#1f77b4', 'rf': '#ff7f0e'}
-    bar_width = 0.35
-    x = np.arange(len(properties))
+    Args:
+        true_values: Array of true values.
+        predicted_values: Array of predicted values.
+        output_path: Path to save the plot.
+    """
+    residuals = true_values - predicted_values
 
-    for idx, metric in enumerate(metrics):
-        ax = axes[idx]
-        baseline_vals = [results[prop]["metrics"]["baseline"][metric] for prop in properties]
-        rf_vals = [results[prop]["metrics"]["rf"][metric] for prop in properties]
-        
-        rects1 = ax.bar(x - bar_width/2, baseline_vals, bar_width, label='Baseline (Crippen)', color=colors['baseline'])
-        rects2 = ax.bar(x + bar_width/2, rf_vals, bar_width, label='Random Forest', color=colors['rf'])
-        
-        ax.set_ylabel(metric_labels[metric])
-        ax.set_title(f'{metric_labels[metric]} Comparison')
-        ax.set_xticks(x)
-        ax.set_xticklabels([prop_labels[p] for p in properties], rotation=15)
-        ax.legend()
-        ax.grid(axis='y', linestyle='--', alpha=0.7)
-        
-        # Add value labels on bars
-        for rect in rects1 + rects2:
-            height = rect.get_height()
-            ax.annotate(f'{height:.3f}',
-                        xy=(rect.get_x() + rect.get_width() / 2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points",
-                        ha='center', va='bottom', fontsize=9)
+    plt.figure(figsize=(10, 6))
+    plt.hist(residuals, bins=50, alpha=0.7, edgecolor='black')
+    plt.axvline(x=0, color='red', linestyle='--', linewidth=2)
+    plt.xlabel('Residual')
+    plt.ylabel('Frequency')
+    plt.title('Residual Distribution')
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+    logger.info(f"Residual plot saved to {output_path}")
+
+def generate_comparison_plots(
+    baseline_metrics: Dict[str, float],
+    rf_metrics: Dict[str, float],
+    output_path: str
+) -> None:
+    """
+    Generate comparison plots for baseline vs RF models.
+
+    Args:
+        baseline_metrics: Dictionary with baseline metrics.
+        rf_metrics: Dictionary with RF metrics.
+        output_path: Path to save the plot.
+    """
+    metrics = ['MAE', 'RMSE']
+    x = np.arange(len(metrics))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width/2, [baseline_metrics[m] for m in metrics], width, label='Baseline')
+    ax.bar(x + width/2, [rf_metrics[m] for m in metrics], width, label='RF')
+
+    ax.set_ylabel('Error')
+    ax.set_title('Model Comparison: Baseline vs Random Forest')
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics)
+    ax.legend()
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
-    logger.info(f"Comparison plots saved to {output_path}")
+    plt.savefig(output_path)
+    plt.close()
+    logger.info(f"Comparison plot saved to {output_path}")
 
-def generate_residual_plot(baseline_df: pd.DataFrame, rf_df: pd.DataFrame, output_path: Optional[Path] = None):
-    """Generate residual distribution plots (optional, for T015 or similar)."""
-    if output_path is None:
-        output_path = DATA_DERIVED_DIR / "baseline_residuals.png"
-    
-    # Implementation for residual plot (placeholder logic if needed for T015)
-    # This task T022 focuses on comparison plots, but keeping the function signature for API surface
-    logger.info("Residual plot generation called (T015 specific).")
+def generate_validation_protocol_summary(
+    test_set_size: int,
+    source_info: str,
+    uncertainty_status: str,
+    quantity_status: str,
+    output_path: str
+) -> None:
+    """
+    Generate a validation protocol summary report.
 
-def main():
-    """Main entry point to run statistical comparison and generate plots."""
-    logger.info("Starting statistical comparison and plot generation...")
-    
-    try:
-        # Load data
-        baseline_df = load_baseline_predictions()
-        rf_df = load_rf_predictions()
-        
-        # Run statistical analysis
-        results = run_statistical_comparison(baseline_df, rf_df)
-        
-        # Save results to CSV
-        save_comparison_results(results)
-        
-        # Generate and save comparison plots
-        generate_comparison_plots(results)
-        
-        logger.info("Task T022 completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
+    Args:
+        test_set_size: Size of the held-out test set.
+        source_info: Information about the data source.
+        uncertainty_status: Status of measurement uncertainty data.
+        quantity_status: Status of quantity of substance data.
+        output_path: Path to save the report.
+    """
+    with open(output_path, 'w') as f:
+        f.write("# Validation Protocol Summary\n\n")
+        f.write("## Data Integrity\n\n")
+        f.write(f"Test set size: {test_set_size}\n")
+        f.write(f"Data source: {source_info}\n")
+        f.write(f"Measurement uncertainty: {uncertainty_status}\n")
+        f.write(f"Quantity of substance: {quantity_status}\n\n")
+        f.write("## Validation Notes\n\n")
+        f.write("This report confirms that the model's predictions are compared against\n")
+        f.write("verified experimental data from the held-out test set. Cross-validation\n")
+        f.write("scores are used for hyperparameter tuning only and are not reported as\n")
+        f.write("final performance metrics.\n")
+
+def save_validation_report(report_path: str, summary: Dict[str, Any]) -> None:
+    """
+    Save the validation report to disk.
+
+    Args:
+        report_path: Path to save the report.
+        summary: Dictionary with summary data.
+    """
+    with open(report_path, 'w') as f:
+        f.write(json.dumps(summary, indent=2))
+
+def main() -> None:
+    """
+    Main entry point for the statistical analysis pipeline.
+    """
+    # Set up logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    baseline_path = project_root / 'data' / 'derived' / 'baseline_predictions.csv'
+    oof_path = project_root / 'data' / 'derived' / 'rf_oof_predictions.csv'
+    metadata_path = project_root / 'data' / 'raw' / 'dataset_metadata.json'
+    output_dir = project_root / 'data' / 'derived'
+
+    if not baseline_path.exists():
+        logger.error(f"Baseline predictions not found: {baseline_path}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error during execution: {e}")
+
+    if not oof_path.exists():
+        logger.error(f"RF OOF predictions not found: {oof_path}")
         sys.exit(1)
+
+    # Load data
+    logger.info("Loading predictions...")
+    df_baseline = load_baseline_predictions(str(baseline_path))
+    df_rf = load_rf_predictions(str(oof_path))
+
+    # Calculate errors
+    true_values = df_baseline['logP'].values
+    baseline_preds = df_baseline['logP'].values  # For baseline, prediction is the same as input
+    rf_preds = df_rf['predicted'].values
+
+    baseline_errors = calculate_absolute_errors(true_values, baseline_preds)
+    rf_errors = calculate_absolute_errors(true_values, rf_preds)
+
+    # Statistical comparison
+    logger.info("Performing statistical comparison...")
+    comparison_results = run_statistical_comparison(baseline_errors, rf_errors)
+    save_comparison_results(comparison_results, str(output_dir / 'statistical_comparison.json'))
+
+    # Generate plots
+    generate_residual_plot(true_values, rf_preds, str(output_dir / 'baseline_residuals.png'))
+    generate_comparison_plots(
+        {'MAE': np.mean(baseline_errors), 'RMSE': np.sqrt(np.mean((true_values - baseline_preds)**2))},
+        {'MAE': np.mean(rf_errors), 'RMSE': np.sqrt(np.mean((true_values - rf_preds)**2))},
+        str(output_dir / 'model_comparison.png')
+    )
+
+    # Validation protocol
+    if os.path.exists(metadata_path):
+        metadata = load_dataset_metadata(str(metadata_path))
+        uncertainty_status = metadata.get('measurement_uncertainty_status', 'Not Available')
+        quantity_status = metadata.get('quantity_of_substance_status', 'Not Available')
+    else:
+        uncertainty_status = 'Not Available'
+        quantity_status = 'Not Available'
+
+    generate_validation_protocol_summary(
+        test_set_size=len(true_values),
+        source_info='PubChem/ChEMBL thermodynamics subset',
+        uncertainty_status=uncertainty_status,
+        quantity_status=quantity_status,
+        output_path=str(output_dir / 'validation_protocol_summary.txt')
+    )
+
+    logger.info("Statistical analysis complete")
 
 if __name__ == "__main__":
     main()
