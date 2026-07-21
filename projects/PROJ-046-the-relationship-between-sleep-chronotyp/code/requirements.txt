@@ -13,3 +13,4 @@ markdown>=3.4.0
 
 # R dependencies are managed via renv
 # See code/00_setup_r_env.py for R package installation
+psutil  # auto-added: imported by run-book but missing from venv

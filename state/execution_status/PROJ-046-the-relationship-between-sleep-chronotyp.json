@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-046-the-relationship-between-sleep-chronotyp",
+  "ok": false,
+  "reason": "quickstart.md contains no runnable `python` commands",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 9,
+  "model_tier": 0,
+  "total_attempts": 9,
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": [],
+  "updated_at": "2026-07-21T13:53:22Z"
+}
