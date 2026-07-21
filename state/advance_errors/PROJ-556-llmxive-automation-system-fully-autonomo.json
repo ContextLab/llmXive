@@ -3,12 +3,12 @@
   "stage": "analyzed",
   "class": "transient",
   "fingerprint": "unknown",
-  "consecutive_count": 9,
+  "consecutive_count": 10,
   "first_seen": "2026-07-18T03:05:59.282893+00:00",
-  "last_seen": "2026-07-20T03:06:48.517251+00:00",
-  "retry_after": "2026-07-21T00:26:48.517251+00:00",
-  "last_error": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/src/utils'",
-  "evidence": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/src/utils'",
+  "last_seen": "2026-07-21T00:27:23.325864+00:00",
+  "retry_after": "2026-07-21T21:47:23.325864+00:00",
+  "last_error": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code/src/utils'",
+  "evidence": "[Errno 20] Not a directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-556-llmxive-automation-system-fully-autonomo/code/src/utils'",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
   "status": "retry_scheduled"
 }
