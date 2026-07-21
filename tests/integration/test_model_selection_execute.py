@@ -451,3 +451,53 @@ def test_route_chat_reaches_paid_after_free_down_and_local_unavailable(repo, mon
     (res,) = list(reservations.values())
     assert res.model == CLAUDE
     assert res.state == STATE_SETTLING
+
+
+# --------------------------------------------------------------------------- #
+# Task 3 (spec 025 slice-0): reservation_authority threaded through execute
+# (FR-033b) — the Attempt-budget gate consulted BEFORE the 026 daily reserve.
+# --------------------------------------------------------------------------- #
+
+from tests.unit.test_model_selection_attempt_hooks import _Budget  # the real in-memory authority
+
+
+def _ok_factory():
+    class _OK:
+        def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+            return ChatResponse(text=f"ok:{model}", model=model or "m", backend="scripted")
+    return lambda name: _OK()
+
+
+def test_reservation_authority_denial_skips_paid_candidate(repo, monkeypatch):
+    # NOTE: every paid-path test in this file sets LLMXIVE_PAID_OPT_IN (directly or
+    # via _exec) — without it, paid_call_allowed refuses before ever reaching the
+    # authority, which would exercise the wrong code path.
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(0.0)  # cap 0 → every Attempt reserve is refused
+    with pytest.raises(ChainExhausted):  # the only candidate was skipped
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget)
+    assert budget.open == {}          # released/never-held: nothing reserved
+    assert budget.retained == set()   # never dispatched
+
+
+def test_reservation_authority_admits_within_budget(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)  # ample
+    result = execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                     backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                     credit_observer=_observer(), balance_fetch=_balance(),
+                     reservation_authority=budget)
+    assert result.reservation_id is not None
+    assert result.reservation_id in budget.retained  # dispatched → retained (not released)
+
+
+def test_reservation_authority_none_is_behavior_preserving(repo, monkeypatch):
+    # No authority → identical to today's paid path (026 reserve only).
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    result = execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                     backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                     credit_observer=_observer(), balance_fetch=_balance())
+    assert result.reservation_id is not None

@@ -49,6 +49,7 @@ from llmxive.backends.router import (
     disposition_of,
     make_backend,
 )
+from llmxive.model_selection.attempt_hooks import ReservationAuthority
 from llmxive.model_selection.ledger_transport import (
     LedgerConfig,
     LedgerError,
@@ -131,6 +132,7 @@ def _open_paid_reservation(
     balance_fetch: Callable[[], object] | None,
     now: datetime,
     call_id: str,
+    reservation_authority: ReservationAuthority | None = None,
 ) -> tuple[str | None, float, str | None]:
     """Twice-check + reserve a paid candidate. Returns
     ``(reservation_id, reserved_credits, skip_reason)`` — exactly one of
@@ -174,13 +176,25 @@ def _open_paid_reservation(
     if not allowed:
         return None, 0.0, f"paid {ref.model_id!r} skipped: {reason}"
 
+    rid = _sanitize_reservation_id(ref.model_id, call_id)
+
+    # Attempt-budget authority (FR-033b step i): reserve against the Attempt budget
+    # BEFORE the 026 daily reserve. A False means it would exceed
+    # attempt_budget_credits → skip the candidate (advance); it is NOT an error and
+    # opens no 026 reservation.
+    if reservation_authority is not None:
+        if not reservation_authority.reserve(reserve_credits, reservation_id=rid, call_id=call_id):
+            return None, 0.0, (
+                f"paid {ref.model_id!r} skipped: Attempt budget exhausted "
+                "(reservation_authority refused)"
+            )
+
     # Atomic reservation (FR-016). ANY LedgerError — no headroom (LedgerDenied),
     # sustained CAS contention (LedgerContention), or an unreachable/unauthorized
     # ledger (LedgerAuthError) — means we cannot SAFELY reserve, so the paid
     # candidate is ineligible at call time → skip-candidate (advance), never an
     # abort (FR-010). A ValueError (e.g. a negative amount = programmer/data bug) is
     # NOT a LedgerError and deliberately surfaces.
-    rid = _sanitize_reservation_id(ref.model_id, call_id)
     lease_expires = now + timedelta(seconds=lease_duration_for(options.deadline_s))
     try:
         reserve(
@@ -194,6 +208,11 @@ def _open_paid_reservation(
             config=ledger_config,
         )
     except LedgerError as exc:
+        # 026 reserve refused/errored AFTER the Attempt reserve opened → release it
+        # (FR-033b: Attempt reserved but the 026 reserve is refused/errors → release
+        # the Attempt reservation, skip candidate). open → released.
+        if reservation_authority is not None:
+            reservation_authority.release(rid)
         return None, 0.0, f"paid {ref.model_id!r} skipped: could not reserve ({type(exc).__name__}: {exc})"
     return rid, reserve_credits, None
 
@@ -211,12 +230,20 @@ def execute(
     balance_fetch: Callable[[], object] | None = None,
     now: datetime | None = None,
     call_id: str | None = None,
+    reservation_authority: ReservationAuthority | None = None,
 ) -> ExecutionResult:
     """Execute ``chain`` against ``messages`` and return the first successful
     :class:`ExecutionResult`.
 
     ``backend_factory`` / ``credit_observer`` / ``balance_fetch`` are the supported
     injection seams (FR-015). Paid candidates require ``ledger_repo``.
+
+    **Attempt budget (FR-033b).** An optional ``reservation_authority`` is consulted
+    per paid candidate, BEFORE the 026 daily reserve: a refusal (``False``) skips the
+    candidate (advance) with no 026 reservation opened; a subsequent 026
+    ``LedgerError`` releases the already-open Attempt reservation. A dispatched paid
+    candidate's Attempt reservation is marked retained (never released) alongside the
+    026 settle. Default ``None`` is a no-op — behavior is unchanged from today.
 
     **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
     ``None`` = the PRODUCTION config, resolved via
@@ -276,7 +303,7 @@ def execute(
                 candidate, chain, options=options, retries=retries,
                 ledger_repo=ledger_repo, ledger_config=ledger_config,
                 credit_observer=credit_observer, balance_fetch=balance_fetch,
-                now=now, call_id=call_id,
+                now=now, call_id=call_id, reservation_authority=reservation_authority,
             )
             if skip is not None:
                 notes.append(skip)
@@ -327,6 +354,10 @@ def execute(
                     settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
                 except Exception as exc:  # best-effort; the sweeper backstops a lost settle
                     logger.warning("execute: settle(%s) failed: %s", reservation_id, exc)
+                if reservation_authority is not None:
+                    # Dispatched (success OR advance) → reconciliation-pending, never
+                    # released (mirrors the 026 settle → settling transition).
+                    reservation_authority.mark_retained(reservation_id)
 
     raise ChainExhausted(
         f"execute: chain of {len(chain.candidates)} candidate(s) exhausted without success; "
