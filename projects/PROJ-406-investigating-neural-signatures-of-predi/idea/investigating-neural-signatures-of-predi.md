@@ -9,53 +9,90 @@ submitter: agent:flesh_out
 
 ## Research question
 
-Does individual variation in a computational predictive-coding model's estimated precision weights predict individual differences in susceptibility to visual illusions?
+Do individual differences in precision-weighting parameters estimated from a predictive-coding model fitted to a *training* illusion task (e.g., Müller-Lyer) predict individual susceptibility to a *novel, held-out* visual illusion (e.g., Ponzo or Ebbinghaus) that was not used in the model fitting process?
 
 ## Motivation
 
-Predictive processing theories propose that perception results from the brain's minimization of prediction errors, with individual differences arising from variations in precision weighting of sensory evidence versus prior expectations. Visual illusions like the Müller-Lyer provide a natural testbed for this framework, as they reflect conflicts between sensory input and prior expectations. However, it remains unclear whether individual differences in illusion susceptibility can be explained by individual differences in model-derived precision parameters, providing a mechanistic link between computational theory and behavioral variation.
+Predictive processing theories posit that perception arises from minimizing prediction errors, modulated by the precision (reliability) assigned to sensory evidence versus prior expectations. While individual differences in illusion susceptibility are well-documented, the computational mechanisms driving these variations remain debated. By training a model on one illusion and testing its predictive power on a structurally distinct but mechanistically similar illusion, this study isolates the generalizability of precision-weighting mechanisms, offering a stricter test of predictive coding than within-task correlations.
 
 ## Literature gap analysis
 
 ### What we searched
 
-We queried Semantic Scholar/arXiv/OpenAlex with two search strategies: (1) "predictive coding visual illusions computational model individual differences" (8 results) and (2) "Müller-Lyer illusion susceptibility behavioral variation model fitting" (8 results). The literature block contains 2 on-topic results from these searches.
+We queried Semantic Scholar/arXiv/OpenAlex with two search strategies: (1) "predictive coding visual illusions computational model individual differences" and (2) "Müller-Lyer illusion susceptibility behavioral variation model fitting". The literature block contains 1 on-topic result from these searches.
 
 ### What is known
 
-- [Visual illusions via neural dynamics: Wilson-Cowan-type models and the efficient representation principle (2019)](https://arxiv.org/abs/1907.13004) — This computational modeling work demonstrates that Wilson-Cowan neural dynamics can reproduce supra-threshold visual illusion phenomena, establishing a theoretical link between neural population dynamics and illusory perception.
-- [Decoding Predictive Inference in Visual Language Processing via Spatiotemporal Neural Coherence (2025)](https://arxiv.org/abs/2512.20929) — This EEG-based study decodes neural responses to predictive inference in visual language processing, providing methodological precedent for measuring prediction-related neural signals, though in a different domain.
+- [Decoding Predictive Inference in Visual Language Processing via Spatiotemporal Neural Coherence (2025)](https://arxiv.org/abs/2512.20929) — This EEG-based study demonstrates a methodological framework for decoding predictive inference in visual domains, providing a precedent for measuring prediction-related signals, though it focuses on language rather than geometric illusions.
 
 ### What is NOT known
 
-No published work has directly fitted individual-level precision-weighting parameters from a predictive-coding model to visual illusion behavioral data and tested whether these parameters predict individual differences in illusion susceptibility. Existing work is either computational modeling without individual-differences analysis or uses different domains (language) and different neural measures (EEG coherence).
+No published work has explicitly fitted individual-level precision-weighting parameters from a predictive-coding model to one visual illusion dataset and validated whether these parameters generalize to predict susceptibility to a *different*, held-out visual illusion. Existing literature either focuses on computational modeling without individual-differences analysis or applies predictive coding frameworks within a single illusion type without cross-validation.
 
 ### Why this gap matters
 
-Filling this gap would provide the first direct empirical test of whether individual differences in illusion susceptibility reflect individual differences in precision-weighting mechanisms as predicted by hierarchical predictive coding theories. This would help distinguish between competing accounts of individual variation in perceptual inference and provide computational biomarkers for perceptual processing styles.
+Establishing that precision parameters derived from one illusion predict susceptibility to another would provide strong evidence that these parameters reflect a stable, domain-general trait of an individual's perceptual inference strategy, rather than task-specific noise or overfitting. This would help distinguish between competing accounts of individual variation and support the existence of a unified predictive coding architecture across visual contexts.
 
 ### How this project addresses the gap
 
-This project will fit a hierarchical predictive coding model to individual subject illusion magnitude ratings from publicly available behavioral datasets, extract individual precision-weighting parameters, and test whether these parameters predict individual differences in illusion susceptibility using standard statistical tests.
+This project will fit a hierarchical predictive coding model to individual subject data from a "training" illusion (e.g., Müller-Lyer), extract individual precision-weighting parameters, and then test the predictive validity of these parameters against behavioral data from a "held-out" illusion (e.g., Ponzo) using out-of-sample correlation analysis.
 
 ## Expected results
 
-We expect to observe that individual variation in fitted precision-weighting parameters from the predictive coding model significantly correlates with individual differences in illusion magnitude ratings. A null result would suggest that illusion susceptibility is determined by factors other than precision weighting (e.g., prior strength, noise levels) or that the model fails to capture the relevant individual-differences structure.
+We expect to observe a significant positive correlation between precision-weighting parameters derived from the training illusion and susceptibility scores on the held-out illusion, supporting the hypothesis that precision weighting is a stable individual trait. A null result would suggest that precision parameters are either task-specific, unstable, or that the specific model formulation fails to capture the relevant cross-illusion variance.
 
 ## Methodology sketch
 
-- Download published behavioral data on Müller-Lyer illusion magnitude from OpenNeuro or similar repository (e.g., ds00XXXX with illusion task; verify data size <500MB for GHA compatibility)
-- Implement a hierarchical predictive coding model (Python, NumPy) with parameters for precision weighting and prediction error computation in early visual layers
-- Fit model parameters to individual subject illusion magnitude ratings using maximum likelihood estimation (scipy.optimize)
-- Extract individual precision-weighting parameter estimates for each subject from fitted model
-- Compute individual illusion susceptibility scores from behavioral ratings (mean deviation from veridical length across trials)
-- Compute Pearson correlation between individual precision-weighting parameters and individual illusion susceptibility scores across subjects
-- Apply bootstrap resampling (1000 iterations) to estimate confidence intervals on correlation coefficient
-- Conduct sensitivity analysis varying model precision-weighting parameters to test robustness of correlation
-- Generate diagnostic plots (model fit residuals, correlation scatter plots, parameter distributions) for validation
+- Download publicly available behavioral datasets for the Müller-Lyer illusion (training set) and Ponzo illusion (test set) from OpenNeuro or similar repositories (e.g., ds00XXXX), ensuring total data size fits within 7GB RAM limits.
+- Implement a hierarchical predictive-coding model in Python (NumPy/SciPy) that simulates perception as a function of sensory precision and prior expectation strength.
+- Fit the model to individual subject data from the Müller-Lyer training set using maximum likelihood estimation (MLE) to estimate individual precision-weighting parameters.
+- Extract the fitted precision-weighting parameter for each subject as the predictor variable.
+- Calculate individual illusion susceptibility scores for the Ponzo test set (mean deviation from veridical length) as the outcome variable.
+- Perform a Pearson correlation analysis between the training-derived precision parameters and the test-set susceptibility scores.
+- Validate the correlation using bootstrap resampling (1000 iterations) to generate 95% confidence intervals, ensuring the result is not driven by outliers.
+- Conduct a control analysis by shuffling subject IDs between the training and test sets to confirm the null distribution of the correlation coefficient.
+- Generate diagnostic plots including model fit residuals for the training set and the scatter plot of predicted vs. observed susceptibility for the test set.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: (none in corpus).
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-21T10:39:07Z
+**Outcome**: exhausted
+**Original term**: Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience
+**Verified citation count**: 1
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience | 0 |
+| 1 | predictive coding neural correlates visual perception | 1 |
+| 2 | predictive processing brain activity optical illusions | 4 |
+| 3 | hierarchical predictive coding visual cortex illusions | 0 |
+| 4 | prediction error signals in visual hallucinations | 0 |
+| 5 | Bayesian inference neural mechanisms visual illusions | 0 |
+| 6 | top-down modulation visual cortex illusions | 0 |
+| 7 | mismatch negativity visual illusion processing | 0 |
+| 8 | generative models neural activity visual perception | 0 |
+| 9 | sensory prediction error fMRI visual illusions | 0 |
+| 10 | neural oscillations predictive coding illusions | 0 |
+| 11 | visual cortex feedback loops illusions | 0 |
+| 12 | perceptual inference neural signatures | 0 |
+| 13 | expectation suppression visual illusions | 0 |
+| 14 | predictive coding MEG visual illusions | 0 |
+| 15 | cortical feedback predictive processing illusions | 0 |
+| 16 | neural dynamics of visual prediction | 0 |
+| 17 | surprise response visual illusion perception | 0 |
+| 18 | prior expectations neural encoding visual illusions | 0 |
+| 19 | predictive coding EEG visual illusions | 0 |
+| 20 | active inference visual perception illusions | 0 |
+
+### Verified citations
+
+1. **Decoding Predictive Inference in Visual Language Processing via Spatiotemporal Neural Coherence** (2025). Sean C. Borneman, Julia Krebs, Ronnie B. Wilbur, Evie A. Malaia. arXiv. [2512.20929](https://arxiv.org/abs/2512.20929). PDF-sampled: No.

@@ -17,7 +17,7 @@ def exponential_backoff(
     """
     Decorator implementing exponential backoff with jitter for HuggingFace API calls.
     
-    Args:
+    Parameters:
         initial_delay: Initial delay in seconds (default: 30s)
         max_retries: Maximum number of retry attempts (default: 5)
         max_delay: Maximum delay cap in seconds (default: 300s)
@@ -25,11 +25,14 @@ def exponential_backoff(
         jitter: Whether to add random jitter to delay (default: True)
     
     Returns:
-        Decorated function with retry logic
+        Decorated function that retries on failure with exponential backoff.
+    
+    Raises:
+        The original exception if all retries are exhausted.
     """
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
-        def wrapper(*args, **kwargs) -> T:
+        def wrapper(*args: Any, **kwargs: Any) -> T:
             delay = initial_delay
             last_exception = None
             
@@ -39,108 +42,96 @@ def exponential_backoff(
                 except Exception as e:
                     last_exception = e
                     if attempt == max_retries:
+                        # Final attempt failed, raise the exception
                         raise e
                     
                     # Calculate delay with exponential backoff
-                    current_delay = min(delay, max_delay)
+                    sleep_time = min(delay, max_delay)
                     
                     # Add jitter if enabled
                     if jitter:
-                        current_delay = current_delay * (0.5 + random.random() * 0.5)
+                        jitter_factor = random.uniform(0.1, 1.0)
+                        sleep_time = sleep_time * jitter_factor
                     
-                    # Log retry attempt
-                    print(f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}: {e}. "
-                          f"Retrying in {current_delay:.2f}s...")
+                    print(f"Attempt {attempt + 1}/{max_retries + 1} failed for {func.__name__}: {e}")
+                    print(f"Retrying in {sleep_time:.2f} seconds...")
+                    time.sleep(sleep_time)
                     
-                    time.sleep(current_delay)
+                    # Exponentially increase delay for next attempt
                     delay *= exponential_base
             
-            # Should never reach here, but just in case
-            raise last_exception
+            # Should not reach here, but just in case
+            raise last_exception if last_exception else RuntimeError("Exponential backoff failed without exception")
+        
         return wrapper
     return decorator
 
 @exponential_backoff(initial_delay=30.0, max_retries=5)
 def load_openwebtext() -> Any:
     """
-    Load OpenWebText dataset with exponential backoff retry logic.
+    Load OpenWebText dataset from HuggingFace with exponential backoff.
     
     Returns:
-        HuggingFace Dataset object
+        Loaded dataset object.
     
     Raises:
-        Exception: If all retry attempts fail
+        Exception if dataset cannot be loaded after max retries.
     """
-    return load_dataset("openwebtext", split="train", streaming=True)
+    return load_dataset("openwebtext", split="train")
 
 @exponential_backoff(initial_delay=30.0, max_retries=5)
 def load_gsm8k() -> Any:
     """
-    Load GSM8K dataset with exponential backoff retry logic.
+    Load GSM8K dataset from HuggingFace with exponential backoff.
     
     Returns:
-        HuggingFace Dataset object
+        Loaded dataset object.
     
     Raises:
-        Exception: If all retry attempts fail
+        Exception if dataset cannot be loaded after max retries.
     """
-    return load_dataset("gsm8k", "main", split="train", streaming=True)
+    return load_dataset("gsm8k", "main", split="train")
 
 @exponential_backoff(initial_delay=30.0, max_retries=5)
 def load_arc_challenge() -> Any:
     """
-    Load ARC-Challenge dataset with exponential backoff retry logic.
+    Load ARC-Challenge dataset from HuggingFace with exponential backoff.
     
     Returns:
-        HuggingFace Dataset object
+        Loaded dataset object.
     
     Raises:
-        Exception: If all retry attempts fail
+        Exception if dataset cannot be loaded after max retries.
     """
-    return load_dataset("ai2_arc", "ARC-Challenge", split="test", streaming=True)
+    return load_dataset("ai2_arc", "ARC-Challenge", split="test")
 
 @exponential_backoff(initial_delay=30.0, max_retries=5)
 def load_wikitext2() -> Any:
     """
-    Load Wikitext-2 dataset with exponential backoff retry logic.
+    Load Wikitext-2 dataset from HuggingFace with exponential backoff.
     
     Returns:
-        HuggingFace Dataset object
+        Loaded dataset object.
     
     Raises:
-        Exception: If all retry attempts fail
+        Exception if dataset cannot be loaded after max retries.
     """
-    return load_dataset("wikitext", "wikitext-2-raw-v1", split="test", streaming=True)
+    return load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
 
+@exponential_backoff(initial_delay=30.0, max_retries=5)
 def load_all_datasets() -> dict:
     """
-    Load all required datasets with fail-fast logic (no synthetic fallbacks).
+    Load all datasets with exponential backoff.
     
     Returns:
-        Dictionary containing all loaded datasets
+        Dictionary containing all loaded datasets.
     
     Raises:
-        Exception: If any dataset fails to load (fail-fast behavior)
+        Exception if any dataset cannot be loaded after max retries.
     """
-    datasets = {}
-    try:
-        datasets['openwebtext'] = load_openwebtext()
-    except Exception as e:
-        raise RuntimeError(f"Failed to load OpenWebText dataset: {e}")
-    
-    try:
-        datasets['gsm8k'] = load_gsm8k()
-    except Exception as e:
-        raise RuntimeError(f"Failed to load GSM8K dataset: {e}")
-    
-    try:
-        datasets['arc_challenge'] = load_arc_challenge()
-    except Exception as e:
-        raise RuntimeError(f"Failed to load ARC-Challenge dataset: {e}")
-    
-    try:
-        datasets['wikitext2'] = load_wikitext2()
-    except Exception as e:
-        raise RuntimeError(f"Failed to load Wikitext-2 dataset: {e}")
-    
-    return datasets
+    return {
+        "openwebtext": load_openwebtext(),
+        "gsm8k": load_gsm8k(),
+        "arc_challenge": load_arc_challenge(),
+        "wikitext2": load_wikitext2()
+    }

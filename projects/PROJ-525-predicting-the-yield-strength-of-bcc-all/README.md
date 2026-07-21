@@ -1,41 +1,90 @@
-# PROJ-525: Predicting Yield Strength of BCC Alloys
+# PROJ-525: Predicting the Yield Strength of BCC Alloys
 
-This project implements an automated research pipeline to predict the yield strength of Body-Centered Cubic (BCC) High-Entropy Alloys (HEAs) and Medium-Entropy Alloys (MEAs).
+An automated science pipeline for predicting the yield strength of Body-Centered Cubic (BCC) alloys using compositional descriptors and machine learning.
+
+## Prerequisites
+
+- Python 3.11 or higher
+- pip (Python package manager)
+
+## Installation
+
+1. Clone the repository:
+ ```bash
+ git clone <repository-url>
+ cd bcc-yield-strength-prediction
+ ```
+
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Project Structure
 
-- `code/`: Source code for data ingestion, feature engineering, and modeling.
-- `data/`:
- - `raw/`: Downloaded raw datasets (e.g., MPEA database).
- - `processed/`: Cleaned and filtered datasets.
- - `logs/`: Execution logs and rejected entries.
- - `figures/`: Generated plots.
-- `reports/`: Model comparison reports and metrics.
-- `specs/`: Feature specifications and design documents.
-- `tests/`: Unit and integration tests.
-
-## Dependencies
-
-Install dependencies:
-```bash
-pip install -r requirements.txt
+```
+.
+├── code/ # Implementation modules
+│ ├── 00_fetch_uncertainty.py
+│ ├── 01_download.py
+│ ├── 02_engineer.py
+│ ├── config.py
+│ ├── lint_format.py
+│ └── utils/
+│ ├── metrics.py
+│ └── periodic_table.py
+├── data/ # Data storage (raw, processed, logs)
+├── tests/ # Unit and integration tests
+├── reports/ # Generated reports and metrics
+├── requirements.txt # Python dependencies
+├── pyproject.toml # Project configuration and build system
+└── README.md # This file
 ```
 
-## Quick Start
+## Usage
 
-1. Run data ingestion:
+### Run the Pipeline
+
+The pipeline consists of several stages:
+
+1. **Data Ingestion**: Download and filter BCC alloy data
  ```bash
- python code/data_ingestion.py
+ python code/01_download.py
  ```
-2. Run feature engineering:
+
+2. **Feature Engineering**: Calculate compositional descriptors
  ```bash
- python code/feature_engineering.py
+ python code/02_engineer.py
  ```
-3. Run modeling:
- ```bash
- python code/modeling.py
- ```
+
+### Linting and Formatting
+
+```bash
+# Run linter
+python code/lint_format.py --lint
+
+# Run formatter
+python code/lint_format.py --format
+```
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+## Development
+
+- **Python Version**: 3.11+
+- **Code Style**: Black (88 chars), Ruff
+- **Testing**: pytest
 
 ## License
 
-MIT
+MIT License

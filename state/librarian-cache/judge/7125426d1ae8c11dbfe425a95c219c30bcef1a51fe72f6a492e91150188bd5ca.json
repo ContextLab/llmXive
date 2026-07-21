@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.06515",
+  "judged_at": "2026-07-21T10:39:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper focuses on materials science and optical engineering (photovoltaic-ferroelectric crystals for optical transistors), which is entirely off-domain from the user's question regarding neuroscience, brain mechanisms, and visual perception. The shared term \"processing\" refers to signal processing in hardware rather than the biological predictive processing mechanisms in the brain, constituting a distinct construct sharing only homonym keywords.",
+  "relevant": false
+}

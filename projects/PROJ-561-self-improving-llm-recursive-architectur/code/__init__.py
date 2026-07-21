@@ -1,2 +1,2 @@
-# llmXive project: Self-improving LLM recursive architecture
-# Package initialization
+# llmXive Project: Self-improving LLM Recursive Architecture
+# This package contains the core implementation logic.

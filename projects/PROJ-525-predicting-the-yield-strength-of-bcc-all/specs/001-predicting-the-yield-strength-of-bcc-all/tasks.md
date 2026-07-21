@@ -58,10 +58,10 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 Setup `data/raw`, `data/processed`, `data/logs` directories with `.gitkeep` and checksum scripts
-- [ ] T005 [P] Implement `code/config.py` with fixed random seeds, path constants, and CI resource limits
-- [ ] T006 [P] Setup `code/utils.py` for logging, checksumming (SHA-256), and error handling infrastructure
-- [ ] T007a [P] Define `AlloyRecord` and `CompositionalDescriptor` data classes in `code/models.py`; define `ilr_transformed_features` as a list of floats without placeholder logic
-- [ ] T007b [P] Implement `code/models.py` initialization logic to ensure `ilr_transformed_features` is an empty list by default, to be populated by T027c
+- [X] T005 [P] Implement `code/config.py` with fixed random seeds, path constants, and CI resource limits
+- [X] T006 [P] Setup `code/utils.py` for logging, checksumming (SHA-256), and error handling infrastructure
+- [X] T007a [P] Define `AlloyRecord` and `CompositionalDescriptor` data classes in `code/models.py`; define `ilr_transformed_features` as a list of floats without placeholder logic
+- [X] T007b [P] Implement `code/models.py` initialization logic to ensure `ilr_transformed_features` is an empty list by default, to be populated by T027c
 - [ ] T008 Configure `requirements.txt` with pinned versions for reproducibility
 - [ ] T009 Setup environment configuration management for local vs. CI paths
 
@@ -85,7 +85,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database from DOI: 10.1038/s41597-020-00768-9 and save to `data/raw/mpea_raw.csv`
+- [ ] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database from DOI: 10.1038/s41597-020-00768-9 [UNRESOLVED-CLAIM: c_98670b24 — status=verified] and save to `data/raw/mpea_raw.csv`
 - [ ] T014 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude non-BCC phases and null yield strength
 - [ ] T015 [US1] Implement composition normalization in `code/data_ingestion.py` to ensure rows sum to 1.0 with logging
 - [ ] T016 [US1] Implement logic to average duplicate compositions or select median, logging the method used

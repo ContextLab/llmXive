@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,55 +20,30 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-cache/
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+
+# Data (Large files)
+data/raw/*.csv
+data/raw/*.json
+data/processed/*.csv
+data/processed/*.parquet
+data/logs/*.log
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/logs/*.log
-reports/*.json
-figures/*.png
-figures/*.jpg
-figures/*.svg
+# Reports (Optional - keep small ones, ignore large binaries)
+reports/*.png
+reports/*.pdf
+!reports/*.json
+!reports/*.md

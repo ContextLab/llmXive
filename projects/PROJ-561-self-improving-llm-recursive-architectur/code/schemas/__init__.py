@@ -1,1 +1,1 @@
-# Schema definitions for data validation and configuration
+# Schemas package initialization

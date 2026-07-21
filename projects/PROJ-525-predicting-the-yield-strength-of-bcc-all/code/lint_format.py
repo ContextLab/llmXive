@@ -1,74 +1,79 @@
-"""
-Utility script to run linting and formatting checks.
-This script ensures the codebase adheres to the project's quality standards.
-
-Usage:
-    python code/lint_format.py check   # Run checks without fixing
-    python code/lint_format.py fix     # Run checks and apply fixes
-"""
-
 import subprocess
 import sys
 import os
+from pathlib import Path
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """Run a command and report status."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
+def run_command(cmd: list, cwd: Path = None) -> int:
+    """
+    Execute a shell command and return the exit code.
+    Raises RuntimeError if the command fails.
+    """
     try:
         result = subprocess.run(
             cmd,
-            check=False,
-            capture_output=False,
-            text=True
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False
         )
-        if result.returncode == 0:
-            print(f"✓ {description} passed.")
-            return True
-        else:
-            print(f"✗ {description} failed.")
-            return False
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result.returncode
     except FileNotFoundError:
-        print(f"✗ Command not found: {cmd[0]}. Please ensure tools are installed.")
-        return False
+        print(f"Error: Command not found: {cmd[0]}. Ensure tools are installed.", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error executing command: {e}", file=sys.stderr)
+        return 1
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python code/lint_format.py [check|fix]")
+    """
+    Main entry point for linting and formatting.
+    Runs ruff check (linting) and black (formatting).
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
+
+    # Check if tools are installed
+    try:
+        subprocess.run(["ruff", "--version"], stdout=subprocess.DEVNULL, check=True)
+        subprocess.run(["black", "--version"], stdout=subprocess.DEVNULL, check=True)
+    except subprocess.CalledProcessError:
+        print("Error: 'ruff' or 'black' not found. Please install them.", file=sys.stderr)
+        print("Run: pip install ruff black", file=sys.stderr)
         sys.exit(1)
 
-    mode = sys.argv[1].lower()
+    # 1. Run Linting (Ruff)
+    print("Running Ruff linting...")
+    lint_cmd = ["ruff", "check", str(code_dir), str(tests_dir)]
+    lint_exit_code = run_command(lint_cmd, cwd=project_root)
 
-    if mode not in ("check", "fix"):
-        print("Invalid mode. Use 'check' or 'fix'.")
-        sys.exit(1)
+    # 2. Run Formatting (Black)
+    # Note: We run black in check mode first. If it fails, we can optionally run it to fix.
+    # For CI/strict mode, we just check. For local dev, we might fix.
+    # Here we implement a strict check-first approach, then fix if requested or if check fails.
+    print("Running Black formatting check...")
+    format_check_cmd = ["black", "--check", str(code_dir), str(tests_dir)]
+    format_exit_code = run_command(format_check_cmd, cwd=project_root)
 
-    # Determine project root (assuming script is in code/)
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir(project_root)
+    if format_exit_code != 0:
+        print("Formatting issues detected. Attempting to fix...")
+        fix_cmd = ["black", str(code_dir), str(tests_dir)]
+        fix_exit_code = run_command(fix_cmd, cwd=project_root)
+        if fix_exit_code != 0:
+            print("Failed to auto-fix formatting issues.", file=sys.stderr)
+            sys.exit(fix_exit_code)
 
-    # 1. Ruff (Linting)
-    ruff_cmd = ["ruff", "check", "."]
-    if mode == "fix":
-        ruff_cmd.append("--fix")
-    
-    ruff_ok = run_command(ruff_cmd, "Ruff Linting")
+    # Exit with the highest error code (linting usually more critical for CI)
+    if lint_exit_code != 0:
+        print("Linting errors found.", file=sys.stderr)
+        sys.exit(lint_exit_code)
 
-    # 2. Black (Formatting)
-    black_cmd = ["black", "--check", "."]
-    if mode == "fix":
-        black_cmd = ["black", "."]
-    
-    black_ok = run_command(black_cmd, "Black Formatting")
-
-    if ruff_ok and black_ok:
-        print("\n✓ All checks passed.")
-        sys.exit(0)
-    else:
-        print("\n✗ Some checks failed.")
-        if mode == "check":
-            print("Run 'python code/lint_format.py fix' to attempt automatic fixes.")
-        sys.exit(1)
+    print("All linting and formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

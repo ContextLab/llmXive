@@ -1,165 +1,162 @@
-"""
-Memory management utilities for the self-improving LLM pipeline.
-
-Provides:
-- Gradient checkpointing enablement for memory savings
-- Batch size auto-scaling (low-to-moderate range)
-- Hard RAM watchdog to terminate process if limits exceeded
-"""
-
 import os
 import sys
 import gc
 import time
 import psutil
 from typing import Optional, Callable, Any
-
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
-
+import torch
+import torch.nn as nn
 
 def get_memory_usage_gb() -> float:
     """
-    Get current RAM usage of the current process in GB.
-
-    Returns:
-        float: Memory usage in GB
+    Returns the current RAM usage of the current process in GB.
+    Uses psutil for cross-platform accuracy.
     """
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss / (1024 ** 3)
-
+    # rss (Resident Set Size) is the portion of memory occupied by a process
+    # that resides in main memory (RAM).
+    mem_bytes = process.memory_info().rss
+    return mem_bytes / (1024 ** 3)
 
 def check_and_terminate_if_exceeds(limit_gb: float) -> None:
     """
-    Check current RAM usage and terminate the process if it exceeds the limit.
-
-    This is a hard watchdog: if memory usage exceeds limit_gb, the process
-    is immediately terminated with a clear error message.
-
+    Hard RAM watchdog: checks current process memory usage.
+    If usage exceeds limit_gb, it forces garbage collection and checks again.
+    If still exceeding, it terminates the process immediately with exit code 1.
+    
+    This is a 'fail loudly' mechanism to prevent OOM crashes that corrupt
+    the execution environment or produce silent failures.
+    
     Args:
-        limit_gb: Maximum allowed RAM usage in GB. If exceeded, process terminates.
-
+        limit_gb: Maximum allowed RAM usage in Gigabytes.
+    
     Raises:
-        SystemExit: If memory usage exceeds the limit.
+        SystemExit: If memory usage exceeds the limit after GC.
     """
     current_usage = get_memory_usage_gb()
+    
     if current_usage > limit_gb:
-        error_msg = (
-            f"CRITICAL: RAM usage ({current_usage:.2f} GB) exceeded limit ({limit_gb:.2f} GB). "
-            f"Terminating process to prevent system instability."
-        )
-        sys.stderr.write(error_msg + "\n")
-        sys.stderr.flush()
-        # Force garbage collection before exit to ensure clean termination
+        # Attempt aggressive garbage collection before final check
         gc.collect()
-        sys.exit(1)
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        # Re-check after GC
+        current_usage = get_memory_usage_gb()
+        
+        if current_usage > limit_gb:
+            print(f"CRITICAL: RAM usage ({current_usage:.2f} GB) exceeds limit ({limit_gb:.2f} GB). Terminating process.", file=sys.stderr)
+            # Use os._exit to immediately terminate the process, bypassing cleanup
+            # which might fail if memory is critically low.
+            os._exit(1)
 
+def enable_gradient_checkpointing(model: nn.Module) -> None:
+    """
+    Enables gradient checkpointing for a PyTorch model to save memory during backpropagation.
+    This trades compute for memory by recomputing activations instead of storing them.
+    
+    Note: This assumes the model has a 'gradient_checkpointing_enable' method (common in HuggingFace models).
+    If the method doesn't exist, it attempts to find 'use_gradient_checkpointing' attribute.
+    
+    Args:
+        model: The PyTorch model to modify.
+    """
+    if hasattr(model, 'gradient_checkpointing_enable'):
+        model.gradient_checkpointing_enable()
+        print("Gradient checkpointing enabled via gradient_checkpointing_enable().")
+    elif hasattr(model, 'use_gradient_checkpointing'):
+        model.use_gradient_checkpointing = True
+        print("Gradient checkpointing enabled via use_gradient_checkpointing attribute.")
+    else:
+        # Try to apply it recursively to children if it's a container
+        for name, child in model.named_children():
+            if hasattr(child, 'gradient_checkpointing_enable'):
+                child.gradient_checkpointing_enable()
+            elif hasattr(child, 'use_gradient_checkpointing'):
+                child.use_gradient_checkpointing = True
+            else:
+                # Fallback: try to set a generic attribute if the model supports it
+                try:
+                    setattr(child, 'gradient_checkpointing', True)
+                except AttributeError:
+                    pass
+        print("Attempted to enable gradient checkpointing on submodules.")
 
 def auto_scale_batch_size(
-    base_batch_size: int = 4,
+    get_batch_fn: Callable[[int], Any],
+    train_step_fn: Callable[[Any], float],
+    initial_batch_size: int = 4,
+    max_batch_size: int = 32,
     min_batch_size: int = 1,
-    max_batch_size: int = 16,
-    target_memory_gb: float = 6.0,
-    safety_margin: float = 0.8
+    memory_limit_gb: float = 6.0,
+    factor: int = 2
 ) -> int:
     """
-    Auto-scale batch size based on available memory.
-
-    Starts from base_batch_size and adjusts downward if memory pressure is detected.
-    Uses a conservative approach: checks memory before and after a simulated forward pass.
-
+    Auto-scales batch size from initial up to max, or down to min, based on memory constraints.
+    
+    This function attempts to find the largest batch size that fits within the memory limit.
+    It starts at initial_batch_size, tries to run a step, checks memory. If memory is safe,
+    it doubles the batch size and tries again. If memory exceeds limit, it halves the batch size
+    (or goes to min) and stops increasing.
+    
     Args:
-        base_batch_size: Starting batch size to test.
-        min_batch_size: Minimum allowed batch size.
-        max_batch_size: Maximum allowed batch size.
-        target_memory_gb: Target maximum memory usage in GB.
-        safety_margin: Fraction of target_memory_gb to use as threshold (0.8 = 80%).
-
+        get_batch_fn: Function that takes batch_size and returns a batch.
+        train_step_fn: Function that takes a batch and returns loss (triggers forward/backward).
+        initial_batch_size: Starting batch size.
+        max_batch_size: Upper bound for batch size.
+        min_batch_size: Lower bound for batch size.
+        memory_limit_gb: RAM limit in GB (passed to check_and_terminate_if_exceeds).
+        factor: Multiplier to increase batch size (default 2).
+    
     Returns:
-        int: The scaled batch size that should fit within memory constraints.
+        The optimal batch size found that fits within memory constraints.
     """
-    if not TORCH_AVAILABLE:
-        # If torch is not available, return a safe default
-        return min(base_batch_size, max_batch_size)
-
-    current_batch = base_batch_size
-    limit_gb = target_memory_gb * safety_margin
-
-    # First, check if we're already over the limit
-    check_and_terminate_if_exceeds(limit_gb)
-
-    # Try to find a batch size that fits
-    while current_batch >= min_batch_size:
+    current_bs = initial_batch_size
+    best_bs = min_batch_size
+    
+    print(f"Starting batch size auto-scaling with initial={initial_batch_size}, limit={memory_limit_gb}GB")
+    
+    while current_bs <= max_batch_size:
         try:
-            # Simulate a small forward pass to estimate memory usage
-            # This is a heuristic - actual usage depends on model size
-            estimated_memory = get_memory_usage_gb()
-
-            # Heuristic: assume memory scales roughly linearly with batch size
-            # This is a simplification but works for initial scaling
-            if estimated_memory < limit_gb:
-                # Check if we can try a larger batch
-                if current_batch < max_batch_size:
-                    # Try next size up
-                    next_batch = current_batch + 1
-                    # Quick check: if current is well under limit, try larger
-                    if estimated_memory < limit_gb * 0.7:
-                        current_batch = next_batch
-                        continue
-                return current_batch
-            else:
-                # Over limit, reduce batch size
-                current_batch -= 1
-                gc.collect()
-                time.sleep(0.1)  # Allow memory to settle
-                continue
-
-        except Exception:
-            # If any error occurs, reduce batch size
-            current_batch -= 1
+            # Clear cache before test
             gc.collect()
-            continue
-
-    return max(min_batch_size, current_batch)
-
-
-def enable_gradient_checkpointing(model: Any) -> None:
-    """
-    Enable gradient checkpointing for a PyTorch model to save memory.
-
-    Gradient checkpointing trades computation for memory by recomputing
-    activations during the backward pass instead of storing them.
-
-    Args:
-        model: A PyTorch nn.Module that supports gradient checkpointing.
-
-    Note:
-        This function assumes the model has a 'gradient_checkpointing_enable' method
-        or similar. For models that don't support it directly, this is a no-op.
-    """
-    if not TORCH_AVAILABLE:
-        return
-
-    try:
-        # Try the standard method for transformers models
-        if hasattr(model, 'gradient_checkpointing_enable'):
-            model.gradient_checkpointing_enable()
-        # Try for models with _set_gradient_checkpointing
-        elif hasattr(model, '_set_gradient_checkpointing'):
-            model._set_gradient_checkpointing(True)
-        else:
-            # For generic models, try to enable on all modules that support it
-            for module in model.modules():
-                if hasattr(module, 'gradient_checkpointing_enable'):
-                    try:
-                        module.gradient_checkpointing_enable()
-                    except (AttributeError, TypeError):
-                        pass
-    except Exception:
-        # If checkpointing fails, log warning but don't crash
-        sys.stderr.write("Warning: Could not enable gradient checkpointing\n")
-        sys.stderr.flush()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            # Get batch
+            batch = get_batch_fn(current_bs)
+            
+            # Run step (this is where memory spikes)
+            # We wrap in try/except to catch OOM if the watchdog doesn't kill fast enough
+            train_step_fn(batch)
+            
+            # Check memory usage after the step
+            usage = get_memory_usage_gb()
+            if usage > memory_limit_gb:
+                print(f"Memory usage ({usage:.2f} GB) exceeded limit at batch_size={current_bs}. Scaling down.")
+                current_bs = max(current_bs // factor, min_batch_size)
+                break
+            
+            # If successful and under limit, this is a candidate
+            best_bs = current_bs
+            print(f"Batch size {current_bs} fits (usage: {usage:.2f} GB). Trying larger...")
+            
+            # Try to scale up
+            next_bs = current_bs * factor
+            if next_bs > max_batch_size:
+                break
+            current_bs = next_bs
+            
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                print(f"OOM error at batch_size={current_bs}. Scaling down.")
+                current_bs = max(current_bs // factor, min_batch_size)
+                # If we are already at min, we can't go lower
+                if current_bs == min_batch_size:
+                    print(f"Cannot fit even minimum batch size {min_batch_size}.")
+                    break
+            else:
+                raise e
+    
+    print(f"Selected optimal batch size: {best_bs}")
+    return best_bs

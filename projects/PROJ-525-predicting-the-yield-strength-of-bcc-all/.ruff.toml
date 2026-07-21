@@ -1,60 +1,23 @@
-# Ruff Configuration for PROJ-525
-# Based on standard scientific Python practices
+# Ruff configuration for PROJ-525
+target-version = "py311"
 
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and flake8-bugbear (`B`)
-select = ["E", "F", "B", "I", "N", "W", "UP", "C90"]
-ignore = []
-
-# Allow autofix for all enabled rules (as of version 0.4)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-    "data/raw",
-    "data/processed",
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults (common in dataclasses)
 ]
 
-# Same as `--force-exclude`
-force-exclude = true
-
-# Line length configuration
-line-length = 88
-
-# Allow unused variables starting with underscore
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
 [lint.per-file-ignores]
-# Ignore unused imports in __init__.py files
-"__init__.py" = ["F401"]
+"code/__init__.py" = ["F401"]
+"tests/*" = ["S101"]  # Allow assertions in tests
 
-[lint.mccabe]
-# Flag functions with complexity > 10
-max-complexity = 10
+[lint.isort]
+known-first-party = ["config", "utils", "00_fetch_uncertainty", "01_download", "02_engineer"]

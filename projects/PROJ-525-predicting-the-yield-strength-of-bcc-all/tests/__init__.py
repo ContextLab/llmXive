@@ -1,3 +1,2 @@
-"""
-Test suite for the BCC Yield Strength Prediction pipeline.
-"""
+# Tests package initialization
+# Contains unit and integration tests for the project modules.

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-13T11:55:11.900705Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-561-self-improving-llm-recursive-architectur
-last_run_id: ecd89a67-581d-4061-8948-61307d1fdc54
+last_run_id: ef159141-ac59-4780-ae3d-d0f729f6633f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur
 title: 'Self-improving LLM: recursive architecture refinement and re-training'
-updated_at: '2026-07-15T03:15:28.897103Z'
+updated_at: '2026-07-21T10:50:24.225330Z'

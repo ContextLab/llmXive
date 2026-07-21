@@ -46,7 +46,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
   verified_at: '2026-07-11T17:54:41.815905Z'
-- artifact_hash: ea921d4bee3ad21222ccdff81ffaea01262b84c327df191d1739a272a0b89a89
+- artifact_hash: f8c97de3d9603d76a91ecc63992fe09cdc29004e468972e7d42d191120042e50
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -55,6 +55,6 @@
     multi-principal element alloys
   kind: doi
   value: 10.1038/s41597-020-00768-9
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-07-11T18:19:21.139536Z'
+  verified_at: '2026-07-21T10:09:52.323020Z'

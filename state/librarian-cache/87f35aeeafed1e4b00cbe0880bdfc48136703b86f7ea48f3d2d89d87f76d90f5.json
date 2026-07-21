@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-27T00:11:57Z",
+  "fetched_at": "2026-07-21T10:39:07Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "Investigating Neural Signatures of Predictive Processing in Visual Illusions",
       "target_n": 5
     },
-    "duration_seconds": 341.469,
-    "ended_at": "2026-06-27T00:11:57Z",
+    "duration_seconds": 47.786,
+    "ended_at": "2026-07-21T10:39:07Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Predictive coding mechanisms in visual perception"
+          "predictive coding neural correlates visual perception"
         ],
         [
           2,
-          "Neural correlates of visual illusions"
+          "predictive processing brain activity optical illusions"
         ],
         [
           3,
-          "Top-down modulation in visual cortex"
+          "hierarchical predictive coding visual cortex illusions"
         ],
         [
           4,
-          "Bayesian inference in human vision"
+          "prediction error signals in visual hallucinations"
         ],
         [
           5,
-          "Expectation effects on visual processing"
+          "Bayesian inference neural mechanisms visual illusions"
         ],
         [
           6,
-          "Prediction error signaling in visual areas"
+          "top-down modulation visual cortex illusions"
         ],
         [
           7,
-          "Electrophysiological markers of predictive coding"
+          "mismatch negativity visual illusion processing"
         ],
         [
           8,
-          "fMRI studies of perceptual illusions"
+          "generative models neural activity visual perception"
         ],
         [
           9,
-          "Hierarchical predictive processing vision"
+          "sensory prediction error fMRI visual illusions"
         ],
         [
           10,
-          "Neural basis of ambiguous visual stimuli"
+          "neural oscillations predictive coding illusions"
         ],
         [
           11,
-          "Cortical oscillations during visual illusions"
+          "visual cortex feedback loops illusions"
         ],
         [
           12,
-          "Mismatch negativity visual perception"
+          "perceptual inference neural signatures"
         ],
         [
           13,
-          "Prior expectations visual system"
+          "expectation suppression visual illusions"
         ],
         [
           14,
-          "Free energy principle visual perception"
+          "predictive coding MEG visual illusions"
         ],
         [
           15,
-          "Contextual modulation visual illusions"
+          "cortical feedback predictive processing illusions"
         ],
         [
           16,
-          "Neural encoding of prediction errors vision"
+          "neural dynamics of visual prediction"
         ],
         [
           17,
-          "ERP components visual illusions"
+          "surprise response visual illusion perception"
         ],
         [
           18,
-          "Bottom-up top-down visual integration"
+          "prior expectations neural encoding visual illusions"
         ],
         [
           19,
-          "Perceptual bias neural mechanisms"
+          "predictive coding EEG visual illusions"
         ],
         [
           20,
-          "Sensory prediction visual cortex activity"
+          "active inference visual perception illusions"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience": 0,
-        "Neural correlates of visual illusions": 4,
-        "Predictive coding mechanisms in visual perception": 3
+        "predictive coding neural correlates visual perception": 1,
+        "predictive processing brain activity optical illusions": 4
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "predictive coding free energy principle",
-      "binocular rivalry ambiguous figures motion illusion",
-      "prediction error gamma beta oscillations",
-      "visual illusion BOLD response fMRI",
-      "top-down modulation prior expectations precision"
+      "predictive coding mismatch negativity visual cortex",
+      "binocular rivalry motion aftereffect flicker fusion",
+      "Bayesian inference hierarchical perception neural oscillations",
+      "steady-state visual evoked potential gamma band power",
+      "prediction error signal repetition suppression cortical feedback"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,21 +121,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1907.13004"
+        "2512.20929"
       ]
     },
     "per_query_hit_count": {
+      "Bayesian inference hierarchical perception neural oscillations": 3,
       "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience": 3,
-      "binocular rivalry ambiguous figures motion illusion": 2,
-      "prediction error gamma beta oscillations": 3,
-      "predictive coding free energy principle": 3,
-      "top-down modulation prior expectations precision": 3,
-      "visual illusion BOLD response fMRI": 2
+      "binocular rivalry motion aftereffect flicker fusion": 3,
+      "prediction error signal repetition suppression cortical feedback": 3,
+      "predictive coding mismatch negativity visual cortex": 3,
+      "steady-state visual evoked potential gamma band power": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "rejected_count": 5,
       "rejections": [
         {
           "primary_pointer": "2205.11644",
@@ -143,60 +143,34 @@
           "title": "Visual and unplugged coding lessons with smart toys"
         },
         {
-          "primary_pointer": "1910.12607",
-          "rationale": "This paper applies predictive coding as a machine learning objective for speech representation, whereas the user's question concerns biological neural signatures in visual perception; this is a distinct construct sharing only homonym keywords (\"predictive coding\") across different domains (ML vs. Neuroscience).",
-          "title": "Generative Pre-Training for Speech with Autoregressive Predictive Coding"
+          "primary_pointer": "2203.06515",
+          "rationale": "The paper focuses on materials science and optical engineering (photovoltaic-ferroelectric crystals for optical transistors), which is entirely off-domain from the user's question regarding neuroscience, brain mechanisms, and visual perception. The shared term \"processing\" refers to signal processing in hardware rather than the biological predictive processing mechanisms in the brain, constituting a distinct construct sharing only homonym keywords.",
+          "title": "Photovoltaic-ferroelectric materials for the realization of all-optical devices"
         },
         {
-          "primary_pointer": "1709.01007",
-          "rationale": "This paper is off-domain (Information Visualization/HCI vs. Neuroscience) and addresses a distinct construct (graph similarity judgment vs. neural signatures of visual illusions), sharing only homonym keywords like \"visual\" and \"perception.\" It does not measure neural activity, predictive processing mechanisms, or visual illusion stimuli relevant to the user's question.",
-          "title": "Visual Similarity Perception of Directed Acyclic Graphs: A Study on Influencing Factors"
+          "primary_pointer": "2002.04272",
+          "rationale": "The paper focuses on a methodological advancement for source reconstruction in E/MEG (RAMUS) to detect deep brain activity, but it does not investigate the specific biological mechanism of \"predictive processing\" or the neural signatures associated with \"visual illusions.\" While it uses E/MEG (a relevant modality), it studies somatosensory evoked potentials in a proof-of-concept simulation rather than the visual predictive coding phenomena central to the user's question, failing to meet the crit",
+          "title": "Randomized Multiresolution Scanning in Focal and Fast E/MEG Sensing of Brain Activity with a Variable Depth"
         },
         {
-          "primary_pointer": "2505.13061",
-          "rationale": "This paper studies machine vision systems and computer algorithms being fooled by visual illusions, not neural signatures or predictive processing in the human brain. It falls under the \"distinct construct sharing only homonym keywords\" rejection rule—both mention \"visual illusions\" but the neuroscience question concerns brain mechanisms while this paper concerns AI/depth estimation algorithms.",
-          "title": "3D Visual Illusion Depth Estimation"
+          "primary_pointer": "2011.11052",
+          "rationale": "The paper focuses on deep learning architecture for medical image segmentation (a computer vision/engineering task) and does not measure neural signatures, predictive processing mechanisms, or visual illusions in a biological or cognitive neuroscience context. It falls under the \"off-domain entirely\" rejection rule as it addresses a different scientific domain (AI application vs. cognitive neuroscience) despite sharing the keyword \"neural\" in the context of artificial networks.",
+          "title": "Efficient embedding network for 3D brain tumor segmentation"
         },
         {
-          "primary_pointer": "1811.10565",
-          "rationale": "The paper studies Artificial Neural Networks (computer science) rather than biological neural signatures (neuroscience), and does not address predictive processing mechanisms, falling under the rejection rule for distinct constructs sharing homonym keywords (\"neural\").",
-          "title": "Convolutional Neural Networks Deceived by Visual Illusions"
-        },
-        {
-          "primary_pointer": "1912.01643",
-          "rationale": "This paper studies artificial neural networks (CNNs) rather than biological neural signatures in neuroscience, making it off-domain for a question specifically about neural signatures of predictive processing in the human brain. While it addresses visual illusions, it does not measure the biological mechanisms, neural activity, or predictive processing framework the user is investigating.",
-          "title": "Visual Illusions Also Deceive Convolutional Neural Networks: Analysis and Implications"
+          "primary_pointer": "2412.07878",
+          "rationale": "The paper focuses on the clinical classification of pathological brain states (seizures) using deep learning, which is a distinct construct from the user's question regarding the neural mechanisms of predictive processing in visual illusions. While both involve EEG and neuroscience, the paper does not measure the specific biological pathway, causal mechanism, or empirical population (visual illusion perception) required by the user's research question, falling under the \"Distinct construct\" reje",
+          "title": "Comparative Analysis of Deep Learning Approaches for Harmful Brain Activity Detection Using EEG"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-27T00:06:15Z",
+    "started_at": "2026-07-21T10:38:20Z",
     "term_input": {
       "normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
       "raw": "Investigating Neural Signatures of Predictive Processing in Visual Illusions neuroscience"
     },
     "verification_failures": [
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "3D visual illusion is a perceptual phenomenon where a two-dimensional plane is manipulated to simulate three-dimensional spatial relationships, making a flat artwork or object look three-dimensional in the human visual system. In this paper, we reveal that the machine visual system is also seriously fooled by 3D visual illusions, including monocular and binocular depth estimation. In order to explore and analyze the impact of 3D visual illusion on depth estimation, we collect a large dataset containing almost 3k scenes and 200k images to train and evaluate SOTA monocular and binocular depth estimation methods. We also propose a 3D visual illusion depth estimation framework that uses common sense from the vision language model to adaptively fuse depth from binocular disparity and monocular depth. Experiments show that SOTA monocular, binocular, and multi-view depth estimation approaches are all fooled by various 3D visual illusions, while our method achieves SOTA performance.",
-          "claimed_authors": [
-            "Chengtang Yao",
-            "Zhidan Liu",
-            "Jiaxi Zeng",
-            "Lidong Yu",
-            "Yuwei Wu",
-            "Yunde Jia"
-          ],
-          "claimed_title": "3D Visual Illusion Depth Estimation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.13061"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='3D Visual Illusion Depth Estimation')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
       {
         "candidate": {
           "backend": "arxiv",
@@ -213,57 +187,78 @@
           "primary_pointer": "2101.08123"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Biehl et al (2020) present some interesting observations on an early formulation of the free energy principle in (Friston, 2013). We use these observations to scaffold a discussion of the technical arguments that underwrite the free energy principle. This discussion focuses on solenoidal coupling between various (subsets of) states in sparsely coupled systems that possess a Markov blanket - and the distinction between exact and approximate Bayesian inference, implied by the ensuing Bayesian mechanics.",
+          "claimed_abstract": "This paper provides a perspective on applying the concepts of information thermodynamics, developed recently in non-equilibrium statistical physics, to problems in theoretical neuroscience. Historically, information and energy in neuroscience have been treated separately, in contrast to physics approaches, where the relationship of entropy production with heat is a central idea. It is argued here that also in neural systems information and energy can be considered within the same theoretical framework. Starting from basic ideas of thermodynamics and information theory on a classic Brownian particle, it is shown how noisy neural networks can infer its probabilistic motion. The decoding of the particle motion by neurons is performed with some accuracy and it has some energy cost, and both can be determined using information thermodynamics. In a similar fashion, we also discuss how neural networks in the brain can learn the particle velocity, and maintain that information in the weights of plastic synapses from a physical point of view. Generally, it is shown how the framework of stochastic and information thermodynamics can be used practically to study neural inference, learning, and information storing.",
           "claimed_authors": [
-            "Karl Friston",
-            "Lancelot Da Costa",
-            "Thomas Parr"
+            "Jan Karbowski"
           ],
-          "claimed_title": "Some interesting observations on the free energy principle",
+          "claimed_title": "Information thermodynamics: from physics to neuroscience",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2002.04501"
+          "claimed_year": 2024,
+          "primary_pointer": "2409.17599"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Some interesting observations on the free energy principle')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Information thermodynamics: from physics to neuroscience')",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_abstract": "We propose a differential geometric model of hypercolumns in the primary visual cortex V1 that combines features of the symplectic model of the primary visual cortex by A. Sarti, G. Citti and J. Petitot and of the spherical model of hypercolumns by P. Bressloff and J. Cowan. The model is based on classical results in Conformal Geometry.",
           "claimed_authors": [
-            " The Dark Energy Survey Collaboration"
+            "D. V. Alekseevsky",
+            "A. Spiro"
           ],
-          "claimed_title": "The Dark Energy Survey",
+          "claimed_title": "Conformal models for hypercolumns in the primary visual cortex V1",
           "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "astro-ph/0510346"
+          "claimed_year": 2024,
+          "primary_pointer": "2410.20184"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='The Dark Energy Survey')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Conformal models for hypercolumns in the primary visual cortex V1')",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_abstract": "Our Computer science k-12 education research group and the educational toy company Quercetti have been collaborating together to design and manufacture toys that help stimulate and consolidate so-called computational thinking. This approach is inspired by methods already consolidated in the literature and widespread worldwide such as the Bebras tasks and CS-Unplugged. This paper describes two smart toys, their design process, educational activities that can be proposed by teachers exploiting the two toys, the evaluation's results from some teachers, and finally feedback and reviews from buyers. The main activities proposed by these toys leverage visual coding through small colored physical items (e.g., pegs and balls) to deliver the unplugged activities to young users.",
           "claimed_authors": [
-            " LSST Dark Energy Science Collaboration"
+            "Sara Capecchi",
+            "Cristina Gena",
+            "Ilaria Lombardi"
           ],
-          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_title": "Visual and unplugged coding lessons with smart toys",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1211.0310"
+          "claimed_year": 2022,
+          "primary_pointer": "2205.11644"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Visual and unplugged coding lessons with smart toys')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The analysis of spatiotemporal data is essential in domains such as epidemiology and environmental monitoring, where understanding the interplay between spatially distributed phenomena and their temporal evolution is critical. Dense pixel visualizations offer a compact, effective overview of spatiotemporal dynamics. However, the necessary linearization of 2D geographic space into a 1D ordering inevitably introduces structural distortions that manifest as visual artifacts. We propose a measure-driven visual analytics approach that captures visual artifacts through neighborhood preservation measures for 1D orderings and renders them using visual boosting techniques such as glyphs, halos, and hatching. We demonstrate our approach through a usage scenario analyzing COVID-19 incidence data across German districts, showing that interactive, measure-driven boosting enables analysts to reliably distinguish genuine spatial patterns from linearization artifacts.",
+          "claimed_authors": [
+            "Julius Rauscher",
+            "Frederik L. Dennig",
+            "Udo Schlegel",
+            "Daniel A. Keim",
+            "Tobias Schreck"
+          ],
+          "claimed_title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25298"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations')",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
@@ -279,7 +274,7 @@
           "primary_pointer": "0709.4516"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Quantum formalism to describe binocular rivalry')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
@@ -297,7 +292,118 @@
           "primary_pointer": "1809.07792"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Binocular Rivalry - Psychovisual Challenge in Stereoscopic Video Error Concealment')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When binocular rivalry is induced by opponent motion displays, perceptual reversals are often associated with changed oculomotor behaviour (Frassle et al., 2014; Fujiwara et al., 2017). Specifically, the direction of smooth pursuit phases in optokinetic nystagmus (OKN) typically corresponds to the direction of motion that dominates perceptual appearance at any given time. Here we report an improved analysis that continuously estimates perceived motion in terms of `cumulative smooth pursuit'. In essence, smooth pursuit segments are identified, interpolated where necessary, and joined probabilistically into a continuous record of `cumulative smooth pursuit' (i.e., a probability of eye position disregarding blinks, saccades, signal losses, and artefacts). The analysis is fully automated and robust in healthy, developmental, and patient populations. To validate reliability, we compare volitional reports of perceptual reversals in rivalry displays, and of physical reversals in non-rivalrous control displays. `Cumulative smooth pursuit' detects physical reversals and estimates eye velocity more accurately than existing methods do (Frassle et al., 2014). It also appears to distinguish dominant and transitional perceptual states, detecting changes with a precision of $\\pm100\\,\\mathit{ms}$. We conclude that `cumulative smooth pursuit' significantly improves the monitoring of binocular rivalry by means of recording OKN.",
+          "claimed_authors": [
+            "Stepan Aleshin",
+            "Gergo Ziman",
+            "Ilona Kovacs",
+            "Jochen Braun"
+          ],
+          "claimed_title": "Perceptual reversals in binocular rivalry: improved detection from OKN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.02478"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Perceptual reversals in binocular rivalry: improved detection from OKN')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has historically been a challenge to perform Bayesian inference in a design-based survey context. The present paper develops a Bayesian model for sampling inference in the presence of inverse-probability weights. We use a hierarchical approach in which we model the distribution of the weights of the nonsampled units in the population and simultaneously include them as predictors in a nonparametric Gaussian process regression. We use simulation studies to evaluate the performance of our procedure and compare it to the classical design-based estimator. We apply our method to the Fragile Family and Child Wellbeing Study. Our studies find the Bayesian nonparametric finite population estimator to be more robust than the classical design-based estimator without loss in efficiency, which works because we induce regularization for small cells and thus this is a way of automatically smoothing the highly variable weights.",
+          "claimed_authors": [
+            "Yajuan Si",
+            "Natesh S. Pillai",
+            "Andrew Gelman"
+          ],
+          "claimed_title": "Bayesian Nonparametric Weighted Sampling Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.1799"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Bayesian Nonparametric Weighted Sampling Inference')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Functional data, with basic observational units being functions (e.g., curves, surfaces) varying over a continuum, are frequently encountered in various applications. While many statistical tools have been developed for functional data analysis, the issue of smoothing all functional observations simultaneously is less studied. Existing methods often focus on smoothing each individual function separately, at the risk of removing important systematic patterns common across functions. We propose a nonparametric Bayesian approach to smooth all functional observations simultaneously and nonparametrically. In the proposed approach, we assume that the functional observations are independent Gaussian processes subject to a common level of measurement errors, enabling the borrowing of strength across all observations. Unlike most Gaussian process regression models that rely on pre-specified structures for the covariance kernel, we adopt a hierarchical framework by assuming a Gaussian process prior for the mean function and an Inverse-Wishart process prior for the covariance function. These prior assumptions induce an automatic mean-covariance estimation in the posterior inference in addition to the simultaneous smoothing of all observations. Such a hierarchical framework is flexible enough to incorporate functional data with different characteristics, including data measured on either common or uncommon grids, and data with either stationary or nonstationary covariance structures. Simulations and real data analysis demonstrate that, in comparison with alternative methods, the proposed Bayesian approach achieves better smoothing accuracy and comparable mean-covariance estimation results. Furthermore, it can successfully retain the systematic patterns in the functional observations that are usually neglected by the existing functional data analyses based on individual-curve smoothing.",
+          "claimed_authors": [
+            "Jingjing Yang",
+            "Hongxiao Zhu",
+            "Taeryon Choi",
+            "Dennis D. Cox"
+          ],
+          "claimed_title": "Smoothing and mean-covariance estimation of functional data with a Bayesian hierarchical model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.5723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Smoothing and mean-covariance estimation of functional data with a Bayesian hierarchical model')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_authors": [
+            "Kin G. Olivares",
+            "O. Nganba Meetei",
+            "Ruijun Ma",
+            "Rohan Reddy",
+            "Mengfei Cao",
+            "Lee Dicker"
+          ],
+          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13179"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many gamma-ray burst counterpart searches are being conducted in the optical-UV band. To both predict detectability and understand the meaning of any detections or upper limits, we extrapolate gamma-ray spectra from 54 bright gamma-ray bursts to optical-UV energies. We assume optical emission is concurrent with gamma-ray emission and do not consider quiescent or fading counterparts. We find that the spectrum must be steeper (greater flux at low energy) than a simple extrapolation of the gamma-ray spectrum for more than one simultaneous optical flash to be observable per year by current searches.",
+          "claimed_authors": [
+            "Lyle Ford",
+            "David Band"
+          ],
+          "claimed_title": "Extrapolations of BATSE Gamma-Ray Burst Spectra to the Optical-UV Band",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "astro-ph/9607054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Extrapolations of BATSE Gamma-Ray Burst Spectra to the Optical-UV Band')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The momentum spectrum of a periodic network (quantum graph) has a band-gap structure. We investigate the relative density of the bands or, equivalently, the probability that a randomly chosen momentum belongs to the spectrum of the periodic network. We show that this probability exhibits universal properties. More precisely, the probability to be in the spectrum does not depend on the edge lengths (as long as they are generic) and is also invariant within some classes of graph topologies.",
+          "claimed_authors": [
+            "Ram Band",
+            "Gregory Berkolaiko"
+          ],
+          "claimed_title": "Universality of the momentum band density of periodic networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.6028"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Universality of the momentum band density of periodic networks')",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
@@ -314,135 +420,59 @@
           "primary_pointer": "astro-ph/0611030"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Underground Water Cherenkov Muon Detector Array with the Tibet Air Shower Array for Gamma-Ray Astronomy in the 100 TeV Region')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We searched for steady PeV gamma-ray emission from the Monogem ring region with the Tibet air shower array from 1997 February to 2004 October. No evidence for statistically significant gamma-ray signals was found in a region 111$\\degr$ $\\leq$ R.A. $<$ 114$\\degr$, 12$\\fdg$5 $\\leq$ decl. $<$ 15$\\fdg$5 in the Monogem ring where the MAKET-ANI experiment recently claimed a positive detection of PeV high-energy cosmic radiation, although our flux sensitivity is approximately 10 times better than MAKET-ANI's. We set the most stringent integral flux upper limit at a 99% confidence level of 4.0 $\\times$ 10$^{-12}$ cm$^{-2}$ s$^{-1}$ sr$^{-1}$ above 1 PeV on diffuse gamma rays extended in the 3$^{\\circ}$ $\\times$ 3$^{\\circ}$ region.",
+          "claimed_abstract": "Eukaryotic cells can move spontaneously without being guided by external cues. For such spontaneous movements, a variety of different modes have been observed, including the amoeboid-like locomotion with protrusion of multiple pseudopods, the keratocyte-like locomotion with a widely spread lamellipodium, cell division with two daughter cells crawling in opposite directions, and fragmentations of a cell to multiple pieces. Mutagenesis studies have revealed that cells exhibit these modes depending on which genes are deficient, suggesting that seemingly different modes are the manifestation of a common mechanism to regulate cell motion. In this paper, we propose a hypothesis that the positive feedback mechanism working through the inhomogeneous distribution of regulatory proteins underlies this variety of cell locomotion and cytofission. In this hypothesis, a set of regulatory proteins, which we call cortical factors, suppress actin polymerization. These suppressing factors are diluted at the extending front and accumulated at the retracting rear of cell, which establishes a cellular polarity and enhances the cell motility, leading to the further accumulation of cortical factors at the rear. Stochastic simulation of cell movement shows that the positive feedback mechanism of cortical factors stabilizes or destabilizes modes of movement and determines the cell migration pattern. The model predicts that the pattern is selected by changing the rate of formation of the actin-filament network or the threshold to initiate the network formation.",
           "claimed_authors": [
-            " The Tibet AS Gamma Collaboration",
-            "M. Amenomori"
+            "Shin I. Nishimura",
+            "Masahiro Ueda",
+            "Masaki Sasai"
           ],
-          "claimed_title": "Observation of PeV Gamma Rays from the Monogem Ring with the Tibet Air Shower Array",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "astro-ph/0512460"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Observation of PeV Gamma Rays from the Monogem Ring with the Tibet Air Shower Array')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We obtained new upper limits on the diffuse gamma rays from the inner Galactic (IG) and outer Galactic (OG) planes in 3.10 TeV region, using the Tibet air shower data and new Monte Carlo simulation results. A difference of the effective area of the air-shower array for observing gamma rays and cosmic rays was carefully taken into account in this analysis, resulting in that the flux upper limits of the diffuse TeV gamma rays were reduced by factors of 4.0.3.7 for 3.10 TeV than those in our previous results (Amenomori, M., Ayabe, S., Cui, S.W., et al. Observation of multi-TeV diffuse gamma rays from the Galactic plane with the Tibet air shower array. Astrophys. J. 580, 887.895, 2002.). This new result suggests that the inverse power index of the energy spectrum of source electrons responsible for generating diffuse TeV gamma rays through inverse Compton effect should be steeper than 2.2 and 2.1 for IG and OG planes, respectively, with 99%C.L.",
-          "claimed_authors": [
-            " The Tibet AS Gamma Collaboration",
-            "M. Amenomori"
-          ],
-          "claimed_title": "Flux upper limits of diffuse TeV gamma rays from the Galactic plane using the effective area of the Tibet-II and -III arrays",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "astro-ph/0511514"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Flux upper limits of diffuse TeV gamma rays from the Galactic plane using the effective area of the Tibet-II and -III arrays')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
-          "claimed_authors": [
-            "Yuxiang Wei",
-            "Yanteng Zhang",
-            "Xi Xiao",
-            "Chengxuan Qian",
-            "Tianyang Wang",
-            "Vince D. Calhoun"
-          ],
-          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.21760"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This study proposes a new approach that investigates differences in topological characteristics of visual networks, which are constructed using fMRI BOLD time-series corresponding to visual datasets of COCO, ImageNet, and SUN. A publicly available BOLD5000 dataset is utilized that contains fMRI scans while viewing 5254 images of diverse complexities. The objective of this study is to examine how network topology differs in response to distinct visual stimuli from these visual datasets. To achieve this, 0- and 1-dimensional persistence diagrams are computed for each visual network representing COCO, ImageNet, and SUN. For extracting suitable features from topological persistence diagrams, K-means clustering is executed. The extracted K-means cluster features are fed to a novel deep-hybrid model that yields accuracy in the range of 90%-95% in classifying these visual networks. To understand vision, this type of visual network categorization across visual datasets is important as it captures differences in BOLD signals while perceiving images with different contexts and complexities. Furthermore, distinctive topological patterns of visual network associated with each dataset, as revealed from this study, could potentially lead to the development of future neuroimaging biomarkers for diagnosing visual processing disorders like visual agnosia or prosopagnosia, and tracking changes in visual cognition over time.",
-          "claimed_authors": [
-            "Debanjali Bhattacharya",
-            "Neelam Sinha",
-            "Yashwanth R.",
-            "Amit Chattopadhyay"
-          ],
-          "claimed_title": "Image complexity based fMRI-BOLD visual network categorization across visual datasets using topological descriptors and deep-hybrid learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.08417"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Image complexity based fMRI-BOLD visual network categorization across visual datasets using topological descriptors and deep-hybrid learning')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Top-down saliency models produce a probability map that peaks at target locations specified by a task/goal such as object detection. They are usually trained in a fully supervised setting involving pixel-level annotations of objects. We propose a weakly supervised top-down saliency framework using only binary labels that indicate the presence/absence of an object in an image. First, the probabilistic contribution of each image region to the confidence of a CNN-based image classifier is computed through a backtracking strategy to produce top-down saliency. From a set of saliency maps of an image produced by fast bottom-up saliency approaches, we select the best saliency map suitable for the top-down task. The selected bottom-up saliency map is combined with the top-down saliency map. Features having high combined saliency are used to train a linear SVM classifier to estimate feature saliency. This is integrated with combined saliency and further refined through a multi-scale superpixel-averaging of saliency map. We evaluate the performance of the proposed weakly supervised topdown saliency and achieve comparable performance with fully supervised approaches. Experiments are carried out on seven challenging datasets and quantitative results are compared with 40 closely related approaches across 4 different applications.",
-          "claimed_authors": [
-            "Hisham Cholakkal",
-            "Jubin Johnson",
-            "Deepu Rajan"
-          ],
-          "claimed_title": "Backtracking Spatial Pyramid Pooling (SPP)-based Image Classifier for Weakly Supervised Top-down Salient Object Detection",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1611.05345"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Backtracking Spatial Pyramid Pooling (SPP)-based Image Classifier for Weakly Supervised Top-down Salient Object Detection')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In recent years, we have seen tremendous progress in the field of object detection. Most of the recent improvements have been achieved by targeting deeper feedforward networks. However, many hard object categories such as bottle, remote, etc. require representation of fine details and not just coarse, semantic representations. But most of these fine details are lost in the early convolutional layers. What we need is a way to incorporate finer details from lower layers into the detection architecture. Skip connections have been proposed to combine high-level and low-level features, but we argue that selecting the right features from low-level requires top-down contextual information. Inspired by the human visual pathway, in this paper we propose top-down modulations as a way to incorporate fine details into the detection framework. Our approach supplements the standard bottom-up, feedforward ConvNet with a top-down modulation (TDM) network, connected using lateral connections. These connections are responsible for the modulation of lower layer filters, and the top-down network handles the selection and integration of contextual information and low-level features. The proposed TDM architecture provides a significant boost on the COCO testdev benchmark, achieving 28.6 AP for VGG16, 35.2 AP for ResNet101, and 37.3 for InceptionResNetv2 network, without any bells and whistles (e.g., multi-scale, iterative box refinement, etc.).",
-          "claimed_authors": [
-            "Abhinav Shrivastava",
-            "Rahul Sukthankar",
-            "Jitendra Malik",
-            "Abhinav Gupta"
-          ],
-          "claimed_title": "Beyond Skip Connections: Top-Down Modulation for Object Detection",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1612.06851"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Beyond Skip Connections: Top-Down Modulation for Object Detection')",
-        "failed_at": "2026-06-27T00:08:07Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We develop a theory for solving continuous time optimal stopping problems for non-linear expectations. Our motivation is to consider problems in which the stopper uses risk measures to evaluate future rewards.",
-          "claimed_authors": [
-            "Erhan Bayraktar",
-            "Song Yao"
-          ],
-          "claimed_title": "Optimal Stopping for Non-linear Expectations",
+          "claimed_title": "Cortical Factor Feedback Model for Cellular Locomotion and Cytofission",
           "claimed_venue": "arXiv",
           "claimed_year": 2009,
-          "primary_pointer": "0905.3601"
+          "primary_pointer": "0903.2378"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Optimal Stopping for Non-linear Expectations')",
-        "failed_at": "2026-06-27T00:08:07Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Cortical Factor Feedback Model for Cellular Locomotion and Cytofission')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The mammalian cortex is divided into architectonic and functionally distinct areas. There is growing experimental evidence that their emergence and development is controlled by both epigenetic and genetic factors. The latter were recently implicated as dominating the early cortical area specification. In this paper, we present a theoretical model that explicitly considers the genetic factors and that is able to explain several sets of experiments on cortical area regulation involving transcription factors Emx2 and Pax6, and fibroblast growth factor FGF8. The model consists of the dynamics of thalamo- cortical connections modulated by signaling molecules that are regulated genetically, and by axonal competition for neocortical space. The model can make predictions and provides a basic mathematical framework for the early development of the thalamo-cortical connections and area patterning that can be further refined as more experimental facts become known.",
+          "claimed_authors": [
+            "Jan Karbowski",
+            "G. B. Ermentrout"
+          ],
+          "claimed_title": "Model of the early development of thalamo-cortical connections and area patterning via signaling molecules",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0410002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Model of the early development of thalamo-cortical connections and area patterning via signaling molecules')",
+        "failed_at": "2026-07-21T10:38:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While adiabatic quantum computing (AQC) has some robustness to noise and decoherence it is widely believed that encoding, error suppression and error correction will be required to scale AQC to large problem sizes. Previous works have established at least two different techniques for error suppression in AQC. In this paper we derive a model for describing the dynamics of encoded AQC and show that previous constructions for error suppression can be unified with this dynamical model. In addition the model clarifies the mechanisms of error suppression and allow identification of its weaknesses. In the second half of the paper we utilize our description of non-equilibrium dynamics in encoded AQC to construct methods for error correction in AQC by cooling local degrees of freedom (qubits). While this is shown to be possible in principle, we also identify the key challenge to this approach: the requirement of high-weight Hamiltonians. Finally, we use our dynamical model to perform a simplified thermal stability analysis of concatenated-stabilizer-code encoded many-body systems for AQC or quantum memories.\n  This work is a companion paper to \"\\textit{Error suppression and error correction in adiabatic quantum computation I: techniques and challenges}\" (Phys. Rev. X, 3, 041013 (2013)), which provides a quantum information perspective on the techniques and limitations of error suppression and correction in AQC. In this paper we couch the same results within a dynamical framework, which allows for detailed analysis of the non-equilibrium dynamics of error suppression and correction in encoded AQC.",
+          "claimed_authors": [
+            "Mohan Sarovar",
+            "Kevin C. Young"
+          ],
+          "claimed_title": "Error suppression and error correction in adiabatic quantum computation II: non-equilibrium dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.5892"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Neural Signatures of Predictive Processing in Visual Illusions neu', candidate_title='Error suppression and error correction in adiabatic quantum computation II: non-equilibrium dynamics')",
+        "failed_at": "2026-07-21T10:38:47Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -466,43 +496,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2512.20929",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.173,
           "query_relevance_score": 0.7143,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-27T00:08:07Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Marcelo Bertalmío",
-            "Luca Calatroni",
-            "Valentina Franceschi",
-            "Benedetta Franceschiello",
-            "Alexander Gomez-Villa",
-            "Dario Prandi"
-          ],
-          "title": "Visual illusions via neural dynamics: Wilson-Cowan-type models and the efficient representation principle",
-          "venue": "arXiv",
-          "year": 2019
-        },
-        "primary_pointer": "1907.13004",
-        "summary": "In this work we have aimed to reproduce supra-threshold perception phenomena, specifically visual illusions, with Wilson-Cowan-type models of neuronal dynamics. We have found that it is indeed possible to do so, but that the ability to replicate visual illusions is related to how well the neural activity equations comply with the efficient representation principle. Our first contribution is to show that the Wilson-Cowan equations can reproduce a number of brightness and orientation-dependent illusions, and that the latter type of illusions require that the neuronal dynamics equations consider explicitly the orientation, as expected. Then, we formally prove that there can't be an energy functional that the Wilson-Cowan equations are minimizing, but that a slight modification makes them variational and yields a model that is consistent with the efficient representation principle. Finally, we show that this new model provides a better reproduction of visual illusions than the original Wilson-Cowan formulation.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1907.13004",
-          "http_status": 200,
-          "pdf_sample_score": 0.1623,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-27T00:08:41Z"
+          "verified_at": "2026-07-21T10:38:47Z"
         }
       }
     ]

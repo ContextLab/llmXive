@@ -1,3 +1,2 @@
-"""
-llmXive Research Pipeline for BCC Alloy Yield Strength Prediction.
-"""
+# LLMXive Automated Science Pipeline - Code Package
+# This package contains the implementation modules for the BCC Alloy Yield Strength prediction project.

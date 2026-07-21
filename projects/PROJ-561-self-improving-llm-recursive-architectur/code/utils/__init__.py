@@ -1,1 +1,1 @@
-# Utility modules for memory management, logging, etc.
+# Utils package initialization

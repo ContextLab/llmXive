@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.11052",
+  "judged_at": "2026-07-21T10:39:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper focuses on deep learning architecture for medical image segmentation (a computer vision/engineering task) and does not measure neural signatures, predictive processing mechanisms, or visual illusions in a biological or cognitive neuroscience context. It falls under the \"off-domain entirely\" rejection rule as it addresses a different scientific domain (AI application vs. cognitive neuroscience) despite sharing the keyword \"neural\" in the context of artificial networks.",
+  "relevant": false
+}

@@ -59,10 +59,10 @@
 
 - [X] T004 Implement `code/config.py`:Initialize global seeds (numpy, random), define paths (`data/raw`, `data/interim`, `data/results`), and set constants (OpenNeuro ID `ds000246`, HRF model `double-gamma` with peak=5s, undershoot=15s, {{claim:c_0e75b9e6}} (Wikipedia: Samsung Galaxy A50, https://en.wikipedia.org/wiki/Samsung_Galaxy_A50)). **Verify**: Import `code.config` in Python shell without errors; constants match spec.
 - [ ] T005 [P] Create `code/ingestion.py` skeleton with `wget` download logic and checksum verification for OpenNeuro dataset `ds000246`. **Verify**: `import code.ingestion` succeeds; function `def download_dataset(dataset_id: str) -> Path` exists.
-- [ ] T005a [P] Create `data/metadata.yaml` skeleton with keys: `dataset_id`, `version`, `checksum`, `download_date`. **AND** create/update `state/projects/PROJ-228-investigating-the-impact-of-visual-compl.yaml` with `artifact_hashes` map. **Verify**: Files exist and are valid YAML/JSON. **Depends on**: T001b.
-- [ ] T006 [P] Create `code/complexity.py` skeleton for image processing functions. **Verify**: `import code.complexity` succeeds; function `def calculate_entropy(image_path: Path) -> float` exists.
-- [ ] T007 Create `code/roi_extraction.py` skeleton for AAL atlas loading and smoothing. **Verify**: `import code.roi_extraction` succeeds; function `def extract_roi(bold_path: Path, mask_path: Path) -> np.ndarray` exists.
-- [ ] T008 Create `code/modeling.py` skeleton for GLM and permutation test structure. **Verify**: `import code.modeling` succeeds; function `def run_regression(X, y) -> dict` exists.
+- [X] T005a [P] Create `data/metadata.yaml` skeleton with keys: `dataset_id`, `version`, `checksum`, `download_date`. **AND** create/update `state/projects/PROJ-228-investigating-the-impact-of-visual-compl.yaml` with `artifact_hashes` map. **Verify**: Files exist and are valid YAML/JSON. **Depends on**: T001b.
+- [X] T006 [P] Create `code/complexity.py` skeleton for image processing functions. **Verify**: `import code.complexity` succeeds; function `def calculate_entropy(image_path: Path) -> float` exists.
+- [X] T007 Create `code/roi_extraction.py` skeleton for AAL atlas loading and smoothing. **Verify**: `import code.roi_extraction` succeeds; function `def extract_roi(bold_path: Path, mask_path: Path) -> np.ndarray` exists.
+- [X] T008 Create `code/modeling.py` skeleton for GLM and permutation test structure. **Verify**: `import code.modeling` succeeds; function `def run_regression(X, y) -> dict` exists.
 - [ ] T009 Create `code/main.py` orchestrator with subject-wise chunking logic to enforce RAM limits. **Verify**: `import code.main` succeeds; function `def run_pipeline() -> None` exists.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,14 +73,14 @@
 
 **Goal**: Download preprocessed fMRI data/stimuli from `ds000246`, compute entropy/fractal dimension per frame, convolve with HRF, and output time-synced CSV.
 
-**Independent Test**: Run ingestion script on a single subject; verify CSV output contains time-locked complexity scores and memory usage logs show ≤ 6GB peak [UNRESOLVED-CLAIM: c_a13fb877 — status=not_enough_info].
+**Independent Test**: Run ingestion script on a single subject; verify CSV output contains time-locked complexity scores and memory usage logs show ≤ 6GB peak.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for Shannon entropy calculation in `tests/unit/test_complexity.py`. **Test**: `test_entropy_returns_positive` asserts `calculate_entropy` raises `NotImplementedError` before implementation.
-- [ ] T011 [P] [US1] Unit test for Fractal Dimension calculation in `tests/unit/test_complexity.py`. **Test**: `test_fractal_dim_returns_positive` asserts `calculate_fractal_dimension` raises `NotImplementedError` before implementation.
+- [X] T010 [P] [US1] Unit test for Shannon entropy calculation in `tests/unit/test_complexity.py`. **Test**: `test_entropy_returns_positive` asserts `calculate_entropy` raises `NotImplementedError` before implementation. <!-- ATOMIZE: requested -->
+- [X] T011 [P] [US1] Unit test for Fractal Dimension calculation in `tests/unit/test_complexity.py`. **Test**: `test_fractal_dim_returns_positive` asserts `calculate_fractal_dimension` raises `NotImplementedError` before implementation.
 - [ ] T012 [P] [US1] Unit test for HRF convolution logic in `tests/unit/test_complexity.py`. **Test**: `test_hrf_convolve_matches_shape` asserts `convolve_with_hrf` raises `NotImplementedError` before implementation.
 - [ ] T013 [P] [US1] Integration test for full ingestion pipeline on a single subject in `tests/integration/test_ingestion.py`. **Test**: `test_pipeline_outputs_csv` asserts file creation fails before implementation.
 
@@ -92,7 +92,7 @@
 - [ ] T016 [US1] Implement HRF convolution in `code/complexity.py`: Convolve complexity metrics with canonical HRF using `nilearn.glm.first_level.make_regressor` (double-gamma model, peak=5s, undershoot=15s) to align with BOLD signal. **Verify**: Output array length matches input + lag; convolution shape correct.
 - [ ] T017 [US1] Implement output generation in `code/complexity.py`: Write time-synced CSV (`data/interim/complexity_metrics.csv`) with columns: `frame_id`, `timestamp`, `entropy`, `fractal_dim`, `hrf_convolved`. **Verify**: File exists; columns match exactly; first 5 rows printed.
 - [ ] T018 [US1] Add error handling for NaN/Inf values in complexity metrics (replace with 0 or exclude frame) and log incidents. **Verify**: Log file contains "NaN replaced" entries for test data with artifacts.
-- [ ] T019 [US1] Add memory monitoring in `code/ingestion.py` and `code/complexity.py` to abort if RAM > 6GB [UNRESOLVED-CLAIM: c_9afa207a — status=not_enough_info]. **Verify**: Script exits with code 1 and error message if simulated memory spike occurs.
+- [ ] T019 [US1] Add memory monitoring in `code/ingestion.py` and `code/complexity.py` to abort if RAM > 6GB. **Verify**: Script exits with code 1 and error message if simulated memory spike occurs.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +107,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T020 [P] [US2] Unit test for AAL mask loading and voxel filtering in `tests/unit/test_roi_extraction.py`. **Test**: `test_mask_loads_correctly` asserts `NotImplementedError` before implementation.
-- [ ] T021 [P] [US2] Unit test for 4mm FWHM smoothing logic in `tests/unit/test_roi_extraction.py`. **Test**: `test_smoothing_increases_variance` asserts `NotImplementedError` before implementation.
+- [ ] T021 [P] [US2] Unit test for 4mm FWHM smoothing logic [UNRESOLVED-CLAIM: c_ab1011b0 — status=not_enough_info] in `tests/unit/test_roi_extraction.py`. **Test**: `test_smoothing_increases_variance` asserts `NotImplementedError` before implementation.
 - [ ] T022 [P] [US2] Integration test for ROI extraction pipeline in `tests/integration/test_roi_extraction.py`. **Test**: `test_extraction_outputs_csv` asserts file creation fails before implementation.
 
 ### Implementation for User Story 2
@@ -126,7 +126,7 @@
 
 **Goal**: Perform linear regression (complexity vs. PFC), apply FDR correction, and run circular block permutation tests.
 
-**Independent Test**: Run analysis script; verify results JSON contains correlation coefficients, FDR-corrected p-values, and permutation test results within 60 mins [UNRESOLVED-CLAIM: c_2a8d8a8f — status=not_enough_info].
+**Independent Test**: Run analysis script; verify results JSON contains correlation coefficients, FDR-corrected p-values, and permutation test results within 60 mins.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -138,8 +138,8 @@
 
 - [ ] T030a [US3] Implement Data Integrity Check: Verify `complexity_metrics.csv` and `pfc_timeseries.csv` exist and match checksums in `data/metadata.yaml` and `state/projects/...yaml` before modeling. **Verify**: Script exits if checksums mismatch or files missing.
 - [ ] T031 [US3] Implement `code/modeling.py`: Load `complexity_metrics.csv` and `pfc_timeseries.csv`, merge on timepoint. **Verify**: Merged DataFrame created; no NaNs in key columns.
-- [ ] T032 [US3] Implement Single-subject Linear Regression (OLS) with AR(1) pre-whitening using `nilearn.glm.first_level.FirstLevelModel` with `noise_model='ar1' ` to handle temporal autocorrelation. **Verify**: Coefficients and p-values calculated; residuals checked for autocorrelation.
-- [ ] T033 [US3] Implement FDR correction (Benjamini-Hochberg) for the two metrics (entropy, fractal dimension). **Verify**: Corrected p-values saved.
+- [ ] T032 [US3] Implement Single-subject Linear Regression (OLS) with AR(1) pre-whitening using `nilearn.glm.first_level.FirstLevelModel` with `noise_model='ar1' [UNRESOLVED-CLAIM: c_43739738 — status=not_enough_info] ` to handle temporal autocorrelation. **Verify**: Coefficients and p-values calculated; residuals checked for autocorrelation.
+- [ ] T033 [US3] Implement FDR correction ({{claim:c_2be034ca}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870)) for the two metrics (entropy, fractal dimension). **Verify**: Corrected p-values saved.
 - [ ] T034 [US3] Implement Circular Block Permutation Test with a sufficient number of iterations. **Block Size**: Calculate as 2 * TR (Repetition Time) to preserve temporal autocorrelation. **Verify**: Null distribution histogram generated.
 - [ ] T035 [US3] Generate `data/results/regression_results.json` containing: `correlation_coefficient`, `p_value`, `fdr_corrected_p`, `permutation_p`, `is_significant`. **Logic**: Derive `is_significant` as `True` if the observed correlation coefficient falls outside the confidence interval of the null distribution generated by the permutation test. **Verify**: JSON file valid; all keys present; boolean logic correct.
 - [ ] T036 [US3] Generate `data/results/null_distribution.png` histogram for permutation test visualization. **Verify**: Image file created.
@@ -159,7 +159,7 @@
 - [ ] T038b [FR-001] Create `docs/quickstart.md` with pipeline execution steps and expected outputs. **Verify**: File exists and contains accurate execution steps.
 - [ ] T039a [FR-002] [FR-007] Extract memory monitoring logic to a utility module `code/utils/memory.py` for reuse in the main pipeline orchestrator. **Verify**: Module importable; no circular dependencies; memory check used in `code/main.py`.
 - [ ] T039b [FR-002] Remove dead code and unused imports from `code/` modules. **Verify**: `flake8 --select=F401` reports zero unused imports.
-- [ ] T040 Optimize batch sizes in `code/complexity.py` to ensure peak RAM usage stays < 5.5GB [UNRESOLVED-CLAIM: c_b6038cd4 — status=not_enough_info]. **Verify**: Run with test data; log confirms peak < 5.5GB.
+- [ ] T040 Optimize batch sizes in `code/complexity.py` to ensure peak RAM usage stays < 5.5GB. **Verify**: Run with test data; log confirms peak < 5.5GB.
 - [ ] T041 [P] Additional unit tests for edge cases (missing frames, NaN handling) in `tests/unit/`.
 - [ ] T042 Run quickstart.md validation: Execute `python -m code.main` (as defined in quickstart.md) and verify exit code 0 and `data/results/regression_results.json` exists.
 
@@ -246,4 +246,4 @@ With multiple developers:
 - **HRF Lag**: Fixed at double-gamma model (peak=5s, undershoot=15s) for reproducibility.
 - **Resource Constraint**: All image processing tasks must use batched loading to ensure <6GB RAM usage on CPU-only runners.
 - **Two-Level GLM**: Implementation includes subject-level AR(1) pre-whitening (T032) and group-level t-test (T037b) as required by the Plan and Spec.
-- **Significance Logic**: T035 explicitly checks if the observed statistic falls outside the 95% CI of the null distribution, not just p < 0.05.
+- **Significance Logic**: T035 explicitly checks if the observed statistic falls outside the 95% CI of the null distribution [UNRESOLVED-CLAIM: c_3a5e375a — status=not_enough_info], not just p < 0.05.
