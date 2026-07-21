@@ -28,7 +28,7 @@ Rewritten passage: OpenNeuro ds00xxxx), N subjects (target N≥10 for valid test
 ### Memory Management Strategy
 To satisfy the 7GB RAM constraint while processing 4D NIfTI data:
 - **Memory Mapping**: The pipeline uses `nilearn.image.load_img` with `mmap=True` (or equivalent `nibabel` memory mapping) to stream data from disk rather than loading full 4D volumes into RAM.
-- **Chunked Processing**: ROI extraction and correlation calculation are performed subject-by-subject or in small batches. Intermediate time-series (1D arrays) are stored in memory, but raw 4D volumes remain on disk.
+- **Chunked Processing**: ROI extraction and correlation calculation are performed subject-by-subject or in small batches. Intermediate time-series (arrays) are stored in memory, but raw 4D volumes remain on disk.
 - **Garbage Collection**: Explicit `gc.collect()` calls are inserted between subject iterations to reclaim memory.
 
 ### Dataset Variable Fit & Failure Logic

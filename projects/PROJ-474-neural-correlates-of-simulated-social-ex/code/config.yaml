@@ -1,29 +1,21 @@
-project:
-  name: "PROJ-474-neural-correlates-social-ex"
-  version: "1.0.0"
-
-data:
-  dataset_id: "ds000030"
-  version: "1.0.0"
-  source: "openneuro"
-
 paths:
-  project_root: "."
-  raw_data: "data/raw"
-  processed_data: "data/processed"
+  raw: "data/raw"
+  processed: "data/processed"
   results: "data/results"
-  state_file: "state/projects/PROJ-474-neural-correlates-social-ex.yaml"
-  subject_qc_list: "data/processed/subject_qc_list.json"
-  subjects_metadata: "data/processed/subjects_metadata.json"
-  connectivity_metrics: "data/processed/connectivity_metrics.json"
+  state: "state"
 
-analysis:
-  motion_threshold_mm: 3.0
+constants:
+  motion_threshold: 3.0
   min_subjects: 10
-  rois:
-    - "PCC"
-    - "mPFC"
-    - "Angular Gyrus"
+  dmn_rois:
+    - "Posterior_Cingulate_Cortex"
+    - "Medial_Prefrontal_Cortex"
+    - "Angular_Gyrus"
 
-state:
-  artifact_hashes: {}
+logging:
+  level: "INFO"
+
+dataset:
+  source: "OpenNeuro"
+  id: "ds000030"
+  version: "1.0.0"

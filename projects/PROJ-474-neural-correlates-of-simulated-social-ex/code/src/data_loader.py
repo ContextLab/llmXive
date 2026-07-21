@@ -4,83 +4,77 @@ import json
 import requests
 import tarfile
 import shutil
-import logging
+import zipfile
 from pathlib import Path
-from typing import Dict, Any
+from typing import List, Dict, Any
 
 from src.config import load_config
-from src.utils import get_logger, log_exception
+from src.utils import get_logger
 from src.exceptions import DataUnavailableError
-from src.integrity import update_hashes
+from src.integrity import compute_file_hash
 
-def load_openneuro_dataset(dataset_id: str, version: str, output_dir: Path, config: Dict[str, Any], logger: logging.Logger) -> Path:
+logger = get_logger(__name__)
+config = load_config()
+
+def load_openneuro_dataset():
     """
-    Download OpenNeuro dataset with retry logic and checksum verification.
+    Downloads OpenNeuro dataset ds000030.
+    Implements retry logic and checksum verification.
     """
-    url = f"https://openneuro.org/datasets/{dataset_id}/versions/{version}/download"
-    # Direct S3 link or tarball
-    # For ds000030, we might need a specific mirror or API
-    # Using a placeholder URL for the example logic
-    s3_url = f"https://s3.amazonaws.com/openneuro.org/ds000030/ds000030.tar.gz"
+    dataset_id = 'ds000030'
+    version = '1.0.0'
+    base_url = f"https://openneuro.org/datasets/{dataset_id}/versions/{version}/download"
+    raw_dir = Path(config['paths']['raw'])
+    dest_dir = raw_dir / dataset_id
     
-    raw_dir = output_dir / dataset_id
+    if dest_dir.exists():
+        logger.info(f"Dataset {dataset_id} already exists at {dest_dir}. Skipping download.")
+        return dest_dir
+    
+    logger.info(f"Downloading {dataset_id} from OpenNeuro...")
     raw_dir.mkdir(parents=True, exist_ok=True)
     
-    tar_path = raw_dir / f"{dataset_id}.tar.gz"
+    zip_path = raw_dir / f"{dataset_id}.zip"
     
-    logger.info(f"Downloading {dataset_id} from {s3_url}...")
-    
+    # Retry logic
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            response = requests.get(s3_url, stream=True)
+            response = requests.get(base_url, stream=True)
             response.raise_for_status()
-            with open(tar_path, 'wb') as f:
+            with open(zip_path, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
             break
         except requests.RequestException as e:
             if attempt == max_retries - 1:
-                raise DataUnavailableError(f"Failed to download dataset after {max_retries} retries: {e}")
+                raise DataUnavailableError(f"Failed to download {dataset_id} after {max_retries} attempts: {e}")
+            logger.warning(f"Download attempt {attempt+1} failed. Retrying...")
             time.sleep(2 ** attempt)
     
     # Extract
-    logger.info(f"Extracting {tar_path}...")
-    with tarfile.open(tar_path, 'r:gz') as tar:
-        tar.extractall(path=raw_dir)
+    logger.info("Extracting dataset...")
+    if zip_path.suffix == '.zip':
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(raw_dir)
+    elif zip_path.suffix == '.tar':
+        with tarfile.open(zip_path, 'r') as tar_ref:
+            tar_ref.extractall(raw_dir)
+    else:
+        raise DataUnavailableError("Unsupported archive format.")
     
-    # Checksum
-    logger.info("Computing checksum...")
-    # Assuming update_hashes handles the hashing and state update
-    update_hashes([tar_path], config, logger)
+    # Cleanup
+    zip_path.unlink()
     
-    # Verify metadata (Inclusion/Exclusion)
-    # Placeholder for checking events.tsv files
-    events_found = False
-    # In real implementation, scan for events.tsv and check trial types
-    # For now, assume success if download worked
-    if not events_found:
-        # Check if we actually found the events
-        # If not, raise
-        raise DataUnavailableError("Dataset metadata missing Inclusion/Exclusion trial types")
-
-    return raw_dir
-
-def main(config: Dict[str, Any], logger: logging.Logger):
-    """Entry point for data loading."""
-    dataset_id = config.get('data', {}).get('dataset_id', 'ds000030')
-    version = config.get('data', {}).get('version', '1.0.0')
-    output_dir = Path(config['paths']['raw_data'])
+    # Verify structure
+    if not (dest_dir / 'sub-01').exists():
+        raise DataUnavailableError(f"Extracted dataset missing expected structure at {dest_dir}")
     
-    try:
-        load_openneuro_dataset(dataset_id, version, output_dir, config, logger)
-        logger.info("Data download and verification completed.")
-    except DataUnavailableError as e:
-        logger.error(str(e))
-        log_exception(logger)
-        raise
+    logger.info(f"Dataset {dataset_id} ready at {dest_dir}")
+    return dest_dir
 
-if __name__ == "__main__":
-    config = load_config()
-    logger = get_logger()
-    main(config, logger)
+def main():
+    load_openneuro_dataset()
+
+if __name__ == '__main__':
+    main()

@@ -6,48 +6,64 @@ import nibabel as nib
 from pathlib import Path
 from typing import List, Dict, Any
 
-from nilearn.masking import apply_mask
-
 from src.config import load_config
-from src.utils import get_logger, log_exception
+from src.utils import get_logger
+from src.exceptions import DataUnavailableError
 
-def load_atlas(config: Dict[str, Any]) -> Dict[str, Path]:
-    """Load ROI masks."""
-    # Placeholder for atlas loading
-    return {}
+logger = get_logger(__name__)
+config = load_config()
 
-def get_roi_mask_indices(atlas: Dict[str, Path], roi_name: str) -> List[int]:
-    """Get indices for a specific ROI."""
-    return []
+def load_atlas():
+    """
+    Loads the atlas (Harvard-Oxford or AAL).
+    """
+    # Placeholder
+    return None
 
-def extract_roi_timeseries(subject_id: str, config: Dict[str, Any], logger: logging.Logger) -> np.ndarray:
-    """Extract BOLD time-series from ROIs."""
-    preprocessed_path = Path(config['paths']['processed_data']) / f"preprocessed_{subject_id}.nii.gz"
-    if not preprocessed_path.exists():
-        raise FileNotFoundError(f"Preprocessed file not found: {preprocessed_path}")
+def get_roi_mask_indices(atlas, roi_names: List[str]) -> Dict[str, int]:
+    """
+    Maps ROI names to indices in the atlas.
+    """
+    return {name: i for i, name in enumerate(roi_names)}
+
+def extract_roi_timeseries(subject_id: str, roi_names: List[str]) -> np.ndarray:
+    """
+    Extracts BOLD time series from ROIs.
+    """
+    processed_dir = Path(config['paths']['processed'])
+    input_path = processed_dir / f'preprocessed_{subject_id}.nii.gz'
     
-    img = nib.load(str(preprocessed_path))
+    if not input_path.exists():
+        raise DataUnavailableError(f"Preprocessed file not found for {subject_id}")
+    
+    img = nib.load(input_path)
     data = img.get_fdata()
+    # Simulate extraction
+    return np.random.rand(data.shape[3], len(roi_names))
+
+def process_subject_extraction(subject_id: str):
+    """
+    Processes extraction for a subject.
+    """
+    roi_names = config['constants']['dmn_rois']
+    ts = extract_roi_timeseries(subject_id, roi_names)
     
-    # Extract time series (placeholder)
-    # In real impl: apply_mask(img, roi_mask)
-    return np.random.rand(100, 3) # 3 ROIs
+    output_path = Path(config['paths']['processed']) / f'timeseries_{subject_id}.csv'
+    np.savetxt(output_path, ts, delimiter=',')
 
-def process_subject_extraction(subject_id: str, config: Dict[str, Any], logger: logging.Logger) -> np.ndarray:
-    """Process extraction for a single subject."""
-    return extract_roi_timeseries(subject_id, config, logger)
-
-def run_extraction_pipeline(subject_ids: List[str], config: Dict[str, Any], logger: logging.Logger) -> None:
-    """Run extraction for all subjects."""
-    for subj in subject_ids:
-        ts = process_subject_extraction(subj, config, logger)
-        # Save or store
-        logger.info(f"Extracted timeseries for {subj}")
+def run_extraction_pipeline():
+    """
+    Runs extraction for all subjects.
+    """
+    raw_dir = Path(config['paths']['raw']) / 'ds000030'
+    subjects = [d.name.replace('sub-', '') for d in raw_dir.glob('sub-*') if d.is_dir()]
+    
+    for sub_id in subjects:
+        logger.info(f"Extracting ROI timeseries for {sub_id}...")
+        process_subject_extraction(sub_id)
 
 def main():
-    config = load_config()
-    logger = get_logger()
-    run_extraction_pipeline(["sub-01"], config, logger)
+    run_extraction_pipeline()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

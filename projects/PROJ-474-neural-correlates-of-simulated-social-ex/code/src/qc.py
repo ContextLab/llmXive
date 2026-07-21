@@ -1,326 +1,308 @@
 """
-Quality Control module for fMRI data analysis.
-Handles motion parameter calculation, condition verification, and subject filtering.
+Quality Control (QC) module for fMRI data processing.
+Handles motion calculation, condition verification, and subject filtering.
 """
 import os
 import json
 import logging
 import numpy as np
-import nibabel as nib
+import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Literal
+from typing import List, Dict, Any, Optional, Tuple
 
 from src.config import load_config
-from src.exceptions import DataUnavailableError, InsufficientDataError
-from src.integrity import update_hashes
+from src.integrity import update_hashes, get_logger as get_integrity_logger
+from src.exceptions import DataUnavailableError, InsufficientSubjectsError
 
-# Configure logger
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-# Constants
-MOTION_THRESHOLD_MM = 3.0
-MIN_SUBJECTS_REQUIRED = 10
-
-def load_motion_parameters(subject_dir: Path) -> Dict[str, Any]:
+def load_motion_parameters(subject_id: str, raw_dir: Path) -> pd.DataFrame:
     """
-    Load motion parameters from a subject's confounds file.
+    Load motion parameters from the confounds TSV file for a given subject.
     
     Args:
-        subject_dir: Path to the subject's directory containing confounds.
+        subject_id: The subject identifier (e.g., 'sub-01')
+        raw_dir: Path to the raw data directory (BIDS root)
         
     Returns:
-        Dictionary containing motion parameters.
+        DataFrame containing motion parameters
         
     Raises:
-        DataUnavailableError: If confounds file is missing or invalid.
+        DataUnavailableError: If confounds file is not found
     """
-    # Look for standard confounds files (fMRIPrep style)
-    confounds_patterns = [
-        "confounds_regressors.tsv",
-        "confounds_timeseries.tsv",
-        "confounds.tsv"
-    ]
+    # BIDS pattern for confounds
+    confounds_pattern = raw_dir / subject_id / "func" / f"{subject_id}_task-cyberball_run-*_desc-confounds_timeseries.tsv"
     
-    confounds_file = None
-    for pattern in confounds_patterns:
-        candidate = subject_dir / pattern
-        if candidate.exists():
-            confounds_file = candidate
-            break
+    # Find the first matching file
+    confounds_files = list(confounds_pattern.parent.glob(f"{subject_id}_task-cyberball_run-*_desc-confounds_timeseries.tsv"))
     
-    if not confounds_file:
-        raise DataUnavailableError(f"Confounds file not found in {subject_dir}")
+    if not confounds_files:
+        # Fallback for simpler BIDS structures if run number varies
+        confounds_files = list((raw_dir / subject_id / "func").glob(f"{subject_id}_*_desc-confounds_timeseries.tsv"))
+        
+    if not confounds_files:
+        raise DataUnavailableError(f"Confounds file not found for subject {subject_id} in {raw_dir}")
+    
+    # Use the first found file
+    confounds_file = confounds_files[0]
+    logger.info(f"Loading confounds from: {confounds_file}")
     
     try:
-        import pandas as pd
-        confounds_df = pd.read_csv(confounds_file, sep='\t')
-        return confounds_df.to_dict('records')[0] if len(confounds_df) > 0 else {}
+        df = pd.read_csv(confounds_file, sep='\t')
     except Exception as e:
-        raise DataUnavailableError(f"Failed to parse confounds file: {e}")
+        raise DataUnavailableError(f"Failed to read confounds file {confounds_file}: {str(e)}")
+    
+    return df
 
-def calculate_framewise_displacement(confounds: Dict[str, Any]) -> float:
+def calculate_framewise_displacement(confounds_df: pd.DataFrame) -> float:
     """
     Calculate Framewise Displacement (FD) from motion parameters.
     
-    FD is calculated as the sum of absolute differences of motion parameters
-    between consecutive time points (Power et al., 2012).
+    Uses the standard Jenkinson FD formula:
+    FD = |Δx| + |Δy| + |Δz| + |Δα| + |Δβ| + |Δγ|
+    where Δ represents the absolute difference of the motion parameter from the previous volume.
+    Rotations are converted to mm assuming a radius of 50mm.
     
     Args:
-        confounds: Dictionary containing motion parameters (rotations in radians, translations in mm).
+        confounds_df: DataFrame containing motion parameters
         
     Returns:
-        Mean Framewise Displacement in mm.
+        Mean Framewise Displacement (float)
     """
-    # Expected columns (fMRIPrep standard)
-    trans_x = confounds.get('trans_x', [])
-    trans_y = confounds.get('trans_y', [])
-    trans_z = confounds.get('trans_z', [])
-    rot_x = confounds.get('rot_x', [])
-    rot_y = confounds.get('rot_y', [])
-    rot_z = confounds.get('rot_z', [])
+    # Identify motion parameters (trans_x, trans_y, trans_z, rot_x, rot_y, rot_z)
+    # BIDS standard names might vary slightly, check for common patterns
+    motion_cols = []
+    trans_cols = [c for c in confounds_df.columns if 'trans_x' in c or 'trans_y' in c or 'trans_z' in c]
+    rot_cols = [c for c in confounds_df.columns if 'rot_x' in c or 'rot_y' in c or 'rot_z' in c]
     
-    if not trans_x or not rot_x:
-        logger.warning("Motion parameters missing, returning 0.0 FD")
-        return 0.0
+    if not trans_cols or not rot_cols:
+        # Try alternative naming conventions (e.g., 'trans_x', 'rot_x' without 'trans_' prefix in some versions)
+        trans_cols = [c for c in confounds_df.columns if c.startswith('trans_')]
+        rot_cols = [c for c in confounds_df.columns if c.startswith('rot_')]
     
-    # Ensure arrays
-    trans_x = np.array(trans_x)
-    trans_y = np.array(trans_y)
-    trans_z = np.array(trans_z)
-    rot_x = np.array(rot_x)
-    rot_y = np.array(rot_y)
-    rot_z = np.array(rot_z)
-    
-    # Convert rotations from radians to mm (assuming 50mm radius)
-    rot_x_mm = np.abs(np.diff(rot_x)) * 50.0
-    rot_y_mm = np.abs(np.diff(rot_y)) * 50.0
-    rot_z_mm = np.abs(np.diff(rot_z)) * 50.0
-    
-    # Calculate translation differences
-    trans_x_diff = np.abs(np.diff(trans_x))
-    trans_y_diff = np.abs(np.diff(trans_y))
-    trans_z_diff = np.abs(np.diff(trans_z))
-    
-    # Sum of absolute differences
-    fd = trans_x_diff + trans_y_diff + trans_z_diff + rot_x_mm + rot_y_mm + rot_z_mm
-    
-    return float(np.mean(fd))
+    if not trans_cols or not rot_cols:
+        logger.warning(f"Could not find standard motion parameters in {confounds_df.columns}. Attempting fallback.")
+        # Fallback: look for 'motion' or 'param' columns
+        all_cols = confounds_df.columns
+        trans_cols = [c for c in all_cols if 'x' in c and ('trans' in c or 'x' in c)]
+        rot_cols = [c for c in all_cols if 'rot' in c]
+        
+        if not trans_cols or not rot_cols:
+            raise DataUnavailableError("Could not identify motion parameters for FD calculation.")
 
-def calculate_subject_motion_metrics(subject_dir: Path) -> float:
-    """
-    Calculate motion metrics for a single subject.
-    
-    Args:
-        subject_dir: Path to subject directory.
-        
-    Returns:
-        Mean Framewise Displacement in mm.
-    """
-    confounds = load_motion_parameters(subject_dir)
-    return calculate_framewise_displacement(confounds)
+    # Sort columns to ensure consistent order (x, y, z)
+    trans_cols.sort(key=lambda x: x[-1]) # Sort by last char (x, y, z)
+    rot_cols.sort(key=lambda x: x[-1])
 
-def verify_conditions(subject_dir: Path) -> Literal["valid", "invalid"]:
+    motion_params = confounds_df[trans_cols + rot_cols].values
+    
+    # Calculate absolute differences between consecutive volumes
+    diff = np.abs(np.diff(motion_params, axis=0))
+    
+    # Convert rotation to mm (radius = 50mm)
+    # Rotation values are typically in radians
+    rotation_radius = 50.0
+    fd_values = diff[:, 0:3].sum(axis=1) + (diff[:, 3:6] * rotation_radius).sum(axis=1)
+    
+    # Mean FD (excluding the first volume which has no previous)
+    mean_fd = np.mean(fd_values)
+    
+    return float(mean_fd)
+
+def calculate_subject_motion_metrics(subject_id: str, raw_dir: Path) -> float:
     """
-    Verify that a subject has valid time-series data for both Inclusion and Exclusion conditions.
+    Calculate the motion metric (FD) for a specific subject.
     
     Args:
-        subject_dir: Path to subject directory.
+        subject_id: Subject identifier
+        raw_dir: Path to raw data directory
         
     Returns:
-        "valid" if both conditions exist, "invalid" otherwise.
+        Mean FD value (float)
     """
-    # Check for events file which should contain trial types
-    events_patterns = [
-        "events.tsv",
-        "sub-*_events.tsv"
-    ]
+    confounds_df = load_motion_parameters(subject_id, raw_dir)
+    fd = calculate_framewise_displacement(confounds_df)
+    logger.info(f"Subject {subject_id} mean FD: {fd:.4f} mm")
+    return fd
+
+def verify_conditions(subject_id: str, raw_dir: Path) -> Tuple[bool, str]:
+    """
+    Verify that the subject's events.tsv contains both 'Inclusion' and 'Exclusion' trial types.
     
-    events_file = None
-    for pattern in events_patterns:
-        for f in subject_dir.glob(pattern):
-            events_file = f
-            break
-        if events_file:
-            break
+    Args:
+        subject_id: Subject identifier
+        raw_dir: Path to raw data directory
+        
+    Returns:
+        Tuple of (is_valid, status_message)
+    """
+    events_pattern = raw_dir / subject_id / "func" / f"{subject_id}_task-cyberball_run-*_events.tsv"
+    events_files = list(events_pattern.parent.glob(f"{subject_id}_task-cyberball_run-*_events.tsv"))
     
-    if not events_file:
-        logger.warning(f"No events file found for {subject_dir}")
-        return "invalid"
+    if not events_files:
+        events_files = list((raw_dir / subject_id / "func").glob(f"{subject_id}_*_events.tsv"))
+        
+    if not events_files:
+        raise DataUnavailableError(f"Events file not found for subject {subject_id}")
     
+    events_file = events_files[0]
     try:
-        import pandas as pd
         events_df = pd.read_csv(events_file, sep='\t')
-        
-        # Check for required trial types
-        if 'trial_type' not in events_df.columns:
-            logger.warning(f"No trial_type column in events for {subject_dir}")
-            return "invalid"
-        
-        trial_types = set(events_df['trial_type'].dropna().astype(str).unique())
-        
-        # Check for inclusion and exclusion trials
-        has_inclusion = any('inclusion' in t.lower() for t in trial_types)
-        has_exclusion = any('exclusion' in t.lower() for t in trial_types)
-        
-        if has_inclusion and has_exclusion:
-            return "valid"
-        else:
-            logger.info(f"Subject {subject_dir.name}: missing inclusion={not has_inclusion}, exclusion={not has_exclusion}")
-            return "invalid"
-            
     except Exception as e:
-        logger.error(f"Error verifying conditions for {subject_dir}: {e}")
-        return "invalid"
+        raise DataUnavailableError(f"Failed to read events file {events_file}: {str(e)}")
+    
+    if 'trial_type' not in events_df.columns:
+        raise DataUnavailableError(f"'trial_type' column missing in {events_file}")
+    
+    trial_types = set(events_df['trial_type'].astype(str).str.strip().unique())
+    
+    has_inclusion = any('Inclusion' in t for t in trial_types)
+    has_exclusion = any('Exclusion' in t for t in trial_types)
+    
+    if has_inclusion and has_exclusion:
+        return True, "valid"
+    elif not has_inclusion and not has_exclusion:
+        return False, "invalid (missing both)"
+    elif not has_inclusion:
+        return False, "invalid (missing Inclusion)"
+    else:
+        return False, "invalid (missing Exclusion)"
 
-def filter_by_motion_threshold(subject_metrics: List[Dict[str, Any]], threshold: float = MOTION_THRESHOLD_MM) -> List[Dict[str, Any]]:
+def calculate_subject_motion_metrics_with_conditions(raw_dir: Path) -> List[Dict[str, Any]]:
     """
-    Filter subjects based on motion threshold.
+    Calculate motion metrics and verify conditions for all subjects in the raw directory.
     
     Args:
-        subject_metrics: List of subject metric dictionaries.
-        threshold: Maximum allowed mean FD in mm.
+        raw_dir: Path to raw data directory
         
     Returns:
-        Filtered list with 'retained' flag set.
+        List of dictionaries with subject metadata
     """
-    for subject in subject_metrics:
-        subject['retained'] = subject['motion_metric'] <= threshold
-    return subject_metrics
+    config = load_config()
+    subjects = [d.name for d in raw_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+    
+    results = []
+    for subj in subjects:
+        try:
+            motion_metric = calculate_subject_motion_metrics(subj, raw_dir)
+            is_valid, status = verify_conditions(subj, raw_dir)
+            results.append({
+                "subject_id": subj,
+                "motion_metric": motion_metric,
+                "condition_status": status,
+                "retained": False # Default, will be updated by filter
+            })
+        except DataUnavailableError as e:
+            logger.error(f"Skipping {subj}: {e}")
+            results.append({
+                "subject_id": subj,
+                "motion_metric": None,
+                "condition_status": "error",
+                "retained": False
+            })
+    
+    return results
 
-def check_subject_count(subject_list: List[Dict[str, Any]], min_count: int = MIN_SUBJECTS_REQUIRED) -> None:
+def filter_by_motion_threshold(subject_list: List[Dict[str, Any]], threshold: float) -> List[Dict[str, Any]]:
+    """
+    Filter subjects based on motion threshold and condition validity.
+    
+    Args:
+        subject_list: List of subject dictionaries from calculate_subject_motion_metrics_with_conditions
+        threshold: Motion threshold in mm
+        
+    Returns:
+        Filtered list of subjects with 'retained' flag set
+    """
+    filtered = []
+    for subj in subject_list:
+        if subj["motion_metric"] is None:
+            subj["retained"] = False
+            filtered.append(subj)
+            continue
+            
+        is_motion_ok = subj["motion_metric"] <= threshold
+        is_condition_ok = subj["condition_status"] == "valid"
+        
+        subj["retained"] = is_motion_ok and is_condition_ok
+        filtered.append(subj)
+        
+    return filtered
+
+def check_subject_count(subject_list: List[Dict[str, Any]], min_count: int = 10) -> None:
     """
     Check if the number of retained subjects meets the minimum requirement.
     
     Args:
-        subject_list: List of subject metric dictionaries.
-        min_count: Minimum number of subjects required.
+        subject_list: List of subject dictionaries
+        min_count: Minimum required subjects
         
     Raises:
-        InsufficientDataError: If retained subjects are below threshold.
+        InsufficientSubjectsError: If retained count < min_count
     """
-    retained_count = sum(1 for s in subject_list if s.get('retained', False))
+    retained_count = sum(1 for s in subject_list if s.get("retained", False))
     if retained_count < min_count:
-        raise InsufficientDataError(f"Insufficient subjects (N={retained_count}) for valid permutation test.")
+        raise InsufficientSubjectsError(retained_count)
 
-def run_qc_pipeline(data_dir: Path, output_dir: Path, config: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+def run_qc_pipeline(raw_dir: str, output_dir: str) -> None:
     """
-    Run the full QC pipeline on a dataset.
+    Run the full QC pipeline: calculate metrics, verify conditions, filter, and save results.
     
     Args:
-        data_dir: Path to the raw data directory containing subject folders.
-        output_dir: Path to output processed data directory.
-        config: Optional configuration dictionary.
-        
-    Returns:
-        List of subject QC records.
+        raw_dir: Path to raw data directory
+        output_dir: Path to output directory for JSON files
     """
-    if config is None:
-        config = load_config()
+    raw_path = Path(raw_dir)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    motion_threshold = config.get('qc', {}).get('motion_threshold_mm', MOTION_THRESHOLD_MM)
+    logger.info(f"Starting QC pipeline for {raw_path}")
     
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # 1. Calculate metrics and verify conditions for all subjects
+    full_list = calculate_subject_motion_metrics_with_conditions(raw_path)
     
-    # Find all subject directories
-    subject_dirs = sorted([d for d in data_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')])
+    # 2. Filter by motion threshold (from config)
+    config = load_config()
+    threshold = config.get("motion_threshold", 3.0)
+    filtered_list = filter_by_motion_threshold(full_list, threshold)
     
-    if not subject_dirs:
-        raise DataUnavailableError(f"No subject directories found in {data_dir}")
+    # 3. Write full list (including excluded)
+    full_list_path = output_path / "subject_qc_list.json"
+    with open(full_list_path, 'w') as f:
+        json.dump(full_list, f, indent=2)
+    logger.info(f"Wrote full QC list to {full_list_path}")
     
-    logger.info(f"Processing {len(subject_dirs)} subjects for QC...")
+    # 4. Write retained subjects list
+    retained_list = [s for s in filtered_list if s.get("retained", False)]
+    retained_path = output_path / "subjects_metadata.json"
+    with open(retained_path, 'w') as f:
+        json.dump(retained_list, f, indent=2)
+    logger.info(f"Wrote retained subjects to {retained_path} (N={len(retained_list)})")
     
-    subject_qc_list = []
+    # 5. Update integrity hashes
+    update_hashes([str(full_list_path), str(retained_path)])
     
-    for subject_dir in subject_dirs:
-        subject_id = subject_dir.name
-        logger.info(f"Processing {subject_id}...")
-        
-        try:
-            # Calculate motion metric
-            motion_metric = calculate_subject_motion_metrics(subject_dir)
-            
-            # Verify conditions
-            condition_status = verify_conditions(subject_dir)
-            
-            # Determine retention
-            retained = (motion_metric <= motion_threshold) and (condition_status == "valid")
-            
-            record = {
-                'subject_id': subject_id,
-                'motion_metric': float(motion_metric),
-                'condition_status': condition_status,
-                'retained': retained
-            }
-            
-            subject_qc_list.append(record)
-            
-        except Exception as e:
-            logger.error(f"Error processing {subject_id}: {e}")
-            # Add record with error status
-            subject_qc_list.append({
-                'subject_id': subject_id,
-                'motion_metric': 0.0,
-                'condition_status': 'invalid',
-                'retained': False,
-                'error': str(e)
-            })
-    
-    # Sort by subject_id for consistency
-    subject_qc_list.sort(key=lambda x: x['subject_id'])
-    
-    # Write QC list
-    qc_list_path = output_dir / 'subject_qc_list.json'
-    with open(qc_list_path, 'w') as f:
-        json.dump(subject_qc_list, f, indent=2)
-    
-    # Generate subjects metadata (only retained subjects)
-    retained_subjects = [s for s in subject_qc_list if s['retained']]
-    metadata_path = output_dir / 'subjects_metadata.json'
-    with open(metadata_path, 'w') as f:
-        json.dump({
-            'retained_subjects': [s['subject_id'] for s in retained_subjects],
-            'total_retained': len(retained_subjects),
-            'total_excluded': len(subject_qc_list) - len(retained_subjects),
-            'motion_threshold_mm': motion_threshold
-        }, f, indent=2)
-    
-    # Update integrity hashes
-    update_hashes(str(qc_list_path))
-    update_hashes(str(metadata_path))
-    
-    logger.info(f"QC complete. Retained: {len(retained_subjects)}, Excluded: {len(subject_qc_list) - len(retained_subjects)}")
-    
-    return subject_qc_list
-
-def main():
-    """Main entry point for QC pipeline."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Run QC pipeline on fMRI dataset')
-    parser.add_argument('--data-dir', type=str, required=True, help='Path to raw data directory')
-    parser.add_argument('--output-dir', type=str, required=True, help='Path to output directory')
-    parser.add_argument('--config', type=str, default=None, help='Path to config file')
-    
-    args = parser.parse_args()
-    
-    setup_logging()
-    
-    config = load_config(args.config) if args.config else load_config()
-    
+    # 6. Check subject count
     try:
-        run_qc_pipeline(
-            data_dir=Path(args.data_dir),
-            output_dir=Path(args.output_dir),
-            config=config
-        )
-    except Exception as e:
-        logger.error(f"QC pipeline failed: {e}")
+        check_subject_count(filtered_list, min_count=config.get("min_subjects", 10))
+        logger.info(f"Subject count check passed: {len(retained_list)} subjects retained.")
+    except InsufficientSubjectsError as e:
+        logger.error(str(e))
+        # Re-raise to halt pipeline if necessary
         raise
 
-def setup_logging():
-    """Setup basic logging configuration."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+def main():
+    """Entry point for QC pipeline execution."""
+    config = load_config()
+    raw_dir = config.get("paths", {}).get("raw", "data/raw")
+    output_dir = config.get("paths", {}).get("processed", "data/processed")
+    
+    try:
+        run_qc_pipeline(raw_dir, output_dir)
+    except (DataUnavailableError, InsufficientSubjectsError) as e:
+        logger.error(f"QC Pipeline failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()

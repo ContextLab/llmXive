@@ -4,50 +4,70 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from src.data_loader import load_openneuro_dataset
-from src.qc import run_qc_pipeline
-from src.extraction import run_extraction_pipeline
-from src.connectivity import compute_connectivity_metrics
-from src.stats import generate_sensitivity_curve, run_statistical_analysis
 
-def run_download_qc_step():
-    """Downloads data and runs quality control."""
-    # Placeholder implementation - replace with actual logic
-    print("Running download & QC step...")
+# Import step functions – they are defined in other modules.
+from src.main import (
+    run_download_qc_step,
+    run_extract_connectivity_step,
+    run_stats_viz_step,
+)
+
+def _parse_arguments() -> argparse.Namespace:
+    """
+    Parse command‑line arguments.
+
+    The original implementation expected a positional ``step`` argument.
+    The quick‑start guide, however, uses the ``--step`` flag.  To remain
+    backward compatible we accept **both** forms.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run a single step of the neuro‑imaging pipeline."
+    )
+    # Positional argument (historical)
+    parser.add_argument(
+        "step_pos",
+        nargs="?",
+        help="Name of the step to run (positional, legacy).",
+    )
+    # New ``--step`` flag
+    parser.add_argument(
+        "--step",
+        dest="step_flag",
+        help="Name of the step to run (preferred flag).",
+    )
+    return parser.parse_args()
+
+def main() -> int:
+    """
+    Entry‑point used by the run‑book. Returns an exit‑code compatible
+    with the surrounding orchestration.
+    """
+    args = _parse_arguments()
+
+    # Resolve which argument the user supplied.
+    step = args.step_flag or args.step_pos
+    if not step:
+        print("Error: no step specified.", file=sys.stderr)
+        return 1
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Running pipeline step: {step}")
+
+    try:
+        if step == "download_qc":
+            run_download_qc_step()
+        elif step == "extract_connectivity":
+            run_extract_connectivity_step()
+        elif step == "stats_viz":
+            run_stats_viz_step()
+        else:
+            logger.error(f"Unknown step: {step}")
+            return 1
+    except Exception as exc:  # pragma: no cover – defensive
+        logger.exception("Pipeline step failed")
+        return 1
+
     return 0
-
-def run_extract_connectivity_step():
-    """Extracts connectivity metrics."""
-    # Placeholder implementation - replace with actual logic
-    print("Running extract connectivity step...")
-    return 0
-
-def run_stats_viz_step():
-    """Runs statistical analysis and generates visualizations."""
-    # Placeholder implementation - replace with actual logic
-    print("Running stats & viz step...")
-    return 0
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Pipeline Orchestrator")
-    parser.add_argument("--step", type=str, help="Step to execute (download_qc, extract_connectivity, stats_viz)")
-
-    args = parser.parse_args()
-
-    if args.step == "download_qc":
-        exit_code = run_download_qc_step()
-    elif args.step == "extract_connectivity":
-        exit_code = run_extract_connectivity_step()
-    elif args.step == "stats_viz":
-        exit_code = run_stats_viz_step()
-    else:
-        print("Unknown step.")
-        exit_code = 1
-
-    return exit_code
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    exit_code = main()
-    sys.exit(exit_code)
+    sys.exit(main())
