@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import requests
 from config import ensure_directories
 
 NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0/"
@@ -47,10 +48,11 @@ def fetch_nvd_feed(start_date: str, end_date: str) -> list:
                 "pubStart": start_date,
                 "pubEnd": end_date
             }
-            response = requests.get(NVD_API_URL, headers=headers, params=params, timeout=60)
+            response = requests.get(NVD_API_URL, headers=headers, params=params, timeout=120)
             
             if response.status_code == 403:
                 # Rate limited, wait and retry
+                print("Rate limited (403). Waiting 60 seconds before retry...")
                 time.sleep(60)
                 continue
             response.raise_for_status()
@@ -71,15 +73,15 @@ def fetch_nvd_feed(start_date: str, end_date: str) -> list:
                 break
             
             # NVD rate limit: 5 requests per 30 seconds
+            # We wait 7 seconds to be safe
             time.sleep(7) 
             
         except requests.exceptions.RequestException as e:
             print(f"Error fetching NVD data: {e}")
-            break
+            # On network error, we fail loudly rather than returning partial data
+            raise RuntimeError(f"Failed to fetch NVD data: {e}")
     
     return cves
-
-import requests
 
 def download_all_nvd_feeds():
     """Download CVE data for the last 5 years."""

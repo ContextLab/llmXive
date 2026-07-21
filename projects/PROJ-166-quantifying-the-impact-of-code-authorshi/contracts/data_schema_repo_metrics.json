@@ -1,0 +1,58 @@
+{
+  "description": "Schema for the final merged dataset used for modeling.",
+  "source": "Merge of GitHub Metrics and NVD CVE Counts",
+  "output_file": "data/processed/repo_metrics.csv",
+  "columns": [
+    {
+      "name": "url",
+      "type": "string",
+      "description": "Full HTTPS URL of the GitHub repository.",
+      "nullable": false,
+      "unique": true
+    },
+    {
+      "name": "primary_language",
+      "type": "string",
+      "description": "Primary programming language.",
+      "nullable": false
+    },
+    {
+      "name": "unique_authors",
+      "type": "integer",
+      "description": "Count of unique authors.",
+      "nullable": false
+    },
+    {
+      "name": "kloc",
+      "type": "float",
+      "description": "Kilolines of code.",
+      "nullable": false
+    },
+    {
+      "name": "cve_count",
+      "type": "integer",
+      "description": "Count of associated CVEs. 0 if no match found.",
+      "nullable": false,
+      "min_value": 0
+    },
+    {
+      "name": "project_age",
+      "type": "float",
+      "description": "Age of project in years (calculated from creation date to now).",
+      "nullable": false
+    },
+    {
+      "name": "release_count",
+      "type": "integer",
+      "description": "Number of releases (placeholder for future enrichment).",
+      "nullable": false,
+      "default": 0
+    }
+  ],
+  "cleaned_output_file": "data/processed/repo_metrics_clean.csv",
+  "cleaning_rules": [
+    "Exclude rows where kloc <= 0.",
+    "Impute missing cve_count to 0.",
+    "Exclude rows where unique_authors is null."
+  ]
+}

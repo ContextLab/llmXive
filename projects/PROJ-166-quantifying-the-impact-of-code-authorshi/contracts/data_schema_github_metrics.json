@@ -1,0 +1,45 @@
+{
+  "description": "Schema for raw GitHub metrics extracted via git clone and cloc.",
+  "source": "Git Clone + cloc tool",
+  "output_file": "data/processed/github_raw_metrics.csv",
+  "columns": [
+    {
+      "name": "url",
+      "type": "string",
+      "description": "Full HTTPS URL of the GitHub repository.",
+      "nullable": false,
+      "unique": true
+    },
+    {
+      "name": "primary_language",
+      "type": "string",
+      "description": "Primary programming language (inherited from target list).",
+      "nullable": false
+    },
+    {
+      "name": "unique_authors",
+      "type": "integer",
+      "description": "Count of unique author emails found in git log (filtered for >1 line contribution).",
+      "nullable": false,
+      "min_value": 1
+    },
+    {
+      "name": "raw_line_count",
+      "type": "integer",
+      "description": "Total lines of code reported by cloc.",
+      "nullable": false,
+      "min_value": 0
+    },
+    {
+      "name": "kloc",
+      "type": "float",
+      "description": "Kilolines of code (raw_line_count / 1000).",
+      "nullable": false,
+      "min_value": 0.0
+    }
+  ],
+  "constraints": {
+    "exclude": "Repos with clone failures are skipped, not included here.",
+    "validation": "kloc must be calculated from raw_line_count."
+  }
+}

@@ -5,114 +5,218 @@ import requests
 import pandas as pd
 from datetime import datetime, timezone
 from pathlib import Path
+import logging
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
+# Import from project config to ensure paths are consistent
 from config import ensure_directories
 
-GITHUB_API_URL = "https://api.github.com/search/repositories"
-OUTPUT_PATH = Path("data/raw/target_list.csv")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# A curated list of popular repos across languages to ensure a robust dataset
-# We use specific queries to fetch real data from GitHub API.
-SEARCH_QUERIES = [
-    "language:python stars:>10000",
-    "language:javascript stars:>10000",
-    "language:go stars:>5000",
-    "language:java stars:>5000",
-    "language:rust stars:>5000",
-]
+# Constants from task requirements
+TARGET_COUNT = 600
+MIN_ACCEPTABLE_COUNT = 500
+MAX_STARS_THRESHOLD = 1000
+MIN_STARS_THRESHOLD = 100
+STARS_DECREMENT = 500
+MAX_STARS_ITERATIONS = 3
+MAX_RETRIES_PER_QUERY = 3
+REQUEST_TIMEOUT = 30
 
-def fetch_repo_metadata(query: str, per_page: int = 10) -> list:
-    """Fetch repository metadata from GitHub API."""
-    repos = []
-    page = 1
+# GitHub API endpoint
+GITHUB_API_SEARCH_URL = "https://api.github.com/search/repositories"
+
+# Target output file
+OUTPUT_FILE = "data/raw/target_list.csv"
+
+
+def build_query(stars_threshold: int, languages: list = None) -> str:
+    """
+    Construct the GitHub Search API query string.
+    
+    Args:
+        stars_threshold: Minimum number of stars required.
+        languages: List of programming languages to filter by.
+        
+    Returns:
+        URL-encoded query string.
+    """
+    if languages is None:
+        languages = ["JavaScript", "Python", "Java", "C++"]
+    
+    # Build language part of query (OR logic for languages)
+    lang_query = "+".join([f"language:{lang}" for lang in languages])
+    
+    # Build full query
+    query = (
+        f"q=stars:>{stars_threshold}"
+        f"+created:>=2015-01-01"
+        f"+{lang_query}"
+        f"&sort=stars&order=desc"
+    )
+    
+    return query
+
+
+def fetch_repo_metadata(query: str, retries: int = MAX_RETRIES_PER_QUERY) -> list:
+    """
+    Fetch repository metadata from GitHub Search API.
+    
+    Args:
+        query: The search query string.
+        retries: Number of retry attempts on failure.
+        
+    Returns:
+        List of repository dictionaries with relevant metadata.
+        
+    Raises:
+        RuntimeError: If all retry attempts fail.
+    """
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "llmXive-Pipeline"
+        "User-Agent": "llmXive-Research-Agent"
     }
     
-    # If API key is available (T029), use it
+    # Add GitHub token if available (avoids rate limiting)
     token = os.getenv("GITHUB_TOKEN")
     if token:
         headers["Authorization"] = f"token {token}"
-
-    while len(repos) < per_page:
-        try:
-            params = {"q": query, "sort": "stars", "order": "desc", "per_page": 10, "page": page}
-            response = requests.get(GITHUB_API_URL, headers=headers, params=params, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            items = data.get("items", [])
-            if not items:
-                break
-            
-            for item in items:
-                repos.append({
-                    "url": item["html_url"],
-                    "language": item.get("language", "Unknown"),
-                    "stars": item["stargazers_count"],
-                    "created_at": item["created_at"]
-                })
-                if len(repos) >= per_page:
-                    break
-            
-            page += 1
-            time.sleep(1) # Rate limit safety
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching {query}: {e}")
-            break
     
-    return repos
+    last_error = None
+    
+    for attempt in range(1, retries + 1):
+        try:
+            logger.info(f"Fetching repositories (attempt {attempt}/{retries})...")
+            response = requests.get(
+                GITHUB_API_SEARCH_URL,
+                params=query,
+                headers=headers,
+                timeout=REQUEST_TIMEOUT
+            )
+            
+            response.raise_for_status()
+            data = response.json()
+            
+            if "items" not in data:
+                raise ValueError("Invalid response format: 'items' key missing")
+            
+            logger.info(f"Found {data.get('total_count', 0)} total matches, retrieving {len(data['items'])} items")
+            return data["items"]
+            
+        except requests.exceptions.RequestException as e:
+            last_error = e
+            logger.warning(f"Request failed (attempt {attempt}/{retries}): {e}")
+            time.sleep(2 ** attempt)  # Exponential backoff
+        except ValueError as e:
+            logger.error(f"Invalid response data: {e}")
+            raise
+    
+    raise RuntimeError(f"All {retries} retry attempts failed: {last_error}")
+
 
 def generate_target_list():
-    """Generate the target list CSV."""
-    ensure_directories()
+    """
+    Main function to generate the target list of repositories.
     
+    Implements fallback logic: if <500 repos found, lower stars threshold
+    by 500 (max 3 iterations, min stars=100).
+    
+    Returns:
+        DataFrame with columns: url, primary_language, stars, age
+    """
+    ensure_directories()  # Ensure data/raw exists
+    
+    stars_threshold = MAX_STARS_THRESHOLD
     all_repos = []
-    for query in SEARCH_QUERIES:
-        print(f"Fetching repos for query: {query}")
-        repos = fetch_repo_metadata(query, per_page=10)
-        all_repos.extend(repos)
+    languages = ["JavaScript", "Python", "Java", "C++"]
     
-    if not all_repos:
-        raise RuntimeError("Failed to fetch any repositories from GitHub API.")
+    for iteration in range(MAX_STARS_ITERATIONS):
+        logger.info(f"Iteration {iteration + 1}: Searching for repos with stars > {stars_threshold}")
+        
+        query = build_query(stars_threshold, languages)
+        
+        try:
+            items = fetch_repo_metadata(query)
+        except RuntimeError as e:
+            logger.error(f"Failed to fetch data: {e}")
+            raise
+        
+        # Extract relevant fields
+        for item in items:
+            repo_data = {
+                "url": item["html_url"],
+                "primary_language": item.get("language") or "Unknown",
+                "stars": item["stargazers_count"],
+                "age": (datetime.now(timezone.utc) - datetime.fromisoformat(
+                    item["created_at"].replace('Z', '+00:00')
+                )).days
+            }
+            all_repos.append(repo_data)
+        
+        # Check if we have enough repos
+        if len(all_repos) >= MIN_ACCEPTABLE_COUNT:
+            logger.info(f"Successfully collected {len(all_repos)} repositories.")
+            break
+        
+        # Fallback logic: lower threshold if not enough repos
+        if iteration < MAX_STARS_ITERATIONS - 1:
+            new_threshold = stars_threshold - STARS_DECREMENT
+            if new_threshold < MIN_STARS_THRESHOLD:
+                new_threshold = MIN_STARS_THRESHOLD
+            
+            if new_threshold == stars_threshold:
+                logger.warning("Cannot lower stars threshold further.")
+                break
+                
+            stars_threshold = new_threshold
+            logger.info(f"Lowering stars threshold to {stars_threshold} for next iteration.")
     
-    # Convert to DataFrame
+    # Final check
+    if len(all_repos) < MIN_ACCEPTABLE_COUNT:
+        raise RuntimeError(
+            f"Failed to collect minimum required repos ({MIN_ACCEPTABLE_COUNT}). "
+            f"Only collected {len(all_repos)}."
+        )
+    
+    # Create DataFrame and deduplicate by URL
     df = pd.DataFrame(all_repos)
+    df = df.drop_duplicates(subset=["url"])
     
-    # Calculate age in years
-    df['created_at'] = pd.to_datetime(df['created_at'])
-    now = datetime.now(timezone.utc)
-    df['age'] = (now - df['created_at']).dt.days / 365.25
+    # Sort by stars descending
+    df = df.sort_values(by="stars", ascending=False)
     
-    # Select and order columns
-    # Explicitly map 'language' to 'primary_language' as per task requirements
-    df = df[['url', 'language', 'stars', 'age']]
-    df = df.rename(columns={'language': 'primary_language'})
+    # Limit to target count if we have more
+    if len(df) > TARGET_COUNT:
+        df = df.head(TARGET_COUNT)
     
-    # Sort by URL alphabetically (as per T006 requirement)
-    df = df.sort_values(by='url').reset_index(drop=True)
+    logger.info(f"Final dataset: {len(df)} repositories")
     
-    # Ensure output directory exists
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # Save to CSV
+    output_path = Path(OUTPUT_FILE)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved target list to {output_path.absolute()}")
     
-    # Write to CSV
-    df.to_csv(OUTPUT_PATH, index=False)
-    print(f"Target list saved to {OUTPUT_PATH} with {len(df)} entries.")
-    
-    # Verification: Assert file exists and contains exactly len(target_list) rows
-    assert OUTPUT_PATH.exists(), f"Output file {OUTPUT_PATH} was not created."
-    loaded_df = pd.read_csv(OUTPUT_PATH)
-    assert len(loaded_df) == len(df), f"Row count mismatch: expected {len(df)}, got {len(loaded_df)}"
+    # Verification
+    assert output_path.exists(), "Output file was not created"
+    assert len(df) >= MIN_ACCEPTABLE_COUNT, f"Only {len(df)} rows, expected >= {MIN_ACCEPTABLE_COUNT}"
     
     return df
 
+
 def main():
-    generate_target_list()
+    """Entry point for script execution."""
+    try:
+        df = generate_target_list()
+        print(f"SUCCESS: Generated target list with {len(df)} repositories.")
+        print(f"Output saved to: {OUTPUT_FILE}")
+    except Exception as e:
+        logger.error(f"Failed to generate target list: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

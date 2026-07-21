@@ -1,0 +1,33 @@
+{
+  "description": "Schema for merged NVD CVE data.",
+  "source": "NVD JSON Feeds",
+  "output_file": "data/raw/nvd_cve_merged.json.gz",
+  "format": "GZIP compressed JSON",
+  "internal_structure": {
+    "type": "list",
+    "items": {
+      "type": "object",
+      "properties": {
+        "cve_id": { "type": "string", "description": "Unique CVE identifier (e.g., CVE-2023-1234)." },
+        "published_date": { "type": "string", "description": "ISO 8601 date string." },
+        "references": { "type": "array", "items": { "type": "string" }, "description": "List of reference URLs." },
+        "metrics": { "type": "object", "description": "CVSS metrics." }
+      },
+      "required": ["cve_id", "references"]
+    }
+  },
+  "derived_output_file": "data/processed/nvd_cve_counts.csv",
+  "derived_columns": [
+    {
+      "name": "url",
+      "type": "string",
+      "description": "Exact match URL from target list."
+    },
+    {
+      "name": "cve_count",
+      "type": "integer",
+      "description": "Number of CVEs referencing this URL.",
+      "min_value": 0
+    }
+  ]
+}
