@@ -1,278 +1,249 @@
 """
-Unit tests for overlap_calculator module.
+Unit tests for overlap_calculator module (T022).
 
-Tests the overlap ratio calculation logic for T022.
+Tests:
+- calculate_overlap_ratio with known inputs
+- load_token_rankings with mock data
+- generate_overlap_report structure
 """
-import pytest
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+import pytest
 import numpy as np
 
 from overlap_calculator import (
-    calculate_overlap_ratio,
     load_token_rankings,
+    calculate_overlap_ratio,
     generate_overlap_report
 )
-from config import load_config
 
 
 class TestCalculateOverlapRatio:
-    """Tests for the calculate_overlap_ratio function."""
+    """Tests for calculate_overlap_ratio function."""
 
     def test_identical_lists(self):
-        """Test overlap ratio when lists are identical."""
-        list_a = ['token1', 'token2', 'token3']
-        list_b = ['token1', 'token2', 'token3']
+        """Overlap should be 1.0 for identical lists."""
+        tokens = ["a", "b", "c"]
+        assert calculate_overlap_ratio(tokens, tokens) == 1.0
 
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 3
-        assert result['ratio'] == 1.0
-        assert result['size_a'] == 3
-        assert result['size_b'] == 3
-        assert result['overlap_tokens'] == ['token1', 'token2', 'token3']
-
-    def test_no_overlap(self):
-        """Test overlap ratio when lists have no common elements."""
-        list_a = ['token1', 'token2', 'token3']
-        list_b = ['token4', 'token5', 'token6']
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 0
-        assert result['ratio'] == 0.0
-        assert result['size_a'] == 3
-        assert result['size_b'] == 3
-        assert result['overlap_tokens'] == []
+    def test_disjoint_lists(self):
+        """Overlap should be 0.0 for completely disjoint lists."""
+        list1 = ["a", "b", "c"]
+        list2 = ["d", "e", "f"]
+        assert calculate_overlap_ratio(list1, list2) == 0.0
 
     def test_partial_overlap(self):
-        """Test overlap ratio with partial overlap."""
-        list_a = ['token1', 'token2', 'token3', 'token4']
-        list_b = ['token3', 'token4', 'token5', 'token6']
+        """Overlap should be correct for partial overlap."""
+        list1 = ["a", "b", "c", "d"]
+        list2 = ["c", "d", "e", "f"]
+        # Intersection: {c, d} = 2
+        # Union: {a, b, c, d, e, f} = 6
+        # Ratio: 2/6 = 0.333...
+        expected = 2 / 6
+        assert abs(calculate_overlap_ratio(list1, list2) - expected) < 1e-6
 
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 2
-        assert result['ratio'] == 0.5  # 2 / min(4, 4)
-        assert set(result['overlap_tokens']) == {'token3', 'token4'}
-
-    def test_different_sizes_with_overlap(self):
-        """Test overlap ratio when lists have different sizes."""
-        list_a = ['token1', 'token2', 'token3']  # size 3
-        list_b = ['token1', 'token2', 'token3', 'token4', 'token5']  # size 5
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 3
-        assert result['ratio'] == 1.0  # 3 / min(3, 5) = 3/3
-        assert result['size_a'] == 3
-        assert result['size_b'] == 5
-
-    def test_with_k_parameter(self):
-        """Test overlap ratio with k parameter to limit to top-k."""
-        list_a = ['token1', 'token2', 'token3', 'token4', 'token5']
-        list_b = ['token1', 'token2', 'token6', 'token7', 'token8']
-
-        result = calculate_overlap_ratio(list_a, list_b, k=3)
-
-        # After truncation: ['token1', 'token2', 'token3'] vs ['token1', 'token2', 'token6']
-        assert result['overlap_count'] == 2
-        assert result['ratio'] == 2/3
-        assert result['size_a'] == 3
-        assert result['size_b'] == 3
+    def test_single_element_overlap(self):
+        """Test with single overlapping element."""
+        list1 = ["a", "b", "c"]
+        list2 = ["c", "d", "e"]
+        # Intersection: {c} = 1
+        # Union: {a, b, c, d, e} = 5
+        assert abs(calculate_overlap_ratio(list1, list2) - 0.2) < 1e-6
 
     def test_empty_lists(self):
-        """Test overlap ratio with empty lists."""
-        list_a = []
-        list_b = []
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 0
-        assert result['ratio'] == 0.0
-        assert result['size_a'] == 0
-        assert result['size_b'] == 0
-
-    def test_one_empty_list(self):
-        """Test overlap ratio when one list is empty."""
-        list_a = ['token1', 'token2']
-        list_b = []
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 0
-        assert result['ratio'] == 0.0
-        assert result['size_a'] == 2
-        assert result['size_b'] == 0
-
-    def test_jaccard_index(self):
-        """Test that Jaccard index is calculated correctly."""
-        list_a = ['token1', 'token2', 'token3']
-        list_b = ['token2', 'token3', 'token4']
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        # Intersection: {token2, token3} = 2
-        # Union: {token1, token2, token3, token4} = 4
-        expected_jaccard = 2 / 4
-        assert abs(result['jaccard_index'] - expected_jaccard) < 1e-10
+        """Should return 0.0 for empty lists."""
+        assert calculate_overlap_ratio([], []) == 0.0
+        assert calculate_overlap_ratio(["a"], []) == 0.0
+        assert calculate_overlap_ratio([], ["a"]) == 0.0
 
     def test_case_sensitivity(self):
-        """Test that token comparison is case-sensitive."""
-        list_a = ['Token1', 'token2']
-        list_b = ['token1', 'Token2']
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        assert result['overlap_count'] == 0
-        assert result['ratio'] == 0.0
-
-    def test_duplicate_tokens_in_list(self):
-        """Test behavior with duplicate tokens in input lists."""
-        list_a = ['token1', 'token1', 'token2']
-        list_b = ['token1', 'token2', 'token2']
-
-        result = calculate_overlap_ratio(list_a, list_b)
-
-        # Sets are used internally, so duplicates are removed
-        assert result['overlap_count'] == 2  # token1 and token2
-        assert result['ratio'] == 1.0  # 2/2
+        """Tokens should be case-sensitive."""
+        list1 = ["Token"]
+        list2 = ["token"]
+        # Different tokens, no overlap
+        assert calculate_overlap_ratio(list1, list2) == 0.0
 
 
 class TestLoadTokenRankings:
-    """Tests for the load_token_rankings function."""
+    """Tests for load_token_rankings function."""
 
-    @patch('overlap_calculator.get_path')
-    @patch('builtins.open', new_callable=MagicMock)
-    def test_load_valid_rankings(self, mock_open, mock_get_path):
-        """Test loading valid token rankings."""
-        mock_get_path.return_value = '/fake/path/rankings.json'
+    def test_load_valid_files(self):
+        """Should correctly load and truncate tokens from valid files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            # Create mock ranking files
+            en_data = {"top_tokens": [{"token": f"en_{i}"} for i in range(50)]}
+            fr_data = {"top_tokens": [{"token": f"fr_{i}"} for i in range(50)]}
+            zh_data = {"top_tokens": [{"token": f"zh_{i}"} for i in range(50)]}
+            
+            en_path = tmpdir_path / "en_report.json"
+            fr_path = tmpdir_path / "fr_report.json"
+            zh_path = tmpdir_path / "zh_report.json"
+            
+            with open(en_path, 'w') as f:
+                json.dump(en_data, f)
+            with open(fr_path, 'w') as f:
+                json.dump(fr_data, f)
+            with open(zh_path, 'w') as f:
+                json.dump(zh_data, f)
+            
+            en_tokens, fr_tokens, zh_tokens = load_token_rankings(
+                en_path, fr_path, zh_path, top_n=10
+            )
+            
+            assert len(en_tokens) == 10
+            assert len(fr_tokens) == 10
+            assert len(zh_tokens) == 10
+            assert en_tokens[0] == "en_0"
+            assert fr_tokens[5] == "fr_5"
+            assert zh_tokens[9] == "zh_9"
 
-        mock_file = MagicMock()
-        mock_file.__enter__.return_value = mock_file
-        mock_file.read.return_value = json.dumps({
-            'token_rankings': {
-                'en': ['token1', 'token2'],
-                'fr': ['token3', 'token4']
-            }
-        })
-        mock_open.return_value = mock_file
+    def test_truncation_when_fewer_tokens(self):
+        """Should return all available tokens when fewer than top_n."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            # Create files with only 5 tokens
+            en_data = {"top_tokens": [{"token": f"en_{i}"} for i in range(5)]}
+            fr_data = {"top_tokens": [{"token": f"fr_{i}"} for i in range(5)]}
+            zh_data = {"top_tokens": [{"token": f"zh_{i}"} for i in range(5)]}
+            
+            en_path = tmpdir_path / "en_report.json"
+            fr_path = tmpdir_path / "fr_report.json"
+            zh_path = tmpdir_path / "zh_report.json"
+            
+            for path, data in [(en_path, en_data), (fr_path, fr_data), (zh_path, zh_data)]:
+                with open(path, 'w') as f:
+                    json.dump(data, f)
+            
+            en_tokens, fr_tokens, zh_tokens = load_token_rankings(
+                en_path, fr_path, zh_path, top_n=100
+            )
+            
+            assert len(en_tokens) == 5
+            assert len(fr_tokens) == 5
+            assert len(zh_tokens) == 5
 
-        config = {}
-        rankings = load_token_rankings(config)
+    def test_missing_file_raises_error(self):
+        """Should raise FileNotFoundError for missing files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            en_path = tmpdir_path / "missing.json"
+            fr_path = tmpdir_path / "missing.json"
+            zh_path = tmpdir_path / "missing.json"
+            
+            with pytest.raises(FileNotFoundError):
+                load_token_rankings(en_path, fr_path, zh_path, top_n=10)
 
-        assert 'en' in rankings
-        assert 'fr' in rankings
-        assert rankings['en'] == ['token1', 'token2']
-        assert rankings['fr'] == ['token3', 'token4']
-
-    @patch('overlap_calculator.get_path')
-    @patch('pathlib.Path.exists', return_value=False)
-    def test_file_not_found(self, mock_exists, mock_get_path):
-        """Test that FileNotFoundError is raised when file doesn't exist."""
-        mock_get_path.return_value = '/fake/path/rankings.json'
-
-        config = {}
-
-        with pytest.raises(FileNotFoundError, match="Token attribution report not found"):
-            load_token_rankings(config)
-
-    @patch('overlap_calculator.get_path')
-    @patch('builtins.open', new_callable=MagicMock)
-    def test_invalid_format_missing_key(self, mock_open, mock_get_path):
-        """Test that ValueError is raised when 'token_rankings' key is missing."""
-        mock_get_path.return_value = '/fake/path/rankings.json'
-
-        mock_file = MagicMock()
-        mock_file.__enter__.return_value = mock_file
-        mock_file.read.return_value = json.dumps({
-            'other_key': ['token1']
-        })
-        mock_open.return_value = mock_file
-
-        config = {}
-
-        with pytest.raises(ValueError, match="Invalid token attribution report format"):
-            load_token_rankings(config)
+    def test_missing_top_tokens_field(self):
+        """Should raise ValueError if top_tokens field is missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            en_data = {"other_field": "value"}
+            fr_data = {"top_tokens": []}
+            zh_data = {"top_tokens": []}
+            
+            en_path = tmpdir_path / "en.json"
+            fr_path = tmpdir_path / "fr.json"
+            zh_path = tmpdir_path / "zh.json"
+            
+            with open(en_path, 'w') as f:
+                json.dump(en_data, f)
+            with open(fr_path, 'w') as f:
+                json.dump(fr_data, f)
+            with open(zh_path, 'w') as f:
+                json.dump(zh_data, f)
+            
+            with pytest.raises(ValueError):
+                load_token_rankings(en_path, fr_path, zh_path, top_n=10)
 
 
 class TestGenerateOverlapReport:
-    """Tests for the generate_overlap_report function."""
+    """Tests for generate_overlap_report function."""
 
-    @patch('overlap_calculator.load_token_rankings')
-    @patch('overlap_calculator.get_hyperparameter', return_value=10)
-    @patch('overlap_calculator.get_path', return_value='/fake/output.json')
-    @patch('overlap_calculator.ensure_dirs')
-    @patch('builtins.open', new_callable=MagicMock)
-    def test_generate_report_with_multiple_languages(
-        self, mock_open, mock_ensure_dirs, mock_get_path, mock_get_hyper, mock_load_rankings
-    ):
-        """Test generating overlap report with multiple languages."""
-        mock_load_rankings.return_value = {
-            'en': ['token1', 'token2', 'token3', 'token4', 'token5'],
-            'fr': ['token1', 'token2', 'token6', 'token7', 'token8'],
-            'zh': ['token3', 'token4', 'token9', 'token10', 'token11']
-        }
+    def test_report_structure(self):
+        """Should produce report with correct structure."""
+        en_tokens = ["a", "b", "c"]
+        fr_tokens = ["b", "c", "d"]
+        zh_tokens = ["c", "d", "e"]
+        
+        report = generate_overlap_report(en_tokens, fr_tokens, zh_tokens, top_n=3)
+        
+        # Check top-level keys
+        assert "top_n" in report
+        assert "language_pairs" in report
+        assert "summary" in report
+        assert "top_tokens" in report
+        
+        # Check language_pairs structure
+        assert "en_fr" in report["language_pairs"]
+        assert "en_zh" in report["language_pairs"]
+        assert "fr_zh" in report["language_pairs"]
+        
+        # Check individual pair structure
+        for pair in report["language_pairs"].values():
+            assert "overlap_ratio" in pair
+            assert "base_tokens_count" in pair
+            assert "comparison_tokens_count" in pair
+            assert "intersection_count" in pair
+            assert "union_count" in pair
+        
+        # Check summary structure
+        assert "avg_en_vs_non_en_overlap" in report["summary"]
+        assert "min_overlap" in report["summary"]
+        assert "max_overlap" in report["summary"]
+        
+        # Check top_tokens structure
+        assert "en" in report["top_tokens"]
+        assert "fr" in report["top_tokens"]
+        assert "zh" in report["top_tokens"]
 
-        mock_file = MagicMock()
-        mock_file.__enter__.return_value = mock_file
-        mock_open.return_value = mock_file
+    def test_correct_overlap_values(self):
+        """Should calculate correct overlap values."""
+        # en: {a, b, c}, fr: {b, c, d}, zh: {c, d, e}
+        en_tokens = ["a", "b", "c"]
+        fr_tokens = ["b", "c", "d"]
+        zh_tokens = ["c", "d", "e"]
+        
+        report = generate_overlap_report(en_tokens, fr_tokens, zh_tokens, top_n=3)
+        
+        # en_fr: intersection={b,c}=2, union={a,b,c,d}=4, ratio=0.5
+        assert report["language_pairs"]["en_fr"]["overlap_ratio"] == 0.5
+        assert report["language_pairs"]["en_fr"]["intersection_count"] == 2
+        assert report["language_pairs"]["en_fr"]["union_count"] == 4
+        
+        # en_zh: intersection={c}=1, union={a,b,c,d,e}=5, ratio=0.2
+        assert report["language_pairs"]["en_zh"]["overlap_ratio"] == 0.2
+        assert report["language_pairs"]["en_zh"]["intersection_count"] == 1
+        assert report["language_pairs"]["en_zh"]["union_count"] == 5
+        
+        # fr_zh: intersection={c,d}=2, union={b,c,d,e}=4, ratio=0.5
+        assert report["language_pairs"]["fr_zh"]["overlap_ratio"] == 0.5
+        assert report["language_pairs"]["fr_zh"]["intersection_count"] == 2
+        assert report["language_pairs"]["fr_zh"]["union_count"] == 4
+        
+        # Summary
+        assert report["summary"]["avg_en_vs_non_en_overlap"] == 0.35  # (0.5 + 0.2) / 2
+        assert report["summary"]["min_overlap"] == 0.2
+        assert report["summary"]["max_overlap"] == 0.5
 
-        config = {'timestamp': 'test'}
-        report = generate_overlap_report(config)
-
-        assert 'comparisons' in report
-        assert 'fr' in report['comparisons']
-        assert 'zh' in report['comparisons']
-        assert report['baseline_language'] == 'en'
-
-        # Check fr overlap: token1, token2 shared with en
-        fr_metrics = report['comparisons']['fr']
-        assert fr_metrics['overlap_count'] == 2
-        assert fr_metrics['top_k'] == 10
-
-        # Verify file was written
-        mock_open.assert_called_once()
-        mock_ensure_dirs.assert_called_once()
-
-    @patch('overlap_calculator.load_token_rankings')
-    @patch('overlap_calculator.get_hyperparameter', return_value=10)
-    @patch('overlap_calculator.get_path', return_value='/fake/output.json')
-    @patch('overlap_calculator.ensure_dirs')
-    @patch('builtins.open', new_callable=MagicMock)
-    def test_no_english_baseline(self, mock_open, mock_ensure_dirs, mock_get_path, mock_get_hyper, mock_load_rankings):
-        """Test that ValueError is raised when English is not in rankings."""
-        mock_load_rankings.return_value = {
-            'fr': ['token1', 'token2'],
-            'zh': ['token3', 'token4']
-        }
-
-        config = {}
-
-        with pytest.raises(ValueError, match="English.*not found in token rankings"):
-            generate_overlap_report(config)
-
-    @patch('overlap_calculator.load_token_rankings')
-    @patch('overlap_calculator.get_hyperparameter', return_value=10)
-    @patch('overlap_calculator.get_path', return_value='/fake/output.json')
-    @patch('overlap_calculator.ensure_dirs')
-    @patch('builtins.open', new_callable=MagicMock)
-    def test_no_non_english_languages(self, mock_open, mock_ensure_dirs, mock_get_path, mock_get_hyper, mock_load_rankings):
-        """Test handling when only English is present."""
-        mock_load_rankings.return_value = {
-            'en': ['token1', 'token2']
-        }
-
-        mock_file = MagicMock()
-        mock_file.__enter__.return_value = mock_file
-        mock_open.return_value = mock_file
-
-        config = {}
-        report = generate_overlap_report(config)
-
-        assert report['comparisons'] == {}
-        assert 'No non-English languages' in report['message']
-        assert report['aggregate_statistics']['languages_compared'] == 0
+    def test_top_n_limitation(self):
+        """Should preview only first 10 tokens in top_tokens field."""
+        en_tokens = [f"en_{i}" for i in range(20)]
+        fr_tokens = [f"fr_{i}" for i in range(20)]
+        zh_tokens = [f"zh_{i}" for i in range(20)]
+        
+        report = generate_overlap_report(en_tokens, fr_tokens, zh_tokens, top_n=20)
+        
+        # Should preview only first 10
+        assert len(report["top_tokens"]["en"]) == 10
+        assert len(report["top_tokens"]["fr"]) == 10
+        assert len(report["top_tokens"]["zh"]) == 10
+        assert report["top_tokens"]["en"][0] == "en_0"
+        assert report["top_tokens"]["en"][9] == "en_9"
+        assert "en_10" not in report["top_tokens"]["en"]

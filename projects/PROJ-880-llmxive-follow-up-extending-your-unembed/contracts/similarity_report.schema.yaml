@@ -1,70 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Similarity Report Schema
-description: >
-  Schema for the output of the User Story 1 pipeline (US1).
-  Contains the cosine similarity matrix between model unembedding subspaces
-  and associated metadata.
+title: Similarity Report
+description: Schema for the output of the SVD and similarity pipeline (User Story 1).
 type: object
 required:
-  - metadata
-  - similarity_matrix
-  - subspace_dimensions
+  - pairs
 properties:
+  pairs:
+    type: array
+    description: List of model pair comparisons.
+    items:
+      type: object
+      required:
+        - model_a
+        - model_b
+        - cosine_similarity
+      properties:
+        model_a:
+          type: string
+          description: Name of the first model (e.g., 'llama-3', 'mistral').
+        model_b:
+          type: string
+          description: Name of the second model.
+        cosine_similarity:
+          type: number
+          format: float
+          description: Cosine similarity between the top-k singular vector subspaces.
+          minimum: -1.0
+          maximum: 1.0
   metadata:
     type: object
-    required:
-      - timestamp
-      - models
-      - k
-      - method
+    description: Optional metadata about the run.
     properties:
+      k:
+        type: integer
+        description: Number of singular vectors used.
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of when the report was generated.
-      models:
-        type: array
-        items:
-          type: string
-        description: List of model identifiers included in the analysis (e.g., ["llama-3", "mistral", "bloom"]).
-      k:
-        type: integer
-        minimum: 1
-        description: The number of singular vectors (top-k) used for the subspace.
-      method:
-        type: string
-        enum:
-          - svd_cosine_similarity
-        description: The method used to compute similarities.
-  subspace_dimensions:
-    type: object
-    description: The dimensions of the subspaces for each model.
-    additionalProperties:
-      type: object
-      required:
-        - original_vocab_size
-        - common_vocab_size
-        - subspace_rank
-      properties:
-        original_vocab_size:
-          type: integer
-          description: Original vocabulary size of the model.
-        common_vocab_size:
-          type: integer
-          description: Size of the aligned common vocabulary used for comparison.
-        subspace_rank:
-          type: integer
-          description: Rank of the computed subspace (should equal k).
-  similarity_matrix:
-    type: object
-    description: >
-      A nested object representing the pairwise cosine similarity scores.
-      Keys are model identifiers, values are objects mapping to other model identifiers.
-    additionalProperties:
-      type: object
-      additionalProperties:
-        type: number
-        minimum: -1.0
-        maximum: 1.0
-        description: Cosine similarity score between two subspace bases.
-additionalProperties: false
+        description: ISO 8601 timestamp of the run.
+additionalProperties: true

@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Permutation Result
+description: >
+  Output schema for the statistical significance test (User Story 3).
+  Contains the p-value, significance flag, null distribution statistics,
+  and the observed similarity score used for comparison.
+type: object
+required:
+  - task_id
+  - observed_similarity
+  - p_value
+  - is_significant
+  - null_distribution
+  - iterations
+  - seed
+properties:
+  task_id:
+    type: string
+    const: "T027"
+  observed_similarity:
+    type: number
+    description: The cosine similarity between the cross-lingual model pair (e.g., Llama-3 vs BLOOM).
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: The calculated p-value from the permutation test.
+    minimum: 0.0
+    maximum: 1.0
+  is_significant:
+    type: boolean
+    description: True if p_value < alpha (default 0.05), indicating a statistically significant shift.
+  alpha:
+    type: number
+    description: The significance threshold used.
+    default: 0.05
+  null_distribution:
+    type: object
+    description: Statistics of the null distribution generated from the within-language baseline.
+    required:
+      - mean
+      - std
+      - min
+      - max
+      - count
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      min:
+        type: number
+      max:
+        type: number
+      count:
+        type: integer
+        minimum: 1
+  iterations:
+    type: integer
+    description: Number of bootstrap/permutation iterations performed.
+    minimum: 1
+  seed:
+    type: integer
+    description: The random seed used for reproducibility.
+  baseline_pair:
+    type: string
+    description: The model pair used for the within-language baseline (e.g., "Llama-3 vs Mistral").
+  cross_lingual_pair:
+    type: string
+    description: The model pair tested for significance (e.g., "Llama-3 vs BLOOM").
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the test was run.

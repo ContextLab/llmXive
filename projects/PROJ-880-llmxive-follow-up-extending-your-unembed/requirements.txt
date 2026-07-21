@@ -5,3 +5,5 @@ scipy==1.11.4
 pandas==2.1.4
 huggingface_hub==0.20.3
 datasets==2.16.1
+jsonschema==4.20.0
+pyyaml==6.0.1

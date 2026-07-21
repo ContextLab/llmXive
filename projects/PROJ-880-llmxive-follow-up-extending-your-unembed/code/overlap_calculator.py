@@ -1,14 +1,17 @@
 """
-Overlap Calculator for User Story 2.
+Overlap Calculator for Cross-Lingual Token Shift Analysis.
 
-Implements overlap ratio calculation between English and non-English
-top-ranked token lists as specified in T022.
+Implements T022: Calculate overlap ratio between English and non-English
+top-ranked token lists, outputting results to data/processed/token_overlap.json.
+
+Requires: T021 (Token Ranking) which produces token ranking files.
 """
 import json
 import logging
-import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
+
+import numpy as np
 
 from config import load_config, get_path, get_hyperparameter, ensure_dirs
 
@@ -20,254 +23,225 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_token_rankings(config: Dict[str, Any]) -> Dict[str, List[str]]:
+def load_token_rankings(
+    en_ranking_path: Path,
+    fr_ranking_path: Path,
+    zh_ranking_path: Path,
+    top_n: int
+) -> Tuple[List[str], List[str], List[str]]:
     """
-    Load token rankings from the token attribution report.
-
+    Load top-ranked tokens from attribution reports for English, French, and Chinese.
+    
     Args:
-        config: Configuration dictionary containing paths.
-
+        en_ranking_path: Path to English token attribution report
+        fr_ranking_path: Path to French token attribution report
+        zh_ranking_path: Path to Chinese token attribution report
+        top_n: Number of top tokens to extract from each list
+        
     Returns:
-        Dictionary mapping language codes to lists of top-ranked tokens.
-
+        Tuple of (en_tokens, fr_tokens, zh_tokens) lists
+        
     Raises:
-        FileNotFoundError: If the token attribution report does not exist.
-        ValueError: If the report format is invalid.
+        FileNotFoundError: If any ranking file does not exist
+        ValueError: If files are malformed or missing required fields
     """
-    report_path = get_path(config, "processed_token_attribution_report")
-    logger.info(f"Loading token rankings from: {report_path}")
-
-    if not Path(report_path).exists():
-        raise FileNotFoundError(
-            f"Token attribution report not found at {report_path}. "
-            "Run the token attribution pipeline (T023) first."
-        )
-
-    with open(report_path, 'r', encoding='utf-8') as f:
-        report = json.load(f)
-
-    if 'token_rankings' not in report:
-        raise ValueError(
-            f"Invalid token attribution report format. "
-            "Expected 'token_rankings' key, got: {list(report.keys())}"
-        )
-
-    rankings = report['token_rankings']
-    logger.info(f"Loaded rankings for languages: {list(rankings.keys())}")
-
-    return rankings
+    def extract_top_tokens(file_path: Path, language: str) -> List[str]:
+        if not file_path.exists():
+            raise FileNotFoundError(f"Ranking file not found for {language}: {file_path}")
+        
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if 'top_tokens' not in data:
+            raise ValueError(f"Missing 'top_tokens' field in {language} ranking file")
+        
+        tokens = [item['token'] for item in data['top_tokens']]
+        
+        if len(tokens) < top_n:
+            logger.warning(
+                f"Language {language} has only {len(tokens)} tokens, "
+                f"requested top {top_n}. Using available tokens."
+            )
+        
+        return tokens[:top_n]
+    
+    en_tokens = extract_top_tokens(en_ranking_path, "English")
+    fr_tokens = extract_top_tokens(fr_ranking_path, "French")
+    zh_tokens = extract_top_tokens(zh_ranking_path, "Chinese")
+    
+    return en_tokens, fr_tokens, zh_tokens
 
 
 def calculate_overlap_ratio(
-    list_a: List[str],
-    list_b: List[str],
-    k: Optional[int] = None
-) -> Dict[str, Any]:
+    base_tokens: List[str],
+    comparison_tokens: List[str]
+) -> float:
     """
-    Calculate the overlap ratio between two lists of top-ranked tokens.
-
-    The overlap ratio is defined as:
-        overlap_ratio = |A ∩ B| / min(|A|, |B|)
-
-    where A and B are the sets of top-k tokens from each list.
-
+    Calculate the overlap ratio between two token lists.
+    
+    Overlap ratio = |intersection| / |union|
+    This is the Jaccard similarity coefficient.
+    
     Args:
-        list_a: First list of tokens (e.g., English).
-        list_b: Second list of tokens (e.g., French or Chinese).
-        k: Number of top tokens to consider. If None, uses the full list.
-
+        base_tokens: Base token list (e.g., English)
+        comparison_tokens: Comparison token list (e.g., French or Chinese)
+        
     Returns:
-        Dictionary containing:
-            - 'overlap_count': Number of overlapping tokens
-            - 'ratio': Overlap ratio (float between 0 and 1)
-            - 'size_a': Size of list A (after truncation if k provided)
-            - 'size_b': Size of list B (after truncation if k provided)
-            - 'overlap_tokens': List of tokens present in both lists
+        Float between 0.0 and 1.0 representing overlap ratio
     """
-    if k is not None:
-        list_a = list_a[:k]
-        list_b = list_b[:k]
-
-    set_a = set(list_a)
-    set_b = set(list_b)
-
-    intersection = set_a.intersection(set_b)
-    union = set_a.union(set_b)
-
-    overlap_count = len(intersection)
-    min_size = min(len(list_a), len(list_b))
-    max_size = max(len(list_a), len(list_b))
-
-    # Handle edge case of empty lists
-    if min_size == 0:
-        ratio = 0.0
-    else:
-        ratio = overlap_count / min_size
-
-    return {
-        'overlap_count': overlap_count,
-        'ratio': ratio,
-        'size_a': len(list_a),
-        'size_b': len(list_b),
-        'overlap_tokens': sorted(list(intersection)),
-        'jaccard_index': overlap_count / len(union) if union else 0.0
-    }
+    base_set = set(base_tokens)
+    comparison_set = set(comparison_tokens)
+    
+    if not base_set or not comparison_set:
+        logger.warning("One or both token sets are empty. Returning 0.0 overlap.")
+        return 0.0
+    
+    intersection = base_set & comparison_set
+    union = base_set | comparison_set
+    
+    overlap_ratio = len(intersection) / len(union)
+    
+    logger.info(
+        f"Overlap calculation: |intersection|={len(intersection)}, "
+        f"|union|={len(union)}, ratio={overlap_ratio:.4f}"
+    )
+    
+    return overlap_ratio
 
 
 def generate_overlap_report(
-    config: Dict[str, Any],
-    output_path: Optional[str] = None
+    en_tokens: List[str],
+    fr_tokens: List[str],
+    zh_tokens: List[str],
+    top_n: int
 ) -> Dict[str, Any]:
     """
-    Generate a comprehensive overlap report comparing English
-    and non-English token rankings.
-
+    Generate the complete overlap report for all language pairs.
+    
     Args:
-        config: Configuration dictionary containing paths and hyperparameters.
-        output_path: Optional path to write the report. If None, uses config.
-
+        en_tokens: List of top English tokens
+        fr_tokens: List of top French tokens
+        zh_tokens: List of top Chinese tokens
+        top_n: Number of tokens used for comparison
+        
     Returns:
-        Dictionary containing overlap metrics for all language pairs.
+        Dictionary containing overlap ratios for all language pairs
     """
-    rankings = load_token_rankings(config)
-    k = get_hyperparameter(config, "top_k_tokens")
-
-    logger.info(f"Calculating overlap ratios for top {k} tokens")
-
-    # Identify English and non-English languages
-    # Assuming 'en' is the English baseline
-    languages = list(rankings.keys())
-    if 'en' not in languages:
-        raise ValueError(
-            f"English ('en') not found in token rankings. "
-            f"Available languages: {languages}. "
-            "The token attribution pipeline must include English baseline."
-        )
-
-    en_rankings = rankings['en']
-    non_en_languages = [lang for lang in languages if lang != 'en']
-
-    if not non_en_languages:
-        logger.warning("No non-English languages found in token rankings.")
-        return {
-            'baseline_language': 'en',
-            'comparisons': {},
-            'k': k,
-            'message': 'No non-English languages to compare.'
-        }
-
-    comparisons = {}
-
-    for lang in non_en_languages:
-        logger.info(f"Comparing English vs {lang}")
-        lang_rankings = rankings[lang]
-
-        overlap_result = calculate_overlap_ratio(
-            en_rankings,
-            lang_rankings,
-            k=k
-        )
-
-        comparisons[lang] = {
-            'overlap_ratio': overlap_result['ratio'],
-            'overlap_count': overlap_result['overlap_count'],
-            'jaccard_index': overlap_result['jaccard_index'],
-            'top_k': k,
-            'shared_tokens_sample': overlap_result['overlap_tokens'][:10]
-        }
-
-        logger.info(
-            f"  Overlap ratio (en vs {lang}): {overlap_result['ratio']:.4f} "
-            f"({overlap_result['overlap_count']} shared tokens)"
-        )
-
-    # Calculate aggregate statistics
-    if comparisons:
-        overlap_ratios = [c['overlap_ratio'] for c in comparisons.values()]
-        avg_overlap = np.mean(overlap_ratios)
-        std_overlap = np.std(overlap_ratios)
-        min_overlap = np.min(overlap_ratios)
-        max_overlap = np.max(overlap_ratios)
-
-        aggregate = {
-            'average_overlap_ratio': avg_overlap,
-            'std_overlap_ratio': std_overlap,
-            'min_overlap_ratio': min_overlap,
-            'max_overlap_ratio': max_overlap,
-            'languages_compared': len(comparisons)
-        }
-    else:
-        aggregate = {
-            'average_overlap_ratio': 0.0,
-            'std_overlap_ratio': 0.0,
-            'min_overlap_ratio': 0.0,
-            'max_overlap_ratio': 0.0,
-            'languages_compared': 0
-        }
-
+    # Calculate pairwise overlaps
+    en_fr_overlap = calculate_overlap_ratio(en_tokens, fr_tokens)
+    en_zh_overlap = calculate_overlap_ratio(en_tokens, zh_tokens)
+    fr_zh_overlap = calculate_overlap_ratio(fr_tokens, zh_tokens)
+    
+    # Calculate average cross-lingual overlap (non-English vs English)
+    non_en_overlaps = [en_fr_overlap, en_zh_overlap]
+    avg_non_en_overlap = np.mean(non_en_overlaps)
+    
     report = {
-        'baseline_language': 'en',
-        'comparisons': comparisons,
-        'aggregate_statistics': aggregate,
-        'k': k,
-        'timestamp': config.get('timestamp', 'unknown')
+        "top_n": top_n,
+        "language_pairs": {
+            "en_fr": {
+                "overlap_ratio": round(en_fr_overlap, 6),
+                "base_tokens_count": len(en_tokens),
+                "comparison_tokens_count": len(fr_tokens),
+                "intersection_count": len(set(en_tokens) & set(fr_tokens)),
+                "union_count": len(set(en_tokens) | set(fr_tokens))
+            },
+            "en_zh": {
+                "overlap_ratio": round(en_zh_overlap, 6),
+                "base_tokens_count": len(en_tokens),
+                "comparison_tokens_count": len(zh_tokens),
+                "intersection_count": len(set(en_tokens) & set(zh_tokens)),
+                "union_count": len(set(en_tokens) | set(zh_tokens))
+            },
+            "fr_zh": {
+                "overlap_ratio": round(fr_zh_overlap, 6),
+                "base_tokens_count": len(fr_tokens),
+                "comparison_tokens_count": len(zh_tokens),
+                "intersection_count": len(set(fr_tokens) & set(zh_tokens)),
+                "union_count": len(set(fr_tokens) | set(zh_tokens))
+            }
+        },
+        "summary": {
+            "avg_en_vs_non_en_overlap": round(avg_non_en_overlap, 6),
+            "min_overlap": round(min(non_en_overlaps), 6),
+            "max_overlap": round(max(non_en_overlaps), 6)
+        },
+        "top_tokens": {
+            "en": en_tokens[:min(top_n, 10)],  # Preview first 10
+            "fr": fr_tokens[:min(top_n, 10)],
+            "zh": zh_tokens[:min(top_n, 10)]
+        }
     }
-
-    # Write report to disk
-    if output_path is None:
-        output_path = get_path(config, "overlap_report")
-
-    ensure_dirs(config)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2, ensure_ascii=False)
-
-    logger.info(f"Overlap report written to: {output_path}")
-
+    
     return report
 
 
 def main():
-    """Main entry point for the overlap calculator."""
+    """
+    Main entry point for T022: Overlap ratio calculation.
+    
+    Reads token attribution reports from T021, calculates overlap ratios
+    between English and non-English token lists, and outputs results to
+    data/processed/token_overlap.json.
+    """
+    logger.info("Starting T022: Overlap ratio calculation")
+    
+    # Load configuration
     config = load_config()
-    logger.info("Starting overlap ratio calculation")
-
+    
+    # Get paths from config
+    output_dir = get_path("processed_data_dir")
+    top_n = get_hyperparameter("top_n_tokens", default=100)
+    
+    # Ensure output directory exists
+    ensure_dirs([output_dir])
+    
+    # Define input paths (generated by T021)
+    en_ranking_path = get_path("en_token_attribution_report")
+    fr_ranking_path = get_path("fr_token_attribution_report")
+    zh_ranking_path = get_path("zh_token_attribution_report")
+    
+    # Define output path
+    output_path = output_dir / "token_overlap.json"
+    
+    logger.info(f"Input paths: EN={en_ranking_path}, FR={fr_ranking_path}, ZH={zh_ranking_path}")
+    logger.info(f"Output path: {output_path}")
+    logger.info(f"Top N tokens: {top_n}")
+    
     try:
-        report = generate_overlap_report(config)
-
-        # Print summary to stdout
-        print("\n" + "="*60)
-        print("OVERLAP RATIO SUMMARY")
-        print("="*60)
-        print(f"Baseline language: {report['baseline_language']}")
-        print(f"Top K tokens: {report['k']}")
-        print(f"Languages compared: {report['aggregate_statistics']['languages_compared']}")
-        print("-"*60)
-
-        for lang, metrics in report['comparisons'].items():
-            print(f"{lang}:")
-            print(f"  Overlap Ratio: {metrics['overlap_ratio']:.4f}")
-            print(f"  Shared Tokens: {metrics['overlap_count']}")
-            print(f"  Jaccard Index: {metrics['jaccard_index']:.4f}")
-            if metrics['shared_tokens_sample']:
-                print(f"  Sample Shared: {', '.join(metrics['shared_tokens_sample'][:5])}")
-
-        print("-"*60)
-        print(f"Average Overlap: {report['aggregate_statistics']['average_overlap_ratio']:.4f}")
-        print(f"Std Overlap: {report['aggregate_statistics']['std_overlap_ratio']:.4f}")
-        print("="*60 + "\n")
-
-        return 0
-
+        # Load token rankings
+        en_tokens, fr_tokens, zh_tokens = load_token_rankings(
+            en_ranking_path, fr_ranking_path, zh_ranking_path, top_n
+        )
+        
+        logger.info(
+            f"Loaded {len(en_tokens)} EN, {len(fr_tokens)} FR, {len(zh_tokens)} ZH tokens"
+        )
+        
+        # Generate overlap report
+        report = generate_overlap_report(en_tokens, fr_tokens, zh_tokens, top_n)
+        
+        # Write output
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Successfully wrote overlap report to {output_path}")
+        
+        # Log summary
+        logger.info(f"EN-FR overlap: {report['language_pairs']['en_fr']['overlap_ratio']:.4f}")
+        logger.info(f"EN-ZH overlap: {report['language_pairs']['en_zh']['overlap_ratio']:.4f}")
+        logger.info(f"Average EN vs Non-EN overlap: {report['summary']['avg_en_vs_non_en_overlap']:.4f}")
+        
+        return report
+        
     except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Invalid data format: {e}")
-        return 1
+        logger.error(f"Input file not found: {e}")
+        logger.error("Ensure T021 has completed and generated the token attribution reports.")
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        return 1
+        logger.error(f"Error during overlap calculation: {e}")
+        raise
 
 
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()

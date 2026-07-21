@@ -9,7 +9,7 @@
 
 ### User Story 1 - Extract and Compare Edge Spectrum Subspaces (Priority: P1)
 
-The researcher needs to compute the "edge spectrum" subspace (top-$k$ singular vectors) of the unembedding matrix ($W_U$) for three distinct models (Llama-3, Mistral, BLOOM) and calculate the cosine similarity between the subspaces of English models versus the multilingual model to quantify the "rotation" or shift caused by linguistic typology.
+The researcher needs to compute the "edge spectrum" subspace (top-$k$ singular vectors) of the unembedding matrix ($W_U$) for three distinct models (Llama, Mistral, BLOOM) and calculate the cosine similarity between the subspaces of English models versus the multilingual model to quantify the "rotation" or shift caused by linguistic typology.
 
 **Why this priority**: This is the core experimental step. Without extracting the subspaces and measuring their geometric alignment, the hypothesis regarding universality vs. language-specificity cannot be tested. It is the foundational data generation step for the entire study.
 
@@ -82,7 +82,7 @@ The researcher needs to perform a permutation test to determine if the observed 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The magnitude of the anisotropy bias (cosine similarity of subspaces) is measured against the within-language baseline (self-similarity) to determine the magnitude of deviation from the hypothesized null (0.95), including a confidence interval. (See FR-002)
+- **SC-001**: The magnitude of the anisotropy bias (cosine similarity of subspaces) is measured against the within-language baseline (self-similarity) to determine the magnitude of deviation from the hypothesized null, including a confidence interval. (See FR-002)
 - **SC-002**: The composition shift of dominant tokens is measured against the overlap ratio of the top-10 tokens between English and non-English models compared to the within-language baseline; the magnitude of the difference is the metric. (See FR-003)
 - **SC-003**: The statistical significance of the shift is measured against the p-value derived from the model-seed permutation test null distribution. (See FR-004)
 - **SC-004**: The validity of the validation metric is measured against the correlation coefficient between the subspace orientation and external, non-LLM-derived typological features (e.g., WALS features). (See US-3)
@@ -91,8 +91,8 @@ The researcher needs to perform a permutation test to determine if the observed 
 ## Assumptions
 
 - The Hugging Face `transformers` library and `numpy` are available and sufficient to load the model weights and perform SVD on the unembedding matrices without GPU acceleration.
-- The "edge spectrum" is defined as the top-$k$ singular vectors where $k$ is a fixed small integer (e.g., 100) relative to the full matrix dimension, ensuring the subspace extraction fits within ~7 GB RAM.
+- The "edge spectrum" is defined as the top-$k$ singular vectors where $k$ is a fixed small integer. relative to the full matrix dimension, ensuring the subspace extraction fits within available RAM constraints.
 - The RedPajama and Common Crawl frequency lists are raw datasets to be downloaded and pre-processed; the system assumes access to the internet or a local mirror to retrieve these datasets during the Data Acquisition phase.
-- The permutation test is computationally tractable on a 2-core CPU for [deferred] iterations; if the runtime exceeds 6 hours, the iteration count will be reduced to 500, and this limitation will be noted in the final report.
+- The permutation test is computationally tractable on a standard multi-core CPU for [deferred] iterations; if the runtime exceeds a predefined threshold, the iteration count will be reduced to a lower, predefined limit, and this limitation will be noted in the final report.
 - The "mean embedding" projection method (linear algebra on CPU) is a valid approximation for the "common sense" prior as proposed in the original EmbedFilter paper, with the understanding that it computes the vocabulary centroid.
 - The models (Llama-3, Mistral, BLOOM) are available in a format compatible with the `load_in_8bit` or `device_map="cpu"` parameters if necessary, but standard float32 loading is preferred to avoid CUDA dependencies.

@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: WALS Validation Result
+description: External validation results correlating subspace orientation with WALS features.
+type: object
+required:
+  - correlation_coefficient
+  - p_value
+  - feature_set
+properties:
+  correlation_coefficient:
+    type: number
+    format: float
+    description: Spearman's rank correlation coefficient
+  p_value:
+    type: number
+    format: float
+    description: P-value for the correlation
+  feature_set:
+    type: array
+    items:
+      type: string
+    description: List of WALS feature IDs used in the validation
+  data_unavailable:
+    type: boolean
+    description: Flag indicating if WALS data was unavailable (only true if data missing)
+additionalProperties: false
