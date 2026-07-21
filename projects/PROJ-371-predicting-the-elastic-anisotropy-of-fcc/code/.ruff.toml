@@ -1,0 +1,62 @@
+# Ruff configuration for llmXive project
+# Configures linting rules and formatting checks
+
+# Target Python version
+target-version = "py39"
+
+# Line length for formatting (matches Black default)
+line-length = 88
+
+# Exclude common directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "*.egg-info",
+    "data",
+    "output",
+]
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade (modern Python syntax)
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules if needed
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in ML pipelines)
+]
+
+# Allow unused variables in function definitions (for abstract methods)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+# Import sorting configuration
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+# Allow specific rules to be ignored in test files
+"tests/*" = ["S101", "ARG", "D"]
+# Allow specific rules in setup scripts
+"code/setup_project.py" = ["T201"]
+
+[format]
+# Formatting configuration (matches Black)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

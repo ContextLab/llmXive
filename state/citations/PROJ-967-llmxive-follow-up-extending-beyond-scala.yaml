@@ -1,4 +1,4 @@
-- artifact_hash: ce1f299f1632a76a17fb88d7f1262a6949b039b7e93900b452b5109c8727a537
+- artifact_hash: fc7b5f183d3ca021965f961b029c5e4e5c0cf12ebaac04a6a5600faf47b65875
   artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://huggingface.co/datasets/zreward/zreward-v1/raw/main/data/train.parquet`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/zreward/zreward-v1/raw/main/data/train.parquet
-  verified_at: '2026-07-21T09:46:15.531517Z'
+  verified_at: '2026-07-21T21:44:17.800085Z'

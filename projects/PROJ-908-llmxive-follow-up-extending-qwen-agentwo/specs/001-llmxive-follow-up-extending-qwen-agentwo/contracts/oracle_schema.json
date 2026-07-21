@@ -1,110 +1,70 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "specs/001-llmxive-followup/contracts/oracle_schema.json",
   "title": "Ground Truth Oracle Schema",
   "description": "Schema for the deterministic state-transition oracle derived from Qwen-AgentWorld source code.",
   "type": "object",
-  "required": ["version", "metadata", "nodes", "edges"],
   "properties": {
-    "version": {
-      "type": "string",
-      "description": "Schema version identifier",
-      "const": "1.0.0"
-    },
     "metadata": {
       "type": "object",
-      "required": ["source", "generated_at", "checksum"],
       "properties": {
-        "source": {
-          "type": "string",
-          "description": "Source code repository or file path used to generate this oracle"
-        },
-        "generated_at": {
-          "type": "string",
-          "format": "date-time",
-          "description": "ISO 8601 timestamp of generation"
-        },
-        "checksum": {
-          "type": "string",
-          "description": "SHA-256 checksum of the source code snapshot"
-        },
-        "parser_version": {
-          "type": "string",
-          "description": "Version of the oracle parser used"
-        }
-      }
+        "version": { "type": "string", "description": "Schema version" },
+        "source": { "type": "string", "description": "Source code repository or file path" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "checksum": { "type": "string", "description": "SHA-256 of the source logic" }
+      },
+      "required": ["version", "source", "generated_at"]
     },
-    "nodes": {
+    "states": {
       "type": "array",
-      "description": "Set of valid states in the environment",
       "items": {
         "type": "object",
-        "required": ["id", "state_type", "properties"],
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier for the state node"
-          },
-          "state_type": {
-            "type": "string",
-            "enum": ["start", "intermediate", "goal", "terminal"],
-            "description": "Classification of the state"
-          },
-          "properties": {
+          "id": { "type": "string", "description": "Unique state identifier" },
+          "type": { "type": "string", "enum": ["spatial", "temporal", "causal", "object_state"] },
+          "attributes": {
             "type": "object",
-            "description": "Key-value pairs defining the state attributes (e.g., agent_pos, inventory, flags)"
-          },
-          "description": {
-            "type": "string",
-            "description": "Human-readable description of the state"
+            "additionalProperties": true,
+            "description": "Key-value pairs describing the state"
           }
-        }
+        },
+        "required": ["id", "type", "attributes"]
       }
     },
-    "edges": {
+    "transitions": {
       "type": "array",
-      "description": "Valid state transitions (actions)",
       "items": {
         "type": "object",
-        "required": ["id", "source", "target", "action", "conditions"],
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier for the transition"
-          },
-          "source": {
-            "type": "string",
-            "description": "ID of the source state node"
-          },
-          "target": {
-            "type": "string",
-            "description": "ID of the target state node"
-          },
-          "action": {
-            "type": "string",
-            "description": "The action string that triggers this transition"
-          },
+          "id": { "type": "string" },
+          "source_state_id": { "type": "string", "description": "Reference to states[].id" },
+          "target_state_id": { "type": "string", "description": "Reference to states[].id" },
+          "action": { "type": "string", "description": "The action triggering the transition" },
           "conditions": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "List of logical conditions (Prolog/Python expressions) required for transition validity"
+            "items": { "type": "string" },
+            "description": "Logical conditions (FOL strings) required for transition"
           },
           "effects": {
             "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "List of state changes resulting from the action"
-          },
-          "cost": {
-            "type": "number",
-            "default": 1.0,
-            "description": "Cost associated with this transition"
+            "items": { "type": "string" },
+            "description": "Logical effects (FOL strings) resulting from transition"
           }
-        }
+        },
+        "required": ["id", "source_state_id", "target_state_id", "action"]
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "logic": { "type": "string", "description": "Prolog or FOL representation" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["id", "logic"]
       }
     }
-  }
+  },
+  "required": ["metadata", "states", "transitions"]
 }

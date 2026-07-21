@@ -1,0 +1,4 @@
+# This file ensures the data/raw directory is tracked by git.
+# Do not delete this file.
+# Raw data files (e.g., datasets, logs, traces) should be placed here.
+# Ensure large files are managed via Git LFS or excluded via .gitignore patterns.

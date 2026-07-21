@@ -1,21 +1,46 @@
-# Dataset Schema Contract for Z-Reward
-# This file defines the expected structure of the ingested dataset.
+# Dataset Schema Contract for Z-Reward Analysis
+# This file defines the expected structure of the input dataset.
+# All downstream tasks (T038, T012, etc.) depend on this schema.
+
+version: "1.0"
+description: "Schema for Z-Reward dataset used in entanglement analysis"
 
 required_columns:
-  - prompt
-  - image_path
-  - teacher_logits
-  - student_scalar
-  - human_annotations
-  - primary_dimension
+  # Core identifiers and content
+  - name: prompt
+    type: string
+    description: "The input prompt text"
+  - name: image_path
+    type: string
+    description: "Path to the associated image (if applicable)"
+  - name: sample_id
+    type: string
+    description: "Unique identifier for the sample"
 
-column_types:
-  prompt: str
-  image_path: str
-  teacher_logits: list[float]
-  student_scalar: float
-  human_annotations: dict[str, float]
-  primary_dimension: str
+  # Teacher model outputs
+  - name: teacher_logits
+    type: list[float]
+    description: "Logits from the teacher model for the 4 dimensions"
+
+  # Student model outputs
+  - name: student_scalar
+    type: float
+    description: "Scalar output from the student model"
+
+  # Human annotations (Rubric Dimensions)
+  - name: human_annotations
+    type: dict
+    description: "Dictionary containing human scores for each dimension"
+    keys:
+      - Alignment
+      - Realism
+      - Aesthetics
+      - Plausibility
+
+  # Metadata
+  - name: primary_dimension
+    type: string
+    description: "The primary quality dimension for this sample (used for fidelity loss calculation)"
 
 rubric_dimensions:
   - Alignment
@@ -23,9 +48,16 @@ rubric_dimensions:
   - Aesthetics
   - Plausibility
 
-description: >
-  The Z-Reward dataset schema. 
-  teacher_logits: A list of 4 floats representing the teacher model's scores for the 4 rubric dimensions.
-  student_scalar: A single float representing the student model's scalar output.
-  human_annotations: A dictionary mapping dimension names to human-annotated scores.
-  primary_dimension: The dimension used for calculating fidelity loss (MAE).
+constraints:
+  teacher_logits_length: 4
+  primary_dimension_values:
+    - Alignment
+    - Realism
+    - Aesthetics
+    - Plausibility
+
+validation_rules:
+  - "All required_columns must be present in the dataset"
+  - "teacher_logits must contain exactly 4 float values"
+  - "human_annotations must contain scores for all 4 rubric_dimensions"
+  - "primary_dimension must be one of the rubric_dimensions"

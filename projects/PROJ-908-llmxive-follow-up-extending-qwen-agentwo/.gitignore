@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -23,30 +19,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-cache/
-.pytest_cache/
-
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
 .venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -57,12 +38,26 @@ env/
 .DS_Store
 Thumbs.db
 
-# Data directories (handled by project specific .gitignore in data/)
-# data/raw/*
-# data/processed/*
-# !data/raw/.gitkeep
-# !data/processed/.gitkeep
+# Project specific data directories (raw and processed data are tracked via .gitattributes or LFS if needed, but directories themselves are ignored by default here to prevent accidental commits of large files)
+# Note: We explicitly track the directory structure but ignore contents unless .gitkeep is used or LFS is configured.
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/temp/
+data/cache/
 
 # Logs
 *.log
 logs/
+
+# Test/Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Secrets
+.env
+*.pem
+*.key

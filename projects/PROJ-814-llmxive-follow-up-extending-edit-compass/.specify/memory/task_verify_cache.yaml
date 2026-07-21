@@ -35,3 +35,45 @@ T001g:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided that a `tests/contract` directory exists in the repository;
     the artifact list is empty, so the required directory was not created.
+T001h:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a high\u2011level feature specification and no\
+    \ concrete artifact showing a `data/raw` directory was created (or even listed).\
+    \ There is no evidence on disk of the required folder, so the task\u2019s simple\
+    \ requirement is unmet."
+T001i:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/filtered` directory (or its contents) was presented; without
+    a visible directory or confirmation that it was created, the requirement is not
+    satisfied. The implementer must provide the actual directory (and preferably the
+    filtered files) as proof.
+T001j:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/scores` directory was presented; the artifact list is
+    empty, so we cannot confirm that the required directory was created. The implementer
+    must add the directory (and optionally show its presence) to satisfy the task.
+T001k:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that an `outputs` directory actually exists in the\
+    \ repository, nor any indication that it contains files. The implementer\u2019\
+    s claim cannot be verified without a tangible artifact. The next implementer should\
+    \ create the `outputs` folder and ensure it is present in the project tree."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or corresponding GitHub Action steps) were
+    presented. Without these artifacts, the claim that linting (ruff) and formatting
+    (black) are configured cannot be verified. The implementer must add the actual
+    configuration files and, if applicable, CI integration scripts.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory structure (`data/raw/`, `data/filtered/`,
+    `data/scores/`, `outputs/`) is provided; the implementer did not include any artifacts
+    showing these folders exist or contain any files. The task remains undone until
+    the directories are created and verified.

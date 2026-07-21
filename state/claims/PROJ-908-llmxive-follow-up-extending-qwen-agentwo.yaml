@@ -71,55 +71,6 @@
   updated_at: '2026-07-15T13:52:48Z'
 - artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
   attempts: 1
-  canonical: ILP induction runtime under 6 hours
-  claim_id: c_cf1d36c2
-  context: T037 Performance optimization for ILP induction on CPU (ensure <6h runtime)
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: ensure <6h runtime
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T13:52:48Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 1
-  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
-  claim_id: c_533d7a94
-  context: "Independent Test: Run parser on a known subset; verify generated oracle\
-    \ matches original environment simulator trajectories for N=1,000 random inputs\
-    \ (seed=42) with \u226599.9% accuracy."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify generated oracle matches original environment simulator trajectories\
-    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T13:54:29Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 1
-  canonical: Extracted rules reproduce patterns with 95% precision
-  claim_id: c_335fd2a8
-  context: "Independent Test: Feed 500 synthetic traces with known patterns; verify\
-    \ extracted rules reproduce patterns with \u226595% precision."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T13:54:29Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 1
   canonical: Error classification matches human annotation with Cohen's Kappa of 0.8
   claim_id: c_a2d859d4
   context: "Independent Test: Run on small manually verified dataset; confirm error\
@@ -283,3 +234,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T13:56:21Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_533d7a94
+  context: "Independent Test: Run parser on a known subset; verify generated oracle\
+    \ matches original environment simulator trajectories for N=1,000 random inputs\
+    \ (seed=42) with \u226599.9% accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Extracted rules reproduce patterns with 95% precision
+  claim_id: c_335fd2a8
+  context: "Independent Test: Feed 500 synthetic traces with known patterns; verify\
+    \ extracted rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Error classification matches human annotation with Cohen's Kappa 0.8
+  claim_id: c_e06ca355
+  context: "Independent Test: Run on small manually verified dataset; confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: ILP induction runtime under 6 hours
+  claim_id: c_cf1d36c2
+  context: T037 Performance optimization for ILP induction on CPU (ensure <6h runtime)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure <6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Adherence drops below 95% threshold at specific boundary
+  claim_id: c_51469c57
+  context: T032 [US3] Implement logic in code/analysis/stats.py to identify the specific
+    step count or state complexity boundary where measured adherence drops below the
+    95% threshold (per FR-006/SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: identify the specific step count or state complexity boundary where measured
+    adherence drops below the 95% threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Divergence report includes p-values with alpha 0.05
+  claim_id: c_240756ce
+  context: "T034 [US3] Finalize divergence_report.json with p-values (\u03B1 \u2264\
+    \ 0.05), boundary conditions (from T032), and correlation metrics (from T033)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "final divergence report with p-values (\u03B1 \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:24:49Z'

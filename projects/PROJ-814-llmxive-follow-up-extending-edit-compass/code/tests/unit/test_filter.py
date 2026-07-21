@@ -1,5 +1,5 @@
 """
-Unit tests for the filter service.
+Unit tests for the filter service (T012).
 """
 import json
 import pytest
@@ -8,104 +8,122 @@ from pathlib import Path
 import sys
 import os
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.services.filter import filter_records, load_raw_data, save_filtered_data
-from src.utils.logging import setup_logging
-
-# Sample data for testing
-SAMPLE_RAW_DATA = [
-    {"id": 1, "category": "World Knowledge Reasoning", "instruction": "Test 1"},
-    {"id": 2, "category": "Visual Reasoning", "instruction": "Test 2"},
-    {"id": 3, "category": "Mathematical Reasoning", "instruction": "Test 3"},
-    {"id": 4, "category": "World Knowledge Reasoning", "instruction": "Test 4"},
-    {"id": 5, "category": "Other Category", "instruction": "Test 5"},
-    {"id": 6, "category": "Visual Reasoning", "instruction": "Test 6"},
-]
+from src.services.filter import filter_by_categories, load_raw_data, save_filtered_data, TARGET_CATEGORIES
 
 class TestFilterLogic:
-    def test_category_filter_logic(self):
-        """Assert that filtering by specific categories returns only matching records."""
-        target_categories = ["World Knowledge Reasoning", "Visual Reasoning"]
-        
-        result = filter_records(SAMPLE_RAW_DATA, target_categories)
-        
-        # Should have 4 matching records (IDs 1, 2, 4, 6)
-        assert len(result) == 4
-        
-        # Verify all returned records match the target categories
-        for record in result:
-            assert record["category"] in target_categories
-        
-        # Verify specific content
-        categories_found = {r["category"] for r in result}
-        assert categories_found == set(target_categories)
+    """Tests for the core filtering logic."""
 
-    def test_empty_result_handling(self):
-        """Assert that filtering with non-matching categories returns an empty list."""
-        target_categories = ["Non Existent Category"]
-        
-        result = filter_records(SAMPLE_RAW_DATA, target_categories)
-        
-        assert len(result) == 0
+    def test_category_filter_logic(self):
+        """
+        Assert that filtering by ["World Knowledge Reasoning", "Visual Reasoning"] 
+        returns only matching records.
+        """
+        raw_data = [
+            {"id": 1, "category": "World Knowledge Reasoning", "text": "A"},
+            {"id": 2, "category": "Visual Reasoning", "text": "B"},
+            {"id": 3, "category": "Math", "text": "C"},
+            {"id": 4, "category": "Science", "text": "D"},
+            {"id": 5, "category": "World Knowledge Reasoning", "text": "E"},
+            # Edge case: list of categories
+            {"id": 6, "category": ["Math", "Visual Reasoning"], "text": "F"},
+            # Edge case: missing category
+            {"id": 7, "text": "G"},
+        ]
+
+        result = filter_by_categories(raw_data, TARGET_CATEGORIES)
+
+        # Expected IDs: 1, 2, 5, 6
+        expected_ids = {1, 2, 5, 6}
+        result_ids = {item["id"] for item in result}
+
+        assert result_ids == expected_ids, f"Expected IDs {expected_ids}, got {result_ids}"
+        assert len(result) == 4
+
+    def test_empty_input(self):
+        """Test filtering on empty list returns empty list."""
+        result = filter_by_categories([], TARGET_CATEGORIES)
         assert result == []
 
-    def test_missing_category_field(self):
-        """Assert that records without a category field are excluded."""
-        data_with_missing = [
-            {"id": 1, "category": "World Knowledge Reasoning"},
-            {"id": 2, "instruction": "Missing category"},
-            {"id": 3, "category": None},
+    def test_no_matches(self):
+        """Test filtering when no categories match."""
+        raw_data = [
+            {"id": 1, "category": "Math"},
+            {"id": 2, "category": "Science"},
         ]
-        
-        result = filter_records(data_with_missing, ["World Knowledge Reasoning"])
-        
+        result = filter_by_categories(raw_data, TARGET_CATEGORIES)
+        assert result == []
+
+    def test_case_sensitivity(self):
+        """Test that category matching is case-sensitive (as per strict requirement)."""
+        raw_data = [
+            {"id": 1, "category": "world knowledge reasoning"}, # lowercase
+            {"id": 2, "category": "World Knowledge Reasoning"}, # correct
+        ]
+        result = filter_by_categories(raw_data, TARGET_CATEGORIES)
         assert len(result) == 1
-        assert result[0]["id"] == 1
+        assert result[0]["id"] == 2
 
 class TestFilterIO:
-    def test_save_and_load_filtered_data(self):
-        """Assert that save and load functions work correctly together."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir)
-            input_file = tmp_path / "input.json"
-            output_file = tmp_path / "output.json"
-            
-            # Save sample data
-            with open(input_file, "w") as f:
-                json.dump(SAMPLE_RAW_DATA, f)
-            
-            # Load raw data
-            loaded_data = load_raw_data(input_file)
-            assert len(loaded_data) == len(SAMPLE_RAW_DATA)
-            
-            # Filter data
-            filtered = filter_records(loaded_data, ["World Knowledge Reasoning"])
-            assert len(filtered) == 2
-            
-            # Save filtered data
-            save_filtered_data(filtered, output_file)
-            
-            # Verify file exists
-            assert output_file.exists()
-            
-            # Load and verify content
-            with open(output_file, "r") as f:
-                reloaded = json.load(f)
-            
-            assert len(reloaded) == 2
-            assert all(r["category"] == "World Knowledge Reasoning" for r in reloaded)
+    """Tests for file I/O operations."""
 
-    def test_empty_list_save(self):
-        """Assert that saving an empty list creates a valid JSON file."""
+    def test_load_raw_json(self):
+        """Test loading a valid JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([{"id": 1}, {"id": 2}], f)
+            temp_path = Path(f.name)
+
+        try:
+            data = load_raw_data(temp_path)
+            assert len(data) == 2
+            assert data[0]["id"] == 1
+        finally:
+            temp_path.unlink()
+
+    def test_load_raw_jsonl(self):
+        """Test loading a valid JSONL file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            f.write('{"id": 1}\n')
+            f.write('{"id": 2}\n')
+            temp_path = Path(f.name)
+
+        try:
+            data = load_raw_data(temp_path)
+            assert len(data) == 2
+        finally:
+            temp_path.unlink()
+
+    def test_load_missing_file(self):
+        """Test that loading a missing file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_raw_data(Path("non_existent_file.json"))
+
+    def test_save_filtered_data(self):
+        """Test saving filtered data to a file."""
+        data = [{"id": 1, "category": "World Knowledge Reasoning"}]
+        
         with tempfile.TemporaryDirectory() as tmp_dir:
-            output_file = Path(tmp_dir) / "empty.json"
+            output_path = Path(tmp_dir) / "output.json"
+            save_filtered_data(data, output_path)
             
-            save_filtered_data([], output_file)
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                saved_data = json.load(f)
             
-            assert output_file.exists()
-            with open(output_file, "r") as f:
-                data = json.load(f)
-            assert data == []
-            assert isinstance(data, list)
+            assert len(saved_data) == 1
+            assert saved_data[0]["id"] == 1
+
+    def test_save_creates_directory(self):
+        """Test that saving creates the parent directory if it doesn't exist."""
+        data = [{"id": 1}]
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            nested_path = Path(tmp_dir) / "subdir" / "output.json"
+            save_filtered_data(data, nested_path)
+            
+            assert nested_path.exists()
+            assert nested_path.parent.exists()

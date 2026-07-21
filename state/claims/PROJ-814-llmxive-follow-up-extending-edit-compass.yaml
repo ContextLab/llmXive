@@ -1,0 +1,159 @@
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with torch==2.2.2+cpu
+  claim_id: c_3661eaa1
+  context: T002 Initialize Python 3.11 project with requirements.txt (pinning transformers,
+    sentence-transformers, torch==2.2.2+cpu, llama-cpp-python, scikit-image, lpips,
+    statsmodels, numpy, scipy)
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt pinning torch==2.2.2+cpu
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T21:46:18Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Implement VLM wrapper for Phi-3-mini-4k-instruct-GGUF using 4-bit quantization
+    and CPU-only execution
+  claim_id: c_7555ad36
+  context: T017 [US2] Implement src/models/vlm.py wrapper for Phi-3-mini-4k-instruct-GGUF
+    (4-bit, CPU-only) using llama-cpp-python with initial batch size 8
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement VLM wrapper for Phi-3-mini-4k-instruct-GGUF using 4-bit quantization
+    and CPU-only execution with llama-cpp-python
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:46:29Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Ensure all VLM inference uses CPU-only 4-bit quantization to fit within
+    7GB RAM
+  claim_id: c_16e96109
+  context: 'Critical Constraint: All VLM inference must use CPU-only 4-bit quantization
+    (llama-cpp-python) to fit within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure all VLM inference uses CPU-only 4-bit quantization to fit within
+    7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:46:39Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: No GPU or CUDA usage is allowed; torch must be the CPU version
+  claim_id: c_8b4ecef3
+  context: 'Critical Constraint: No GPU/CUDA usage allowed; torch must be CPU version.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_GPU_or_CUDA_usage_is_allowed;_torch_must_be_the_CPU_versi
+  kind: entity_fact
+  raw_text: No GPU or CUDA usage is allowed; torch must be the CPU version
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:46:55Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Reduce batch size if RAM estimation exceeds 6.5GB to guarantee a 7GB
+    limit is never exceeded
+  claim_id: c_580ccdf6
+  context: Reduce batch size if RAM_est > 6.5GB (7GB limit minus 0.5GB safety buffer)
+    to guarantee 7GB limit is never exceeded; skip failures with logs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce batch size if RAM estimation exceeds 6.5GB to guarantee a 7GB limit
+    is never exceeded
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:47:11Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: The Benjamini-Hochberg correction must be applied with a False Discovery
+    Rate (FDR) threshold of 0.05
+  claim_id: c_b580f8d9
+  context: "T026 [US3] Implement src/services/analysis.py Benjamini-Hochberg correction\
+    \ on regression p-values (FDR \u2264 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg correction must be applied with a False Discovery
+    Rate (FDR) threshold of 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:47:43Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: The statistical test for difference in correlation strength requires
+    Logic correlation to exceed Fidelity correlation by at least 0.1 with a p-value
+    of the difference less than 0.05
+  claim_id: c_05b63d67
+  context: The task must verify if Logic correlation exceeds Fidelity correlation
+    by at least 0.1 AND the p-value of the difference is < 0.05.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/The_statistical_test_for_difference_in_correlation_strength
+  kind: magnitude
+  raw_text: The statistical test for difference in correlation strength requires Logic
+    correlation to exceed Fidelity correlation by at least 0.1 with a p-value of the
+    difference less than 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T21:47:53Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: The independence check must halt the pipeline if the absolute Pearson
+    correlation between Human Score and Logic Score is greater than or equal to 0.5
+  claim_id: c_219236aa
+  context: "if |r| \u2265 0.5, log the risk flag, ensure T024a has completed, then\
+    \ raise CircularValidationRiskError exception with message CIRCULAR_VALIDATION_RISK:\
+    \ |r|={value:.4f} >= 0.5 and exit process with code 1 to halt pipeline."
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The independence check must halt the pipeline if the absolute Pearson
+    correlation between Human Score and Logic Score is greater than or equal to 0.5
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T21:47:53Z'

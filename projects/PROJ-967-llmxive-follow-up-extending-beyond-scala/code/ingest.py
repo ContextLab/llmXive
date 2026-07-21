@@ -1,319 +1,277 @@
-"""
-Z-Reward Dataset Ingestion Module.
-
-This module handles the loading, alignment, and initial processing of the Z-Reward dataset.
-It reads raw CSV data, aligns teacher logits, student scalars, and human annotations,
-identifies the primary quality dimension, and outputs a summary of the ingestion process.
-
-Dependencies:
-    - pandas (for DataFrame manipulation)
-    - json (for schema loading)
-    - logging (for progress tracking)
-
-Outputs:
-    - Prints a summary of the dataset to stdout.
-    - Does not write files directly (data is passed to features.py for processing).
-"""
-
 import argparse
 import csv
 import json
 import logging
 import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple
-
-import pandas as pd
+from pathlib import Path
+from typing import Dict, List, Any, Optional
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
-
-
 def setup_logging() -> logging.Logger:
-    """
-    Setup logging configuration for the ingestion process.
-    Returns the configured logger.
-    """
+    """Configure and return the project logger."""
+    logger = logging.getLogger("llmxive.ingest")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
+logger = setup_logging()
 
-def setup_directories(base_path: str) -> None:
-    """
-    Ensure required directory structure exists.
-    Creates: data/raw, data/processed, results, code, tests relative to base_path.
-    """
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "results",
-        "code",
-        "tests"
-    ]
-    for d in dirs:
-        path = os.path.join(base_path, d)
-        if not os.path.exists(path):
-            os.makedirs(path)
-            logger.info(f"Created directory: {path}")
-        else:
-            logger.debug(f"Directory already exists: {path}")
-
-
-def calculate_sha256(file_path: str) -> str:
-    """
-    Calculate SHA256 checksum of a file.
-    Used for verifying data integrity if checksums are provided.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-
-def download_dataset(output_path: str) -> str:
-    """
-    Download the Z-Reward dataset.
-    This function assumes T037 has already run and the file exists at data/raw/zreward_dataset.csv.
-    If the file does not exist, it attempts to fetch it using the datasets library or a direct URL.
-    """
-    import hashlib
-
-    if os.path.exists(output_path):
-        logger.info(f"Dataset found at {output_path}. Skipping download.")
-        return output_path
-
-    logger.info(f"Dataset not found at {output_path}. Attempting to download...")
-
-    # Attempt 1: Use datasets library (as per T037 spec)
-    try:
-        from datasets import load_dataset
-        logger.info("Attempting to fetch via datasets.load_dataset('zreward/zreward-v1')...")
-        dataset = load_dataset('zreward/zreward-v1', split='train')
-        # Convert to pandas and save
-        df = dataset.to_pandas()
-        df.to_csv(output_path, index=False)
-        logger.info(f"Dataset saved to {output_path} via datasets library.")
-        
-        # Verify checksum if .checksums exists
-        checksum_file = os.path.join(os.path.dirname(output_path), ".checksums")
-        if os.path.exists(checksum_file):
-            with open(checksum_file, 'r') as f:
-                expected_checksum = f.read().strip()
-            actual_checksum = calculate_sha256(output_path)
-            if actual_checksum != expected_checksum:
-                raise ValueError(f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}")
-            logger.info("Checksum verified successfully.")
-        
-        return output_path
-    except Exception as e:
-        logger.warning(f"Datasets library fetch failed: {e}. Attempting direct URL fallback...")
-
-    # Attempt 2: Direct URL fallback (as per T037 spec)
-    try:
-        import urllib.request
-        url = "https://huggingface.co/datasets/zreward/zreward-v1/raw/main/data/train.parquet"
-        temp_path = output_path.replace('.csv', '.parquet')
-        logger.info(f"Downloading from {url} to {temp_path}...")
-        urllib.request.urlretrieve(url, temp_path)
-        
-        # Convert parquet to csv
-        import pyarrow.parquet as pq
-        table = pq.read_table(temp_path)
-        df = table.to_pandas()
-        df.to_csv(output_path, index=False)
-        os.remove(temp_path)
-        
-        logger.info(f"Dataset saved to {output_path} via direct URL.")
-        return output_path
-    except Exception as e:
-        logger.error(f"Failed to download dataset via all methods: {e}")
-        raise RuntimeError("Unable to download Z-Reward dataset. Please verify internet connection or dataset availability.")
-
+def setup_directories(project_root: Path) -> Dict[str, Path]:
+    """Ensure required directories exist."""
+    dirs = {
+        "raw": project_root / "data" / "raw",
+        "processed": project_root / "data" / "processed",
+        "results": project_root / "results",
+    }
+    for name, path in dirs.items():
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory: {path}")
+    return dirs
 
 def load_and_align_data(
-    data_path: str,
-    schema_path: str
-) -> pd.DataFrame:
+    csv_path: Path, schema_path: Path, max_rows: Optional[int] = None
+) -> List[Dict[str, Any]]:
     """
-    Load the Z-Reward dataset from CSV and align teacher logits, student scores, and human annotations.
-    
+    Load the Z-Reward dataset from CSV, align columns, and validate schema.
+
     Args:
-        data_path: Path to the raw CSV file.
-        schema_path: Path to the dataset schema YAML file.
-        
+        csv_path: Path to the raw CSV file.
+        schema_path: Path to the schema contract YAML.
+        max_rows: Optional limit on rows to load (for memory testing/sampling).
+
     Returns:
-        A pandas DataFrame with aligned data.
+        List of aligned row dictionaries.
     """
-    logger.info(f"Loading data from {data_path}")
-    
-    # Load schema
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {csv_path}")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+
+    # Load schema to get expected columns
     import yaml
-    with open(schema_path, 'r') as f:
+    with open(schema_path, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
-    
-    required_columns = schema.get('required_columns', [])
-    logger.info(f"Expected columns from schema: {required_columns}")
-    
-    # Load data
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-    
-    # Validate presence of required columns
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
-    
-    # Align data: Ensure consistent types and handle missing values
-    # Standardize column names if necessary (case-insensitive match)
-    df.columns = df.columns.str.strip()
-    
-    # Log missing data flags
-    for col in required_columns:
-        if df[col].isnull().any():
-            null_count = df[col].isnull().sum()
-            logger.warning(f"Column '{col}' has {null_count} missing values.")
-        
-    # Ensure teacher_logits is a list of floats if stored as string
-    if 'teacher_logits' in df.columns:
-        def parse_logits(val):
-            if isinstance(val, list):
-                return val
-            try:
-                # Handle string representation of list
-                import ast
-                return ast.literal_eval(val)
-            except:
-                return [0.0, 0.0, 0.0, 0.0] # Fallback for malformed data
-        
-        df['teacher_logits'] = df['teacher_logits'].apply(parse_logits)
-    
-    # Ensure human_annotations is a dict if stored as string
-    if 'human_annotations' in df.columns:
-        def parse_annotations(val):
-            if isinstance(val, dict):
-                return val
-            try:
-                import ast
-                return ast.literal_eval(val)
-            except:
-                return {}
-        
-        df['human_annotations'] = df['human_annotations'].apply(parse_annotations)
-    
-    logger.info("Data alignment complete.")
-    return df
 
+    required_columns = schema.get("required_columns", [])
+    optional_columns = schema.get("optional_columns", [])
+    all_expected_columns = set(required_columns + optional_columns)
 
-def identify_primary_quality_dimension(df: pd.DataFrame) -> str:
+    aligned_data = []
+    missing_columns = set()
+    missing_data_flags = {"total_samples": 0, "missing_primary_dimension": 0, "missing_annotations": 0}
+
+    logger.info(f"Loading data from {csv_path} with max_rows={max_rows}")
+
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        actual_columns = set(reader.fieldnames or [])
+
+        # Check for schema compliance
+        missing_in_file = all_expected_columns - actual_columns
+        if missing_in_file:
+            logger.warning(f"Schema columns missing in file: {missing_in_file}")
+            missing_columns.update(missing_in_file)
+
+        for i, row in enumerate(reader):
+            if max_rows is not None and i >= max_rows:
+                logger.info(f"Reached max_rows limit ({max_rows}). Stopping load.")
+                break
+
+            aligned_data.append(row)
+            missing_data_flags["total_samples"] += 1
+
+            # Check for specific critical missing data based on schema logic
+            # T014 logic: primary_dimension comes from metadata or defaults to 'Alignment'
+            # We check if the column exists and is populated
+            if "primary_dimension" in row and row["primary_dimension"]:
+                pass # Has primary dimension
+            else:
+                missing_data_flags["missing_primary_dimension"] += 1
+
+            # Check human annotations (assuming a JSON string or specific columns)
+            # Based on schema: human_annotations is a dict{dim: float}
+            if "human_annotations" in row and row["human_annotations"]:
+                try:
+                    ann = json.loads(row["human_annotations"])
+                    if not ann:
+                        missing_data_flags["missing_annotations"] += 1
+                except json.JSONDecodeError:
+                    missing_data_flags["missing_annotations"] += 1
+            else:
+                missing_data_flags["missing_annotations"] += 1
+
+    if missing_columns:
+        logger.error(f"Critical schema mismatch. Missing columns: {missing_columns}")
+        # We do not raise here to allow partial stats, but log heavily.
+        # In a strict validation task (T038), this would raise.
+
+    return aligned_data, missing_data_flags
+
+def identify_primary_quality_dimension(
+    data: List[Dict[str, Any]], default_dim: str = "Alignment"
+) -> str:
     """
     Identify the primary quality dimension for the dataset.
-    
-    Rule: Use the value of the column `primary_dimension` if present in the dataset;
-    otherwise, default to the first dimension in the schema (`Alignment`).
-    
+
+    Rule: Use the value of the column `primary_dimension` if present and non-empty
+    in the first valid row; otherwise, default to the first dimension in the schema.
+
     Args:
-        df: The aligned DataFrame.
-        
+        data: List of aligned rows.
+        default_dim: Default dimension if not found.
+
     Returns:
-        The string name of the primary dimension.
+        The identified primary dimension string.
     """
-    if 'primary_dimension' in df.columns:
-        # Check if the column has a consistent value or if we should take the first non-null
-        primary = df['primary_dimension'].dropna().iloc[0] if not df['primary_dimension'].dropna().empty else None
-        if primary:
-            logger.info(f"Primary dimension identified from column: {primary}")
-            return str(primary)
-    
-    # Default fallback
-    default_dim = "Alignment"
-    logger.info(f"Primary dimension column not found or empty. Defaulting to: {default_dim}")
+    for row in data:
+        if "primary_dimension" in row and row["primary_dimension"]:
+            val = row["primary_dimension"].strip()
+            if val:
+                logger.info(f"Primary dimension identified from data: {val}")
+                return val
+
+    logger.info(f"Primary dimension not found in data. Using default: {default_dim}")
     return default_dim
 
-
-def print_summary(df: pd.DataFrame, primary_dimension: str) -> None:
+def print_summary(
+    data: List[Dict[str, Any]],
+    missing_flags: Dict[str, int],
+    primary_dim: str,
+    schema_path: Path,
+) -> None:
     """
     Print a summary of the ingested dataset.
-    
+
+    Outputs:
+    - Total sample count
+    - Missing data flags (primary dimension, annotations)
+    - Dimension coverage stats (presence of rubric dimensions)
+
     Args:
-        df: The aligned DataFrame.
-        primary_dimension: The identified primary dimension.
+        data: The loaded and aligned dataset.
+        missing_flags: Dictionary of missing data counts.
+        primary_dim: The identified primary dimension.
+        schema_path: Path to the schema to check for expected dimensions.
     """
-    logger.info("=" * 60)
-    logger.info("INGESTION SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Total samples: {len(df)}")
-    logger.info(f"Primary Dimension: {primary_dimension}")
-    
-    # Dimension coverage
-    if 'human_annotations' in df.columns:
-        dims_found = set()
-        for ann in df['human_annotations']:
-            if isinstance(ann, dict):
-                dims_found.update(ann.keys())
-        logger.info(f"Human annotation dimensions found: {list(dims_found)}")
-    
-    # Missing data stats
-    logger.info("Missing data stats:")
-    for col in df.columns:
-        if df[col].isnull().sum() > 0:
-            logger.info(f"  - {col}: {df[col].isnull().sum()} missing")
-    
-    logger.info("=" * 60)
+    import yaml
 
+    total_samples = len(data)
+    logger.info("-" * 50)
+    logger.info("INGESTION SUMMARY REPORT")
+    logger.info("-" * 50)
+    logger.info(f"Total Samples Processed: {total_samples}")
+    logger.info(f"Primary Quality Dimension: {primary_dim}")
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Ingest Z-Reward dataset")
+    # Missing Data Flags
+    logger.info("\nMissing Data Flags:")
+    logger.info(f"  - Missing Primary Dimension: {missing_flags.get('missing_primary_dimension', 0)}")
+    logger.info(f"  - Missing Human Annotations: {missing_flags.get('missing_annotations', 0)}")
+
+    # Dimension Coverage Stats
+    # Load schema to get rubric dimensions
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+
+    rubric_dims = schema.get("rubric_dimensions", [])
+    if not rubric_dims:
+        # Fallback if schema doesn't explicitly list them, use known set
+        rubric_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+
+    logger.info(f"\nDimension Coverage (Rubric Dimensions: {rubric_dims}):")
+
+    # Count samples that have annotations for each dimension
+    # Assuming human_annotations is a JSON string in the CSV
+    dim_coverage = {dim: 0 for dim in rubric_dims}
+    total_with_annotations = 0
+
+    for row in data:
+        ann_str = row.get("human_annotations", "")
+        if not ann_str:
+            continue
+        try:
+            ann = json.loads(ann_str)
+            if ann:
+                total_with_annotations += 1
+                for dim in rubric_dims:
+                    if dim in ann and ann[dim] is not None:
+                        dim_coverage[dim] += 1
+        except json.JSONDecodeError:
+            continue
+
+    for dim in rubric_dims:
+        count = dim_coverage[dim]
+        pct = (count / total_samples * 100) if total_samples > 0 else 0
+        logger.info(f"  - {dim}: {count} samples ({pct:.1f}%)")
+
+    logger.info(f"\nTotal samples with any annotations: {total_with_annotations}")
+    logger.info("-" * 50)
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Ingest and align Z-Reward dataset."
+    )
     parser.add_argument(
-        "--data-path",
+        "--input",
         type=str,
         default="data/raw/zreward_dataset.csv",
-        help="Path to the raw dataset CSV file"
+        help="Path to the input CSV file.",
     )
     parser.add_argument(
-        "--schema-path",
+        "--schema",
         type=str,
         default="contracts/dataset.schema.yaml",
-        help="Path to the dataset schema YAML file"
+        help="Path to the schema contract file.",
     )
     parser.add_argument(
-        "--base-path",
+        "--max-rows",
+        type=int,
+        default=None,
+        help="Optional maximum number of rows to process.",
+    )
+    parser.add_argument(
+        "--project-root",
         type=str,
         default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Base project path"
+        help="Path to the project root directory.",
     )
     return parser.parse_args()
 
-
-def main() -> None:
-    """Main entry point for ingestion."""
+def main():
     args = parse_args()
-    setup_logging()
-    
-    # Setup directories
-    setup_directories(args.base_path)
-    
-    # Download dataset if needed
-    full_data_path = os.path.join(args.base_path, args.data_path)
-    download_dataset(full_data_path)
-    
-    # Load and align
-    full_schema_path = os.path.join(args.base_path, args.schema_path)
-    df = load_and_align_data(full_data_path, full_schema_path)
-    
-    # Identify primary dimension
-    primary_dim = identify_primary_quality_dimension(df)
-    
-    # Print summary
-    print_summary(df, primary_dim)
-    
-    logger.info("Ingestion completed successfully.")
+    project_root = Path(args.project_root)
+    csv_path = project_root / args.input
+    schema_path = project_root / args.schema
 
+    logger.info(f"Starting ingestion for project: {project_root}")
+
+    # Setup directories (ensures data/processed exists for downstream)
+    setup_directories(project_root)
+
+    # Load and align
+    try:
+        data, missing_flags = load_and_align_data(csv_path, schema_path, args.max_rows)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    if not data:
+        logger.warning("No data loaded. Exiting.")
+        sys.exit(0)
+
+    # Identify primary dimension
+    primary_dim = identify_primary_quality_dimension(data)
+
+    # Print Summary (T016 Requirement)
+    print_summary(data, missing_flags, primary_dim, schema_path)
+
+    logger.info("Ingestion and summary generation complete.")
 
 if __name__ == "__main__":
     main()

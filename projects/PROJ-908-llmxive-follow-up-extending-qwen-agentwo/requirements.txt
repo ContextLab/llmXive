@@ -1,14 +1,12 @@
-# Existing dependencies
-datasets
-scikit-learn
-prolog
-networkx
-pandas
-pytest
-requests
-numpy
-black
-ruff
-# Additional for testing
-pytest-randomly
-pytest-cov
+# Core dependencies
+datasets>=2.14.0
+scikit-learn>=1.3.0
+prolog>=0.4.0
+networkx>=3.1.0
+pandas>=2.0.0
+pytest>=7.4.0
+requests>=2.31.0
+black>=23.0.0
+ruff>=0.0.290
+pydantic>=2.0.0
+typing-extensions>=4.8.0

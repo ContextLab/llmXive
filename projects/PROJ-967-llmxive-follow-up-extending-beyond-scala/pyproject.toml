@@ -1,29 +1,92 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Follow-up analysis on teacher entanglement vs scalar distillation loss"
+description = "llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scikit-learn>=1.3.0",
-    "scipy>=1.11.0",
-    "pyyaml>=6.0",
-    "pytest>=7.4.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "datasets>=2.14.0",
-    "pyarrow>=14.0.0"
+    "pandas==2.2.2",
+    "numpy==1.26.4",
+    "scikit-learn==1.5.0",
+    "scipy==1.13.1",
+    "pyyaml==6.0.1",
+    "pytest==8.2.2",
+    "ruff==0.4.9",
+    "black==24.4.2",
+    "datasets==2.20.0",
+    "huggingface_hub==0.23.4",
 ]
 
-[tool.ruff]
-line-length = 88
-target-version = "py311"
+[project.optional-dependencies]
+dev = [
+    "pytest-cov==5.0.0",
+    "mypy==1.10.0",
+    "pre-commit==3.7.1",
+]
+
+[project.scripts]
+ingest = "code.ingest:main"
+features = "code.features:main"
+train = "code.train:main"
+evaluate = "code.evaluate:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*", "tests*"]
 
 [tool.black]
-line-length = 88
-target-version = ["py311"]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Ruff configuration is in .ruff.toml for better readability
+# This file references it
+extend = ".ruff.toml"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = false

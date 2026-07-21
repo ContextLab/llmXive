@@ -7,8 +7,12 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — declared artifact(s) missing/empty/invalid: src/utils/config.py
 - **T005** — declared artifact(s) missing/empty/invalid: src/utils/logging.py
 - **T007** — No evidence of the required `data/raw/` and `data/processed/` directories or accompanying `.gitkeep` files is provided; the implementer’s claim cannot be verified against any actual artifacts. The task remains undone until those directories with non‑empty `.gitkeep` placeholders are present in the repository.
-- **T011** — The integration test file `tests/integration/test_pipeline.py` is present, but the required static manifest `data/raw/manifest_subset.json` is missing, so the test cannot run on a known subset of FCC IDs as specified. The missing manifest must be added with a list of valid material IDs.
 - **T012** — declared artifact(s) missing/empty/invalid: src/data/ingest.py
 - **T013** — declared artifact(s) missing/empty/invalid: src/data/clean.py
 - **T014** — declared artifact(s) missing/empty/invalid: src/data/features.py
+- **T015** — declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py, data/processed/elastic_anisotropy.csv
+- **T016** — declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py
 - **T017** — No artifacts (e.g., CI logs, script output CSV/JSON, performance metrics, or a report) were provided to demonstrate that the data pipeline was executed on a free‑tier CI runner with CPU‑only resources and a sample subset of entries. Without such evidence the claim cannot be verified.
+- **T018** — declared artifact(s) missing/empty/invalid: tests/unit/test_train.py
+- **T019** — declared artifact(s) missing/empty/invalid: tests/unit/test_evaluate.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/models/train.py

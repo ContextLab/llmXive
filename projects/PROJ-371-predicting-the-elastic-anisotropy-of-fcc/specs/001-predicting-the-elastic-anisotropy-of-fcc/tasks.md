@@ -79,11 +79,11 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T009 [P] [US1] Add `tests/unit/test_features.py::test_descriptor_variance_handles_empty_input` to verify descriptor calculation handles empty input without crashing
 - [X] T010 [P] [US1] Add `tests/unit/test_ingest.py::test_ingest_handles_missing_C11` to verify the ingest script skips entries with missing C11 and logs the ID
-- [ ] T011 [P] [US1] Add `tests/integration/test_pipeline.py::test_pipeline_end_to_end_static` using a static manifest `data/raw/manifest_subset.json` containing a list of known FCC material IDs (e.g., MP-123, AFLOW-456) to verify the full pipeline runs on a known subset
+- [X] T011 [P] [US1] Add `tests/integration/test_pipeline.py::test_pipeline_end_to_end_static` using a static manifest `data/raw/manifest_subset.json` containing a list of known FCC material IDs (e.g., MP-123, AFLOW-456) to verify the full pipeline runs on a known subset
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/ingest.py` to fetch C11, C12, C44 from Materials Project and AFLOWlib APIs for a curated list of FCC IDs; validate `MP_API_KEY` environment variable; handle missing values by skipping and logging ID; verify ≥50 unique entries (SC-001) (FR-001, Edge Case 1)
+- [ ] T012 [US1] Implement `src/data/ingest.py` to fetch C11, C12, C44 from Materials Project and AFLOWlib APIs for a curated list of FCC IDs; validate `MP_API_KEY` environment variable; handle missing values by skipping and logging ID; verify ≥50 unique entries (SC-001) (FR-001, Edge Case 1) <!-- FAILED: unspecified -->
 - [ ] T013 [US1] Implement `src/data/clean.py` to filter for single-phase FCC entries, exclude entries where C11=C12 (preventing division by zero in A1), and calculate A1 = 2*C44 / (C11-C12) (Edge Case 2, Edge Case 3)
 - [ ] T014 [US1] Implement `src/data/features.py` to compute atomic radius variance, electronegativity standard deviation, and valence electron concentration using `mendeleev` or `pymatgen` (FR-002)
 - [ ] T015 [US1] Create `src/cli/run_pipeline.py` orchestration script to fetch, clean, and feature-engineer data, saving results to `data/processed/elastic_anisotropy.csv`

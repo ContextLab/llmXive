@@ -1,250 +1,168 @@
-"""
-Data loading and ingestion module for the SLFC dataset.
-
-This module handles the ingestion of the Strong Lens Finding Challenge (SLFC) dataset,
-which serves as the verified proxy for DES data in this project.
-"""
 import os
 import logging
 import pandas as pd
 import numpy as np
 from datasets import load_dataset
+from pathlib import Path
+from typing import Tuple, Optional
+import hashlib
+import time
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from .logging_config import get_logger, DataIngestionError
+from .utils import angular_distance
 
-def load_slfc_dataset():
+logger = get_logger(__name__)
+
+# Constants for injection simulation
+INJECTION_COUNT = 500  # Number of synthetic lenses to inject
+INJECTION_SEED = 42    # Fixed seed for reproducibility
+MAX_ATTEMPTS = 1000    # Max attempts to find a valid coordinate (avoid overlaps)
+MIN_DIST_ARCSEC = 2.0  # Minimum distance between injections in arcseconds
+
+def load_slfc_dataset() -> Optional[pd.DataFrame]:
     """
-    Load the Strong Lens Finding Challenge (SLFC) dataset using the Hugging Face datasets library.
-    
-    Returns:
-        pd.DataFrame: The loaded SLFC dataset as a pandas DataFrame.
-        
-    Raises:
-        ValueError: If the dataset cannot be loaded or is empty.
+    Loads the Strong Lens Finding Challenge (SLFC) dataset.
+    Returns a DataFrame with image metadata and labels.
     """
+    logger.info("Loading SLFC dataset...")
     try:
-        logger.info("Loading SLFC dataset from Hugging Face...")
-        # The SLFC dataset is available on Hugging Face as 'astrof100/strong-lens-finding-challenge'
-        # or similar. Using a generic approach to load a known astronomy dataset.
-        # If the specific dataset name changes, this needs to be updated.
-        # For this implementation, we assume the dataset is 'astrof100/strong-lens-finding-challenge'
-        # or we fall back to a known public dataset structure if available.
+        # Using the verified proxy dataset ID
+        ds = load_dataset("astro-sim/strong-lens-finding-challenge", split="train")
+        df = ds.to_pandas()
         
-        # Attempt to load the dataset
-        # Note: The exact dataset name might vary. We try a common one first.
-        dataset_name = "astrof100/strong-lens-finding-challenge"
+        # Ensure required columns exist
+        required_cols = ['ra', 'dec', 'is_lens', 'snr', 'morphology']
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            raise DataIngestionError(f"SLFC dataset missing columns: {missing}")
         
-        try:
-            dataset = load_dataset(dataset_name, split="train")
-        except Exception as e:
-            logger.warning(f"Could not load '{dataset_name}', trying alternative: 'astrof100/slfc'")
-            try:
-                dataset = load_dataset("astrof100/slfc", split="train")
-            except Exception as e2:
-                logger.error(f"Failed to load SLFC dataset from known sources: {e2}")
-                # Fallback to a simulated structure if the real dataset is not accessible,
-                # but strictly for the purpose of code structure demonstration.
-                # In a real run, this should raise an error.
-                raise RuntimeError("SLFC dataset not found in expected repositories. "
-                                 "Please ensure 'datasets' is installed and network is available.") from e2
-        
-        # Convert to DataFrame
-        df = dataset.to_pandas()
-        
-        if df.empty:
-            raise ValueError("Loaded SLFC dataset is empty.")
-        
-        logger.info(f"Successfully loaded SLFC dataset with {len(df)} rows.")
+        logger.info(f"Loaded {len(df)} rows from SLFC dataset.")
         return df
-        
     except Exception as e:
-        logger.error(f"Error loading SLFC dataset: {e}")
-        raise
+        logger.error(f"Failed to load SLFC dataset: {e}")
+        raise DataIngestionError(f"Failed to load SLFC dataset: {e}") from e
 
-def extract_real_labels(df, output_path):
+def extract_real_labels(df: pd.DataFrame, output_path: str) -> None:
     """
-    Extract lens labels from the SLFC dataset and save them to a CSV file.
-    
-    This function identifies the column containing the lens classification labels
-    (typically 'is_lens', 'lens', or similar) and saves the relevant columns
-    (RA, Dec, is_lens) to the specified output path.
-    
-    Args:
-        df (pd.DataFrame): The SLFC dataset DataFrame.
-        output_path (str): Path to save the real labels CSV file.
-        
-    Returns:
-        pd.DataFrame: The extracted labels DataFrame.
-        
-    Raises:
-        FileNotFoundError: If the expected label column is not found.
+    Extracts 'is_lens' labels from the SLFC dataset and saves them to a CSV.
+    This serves as ground truth for purity calculation (FR-003).
     """
-    # Identify the label column
-    label_columns = ['is_lens', 'lens', 'label', 'class']
-    label_col = None
+    if df is None or df.empty:
+        raise DataIngestionError("Input DataFrame is empty or None.")
     
-    for col in label_columns:
-        if col in df.columns:
-            label_col = col
-            break
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    if label_col is None:
-        # Check for any column that might contain boolean or integer labels
-        possible_label_cols = [c for c in df.columns if df[c].dtype in ['bool', 'int64', 'int32'] and c.lower().find('lens') >= 0]
-        if possible_label_cols:
-            label_col = possible_label_cols[0]
-            logger.warning(f"Using inferred label column: {label_col}")
-        else:
-            raise FileNotFoundError("Could not find a label column (e.g., 'is_lens') in the SLFC dataset.")
-    
-    # Ensure RA and Dec columns exist
-    ra_col = None
-    dec_col = None
-    
-    for col in df.columns:
-        if 'ra' in col.lower():
-            ra_col = col
-        elif 'dec' in col.lower():
-            dec_col = col
-    
-    if ra_col is None or dec_col is None:
-        # Try to infer from common names
-        if 'ra_deg' in df.columns: ra_col = 'ra_deg'
-        if 'dec_deg' in df.columns: dec_col = 'dec_deg'
-        if 'ra' in df.columns: ra_col = 'ra'
-        if 'dec' in df.columns: dec_col = 'dec'
-        
-    if ra_col is None or dec_col is None:
-        raise FileNotFoundError("Could not find RA and Dec columns in the SLFC dataset.")
-    
-    # Extract the required columns
-    labels_df = df[[ra_col, dec_col, label_col]].copy()
+    # Select relevant columns for ground truth
+    labels_df = df[['ra', 'dec', 'is_lens']].copy()
     labels_df.columns = ['RA', 'Dec', 'is_lens']
     
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Save to CSV
-    labels_df.to_csv(output_path, index=False)
-    logger.info(f"Saved real labels to {output_path} with {len(labels_df)} rows.")
-    
-    return labels_df
+    logger.info(f"Saving real labels to {output_file}")
+    labels_df.to_csv(output_file, index=False)
+    logger.info(f"Saved {len(labels_df)} real labels.")
 
-def generate_injection_ground_truth(df, output_path, num_injections=1000, seed=42):
+def generate_injection_ground_truth(df: pd.DataFrame, output_path: str) -> None:
     """
-    Generate simulated injection ground truth by injecting synthetic lens images 
-    at random coordinates into the SLFC background.
+    Injects synthetic lens images at random coordinates into the SLFC background 
+    to create a ground truth catalog for injection/recovery simulation (FR-008).
     
-    This creates a ground truth catalog for injection/recovery simulation, satisfying FR-008.
+    Saves to `data/raw/injection_ground_truth.csv` with columns:
+    RA, Dec, injected_id
     
-    Args:
-        df (pd.DataFrame): The SLFC dataset DataFrame containing RA and Dec columns.
-        output_path (str): Path to save the injection ground truth CSV file.
-        num_injections (int): Number of synthetic injections to generate.
-        seed (int): Random seed for reproducibility.
-        
-    Returns:
-        pd.DataFrame: The injection ground truth DataFrame.
-        
-    Raises:
-        FileNotFoundError: If RA and Dec columns are not found in the dataset.
+    This function ensures:
+    1. Coordinates are within the dataset's RA/Dec bounds.
+    2. Injected lenses are sufficiently separated (min 2.0 arcsec).
+    3. A fixed random seed is used for reproducibility.
     """
-    logger.info(f"Generating {num_injections} simulated lens injections...")
+    if df is None or df.empty:
+        raise DataIngestionError("Input DataFrame is empty or None.")
     
-    # Ensure RA and Dec columns exist
-    ra_col = None
-    dec_col = None
+    # Set seed for reproducibility
+    np.random.seed(INJECTION_SEED)
     
-    for col in df.columns:
-        if 'ra' in col.lower():
-            ra_col = col
-        elif 'dec' in col.lower():
-            dec_col = col
+    # Determine valid coordinate ranges from the dataset
+    min_ra, max_ra = df['ra'].min(), df['ra'].max()
+    min_dec, max_dec = df['dec'].min(), df['dec'].max()
     
-    if ra_col is None or dec_col is None:
-        # Try to infer from common names
-        if 'ra_deg' in df.columns: ra_col = 'ra_deg'
-        if 'dec_deg' in df.columns: dec_col = 'dec_deg'
-        if 'ra' in df.columns: ra_col = 'ra'
-        if 'dec' in df.columns: dec_col = 'dec'
+    logger.info(f"Dataset bounds: RA [{min_ra}, {max_ra}], Dec [{min_dec}, {max_dec}]")
+    
+    injected_lenses = []
+    attempts = 0
+    max_attempts = INJECTION_COUNT * MAX_ATTEMPTS
+    
+    while len(injected_lenses) < INJECTION_COUNT and attempts < max_attempts:
+        attempts += 1
         
-    if ra_col is None or dec_col is None:
-        raise FileNotFoundError("Could not find RA and Dec columns in the SLFC dataset.")
+        # Generate random coordinate
+        new_ra = np.random.uniform(min_ra, max_ra)
+        new_dec = np.random.uniform(min_dec, max_dec)
+        
+        # Check separation from existing injections
+        is_valid = True
+        for existing in injected_lenses:
+            dist = angular_distance(existing['RA'], existing['Dec'], new_ra, new_dec)
+            if dist < MIN_DIST_ARCSEC:
+                is_valid = False
+                break
+        
+        if is_valid:
+            injected_lenses.append({
+                'RA': new_ra,
+                'Dec': new_dec,
+                'injected_id': f"inject_{len(injected_lenses):05d}"
+            })
     
-    # Set random seed for reproducibility
-    np.random.seed(seed)
+    if len(injected_lenses) < INJECTION_COUNT:
+        logger.warning(f"Only generated {len(injected_lenses)} injections after {attempts} attempts.")
     
-    # Get the range of RA and Dec from the dataset
-    ra_values = df[ra_col].values
-    dec_values = df[dec_col].values
+    # Create DataFrame
+    injection_df = pd.DataFrame(injected_lenses)
     
-    ra_min, ra_max = ra_values.min(), ra_values.max()
-    dec_min, dec_max = dec_values.min(), dec_values.max()
-    
-    logger.info(f"Using RA range: [{ra_min}, {ra_max}] and Dec range: [{dec_min}, {dec_max}]")
-    
-    # Generate random coordinates within the dataset bounds
-    injected_ra = np.random.uniform(ra_min, ra_max, num_injections)
-    injected_dec = np.random.uniform(dec_min, dec_max, num_injections)
-    
-    # Create unique injection IDs
-    injected_ids = [f"inject_{i:06d}" for i in range(num_injections)]
-    
-    # Create the injection ground truth DataFrame
-    injection_df = pd.DataFrame({
-        'RA': injected_ra,
-        'Dec': injected_dec,
-        'injected_id': injected_ids
-    })
-    
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Ensure output directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
     # Save to CSV
-    injection_df.to_csv(output_path, index=False)
-    logger.info(f"Saved injection ground truth to {output_path} with {len(injection_df)} rows.")
-    
-    return injection_df
+    injection_df.to_csv(output_file, index=False)
+    logger.info(f"Saved {len(injection_df)} simulated injections to {output_file}")
 
 def main():
     """
-    Main function to run the data ingestion pipeline for T004 and T006.
-    
-    This function loads the SLFC dataset, extracts the real lens labels (T004),
-    and generates the simulated injection ground truth (T006).
+    Main entry point for data loading and ground truth generation.
     """
-    # Define paths
-    real_labels_path = "data/raw/real_labels.csv"
-    injection_path = "data/raw/injection_ground_truth.csv"
+    # Define paths relative to project root
+    # Assuming this script is run from the project root or code/ directory
+    project_root = Path(__file__).resolve().parent.parent
+    data_raw_dir = project_root / "data" / "raw"
     
-    # Load the dataset
-    try:
-        slfc_df = load_slfc_dataset()
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        return 1
+    slfc_data_path = data_raw_dir / "slfc_dataset.parquet" # Placeholder if not auto-downloaded
+    real_labels_path = data_raw_dir / "real_labels.csv"
+    injection_path = data_raw_dir / "injection_ground_truth.csv"
     
-    # Extract and save real labels (T004)
-    try:
-        extract_real_labels(slfc_df, real_labels_path)
-    except Exception as e:
-        logger.error(f"Failed to extract real labels: {e}")
-        return 1
+    # Load dataset
+    df = load_slfc_dataset()
     
-    # Generate and save injection ground truth (T006)
-    try:
-        generate_injection_ground_truth(slfc_df, injection_path)
-    except Exception as e:
-        logger.error(f"Failed to generate injection ground truth: {e}")
-        return 1
-    
-    logger.info("T004 and T006 data ingestion completed successfully.")
-    return 0
+    if df is not None:
+        # T004: Extract real labels
+        extract_real_labels(df, str(real_labels_path))
+        
+        # T006: Generate injection ground truth
+        generate_injection_ground_truth(df, str(injection_path))
+        
+        logger.info("Data loading and ground truth generation complete.")
+    else:
+        logger.error("Failed to load dataset, aborting.")
 
 if __name__ == "__main__":
-    exit(main())
+    configure_logging = None
+    try:
+        from .logging_config import configure_logging
+    except ImportError:
+        pass
+        
+    if configure_logging:
+        configure_logging()
+    else:
+        logging.basicConfig(level=logging.INFO)
+        
+    main()

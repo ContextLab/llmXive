@@ -3,125 +3,169 @@ import sys
 import logging
 from pathlib import Path
 from typing import Optional
-import pandas as pd
-import json
 
-# Import from project structure
-from src.utils.config import get_config, get_path, validate_api_keys, set_random_seed, get_seed, ensure_directories
-from src.utils.logging import get_logger, log_info, log_error, log_warning, log_success
+import pandas as pd
+
+# Import from project modules using the exact API surface provided
+from src.utils.config import get_config, ensure_directories, get_path
+from src.utils.logging import setup_logger, get_logger, log_info, log_error
 from src.data.ingest import ingest_elastic_data
 from src.data.clean import clean_elastic_data
 from src.data.features import compute_compositional_features
 
+
 def validate_output_descriptors(output_path: Path) -> bool:
     """
-    Validates that the output CSV has no null values in descriptor columns.
+    Validate that the output CSV has no null values in descriptor columns.
+    
+    This implements US-1 Acceptance 2: Ensure output CSV has no null values
+    in descriptor columns.
     
     Args:
-        output_path: Path to the output CSV file.
+        output_path: Path to the processed CSV file to validate
         
     Returns:
-        True if validation passes, False otherwise.
+        True if validation passes, False otherwise
+        
+    Raises:
+        FileNotFoundError: If the output file does not exist
+        ValueError: If null values are found in descriptor columns
     """
-    logger = get_logger("pipeline")
-    try:
-        df = pd.read_csv(output_path)
-        required_cols = ["C11", "C12", "C44", "A1"]
+    logger = get_logger("pipeline_validation")
+    
+    if not output_path.exists():
+        log_error(logger, f"Output file not found: {output_path}")
+        raise FileNotFoundError(f"Output file not found: {output_path}")
+    
+    df = pd.read_csv(output_path)
+    
+    # Define the descriptor columns that must not have null values
+    # These are the compositional features computed in features.py
+    descriptor_columns = [
+        'atomic_radius_variance',
+        'electronegativity_std',
+        'valence_electron_concentration'
+    ]
+    
+    # Check if all expected columns exist
+    missing_columns = [col for col in descriptor_columns if col not in df.columns]
+    if missing_columns:
+        error_msg = f"Missing required descriptor columns: {missing_columns}"
+        log_error(logger, error_msg)
+        raise ValueError(error_msg)
+    
+    # Check for null values in descriptor columns
+    null_counts = df[descriptor_columns].isnull().sum()
+    total_nulls = null_counts.sum()
+    
+    if total_nulls > 0:
+        error_details = []
+        for col in descriptor_columns:
+            if null_counts[col] > 0:
+                error_details.append(f"{col}: {null_counts[col]} nulls")
         
-        for col in required_cols:
-            if col not in df.columns:
-                log_error(logger, f"Missing required column: {col}")
-                return False
-            if df[col].isnull().any():
-                log_error(logger, f"Null values found in column: {col}")
-                return False
-        
-        log_success(logger, f"Output validation passed for {output_path}")
-        return True
-    except Exception as e:
-        log_error(logger, f"Validation failed: {str(e)}")
-        return False
+        error_msg = f"Found {total_nulls} null values in descriptor columns: {'; '.join(error_details)}"
+        log_error(logger, error_msg)
+        raise ValueError(error_msg)
+    
+    log_info(logger, f"Validation passed: No null values in descriptor columns ({len(df)} rows)")
+    return True
 
-def main():
-    parser = argparse.ArgumentParser(description="Run the Elastic Anisotropy Pipeline")
-    parser.add_argument("--manifest", type=str, help="Path to the JSON manifest of material IDs")
-    parser.add_argument("--sample-size", type=int, default=None, help="Limit processing to N entries for CI testing")
-    parser.add_argument("--validate", action="store_true", help="Run validation on output after pipeline completion")
+
+def main(args: Optional[list] = None) -> int:
+    """
+    Main pipeline orchestration script.
     
-    args = parser.parse_args()
+    Runs the full data pipeline: ingest, clean, feature engineering,
+    and validation.
     
-    # Setup
-    set_random_seed(42)
-    ensure_directories()
-    logger = get_logger("pipeline")
-    log_info(logger, "Starting Elastic Anisotropy Pipeline")
-    
-    # Validate API Keys
-    if not validate_api_keys():
-        log_error(logger, "API keys missing. Exiting.")
-        sys.exit(1)
-    
-    # 1. Ingest
-    log_info(logger, "Step 1: Ingesting data...")
-    ingest_path = get_path("data_raw")
-    output_raw = ingest_path / "elastic_raw.csv"
-    
-    # Determine manifest to use
-    if args.manifest:
-        manifest_path = Path(args.manifest)
-    else:
-        # Default manifest if not provided
-        manifest_path = ingest_path / "manifest.json"
+    Args:
+        args: Command line arguments (defaults to sys.argv[1:])
         
-    if not manifest_path.exists():
-        log_warning(logger, f"Manifest {manifest_path} not found. Attempting to fetch all or using default.")
-        # If no manifest, we might fetch a default set or fail. 
-        # For this implementation, we assume the script handles missing manifest by fetching a small default set
-        # or raising an error. Let's assume it fetches a default small set for demo if missing.
-        log_warning(logger, "No manifest provided. Fetching default sample.")
+    Returns:
+        Exit code: 0 for success, 1 for failure
+    """
+    parser = argparse.ArgumentParser(
+        description="Run the elastic anisotropy prediction pipeline"
+    )
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="Run validation on output descriptors after pipeline completion"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Override default output path for processed data"
+    )
+    
+    parsed_args = parser.parse_args(args)
+    
+    # Setup logging
+    logger = setup_logger("pipeline")
+    log_info(logger, "Starting elastic anisotropy prediction pipeline")
+    
+    try:
+        # Get configuration and ensure directories exist
+        config = get_config()
+        ensure_directories()
         
-    df_raw = ingest_elastic_data(manifest_path=manifest_path)
-    
-    if df_raw is None or df_raw.empty:
-        log_error(logger, "Ingestion resulted in empty dataset.")
-        sys.exit(1)
+        # Define paths
+        output_path = Path(parsed_args.output) if parsed_args.output else get_path("processed_elastic_data")
         
-    # Apply sample size limit if requested (T017 constraint check)
-    if args.sample_size:
-        log_info(logger, f"Limiting dataset to {args.sample_size} entries for CI constraint test.")
-        df_raw = df_raw.head(args.sample_size)
+        # Step 1: Ingest data
+        log_info(logger, "Step 1: Ingesting elastic constants data")
+        raw_df = ingest_elastic_data()
         
-    df_raw.to_csv(output_raw, index=False)
-    log_success(logger, f"Ingestion complete. Saved to {output_raw}")
-    
-    # 2. Clean
-    log_info(logger, "Step 2: Cleaning data...")
-    output_clean = get_path("data_processed") / "elastic_cleaned.csv"
-    df_clean = clean_elastic_data(output_raw, output_clean)
-    
-    if df_clean is None or df_clean.empty:
-        log_error(logger, "Cleaning resulted in empty dataset.")
-        sys.exit(1)
-    log_success(logger, f"Cleaning complete. Saved to {output_clean}")
-    
-    # 3. Features
-    log_info(logger, "Step 3: Computing features...")
-    output_features = get_path("data_processed") / "elastic_anisotropy.csv"
-    df_final = compute_compositional_features(df_clean, output_features)
-    
-    if df_final is None or df_final.empty:
-        log_error(logger, "Feature engineering resulted in empty dataset.")
-        sys.exit(1)
-    log_success(logger, f"Feature engineering complete. Saved to {output_features}")
-    
-    # 4. Validation
-    if args.validate:
-        log_info(logger, "Running output validation...")
-        if not validate_output_descriptors(output_features):
-            log_error(logger, "Output validation failed.")
-            sys.exit(1)
-    
-    log_success(logger, "Pipeline execution completed successfully.")
+        if raw_df is None or raw_df.empty:
+            log_error(logger, "Ingest returned empty or None data")
+            return 1
+        
+        log_info(logger, f"Ingested {len(raw_df)} entries")
+        
+        # Step 2: Clean data
+        log_info(logger, "Step 2: Cleaning and filtering FCC data")
+        clean_df = clean_elastic_data(raw_df)
+        
+        if clean_df is None or clean_df.empty:
+            log_error(logger, "Clean returned empty or None data")
+            return 1
+        
+        log_info(logger, f"Cleaned data: {len(clean_df)} entries")
+        
+        # Step 3: Compute features
+        log_info(logger, "Step 3: Computing compositional features")
+        feature_df = compute_compositional_features(clean_df)
+        
+        if feature_df is None or feature_df.empty:
+            log_error(logger, "Feature engineering returned empty or None data")
+            return 1
+        
+        log_info(logger, f"Feature engineering complete: {len(feature_df)} entries")
+        
+        # Step 4: Save output
+        log_info(logger, f"Step 4: Saving processed data to {output_path}")
+        feature_df.to_csv(output_path, index=False)
+        log_info(logger, f"Saved {len(feature_df)} rows to {output_path}")
+        
+        # Step 5: Validate output if requested
+        if parsed_args.validate:
+            log_info(logger, "Step 5: Validating output descriptors")
+            try:
+                validate_output_descriptors(output_path)
+                log_info(logger, "Validation successful")
+            except (FileNotFoundError, ValueError) as e:
+                log_error(logger, f"Validation failed: {str(e)}")
+                return 1
+        
+        log_success(logger, "Pipeline completed successfully")
+        return 0
+        
+    except Exception as e:
+        log_error(logger, f"Pipeline failed with error: {str(e)}")
+        raise
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -49,12 +49,12 @@
 - [ ] T001e [P] Create directory `src/data-models`
 - [ ] T001f [P] Create directory `tests/unit`
 - [ ] T001g [P] Create directory `tests/contract`
-- [~] T001h [P] Create directory `data/raw`
-- [~] T001i [P] Create directory `data/filtered`
-- [~] T001j [P] Create directory `data/scores`
-- [~] T001k [P] Create directory `outputs`
+- [ ] T001h [P] Create directory `data/raw`
+- [ ] T001i [P] Create directory `data/filtered`
+- [ ] T001j [P] Create directory `data/scores`
+- [ ] T001k [P] Create directory `outputs`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -64,7 +64,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Setup data directory structure: `data/raw/`, `data/filtered/`, `data/scores/`, `outputs/`
+- [ ] T004 Setup data directory structure: `data/raw/`, `data/filtered/`, `data/scores/`, `outputs/`
 - [X] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
 - [ ] T006 [P] Create `src/data-models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`, `p_value_logic`, `p_value_fidelity`, `beta_logic`, `beta_fidelity`)
 - [ ] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation
@@ -132,7 +132,7 @@
 ### Tests for User Story 3 (TDD - Write FIRST) ⚠️
 
 - [X] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`.
-- [ ] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations.
+- [X] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations.
 - [ ] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values.
 
 ### Implementation for User Story 3

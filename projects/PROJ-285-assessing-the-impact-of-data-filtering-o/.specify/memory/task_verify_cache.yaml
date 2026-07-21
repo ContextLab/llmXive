@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or any of the required folders (`code/`, `code/src/`, `data/`,
+    `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`)
+    were presented in the evidence, so the claimed project structure does not actually
+    exist. The implementer must create the specified hierarchy under `projects/PROJ-285-assessing-the-impact-of-data-filtering-o/`
+    and provide a listing or screenshot confirming its presence.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .flake8, pyproject.toml with
+    black settings, or equivalent) are present in the `code/` directory, nor any evidence
+    that flake8/black have been set up. The required artifacts are missing.
+T006:
+  c: false
+  h: 7f93f4c291152206260c85ca8b6358947c7b94240a1731b8af902e120a8b9798
+  r: "The `data_loader.py` file contains only a partial implementation of `generate_injection_ground_truth`\
+    \ (it ends abruptly and never reaches the code that writes the CSV). Moreover,\
+    \ the required output file `data/raw/injection_ground_truth.csv` does not exist.\
+    \ The task\u2019s core deliverable\u2014a non\u2011empty injection catalog with\
+    \ the specified columns\u2014is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g.,\u202Fpytest.ini or\u202Fconftest.py) or\
+    \ any unit\u2011test files were presented in `tests/unit/`; the required scaffolding\
+    \ artifacts are missing, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or code changes were presented in `code/src/` showing added error\u2011\
+    handling blocks, try/except structures, or a logging configuration (e.g., `logging.basicConfig`,\
+    \ logger objects, log statements). Without such artifacts the claimed implementation\
+    \ of basic error handling and logging infrastructure cannot be verified. The required\
+    \ code is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided that shows logic for filtering
+    out rows with missing SNR or morphology values. The required artifact (implementation
+    of the exclusion logic) is absent, so the task is not satisfied.

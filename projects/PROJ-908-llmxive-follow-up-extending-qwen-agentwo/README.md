@@ -1,22 +1,35 @@
-# llmXive Follow-up: Extending "Qwen-AgentWorld"
+# PROJ-908-llmxive-follow-up-extending-qwen-agentwo
 
-**Project ID**: PROJ-908-llmxive-follow-up-extending-qwen-agentwo
+**Project**: llmXive follow-up: extending "Qwen-AgentWorld: Language World Models for General Agents"
 
-## Overview
-This project implements an automated science pipeline to extend the "Qwen-AgentWorld: Language World Models for General Agents" research. The goal is to construct a Ground Truth Oracle from source code, extract logical rules from LLM reasoning traces, and quantify divergence between the LLM, extracted rules, and the Oracle.
+**Description**: This project implements an automated science pipeline to parse the Qwen-AgentWorld source code, extract a deterministic state-transition oracle, derive logical rules from LLM reasoning traces, and quantify divergence between the LLM, extracted rules, and the ground truth oracle.
 
 ## Structure
-- `code/`: Python implementation modules
-- `data/`: Raw and processed data artifacts
-- `specs/`: Design documents and contracts
-- `tests/`: Unit and integration tests
 
-## Getting Started
-1. Initialize the project structure (Task T001).
-2. Install dependencies (Task T002).
-3. Run the main pipeline entry point: `python code/main.py`.
+- `code/`: Python modules for the pipeline (oracle, rules, analysis, utils).
+- `data/`: Raw and processed data artifacts.
+- `specs/`: Feature specifications, data models, and contracts.
+- `tests/`: Unit and integration tests.
+- `projects/`: Sub-projects if applicable (this is the root for this specific task).
+
+## Prerequisites
+
+- Python 3.9+
+- `requirements.txt` (see root or `code/` directory)
+
+## Quick Start
+
+1. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+2. Run the main pipeline:
+ ```bash
+ python code/main.py
+ ```
 
 ## User Stories
-- **US1**: Ground Truth Oracle Construction (Priority P1)
-- **US2**: Rule Extraction from Reasoning Traces (Priority P2)
-- **US3**: Divergence Quantification and Classification (Priority P3)
+
+- **US1**: Ground Truth Oracle Construction (P1)
+- **US2**: Rule Extraction from Reasoning Traces (P2)
+- **US3**: Divergence Quantification and Classification (P3)

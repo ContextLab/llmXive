@@ -29,3 +29,17 @@ T008:
   r: "No pytest configuration (e.g., `pytest.ini` or `conftest.py`) setting a fixed\
     \ seed of\u202F42 is present, nor are any integration test files or scaffolding\
     \ shown. The required artifacts are missing, so the task is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or log output were presented showing that logging\
+    \ statements were added to the Oracle generation and validation steps. The required\
+    \ artifact\u2014a modified codebase (or diff) with concrete logging implementation\u2014\
+    is missing, so the task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report was provided that implements the logic to flag \u201C\
+    Extraction Uncertainty\u201D nor adds an `excluded_metrics` field with counts\
+    \ for `extraction_uncertainty` and `cold_start`. The evidence consists only of\
+    \ the task description and spec excerpt, which does not satisfy the required deliverable."

@@ -61,7 +61,7 @@
 
 - [ ] T037 [P] [US1] Download Z-Reward dataset: Use `datasets.load_dataset('zreward/zreward-v1', split='train')` to fetch the dataset. **Fallback**: If the dataset name fails, use `https://huggingface.co/datasets/zreward/zreward-v1/raw/main/data/train.parquet`. Compute SHA256 checksum of the downloaded file and write it to `data/.checksums`. Verify integrity against the computed checksum. Save to `data/raw/zreward_dataset.csv`. **FAIL LOUDLY** if fetch fails or checksum mismatch. **DEPENDS: T001a**.
 - [ ] T038 [P] [US1] Validate dataset schema: Read `contracts/dataset.schema.yaml`. Validate the presence of all rubric dimensions (Alignment, Realism, Aesthetics, Plausibility) and human annotation columns in `data/raw/zreward_dataset.csv`. Raise error if schema mismatch. **DEPENDS: T001d AND T037**. **EXECUTION ORDER**: T037 must succeed before T038 runs. **EXECUTION ORDER**: T001d must complete before T038 runs.
-- [ ] T004 [X] (DELETED - Merged into T001a) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T004 [X] (DELETED - Merged into T001a) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T005 [P] Create `code/ingest.py` skeleton with argument parsing and logging setup
 - [X] T006 [P] Create `code/features.py` skeleton with statistical helper functions
 - [X] T007 [P] Create `code/train.py` skeleton with scikit-learn model configuration
@@ -88,10 +88,10 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement Z-Reward dataset ingestion in `code/ingest.py` (load prompts, images, teacher logits, student scores, human annotations). **DEPENDS: T038**.
-- [ ] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID. **DEPENDS: T012**.
-- [ ] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py`: **Rule**: Use the value of the column `primary_dimension` if present in the dataset; otherwise, default to the first dimension in the schema (`Alignment`). This logic MUST be independent of model scores. **DEPENDS: T013**.
-- [ ] T015 [US1] Implement chunked loading or sampling logic in `code/ingest.py` to ensure RAM usage stays < 7GB on free-tier runners. **DEPENDS: T012**.
-- [ ] T016 [US1] Add summary output in `code/ingest.py`: print sample counts, missing data flags, dimension coverage stats. **DEPENDS: T012**.
+- [X] T013 [US1] Implement alignment logic in `code/ingest.py`: match teacher distributions, student scalars, and human annotations by sample ID. **DEPENDS: T012**.
+- [X] T014 [US1] Implement "primary quality dimension" identification logic in `code/ingest.py`: **Rule**: Use the value of the column `primary_dimension` if present in the dataset; otherwise, default to the first dimension in the schema (`Alignment`). This logic MUST be independent of model scores. **DEPENDS: T013**.
+- [X] T015 [US1] Implement chunked loading or sampling logic in `code/ingest.py` to ensure RAM usage stays < 7GB on free-tier runners. **DEPENDS: T012**.
+- [X] T016 [US1] Add summary output in `code/ingest.py`: print sample counts, missing data flags, dimension coverage stats. **DEPENDS: T012**.
 - [ ] T039 (DELETED - Removed synthetic fallback to ensure reproducibility)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,13 +106,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for variance, entropy, skewness, kurtosis calculations in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
-- [ ] T019 [P] [US2] Unit test for zero-variance edge case handling in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
+- [X] T018 [P] [US2] Unit test for variance, entropy, skewness, kurtosis calculations in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
+- [X] T019 [P] [US2] Unit test for zero-variance edge case handling in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests/test_features.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement variance and range calculation for 4 dimensions in `code/features.py`. **DEPENDS: T012**.
-- [ ] T021 [US2] Implement entropy, skewness, and kurtosis calculation for teacher distributions in `code/features.py`. **DEPENDS: T012**.
+- [X] T020 [US2] Implement variance and range calculation for 4 dimensions in `code/features.py`. **DEPENDS: T012**.
+- [X] T021 [US2] Implement entropy, skewness, and kurtosis calculation for teacher distributions in `code/features.py`. **DEPENDS: T012**.
 - [ ] T022a [US2] Implement **Global** Covariance Matrix and Dominant Eigenvalue calculation: Compute the N×N covariance matrix of the teacher's N-dimensional score vector **across the entire dataset**. Extract the **dominant eigenvalue** (largest eigenvalue of the 4x4 matrix) as the "dataset-wide entanglement score". **DEPENDS: T012**. **VALIDATION**: Ensure output is finite and non-NaN. **CONSTITUTION VI**: This implements the global distributional analysis required by the spec.
 - [ ] T022b [US2] Implement **Per-Sample** Variance/Entropy: Calculate variance, entropy, skewness, and kurtosis for each sample's teacher distribution individually. **DEPENDS: T012**. **VALIDATION**: Handle zero-variance cases gracefully.
 - [ ] T023 [US2] Implement zero-variance handling in `code/features.py`: set entropy to 0 and variance to 0 without crashing. **DEPENDS: T020**.

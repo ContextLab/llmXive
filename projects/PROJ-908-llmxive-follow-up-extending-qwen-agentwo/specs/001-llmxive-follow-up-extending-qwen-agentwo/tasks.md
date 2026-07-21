@@ -70,7 +70,7 @@
 
 **Goal**: Parse Qwen-AgentWorld source code to generate a deterministic state-transition oracle for independent ground truth verification.
 
-**Independent Test**: Run parser on a known subset; verify generated oracle matches original environment simulator trajectories for N=1,000 random inputs (seed=42) with ≥99.9% accuracy.
+**Independent Test**: Run parser on a known subset; Verify generated oracle matches original environment simulator trajectories for N=1,000 random inputs (seed=42) with ≥99.9% accuracy..
 
 ### Tests for User Story 1 ⚠️
 
@@ -80,9 +80,9 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/oracle/parser.py` to parse Qwen-AgentWorld source and extract interaction logic (spatial, temporal, causal)
-- [ ] T013 [US1] Implement `code/oracle/simulator.py` to execute deterministic state transitions based on parsed logic
+- [X] T013 [US1] Implement `code/oracle/simulator.py` to execute deterministic state transitions based on parsed logic
 - [ ] T014 [US1] Generate `data/processed/oracle_graph.json` (Deterministic State-Transition Oracle) and invoke checksum verification
-- [ ] T015 [US1] Implement orchestration step in `code/main.py` or `oracle/parser.py` to invoke `code/utils/checksums.py` during Oracle generation and fail on mismatch (Code Drift check)
+- [X] T015 [US1] Implement orchestration step in `code/main.py` or `oracle/parser.py` to invoke `code/utils/checksums.py` during Oracle generation and fail on mismatch (Code Drift check)
 - [ ] T016 [US1] Add logging for Oracle generation and validation steps
 
 **Checkpoint**: Ground Truth Oracle is fully functional, validated against simulator, and ready for rule extraction.
@@ -93,13 +93,13 @@
 
 **Goal**: Apply ILP/Decision Tree to LLM CoT traces to extract explicit logical rules and validate against the Oracle.
 
-**Independent Test**: Feed 500 synthetic traces with known patterns; verify extracted rules reproduce patterns with ≥95% precision.
+**Independent Test**: Feed 500 synthetic traces with known patterns; Verify extracted rules reproduce patterns with ≥95% precision..
 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Generate or Load LLM CoT traces: First attempt to load pre-generated traces from `data/raw/cot_traces.json`. If missing, run `code/inference/runner.py` using the verified CPU-quantized model `Qwen/Qwen1.5-1.8B-Chat-GGUF` to generate traces for a representative set of planning tasks. (Note: T020 is NOT parallel; it blocks T021 and T028).
-- [ ] T021 [US2] Implement `code/rules/extractor.py` using FOL/ILP (e.g., Prolog induction) to derive rules from CoT traces
-- [ ] T022 [US2] Implement `code/rules/validator.py` to cross-check extracted rules against the Ground Truth Oracle (FR-002)
+- [X] T021 [US2] Implement `code/rules/extractor.py` using FOL/ILP (e.g., Prolog induction) to derive rules from CoT traces
+- [X] T022 [US2] Implement `code/rules/validator.py` to cross-check extracted rules against the Ground Truth Oracle (FR-002)
 - [ ] T023 [US2] Generate `data/processed/extracted_rules.json` (Hypothesized Rule Set)
 - [ ] T024 [US2] Implement logic to flag "Extraction Uncertainty" for ambiguous/contradictory traces AND output a separate `excluded_metrics` field in the final report containing counts for `extraction_uncertainty` and `cold_start` (per FR-004).
 - [ ] T025 [US2] Add logging for rule extraction confidence and validation failures

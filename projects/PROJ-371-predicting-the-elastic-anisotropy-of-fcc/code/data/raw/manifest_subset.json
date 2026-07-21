@@ -1,0 +1,9 @@
+{
+  "materials": [
+    {"id": "MP-123", "element": "Al", "crystal_system": "fcc"},
+    {"id": "MP-456", "element": "Cu", "crystal_system": "fcc"},
+    {"id": "MP-789", "element": "Ni", "crystal_system": "fcc"},
+    {"id": "MP-101", "element": "Ag", "crystal_system": "fcc"},
+    {"id": "MP-102", "element": "Au", "crystal_system": "fcc"}
+  ]
+}
