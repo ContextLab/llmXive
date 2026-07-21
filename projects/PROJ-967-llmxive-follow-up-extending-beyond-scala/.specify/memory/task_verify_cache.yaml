@@ -1,27 +1,35 @@
-T027:
+T002:
   c: false
-  h: b73d5632ecc57dce024760127556f6072e044e8781aa149dd9692bb3ce443263
-  r: The `code/train.py` script exists and includes a RandomForestRegressor with `n_jobs=2`
-    and a fixed `random_state`, but the required input file `data/processed/features.json`
-    is missing, so the script cannot actually read the features and targets as specified.
-    Additionally, the displayed code is truncated and does not show a complete implementation
-    (e.g., missing main entry point and full return statement). The missing dataset
-    file and incomplete script prevent the task from being genuinely fulfilled.
-T030:
+  h: 13798179c5b3766453e8c6991a4bc7f309e659f8c3f33fbcd5ee54b4141ee816
+  r: The required file `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`
+    does not exist, so the project has not been initialized with pinned dependencies
+    at the specified location. The existing `code/requirements.txt` is at a different
+    path and does not satisfy the task.
+T025:
   c: false
-  h: 718690642b076f1189700f37d34d51c97135f8b0b1a19dfb5052af649eeafc22
-  r: "The provided `code/evaluate.py` stops after a placeholder model\u2011loader\
-    \ and does not contain any implementation of a permutation test, nor does it write\
-    \ R\xB2, MAE, and a p\u2011value to `results/results.json`. Moreover, the required\
-    \ `results/results.json` file is missing entirely. The task\u2019s core requirement\
-    \ is therefore not satisfied."
-T032:
+  h: 5ca2bf466d279e423dd3117eacc8826d61dd3c24ccdae3f65d564ab5e270724c
+  r: "The `data/processed/features.json` file is empty (`[]`) and therefore does not\
+    \ contain the required per\u2011sample statistics, global eigenvalue, or fidelity\
+    \ loss. Additionally, the referenced `contracts/output.schema.yaml` is missing,\
+    \ so the JSON cannot be validated against the required schema. No evidence of\
+    \ the integration steps (reading from `code/ingest.py`, computing T020\u2011T024)\
+    \ is present."
+T027a:
+  c: false
+  h: ae3fb2523e1822990a2a887b1fa3f66c5c9ee5572be8987599a6c7921d57aac1
+  r: "The `data/processed/features.json` file is empty (`[]`), so no features can\
+    \ be read for training. Moreover, the shown portion of `code/train.py` does not\
+    \ demonstrate that it actually calls `load_features` with the required path, nor\
+    \ does it contain the train\u2011test split or the RandomForest instantiation\
+    \ using `n_jobs=2`. These missing or incomplete elements prevent the task from\
+    \ being genuinely fulfilled."
+T030a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `quickstart.md` file or excerpt was presented, so there is no evidence
-    that the required documentation changes exist or contain the expected content.
-    The implementer must provide the modified `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/quickstart.md`
-    showing the documentation updates.
+  r: "The submission contains no code, script, notebook, or output file implementing\
+    \ the permutation test, nor any reported R\xB2, MAE, or p\u2011value results.\
+    \ Without an actual artifact demonstrating the required logic and metrics, the\
+    \ task requirement is not satisfied."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,3 +43,32 @@ T034:
     based Random Forest training results were supplied. The claim lacks any concrete\
     \ artifacts (code, data files, or figures) that demonstrate the dataset loading,\
     \ entanglement calculations, or predictive modeling required by the user stories."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No new files or code were found under `tests/unit/` that add edge\u2011case\
+    \ unit tests, and no test artifacts were presented. The required additional unit\
+    \ tests are missing, so the task is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a validation log, script output, or report) showing that the
+    quickstart.md was executed and its reproducibility checks passed was provided.
+    Without such evidence, the claim that the quickstart validation was run cannot
+    be verified.
+T037:
+  c: false
+  h: 4183f24a42406ded6370d4090d3b108f1dbbfcab89272b6da80d86bd3b237b9f
+  r: "The required `data/train.parquet` file is missing, no SHA256 checksum file (`data/.checksums`)\
+    \ was generated, and there is no evidence that the dataset was fetched via `datasets.load_dataset`\
+    \ (or the fallback URL) or that integrity was verified before saving to `data/raw/zreward_dataset.csv`.\
+    \ The existing CSV appears to be a hand\u2011crafted stub rather than the result\
+    \ of the prescribed download and conversion process."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., ingestion script, feature\u2011\
+    engineering JSON, Random Forest training results) were supplied; therefore the\
+    \ required deliverables cannot be verified as present or correct. The implementer\
+    \ must provide the actual scripts and generated outputs that fulfill the three\
+    \ user stories."

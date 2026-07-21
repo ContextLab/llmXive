@@ -1,0 +1,120 @@
+# Output Schema Contract for Feature Engineering Results
+# This schema defines the structure of the processed features JSON file.
+# Consumed by T025 (Feature Integration) and T027a (Training).
+
+type: object
+required:
+  - metadata
+  - samples
+
+properties:
+  metadata:
+    type: object
+    description: Information about the processing run.
+    properties:
+      version:
+        type: string
+        description: Schema version.
+        const: "1.0.0"
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation.
+      source_dataset:
+        type: string
+        description: Name of the source dataset (e.g., 'zreward/evaluation').
+      total_samples:
+        type: integer
+        minimum: 0
+        description: Total number of samples processed.
+
+  samples:
+    type: array
+    description: List of feature records per sample.
+    items:
+      type: object
+      required:
+        - sample_id
+        - variance
+        - range
+        - entropy
+        - skewness
+        - kurtosis
+        - global_eigenvalue
+        - fidelity_loss
+        - primary_dimension
+      properties:
+        sample_id:
+          type: string
+          description: Unique identifier for the sample.
+
+        variance:
+          type: object
+          description: Variance of teacher logits per dimension.
+          properties:
+            Alignment:
+              type: number
+              format: float
+            Realism:
+              type: number
+              format: float
+            Aesthetics:
+              type: number
+              format: float
+            Plausibility:
+              type: number
+              format: float
+
+        range:
+          type: object
+          description: Range (max - min) of teacher logits per dimension.
+          properties:
+            Alignment:
+              type: number
+              format: float
+            Realism:
+              type: number
+              format: float
+            Aesthetics:
+              type: number
+              format: float
+            Plausibility:
+              type: number
+              format: float
+
+        entropy:
+          type: number
+          format: float
+          description: Entropy of the teacher distribution.
+          minimum: 0.0
+
+        skewness:
+          type: number
+          format: float
+          description: Skewness of the teacher distribution.
+
+        kurtosis:
+          type: number
+          format: float
+          description: Kurtosis of the teacher distribution.
+
+        global_eigenvalue:
+          type: number
+          format: float
+          description: Dominant eigenvalue of the global covariance matrix.
+          # Note: This value is constant across all samples as it is a global statistic.
+
+        fidelity_loss:
+          type: number
+          format: float
+          description: MAE between student scalar and human annotation for the primary dimension.
+
+        primary_dimension:
+          type: string
+          enum:
+            - Alignment
+            - Realism
+            - Aesthetics
+            - Plausibility
+
+additionalProperties: false

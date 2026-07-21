@@ -1,27 +1,31 @@
-# Data and Results - do not commit large files
-data/raw/
-data/processed/
-results/
-figures/
-
-# Python cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
 
 # Virtual environments
 venv/
 .venv/
-env/
 
-# IDE settings
+# Data files (large datasets)
+data/raw/*.parquet
+data/raw/*.csv
+data/raw/*.h5
+data/raw/*.pkl
+
+# Results and models
+results/*.pkl
+results/*.json
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log

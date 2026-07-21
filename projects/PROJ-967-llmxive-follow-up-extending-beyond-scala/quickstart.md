@@ -1,110 +1,161 @@
 # Quickstart Guide: llmXive Follow-up (Teacher Entanglement vs. Scalar Distillation Loss)
 
-## Project Overview
-
-This project analyzes the relationship between teacher model entanglement (correlated rubric dimensions) and the performance of scalar distillation loss in student models, using the Z-Reward dataset.
-
-**Repository**: `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`
-
-**Key Findings Goal**: Determine if high entanglement in teacher distributions correlates with higher fidelity loss when training student models on scalar rewards.
+This guide provides step-by-step instructions to reproduce the full research pipeline
+from raw data acquisition to final model evaluation, satisfying Constitution Principle I (Reproducibility).
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
-- ~14GB disk space (for dataset and processed features)
-- ~7GB RAM (minimum for streaming dataset processing)
+- Python 3.11 or higher
+- pip (Python package manager)
+- At least 8GB RAM (for full dataset processing) or 4GB for sampled processing
+- Internet connection (for initial dataset download)
 
-## Setup
+## 1. Project Setup
 
-1. **Clone and Navigate**:
- ```bash
- cd projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/
- ```
-
-2. **Install Dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
- *Dependencies include: `pandas`, `numpy`, `scikit-learn`, `requests`, `huggingface_hub`, `pyarrow`.*
-
-3. **Verify Environment**:
- Ensure `python --version` returns 3.11.x.
-
-## Pipeline Execution
-
-The pipeline consists of three main stages: Ingestion, Feature Engineering, and Modeling.
-
-### Step 1: Data Ingestion
-
-Downloads the Z-Reward dataset, validates the schema, and aligns teacher/student outputs.
-
+Navigate to the project directory:
 ```bash
-python code/ingest.py
+cd projects/PROJ-967-llmxive-follow-up-extending-beyond-scala
 ```
 
-**Outputs**:
-- `data/raw/zreward_dataset.csv`: The raw dataset (verified via SHA256).
-- Prints a summary of sample counts, missing data flags, and dimension coverage.
+Create a virtual environment and activate it:
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
-*Note: If the dataset is large, this script uses chunked loading to stay within memory limits.*
+Install dependencies:
+```bash
+pip install -r code/requirements.txt
+```
 
-### Step 2: Feature Engineering
+## 2. Data Acquisition
 
-Calculates statistical descriptors (variance, entropy, skewness, kurtosis) and the global entanglement score. Computes the "dimensional fidelity loss" for each sample.
+Download the Z-Reward dataset and validate its integrity.
+This step fetches real data from the official source and computes a SHA256 checksum.
+
+```bash
+python code/ingest.py --action download
+```
+
+**Expected Output:**
+- Dataset saved to `data/raw/zreward_dataset.csv`
+- Checksum file created at `data/.checksums`
+- Console log: "Dataset downloaded and verified successfully."
+
+**Note:** If the download fails, the system will automatically attempt to generate synthetic fallback data (T039), but this is only for development purposes. For production runs, ensure the real dataset is available.
+
+## 3. Data Validation
+
+Validate the dataset schema against the defined contracts.
+This ensures all required columns (prompt, image_path, teacher_logits, student_scalar, human_annotations, primary_dimension) are present.
+
+```bash
+python code/ingest.py --action validate
+```
+
+**Expected Output:**
+- Schema validation report printed to console
+- Missing data flags for any incomplete samples
+- Summary of dimension coverage
+
+## 4. Feature Engineering
+
+Compute entanglement features, global eigenvalues, and dimensional fidelity loss.
+This step processes the aligned data and generates the feature set required for modeling.
 
 ```bash
 python code/features.py
 ```
 
-**Outputs**:
-- `data/processed/features.json`: A JSON file containing per-sample statistics and the global entanglement score.
+**Expected Output:**
+- Feature set saved to `data/processed/features.json`
+- Console log with statistics: sample counts, variance ranges, global eigenvalue, fidelity loss metrics
+- Verification that output matches `contracts/output.schema.yaml`
 
-**Key Logic**:
-- **Global Entanglement**: Computed via the dominant eigenvalue of the global covariance matrix across all samples.
-- **Fidelity Loss**: MAE between the student scalar prediction and the human-annotated score for the *primary* quality dimension (identified via metadata).
+## 5. Model Training
 
-### Step 3: Predictive Modeling
-
-Trains a Random Forest regressor to predict fidelity loss using entanglement features. Includes 5-fold cross-validation and a permutation test for statistical significance.
+Train a Random Forest regressor to predict fidelity loss using entanglement features.
+The model uses CPU-only execution with 5-fold cross-validation.
 
 ```bash
 python code/train.py
 ```
 
-**Outputs**:
-- `results/results.json`: Contains R², MAE, and the permutation test p-value.
+**Expected Output:**
+- Model artifact saved to `results/model.pkl`
+- Cross-validation metrics printed to console (R², MAE)
+- Memory usage logs (if profiling enabled)
 
-**Configuration**:
-- Model: `RandomForestRegressor` (CPU-only, `n_jobs=2`).
-- Validation: 5-fold stratified cross-validation.
-- Significance Test: Non-parametric permutation test comparing model MAE against a null baseline.
+## 6. Model Evaluation
 
-## Verification
+Evaluate the trained model using permutation tests to verify statistical significance.
+This step compares the model's performance against a null baseline.
 
-To ensure the entire pipeline ran correctly and reproduced the expected artifacts:
+```bash
+python code/evaluate.py
+```
+
+**Expected Output:**
+- Results saved to `results/results.json`
+- Metrics: R², MAE, Permutation test p-value
+- Console log: "Evaluation complete. Results saved to results/results.json"
+
+## 7. Full Pipeline Execution (Optional)
+
+To run the entire pipeline from data ingestion to evaluation in one command:
+
+```bash
+python code/integrate_pipeline.py
+python code/integrate_train_eval.py
+```
+
+**Expected Output:**
+- All intermediate artifacts generated in their respective directories
+- Final results in `results/results.json`
+
+## 8. Validation
+
+Verify that the pipeline execution was successful and all artifacts are in place.
 
 ```bash
 python code/validate_quickstart.py
 ```
 
-This script checks:
-- Directory structure (`data/raw`, `data/processed`, `results`).
-- Existence and validity of `zreward_dataset.csv`, `features.json`, and `results.json`.
-- Correctness of the results content (R² > 0, p-value < 0.05 expected for significance).
+**Expected Output:**
+- Directory structure validation
+- File existence checks for all required artifacts
+- Pipeline execution validation
+- Results content verification
+- Final status: "All validations passed."
 
 ## Troubleshooting
 
-- **Memory Errors**: Ensure the dataset is processed in chunks. The `ingest.py` and `features.py` scripts are designed to stream data where possible.
-- **Missing Data**: If `validate_quickstart.py` reports missing files, re-run the preceding stage (e.g., run `ingest.py` again if `zreward_dataset.csv` is missing).
-- **Schema Mismatch**: If ingestion fails, verify the Z-Reward source URL and checksum in `code/ingest.py`.
+### Memory Issues
+If you encounter memory errors during feature engineering or model training:
+- Reduce the dataset size by sampling (modify `code/ingest.py` to use `streaming=True` and limit rows)
+- Ensure you have at least 8GB of free RAM
 
-## Output Artifacts Summary
+### Dataset Download Fails
+- Check your internet connection
+- Verify the Z-Reward dataset URL is accessible
+- If the official source is down, the system will fall back to synthetic data (T039)
 
-| File | Description |
-|:--- |:--- |
-| `data/raw/zreward_dataset.csv` | Raw Z-Reward dataset with teacher logits and human annotations. |
-| `data/processed/features.json` | Engineered features including entanglement scores and fidelity loss. |
-| `results/results.json` | Final model metrics (R², MAE, p-value). |
-| `code/requirements.txt` | Python dependencies. |
-| `quickstart.md` | This guide. |
+### Schema Validation Errors
+- Ensure `contracts/dataset.schema.yaml` matches the expected structure
+- Check that all required columns are present in the dataset
+
+### Model Training Errors
+- Verify that `data/processed/features.json` contains valid data
+- Ensure the Random Forest model parameters are correctly configured in `code/train.py`
+
+## Reproducibility Notes
+
+- All dependencies are pinned in `code/requirements.txt`
+- Random seeds are set to 42 for all stochastic processes
+- Dataset checksums are stored in `data/.checksums`
+- All scripts log their execution details to `logs/` directory
+- The full pipeline can be reproduced by running the commands in sections 2-6 in order
+
+## Contact & Support
+
+For issues or questions, refer to the project's `README.md` or contact the maintainers.

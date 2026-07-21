@@ -1,6 +1,13 @@
-# Standalone Ruff configuration file
-# This file is redundant if pyproject.toml exists but serves as an explicit
-# configuration entry point for tools that look for .ruff.toml specifically.
-# Configuration is primarily defined in pyproject.toml [tool.ruff] section.
+# Ruff configuration for llmXive project
+line-length = 88
+target-version = "py311"
 
-extend = "pyproject.toml"
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

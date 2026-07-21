@@ -1,368 +1,351 @@
+"""
+evaluate.py - Metrics calculation and model evaluation for llmXive pipeline.
+
+This module implements the evaluation logic for the Random Forest model trained
+to predict fidelity loss based on entanglement features. It includes:
+- Loading features and models
+- Calculating R², MAE, and other metrics
+- Performing permutation tests for significance
+- Calculating null baseline (mean predictor) performance
+- Saving results to JSON
+"""
+
 import argparse
 import json
 import logging
 import sys
+import pickle
+import os
+from typing import Dict, List, Tuple, Any
+
 import numpy as np
-from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from sklearn.metrics import r2_score, mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.utils import resample
+from sklearn.model_selection import cross_val_score, KFold
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_features(features_path: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_features(path: str) -> List[Dict[str, Any]]:
     """
-    Load features and targets from a JSON file.
-    
-    Args:
-        features_path: Path to the features JSON file
-        
-    Returns:
-        Tuple of (features_array, targets_array)
-    """
-    logger.info(f"Loading features from {features_path}")
-    path = Path(features_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Features file not found: {features_path}")
-    
-    with open(path, 'r') as f:
-        data = json.load(f)
-    
-    if 'features' not in data or 'targets' not in data:
-        raise ValueError("JSON file must contain 'features' and 'targets' keys")
-    
-    features = np.array(data['features'])
-    targets = np.array(data['targets'])
-    
-    logger.info(f"Loaded {len(features)} samples with {features.shape[1]} features")
-    return features, targets
+    Load features from a JSON file.
 
-def load_model(model_path: str) -> RandomForestRegressor:
-    """
-    Load a trained model from a file (placeholder for actual serialization).
-    
     Args:
-        model_path: Path to the model file
-        
+        path: Path to the features JSON file.
+
     Returns:
-        Trained RandomForestRegressor model
+        List of feature dictionaries.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    # In a real scenario, we would use joblib or pickle to load the model
-    # For this implementation, we assume the model is passed directly or 
-    # re-trained if needed. Here we return a placeholder structure.
-    # The actual model training is done in train.py, and we assume the 
-    # model object is passed or re-initialized for evaluation.
-    # However, based on the task, we need to evaluate an existing model.
-    # Since we cannot pickle/unpickle in this single-file context without 
-    # knowing the exact training state, we will assume the model is 
-    # re-trained or passed. For this script, we will load features and 
-    # expect the model to be passed or re-trained.
-    # To strictly follow the API, we will implement a dummy loader that 
-    # raises an error if the model file doesn't exist, but for the 
-    # permutation test, we need the actual model instance.
-    # Given the constraints, we will assume the model is re-trained 
-    # locally or passed. For the purpose of this task, we will re-train 
-    # a model on the loaded data if the path is provided, or raise an 
-    # error if the model is not available.
-    
-    # Correction: The task requires evaluating an existing model. 
-    # Since we cannot serialize/deserialize without knowing the training 
-    # details, we will assume the model is passed as an argument or 
-    # re-trained. For this implementation, we will re-train a model 
-    # on the loaded data to simulate the evaluation process.
-    # However, the task specifically says "load_model". We will implement 
-    # a simple loader that raises an error if the file doesn't exist, 
-    # and the caller should handle model training separately.
-    
-    # For the purpose of this task, we will assume the model is 
-    # re-trained in the main function or passed. We will implement 
-    # a placeholder that raises an error if the model file is not found.
-    if not Path(model_path).exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-    
-    # In a real implementation, we would use joblib.load(model_path)
-    # For now, we return None and handle model passing in main
-    logger.warning("Model loading is not fully implemented. Please ensure the model is passed or re-trained.")
-    return None
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Features file not found: {path}")
+
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of features, got {type(data)}")
+
+    logger.info(f"Loaded {len(data)} feature records from {path}")
+    return data
+
+def load_model(path: str):
+    """
+    Load a trained model from a pickle file.
+
+    Args:
+        path: Path to the model pickle file.
+
+    Returns:
+        The loaded model object.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pickle.PickleError: If the file cannot be loaded.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Model file not found: {path}")
+
+    with open(path, 'rb') as f:
+        model = pickle.load(f)
+
+    logger.info(f"Loaded model from {path}")
+    return model
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
     """
-    Calculate evaluation metrics.
-    
+    Calculate evaluation metrics: R² and MAE.
+
     Args:
-        y_true: True target values
-        y_pred: Predicted target values
-        
+        y_true: True target values.
+        y_pred: Predicted target values.
+
     Returns:
-        Dictionary with R² and MAE
+        Dictionary with 'r2' and 'mae' keys.
     """
     r2 = r2_score(y_true, y_pred)
     mae = mean_absolute_error(y_true, y_pred)
-    return {"r2": float(r2), "mae": float(mae)}
+    return {'r2': float(r2), 'mae': float(mae)}
 
-def calculate_baseline_mae(targets: np.ndarray) -> float:
+def calculate_baseline_mae(y_true: np.ndarray) -> float:
     """
-    Calculate the baseline MAE (predicting the mean of the targets).
-    
+    Calculate the MAE of a null baseline (mean predictor).
+
+    The null baseline predicts the mean of y_true for all samples.
+
     Args:
-        targets: Array of true target values
-        
+        y_true: True target values.
+
     Returns:
-        Baseline MAE
+        MAE of the mean predictor.
     """
-    mean_target = np.mean(targets)
-    predictions = np.full_like(targets, mean_target, dtype=float)
-    return float(mean_absolute_error(targets, predictions))
+    mean_pred = np.full_like(y_true, fill_value=np.mean(y_true), dtype=float)
+    return float(mean_absolute_error(y_true, mean_pred))
 
 def perform_permutation_test(
-    model: RandomForestRegressor,
-    features: np.ndarray,
-    targets: np.ndarray,
+    X: np.ndarray,
+    y: np.ndarray,
+    model_class,
+    model_params: Dict[str, Any],
     n_permutations: int = 1000,
     random_state: int = 42
-) -> float:
+) -> Tuple[float, float]:
     """
-    Perform a permutation test to verify if the model's performance 
-    is significantly better than random chance.
-    
-    The null hypothesis is that there is no relationship between features 
-    and targets. We permute the targets and re-evaluate the model.
-    
+    Perform a permutation test to assess the significance of the model's R².
+
+    The test permutes the feature matrix X against the target y, trains the model
+    on each permuted dataset, and calculates the R². The p-value is the fraction
+    of permuted R² values that are >= the observed R².
+
     Args:
-        model: Trained RandomForestRegressor model
-        features: Feature matrix
-        targets: Target values
-        n_permutations: Number of permutations to perform
-        random_state: Random seed for reproducibility
-        
+        X: Feature matrix (n_samples, n_features).
+        y: Target vector (n_samples,).
+        model_class: The sklearn model class to use (e.g., RandomForestRegressor).
+        model_params: Parameters for the model.
+        n_permutations: Number of permutations to perform.
+        random_state: Random seed for reproducibility.
+
     Returns:
-        p-value: Proportion of permuted models that performed as well or better
+        Tuple of (observed_r2, p_value).
     """
-    logger.info(f"Starting permutation test with {n_permutations} permutations")
-    
-    # Calculate the original model's MAE
-    original_predictions = model.predict(features)
-    original_mae = mean_absolute_error(targets, original_predictions)
-    logger.info(f"Original model MAE: {original_mae:.4f}")
-    
-    # Initialize counter for permutations that perform as well or better
-    count_better_or_equal = 0
-    rng = np.random.default_rng(random_state)
-    
+    logger.info(f"Starting permutation test with {n_permutations} permutations...")
+    np.random.seed(random_state)
+
+    # Train model on original data to get observed R²
+    model = model_class(**model_params)
+    model.fit(X, y)
+    y_pred = model.predict(X)
+    observed_r2 = r2_score(y, y_pred)
+    logger.info(f"Observed R²: {observed_r2:.4f}")
+
+    # Perform permutations
+    permuted_r2s = []
     for i in range(n_permutations):
-        # Permute the targets
-        permuted_targets = resample(targets, replace=False, random_state=rng.integers(0, 2**31))
-        
-        # Retrain the model on permuted data (or use the same model structure)
-        # Note: In a strict permutation test, we should retrain the model 
-        # on the permuted data to get a fair comparison. However, for 
-        # efficiency, we can also use the same model structure and just 
-        # permute the targets during prediction. But the correct approach 
-        # is to retrain.
-        # Since retraining 1000 times might be slow, we will retrain a 
-        # new model with the same hyperparameters.
-        
-        # Create a new model with the same hyperparameters
-        permuted_model = RandomForestRegressor(
-            n_estimators=100,
-            max_depth=10,
-            min_samples_split=2,
-            min_samples_leaf=1,
-            random_state=random_state,
-            n_jobs=2
-        )
-        
-        # Train on permuted data
-        permuted_model.fit(features, permuted_targets)
-        
-        # Evaluate on the original features but with permuted targets? 
-        # Actually, the correct approach is:
-        # 1. Permute targets
-        # 2. Train model on (features, permuted_targets)
-        # 3. Evaluate on (features, permuted_targets) -> this gives the null distribution
-        # But we want to compare the original model's performance to the null.
-        # The standard permutation test:
-        # - Original: model trained on (X, y), evaluated on (X, y) -> MAE_orig
-        # - Null: for each permutation, train model on (X, y_perm), evaluate on (X, y_perm) -> MAE_perm
-        # - p-value = (count(MAE_perm <= MAE_orig) + 1) / (n_permutations + 1)
-        
-        # Evaluate the permuted model on the permuted data
-        permuted_predictions = permuted_model.predict(features)
-        permuted_mae = mean_absolute_error(permuted_targets, permuted_predictions)
-        
-        # Count if the permuted model performed as well or better (lower MAE) than the original
-        if permuted_mae <= original_mae:
-            count_better_or_equal += 1
-        
+        # Permute X
+        X_perm = X[np.random.permutation(len(X))]
+        # Train and evaluate
+        model_perm = model_class(**model_params)
+        model_perm.fit(X_perm, y)
+        y_pred_perm = model_perm.predict(X)
+        r2_perm = r2_score(y, y_pred_perm)
+        permuted_r2s.append(r2_perm)
+
         if (i + 1) % 100 == 0:
-            logger.info(f"Completed {i+1}/{n_permutations} permutations")
-    
-    # Calculate p-value
-    p_value = (count_better_or_equal + 1) / (n_permutations + 1)
-    logger.info(f"Permutation test completed. p-value: {p_value:.4f}")
-    
-    return float(p_value)
+            logger.info(f"Completed {i + 1}/{n_permutations} permutations")
+
+    permuted_r2s = np.array(permuted_r2s)
+    p_value = np.sum(permuted_r2s >= observed_r2) / n_permutations
+    logger.info(f"Permutation test complete. P-value: {p_value:.4f}")
+
+    return observed_r2, float(p_value)
 
 def evaluate_model(
-    model: RandomForestRegressor,
-    features: np.ndarray,
-    targets: np.ndarray
-) -> Dict[str, float]:
+    X: np.ndarray,
+    y: np.ndarray,
+    model,
+    n_folds: int = 5,
+    random_state: int = 42
+) -> Dict[str, Any]:
     """
-    Evaluate the model on the given data.
-    
-    Args:
-        model: Trained model
-        features: Feature matrix
-        targets: Target values
-        
-    Returns:
-        Dictionary with R² and MAE
-    """
-    predictions = model.predict(features)
-    metrics = calculate_metrics(targets, predictions)
-    return metrics
+    Evaluate a trained model using k-fold cross-validation.
 
-def save_results(results: Dict[str, Any], output_path: str) -> None:
+    Args:
+        X: Feature matrix.
+        y: Target vector.
+        model: Trained model object.
+        n_folds: Number of CV folds.
+        random_state: Random seed.
+
+    Returns:
+        Dictionary with CV metrics (mean R², std R²).
+    """
+    logger.info(f"Running {n_folds}-fold cross-validation...")
+    kfold = KFold(n_splits=n_folds, shuffle=True, random_state=random_state)
+
+    cv_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    mean_r2 = float(np.mean(cv_scores))
+    std_r2 = float(np.std(cv_scores))
+
+    logger.info(f"CV R²: {mean_r2:.4f} ± {std_r2:.4f}")
+
+    return {
+        'mean_r2': mean_r2,
+        'std_r2': std_r2,
+        'cv_scores': cv_scores.tolist()
+    }
+
+def save_results(results: Dict[str, Any], path: str) -> None:
     """
     Save evaluation results to a JSON file.
-    
-    Args:
-        results: Dictionary of results to save
-        output_path: Path to the output JSON file
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
 
-def parse_args() -> argparse.Namespace:
+    Args:
+        results: Dictionary of results to save.
+        path: Path to the output JSON file.
+    """
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {path}")
+
+def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Evaluate model and perform permutation test")
+    parser = argparse.ArgumentParser(description='Evaluate model performance')
     parser.add_argument(
-        "--features",
+        '--features',
         type=str,
-        default="data/processed/features.json",
-        help="Path to the features JSON file"
+        default='data/processed/features.json',
+        help='Path to features JSON file'
     )
     parser.add_argument(
-        "--model",
+        '--model',
         type=str,
-        default=None,
-        help="Path to the trained model (if not provided, a new model will be trained)"
+        default='results/model.pkl',
+        help='Path to model pickle file'
     )
     parser.add_argument(
-        "--output",
+        '--output',
         type=str,
-        default="results/results.json",
-        help="Path to the output results JSON file"
+        default='results/results.json',
+        help='Path to output results JSON file'
     )
     parser.add_argument(
-        "--n-permutations",
+        '--n-permutations',
         type=int,
         default=1000,
-        help="Number of permutations for the permutation test"
+        help='Number of permutations for significance test'
     )
     parser.add_argument(
-        "--random-state",
+        '--n-folds',
+        type=int,
+        default=5,
+        help='Number of CV folds'
+    )
+    parser.add_argument(
+        '--random-state',
         type=int,
         default=42,
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--n-estimators",
-        type=int,
-        default=100,
-        help="Number of trees in the Random Forest"
-    )
-    parser.add_argument(
-        "--max-depth",
-        type=int,
-        default=10,
-        help="Maximum depth of the trees"
+        help='Random seed'
     )
     return parser.parse_args()
 
-def main() -> None:
-    """Main entry point for the evaluation script."""
+def main():
+    """Main entry point for evaluation."""
     args = parse_args()
-    
+
+    # Load features
     try:
-        # Load features and targets
-        features, targets = load_features(args.features)
-        
-        # If a model path is provided, load it. Otherwise, train a new model.
-        # For the purpose of this task, we will train a new model if no model path is provided.
-        if args.model and Path(args.model).exists():
-            model = load_model(args.model)
-            if model is None:
-                # Fallback to training a new model if loading fails
-                logger.warning("Failed to load model. Training a new one.")
-                model = RandomForestRegressor(
-                    n_estimators=args.n_estimators,
-                    max_depth=args.max_depth,
-                    random_state=args.random_state,
-                    n_jobs=2
-                )
-                model.fit(features, targets)
-        else:
-            logger.info("No model provided. Training a new Random Forest model.")
-            model = RandomForestRegressor(
-                n_estimators=args.n_estimators,
-                max_depth=args.max_depth,
-                random_state=args.random_state,
-                n_jobs=2
-            )
-            model.fit(features, targets)
-        
-        # Evaluate the model
-        metrics = evaluate_model(model, features, targets)
-        baseline_mae = calculate_baseline_mae(targets)
-        
-        # Perform permutation test
-        p_value = perform_permutation_test(
-            model, 
-            features, 
-            targets, 
-            n_permutations=args.n_permutations,
-            random_state=args.random_state
-        )
-        
-        # Prepare results
-        results = {
-            "r2": metrics["r2"],
-            "mae": metrics["mae"],
-            "baseline_mae": baseline_mae,
-            "permutation_p_value": p_value,
-            "n_permutations": args.n_permutations,
-            "n_samples": len(targets),
-            "n_features": features.shape[1]
-        }
-        
-        # Save results
-        save_results(results, args.output)
-        
-        # Print summary
-        print(f"Evaluation Results:")
-        print(f"  R² Score: {results['r2']:.4f}")
-        print(f"  MAE: {results['mae']:.4f}")
-        print(f"  Baseline MAE (mean): {results['baseline_mae']:.4f}")
-        print(f"  Permutation p-value: {results['permutation_p_value']:.4f}")
-        print(f"  Significance (p < 0.05): {'Yes' if results['permutation_p_value'] < 0.05 else 'No'}")
-        
-    except Exception as e:
-        logger.error(f"Evaluation failed: {e}", exc_info=True)
+        features = load_features(args.features)
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        logger.error(f"Failed to load features: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+    if len(features) == 0:
+        logger.error("No features found. Cannot evaluate.")
+        sys.exit(1)
+
+    # Extract X and y
+    # Expected keys: 'sample_id', 'variance', 'entropy', 'dominant_eigenvalue', 'fidelity_loss'
+    required_features = ['variance', 'entropy', 'dominant_eigenvalue']
+    target = 'fidelity_loss'
+
+    # Validate all samples have required keys
+    for i, sample in enumerate(features):
+        for key in required_features + [target]:
+            if key not in sample:
+                logger.error(f"Sample {i} missing required key: {key}")
+                sys.exit(1)
+
+    X = np.array([[s[k] for k in required_features] for s in features])
+    y = np.array([s[target] for s in features])
+
+    logger.info(f"Feature matrix shape: {X.shape}")
+    logger.info(f"Target vector shape: {y.shape}")
+
+    # Load model
+    try:
+        model = load_model(args.model)
+    except (FileNotFoundError, pickle.PickleError) as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
+
+    # Calculate baseline MAE
+    baseline_mae = calculate_baseline_mae(y)
+    logger.info(f"Null baseline MAE: {baseline_mae:.4f}")
+
+    # Evaluate model with CV
+    cv_results = evaluate_model(X, y, model, n_folds=args.n_folds, random_state=args.random_state)
+
+    # Perform permutation test
+    observed_r2, p_value = perform_permutation_test(
+        X, y, RandomForestRegressor,
+        model_params={
+            'n_estimators': 100,
+            'max_depth': None,
+            'random_state': args.random_state,
+            'n_jobs': 2
+        },
+        n_permutations=args.n_permutations,
+        random_state=args.random_state
+    )
+
+    # Calculate final test metrics (on full data for reporting)
+    y_pred = model.predict(X)
+    final_metrics = calculate_metrics(y, y_pred)
+
+    # Prepare results
+    results = {
+        'cv_results': cv_results,
+        'final_metrics': final_metrics,
+        'baseline_mae': baseline_mae,
+        'permutation_test': {
+            'observed_r2': observed_r2,
+            'p_value': p_value,
+            'n_permutations': args.n_permutations
+        },
+        'config': {
+            'features_used': required_features,
+            'target': target,
+            'n_samples': len(features),
+            'n_folds': args.n_folds,
+            'random_state': args.random_state
+        }
+    }
+
+    # Save results
+    try:
+        save_results(results, args.output)
+    except IOError as e:
+        logger.error(f"Failed to save results: {e}")
+        sys.exit(1)
+
+    logger.info("Evaluation complete.")
+
+if __name__ == '__main__':
     main()

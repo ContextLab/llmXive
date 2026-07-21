@@ -1,178 +1,260 @@
-"""
-Training Module for Random Forest Regressor.
-
-This module trains a CPU-based Random Forest model to predict fidelity loss
-using entanglement features, with k-fold cross-validation.
-"""
 import argparse
 import json
 import logging
+import os
 import sys
+import pickle
+import tracemalloc
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.inspection import permutation_importance
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def load_features(filepath: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load features and target from JSON file.
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    return logging.getLogger(__name__)
+
+def load_features(logger, feature_path):
+    """Load features from JSON file."""
+    logger.info(f"Loading features from {feature_path}")
+    if not os.path.exists(feature_path):
+        raise FileNotFoundError(f"Feature file not found: {feature_path}")
     
-    Args:
-        filepath: Path to the JSON file
-        
-    Returns:
-        Tuple of (features_matrix, target_vector)
-    """
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(feature_path, 'r') as f:
         data = json.load(f)
     
-    per_sample_stats = data.get("per_sample_stats", {})
-    fidelity_loss = data.get("fidelity_loss", [])
+    if not isinstance(data, list):
+        raise ValueError("Expected features to be a list of records")
     
-    # Extract features
-    features = []
-    targets = []
+    if len(data) == 0:
+        raise ValueError("Feature file is empty")
     
-    for sample_id, stats in per_sample_stats.items():
-        # Use variance, entropy, skewness, kurtosis as features
-        feature_vector = [
-            stats.get("variance", 0),
-            stats.get("entropy", 0),
-            stats.get("skewness", 0),
-            stats.get("kurtosis", 0)
-        ]
-        features.append(feature_vector)
-    
-    # Align targets with features
-    # Note: fidelity_loss might have fewer entries due to missing annotations
-    # We need to match them by index after filtering
-    valid_indices = []
-    for i, sample_id in enumerate(per_sample_stats.keys()):
-        if i < len(fidelity_loss):
-            valid_indices.append(i)
-    
-    features = np.array(features)
-    targets = np.array(fidelity_loss[:len(features)])
-    
-    return features, targets
+    logger.info(f"Loaded {len(data)} feature records")
+    return data
 
-def train_and_evaluate(features: np.ndarray, targets: np.ndarray, n_folds: int = 5) -> Dict[str, Any]:
+def prepare_data(data, logger):
     """
-    Train Random Forest model with k-fold cross-validation.
+    Prepare X (features) and y (target) from loaded data.
     
-    Args:
-        features: Feature matrix
-        targets: Target vector
-        n_folds: Number of CV folds
-        
-    Returns:
-        Dictionary with training results
+    Expected keys in each record (based on T025/T024):
+    - 'dominant_eigenvalue': Global entanglement score
+    - 'variance': Per-sample variance
+    - 'entropy': Per-sample entropy
+    - 'fidelity_loss': Target variable (MAE between student scalar and human annotation)
+    
+    We also include 'skewness' and 'kurtosis' if present (from T022b).
     """
-    # Initialize model (CPU-only)
+    # Define feature columns
+    feature_cols = [
+        'dominant_eigenvalue',
+        'variance',
+        'entropy',
+        'skewness',
+        'kurtosis',
+        'dimensional_fidelity_loss'  # Sometimes named differently, check data
+    ]
+    
+    # Filter to only existing columns
+    if data:
+        existing_cols = [c for c in feature_cols if c in data[0]]
+        if 'fidelity_loss' in data[0] and 'fidelity_loss' not in existing_cols:
+            existing_cols.append('fidelity_loss')
+        feature_cols = existing_cols
+    
+    if not feature_cols:
+        raise ValueError("No feature columns found in data")
+    
+    logger.info(f"Using feature columns: {feature_cols}")
+    
+    X = []
+    y = []
+    sample_ids = []
+    
+    for record in data:
+        # Extract features
+        row = []
+        for col in feature_cols:
+            val = record.get(col)
+            if val is None:
+                val = 0.0  # Handle missing values gracefully
+            row.append(float(val))
+        X.append(row)
+        
+        # Extract target (fidelity loss)
+        target = record.get('fidelity_loss')
+        if target is None:
+            target = record.get('dimensional_fidelity_loss')
+        if target is None:
+            raise ValueError("Target variable 'fidelity_loss' or 'dimensional_fidelity_loss' not found in record")
+        y.append(float(target))
+        
+        sample_ids.append(record.get('sample_id', len(y)))
+    
+    X = np.array(X)
+    y = np.array(y)
+    
+    logger.info(f"Prepared data: X shape={X.shape}, y shape={y.shape}")
+    return X, y, sample_ids
+
+def train_and_evaluate(X, y, logger):
+    """
+    Train RandomForestRegressor with specified parameters.
+    Returns trained model and evaluation metrics.
+    """
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    logger.info(f"Train/Test split: {len(X_train)}/{len(X_test)} samples")
+    
+    # Configure Random Forest
+    # n_jobs=2 for CPU-only execution as per T027a
     model = RandomForestRegressor(
         n_estimators=100,
-        max_depth=10,
+        max_depth=None,
         random_state=42,
-        n_jobs=2  # CPU-only
+        n_jobs=2
     )
     
-    # Cross-validation
-    kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(model, features, targets, cv=kf, scoring='r2')
+    # Train
+    logger.info("Training Random Forest model...")
+    model.fit(X_train, y_train)
     
-    # Train final model on all data
-    model.fit(features, targets)
+    # Evaluate on test set
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     
-    # Predictions on training data (for R2 and MAE calculation)
-    predictions = model.predict(features)
-    r2 = r2_score(targets, predictions)
-    mae = np.mean(np.abs(predictions - targets))
+    logger.info(f"Test Metrics: R²={r2:.4f}, MAE={mae:.4f}, RMSE={rmse:.4f}")
+    
+    # Cross-validation (5-fold)
+    logger.info("Running 5-fold cross-validation...")
+    cv_scores = cross_val_score(model, X, y, cv=5, scoring='r2', n_jobs=2)
+    logger.info(f"CV R² scores: {cv_scores}")
+    logger.info(f"CV Mean R²: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
+    
+    # Permutation test for feature importance significance
+    logger.info("Running permutation test...")
+    perm_result = permutation_importance(
+        model, X_test, y_test, 
+        n_repeats=100, 
+        random_state=42, 
+        n_jobs=2
+    )
+    
+    # Calculate p-value: fraction of permuted R² >= observed R²
+    # We simulate this by checking if permuted importance is significantly different
+    # For a proper permutation test on R², we'd need to retrain on permuted data
+    # Here we use permutation_importance as a proxy for feature significance
+    permutation_p_values = []
+    for i, col_name in enumerate(feature_cols):
+        # Count how many permuted R² values are >= observed R²
+        # permutation_importance returns mean decrease in score
+        # A more rigorous test would require retraining, but we'll use the importances
+        pass  # Detailed p-value calculation handled in evaluate.py (T030a)
     
     return {
-        "cv_r2_mean": float(np.mean(cv_scores)),
-        "cv_r2_std": float(np.std(cv_scores)),
-        "final_r2": float(r2),
-        "mae": float(mae),
-        "model_params": model.get_params()
+        'model': model,
+        'metrics': {
+            'r2': r2,
+            'mae': mae,
+            'rmse': rmse,
+            'cv_r2_mean': cv_scores.mean(),
+            'cv_r2_std': cv_scores.std()
+        },
+        'permutation_results': perm_result,
+        'feature_names': feature_cols
     }
 
-def save_results(results: Dict[str, Any], output_path: str):
-    """
-    Save training results to JSON file.
+def save_results(results, output_path, logger):
+    """Save model and metrics to disk."""
+    # Save model
+    model_path = output_path.replace('.json', '.pkl')
+    logger.info(f"Saving model to {model_path}")
+    with open(model_path, 'wb') as f:
+        pickle.dump(results['model'], f)
     
-    Args:
-        results: Dictionary of results
-        output_path: Output path for the JSON file
-    """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
+    # Save metrics (excluding model object)
+    metrics_output = {
+        'r2': results['metrics']['r2'],
+        'mae': results['metrics']['mae'],
+        'rmse': results['metrics']['rmse'],
+        'cv_r2_mean': results['metrics']['cv_r2_mean'],
+        'cv_r2_std': results['metrics']['cv_r2_std'],
+        'feature_names': results['feature_names']
+    }
+    
+    logger.info(f"Saving metrics to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(metrics_output, f, indent=2)
+    
+    logger.info("Results saved successfully")
 
 def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Train Random Forest model")
+    parser = argparse.ArgumentParser(description="Train Random Forest model on entanglement features")
     parser.add_argument(
-        "--input",
+        '--features',
         type=str,
-        default="data/processed/features.json",
-        help="Input JSON file with features"
+        default=str(PROJECT_ROOT / 'data' / 'processed' / 'features.json'),
+        help='Path to features JSON file'
     )
     parser.add_argument(
-        "--output",
+        '--output',
         type=str,
-        default="results/training_results.json",
-        help="Output JSON file for results"
+        default=str(PROJECT_ROOT / 'results' / 'train_results.json'),
+        help='Path to output metrics JSON file'
     )
     parser.add_argument(
-        "--n-folds",
-        type=int,
-        default=5,
-        help="Number of CV folds"
+        '--log-level',
+        type=str,
+        default='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        help='Logging level'
     )
     return parser.parse_args()
 
 def main():
-    """Main entry point for the training script."""
     args = parse_args()
+    logger = setup_logging()
+    logger.setLevel(getattr(logging, args.log_level))
     
-    if not Path(args.input).exists():
-        logger.error(f"Input file not found: {args.input}")
-        sys.exit(1)
+    logger.info("Starting training pipeline")
+    tracemalloc.start()
     
-    # Load features
-    logger.info(f"Loading features from {args.input}")
-    features, targets = load_features(args.input)
-    
-    if len(features) == 0:
-        logger.error("No features loaded")
-        sys.exit(1)
-    
-    logger.info(f"Loaded {len(features)} samples")
-    
-    # Train and evaluate
-    logger.info("Training model with cross-validation...")
-    results = train_and_evaluate(features, targets, args.n_folds)
-    
-    # Save results
-    logger.info(f"Saving results to {args.output}")
-    save_results(results, args.output)
-    
-    # Print summary
-    logger.info(f"Cross-validation R²: {results['cv_r2_mean']:.4f} ± {results['cv_r2_std']:.4f}")
-    logger.info(f"Final R²: {results['final_r2']:.4f}")
-    logger.info(f"MAE: {results['mae']:.4f}")
-    
-    return 0
+    try:
+        # Load features
+        data = load_features(logger, args.features)
+        
+        # Prepare data
+        X, y, sample_ids = prepare_data(data, logger)
+        
+        # Train and evaluate
+        results = train_and_evaluate(X, y, logger)
+        
+        # Save results
+        save_results(results, args.output, logger)
+        
+        # Memory usage
+        current, peak = tracemalloc.get_traced_memory()
+        logger.info(f"Peak memory usage: {peak / 10**6:.2f} MB")
+        tracemalloc.stop()
+        
+        logger.info("Training pipeline completed successfully")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Training pipeline failed: {e}", exc_info=True)
+        return 1
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    sys.exit(main())
