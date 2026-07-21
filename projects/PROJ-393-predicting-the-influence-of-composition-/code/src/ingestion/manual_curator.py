@@ -9,28 +9,20 @@ and returns an empty DataFrame instead of failing.
 import logging
 import pandas as pd
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
-# Ensure we can import from the project root if run as a script
-# but primarily designed to be imported as a module
-try:
-    from src.utils.logging_config import setup_logging, create_logger
-except ImportError:
-    # Fallback for direct execution without proper path setup
-    setup_logging = None
-    create_logger = None
+from src.utils.logging_config import setup_logging, create_logger
 
 # Configuration
 DEFAULT_DATA_PATH = Path("data/raw/manual_curated.csv")
 LOGGER_NAME = "manual_curator"
 
 logger = create_logger(LOGGER_NAME) if create_logger else logging.getLogger(LOGGER_NAME)
-if setup_logging:
-    setup_logging()
+setup_logging()
 
 def load_manual_curated_data(
     file_path: Optional[Path] = None,
-    required_columns: Optional[list] = None
+    required_columns: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
     Load manually curated alloy data from a CSV file.
@@ -46,7 +38,7 @@ def load_manual_curated_data(
                       if the file is missing (graceful degradation).
 
     Raises:
-        ValueError: If the file exists but is empty or malformed.
+        ValueError: If the file exists but is malformed.
     """
     if file_path is None:
         file_path = DEFAULT_DATA_PATH
@@ -100,10 +92,11 @@ def main():
     logger.info("Starting Manual Curator...")
 
     # Define expected columns based on typical Heusler alloy data schema
-    # This can be adjusted based on the actual schema in specs/contracts/
+    # This aligns with the alloy_entry.schema.yaml properties
     expected_cols = [
-        "alloy_composition", "coercivity_oersted", "saturation_magnetization_emu_g",
-        "source_type", "synthesis_method", "temperature_k", "reference"
+        "composition", "coercivity_oe", "saturation_magnetization_emu_g",
+        "remanence_emu_g", "source_type", "synthesis_method",
+        "crystal_structure", "doi"
     ]
 
     try:
@@ -117,11 +110,6 @@ def main():
         logger.info(f"  - Total Rows: {len(df)}")
         logger.info(f"  - Columns: {list(df.columns)}")
         logger.info(f"  - Missing Values per Column:\n{df.isnull().sum()}")
-
-        # Save a quick preview to data/processed if needed (optional)
-        # preview_path = Path("data/processed/manual_curated_preview.csv")
-        # df.head(10).to_csv(preview_path, index=False)
-        # logger.info(f"Preview saved to {preview_path}")
 
         return 0
 

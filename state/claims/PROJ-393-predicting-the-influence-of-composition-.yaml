@@ -1,0 +1,274 @@
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental properties sourced from Pyykko 1988
+  claim_id: c_539ae4b9
+  context: 'Create data/raw/elemental_properties.csv with fixed periodic table data
+    for specific elements... (Source: Pyykko 1988 or similar verified source).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: Pyykko 1988 or similar verified source'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:30:18Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental properties data for Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti,
+    V sourced from Pyykko 1988
+  claim_id: c_ab609d08
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for specific elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V) including
+    columns: element, electronegativity, atomic_radii, valence_electrons (Source:
+    Pyykko 1988 or similar verified source).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/raw/elemental_properties.csv with fixed periodic table data
+    for specific elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V) including columns:
+    element, electronegativity, atomic_radii, valence_electrons (Source: Pyykko 1988
+    or similar verified source).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:31:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: "bootstrap validation for R\xB2 uses 1000 resamples"
+  claim_id: c_33895300
+  context: "T042 [US3] Implement code/src/validation/bootstrap_validation.py to compute\
+    \ a confidence interval for R\xB2 with exactly 1000 resamples (SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute a confidence interval for R\xB2 with exactly 1000 resamples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:31:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental properties for Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V sourced
+    from Pyykko 1988
+  claim_id: c_d1c73448
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for specific elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V) including
+    columns: element, electronegativity, atomic_radii, valence_electrons (Source:
+    Pyykko 1988 or similar verified source).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/raw/elemental_properties.csv with fixed periodic table data
+    for specific elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V) (Source: Pyykko
+    1988 or similar verified source).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:33:32Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: "imputation logic applies listwise deletion if missing rate > 15% and\
+    \ mean imputation if \u2264 15%"
+  claim_id: c_309129e7
+  context: "T015 [US1] Integration test for imputation logic in code/tests/integration/test_imputation_logic.py.\
+    \ Test Logic: Verify that if missing rate > 15%, listwise deletion is applied;\
+    \ if \u2264 15%, mean imputation is applied."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that if missing rate > 15%, listwise deletion is applied; if \u2264\
+    \ 15%, mean imputation is applied."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:33:32Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: scarcity warning triggered if row count N < 50
+  claim_id: c_08602a79
+  context: 'T028b [US1] Scarcity Check & Warning Trigger: Implement code/src/preprocessing/scarcity_checker.py
+    to count rows in data/processed/alloys_raw.csv after T021 filtering. If N < 50,
+    call function check_and_warn() in code/src/validation/scarcity_warning.py and
+    write a flag file data/.scarcity_warning with content {"n": N, "threshold": 50}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If N < 50, call function check_and_warn() in code/src/validation/scarcity_warning.py
+    and write a flag file data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:34:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: "bootstrap confidence interval for R\xB2 computed with 1000 resamples"
+  claim_id: c_f9c0c35e
+  context: "T042 [US3] Implement code/src/validation/bootstrap_validation.py to compute\
+    \ a confidence interval for R\xB2 with exactly 1000 resamples (SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute a confidence interval for R\xB2 with exactly 1000 resamples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:34:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: pipeline execution time under 6 hours and memory usage under 7 GB
+  claim_id: c_e9432bdf
+  context: T055 [P] Verify pipeline execution time < 6 hours and memory < 7 GB on
+    local CPU (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:34:16Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pyykko 1988 as source for elemental properties
+  claim_id: c_512ce123
+  context: 'Create data/raw/elemental_properties.csv with fixed periodic table data
+    for specific elements (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V) including columns:
+    element, electronegativity, atomic_radii, valence_electrons (Source: Pyykko 1988
+    or similar verified source).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: Pyykko 1988 or similar verified source'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:34:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap validation uses 1000 resamples
+  claim_id: c_02eaafa4
+  context: "Implement code/src/validation/bootstrap_validation.py to compute a confidence\
+    \ interval for R\xB2 with exactly 1000 resamples (SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exactly 1000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:34:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI timeout limit is 360 minutes
+  claim_id: c_8a597072
+  context: 'Setup GitHub Actions workflow for CPU-only CI with a limited number of
+    cores and memory, with a time-out limit. Deliverable: Create .github/workflows/ci.yml
+    with the following exact configuration... timeout-minutes: 360'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'timeout-minutes: 360'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:35:35Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI memory constraint is 7GB
+  claim_id: c_48ca8249
+  context: "Constraint: Must enforce \u22647GB RAM and \u2264360 minutes (6h) timeout."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_memory_constraint_is_7GB
+  kind: entity_fact
+  raw_text: "enforce \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:36:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: 'Imputation logic: >15% missing rate triggers listwise deletion, <=15%
+    triggers mean imputation'
+  claim_id: c_cb5f51d5
+  context: "Verify that if missing rate > 15%, listwise deletion is applied; if \u2264\
+    \ 15%, mean imputation is applied. Note: This test validates Spec FR-002."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "missing rate > 15%, listwise deletion is applied; if \u2264 15%, mean\
+    \ imputation is applied"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:36:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Scarcity warning triggered if row count is less than 50
+  claim_id: c_8cb4d3fc
+  context: 'If N < 50, call function check_and_warn() in code/src/validation/scarcity_warning.py
+    and write a flag file data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 45 197
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '197'
+    filled: true
+  kind: magnitude
+  raw_text: If N < 50, call function check_and_warn()
+  resolved_value: '197'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-20T23:36:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation requires title overlap of at least 0.7
+  claim_id: c_da1a8c06
+  context: "Implement code/src/utils/citation_validator.py to verify fetched citations\
+    \ against primary sources (DOI/URL) with title-overlap check \u2265 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_validation_requires_title_overlap_of_at_least_0.7
+  kind: magnitude
+  raw_text: "title-overlap check \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T23:37:18Z'

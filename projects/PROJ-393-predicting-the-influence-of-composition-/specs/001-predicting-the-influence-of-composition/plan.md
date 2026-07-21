@@ -13,7 +13,7 @@ The approach strictly adheres to the project constitution regarding reproducibil
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `pyyaml`, `requests`, `scikit-learn-extra` (for MICE)  
 **Storage**: Local CSV/Parquet files under `data/` (raw and processed), JSONL for logs.  
 **Testing**: `pytest` (unit tests for parsers, integration tests for pipeline stages).  

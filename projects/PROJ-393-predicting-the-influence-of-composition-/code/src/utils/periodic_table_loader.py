@@ -1,8 +1,8 @@
 """
-Periodic Table Loader Module.
+Periodic Table Loader Module
 
-Loads elemental properties from the raw data file with strict validation.
-Ensures data integrity before downstream processing.
+Loads and validates elemental properties from the raw data CSV.
+Provides strict validation and lookup utilities for the pipeline.
 """
 
 import csv
@@ -10,185 +10,161 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-# Ensure consistent logging configuration if not already done
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Import logging setup from sibling module
+from .logging_config import setup_logging
 
+# Constants
+REQUIRED_COLUMNS = ['element', 'electronegativity', 'atomic_radii', 'valence_electrons']
+DEFAULT_FILE_PATH = "data/raw/elemental_properties.csv"
 
-def load_elemental_properties(
-    file_path: Optional[Path] = None,
-    required_elements: Optional[List[str]] = None
-) -> Dict[str, Dict[str, Any]]:
+# Global cache for loaded properties
+_properties_cache: Optional[Dict[str, Dict[str, Any]]] = None
+_logger: Optional[logging.Logger] = None
+
+def _get_logger() -> logging.Logger:
+    """Get or create the module logger."""
+    global _logger
+    if _logger is None:
+        _logger = setup_logging(__name__)
+    return _logger
+
+def load_elemental_properties(file_path: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
     """
-    Load elemental properties from a CSV file with strict validation.
+    Load elemental properties from the CSV file with strict validation.
 
     Args:
-        file_path: Path to the CSV file. Defaults to 'data/raw/elemental_properties.csv'.
-        required_elements: Optional list of element symbols that MUST be present.
-                           If provided and missing, raises a ValueError.
+        file_path: Path to the CSV file. Defaults to DEFAULT_FILE_PATH.
 
     Returns:
-        A dictionary mapping element symbols to their properties:
-        {
-            "Mn": {"electronegativity": 1.55, "atomic_radii": 127, "valence_electrons": 7},
-            ...
-        }
+        Dictionary mapping element symbols to their properties.
 
     Raises:
         FileNotFoundError: If the specified file does not exist.
-        ValueError: If the file is empty, malformed, or missing required elements.
-        KeyError: If expected columns are missing from the CSV.
+        ValueError: If the file is missing required columns or has invalid data.
     """
-    if file_path is None:
-        # Resolve relative to project root structure
-        file_path = Path("data/raw/elemental_properties.csv")
+    global _properties_cache
+    logger = _get_logger()
 
-    if not file_path.exists():
-        raise FileNotFoundError(
-            f"Elemental properties file not found at: {file_path}. "
-            "Ensure T006 has been completed successfully."
-        )
+    if file_path is None:
+        # Resolve relative to project root (code/)
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        file_path = str(base_dir / DEFAULT_FILE_PATH)
+
+    path_obj = Path(file_path)
+
+    if not path_obj.exists():
+        logger.error(f"Elemental properties file not found: {file_path}")
+        raise FileNotFoundError(f"Elemental properties file not found: {file_path}")
+
+    # Check cache first
+    if _properties_cache is not None:
+        logger.debug("Loading elemental properties from cache")
+        return _properties_cache
 
     logger.info(f"Loading elemental properties from {file_path}")
-
-    data: Dict[str, Dict[str, Any]] = {}
-    required_columns = {"element", "electronegativity", "atomic_radii", "valence_electrons"}
+    properties = {}
 
     try:
-        with open(file_path, mode="r", encoding="utf-8") as f:
+        with open(path_obj, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
 
-            # Validate header
+            # Validate headers
             if reader.fieldnames is None:
-                raise ValueError("CSV file is empty or has no header row.")
+                raise ValueError("CSV file is empty or has no header row")
 
-            header_set = set(reader.fieldnames)
-            missing_cols = required_columns - header_set
+            missing_cols = set(REQUIRED_COLUMNS) - set(reader.fieldnames)
             if missing_cols:
-                raise KeyError(
-                    f"CSV file missing required columns: {missing_cols}. "
-                    f"Expected columns: {required_columns}"
-                )
+                raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
 
             row_count = 0
             for row in reader:
                 row_count += 1
-                element = row["element"].strip().upper()
-
+                element = row['element'].strip()
                 if not element:
-                    logger.warning("Skipping row with empty element symbol.")
+                    logger.warning(f"Skipping row {row_count}: Empty element symbol")
                     continue
 
-                # Strict type conversion
+                # Validate and parse numeric fields
                 try:
-                    electronegativity = float(row["electronegativity"])
-                    atomic_radii = float(row["atomic_radii"])
-                    valence_electrons = int(float(row["valence_electrons"]))
+                    electronegativity = float(row['electronegativity'])
+                    atomic_radii = float(row['atomic_radii'])
+                    valence_electrons = float(row['valence_electrons'])
                 except ValueError as e:
-                    raise ValueError(
-                        f"Invalid numeric value in row for element '{element}': {e}"
-                    )
+                    logger.error(f"Invalid numeric data in row {row_count} for element {element}: {e}")
+                    raise ValueError(f"Invalid numeric data for element {element}: {e}")
 
-                # Basic sanity checks (physics bounds)
-                if electronegativity <= 0 or electronegativity > 4.5:
-                    logger.warning(
-                        f"Element {element} has electronegativity {electronegativity} "
-                        "outside expected range (0-4.5). Proceeding with caution."
-                    )
+                # Basic sanity checks
+                if electronegativity < 0:
+                    raise ValueError(f"Negative electronegativity for {element}: {electronegativity}")
+                if atomic_radii <= 0:
+                    raise ValueError(f"Non-positive atomic radii for {element}: {atomic_radii}")
+                if valence_electrons < 0:
+                    raise ValueError(f"Negative valence electrons for {element}: {valence_electrons}")
 
-                if atomic_radii <= 0 or atomic_radii > 300:
-                    logger.warning(
-                        f"Element {element} has atomic radius {atomic_radii} "
-                        "outside expected range (0-300 pm). Proceeding with caution."
-                    )
-
-                if valence_electrons < 0 or valence_electrons > 18:
-                    logger.warning(
-                        f"Element {element} has valence electrons {valence_electrons} "
-                        "outside expected range (0-18). Proceeding with caution."
-                    )
-
-                data[element] = {
-                    "electronegativity": electronegativity,
-                    "atomic_radii": atomic_radii,
-                    "valence_electrons": valence_electrons
+                properties[element] = {
+                    'electronegativity': electronegativity,
+                    'atomic_radii': atomic_radii,
+                    'valence_electrons': valence_electrons
                 }
 
             if row_count == 0:
-                raise ValueError("CSV file contains no data rows.")
+                logger.warning(f"No data rows found in {file_path}")
+
+        logger.info(f"Successfully loaded {len(properties)} elemental properties")
+        _properties_cache = properties
+        return properties
 
     except csv.Error as e:
-        raise ValueError(f"Error parsing CSV file: {e}")
+        logger.error(f"CSV parsing error in {file_path}: {e}")
+        raise
 
-    # Validate required elements if specified
-    if required_elements:
-        missing = set(required_elements) - set(data.keys())
-        if missing:
-            raise ValueError(
-                f"Required elements are missing from the dataset: {missing}. "
-                "Ensure the dataset includes all necessary elements for alloy composition."
-            )
-
-    logger.info(f"Successfully loaded {len(data)} elements.")
-    return data
-
-
-def get_element_property(
-    element: str,
-    property_name: str,
-    properties: Dict[str, Dict[str, Any]]
-) -> Any:
+def get_element_property(element: str, property_name: str, file_path: Optional[str] = None) -> Optional[float]:
     """
-    Retrieve a specific property for an element.
+    Get a specific property for an element.
 
     Args:
-        element: Element symbol (e.g., 'Mn').
-        property_name: Name of the property (e.g., 'electronegativity').
-        properties: The dictionary loaded from load_elemental_properties.
+        element: Element symbol (e.g., 'Fe', 'Co').
+        property_name: Name of the property to retrieve.
+        file_path: Optional path to override default file location.
 
     Returns:
-        The value of the property.
+        The property value if found, None otherwise.
 
     Raises:
-        KeyError: If the element or property is not found.
+        ValueError: If the property name is invalid.
     """
-    element = element.strip().upper()
-    if element not in properties:
-        raise KeyError(f"Element '{element}' not found in properties data.")
-    if property_name not in properties[element]:
-        raise KeyError(
-            f"Property '{property_name}' not found for element '{element}'. "
-            f"Available: {list(properties[element].keys())}"
-        )
-    return properties[element][property_name]
+    valid_properties = {'electronegativity', 'atomic_radii', 'valence_electrons'}
+    if property_name not in valid_properties:
+        raise ValueError(f"Invalid property name '{property_name}'. Must be one of {valid_properties}")
 
+    properties = load_elemental_properties(file_path)
+    element_upper = element.strip().upper()
+
+    if element_upper not in properties:
+        _get_logger().warning(f"Element '{element}' not found in periodic table data.")
+        return None
+
+    return properties[element_upper][property_name]
 
 def main() -> None:
     """
-    Main entry point for testing/CLI usage of the loader.
+    Main entry point for command-line execution.
     Loads the file and prints a summary.
     """
+    logger = setup_logging(__name__, level=logging.INFO)
+    logger.info("Running periodic_table_loader main function")
+
     try:
-        # Define expected elements from T006 spec
-        expected_elements = [
-            "Mn", "Co", "Fe", "Ga", "Al", "Ni", "Cu", "Sn", "In", "Ti", "V"
-        ]
-
-        data = load_elemental_properties(
-            file_path=Path("data/raw/elemental_properties.csv"),
-            required_elements=expected_elements
-        )
-
-        print(f"Loaded {len(data)} elements successfully.")
-        print(f"Sample entry (Mn): {data.get('Mn', 'Not found')}")
-
-    except (FileNotFoundError, ValueError, KeyError) as e:
-        logger.error(f"Failed to load elemental properties: {e}")
+        props = load_elemental_properties()
+        logger.info(f"Loaded {len(props)} elements:")
+        for elem, data in sorted(props.items()):
+            logger.info(f"  {elem}: EN={data['electronegativity']}, R={data['atomic_radii']}, VE={data['valence_electrons']}")
+    except FileNotFoundError as e:
+        logger.error(f"File error: {e}")
         raise
-
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
