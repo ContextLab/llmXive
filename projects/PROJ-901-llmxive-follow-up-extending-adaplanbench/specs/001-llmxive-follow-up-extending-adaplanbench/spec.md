@@ -56,7 +56,7 @@ The researcher needs to perform a Generalized Linear Mixed Model (GLMM) with a b
 
 - What happens if the SLM generates a response that violates a constraint but the rule-based module fails to parse the intent (false negative in detection)?
 - How does the system handle tasks where the constraint is implicit or requires common-sense reasoning rather than explicit keyword matching?
-- What is the behavior if the HuggingFace model download fails or exceeds the 7GB RAM limit during initialization?
+- What is the behavior if the HuggingFace model download fails or exceeds the available RAM limit during initialization?
 
 ## Requirements
 
@@ -95,7 +95,7 @@ The researcher needs to perform a Generalized Linear Mixed Model (GLMM) with a b
 ## Assumptions
 
 - The AdaPlanBench dataset (specifically the household tasks) is publicly accessible via the official repository or arXiv supplementary materials and contains the necessary variables for progressive constraint tracking.
-- The Phi-mini model (or similar SLM) can be loaded and run on a CPU-only environment within the limited vCPU and RAM constraints. without requiring GPU acceleration or 8-bit quantization.
+- The Phi-mini model (or similar SLM) can be loaded and run on a CPU-only environment within the limited vCPU and RAM constraints, without requiring GPU acceleration or aggressive quantization.
 - The "constraint violation" can be reliably detected via a rule-based module using keyword matching and simple logical inference for explicit constraints; implicit constraints are handled by logging as "unverified" rather than forcing a binary decision.
 - The Generalized Linear Mixed Model (GLMM) is the appropriate statistical test for the experimental design, assuming the data meets convergence criteria for binary repeated measures.
 - The monolithic baseline models (e.g., GPT-4, Llama-3-70b) will be evaluated using the same API or weights available at the time of execution, acknowledging potential availability constraints.

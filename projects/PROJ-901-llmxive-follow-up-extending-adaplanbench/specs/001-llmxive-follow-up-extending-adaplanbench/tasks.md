@@ -60,21 +60,22 @@
 
 - [X] T007 Implement `code/config.py` with paths, random seeds, resource limits, and dataset configuration (including official URL fallbacks for AdaPlanBench)
 - [X] T008 Implement `code/main.py` orchestration script with resource monitor wrapper (logs CPU/RAM per task, fails fast on limit)
-- [X] T008a [P] Implement the resource monitor wrapper logic in `code/main.py` (FR-006). Logic: Wrap task execution with a context manager that logs CPU and RAM usage per task to `data/processed/resource_logs.json`. Fail fast if limits exceeded.
+- [X] T008a [P] Implement the resource monitor wrapper logic in `code/main.py` (FR-006). Logic: Wrap task execution with a context manager that logs CPU and RAM usage per task to `data/processed/resource_logs.json`. **Schema**: `{"timestamp": "ISO8601", "task_id": "string", "cpu_percent": "float", "ram_gb": "float"}`. **Fail-fast mechanism**: Raise a custom `ResourceLimitExceeded` exception immediately if CPU > 90% or RAM > 6.5GB, aborting the run.
 - [X] T009 Create base `code/agent/base.py` abstract agent interface
 - [X] T026c [US2] Create `contracts/execution-log.schema.yaml` defining the structure for execution logs. **Full Schema Content**:
-  ```yaml
-  type: object
-  properties:
-    task_id: { type: string }
-    constraint_count: { type: integer }
-    generated_plan: { type: string }
-    violation_boolean: { type: boolean }
-    violation_reason: { type: [string, "null"] }
-    final_score: { type: number }
-  required: [task_id, constraint_count, generated_plan, violation_boolean, violation_reason, final_score]
-  ```
-  **Note**: This schema defines the contract based on FR-004 and FR-007 requirements. The fields `violation_boolean` and `final_score` are derived directly from these functional requirements, ensuring semantic stability regardless of resolver implementation details. **Run BEFORE T026a and T026b**.
+ ```yaml
+ type: object
+ properties:
+ task_id: { type: string }
+ constraint_count: { type: integer }
+ generated_plan: { type: string }
+ violation_boolean: { type: boolean }
+ violation_reason: { type: [string, "null"] }
+ violation_status: { type: [string, "null"] } # Added for FR-009: "implicit_unverified", "false_negative", or null
+ final_score: { type: number }
+ required: [task_id, constraint_count, generated_plan, violation_boolean, violation_reason, violation_status, final_score]
+ ```
+ **Note**: This schema defines the contract based on FR-004, FR-007, and FR-009 requirements. The `violation_status` field is mandatory to distinguish between explicit violations and unverified/implicit constraints. **Run BEFORE T026a and T026b**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,9 +91,8 @@
 
 - [X] T010 [US1] Unit test for filter logic in `tests/unit/test_filter.py` (verifies exclusion of <5 constraints)
 - [X] T012 [US1] Implement `code/dataset/loader.py` to fetch AdaPlanBench household tasks. **Configuration**: Read dataset ID/URL from `code/config.py` (which contains official URL fallbacks). On fetch failure, raise a clear error and abort – no mock fallback. Verify existence of `progressive_constraints` field before proceeding.
-- [X] T013 [US1] Implement filtering logic in `code/dataset/loader.py` to select tasks with ≥5 progressive constraint reveals
-- [X] T014 [US1] Add `constraint_count` metadata column to filtered output in `data/processed/filtered_tasks.csv`. The column MUST be an integer derived from `len(progressive_constraints)` for each task, ensuring semantic alignment with US-1.
-- [X] T011 [US1] Integration test `test_filtered_dataset_schema` in `tests/integration/test_dataset_content.py` (verifies `progressive_constraints` schema and `constraint_count` field presence; **Run AFTER T014**)
+- [X] T013 [US1] Implement filtering logic in `code/dataset/loader.py` to select tasks with ≥5 progressive constraint reveals and write to `data/processed/filtered_tasks.csv`. **Output Schema**: The CSV MUST include columns `task_id`, `raw_prompt`, `progressive_constraints` (list), and `constraint_count` (integer, calculated as `len(progressive_constraints)`). **Run AFTER T012**.
+- [X] T011 [US1] Integration test `test_filtered_dataset_schema` in `tests/integration/test_dataset_content.py` (verifies `progressive_constraints` schema and `constraint_count` field presence; **Run AFTER T013**)
 - [X] T015 [US1] Implement validation script `code/dataset/validate_subset.py` to sample a subset of tasks and verify constraint counts match original metadata
 
 **Checkpoint**: Filtered dataset ready; independent variable established.
@@ -101,7 +101,7 @@
 
 ## Phase 4: User Story 2 - Dual-Track Agent Execution and Constraint Logging (Priority: P2)
 
-**Goal**: Execute dual-track architecture (SLM generator + deterministic constraint store) and monolithic baseline, logging violations, corrections.
+**Goal**: Execute dual-track architecture (SLM generator + deterministic constraint store) and monolithic baseline, logging violations, corrections, and reconfiguration metrics.
 
 **Independent Test**: Run agent on a known task with a specific constraint violation; verify rule-based module intercepts, corrects, and logs the event.
 
@@ -117,14 +117,14 @@
 - [X] T022 [US2] Implement `code/agent/resolver.py` with exact string matching, case‑insensitive substring matching, and explicit negation patterns (FR‑007). **Logic**: Detect violations only.
 - [X] T022b [US2] Implement `force_revision` logic in `code/agent/resolver.py` (FR-003). **Logic**: If violation detected, generate a corrected plan by replacing the violating action with a safe alternative or re-planning the step.
 - [X] T023 [US2] Implement `code/agent/dual_track.py` to orchestrate generator, store, and resolver; log "false_negative" if intent parsing fails (FR‑008)
-- [X] T024 [US2] Implement logging logic for "implicit_unverified" constraints in `code/agent/resolver.py`. **Strict Constraint**: If the rule-based resolver fails to match a constraint via exact or substring matching, log the event as "implicit_unverified", set `violation_boolean` to false, and flag it for human review. Do NOT attempt to infer intent or use a generic detector. This satisfies FR-009. **Run AFTER T022**.
-- [X] T026a [US2] Implement `code/agent/monolithic_runner.py` with function `run_monolithic(dataset, model)` to execute the monolithic baseline on `data/processed/filtered_tasks.csv`. Output logs to `data/processed/monolithic_logs.json`. **Output Schema**: Conforms to `contracts/execution-log.schema.yaml`. **Run AFTER T014 AND T026c**.
-- [X] T026b [US2] Implement `code/agent/dual_track_runner.py` with function `run_dual_track(dataset, generator, store, resolver)` to execute the dual-track agent on `data/processed/filtered_tasks.csv`. Output logs to `data/processed/dual_track_logs.json`. **Output Schema**: Conforms to `contracts/execution-log.schema.yaml`. **Run AFTER T014 AND T026c**.
+- [X] T024 [US2] Implement logging logic for "implicit_unverified" constraints in `code/agent/resolver.py`. **Strict Constraint**: If the rule-based resolver fails to match a constraint via exact or substring matching, log the event as "implicit_unverified" in the `violation_status` field (per T026c schema), set `violation_boolean` to false, and flag it for human review. **Crucially, this task MUST ensure that `implicit_unverified` events are explicitly excluded from the primary violation rate calculation in downstream analysis.** This satisfies FR-009. **Run AFTER T022**.
+- [X] T026a [US2] Implement `code/agent/monolithic_runner.py` with function `run_monolithic(dataset, model)` to execute the monolithic baseline on `data/processed/filtered_tasks.csv`. Output logs to `data/processed/monolithic_logs.json`. **Output Schema**: Conforms to `contracts/execution-log.schema.yaml`. **Dependencies**: T013, T026c, T020. **Run AFTER T013 AND T026c AND T020**.
+- [X] T026b [US2] Execute Dual-Track Agent. **Logic**: Load `data/processed/filtered_tasks.csv` (T013), iterate tasks, invoke generator, constraint store, and resolver, collect results. Handle `implicit_unverified` and `false_negative` logging per T024 and T023. Write results to `data/processed/dual_track_logs.json`. **Output Schema**: Conforms to `contracts/execution-log.schema.yaml`. **Dependencies**: T021, T022, T022b, T023, T024, T013. **Run AFTER T021, T022, T022b, T023, T024, T013**.
 - [X] T026e [US2] Implement `code/agent/judges.py` to wrap and integrate the original AdaPlanBench automated judges for scoring task success and constraint adherence (FR-004).
-- [X] T026f [US2] Implement `code/analysis/log_aggregator.py` with function `aggregate_logs(monolithic_path, dual_track_path)` to merge `monolithic_logs.json` and `dual_track_logs.json` into `data/processed/execution_traces.csv`. **Output Schema**: Columns: `task_id`, `architecture` (monolithic|dual_track), `constraint_count`, `violation_boolean`, `violation_reason`, `final_score`. **Run AFTER T026a AND T026b**.
-- [X] T027 [US2] Generate `data/processed/execution_traces.csv` containing architecture type, constraint count, violation boolean, and final score. Ensure all rows have valid `task_id`, `constraint_count` (int), `violation_boolean` (bool), and `final_score` (float). **Run AFTER T026f**.
+- [X] T026f [US2] Merge and Validate Execution Logs. **Logic**: Read `data/processed/monolithic_logs.json` (T026a) and `data/processed/dual_track_logs.json` (T026b), validate against schema (T026c). Filter out rows where `violation_status` is 'implicit_unverified' (as per FR-009) before merging. Combine validated logs into `data/processed/execution_traces.csv`. **Output Schema**: Columns: `task_id`, `architecture` (monolithic|dual_track), `constraint_count`, `violation_boolean`, `violation_reason`, `violation_status`, `final_score`. **Dependencies**: T026a, T026b, T024. **Run AFTER T026a AND T026b AND T024**.
+- [X] T027 [US2] Generate `data/processed/execution_traces.csv` containing architecture type, constraint count, violation boolean, and final score. Ensure all rows have valid `task_id`, `constraint_count` (int), `violation_boolean` (bool), and `final_score` (float). **Schema**: `task_id` (string), `architecture` (string), `constraint_count` (int), `violation_boolean` (bool), `violation_reason` (string|null), `violation_status` (string|null), `final_score` (float). **Run AFTER T026f**.
 
-**Checkpoint**: Dual‑track and monolithic agents executed; violation logs generated.
+**Checkpoint**: Dual‑track and monolithic agents executed; violation logs and reconfiguration metrics generated.
 
 ---
 
@@ -141,13 +141,13 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] Implement `code/analysis/power.py` to perform power analysis on the filtered subset. **Method**: Calculate the achieved power for the GLMM given: `groups=2` (monolithic vs dual-track), `alpha=0.05`, `effect_size=0.15` (Cohen's f² target), and `n_observations` derived from the actual sample size in `data/processed/execution_traces.csv` (from T027). Use `statsmodels.stats.power` or equivalent. Generate `data/processed/power_report.json`. **Output Schema**: `calculated_power` (float), `effect_size` (float), `sample_size` (int), `groups` (int). Log the result. **Run AFTER T027**.
-- [X] T031 [US3] Implement `code/analysis/glmm.py` to fit GLMM with binomial link function testing interaction between "number of constraints" and "architecture"
+- [X] T030 [US3] Implement `code/analysis/power.py` to perform power analysis on the filtered subset. **Method**: Calculate the achieved power for the GLMM given: `groups=2` (monolithic vs dual-track), `alpha=0.05`, `effect_size=0.15` (Cohen's f² target), and `n_observations` derived from the actual sample size in `data/processed/filtered_tasks.csv` (from T013). Use `statsmodels.stats.power` or equivalent. Generate `data/processed/power_report.json`. **Output Schema**: `calculated_power` (float), `effect_size` (float), `sample_size` (int), `groups` (int). Log the result. **Dependencies**: T013. **Run AFTER T013**.
+- [X] T031 [US3] Implement `code/analysis/glmm.py` to fit GLMM with binomial link function testing interaction between "number of constraints" and "architecture". **Note**: This task also incorporates the logic for secondary analysis if needed, removing the need for separate phantom tasks. **Dependencies**: T027. **Run AFTER T027**.
 - [X] T032 [US3] Implement `code/hash_artifacts.py` to compute SHA‑256 hashes for existing files in `data/` (if any exist) and update state YAML (Constitution Principle V)
-- [X] T033 [US3] Implement `code/dataset/annotator.py` CLI to randomly select a sample of **50 tasks** from `data/processed/filtered_tasks.csv`. Use `random.seed(42)` and stratified sampling by `constraint_count` with bins: `[5, 6, 7+]` where `7+` includes ALL tasks with `constraint_count >= 7`. Output `data/processed/annotation_sample.csv`. **Output Schema**: Columns must be `task_id`, `raw_prompt`, `constraint_list`. This sample is independent of the rule-based module (FR-010). **Run AFTER T014**.
-- [X] T034 [US3] Implement comparison script that reads `data/processed/execution_traces.csv` and the human‑annotated ground truth from `data/processed/annotation_sample.csv`, computes the agreement rate with confidence interval, and writes `data/processed/agreement_rate_report.json`. **Logic**: Compare rule-based violation flags against human annotations. **Output Schema**: `agreement_rate` (float), `confidence_interval_lower` (float), `confidence_interval_upper` (float), `sample_size` (int). **Run AFTER T027 AND T033**.
-- [X] T035 [US3] Implement `code/analysis/adherence_verifier.py` to calculate the dual-track agent's adherence rate from `data/processed/execution_traces.csv`. **Logic**: Filter out rows where `violation_reason` is "implicit_unverified" before calculating the rate. Compare against the SC-004 threshold of >85%. Generate `data/processed/adherence_verification.json` with `adherence_rate` float. **Run AFTER T027**.
-- [X] T036 [US3] Generate `data/processed/statistical-results.json` with GLMM p‑values, effect sizes, convergence status; structure matches `contracts/statistical-results.schema.yaml`. **Run AFTER T027, T026f, T030, T031**.
+- [X] T033 [US3] Implement `code/dataset/annotator.py` CLI to randomly select a sample of tasks from `data/processed/filtered_tasks.csv`. Use `random.seed(42)` and stratified sampling by `constraint_count` (from T013) with bins: `[5, 6, 7+]` where `7+` includes ALL tasks with `constraint_count >= 7`. Output `data/processed/annotation_sample.csv`. **Output Schema**: Columns must be `task_id`, `raw_prompt`, `constraint_list`. This sample is independent of the rule-based module (FR-010). **Dependencies**: T013. **Run AFTER T013**.
+- [X] T034 [US3] Implement comparison script that reads `data/processed/execution_traces.csv` and the human‑annotated ground truth from `data/processed/annotation_sample.csv`, computes the agreement rate with confidence interval, and writes `data/processed/agreement_rate_report.json`. **Logic**: Compare rule-based violation flags against human annotations. **Output Schema**: `agreement_rate` (float), `confidence_interval_lower` (float), `confidence_interval_upper` (float), `sample_size` (int). **Dependencies**: T027, T033. **Run AFTER T027 AND T033**.
+- [X] T035 [US3] Implement `code/analysis/adherence_verifier.py` to calculate the dual-track agent's adherence rate from `data/processed/execution_traces.csv`. **Logic**: Filter out rows where `violation_status` is "implicit_unverified" before calculating the rate. **Compare against the SC-004 threshold of >85%**. Generate `data/processed/adherence_verification.json` with `adherence_rate` (float) and `threshold_passed` (bool). **Dependencies**: T027. **Run AFTER T027**.
+- [X] T036 [US3] Generate `data/processed/statistical-results.json` with GLMM p‑values, effect sizes, convergence status; structure matches `contracts/statistical-results.schema.yaml`. **Run AFTER T027, T030, T031**.
 - [X] T038 [US3] [P] Update `research.md` with a results section comparing dual‑track vs. monolithic violation rates across constraint counts. Explicitly report the **interaction effect** p-value and effect size as per SC-002. Link this output to the final paper generation to satisfy Constitution Principle IV.
 - [X] T039 [US3] [P] Add unit tests for edge cases in `tests/unit/` including: implicit constraint handling (no violation logged), parsing failures (false_negative logged), and empty constraint lists
 
@@ -172,6 +172,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Phase 5 (Analysis)**: Depends on Foundational and US2 implementation; can run in parallel with US3 analysis
 - **Phase N**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -179,6 +180,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T027 (Execution Traces) for variance calculation
+- **Phase 5 (Analysis)**: Depends on T021, T022, T027; provides critical metrics for US3 analysis
 - **Phase N**: Can start after all desired user stories are complete
 
 ### Within Each User Story
@@ -254,6 +256,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Scope Note**: The scope is strictly limited to User Stories 1-3 as defined in spec.md. No additional research objectives (e.g., "Cost of Reconfiguration", "Heuristic Abandonment") are included.
-- **Critical Constraint**: Phase 6 (Tasks T044-T049) has been removed as it was outside the approved scope of spec.md.
-- **Revision Note**: Tasks T016, T025, T026d, T037, T040, T041a have been removed to align with the scope note. Tasks T008a, T022b, T026e, T026f have been added to address missing FR requirements. T026c (schema) has been moved to Phase 2 to resolve circular dependencies. T030 (Power Analysis) has been moved to Phase 5 and updated to depend on T027 for variance calculation.
+- **Scope Note**: The scope is strictly limited to User Stories 1-3 as defined in spec.md. No additional research objectives are included.
+- **Critical Constraint**: Phase 6 (Search vs. Learning) has been removed as it was not authorized by the spec. The project now strictly adheres to FR-001 through FR-011.
+- **Revision Note**: Tasks T016, T025, T026d, T037, T040, T041a have been removed to align with the scope note. Tasks T008a, T022b, T026e, T026f have been added/updated to address missing FR requirements. T026c (schema) has been moved to Phase 2 to resolve circular dependencies. T030 (Power Analysis) has been moved to Phase 5 and updated to depend on T013 for pre-execution validation. Tasks T014, T014b, T027b, T035b, T038b have been removed to resolve scope creep and logical contradictions. T026b and T026f have been consolidated into single tasks with explicit dependencies. Phase 6 (T044-T048) has been removed to address the Alan Turing review concern regarding unapproved scope.
+- **Review Response**: The reviewer's concern regarding "Search vs. Learning" has been addressed by removing the unapproved scope (Phase 6). The project now focuses strictly on the authorized hypotheses regarding constraint adherence and violation rates.
+- **Concern Resolution**: The dependency concern [ordering-cecab032] regarding Task T035b is resolved because Task T035b (and its dependencies T014b, T027b) was removed from the project scope as it was identified as scope creep. The task no longer exists, and thus the dependency chain is invalid. The new Phase 5 tasks (T030-T035) are designed to be independent of T035b and do not introduce circular dependencies.

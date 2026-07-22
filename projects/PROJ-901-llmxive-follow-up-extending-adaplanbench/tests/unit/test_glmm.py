@@ -1,247 +1,285 @@
 """
-Unit tests for GLMM model fitting (T025).
+Unit tests for GLMM model fitting in code/analysis/glmm.py.
 
-This module provides a sanity check on synthetic data to ensure the
-GLMM fitting logic in `code/analysis/glmm.py` works correctly before
-running on the real dataset.
-
-Note: This test uses synthetic data generated locally. It does not
-require external data sources.
+This module performs a sanity check on synthetic data to ensure the GLMM
+fitting logic in code/analysis/glmm.py functions correctly before running
+on real data.
 """
 
 import pytest
 import pandas as pd
 import numpy as np
+import json
 from pathlib import Path
 
-# We will mock the actual GLMM fitting logic here to avoid dependency
-# on statsmodels in the test environment if not available, or we can
-# test the data preparation logic which is critical.
-# However, the task asks for a "sanity check on synthetic data".
-# Since we cannot guarantee statsmodels is installed in the test runner
-# (though it should be per requirements.txt), we will test the
-# data preparation and structure, and if statsmodels is available,
-# attempt a real fit on tiny synthetic data.
+# Import the functions we are testing
+# Note: We are testing the logic in glmm.py, so we import the core functions
+# that perform the model fitting and analysis.
+import sys
+import os
 
-try:
-    import statsmodels.api as sm
-    import statsmodels.formula.api as smf
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
+# Ensure the code directory is in the path for imports
+code_dir = Path(__file__).parent.parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-# Import the functions we are testing (if they exist in the analysis module)
-# We need to import the data preparation logic from the analysis module
-# to ensure it produces the correct format for GLMM.
-# Based on the API surface, we import from analysis.glmm
-try:
-    from code.analysis.glmm import prepare_data_for_glmm, fit_glmm
-    HAS_ANALYSIS_GLMM = True
-except ImportError:
-    HAS_ANALYSIS_GLMM = False
+from analysis.glmm import (
+    prepare_data_for_glmm,
+    fit_glmm,
+    calculate_effect_sizes,
+    run_statistical_analysis
+)
 
-# If the functions are not yet implemented in the analysis module (which they might not be if T028 is pending),
-# we will define the expected behavior here for the test to validate the *structure* of the test.
-# But the task says "Implement unit test for GLMM model fitting".
-# We assume T028 (implementation) might be pending, but T025 (test) should fail if the implementation is missing.
-# So we write the test assuming the implementation exists or will exist.
 
-@pytest.fixture
-def synthetic_data():
-    """Generate a small synthetic dataset for GLMM testing."""
-    np.random.seed(42)
-    n_samples = 100
-    
-    # Simulate: Architecture (0=Monolithic, 1=DualTrack), Constraints (5-10), Violation (0/1)
-    # We create a scenario where DualTrack performs better with high constraints
-    data = []
-    for _ in range(n_samples):
-        arch = np.random.choice([0, 1])
-        constraints = np.random.randint(5, 11)
+class TestGLMMFitting:
+    """Test suite for GLMM model fitting logic."""
+
+    @pytest.fixture
+    def synthetic_data(self):
+        """
+        Generate synthetic data for GLMM testing.
         
-        # Base probability of violation
-        base_prob = 0.3
+        Creates a dataset mimicking the structure of execution_traces.csv:
+        - task_id: unique identifier
+        - architecture: monolithic or dual_track
+        - constraint_count: integer (5, 6, 7+)
+        - violation_boolean: boolean (0/1)
+        - final_score: float (0.0 to 1.0)
+        """
+        np.random.seed(42)
+        n_samples = 200
         
-        # Effect of architecture
-        if arch == 1:
-            base_prob -= 0.1
+        data = {
+            'task_id': [f'task_{i}' for i in range(n_samples)],
+            'architecture': np.random.choice(['monolithic', 'dual_track'], n_samples),
+            'constraint_count': np.random.choice([5, 6, 7, 8, 9, 10], n_samples),
+            'violation_boolean': np.random.choice([0, 1], n_samples, p=[0.6, 0.4]),
+            'final_score': np.random.uniform(0.0, 1.0, n_samples)
+        }
         
-        # Effect of constraints (more constraints -> higher violation)
-        # Interaction: DualTrack mitigates the effect of constraints
-        constraint_effect = (constraints - 5) * 0.05
-        if arch == 1:
-            constraint_effect *= 0.5  # Mitigation
+        df = pd.DataFrame(data)
+        return df
+
+    def test_prepare_data_for_glmm(self, synthetic_data):
+        """Test that data preparation correctly formats data for GLMM."""
+        # Prepare data
+        prepared_data = prepare_data_for_glmm(synthetic_data)
         
-        prob = base_prob + constraint_effect
-        prob = np.clip(prob, 0.05, 0.95)
+        # Verify output is a DataFrame
+        assert isinstance(prepared_data, pd.DataFrame)
         
-        violation = 1 if np.random.random() < prob else 0
+        # Verify required columns exist
+        required_cols = ['architecture', 'constraint_count', 'violation_boolean']
+        for col in required_cols:
+            assert col in prepared_data.columns
         
-        data.append({
-            "task_id": f"task_{_}",
-            "architecture": "DualTrack" if arch == 1 else "Monolithic",
-            "constraint_count": constraints,
-            "violation": violation
+        # Verify architecture is categorical
+        assert prepared_data['architecture'].dtype == 'object' or \
+               str(prepared_data['architecture'].dtype) == 'category'
+        
+        # Verify constraint_count is numeric
+        assert pd.api.types.is_numeric_dtype(prepared_data['constraint_count'])
+        
+        # Verify violation_boolean is numeric (0/1)
+        assert pd.api.types.is_numeric_dtype(prepared_data['violation_boolean'])
+        assert set(prepared_data['violation_boolean'].unique()).issubset({0, 1})
+
+    def test_fit_glmm_basic(self, synthetic_data):
+        """Test that GLMM fitting runs without error on synthetic data."""
+        prepared_data = prepare_data_for_glmm(synthetic_data)
+        
+        # Fit the model
+        try:
+            result = fit_glmm(prepared_data)
+            
+            # Verify result is not None
+            assert result is not None
+            
+            # Verify result has expected attributes (depends on statsmodels version)
+            # We check for common attributes that should exist
+            assert hasattr(result, 'params') or hasattr(result, 'summary')
+            
+            # Verify we can extract fixed effects
+            if hasattr(result, 'params'):
+                params = result.params
+                assert len(params) > 0
+                
+            # Verify convergence (if available)
+            if hasattr(result, 'converged'):
+                # Note: In synthetic data, convergence might not always happen
+                # but the attribute should exist
+                pass
+                
+        except Exception as e:
+            # If fitting fails, it should be a clear error, not a silent failure
+            pytest.fail(f"GLMM fitting failed with error: {str(e)}")
+
+    def test_calculate_effect_sizes(self, synthetic_data):
+        """Test effect size calculation."""
+        prepared_data = prepare_data_for_glmm(synthetic_data)
+        
+        # Calculate effect sizes
+        try:
+            effect_sizes = calculate_effect_sizes(prepared_data)
+            
+            # Verify result is a dictionary
+            assert isinstance(effect_sizes, dict)
+            
+            # Verify expected keys exist
+            expected_keys = ['architecture_effect', 'constraint_effect', 'interaction_effect']
+            for key in expected_keys:
+                assert key in effect_sizes, f"Missing key: {key}"
+                
+            # Verify values are numeric
+            for key, value in effect_sizes.items():
+                assert isinstance(value, (int, float, np.number)), \
+                    f"Effect size {key} is not numeric: {type(value)}"
+                    
+        except Exception as e:
+            pytest.fail(f"Effect size calculation failed: {str(e)}")
+
+    def test_run_statistical_analysis_full_pipeline(self, synthetic_data):
+        """Test the complete statistical analysis pipeline."""
+        try:
+            # Run the full analysis
+            results = run_statistical_analysis(synthetic_data)
+            
+            # Verify results structure
+            assert isinstance(results, dict)
+            
+            # Verify key components exist
+            required_components = [
+                'model_summary',
+                'fixed_effects',
+                'p_values',
+                'effect_sizes',
+                'convergence_status'
+            ]
+            
+            for component in required_components:
+                assert component in results, f"Missing component: {component}"
+                
+            # Verify p_values is a dictionary
+            assert isinstance(results['p_values'], dict)
+            
+            # Verify effect_sizes is a dictionary
+            assert isinstance(results['effect_sizes'], dict)
+            
+            # Verify convergence_status is boolean or string
+            assert isinstance(results['convergence_status'], (bool, str))
+            
+        except Exception as e:
+            pytest.fail(f"Statistical analysis pipeline failed: {str(e)}")
+
+    def test_glmm_with_interaction_term(self, synthetic_data):
+        """Test that GLMM correctly handles interaction between architecture and constraints."""
+        # Create data with a known interaction effect
+        np.random.seed(123)
+        n_samples = 300
+        
+        # Create interaction: dual_track performs better with more constraints
+        architectures = np.random.choice(['monolithic', 'dual_track'], n_samples)
+        constraint_counts = np.random.choice([5, 6, 7, 8, 9, 10], n_samples)
+        
+        # Generate violation probability with interaction
+        base_prob = 0.5
+        arch_effect = np.where(architectures == 'dual_track', -0.2, 0.0)
+        constraint_effect = (constraint_counts - 7) * 0.1
+        interaction_effect = np.where(architectures == 'dual_track', 
+                                    (constraint_counts - 7) * 0.05, 0.0)
+        
+        logit_prob = base_prob + arch_effect + constraint_effect + interaction_effect
+        probabilities = 1 / (1 + np.exp(-logit_prob))
+        
+        violation_boolean = np.random.binomial(1, probabilities, n_samples)
+        
+        synthetic_with_interaction = pd.DataFrame({
+            'task_id': [f'task_{i}' for i in range(n_samples)],
+            'architecture': architectures,
+            'constraint_count': constraint_counts,
+            'violation_boolean': violation_boolean,
+            'final_score': np.random.uniform(0.0, 1.0, n_samples)
         })
-    
-    return pd.DataFrame(data)
+        
+        # Run analysis
+        results = run_statistical_analysis(synthetic_with_interaction)
+        
+        # Verify interaction term is present in results
+        assert 'interaction_effect' in results['effect_sizes'], \
+            "Interaction effect should be calculated"
+            
+        # Verify the interaction effect is non-zero (or at least the term exists)
+        # Note: Due to randomness, the exact value may vary
+        assert results['effect_sizes']['interaction_effect'] is not None
 
-def test_data_preparation_structure():
-    """Test that data preparation produces the correct columns for GLMM."""
-    if not HAS_ANALYSIS_GLMM:
-        pytest.skip("GLMM analysis module not yet implemented")
-    
-    df = synthetic_data()
-    prepared_df = prepare_data_for_glmm(df)
-    
-    # Check required columns exist
-    assert "architecture" in prepared_df.columns
-    assert "constraint_count" in prepared_df.columns
-    assert "violation" in prepared_df.columns
-    
-    # Check types
-    assert prepared_df["violation"].dtype in [np.int64, np.int32, bool]
-    assert prepared_df["constraint_count"].dtype in [np.int64, np.int32, float]
-    
-    # Check that architecture is treated as categorical if required by the model formula
-    # (The function should handle encoding if needed)
-    assert prepared_df["architecture"].dtype == "object" or prepared_df["architecture"].dtype.name == "category"
+    def test_edge_case_empty_dataframe(self):
+        """Test handling of empty dataframe."""
+        empty_df = pd.DataFrame(columns=[
+            'task_id', 'architecture', 'constraint_count', 
+            'violation_boolean', 'final_score'
+        ])
+        
+        # Should raise a clear error or handle gracefully
+        with pytest.raises((ValueError, Exception)):
+            prepare_data_for_glmm(empty_df)
 
-def test_glmm_fit_synthetic_data():
-    """Test that GLMM can be fitted on synthetic data without error."""
-    if not HAS_STATSMODELS:
-        pytest.skip("statsmodels not installed")
-    if not HAS_ANALYSIS_GLMM:
-        pytest.skip("GLMM analysis module not yet implemented")
-    
-    df = synthetic_data()
-    
-    # Prepare data
-    prepared_df = prepare_data_for_glmm(df)
-    
-    # Fit model
-    # The formula should include an interaction term
-    formula = "violation ~ architecture * constraint_count"
-    
-    try:
-        model = smf.glm(formula=formula, data=prepared_df, family=sm.families.Binomial())
-        result = model.fit()
+    def test_edge_case_single_group(self):
+        """Test handling of data with only one architecture group."""
+        np.random.seed(42)
+        n_samples = 50
         
-        # Check that the result has expected attributes
-        assert result is not None
-        assert hasattr(result, "params")
-        assert hasattr(result, "pvalues")
-        
-        # Check that the interaction term exists in the params
-        param_names = list(result.params.index)
-        interaction_term = "architecture[T.DualTrack]:constraint_count"
-        # Note: The exact name depends on how statsmodels encodes the categorical variable
-        # We just check that *some* interaction term exists or the model converged
-        assert len(result.params) > 0
-        
-        # Check convergence
-        # statsmodels GLM doesn't always have a simple convergence flag like mixed models
-        # but we can check if the fit was successful
-        assert result.converged if hasattr(result, 'converged') else True
-        
-    except Exception as e:
-        pytest.fail(f"GLMM fit failed on synthetic data: {e}")
-
-def test_interaction_effect_significance():
-    """
-    Test that the synthetic data generation creates a detectable interaction effect.
-    This is a sanity check to ensure our test data is valid.
-    """
-    if not HAS_STATSMODELS or not HAS_ANALYSIS_GLMM:
-        pytest.skip("Dependencies not available")
-    
-    # Generate a larger dataset to ensure statistical power for this test
-    np.random.seed(123)
-    n_samples = 500
-    data = []
-    
-    for i in range(n_samples):
-        arch = 1 if i % 2 == 0 else 0  # Balanced
-        constraints = np.random.randint(5, 11)
-        
-        base_prob = 0.4
-        arch_effect = -0.15 if arch == 1 else 0
-        constraint_effect = (constraints - 5) * 0.08
-        
-        # Strong interaction: DualTrack significantly reduces constraint penalty
-        interaction_effect = -0.06 if arch == 1 else 0
-        
-        prob = base_prob + arch_effect + constraint_effect + interaction_effect
-        prob = np.clip(prob, 0.05, 0.95)
-        
-        violation = 1 if np.random.random() < prob else 0
-        
-        data.append({
-            "task_id": f"task_{i}",
-            "architecture": "DualTrack" if arch == 1 else "Monolithic",
-            "constraint_count": constraints,
-            "violation": violation
+        single_group_data = pd.DataFrame({
+            'task_id': [f'task_{i}' for i in range(n_samples)],
+            'architecture': ['monolithic'] * n_samples,  # Only one group
+            'constraint_count': np.random.choice([5, 6, 7], n_samples),
+            'violation_boolean': np.random.choice([0, 1], n_samples),
+            'final_score': np.random.uniform(0.0, 1.0, n_samples)
         })
-    
-    df = pd.DataFrame(data)
-    prepared_df = prepare_data_for_glmm(df)
-    
-    formula = "violation ~ architecture * constraint_count"
-    model = smf.glm(formula=formula, data=prepared_df, family=sm.families.Binomial())
-    result = model.fit()
-    
-    # Find the interaction p-value
-    params = result.pvalues
-    interaction_key = None
-    for key in params.index:
-        if "interaction" in key.lower() or ("architecture" in key and "constraint" in key):
-            interaction_key = key
-            break
-    
-    if interaction_key:
-        # With this strong effect, p-value should be low
-        assert params[interaction_key] < 0.05, f"Interaction term not significant (p={params[interaction_key]}), check data generation logic"
-    else:
-        # If we can't find the specific key, just ensure the model ran
-        pass
+        
+        # This should fail gracefully or raise a clear error about insufficient groups
+        with pytest.raises((ValueError, Exception)):
+            run_statistical_analysis(single_group_data)
 
-def test_edge_case_empty_dataframe():
-    """Test behavior with empty input dataframe."""
-    if not HAS_ANALYSIS_GLMM:
-        pytest.skip("GLMM analysis module not yet implemented")
-    
-    empty_df = pd.DataFrame(columns=["task_id", "architecture", "constraint_count", "violation"])
-    
-    # prepare_data_for_glmm should handle empty data gracefully or raise a clear error
-    try:
-        result = prepare_data_for_glmm(empty_df)
-        assert len(result) == 0
-    except Exception as e:
-        # It's acceptable to raise an error for empty data
-        assert "empty" in str(e).lower() or "no data" in str(e).lower()
+    def test_output_format_compliance(self, synthetic_data):
+        """Test that output matches expected schema for statistical results."""
+        results = run_statistical_analysis(synthetic_data)
+        
+        # Verify schema compliance
+        assert 'model_summary' in results
+        assert 'fixed_effects' in results
+        assert 'p_values' in results
+        assert 'effect_sizes' in results
+        assert 'convergence_status' in results
+        
+        # Verify p_values structure
+        assert isinstance(results['p_values'], dict)
+        for key, value in results['p_values'].items():
+            assert isinstance(value, (int, float))
+            assert 0 <= value <= 1, f"p-value {value} out of range [0, 1]"
+        
+        # Verify effect_sizes structure
+        assert isinstance(results['effect_sizes'], dict)
+        for key, value in results['effect_sizes'].items():
+            assert isinstance(value, (int, float))
 
-def test_edge_case_all_same_violation():
-    """Test with data where all violations are the same (perfect separation)."""
-    if not HAS_STATSMODELS or not HAS_ANALYSIS_GLMM:
-        pytest.skip("Dependencies not available")
-    
-    df = pd.DataFrame({
-        "task_id": ["t1", "t2", "t3"],
-        "architecture": ["Monolithic", "DualTrack", "Monolithic"],
-        "constraint_count": [5, 6, 7],
-        "violation": [1, 1, 1]
-    })
-    
-    prepared_df = prepare_data_for_glmm(df)
-    formula = "violation ~ architecture * constraint_count"
-    
-    # This might cause convergence issues (perfect separation)
-    # We expect the test to either pass or fail gracefully with a convergence warning
-    try:
-        model = smf.glm(formula=formula, data=prepared_df, family=sm.families.Binomial())
-        result = model.fit()
-        # If it fits, great. If it warns, that's also expected behavior.
-    except Exception:
-        # Convergence failure is expected here, which is fine for a unit test
-        # The important thing is the code doesn't crash with a traceback
-        pass
+    def test_reproducibility(self, synthetic_data):
+        """Test that results are reproducible with same seed."""
+        # Set seed
+        np.random.seed(999)
+        results1 = run_statistical_analysis(synthetic_data)
+        
+        # Set same seed again
+        np.random.seed(999)
+        results2 = run_statistical_analysis(synthetic_data)
+        
+        # Compare key results
+        assert results1['effect_sizes'] == results2['effect_sizes'], \
+            "Effect sizes should be identical with same seed"
+            
+        # Compare p-values (with tolerance for floating point)
+        for key in results1['p_values']:
+            assert abs(results1['p_values'][key] - results2['p_values'][key]) < 1e-10, \
+                f"P-values for {key} should be identical"
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

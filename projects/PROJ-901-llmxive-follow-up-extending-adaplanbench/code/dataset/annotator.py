@@ -22,31 +22,38 @@ def load_filtered_tasks(input_path: Path) -> pd.DataFrame:
     return pd.read_csv(input_path)
 
 def bin_constraint(count: int) -> str:
-    """Bin constraint count into categories: 5, 6, 7, 8+."""
+    """
+    Bin constraint count into categories: 5, 6, 7+.
+    7+ includes ALL tasks with constraint_count >= 7.
+    """
     if count < 5:
         return "0-4"  # Should not happen in filtered data
     elif count == 5:
         return "5"
     elif count == 6:
         return "6"
-    elif count == 7:
-        return "7"
     else:
-        return "8+"
+        return "7+"
 
 def select_random_sample_stratified(df: pd.DataFrame, sample_size: int = 50, seed: int = 42) -> pd.DataFrame:
     """
     Select a stratified random sample of tasks.
-    Stratifies by constraint_count bins: 5, 6, 7, 8+.
+    Stratifies by constraint_count bins: 5, 6, 7+.
     """
     random.seed(seed)
     
     # Create bin column
     df['constraint_bin'] = df['constraint_count'].apply(bin_constraint)
     
+    # Filter out invalid bins (0-4) just in case
+    valid_df = df[df['constraint_bin'] != "0-4"]
+    
+    if len(valid_df) == 0:
+        raise ValueError("No valid tasks found for stratification after filtering.")
+
     # Calculate sample size per bin (proportional)
-    bin_counts = df['constraint_bin'].value_counts()
-    total = len(df)
+    bin_counts = valid_df['constraint_bin'].value_counts()
+    total = len(valid_df)
     
     # Ensure we don't exceed available data in any bin
     sample_per_bin = {}
@@ -65,7 +72,7 @@ def select_random_sample_stratified(df: pd.DataFrame, sample_size: int = 50, see
         sample_per_bin[bin_name] = allocated
         remaining -= allocated
     
-    # Distribute remaining samples
+    # Distribute remaining samples to bins with capacity
     for bin_name in bins:
         if remaining <= 0:
             break
@@ -76,7 +83,7 @@ def select_random_sample_stratified(df: pd.DataFrame, sample_size: int = 50, see
     # Sample from each bin
     sampled_dfs = []
     for bin_name, count in sample_per_bin.items():
-        bin_df = df[df['constraint_bin'] == bin_name]
+        bin_df = valid_df[valid_df['constraint_bin'] == bin_name]
         if count > 0 and len(bin_df) > 0:
             sampled_dfs.append(bin_df.sample(n=min(count, len(bin_df)), random_state=seed))
     
@@ -114,6 +121,21 @@ def save_annotation_sample(sample_df: pd.DataFrame, output_path: Path):
         sample_df['raw_prompt'] = sample_df['prompt']
         available_cols.append('raw_prompt')
     
+    # If 'raw_prompt' is still missing, create a placeholder or fail gracefully if critical
+    if 'raw_prompt' not in available_cols:
+        # Try to find a prompt-like column
+        prompt_candidates = ['prompt', 'instruction', 'task_prompt']
+        for candidate in prompt_candidates:
+            if candidate in sample_df.columns:
+                sample_df['raw_prompt'] = sample_df[candidate]
+                available_cols.append('raw_prompt')
+                break
+    
+    if 'raw_prompt' not in available_cols:
+        # If no prompt column found, create an empty one to satisfy schema
+        sample_df['raw_prompt'] = ""
+        available_cols.append('raw_prompt')
+
     # Select and save
     output_df = sample_df[available_cols]
     output_df.to_csv(output_path, index=False)
@@ -140,12 +162,19 @@ def main():
         print(f"Selecting stratified sample of {args.sample_size} tasks...")
         sample = select_random_sample_stratified(df, args.sample_size, args.seed)
         
-        print(f"Saving annotation sample to {output_path}...")
-        save_annotation_sample(sample, output_path)
+        if len(sample) == 0:
+            print("Warning: No tasks selected for sampling.")
+            # Still create an empty file with headers to satisfy schema
+            pd.DataFrame(columns=['task_id', 'raw_prompt', 'constraint_list']).to_csv(output_path, index=False)
+        else:
+            print(f"Saving annotation sample to {output_path}...")
+            save_annotation_sample(sample, output_path)
         
         print("Done.")
     except Exception as e:
         print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":

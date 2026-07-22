@@ -17,8 +17,13 @@ project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from config import Paths
-from dataset.loader import MIN_CONSTRAINT_REVEALS
+from config import Paths, get_dataset_config
+
+
+# Define the threshold constant locally to avoid circular import issues
+# with loader.py if it hasn't been fully stabilized in the execution chain.
+# This matches the requirement: filter tasks with >= 5 progressive constraint reveals.
+MIN_CONSTRAINT_REVEALS = 5
 
 
 def _parse_constraints_field(value):

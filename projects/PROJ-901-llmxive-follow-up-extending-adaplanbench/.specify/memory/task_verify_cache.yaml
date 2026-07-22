@@ -1,19 +1,44 @@
-T027:
+T008a:
   c: false
-  h: 34f65ed4e8fd71f753e397960200c4046d5af188f44e5268bebfc8785fbd9192
-  r: "The required output file `data/processed/power_report.json` does not exist,\
-    \ and the provided `code/analysis/power.py` is incomplete (truncated) with no\
-    \ evidence that it writes the JSON report or fully implements the Cohen\u2019\
-    s f\xB2 power calculation as specified. The task therefore remains unfinished."
-T030:
+  h: 1d70dfd8e81cdd7320019ea0b0275ecd71d617ed38cfb604971da0b86ce659a3
+  r: "The provided `code/main.py` defines a `ResourceMonitor` but the `monitor_task`\
+    \ context manager is truncated and does not record CPU usage or write logs, and\
+    \ no code actually wraps task execution with it. Moreover, the required `data/processed/resource_logs.json`\
+    \ file is absent. The implementation therefore does not fulfill the logging and\
+    \ fail\u2011fast requirements of FR\u2011006."
+T026a:
   c: false
-  h: 51c6a6daae995cac2529a0ff6f3455f5fef2e3e90138086488d6ad7dd61672f1
-  r: "The repository lacks the required `data/processed/filtered_tasks.csv` input\
-    \ file, and the provided `annotator.py` is incomplete (truncated) and uses incorrect\
-    \ stratification bins (5,\u202F6,\u202F7,\u202F8+ instead of \u201Cvariable, multiple,\
-    \ 7, 8+\u201D). It also does not contain a runnable CLI entry point to generate\
-    \ `annotation_sample.csv`. These missing/incorrect elements prevent the task from\
-    \ being satisfied."
+  h: 72ca844abc23706d3c16113f50ffe2ac72cdab14226d324257e1d207dbb31f13
+  r: "The repository contains a partially\u2011written `code/agent/monolithic_runner.py`,\
+    \ but the file is truncated (the loop body ends abruptly) and does not produce\
+    \ any output files. The required input CSV (`data/processed/filtered_tasks.csv`),\
+    \ the expected log JSON (`data/processed/monolithic_logs.json`), and the schema\
+    \ file (`contracts/execution\u2011log.schema.yaml`) are all missing. Consequently\
+    \ the implementation does not meet the task\u2019s specifications."
+T026b:
+  c: false
+  h: 3fa6b09e4b66726546a746bd951c669fd817b73f16f95d6b27d923d807cf628f
+  r: The repository lacks the required input file `data/processed/filtered_tasks.csv`,
+    the output log file `data/processed/dual_track_logs.json`, and the schema file
+    `contracts/execution-log.schema.yaml`. Moreover, the provided `dual_track_runner.py`
+    is truncated, so it is unclear whether `run_dual_track` fully implements the execution
+    and logging as specified. These missing artifacts prevent the task from being
+    considered complete.
+T026f:
+  c: false
+  h: b6283035750852b1b858a69d9999574915020dc804b5a174dcaf64eaa2471895
+  r: "The repository contains `code/analysis/log_aggregator.py`, but the function\
+    \ only loads and merges logs into a list and does not create/write `data/processed/execution_traces.csv`.\
+    \ Moreover, the required CSV file is absent, so the task\u2019s output artifact\
+    \ is missing. The implementation must generate the CSV with the specified columns."
+T033:
+  c: false
+  h: a46cafaccdcc3c3fa997b61c3d83272054b25aea5c963f1f2db1bb8d115d99b4
+  r: "The repository lacks the required data files (`data/processed/filtered_tasks.csv`\
+    \ and the generated `annotation_sample.csv`). Moreover, `code/dataset/annotator.py`\
+    \ is truncated (ends at `def save_a`) and does not contain a CLI entry point or\
+    \ logic to write the sampled data with the exact columns `task_id, raw_prompt,\
+    \ constraint_list`. Consequently the task\u2019s specifications are not met."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
