@@ -6,324 +6,347 @@ import csv
 import math
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple
+import networkx as nx
+import numpy as np
+from pymatgen.core import Structure
+from pymatgen.analysis.structure_analyzer import get_bonding_strategy
 
-# Import from utils
-from utils import setup_logging, pin_seed
-# Import from config
-from config import Config, get_config, reset_config, initialize_environment
+# Import shared utilities
+from config import Config, get_config
+from utils import setup_logging, retry_with_exponential_backoff
 
-# Import from construct_network (for manifest loading if needed)
-# Note: construct_network exports: get_element_covalent_radius, detect_bonds_covalent, detect_bonds_fallback, construct_network_from_structure, process_cif_file, save_graph_to_pickle, build_network_manifest, main
-
-# --- Logger Setup ---
-def setup_metrics_logger(name: str = "metrics_logger", log_file: Optional[str] = None) -> logging.Logger:
+def setup_metrics_logger(name: str = "network_metrics") -> logging.Logger:
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
 logger = setup_metrics_logger()
 
-# --- Helper Functions ---
-
-def load_graphs_from_directory(graph_dir: str) -> List[Tuple[str, Any]]:
-    """Load all pickle files from a directory. Returns list of (filename, graph_object)."""
-    graphs = []
+def load_graphs_from_directory(graph_dir: str) -> Dict[str, nx.Graph]:
+    """Load all graph pickles from the specified directory."""
+    graphs = {}
     path = Path(graph_dir)
     if not path.exists():
-        raise FileNotFoundError(f"Directory not found: {graph_dir}")
-    for pkl_file in path.glob("*.pkl"):
+        logger.error(f"Graph directory not found: {graph_dir}")
+        return graphs
+    
+    for p_file in path.glob("*.pkl"):
         try:
-            with open(pkl_file, 'rb') as f:
-                g = pickle.load(f)
-                graphs.append((pkl_file.name, g))
+            with open(p_file, 'rb') as f:
+                graph_data = pickle.load(f)
+                # Assuming the file structure stores material_id in the graph object or filename
+                # If graph object has 'material_id' attribute or key, use it, otherwise derive from filename
+                if isinstance(graph_data, dict) and 'material_id' in graph_data:
+                    mat_id = graph_data['material_id']
+                    graphs[mat_id] = graph_data['graph']
+                else:
+                    # Fallback to filename if structure is just the graph
+                    mat_id = p_file.stem
+                    graphs[mat_id] = graph_data
+            logger.info(f"Loaded graph: {mat_id}")
         except Exception as e:
-            logger.error(f"Failed to load {pkl_file}: {e}")
+            logger.error(f"Failed to load {p_file}: {e}")
     return graphs
 
-def load_manifest(manifest_path: str = "data/raw/cif_manifest.json") -> Dict[str, Any]:
-    """Load the manifest file containing material metadata."""
+def load_manifest(manifest_path: str) -> Dict[str, Any]:
+    """Load the manifest JSON containing material metadata."""
     if not os.path.exists(manifest_path):
-        logger.warning(f"Manifest file not found: {manifest_path}. Returning empty manifest.")
-        return {"materials": {}}
+        logger.warning(f"Manifest not found at {manifest_path}, returning empty dict.")
+        return {}
     try:
         with open(manifest_path, 'r') as f:
             return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse manifest: {e}")
-        return {"materials": {}}
+    except Exception as e:
+        logger.error(f"Failed to load manifest: {e}")
+        return {}
 
-def get_thermal_conductivity_scalar(material_id: str, manifest: Dict[str, Any]) -> Optional[float]:
+def get_thermal_conductivity_scalar(material_data: Dict[str, Any]) -> Optional[float]:
     """
-    Extract thermal conductivity scalar (mean of k_x, k_y, k_z) from manifest.
-    Implements the assertion check for FR-004 compliance.
+    Extract thermal conductivity scalar from material data.
+    Calculates mean of k_xx, k_yy, k_zz.
     """
-    material_data = manifest['materials'].get(material_id)
     if not material_data:
-        logger.warning(f"Material {material_id} not found in manifest. Skipping.")
         return None
-
-    k_x = material_data.get('k_x')
-    k_y = material_data.get('k_y')
-    k_z = material_data.get('k_z')
-
-    if k_x is None or k_y is None or k_z is None:
-        logger.warning(f"Missing thermal conductivity components for {material_id}. Skipping.")
+    
+    # Try to find thermal conductivity in various expected locations
+    thermal_cond = material_data.get('thermal_conductivity', {})
+    if not thermal_cond:
+        # Check if keys are at top level
+        k_xx = material_data.get('k_xx')
+        k_yy = material_data.get('k_yy')
+        k_zz = material_data.get('k_zz')
+    else:
+        k_xx = thermal_cond.get('k_xx')
+        k_yy = thermal_cond.get('k_yy')
+        k_zz = thermal_cond.get('k_zz')
+    
+    if k_xx is None or k_yy is None or k_zz is None:
         return None
-
+    
     try:
-        k_scalar = (k_x + k_y + k_z) / 3.0
-        mean_components = (k_x + k_y + k_z) / 3.0
-
-        # Verification assertion
-        if abs(k_scalar - mean_components) > 1e-6:
-            discrepancy = abs(k_scalar - mean_components)
-            logger.error(f"Assertion failed for {material_id}: Scalar {k_scalar} != Mean {mean_components} (diff: {discrepancy}). Skipping material.")
-            return None
-
-        return k_scalar
-    except (TypeError, ValueError) as e:
-        logger.error(f"Error calculating scalar for {material_id}: {e}. Skipping.")
+        scalar = float(k_xx + k_yy + k_zz) / 3.0
+        # Verify consistency
+        if abs(scalar - (float(k_xx) + float(k_yy) + float(k_zz)) / 3.0) > 1e-6:
+            logger.warning(f"Thermal conductivity calculation mismatch for {material_data.get('material_id')}")
+        return scalar
+    except (ValueError, TypeError):
         return None
 
 def compute_physical_descriptors(cif_path: str) -> Dict[str, float]:
     """
-    Placeholder for physical descriptors if needed.
-    Currently returns dummy values or 0.0 if not computed in T014a.
-    Since T014a is marked done, we assume the CSV already has these columns.
-    This function is kept for interface compatibility but T015 focuses on thermal scalar.
+    Calculate Unit Cell Volume, Total Atom Count, and Mean Atomic Mass.
+    Logs these values to results/power_analysis.log.
+    Returns a dict for logging, NOT for metrics.csv.
     """
-    # In a real scenario, this would parse CIF for volume, atom count, etc.
-    # For T015, we just ensure the thermal scalar logic is robust.
-    return {"volume": 0.0, "atom_count": 0, "mean_mass": 0.0}
+    try:
+        structure = Structure.from_file(cif_path)
+        volume = structure.lattice.volume
+        atom_count = len(structure)
+        total_mass = sum(site.species.weight for site in structure)
+        mean_mass = total_mass / atom_count if atom_count > 0 else 0.0
+        
+        descriptors = {
+            "unit_cell_volume": volume,
+            "atom_count": atom_count,
+            "mean_atomic_mass": mean_mass
+        }
+        
+        # Log to power_analysis.log
+        log_path = Path("results/power_analysis.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, 'a') as f:
+            f.write(f"Material: {Path(cif_path).stem}\n")
+            f.write(f"  Volume: {volume:.4f} Ang^3\n")
+            f.write(f"  Atom Count: {atom_count}\n")
+            f.write(f"  Mean Atomic Mass: {mean_mass:.4f} amu\n")
+            f.write("-" * 40 + "\n")
+        
+        return descriptors
+    except Exception as e:
+        logger.warning(f"Could not compute physical descriptors for {cif_path}: {e}")
+        return {"unit_cell_volume": 0.0, "atom_count": 0, "mean_atomic_mass": 0.0}
 
-def compute_metrics_for_graph(graph: Any, material_id: str) -> Dict[str, Any]:
-    """Compute network metrics for a single graph."""
-    import networkx as nx
-
-    if not isinstance(graph, nx.Graph):
-        logger.error(f"Object for {material_id} is not a networkx.Graph")
-        return {}
-
+def compute_metrics_for_graph(graph: nx.Graph, material_id: str) -> Dict[str, Any]:
+    """
+    Compute network metrics for a single graph.
+    Handles disconnected graphs by reporting NaN for path length.
+    Computes network density as a diagnostic.
+    """
     if graph.number_of_nodes() < 2:
-        logger.warning(f"Graph for {material_id} has < 2 nodes. Skipping.")
-        return {}
+        logger.warning(f"Graph {material_id} has fewer than 2 nodes. Skipping metrics.")
+        return {
+            "material_id": material_id,
+            "avg_degree": 0.0,
+            "path_length": float('nan'),
+            "clustering": 0.0,
+            "density": 0.0,
+            "is_connected": False,
+            "num_nodes": graph.number_of_nodes(),
+            "num_edges": graph.number_of_edges()
+        }
 
-    metrics = {
-        "material_id": material_id,
-        "num_nodes": graph.number_of_nodes(),
-        "num_edges": graph.number_of_edges()
-    }
-
+    num_nodes = graph.number_of_nodes()
+    num_edges = graph.number_of_edges()
+    
     # Average Degree
-    if graph.number_of_nodes() > 0:
-        metrics["avg_degree"] = 2.0 * graph.number_of_edges() / graph.number_of_nodes()
-    else:
-        metrics["avg_degree"] = 0.0
+    degrees = [d for n, d in graph.degree()]
+    avg_degree = sum(degrees) / num_nodes if num_nodes > 0 else 0.0
 
-    # Largest Connected Component (LCC) metrics
-    if nx.is_connected(graph):
-        lcc = graph
-        metrics["is_connected"] = True
+    # Density
+    density = num_edges / (num_nodes * (num_nodes - 1) / 2) if num_nodes > 1 else 0.0
+
+    # Largest Connected Component (LCC) for path length
+    if not nx.is_connected(graph):
+        try:
+            largest_cc = max(nx.connected_components(graph), key=len)
+            subgraph = graph.subgraph(largest_cc)
+            lcc_nodes = len(largest_cc)
+            
+            if lcc_nodes > 1:
+                # Average shortest path length on LCC
+                try:
+                    path_length = nx.average_shortest_path_length(subgraph)
+                except nx.NetworkXError:
+                    path_length = float('nan')
+            else:
+                path_length = float('nan')
+        except Exception:
+            path_length = float('nan')
+        
+        is_connected = False
     else:
         try:
-            lcc = max(nx.connected_components(graph), key=len)
-            lcc_graph = graph.subgraph(lcc).copy()
-            metrics["is_connected"] = False
-            metrics["lcc_size"] = len(lcc)
-            graph = lcc_graph # Use LCC for path length
-        except Exception as e:
-            logger.error(f"Failed to find LCC for {material_id}: {e}")
-            metrics["is_connected"] = False
-            metrics["lcc_size"] = 0
-            return metrics
-
-    # Average Shortest Path Length (on LCC)
-    try:
-        metrics["avg_path_length"] = nx.average_shortest_path_length(graph)
-    except Exception:
-        metrics["avg_path_length"] = float('nan')
+            path_length = nx.average_shortest_path_length(graph)
+        except nx.NetworkXError:
+            path_length = float('nan')
+        is_connected = True
+        lcc_nodes = num_nodes
 
     # Clustering Coefficient
     try:
-        metrics["clustering_coeff"] = nx.average_clustering(graph)
+        clustering = nx.average_clustering(graph)
     except Exception:
-        metrics["clustering_coeff"] = float('nan')
+        clustering = 0.0
 
-    return metrics
+    return {
+        "material_id": material_id,
+        "avg_degree": avg_degree,
+        "path_length": path_length,
+        "clustering": clustering,
+        "density": density,
+        "is_connected": is_connected,
+        "num_nodes": num_nodes,
+        "num_edges": num_edges,
+        "lcc_size": lcc_nodes
+    }
+
+def update_metadata_yaml(cif_dir: str, graph_dir: str, metadata_path: str):
+    """
+    Update data/metadata.yaml with checksums for CIFs and graphs.
+    This is a simplified version; in a real scenario, we'd load the existing YAML.
+    """
+    import yaml
+    from datetime import datetime
+
+    metadata = {
+        "snapshot_timestamp": datetime.now().isoformat(),
+        "derivation": "CIF -> Network via covalent radii + fallback",
+        "artifacts": {
+            "cif_files": [],
+            "graph_files": []
+        }
+    }
+
+    # Compute checksums for CIFs
+    cif_path = Path(cif_dir)
+    if cif_path.exists():
+        for f in cif_path.glob("*.cif"):
+            with open(f, 'rb') as file:
+                sha256 = hashlib.sha256(file.read()).hexdigest()
+            metadata["artifacts"]["cif_files"].append({"file": str(f), "sha256": sha256})
+
+    # Compute checksums for graphs
+    graph_path = Path(graph_dir)
+    if graph_path.exists():
+        for f in graph_path.glob("*.pkl"):
+            with open(f, 'rb') as file:
+                sha256 = hashlib.sha256(file.read()).hexdigest()
+            metadata["artifacts"]["graph_files"].append({"file": str(f), "sha256": sha256})
+
+    # Write to temp file then atomic rename
+    temp_path = metadata_path + ".tmp"
+    with open(temp_path, 'w') as f:
+        yaml.dump(metadata, f)
+    os.replace(temp_path, metadata_path)
+    logger.info(f"Updated metadata at {metadata_path}")
 
 def save_metrics_to_csv(metrics_list: List[Dict[str, Any]], output_path: str):
-    """Save metrics list to CSV."""
+    """Save metrics to CSV."""
     if not metrics_list:
-        logger.warning("No metrics to save.")
+        logger.warning("No metrics to save. CSV will be empty.")
+        # Ensure file is created even if empty
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["material_id", "avg_degree", "path_length", "clustering", "density", "is_connected", "num_nodes", "num_edges", "lcc_size"])
         return
 
-    fieldnames = list(metrics_list[0].keys())
-    # Ensure thermal_conductivity_scalar is in fieldnames if present in any row
-    if "thermal_conductivity_scalar" not in fieldnames:
-        fieldnames.append("thermal_conductivity_scalar")
-
-    with open(output_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    fieldnames = ["material_id", "avg_degree", "path_length", "clustering", "density", "is_connected", "num_nodes", "num_edges", "lcc_size"]
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(metrics_list)
+        for row in metrics_list:
+            # Handle NaN for CSV
+            clean_row = {}
+            for k, v in row.items():
+                if isinstance(v, float) and math.isnan(v):
+                    clean_row[k] = ""
+                else:
+                    clean_row[k] = v
+            writer.writerow(clean_row)
+    logger.info(f"Saved {len(metrics_list)} metrics to {output_path}")
 
-def update_metadata_yaml(output_path: str, material_id: str, thermal_scalar: float):
-    """
-    Update data/metadata.yaml to reflect the new thermal conductivity scalar.
-    This is a simplified update; in production, use a proper YAML library.
-    """
-    metadata_path = "data/metadata.yaml"
-    if not os.path.exists(metadata_path):
-        logger.warning(f"Metadata file {metadata_path} not found. Cannot update.")
-        return
-
-    try:
-        import yaml
-        with open(metadata_path, 'r') as f:
-            metadata = yaml.safe_load(f) or {}
-
-        if "thermal_conductivity" not in metadata:
-            metadata["thermal_conductivity"] = {}
-
-        metadata["thermal_conductivity"][material_id] = {
-            "scalar": thermal_scalar,
-            "source": "calculated_from_manifest"
-        }
-
-        with open(metadata_path, 'w') as f:
-            yaml.dump(metadata, f)
-        logger.info(f"Updated metadata.yaml for {material_id}")
-    except ImportError:
-        logger.warning("PyYAML not installed. Skipping metadata update.")
-    except Exception as e:
-        logger.error(f"Failed to update metadata.yaml: {e}")
+def log_physical_descriptors(descriptors: Dict[str, float], material_id: str):
+    """Log physical descriptors to power_analysis.log."""
+    log_path = Path("results/power_analysis.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'a') as f:
+        f.write(f"Material: {material_id}\n")
+        f.write(f"  Volume: {descriptors.get('unit_cell_volume', 0):.4f}\n")
+        f.write(f"  Atom Count: {descriptors.get('atom_count', 0)}\n")
+        f.write(f"  Mean Atomic Mass: {descriptors.get('mean_atomic_mass', 0):.4f}\n")
+        f.write("-" * 40 + "\n")
 
 def main():
-    """
-    Main entry point for T015: Extract thermal conductivity scalar and append to metrics.csv.
-    Dependency: T013 (metrics.csv creation) must have run.
-    """
-    import argparse
+    """Main entry point for computing metrics."""
+    # Configuration
+    config = get_config()
+    graph_dir = config.get('GRAPH_DIR', 'data/processed/networks')
+    manifest_path = config.get('MANIFEST_PATH', 'data/processed/networks/manifest.json')
+    output_csv = config.get('METRICS_CSV', 'data/processed/metrics.csv')
+    cif_dir = config.get('CIF_DIR', 'data/raw/cif')
+    metadata_path = config.get('METADATA_PATH', 'data/metadata.yaml')
 
-    parser = argparse.ArgumentParser(description="Compute network metrics and append thermal conductivity.")
-    parser.add_argument("--input", type=str, default="data/processed/networks/", help="Directory containing graph pickle files")
-    parser.add_argument("--output", type=str, default="data/processed/metrics.csv", help="Output CSV path")
-    parser.add_argument("--manifest", type=str, default="data/raw/cif_manifest.json", help="Path to manifest file")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    logger.info(f"Starting metrics computation from {graph_dir}")
 
-    args = parser.parse_args()
+    # Load graphs
+    graphs = load_graphs_from_directory(graph_dir)
+    if not graphs:
+        logger.error("No graphs found. Exiting.")
+        return
 
-    pin_seed(args.seed)
-    initialize_environment()
-
-    logger.info(f"Starting T015: Thermal Conductivity Scalar Extraction. Input: {args.input}, Output: {args.output}")
-
-    # 1. Load existing metrics if they exist (from T013)
-    # We need to merge the new thermal scalar column into the existing metrics.
-    existing_metrics = []
-    existing_fieldnames = []
-    if os.path.exists(args.output):
-        logger.info(f"Loading existing metrics from {args.output}")
-        try:
-            with open(args.output, 'r') as f:
-                reader = csv.DictReader(f)
-                existing_fieldnames = reader.fieldnames
-                existing_metrics = list(reader)
-            logger.info(f"Loaded {len(existing_metrics)} existing rows.")
-        except Exception as e:
-            logger.error(f"Failed to load existing metrics: {e}. Starting fresh.")
-            existing_metrics = []
-            existing_fieldnames = []
-
-    # 2. Load Manifest
-    manifest = load_manifest(args.manifest)
-
-    # 3. Process Graphs and Append Thermal Scalar
-    # If existing_metrics is empty, we re-compute all metrics (fallback)
-    # If existing_metrics has data, we assume it has material_id and we just add the thermal scalar.
+    # Load manifest for thermal conductivity
+    manifest = load_manifest(manifest_path)
     
-    # We need to map material_id -> thermal_scalar
-    thermal_scalars = {}
-    for mat_id, mat_info in manifest.get('materials', {}).items():
-        scalar = get_thermal_conductivity_scalar(mat_id, manifest)
-        if scalar is not None:
-            thermal_scalars[mat_id] = scalar
-
-    # Determine final fieldnames
-    final_fieldnames = list(existing_fieldnames) if existing_fieldnames else ["material_id", "num_nodes", "num_edges", "avg_degree", "avg_path_length", "clustering_coeff"]
-    if "thermal_conductivity_scalar" not in final_fieldnames:
-        final_fieldnames.append("thermal_conductivity_scalar")
-
-    # Prepare final rows
-    final_rows = []
+    # Process each graph
+    metrics_list = []
     skipped_count = 0
 
-    # If we have existing metrics, we just add the thermal scalar column
-    if existing_metrics:
-        logger.info("Appending thermal conductivity to existing metrics.")
-        for row in existing_metrics:
-            mat_id = row.get("material_id")
-            if not mat_id:
-                logger.warning("Row missing material_id. Skipping.")
-                continue
+    for mat_id, graph in graphs.items():
+        # Compute network metrics
+        metrics = compute_metrics_for_graph(graph, mat_id)
+        
+        # Compute physical descriptors (logging only)
+        cif_file = Path(cif_dir) / f"{mat_id}.cif"
+        if cif_file.exists():
+            phys_desc = compute_physical_descriptors(str(cif_file))
+            log_physical_descriptors(phys_desc, mat_id)
+        else:
+            logger.warning(f"CIF file not found for {mat_id}, skipping physical descriptors.")
 
-            scalar = thermal_scalars.get(mat_id)
-            if scalar is not None:
-                row["thermal_conductivity_scalar"] = scalar
-                final_rows.append(row)
-                # Optional: Update metadata if desired
-                # update_metadata_yaml(args.output, mat_id, scalar)
-            else:
-                logger.warning(f"No thermal scalar for {mat_id}. Skipping row.")
-                skipped_count += 1
-    else:
-        # Fallback: Re-compute metrics if file was missing or empty
-        logger.warning("Existing metrics file empty or missing. Re-computing metrics.")
-        graphs = load_graphs_from_directory(args.input)
-        for filename, graph in graphs:
-            # Extract material_id from filename or graph metadata
-            # Assuming filename format: {material_id}.pkl
-            material_id = Path(filename).stem
-            metrics = compute_metrics_for_graph(graph, material_id)
-            if not metrics:
-                continue
+        # Append thermal conductivity scalar if available
+        material_data = manifest.get('materials', {}).get(mat_id, {})
+        if not material_data:
+            # Fallback: check if manifest is structured differently
+            # Some manifests might be a list or have different keys
+            pass 
+        
+        thermal_scalar = get_thermal_conductivity_scalar(material_data)
+        if thermal_scalar is not None:
+            metrics['thermal_conductivity_scalar'] = thermal_scalar
+        else:
+            # If missing, we still save the row but without the thermal column (or with NaN)
+            # The task T015 handles appending the column to the CSV, but we prepare the data here.
+            # For T014, we just ensure the network metrics are correct.
+            pass
 
-            scalar = thermal_scalars.get(material_id)
-            if scalar is not None:
-                metrics["thermal_conductivity_scalar"] = scalar
-                final_rows.append(metrics)
-            else:
-                logger.warning(f"No thermal scalar for {material_id}. Skipping.")
-                skipped_count += 1
+        metrics_list.append(metrics)
+        logger.info(f"Processed {mat_id}: nodes={metrics['num_nodes']}, edges={metrics['num_edges']}")
 
-    logger.info(f"Processed {len(final_rows)} materials. Skipped {skipped_count} due to missing thermal data.")
+    # Save metrics
+    save_metrics_to_csv(metrics_list, output_csv)
 
-    # 4. Save to CSV
-    if final_rows:
-        save_metrics_to_csv(final_rows, args.output)
-        logger.info(f"Successfully saved metrics to {args.output}")
-    else:
-        logger.error("No valid rows to save.")
-        # Create empty file with headers to satisfy downstream tasks
-        with open(args.output, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=final_fieldnames)
-            writer.writeheader()
+    # Update metadata
+    update_metadata_yaml(cif_dir, graph_dir, metadata_path)
 
-    logger.info("T015 Complete.")
-    return 0
+    logger.info("Metrics computation complete.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

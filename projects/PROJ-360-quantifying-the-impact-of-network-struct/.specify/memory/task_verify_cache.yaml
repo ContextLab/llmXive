@@ -5,30 +5,38 @@ T004b:
     manager setup) or scripts for handling API keys and random seeds are present,
     and the implementer provided no evidence of such artifacts. Consequently the requirement
     to set up environment configuration management is not satisfied.
-T013a:
+T013:
   c: false
-  h: 48f7399b33ef04cdbec37200b520b57b52aa9dd44783c2de41c1e053fb4b4841
-  r: "The provided `code/compute_metrics.py` is truncated and does not contain a complete\
-    \ `check_distribution(df)` implementation, and the required output file `data/processed/metrics_transformed.csv`\
-    \ is absent. Moreover, `data/metadata.yaml` shows no entry logging whether a log\u2011\
-    transformation was applied, nor any flag linking transformed data to the original.\
-    \ These missing artifacts prevent the task from being satisfied."
+  h: 8389142b587688067764e8d534bef73575a608ae40505006d312978fc86619a3
+  r: The `metrics.csv` file contains only a header with no data rows and uses different
+    column names than required, so the computed metrics are missing. The `compute_metrics.py`
+    script is truncated (e.g., an unfinished string literal) and does not show the
+    actual metric calculations or CSV writing. Additionally, the required state YAML
+    file is absent. These issues must be fixed before the task can be considered complete.
 T014a:
   c: false
-  h: 26dd603230896567d16778ac7fddf7260da10833f2714ba37a1988096a3dd253
-  r: "The repository contains a `code/compute_metrics.py` file, but the required `compute_physical_descriptors(cif_path)`\
-    \ function is not present (the shown excerpt ends abruptly and never defines it).\
-    \ Moreover, the target output file `data/processed/metrics.csv` does not exist.\
-    \ Without the function implementation and the appended CSV, the task\u2019s requirements\
-    \ are not met."
+  h: d78f6b49fb18fdf7d4b907f98732d16e4e31da4854675a8564600d1e5586608f
+  r: "The provided `code/compute_metrics.py` excerpt never shows a `compute_physical_descriptors`\
+    \ function, and the `results/power_analysis.log` contains only power\u2011analysis\
+    \ placeholders\u2014not the required Unit Cell Volume, Total Atom Count, or Mean\
+    \ Atomic Mass entries. Consequently the task\u2019s core functionality and logging\
+    \ output are missing."
+T015:
+  c: false
+  h: 8be47ed9dc8eaf7a8fed4ffe0d3fb6c039659f069ae9f0ae81ec0cdbe3b001aa
+  r: The `metrics.csv` file only contains a header with no material rows, so no thermal
+    conductivity scalars were actually extracted or appended, and there is no evidence
+    of the required assertion or logging of missing metadata. The `results/power_analysis.log`
+    does not record any count of skipped materials for missing thermal conductivity
+    data. The task therefore remains unfinished.
 T016:
   c: false
-  h: 9e3bada3d9bd5f66e5c6d44d825faa9422987af5aea6b34b4fb02713d8c9b7a9
-  r: "The repository contains a partially shown `code/analyze.py` that never reaches\
-    \ any correlation\u2011computing logic (the file is truncated and lacks functions\
-    \ that calculate Pearson/Spearman and write `results/correlations.json`). Moreover,\
-    \ the required output file `results/correlations.json` is absent. Hence the task\u2019\
-    s core requirement is not satisfied."
+  h: ab808cb10bb283d9a455317e9f562a66cd47a372545a1948dd23136bfd960668
+  r: The `results/correlations.json` file is empty (`[]`) instead of containing the
+    computed Pearson and Spearman coefficients, and the required state file `state/projects/PROJ-360-quantifying-the-impact-of-network-struct.yaml`
+    does not exist. Moreover, the shown `code/analyze.py` is truncated before any
+    logic that actually performs the correlation calculations or writes the results,
+    so the core functionality is missing.
 T021:
   c: false
   h: 3b5c804a8e43475f17f96978a85eef2cf55b6c10fc30daa700dcd027eb009908

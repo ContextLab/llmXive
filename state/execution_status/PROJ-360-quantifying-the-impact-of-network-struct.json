@@ -1,19 +1,20 @@
 {
   "project_id": "PROJ-360-quantifying-the-impact-of-network-struct",
   "ok": false,
-  "reason": "4 command(s) failed: python code/download.py --limit 50 --output data/raw/cif/ (rc=1); python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ (rc=1); python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv (rc=1); 2 declared deliverable(s) absent: data/processed/filtered_features.csv; data/processed/metrics.csv",
-  "artifacts": [],
-  "failures": [
-    "python code/download.py --limit 50 --output data/raw/cif/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/download.py\", line 242, in <module>\n    exit(main())\n         ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/download.py\", line 208, in main\n    api_key = config.get(\"MP_API_KEY\")\n              ^^^^^^^^^^\nAttributeError: 'Config' object has no attribute 'get'",
-    "python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/construct_network.py\", line 9, in <module>\n    from pymatgen.analysis.structure_analyzer import get_bonds\nImportError: cannot import name 'get_bonds' from 'pymatgen.analysis.structure_analyzer' (/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/.venv/lib/python3.11/site-packages/pymatgen/analysis/structure_an",
-    "python code/compute_metrics.py --input data/processed/networks/ --output data/processed/metrics.csv -> rc=1\n    2026-07-18 16:56:57,420 - metrics_logger - INFO - Starting metrics computation. Input: data/processed/networks/, Output: data/processed/metrics.csv\n2026-07-18 16:56:57,420 - metrics_logger - ERROR - Directory not found: data/processed/networks/\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/compute_metrics.py\", line 219, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/proje",
-    "python code/analyze.py --input data/processed/metrics.csv --output results/ -> rc=1\n    2026-07-18 16:56:58,709 - analyze_main - INFO - Starting analysis pipeline...\n2026-07-18 16:56:58,710 - analyze_main - ERROR - Analysis pipeline failed: Metrics file not found: data/processed/metrics.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/analyze.py\", line 319, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-360-quantifying-the-impact-of-network-struct/code/analyze.py\", li"
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/compute_metrics.py: self-declared fabricated metric \u2014 \u201c\u2026needed.     Currently returns dummy values or 0.0 if not computed in T0\u2026\u201d; 2 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/processed/metrics.csv: header only, ZERO data rows \u2014 the analysis produced no rows; results/correlations.json: results file is EMPTY ([]) \u2014 the analysis produced no values; 2 command(s) failed: python code/download.py --limit 50 --output data/raw/cif/ (rc=1); python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ (rc=1); 1 declared deliverable(s) absent: data/processed/filtered_features.csv",
+  "artifacts": [
+    "data/processed/metrics.csv",
+    "results/correlations.json"
   ],
-  "fix_rounds": 3,
+  "failures": [
+    "python code/download.py --limit 50 --output data/raw/cif/ -> rc=1\n    2026-07-22 15:17:18,080 - download_logger - ERROR - MP_API_KEY not set in environment. Please set MP_API_KEY environment variable.",
+    "python code/construct_network.py --input data/raw/cif/ --output data/processed/networks/ -> rc=1\n    2026-07-22 15:17:19,493 - network_logger - ERROR - No CIF files found in data/raw/cif"
+  ],
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-18T16:57:00Z"
+  "updated_at": "2026-07-22T15:17:23Z"
 }

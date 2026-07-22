@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
   verified_at: '2026-07-05T15:09:54.236160Z'
+- artifact_hash: f39d7dd8106a0994be36ea5e437e985fc225c0eea6545f24c075bbad410be90e
+  artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/api/v2/docs/crystal`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/api/v2/docs/crystal
+  verified_at: '2026-07-22T15:29:13.397092Z'
