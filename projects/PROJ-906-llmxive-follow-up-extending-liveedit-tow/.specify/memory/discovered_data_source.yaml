@@ -1,18 +1,12 @@
 status: none
-intent: download DAVIS YouTube-VOS video dataset with masks python package dataset
+intent: DAVIS 2017 YouTube-VOS video segmentation datasets python package dataset
 required_fields:
 - video_id
-- video_file_path
+- frame_paths
+- object_mask_paths
+- resolution
 - frame_rate
-- resolution_width
-- resolution_height
-- total_frames
-- motion_complexity_label (static|slow_rigid|fast_non_rigid)
-- synthetic_edit_mask_per_frame_path
-- ground_truth_segmentation_mask_per_frame_path
-- optical_flow_magnitude_per_frame
-- optical_flow_divergence_per_frame
-- background_region_mask_per_frame
-cache_key: 7594d43d12c76a27afc158f9b4b6cb395c37992cf20b4bb99e2c0dda2dca653b
-searched_at: '2026-07-19T14:54:57.292679+00:00'
+- annotation_category
+cache_key: c601e05827136329e253d3c79ace90bd635d9fcfb27d766404d9fbc979cc9035
+searched_at: '2026-07-22T01:13:40.986184+00:00'
 retry_count: 1

@@ -1,52 +1,64 @@
 import os
 import random
-from typing import List, Set, Dict, Any, Optional
+from typing import List, Set, Dict, Any, Optional, Union
 import numpy as np
 import torch
+from pathlib import Path
+from dataclasses import dataclass
 
-# Constants from Spec FR-007 and Plan.md Dataset Strategy
-SENSITIVITY_CUTOFFS: Set[float] = {0.01, 0.05, 0.1}
-STRATIFICATION_THRESHOLDS: Set[float] = {0.5, 5.0}
-
-# Random seeds for reproducibility
-RANDOM_SEED = 42
-
+@dataclass
 class ExperimentConfig:
-    def __init__(self, dataset: str = "davis", model: str = "baseline", output_dir: str = "data/metrics"):
-        self.dataset = dataset
-        self.model = model
-        self.output_dir = output_dir
-        self.seed = RANDOM_SEED
-        self.sensitivity_cutoffs = SENSITIVITY_CUTOFFS
-        self.stratification_thresholds = STRATIFICATION_THRESHOLDS
+    dataset: str = "davis"
+    batch_size: int = 1
+    num_steps: int = 50
+    seed: int = 42
+    output_dir: str = "data/metrics"
+    checkpoint_dir: str = "data/checkpoints"
+    # Sensitivity analysis cutoffs (FR-007)
+    sensitivity_cutoffs: Set[float] = None
+    # Stratification thresholds (Plan.md)
+    stratification_thresholds: Set[float] = None
+
+    def __post_init__(self):
+        if self.sensitivity_cutoffs is None:
+            self.sensitivity_cutoffs = {0.01, 0.05, 0.1}
+        if self.stratification_thresholds is None:
+            self.stratification_thresholds = {0.5, 5.0}
 
 def get_default_config() -> ExperimentConfig:
     return ExperimentConfig()
 
-def ensure_directories(*paths: Any) -> None:
+def ensure_directories(*paths: Union[str, Path, List[Union[str, Path]]]) -> None:
     """
-    Robust directory creation utility that handles multiple call signatures:
-    1. ensure_directories() -> No-op
-    2. ensure_directories(path_str) -> Creates single path
-    3. ensure_directories(path_obj) -> Creates single path
-    4. ensure_directories([path1, path2, ...]) -> Creates all paths in list
-    5. ensure_directories(*paths) -> Creates all paths passed as args
+    Create directories for given paths.
+    Accepts:
+      - ensure_directories() -> No-op
+      - ensure_directories(path_str) -> Creates single path
+      - ensure_directories(path_obj) -> Creates single path
+      - ensure_directories([path1, path2, ...]) -> Creates all paths in list
+      - ensure_directories(*paths) -> Creates all paths passed as args
+      - ensure_directories(target_dir) -> Creates single path
     """
     if not paths:
         return
 
-    # Flatten the input into a list of paths to process
-    paths_to_create = []
-    for p in paths:
-        if isinstance(p, (list, tuple)):
-            paths_to_create.extend(p)
+    # Flatten arguments
+    all_paths = []
+    for arg in paths:
+        if isinstance(arg, (list, tuple)):
+            all_paths.extend(arg)
         else:
-            paths_to_create.append(p)
+            all_paths.append(arg)
 
-    for p in paths_to_create:
+    for p in all_paths:
         if p is None:
             continue
-        # Convert to string if it's a Path object or similar
-        path_str = str(p)
-        if path_str:
-            os.makedirs(path_str, exist_ok=True)
+        path_obj = Path(p) if isinstance(p, str) else p
+        path_obj.mkdir(parents=True, exist_ok=True)
+
+def set_random_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)

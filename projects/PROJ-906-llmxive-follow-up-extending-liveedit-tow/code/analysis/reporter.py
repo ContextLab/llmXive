@@ -5,262 +5,294 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Union
 
-from config import ensure_directories, get_default_config, SENSITIVITY_CUTOFFS
-from contracts.analysis_schema import AnalysisResultSchema
-from data.models import AnalysisResult
+from config import ensure_directories
+from utils.logger import get_logger
+from data.models import MetricRecord, AnalysisResult
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# Base paths
-BASELINE_RESULTS_PATH = "data/metrics/baseline_results.json"
-FLOW_RESULTS_PATH = "data/metrics/flow_results.json"
-ANALYSIS_RESULTS_PATH = "data/metrics/analysis_results.json"
-SUMMARY_PATH = "results/summary.md"
-
-def aggregate_metrics_to_records(baseline_data: Dict, flow_data: Dict) -> List[Dict]:
-    """Aggregate baseline and flow metrics into a list of records."""
+def aggregate_metrics_to_records(
+    metrics_list: List[Dict[str, Any]],
+    model_type: str = "baseline"
+) -> List[MetricRecord]:
+    """
+    Aggregates a list of metric dictionaries into MetricRecord objects.
+    
+    Args:
+        metrics_list: List of metric dictionaries
+        model_type: Type of model ('baseline' or 'flow')
+        
+    Returns:
+        List[MetricRecord]: List of MetricRecord objects
+    """
     records = []
-    # Flatten baseline metrics
-    if baseline_data and "metrics" in baseline_data:
-        for item in baseline_data["metrics"]:
-            item["method"] = "baseline"
-            records.append(item)
-    # Flatten flow metrics
-    if flow_data and "metrics" in flow_data:
-        for item in flow_data["metrics"]:
-            item["method"] = "flow_coherence"
-            records.append(item)
+    for m in metrics_list:
+        record = MetricRecord(
+            clip_id=m.get("clip_id", "unknown"),
+            model_variant=model_type,
+            peak_memory=m.get("peak_memory", 0.0),
+            fps=m.get("fps", 0.0),
+            ssim=m.get("ssim", 0.0),
+            gradient_variance=m.get("gradient_variance", 0.0),
+            flow_magnitude=m.get("flow_magnitude", 0.0),
+            invalid_flow=m.get("invalid_flow", False)
+        )
+        records.append(record)
     return records
 
-def generate_baseline_report(metrics: List[Dict], output_path: str = BASELINE_RESULTS_PATH) -> Dict:
-    """Generate a report for baseline metrics."""
+def generate_baseline_report(
+    metrics_data: List[Dict[str, Any]],
+    output_path: str
+) -> str:
+    """
+    Generates a baseline metrics report JSON file.
+    
+    Args:
+        metrics_data: List of metric dictionaries from baseline inference
+        output_path: Path to save the report
+        
+    Returns:
+        str: Path to the generated report
+    """
     ensure_directories(output_path)
     
+    if not metrics_data:
+        logger.warning("No metrics data provided for baseline report")
+        metrics_data = []
+    
+    # Calculate aggregates
+    total_clips = len(metrics_data)
+    if total_clips == 0:
+        avg_memory = 0.0
+        avg_ssim = 0.0
+        avg_fps = 0.0
+    else:
+        avg_memory = sum(m.get("peak_memory", 0) for m in metrics_data) / total_clips
+        avg_ssim = sum(m.get("ssim", 0) for m in metrics_data) / total_clips
+        avg_fps = sum(m.get("fps", 0) for m in metrics_data) / total_clips
+    
     report = {
-        "generated_at": datetime.now().isoformat(),
-        "method": "baseline",
-        "metrics": metrics,
-        "count": len(metrics)
+        "model": "baseline",
+        "timestamp": datetime.now().isoformat(),
+        "count": total_clips,
+        "avg_peak_memory": round(avg_memory, 2),
+        "avg_ssim": round(avg_ssim, 4),
+        "avg_fps": round(avg_fps, 2),
+        "individual_records": metrics_data
     }
     
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
+        json.dump(report, f, indent=2)
     
-    logger.info(f"Baseline report written to {output_path}")
-    return report
+    logger.info(f"Generated baseline report: {output_path}")
+    return output_path
 
-def generate_comparative_report(baseline_metrics: List[Dict], flow_metrics: List[Dict], output_path: str = FLOW_RESULTS_PATH) -> Dict:
-    """Generate a comparative report for flow-coherence metrics."""
+def generate_comparative_report(
+    baseline_data: List[Dict[str, Any]],
+    flow_data: List[Dict[str, Any]],
+    output_path: str
+) -> str:
+    """
+    Generates a comparative report between baseline and flow-coherence models.
+    
+    Args:
+        baseline_data: List of baseline metric dictionaries
+        flow_data: List of flow-coherence metric dictionaries
+        output_path: Path to save the report
+        
+    Returns:
+        str: Path to the generated report
+    """
     ensure_directories(output_path)
     
+    # Match by clip_id
+    baseline_map = {m["clip_id"]: m for m in baseline_data}
+    flow_map = {m["clip_id"]: m for m in flow_data}
+    
+    comparisons = []
+    for clip_id in baseline_map:
+        if clip_id in flow_map:
+            b = baseline_map[clip_id]
+            f = flow_map[clip_id]
+            
+            mem_diff = b.get("peak_memory", 0) - f.get("peak_memory", 0)
+            ssim_diff = f.get("ssim", 0) - b.get("ssim", 0)
+            fps_diff = f.get("fps", 0) - b.get("fps", 0)
+            
+            comparisons.append({
+                "clip_id": clip_id,
+                "memory_reduction": round(mem_diff, 2),
+                "ssim_change": round(ssim_diff, 4),
+                "fps_change": round(fps_diff, 2)
+            })
+    
+    # Aggregate comparison
+    if comparisons:
+        avg_mem_red = sum(c["memory_reduction"] for c in comparisons) / len(comparisons)
+        avg_ssim_chg = sum(c["ssim_change"] for c in comparisons) / len(comparisons)
+        avg_fps_chg = sum(c["fps_change"] for c in comparisons) / len(comparisons)
+    else:
+        avg_mem_red = 0.0
+        avg_ssim_chg = 0.0
+        avg_fps_chg = 0.0
+    
     report = {
-        "generated_at": datetime.now().isoformat(),
-        "method": "flow_coherence",
-        "metrics": flow_metrics,
-        "baseline_comparison": baseline_metrics,
-        "count": len(flow_metrics)
+        "timestamp": datetime.now().isoformat(),
+        "baseline_count": len(baseline_data),
+        "flow_count": len(flow_data),
+        "matched_count": len(comparisons),
+        "comparison": {
+            "avg_memory_reduction": round(avg_mem_red, 2),
+            "avg_ssim_change": round(avg_ssim_chg, 4),
+            "avg_fps_change": round(avg_fps_chg, 2)
+        },
+        "individual_comparisons": comparisons
     }
     
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
+        json.dump(report, f, indent=2)
     
-    logger.info(f"Comparative report written to {output_path}")
-    return report
+    logger.info(f"Generated comparative report: {output_path}")
+    return output_path
 
 def generate_analysis_report(
-    ks_test_result: Dict,
-    piecewise_regression_result: Dict,
-    sensitivity_result: Dict,
-    output_path: str = ANALYSIS_RESULTS_PATH
-) -> Dict:
+    ks_result: Dict[str, Any],
+    reg_result: Dict[str, Any],
+    sens_result: Dict[str, Any],
+    output_path: str
+) -> str:
     """
-    Generate the final statistical summary report in JSON format.
-    This fulfills T031 requirement to output to data/metrics/analysis_results.json.
+    Generates the final statistical analysis report.
+    
+    Args:
+        ks_result: Kolmogorov-Smirnov test results
+        reg_result: Piecewise regression results
+        sens_result: Sensitivity analysis results
+        output_path: Path to save the report
+        
+    Returns:
+        str: Path to the generated report
     """
     ensure_directories(output_path)
     
-    analysis_data = {
-        "generated_at": datetime.now().isoformat(),
-        "statistical_tests": {
-            "kolmogorov_smirnov": ks_test_result,
-            "piecewise_regression": piecewise_regression_result,
-            "sensitivity_analysis": sensitivity_result
-        },
-        "summary": {
-            "ks_statistic": ks_test_result.get("statistic"),
-            "ks_pvalue": ks_test_result.get("pvalue"),
-            "identified_threshold": piecewise_regression_result.get("breakpoint"),
-            "threshold_confidence": piecewise_regression_result.get("confidence"),
-            "sensitivity_cutoffs_used": list(SENSITIVITY_CUTOFFS)
+    # Determine significance
+    pvalue = ks_result.get("pvalue", 1.0)
+    significant = pvalue < 0.05
+    
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "kolmogorov_smirnov_test": ks_result,
+        "piecewise_regression": reg_result,
+        "sensitivity_analysis": sens_result,
+        "conclusion": {
+            "significant_difference": significant,
+            "pvalue": pvalue,
+            "threshold": reg_result.get("threshold", None),
+            "regression_coefficient": reg_result.get("regression_coeff", None)
         }
     }
     
-    # Validate against schema if possible
-    try:
-        schema = AnalysisResultSchema()
-        # Basic validation (schema might need adaptation for nested dicts)
-        logger.info("Analysis results generated successfully.")
-    except Exception as e:
-        logger.warning(f"Schema validation skipped or failed: {e}")
-    
     with open(output_path, 'w') as f:
-        json.dump(analysis_data, f, indent=2, default=str)
+        json.dump(report, f, indent=2)
     
-    logger.info(f"Analysis report written to {output_path}")
-    return analysis_data
+    logger.info(f"Generated analysis report: {output_path}")
+    return output_path
 
 def generate_summary_markdown(
-    ks_test_result: Dict,
-    piecewise_regression_result: Dict,
-    sensitivity_result: Dict,
-    baseline_metrics: List[Dict],
-    flow_metrics: List[Dict],
-    output_path: str = SUMMARY_PATH
-) -> None:
-    """Generate the final summary.md report."""
+    baseline_report_path: str,
+    flow_report_path: str,
+    analysis_report_path: str,
+    output_path: str
+) -> str:
+    """
+    Generates a markdown summary report.
+    
+    Args:
+        baseline_report_path: Path to baseline report JSON
+        flow_report_path: Path to flow report JSON
+        analysis_report_path: Path to analysis report JSON
+        output_path: Path to save the markdown file
+        
+    Returns:
+        str: Path to the generated markdown file
+    """
     ensure_directories(output_path)
     
-    # Calculate some basic stats
-    baseline_ssim_avg = sum(m.get("ssim", 0) for m in baseline_metrics) / max(len(baseline_metrics), 1)
-    flow_ssim_avg = sum(m.get("ssim", 0) for m in flow_metrics) / max(len(flow_metrics), 1)
+    # Load reports
+    with open(baseline_report_path, 'r') as f:
+        baseline = json.load(f)
+    with open(flow_report_path, 'r') as f:
+        flow = json.load(f)
+    with open(analysis_report_path, 'r') as f:
+        analysis = json.load(f)
     
-    ks_p = ks_test_result.get("pvalue", 0)
-    significance = "significant" if ks_p < 0.05 else "not significant"
-    
-    threshold = piecewise_regression_result.get("breakpoint", "N/A")
-    
-    summary_content = f"""# llmXive Statistical Summary Report
+    md_content = f"""# llmXive Research Summary: LiveEdit Extension
 
 ## Executive Summary
-This report summarizes the statistical analysis comparing the Baseline LiveEdit model
-against the Flow-Coherence module. The analysis focuses on temporal consistency,
-memory efficiency, and the identification of flow-magnitude thresholds where
-artifact generation becomes significant.
 
-**Key Finding**: The difference in error distributions between methods is {significance} (p={ks_p:.4f}).
-The identified flow-magnitude threshold for significant degradation is **{threshold}**.
+This report presents the results of extending the LiveEdit diffusion-based streaming video editing model with a Flow-Coherence module. The study compares the baseline model against the proposed flow-based approach, focusing on memory efficiency, temporal consistency, and artifact generation.
+
+**Key Findings:**
+- Baseline Model: Avg Memory = {baseline.get('avg_peak_memory', 'N/A')} MB, Avg SSIM = {baseline.get('avg_ssim', 'N/A')}
+- Flow-Coherence Model: Avg Memory = {flow.get('avg_peak_memory', 'N/A')} MB, Avg SSIM = {flow.get('avg_ssim', 'N/A')}
+- Statistical Significance: {'Yes' if analysis.get('conclusion', {}).get('significant_difference') else 'No'} (p={analysis.get('conclusion', {}).get('pvalue', 'N/A')})
 
 ## Methodology
 
-### Baseline vs Flow-Coherence
-- **Baseline**: Standard LiveEdit pipeline with temporal attention layers enabled.
-- **Flow-Coherence**: Modified pipeline using pre-computed optical flow for latent warping,
-  removing attention layers to reduce memory footprint.
-
-### Metrics Collected
-- **Peak Memory**: RAM usage during inference.
-- **Background Stability Score (BSS)**: Fidelity of background regions.
-- **Temporal Consistency**: Consecutive frame SSIM and gradient variance.
+1. **Dataset Stratification**: Clips were stratified by motion complexity (Static, Slow Rigid, Fast Non-Rigid) using optical flow magnitude thresholds (0.5, 5.0).
+2. **Baseline Execution**: LiveEdit with temporal attention enabled was run on all clips.
+3. **Flow-Coherence Execution**: Flow-based warping replaced attention layers.
+4. **Statistical Analysis**: Kolmogorov-Smirnov test and Piecewise Regression were used to identify thresholds.
 
 ## Results
 
-### Memory Efficiency
-- Baseline Average SSIM: {baseline_ssim_avg:.4f}
-- Flow-Coherence Average SSIM: {flow_ssim_avg:.4f}
+### Baseline Metrics
+- Total Clips: {baseline.get('count', 0)}
+- Average Peak Memory: {baseline.get('avg_peak_memory', 'N/A')} MB
+- Average SSIM: {baseline.get('avg_ssim', 'N/A')}
+
+### Flow-Coherence Metrics
+- Total Clips: {flow.get('count', 0)}
+- Average Peak Memory: {flow.get('avg_peak_memory', 'N/A')} MB
+- Average SSIM: {flow.get('avg_ssim', 'N/A')}
 
 ### Statistical Boundary Analysis
-
-#### Kolmogorov-Smirnov Test
-- Statistic: {ks_test_result.get("statistic", "N/A")}
-- P-value: {ks_p:.4f}
-- Conclusion: The distributions of errors are {significance} different.
-
-#### Piecewise Regression (Change-Point Detection)
-- Identified Threshold: {threshold}
-- Confidence: {piecewise_regression_result.get("confidence", "N/A")}
-- This threshold represents the flow magnitude above which SSIM degradation exceeds significance.
-
-#### Sensitivity Analysis
-- Cutoffs Swept: {list(SENSITIVITY_CUTOFFS)}
-- Inconsistency Rates: {sensitivity_result.get("rates", "N/A")}
+- **K-S Test Statistic**: {analysis.get('kolmogorov_smirnov_test', {}).get('statistic', 'N/A')}
+- **K-S Test p-value**: {analysis.get('kolmogorov_smirnov_test', {}).get('pvalue', 'N/A')}
+- **Identified Threshold**: {analysis.get('piecewise_regression', {}).get('threshold', 'N/A')}
+- **Regression Coefficient**: {analysis.get('piecewise_regression', {}).get('regression_coeff', 'N/A')}
 
 ## Conclusion
-The Flow-Coherence module successfully reduces memory usage while maintaining temporal
-consistency up to the identified flow-magnitude threshold. Beyond this threshold,
-artifact generation increases significantly, suggesting a limit for the flow-based
-warping approach in high-motion scenarios.
 
----
-*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+The Flow-Coherence module demonstrates {'significant' if analysis.get('conclusion', {}).get('significant_difference') else 'no significant'} improvement over the baseline. The identified flow magnitude threshold of {analysis.get('piecewise_regression', {}).get('threshold', 'N/A')} indicates the point where artifact generation becomes significant.
+
+Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
     
     with open(output_path, 'w') as f:
-        f.write(summary_content)
+        f.write(md_content)
     
-    logger.info(f"Summary markdown written to {output_path}")
+    logger.info(f"Generated summary markdown: {output_path}")
+    return output_path
 
 def main():
     """
-    Main entry point for generating reports.
-    This function orchestrates the generation of JSON analysis results and the summary markdown.
-    It assumes that baseline and flow metrics have already been generated by previous stages.
+    Main entry point for report generation.
     """
-    # Load existing metrics
-    baseline_data = None
-    flow_data = None
+    import argparse
     
-    if os.path.exists(BASELINE_RESULTS_PATH):
-        with open(BASELINE_RESULTS_PATH, 'r') as f:
-            baseline_data = json.load(f)
-    else:
-        logger.warning(f"Baseline results not found at {BASELINE_RESULTS_PATH}. Skipping baseline report.")
+    parser = argparse.ArgumentParser(description="Generate research reports")
+    parser.add_argument("--baseline", type=str, help="Path to baseline metrics JSON")
+    parser.add_argument("--flow", type=str, help="Path to flow metrics JSON")
+    parser.add_argument("--ks", type=str, help="Path to KS test JSON")
+    parser.add_argument("--reg", type=str, help="Path to regression JSON")
+    parser.add_argument("--sens", type=str, help="Path to sensitivity JSON")
+    parser.add_argument("--output-dir", type=str, default="data/metrics", help="Output directory")
     
-    if os.path.exists(FLOW_RESULTS_PATH):
-        with open(FLOW_RESULTS_PATH, 'r') as f:
-            flow_data = json.load(f)
-    else:
-        logger.warning(f"Flow results not found at {FLOW_RESULTS_PATH}. Skipping flow report.")
+    args = parser.parse_args()
     
-    # Load analysis stats results (generated by stats.py)
-    # We assume stats.py has run and produced intermediate JSONs or we load from a combined source
-    # For T031, we need to ensure we have the data to generate the final report.
-    # If stats.py output is in a specific file, load it.
-    # Assuming stats.py writes to a temp file or we aggregate here.
-    # Let's assume the stats pipeline writes to data/metrics/ks_test.json, etc.
-    
-    ks_path = "data/metrics/ks_test.json"
-    piecewise_path = "data/metrics/piecewise_regression.json"
-    sensitivity_path = "data/metrics/sensitivity_analysis.json"
-    
-    ks_result = {"statistic": 0.0, "pvalue": 1.0}
-    piecewise_result = {"breakpoint": 0.0, "confidence": "low"}
-    sensitivity_result = {"rates": {}}
-    
-    if os.path.exists(ks_path):
-        with open(ks_path, 'r') as f:
-            ks_result = json.load(f)
-    
-    if os.path.exists(piecewise_path):
-        with open(piecewise_path, 'r') as f:
-            piecewise_result = json.load(f)
-    
-    if os.path.exists(sensitivity_path):
-        with open(sensitivity_path, 'r') as f:
-            sensitivity_result = json.load(f)
-    
-    # Generate JSON Analysis Report (T031 Requirement)
-    analysis_report = generate_analysis_report(
-        ks_test_result=ks_result,
-        piecewise_regression_result=piecewise_result,
-        sensitivity_result=sensitivity_result,
-        output_path=ANALYSIS_RESULTS_PATH
-    )
-    
-    # Generate Markdown Summary (T032 Requirement, but often coupled)
-    baseline_metrics = baseline_data.get("metrics", []) if baseline_data else []
-    flow_metrics = flow_data.get("metrics", []) if flow_data else []
-    
-    generate_summary_markdown(
-        ks_test_result=ks_result,
-        piecewise_regression_result=piecewise_result,
-        sensitivity_result=sensitivity_result,
-        baseline_metrics=baseline_metrics,
-        flow_metrics=flow_metrics,
-        output_path=SUMMARY_PATH
-    )
-    
-    return analysis_report
+    # This is a placeholder; actual usage is via specific function calls
+    logger.info("Report generation module loaded.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

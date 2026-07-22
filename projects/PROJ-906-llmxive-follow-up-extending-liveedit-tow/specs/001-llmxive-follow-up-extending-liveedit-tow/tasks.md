@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -46,8 +46,12 @@
 - [X] T001a Create project directory structure: `projects/PROJ-<ID>-llmxive-follow-up-extending-liveedit-tow/` with subdirectories `data/raw`, `data/flow`, `data/metrics`, `code`, `code/data`, `code/models`, `code/metrics`, `code/analysis`, `tests/contract`, `tests/unit`, `results`. **Deliverable**: Create directories. **Verify**: Run `ls projects/PROJ-906-llmxive-follow-up-extending-liveedit-tow/` and confirm directories exist.
 - [X] T001b Create `scripts/init_structure.sh` that generates the directory structure defined in T001a. **Verify**: Run `bash scripts/init_structure.sh` and confirm directories exist.
 - [X] T001c Create initial file scaffolding: `code/__init__.py`, `code/config.py`, `tests/__init__.py`, `results/.gitkeep`. **Verify**: Run `ls code/__init__.py code/config.py tests/__init__.py results/.gitkeep` and confirm files exist.
-- [X] T002 Create `code/requirements.txt` containing the following pinned dependencies: torch>=2.0.0 (cpu), diffusers, opencv-python, scikit-learn, pandas, numpy, datasets, ruptures. **Verify**: Run `ls code/requirements.txt` and confirm file exists.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with explicit `[tool.ruff]` and `[tool.black]` sections; verify setup by running `ruff check.` and `black --check.` with successful exit status.
+- [X] T002a [P] Create `code/requirements.txt` containing the following pinned dependencies: torch>=2.0.0 (cpu), diffusers, opencv-python, scikit-learn, pandas, numpy, datasets, ruptures. **Verify**: Run `ls code/requirements.txt` and confirm file exists.
+- [X] T002b [P] Verify dependencies in `code/requirements.txt` are pinned. **Verify**: Run `pytest tests/unit/test_requirements.py::test_dependencies_pinned`.
+- [X] T003a [P] Configure linting (ruff) tool: Create `pyproject.toml` with `[tool.ruff]` section. **Verify**: Run `ls pyproject.toml` and confirm section exists.
+- [X] T003b [P] Verify ruff configuration. **Verify**: Run `pytest tests/unit/test_linting.py::test_ruff_config_valid`.
+- [X] T003c [P] Configure formatting (black) tool: Create `pyproject.toml` with `[tool.black]` section. **Verify**: Run `ls pyproject.toml` and confirm section exists.
+- [X] T003d [P] Verify black configuration. **Verify**: Run `pytest tests/unit/test_linting.py::test_black_config_valid`.
 
 ---
 
@@ -57,15 +61,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Note**: T009a must complete before T009 due to resource contention.
 
-- [X] T004 Create base data models (VideoClip, MetricRecord, AnalysisResult) in `code/data/models.py`. **Details**: Define classes `VideoClip`, `MetricRecord`, `AnalysisResult` with attributes: `VideoClip` (id, path, motion_category, flow_field, mask), `MetricRecord` (clip_id, model_variant, peak_memory, fps, ssim, gradient_variance, flow_magnitude, invalid_flow), `AnalysisResult` (pvalue, regression_coeff, threshold, sensitivity_table). **Verify**: Run `pytest tests/unit/test_models.py` to verify class definitions and attributes.
-- [X] T005 [P] Setup experiment configuration manager in `code/config.py` with explicit `SENSITIVITY_CUTOFFS` constant initialized to {0.01, 0.05, 0.1} (for FR-007 sensitivity analysis) and `STRATIFICATION_THRESHOLDS` constant initialized to {0.5, 5.0} (for Plan.md Dataset Strategy), plus random seeds. **Verify**: Run `pytest tests/unit/test_config.py` to verify constants.
-- [X] T006a Implement robust logging infrastructure in `code/utils/logger.py`. **Details**: Implement `get_logger()` function and log rotation. **Verify**: Run unit test to verify log output format.
-- [X] T006b Implement checkpointing infrastructure in `code/utils/checkpoint.py` (handles CI limit, resume capability). **Details**: Implement `save_state()` and `load_state()` functions in `checkpoint.py` that serialize state to `data/checkpoints/{run_id}.json`. **Verify**: Run unit test to verify save/load cycle.
-- [X] T007 [P] [Foundational] Create schema validators for Dataset, Metrics, and Analysis outputs in `specs/001-optical-flow-temporal-coherence/contracts/` using `pydantic`: create `dataset_schema.py`, `metric_schema.py`, `analysis_schema.py`. **Details**: Define required fields for each schema and ensure they load the corresponding `.yaml` definitions from the same directory. **Verify**: Run `pytest tests/contract/test_schema_validation.py` to verify schema loading and validation logic.
-- [X] T008 Implement memory profiling wrapper in `code/metrics/resource.py` to track peak RAM usage per clip. **Verify**: Run unit test to verify memory tracking.
-- [X] T012 [P] [Foundational] Implement dataset downloader in `code/data/downloader.py` to fetch DAVIS/YouTube-VOS clips via `datasets.load_dataset` with streaming; ensure it fails loudly on missing sources (no synthetic fallback). **Details**: Raise `ValueError` with message "Dataset source missing" if HuggingFace dataset not found. **Verify**: Run unit test to verify exception is raised on missing source.
-- [X] T009a Implement lightweight flow magnitude extraction in `code/data/flow.py` (or separate `code/data/flow_mag.py`) to compute mean flow magnitude for stratification; output to `data/flow/magnitudes.json`. **Note**: Must complete before T009 and T013 to avoid resource contention; NOT [P] due to heavy compute overlap with T009. **Depends on T012**. **Verify**: Run unit test to verify output JSON contains `magnitudes` key.
-- [X] T009 Implement full optical flow computation in `code/data/flow.py` using RAFT-small or Farneback (CPU-optimized) for the Flow-Coherence model; output fields to `data/flow/`. **Note**: This task is for model warping (US2). It must complete after T009a to avoid CPU/RAM contention on the runner with constrained memory resources. **Depends on T009a**. **Verify**: Run unit test to verify flow field output.
+- [X] T004 Create base data models (VideoClip, MetricRecord, AnalysisResult) in `code/data/models.py`. **Details**: Define classes `VideoClip`, `MetricRecord`, `AnalysisResult` with attributes: `VideoClip` (id, path, motion_category, flow_field, mask), `MetricRecord` (clip_id, model_variant, peak_memory, fps, ssim, gradient_variance, flow_magnitude, invalid_flow), `AnalysisResult` (pvalue, regression_coeff, threshold, sensitivity_table). **Verify**: Run `pytest tests/unit/test_models.py`.
+- [X] T005 [P] Setup experiment configuration manager in `code/config.py` with explicit `SENSITIVITY_CUTOFFS` constant initialized to {0.01, 0.05, 0.1} (for FR-007 sensitivity analysis) and `STRATIFICATION_THRESHOLDS` constant initialized to {0.5, 5.0} (Plan.md "Critical Methodological Updates") plus random seeds. **Verify**: Run `pytest tests/unit/test_config.py`.
+- [X] T006a [P] Implement robust logging infrastructure in `code/utils/logger.py`. **Details**: Implement `get_logger()` function and log rotation. **Verify**: Run `pytest tests/unit/test_logger.py::test_logger_init`.
+- [X] T006b [P] Implement checkpointing infrastructure in `code/utils/checkpoint.py` (handles CI limit, resume capability). **Details**: Implement `save_state()` and `load_state()` functions in `checkpoint.py` that serialize state to `data/checkpoints/{run_id}.json`. **Verify**: Run `pytest tests/unit/test_checkpoint.py::test_save_load_cycle`.
+- [X] T007a [P] Create dataset schema validator in `specs/001-optical-flow-temporal-coherence/contracts/dataset_schema.py` using `pydantic`. **Verify**: Run `pytest tests/contract/test_dataset_schema.py::test_dataset_schema_load`.
+- [X] T007b [P] Create metric schema validator in `specs/001-optical-flow-temporal-coherence/contracts/metric_schema.py` using `pydantic`. **Verify**: Run `pytest tests/contract/test_metric_schema.py::test_metric_schema_load`.
+- [X] T007c [P] Create analysis schema validator in `specs/001-optical-flow-temporal-coherence/contracts/analysis_schema.py` using `pydantic`. **Verify**: Run `pytest tests/contract/test_analysis_schema.py::test_analysis_schema_load`.
+- [X] T008 [P] Implement memory profiling wrapper in `code/metrics/resource.py` to track peak RAM usage per clip. **Verify**: Run `pytest tests/unit/test_metrics_resource.py::test_memory_tracking`.
+- [X] T012 [P] [Foundational] Implement dataset downloader in `code/data/downloader.py` to fetch DAVIS/YouTube-VOS clips via `datasets.load_dataset` with streaming; ensure it fails loudly on missing sources (no synthetic fallback). **Details**: Raise `ValueError` with message "Dataset source missing" if HuggingFace dataset not found. **Verify**: Run `pytest tests/unit/test_downloader.py::test_download_fails_loudly`.
+- [ ] T009a [P] [Foundational] Implement lightweight flow magnitude extraction in `code/data/flow.py` (or separate `code/data/flow_mag.py`) to compute mean flow magnitude for stratification; output to `data/flow/magnitudes.json`. **Note**: Must complete before T009 and T013 to avoid resource contention; NOT [P] due to heavy compute overlap with T009. **Depends on T012**. **Verify**: Run `pytest tests/unit/test_flow.py::test_flow_magnitude_extraction`.
+- [X] T009 [P] [Foundational] Implement full optical flow computation in `code/data/flow.py` using RAFT-small or Farneback (CPU-optimized) for the Flow-Coherence model; output fields to `data/flow/`. **Note**: This task is for model warping (US2). It must complete after T009a to avoid CPU/RAM contention on the runner with constrained memory resources. **Depends on T009a**. **Verify**: Run `pytest tests/unit/test_flow.py::test_flow_field_computation`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,12 +90,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T013a [US1] Implement video processor in `code/data/processor.py` to generate synthetic masks for each clip. **Details**: Generate synthetic masks and save to `data/raw/masks/`. **Verify**: Run unit test to verify mask generation. **Depends on T012**.
-- [X] T013b [US1] Implement video processor in `code/data/processor.py` to stratify clips by motion complexity as defined in Plan.md Dataset Strategy. **Details**: Read `STRATIFICATION_THRESHOLDS` from `code/config.py` and assign categories (Static, Slow Rigid, Fast Non-Rigid). **Depends on T012, T009a** (reads `data/flow/magnitudes.json` for stratification logic). **Verify**: Run unit test to verify stratification logic.
-- [X] T014 [US1] Implement baseline LiveEdit model wrapper in `code/models/baseline.py` with temporal attention layers ENABLED. **Details**: Subclass `diffusers.StableDiffusionPipeline` in `code/models/baseline.py` and override `__call__` to enable `temporal_attention` flag. Class name: `LiveEditBaselinePipeline`. **Verify**: Verify class `LiveEditBaselinePipeline` exists in `code/models/baseline.py` and inherits from `diffusers.StableDiffusionPipeline`.
-- [X] T015 [US1] Implement baseline inference runner in `code/main.py` (baseline mode) that processes clips one-by-one to manage RAM. **Verify**: Run unit test to verify inference loop.
-- [X] T016a [US1] Implement metric calculator for **Baseline** in `code/metrics/ssim.py`: Compute **Background Stability Score (BSS)** comparing background regions of the edited output to the **original ground-truth background** (Plan.md "Critical Methodological Updates") as the PRIMARY metric. Also compute **Consecutive Frame SSIM** and **Temporal Gradient Variance** between **consecutive edited frames ($t$ and $t$) within the edited output video** as SECONDARY metrics for flickering. **Note**: This task implements BSS for Baseline to ensure fair comparison with Flow-Coherence (T016b). **Depends on T009** (for flow fields required for normalization). **Output**: `data/metrics/baseline_flicker.json`. **Verify**: JSON contains `bss`, `consecutive_ssim`, and `temporal_gradient_variance` keys.
-- [X] T017 [US1] Implement report generator for baseline metrics in `code/analysis/reporter.py` (outputs JSON to `data/metrics/baseline_results.json`). **Details**: Aggregate metrics from T016a and resource usage from T008. **Output**: `data/metrics/baseline_results.json` with keys `clip_id`, `peak_memory`, `inference_time`, `bss`, `consecutive_ssim`, `temporal_gradient_variance`. **Verify**: Run `python -c "import json; d=json.load(open('data/metrics/baseline_results.json')); assert 'clip_id' in d"`.
+- [ ] T013a [US1] Implement video processor in `code/data/processor.py` to generate synthetic masks for each clip. **Details**: Generate synthetic masks and save to `data/raw/masks/`. **Verify**: Run `pytest tests/unit/test_processor.py::test_mask_generation`. **Depends on T012**.
+- [ ] T013b [US1] Implement video processor in `code/data/processor.py` to stratify clips by motion complexity as defined in Plan.md Dataset Strategy. **Details**: Read `STRATIFICATION_THRESHOLDS` from `code/config.py` and assign categories (Static, Slow Rigid, Fast Non-Rigid). **Depends on T012, T009a** (reads `data/flow/magnitudes.json` for stratification logic). **Verify**: Run `pytest tests/unit/test_processor.py::test_stratification_logic`.
+- [X] T014 [US1] Implement baseline LiveEdit model wrapper in `code/models/baseline.py` with temporal attention layers ENABLED. **Details**: Subclass `diffusers.StableDiffusionPipeline` in `code/models/baseline.py` and override `__call__` to enable `temporal_attention` flag. Class name: `LiveEditBaselinePipeline`. **Verify**: Run `pytest tests/unit/test_baseline.py::test_baseline_pipeline_instantiation`.
+- [X] T015 [US1] Implement baseline inference runner in `code/main.py` (baseline mode) that processes clips one-by-one to manage RAM. **Verify**: Run `pytest tests/unit/test_main.py::test_baseline_inference_loop`.
+- [X] T016a-bss [US1] Implement Background Stability Score (BSS) calculator for **Baseline** in `code/metrics/ssim.py`. **Details**: Compute BSS by comparing consecutive edited frames (t and t-1) within the edited output video to quantify background stability, strictly avoiding comparison to original ground-truth video as per FR-005. **Output**: `data/metrics/baseline_bss.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_baseline_bss_calculation`.
+- [X] T016a-ssim [US1] Implement Consecutive Frame SSIM calculator for **Baseline** in `code/metrics/ssim.py`. **Details**: Compute SSIM between consecutive frames within the edited output video. **Output**: `data/metrics/baseline_ssim.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_baseline_consecutive_ssim_calculation`.
+- [X] T016a-grad [US1] Implement Temporal Gradient Variance calculator for **Baseline** in `code/metrics/ssim.py`. **Details**: Compute temporal gradient variance between consecutive frames within the edited output video. **Output**: `data/metrics/baseline_grad.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_baseline_temporal_gradient_variance_calculation`.
+- [ ] T017 [US1] Implement report generator for baseline metrics in `code/analysis/reporter.py` (outputs JSON to `data/metrics/baseline_results.json`). **Details**: Aggregate metrics from T016a and resource usage from T008. **Output**: `data/metrics/baseline_results.json` with keys `clip_id`, `peak_memory`, `inference_time`, `consecutive_ssim`, `temporal_gradient_variance`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_baseline_report_generation`.
+- [X] T018 [P] [US2] Contract test for invalid_flow flag handling in `tests/contract/test_flow_coherence.py`
+- [X] T019 [P] [US2] Integration test for flow-warping logic in `tests/integration/test_flow_warp.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,17 +113,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for invalid_flow flag handling in `tests/contract/test_flow_coherence.py`
-- [X] T019 [P] [US2] Integration test for flow-warping logic in `tests/integration/test_flow_warp.py`
-
-### Implementation for User Story 2
-
-- [X] T020 [US2] Implement Flow-Coherence module in `code/models/flow_coherence.py`: replaces Mask Cache, warps latents using pre-computed flow (T009), removes attention layers. **Details**: Use `cv2.remap` with bilinear interpolation on 512x512 latent tensors. **Verify**: Verify via unit test in `tests/unit/test_flow_warp.py` that a 512x512 tensor warped with a flow field of magnitude 5.0 results in expected displacement.
-- [X] T021 [US2] Implement invalid flow handling in `code/models/flow_coherence.py`: fallback to identity warp for NaN/infinity vectors and set `invalid_flow` flag. **Verify**: Run unit test to verify identity warp on invalid vectors.
-- [X] T022 [US2] Implement flow-coherence inference runner in `code/main.py` (flow mode) with checkpointing support. **Verify**: Run unit test to verify inference loop.
-- [X] T016b [US2] Implement metric calculator for **Flow-Coherence** in `code/metrics/ssim.py`: Compute **Background Stability Score (BSS)** comparing background regions of the edited output to the **original ground-truth background** (Plan.md "Critical Methodological Updates") as the PRIMARY metric. Also compute **Consecutive Frame SSIM** and **Temporal Gradient Variance** between **consecutive edited frames ($t$ and $t-1$) within the edited output video** as SECONDARY metrics for flickering (to ensure fair comparison with T016a). **Note**: This task implements BSS for Flow-Coherence. **Depends on T009**. **Output**: `data/metrics/flow_bss.json`. **Verify**: JSON contains `bss`, `consecutive_ssim`, and `temporal_gradient_variance` keys.
-- [X] T023 [US2] Update metric calculator in `code/metrics/ssim.py` to record flow magnitude statistics and `invalid_flow` markers per frame (extending the BSS logic from T016b); **Depends on T016b**. **Verify**: Run unit test to verify flow magnitude recording.
-- [X] T024 [US2] Implement comparative report generator in `code/analysis/reporter.py` (outputs JSON to `data/metrics/flow_results.json`). **Details**: Aggregate metrics from T016b and resource usage from T008. **Output**: `data/metrics/flow_results.json` with keys `clip_id`, `peak_memory`, `inference_time`, `bss`, `consecutive_ssim`, `temporal_gradient_variance`, `invalid_flow_count`. **Verify**: Run `python -c "import json; d=json.load(open('data/metrics/flow_results.json')); assert 'clip_id' in d"`.
+- [X] T020 [US2] Implement Flow-Coherence module in `code/models/flow_coherence.py`: replaces Mask Cache, warps latents using pre-computed flow (T009), removes attention layers. **Details**: Use `cv2.remap` with bilinear interpolation on 512x512 latent tensors. **Verify**: Run `pytest tests/unit/test_flow_coherence.py::test_flow_warp_logic`.
+- [X] T021a [US2] Implement invalid flow handling in `code/models/flow_coherence.py`: fallback to identity warp for NaN/infinity vectors and set `invalid_flow` flag. **Verify**: Run `pytest tests/unit/test_flow_coherence_invalid.py::test_identity_warp_invalid_vectors`.
+- [X] T021b [US2] Implement invalid flow handling verification. **Verify**: Run `pytest tests/unit/test_flow_coherence_invalid.py::test_identity_warp_invalid_vectors`.
+- [X] T022 [US2] Implement flow-coherence inference runner in `code/main.py` (flow mode) with checkpointing support. **Verify**: Run `pytest tests/unit/test_main.py::test_flow_inference_loop`.
+- [X] T016b-bss [US2] Implement Background Stability Score (BSS) calculator for **Flow-Coherence** in `code/metrics/ssim.py`. **Details**: Compute BSS by comparing consecutive edited frames (t and t-1) within the edited output video to quantify background stability, strictly avoiding comparison to original ground-truth video as per FR-005. **Output**: `data/metrics/flow_bss.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_flow_bss_calculation`.
+- [X] T016b-ssim [US2] Implement Consecutive Frame SSIM calculator for **Flow-Coherence** in `code/metrics/ssim.py`. **Details**: Compute SSIM between consecutive frames (t and t) within the edited output video. **Output**: `data/metrics/flow_ssim.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_flow_consecutive_ssim_calculation`.
+- [X] T016b-grad [US2] Implement Temporal Gradient Variance calculator for **Flow-Coherence** in `code/metrics/ssim.py`. **Details**: Compute temporal gradient variance between consecutive frames within the edited output video. **Output**: `data/metrics/flow_grad.json`. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_flow_temporal_gradient_variance_calculation`.
+- [X] T023 [US2] (Merged into T016b) Implement data collector to record flow magnitude statistics and `invalid_flow` markers per frame. **Details**: Integrate logic directly into metric calculation. **Verify**: Run `pytest tests/unit/test_metrics_ssim.py::test_flow_stats_collection`.
+- [ ] T024a [US2] Implement report generator for baseline metrics in `code/analysis/reporter.py`. **Details**: Aggregate metrics from T016a and resource usage from T008. **Output**: `data/metrics/baseline_results.json`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_baseline_report_generation`.
+- [ ] T024b [US2] Implement report generator for flow metrics in `code/analysis/reporter.py`. **Details**: Aggregate metrics from T016b and resource usage from T008. **Output**: `data/metrics/flow_results.json`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_flow_report_generation`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,12 +141,14 @@
 
 ### Implementation for User Story 3
 
-- [X] T027a [US3] Implement data loader in `code/analysis/stats.py` to load baseline and flow metrics. **Details**: Load `data/metrics/baseline_results.json` and `data/metrics/flow_results.json`. **Output**: In-memory data structures. **Verify**: Run unit test to verify loading logic. **Depends on T017, T024**.
-- [X] T027b [US3] Implement data aggregator in `code/analysis/stats.py` to merge baseline and flow metrics into paired datasets. **Details**: Merge `data/metrics/baseline_results.json` and `data/metrics/flow_results.json` by `clip_id`. **Output**: `data/metrics/paired_metrics.json`. **Verify**: Run unit test to verify merging logic. **Depends on T027a**.
-- [X] T028 [US3] Implement **Kolmogorov-Smirnov (K-S) test** in `code/analysis/stats.py` to compare error distributions between baseline and flow methods; **Note**: Per Plan.md "Critical Methodological Updates", this is the **SECONDARY** check for distribution differences. **Depends on T027b**. **Details**: Use `scipy.stats.ks_2samp` on `baseline_errors` and `flow_errors` lists, outputting p-value to `data/metrics/ks_test.json` with keys `statistic` and `pvalue`. **Verify**: Verify JSON schema matches expected keys.
-- [X] T029 [US3] Implement **Piecewise Regression (Change-Point Detection)** in `code/analysis/stats.py` using `ruptures` to identify flow-magnitude thresholds where SSIM degradation exceeds significance; **Note**: Per Plan.md "Critical Methodological Updates", this is the **PRIMARY** method for threshold identification (overrides Spec FR-006 primary method). **Depends on T027b**. **Output**: `data/metrics/pc_regression.json` with keys `threshold`, `regression_coeff`, `pvalue`. **Verify**: Verify JSON schema matches expected keys.
-- [X] T030 [US3] Implement sensitivity analysis script in `code/analysis/stats.py` sweeping a **set of cutoff values** (as required by Spec FR-007 and SC-004) and reporting **inconsistency rates** (defined as SSIM drop > 0.05) across these values; **Depends on T029**. **Output**: `data/metrics/sensitivity_analysis.json`. **Verify**: Run unit test to verify sensitivity analysis logic.
-- [X] T031 [US3] Generate final statistical summary report in `code/analysis/reporter.py` (outputs to `results/summary.md` and `data/metrics/analysis_results.json`). **Details**: `results/summary.md` must contain sections: Executive Summary, Methodology (Baseline vs Flow-Coherence), Results (Memory, BSS, Flickering), Statistical Boundary Analysis (Thresholds, K-S p-values, Sensitivity), and Conclusion. `data/metrics/analysis_results.json` must contain keys `ks_test`, `pc_regression`, `sensitivity_analysis`. **Verify**: Run `python -c "import json; d=json.load(open('data/metrics/analysis_results.json')); assert 'ks_test' in d and 'pc_regression' in d"`.
+- [~] T027a [US3] Implement data loader in `code/analysis/stats.py` to load baseline and flow metrics. **Details**: Load `data/metrics/baseline_results.json` and `data/metrics/flow_results.json`. **Output**: In-memory data structures. **Verify**: Run `pytest tests/unit/test_stats_loader.py::test_load_baseline_flow_metrics`.
+- [X] T027a-test [US3] Verify data loader implementation. **Verify**: Run `pytest tests/unit/test_stats_loader.py::test_load_baseline_flow_metrics`.
+- [ ] T027b [US3] Implement data aggregator in `code/analysis/stats.py` to merge baseline and flow metrics into paired datasets. **Details**: Merge `data/metrics/baseline_results.json` and `data/metrics/flow_results.json` by `clip_id`. **Output**: `data/metrics/paired_metrics.json`. **Verify**: Run `pytest tests/unit/test_stats_aggregator.py::test_merge_metrics`.
+- [ ] T028 [US3] Implement **Kolmogorov-Smirnov (K-S) test** in `code/analysis/stats.py` to compare error distributions between baseline and flow methods; **Note**: Per Plan.md "Critical Methodological Updates", this is the **SECONDARY** check for distribution differences, providing supportive evidence alongside Piecewise Regression. **Depends on T027b**. **Output**: `data/metrics/ks_test.json` with keys `statistic` and `pvalue`. **Verify**: Run `pytest tests/unit/test_stats_kstest.py::test_ks_test_execution`.
+- [X] T029 [US3] Implement **Piecewise Regression (Change-Point Detection)** in `code/analysis/stats.py` using `ruptures` to identify flow-magnitude thresholds where SSIM degradation exceeds significance; **Note**: Per Plan.md "Critical Methodological Updates", this is the **PRIMARY** method for threshold identification, superseding K-S test. **Depends on T027b**. **Output**: `data/metrics/pc_regression.json` with keys `threshold`, `regression_coeff`, `pvalue`. **Verify**: Run `pytest tests/unit/test_stats_piecewise.py::test_piecewise_regression_execution`.
+- [ ] T030 [US3] Implement sensitivity analysis script in `code/analysis/stats.py` sweeping a **set of cutoff values** {0.01, 0.05, 0.1} and reporting how the *rate of frames where SSIM drop relative to baseline exceeds each specific cutoff* varies across these values; **Depends on T029**. **Output**: `data/metrics/sensitivity_analysis.json`. **Verify**: Run `pytest tests/unit/test_stats_sensitivity.py::test_sensitivity_analysis_sweep`.
+- [ ] T031a [US3] Generate statistical summary report (JSON) in `code/analysis/reporter.py`. **Details**: `data/metrics/analysis_results.json` must contain keys `ks_test`, `pc_regression`, `sensitivity_analysis`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_json_summary_generation`.
+- [X] T031b [US3] Generate statistical summary report (Markdown) in `code/analysis/reporter.py`. **Details**: `results/summary.md` must contain sections: Executive Summary, Methodology, Results, Statistical Boundary Analysis, Conclusion. **Verify**: Run `pytest tests/unit/test_reporter.py::test_markdown_summary_generation`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,12 +158,24 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T032 [P] Generate `results/summary.md` with required sections: Executive Summary, Methodology (Baseline vs Flow-Coherence), Results (Memory, BSS, Flickering), Statistical Boundary Analysis (Thresholds, K-S p-values, Sensitivity), and Conclusion.
-- [X] T032b [P] Update `docs/` (README, quickstart.md) with execution instructions and data flow diagrams.
-- [X] T033 [P] Code cleanup and refactoring: Remove unused imports, enforce line length < 88, verify with `ruff check.` with zero warnings
-- [X] T034 [P] Performance optimization across all stories: Target peak RAM reduction to < 6GB; verify via memory profiler run on full pipeline and record peak usage
-- [X] T035 [P] Run quickstart.md validation: Execute `bash docs/quickstart.sh`; success criteria: script completes without error and generates `results/summary.md`
-- [X] T036 Final integration test: Run full pipeline (US1 + US2 + US3) on a small subset to verify end-to-end data flow
+- [X] T032a [P] Generate Executive Summary section in `results/summary.md`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_executive_summary_content`.
+- [X] T032b [P] Generate Methodology section in `results/summary.md`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_methodology_content`.
+- [X] T032c [P] Generate Results section in `results/summary.md`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_results_content`.
+- [X] T032d [P] Generate Statistical Boundary Analysis section in `results/summary.md`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_boundary_analysis_content`.
+- [X] T032e [P] Generate Conclusion section in `results/summary.md`. **Verify**: Run `pytest tests/unit/test_reporter.py::test_conclusion_content`.
+- [X] T032b-readme [P] Update `README.md` with execution instructions. **Verify**: Run `pytest tests/unit/test_docs.py::test_readme_updated`.
+- [X] T032b-quickstart [P] Update `docs/quickstart.md` with execution instructions. **Verify**: Run `pytest tests/unit/test_docs.py::test_quickstart_updated`.
+- [X] T032b-diagrams [P] Generate data flow diagrams. **Verify**: Run `pytest tests/unit/test_docs.py::test_diagrams_generated`.
+- [X] T033a [P] Remove unused imports. **Verify**: Run `pytest tests/unit/test_linting.py::test_unused_imports_removed`.
+- [X] T033b [P] Enforce line length < 88. **Verify**: Run `pytest tests/unit/test_linting.py::test_line_length_enforced`.
+- [X] T033c [P] Run ruff check. **Verify**: Run `pytest tests/unit/test_linting.py::test_ruff_check_passed`.
+- [X] T034a [P] Profile peak RAM usage. **Verify**: Run `pytest tests/unit/test_metrics_resource.py::test_peak_ram_profiled`.
+- [X] T034b [P] Optimize code to reduce RAM. **Verify**: Run `pytest tests/unit/test_metrics_resource.py::test_ram_optimization`.
+- [X] T034c [P] Verify peak RAM < 6GB. **Verify**: Run `pytest tests/unit/test_metrics_resource.py::test_peak_ram_under_limit`.
+- [X] T035a [P] Execute `docs/quickstart.sh`. **Verify**: Run `pytest tests/integration/test_quickstart.py::test_quickstart_execution`.
+- [X] T035b [P] Verify `docs/quickstart.sh` completes without error. **Verify**: Run `pytest tests/integration/test_quickstart.py::test_quickstart_success`.
+- [X] T036a [P] Run full pipeline on small subset. **Verify**: Run `pytest tests/integration/test_full_pipeline.py::test_full_pipeline_execution`.
+- [X] T036b [P] Verify end-to-end data flow. **Verify**: Run `pytest tests/integration/test_full_pipeline.py::test_end_to_end_data_flow`.
 
 ---
 
@@ -162,10 +185,50 @@
 
 ### Implementation for Research Validation
 
-- [X] T037 [US1] Implement dataset stratification validator in `code/data/processor.py`: Add a post-download check that verifies the selected clip subset contains a representative distribution of motion categories (Static, Slow Rigid, Fast Non-Rigid) based on the quantitative flow thresholds defined in **Plan.md** (low, high). **Source**: Plan.md Dataset Strategy. **Logic**: Read `STRATIFICATION_THRESHOLDS` from `code/config.py`. **Strategy**: If the initial 50 clips do not meet a minimum threshold (e.g., < 5 clips in a category), fetch additional clips to improve representation. If the dataset is exhausted and the distribution is still skewed, log a WARNING (not an error) and proceed with the available data, recording the imbalance in `data/metrics/stratification_report.json`. **Output**: `data/metrics/stratification_report.json`. **Verification**: Run `python -c "import json; d=json.load(open('data/metrics/stratification_report.json')); assert 'distribution' in d"`.
-- [X] T038 [US1] Implement "Pilot Run" script in `code/main.py` (pilot mode): Execute a subset of the full pipeline (Download -> Flow -> Inference -> Metrics) to measure `time_per_clip` and `peak_memory` empirically; write results to `data/metrics/pilot_report.json`. **Schema**: JSON must contain keys `time_per_clip` (float) and `peak_memory` (float). **Logic**: Calculate `adjusted_n = floor(time_budget / time_per_clip)` and write `adjusted_n` to `data/metrics/adjusted_n.json` to trigger dynamic sample size adjustment. **Note**: This task is critical to resolve the Spec/Plan sample size conflict (Spec says a substantial quantity, Plan specifies a defined cohort size). **Verify**: Run `python code/main.py --pilot` and check `data/metrics/pilot_report.json` and `data/metrics/adjusted_n.json` exist and contain expected keys.
-- [X] T039 [US3] Extend `code/analysis/stats.py` to consume `data/metrics/adjusted_n.json` and dynamically calculate the maximum feasible `N` for the time limit using the formula `floor(time_budget / time_per_clip)`; update the main pipeline to abort or adjust `N` if the pilot suggests the full 50 clips will exceed the time budget. **Output**: Write adjusted `N` to `data/metrics/adjusted_n.json` and update CLI arguments in `code/main.py` to read this file. **Note**: This ensures the Plan's N=50 is validated against the Spec's 6h constraint. **Verify**: Run `python code/main.py --n 50` with a pilot report indicating `adjusted_n < 50` and confirm the pipeline adjusts `N` accordingly.
-- [X] T040 [US1] Implement "Flow Magnitude Distribution" plotter in `code/analysis/reporter.py`: Generate a histogram of the mean flow magnitudes for the final clip set to visually confirm the stratification covers the required range (0.5 to >5.0) before analysis begins.
+- [ ] T037a [US1] Implement dataset stratification logic in `code/data/processor.py`: Add a post-download check that verifies the selected clip subset contains a representative distribution of motion categories (Static, Slow Rigid, Fast Non-Rigid) based on the quantitative flow thresholds defined in **Plan.md** (low, high). **Source**: Plan.md Dataset Strategy. **Logic**: Read `STRATIFICATION_THRESHOLDS` from `code/config.py`. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_stratification_logic`.
+- [X] T037a-test [US1] Verify stratification logic. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_stratification_logic`.
+- [ ] T037b [US1] Implement retry mechanism in `code/data/processor.py`: If the initial 50 clips do not meet a minimum threshold (derived from `STRATIFICATION_THRESHOLDS` in `code/config.py`), fetch additional clips to improve representation. **Note**: Thresholds are dynamic based on flow magnitude distribution, not a hard-coded count. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_retry_mechanism`.
+- [X] T037b-test [US1] Verify retry mechanism. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_retry_mechanism`.
+- [ ] T037c [US1] Implement logging for imbalance in `code/data/processor.py`: Log a WARNING if the dataset is exhausted and the distribution is still skewed, recording the imbalance in `data/metrics/stratification_report.json`. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_imbalance_logging`.
+- [X] T037c-test [US1] Verify imbalance logging. **Verify**: Run `pytest tests/unit/test_processor_stratification.py::test_imbalance_logging`.
+- [ ] T038a [US1] Implement pilot execution in `code/main.py` (pilot mode): Execute a subset of the full pipeline (Download -> Flow -> Inference -> Metrics) to measure `time_per_clip` and `peak_memory` empirically. **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_pilot_execution`.
+- [X] T038a-test [US1] Verify pilot execution. **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_pilot_execution`.
+- [ ] T038b [US1] Implement time/memory measurement in `code/main.py`: Write results to `data/metrics/pilot_report.json`. **Schema**: JSON must contain keys `time_per_clip` (float) and `peak_memory` (float). **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_time_measurement`.
+- [X] T038b-test [US1] Verify time measurement. **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_time_measurement`.
+- [ ] T038c [US1] Implement dynamic sample size adjustment in `code/main.py`: Calculate `adjusted_n = floor(time_budget / time_per_clip)` and write `adjusted_n` to `data/metrics/adjusted_n.json`. **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_sample_size_adjustment`.
+- [X] T038c-test [US1] Verify sample size adjustment. **Verify**: Run `pytest tests/unit/test_main_pilot.py::test_sample_size_adjustment`.
+- [X] T038d [US1] Implement post-hoc statistical power analysis in `code/analysis/stats.py`: Calculate the statistical power for the reduced sample size (N=50) given the observed effect sizes, acknowledging the Spec's original N=500 assumption is invalid. **Source**: Plan.md "Critical Methodological Updates" (N=50 reduction). **Output**: `data/metrics/power_analysis.json`. **Verify**: Run `pytest tests/unit/test_stats_power.py::test_power_analysis`.
+- [X] T038d-test [US1] Verify power analysis. **Verify**: Run `pytest tests/unit/test_stats_power.py::test_power_analysis`.
+- [X] T039a [US3] Implement N calculation logic in `code/analysis/stats.py` to consume `data/metrics/adjusted_n.json` and dynamically calculate the maximum feasible `N`. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_n_calculation`.
+- [X] T039a-test [US3] Verify N calculation. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_n_calculation`.
+- [ ] T039b [US3] Update CLI arguments in `code/main.py` to read `data/metrics/adjusted_n.json`. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_cli_update`.
+- [X] T039b-test [US3] Verify CLI update. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_cli_update`.
+- [ ] T039c [US3] Implement pipeline abort/adjust logic in `code/main.py` if the pilot suggests the full 50 clips will exceed the time budget. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_abort_logic`.
+- [X] T039c-test [US3] Verify abort logic. **Verify**: Run `pytest tests/unit/test_stats_adjustment.py::test_abort_logic`.
+- [X] T040a [US3] Implement histogram generation in `code/analysis/reporter.py` to visually confirm the stratification covers the required range (0.5 to >5.0) before analysis begins. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_flow_magnitude_histogram`.
+- [X] T040a-test [US3] Verify histogram generation. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_flow_magnitude_histogram`.
+- [X] T040b [US3] Verify plot covers required range. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_plot_range_verification`.
+
+---
+
+## Phase N+2: Final Review & Documentation (Revision Concerns)
+
+**Goal**: Address final reviewer concerns regarding data integrity, reproducibility, and the specific handling of invalid flow vectors in the final report.
+
+- [X] T041a [US1] [P] Implement directory scanning in `code/utils/audit.py` that scans `data/raw/` and `data/flow/` for checksums. **Verify**: Run `pytest tests/unit/test_audit.py::test_directory_scanning`.
+- [X] T041a-test [US1] Verify directory scanning. **Verify**: Run `pytest tests/unit/test_audit.py::test_directory_scanning`.
+- [X] T041b [US1] [P] Implement checksum verification in `code/utils/audit.py`. **Verify**: Run `pytest tests/unit/test_audit.py::test_checksum_verification`.
+- [X] T041b-test [US1] Verify checksum verification. **Verify**: Run `pytest tests/unit/test_audit.py::test_checksum_verification`.
+- [X] T041c [US1] [P] Implement source logging in `code/utils/audit.py` to log the source URL and timestamp. **Verify**: Run `pytest tests/unit/test_audit.py::test_source_logging`.
+- [X] T041c-test [US1] Verify source logging. **Verify**: Run `pytest tests/unit/test_audit.py::test_source_logging`.
+- [X] T042a [US2] [P] Implement invalid flow handling section generation in `code/analysis/reporter.py` for the final `results/summary.md` report, explicitly listing the number of frames flagged with `invalid_flow` and the impact of the identity warp fallback on the overall BSS score. **Verify**: Run `pytest tests/unit/test_reporter.py::test_invalid_flow_section_generation`.
+- [X] T042a-test [US2] Verify invalid flow section generation. **Verify**: Run `pytest tests/unit/test_reporter.py::test_invalid_flow_section_generation`.
+- [X] T043a [US3] [P] Implement sensitivity plot generation in `code/analysis/reporter.py` visualizing the inconsistency rates across a range of swept cutoff values to provide a visual confirmation of the threshold robustness. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_sensitivity_plot_generation`.
+- [X] T043a-test [US3] Verify sensitivity plot generation. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_sensitivity_plot_generation`.
+- [X] T043b [US3] [P] Verify plot exists and is valid. **Verify**: Run `pytest tests/unit/test_reporter_plots.py::test_plot_validity`.
+- [X] T044a [P] Implement reproducibility checklist content in `README.md`. **Verify**: Run `pytest tests/unit/test_docs.py::test_reproducibility_checklist_content`.
+- [X] T044a-test [P] Verify reproducibility checklist content. **Verify**: Run `pytest tests/unit/test_docs.py::test_reproducibility_checklist_content`.
+- [X] T044b [P] Verify checklist exists in `README.md`. **Verify**: Run `pytest tests/unit/test_docs.py::test_reproducibility_checklist_exists`.
 
 ---
 
@@ -180,6 +243,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Research Validation (Phase N+1)**: Depends on Foundational and US1/US2 implementation to ensure data pipelines are ready for validation
+- **Final Review (Phase N+2)**: Depends on completion of all previous phases and the generation of the final metrics reports
 
 ### User Story Dependencies
 
@@ -204,25 +268,9 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
----
+### Implementation Strategy
 
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for MetricRecord schema in tests/contract/test_metric_schema.py"
-Task: "Integration test for baseline inference pipeline in tests/integration/test_baseline_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement dataset downloader in code/data/downloader.py"
-Task: "Implement video processor in code/data/processor.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
+#### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
@@ -230,7 +278,7 @@ Task: "Implement video processor in code/data/processor.py"
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
-### Incremental Delivery
+#### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
@@ -238,7 +286,7 @@ Task: "Implement video processor in code/data/processor.py"
 4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
-### Parallel Team Strategy
+#### Parallel Team Strategy
 
 With multiple developers:
 
@@ -262,10 +310,14 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: All dataset downloads MUST fail loudly; no synthetic fallbacks allowed.
 - **Compute Constraints**: All inference must be CPU-optimized; ensure N=50 clips fits within 6h limit.
-- **Metric Validity**: Use Background Stability Score (BSS) and Flow-Normalized SSIM as defined in plan.md. BSS isolates background and compares to GT; Consecutive Frame SSIM measures flickering. **Implementation tasks will instantiate BSS and Consecutive SSIM for both Baseline and Flow-Coherence configurations to satisfy plan requirements and ensure fair comparison.**
-- **Threshold Identification**: Piecewise Regression is the PRIMARY method for threshold identification (Plan); K-S test is SECONDARY (Spec/Plan).
+- **Metric Validity**: Use Background Stability Score (BSS) and Flow-Normalized SSIM as defined in plan.md. BSS isolates background and compares to GT; Consecutive Frame SSIM measures flickering.
+- **Threshold Identification**: Piecewise Regression is the PRIMARY method for threshold identification (Plan); K-S test is SECONDARY (Spec).
 - **Stratification Thresholds**: Numeric thresholds (0.5, 5.0) are derived from Plan.md Dataset Strategy (overrides Spec); T037 defers to Plan definition and reads from config.
 - **Sensitivity Analysis Cutoffs**: Must use {0.01, 0.05, 0.1} as per Spec FR-007.
 - **Flow Computation**: T009a is for stratification (US1); T009 is for model warping (US2). T009a must complete before T009 to avoid resource contention.
 - **Pilot Validation**: T038/T039 are critical to prevent CI timeout failures and resolve Spec/Plan sample size conflict; the pipeline must dynamically adjust N based on pilot results.
 - **Stratification Verification**: T037 ensures the dataset is not biased towards "easy" clips; failure to stratify triggers a retry mechanism, not a hard crash.
+- **Data Audit**: T041 ensures all data sources are verified and logged for reproducibility.
+- **Invalid Flow Reporting**: T042 ensures the fallback mechanism is explicitly reported in the final summary.
+- **Visual Confirmation**: T043 and T044 provide visual and textual confirmation of the sensitivity analysis and reproducibility.
+- **Statistical Power**: T038d addresses the Spec/Plan conflict on sample size by calculating and documenting the power for N=50.

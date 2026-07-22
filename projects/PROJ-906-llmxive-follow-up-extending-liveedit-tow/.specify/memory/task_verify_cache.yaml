@@ -1,10 +1,57 @@
-T024:
+T009a:
   c: false
-  h: a47a8d9b9c9f03a99bbe82ade4b181de69b327d43555b08e78b81f14522a3955
-  r: The provided `code/analysis/reporter.py` defines `generate_comparative_report`
-    that writes a JSON file to `data/metrics/flow_results.json`, but it does not implement
-    Parquet output as required, and the expected `flow_results.json` file is absent
-    from the repository. The task therefore remains unfinished.
+  h: 84a4531b38c19a33b497d9916e1ed8b4fc1f1dcc54c8a1145af875a2a4c8b5ee
+  r: "The provided `code/data/flow.py` is truncated and its `compute_flow_magnitude`\
+    \ expects separate x/y arrays, while the tests call it with a single (H,W,2) flow\
+    \ array and check NaN/inf handling. `extract_flow_magnitudes_for_dataset` has\
+    \ a different signature (expects `VideoClip` objects) than the test\u2019s call\
+    \ with `clip_paths` and `flow_method`, and the function never reaches the JSON\u2011\
+    writing step (the code ends abruptly). Moreover, `code/data/flow_mag.py` and the\
+    \ required output file `data/flow/magnitudes.json` are missing. The implementation\
+    \ therefore does not meet the task requirements nor pas"
+T013a:
+  c: false
+  h: 7ef88ad84643c596caace50ba16cd3f7c1214d09913f8ad769c8773f3ede1cc5
+  r: The `processor.py` implementation writes masks to `data/raw/processed` instead
+    of the required `data/raw/masks/`, and the unit test file `tests/unit/test_processor.py`
+    is absent, so the verification step cannot be executed.
+T013b:
+  c: false
+  h: 20f422c8d3afb1c576649a47a59a8319d9062c8cf5c332ba707b63eeba3a20dd
+  r: "The `processor.py` does not read `STRATIFICATION_THRESHOLDS` from `code/config.py`\
+    \ (it uses a hard\u2011coded default), and it never loads `data/flow/magnitudes.json`\
+    \ as required. Moreover, the expected test file `tests/unit/test_processor.py`\
+    \ and the `magnitudes.json` data file are absent, so the verification step cannot\
+    \ be executed. The implementation therefore does not meet the task\u2019s specifications."
+T017:
+  c: false
+  h: 5412065ff5079c8084e040f4636f1d703bea84243e781b8c68aeaa7fca91b81a
+  r: The `generate_baseline_report` function writes a JSON with fields like `avg_peak_memory`,
+    `avg_ssim`, `avg_fps` and stores the raw input records, but the task requires
+    a report containing the keys `clip_id`, `peak_memory`, `inference_time`, `consecutive_ssim`,
+    and `temporal_gradient_variance`. Those fields are never produced, and the expected
+    output file `data/metrics/baseline_results.json` does not exist in the repository.
+    The provided unit test also checks different keys, so the implementation does
+    not meet the specification.
+T024a:
+  c: false
+  h: 5412065ff5079c8084e040f4636f1d703bea84243e781b8c68aeaa7fca91b81a
+  r: The repository contains a `generate_baseline_report` implementation, but the
+    required verification test `test_baseline_report_generation` does not exist (the
+    test is named `test_generate_baseline_report`). Consequently the exact command
+    given in the task cannot be run successfully, so the implementation cannot be
+    confirmed as meeting the specified verification step. Add a test with the expected
+    name or rename the existing one.
+T024b:
+  c: false
+  h: 36a04b99b5a2eef852c123873b9e90539907f2d6e0a0ac3a82f7841411be8aa7
+  r: "The repository contains a `code/analysis/reporter.py` with only a partial implementation\
+    \ (the `generate_comparative_report` function is truncated, so we cannot verify\
+    \ it writes the required `\"comparison\"` fields). Moreover, the test suite imports\
+    \ `analysis.reporter`, but there is no top\u2011level `analysis` package\u2014\
+    only `code/analysis`\u2014so the import will fail. Consequently the required `data/metrics/flow_results.json`\
+    \ is not present, and the implementation does not demonstrably satisfy the task.\
+    \ The missing or incomplete parts must be fixed for the test to pass."
 T025:
   c: false
   h: 89ff04cff3963f4afac40a2ca19512ee7840377826e739d8018a766aa60dcda4
@@ -12,25 +59,3 @@ T025:
     the repository, so the contract test for the AnalysisResult schema is missing.
     The task cannot be considered complete until this test file is created with appropriate
     content.
-T031:
-  c: false
-  h: e79f479595ac32904d71966e43833f4d7697a8a6588b10b03ecda89497d7036e
-  r: "The repository contains a partially\u2011implemented `code/analysis/reporter.py`\
-    \ (the file is truncated and the `generate_analysis_report` function is incomplete),\
-    \ and the required output files `results/summary.md` and `data/metrics/analysis_results.json`\
-    \ are absent. Consequently the task\u2019s deliverables are not present or functional."
-T037:
-  c: false
-  h: 0ae2700d0b31984cbb0c30c77d41a0ddc5aaa298f79478b20e8ad3fcdc4effb1
-  r: "The repository lacks the required `data/metrics/stratification_report.json`\
-    \ file, and the shown `code/data/processor.py` does not contain the post\u2011\
-    download validation, clip\u2011fetching, warning\u2011logging, or JSON\u2011report\
-    \ generation logic described in the task. The implementation is therefore incomplete."
-T038:
-  c: false
-  h: 1c25669bcadbc73fd82208ef71912e15ab7582ae8703fb159dcf77f8e6373b1d
-  r: "The repository lacks the required `data/metrics/pilot_report.json` file, and\
-    \ the `run_pilot_pipeline` function in `code/main.py` is truncated and contains\
-    \ only placeholder logic without actually executing the pipeline or writing the\
-    \ JSON report. Consequently, the task\u2019s core requirements (empirical measurement,\
-    \ JSON output with `time_per_clip`\u202F>\u202F0 and `peak_memory`) are not satisfied."

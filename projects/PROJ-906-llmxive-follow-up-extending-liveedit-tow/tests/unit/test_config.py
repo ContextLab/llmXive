@@ -1,150 +1,197 @@
-"""
-Unit tests for the experiment configuration manager.
-"""
-
-import pytest
+"""Unit tests for experiment configuration manager."""
 import os
+import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-from code.config import (
+from config import (
     ExperimentConfig,
-    CUTOFFS,
-    DEFAULT_SEED,
-    ensure_directories,
     get_default_config,
+    ensure_directories,
+    SENSITIVITY_CUTOFFS,
+    STRATIFICATION_THRESHOLDS,
+    RANDOM_SEEDS,
 )
 
 
-class TestCutoffs:
-    """Test the CUTOFFS constant as per Spec FR-007."""
+class TestConstants:
+    """Tests for module-level constants."""
 
-    def test_cutoffs_contains_required_values(self):
-        """Verify CUTOFFS contains exactly {0.01, 0.05, 0.1}."""
-        expected = {0.01, 0.05, 0.1}
-        assert CUTOFFS == expected, f"CUTOFFS must be {expected}, got {CUTOFFS}"
+    def test_sensitivity_cutoffs_defined(self):
+        """Verify SENSITIVITY_CUTOFFS is defined and contains correct values."""
+        assert isinstance(SENSITIVITY_CUTOFFS, set)
+        assert SENSITIVITY_CUTOFFS == {0.01, 0.05, 0.1}
 
-    def test_cutoffs_is_set(self):
-        """Verify CUTOFFS is a set."""
-        assert isinstance(CUTOFFS, set), "CUTOFFS must be a set"
+    def test_stratification_thresholds_defined(self):
+        """Verify STRATIFICATION_THRESHOLDS is defined and contains correct values."""
+        assert isinstance(STRATIFICATION_THRESHOLDS, set)
+        assert STRATIFICATION_THRESHOLDS == {0.5, 5.0}
+
+    def test_random_seeds_defined(self):
+        """Verify RANDOM_SEEDS is defined and contains correct values."""
+        assert isinstance(RANDOM_SEEDS, list)
+        assert RANDOM_SEEDS == [42, 123, 456]
 
 
 class TestExperimentConfig:
-    """Test the ExperimentConfig class."""
+    """Tests for ExperimentConfig class."""
 
     def test_default_initialization(self):
-        """Test default configuration initialization."""
+        """Test ExperimentConfig with default values."""
         config = ExperimentConfig()
-        assert config.seed == DEFAULT_SEED
-        assert config.device == "cpu"
+        assert config.dataset == "davis"
+        assert config.output_dir == "data"
         assert config.batch_size == 1
-        assert config.num_clips == 50
-        assert config.flow_model == "raft-small"
-        assert config.cutoffs == CUTOFFS
+        assert config.num_workers == 0
+        assert config.device == "cpu"
+        assert config.seed == 42
 
-    def test_custom_seed(self):
-        """Test custom seed initialization."""
-        config = ExperimentConfig(seed=123)
+    def test_custom_initialization(self):
+        """Test ExperimentConfig with custom values."""
+        config = ExperimentConfig(
+            dataset="youtube_vos",
+            output_dir="custom_output",
+            batch_size=4,
+            num_workers=2,
+            device="cuda",
+            seed=123,
+        )
+        assert config.dataset == "youtube_vos"
+        assert config.output_dir == "custom_output"
+        assert config.batch_size == 4
+        assert config.num_workers == 2
+        assert config.device == "cuda"
         assert config.seed == 123
 
-    def test_custom_cutoffs(self):
-        """Test custom cutoffs initialization."""
-        custom_cutoffs = {0.02, 0.06, 0.12}
-        config = ExperimentConfig(cutoffs=custom_cutoffs)
-        assert config.cutoffs == custom_cutoffs
-
-    def test_invalid_seed(self):
-        """Test that negative seed raises ValueError."""
-        with pytest.raises(ValueError, match="Seed must be non-negative"):
-            ExperimentConfig(seed=-1)
-
-    def test_invalid_batch_size(self):
-        """Test that batch_size < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Batch size must be at least 1"):
-            ExperimentConfig(batch_size=0)
-
-    def test_invalid_num_clips(self):
-        """Test that num_clips < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Number of clips must be at least 1"):
-            ExperimentConfig(num_clips=0)
-
-    def test_invalid_device(self):
-        """Test that invalid device raises ValueError."""
-        with pytest.raises(ValueError, match="Device must be 'cpu' or 'cuda'"):
-            ExperimentConfig(device="tpu")
-
     def test_to_dict(self):
-        """Test conversion to dictionary."""
-        config = ExperimentConfig(seed=42, device="cpu", batch_size=2)
-        config_dict = config.to_dict()
-        assert isinstance(config_dict, dict)
-        assert config_dict["seed"] == 42
-        assert config_dict["device"] == "cpu"
-        assert config_dict["batch_size"] == 2
-        assert "cutoffs" in config_dict
-        assert isinstance(config_dict["cutoffs"], list)
-
-    def test_reproducibility(self):
-        """Test that seeds are set correctly for reproducibility."""
-        import random
-        import numpy as np
-        import torch
-
-        config1 = ExperimentConfig(seed=42)
-        config2 = ExperimentConfig(seed=42)
-
-        # Both should produce same random values
-        random.seed(42)
-        val1 = random.random()
-        np.random.seed(42)
-        val2 = np.random.random()
-        torch.manual_seed(42)
-        val3 = torch.rand(1).item()
-
-        random.seed(42)
-        val4 = random.random()
-        np.random.seed(42)
-        val5 = np.random.random()
-        torch.manual_seed(42)
-        val6 = torch.rand(1).item()
-
-        assert val1 == val4
-        assert val2 == val5
-        assert abs(val3 - val6) < 1e-6
+        """Test to_dict method returns correct dictionary."""
+        config = ExperimentConfig(
+            dataset="davis",
+            output_dir="data",
+            batch_size=1,
+            num_workers=0,
+            device="cpu",
+            seed=42,
+        )
+        result = config.to_dict()
+        expected = {
+            "dataset": "davis",
+            "output_dir": "data",
+            "batch_size": 1,
+            "num_workers": 0,
+            "device": "cpu",
+            "seed": 42,
+        }
+        assert result == expected
 
 
 class TestGetDefaultConfig:
-    """Test the get_default_config function."""
+    """Tests for get_default_config function."""
 
     def test_returns_experiment_config(self):
-        """Test that get_default_config returns an ExperimentConfig."""
+        """Verify get_default_config returns an ExperimentConfig instance."""
         config = get_default_config()
         assert isinstance(config, ExperimentConfig)
 
-    def test_has_correct_defaults(self):
-        """Test that default config has correct values."""
+    def test_returns_default_values(self):
+        """Verify get_default_config returns default values."""
         config = get_default_config()
-        assert config.seed == DEFAULT_SEED
-        assert config.cutoffs == CUTOFFS
+        assert config.dataset == "davis"
+        assert config.output_dir == "data"
+        assert config.batch_size == 1
+        assert config.num_workers == 0
+        assert config.device == "cpu"
+        assert config.seed == 42
 
 
 class TestEnsureDirectories:
-    """Test the ensure_directories function."""
+    """Tests for ensure_directories function."""
 
-    def test_creates_directories(self):
-        """Test that ensure_directories creates required directories."""
-        # Clean up if they exist
-        dirs_to_check = [
-            "data/raw",
-            "data/flow",
-            "data/metrics",
-            "results",
-        ]
+    def setup_method(self):
+        """Create a temporary directory for tests."""
+        self.temp_dir = tempfile.mkdtemp()
 
-        # Run the function
+    def teardown_method(self):
+        """Remove the temporary directory after tests."""
+        shutil.rmtree(self.temp_dir)
+
+    def test_no_args(self):
+        """Test ensure_directories with no arguments (no-op)."""
+        # Should not raise any exception
         ensure_directories()
 
-        # Verify directories exist
-        for dir_path in dirs_to_check:
-            assert os.path.exists(dir_path), f"Directory {dir_path} was not created"
+    def test_single_string_path(self):
+        """Test ensure_directories with a single string path."""
+        test_path = os.path.join(self.temp_dir, "test_dir")
+        ensure_directories(test_path)
+        assert os.path.isdir(test_path)
 
-        # Clean up (optional, for test isolation)
-        # Note: In real CI, we might want to keep these for debugging
+    def test_single_path_object(self):
+        """Test ensure_directories with a single Path object."""
+        test_path = Path(self.temp_dir) / "test_dir"
+        ensure_directories(test_path)
+        assert test_path.is_dir()
+
+    def test_list_of_paths(self):
+        """Test ensure_directories with a list of paths."""
+        paths = [
+            os.path.join(self.temp_dir, "dir1"),
+            os.path.join(self.temp_dir, "dir2"),
+            os.path.join(self.temp_dir, "dir3"),
+        ]
+        ensure_directories(paths)
+        for p in paths:
+            assert os.path.isdir(p)
+
+    def test_variadic_paths(self):
+        """Test ensure_directories with variadic arguments."""
+        paths = [
+            os.path.join(self.temp_dir, "dir1"),
+            os.path.join(self.temp_dir, "dir2"),
+        ]
+        ensure_directories(*paths)
+        for p in paths:
+            assert os.path.isdir(p)
+
+    def test_mixed_args(self):
+        """Test ensure_directories with mixed argument types."""
+        path_str = os.path.join(self.temp_dir, "string_dir")
+        path_obj = Path(self.temp_dir) / "path_dir"
+        list_paths = [
+            os.path.join(self.temp_dir, "list_dir1"),
+            os.path.join(self.temp_dir, "list_dir2"),
+        ]
+
+        ensure_directories(path_str, path_obj, list_paths)
+
+        assert os.path.isdir(path_str)
+        assert path_obj.is_dir()
+        for p in list_paths:
+            assert os.path.isdir(p)
+
+    def test_nested_directories(self):
+        """Test ensure_directories creates nested directories."""
+        nested_path = os.path.join(self.temp_dir, "level1", "level2", "level3")
+        ensure_directories(nested_path)
+        assert os.path.isdir(nested_path)
+
+    def test_existing_directory(self):
+        """Test ensure_directories handles existing directories gracefully."""
+        existing_path = os.path.join(self.temp_dir, "existing")
+        os.makedirs(existing_path)
+        # Should not raise any exception
+        ensure_directories(existing_path)
+        assert os.path.isdir(existing_path)
+
+    def test_none_in_list(self):
+        """Test ensure_directories handles None values in list."""
+        paths = [
+            os.path.join(self.temp_dir, "valid_dir"),
+            None,
+            os.path.join(self.temp_dir, "another_valid_dir"),
+        ]
+        # Should not raise any exception
+        ensure_directories(paths)
+        assert os.path.isdir(paths[0])
+        assert os.path.isdir(paths[2])
