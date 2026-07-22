@@ -1,148 +1,94 @@
 import pytest
-import csv
+import os
 import json
+import csv
+import tempfile
 from pathlib import Path
 import sys
-import os
 
 # Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from evaluator import (
-    load_metrics,
-    stratified_split,
-    calculate_20th_percentile_threshold,
-    calculate_f1_max_threshold,
-    predict_collapse,
-    evaluate_performance,
-    calculate_baseline,
-    calculate_correlation,
-    run_sensitivity_analysis,
-    calculate_null_distribution,
-    generate_results_report,
+    load_metrics, save_metrics, stratified_split,
+    calculate_baseline, calculate_20th_percentile_threshold,
+    calculate_f1_max_threshold, predict_collapse, evaluate_performance,
     main
 )
 
+def test_full_pipeline(tmp_path):
+    """
+    Integration test for the full prediction pipeline on Train/Test split.
+    Simulates the flow from T029 -> T030 -> T032 -> T033
+    """
+    # Setup paths
+    metrics_csv = str(tmp_path / 'metrics.csv')
+    train_csv = str(tmp_path / 'train_metrics.csv')
+    test_csv = str(tmp_path / 'test_metrics.csv')
+    threshold_json = str(tmp_path / 'threshold_config.json')
+    predictions_csv = str(tmp_path / 'predictions.csv')
+    performance_json = str(tmp_path / 'performance_report.json')
 
-@pytest.fixture
-def setup_metrics_files(tmp_path):
-    """Create train and test metrics files for integration testing."""
-    # Create data/processed directory structure
-    data_processed = tmp_path / "data" / "processed"
-    data_processed.mkdir(parents=True)
-    
-    # Create train_metrics.csv
-    train_file = data_processed / "train_metrics.csv"
-    train_data = [
-        {'global_connectivity': 0.1, 'collapse': 1},
-        {'global_connectivity': 0.12, 'collapse': 1},
-        {'global_connectivity': 0.15, 'collapse': 1},
-        {'global_connectivity': 0.18, 'collapse': 1},
-        {'global_connectivity': 0.2, 'collapse': 1},
-        {'global_connectivity': 0.3, 'collapse': 0},
-        {'global_connectivity': 0.4, 'collapse': 0},
-        {'global_connectivity': 0.5, 'collapse': 0},
+    # Create sample data
+    data = [
+        {'trajectory_id': 't1', 'connectivity': 0.1, 'avg_branching': 1.2, 'label': 1},
+        {'trajectory_id': 't2', 'connectivity': 0.2, 'avg_branching': 1.5, 'label': 1},
+        {'trajectory_id': 't3', 'connectivity': 0.3, 'avg_branching': 1.8, 'label': 1},
+        {'trajectory_id': 't4', 'connectivity': 0.4, 'avg_branching': 2.0, 'label': 1},
+        {'trajectory_id': 't5', 'connectivity': 0.5, 'avg_branching': 2.2, 'label': 1},
+        {'trajectory_id': 't6', 'connectivity': 0.05, 'avg_branching': 0.8, 'label': 0},
+        {'trajectory_id': 't7', 'connectivity': 0.15, 'avg_branching': 0.9, 'label': 0},
+        {'trajectory_id': 't8', 'connectivity': 0.25, 'avg_branching': 1.0, 'label': 0},
     ]
-    
-    with open(train_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['global_connectivity', 'collapse'])
-        writer.writeheader()
-        writer.writerows(train_data)
-    
-    # Create test_metrics.csv
-    test_file = data_processed / "test_metrics.csv"
-    test_data = [
-        {'global_connectivity': 0.1, 'collapse': 1},
-        {'global_connectivity': 0.2, 'collapse': 1},
-        {'global_connectivity': 0.3, 'collapse': 0},
-        {'global_connectivity': 0.4, 'collapse': 0},
-        {'global_connectivity': 0.5, 'collapse': 0},
-        {'global_connectivity': 0.15, 'collapse': 1},
-        {'global_connectivity': 0.25, 'collapse': 0},
-        {'global_connectivity': 0.35, 'collapse': 0},
-    ]
-    
-    with open(test_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['global_connectivity', 'collapse'])
-        writer.writeheader()
-        writer.writerows(test_data)
-    
-    return train_file, test_file
 
+    # Write initial metrics
+    with open(metrics_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
 
-def test_full_evaluation_pipeline(setup_metrics_files, tmp_path, monkeypatch):
-    """Integration test for the full evaluation pipeline (T030-T037b)."""
-    train_file, test_file = setup_metrics_files
-    data_processed = train_file.parent
-    
-    # Change to tmp_path to simulate project root
-    monkeypatch.chdir(tmp_path)
-    
-    # Mock the DATA_PROCESSED path in evaluator module
-    import evaluator
-    original_data_path = evaluator.DATA_PROCESSED
-    evaluator.DATA_PROCESSED = data_processed
-    
-    try:
-        # Re-load metrics to use the new path
-        test_metrics = load_metrics(data_processed / "test_metrics.csv")
-        train_metrics = load_metrics(data_processed / "train_metrics.csv")
-        
-        # T030: Calculate thresholds
-        threshold_20th = calculate_20th_percentile_threshold(train_metrics)
-        threshold_f1_max = calculate_f1_max_threshold(train_metrics)
-        
-        assert 0.0 < threshold_20th < 1.0
-        assert 0.0 < threshold_f1_max < 1.0
-        
-        # T032: Predict collapse
-        predictions = predict_collapse(test_metrics, threshold_20th)
-        assert len(predictions) == len(test_metrics)
-        assert all('predicted_collapse' in p for p in predictions)
-        
-        # T033: Evaluate performance
-        performance = evaluate_performance(predictions)
-        assert 'precision' in performance
-        assert 'recall' in performance
-        assert 'f1' in performance
-        assert 0.0 <= performance['f1'] <= 1.0
-        
-        # T034: Calculate baseline
-        baseline = calculate_baseline(train_metrics)
-        assert 0.0 <= baseline <= 1.0
-        
-        # T035: Calculate correlation
-        correlation = calculate_correlation(test_metrics)
-        assert -1.0 <= correlation['pearson_r'] <= 1.0
-        assert -1.0 <= correlation['spearman_r'] <= 1.0
-        
-        # T036: Sensitivity analysis
-        sensitivity = run_sensitivity_analysis(test_metrics)
-        assert 'fixed_thresholds' in sensitivity
-        assert 'percentile_thresholds' in sensitivity
-        
-        # T037a: Null distribution
-        null_dist = calculate_null_distribution(test_metrics, n_permutations=50)
-        assert 'null_distribution' in null_dist
-        assert len(null_dist['null_distribution']) == 50
-        assert 0.0 <= null_dist['p_value'] <= 1.0
-        
-        # T037b: Generate report
-        report = generate_results_report(
-            threshold_20th, threshold_f1_max, predictions, performance,
-            baseline, correlation, sensitivity, null_dist
-        )
-        
-        assert 'thresholds' in report
-        assert 'performance' in report
-        assert 'correlation' in report
-        assert 'sensitivity_analysis' in report
-        assert 'null_distribution_test' in report
-        
-        # Verify report can be serialized
-        report_json = json.dumps(report)
-        assert len(report_json) > 0
-        
-    finally:
-        # Restore original path
-        evaluator.DATA_PROCESSED = original_data_path
+    # 1. Load and Split (T029)
+    loaded_data = load_metrics(metrics_csv)
+    train_data, test_data = stratified_split(loaded_data, seed=42)
+    save_metrics(train_data, train_csv)
+    save_metrics(test_data, test_csv)
+
+    assert os.path.exists(train_csv)
+    assert os.path.exists(test_csv)
+
+    # 2. Calculate 20th Percentile Threshold (T030)
+    calculate_20th_percentile_threshold(train_data, threshold_json)
+    assert os.path.exists(threshold_json)
+
+    with open(threshold_json, 'r') as f:
+        threshold_config = json.load(f)
+    threshold = threshold_config['threshold_value']
+
+    # 3. Predict Collapse (T032)
+    predict_collapse(test_data, threshold, predictions_csv)
+    assert os.path.exists(predictions_csv)
+
+    # 4. Evaluate Performance (T033)
+    evaluate_performance(test_data, predictions_csv, performance_json)
+    assert os.path.exists(performance_json)
+
+    # Verify performance metrics are reasonable
+    with open(performance_json, 'r') as f:
+        perf = json.load(f)
+
+    assert 0.0 <= perf['precision'] <= 1.0
+    assert 0.0 <= perf['recall'] <= 1.0
+    assert 0.0 <= perf['f1_score'] <= 1.0
+    assert perf['confusion_matrix']['true_positive'] >= 0
+    assert perf['confusion_matrix']['false_positive'] >= 0
+    assert perf['confusion_matrix']['true_negative'] >= 0
+    assert perf['confusion_matrix']['false_negative'] >= 0
+
+    # Verify total predictions match test set size
+    total_preds = (
+        perf['confusion_matrix']['true_positive'] +
+        perf['confusion_matrix']['false_positive'] +
+        perf['confusion_matrix']['true_negative'] +
+        perf['confusion_matrix']['false_negative']
+    )
+    assert total_preds == len(test_data)

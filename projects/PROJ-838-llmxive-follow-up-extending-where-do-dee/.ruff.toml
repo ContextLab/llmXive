@@ -1,4 +1,24 @@
-# This file is intentionally empty.
-# Configuration is handled in pyproject.toml to keep the project root clean.
-# If you prefer a dedicated config file, move the [tool.ruff] section here
-# and delete the section from pyproject.toml.
+# Extend the configuration from pyproject.toml if needed, 
+# or provide a standalone config for IDEs that don't read pyproject.toml well.
+# This file mirrors the ruff settings in pyproject.toml for compatibility.
+
+target-version = "py311"
+line-length = 88
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"tests/*" = ["S101"]

@@ -1,3 +1,1 @@
-"""
-Data artifacts package.
-"""
+# Data artifacts package

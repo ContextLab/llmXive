@@ -1,183 +1,249 @@
-"""
-Downloader module for fetching and validating TELBench dataset.
-Implements validation logic to handle malformed JSON and missing fields gracefully.
-"""
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 from config import ensure_directories
-from hasher import verify_file_hash
 
+# Attempt to import datasets. If not present, the error will be caught and raised loudly.
+try:
+    from datasets import load_dataset
+except ImportError:
+    raise ImportError(
+        "The 'datasets' library is required for streaming TELBench. "
+        "Please install it via: pip install datasets"
+    )
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class ValidationError(Exception):
     """Raised when data validation fails."""
     pass
 
-
-def validate_trajectory_record(record: Dict[str, Any], record_id: str) -> Tuple[bool, List[str]]:
+def verify_dataset_exists(dataset_id: str) -> bool:
     """
-    Validate a single trajectory record from TELBench.
-
-    Checks for:
-    - Presence of required fields: 'id', 'spans'
-    - 'spans' must be a non-empty list
-    - Each span must contain 'content' and 'step_id' (or similar core fields)
-
-    Args:
-        record: The dictionary representing a single trajectory.
-        record_id: Identifier for the record (for error reporting).
-
-    Returns:
-        Tuple of (is_valid, list_of_error_messages).
+    Checks if the canonical HuggingFace ID exists.
+    Returns True if found, raises ValueError if not found.
     """
-    errors = []
-
-    # Check top-level required fields
-    if 'id' not in record:
-        errors.append(f"Record {record_id}: Missing required field 'id'")
-    
-    if 'spans' not in record:
-        errors.append(f"Record {record_id}: Missing required field 'spans'")
-        return False, errors
-
-    spans = record.get('spans')
-    
-    if not isinstance(spans, list):
-        errors.append(f"Record {record_id}: Field 'spans' must be a list, got {type(spans).__name__}")
-        return False, errors
-
-    if len(spans) == 0:
-        errors.append(f"Record {record_id}: Field 'spans' is empty")
-        return False, errors
-
-    # Validate individual spans
-    required_span_fields = {'content', 'step_id'}
-    for i, span in enumerate(spans):
-        if not isinstance(span, dict):
-            errors.append(f"Record {record_id}, span {i}: Span must be a dict, got {type(span).__name__}")
-            continue
-        
-        missing_fields = required_span_fields - set(span.keys())
-        if missing_fields:
-            errors.append(
-                f"Record {record_id}, span {i}: Missing fields {missing_fields}"
-            )
-
-    return len(errors) == 0, errors
-
-
-def validate_json_file(file_path: Path) -> Tuple[int, int, List[str]]:
-    """
-    Validate a JSON file containing a list of trajectory records.
-
-    Args:
-        file_path: Path to the JSON file.
-
-    Returns:
-        Tuple of (valid_count, total_count, list_of_error_messages).
-        valid_count: Number of records that passed validation.
-        total_count: Total number of records processed.
-        errors: List of validation error strings.
-    """
-    errors = []
-    valid_count = 0
-    total_count = 0
-
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValidationError(f"Malformed JSON in {file_path}: {e}")
+        # Using load_dataset with streaming to check existence without downloading
+        # We only fetch a tiny slice to verify availability.
+        ds = load_dataset(dataset_id, streaming=True)
+        # If we get here without exception, the dataset exists.
+        logger.info(f"Verified dataset existence: {dataset_id}")
+        return True
+    except Exception as e:
+        logger.error(f"Dataset {dataset_id} not found or inaccessible: {e}")
+        raise ValueError(f"Dataset {dataset_id} not found or inaccessible: {e}") from e
+
+def validate_trajectory_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """
+    Validates a single trajectory record from TELBench.
+    Returns (is_valid, error_message).
+    """
+    required_fields = ["id", "spans"]
+    for field in required_fields:
+        if field not in record:
+            return False, f"Missing required field: {field}"
+    
+    if not isinstance(record["spans"], list):
+        return False, "Field 'spans' must be a list"
+    
+    if len(record["spans"]) == 0:
+        return False, "Field 'spans' cannot be empty"
+
+    return True, None
+
+def validate_json_file(filepath: Path) -> List[Dict[str, Any]]:
+    """
+    Loads and validates a JSON file containing trajectories.
+    Skips malformed records and logs them.
+    """
+    valid_records = []
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = json.load(f)
     
     if not isinstance(data, list):
-        raise ValidationError(
-            f"Invalid structure in {file_path}: Expected a list of records, got {type(data).__name__}"
-        )
-
-    total_count = len(data)
+        raise ValidationError(f"JSON file {filepath} must contain a list of trajectories")
 
     for i, record in enumerate(data):
-        is_valid, record_errors = validate_trajectory_record(record, f"index_{i}")
+        is_valid, error = validate_trajectory_record(record)
         if is_valid:
-            valid_count += 1
+            valid_records.append(record)
         else:
-            errors.extend(record_errors)
+            logger.warning(f"Skipping record {i} in {filepath}: {error}")
+    
+    return valid_records
 
-    return valid_count, total_count, errors
-
-
-def fetch_and_validate(
-    dataset_id: str,
-    output_path: Path,
-    expected_hash: Optional[str] = None
-) -> Dict[str, Any]:
+def fetch_and_validate(dataset_id: str, output_dir: Path) -> None:
     """
-    Fetch dataset from HuggingFace, save to disk, and validate.
-
-    Note: This implementation uses the 'datasets' library to fetch the real data.
-    It strictly fails if the real source is unreachable or data is invalid.
-    No synthetic fallback is provided.
-
-    Args:
-        dataset_id: HuggingFace dataset ID (e.g., 'HuggingFaceH4/tebench').
-        output_path: Path where the JSON file should be saved.
-        expected_hash: Optional SHA256 hash to verify the downloaded file.
-
-    Returns:
-        Dictionary with validation results.
+    Fetches the TELBench dataset using streaming, validates records,
+    and saves them to the output directory.
     """
     ensure_directories()
-    
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "tebench_raw.json"
 
-    try:
-        from datasets import load_dataset
-    except ImportError:
-        raise ImportError(
-            "The 'datasets' library is required. "
-            "Install it with: pip install datasets"
-        )
+    if output_file.exists():
+        logger.info(f"Dataset already exists at {output_file}. Skipping download.")
+        return
 
-    # Fetch the real dataset
-    # Using streaming=False to download the full split for validation
-    # The task requires real data, so we fetch the 'train' split.
+    logger.info(f"Starting streaming download for {dataset_id}...")
     try:
-        dataset = load_dataset(dataset_id, split="train")
+        # Use streaming to avoid loading entire dataset into RAM
+        dataset = load_dataset(dataset_id, streaming=True)
+        
+        # TELBench usually has a 'train' split or similar. 
+        # We iterate over the first split found or default to 'train'.
+        split_name = "train" if "train" in dataset else list(dataset.keys())[0]
+        logger.info(f"Using split: {split_name}")
+        
+        raw_data = []
+        count = 0
+        
+        for item in dataset[split_name]:
+            is_valid, error = validate_trajectory_record(item)
+            if is_valid:
+                raw_data.append(item)
+                count += 1
+            else:
+                logger.warning(f"Skipping malformed trajectory: {error}")
+            
+            # Optional: Log progress every 1000 items if the stream is long
+            if count % 1000 == 0:
+                logger.info(f"Processed {count} valid trajectories...")
+
+        # Save the validated data
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(raw_data, f, indent=2)
+        
+        logger.info(f"Successfully saved {count} valid trajectories to {output_file}")
+
     except Exception as e:
-        raise RuntimeError(f"Failed to fetch dataset '{dataset_id}': {e}")
+        logger.error(f"Failed to fetch or process dataset: {e}")
+        raise
 
-    # Convert to list of dicts and save as JSON
-    # The TELBench dataset structure needs to be handled. 
-    # Assuming standard structure: list of trajectories.
-    # We serialize the dataset to a JSON file.
-    records = dataset.to_list()
+def fetch_tebench() -> Path:
+    """
+    Main entry point to fetch TELBench.
+    Verifies canonical IDs: HuggingFaceH4/tebench -> HuggingFaceH4/tebench-v1.
+    Returns the path to the saved JSON file.
+    """
+    primary_id = "HuggingFaceH4/tebench"
+    fallback_id = "HuggingFaceH4/tebench-v1"
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(records, f, indent=2)
-
-    # Verify hash if provided
-    if expected_hash:
-        is_hash_valid = verify_file_hash(output_path, expected_hash)
-        if not is_hash_valid:
-            raise ValidationError(
-                f"Checksum verification failed for {output_path}. "
-                "The downloaded file does not match the expected hash."
+    dataset_id = None
+    try:
+        verify_dataset_exists(primary_id)
+        dataset_id = primary_id
+    except ValueError:
+        logger.warning(f"Primary dataset {primary_id} not found. Trying fallback...")
+        try:
+            verify_dataset_exists(fallback_id)
+            dataset_id = fallback_id
+        except ValueError:
+            raise RuntimeError(
+                f"Neither {primary_id} nor {fallback_id} found on HuggingFace. "
+                "Cannot proceed without real data source."
             )
 
-    # Validate the content
-    valid_count, total_count, errors = validate_json_file(output_path)
+    output_dir = Path("data/raw")
+    fetch_and_validate(dataset_id, output_dir)
+    return output_dir / "tebench_raw.json"
 
-    return {
-        "file_path": str(output_path),
-        "total_records": total_count,
-        "valid_records": valid_count,
-        "invalid_records": total_count - valid_count,
-        "validation_errors": errors,
-        "is_valid": valid_count == total_count and total_count > 0
-    }
+def stream_dataset(dataset_id: str = "HuggingFaceH4/tebench") -> Any:
+    """
+    Utility to stream the TELBench dataset without loading it into memory.
+    Returns an iterable dataset object.
+    
+    This function is integrated into the pipeline to handle large splits
+    by processing data in chunks, ensuring full dataset contribution to statistics
+    without exceeding RAM.
+    
+    Args:
+        dataset_id: The HuggingFace dataset ID (defaults to primary TELBench).
+    
+    Yields:
+        Individual trajectory records from the dataset.
+    
+    Raises:
+        ValueError: If the dataset source is missing or inaccessible.
+    """
+    try:
+        # Verify existence first to fail loudly if missing
+        verify_dataset_exists(dataset_id)
+        
+        # Load with streaming=True
+        ds = load_dataset(dataset_id, streaming=True)
+        
+        # Determine the split to use
+        split_name = "train" if "train" in ds else list(ds.keys())[0]
+        logger.info(f"Streaming dataset split: {split_name}")
+        
+        return ds[split_name]
+    
+    except ImportError as e:
+        raise ImportError(
+            "The 'datasets' library is required for streaming. "
+            "Install with: pip install datasets"
+        ) from e
+    except Exception as e:
+        logger.error(f"Failed to initialize stream for {dataset_id}: {e}")
+        raise ValueError(f"Could not stream dataset {dataset_id}: {e}") from e
+
+def fetch_tebench_streaming(output_dir: Optional[Path] = None) -> Path:
+    """
+    Fetches TELBench using streaming and saves it to disk.
+    This is the recommended method for large datasets to avoid OOM errors.
+    """
+    if output_dir is None:
+        output_dir = Path("data/raw")
+    
+    ensure_directories()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "tebench_raw.json"
+
+    if output_file.exists():
+        logger.info(f"Dataset already exists at {output_file}. Skipping download.")
+        return output_file
+
+    logger.info(f"Starting streaming fetch for {dataset_id}...")
+    
+    # Use the streaming utility to get an iterator
+    # Note: We need to define dataset_id here or use the config one.
+    # Assuming we use the primary ID from fetch_tebench logic.
+    primary_id = "HuggingFaceH4/tebench"
+    fallback_id = "HuggingFaceH4/tebench-v1"
+    
+    dataset_id_to_use = None
+    try:
+        verify_dataset_exists(primary_id)
+        dataset_id_to_use = primary_id
+    except ValueError:
+        try:
+            verify_dataset_exists(fallback_id)
+            dataset_id_to_use = fallback_id
+        except ValueError:
+            raise RuntimeError(f"Dataset {primary_id} and {fallback_id} not found.")
+
+    ds = load_dataset(dataset_id_to_use, streaming=True)
+    split_name = "train" if "train" in ds else list(ds.keys())[0]
+    
+    raw_data = []
+    count = 0
+    
+    logger.info(f"Iterating over {split_name} split...")
+    for item in ds[split_name]:
+        is_valid, error = validate_trajectory_record(item)
+        if is_valid:
+            raw_data.append(item)
+            count += 1
+        else:
+            logger.warning(f"Skipping malformed trajectory: {error}")
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(raw_data, f, indent=2)
+    
+    logger.info(f"Saved {count} valid trajectories to {output_file}")
+    return output_file

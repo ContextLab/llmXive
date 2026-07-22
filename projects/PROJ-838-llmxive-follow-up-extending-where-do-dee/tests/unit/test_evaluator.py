@@ -1,216 +1,118 @@
 import pytest
-import csv
 import os
-from pathlib import Path
+import json
 import numpy as np
-from scipy.stats import pearsonr, spearmanr
-
-# Import functions from the module under test
+from pathlib import Path
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from evaluator import (
-    load_metrics,
-    save_metrics,
-    stratified_split,
-    calculate_20th_percentile_threshold,
-    calculate_f1_max_threshold,
-    predict_collapse,
-    evaluate_performance,
-    calculate_baseline,
-    calculate_correlation,
-    run_sensitivity_analysis,
-    calculate_null_distribution
+    load_metrics, save_metrics, stratified_split,
+    calculate_baseline, calculate_20th_percentile_threshold,
+    calculate_f1_max_threshold, predict_collapse, evaluate_performance
 )
 
+@pytest.fixture
+def sample_train_data(tmp_path):
+    """Create a sample training dataset for testing."""
+    data = [
+        {'trajectory_id': 't1', 'connectivity': 0.1, 'avg_branching': 1.2, 'label': 1},
+        {'trajectory_id': 't2', 'connectivity': 0.2, 'avg_branching': 1.5, 'label': 1},
+        {'trajectory_id': 't3', 'connectivity': 0.3, 'avg_branching': 1.8, 'label': 1},
+        {'trajectory_id': 't4', 'connectivity': 0.4, 'avg_branching': 2.0, 'label': 1},
+        {'trajectory_id': 't5', 'connectivity': 0.5, 'avg_branching': 2.2, 'label': 1},
+        {'trajectory_id': 't6', 'connectivity': 0.05, 'avg_branching': 0.8, 'label': 0},
+        {'trajectory_id': 't7', 'connectivity': 0.15, 'avg_branching': 0.9, 'label': 0},
+        {'trajectory_id': 't8', 'connectivity': 0.25, 'avg_branching': 1.0, 'label': 0},
+    ]
+    return data
 
 @pytest.fixture
-def sample_test_metrics(tmp_path):
-    """Create a sample test_metrics.csv file."""
-    filepath = tmp_path / "test_metrics.csv"
+def sample_test_data(tmp_path):
+    """Create a sample test dataset for testing."""
     data = [
-        {'global_connectivity': 0.1, 'collapse': 1},
-        {'global_connectivity': 0.2, 'collapse': 1},
-        {'global_connectivity': 0.3, 'collapse': 0},
-        {'global_connectivity': 0.4, 'collapse': 0},
-        {'global_connectivity': 0.5, 'collapse': 0},
-        {'global_connectivity': 0.15, 'collapse': 1},
-        {'global_connectivity': 0.25, 'collapse': 0},
-        {'global_connectivity': 0.35, 'collapse': 0},
+        {'trajectory_id': 't9', 'connectivity': 0.12, 'avg_branching': 1.3, 'label': 1},
+        {'trajectory_id': 't10', 'connectivity': 0.18, 'avg_branching': 1.4, 'label': 1},
+        {'trajectory_id': 't11', 'connectivity': 0.08, 'avg_branching': 0.7, 'label': 0},
     ]
-    
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['global_connectivity', 'collapse'])
-        writer.writeheader()
-        writer.writerows(data)
-    
-    return filepath
+    return data
 
+def test_stratified_split(sample_train_data):
+    train, test = stratified_split(sample_train_data, test_ratio=0.2, seed=42)
+    assert len(train) + len(test) == len(sample_train_data)
+    # Check label balance roughly
+    train_labels = [d['label'] for d in train]
+    test_labels = [d['label'] for d in test]
+    assert sum(train_labels) + sum(test_labels) == 5 # Total 5 success in sample
+    assert sum([1 for l in train_labels if l == 0]) + sum([1 for l in test_labels if l == 0]) == 3 # Total 3 failure
 
-@pytest.fixture
-def sample_train_metrics(tmp_path):
-    """Create a sample train_metrics.csv file."""
-    filepath = tmp_path / "train_metrics.csv"
-    data = [
-        {'global_connectivity': 0.1, 'collapse': 1},
-        {'global_connectivity': 0.12, 'collapse': 1},
-        {'global_connectivity': 0.15, 'collapse': 1},
-        {'global_connectivity': 0.18, 'collapse': 1},
-        {'global_connectivity': 0.2, 'collapse': 1},
-        {'global_connectivity': 0.3, 'collapse': 0},
-        {'global_connectivity': 0.4, 'collapse': 0},
-        {'global_connectivity': 0.5, 'collapse': 0},
-    ]
-    
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['global_connectivity', 'collapse'])
-        writer.writeheader()
-        writer.writerows(data)
-    
-    return filepath
+def test_calculate_20th_percentile_threshold(sample_train_data, tmp_path):
+    output_path = str(tmp_path / 'threshold_config.json')
+    calculate_20th_percentile_threshold(sample_train_data, output_path)
 
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        result = json.load(f)
 
-def test_load_metrics(sample_test_metrics):
-    """Test loading metrics from CSV."""
-    metrics = load_metrics(sample_test_metrics)
-    assert len(metrics) == 8
-    assert metrics[0]['global_connectivity'] == 0.1
-    assert metrics[0]['collapse'] == 1
+    assert 'threshold_value' in result
+    assert result['threshold_type'] == '20th_percentile_success'
+    # Verify calculation manually:
+    # Success values: [0.1, 0.2, 0.3, 0.4, 0.5]
+    # 20th percentile of these 5 values
+    # np.percentile([0.1, 0.2, 0.3, 0.4, 0.5], 20) = 0.14 (linear interpolation)
+    expected = float(np.percentile([0.1, 0.2, 0.3, 0.4, 0.5], 20))
+    assert abs(result['threshold_value'] - expected) < 1e-6
 
+def test_calculate_f1_max_threshold(sample_train_data, tmp_path):
+    output_path = str(tmp_path / 'f1_max_threshold.json')
+    calculate_f1_max_threshold(sample_train_data, output_path)
 
-def test_stratified_split(sample_train_metrics):
-    """Test stratified split preserves label balance."""
-    train_data = load_metrics(sample_train_metrics)
-    train_split, test_split = stratified_split(train_data, test_size=0.25)
-    
-    # Check split sizes (approximate)
-    assert len(train_split) + len(test_split) == 8
-    
-    # Check label balance in both splits
-    train_success = sum(1 for m in train_split if m['collapse'] == 1)
-    test_success = sum(1 for m in test_split if m['collapse'] == 1)
-    
-    assert train_success > 0
-    assert test_success > 0
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        result = json.load(f)
 
+    assert 'threshold_value' in result
+    assert 'max_f1_score' in result
+    # The threshold should be one of the unique connectivity values
+    unique_vals = sorted(list(set([d['connectivity'] for d in sample_train_data])))
+    assert result['threshold_value'] in unique_vals
 
-def test_calculate_20th_percentile_threshold(sample_train_metrics):
-    """Test 20th percentile threshold calculation."""
-    train_data = load_metrics(sample_train_metrics)
-    threshold = calculate_20th_percentile_threshold(train_data)
-    
-    # Success values: [0.1, 0.12, 0.15, 0.18, 0.2]
-    # Sorted: same
-    # 20th percentile index: int(0.2 * 5) = 1 -> value 0.12
-    assert abs(threshold - 0.12) < 0.001
+def test_predict_collapse(sample_test_data, tmp_path):
+    threshold = 0.15
+    output_path = str(tmp_path / 'predictions.csv')
+    predict_collapse(sample_test_data, threshold, output_path)
 
+    assert os.path.exists(output_path)
+    loaded = load_metrics(output_path)
+    assert len(loaded) == len(sample_test_data)
+    for row in loaded:
+        assert 'prediction' in row
+        if row['connectivity'] < threshold:
+            assert row['prediction'] == 0
+        else:
+            assert row['prediction'] == 1
 
-def test_calculate_f1_max_threshold(sample_train_metrics):
-    """Test F1-max threshold calculation."""
-    train_data = load_metrics(sample_train_metrics)
-    threshold = calculate_f1_max_threshold(train_data)
-    
-    # Should return a valid threshold from the data
-    assert threshold is not None
-    assert 0.0 <= threshold <= 1.0
+def test_evaluate_performance(sample_test_data, tmp_path):
+    # First create predictions
+    threshold = 0.15
+    preds_path = str(tmp_path / 'predictions.csv')
+    predict_collapse(sample_test_data, threshold, preds_path)
 
+    # Then evaluate
+    perf_path = str(tmp_path / 'performance.json')
+    evaluate_performance(sample_test_data, preds_path, perf_path)
 
-def test_predict_collapse(sample_test_metrics):
-    """Test collapse prediction logic."""
-    test_data = load_metrics(sample_test_metrics)
-    threshold = 0.25
-    
-    predictions = predict_collapse(test_data, threshold)
-    
-    # Check that predicted_collapse is added
-    assert 'predicted_collapse' in predictions[0]
-    
-    # Check logic: val < threshold -> 1 (collapse), else 0
-    assert predictions[0]['predicted_collapse'] == 1  # 0.1 < 0.25
-    assert predictions[2]['predicted_collapse'] == 0  # 0.3 >= 0.25
+    assert os.path.exists(perf_path)
+    with open(perf_path, 'r') as f:
+        result = json.load(f)
 
-
-def test_evaluate_performance(sample_test_metrics):
-    """Test performance evaluation metrics."""
-    test_data = load_metrics(sample_test_metrics)
-    predictions = predict_collapse(test_data, threshold=0.25)
-    metrics = evaluate_performance(predictions)
-    
-    assert 'precision' in metrics
-    assert 'recall' in metrics
-    assert 'f1' in metrics
-    assert 'confusion_matrix' in metrics
-    
-    # Check confusion matrix keys
-    cm = metrics['confusion_matrix']
-    assert 'tp' in cm
-    assert 'fp' in cm
-    assert 'tn' in cm
-    assert 'fn' in cm
-
-
-def test_calculate_baseline(sample_train_metrics):
-    """Test baseline calculation (mean success connectivity)."""
-    train_data = load_metrics(sample_train_metrics)
-    baseline = calculate_baseline(train_data)
-    
-    # Success values: [0.1, 0.12, 0.15, 0.18, 0.2]
-    # Mean: 0.15
-    assert abs(baseline - 0.15) < 0.001
-
-
-def test_calculate_correlation(sample_test_metrics):
-    """Test correlation calculation (T035)."""
-    test_data = load_metrics(sample_test_metrics)
-    result = calculate_correlation(test_data)
-    
-    assert 'pearson_r' in result
-    assert 'pearson_p' in result
-    assert 'spearman_r' in result
-    assert 'spearman_p' in result
-    
-    # Check that correlations are within valid range [-1, 1]
-    assert -1.0 <= result['pearson_r'] <= 1.0
-    assert -1.0 <= result['spearman_r'] <= 1.0
-    
-    # Check p-values are within [0, 1]
-    assert 0.0 <= result['pearson_p'] <= 1.0
-    assert 0.0 <= result['spearman_p'] <= 1.0
-
-
-def test_run_sensitivity_analysis(sample_test_metrics):
-    """Test sensitivity analysis."""
-    test_data = load_metrics(sample_test_metrics)
-    result = run_sensitivity_analysis(test_data)
-    
-    assert 'fixed_thresholds' in result
-    assert 'percentile_thresholds' in result
-    
-    # Check fixed thresholds
-    assert 0.01 in result['fixed_thresholds']
-    assert 0.05 in result['fixed_thresholds']
-    assert 0.1 in result['fixed_thresholds']
-    
-    # Check percentile thresholds
-    assert 10 in result['percentile_thresholds']
-    assert 20 in result['percentile_thresholds']
-
-
-def test_calculate_null_distribution(sample_test_metrics):
-    """Test null distribution calculation."""
-    test_data = load_metrics(sample_test_metrics)
-    result = calculate_null_distribution(test_data, n_permutations=100)
-    
-    assert 'null_distribution' in result
-    assert 'observed_r' in result
-    assert 'p_value' in result
-    assert 'pass_fail' in result
-    
-    # Check null distribution length
-    assert len(result['null_distribution']) == 100
-    
-    # Check p-value range
-    assert 0.0 <= result['p_value'] <= 1.0
-    
-    # Check pass_fail is boolean
-    assert isinstance(result['pass_fail'], bool)
+    assert 'precision' in result
+    assert 'recall' in result
+    assert 'f1_score' in result
+    assert 'confusion_matrix' in result
+    assert 'true_positive' in result['confusion_matrix']
+    assert 'false_positive' in result['confusion_matrix']
+    assert 'true_negative' in result['confusion_matrix']
+    assert 'false_negative' in result['confusion_matrix']

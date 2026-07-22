@@ -9,17 +9,15 @@ This project implements a CPU-tractable pipeline to predict "collapse" in deep-r
 
 ## Technical Context
 
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `networkx`, `datasets` (Hugging Face), `scikit-learn`, `tqdm`, `pyyaml`, `pytest`, `ruff`, `black`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `code/`)  
-**Testing**: `pytest` (unit tests for graph construction, metric calculation, and threshold logic)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPUs, ~7 GB RAM)  
-**Project Type**: Data analysis pipeline / Research tool  
-**Performance Goals**: Process 100 trajectories within 30 minutes; full dataset within 6 hours (streaming enabled).  
-**Constraints**: CPU-only execution; no GPU dependencies; strict adherence to `cutoff_depth` logic; graceful handling of malformed JSON and short trajectories; all topological metrics must return 0.0 (not NaN) for degenerate graphs.  
-**Scale/Scope**: Initial run on a sample of trajectories; full run on the complete TELBench dataset (size deferred to research phase, handled via streaming).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `networkx`, `scikit-learn`, `spaCy`, `tqdm`, `pyyaml`, `requests`, `scipy` (no GPU/CUDA libraries).
+**Storage**: Local filesystem (`data/raw`, `data/processed`), JSON/CSV/Parquet formats.
+**Testing**: `pytest` (unit tests for graph construction, integration tests for pipeline flow).
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).
+**Project Type**: Research Data Pipeline / CLI Tool.
+**Performance Goals**: Process 100 trajectories in < 30 minutes; full dataset within 6 hours.
+**Constraints**: No GPU; strict memory limits (< 7 GB RAM); deterministic graph construction; no pre-labeled error data used in feature extraction.
+**Scale/Scope**: Variable dataset size (TELBench); processing capped by CPU time limits.
 
 ## Constitution Check
 
@@ -100,10 +98,19 @@ pyproject.toml           # Includes ruff/black config
 - **T001**: Verify dataset access (Hugging Face `NJU-LINK/TELBench`).
 - **T002**: Download and checksum raw data to `data/raw/`.
 
-### Phase 1: Graph Construction & Metric Calculation
-- **T003**: Implement `parser.py` to extract spans and build DAGs (handling short trajectories and zero-edge cases).
-- **T004**: Implement `metrics.py` to calculate Branching Factor, Global Connectivity, and Linear Reasoning Index (handling degenerate graphs with 0.0).
-- **T005**: Save graphs to `data/processed/graphs/` and metrics to `data/processed/metrics.csv`.
+### Phase 3: Prediction & Validation
+* **Goal**: Apply threshold and evaluate against ground truth.
+* **FR Mapping**: FR-004 (Optimal Threshold), FR-005 (Confusion Matrix), FR-007 (Baseline), FR-008 (Linear reasoning check).
+* **SC Mapping**: SC-001 (Precision), SC-002 (Correlation/Significance), SC-004 (Sensitivity analysis).
+* **Steps**:
+ 1. **Split Data**: Split the dataset into Train and Test sets using stratification by the `label` field to ensure class balance is preserved.
+ 2. **Threshold Selection**: Calculate the optimal decision boundary on the **Train** set by maximizing the F1-score (or Youden's J statistic) on the ROC curve. This replaces the arbitrary "20th percentile of success" heuristic to avoid circular logic.
+ 3. **Power Analysis**: Calculate the effect size (Cohen's d) from the training split and perform a post-hoc power analysis. If power < 0.8, flag the limitation in the report.
+ 4. **Apply Threshold**: Apply the optimal threshold to the **Test** set to generate predictions.
+ 5. **Evaluate**: Compute Precision, Recall, F1, and p-values (scipy.stats) comparing predicted vs. actual labels.
+ 6. **Null Hypothesis**: Perform a permutation test (shuffling labels a sufficient number of times) to establish a null distribution for the correlation coefficient. Ensure the observed correlation significantly exceeds the null (p < 0.05).
+ 7. **Sensitivity Analysis**: Sweep thresholds (representative small values) and percentiles (, 20, 30). Report the full matrix of results. Select the "best" threshold based on the highest F1-score on the validation set, not arbitrarily.
+ 8. **Versioning**: Run `code/hasher.py` to record hashes of all processed metrics and reports.
 
 ### Phase 2: Statistical Validation & Threshold Justification
 - **T006**: Split `metrics.csv` into `train_metrics.csv` and `test_metrics.csv`.

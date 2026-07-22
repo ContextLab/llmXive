@@ -1,10 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/`, `data/`, or `tests/` directories (or any
+    files within them) was provided; without these artifacts the claim that the project
+    structure was created cannot be verified.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` or `.ruff.toml`
+    for ruff, `black` settings, or a `pre-commit` hook) are present in the provided
+    evidence, nor any documentation showing that ruff and black have been installed
+    and integrated into the project workflow. The required artifacts to demonstrate
+    that linting (ruff) and formatting (black) are configured are missing.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/raw` or `data/processed` directories containing a `.gitkeep` file were
+    presented, and no evidence of such files exists in the provided artifacts. The
+    required directory structure and placeholder files are missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the parser now handles\
+    \ trajectories shorter than `int(len(spans) * config.cutoff_depth)` by using all\
+    \ spans, nor that it returns an empty graph for zero\u2011edge cases. The required\
+    \ implementation and verification artifacts are missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `save_graph` function implementation was presented, nor any JSON files in
+    `data/processed/graphs/` to demonstrate that intermediate DAGs are being saved.
+    The required artifact is missing, so the task is not satisfied.
 T023:
   c: true
-  h: 1120ba919c7659bbc09e669b45ac36901a63238a67f8ced43e0d4b2a4a4148c1
-  r: "The file `code/metrics.py` contains a non\u2011empty implementation of `process_batch`\
-    \ that scans a given directory for `*.json` files, computes the required metrics,\
-    \ and writes them to a CSV at the supplied output path, fulfilling the task specification.\
-    \ (The CSV itself is not expected to exist until the function is run.)"
+  h: b6f45d27d77cfdaac5349a97587447c658dddaef1bf8dd9b8cde69f1c6fe515a
+  r: "The file `code/metrics.py` contains a fully implemented `process_batch` function\
+    \ that walks a directory of JSON graph files, computes the required metrics, and\
+    \ writes them to a CSV file. The implementation is non\u2011placeholder and matches\
+    \ the specification, even though the CSV has not been generated yet (it will be\
+    \ created when the function is invoked)."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,27 +52,13 @@ T025:
     progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
     is not satisfied.
 T029:
-  c: true
-  h: 13c5a16cdf85b31d482e1e6372392e48b25a5d4aaf635eced2687baa684e0bfe
-  r: The `code/evaluator.py` file exists and contains a fully implemented `stratified_split`
-    function that reads a list of metric dicts, separates by the `collapse` label,
-    and returns balanced train and test splits. Supporting load/save utilities are
-    also present, satisfying the required behavior.
-T030:
   c: false
-  h: 00b422bb569109aba1c755d752a72ab15be0710b350771453208cabf423b026b
-  r: The `calculate_20th_percentile_threshold` function in `code/evaluator.py` is
-    only declared with a docstring and contains no implementation (the file is truncated).
-    Additionally, the required input file `data/processed/train_metrics.csv` does
-    not exist in the repository. Both the core artifact and its input data are missing,
-    so the task is not fulfilled.
-T031:
-  c: false
-  h: 00b422bb569109aba1c755d752a72ab15be0710b350771453208cabf423b026b
-  r: "The repository lacks a `calculate_f1_max_threshold` function in `code/evaluator.py`\
-    \ (the file is truncated before any such implementation) and the required input\
-    \ file `data/processed/train_metrics.csv` is absent, so the task\u2019s core requirement\
-    \ is not fulfilled."
+  h: bca86d7bc80c9f6b3d4fdacf6cdfc4b5373a48033581736db33662a486c2fead
+  r: "The repository contains a partial `evaluator.py` with a `stratified_split` implementation,\
+    \ but there is no code that actually reads `data/processed/metrics.csv` and writes\
+    \ the required `train_metrics.csv` and `test_metrics.csv`. Moreover, the expected\
+    \ input file `data/processed/metrics.csv` (and the resulting split files) are\
+    \ absent, so the task\u2019s end\u2011to\u2011end functionality is not demonstrated."
 T032:
   c: false
   h: 79940c4e84d0460372b73a6e444edb01b05d4752057612faea17d2f5be5395c3
@@ -52,3 +72,9 @@ T033:
     the provided `code/evaluator.py` does not contain an implemented `evaluate_performance`
     function (the file is truncated before any such definition). Consequently the
     task of computing Precision, Recall, F1, and a Confusion Matrix cannot be satisfied.
+T034:
+  c: false
+  h: b7808018461bd9711668ddebb5d43087eaab4b8933f8e236e19f2bbcebfd10b5
+  r: "The `calculate_baseline` function is truncated and not fully implemented, and\
+    \ the required input file `data/processed/train_metrics.csv` and output file `data/processed/baseline_report.json`\
+    \ are absent. The task\u2019s core functionality and artifacts are missing."

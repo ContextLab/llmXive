@@ -1,3 +1,1 @@
-"""
-Tests package.
-"""
+# Tests package

@@ -1,4 +1,4 @@
-# Tasks: llmXive follow-up: extending "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization"
+# Tasks: llmXive follow-up: extending "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization "
 
 **Input**: Design documents from `/specs/001-gene-regulation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -51,16 +51,18 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` to define hyperparameters (`cutoff_depth`, `seed`, `dataset_url`)
 - [X] T005 [P] Setup hashing utility in `code/hasher.py` (utility setup only, does not run on artifacts yet)
-- [X] T006 [P] Implement data validation logic in `code/downloader.py` to handle malformed JSON and missing fields gracefully
-- [ ] T007 [P] Implement `code/downloader.py` to fetch TELBench dataset from HuggingFace (ID: `NJU-LINK/TELBench`, file path: `train.json` at root). **Action**: First verify file existence via `datasets` library or `list_files` before download; handle path `train.json` (not `data/train.json`). Use checksum verification.
+- [X] T006 [P] Implement data validation logic in `code/downloader.py` to handle malformed JSON and missing fields gracefully (Implementation of validation logic only, not execution)
+- [ ] T007a [P] Implement `verify_dataset_exists` in `code/downloader.py` to check canonical HuggingFace ID `HuggingFaceH4/tebench` and fallback `HuggingFaceH4/tebench-v1` before fetching; raise error if neither exists.
+- [X] T007 [P] Implement `code/downloader.py` to fetch TELBench dataset from HuggingFace (Primary ID: `HuggingFaceH4/tebench`, Fallback: `HuggingFaceH4/tebench-v1`) using `datasets.load_dataset(..., streaming=True)` logic from T047. **MUST FAIL LOUDLY** if dataset source is missing; skip individual malformed trajectories with log. **Depends on T007a**.
 - [ ] T008 Setup `data/raw` and `data/processed` directories with `.gitkeep`
 - [X] T009 Configure `pytest` environment and create `tests/conftest.py`
+- [X] T047 [P] Implement `stream_dataset` utility in `code/downloader.py` using `datasets.load_dataset(..., streaming=True)` to handle large TELBench splits without exceeding RAM, ensuring the full dataset contributes to statistics if possible. **Integrated into T007**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,11 +76,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/graph_builder.py` with `parse_trajectory` function to extract first int(len(spans) * config.cutoff_depth) spans. **Import**: `import code.config` to access `cutoff_depth`.
-- [X] T014 [US1] Implement co-reference resolution and citation detection using `spaCy` (`en_core_web_sm`) and `Matcher` in `code/graph_builder.py` (CPU-tractable, no neuralcoref, no spacy-experimental). **Input**: `span_text` field from trajectory. **Output**: `list of (source_node_id, target_node_id)`. **Constraint**: STRIP success/failure label from input trajectory before processing.
-- [X] T015 [US1] Implement `build_dag` function in `code/graph_builder.py` to construct `networkx.DiGraph` excluding ground-truth labels. **Constraint**: STRIP success/failure label from input trajectory before processing.
-- [ ] T016 [US1] Add error handling for trajectories shorter than int(len(spans) * config.cutoff_depth) (use all spans) and zero-edge cases (return empty graph)
-- [ ] T017 [US1] Implement `save_graph` function to output intermediate DAGs to `data/processed/graphs/` as JSON with naming convention `{trajectory_id}.json`. **Dependency**: Must be completed before T038.
+- [X] T013 [US1] Implement `code/graph_builder.py` with `parse_trajectory` function to extract first int(len(spans) * config.cutoff_depth) spans
+- [X] T014 [US1] Implement co-reference resolution and citation detection using `spaCy` (`en_core_web_sm`) and `Matcher` in `code/graph_builder.py` (CPU-tractable, no neuralcoref, no spacy-experimental)
+- [X] T015 [US1] Implement `build_dag` function in `code/graph_builder.py` to construct `networkx.DiGraph` excluding ground-truth labels
+- [ ] T016a [US1] Add error handling for trajectories shorter than int(len(spans) * config.cutoff_depth) (use all spans) and log the specific trajectory ID. **Verification**: Run on a synthetic dataset with a 5-span trajectory; verify the graph contains all 5 nodes.
+- [ ] T016b [US1] Add error handling for zero-edge cases (return empty graph with nodes, connectivity=0.0). **Verification**: Run on a synthetic dataset with no citations; verify graph has nodes but 0 edges and connectivity=0.0.
+- [ ] T017 [US1] Implement `save_graph` function to output intermediate DAGs to `data/processed/graphs/` as JSON
 
 ### Tests for User Story 1
 
@@ -92,7 +95,7 @@
 
 ## Phase 4: User Story 2 - Calculate Connectivity and Branching Metrics (Priority: P2)
 
-**Goal**: Compute normalized Global Connectivity and Average Branching Factor for each trajectory's early-stage graph.
+**Goal**: Compute normalized Global Connectivity for each trajectory's early-stage graph. (Branching Factor is excluded per Plan Phase 2 simplification).
 
 **Independent Test**: Feed a known small graph (3 nodes, 2 edges); verify output matches mathematically derived values exactly.
 
@@ -102,16 +105,14 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/metrics.py` with `calculate_global_connectivity` (Input: `data/processed/graphs/`, Output: `metrics.csv`). Formula: edges / (N * (N)), normalized by node count. **Depends on T017 completion**.
-- [X] T022 [US2] Implement `code/metrics.py` with `calculate_avg_branching_factor` (Input: `data/processed/graphs/`, Output: `metrics.csv`). Formula: sum of out-degrees / node count. **Depends on T017 completion**.
-- [X] T023 [US2] Implement `process_batch` in `code/metrics.py` to iterate over `data/processed/graphs/` JSON files, aggregate metrics (including BOTH `global_connectivity` AND `avg_branching_factor`), and write `data/processed/metrics.csv`. **Depends on T017**.
-- [ ] T024 [US2] Ensure metrics handle zero-node or zero-edge cases by returning 0.0 instead of NaN
-- [ ] T025 [US2] Add logging for batch processing progress using `tqdm`
+- [X] T021 [US2] Implement `code/metrics.py` with `calculate_global_connectivity` (Input: `data/processed/graphs/`, Output: `metrics.csv`). Formula: edges / (N * (N-1)), normalized by node count. **Note**: Branching Factor is not calculated in this phase per Plan Phase 2 simplification. **Depends on T017**.
+- [X] T023 [US2] Implement `process_batch` in `code/metrics.py` to iterate over `data/processed/graphs/` JSON files, aggregate metrics, and write `data/processed/metrics.csv`.
+- [X] T024 [US2] Ensure metrics handle zero-node or zero-edge cases by returning 0.0 instead of NaN (Implemented in `process_batch` function in `code/metrics.py`).
+- [X] T025 [US2] Add logging for batch processing progress using `tqdm` (Implemented in `process_batch` function in `code/metrics.py`).
 
 ### Tests for User Story 2
 
 - [X] T018 [P] [US2] Unit test for Global Connectivity calculation in `tests/unit/test_metrics.py`
-- [X] T019 [P] [US2] Unit test for Average Branching Factor calculation in `tests/unit/test_metrics.py`
 - [X] T020 [P] [US2] Integration test for batch metric calculation in `tests/integration/test_metrics.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -120,7 +121,7 @@
 
 ## Phase 5: User Story 3 - Predict Collapse and Validate Against Ground Truth (Priority: P3)
 
-**Goal**: Apply a data-driven threshold to metrics, predict collapse, and validate against ground-truth labels to generate Precision/Recall/F1.
+**Goal**: Apply the SPEC-MANDATED 20th percentile threshold to metrics, predict collapse, and validate against ground-truth labels to generate Precision/Recall/F1.
 
 **Independent Test**: Provide a synthetic dataset with known labels; verify confusion matrix matches expected values.
 
@@ -135,18 +136,19 @@
 
 ### Implementation for User Story 3
 
-- [X] T029 [US3] Implement `code/evaluator.py` with `stratified_split` function (Input: `data/processed/metrics.csv`, Output: `data/processed/train_metrics.csv`, `data/processed/test_metrics.csv`) to divide data into Train/Test sets preserving label balance. **Depends on T023**.
-- [ ] T030 [US3] Implement `calculate_20th_percentile_threshold` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`, Success Class). **PRIMARY THRESHOLD per FR-004**. Search space: sweep all unique metric values in the success class subset of the training split. Output: `data/processed/threshold_config.json` containing the threshold value. **Depends on T029**.
-- [ ] T031 [US3] Implement `calculate_f1_max_threshold` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`). **COMPARATIVE ANALYSIS ONLY**. Calculate the optimal F1-score threshold for comparison against the primary baseline. **Constraint**: This value is for reporting only and MUST NOT influence the threshold selection logic. **MUST NOT** be used for prediction logic. **Depends on T029**.
-- [ ] T032a [US3] **ENFORCEMENT TASK**: Implement `enforce_primary_threshold` in `code/evaluator.py` to explicitly select the threshold from T030 (20th percentile) as the mandatory input for T032. **Logic**: Select `threshold = T030.value`; IGNORE `T031.value` for prediction logic. Output: `threshold_used` value for T032. **Depends on T030**.
-- [ ] T032 [US3] Implement `predict_collapse` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, Threshold from T032a) applying the PRIMARY threshold (T030) to the Test set. **Depends on T032a**.
-- [ ] T033 [US3] Implement `evaluate_performance` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, Predictions from T032) to generate Precision, Recall, F1, and Confusion Matrix
-- [ ] T034 [US3] Implement `calculate_baseline` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`, Success Class) to calculate and report mean connectivity of the "success" class (FR-007). Verify output matches mean of success subset.
+- [ ] T029 [US3] Implement `code/evaluator.py` with `stratified_split` function (Input: `data/processed/metrics.csv`, Output: `data/processed/train_metrics.csv`, `data/processed/test_metrics.csv`) to divide data into Train/Test sets preserving label balance
+- [ ] T034 [US3] Implement `calculate_baseline` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`, Success Class) to calculate and report mean connectivity of the "success" class (FR-007). **Verification**: Assert mean matches pandas `.mean()` on success-class subset. **Output**: Write `baseline_mean_connectivity` as a distinct field to `data/processed/baseline_report.json`. **Depends on T029**.
+- [ ] T030 [US3] Implement `calculate_20th_percentile_threshold` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`, Success Class). **PRIMARY THRESHOLD per FR-004**. Search space: sweep all unique metric values in the success class subset of the training split. **Verification**: Verify output matches 20th percentile of success-class connectivity in `train_metrics.csv` via unit test. **Output**: Write threshold value to `data/processed/threshold_config.json`. **Depends on T034**.
+- [ ] T031 [US3] Implement `calculate_f1_max_threshold` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`). **COMPARATIVE ANALYSIS ONLY**. Calculate the optimal F1-score threshold for comparison against the primary baseline. **Output**: Write threshold value to `data/processed/f1_max_threshold.json`. **Depends on T029**.
+- [ ] T036 [US3] Implement `run_sensitivity_analysis` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`) to sweep thresholds over the specific set {0.01, 0.05, 0.1} and percentiles {10, 20, 30}, report the full matrix, and write results to `data/processed/sensitivity_matrix.json`. **Depends on T029**.
+- [ ] T046 [US3] Implement `report_comparative_thresholds` in `code/evaluator.py` (Input: `data/processed/threshold_config.json` from T030, `data/processed/f1_max_threshold.json` from T031, `data/processed/sensitivity_matrix.json` from T036). **REPORT ONLY**. Compare the mandatory 20th percentile (T030) with the F1-max value (T031) and sensitivity data. **Output**: Write comparative report to `data/processed/comparative_report.json`. **Depends on T030, T031, T036**.
+- [ ] T032 [US3] Implement `predict_collapse` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, **20th Percentile Threshold from T030**) applying the 20th percentile threshold to the Test set. **Depends on T030**.
+- [ ] T033 [US3] Implement `evaluate_performance` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, Predictions from T032) to generate Precision, Recall, F1, and Confusion Matrix.
 - [ ] T035 [US3] Implement `calculate_correlation` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`) to calculate and report Pearson/Spearman correlation coefficient (r) between connectivity and collapse (SC-002).
-- [ ] T036 [US3] Implement `run_sensitivity_analysis` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`). **Sweep**: Thresholds over the SPECIFIED set of absolute values {0.01, 0.05, 0.1} AND percentiles {10, 20, 30}. **Output**: Explicitly report the stability of F1-score across the SPECIFIED set as the primary verification artifact for SC-004. **Constraint**: Use training data to prevent leakage. **Explicitly calculate stability metric on `train_metrics.csv`**. **Depends on T029**.
-- [ ] T037a [US3] Implement `calculate_null_distribution` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`). **Method**: Permutation test (1000 permutations minimum, seed=42, **shuffle labels in a copy** to preserve original dataset) to establish null distribution, compare observed correlation against null to generate p-value. **Explicit Step**: Compare the calculated p-value against the 0.05 threshold and output a binary pass/fail result to `data/processed/correlation_test_result.json`. **Constraint**: Use training data to prevent leakage. **Depends on T029**.
-- [ ] T038 [US3] Implement `calculate_linear_reasoning_index` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, Graphs from T017). **Dependency**: T017 must be completed before this task starts (see Critical Checkpoint). **Logic**: Use `trajectory_id` as join key; load graph files named `{trajectory_id}.json` from `data/processed/graphs/`. Calculate the `linear_reasoning_index` as the ratio of nodes with in-degree=1 and out-degree=1 divided by total node count for the success class and output `data/processed/linear_reasoning_report.json` to satisfy FR-008.
-- [ ] T037b [US3] Implement `generate_results_report` in `code/evaluator.py` (Input: Outputs from T030, T031, T032, T033, T034, T035, T036, T037a, T038) to write `data/processed/results_report.json`. **Requirement**: Must explicitly include mean connectivity baseline from T034 and linear reasoning index from T038 in this report. **Schema**: JSON object with keys: `precision`, `recall`, `f1`, `threshold_used`, `linear_reasoning_index`, `p_value`, `pass_fail`, `sensitivity_analysis`. **Dependency**: Consumes `data/processed/correlation_test_result.json` from T037a.
+- [ ] T037a [US3] Implement `calculate_null_distribution` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`) to perform permutation test (1000 permutations, **seed=42** for the entire loop, shuffle labels column in-place) to establish null distribution, calculate correlation coefficient (r) and p-value, compare r against significance threshold p < 0.05, report significance conclusion as boolean `sc_002_passed`, and write results to `data/processed/sc_002_result.json`. **Verification**: Verify p-value < 0.05 logic and `sc_002_passed` boolean against a synthetic dataset with known correlation. **Depends on T035**.
+- [ ] T038 [US3] Implement `calculate_linear_reasoning_index` in `code/evaluator.py` (Input: `data/processed/test_metrics.csv`, Graphs from T017) to calculate a chain-like topology metric (ratio of nodes with in-degree=1 AND out-degree=1 AND total edges = total nodes - 1) AND check for low branching (avg out-degree < 1.5) and low connectivity (global connectivity < 0.1) for the success class to rule out misclassification (FR-008). **Verification**: Verify `linear_reasoning_confirmed` boolean is True for a synthetic graph with in-degree=1, out-degree=1, edges=nodes-1. **Output**: Write `linear_reasoning_confirmed` boolean to `data/processed/linear_reasoning_report.json`.
+- [ ] T037b [US3] Implement `generate_results_report` in `code/evaluator.py` (Input: Outputs from T030, T031, T032, T033, T034, T035, T036, T037a, T038, T046) to write `data/processed/results_report.json` with all metrics, thresholds (including mandatory baseline), sensitivity data, SC-002 pass/fail conclusion, and FR-008 rule-out conclusion. **Depends on T030, T031, T032, T033, T034, T035, T036, T037a, T038, T046**.
+- [ ] T045 [US3] Implement `calculate_power_analysis` in `code/evaluator.py` (Input: `data/processed/train_metrics.csv`) to calculate effect size (Cohen's d) and perform post-hoc power analysis. If power < 0.8, flag the limitation in the final report (`data/processed/results_report.json`). Write results to `data/processed/power_analysis.json`.
 
 ### Tests for User Story 3
 
@@ -165,7 +167,8 @@
 - [ ] T039 [P] Run `code/hasher.py` to record hashes of all processed artifacts and update state file
 - [ ] T040 Update `README.md` with execution instructions and environment setup
 - [ ] T041 [P] Run full integration test suite on CPU-only environment (GitHub Actions runner simulation)
-- [ ] T042 Document construct validity limitations (heuristic proxy vs ground truth) in `research.md` if edge detection accuracy < 60% (Input: manual spot-check of a sample of graphs stored in `data/processed/validity_check.json`)
+- [ ] T042a [P] Perform manual spot-check of a representative subset of graphs (stored in `data/processed/validity_check.json`) to estimate edge detection accuracy.
+- [ ] T042 [P] Document construct validity limitations in `research.md` if edge detection accuracy < 60% (Input: `data/processed/validity_check.json` from T042a). **Depends on T042a**.
 - [ ] T043 Run quickstart.md validation
 
 ---
@@ -238,16 +241,20 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All graph algorithms and NLP must run on CPU only (no CUDA/GPU); use `spaCy` in CPU mode (`en_core_web_sm`).
-- **Data Integrity**: Never fabricate data; use real TELBench dataset fetched via `downloader.py` (NJU-LINK/TELBench).
-- **Threshold Logic**: T030 (20th Percentile) is the PRIMARY threshold per FR-004 (Spec Mandate). T031 (F1-max) is for comparative analysis ONLY. T032a enforces this order by explicitly ignoring T031.
-- **Input Dependencies**: All US3 tasks (T030-T038) explicitly depend on T029's output (`train_metrics.csv` / `test_metrics.csv`).
-- **Linear Reasoning**: T038 explicitly addresses FR-008 by calculating a dedicated chain-like topology metric (ratio of nodes with in-degree=1 and out-degree=1) and including it in the final report (T037b).
-- **Metric Usage**: Both `avg_branching_factor` (T022) and `global_connectivity` (T021) are calculated and included in the final metrics CSV (T023) and results report (T037b) to satisfy FR-003.
-- **Data Leakage Prevention**: T036 and T037a operate on `train_metrics.csv` to ensure threshold sweeping and null distribution testing do not leak test set information.
+- **Data Integrity**: Never fabricate data; use real TELBench dataset fetched via `downloader.py` (HuggingFaceH4/tebench). **NO SYNTHETIC FALLBACKS**.
+- **Threshold Logic**: T030 (20th Percentile) is the PRIMARY THRESHOLD per FR-004 (Spec Mandate). T031 (F1-Max) is for comparative analysis ONLY. T032 uses T030 for prediction. T046 reports the comparison.
+- **Input Dependencies**: All US3 tasks (T030-T038) explicitly depend on T029's output (`train_metrics.csv` / `test_metrics.csv`). T032 depends on T030. T037b depends on T038 and T046.
+- **Linear Reasoning**: T038 explicitly addresses FR-008 by calculating a dedicated chain-like topology metric (in-degree=1, out-degree=1, edges=nodes-1) AND checking for low branching/connectivity to rule out misclassification.
+- **Power Analysis**: T045 explicitly addresses Plan Phase 3 Step 3 by calculating effect size and power, and flagging limitations in the final report.
+- **Sensitivity Matrix**: T036 explicitly writes the sensitivity matrix to `data/processed/sensitivity_matrix.json` for T046 to consume.
+- **Streaming**: T047 ensures the pipeline can handle large datasets via streaming to respect RAM constraints without resorting to synthetic data. Integrated into T007.
+- **Fail Loudly**: T007/T007a ensures that dataset source missing causes an immediate, descriptive failure, while individual malformed trajectories are skipped with logs.
+- **Ordering**: T034 (baseline) precedes T030/T031. T030 precedes T032. T036 precedes T046. T038 precedes T037b. T042a precedes T042.
+- **Metric Simplification**: T022 (Branching Factor) removed. Only Global Connectivity is calculated per Plan Phase 2 simplification.

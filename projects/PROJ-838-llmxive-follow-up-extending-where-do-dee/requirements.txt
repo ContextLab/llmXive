@@ -8,5 +8,4 @@ requests
 scipy
 datasets
 pytest
-ruff
-black
+numpy

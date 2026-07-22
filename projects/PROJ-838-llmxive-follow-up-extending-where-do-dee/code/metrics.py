@@ -48,6 +48,7 @@ def process_batch(graph_dir: str, output_path: str) -> None:
     """
     Iterate over JSON files in graph_dir, calculate metrics, and write to output_path CSV.
     Includes progress logging using tqdm.
+    Handles zero-node/zero-edge cases by returning 0.0 instead of NaN.
     """
     graph_path = Path(graph_dir)
     if not graph_path.exists():

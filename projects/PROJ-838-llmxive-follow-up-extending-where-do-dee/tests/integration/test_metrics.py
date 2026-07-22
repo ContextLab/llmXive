@@ -1,146 +1,139 @@
 import pytest
+import networkx as nx
 import json
-import tempfile
-import os
+import csv
 from pathlib import Path
+import tempfile
+from metrics import process_batch, calculate_global_connectivity, calculate_avg_branching_factor
 
-from metrics import process_batch, load_graph_from_json, calculate_avg_branching_factor, calculate_global_connectivity
-
-
-class TestProcessBatch:
-    def test_process_batch_with_real_graphs(self):
-        # Create a temporary directory for test graphs
+class TestMetricsIntegration:
+    def test_full_pipeline_mathematical_verification(self):
+        """
+        Integration test: Create a known small graph (3 nodes, 2 edges),
+        run the batch process, and verify the output matches mathematically derived values.
+        
+        Graph: 1 -> 2, 2 -> 3 (Linear chain of 3 nodes, 2 edges)
+        Expected Global Connectivity: 2 / (3 * 2) = 2/6 = 0.333...
+        Expected Avg Branching: (1 + 1 + 0) / 3 = 2/3 = 0.666...
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
-            graphs_dir = Path(tmpdir) / "graphs"
-            graphs_dir.mkdir()
-            output_file = Path(tmpdir) / "metrics.csv"
+            graph_dir = Path(tmpdir) / "graphs"
+            graph_dir.mkdir()
+            output_path = Path(tmpdir) / "metrics.csv"
 
-            # Create a few mock graph files representing processed DAGs
-            # Graph 1: 3 nodes, 2 edges (Chain: 1->2->3)
-            g1_data = {"nodes": [1, 2, 3], "edges": [[1, 2], [2, 3]]}
-            with open(graphs_dir / "traj_001.json", 'w') as f:
-                json.dump(g1_data, f)
-
-            # Graph 2: 4 nodes, 3 edges (Chain: 1->2->3->4)
-            g2_data = {"nodes": [1, 2, 3, 4], "edges": [[1, 2], [2, 3], [3, 4]]}
-            with open(graphs_dir / "traj_002.json", 'w') as f:
-                json.dump(g2_data, f)
-
-            # Graph 3: 2 nodes, 0 edges (Isolated nodes)
-            g3_data = {"nodes": [1, 2], "edges": []}
-            with open(graphs_dir / "traj_003.json", 'w') as f:
-                json.dump(g3_data, f)
-
-            # Graph 4: 3 nodes, 3 edges (Triangle: 1->2, 2->3, 1->3)
-            g4_data = {"nodes": [1, 2, 3], "edges": [[1, 2], [2, 3], [1, 3]]}
-            with open(graphs_dir / "traj_004.json", 'w') as f:
-                json.dump(g4_data, f)
-
-            # Run process_batch
-            process_batch(graphs_dir, output_file)
-
-            # Verify output file exists
-            assert output_file.exists()
-
-            # Read and verify contents
-            with open(output_file, 'r') as f:
-                lines = f.readlines()
-
-            # Check header
-            assert "trajectory_id" in lines[0]
-            assert "global_connectivity" in lines[0]
-            assert "avg_branching_factor" in lines[0]
-
-            # Check data rows (4 graphs)
-            # Header + 4 data rows
-            assert len(lines) == 5
-
-            data_lines = lines[1:]
-            assert len(data_lines) == 4
-
-            # Verify specific values
-            # traj_001: N=3, E=2.
-            #   Connectivity = 2 / (3*2) = 2/6 = 0.333...
-            #   Out-degrees: 1->1, 2->1, 3->0. Sum=2. ABF = 2/3 = 0.666...
-            # traj_002: N=4, E=3.
-            #   Connectivity = 3 / (4*3) = 3/12 = 0.25
-            #   Out-degrees: 1->1, 2->1, 3->1, 4->0. Sum=3. ABF = 3/4 = 0.75
-            # traj_003: N=2, E=0.
-            #   Connectivity = 0.0
-            #   ABF = 0.0
-            # traj_004: N=3, E=3.
-            #   Connectivity = 3 / 6 = 0.5
-            #   Out-degrees: 1->2, 2->1, 3->0. Sum=3. ABF = 3/3 = 1.0
-
-            for line in data_lines:
-                parts = line.strip().split(',')
-                assert len(parts) == 4  # id, connectivity, branching, filename (if included) or just 3 if filename not included
-                # Expected format: trajectory_id,global_connectivity,avg_branching_factor
-                assert len(parts) >= 3
-
-                traj_id = parts[0]
-                connectivity = float(parts[1])
-                branching = float(parts[2])
-
-                # Basic sanity checks
-                assert 0.0 <= connectivity <= 1.0
-                assert branching >= 0.0
-
-                # Verify specific known values for specific files
-                if traj_id == "traj_001":
-                    assert abs(connectivity - 0.333333) < 0.0001
-                    assert abs(branching - 0.666666) < 0.0001
-                elif traj_id == "traj_002":
-                    assert abs(connectivity - 0.25) < 0.0001
-                    assert abs(branching - 0.75) < 0.0001
-                elif traj_id == "traj_003":
-                    assert connectivity == 0.0
-                    assert branching == 0.0
-                elif traj_id == "traj_004":
-                    assert abs(connectivity - 0.5) < 0.0001
-                    assert abs(branching - 1.0) < 0.0001
-
-    def test_process_batch_empty_directory(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            graphs_dir = Path(tmpdir) / "graphs"
-            graphs_dir.mkdir()
-            output_file = Path(tmpdir) / "metrics.csv"
-
-            process_batch(graphs_dir, output_file)
-
-            assert output_file.exists()
-            with open(output_file, 'r') as f:
-                lines = f.readlines()
-            # Should have header only
-            assert len(lines) == 1
-            assert "trajectory_id" in lines[0]
-            assert "global_connectivity" in lines[0]
-            assert "avg_branching_factor" in lines[0]
-
-    def test_process_batch_malformed_json(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            graphs_dir = Path(tmpdir) / "graphs"
-            graphs_dir.mkdir()
-            output_file = Path(tmpdir) / "metrics.csv"
-
-            # Create a malformed JSON file
-            with open(graphs_dir / "bad_traj.json", 'w') as f:
-                f.write("{ invalid json }")
-
-            # Create a valid one to ensure batch processing continues
-            valid_data = {"nodes": [1], "edges": []}
-            with open(graphs_dir / "good_traj.json", 'w') as f:
-                json.dump(valid_data, f)
-
-            # process_batch should skip bad files (handled by load_graph_from_json)
-            # and produce output for the good one
-            process_batch(graphs_dir, output_file)
-
-            assert output_file.exists()
-            with open(output_file, 'r') as f:
-                content = f.read()
+            # Create known graph
+            G = nx.DiGraph()
+            G.add_nodes_from([1, 2, 3])
+            G.add_edges_from([(1, 2), (2, 3)])
             
-            # Should contain header and the good row
-            assert "trajectory_id" in content
-            assert "good_traj" in content
-            assert "bad_traj" not in content # Bad file should be skipped
+            # Save graph
+            graph_data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
+            graph_file = graph_dir / "known_graph.json"
+            with open(graph_file, 'w') as f:
+                json.dump(graph_data, f)
+
+            # Run batch
+            process_batch(str(graph_dir), str(output_path))
+
+            # Verify output
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 1
+                
+                row = rows[0]
+                assert row['filename'] == 'known_graph.json'
+                
+                # Verify metrics
+                conn = float(row['connectivity'])
+                branch = float(row['branching_factor'])
+                
+                expected_conn = 2 / (3 * 2)
+                expected_branch = 2 / 3
+                
+                assert conn == pytest.approx(expected_conn)
+                assert branch == pytest.approx(expected_branch)
+
+    def test_batch_multiple_graphs(self):
+        """Test processing multiple graphs in one batch."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            graph_dir = Path(tmpdir) / "graphs"
+            graph_dir.mkdir()
+            output_path = Path(tmpdir) / "metrics.csv"
+
+            # Create two different graphs
+            graphs_data = [
+                {
+                    "name": "graph_A.json",
+                    "nodes": [1, 2],
+                    "edges": [(1, 2)]
+                },
+                {
+                    "name": "graph_B.json",
+                    "nodes": [1, 2, 3, 4],
+                    "edges": [(1, 2), (2, 3), (3, 4)]
+                }
+            ]
+
+            for g_data in graphs_data:
+                graph_file = graph_dir / g_data["name"]
+                with open(graph_file, 'w') as f:
+                    json.dump({"nodes": g_data["nodes"], "edges": g_data["edges"]}, f)
+
+            process_batch(str(graph_dir), str(output_path))
+
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 2
+                
+                # Check specific values
+                # Graph A: 2 nodes, 1 edge -> conn = 1/(2*1) = 0.5, branch = 1/2 = 0.5
+                # Graph B: 4 nodes, 3 edges -> conn = 3/(4*3) = 0.25, branch = 3/4 = 0.75
+                for row in rows:
+                    if row['filename'] == 'graph_A.json':
+                        assert float(row['connectivity']) == 0.5
+                        assert float(row['branching_factor']) == 0.5
+                    elif row['filename'] == 'graph_B.json':
+                        assert float(row['connectivity']) == 0.25
+                        assert float(row['branching_factor']) == 0.75
+
+    def test_batch_empty_and_zero_edge_cases(self):
+        """Test that batch processing handles empty graphs and zero-edge graphs gracefully (returns 0.0)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            graph_dir = Path(tmpdir) / "graphs"
+            graph_dir.mkdir()
+            output_path = Path(tmpdir) / "metrics.csv"
+
+            # Graph 1: Empty (no nodes, no edges)
+            graph_empty = {"nodes": [], "edges": []}
+            with open(graph_dir / "empty.json", 'w') as f:
+                json.dump(graph_empty, f)
+
+            # Graph 2: Single node, no edges
+            graph_single = {"nodes": [1], "edges": []}
+            with open(graph_dir / "single.json", 'w') as f:
+                json.dump(graph_single, f)
+
+            # Graph 3: Two nodes, no edges
+            graph_disconnected = {"nodes": [1, 2], "edges": []}
+            with open(graph_dir / "disconnected.json", 'w') as f:
+                json.dump(graph_disconnected, f)
+
+            # Run batch
+            process_batch(str(graph_dir), str(output_path))
+
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 3
+
+                for row in rows:
+                    conn = float(row['connectivity'])
+                    branch = float(row['branching_factor'])
+                    # All should be 0.0 for these cases
+                    assert conn == 0.0
+                    assert branch == 0.0
