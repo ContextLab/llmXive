@@ -33,9 +33,9 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the curated dataset of 600 videos is available, **When** the 50M diffusion model is trained for 10 epochs on a CPU-only runner, **Then** the training loss decreases monotonically and the process completes within 4 hours without exceeding 7 GB RAM.
+1. **Given** the curated dataset of videos is available, **When** the diffusion model is trained for 10 epochs on a CPU-only runner, **Then** the training loss decreases monotonically and the process completes within 4 hours without exceeding 7 GB RAM.
 2. **Given** the trained model, **When** it generates 30 new robotic manipulation videos (ensuring n ≥ 30 for statistical validity), **Then** at least 80% of these videos pass the initial PyBullet continuity check (score ≥ 60th percentile of batch distribution) without physics simulation errors.
-3. **Given** the system runs on a GitHub Actions free-tier runner (2 CPU cores, 7 GB RAM), **When** training starts, **Then** no CUDA/GPU specific libraries are loaded, and the process uses only standard CPU-tractable libraries (e.g., `torch` in CPU mode, `scikit-learn`).
+3. **Given** the system runs on a GitHub Actions free-tier runner (limited CPU cores and RAM), **When** training starts, **Then** no CUDA/GPU specific libraries are loaded, and the process uses only standard CPU-tractable libraries (e.g., `torch` in CPU mode, `scikit-learn`).
 
 ---
 
@@ -62,7 +62,7 @@
 - **How does the system handle** a scenario where the 50M model training diverges or produces NaN loss on the CPU?
   - *Handling*: The training script includes a check for NaN loss; if detected, the run is aborted, and a specific error code is returned to trigger a retry with adjusted learning rates (up to 3 attempts).
 - **What happens when** the dataset size is too small to achieve statistical significance in the test (e.g., < 30 samples)?
-  - *Handling*: The system triggers the data augmentation procedure defined in FR-009 to reach a minimum sample size of 30 before proceeding with statistical testing.
+  - *Handling*: The system triggers the data augmentation procedure defined in FR-009 to reach a a minimum sample size sufficient to ensure statistical power before proceeding with statistical testing.
 
 ## Requirements
 
@@ -73,7 +73,7 @@
 - **FR-003**: System MUST discard the bottom [deferred] of videos based on the physics consistency score to create a curated dataset. (See US-1)
 - **FR-004**: System MUST train a distilled parameter-efficient diffusion model on the curated dataset using standard CPU-tractable optimization procedures. (See US-2)
 - **FR-005**: System MUST evaluate the trained model against the PhysisForcing baseline and the unfiltered baseline on R-Bench and PAI-Bench metrics. (See US-3)
-- **FR-006**: System MUST perform statistical significance testing using an unpaired t-test or Mann-Whitney U test on the evaluation metrics, ensuring a minimum sample size of 30 for the evaluation set. (See US-3)
+- **FR-006**: System MUST perform statistical significance testing using an unpaired t-test or Mann-Whitney U test on the evaluation metrics, ensuring a sample size sufficient to achieve adequate statistical power for the evaluation set. (See US-3)
 - **FR-007**: System MUST ensure all training and inference steps run without GPU/CUDA dependencies, adhering to the CPU-only constraint. (See US-2)
 - **FR-008**: System MUST validate the final physical consistency scores using an independent physics engine (MuJoCo) or real-world data to ensure the evaluation is not circular. (See US-3)
 - **FR-009**: System MUST apply data augmentation techniques to the curated dataset if the evaluation set size is insufficient (n < 30) to meet the statistical power requirements. (See US-2)
@@ -102,6 +102,6 @@
 - The PyBullet physics engine is sufficient for filtering low-quality videos but is insufficient for final validation; therefore, an independent engine (MuJoCo) or real-world data is required for the final evaluation to ensure scientific validity.
 - The R-Bench and PAI-Bench evaluation metrics are accessible and can be computed without GPU acceleration.
 - The bottom [deferred] discard rate is the defined experimental parameter as per the research idea.
-- The compact diffusion model is small enough to fit within the 7 GB RAM limit of the GitHub Actions free-tier runner during training.
+- The compact diffusion model is small enough to fit within the RAM limit of the GitHub Actions free-tier runner during training.
 - A sufficiently large dataset of videos is sufficient to produce a statistically meaningful result for the paired t-test (assuming a moderate effect size).; if the resulting sample size is too small, the power limitation will be explicitly reported and data augmentation (FR-009) will be applied.
-- The physics consistency score threshold for "passing" is derived from the distribution of scores in the generated batch, specifically the 60th percentile.
+- The physics consistency score threshold for "passing" is derived from the distribution of scores in the generated batch, specifically a higher percentile.

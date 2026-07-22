@@ -1,107 +1,79 @@
 # Quickstart: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-## Prerequisites
+## 1. Prerequisites
 
--   Python 3.11+
--   pip (Python package manager)
--   Git
--   Sufficient disk space (~14 GB) and RAM (~7 GB) for CPU-only execution.
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended) or WSL2.
+- **Dependencies**: `git`, `ffmpeg` (for video processing), `libgl1-mesa-glx` (for PyBullet headless mode).
+- **GPU (Optional)**: For video generation (Kaggle GPU offload). If running generation locally, a CUDA-compatible GPU is required.
 
-## Setup Instructions
-
-### 1. Clone the Repository
+## 2. Installation
 
 ```bash
-git clone <repository-url>
-cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin
-```
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
 
-### 2. Create a Virtual Environment
-
-```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Verify environment
+python -c "import pybullet; print('PyBullet OK')"
+python -c "import torch; print('Torch OK')"
+python -c "import mujoco; print('MuJoCo OK')"
 ```
 
-### 3. Install Dependencies
+## 3. Configuration
 
+Edit `config.yaml` to set:
+- `generation`: Number of videos to generate (default: 1000).
+- `filtering`: Discard percentage (default: 40).
+- `training`: Epochs (default: 10), Learning rate.
+- `benchmarks`: R-Bench and PAI-Bench thresholds.
+- `sample_size`: Target sample size for statistical power (default: 50).
+
+## 4. Running the Pipeline
+
+### Step 1: Generate Videos
 ```bash
-pip install -r code/requirements.txt
+# Note: If running on CPU, this will be extremely slow. 
+# For production, use the Kaggle offload script.
+python src/cli/main.py --stage generation
 ```
 
-*Note: The `requirements.txt` includes CPU-only versions of `torch` and other dependencies.*
-
-### 4. Verify Environment
-
-Run the following to ensure all dependencies are installed and the environment is ready:
-
+### Step 2: Filter Videos & Create Control
 ```bash
-python -c "import torch; import pybullet; import mujoco; print('Environment OK')"
+python src/cli/main.py --stage filtering
 ```
 
-### 5. Run the Pipeline
-
-#### Step 1: Generate Synthetic Videos
-
+### Step 3: Validate Filter (MuJoCo)
 ```bash
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id A
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id B
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id C
+python src/cli/main.py --stage validation
 ```
 
-*Note: This step may take several hours on CPU. Adjust `--batch-size` to manage memory.*
-
-#### Step 2: Filter Videos
-
+### Step 4: Train Models
 ```bash
-python code/src/filtering/pybullet_filter.py --input-dir data/raw --output-dir data/curated --threshold-percentile 60
+python src/cli/main.py --stage training
 ```
 
-#### Step 3: Data Augmentation (if needed)
-
+### Step 5: Evaluate & Benchmark
 ```bash
-python code/src/training/augmentation.py --input-dir data/curated --output-dir data/curated_aug --min-samples 30
+python src/cli/main.py --stage evaluation
 ```
 
-#### Step 4: Train the Model
+## 5. Verification
 
-```bash
-python code/src/training/diffusion_trainer.py --data-dir data/curated --epochs 10 --output-dir code/models
-```
+Check `data/eval/results.json` for the benchmark scores and p-values.
+Check `data/validation/mujo_co_validation_result.json` for the filter validity.
+Run `pytest tests/` to verify unit and integration tests.
 
-*Note: Training is capped at 4 hours. If the model diverges, the script will abort and log the error.*
+## 6. Troubleshooting
 
-#### Step 5: Evaluate the Model
-
-```bash
-python code/src/evaluation/r_bench.py --model-path code/models/best.pt --output-dir data/eval
-python code/src/evaluation/pai_bench.py --model-path code/models/best.pt --output-dir data/eval
-python code/src/evaluation/stats.py --input-dir data/eval --output-file data/eval/results.json
-```
-
-#### Step 6: Independent Validation (FR-008)
-
-```bash
-python code/src/evaluation/mujoco_validator.py --input-dir data/curated --output-dir data/eval
-```
-
-### 6. View Results
-
-The final results, including benchmark scores and statistical tests, are stored in `data/eval/results.json`.
-
-```bash
-cat data/eval/results.json
-```
-
-### 7. Run Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Troubleshooting
-
--   **Out of Memory**: Reduce the `--batch-size` in the generation step or use a smaller model architecture.
--   **CUDA Errors**: Ensure you are using the CPU-only version of `torch` (installed via `pip install torch --index-url https://download.pytorch.org/whl/cpu`).
--   **Physics Filter Failures**: Check the logs in `data/curated/logs/` for specific video IDs that failed simulation.
--   **CV Pipeline Errors**: If SAM2 or ZoeDepth fail, check the video format and resolution. Ensure the video is in MP4 format with H.264 codec.
+- **PyBullet Crash**: Ensure `libgl1-mesa-glx` is installed. Run in headless mode: `export PYBULLET_USE_NUMPY=1`.
+- **OOM Error**: Reduce `batch_size` in `config.yaml`.
+- **NaN Loss**: Reduce learning rate in `config.yaml`.
+- **MuJoCo Error**: Ensure MuJoCo license is set or use the free version.

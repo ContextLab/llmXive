@@ -1,44 +1,22 @@
-- artifact_hash: 7c90aff95ba03adaa5783d7a276127612c396b904473b43d9cd6cba4b60390ea
+- artifact_hash: 21032a4e247929cd21a39f915c7cde3b09bb8ff412ec034c6717f10c2a720def
   artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "Wan-AI/Wan2.1-T2V-14B \xB7 Hugging Face"
+  fetched_title: train-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/Wan-AI/Wan2.1-T2V-14B`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/Wan-AI/Wan2.1-T2V-14B
-  verified_at: '2026-07-13T08:46:55.542458Z'
-- artifact_hash: 7c90aff95ba03adaa5783d7a276127612c396b904473b43d9cd6cba4b60390ea
+  value: https://huggingface.co/datasets/Rapidata/text-2-video-human-preferences-wan2.1/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67caecd638226b84e06eff77/e5cee7be9af00dc0a4a6dc6af28f4a8168f475d0b5b49120a091beac6ffc24e0?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1784706570&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdjYWVjZDYzODIyNmI4NGUwNmVmZjc3L2U1Y2VlN2JlOWFmMDBkYzBhNGE2ZGM2YWYyOGY0YTgxNjhmNDc1ZDBiNWI0OTEyMGEwOTFiZWFjNmZmYzI0ZTBcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NDcwNjU3MH19fV19&Signature=MEQCIEfPMZZYb2tyVgBSPidEyQgF87ENWd7HbHYVKlvATikNAiAHK8Ci5MNuJu-Kvg4FYdqZEpRKbNy8m9JetX-0hKJ6GA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-22T06:49:30.018698Z'
+- artifact_hash: 21032a4e247929cd21a39f915c7cde3b09bb8ff412ec034c6717f10c2a720def
   artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: video_00.zip
   kind: url
-  value: https://huggingface.co/datasets/robotbench/robotbench-prompts`
+  value: https://huggingface.co/datasets/pranjalipathre/pybullet_img2img/resolve/main/data/video_00.zip
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/robotbench/robotbench-prompts
-  verified_at: '2026-07-13T08:46:55.542458Z'
-- artifact_hash: 7c90aff95ba03adaa5783d7a276127612c396b904473b43d9cd6cba4b60390ea
-  artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/robotics-benchmarks/r-bench`
-  verification_status: mismatch
-  verified_against_url: https://github.com/robotics-benchmarks/r-bench
-  verified_at: '2026-07-13T08:46:55.542458Z'
-- artifact_hash: 5d5b3d2117913e7032b0d7b72c929b6f826711af7f23ea1e66e604ad3235a71b
-  artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-13T08:47:11.198810Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65358b343f4248157d509d8a/7a7c60f8a6f44ec4350983c85589bdc41e94341914cdc718a8ad95a28650c764?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27video_00.zip%3B+filename%3D%22video_00.zip%22%3B&response-content-type=application%2Fzip&user_id=public&X-Xet-Cas-Uid=public&Expires=1784706570&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzNThiMzQzZjQyNDgxNTdkNTA5ZDhhLzdhN2M2MGY4YTZmNDRlYzQzNTA5ODNjODU1ODliZGM0MWU5NDM0MTkxNGNkYzcxOGE4YWQ5NWEyODY1MGM3NjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dmlkZW9fMDAuemlwJTNCK2ZpbGVuYW1lJTNEJTIydmlkZW9fMDAuemlwJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg0NzA2NTcwfX19XX0_&Signature=MEQCICkhd46t%7EolSOJIm6e3LI9e8ky8hcUGd7FjOLt9WeAsuAiAKM%7EUiEgXOjJ5tlVgZY92QeyGU71zsRmabBQcErV4%7Enw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-22T06:49:30.018698Z'

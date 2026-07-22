@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CuratedDataset"
+description: "Schema for the curated dataset metadata."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the curated dataset."
+  total_samples:
+    type: "integer"
+    description: "Total number of samples in the curated set."
+  discard_rate:
+    type: "number"
+    description: "Percentage of original samples discarded (e.g., 0.40)."
+  threshold_score:
+    type: "number"
+    description: "Minimum physics score required for inclusion."
+  samples:
+    type: "array"
+    items:
+      $ref: "#/definitions/VideoSampleRef"
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO 801 timestamp of creation."
+  augmented:
+    type: "boolean"
+    description: "True if data augmentation was applied to reach sample size."
+  augmentation_method:
+    type: "string"
+    description: "Method used for augmentation (e.g., 'geometric_transforms')."
+definitions:
+  VideoSampleRef:
+    type: "object"
+    properties:
+      video_id:
+        type: "string"
+      physics_score:
+        type: "number"
+      continuity_score:
+        type: "number"
+      contact_score:
+        type: "number"
+    required:
+      - video_id
+      - physics_score
+      - continuity_score
+      - contact_score
+required:
+  - dataset_id
+  - total_samples
+  - discard_rate
+  - threshold_score
+  - samples
+  - created_at
+  - augmented
+  - augmentation_method
+additionalProperties: false

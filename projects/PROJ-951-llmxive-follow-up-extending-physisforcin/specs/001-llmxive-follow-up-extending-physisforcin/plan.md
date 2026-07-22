@@ -1,39 +1,53 @@
 # Implementation Plan: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-**Branch**: `001-llmxive-physs-filter` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-physs-filter/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-physs-filter/spec.md`
+**Branch**: `001-llmxive-physs-filter` | **Date**: 2026-07-13 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-llmxive-physs-filter/spec.md`
 
 ## Summary
 
-This project investigates whether a lightweight, post-generation physics-consistency filter applied to synthetic robotic manipulation videos can yield physical consistency in downstream policy learning comparable to training-time physics-informed joint optimization. The technical approach involves generating synthetic videos using the Wan2.1 model, filtering them via a CPU-based PyBullet headless simulation to score trajectory continuity and contact conservation, discarding the bottom **[deferred]** of samples, and training a distilled diffusion model with a reduced parameter count on the curated dataset. The final model is evaluated against a **Physics-Informed Training Proxy** (mimicking the PhysisForcing baseline) and an unfiltered baseline on R-Bench and PAI-Bench, with statistical significance testing to determine if the performance gap is within 15%.
+This project implements a "Physics-First" curation pipeline for synthetic robotic manipulation videos. The core hypothesis is that a lightweight, post-generation physics filter (using PyBullet) can discard physically inconsistent samples to create a high-quality dataset. 
+
+The experimental design is split into two distinct analyses to address methodological rigor:
+1.  **Primary Analysis (Causal)**: Compares a model trained on the **Curated** dataset against a **Randomized Control** model (trained on a random subset of the same size). This isolates the effect of the *filter* (data quality) from the effect of *data reduction*. Both models use the same static training algorithm.
+2.  **Secondary Analysis (Descriptive Benchmark)**: Compares the **Curated** model (static training) against the **PhysisForcing** baseline (joint optimization). This comparison is explicitly **not** a test of the "filtering alone" hypothesis, as it confounds data quality with training algorithm. Instead, it serves as a descriptive upper-bound benchmark to measure the absolute performance ceiling of static training on curated data versus state-of-the-art joint optimization. The "comparability" claim (≤15% gap) is defined as a measure of *generalization to unseen physical properties* (orthogonal to the filter's selection criteria), not a direct replication of the filter's score.
+
+The entire pipeline is designed to run on CPU-only infrastructure (GitHub Actions free tier) for filtering/training/evaluation, with a scaled-down GPU offload for generation.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `pybullet` (headless), `diffusers`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `opencv-python` (headless), `requests`, `sam2`, `zoe_depth`, `mujoco`  
-**Storage**: Local file system (`data/raw`, `data/curated`, `data/eval`), JSON/Parquet for metadata  
-**Testing**: `pytest` (unit/integration), custom validation scripts for physics consistency  
-**Target Platform**: Linux (GitHub Actions free-tier: limited CPU resources, 7 GB RAM, 14 GB disk, no GPU)  
-**Project Type**: Computational Research Pipeline  
-**Performance Goals**: Training ≤ 4 hours on CPU; Filtering ≤ 2 hours; Memory < 6 GB peak; No CUDA dependencies  
-**Constraints**: Strict CPU-only execution; No large model training from scratch; Dataset sampling required to fit RAM; Statistical power requirements (n ≥ 30)  
-**Scale/Scope**: An initial batch of **~1000** generated videos will be produced. A curated set of **~600** videos (after a **[deferred]** discard rate) will be used for training. A model with a parameter count in the order of tens of millions will be trained.
+**Primary Dependencies**: 
+- `torch` (installed with CUDA support for generation offload; explicitly run in CPU mode for filtering/training/evaluation)
+- `diffusers`, `pybullet`, `mujoco` (for R-Bench/PAI-Bench re-implementation), `datasets`, `pandas`, `scikit-learn`, `ruff`, `black`  
+**Storage**: Local filesystem (`data/raw`, `data/curated`, `data/eval`, `data/validation`), JSON/Parquet metadata  
+**Testing**: `pytest` (unit/integration), `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions x64), CPU-first with optional Kaggle GPU offload for generation  
+**Project Type**: Research pipeline / Data curation tool  
+**Performance Goals**: 
+- Filter throughput: >10 videos/hour (CPU)
+- Training: <4 hours for 10 epochs on 50M model (CPU)
+- Memory: <6GB RAM peak during filtering/training  
+**Constraints**: 
+- Core logic (filtering/training/evaluation) runs CPU-only.
+- Generation uses GPU offload (Kaggle) with `device="cuda"`.
+- R-Bench/PAI-Bench implemented using MuJoCo to ensure independence from PyBullet filter.
+- No circular evaluation: Filter (PyBullet) vs. Final Score (MuJoCo) with orthogonality check.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Note on Dataset Variables**: The plan relies on generated synthetic data (Wan2.1) rather than pre-existing datasets for the training corpus. The "Verified datasets" list provides the *source* for prompts and initial seed videos, but the core "CuratedDataset" is a derived artifact of this pipeline. The plan strictly avoids inventing URLs for the generated videos.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+**Status**: PASSED (with explicit methodological notes)
 
-| Principle | Status | Evidence/Action |
-|-----------|--------|-----------------|
-| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and isolated virtualenv execution. All artifacts (videos, models, scores) will be stored with content hashes. |
-| **II. Verified Accuracy** | PASS | Citations for datasets (Wan2.1, RobotBench) restricted to the provided verified URLs. No fabricated URLs. Baseline definitions (PhysisForcing Proxy) will be traced to primary sources in `research.md`. |
-| **III. Data Hygiene** | PASS | Raw generated videos and filtered outputs will be checksummed. No in-place modification; derivations written to new files. PII scan included in CI. |
-| **IV. Single Source of Truth** | PASS | All performance metrics (R-Bench, PAI-Bench) will be computed by code and stored in `data/eval/results.json`. Paper figures/statistics will reference these files. |
-| **V. Versioning Discipline** | PASS | Content hashes for all data artifacts will be recorded in `state/projects/PROJ-951-llmxive-follow-up-extending-physisforcin.yaml`. |
-| **VI. Physics-Consistency Verification** | PASS | The plan explicitly implements the CPU-based PyBullet filter for trajectory continuity and contact conservation, discarding the bottom **[deferred]** of videos as required by the Constitution. |
-| **VII. Benchmark Alignment** | PASS | Evaluation strictly limited to R-Bench and PAI-Bench metrics as per the spec and constitution. |
+| Principle | Check | Notes |
+|-----------|-------|-------|
+| **I. Reproducibility** | ✅ | Random seeds pinned in `src/utils/seeding.py`. External datasets fetched via `datasets.load_dataset` with specific revisions. |
+| **II. Verified Accuracy** | ✅ | All citations (R-Bench, PAI-Bench, PhysisForcing) map to verified sources or standard benchmarks. No title-token-overlap violations. |
+| **III. Data Hygiene** | ✅ | Raw data (generated videos) preserved. Curated data written to new files. Checksums recorded in `state/`. No PII (synthetic data). |
+| **IV. Single Source of Truth** | ✅ | Evaluation metrics derived strictly from `code/` outputs. No hand-typed stats in `plan.md`. |
+| **V. Versioning Discipline** | ✅ | Artifacts will carry content hashes. `state.yaml` updated on artifact changes. |
+| **VI. Physics-Consistency Verification** | ✅ | Explicitly implemented via PyBullet filter (US-1) with `continuity_score` and `contact_score` sub-metrics. Independent MuJoCo validation (FR-008) added with orthogonality check to ensure metrics are distinct (correlation < 0.95). |
+| **VII. Benchmark Alignment** | ✅ | Evaluation strictly limited to R-Bench and PAI-Bench metrics, re-implemented in MuJoCo. The "comparability" claim is restricted to generalization metrics orthogonal to the filter. |
 
 ## Project Structure
 
@@ -46,6 +60,10 @@ specs/001-llmxive-physs-filter/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
+│   ├── video_sample.schema.yaml
+│   ├── curated_dataset.schema.yaml
+│   ├── benchmark_result.schema.yaml
+│   └── mujo_co_validation_result.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -53,98 +71,116 @@ specs/001-llmxive-physs-filter/
 
 ```text
 projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
-├── data/
-│   ├── raw/                  # Raw generated videos (MP4)
-│   ├── curated/              # Filtered videos + metadata (JSON/Parquet)
-│   └── eval/                 # Evaluation results (JSON)
 ├── src/
+│   ├── __init__.py
 │   ├── generation/
-│   │   ├── wan21_generator.py    # Wan2.1 inference (CPU)
-│   │   └── prompts.py            # Prompt management
+│   │   ├── __init__.py
+│   │   ├── wan21_generator.py      # Wan2.1 inference wrapper
+│   │   └── prompts.py              # Prompt loading & management
 │   ├── filtering/
-│   │   ├── cv_pipeline.py        # SAM2/Depth extraction
-│   │   ├── prompt_to_scene.py    # Prompt-to-Scene translation
-│   │   ├── pybullet_filter.py    # Physics consistency scoring
-│   │   └── score_utils.py        # Metric calculation
+│   │   ├── __init__.py
+│   │   ├── pybullet_filter.py      # Physics scoring logic (continuity + contact)
+│   │   └── scorer.py               # Trajectory continuity & contact metrics
 │   ├── training/
-│   │   ├── diffusion_trainer.py  # 50M model training (CPU)
-│   │   ├── augmentation.py       # Temporal jitter/flip logic
-│   │   └── config.py             # Training hyperparameters
+│   │   ├── __init__.py
+│   │   ├── config.py               # Training hyperparameters
+│   │   └── trainer.py              # CPU-optimized diffusion training
 │   ├── evaluation/
-│   │   ├── r_bench.py            # R-Bench scorer
-│   │   ├── pai_bench.py          # PAI-Bench scorer
-│   │   ├── mujoco_validator.py   # Independent validation (FR-008)
-│   │   └── stats.py              # Statistical testing (LMM)
-│   └── utils/
-│       ├── io_utils.py           # File I/O, checksumming
-│       └── logging.py            # Logging configuration
+│   │   ├── __init__.py
+│   │   ├── r_bench.py              # R-Bench metric implementation (MuJoCo)
+│   │   ├── pai_bench.py            # PAI-Bench metric implementation (MuJoCo)
+│   │   ├── stats.py                # Statistical analysis (t-test, Mann-Whitney)
+│   │   └── mujoco_validator.py     # Independent validation (PyBullet vs MuJoCo)
+│   ├── augmentation/
+│   │   ├── __init__.py
+│   │   └── geometric_augmenter.py  # Data augmentation (FR-009)
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── io_utils.py             # File I/O, checksums
+│   │   ├── logging.py              # Structured logging
+│   │   ├── seeding.py              # Random seed management
+│   │   ├── profile_memory.py       # Memory monitoring
+│   │   └── verify_env.py           # Environment checks
+│   └── cli/
+│       └── main.py                 # Entry point
 ├── tests/
+│   ├── __init__.py
 │   ├── unit/
-│   │   ├── test_filter.py
-│   │   └── test_stats.py
+│   │   ├── test_filtering.py
+│   │   └── test_scoring.py
 │   └── integration/
 │       └── test_pipeline.py
-└── requirements.txt
+├── data/
+│   ├── raw/                        # Generated videos (immutable)
+│   ├── curated/                    # Filtered videos
+│   ├── control/                    # Randomized control subset
+│   ├── eval/                       # Evaluation results
+│   └── validation/                 # MuJoCo validation results
+├── config.yaml                     # Global configuration
+├── requirements.txt                # Dependencies
+├── pyproject.toml                  # Project metadata & tooling config
+└── README.md                       # Project overview
 ```
 
-**Structure Decision**: The project follows a modular pipeline structure (`generation` → `filtering` → `training` → `evaluation`) to ensure clear separation of concerns and reproducibility. This aligns with the Constitution's requirement for traceability from code to data. The `data/` directory is split into `raw`, `curated`, and `eval` to enforce the "Data Hygiene" principle (no in-place modification).
+**Structure Decision**: Single-project structure selected to minimize overhead for a research pipeline. All logic is encapsulated in `src/` with clear separation of concerns (Generation, Filtering, Training, Evaluation, Augmentation). `data/` is strictly hierarchical to enforce the "Data Hygiene" principle.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Two-stage pipeline (Generate → Filter → Train)** | The hypothesis specifically tests if *post-generation filtering* is sufficient, necessitating a distinct filtering step before training. | A single-stage training with joint optimization (PhysisForcing) would test a different hypothesis (training-time physics vs. sample curation). |
-| **CPU-only constraint** | The project must run on GitHub Actions free-tier (no GPU). | GPU-based methods are faster but violate the compute feasibility constraint and would make the project non-reproducible in the target environment. |
-| **Statistical testing (LMM)** | Required to account for batch effects in multi-batch generation (n≥30 from 3 batches). | Simple t-tests would confound model performance with batch-specific generation artifacts. |
-| **Independent Validation (MuJoCo)** | Required by FR-008 to avoid circularity in physics scoring. | Relying solely on PyBullet would validate the reconstruction, not the video's physical consistency. |
-| **Prompt-to-Scene Translation** | Required to generate a ground truth trajectory from text prompts without a robotic manipulation dataset. | Using a generic dataset would not match the specific prompts; a symbolic parser is the only CPU-tractable option. |
+| **Randomized Control Group** | Required to isolate the effect of the *filter* from *data reduction*. | Comparing Filtered vs. Unfiltered is confounded by subset dependency. Comparing Filtered vs. PhysisForcing confounds data quality with training algorithm. |
+| **Independent Physics Validation (MuJoCo)** | Required by FR-008 and Constitution Principle VI to prevent circular evaluation. | Using only PyBullet for both filtering and final validation would violate the "Single Source of Truth" and "Verified Accuracy" principles. |
+| **Dual-Benchmark Evaluation (R-Bench + PAI-Bench)** | Required by FR-005 and Constitution Principle VII for comprehensive physical consistency assessment. | Single-benchmark evaluation is insufficient to claim "comparable" performance to the PhysisForcing baseline across different physical domains. |
+| **CPU-First Design with GPU Escape Hatch** | Required by compute feasibility constraints (GitHub Actions free tier). | A GPU-only design would be infeasible on the primary CI runner and would fail the "Compute Feasibility" gate. A fake CPU approximation of the generator is rejected as fabrication; the real scaled GPU run is planned for offload. |
+| **MuJoCo Re-implementation of Benchmarks** | Required to break circularity between PyBullet filter and final score. | Using existing PyBullet-based benchmarks would make the evaluation circular (selection metric = evaluation metric). |
+| **Orthogonality Check** | Required to ensure evaluation metrics are not trivially correlated with filter scores. | Without this, the "comparability" claim would be a tautology (selecting for X and measuring X). |
 
-## Implementation Phases
+## Phase Ordering & Task Dependencies
 
-### Phase 0: Setup & Environment
-1.  Initialize virtual environment with CPU-only `torch`.
-2.  Install `pybullet`, `mujoco`, `sam2`, `zoe_depth`, `diffusers`.
-3.  Verify environment with `python -c "import torch; import pybullet; import mujoco; print('OK')"`.
+### Phase 1: Foundation & Setup
+- **T001**: Initialize Project Structure (Directories, `requirements.txt`, `pyproject.toml`).
+- **T002**: Setup Python 3.11 Environment.
+- **T003**: Configure Linting/Formatting (Ruff, Black).
+- **T005-T010**: Implement Utility Modules (`io_utils`, `logging`, `seeding`, `verify_env`, `profile_memory`).
+- **T012**: Load Verified Prompts (Static Asset) [P]
+  - *Input*: Verified prompt sources.
+  - *Output*: `data/prompts.jsonl`.
 
-### Phase 1: Data Generation
-1.  Load prompts from **RobotBench** (verified).
-2.  Generate a substantial volume of videos using Wan2.1 (CPU-compatible subset or distilled version).
-3.  Save raw videos to `data/raw/` with checksums.
-4.  Generate multiple independent batches (A, B, C) to support statistical power.
+### Phase 2: Data Generation & Filtering
+- **T013**: Generate Raw Videos (Wan2.1) [P]
+  - *Depends*: T012 (Prompts ready).
+  - *Output*: `data/raw/videos/`, `data/raw/metadata.jsonl`.
+- **T014**: Apply PyBullet Physics Filter
+  - *Output*: `data/curated/`, `data/curated/scores.parquet` (with `continuity_score`, `contact_score`).
+- **T015**: Generate Randomized Control Subset
+  - *Output*: `data/control/` (random subset of same size as curated).
 
-### Phase 2: Physics Consistency Filtering
-1.  **Prompt-to-Scene Translation**: Parse text prompts to select standard PyBullet assets (e.g., "grasp cup" -> cube object, plane surface) and define initial poses.
-2.  **Canonical Simulation**: Run a deterministic PyBullet simulation to generate the "intended" trajectory (ground truth) for each prompt.
-3.  **CV Pipeline**: Extract 3D trajectories from video frames using **SAM2** (segmentation) and **ZoeDepth** (depth estimation), followed by a Kalman Filter for smoothing. **Assumption**: Fixed camera intrinsics and static camera pose are used for 3D projection.
-4.  **Scoring**: Compare extracted trajectory vs. canonical simulation using PyBullet to score continuity and contact conservation. **Note**: This is a *proxy* metric for physical consistency.
-5. **Filtering**: Discard the bottom **[deferred]** of videos based on the score distribution.
-6.  **Output**: Save curated dataset to `data/curated/`.
+### Phase 3: Validation (Pre-Training)
+- **T018**: Run MuJoCo Validation & Orthogonality Check (SC-006)
+  - *Input*: `data/curated/` videos.
+  - *Output*: `data/validation/mujo_co_validation_result.json` (Correlation coefficient).
+  - *Gate*: Proceed only if correlation < 0.95 (distinct metrics). If correlation ≥ 0.95, adjust evaluation metrics or abort.
 
-### Phase 2.5: Data Augmentation (FR-009)
-1.  **Trigger**: If the curated set size < 30.
-2.  **Action**: Apply **Temporal Jittering** (frame skipping/duplication) and **Geometric Flipping** to reach n ≥ 30.
-3.  **Record**: Log augmentation parameters in metadata.
+### Phase 4: Training
+- **T016**: Train Filtered Model (Curated Data)
+- **T017**: Train Control Model (Random Data)
+- **T019b**: Data Augmentation (if n < 50)
+  - *Depends*: T014/T015 (if sample size insufficient).
 
-### Phase 3: Model Training
-1.  Train a diffusion model with a moderate parameter count on the curated dataset.
-2.  Monitor for NaN loss; abort and retry with adjusted learning rate if detected.
-3.  Ensure training completes within 4 hours on CPU.
+### Phase 5: Benchmarking
+- **T019**: Compute R-Bench/PAI-Bench Scores (MuJoCo)
+  - *Input*: Trained Models (Filtered, Control).
+  - *Output*: `data/eval/results.json` (with `evaluation_engine: "MuJoCo"`).
+- **T020**: Perform Statistical Significance Testing
+  - *Input*: Benchmark Scores.
+  - *Output*: `data/eval/stats_report.json`.
+- **T022**: Secondary Benchmark (PhysisForcing Comparison)
+  - *Input*: Filtered Model Score vs. PhysisForcing Paper Report.
+  - *Output*: `data/eval/secondary_benchmark.json`.
+  - *Note*: This is a descriptive comparison, not a causal test of the filtering hypothesis.
 
-### Phase 4: Evaluation & Statistical Testing
-1.  **Baseline Reproduction**: Re-train the **Physics-Informed Training Proxy** (standard diffusion + physics loss) on the *same* raw dataset to mimic the PhysisForcing baseline.
-2.  **Evaluation Set**: Draw n=30 samples via stratified sampling from all batches (A, B, C).
-3.  **Benchmarking**: Evaluate the filtered model and baseline on R-Bench and PAI-Bench.
-4.  **Statistical Test**: Perform Linear Mixed Model (LMM) analysis with 'Batch' as a random effect.
-5.  **Power Analysis**: Verify n=30 provides sufficient power (α=0.05, 1-β=0.8) for the 15% threshold. If power is insufficient, report as "inconclusive".
-
-### Phase 5: Independent Validation (FR-008)
-1.  **MuJoCo Re-scoring**: Run the curated videos through **MuJoCo** using the *same* CV-extracted trajectories and prompt-derived initial conditions.
-2.  **Correlation Analysis (SC-006)**: Calculate the correlation coefficient between PyBullet scores and MuJoCo scores.
-3.  **Independence Verification**: Verify that the correlation coefficient is < 0.95 to confirm that the two engines are not validating the exact same reconstruction artifact.
-
-## Risk Mitigation
-
--   **Compute Feasibility**: If Wan2.1 is too large for CPU, switch to a distilled CPU-compatible video model and document the substitution.
--   **Dataset Size**: If n < 30 after filtering, trigger the defined augmentation (Temporal Jittering) immediately.
--   **Circularity**: Mitigated by using a prompt-derived canonical simulation as the independent ground truth for both PyBullet and MuJoCo, and by comparing engine-to-engine consistency.
--   **CV Reconstruction Error**: Acknowledged as a primary source of error. The physics score is treated as a proxy metric. A subset of videos will be manually reviewed to estimate reconstruction accuracy.
+### Phase 6: Verification
+- **T011**: Integration Test (End-to-End Pipeline)
+  - *Depends*: All previous phases.
+  - *Output*: Test logs, pass/fail status.
+  - *Note*: This test runs the full pipeline from T012 to T020 to verify end-to-end correctness.

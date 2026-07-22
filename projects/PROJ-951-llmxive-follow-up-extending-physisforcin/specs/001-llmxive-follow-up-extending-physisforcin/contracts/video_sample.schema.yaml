@@ -1,44 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "VideoSample"
-description: "Schema for a single generated robotic manipulation video with physics metadata."
+description: "Schema for a single generated video sample with physics metadata."
 type: "object"
 properties:
-  id:
+  video_id:
     type: "string"
-    format: "uuid"
-    description: "Unique identifier for the video sample."
+    description: "Unique identifier for the video file."
   prompt:
     type: "string"
-    description: "The text prompt used for video generation."
-  video_path:
+    description: "The text prompt used for generation."
+  file_path:
     type: "string"
-    description: "Relative path to the MP4 video file."
+    description: "Relative path to the MP4 file in data/raw/."
   physics_score:
     type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Physics consistency score from the PyBullet filter (0.0 to 1.0)."
+    description: "Composite physics consistency score (0.0 to 1.0)."
+  continuity_score:
+    type: "number"
+    description: "Score for trajectory continuity (0.0 to 1.0)."
+  contact_score:
+    type: "number"
+    description: "Score for contact conservation (0.0 to 1.0)."
   pass_status:
-    type: "boolean"
-    description: "True if the video passed the physics filter (score ≥ 60th percentile)."
+    type: "string"
+    enum: ["pass", "fail"]
+    description: "Whether the video passed the physics filter."
   generation_timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of generation."
-  checksum:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA-256 checksum of the video file."
-  batch_id:
-    type: "string"
-    description: "Identifier for the generation batch (A, B, C)."
+    description: "ISO 801 timestamp of generation."
 required:
-  - "id"
-  - "prompt"
-  - "video_path"
-  - "physics_score"
-  - "pass_status"
-  - "generation_timestamp"
-  - "checksum"
-  - "batch_id"
+  - video_id
+  - prompt
+  - file_path
+  - physics_score
+  - continuity_score
+  - contact_score
+  - pass_status
+  - generation_timestamp
 additionalProperties: false
