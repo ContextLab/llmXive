@@ -40,11 +40,52 @@ T028:
     `code/02_visual_metrics.py` does not contain any code that reads `visual_metrics_intermediate.csv`,
     merges it with `merged_data.csv`, or writes the result to `final_analysis_data.csv`.
     Consequently, the required merge logic and output file are missing.
-T037:
+T035:
   c: false
-  h: ec087115c33ae069c4224b802e89417285ecd6cb00b2d20ce050e9f3a2cb79af
-  r: "The required file `results/statistics/alpha_threshold_justification.md` does\
-    \ not exist, so the justification for the 0.05 threshold was never generated.\
-    \ Moreover, `code/03_analysis.py` contains no logic that writes associational\
-    \ framing to any output documentation, nor any code that creates the justification\
-    \ file, so the task\u2019s requirements are not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing that the analysis pipeline\
+    \ was updated to apply `scipy.stats.multitest.multipletests(method='holm')`. The\
+    \ required artifact (an analysis script with Holm\u2011Bonferroni family\u2011\
+    wise error correction) is missing, so the task is not satisfied."
+T036:
+  c: false
+  h: 48ac5b3197a3b6d851dcf719497afcdc63e03088013dfd04f237ec657bae9525
+  r: "The required `results/statistics/multiplicity_table.csv` file is missing, and\
+    \ there is no text snippet saved in `results/statistics/` containing the required\
+    \ Holm\u2011Bonferroni phrase. Both artifacts must be created for the task to\
+    \ be considered complete."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-visual-distraction-cognitive-control/quickstart.md` file is presented,\
+    \ and thus there is no evidence that the required \u201CData Source Selection\u201D\
+    \ and \u201CInterpretation of Results\u201D sections were added. The implementer\
+    \ must provide the markdown document with the specified sections."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No codebase or linter output was provided, so there is no evidence that any\
+    \ files were cleaned up or that a PEP8 check was run and passed. The required\
+    \ artifact\u2014a PEP8\u2011compliant code repository or a linting report showing\
+    \ zero errors\u2014is missing."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files in `tests/unit/` was provided; the claim\
+    \ of \u201Cadditional unit tests for edge cases (image failure, zero variance)\u201D\
+    \ cannot be verified because the required test artifacts are missing. The next\
+    \ implementer must add concrete test cases covering image loading failures and\
+    \ zero\u2011variance data scenarios in the `tests/unit/` directory."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that `quickstart.md` was executed or validated is present;\
+    \ there are no logs, output files, or confirmation that the end\u2011to\u2011\
+    end pipeline ran successfully. The implementer\u2019s submission contains only\
+    \ a feature specification, not the required validation evidence."
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, log files, or test output were provided to demonstrate that T015 now
+    includes strict dataset source validation logic or that it logs the correct linkage
+    validation status. Without these artifacts, the claim cannot be verified.

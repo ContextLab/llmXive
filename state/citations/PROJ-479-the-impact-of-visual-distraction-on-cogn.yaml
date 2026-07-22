@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://storage.googleapis.com/openimages/web/index.html
   verified_at: '2026-07-05T01:14:16.201440Z'
-- artifact_hash: fcff1091c87746982b7c1125f0d775f26a80bad0230cfbccfb7366e351689917
+- artifact_hash: 478a5602fb0f1a11b7b2840e745b51674ac2f2f6d78dff1d0089b990d7b39ddf
   artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,27 +41,4 @@
   value: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method
-  verified_at: '2026-07-20T14:36:10.525983Z'
-- artifact_hash: fcff1091c87746982b7c1125f0d775f26a80bad0230cfbccfb7366e351689917
-  artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: OpenCV - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q165277
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q165277
-  verified_at: '2026-07-20T14:36:10.525983Z'
-- artifact_hash: fcff1091c87746982b7c1125f0d775f26a80bad0230cfbccfb7366e351689917
-  artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "GitHub - ultralytics/yolov5: Ultralytics YOLOv5 in PyTorch &gt;\
-    \ ONNX &gt; CoreML &gt; TFLite \xB7 GitHub"
-  kind: url
-  value: https://github.com/ultralytics/yolov5
-  verification_status: pending
-  verified_against_url: https://github.com/ultralytics/yolov5
-  verified_at: '2026-07-20T14:36:10.525983Z'
+  verified_at: '2026-07-22T23:09:50.537683Z'
