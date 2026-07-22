@@ -354,23 +354,6 @@
   status: not_enough_info
   updated_at: '2026-07-18T16:58:51Z'
 - artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
-  attempts: 2
-  canonical: project uses 24 compositions
-  claim_id: c_8fc6ecc5
-  context: 'Small Sample Size Mitigation: The project uses N=24 compositions. Tasks
-    T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory
-    and MUST be executed in Phase 4 after data generation to ensure statistical validity.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses N=24 compositions.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T17:02:12Z'
-- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
   attempts: 1
   canonical: target RMSE less than or equal to 15 K
   claim_id: c_642bfd5a
@@ -1297,3 +1280,538 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T17:21:04Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 3
+  canonical: project uses 24 compositions
+  claim_id: c_8fc6ecc5
+  context: 'Small Sample Size Mitigation: The project uses N=24 compositions. Tasks
+    T022 (Null Model/Permutation Test) and T023 (Collinearity Report) are mandatory
+    and MUST be executed in Phase 4 after data generation to ensure statistical validity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:10Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script executes in 6 hours on 2-CPU runner
+  claim_id: c_c4f25f90
+  context: 'Independent Test: The training script executes on a 2-CPU runner within
+    6 hours, outputting a model file and performance report meeting the RMSE and ROC-AUC
+    targets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script is expected to execute on a 2-CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:15Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target RMSE 15 K
+  claim_id: c_611cf8a8
+  context: "Implement Random Forest regression training in code/models/train.py with\
+    \ hyperparameter grid search (capped to complete within 2 hours). Target: RMSE\
+    \ \u226415 K."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_RMSE_15_K
+  kind: entity_fact
+  raw_text: The model training target is an RMSE of 15 K or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:24Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target ROC-AUC 0.7
+  claim_id: c_1d7ffda2
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_ROC-AUC_0.7
+  kind: magnitude
+  raw_text: The model training target is a ROC-AUC greater than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:29Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: permutation test 1000 shuffles
+  claim_id: c_c7723dcd
+  context: Train a mean predictor baseline and run a permutation test with exactly
+    1000 shuffles to establish statistical significance for the small sample size
+    (N=24).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test for the null model uses exactly 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:34Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability bootstrapping 1000 iterations
+  claim_id: c_210528b8
+  context: Calculate the stability of the top 3 structural descriptors across families
+    using bootstrapping (1000 iterations) and report 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability of top structural descriptors is calculated using bootstrapping
+    with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:37Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability metrics 95% confidence intervals
+  claim_id: c_7a3dec2e
+  context: Calculate the stability of the top 3 structural descriptors across families
+    using bootstrapping (1000 iterations) and report 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability metrics report 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:37Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: exclude row if Tx or Tg null
+  claim_id: c_b661972c
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013. Exclude row if Tx is null OR Tg is null.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_row_if_Tx_or_Tg_null
+  kind: entity_fact
+  raw_text: The crystallization labeling logic excludes a row if Tx is null OR Tg
+    is null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:40Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization threshold 50K
+  claim_id: c_fa6c2115
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystallization_threshold_50K
+  kind: entity_fact
+  raw_text: The crystallization labeling logic uses a threshold of 50K for |Tx - Tg|.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:44Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: truncate trajectory to 500 steps
+  claim_id: c_0ced613d
+  context: Enforce a CPU time cap per composition. If exceeded, truncate trajectory
+    to the final 500 steps for analysis (per Constitution Principle VII) and flag
+    as truncated in metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the CPU time cap is exceeded during MD simulations, the trajectory
+    is truncated to the final 500 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:08:46Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample size is 24 compositions
+  claim_id: c_8e7668f1
+  context: Summary section to formally document the reduction of FR-001 target from
+    500 to 24 compositions due to compute constraints (Pilot Study T001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a pilot sample of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:40Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target model performance is RMSE less than or equal to 15 K and ROC-AUC
+    greater than 0.7
+  claim_id: c_04407c80
+  context: "Goal: Train Random Forest regression and classification models on the\
+    \ generated dataset to predict Tg and crystallization propensity, achieving RMSE\
+    \ \u226415 K and ROC-AUC > 0.7."
+  evidence:
+    asserted: '15.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: "The project aims to train models to achieve RMSE \u226415 K and ROC-AUC\
+    \ > 0.7."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T16:13:40Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script execution time limit is 6 hours on 2-CPU runner
+  claim_id: c_e3eed008
+  context: 'Independent Test: The training script executes on a 2-CPU runner within
+    6 hours, outputting a model file and performance report meeting the RMSE and ROC-AUC
+    targets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script is expected to execute on a 2-CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:40Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling excludes rows where T_x or Tg is null
+  claim_id: c_3c0d5c0a
+  context: 'T013.1 [US1] **Implement Crystallization Labeling Logic**: Apply binary
+    logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset from T013. **Exclude
+    row if `T_x` is null OR `Tg` is null**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystallization_labeling_excludes_rows_where_T_x_or_Tg_is_nu
+  kind: entity_fact
+  raw_text: The crystallization labeling logic excludes a row if T_x is null or Tg
+    is null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:56Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: permutation test uses 1000 shuffles
+  claim_id: c_18361a9f
+  context: 'T022 [US2] **Implement Null Model & Permutation Test (Supplementary Validation)**:
+    Train a mean predictor baseline and run a permutation test with **exactly 1000
+    shuffles** to establish statistical significance for the small sample size (N=24).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test for the null model uses exactly 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:57Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability metrics use bootstrapping with 1000 iterations
+  claim_id: c_47b2cd33
+  context: 'T027.1 [US3] **Implement Stability Metrics & Confidence Intervals**: Calculate
+    the stability of the top 3 structural descriptors across families using **bootstrapping
+    (1000 iterations)** and report **95% confidence intervals**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability of top structural descriptors is calculated using bootstrapping
+    with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:57Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability metrics report 95% confidence intervals
+  claim_id: c_05245c60
+  context: 'T027.1 [US3] **Implement Stability Metrics & Confidence Intervals**: Calculate
+    the stability of the top 3 structural descriptors across families using **bootstrapping
+    (1000 iterations)** and report **95% confidence intervals**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence intervals reported for stability metrics are 95% confidence
+    intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:13:57Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: total pipeline time limit is 6 hours
+  claim_id: c_ebce94ad
+  context: "T021 [P] **Implement Total Pipeline Timing Aggregation**: Read `data/logs/simulation_times.json`\
+    \ (T010.1) and training logs to compute total end-to-end wall-clock time. Verify\
+    \ \u22646 hour limit (SC-005) and output `docs/reports/pipeline_timing.json`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_time_limit_is_6_hours
+  kind: entity_fact
+  raw_text: The pipeline time verification target is a total end-to-end wall-clock
+    time of 6 hours or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:14:13Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: project uses 24 compositions
+  claim_id: c_6f64ef5b
+  context: The project uses N=24 compositions. Tasks T022 (Null Model/Permutation
+    Test) and T023 (Collinearity Report) are mandatory and MUST be executed in Phase
+    4 after data generation to ensure statistical validity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses N=24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:18:11Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot sample consists of 24 compositions
+  claim_id: c_12b0ff71
+  context: 'Scope: Pilot Sample of compositions (stratified by family), with logic
+    for full 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot sample consists of 24 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:18:46Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target full-scale processing is 500 compositions
+  claim_id: c_cb3cee81
+  context: Implement a config-driven batching framework in code/data/simulate.py to
+    support processing up to 500 compositions as required by FR-001
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target for full-scale processing is 500 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:19:19Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: training script executes on 2-CPU runner within 6 hours
+  claim_id: c_9ed14a56
+  context: The training script executes on a 2-CPU runner within 6 hours, outputting
+    a model file and performance report meeting the RMSE and ROC-AUC targets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script is expected to execute on a 2-CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:19:19Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target RMSE is less than or equal to 15 K
+  claim_id: c_6e49884c
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_RMSE_is_less_than_or_equal_to_15_K
+  kind: magnitude
+  raw_text: "The target RMSE for the Random Forest regression model is \u226415 K."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:19:42Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: target ROC-AUC is greater than 0.7
+  claim_id: c_228cc380
+  context: "Train Random Forest regression and classification models on the generated\
+    \ dataset to predict Tg and crystallization propensity, achieving RMSE \u2264\
+    15 K and ROC-AUC > 0.7."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_ROC-AUC_is_greater_than_0.7
+  kind: magnitude
+  raw_text: The target ROC-AUC for the Random Forest classification model is > 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:08Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization logic excludes row if Tx or Tg is null
+  claim_id: c_cae9697e
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013. Exclude row if T_x is null OR Tg is null.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystallization_logic_excludes_row_if_Tx_or_Tg_is_null
+  kind: entity_fact
+  raw_text: The crystallization labeling logic excludes a row if T_x is null OR Tg
+    is null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: crystallization labeling threshold is 50 K
+  claim_id: c_d1fdbb5c
+  context: Apply binary logic (1 if |Tx - Tg| <= 50K, else 0) to the merged dataset
+    from T013.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The crystallization labeling logic uses a threshold of 50K for |Tx - Tg|.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:09Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: permutation test runs 1000 shuffles
+  claim_id: c_23331bcc
+  context: Train a mean predictor baseline and run a permutation test with exactly
+    1000 shuffles to establish statistical significance for the small sample size
+    (N=24).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs exactly 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:28Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability metrics use 1000 bootstrapping iterations
+  claim_id: c_6cde53fc
+  context: Calculate the stability of the top 3 structural descriptors across families
+    using bootstrapping (1000 iterations) and report 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability metrics calculation uses bootstrapping with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:46Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: stability metrics report 95 percent confidence intervals
+  claim_id: c_492705bf
+  context: Calculate the stability of the top 3 structural descriptors across families
+    using bootstrapping (1000 iterations) and report 95% confidence intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability metrics calculation reports 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:20:46Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/specs/001-predicting-phase-transitions-in-amorphou/tasks.md
+  attempts: 1
+  canonical: pilot study reduced compositions from 500 to 24 due to compute constraints
+  claim_id: c_c4508248
+  context: Update plan.md Summary section to formally document the reduction of FR-001
+    target from 500 to 24 compositions due to compute constraints (Pilot Study T001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study reduced the target number of compositions from 500 to
+    24 due to compute constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T16:21:06Z'

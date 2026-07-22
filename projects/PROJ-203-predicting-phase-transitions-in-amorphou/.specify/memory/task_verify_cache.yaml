@@ -1,7 +1,33 @@
-T008:
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `models/`,
-    `docs/reports/`) being created is present; the implementer only provided a textual
-    description without any actual filesystem artifacts. The task therefore remains
-    unfulfilled.
+  h: 1331b65ce418d76fcb3cd3d5128eb97bab3ebbacefcc80df359a22c426697bce
+  r: "The provided `code/config.py` still contains the default cooling_rate (1.0e10\u202F\
+    K/s) and lacks any scaling\u2011factor calculation, the `SRO_Invariance_Assumed`\
+    \ flag, or related metadata. Additionally, the required `data/processed/metadata.json`\
+    \ file is absent. These missing pieces mean the active timescale matching protocol\
+    \ has not been implemented."
+T015:
+  c: false
+  h: dc099c1769b77dc08f8ec59014d2bd8eca0330fd8345838ac2fac38f2059f78f
+  r: "The required `data/processed/final_dataset.parquet` file does not exist, so\
+    \ the script cannot actually load the dataset. Moreover, the `split_data_stratified`\
+    \ function stratifies on the target variable (`y`) instead of the chemical family\
+    \ column, which does not meet the task\u2019s specification. Both the missing\
+    \ data file and incorrect stratification need to be fixed."
+T017:
+  c: false
+  h: dc099c1769b77dc08f8ec59014d2bd8eca0330fd8345838ac2fac38f2059f78f
+  r: "The `code/models/train.py` file is present but only shows the beginning of a\
+    \ regression implementation; there is no visible code that trains a Random Forest\
+    \ **classifier**, generates a confusion matrix, or saves it. Moreover, the required\
+    \ input file `data/processed/final_dataset.parquet` is missing entirely, so the\
+    \ script cannot even load the crystallization labels. Both the essential dataset\
+    \ and the classifier/confusion\u2011matrix functionality are absent."
+T018:
+  c: false
+  h: 48cb7f10b45ee17ffb1b8ef084f94f4db5b96ff34f75e5e73e32a0ae0e349289
+  r: "The repository contains a `train.py` file, but it is truncated and does not\
+    \ clearly show a k\u2011fold cross\u2011validation implementation, and the required\
+    \ output files `models/tg_regressor.pkl` and `models/crystallization_classifier.pkl`\
+    \ are absent from the project. The task\u2019s core deliverables are therefore\
+    \ missing."
