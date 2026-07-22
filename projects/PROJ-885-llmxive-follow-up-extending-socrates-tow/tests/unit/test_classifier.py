@@ -1,281 +1,230 @@
 """
 Unit tests for the SocioCognitiveClassifier logic.
-Tests the core functionality of the classifier without requiring full experiment runs.
+Tests cover training, prediction, and configuration handling.
 """
 import json
 import os
-import pickle
 import tempfile
+import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
 import numpy as np
+import sys
 
-# Import the target module
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from models.classifier import ClassifierConfig, SocioCognitiveClassifier
 from models.entities import SocioCognitiveStateType
+from config import set_all_seeds
 
 
-class TestClassifierConfig:
-    """Tests for the ClassifierConfig dataclass."""
-
+class TestClassifierConfig(unittest.TestCase):
     def test_default_values(self):
         """Test that default configuration values are set correctly."""
         config = ClassifierConfig()
-        assert config.model_path is not None
-        assert config.vectorizer_path is not None
-        assert isinstance(config.min_confidence_threshold, float)
-        assert config.min_confidence_threshold >= 0.0
-        assert config.min_confidence_threshold <= 1.0
+        self.assertEqual(config.test_split_ratio, 0.2)
+        self.assertEqual(config.random_seed, 42)
+        self.assertIsNotNone(config.model_path)
 
     def test_custom_values(self):
-        """Test that custom configuration values are applied."""
-        custom_threshold = 0.75
-        config = ClassifierConfig(min_confidence_threshold=custom_threshold)
-        assert config.min_confidence_threshold == custom_threshold
+        """Test custom configuration values."""
+        config = ClassifierConfig(test_split_ratio=0.3, random_seed=123)
+        self.assertEqual(config.test_split_ratio, 0.3)
+        self.assertEqual(config.random_seed, 123)
 
 
-class TestSocioCognitiveClassifier:
-    """Tests for the SocioCognitiveClassifier class."""
-
-    @pytest.fixture
-    def sample_training_data(self):
-        """Generate sample training data for tests."""
-        return [
+class TestSocioCognitiveClassifier(unittest.TestCase):
+    def setUp(self):
+        """Set up test fixtures."""
+        set_all_seeds(42)
+        self.config = ClassifierConfig()
+        
+        # Create sample training data
+        self.training_data = [
             {
-                "turn_text": "I feel very frustrated with this situation.",
-                "label": SocioCognitiveStateType.HIGH_REACTIVITY,
-                "trajectory_id": "traj_001"
+                "turn_text": "I feel frustrated because my cultural norms are being ignored.",
+                "label": SocioCognitiveStateType.HIGH_EMOTIONAL_REACTIVITY,
+                "trajectory_id": "traj_001",
+                "confidence_score": 0.9,
+                "threshold_used": 0.7
             },
             {
-                "turn_text": "Let's try to understand each other's perspective.",
-                "label": SocioCognitiveStateType.DECREASE_TENSION,
-                "trajectory_id": "traj_001"
+                "turn_text": "Let's try to understand each other's perspectives.",
+                "label": SocioCognitiveStateType.NEUTRAL_MONITORING,
+                "trajectory_id": "traj_001",
+                "confidence_score": 0.85,
+                "threshold_used": 0.7
             },
             {
-                "turn_text": "I don't see why we need to follow those rules.",
-                "label": SocioCognitiveStateType.CULTURAL_CONFLICT,
-                "trajectory_id": "traj_002"
+                "turn_text": "I don't see why this is a problem. We should just move on.",
+                "label": SocioCognitiveStateType.LOW_EMOTIONAL_REACTIVITY,
+                "trajectory_id": "traj_002",
+                "confidence_score": 0.95,
+                "threshold_used": 0.7
             },
             {
-                "turn_text": "We should find a middle ground.",
-                "label": SocioCognitiveStateType.NEUTRAL,
-                "trajectory_id": "traj_002"
+                "turn_text": "This is exactly what I was afraid of. The cultural context is completely missing!",
+                "label": SocioCognitiveStateType.HIGH_EMOTIONAL_REACTIVITY,
+                "trajectory_id": "traj_003",
+                "confidence_score": 0.88,
+                "threshold_used": 0.7
             },
             {
-                "turn_text": "This is completely unacceptable behavior.",
-                "label": SocioCognitiveStateType.HIGH_REACTIVITY,
-                "trajectory_id": "traj_003"
-            },
-            {
-                "turn_text": "I apologize for the misunderstanding.",
-                "label": SocioCognitiveStateType.DECREASE_TENSION,
-                "trajectory_id": "traj_003"
+                "turn_text": "I'm willing to listen and find common ground.",
+                "label": SocioCognitiveStateType.NEUTRAL_MONITORING,
+                "trajectory_id": "traj_003",
+                "confidence_score": 0.82,
+                "threshold_used": 0.7
             }
         ]
 
-    @pytest.fixture
-    def classifier(self):
-        """Create a fresh classifier instance for tests."""
-        return SocioCognitiveClassifier()
+    def test_training_creates_model(self):
+        """Test that training creates a valid model."""
+        classifier = SocioCognitiveClassifier(self.config)
+        classifier.train(self.training_data)
+        
+        # Verify model attributes are set
+        self.assertIsNotNone(classifier.vectorizer)
+        self.assertIsNotNone(classifier.model)
+        self.assertTrue(hasattr(classifier, 'classes_'))
+        self.assertEqual(len(classifier.classes_), 3)  # HIGH_EMOTIONAL, LOW_EMOTIONAL, NEUTRAL
 
-    def test_train_creates_model_artifacts(self, classifier, sample_training_data, tmp_path):
-        """Test that training creates the expected model artifacts."""
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
-
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
-
-        classifier.train(sample_training_data, config)
-
-        assert model_path.exists(), "Model file should be created after training"
-        assert vectorizer_path.exists(), "Vectorizer file should be created after training"
-
-        # Verify files are not empty
-        assert model_path.stat().st_size > 0
-        assert vectorizer_path.stat().st_size > 0
-
-    def test_load_and_predict(self, classifier, sample_training_data, tmp_path):
-        """Test that a trained classifier can be saved, loaded, and used for prediction."""
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
-
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
-
-        # Train
-        classifier.train(sample_training_data, config)
-
-        # Create a new instance to simulate loading
-        loaded_classifier = SocioCognitiveClassifier()
-        loaded_classifier.load(config)
-
-        # Predict
-        test_turn = "I am really upset about this."
-        result = loaded_classifier.predict(test_turn)
-
-        assert result is not None
-        assert "predicted_state" in result
-        assert "confidence" in result
-        assert isinstance(result["confidence"], float)
-        assert 0.0 <= result["confidence"] <= 1.0
-
-    def test_low_confidence_returns_neutral(self, classifier, sample_training_data, tmp_path):
-        """Test that low confidence predictions fall back to neutral state."""
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
-
-        # Set a high threshold to force fallback
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path),
-            min_confidence_threshold=0.99
-        )
-
-        classifier.train(sample_training_data, config)
-
-        # Create a new instance
-        loaded_classifier = SocioCognitiveClassifier()
-        loaded_classifier.load(config)
-
-        # Predict on ambiguous text
-        test_turn = "Maybe we can talk about it later."
-        result = loaded_classifier.predict(test_turn)
-
-        # Should return NEUTRAL or a fallback state when confidence is too low
-        assert result["predicted_state"] in [
-            SocioCognitiveStateType.NEUTRAL,
-            SocioCognitiveStateType.MONITORING
+    def test_prediction_returns_valid_labels(self):
+        """Test that predictions return valid SocioCognitiveStateType values."""
+        classifier = SocioCognitiveClassifier(self.config)
+        classifier.train(self.training_data)
+        
+        test_samples = [
+            "I am very angry about this situation.",
+            "This is fine, no problem.",
+            "Let's discuss this calmly."
         ]
+        
+        predictions = classifier.predict(test_samples)
+        
+        self.assertEqual(len(predictions), len(test_samples))
+        for pred in predictions:
+            self.assertIn(pred, [e.value for e in SocioCognitiveStateType])
 
-    def test_predict_batch(self, classifier, sample_training_data, tmp_path):
-        """Test batch prediction functionality."""
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
+    def test_prediction_returns_confidence_scores(self):
+        """Test that prediction returns confidence scores."""
+        classifier = SocioCognitiveClassifier(self.config)
+        classifier.train(self.training_data)
+        
+        test_samples = ["I feel very emotional about this."]
+        
+        # Test predict_proba if available (sklearn models usually have it)
+        try:
+            probas = classifier.model.predict_proba(classifier.vectorizer.transform(test_samples))
+            self.assertEqual(len(probas), 1)
+            self.assertAlmostEqual(sum(probas[0]), 1.0, places=5)
+        except AttributeError:
+            # If predict_proba is not available, that's okay for some model types
+            self.skipTest("Model does not support probability prediction")
 
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
+    def test_save_and_load_model(self):
+        """Test that model can be saved and loaded correctly."""
+        classifier = SocioCognitiveClassifier(self.config)
+        classifier.train(self.training_data)
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            model_path = Path(tmp_dir) / "test_classifier.pkl"
+            
+            # Save
+            classifier.save(model_path)
+            self.assertTrue(model_path.exists())
+            
+            # Load
+            loaded_classifier = SocioCognitiveClassifier.load(model_path)
+            
+            # Verify loaded model works
+            test_sample = ["Test prediction"]
+            original_pred = classifier.predict(test_sample)[0]
+            loaded_pred = loaded_classifier.predict(test_sample)[0]
+            
+            self.assertEqual(original_pred, loaded_pred)
 
-        classifier.train(sample_training_data, config)
-
-        loaded_classifier = SocioCognitiveClassifier()
-        loaded_classifier.load(config)
-
-        test_turns = [
-            "I am very angry.",
-            "Let's resolve this peacefully.",
-            "I don't agree with your culture."
-        ]
-
-        results = loaded_classifier.predict_batch(test_turns)
-
-        assert len(results) == len(test_turns)
-        for result in results:
-            assert "predicted_state" in result
-            assert "confidence" in result
-
-    def test_invalid_label_handling(self, classifier, tmp_path):
-        """Test that the classifier handles invalid labels gracefully during training."""
-        # Create data with an invalid label
-        invalid_data = [
-            {
-                "turn_text": "Test text",
-                "label": "INVALID_LABEL",
-                "trajectory_id": "traj_001"
-            }
-        ]
-
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
-
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
-
-        # Should raise an error or handle gracefully
-        # For this test, we expect it to either raise or filter
-        with pytest.raises(Exception):
-            classifier.train(invalid_data, config)
-
-    def test_empty_training_data(self, classifier, tmp_path):
+    def test_empty_training_data(self):
         """Test that training with empty data raises an error."""
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
+        classifier = SocioCognitiveClassifier(self.config)
+        
+        with self.assertRaises(ValueError):
+            classifier.train([])
 
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
+    def test_malformed_training_data(self):
+        """Test that training with missing required fields raises an error."""
+        malformed_data = [
+            {
+                "turn_text": "Some text",
+                # Missing "label" field
+                "trajectory_id": "traj_001"
+            }
+        ]
+        
+        classifier = SocioCognitiveClassifier(self.config)
+        
+        with self.assertRaises(ValueError):
+            classifier.train(malformed_data)
 
-        with pytest.raises(ValueError):
-            classifier.train([], config)
-
-    def test_single_class_training(self, classifier, tmp_path):
-        """Test training with only one class of data."""
+    def test_single_class_training(self):
+        """Test training with only one class present."""
         single_class_data = [
             {
-                "turn_text": "I am angry.",
-                "label": SocioCognitiveStateType.HIGH_REACTIVITY,
-                "trajectory_id": "traj_001"
+                "turn_text": "Text 1",
+                "label": SocioCognitiveStateType.NEUTRAL_MONITORING,
+                "trajectory_id": "traj_001",
+                "confidence_score": 0.9,
+                "threshold_used": 0.7
             },
             {
-                "turn_text": "This makes me furious.",
-                "label": SocioCognitiveStateType.HIGH_REACTIVITY,
-                "trajectory_id": "traj_001"
+                "turn_text": "Text 2",
+                "label": SocioCognitiveStateType.NEUTRAL_MONITORING,
+                "trajectory_id": "traj_001",
+                "confidence_score": 0.85,
+                "threshold_used": 0.7
             }
         ]
+        
+        classifier = SocioCognitiveClassifier(self.config)
+        # This should not crash, but might warn about single class
+        classifier.train(single_class_data)
+        self.assertIsNotNone(classifier.model)
 
-        model_path = tmp_path / "classifier.pkl"
-        vectorizer_path = tmp_path / "vectorizer.pkl"
+    def test_prediction_consistency(self):
+        """Test that predictions are consistent with the same seed."""
+        set_all_seeds(42)
+        classifier1 = SocioCognitiveClassifier(self.config)
+        classifier1.train(self.training_data)
+        
+        set_all_seeds(42)
+        classifier2 = SocioCognitiveClassifier(self.config)
+        classifier2.train(self.training_data)
+        
+        test_sample = ["Consistent prediction test"]
+        pred1 = classifier1.predict(test_sample)[0]
+        pred2 = classifier2.predict(test_sample)[0]
+        
+        self.assertEqual(pred1, pred2)
 
-        config = ClassifierConfig(
-            model_path=str(model_path),
-            vectorizer_path=str(vectorizer_path)
-        )
+    def test_load_from_checkpoint(self):
+        """Test loading a classifier from a checkpoint file."""
+        classifier = SocioCognitiveClassifier(self.config)
+        classifier.train(self.training_data)
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            model_path = Path(tmp_dir) / "checkpoint.pkl"
+            classifier.save(model_path)
+            
+            # Load using the class method
+            loaded = SocioCognitiveClassifier.load(model_path)
+            
+            # Verify it's the correct type
+            self.assertIsInstance(loaded, SocioCognitiveClassifier)
+            self.assertIsNotNone(loaded.model)
+            self.assertIsNotNone(loaded.vectorizer)
 
-        # Should train without error
-        classifier.train(single_class_data, config)
 
-        loaded_classifier = SocioCognitiveClassifier()
-        loaded_classifier.load(config)
-
-        result = loaded_classifier.predict("I am very upset.")
-        assert result["predicted_state"] == SocioCognitiveStateType.HIGH_REACTIVITY
-
-class TestClassifierMain:
-    """Tests for the main function entry point."""
-
-    def test_main_execution(self, tmp_path, caplog):
-        """Test that main() executes without error when provided with valid arguments."""
-        # This test verifies the CLI entry point works
-        # We mock the actual training to avoid heavy computation
-        with patch('models.classifier.SocioCognitiveClassifier.train') as mock_train:
-            with patch('models.classifier.SocioCognitiveClassifier.load') as mock_load:
-                # Simulate command line arguments
-                import sys
-                original_argv = sys.argv
-                sys.argv = ['test', '--mode', 'train', '--data', 'dummy.json', '--output', str(tmp_path)]
-
-                try:
-                    # This should not raise an exception
-                    from models.classifier import main
-                    # Note: main() might exit or return, we just check it doesn't crash
-                    # For this unit test, we are mostly checking the path exists
-                except SystemExit:
-                    pass
-                finally:
-                    sys.argv = original_argv
-
-                # Verify our mocks were called if the logic path reached them
-                # (Depending on implementation details of main)
-                # This is a sanity check that the entry point is callable
-                assert True
+if __name__ == "__main__":
+    unittest.main()

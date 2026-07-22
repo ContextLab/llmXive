@@ -1,146 +1,97 @@
-# Quick Start: Dynamic Socio-Cognitive State Injection
+# Quickstart Guide: Dynamic Socio-Cognitive State Injection
 
-This guide walks you through setting up and running the llmXive pipeline for dynamic state injection experiments.
+## Overview
+
+This guide validates the end-to-end reproducibility of the **llmXive** pipeline for generating conflict trajectories, executing mediation experiments, and analyzing consensus gap closure.
 
 ## Prerequisites
 
 - Python 3.11+
-- 16GB+ RAM (for model loading and data processing)
-- No GPU required (CPU-only execution enforced)
+- pip installed
+- 8GB+ RAM (for CPU-only inference)
+- No GPU required (CPU-only enforced)
 
-## 1. Setup Environment
+## Installation
 
-Clone the repository and install dependencies:
+1. **Clone the repository**
+ ```bash
+ git clone <repo-url>
+ cd llmxive-follow-up-extending-socrates-tow
+ ```
 
-```bash
-git clone <repo-url>
-cd llmXive
-pip install -r requirements.txt
-```
+2. **Create a virtual environment**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-**Note**: `requirements.txt` explicitly excludes GPU-accelerated libraries (`bitsandbytes`, `flash-attn`) to comply with FR-004.
+3. **Install dependencies**
+ ```bash
+ pip install -r requirements.txt
+ ```
+ > **Note**: `bitsandbytes` and `flash-attn` are explicitly excluded to ensure CPU-only execution.
 
-## 2. Verify Project Structure
+## Execution Workflow
 
-Run the setup script to ensure all directories exist:
+The pipeline is executed in the following order:
 
-```bash
-python code/setup_structure.py
-```
+1. **Generate Trajectories** (US1)
+ ```bash
+ python -m code.data.generator
+ ```
+ *Outputs*: `data/processed/trajectories.json`, `data/processed/generation_stats.json`, `data/processed/classifier_training_data.json`
 
-This creates:
-- `code/`, `data/raw/`, `data/processed/`, `data/results/`
-- `tests/`, `contracts/`
+2. **Train Classifier** (US1/US2)
+ ```bash
+ python -m code.models.classifier
+ ```
+ *Outputs*: `data/processed/classifier.pkl` (embedded in training data logic or separate)
 
-## 3. Generate Conflict Trajectories (US1)
+3. **Run Experiments** (US2)
+ ```bash
+ python -m code.experiments.runner
+ ```
+ *Outputs*: `data/processed/experiment_logs.json`
 
-Generate synthetic conflict dialogues with targeted oversampling:
+4. **Compute Metrics & Statistics** (US3)
+ ```bash
+ python -m code.analysis.metrics
+ python -m code.analysis.stats
+ ```
+ *Outputs*: `data/results/statistical_report.json`, `data/results/perf_report.json`
 
-```bash
-python code/data/generator.py
-```
+5. **Power Analysis** (T049)
+ ```bash
+ python -m code.analysis.power_analysis
+ ```
+ *Outputs*: `data/results/power_analysis_report.json`
 
-**Outputs**:
-- `data/processed/trajectories.json`: Full conflict trajectories
-- `data/processed/generation_stats.json`: Distribution statistics (verifies >40% target categories)
-- `data/processed/classifier_training_data.json`: Turn-level training pairs
+## Validation (T044)
 
-**Validation**: Check `generation_stats.json` to ensure the oversampling threshold is met.
-
-## 4. Train State Classifier (US2)
-
-Train the lightweight logistic regression classifier on the generated data:
-
-```bash
-python code/models/classifier.py
-```
-
-**Outputs**:
-- `data/processed/classifier.pkl`: Trained model artifact
-
-**Note**: The classifier uses TF-IDF features on `turn_text` to predict socio-cognitive states.
-
-## 5. Run Experiments (US2)
-
-Execute the paired mediation experiment (Adapter vs. Static) on all trajectories:
-
-```bash
-python code/experiments/runner.py
-```
-
-**Flags**:
-- `--seed <int>`: Ensure deterministic execution (default: 42)
-- `--models <list>`: Specify which LLMs to run (default: all available within memory limits)
-
-**Outputs**:
-- `data/processed/experiment_logs.json`: Per-turn logs with `confidence_score` and `injected_state`
-- `data/results/perf_report.json`: Throughput and latency metrics
-
-**Constraints**:
-- The script enforces CPU-only execution (`torch.cuda.is_available()` check).
-- Models exceeding 7GB RAM are automatically skipped (see T009).
-
-## 6. Analyze Results (US3)
-
-Compute consensus gap closure and statistical significance:
+To verify end-to-end reproducibility and data integrity, run the validation script:
 
 ```bash
-python code/analysis/stats.py
+python -m code.analysis.quickstart_validator
 ```
 
-**Outputs**:
-- `data/results/statistical_report.json`: T-statistic, p-value, Cohen's d, significance flags
-- `data/results/sensitivity_analysis_report.json`: Confidence threshold sensitivity analysis
+This script:
+- Verifies all required directories exist.
+- Checks that all core modules import correctly.
+- Validates the existence and schema of generated data artifacts.
+- Performs a dry-run of the statistical analysis pipeline.
+- Generates a `data/results/quickstart_validation_report.json`.
 
-**Stratified Analysis**:
-The report includes a `stratified_results` section comparing the full dataset against the "high-difficulty" subset (high emotional reactivity or diverse cultural identity).
+## Expected Outputs
 
-## 7. Performance Validation
+Upon successful completion, the following files should exist:
 
-Check performance metrics:
-
-```bash
-python code/analysis/perf_monitor.py
-```
-
-**Thresholds**:
-- Throughput: > 40 trajectories/hour
-- Latency: < 45 seconds/trajectory
-
-If thresholds are violated, the CI build fails (see `scripts/check_perf.sh`).
-
-## 8. Memory Profiling
-
-Run the memory profiler to ensure no model exceeds RAM limits:
-
-```bash
-python code/analysis/memory_profiler.py
-```
-
-**Output**: `data/results/memory_profile_report.json`
-
-**Failure Condition**: If any model exceeds the RAM threshold, the build fails.
+- `data/processed/trajectories.json`
+- `data/processed/experiment_logs.json`
+- `data/results/statistical_report.json`
+- `data/results/quickstart_validation_report.json`
 
 ## Troubleshooting
 
-### CUDA Detected
-If you see `CUDA device detected`, ensure you are running on a CPU-only environment. The script explicitly fails if `torch.cuda.is_available()` is True.
-
-### Model Too Large
-If a model is skipped due to memory limits, check `code/experiments/model_loader.py` logs. You can adjust the 7GB threshold in `config.py` if necessary (not recommended).
-
-### Missing Data Files
-Ensure you run tasks in order:
-1. `generator.py` (US1)
-2. `classifier.py` (US2)
-3. `runner.py` (US2)
-4. `stats.py` (US3)
-
-## Reproducibility
-
-To reproduce results exactly:
-1. Use the same `--seed` in `runner.py`.
-2. Use the same subset of LLMs.
-3. Ensure the same `trajectories.json` is used as input.
-
-Statistical reproducibility is verified by ensuring the mean consensus gap variance between runs is < `config.STATISTICAL_VARIANCE_TOLERANCE`.
+- **Memory Errors**: Ensure no GPU libraries are installed. The system will log a warning if a GPU is detected but will force CPU usage.
+- **Import Errors**: Verify `requirements.txt` was installed completely.
+- **Missing Data**: Re-run the generation and experiment scripts if data files are missing.

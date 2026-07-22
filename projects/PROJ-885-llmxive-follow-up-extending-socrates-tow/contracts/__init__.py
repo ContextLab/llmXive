@@ -1,1 +1,1 @@
-# Contract definitions and schema validation
+# Contracts package initialization

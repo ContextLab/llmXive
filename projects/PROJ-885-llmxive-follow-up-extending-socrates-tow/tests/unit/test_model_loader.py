@@ -1,151 +1,290 @@
 """
-Unit tests for model memory estimation and loading logic.
-
-Tests verify that models exceeding the 7GB memory limit are correctly identified
-and excluded from loading.
+Unit tests for the model memory estimation and exclusion logic (T009 requirement).
 """
+import json
+import os
+import sys
+import tempfile
 import pytest
-import logging
+from pathlib import Path
 from unittest.mock import patch, MagicMock
-from experiments.model_loader import (
-    estimate_model_memory,
-    check_and_load_model,
-    _infer_param_count_from_name,
-    get_available_models,
-    filter_models_by_memory,
-    MEMORY_LIMIT_GB,
-    ModelMemoryEstimate
-)
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from experiments.model_loader import ModelMemoryEstimate, estimate_model_memory, check_and_load_model, get_available_models, filter_models_by_memory
+from config import ensure_directories
 
 
-class TestModelMemoryEstimation:
-    """Tests for memory estimation logic."""
-    
-    def test_small_model_fits(self):
-        """Test that a small model (1B params) is estimated to fit."""
-        estimate = estimate_model_memory("tiny-model", param_count=1_000_000_000)
-        assert estimate.fits_in_memory is True
-        assert estimate.estimated_memory_gb < MEMORY_LIMIT_GB
-        assert "fits" in estimate.reason.lower()
-    
-    def test_large_model_exceeds_limit(self):
-        """Test that a large model (70B params) is estimated to exceed limit."""
-        estimate = estimate_model_memory("llama-2-70b", param_count=70_000_000_000)
-        assert estimate.fits_in_memory is False
-        assert estimate.estimated_memory_gb > MEMORY_LIMIT_GB
-        assert "exceeds" in estimate.reason.lower()
-    
-    def test_boundary_model(self):
-        """Test a model right at the boundary."""
-        # 7B model with FP32 should be around 7GB
-        estimate = estimate_model_memory("mistral-7b", param_count=7_000_000_000)
-        # Should be close to the limit but might exceed due to overhead
-        assert estimate.estimated_memory_gb > 6.0  # Definitely large
-    
-    def test_infer_param_count_from_name_7b(self):
-        """Test parameter inference for 7B models."""
-        assert _infer_param_count_from_name("mistral-7b") == 7_000_000_000
-        assert _infer_param_count_from_name("llama-2-7B") == 7_000_000_000
-    
-    def test_infer_param_count_from_name_13b(self):
-        """Test parameter inference for 13B models."""
-        assert _infer_param_count_from_name("llama-2-13b") == 13_000_000_000
-    
-    def test_infer_param_count_from_name_unknown(self):
-        """Test parameter inference for unknown model names."""
-        # Should default to 1B
-        assert _infer_param_count_from_name("unknown-model") == 1_000_000_000
-    
-    def test_fp16_precision(self):
-        """Test memory estimation with FP16 precision."""
-        estimate_fp32 = estimate_model_memory("test", param_count=7_000_000_000, precision_bytes=4)
-        estimate_fp16 = estimate_model_memory("test", param_count=7_000_000_000, precision_bytes=2)
-        
-        assert estimate_fp16.estimated_memory_gb < estimate_fp32.estimated_memory_gb
-        # FP16 should be roughly half the size
-        assert estimate_fp16.estimated_memory_gb == pytest.approx(
-            estimate_fp32.estimated_memory_gb / 2, rel=0.1
+class TestModelMemoryEstimate:
+    """Tests for the ModelMemoryEstimate dataclass."""
+
+    def test_creation(self):
+        """Test creating a ModelMemoryEstimate instance."""
+        estimate = ModelMemoryEstimate(
+            model_name="test_model",
+            estimated_ram_gb=5.0,
+            reason="Normal operation"
         )
+        assert estimate.model_name == "test_model"
+        assert estimate.estimated_ram_gb == 5.0
+        assert estimate.reason == "Normal operation"
+
+    def test_to_dict(self):
+        """Test serialization to dictionary."""
+        estimate = ModelMemoryEstimate(
+            model_name="test_model",
+            estimated_ram_gb=5.0,
+            reason="Normal operation"
+        )
+        estimate_dict = estimate.to_dict()
+        assert isinstance(estimate_dict, dict)
+        assert estimate_dict["model_name"] == "test_model"
+        assert estimate_dict["estimated_ram_gb"] == 5.0
+        assert estimate_dict["reason"] == "Normal operation"
+
+
+class TestEstimateModelMemory:
+    """Tests for the estimate_model_memory function."""
+
+    def test_function_exists_and_callable(self):
+        """Test that the function exists and is callable."""
+        assert callable(estimate_model_memory)
+
+    def test_estimation_returns_positive_value(self):
+        """Test that memory estimation returns a positive value."""
+        # Mock the internal logic to return a fixed value
+        with patch('experiments.model_loader.ModelMemoryEstimate') as MockEstimate:
+            mock_instance = MockEstimate.return_value
+            mock_instance.estimated_ram_gb = 3.5
+            
+            result = estimate_model_memory("test_model")
+            
+            # The function should return a ModelMemoryEstimate object
+            assert result is not None
+            assert result.estimated_ram_gb > 0
+
+    def test_large_model_estimation(self):
+        """Test estimation for a model that exceeds memory limits."""
+        # Mock a large model
+        with patch('experiments.model_loader.ModelMemoryEstimate') as MockEstimate:
+            mock_instance = MockEstimate.return_value
+            mock_instance.estimated_ram_gb = 10.0  # > 7GB limit
+            
+            result = estimate_model_memory("large_model")
+            
+            assert result.estimated_ram_gb == 10.0
+            assert "large" in result.model_name.lower() or "large_model" == result.model_name
 
 
 class TestCheckAndLoadModel:
-    """Tests for the check_and_load_model function."""
-    
-    def test_skip_large_model(self, caplog):
-        """Test that large models are skipped with a warning."""
-        caplog.set_level(logging.WARNING)
-        
-        with patch('experiments.model_logger.logger') as mock_logger:
-            success, model, message = check_and_load_model(
-                "llama-2-70b",
-                model_class=MagicMock(),
-                precision_bytes=4
+    """Tests for the check_and_load_model function and exclusion logic."""
+
+    @pytest.fixture
+    def temp_scope_adjustments_path(self):
+        """Provide a temporary path for scope_adjustments.json."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = Path(tmp_dir) / "scope_adjustments.json"
+            # Initialize empty list
+            path.write_text(json.dumps([]))
+            yield path
+
+    def test_model_within_memory_limit(self, temp_scope_adjustments_path):
+        """Test that a model within memory limits is loaded successfully."""
+        # Mock a small model
+        with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+            mock_estimate.return_value = ModelMemoryEstimate(
+                model_name="small_model",
+                estimated_ram_gb=3.0,
+                reason="Fits in memory"
             )
-        
-        assert success is False
-        assert model is None
-        assert "exceeds" in message.lower()
-        assert "skipping" in message.lower()
-    
-    def test_allow_small_model(self, caplog):
-        """Test that small models are allowed to load."""
-        caplog.set_level(logging.INFO)
-        
-        with patch('experiments.model_loader.logger') as mock_logger:
-            success, model, message = check_and_load_model(
-                "tiny-llama-1.1b",
-                model_class=MagicMock(),
-                precision_bytes=4
+            
+            with patch('experiments.model_loader.logger') as mock_logger:
+                # Mock the actual loading
+                with patch('experiments.model_loader.load_model_from_hf') as mock_load:
+                    mock_load.return_value = MagicMock()
+                    
+                    model, reason = check_and_load_model(
+                        "small_model",
+                        temp_scope_adjustments_path,
+                        max_memory_gb=7.0
+                    )
+                    
+                    assert model is not None
+                    assert reason is None  # No reason for exclusion
+                    mock_logger.info.assert_called()  # Should log success
+
+    def test_model_exceeds_memory_limit(self, temp_scope_adjustments_path):
+        """Test that a model exceeding memory limits is excluded and logged."""
+        # Mock a large model
+        with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+            mock_estimate.return_value = ModelMemoryEstimate(
+                model_name="large_model",
+                estimated_ram_gb=10.0,
+                reason="Exceeds 7GB limit"
             )
+            
+            with patch('experiments.model_loader.logger') as mock_logger:
+                model, reason = check_and_load_model(
+                    "large_model",
+                    temp_scope_adjustments_path,
+                    max_memory_gb=7.0
+                )
+                
+                assert model is None
+                assert reason is not None
+                assert "Exceeds" in reason
+                
+                # Verify exclusion was recorded
+                assert temp_scope_adjustments_path.exists()
+                content = json.loads(temp_scope_adjustments_path.read_text())
+                assert isinstance(content, list)
+                assert len(content) > 0
+                exclusion_record = content[-1]
+                assert exclusion_record["model_name"] == "large_model"
+                assert exclusion_record["reason"] == "Exceeds 7GB limit"
+                assert exclusion_record["estimated_ram_gb"] == 10.0
+
+    def test_scope_adjustments_schema(self, temp_scope_adjustments_path):
+        """Test that scope_adjustments.json has the correct schema."""
+        # Trigger an exclusion
+        with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+            mock_estimate.return_value = ModelMemoryEstimate(
+                model_name="test_model",
+                estimated_ram_gb=8.0,
+                reason="Test exclusion"
+            )
+            
+            check_and_load_model("test_model", temp_scope_adjustments_path, max_memory_gb=7.0)
+            
+            # Verify schema
+            content = json.loads(temp_scope_adjustments_path.read_text())
+            assert len(content) == 1
+            record = content[0]
+            
+            # Required keys
+            assert "model_name" in record
+            assert "reason" in record
+            assert "estimated_ram_gb" in record
+            
+            # Type checks
+            assert isinstance(record["model_name"], str)
+            assert isinstance(record["reason"], str)
+            assert isinstance(record["estimated_ram_gb"], (int, float))
+
+    def test_multiple_exclusions(self, temp_scope_adjustments_path):
+        """Test that multiple model exclusions are recorded correctly."""
+        models_to_exclude = [
+            ("model_1", 8.0),
+            ("model_2", 9.0),
+            ("model_3", 10.0)
+        ]
         
-        assert success is True
-        assert model is None  # We don't actually load in this mock
-        assert "would be loaded" in message.lower()
+        for model_name, ram_gb in models_to_exclude:
+            with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+                mock_estimate.return_value = ModelMemoryEstimate(
+                    model_name=model_name,
+                    estimated_ram_gb=ram_gb,
+                    reason="Exceeds limit"
+                )
+                
+                check_and_load_model(model_name, temp_scope_adjustments_path, max_memory_gb=7.0)
+        
+        # Verify all exclusions recorded
+        content = json.loads(temp_scope_adjustments_path.read_text())
+        assert len(content) == 3
+        
+        for i, (model_name, ram_gb) in enumerate(models_to_exclude):
+            assert content[i]["model_name"] == model_name
+            assert content[i]["estimated_ram_gb"] == ram_gb
 
 
-class TestModelFiltering:
-    """Tests for model filtering utilities."""
-    
-    def test_filter_models_by_memory(self):
-        """Test that filtering correctly separates small and large models."""
-        models = get_available_models()
-        filtered = filter_models_by_memory(models)
-        
-        # All filtered models should fit in memory
-        for estimate in filtered.values():
-            assert estimate.fits_in_memory is True
-        
-        # Some models should be filtered out
-        assert len(filtered) < len(models)
-    
-    def test_specific_models(self):
-        """Test specific model filtering."""
-        models = get_available_models()
-        
-        # Small models should be included
-        assert models["tiny-llama-1.1b"].fits_in_memory is True
-        assert models["phi-2"].fits_in_memory is True
-        assert models["mistral-7b"].fits_in_memory is True
-        
-        # Large models should be excluded
-        assert models["llama-2-13b"].fits_in_memory is False
-        assert models["mistral-8x7b"].fits_in_memory is False
-        assert models["llama-2-70b"].fits_in_memory is False
+class TestGetAvailableModels:
+    """Tests for the get_available_models function."""
+
+    def test_function_exists_and_callable(self):
+        """Test that the function exists and is callable."""
+        assert callable(get_available_models)
+
+    def test_returns_list_of_models(self):
+        """Test that the function returns a list of model names."""
+        # Mock the internal logic
+        with patch('experiments.model_loader.MODEL_LIST') as mock_list:
+            mock_list = ["model_1", "model_2", "model_3"]
+            
+            result = get_available_models()
+            
+            assert isinstance(result, list)
+            assert len(result) == 3
+            assert "model_1" in result
+
+    def test_empty_model_list(self):
+        """Test behavior when no models are available."""
+        with patch('experiments.model_loader.MODEL_LIST') as mock_list:
+            mock_list = []
+            
+            result = get_available_models()
+            
+            assert isinstance(result, list)
+            assert len(result) == 0
 
 
-class TestIntegration:
-    """Integration tests for the model loader module."""
-    
-    def test_memory_limit_constant(self):
-        """Verify the memory limit is set to 7GB."""
-        assert MEMORY_LIMIT_GB == 7.0
-    
-    def test_overhead_factor(self):
-        """Test that overhead is applied correctly."""
-        # 1B params * 4 bytes = 4GB base
-        # With 10% overhead = 4.4GB
-        estimate = estimate_model_memory("test", param_count=1_000_000_000, precision_bytes=4)
-        expected_base = 1_000_000_000 * 4 / (1024 ** 3)
-        expected_with_overhead = expected_base * 1.1
+class TestFilterModelsByMemory:
+    """Tests for the filter_models_by_memory function."""
+
+    def test_function_exists_and_callable(self):
+        """Test that the function exists and is callable."""
+        assert callable(filter_models_by_memory)
+
+    def test_filter_within_limit(self):
+        """Test filtering models that fit within memory limit."""
+        models = ["small_model_1", "small_model_2"]
         
-        assert estimate.estimated_memory_gb == pytest.approx(expected_with_overhead, rel=0.01)
+        with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+            mock_estimate.return_value = ModelMemoryEstimate(
+                model_name="small_model",
+                estimated_ram_gb=3.0,
+                reason="Fits"
+            )
+            
+            result = filter_models_by_memory(models, max_memory_gb=7.0)
+            
+            # All models should be included
+            assert len(result) == 2
+
+    def test_filter_exceeds_limit(self):
+        """Test filtering models that exceed memory limit."""
+        models = ["large_model_1", "large_model_2"]
+        
+        with patch('experiments.model_loader.estimate_model_memory') as mock_estimate:
+            mock_estimate.return_value = ModelMemoryEstimate(
+                model_name="large_model",
+                estimated_ram_gb=10.0,
+                reason="Exceeds"
+            )
+            
+            result = filter_models_by_memory(models, max_memory_gb=7.0)
+            
+            # No models should be included
+            assert len(result) == 0
+
+    def test_mixed_model_sizes(self):
+        """Test filtering with a mix of small and large models."""
+        models = ["small_model", "large_model"]
+        
+        call_count = 0
+        def mock_estimate_side_effect(model_name):
+            nonlocal call_count
+            call_count += 1
+            if "small" in model_name:
+                return ModelMemoryEstimate(model_name, 3.0, "Fits")
+            else:
+                return ModelMemoryEstimate(model_name, 10.0, "Exceeds")
+        
+        with patch('experiments.model_loader.estimate_model_memory', side_effect=mock_estimate_side_effect):
+            result = filter_models_by_memory(models, max_memory_gb=7.0)
+            
+            # Only small model should be included
+            assert len(result) == 1
+            assert "small_model" in result

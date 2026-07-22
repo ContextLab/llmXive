@@ -1,0 +1,64 @@
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/quickstart.md
+  attempts: 1
+  canonical: CPU-only execution supported for standard research hardware
+  claim_id: c_7e28e59b
+  context: Prerequisites section listing hardware requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_execution_supported_for_standard_research_hardware
+  kind: entity_fact
+  raw_text: Standard research hardware (CPU-only execution supported; GPU optional
+    but not required)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T08:06:33Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/quickstart.md
+  attempts: 1
+  canonical: 14 GB disk space required for model weights and data artifacts
+  claim_id: c_4321728a
+  context: Prerequisites section listing storage requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ~14GB disk space for model weights and data artifacts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T08:06:56Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/quickstart.md
+  attempts: 1
+  canonical: 40 percent target category threshold for generation statistics
+  claim_id: c_408d3c84
+  context: Step 2 Expected Outputs describing generation_stats.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Summary statistics verifying the >40% target category threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T08:06:56Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/quickstart.md
+  attempts: 1
+  canonical: Models exceeding 7 GB RAM threshold are excluded
+  claim_id: c_af090a90
+  context: Step 3 Note regarding execution constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runner automatically enforces CPU-only execution and excludes models
+    exceeding the 7GB RAM threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T08:07:13Z'

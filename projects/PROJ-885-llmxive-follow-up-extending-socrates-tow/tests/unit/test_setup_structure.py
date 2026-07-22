@@ -1,98 +1,67 @@
-"""
-Unit tests for the project structure initialization logic.
-
-These tests verify that the directory creation logic works correctly
-and handles edge cases appropriately.
-"""
-
 import os
-import tempfile
 import pytest
 from pathlib import Path
-import shutil
-
-# Import the function to test
 from setup_structure import create_directory_structure
 
+def test_directory_structure_creation(tmp_path, monkeypatch):
+    """
+    Test that create_directory_structure creates the required folders.
+    We use tmp_path to simulate the project root.
+    """
+    # Change the working directory to the temp path for the test
+    monkeypatch.chdir(tmp_path)
+    
+    # Call the function
+    created_paths = create_directory_structure()
+    
+    # Verify the expected directories were created
+    expected_dirs = [
+        "code",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests",
+        "contracts",
+    ]
+    
+    for dir_name in expected_dirs:
+        dir_path = tmp_path / dir_name
+        assert dir_path.exists(), f"Directory {dir_name} was not created."
+        assert dir_path.is_dir(), f"{dir_name} is not a directory."
+    
+    # Verify __init__.py files were created for packages
+    package_dirs = [
+        "code",
+        "tests",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "contracts",
+    ]
+    
+    for pkg_dir in package_dirs:
+        init_file = tmp_path / pkg_dir / "__init__.py"
+        assert init_file.exists(), f"__init__.py missing in {pkg_dir}"
 
-class TestDirectoryCreation:
-    """Test cases for create_directory_structure function."""
-
-    def test_creates_all_required_directories(self, tmp_path):
-        """Verify that all required directories are created."""
-        required_dirs = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "tests",
-            "contracts"
-        ]
-
-        created_paths = create_directory_structure(tmp_path)
-
-        for dir_name in required_dirs:
-            expected_path = tmp_path / dir_name
-            assert expected_path.exists(), f"Directory {expected_path} was not created"
-            assert expected_path.is_dir(), f"{expected_path} is not a directory"
-
-    def test_creates_nested_directories(self, tmp_path):
-        """Verify that nested directories (e.g., data/raw) are created correctly."""
-        nested_dirs = ["data/raw", "data/processed", "data/results"]
-
-        created_paths = create_directory_structure(tmp_path)
-
-        for dir_name in nested_dirs:
-            expected_path = tmp_path / dir_name
-            assert expected_path.exists(), f"Nested directory {expected_path} was not created"
-
-    def test_handles_existing_directories(self, tmp_path):
-        """Verify that the function handles existing directories gracefully."""
-        # Pre-create some directories
-        pre_created = tmp_path / "code"
-        pre_created.mkdir()
-
-        # Run the function
-        created_paths = create_directory_structure(tmp_path)
-
-        # Should not raise an error and should return the path
-        assert pre_created in created_paths
-        assert pre_created.exists()
-
-    def test_creates_init_files_for_packages(self, tmp_path):
-        """Verify that __init__.py files are created for 'code' and 'tests' directories."""
-        created_paths = create_directory_structure(tmp_path)
-
-        code_dir = tmp_path / "code"
-        tests_dir = tmp_path / "tests"
-
-        code_init = code_dir / "__init__.py"
-        tests_init = tests_dir / "__init__.py"
-
-        assert code_init.exists(), "__init__.py should be created in 'code' directory"
-        assert tests_init.exists(), "__init__.py should be created in 'tests' directory"
-
-    def test_returns_list_of_created_paths(self, tmp_path):
-        """Verify that the function returns a list of Path objects."""
-        result = create_directory_structure(tmp_path)
-
-        assert isinstance(result, list), "Function should return a list"
-        assert len(result) > 0, "List should not be empty"
-
-        for path in result:
-            assert isinstance(path, Path), "Each item should be a Path object"
-            assert path.exists(), f"Path {path} should exist"
-
-    def test_relative_path_handling(self, tmp_path):
-        """Verify that paths are correctly constructed relative to the provided root."""
-        test_root = tmp_path / "custom_root"
-        test_root.mkdir()
-
-        created_paths = create_directory_structure(test_root)
-
-        for path in created_paths:
-            # All paths should be under the custom root
-            assert str(path).startswith(str(test_root)), f"Path {path} is not under {test_root}"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_idempotency(tmp_path, monkeypatch):
+    """
+    Test that running create_directory_structure twice does not fail
+    and does not duplicate directories.
+    """
+    monkeypatch.chdir(tmp_path)
+    
+    # First run
+    created_first = create_directory_structure()
+    
+    # Second run
+    created_second = create_directory_structure()
+    
+    # Second run should return empty list or just info that they exist
+    # (depending on implementation, but shouldn't crash)
+    assert len(created_second) == 0, "Second run should not create new directories."
+    
+    # Verify structure still exists
+    assert (tmp_path / "code").exists()
+    assert (tmp_path / "data" / "processed").exists()
