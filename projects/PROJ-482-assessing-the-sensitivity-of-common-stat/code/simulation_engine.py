@@ -1,431 +1,367 @@
 import numpy as np
 from scipy import stats
-from typing import Tuple, Dict, Any, List, Optional
+from typing import Tuple, Dict, Any, List, Optional, Callable
 import logging
 import os
 import csv
-from config import SimulationConfig, get_simulation_grid, get_test_grid
+from dataclasses import dataclass
+import time
+
+from config import SimulationConfig, get_simulation_grid
+from data_generator import generate_data, validate_sample_statistics
+from utils.file_lock import file_lock, write_pvalue_batch
 
 logger = logging.getLogger(__name__)
 
-def clopper_pearson_interval(k: int, n: int, alpha: float = 0.05) -> Tuple[float, float]:
+@dataclass
+class SimulationResult:
+    """Result of a single simulation replicate."""
+    sample_size: int
+    distribution_type: str
+    test_type: str
+    p_value: float
+    hypothesis_type: str
+    is_rejection: bool
+    replicate_id: int
+
+@dataclass
+class AdaptiveRunResult:
+    """Result of an adaptive simulation run for a specific configuration."""
+    sample_size: int
+    distribution_type: str
+    test_type: str
+    hypothesis_type: str
+    total_replicates: int
+    type_i_errors: int
+    type_ii_errors: int
+    observed_alpha: float
+    observed_power: float
+    ci_lower: float
+    ci_upper: float
+    ci_width: float
+    converged: bool
+    raw_pvalues_file: str
+
+def bootstrap_ci(
+    outcomes: List[int], 
+    n_bootstrap: int = 1000, 
+    alpha: float = 0.05
+) -> Tuple[float, float]:
     """
-    Calculate the Clopper-Pearson exact confidence interval for a binomial proportion.
+    Calculate bootstrap confidence interval for binary outcomes.
     
     Args:
-        k: Number of successes
-        n: Number of trials
-        alpha: Significance level (default 0.05 for 95% CI)
+        outcomes: List of binary outcomes (0 or 1)
+        n_bootstrap: Number of bootstrap samples
+        alpha: Significance level for CI
         
     Returns:
-        Tuple (lower_bound, upper_bound)
+        Tuple of (lower_bound, upper_bound)
     """
-    if n == 0:
+    if not outcomes:
         return (0.0, 0.0)
-    if k == 0:
-        lower = 0.0
-    else:
-        lower = stats.beta.ppf(alpha / 2, k, n - k + 1)
-    if k == n:
-        upper = 1.0
-    else:
-        upper = stats.beta.ppf(1 - alpha / 2, k + 1, n - k)
-    return (lower, upper)
+    
+    n = len(outcomes)
+    bootstrap_means = []
+    
+    for _ in range(n_bootstrap):
+        sample = np.random.choice(outcomes, size=n, replace=True)
+        bootstrap_means.append(np.mean(sample))
+    
+    bootstrap_means.sort()
+    lower_idx = int(alpha / 2 * n_bootstrap)
+    upper_idx = int((1 - alpha / 2) * n_bootstrap)
+    
+    return (bootstrap_means[lower_idx], bootstrap_means[upper_idx])
 
-def execute_t_test(group1: np.ndarray, group2: np.ndarray) -> float:
-    """Execute an independent samples t-test."""
-    _, p_value = stats.ttest_ind(group1, group2)
+def execute_t_test(data1: np.ndarray, data2: np.ndarray) -> float:
+    """Execute independent t-test and return p-value."""
+    _, p_value = stats.ttest_ind(data1, data2)
     return p_value
 
-def execute_anova(groups: List[np.ndarray]) -> float:
-    """Execute a one-way ANOVA."""
-    if len(groups) < 2:
-        return 1.0
-    _, p_value = stats.f_oneway(*groups)
+def execute_anova(data1: np.ndarray, data2: np.ndarray) -> float:
+    """Execute ANOVA and return p-value."""
+    _, p_value = stats.f_oneway(data1, data2)
     return p_value
 
-def execute_chi_squared(observed: np.ndarray) -> float:
-    """Execute a Chi-squared test."""
-    try:
-        _, p_value, _, _ = stats.chi2_contingency(observed)
-        return p_value
-    except Exception:
-        return 1.0
+def execute_chi_squared(data1: np.ndarray, data2: np.ndarray) -> float:
+    """
+    Execute Chi-squared test on binned data.
+    Bins data into 2 groups (low/high) for each distribution.
+    """
+    # Bin the data into 2 categories for Chi-squared test
+    threshold = np.median(np.concatenate([data1, data2]))
+    group1 = (data1 < threshold).astype(int)
+    group2 = (data2 < threshold).astype(int)
+    
+    # Create contingency table
+    contingency = np.array([
+        [np.sum(group1), len(data1) - np.sum(group1)],
+        [np.sum(group2), len(data2) - np.sum(group2)]
+    ])
+    
+    _, p_value, _, _ = stats.chi2_contingency(contingency)
+    return p_value
 
-def execute_fisher_exact(observed: np.ndarray) -> float:
-    """Execute Fisher's Exact test."""
-    try:
-        _, p_value = stats.fisher_exact(observed)
-        return p_value
-    except Exception:
-        return 1.0
+def execute_fisher_exact_from_table(contingency: np.ndarray) -> float:
+    """Execute Fisher's Exact test from a contingency table."""
+    _, p_value = stats.fisher_exact(contingency)
+    return p_value
 
-def execute_fisher_exact_from_table(table: List[List[int]]) -> float:
-    """Execute Fisher's Exact test from a 2x2 contingency table."""
-    try:
-        _, p_value = stats.fisher_exact(table)
-        return p_value
-    except Exception:
-        return 1.0
+def execute_fisher_exact(data1: np.ndarray, data2: np.ndarray) -> float:
+    """
+    Execute Fisher's Exact test on binned data.
+    Used when expected cell counts < 5.
+    """
+    threshold = np.median(np.concatenate([data1, data2]))
+    group1 = (data1 < threshold).astype(int)
+    group2 = (data2 < threshold).astype(int)
+    
+    contingency = np.array([
+        [np.sum(group1), len(data1) - np.sum(group1)],
+        [np.sum(group2), len(data2) - np.sum(group2)]
+    ])
+    
+    _, p_value = stats.fisher_exact(contingency)
+    return p_value
 
 def generate_scenario_data(
+    config: SimulationConfig,
     sample_size: int,
     distribution_type: str,
-    effect_size: float,
-    hypothesis_type: str
+    effect_size: float
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Generate data for a specific scenario.
-    
-    Args:
-        sample_size: Number of samples per group
-        distribution_type: 'normal', 'uniform', or 'log_normal'
-        effect_size: The ground truth effect size (0.0 for null, >0 for alternative)
-        hypothesis_type: 'null' or 'alternative'
-        
-    Returns:
-        Tuple of (group1, group2) arrays
-    """
-    from data_generator import generate_normal, generate_uniform, generate_log_normal
-    
-    # Determine the actual effect size based on hypothesis
-    actual_effect = 0.0 if hypothesis_type == 'null' else effect_size
-    
-    if distribution_type == 'normal':
-        g1, g2 = generate_normal(sample_size, actual_effect)
-    elif distribution_type == 'uniform':
-        g1, g2 = generate_uniform(sample_size, actual_effect)
-    elif distribution_type == 'log_normal':
-        g1, g2 = generate_log_normal(sample_size, actual_effect)
-    else:
-        raise ValueError(f"Unknown distribution type: {distribution_type}")
-        
-    return g1, g2
+    """Generate data for a specific scenario."""
+    data1, data2 = generate_data(
+        n=sample_size,
+        distribution=distribution_type,
+        effect_size=effect_size
+    )
+    return data1, data2
 
 def run_single_test_replicate(
-    sample_size: int,
-    distribution_type: str,
-    test_type: str,
-    effect_size: float,
-    hypothesis_type: str,
-    config: SimulationConfig
+    data1: np.ndarray,
+    data2: np.ndarray,
+    test_type: str
 ) -> float:
-    """
-    Run a single replicate of a statistical test.
-    
-    Args:
-        sample_size: Number of samples per group
-        distribution_type: 'normal', 'uniform', or 'log_normal'
-        test_type: 't_test', 'anova', 'chi_squared', 'fisher_exact'
-        effect_size: Ground truth effect size
-        hypothesis_type: 'null' or 'alternative'
-        config: Simulation configuration
-        
-    Returns:
-        p_value from the test
-    """
-    g1, g2 = generate_scenario_data(sample_size, distribution_type, effect_size, hypothesis_type)
-    
+    """Run a single test replicate and return p-value."""
     if test_type == 't_test':
-        return execute_t_test(g1, g2)
+        return execute_t_test(data1, data2)
     elif test_type == 'anova':
-        # ANOVA expects multiple groups, but for 2 groups it's equivalent to t-test squared
-        return execute_anova([g1, g2])
+        return execute_anova(data1, data2)
     elif test_type == 'chi_squared':
-        # Convert continuous data to categorical for chi-squared
-        # Bin into 2 categories: below/above median
-        combined = np.concatenate([g1, g2])
-        median_val = np.median(combined)
-        counts_g1 = np.sum(g1 <= median_val)
-        counts_g2 = np.sum(g2 <= median_val)
-        # Create 2x2 table: [counts <= median, counts > median] for each group
-        observed = np.array([
-            [counts_g1, sample_size - counts_g1],
-            [counts_g2, sample_size - counts_g2]
+        # Check expected counts for Chi-squared validity
+        threshold = np.median(np.concatenate([data1, data2]))
+        group1 = (data1 < threshold).astype(int)
+        group2 = (data2 < threshold).astype(int)
+        contingency = np.array([
+            [np.sum(group1), len(data1) - np.sum(group1)],
+            [np.sum(group2), len(data2) - np.sum(group2)]
         ])
-        return execute_chi_squared(observed)
-    elif test_type == 'fisher_exact':
-        # Similar binning for Fisher's Exact
-        combined = np.concatenate([g1, g2])
-        median_val = np.median(combined)
-        counts_g1 = np.sum(g1 <= median_val)
-        counts_g2 = np.sum(g2 <= median_val)
-        observed = [
-            [counts_g1, sample_size - counts_g1],
-            [counts_g2, sample_size - counts_g2]
-        ]
-        return execute_fisher_exact_from_table(observed)
+        
+        expected = stats.chi2_contingency(contingency)[3]
+        if np.any(expected < 5):
+            return execute_fisher_exact_from_table(contingency)
+        return execute_chi_squared(data1, data2)
     else:
         raise ValueError(f"Unknown test type: {test_type}")
 
 def save_raw_pvalues(
-    p_values: List[Tuple[int, str, str, float, str]],
-    output_path: str
-) -> None:
+    file_path: str,
+    pvalues: List[float],
+    sample_size: int,
+    distribution_type: str,
+    test_type: str,
+    hypothesis_type: str,
+    start_replicate: int
+):
     """
-    Save raw p-values to a CSV file.
-    
-    Args:
-        p_values: List of tuples (sample_size, distribution_type, test_type, p_value, hypothesis_type)
-        output_path: Path to the output CSV file
+    Save raw p-values to CSV with proper schema and locking.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['sample_size', 'distribution_type', 'test_type', 'p_value', 'hypothesis_type'])
-        for row in p_values:
-            writer.writerow(row)
-    
-    logger.info(f"Saved {len(p_values)} raw p-values to {output_path}")
-
-def count_type_i_and_type__errors(
-    raw_pvalues_path: str,
-    output_path: str,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Count Type I and Type II errors from raw p-values.
-    
-    Type I Error: Rejecting a true null hypothesis (p < alpha when hypothesis_type == 'null')
-    Type II Error: Failing to reject a false null hypothesis (p >= alpha when hypothesis_type == 'alternative')
-    
-    Args:
-        raw_pvalues_path: Path to the raw p-values CSV file
-        output_path: Path to write the error counts CSV
-        alpha: Significance level
-        
-    Returns:
-        Dictionary with aggregated counts
-    """
-    import pandas as pd
-    
-    df = pd.read_csv(raw_pvalues_path)
-    
-    # Initialize counters
-    counts = {}
-    
-    for (n, dist, test, hyp), group in df.groupby(['sample_size', 'distribution_type', 'test_type', 'hypothesis_type']):
-        key = (n, dist, test, hyp)
-        p_vals = group['p_value'].values
-        total = len(p_vals)
-        
-        if hyp == 'null':
-            # Type I error: reject true null (p < alpha)
-            type_i = np.sum(p_vals < alpha)
-            counts[key] = {
-                'total_replicates': total,
-                'type_i_errors': int(type_i),
-                'type_ii_errors': 0,
-                'observed_alpha': type_i / total if total > 0 else 0.0
-            }
-        else:  # hypothesis_type == 'alternative'
-            # Type II error: fail to reject false null (p >= alpha)
-            type_ii = np.sum(p_vals >= alpha)
-            counts[key] = {
-                'total_replicates': total,
-                'type_i_errors': 0,
-                'type_ii_errors': int(type_ii),
-                'observed_power': 1.0 - (type_ii / total) if total > 0 else 0.0
-            }
-    
-    # Write to CSV
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['sample_size', 'distribution_type', 'test_type', 'hypothesis_type', 
-                       'total_replicates', 'type_i_errors', 'type_ii_errors', 'observed_rate'])
-        
-        for (n, dist, test, hyp), data in counts.items():
-            if hyp == 'null':
-                rate = data['observed_alpha']
-                writer.writerow([n, dist, test, hyp, data['total_replicates'], 
-                               data['type_i_errors'], 0, f"{rate:.6f}"])
-            else:
-                rate = data['observed_power']
-                writer.writerow([n, dist, test, hyp, data['total_replicates'], 
-                               0, data['type_ii_errors'], f"{rate:.6f}"])
-    
-    logger.info(f"Error counts written to {output_path}")
-    return counts
-
-def validate_type_i_error_rates(
-    error_counts_path: str,
-    output_path: str,
-    alpha: float = 0.05
-) -> None:
-    """
-    Validate observed Type I error rates against theoretical alpha.
-    
-    Args:
-        error_counts_path: Path to the error counts CSV
-        output_path: Path to write the validation report
-        alpha: Theoretical significance level
-    """
-    import pandas as pd
-    
-    df = pd.read_csv(error_counts_path)
-    null_df = df[df['hypothesis_type'] == 'null']
-    
-    report_data = []
-    for _, row in null_df.iterrows():
-        observed = float(row['observed_rate'])
-        diff = abs(observed - alpha)
-        report_data.append({
-            'sample_size': row['sample_size'],
-            'distribution_type': row['distribution_type'],
-            'test_type': row['test_type'],
-            'theoretical_alpha': alpha,
-            'observed_rate': observed,
-            'difference': diff
+    records = []
+    for i, p in enumerate(pvalues):
+        records.append({
+            'sample_size': sample_size,
+            'distribution_type': distribution_type,
+            'test_type': test_type,
+            'p_value': p,
+            'hypothesis_type': hypothesis_type
         })
     
-    report_df = pd.DataFrame(report_data)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    report_df.to_csv(output_path, index=False)
+    write_pvalue_batch(file_path, records, {})
+
+def count_type_i_and_type_II_errors(
+    pvalues: List[float],
+    hypothesis_type: str,
+    alpha: float
+) -> Tuple[int, int]:
+    """Count Type I and Type II errors based on hypothesis type."""
+    rejections = sum(1 for p in pvalues if p < alpha)
     
-    logger.info(f"Validation report written to {output_path}")
+    if hypothesis_type == 'null':
+        # Type I error: rejecting null when it's true
+        return rejections, 0
+    else:
+        # Type II error: failing to reject null when alternative is true
+        return 0, len(pvalues) - rejections
+
+def validate_type_i_error_rates(
+    observed_rate: float,
+    theoretical_alpha: float,
+    tolerance: float = 0.01
+) -> bool:
+    """Validate if observed Type I error rate is within tolerance of theoretical."""
+    return abs(observed_rate - theoretical_alpha) <= tolerance
 
 def run_adaptive_simulation(
-    scenario: Dict[str, Any],
-    config: SimulationConfig
-) -> Tuple[List[Tuple[int, str, str, float, str]], int]:
+    config: SimulationConfig,
+    sample_size: int,
+    distribution_type: str,
+    test_type: str,
+    hypothesis_type: str,
+    output_dir: str
+) -> AdaptiveRunResult:
     """
-    Run an adaptive simulation for a single scenario.
-    
-    Args:
-        scenario: Dictionary with sample_size, distribution_type, test_type, effect_size, hypothesis_type
-        config: Simulation configuration
-        
-    Returns:
-        Tuple of (list of p-value records, total replicates)
+    Run adaptive Monte Carlo simulation with bootstrap CI.
     """
-    sample_size = scenario['sample_size']
-    distribution_type = scenario['distribution_type']
-    test_type = scenario['test_type']
-    effect_size = scenario['effect_size']
-    hypothesis_type = scenario['hypothesis_type']
+    effect_size = 0.0 if hypothesis_type == 'null' else 0.5
+    pvalues = []
+    all_outcomes = []
+    replicate_id = 0
+    converged = False
+    ci_width = float('inf')
     
-    p_values = []
-    n_replicates = 0
-    min_replicates = 1000
-    max_replicates = config.MAX_REPLICATES
-    target_ci_width = 0.01
+    # Output file for raw p-values
+    raw_pvalues_file = os.path.join(
+        output_dir, 'raw_pvalues.csv'
+    )
     
-    # Run initial batch
-    while n_replicates < min_replicates and n_replicates < max_replicates:
-        p_val = run_single_test_replicate(
-            sample_size, distribution_type, test_type, effect_size, hypothesis_type, config
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Check if file exists to determine starting point
+    file_exists = os.path.exists(raw_pvalues_file)
+    
+    while replicate_id < config.max_replicates:
+        # Generate data
+        data1, data2 = generate_scenario_data(
+            config, sample_size, distribution_type, effect_size
         )
-        p_values.append((sample_size, distribution_type, test_type, p_val, hypothesis_type))
-        n_replicates += 1
-    
-    # Check convergence if we have enough data
-    if n_replicates >= min_replicates:
-        # Convert to binary outcomes (1 = reject null, 0 = fail to reject)
-        outcomes = np.array([1 if p < config.ALPHA else 0 for p in [r[3] for r in p_values]])
         
-        # Calculate current proportion
-        p_hat = np.mean(outcomes)
+        # Run test
+        p_value = run_single_test_replicate(data1, data2, test_type)
         
-        # Bootstrap CI width calculation
-        bootstrap_means = []
-        n_bootstrap = 1000
-        for _ in range(n_bootstrap):
-            sample = np.random.choice(outcomes, size=len(outcomes), replace=True)
-            bootstrap_means.append(np.mean(sample))
+        # Store result
+        pvalues.append(p_value)
+        outcome = 1 if p_value < config.alpha else 0
+        all_outcomes.append(outcome)
+        replicate_id += 1
         
-        sorted_means = np.sort(bootstrap_means)
-        lower_idx = int(0.025 * n_bootstrap)
-        upper_idx = int(0.975 * n_bootstrap)
-        ci_width = sorted_means[upper_idx] - sorted_means[lower_idx]
-        
-        # Continue if width is too large
-        while ci_width > target_ci_width and n_replicates < max_replicates:
-            p_val = run_single_test_replicate(
-                sample_size, distribution_type, test_type, effect_size, hypothesis_type, config
+        # Batch write every 100 replicates
+        if replicate_id % 100 == 0:
+            save_raw_pvalues(
+                raw_pvalues_file,
+                pvalues[-100:],
+                sample_size,
+                distribution_type,
+                test_type,
+                hypothesis_type,
+                replicate_id - 100
             )
-            p_values.append((sample_size, distribution_type, test_type, p_val, hypothesis_type))
-            n_replicates += 1
+        
+        # Check convergence after minimum replicates
+        if replicate_id >= config.min_replicates:
+            # Calculate bootstrap CI
+            lower, upper = bootstrap_ci(all_outcomes, n_bootstrap=1000, alpha=0.05)
+            ci_width = upper - lower
             
-            outcomes = np.array([1 if p < config.ALPHA else 0 for p in [r[3] for r in p_values]])
-            bootstrap_means = []
-            for _ in range(n_bootstrap):
-                sample = np.random.choice(outcomes, size=len(outcomes), replace=True)
-                bootstrap_means.append(np.mean(sample))
-            
-            sorted_means = np.sort(bootstrap_means)
-            ci_width = sorted_means[upper_idx] - sorted_means[lower_idx]
-            
-            if n_replicates >= max_replicates:
-                logger.warning(f"Reached max replicates ({max_replicates}) for scenario {scenario}")
+            if ci_width <= config.ci_width_threshold:
+                converged = True
                 break
     
-    return p_values, n_replicates
+    # Final write
+    if pvalues:
+        save_raw_pvalues(
+            raw_pvalues_file,
+            pvalues,
+            sample_size,
+            distribution_type,
+            test_type,
+            hypothesis_type,
+            0
+        )
+    
+    # Calculate final statistics
+    observed_alpha = np.mean(all_outcomes) if hypothesis_type == 'null' else 0.0
+    observed_power = np.mean(all_outcomes) if hypothesis_type == 'alternative' else 0.0
+    
+    if len(all_outcomes) > 0:
+        lower, upper = bootstrap_ci(all_outcomes, n_bootstrap=1000, alpha=0.05)
+    else:
+        lower, upper = 0.0, 0.0
+    
+    return AdaptiveRunResult(
+        sample_size=sample_size,
+        distribution_type=distribution_type,
+        test_type=test_type,
+        hypothesis_type=hypothesis_type,
+        total_replicates=replicate_id,
+        type_i_errors=sum(1 for o in all_outcomes if o == 1) if hypothesis_type == 'null' else 0,
+        type_ii_errors=sum(1 for o in all_outcomes if o == 0) if hypothesis_type == 'alternative' else 0,
+        observed_alpha=observed_alpha,
+        observed_power=observed_power,
+        ci_lower=lower,
+        ci_upper=upper,
+        ci_width=ci_width,
+        converged=converged,
+        raw_pvalues_file=raw_pvalues_file
+    )
 
 def run_full_simulation_batch(
     config: SimulationConfig,
     output_dir: str
-) -> None:
-    """
-    Run the full simulation batch for all scenarios.
+) -> List[AdaptiveRunResult]:
+    """Run full simulation batch for all configurations."""
+    grid = get_simulation_grid(config)
+    results = []
     
-    Args:
-        config: Simulation configuration
-        output_dir: Directory to save results
-    """
-    scenarios = get_simulation_grid(config)
-    all_p_values = []
+    for scenario in grid:
+        logger.info(f"Running: {scenario}")
+        result = run_adaptive_simulation(
+            config,
+            scenario['sample_size'],
+            scenario['distribution_type'],
+            scenario['test_type'],
+            scenario['hypothesis_type'],
+            output_dir
+        )
+        results.append(result)
+        
+        # Log validation for null hypothesis
+        if scenario['hypothesis_type'] == 'null':
+            valid = validate_type_i_error_rates(
+                result.observed_alpha,
+                config.alpha,
+                tolerance=0.01
+            )
+            logger.info(f"Type I error validation: {'PASS' if valid else 'FAIL'} "
+                      f"(observed={result.observed_alpha:.4f}, expected={config.alpha})")
     
-    raw_pvalues_path = os.path.join(output_dir, 'raw_pvalues.csv')
-    error_counts_path = os.path.join(output_dir, 'error_counts.csv')
-    validation_report_path = os.path.join(output_dir, 'validation_report.csv')
-    
-    # Clear previous results
-    if os.path.exists(raw_pvalues_path):
-        os.remove(raw_pvalues_path)
-    
-    for scenario in scenarios:
-        logger.info(f"Running scenario: {scenario}")
-        p_values, n_reps = run_adaptive_simulation(scenario, config)
-        all_p_values.extend(p_values)
-        logger.info(f"Completed {n_reps} replicates for scenario {scenario}")
-    
-    # Save raw p-values
-    save_raw_pvalues(all_p_values, raw_pvalues_path)
-    
-    # Count errors
-    count_type_i_and_type_ii_errors(raw_pvalues_path, error_counts_path, config.ALPHA)
-    
-    # Validate Type I error rates
-    validate_type_i_error_rates(error_counts_path, validation_report_path, config.ALPHA)
+    return results
 
 def main():
-    """Main entry point for the simulation engine."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Run statistical test sensitivity simulations')
-    parser.add_argument('--output-dir', type=str, default='data/processed',
-                      help='Directory to save results')
-    parser.add_argument('--config', type=str, default=None,
-                      help='Path to configuration file (optional)')
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
+    """Main entry point for simulation engine."""
+    logging.basicConfig(level=logging.INFO)
     config = SimulationConfig()
-    if args.config:
-        # Load custom config if provided
-        pass
+    output_dir = 'data/processed'
     
-    run_full_simulation_batch(config, args.output_dir)
+    logger.info("Starting full simulation batch...")
+    results = run_full_simulation_batch(config, output_dir)
     
-    logger.info("Simulation batch completed successfully")
+    logger.info(f"Completed {len(results)} simulation configurations")
+    for r in results:
+        logger.info(f"  {r.test_type} ({r.distribution_type}, n={r.sample_size}): "
+                  f"alpha={r.observed_alpha:.4f}, power={r.observed_power:.4f}")
 
 if __name__ == '__main__':
     main()

@@ -2,32 +2,39 @@ import os
 import sys
 import logging
 import argparse
-from analyzer import analyze_stability_trend
+from analyzer import analyze_stability_trend, load_simulation_results, aggregate_results
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Stability Trend Analysis (T026b)")
-    parser.add_argument("--input", type=str, default="data/processed/error_counts.csv",
-                        help="Path to input error counts CSV")
-    parser.add_argument("--output", type=str, default="data/processed/stability_trend.csv",
-                        help="Path to output trend CSV")
-    parser.add_argument("--plot", type=str, default="data/processed/plots/stability_trend.png",
-                        help="Path to output plot PNG")
-    
+    parser = argparse.ArgumentParser(description="Run stability trend analysis on simulation results.")
+    parser.add_argument("--input", type=str, default="data/processed/raw_pvalues.csv", help="Path to raw p-values CSV")
+    parser.add_argument("--output-csv", type=str, default="data/processed/stability_trend.csv", help="Path to output trend CSV")
+    parser.add_argument("--output-plot", type=str, default="data/processed/stability_trend.png", help="Path to output plot")
     args = parser.parse_args()
+
+    logger.info(f"Starting stability analysis with input: {args.input}")
     
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+
     try:
-        result_df = analyze_stability_trend(
-            input_filepath=args.input,
-            output_filepath=args.output,
-            plot_filepath=args.plot
+        # Load and Aggregate
+        df = load_simulation_results(args.input)
+        agg_df = aggregate_results(df)
+        
+        # Analyze Trend
+        analyze_stability_trend(
+            aggregated_df=agg_df,
+            output_csv=args.output_csv,
+            plot_path=args.output_plot
         )
-        print(f"Analysis complete. Results saved to {args.output}")
-        print(f"Plot saved to {args.plot}")
-        print(f"Stability verified: {result_df['stability_verified'].all()}")
+        
+        logger.info("Stability analysis completed successfully.")
     except Exception as e:
-        logging.error(f"Analysis failed: {e}", exc_info=True)
+        logger.error(f"Stability analysis failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

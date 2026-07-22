@@ -1,4 +1,4 @@
-- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
+- artifact_hash: 26e639adb96e0a961e7d613b9169c98925a3d2e1c8b4fad2dc8d57f7c32ac6d9
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,26 +8,15 @@
   value: https://www.wikidata.org/wiki/Q185235
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q185235
-  verified_at: '2026-07-18T22:05:32.679437Z'
-- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
+  verified_at: '2026-07-22T21:15:42.395319Z'
+- artifact_hash: 26e639adb96e0a961e7d613b9169c98925a3d2e1c8b4fad2dc8d57f7c32ac6d9
   artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: Fisher - Wikipedia
+  fetched_title: '[1405.1250] New tight approximations for Fisher&#39;s exact test'
   kind: url
-  value: https://en.wikipedia.org/wiki/Fisher
+  value: https://arxiv.org/abs/1405.1250
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Fisher
-  verified_at: '2026-07-18T22:05:32.679437Z'
-- artifact_hash: b9b39c9115004f0b32e014538682b1ef1fb6a5cdb407bb108df4264f805608e7
-  artifact_path: projects/PROJ-482-assessing-the-sensitivity-of-common-stat/specs/001-assessing-the-sensitivity-of-common-stat/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[hep-lat/0202016] Thermodynamics from Monte Carlo Hamiltonian'
-  kind: url
-  value: https://arxiv.org/abs/hep-lat/0202016
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/hep-lat/0202016
-  verified_at: '2026-07-18T22:05:32.679437Z'
+  verified_against_url: https://arxiv.org/abs/1405.1250
+  verified_at: '2026-07-22T21:15:42.395319Z'

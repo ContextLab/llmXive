@@ -6,6 +6,30 @@ T014:
     is absent. Consequently the required dataset with the specified schema and validation
     checks is not present. The implementer must provide a complete script that generates
     the CSV and include the generated `sample_validation.csv` file.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log entry or any other artifact confirming that the ground\u2011truth validation\
+    \ routine from T013 was executed and passed (exit code\u202F0) is present. The\
+    \ required evidence\u2014a concrete log confirming verification of the current\
+    \ configuration batch\u2014is missing, so the task\u2019s deliverable has not\
+    \ been satisfied."
+T021b:
+  c: true
+  h: e02a93d0fc558d840ca666d35ddd0a5be317019c1835c558b66d5c62071a9c85
+  r: "The `code/config.py` file defines `RAW_PVALUES_SCHEMA` with the required column\
+    \ list for `raw_pvalues.csv`, and `code/utils/file_lock.py` provides a functional\
+    \ fcntl\u2011based file\u2011locking context manager and a safe batch\u2011write\
+    \ function. Both required artifacts are present and non\u2011empty."
+T021b#1:
+  c: false
+  h: 05c45372c4d1a45ec5fbcb485c7c36611e5136aaaf278b324d1c46d7154614d5
+  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file and\
+    \ the `simulation_engine.py` implementation does not contain any logic to stream\
+    \ or write raw p\u2011values to that file (the file\u2011locking/write utilities\
+    \ are imported but never used). Consequently the task\u2019s core requirement\u2014\
+    recording each replicate\u2019s p\u2011value in the specified schema\u2014is not\
+    \ satisfied."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
@@ -15,29 +39,22 @@ T021c:
     \ is therefore missing."
 T022:
   c: false
-  h: 74b500477026a09fa15f34831d4d0b93cad136a0178cb840f3d5c19599f0ded4
-  r: The provided `code/run_simulation.py` is truncated (ends with an unfinished line)
-    and never reads the required inputs (`raw_pvalues.csv`, `error_counts.csv`, `validation_report.csv`).
-    Moreover, the three required output files are missing from `data/processed/`.
-    The script therefore does not fulfill the orchestration and consumption requirements
-    of T022.
+  h: 5861ca8ac29df55d4a13530d1ee223f3c35ce669f7d6344a783179c42a4f6c21
+  r: "The `code/run_simulation.py` script exists but only writes `raw_pvalues.csv`\
+    \ and `validation_report.csv`; it never reads the required inputs from T021b (`data/processed/raw_pvalues.csv`)\
+    \ or T021c (`data/processed/validation_report.csv`). Moreover, `data/processed/raw_pvalues.csv`\
+    \ is missing, and the provided `validation_report.csv` contains only t\u2011test\
+    \ rows, not the three required test types. The orchestrator therefore does not\
+    \ satisfy the dependency or full\u2011batch requirements."
 T026b:
   c: false
-  h: bd982f1c62487b55edc4058c5629d9fb54ad5f53f0964a8a04aa78d3227e4f3b
-  r: "The repository lacks the required `data/processed/stability_trend.csv` file\
-    \ and the analyzer code does not perform the regression trend analysis or generate\
-    \ the requested plot. Moreover, the `aggregate_results` function contains a bug\
-    \ (returns undefined `group`) and never writes results or creates a visualization,\
-    \ so the task\u2019s output specifications are not met."
-T027b:
-  c: false
-  h: 5865e46521c6f4b32f2e6d0de30caaef955e38ecda01f22aaf6a336ca91b0309
-  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
-    \ `code/analyzer.py` does not contain a data\u2011preparation function that applies\
-    \ `config.LOG_EPSILON` to p\u2011values during a log\u2011transform (the existing\
-    \ functions only load and aggregate data, and contain bugs such as returning an\
-    \ undefined variable). Both the needed artifact and the specified functionality\
-    \ are missing."
+  h: 2891b1726c4a32cce21cf697960b23dd0102e1a0066ba095587aad217ef6168a
+  r: "The repository contains a partial `analyzer.py` that loads data and aggregates\
+    \ Type\u202FI error rates, but it never performs a regression trend analysis,\
+    \ does not write `data/processed/stability_trend.csv`, and does not generate the\
+    \ required plot. Moreover, the expected `stability_trend.csv` file is absent from\
+    \ the project. These missing artifacts mean the task\u2019s requirements are not\
+    \ satisfied."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023
