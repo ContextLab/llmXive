@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-419-predicting-coating-adhesion-strength-fro",
+  "tasks": [
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "The `code/preprocessing.py` file contains a partially shown `perform_construct_validity_check` implementation, but the required output file `data/processed/proxy_validation_report.csv` is missing, and the provided code snippet is truncated before any CSV\u2011writing or halt\u2011signalling logic is demonstrated. Without the generated report (and confirmed halt behavior), the task is not fully satisfied.",
+      "first_seen": "2026-07-22T22:12:36.846829+00:00",
+      "last_seen": "2026-07-22T22:12:36.846829+00:00"
+    },
+    {
+      "task_key": "T085",
+      "reject_count": 1,
+      "last_reason": "The required artifact `data/processed/crosslinker_sensitivity_report.csv` does not exist, and the provided `code/modeling.py` contains only modeling utilities with no implementation that writes or validates a crosslinker sensitivity report. The task\u2019s core requirement is therefore unmet.",
+      "first_seen": "2026-07-22T22:12:41.156095+00:00",
+      "last_seen": "2026-07-22T22:12:41.156095+00:00"
+    }
+  ],
+  "updated_at": "2026-07-22T22:12:41.156095+00:00"
+}

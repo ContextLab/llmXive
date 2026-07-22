@@ -26,12 +26,21 @@ STATE_DIR = os.getenv('STATE_DIR', 'state')
 # Logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 
+# Sensitivity Analysis Definitions
+# List of ratio definitions for crosslinker density proxy
+CROSSLINKER_PROXY_DEFINITIONS = [
+    "crosslinker_fraction",
+    "crosslinker_matrix_ratio",
+    "crosslinker_fraction_squared"
+]
+
 def main():
     """Print configuration."""
     print(f"MP_API_KEY: {MP_API_KEY}")
     print(f"NIST_URL: {NIST_URL}")
     print(f"MAX_ROWS: {MAX_ROWS}")
     print(f"RAM_LIMIT_GB: {RAM_LIMIT_GB}")
+    print(f"CROSSLINKER_PROXY_DEFINITIONS: {CROSSLINKER_PROXY_DEFINITIONS}")
 
 if __name__ == '__main__':
     main()
