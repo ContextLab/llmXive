@@ -1,19 +1,3 @@
-T012a:
-  c: false
-  h: d7e74b7c7be636203a4a29f03a55e1a48bfd7ac9dbe4d5232e81e6008895ef3f
-  r: "The repository contains a partially\u2011implemented `download_spice` function\
-    \ (the code is truncated and does not actually download, verify, or write the\
-    \ dataset). Moreover, the required output file `data/raw/spice.parquet` is absent,\
-    \ so the function\u2019s side\u2011effect and the expected columns cannot be verified.\
-    \ The task is therefore not fulfilled."
-T013:
-  c: false
-  h: cf3e6c7ce5df15f4675a8179ed5efe05d9276c4e5dc7d2646e3b0f1d3f36fb55
-  r: The repository lacks the required `data/raw/sapt.parquet` file, and the provided
-    `code/data_ingestion.py` excerpt shows only a `download_spice` implementation
-    with no visible `download_sapt` function that fetches the SAPT dataset, verifies
-    columns, or raises `DataIngestionError`. Both the output file and the specific
-    function implementation are missing.
 T014:
   c: false
   h: f5d527ffe52cae8ec99a654740d7894a38c3bb66be744c29d0056579d8d03992
@@ -23,6 +7,23 @@ T014:
     described fallback logic, psi4 invocation, selection of missing ion pairs, or
     logging of psi4 version. These essential artifacts and functionality are missing,
     so the task is not satisfied.
+T015a:
+  c: false
+  h: 99f6d52ac03f0811c94b3e2f056d06be67335571bab0627ef86cbc4d6ca6fb5f
+  r: "The repository contains `code/data_ingestion.py`, but the provided excerpt shows\
+    \ no implementation of `calculate_partial_charges_internal_only(df)` and the required\
+    \ output file `data/processed/internal_consistency_checks.parquet` is absent.\
+    \ Without the function and the saved parquet file, the task\u2019s core requirement\
+    \ is not met."
+T016:
+  c: false
+  h: 7ba3fac217fdfa94a1dc77babba3933f0b53e74fee3b4aaae10596da33fc82bb
+  r: "The provided `code/data_ingestion.py` does not show an implementation of `engineer_features(df)`\
+    \ that parses SMILES, computes TPSA, molecular surface area, H\u2011bond counts,\
+    \ graph embeddings, calls `calculate_partial_charges_internal_only`, drops the\
+    \ `partial_charge` column, and writes `data/processed/unified_dataset.parquet`.\
+    \ Moreover, the required `data/processed/unified_dataset.parquet` file is absent.\
+    \ The task is therefore not satisfied."
 T017b:
   c: false
   h: 5727d48fae8475579b0187c481125617f1e71d5883f6f81f9dd4ee91aea9dc1d
@@ -37,6 +38,13 @@ T017c:
     \ not show a `filter_raw_sapt(df)` function, nor any code that writes `data/processed/raw_sapt_subset.parquet`.\
     \ Moreover, the required parquet file is absent from the `data/processed` directory.\
     \ The task\u2019s core output is therefore missing."
+T017e:
+  c: false
+  h: 7ba3fac217fdfa94a1dc77babba3933f0b53e74fee3b4aaae10596da33fc82bb
+  r: The repository lacks a `write_unified_dataset(df, path)` implementation in `code/data_ingestion.py`
+    (the file is truncated and does not show such a function), and the required output
+    file `data/processed/unified_dataset.parquet` is not present. Both the function
+    and the saved parquet file are missing, so the task is not satisfied.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,9 +55,20 @@ T019:
     and sample logs.
 T021b:
   c: true
-  h: 7e3f3dcc61220b79dbdb5a09c875353698535c25e7e083a6178a9d036afee31f
-  r: "The `code/model_training.py` file exists and its `save_splits` function creates\
-    \ `data/processed` and writes `train.parquet`, `val.parquet`, and `test.parquet`\
-    \ to the specified locations, matching the task\u2019s requirement. The missing\
-    \ parquet files are simply because the function hasn\u2019t been run, not because\
-    \ the implementation is absent or placeholder."
+  h: add136ca139c2298d1687493aacc5d1a0e184ba24276a8d3e6f1db0c8f121187
+  r: "The `code/model_training.py` file contains a non\u2011placeholder implementation\
+    \ of `save_splits` that creates `data/processed` and writes the three DataFrames\
+    \ to `train.parquet`, `val.parquet`, and `test.parquet` as required."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that MAE on the validation
+    set is now logged or that trial convergence status is recorded. The artifact required
+    by the task (added logging) is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging code, configuration, or output files were presented that record p\u2011\
+    values, effect sizes, or validation MAE. The required artifact (e.g., updated\
+    \ training/validation script with logging statements and resulting log files)\
+    \ is missing, so the task is not satisfied."

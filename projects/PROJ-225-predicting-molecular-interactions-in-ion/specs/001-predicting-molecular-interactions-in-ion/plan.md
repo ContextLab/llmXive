@@ -13,7 +13,7 @@ This plan implements a CPU-tractable machine learning pipeline to predict molecu
 **Primary Dependencies**: `xgboost`, `optuna`, `rdkit`, `pandas`, `scikit-learn`, `pyarrow`, `requests`, `pyyaml`, `psi4` (for synthetic generation)  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `models/`)  
 **Testing**: `pytest`  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 vCPU, ~7 GB RAM, No GPU)  
+**Target Platform**: GitHub Actions Free Tier (Linux, multiple vCPUs, ~7 GB RAM, No GPU)  
 **Project Type**: Computational Chemistry / Data Science Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion + Optuna trials + analysis) within 6 hours on CPU-only runner.  
 **Constraints**: No GPU usage; memory footprint < 7 GB; no custom deep learning training from scratch; a fixed timeout per Optuna trial.  

@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/IL-SAPT/IL-SAPT-Subset
   verified_at: '2026-07-11T03:24:44.295106Z'
-- artifact_hash: bb0df957219a54463f0dba73c7c71c1eed95e7bc090a270f375757b91b032115
+- artifact_hash: 99c04d04529593c5112bbbbf3bd38a70342da5ff6f500dd70cb58dc9cf94c581
   artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,26 +30,4 @@
   value: https://huggingface.co/datasets/spice-ml/spice`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/spice-ml/spice
-  verified_at: '2026-07-19T19:01:36.107451Z'
-- artifact_hash: bb0df957219a54463f0dba73c7c71c1eed95e7bc090a270f375757b91b032115
-  artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/ILThermo/data`
-  verification_status: mismatch
-  verified_against_url: https://github.com/ILThermo/data
-  verified_at: '2026-07-19T19:01:36.107451Z'
-- artifact_hash: bb0df957219a54463f0dba73c7c71c1eed95e7bc090a270f375757b91b032115
-  artifact_path: projects/PROJ-225-predicting-molecular-interactions-in-ion/specs/001-predicting-molecular-interactions-in-ion/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/spice-ml/spice-validation`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/spice-ml/spice-validation
-  verified_at: '2026-07-19T19:01:36.107451Z'
+  verified_at: '2026-07-22T11:29:08.487243Z'

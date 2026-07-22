@@ -1,1 +1,1 @@
-# Project package initialization
+# Package initialization
