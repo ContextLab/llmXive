@@ -1,42 +1,53 @@
-"""
-Configuration management for the Consciousness Bootstrapping project.
-
-This module defines hyperparameters and constraints for the project.
-It is created as part of task T005, but T004 requires it to be present.
-We implement the minimal required interface here to support T004 execution.
-"""
-
 import os
+from typing import Optional, Dict, Any
 
-# Hyperparameters
-SEED = 42
-BATCH_SIZE = 8
-RECURSION_DEPTH = 2
-LEARNING_RATE = 1e-4
-TOKEN_LIMIT = 100000  # Default limit for T004
+# Default configuration values
+DEFAULTS = {
+    "seed": 42,
+    "batch_size": 8,
+    "recursion_depth": 2,
+    "learning_rate": 1e-4,
+    "token_limit": 100000,
+    "max_memory_gb": 7,
+}
 
-# Execution constraints
-# Enforce CPU-only execution
-FORCE_CPU = True
+class Config:
+    def __init__(self, overrides: Optional[Dict[str, Any]] = None):
+        self.seed = DEFAULTS["seed"]
+        self.batch_size = DEFAULTS["batch_size"]
+        self.recursion_depth = DEFAULTS["recursion_depth"]
+        self.learning_rate = DEFAULTS["learning_rate"]
+        self.token_limit = DEFAULTS["token_limit"]
+        self.max_memory_gb = DEFAULTS["max_memory_gb"]
 
-def validate_config():
+        if overrides:
+            for key, value in overrides.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+
+    def __repr__(self) -> str:
+      return f"Config(seed={self.seed}, batch_size={self.batch_size}, recursion_depth={self.recursion_depth}, learning_rate={self.learning_rate}, token_limit={self.token_limit})"
+
+# Singleton instance for global access if needed, though explicit passing is preferred
+_config_instance = Config()
+
+def get_config() -> Config:
+    return _config_instance
+
+def validate_config(config: Config) -> bool:
     """
-    Validates that the configuration meets project constraints.
+    Validates the configuration against CPU-only constraints and logical bounds.
+    Returns True if valid, raises ValueError otherwise.
     """
-    if FORCE_CPU:
-        # Check if torch is available and force CPU
-        try:
-            import torch
-            if torch.cuda.is_available():
-                print("Warning: CUDA detected, but FORCE_CPU is enabled. Forcing CPU.")
-                torch.set_num_threads(1) # Limit threads to simulate constrained env
-            # Set device to CPU
-            os.environ["CUDA_VISIBLE_DEVICES"] = ""
-        except ImportError:
-            pass
+    if config.recursion_depth < 1:
+        raise ValueError(f"Recursion depth must be >= 1, got {config.recursion_depth}")
+    if config.recursion_depth > 2:
+        raise ValueError(f"Recursion depth must be <= 2 for CPU constraints, got {config.recursion_depth}")
+    if config.batch_size < 1:
+        raise ValueError(f"Batch size must be >= 1, got {config.batch_size}")
+    if config.token_limit < 1000:
+        raise ValueError(f"Token limit must be >= 1000 for meaningful training, got {config.token_limit}")
+    
+    # Enforce CPU-only constraint logically (hardware check is done in runner)
+    # We ensure no GPU-related flags are set if they existed
     return True
-
-
-if __name__ == "__main__":
-    validate_config()
-    print(f"Config loaded: TOKEN_LIMIT={TOKEN_LIMIT}, SEED={SEED}")

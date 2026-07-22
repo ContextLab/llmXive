@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/`\
+    \ directory or any of its required sub\u2011folders/files is present; without\
+    \ the actual project structure on disk the claim cannot be verified. The implementer\
+    \ must create and provide the directory with the expected layout (e.g., `src/`,\
+    \ `data/`, `scripts/`, `README.md`, etc.) to satisfy the task."
+T003:
+  c: false
+  h: e85cc7f7dec009ccccf4274deb07490e779e4c224ef130893ac3048ddd6b1fef
+  r: "The repository contains a partially shown `code/feasibility_gate.py` that stops\
+    \ mid\u2011function and does not include any logic for handling OOM, triggering\
+    \ a Kaggle GPU rerun, or adjusting the target task count\u202FN. Moreover, the\
+    \ required output file `data/feasibility_log.json` is absent. Consequently the\
+    \ task\u2019s specifications are not met."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `black` settings) or any other artifact demonstrating that ruff and black have
+    been set up is present. Without such files or documentation, the claim that linting
+    and formatting tools are configured cannot be verified.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories, nor
+    any checksum tracking implementation (e.g., manifest files, scripts, or logs)
+    was provided. The claim lacks the actual artifacts needed to confirm the directory
+    structure and checksum functionality.
+T016:
+  c: false
+  h: a5d0d4ec4a37a3fd2dc914367401644432400591ed8a70f39de5f69aaa37c640
+  r: "The provided `code/dataset.py` is truncated and does not contain the required\
+    \ logic to filter tasks by blind Pass@1\u202F<\u202F1.0 in the target language\
+    \ and Pass@1\u202F=\u202F1.0 in Python, nor does it write `data/initial_pool.json`.\
+    \ Moreover, the expected output file `data/initial_pool.json` is absent. The task\
+    \ therefore remains unfinished."

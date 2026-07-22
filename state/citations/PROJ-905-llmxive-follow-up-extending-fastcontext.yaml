@@ -1,4 +1,4 @@
-- artifact_hash: a9f1313b12d22295c58cf39ee23c105f48080f2895155a432fb2cf28441b4e79
+- artifact_hash: b949c37f86ee9bbfd66c88814f0c154d1058f316f12148a2d7d0769c1f071a71
   artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: p-value - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/P-value
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-14T16:46:26.758995Z'
+  verified_at: '2026-07-22T04:46:53.114567Z'

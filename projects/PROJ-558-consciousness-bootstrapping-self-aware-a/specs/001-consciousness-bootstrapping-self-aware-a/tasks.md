@@ -45,8 +45,8 @@
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` with subdirs `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/results`
 - [ ] T001b [P] Create `__init__.py` files for `code`, `code/models`, `code/training`, `code/evaluation`, `code/analysis`, `code/utils`
-- [ ] T001c [P] Initialize Python 3.11 project with `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn` in `requirements.txt`
-- [ ] T001d [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T001c [P] Initialize Python 3.11 project with `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn` in `requirements.txt`
+- [X] T001d [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -56,10 +56,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to the first tokens (config key: `config.TOKEN_LIMIT`), saving to `data/raw/pile_arxiv_truncated.json` with checksum in `data/manifest.json`. **Note**: This task is strictly for TRAINING data.
+- [X] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to the first tokens (config key: `config.TOKEN_LIMIT`), saving to `data/raw/pile_arxiv_truncated.json` with checksum in `data/manifest.json`. **Note**: This task is strictly for TRAINING data.
 - [ ] T004b [P] Implement `data_loader.py` (additional function) to fetch GSM8K and MMLU datasets via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` and `data/raw/mmlu.json` with checksums in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data.
-- [~] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
-- [~] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` dataclasses in `code/models/` and `code/evaluation/`
+- [ ] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
+- [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` dataclasses in `code/models/` and `code/evaluation/`
 - [X] T007 [P] Implement `base_llama.py` wrapper for a small transformer (<300M params) in `code/models/base_llama.py`
 - [X] T008 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
 
@@ -83,10 +83,10 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
-- [~] T012 [P] [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from internal generation: generate multiple internal paths for the training batch, compute majority vote correctness, and use this binary signal to train the confidence head. This aligns with spec.md FR-002 and Assumptions.
-- [ ] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`
-- [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
-- [ ] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
+- [ ] T012 [P] [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from internal generation: generate multiple internal paths for the training batch, compute majority vote correctness, and use this binary signal to train the confidence head. This aligns with spec.md FR-002 and Assumptions.
+- [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`
+- [~] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
+- [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,16 +100,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for self-consistency majority vote logic (tie-breaking rule) in `tests/unit/evaluation/test_metrics.py` (Test: `test_majority_vote_tie_break`)
-- [ ] T017 [P] [US2] Unit test for Brier score and ECE calculation in `tests/unit/evaluation/test_metrics.py` (Test: `test_brier_score_calc`, `test_ece_calc`)
+- [X] T016 [P] [US2] Unit test for self-consistency majority vote logic (tie-breaking rule) in `tests/unit/evaluation/test_metrics.py` (Test: `test_majority_vote_tie_break`)
+- [X] T017 [P] [US2] Unit test for Brier score and ECE calculation in `tests/unit/evaluation/test_metrics.py` (Test: `test_brier_score_calc`, `test_ece_calc`)
 
 ### Implementation for User Story 2
 
 - [ ] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`
-- [ ] T019 [US2] Implement `run_benchmarks.py` to generate **a set of reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) and run MMLU/GSM8K (US-02) in `code/evaluation/run_benchmarks.py`
-- [ ] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`
-- [ ] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
-- [ ] T022 [US2] Add logging for benchmark execution and metric aggregation in `code/evaluation/run_benchmarks.py`
+- [X] T019 [US2] Implement `run_benchmarks.py` to generate **a set of reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) and run MMLU/GSM8K (US-02) in `code/evaluation/run_benchmarks.py`
+- [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`
+- [X] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
+- [X] T022 [US2] Add logging for benchmark execution and metric aggregation in `code/evaluation/run_benchmarks.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

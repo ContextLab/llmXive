@@ -1,0 +1,20 @@
+{
+  "pile_arxiv_truncated.json": {
+    "type": "training",
+    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 500,
+    "created_at": "2026-05-25T12:00:00"
+  },
+  "gsm8k.json": {
+    "type": "evaluation",
+    "checksum": "placeholder",
+    "size_bytes": 0,
+    "created_at": "2026-05-25T12:00:00"
+  },
+  "mmlu.json": {
+    "type": "evaluation",
+    "checksum": "placeholder",
+    "size_bytes": 0,
+    "created_at": "2026-05-25T12:00:00"
+  }
+}

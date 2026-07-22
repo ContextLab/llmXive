@@ -4,7 +4,7 @@ description: "Task list template for feature implementation"
 
 # Tasks: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages"
 
-**Input**: Design documents from `/specs/001-llmxive-multilingual-logic-transfer/`  
+**Input**: Design documents from `/specs/001-llmxive-multilingual-logic-transfer/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -24,23 +24,23 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan in `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/`
-- [ ] T002 Initialize Python project with `requirements.txt` dependencies (llama-cpp-python, datasets, scipy, pandas, pyyaml, pytest, joblib)
+- [X] T002 Initialize Python project with `requirements.txt` dependencies (llama-cpp-python, datasets, scipy, pandas, pyyaml, pytest, joblib)
 - [ ] T003 [P] **Model Feasibility Gate**: Implement `code/feasibility_gate.py` to measure token throughput of the GGUF model on the target runner. **GPU Escape Hatch**: If throughput < 2 tokens/sec or OOM occurs, the task MUST trigger a re-run on the Kaggle GPU runner (as per system rules). **Dynamic N Adjustment**: If the feasibility gate fails or the filtered set is underpowered, this task MUST allow for dynamic adjustment of the target task count N (reducing N if necessary) rather than enforcing a hard N=200 constraint. Output: `data/feasibility_log.json` with binary decision (proceed/gpu-offload), measured throughput, final configuration, and adjusted N if applicable.
 - [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -60,12 +60,12 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work (Phase 3/4) can begin until this phase is complete. All downstream tasks depend on `data/final_tasks_enriched.json` and `data/blind_baseline_logs.json`.
 
-- [ ] T005 [P] Create `code/config.py` to manage paths, random seeds, and model configurations
+- [X] T005 [P] Create `code/config.py` to manage paths, random seeds, and model configurations
 - [ ] T006 [P] Create `data/raw/` and `data/processed/` directory structure with checksum tracking
-- [ ] T007 [P] Setup error logging infrastructure in `code/utils/logger.py`
-- [ ] T008 [P] Implement `code/dataset.py` for loading Multi-LCB parquet files from HuggingFace and verifying checksums
-- [ ] T009 [P] Implement `code/dataset.py` stratification logic (Difficulty, Topic, Language Pair) per FR-006
-- [ ] T010 [P] **Core Execution Harness (Generic)**: Implement `code/sandbox.py` with strict timeout enforcement per test case (FR-003). This task MUST implement the complete, robust execution engine (timeout, error capture, language-agnostic runner) that serves as the **Single Source of Truth** for the sandbox. It must be capable of executing any language given a command template.
+- [X] T007 [P] Setup error logging infrastructure in `code/utils/logger.py`
+- [X] T008 [P] Implement `code/dataset.py` for loading Multi-LCB parquet files from HuggingFace and verifying checksums
+- [X] T009 [P] Implement `code/dataset.py` stratification logic (Difficulty, Topic, Language Pair) per FR-006
+- [X] T010 [P] **Core Execution Harness (Generic)**: Implement `code/sandbox.py` with strict timeout enforcement per test case (FR-003). This task MUST implement the complete, robust execution engine (timeout, error capture, language-agnostic runner) that serves as the **Single Source of Truth** for the sandbox. It must be capable of executing any language given a command template.
 - [ ] T016 [P] [US1] **Static Pool Selection**: Implement `code/dataset.py` to select the initial pool of tasks where the model previously failed in the target language (blind Pass@1 < 1.0) **AND** succeeded in Python. **Strict Constraint**: Do NOT include replacement logic here. Output: `data/initial_pool.json`.
 - [ ] T017 [P] [US1] **Stochasticity Filter Execution**: Implement `code/dataset.py` to orchestrate 3 blind runs on the **input** `data/initial_pool.json` and include only tasks that fail in ≥2 of 3 runs. **Explicit Input/Output**: Read `data/initial_pool.json`. **Mandatory Output**: `data/blind_filter_runs.json` (containing raw execution logs for the 3 runs) and `data/filtered_tasks.json` (list of IDs). **Dependency**: Must use fixed seed/temperature.
 - [ ] T018 [P] [US1] **Attrition Handling**: Implement `code/dataset.py` to sample replacements from the next available pool (excluding rejected tasks) if `data/filtered_tasks.json` contains < 200 items, maintaining stratification by Difficulty/Topic. **Explicit Logic**: Implement the replacement sampling logic to ensure the final set reaches the target count. **Mandatory Output**: `data/final_tasks_enriched.json` (containing full task data: problem statements, ground truth, IDs) to ensure downstream tasks have necessary input data. **Dependency**: T017.
@@ -172,9 +172,9 @@ description: "Task list template for feature implementation"
 
 - **Setup (Phase 1)**: No dependencies – can start immediately
 - **Data Prep (Phase 2)**: Depends on Setup completion – BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Data Prep (Phase 2) completion  
-  – User stories can then proceed in parallel (if staffed)  
-  – Or sequentially in priority order (P1 → P2 → P3)
+- **User Stories (Phase 3+)**: All depend on Data Prep (Phase 2) completion
+ – User stories can then proceed in parallel (if staffed)
+ – Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -206,41 +206,41 @@ description: "Task list template for feature implementation"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup  
-2. Complete Phase 2: Data Prep (CRITICAL – blocks all stories)  
-3. Complete Phase 3: User Story 1  
-4. **STOP and VALIDATE**: Test User Story 1 independently (using `data/final_tasks_enriched.json`)  
-5. Deploy/demo if ready  
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Data Prep (CRITICAL – blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (using `data/final_tasks_enriched.json`)
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Data Prep → Foundation ready  
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)  
-3. Add User Story 2 → Test independently → Deploy/Demo  
-4. Add User Story 3 → Test independently → Deploy/Demo  
-5. Each story adds value without breaking previous stories  
+1. Complete Setup + Data Prep → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
 With multiple developers:
 
-1. Team completes Setup + Data Prep together  
-2. Once Data Prep is done:  
-   - Developer A: User Story 1  
-   - Developer B: User Story 2  
-   - Developer C: User Story 3  
-3. Stories complete and integrate independently  
+1. Team completes Setup + Data Prep together
+2. Once Data Prep is done:
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- `[P]` tasks = different files, no dependencies  
-- `[Story]` label maps task to specific user story for traceability  
-- Each user story should be independently completable and testable  
-- Verify tests fail before implementing  
-- Commit after each task or logical group  
-- Stop at any checkpoint to validate story independently  
-- Avoid: vague tasks, same‑file conflicts, cross‑story dependencies that break independence  
-- **Critical Data Flow**: T003 (Feasibility) → T016 (Static Pool) → T017 (Stochasticity Filter) → T018 (Attrition) → T039 (Re-verify Baseline) → T040 (Power Check) → T040.2 (Execute Gate) → T013/T014 (Anchor) → T022 (Guided Run) → T024 (Analysis) → T029 (Stats) → T031 (Report)  
+- `[P]` tasks = different files, no dependencies
+- `[Story]` label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same‑file conflicts, cross‑story dependencies that break independence
+- **Critical Data Flow**: T003 (Feasibility) → T016 (Static Pool) → T017 (Stochasticity Filter) → T018 (Attrition) → T039 (Re-verify Baseline) → T040 (Power Check) → T040.2 (Execute Gate) → T013/T014 (Anchor) → T022 (Guided Run) → T024 (Analysis) → T029 (Stats) → T031 (Report)
 - **Paired Rigor**: T039 MUST complete before T022 to ensure the blind baseline is re-verified on the exact same final set. T040.2 MUST execute before T022 to ensure the study is powered.

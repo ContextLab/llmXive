@@ -1,3 +1,1 @@
-"""
-llmXive - Consciousness Bootstrapping Research Code
-"""
+# Code package

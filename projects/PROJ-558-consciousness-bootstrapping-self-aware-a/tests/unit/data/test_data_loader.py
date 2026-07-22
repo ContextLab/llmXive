@@ -1,97 +1,70 @@
-"""
-Unit tests for the data_loader module.
-"""
-
 import json
 import os
 import tempfile
 from pathlib import Path
-
 import pytest
+from unittest.mock import patch, MagicMock
 
-# We cannot easily test the full download in a unit test due to network/size,
-# so we test the helper functions and logic.
-# We mock the dataset loading.
+# We need to ensure the code path is importable
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code import data_loader
-
-
-class MockDatasetItem:
-    def __init__(self, text):
-        self.text = text
-
-    def __getitem__(self, key):
-        return self.text if key == "text" else None
-
-
-class MockDataset:
-    def __init__(self, items):
-        self.items = items
-
-    def __iter__(self):
-        return iter(self.items)
-
-    def __len__(self):
-        return len(self.items)
-
-
-def test_concatenate_and_truncate():
-    """
-    Test the concatenation and truncation logic.
-    """
-    items = [
-        MockDatasetItem("Hello "),
-        MockDatasetItem("World "),
-        MockDatasetItem("!")
-    ]
-    dataset = MockDataset(items)
-
-    # Test no truncation
-    result = data_loader.concatenate_and_truncate(dataset, 100)
-    assert result == "Hello World !"
-    assert len(result) == 13
-
-    # Test truncation
-    result = data_loader.concatenate_and_truncate(dataset, 10)
-    assert result == "Hello Wo"
-    assert len(result) == 10
-
+from data_loader import compute_checksum, save_dataset_and_manifest
+from config import Config
 
 def test_compute_checksum():
-    """
-    Test the checksum computation.
-    """
-    data = "test string"
-    checksum = data_loader.compute_checksum(data)
-    assert len(checksum) == 64  # SHA-256 hex length
-    assert isinstance(checksum, str)
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        f.write("Hello World")
+        temp_path = f.name
 
+    try:
+        checksum = compute_checksum(Path(temp_path))
+        assert len(checksum) == 64  # SHA256 hex length
+        # Verify determinism
+        checksum2 = compute_checksum(Path(temp_path))
+        assert checksum == checksum2
+    finally:
+        os.unlink(temp_path)
 
 def test_save_dataset_and_manifest():
-    """
-    Test saving data and updating manifest.
-    """
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test.json")
-        manifest_path = os.path.join(tmpdir, "manifest.json")
+        # Mock paths
+        data_dir = Path(tmpdir) / "data" / "raw"
+        data_dir.mkdir(parents=True)
+        manifest_path = Path(tmpdir) / "data" / "manifest.json"
+        
+        # Patch the global paths in data_loader module
+        import data_loader
+        original_raw_dir = data_loader.RAW_DATA_DIR
+        original_manifest_path = data_loader.MANIFEST_PATH
+        
+        data_loader.RAW_DATA_DIR = data_dir
+        data_loader.MANIFEST_PATH = manifest_path
 
-        data_loader.save_dataset_and_manifest(
-            "Sample data",
-            output_path,
-            manifest_path
-        )
-
-        # Check file existence
-        assert os.path.exists(output_path)
-        assert os.path.exists(manifest_path)
-
-        # Check content
-        with open(output_path, "r") as f:
-            content = json.load(f)
-            assert content["content"] == "Sample data"
-
-        # Check manifest
-        with open(manifest_path, "r") as f:
-            manifest = json.load(f)
-            assert "pile_arxiv_truncated" in manifest
-            assert manifest["pile_arxiv_truncated"]["checksum"] == data_loader.compute_checksum("Sample data")
+        try:
+            test_data = [{"text": "test content"}]
+            filename = "test_dataset.json"
+            
+            save_dataset_and_manifest(test_data, filename, "test_type")
+            
+            # Verify file exists
+            output_file = data_dir / filename
+            assert output_file.exists()
+            
+            # Verify content
+            with open(output_file) as f:
+                loaded = json.load(f)
+            assert loaded == test_data
+            
+            # Verify manifest
+            assert manifest_path.exists()
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+            
+            assert filename in manifest
+            assert manifest[filename]["type"] == "test_type"
+            assert "checksum" in manifest[filename]
+        finally:
+            # Restore
+            data_loader.RAW_DATA_DIR = original_raw_dir
+            data_loader.MANIFEST_PATH = original_manifest_path

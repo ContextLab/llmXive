@@ -49,7 +49,7 @@ EOF`
 - [X] T004 Implement `code/versioning.py` to compute content hashes for `data/` and `code/` artifacts and update `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` (Requires T001b completion) with a JSON schema containing `artifact_hashes` (map of filename: sha256 string) and `updated_at` (ISO 8601 timestamp string) (Constitution Principle V)
 - [X] T005 [P] Create base data models and schema definitions in `code/__init__.py` and `contracts/`
 - [X] T006 [P] Setup environment configuration management for dataset paths and model IDs in `code/config.py`
-- [ ] T007 Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag: v.0, split: test, and verify checksums (FR-001)
+- [X] T007 Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag: v.0, split: test, and verify checksums (FR-001)
 - [ ] T007b Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`) containing `repo_id`, `issue_id`, and `ground_truth_file_paths` for validation (FR-001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -66,8 +66,8 @@ EOF`
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment. <!-- FAILED: unspecified -->
-- [ ] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value <!-- FAILED: unspecified -->
+- [X] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment. <!-- FAILED: unspecified -->
+- [X] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value <!-- FAILED: unspecified -->
 - [X] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
 
 ### Implementation for User Story 1
@@ -103,7 +103,7 @@ EOF`
 - [X] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
 - [X] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
 - [X] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
-- [~] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
+- [ ] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,12 +118,12 @@ EOF`
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[,, 0.15]) to assert `run_ttest` returns p < 0.05
-- [ ] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
-- [ ] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
+- [X] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
+- [X] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) and select between paired t-test and Wilcoxon signed-rank test based on sample size. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. (FR-005)
+- [X] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) and select between paired t-test and Wilcoxon signed-rank test based on sample size. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. (FR-005)
 - [ ] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta for the "Regular" set (FR-005) (Requires T023 completion)
 - [ ] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) (FR-006, SC-004)
 - [ ] T030 [US3] Implement `code/analysis.py` to perform regression analysis correlating `regularity_score` with performance delta (Redundant with T028b for Regular set, but covers Irregular set trend if needed)

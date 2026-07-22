@@ -692,3 +692,183 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T16:35:39Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: FastContext model size is 4B parameters
+  claim_id: c_dbe5d5b0
+  context: 'Goal: Execute the FastContext-Lite pipeline and the original FastContext
+    (4B) baseline to collect metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FastContext_model_size_is_4B_parameters
+  kind: entity_fact
+  raw_text: The original FastContext model is a 4B model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:40:46Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Project uses princeton-nlp/SWE-bench_Lite dataset
+  claim_id: c_c421ac04
+  context: Implement data download utility in code/data_loader.py to fetch princeton-nlp/SWE-bench_Lite
+    via datasets library
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_princeton-nlp/SWE-bench_Lite_dataset
+  kind: entity_fact
+  raw_text: The project uses the 'princeton-nlp/SWE-bench_Lite' dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:41:04Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Baseline model identifier is princeton-nlp/fastcontextb
+  claim_id: c_24e6b5b6
+  context: Implement code/baseline_runner.py to load princeton-nlp/fastcontextb (original
+    FastContext model) in default precision on CPU
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_identifier_is_princeton-nlp/fastcontextb
+  kind: entity_fact
+  raw_text: The baseline model is identified as 'princeton-nlp/fastcontextb'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:41:33Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: TF-IDF max_features parameter set to 10000
+  claim_id: c_31859406
+  context: 'Implement code/fastcontext_lite.py with deterministic parser... and TF-IDF
+    index (params: ngram_range=(variable lower bound,), max_features=10000 , analyzer=''word'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TF-IDF index configuration uses max_features=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:41:57Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Power analysis threshold is 0.8
+  claim_id: c_cd1b8764
+  context: 'Implement code/analysis.py to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}}
+    (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis script uses a power analysis threshold of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:42:30Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Normality check performed using scipy.stats.shapiro
+  claim_id: c_b470d242
+  context: Use scipy.stats.shapiro for normality check; if p < 0.05, use Wilcoxon.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normality_check_performed_using_scipy.stats.shapiro
+  kind: entity_fact
+  raw_text: The statistical analysis uses scipy.stats.shapiro for normality check.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:43:08Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Baseline model revision is main
+  claim_id: c_846e63b2
+  context: 'Use revision: main , prompt_template: fastcontext-v , and device_map:
+    cpu'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_revision_is_main
+  kind: entity_fact
+  raw_text: The baseline model revision is set to 'main'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:44:51Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Baseline model prompt template is fastcontext-v
+  claim_id: c_95b825da
+  context: 'Use revision: main , prompt_template: fastcontext-v , and device_map:
+    cpu'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_prompt_template_is_fastcontext-v
+  kind: entity_fact
+  raw_text: The baseline model prompt template is 'fastcontext-v'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:45:27Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: Baseline model device map is cpu
+  claim_id: c_18323133
+  context: 'Use revision: main , prompt_template: fastcontext-v , and device_map:
+    cpu'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_device_map_is_cpu
+  kind: entity_fact
+  raw_text: The baseline model device map is set to 'cpu'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:46:03Z'
+- artifact_path: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext/tasks.md
+  attempts: 1
+  canonical: extract ground-truth relevant files from SWE-bench task annotations to
+    CSV with repo_id, issue_id, and ground_truth_file_paths
+  claim_id: c_0c627e14
+  context: T007b Implement code/annotation_extractor.py to extract and map 'ground-truth
+    relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`)
+    containing `repo_id`, `issue_id`, and `ground_truth_file_paths` for validation
+    (FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_ground-truth_relevant_files_from_SWE-bench_task_anno
+  kind: entity_fact
+  raw_text: T007b Implement code/annotation_extractor.py to extract and map 'ground-truth
+    relevant files' from SWE-bench task annotations to a CSV format (data/raw/ground_truth_annotations.csv)
+    containing repo_id, issue_id, and ground_truth_file_paths for validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T04:47:40Z'

@@ -1,0 +1,44 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or listing was provided; the claim that `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`\
+    \ with the required subfolders exists cannot be verified. The implementer must\
+    \ supply evidence (e.g., a file\u2011tree screenshot, `tree` command output, or\
+    \ a zip of the created directories) showing the full structure."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `__init__.py` files in `code`, `code/models`, `code/training`,\
+    \ `code/evaluation`, `code/analysis`, or `code/utils` was presented; without file\
+    \ listings or contents we cannot confirm they exist or are non\u2011empty. The\
+    \ implementer must provide the actual files (or a directory tree showing them)\
+    \ to satisfy the task."
+T004b:
+  c: false
+  h: b2008390676a34e8c0dcdc9c890763e48bac97f2a09ca256c304f2323c17d895
+  r: "The required `data/raw/gsm8k.json` and `data/raw/mmlu.json` files are absent,\
+    \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
+    \ the datasets were never fetched or saved. The implementation does not meet the\
+    \ task\u2019s requirement."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file or its contents are presented; therefore the required hyperparameter\
+    \ management and CPU\u2011only enforcement cannot be verified. The implementer\
+    \ must add a non\u2011empty `config.py` that defines the specified parameters\
+    \ (seed, batch size, recursion depth\u202F=\u202F2, learning rate, token_limit\u202F\
+    =\u202F100000) and includes logic to restrict execution to CPU only."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository does not contain the required `code/models/ModelCheckpoint.py`
+    (or similar) nor `code/evaluation/EvaluationResult.py` dataclass definitions;
+    those files are absent or empty, so the task of creating the base dataclasses
+    has not been fulfilled.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `loss_functions.py` file or its contents are provided, and there is no evidence\
+    \ that a joint loss combining cross\u2011entropy with the required confidence\u2011\
+    prediction proxy (generated internal paths, majority\u2011vote correctness) has\
+    \ been implemented. The required artifact is missing."

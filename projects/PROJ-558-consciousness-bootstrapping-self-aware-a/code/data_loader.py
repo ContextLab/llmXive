@@ -2,10 +2,15 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from typing import Dict, Any, List, Optional
+
 from datasets import load_dataset
 
-# Ensure config is imported correctly if needed, though T004b focuses on data fetching
-# The task requires fetching GSM8K and MMLU via HuggingFace datasets API
+from config import get_config
+from utils.logging import get_logger, DataLoadError
+
+logger = get_logger(__name__)
+config = get_config()
 
 def compute_checksum(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -15,113 +20,155 @@ def compute_checksum(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def fetch_gsm8k(output_path: str) -> str:
-    """
-    Fetch the GSM8K dataset from HuggingFace and save it to the specified path.
-    Returns the checksum of the saved file.
-    """
-    print("Fetching GSM8K dataset...")
-    dataset = load_dataset("gsm8k", "main")
-    
-    # Convert to a list of dicts for JSON serialization
-    # GSM8K has 'train' and 'test' splits
-    data = {
-        "train": list(dataset["train"]),
-        "test": list(dataset["test"])
-    }
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    checksum = compute_checksum(output_path)
-    print(f"GSM8K saved to {output_path} with checksum: {checksum}")
-    return checksum
-
-def fetch_mmlu(output_path: str) -> str:
-    """
-    Fetch the MMLU dataset from HuggingFace and save it to the specified path.
-    Returns the checksum of the saved file.
-    """
-    print("Fetching MMLU dataset...")
-    # MMLU is a large dataset, we fetch the 'auxiliary_train' or 'dev'/'test' splits.
-    # The standard way is to load the dataset and select the 'test' split for evaluation.
-    # We will load the full dataset and save the 'test' split as per evaluation needs.
-    dataset = load_dataset("cais/mmlu")
-    
-    # MMLU has many categories. We aggregate them into a single list for simplicity in this context,
-    # or save the structure as is. The task asks for saving to a single JSON file.
-    # We'll flatten the test split across all subjects.
-    test_data = []
-    for subject in dataset["test"].features.keys():
-        # Actually, the dataset structure is usually a dict of splits, each split has multiple subjects.
-        # Let's inspect the structure: load_dataset("cais/mmlu") returns a DatasetDict.
-        # The 'test' key contains a dataset with columns: question, choices, answer, subject.
-        # We iterate over the 'test' split.
-        pass
-    
-    # Re-loading with specific split handling for MMLU
-    # The dataset "cais/mmlu" has splits: ['auxiliary_train', 'dev', 'test', 'validation']
-    # We want the 'test' split for evaluation.
-    mmlu_dataset = load_dataset("cais/mmlu")
-    test_split = mmlu_dataset["test"]
-    
-    # Convert to list of dicts
-    data = list(test_split)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    checksum = compute_checksum(output_path)
-    print(f"MMLU saved to {output_path} with checksum: {checksum}")
-    return checksum
-
-def save_dataset_and_manifest(gsm8k_path: str, mmlu_path: str, manifest_path: str, gsm8k_checksum: str, mmlu_checksum: str):
-    """
-    Update the manifest.json file with checksums for the new datasets.
-    """
-    manifest = {}
+def load_manifest(manifest_path: str) -> Dict[str, Any]:
+    """Load existing manifest or return empty dict if not found."""
     if os.path.exists(manifest_path):
         with open(manifest_path, "r") as f:
-            manifest = json.load(f)
-    
-    manifest["gsm8k"] = {
-        "path": gsm8k_path,
-        "checksum": gsm8k_checksum,
-        "purpose": "evaluation"
-    }
-    manifest["mmlu"] = {
-        "path": mmlu_path,
-        "checksum": mmlu_checksum,
-        "purpose": "evaluation"
-    }
-    
+            return json.load(f)
+    return {}
+
+def save_manifest(manifest: Dict[str, Any], manifest_path: str) -> None:
+    """Save manifest to JSON file."""
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
-    print(f"Manifest updated at {manifest_path}")
 
-def main():
+def fetch_arxiv_pile_truncated() -> None:
     """
-    Main function to fetch GSM8K and MMLU datasets and update the manifest.
+    Fetch the 'arXiv' subset of the Pile dataset, truncate to TOKEN_LIMIT,
+    and save to data/raw/pile_arxiv_truncated.json.
     """
-    base_dir = Path(__file__).parent.parent
-    data_raw_dir = base_dir / "data" / "raw"
-    manifest_path = base_dir / "data" / "manifest.json"
-    
-    gsm8k_output = str(data_raw_dir / "gsm8k.json")
-    mmlu_output = str(data_raw_dir / "mmlu.json")
-    
-    # Fetch datasets
-    gsm8k_checksum = fetch_gsm8k(gsm8k_output)
-    mmlu_checksum = fetch_mmlu(mmlu_output)
-    
-    # Update manifest
-    save_dataset_and_manifest(gsm8k_output, mmlu_output, str(manifest_path), gsm8k_checksum, mmlu_checksum)
+    logger.info("Fetching arXiv subset of The Pile...")
+    try:
+        dataset = load_dataset("the_pile", "pile_arxiv", split="train")
+    except Exception as e:
+        raise DataLoadError(f"Failed to load the_pile/pile_arxiv: {e}")
+
+    token_limit = config.get("TOKEN_LIMIT", 100000)
+    logger.info(f"Truncating to {token_limit} tokens...")
+
+    all_text = []
+    current_tokens = 0
+    for item in dataset:
+        text = item.get("text", "")
+        # Simple token approximation: split by whitespace
+        tokens = text.split()
+        if current_tokens + len(tokens) > token_limit:
+            remaining = token_limit - current_tokens
+            if remaining <= 0:
+                break
+            all_text.append(" ".join(tokens[:remaining]))
+            break
+        all_text.append(text)
+        current_tokens += len(tokens)
+
+    truncated_text = " ".join(all_text)
+    output_path = Path(config.get("DATA_DIR", "data/raw")) / "pile_arxiv_truncated.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w") as f:
+        json.dump({"text": truncated_text}, f)
+
+    checksum = compute_checksum(str(output_path))
+    manifest_path = Path(config.get("DATA_DIR", "data")) / "manifest.json"
+    manifest = load_manifest(str(manifest_path))
+    manifest["pile_arxiv_truncated.json"] = {
+        "type": "training",
+        "checksum": checksum,
+        "size_bytes": output_path.stat().st_size,
+        "created_at": os.popen("date -Iseconds").read().strip()
+    }
+    save_manifest(manifest, str(manifest_path))
+    logger.info(f"Saved training data to {output_path} (checksum: {checksum})")
+
+def fetch_gsm8k() -> None:
+    """
+    Fetch the GSM8K dataset from HuggingFace and save to data/raw/gsm8k.json.
+    """
+    logger.info("Fetching GSM8K dataset...")
+    try:
+        dataset = load_dataset("gsm8k", "main", split="train")
+    except Exception as e:
+        raise DataLoadError(f"Failed to load gsm8k: {e}")
+
+    output_path = Path(config.get("DATA_DIR", "data/raw")) / "gsm8k.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    data_list = []
+    for item in dataset:
+        data_list.append({
+            "question": item.get("question", ""),
+            "answer": item.get("answer", "")
+        })
+
+    with open(output_path, "w") as f:
+        json.dump(data_list, f, indent=2)
+
+    checksum = compute_checksum(str(output_path))
+    manifest_path = Path(config.get("DATA_DIR", "data")) / "manifest.json"
+    manifest = load_manifest(str(manifest_path))
+    manifest["gsm8k.json"] = {
+        "type": "evaluation",
+        "checksum": checksum,
+        "size_bytes": output_path.stat().st_size,
+        "created_at": os.popen("date -Iseconds").read().strip()
+    }
+    save_manifest(manifest, str(manifest_path))
+    logger.info(f"Saved GSM8K evaluation data to {output_path} (checksum: {checksum})")
+
+def fetch_mmlu() -> None:
+    """
+    Fetch the MMLU dataset from HuggingFace and save to data/raw/mmlu.json.
+    Saves the 'auxiliary_train' split as the primary evaluation set.
+    """
+    logger.info("Fetching MMLU dataset...")
+    try:
+        # MMLU is large; we fetch the auxiliary_train split which is commonly used for evaluation
+        dataset = load_dataset("cais/mmlu", "all", split="auxiliary_train")
+    except Exception as e:
+        raise DataLoadError(f"Failed to load cais/mmlu auxiliary_train: {e}")
+
+    output_path = Path(config.get("DATA_DIR", "data/raw")) / "mmlu.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    data_list = []
+    for item in dataset:
+        data_list.append({
+            "question": item.get("question", ""),
+            "choices": item.get("choices", []),
+            "subject": item.get("subject", ""),
+            "answer": item.get("answer", 0)  # 0-indexed correct answer
+        })
+
+    with open(output_path, "w") as f:
+        json.dump(data_list, f, indent=2)
+
+    checksum = compute_checksum(str(output_path))
+    manifest_path = Path(config.get("DATA_DIR", "data")) / "manifest.json"
+    manifest = load_manifest(str(manifest_path))
+    manifest["mmlu.json"] = {
+        "type": "evaluation",
+        "checksum": checksum,
+        "size_bytes": output_path.stat().st_size,
+        "created_at": os.popen("date -Iseconds").read().strip()
+    }
+    save_manifest(manifest, str(manifest_path))
+    logger.info(f"Saved MMLU evaluation data to {output_path} (checksum: {checksum})")
+
+def save_dataset_and_manifest() -> None:
+    """
+    Main entry point to fetch all datasets (training and evaluation)
+    and update the manifest.
+    """
+    # Fetch training data
+    fetch_arxiv_pile_truncated()
+    # Fetch evaluation data
+    fetch_gsm8k()
+    fetch_mmlu()
+    logger.info("All datasets fetched and manifest updated.")
+
+def main() -> None:
+    """Entry point for script execution."""
+    save_dataset_and_manifest()
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,9 @@
+llama-cpp-python
+datasets
+scipy
+pandas
+pyyaml
+pytest
+joblib
+ruff
+black

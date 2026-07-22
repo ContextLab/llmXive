@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-multilingual-logic-transfer"
+version = "0.1.0"
+description = "Extending LiveCodeBench to Multiple Programming Languages"
+requires-python = ">=3.10"
+dependencies = [
+    "llama-cpp-python",
+    "datasets",
+    "scipy",
+    "pandas",
+    "pyyaml",
+    "pytest",
+    "joblib",
+    "ruff",
+    "black"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*", "tests*"]
+
+# Ruff configuration (inline for convenience, also in code/ruff.toml)
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+exclude = [".git", "__pycache__", ".mypy_cache", ".pytest_cache", "data", "venv", ".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501", "F403", "F405"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py310']
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | data
+    | venv
+    | .venv
+    | build
+    | dist
+)/
+'''
