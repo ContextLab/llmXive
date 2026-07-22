@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a gradient-free sensitivity analysis to test the hypothesis that faithful, context-grounded multi-hop reasoning in the OCC-RAG model relies on a sparse, localized sub-network. The plan covers: () independent single-unit masking to rank sensitivity, (2) construction of a pruned model retaining only critical parameters, (3) lightweight CPU-only fine-tuning to recover performance (with a control), and (4) statistical validation via paired t-test comparing sensitivity-ranked vs. random pruning. All operations are constrained to CPU-only execution within GitHub Actions free-tier limits (limited RAM, 6h runtime) using layer-wise loading.
+This feature implements a gradient-free sensitivity analysis to test the hypothesis that faithful, context-grounded multi-hop reasoning in the OCC-RAG model relies on a sparse, localized sub-network. The plan covers: () independent single-unit masking to rank sensitivity, (2) construction of a pruned model retaining only critical parameters, (3) lightweight CPU-only fine-tuning to recover performance (with a control), and (4) statistical validation via paired t-test comparing sensitivity-ranked vs. random pruning. All operations are constrained to CPU-only execution within GitHub Actions free-tier limits (limited RAM, bounded runtime) using layer-wise loading.
 
 ## Technical Context
 
