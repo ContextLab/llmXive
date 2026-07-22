@@ -1,57 +1,48 @@
 """
-I/O Utilities for llmXive.
+I/O Utilities for the pipeline.
 """
-
 import os
 import json
 import hashlib
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional
 
-import pandas as pd
-
-def ensure_dir(path: Union[str, Path]) -> Path:
-    """Creates a directory if it doesn't exist."""
-    path = Path(path)
+def ensure_dir(path: Path) -> Path:
+    """Ensure a directory exists, creating it if necessary."""
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def compute_checksum(file_path: Union[str, Path], algorithm: str = "md5") -> str:
-    """Computes the checksum of a file."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {path}")
-    
-    hash_func = hashlib.new(algorithm)
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+def compute_checksum(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def save_json(data: Any, path: Union[str, Path], indent: int = 2) -> None:
-    """Saves data to a JSON file."""
-    path = Path(path)
-    ensure_dir(path.parent)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=indent)
+def save_json(data: Any, file_path: Path) -> None:
+    """Save data to a JSON file."""
+    ensure_dir(file_path.parent)
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=2)
 
-def load_json(path: Union[str, Path]) -> Any:
-    """Loads data from a JSON file."""
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"JSON file not found: {path}")
-    with open(path, "r", encoding="utf-8") as f:
+def load_json(file_path: Path) -> Any:
+    """Load data from a JSON file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"JSON file not found: {file_path}")
+    with open(file_path, "r") as f:
         return json.load(f)
 
-def save_csv(df: pd.DataFrame, path: Union[str, Path], index: bool = False) -> None:
-    """Saves a DataFrame to a CSV file."""
-    path = Path(path)
-    ensure_dir(path.parent)
-    df.to_csv(path, index=index)
+def save_csv(data: List[Dict[str, Any]], file_path: Path) -> None:
+    """Save a list of dictionaries to a CSV file."""
+    ensure_dir(file_path.parent)
+    if not data:
+        # Create empty file
+        file_path.touch()
+        return
 
-def load_csv(path: Union[str, Path]) -> pd.DataFrame:
-    """Loads a DataFrame from a CSV file."""
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"CSV file not found: {path}")
-    return pd.read_csv(path)
+    import csv
+    with open(file_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)

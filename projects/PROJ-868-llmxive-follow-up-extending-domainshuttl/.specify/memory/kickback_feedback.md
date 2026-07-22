@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of a `src/`, `tests/`, or `data/` directory (or any files within them) was provided; the only material shown is a feature specification, not the required project structure. The implementer must create and show the three top‑level directories with appropriate placeholder files to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or CI integration scripts are present in the provided evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
+- `T006` (rejected 1x): No files or schema definitions were provided in `specs/001-gene-regulation/contracts/`; the required base entity schemas are missing, so the task is not satisfied.
 
 ## Required change
 

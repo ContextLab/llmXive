@@ -326,3 +326,362 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T06:48:00Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: use CosineEmbeddingLoss for autoencoder
+  claim_id: c_4665d207
+  context: The model class must be configured to use torch.nn.CosineEmbeddingLoss
+    (or equivalent 1-cosine_similarity implementation) as the loss function. FORBID
+    MSELoss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model class must be configured to use torch.nn.CosineEmbeddingLoss
+    (or equivalent 1-cosine_similarity implementation) as the loss function
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:12Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: enforce batch size 1 and gradient accumulation 1
+  claim_id: c_e0f2b811
+  context: 'Execution: Enforce batch_size=1 and gradient_accumulation_steps=1. Include
+    a runtime memory check that aborts if usage exceeds a predefined threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce batch_size=1 and gradient_accumulation_steps=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:27Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: generate videos for 5 dimensions and 100 subjects
+  claim_id: c_ff067559
+  context: 'Logic: Reuse the generation logic from T019 to generate videos for all
+    dimensions [16, 32, 64, 128, 256] and all subjects. Compute CLIP Image Similarity
+    scores (image-image) using a CLIP ViT-B model and mean of equidistant frames.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate videos for all dimensions [16, 32, 64, 128, 256] and all subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:47Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: compute CLIP Image Similarity using ViT-B model
+  claim_id: c_92fe0dfa
+  context: Compute CLIP Image Similarity scores (image-image) using a CLIP ViT-B model
+    and mean of equidistant frames.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_CLIP_Image_Similarity_using_ViT-B_model
+  kind: entity_fact
+  raw_text: Compute CLIP Image Similarity scores using a CLIP ViT-B model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:09:57Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fit 2-segment piecewise linear model
+  claim_id: c_d87723ac
+  context: 'Logic: Attempt to fit a 2-segment piecewise linear model using scipy.optimize.curve_fit.
+    Critical Fallback: If the breakpoint p-value >= 0.05 or the fit fails to converge,
+    automatically fall back to a simple linear regression model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Attempt to fit a 2-segment piecewise linear model using scipy.optimize.curve_fit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:11Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fallback to linear regression if p-value >= 0.05
+  claim_id: c_ae8300fa
+  context: 'Critical Fallback: If the breakpoint p-value >= 0.05 or the fit fails
+    to converge, automatically fall back to a simple linear regression model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the breakpoint p-value >= 0.05, fall back to a simple linear regression
+    model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:21Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: linear model implies falsified hypothesis
+  claim_id: c_87ac592b
+  context: If model_type is 'linear', hypothesis_status MUST be 'falsified'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_model_implies_falsified_hypothesis
+  kind: entity_fact
+  raw_text: If model_type is 'linear', hypothesis_status MUST be 'falsified'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:35Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fidelity curve JSON contains 100 subjects
+  claim_id: c_1e86c7ae
+  context: 'Output: Save the full fidelity-vs-dimension matrix to data/results/fidelity_vs_dimension_curve.json
+    (structure: {subject_id: {dim: {style: score}}}). Verification: Verify file exists
+    at data/results/fidelity_vs_dimension_curve.json and contains valid JSON with
+    keys for all 100 subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify file exists at data/results/fidelity_vs_dimension_curve.json and
+    contains valid JSON with keys for all 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:42Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fetch 100 diverse subjects from WebVid-10M via stratified random sampling
+    with seed 42
+  claim_id: c_77da54fc
+  context: Implement WebVid-10M data loader in src/data/loaders.py to fetch exactly
+    100 diverse subjects via datasets.load_dataset using stratified random sampling
+    by the 'category' column (uniform distribution across top categories) with seed=42,
+    with no synthetic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch exactly 100 diverse subjects via datasets.load_dataset using stratified
+    random sampling by the 'category' column (uniform distribution across top categories)
+    with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:14:18Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: compute CLIP Image Similarity scores using CLIP ViT-B model and mean
+    of equidistant frames
+  claim_id: c_0ccc4074
+  context: 'Compute CLIP Image Similarity scores (image-image) using a CLIP ViT-B
+    model and mean of equidistant frames. Output: Save the full fidelity-vs-dimension
+    matrix to data/results/fidelity_vs_dimension_curve.json (structure: {subject_id:
+    {dim: {style: score}}}).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_CLIP_Image_Similarity_scores_using_CLIP_ViT-B_model
+  kind: entity_fact
+  raw_text: Compute CLIP Image Similarity scores (image-image) using a CLIP ViT-B
+    model and mean of equidistant frames
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:15:37Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: enforce batch size 1 and gradient accumulation steps 1
+  claim_id: c_4130e336
+  context: 'Execution: Enforce batch_size=1 and gradient_accumulation_steps=1. Include
+    a runtime memory check that aborts if usage exceeds a predefined threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce batch_size=1 and gradient_accumulation_steps=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:15:37Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 2
+  canonical: fetch 100 diverse subjects from WebVid-10M with seed 42
+  claim_id: c_ce7d0cab
+  context: Implement WebVid-10M data loader in src/data/loaders.py to fetch exactly
+    100 diverse subjects via datasets.load_dataset using stratified random sampling
+    by the 'category' column (uniform distribution across top categories) with seed=42,
+    with no synthetic fallback
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch exactly 100 diverse subjects via datasets.load_dataset using stratified
+    random sampling by the 'category' column (uniform distribution across top categories)
+    with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:17:01Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: save 100 subject embeddings to data/processed/embeddings
+  claim_id: c_5840a5dc
+  context: 'Implement DomainShuttle encoder wrapper in src/data/embeddings.py to load
+    frozen weights and extract high-dimensional embeddings for all 100 subjects. Output:
+    Save tensors to data/processed/embeddings/ as .pt files named {subject_id}.pt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output tensors to data/processed/embeddings/ as .pt files named {subject_id}.pt
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:17:01Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 2
+  canonical: complexity_scores.csv contains 100 rows
+  claim_id: c_2301659d
+  context: 'Create pipeline script in src/cli.py to orchestrate: Load -> Complexity
+    -> Embed -> Save (outputs to data/processed/embeddings/ and data/processed/complexity_scores.csv).
+    Artifact: data/processed/complexity_scores.csv must contain 100 rows with subject_id
+    and complexity_score columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Artifact: data/processed/complexity_scores.csv must contain 100 rows
+    with subject_id and complexity_score columns'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:17:01Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: autoencoder supports dimensions 32, 64, 128, 256
+  claim_id: c_46348186
+  context: 'Implement CPU-optimized Autoencoder architecture in src/models/autoencoder.py.
+    Constraint: The model must support configurable target dimensions [32, 64, 128,
+    256].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must support configurable target dimensions [32, 64, 128, 256]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:19:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: batch size 1 and gradient accumulation 1
+  claim_id: c_d9176235
+  context: 'Execution: Enforce batch_size=1 and gradient_accumulation_steps=1. Include
+    a runtime memory check that aborts if usage exceeds a predefined threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce batch_size=1 and gradient_accumulation_steps=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:19:29Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: dimensionality sweep over 16, 32, 64, 128, 256
+  claim_id: c_9c08abf3
+  context: 'Create dimensionality sweep script in src/cli.py. Logic: This script MUST
+    iterate over the specific set of dimensions [16, 32, 64, 128, 256]. For each dimension,
+    it MUST call the training function implemented in T015.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate over the specific set of dimensions [16, 32, 64, 128, 256]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:19:48Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: generate videos for 5 dimensions and 100 subjects
+  claim_id: c_d44a4903
+  context: 'Implement Full Fidelity Curve Scoring in src/analysis/fidelity.py. Logic:
+    Reuse the generation logic from T019 to generate videos for all dimensions [16,
+    32, 64, 128, 256] and all subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate videos for all dimensions [16, 32, 64, 128, 256] and all subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:19:48Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: fidelity curve JSON contains 100 subject keys
+  claim_id: c_2856e16e
+  context: 'Output: Save the full fidelity-vs-dimension matrix to data/results/fidelity_vs_dimension_curve.json
+    (structure: {subject_id: {dim: {style: score}}}). Verification: Verify file exists
+    at data/results/fidelity_vs_dimension_curve.json and contains valid JSON with
+    keys for all 100 subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify file exists at data/results/fidelity_vs_dimension_curve.json and
+    contains valid JSON with keys for all 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:19:48Z'
+- artifact_path: projects/PROJ-868-llmxive-follow-up-extending-domainshuttl/specs/001-llmxive-follow-up-extending-domainshuttl/tasks.md
+  attempts: 1
+  canonical: video generation prompts for Anime, Photorealistic, Sketch
+  claim_id: c_e7eac22c
+  context: Implement video generation script in src/analysis/generation.py to synthesize
+    videos using frozen DomainShuttle generator, compressed vectors, and prompts for
+    'Anime', 'Photorealistic', 'Sketch' domains.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Video_generation_prompts_for_Anime,_Photorealistic,_Sketch
+  kind: entity_fact
+  raw_text: prompts for 'Anime', 'Photorealistic', 'Sketch' domains
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:20:11Z'

@@ -1,51 +1,96 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
-.Python
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
 build/
-develop-eggs/
 dist/
+develop-eggs/
 downloads/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
 *.egg
 
-# Virtual environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Data
-data/raw/
-data/processed/
-data/results/
-*.csv
-*.json
-*.parquet
-*.pt
-*.pth
-*.png
-*.pdf
-
-# Logs
-*.log
+*~
 
 # OS
 .DS_Store
-Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Data artifacts (generated)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/results/*
+!data/results/.gitkeep
+figures/
+logs/
+
+# Local config
+.env
+*.local.yaml

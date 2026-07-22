@@ -1,48 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: FidelityResult
-description: >
-  Represents the result of the identity fidelity validation for a specific
-  subject, dimension, and style domain.
+description: >-
+  Represents a single data point in the fidelity curve, measuring the
+  similarity between a generated video (from a compressed vector) and the
+  original subject reference, across a specific style domain.
 type: object
 required:
   - subject_id
   - dimension
-  - style_domain
-  - clip_similarity_score
-  - passes_threshold
+  - style
+  - clip_score
+  - timestamp
 properties:
   subject_id:
     type: string
-    description: Reference to the parent subject
+    description: Unique identifier for the subject being evaluated.
+    pattern: "^[a-zA-Z0-9_-]+$"
   dimension:
     type: integer
-    description: The latent dimension used for generation
-  style_domain:
+    description: The dimensionality of the compressed vector used for generation.
+    minimum: 1
+  style:
     type: string
-    description: The style prompt domain used (e.g., 'Anime', 'Photorealistic', 'Sketch')
+    description: The style domain used for video generation.
     enum:
       - Anime
       - Photorealistic
       - Sketch
-  clip_similarity_score:
+  clip_score:
     type: number
-    description: >
-      Mean CLIP ViT-B image similarity score between generated frames and reference.
-      Range: [0.0, 1.0] (or scaled depending on CLIP implementation, typically 0-1 after sigmoid or raw cosine).
-    minimum: 0.0
+    description: >-
+      CLIP Image Similarity score between the generated video frames and
+      the reference image.
+    minimum: -1.0
     maximum: 1.0
-  fidelity_threshold:
-    type: number
-    description: The threshold value used from config/settings.py for this check
-  passes_threshold:
-    type: boolean
-    description: True if clip_similarity_score >= fidelity_threshold
-  generated_video_path:
+  timestamp:
     type: string
-    description: Optional relative path to the generated video file
-    pattern: "^data/results/generated_videos/.*\\.(mp4|mov|avi)$"
-  evaluation_timestamp:
-    type: string
+    description: ISO 8601 formatted timestamp of when the result was generated.
     format: date-time
-    description: ISO 8601 timestamp of the evaluation
 additionalProperties: false

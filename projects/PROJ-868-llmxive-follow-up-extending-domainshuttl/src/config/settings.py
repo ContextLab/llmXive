@@ -1,75 +1,41 @@
 """
-Configuration management for the DomainShuttle project.
-
-This module handles loading and validating all project settings,
-including paths, seeds, and hyperparameters.
+Configuration settings for the llmXive pipeline.
 """
 import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Optional
 
 # Project Root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Default Configuration
-_DEFAULT_CONFIG: Dict[str, Any] = {
-    "paths": {
-        "project_root": str(_PROJECT_ROOT),
-        "data": str(_PROJECT_ROOT / "data"),
-        "raw_data": str(_PROJECT_ROOT / "data" / "raw"),
-        "processed_data": str(_PROJECT_ROOT / "data" / "processed"),
-        "results": str(_PROJECT_ROOT / "data" / "results"),
-        "models": str(_PROJECT_ROOT / "data" / "models"),
-        "logs": str(_PROJECT_ROOT / "data" / "logs"),
-    },
-    "seeds": {
-        "global_seed": 42,
-    },
-    "hyperparameters": {
-        "batch_size": 1,
-        "learning_rate": 1e-4,
-        "num_epochs": 50,
-        "early_stopping_patience": 10,
-    },
-    "fidelity_threshold": 0.85,  # Default fallback for US3
-}
+# Default Paths
+DEFAULT_RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+DEFAULT_PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+DEFAULT_MODELS_DIR = PROJECT_ROOT / "data" / "models"
 
-# In-memory cache for the loaded config
-_config_cache: Dict[str, Any] = {}
+# Model Checkpoints
+MODEL_CHECKPOINT_PATH = DEFAULT_RAW_DATA_DIR / "domainshuttle.pth"
 
-def get_config() -> Dict[str, Any]:
+# Hyperparameters
+SEED = 42
+DEVICE = "cpu"
+
+# Fidelity Threshold (Deferred as per T004b)
+FIDELITY_THRESHOLD: Optional[float] = None
+
+def get_config() -> dict:
     """
-    Retrieves the full configuration dictionary.
-
-    Validates required keys and ensures paths exist (creating them if necessary).
-
-    Returns:
-        The validated configuration dictionary.
-
-    Raises:
-        ValueError: If 'fidelity_threshold' is missing or invalid.
+    Returns the configuration dictionary.
     """
-    if _config_cache:
-        return _config_cache
-
-    config = _DEFAULT_CONFIG.copy()
-
-    # Validate fidelity_threshold
-    if "fidelity_threshold" not in config:
-        raise ValueError("Configuration error: 'fidelity_threshold' is missing.")
-    
-    threshold = config["fidelity_threshold"]
-    if not isinstance(threshold, (int, float)) or not (0.0 <= threshold <= 1.0):
-        raise ValueError(
-            f"Configuration error: 'fidelity_threshold' must be a float between 0.0 and 1.0. "
-            f"Got: {threshold}"
-        )
-
-    # Ensure directories exist
-    for key, path_str in config["paths"].items():
-        path = Path(path_str)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-
-    _config_cache.update(config)
-    return config
+    return {
+        "project_root": str(PROJECT_ROOT),
+        "raw_data_dir": str(DEFAULT_RAW_DATA_DIR),
+        "processed_data_dir": str(DEFAULT_PROCESSED_DATA_DIR),
+        "results_dir": str(DEFAULT_RESULTS_DIR),
+        "models_dir": str(DEFAULT_MODELS_DIR),
+        "model_checkpoint_path": str(MODEL_CHECKPOINT_PATH),
+        "seed": SEED,
+        "device": DEVICE,
+        "fidelity_threshold": FIDELITY_THRESHOLD
+    }

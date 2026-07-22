@@ -1,3 +1,19 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or other evidence of the required folders (`src/config`,\
+    \ `src/data`, `src/models`, `src/analysis`, `src/utils`, `tests`, `data/raw`,\
+    \ `data/processed`, `data/results`, `specs/001-gene-regulation/contracts`, `docs`)\
+    \ was provided, so we cannot confirm the project structure was actually created.\
+    \ The implementer must supply a file\u2011system snapshot or command output showing\
+    \ the full tree."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) nor any evidence
+    that ruff/flake8 and black have been set up and integrated into the project. Consequently,
+    the required artifact for configuring these tools is missing.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

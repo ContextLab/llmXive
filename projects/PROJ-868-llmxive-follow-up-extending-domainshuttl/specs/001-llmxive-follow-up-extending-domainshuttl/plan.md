@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [,, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
+This project implements a CPU-optimized research pipeline to test the "Dimensionality Phase-Transition" hypothesis: whether a critical latent dimensionality exists below which subject identity degrades non-linearly as visual complexity increases. The approach involves extracting high-dimensional embeddings from a subset of WebVid. using a frozen DomainShuttle encoder, compressing them via CPU-only Autoencoders across multiple dimensions [,,,, 48, 64, 80, 96, 112, 128, 160, 192, 256], and validating identity fidelity using CLIP Image Similarity (mean across multiple frames) across three style domains (Anime, Photorealistic, Sketch). The final analysis uses segmented regression to detect the "phase transition" breakpoint on the test set generalization error.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ This project implements a CPU-optimized research pipeline to test the "Dimension
 **Primary Dependencies**: PyTorch (CPU-only), scikit-learn, pandas, datasets, pillow, tqdm, opencv-python  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`)  
 **Testing**: pytest (contract tests against YAML schemas)  
-**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU cores, 7GB RAM, multi-core)  
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU cores, ample RAM, multi-core)  
 **Project Type**: Research pipeline / CLI  
 **Performance Goals**: Complete full pipeline (extraction, training, generation, analysis) within 6 hours (free-tier CI limit) on CPU-only runner.  
 **Constraints**: No GPU, no CUDA, no 8-bit quantization, memory usage < 6GB peak, strict adherence to a subject limit to ensure feasibility.  
@@ -92,4 +92,4 @@ data/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **None** | The project scope (a constrained number of subjects, 13 dims) is intentionally constrained to fit CI limits. | N/A |
+| **None** | The project scope (a constrained number of subjects, a limited set of dimensions) is intentionally constrained to fit CI limits. | N/A |
