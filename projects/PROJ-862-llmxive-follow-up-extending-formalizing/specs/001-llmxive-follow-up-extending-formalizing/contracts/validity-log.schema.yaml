@@ -1,73 +1,81 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
 title: Validity Log Schema
-description: >
-  Schema for the log of validity checks performed during the perturbation sweep.
-  Tracks which pairs passed/failed specific checks.
+description: |
+  Schema for logging validity checks (input drift, output validity) and collapse points.
 type: object
 required:
   - pair_id
-  - sigma
-  - input_drift_check
-  - output_validity_check
-  - overall_status
-  - failure_reasons
+  - task_type
+  - sigma_value
+  - checks
 properties:
   pair_id:
+    type: integer
+    description: The unique identifier for the question pair.
+    minimum: 0
+  task_type:
     type: string
-    description: Foreign key to the dataset entry.
-  sigma:
+    description: The task type of the pair.
+  sigma_value:
     type: number
-    description: Noise magnitude applied.
-  input_drift_check:
+    description: The noise magnitude applied.
+    minimum: 0
+  checks:
     type: object
-    description: Result of SBERT cosine similarity check (threshold >= 0.95).
+    description: Results of individual validity checks.
     properties:
-      passed:
-        type: boolean
-      score:
-        type: number
-        minimum: 0
-        maximum: 1
-      threshold:
-        type: number
-        const: 0.95
-  output_validity_check:
-    type: object
-    description: Result of BERTScore and Perplexity checks.
-    properties:
-      passed:
-        type: boolean
-      bertscore_f1:
-        type: number
-        minimum: 0
-        maximum: 1
-      perplexity_ratio:
-        type: number
-        minimum: 0
-      thresholds:
+      input_drift:
         type: object
         properties:
-          bertscore_min:
+          passed:
+            type: boolean
+          score:
             type: number
-            const: 0.85
-          perplexity_max_ratio:
+            description: Cosine similarity score from SBERT.
+          threshold:
             type: number
-            const: 2.0
-  overall_status:
-    type: string
-    enum: [valid, invalid, dropped]
-    description: >
-      'valid': passed both checks.
-      'invalid': failed one or both.
-      'dropped': excluded from analysis due to validity collapse.
+      output_validity:
+        type: object
+        properties:
+          passed:
+            type: boolean
+          bert_score_f1:
+            type: number
+          perplexity_ratio:
+            type: number
+          threshold_f1:
+            type: number
+          threshold_perplexity:
+            type: number
+      overall_passed:
+        type: boolean
+        description: True if all individual checks passed.
   failure_reasons:
     type: array
+    description: List of strings explaining why checks failed.
     items:
       type: string
-      enum: [input_drift_low, bertscore_low, perplexity_high, collapse_detected]
-    description: List of specific reasons for failure.
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the check.
 additionalProperties: false
+examples:
+  - pair_id: 101
+    task_type: "math"
+    sigma_value: 0.5
+    checks:
+      input_drift:
+        passed: true
+        score: 0.98
+        threshold: 0.95
+      output_validity:
+        passed: true
+        bert_score_f1: 0.92
+        perplexity_ratio: 1.1
+        threshold_f1: 0.85
+        threshold_perplexity: 2.0
+      overall_passed: true
+    failure_reasons: []
+    timestamp: "2023-10-27T10:00:00Z"

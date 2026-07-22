@@ -4,66 +4,70 @@
 
 - Python 3.11+
 - Git
-- Access to a HuggingFace account (optional, for dataset access)
-- Substantial RAM, Substantial disk capacity (local or CI)
+- Access to HuggingFace Hub (for dataset/model download)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code/
-   ```
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment** and install dependencies:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Verify HuggingFace access** (if required for private datasets, though Kinetics-400 is public):
+    ```bash
+    huggingface-cli login
+    ```
 
 ## Running the Simulation
 
-### 1. Run a Single Experiment
-To run a single experiment with low-bit precision and a fixed random seed:
-```bash
-python -m simulation.training_loop --bit-width 4 --seed 42 --clips 20
-```
-- `--bit-width`: Target precision (2, 3, 4, 5, or 6).
-- `--seed`: Random seed.
-- `--clips`: Number of clips to process (default: 20, adjusted for 5 bit-widths).
+### 1. Download and Downsample Dataset
+This step extracts 4-second clips from Kinetics-400 and saves them to `data/derived/`.
 
-### 2. Run the Full Experimental Suite
-To run all experiments across multiple bit-widths and seeds:
 ```bash
-python -m analysis.aggregation --full-suite
+python data/downsampler.py --num-clips 500 --output data/derived/kinetics_4s_subset_v1.parquet
 ```
-This will:
-- Run the simulation for each bit-width and seed.
-- Evaluate the generated clips.
-- Aggregate results into `data/derived/results.csv`.
-- Generate the precision-consistency curve plot.
+*Output*: `data/derived/kinetics_4s_subset_v1.parquet` and a checksum file.
 
-### 3. Validate Quantization Emulation
-To verify the noise distribution:
+### 2. Run the Training Simulation
+Execute the full experimental suite (varying bit-widths) with 3 seeds each.
+
 ```bash
-python -m tests.test_quantization_emulator
+python main.py --config config.py
+```
+*Output*: Logs in `data/results/` and a summary CSV.
+
+### 3. Run the Evaluation
+If not included in `main.py`, run the evaluator separately:
+
+```bash
+python evaluation/clip_evaluator.py --input data/results/generated_clips/ --output data/results/consistency_scores.json
 ```
 
-## Expected Output
+### 4. Analyze Thresholds
+Generate the precision-consistency curve and identify the degradation threshold.
 
-- **Console**: Progress bars, memory usage estimates, and final scores.
-- **Files**:
-  - `data/derived/results.csv`: Aggregated results.
-  - `data/derived/figures/precision_consistency_curve.png`: Visualization of the threshold.
-  - `data/derived/figures/noise_distribution.png`: KL-divergence test results.
+```bash
+python analysis/threshold_finder.py --input data/results/aggregated.csv --output data/results/threshold_analysis.png
+```
+
+## Verification
+
+To verify the setup:
+
+1.  **Check Memory**: Ensure the simulation completes without OOM errors (target < 7GB).
+2.  **Check Noise**: Verify that the KL-divergence between simulated noise and uniform distribution is < 5% (check `data/results/kl_divergence_per_bitwidth.json`).
+3.  **Check Consistency**: Ensure the CLIP-ViT scores are numeric and not NaN (unless "Collapse" is expected for 2-bit).
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the `--clips` parameter or the model size in `config.py`.
-- **Dataset Access Error**: Ensure you have internet access and the HuggingFace `kinetics-400` dataset is available. If not, the script will abort with a clear error or fallback to UCF.
-- **CUDA Error**: Ensure no GPU-specific code is executed. The script should run on CPU only.
+- **OOM Error**: Reduce `--num-clips` in the downsampler or increase batch size in `config.py`.
+- **CUDA Error**: The simulation is CPU-only. If you see CUDA errors, check that `torch` was installed with CPU support or that no GPU-specific code was inadvertently imported.
+- **Dataset Download Failed**: Ensure internet connection and HuggingFace token (if required).

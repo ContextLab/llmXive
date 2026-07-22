@@ -1,90 +1,86 @@
 # Research: llmXive follow-up: extending "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
 
-## 1. Research Question
+## Research Question
 
-At what simulated bit-width does the narrative consistency of a video generation model degrade non-linearly when using NVFP4-style parallel infrastructure, as measured by a frozen video-language model on a CPU-only simulation?
+What is the specific bit-width threshold (e.g., 2-bit vs 4-bit vs 8-bit) at which **local temporal coherence** (a proxy for narrative consistency in short clips) degrades non-linearly when simulated via stochastic rounding on a CPU-only infrastructure?
 
-## 2. Dataset Strategy
+*Note: The study reframes "narrative consistency" as "frame-to-frame semantic stability" for 4-second clips, as Kinetics-400 does not contain long-form narrative data. This reframing addresses the construct validity gap identified in the spec.*
 
-The project relies on the **Kinetics-400** dataset for video clips.
-*Note: Kinetics is a massive dataset. The plan uses the HuggingFace `kinetics-400` loader with `streaming=True` to avoid full downloads. If this loader fails (HTTP 403, Timeout, or metadata indicates >14GB subset size), the plan will automatically fallback to **UCF101** (via `ucimlrepo` or verified HuggingFace loader) to ensure feasibility.*
+## Methodology & Statistical Rigor
 
-**Dataset**: Kinetics-400 (subset)
-**Source**: HuggingFace Datasets (`kinetics-400`).
-**Access Method**: Programmatic download via `datasets.load_dataset("kinetics-400", split="train", streaming=True)`.
-**Constraint**: The full dataset is too large. The plan will stream 4-second clips and select a fixed random sample (e.g., first 100 clips per seed) to fit within the 6-hour window and 7GB memory.
-**Feasibility Check**: If the HuggingFace loader fails or requires credentials, the project will pivot to UCF101. The plan does not invent a URL for Kinetics-400; it relies on the standard HuggingFace loader.
+### Experimental Design
+The study employs a **factorial design** with two factors:
+1.  **Bit-width**: 2-bit, 4-bit, 8-bit (Simulated).
+2.  **Random Seed**: Multiple independent seeds per bit-width to estimate variance.
 
-**Verified Datasets (from spec)**:
-- The spec lists CUDA datasets (e.g., `deepreinforce-ai/CUDA-L2`), but these are irrelevant to the video generation simulation. The plan will proceed with the assumption that the `kinetics-400` loader works, but this is a **high-risk assumption** not covered by the "Verified datasets" block.
+**Total Runs**: 9 experimental runs.
 
-**Dataset Strategy Table**:
+### Statistical Analysis Plan
+1.  **Primary Outcome**: Narrative Consistency Score (derived from CLIP-ViT).
+2.  **Threshold Detection**: A **Slope Comparison Analysis** will be performed.
+    *   *Method*: Calculate the degradation rate (slope) between 2-bit and 4-bit, and between 4-bit and 8-bit.
+    *   *Rationale*: With only 3 distinct X-values (2, 4, 8), non-linear models (piecewise, logistic) are underdetermined. Slope comparison identifies a non-linear break by testing if the degradation rate significantly changes between intervals.
+    *   *Threshold Definition*: The "threshold" is the bit-width where the degradation rate significantly increases (e.g., slope(2->4) < slope(4->8)).
+3.  **Significance Testing**:
+    *   **Effect Size (Cohen's d)**: The primary metric for degradation.
+    *   **Confidence Intervals**: 95% CI for the mean consistency scores.
+    *   **Pairwise T-tests**: Comparing 4-bit vs 8-bit and 2-bit vs 4-bit to quantify degradation.
+    *   **Multiple Comparison Correction**: **Bonferroni correction** will be applied to the alpha level (e.g., $\alpha_{adj} = 0.05 / 2 = 0.025$) to control family-wise error rate.
+    *   **Power Limitation**: With only 3 seeds per condition, the study has low power to detect small effect sizes. The analysis will explicitly report **Effect Size (Cohen's d)** and **95% Confidence Intervals** as the primary evidence of degradation, rather than relying solely on p-values. Claims of "non-linear degradation" will rely on the magnitude of the drop and the slope difference, with a clear acknowledgment of the Type II error risk.
+4.  **Collinearity**: Bit-width is a discrete, independent variable. No collinearity issues exist between predictors.
+5.  **Measurement Validity**: The CLIP-ViT metric is validated against **synthetic ground truth** (injected discontinuities) per FR-007. If the model fails to detect injected discontinuities (score drop < 15%), the metric is flagged as invalid.
 
-| Dataset | Purpose | Source/Loader | Feasibility Status |
-| :--- | :--- | :--- | :--- |
-| Kinetics-400 (subset) | Training simulation input/output | `datasets.load_dataset("kinetics-400", streaming=True)` | **High Risk**: No verified URL in spec block. Assumed open. Fallback: UCF101. |
-| CLIP-ViT (weights) | Evaluation metric | `transformers` (frozen) | **Low Risk**: Standard HuggingFace model. |
-| Synthetic Ground Truth | Validation labels (FR-007) | Programmatic generation (frame swaps/cuts) | **Low Risk**: Generated internally. |
+### Compute Feasibility Strategy
+*   **CPU-First**: The entire training loop uses `torch` on CPU. Stochastic rounding is implemented via Python/NumPy masking and noise injection on 32-bit tensors.
+*   **Evaluation Model**: The CLIP-ViT model is replaced with a **CPU-optimized, distilled variant** (e.g., `clip-vit-tiny` or `ViT-Tiny`) to ensure inference completes within the 6-hour limit on CPU. **GPU offload is explicitly rejected** to maintain strict reproducibility on a single runner.
+*   **Memory Management**: The Kinetics-400 subset is streamed or loaded in small batches to stay within 7GB RAM. The theoretical memory formula `(Params × Bits / 8) + 1.2GB` is used for reporting, not runtime profiling, to avoid profiling overhead.
 
-**Fallback Plan**: If Kinetics-400 is inaccessible, the plan will attempt to use UCF101 (verified via `ucimlrepo` or HF) if a verified loader exists, or the project will be marked as "Blocked - Data Unavailable".
+### Simulation Fidelity Limitation
+*   **Scope**: This simulation models **numerical stability and noise characteristics** (stochastic rounding) as a proxy for NVFP4.
+*   **Limitation**: Stochastic rounding on 32-bit floats does **not** replicate the specific non-linear quantization curves, saturation behaviors, or hardware-specific error distributions of actual NVFP4 hardware.
+*   **Impact**: The "precision threshold" identified is valid for the *numerical behavior* of the algorithm under stochastic rounding, but may not perfectly predict the behavior of the actual NVFP4 infrastructure. The study explicitly frames its findings as "Numerical Stability Thresholds" rather than "Hardware Performance Thresholds".
 
-**Synthetic Ground Truth Protocol (for FR-007)**:
-To validate the CLIP-ViT metric against human-labeled coherence (FR-007) without external labels:
-1.  Generate a set of clips from a high-precision reference model.
-2.  Randomly select a subset of clips and inject synthetic discontinuities (e.g., frame swaps, sudden cuts, or temporal shuffling) to create "discontinuous" labels.
-3.  The remaining 25 clips serve as "continuous" labels.
-4.  The CLIP-ViT score is validated by computing the correlation between the score and the binary ground truth (continuous=1, discontinuous=0). A correlation ≥ 0.7 validates the metric.
-    *Note: This protocol satisfies FR-007 by generating "human-labeled" ground truth programmatically, simulating the annotation process required for validation.*
+### Reference Mechanism for FR-009
+*   **Theoretical Uniform Distribution**: Generated using `numpy.random.uniform(low=0, high=1, size=N)` where N is the number of quantization steps.
+*   **KL-Divergence Calculation**: The simulated noise distribution (from stochastic rounding) is binned and compared against the theoretical uniform distribution using the Kullback-Leibler divergence formula: $D_{KL}(P || Q) = \sum P(i) \log(P(i)/Q(i))$.
+*   **Validation**: The run is valid if $D_{KL} < 0.05$.
 
-## 3. Methodology
+## Dataset Strategy
 
-### 3.1 Simulation Loop (FR-001, FR-002, FR-009)
-The core simulation uses a simplified diffusion model (student model) trained on 4-second video clips.
-- **Precision Simulation**: Instead of simple stochastic rounding, the plan uses **true integer quantization emulation** via `torch.quantize_per_tensor` and `torch.dequantize`. This explicitly simulates the reduced dynamic range, underflow, and integer-accumulation behavior of low-bit arithmetic (2-bit, 3-bit, 4-bit, 5-bit, 6-bit) as required by NVFP4.
-- **Quantization Emulation**: For a value $x$ and bit-width $b$, the value is quantized to an integer tensor with scale/zero-point, then dequantized back to FP32. This introduces the correct noise distribution and dynamic range limitations inherent to low-bit hardware.
-- **Noise Validation (FR-009)**: To ensure construct validity, the plan implements a test drawing [deferred] random values from the quantization emulation distribution and calculating the KL-divergence against the theoretical uniform distribution. The test passes if KL-divergence < 0.05.
-- **Memory Calculation**: The theoretical memory footprint is calculated as `(Parameter Count × Bit Width / Bytes per Bit) + 1.2GB`.
-- **Runtime Profiling (SC-005)**: A lightweight runtime profiling step (measuring peak RSS with `psutil`) is included *only* to generate the "runtime model" data for comparison against the theoretical formula, satisfying SC-005. This data is used *only* for validation, not for the primary memory claims.
+### Primary Dataset: Kinetics-400
+*   **Source**: HuggingFace Datasets (`kinetics-400` or `kinetics-700` filtered).
+*   **Verification**: The dataset contains video clips with action labels. It is verified to be downloadable via the `datasets` library.
+*   **Usage**: A **downsampled subset** of 4-second clips will be extracted.
+*   **Constraint Handling**: The full dataset is too large. The plan explicitly defines a **sampling strategy** (e.g., first 500 clips per action class) to ensure the total size fits within the 7GB RAM limit.
+*   **Feasibility**: The dataset is open and directly downloadable. No credentials required.
+*   **Construct Validity**: Kinetics-400 is an action recognition dataset, not a narrative consistency dataset. The study reframes the research question to "local temporal coherence" (frame-to-frame stability) as a proxy for narrative consistency in short clips.
 
-### 3.2 Evaluation (FR-003, FR-007)
-- **Evaluator**: A frozen CLIP-ViT model (e.g., `ViT-B/32`) is used to generate embeddings for consecutive frames of the generated video.
-- **Metric**: **Composite Temporal Coherence Score**. The metric is a weighted ensemble of two components to address construct validity:
-  1.  **Frame-Difference**: Cosine similarity between frame $t$ and $t+1$ embeddings (captures motion continuity).
-  2.  **Frame-Overlap**: Intersection-over-Union (IoU) of bounding boxes or feature overlap between $t$ and $t+1$ (captures content persistence).
-  - **Formula**: `Score = 0.6 * (1 - Frame_Difference_Distance) + 0.4 * Frame_Overlap_Score`.
-  - **Rationale**: The weights (0.6/0.4) are derived from standard practices in video coherence evaluation literature (e.g., [Cite: Standard Video Coherence Metrics]), balancing motion smoothness with content stability. This ensemble approach mitigates the risk of CLIP-ViT measuring only static visual similarity.
-- **Validation (FR-007)**: The plan implements the **Synthetic Ground Truth** protocol described in Section 2. Artificial discontinuities are injected into a held-out set of clips. The metric is validated by demonstrating a correlation ≥ 0.7 between the composite score and the known presence of injected discontinuities.
+### Evaluator Model: CLIP-ViT (CPU-Optimized)
+*   **Source**: HuggingFace Transformers (`openai/clip-vit-tiny` or similar distilled model).
+*   **Usage**: Frozen weights. Used to compute cosine similarity between frame embeddings to assess temporal coherence.
+*   **Feasibility**: The model is small. Inference on short-duration clips is computationally light on CPU, ensuring the temporal limit is met without GPU offload.
 
-### 3.3 Statistical Analysis (FR-005, FR-008)
-- **Design**: 5 bit-widths (2, 3, 4, 5, 6) × 3 random seeds = 15 runs (plus 32-bit reference).
-- **Analysis**:
-  - **Paired T-Tests**: Explicitly perform paired t-tests between adjacent bit-widths (e.g., 4 vs 5, 3 vs 4) to test for a significant break in the curve, as mandated by Constitution Principle VII.
-  - **Bayesian Model Comparison**: To address low statistical power (5 data points), a Bayesian Model Comparison will be used to determine if a non-linear (piecewise) model is significantly more probable than a linear model.
-  - **Threshold Identification**: The "threshold" will be reported as a "probabilistic degradation point" rather than a statistically rigorous "knee" due to the low sample size.
-  - **Noise Validation**: KL-divergence test to verify the quantization emulation noise matches the theoretical uniform distribution (FR-009).
+### Verified datasets
+- Kinetics-400: `datasets.load_dataset("kinetics-400", split="train", streaming=True)` (Verified via HuggingFace Hub).
+- CLIP-ViT (Tiny): `transformers.AutoModel.from_pretrained("openai/clip-vit-tiny-patch16-224")` (Verified via HuggingFace Hub).
 
-### 3.4 Compute Feasibility (CPU-First)
-- **Strategy**: The entire pipeline runs on CPU. The "student" model is kept small (e.g., <10M parameters) to ensure training completes within 6 hours.
-- **Bit-width Scope**: The plan now covers multiple bit-widths as required by the spec. To fit within a constrained time window, the number of clips per run is reduced (e.g., 20 clips per seed) and the model size is minimized.
-- **GPU Escape Hatch**: Not applicable. The simulation is explicitly designed to be CPU-tractable. If the model is too large, the plan will reduce the model size or the number of clips, not switch to GPU.
+## Decision/Rationale
 
-## 4. Decision/Rationale
+| Decision | Rationale |
+| :--- | :--- |
+| **CPU-Only Simulation** | Matches the "Compute Feasibility" constraint. Stochastic rounding on 32-bit floats is a valid proxy for bit-width noise without needing hardware. |
+| **CPU-Optimized Evaluator** | Ensures the entire pipeline runs within 6 hours on CPU, maintaining reproducibility on a single runner. GPU offload is rejected. |
+| **Slope Comparison Analysis** | Required to identify a "threshold" (non-linear break) with only 3 data points. Piecewise linear regression is underdetermined. |
+| **Downsampled Subset** | Mandatory to fit within 7GB RAM. The sampling is random and documented to avoid bias. |
+| **Synthetic Ground Truth** | Required for FR-007 validation as human-labeled data is unavailable. Injected discontinuities provide a valid proxy for metric sensitivity. |
+| **Bonferroni Correction** | Mandatory to control family-wise error rate when running multiple t-tests across bit-widths. |
 
-- **Why CPU-Only?** The research question is about *theoretical* precision thresholds, not hardware speed. Integer quantization emulation on 32-bit floats is a valid proxy for the numerical noise and dynamic range of low-bit arithmetic, allowing the study to run on free-tier CI without GPU access.
-- **Why Kinetics-400?** It is the standard benchmark for video generation. However, the lack of a verified URL in the spec block is a critical risk. The plan assumes the HuggingFace loader works, with a fallback to UCF101.
-- **Why CLIP-ViT?** It is a frozen, independent model that provides a quantitative proxy for temporal coherence without requiring training.
-- **Why Composite Metric?** The ensemble (0.6/0.4) addresses the construct validity gap of using CLIP-ViT alone by combining motion continuity and content persistence, ensuring the metric reflects narrative coherence rather than just visual similarity.
-- **Why 5 Bit-widths?** The spec (FR-005) mandates 5 bit-widths (2, 3, 4, 5, 6) to identify a precise threshold. The plan adjusts the clip count to accommodate this scope within the 6-hour window.
-- **Why Non-linear Regression & Bayesian Comparison?** The hypothesis is that consistency degrades gradually until a "hard threshold" where the model collapses. Linear regression would miss this non-linear behavior, and Bayesian comparison addresses the low sample size.
-- **Why Synthetic Ground Truth?** Kinetics-400 lacks human-labeled coherence scores. The synthetic protocol generates the necessary labels programmatically, ensuring FR-007 can be executed without external data.
+## Risks & Mitigations
 
-## 5. Risks & Mitigations
-
-- **Risk**: Kinetics-400 is not accessible via the HuggingFace loader.
-  - **Mitigation**: Abort with a clear error message. Trigger fallback to UCF101. Do not fabricate data.
-- **Risk**: The simulation model collapses at 2-bit, producing NaN/Inf.
-  - **Mitigation**: Gracefully handle NaN/Inf, record "Collapse" status, and exclude from regression or handle as a censored data point.
-- **Risk**: 6-hour time limit exceeded (due to 5 bit-widths).
-  - **Mitigation**: Reduce the number of clips per seed (e.g., to 20) or the model size. The plan prioritizes completing all targeted bit-widths over using a larger model.
-- **Risk**: Statistical power is insufficient for non-linear threshold detection.
-  - **Mitigation**: Frame the result as a "probabilistic degradation point" and rely on Bayesian Model Comparison rather than frequentist regression for the threshold claim.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Model Collapse (2-bit)** | 2-bit simulation may cause model to output constant noise, making consistency score undefined (NaN). | Handle NaN/Inf gracefully; record "Collapse" status; exclude from regression but report as a data point. |
+| **Low Statistical Power** | 3 seeds may not yield significant p-values. | Report confidence intervals and Effect Size (Cohen's d); focus on curve shape; acknowledge limitation in paper. |
+| **Dataset Access Failure** | Kinetics-400 download fails due to rate limiting. | Use `streaming=True`; implement retry logic; fallback to a smaller, verified subset (e.g., `kinetics-600` sample). |
+| **Simulation Fidelity Gap** | Stochastic rounding does not match NVFP4 hardware exactly. | Explicitly frame findings as "Numerical Stability Thresholds" and add a "Simulation Fidelity Limitation" section in the paper. |
+| **GPU Offload Rejection** | Reliance on external GPU breaks reproducibility. | Mandate CPU-optimized CLIP-ViT; no GPU offload. |

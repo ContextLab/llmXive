@@ -88,7 +88,7 @@ A researcher can aggregate results from multiple training runs across different 
 - **SC-001**: The memory usage of the training loop is measured against the 7GB runner memory limit of the GitHub Actions free-tier runner to ensure feasibility (See FR-001, FR-004).
 - **SC-002**: The narrative consistency score is measured against a baseline score obtained from a specific reference run (32-bit precision, 4-second clips, seed=42) to quantify the degradation caused by bit-width reduction (See FR-003, FR-005).
 - **SC-003**: The statistical significance of the precision-consistency relationship is measured against a standard p-value threshold using non-linear regression across multiple seeds (See FR-005, FR-008).
-- **SC-004**: The total execution time of the full experimental suite (all bit-widths and seeds) is measured against the 6-hour job limit of the CI runner (See FR-004).
+- **SC-004**: The total execution time of the full experimental suite (all bit-widths and seeds) is measured against the job limit of the CI runner. (See FR-004).
 - **SC-005**: The simulation accuracy is measured by comparing the calculated theoretical memory footprint (using the formula in FR-006) against the Python runtime overhead model, with a tolerance of ≤ 15% variance (See FR-006).
 
 ## Assumptions

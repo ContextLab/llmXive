@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Experiment Run Schema
+description: Schema for a single experimental run configuration and metadata.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run (e.g., run_2bit_seed1)"
+  bit_width:
+    type: integer
+    description: "Simulated bit-width (2, 4, or 8)"
+    enum:
+      - 2
+      - 4
+      - 8
+  seed:
+    type: integer
+    description: "Random seed for reproducibility"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO8601 timestamp of the run start"
+  status:
+    type: string
+    description: "Status of the run"
+    enum:
+      - completed
+      - collapsed
+      - timeout
+      - error
+  theoretical_memory_gb:
+    type: number
+    minimum: 0
+    description: "Calculated memory footprint: (Params × Bits / 8) + 1.2GB"
+required:
+  - run_id
+  - bit_width
+  - seed
+  - timestamp
+  - status
+  - theoretical_memory_gb
+additionalProperties: false

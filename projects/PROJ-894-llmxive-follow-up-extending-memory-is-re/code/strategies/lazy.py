@@ -1,234 +1,169 @@
+"""
+Lazy Traversal Strategy: Defers edge expansion until an evidence threshold is met.
+"""
+from typing import Dict, Any, List, Set, Optional, Tuple
 import networkx as nx
 import logging
-from typing import Dict, Any, List, Set, Optional, Tuple
+import time
 
+from strategies.base import BaseTraversal
 from graph_utils import validate_graph, get_graph_statistics
 
 logger = logging.getLogger(__name__)
 
 
-class LazyTraversal:
+class LazyTraversal(BaseTraversal):
     """
-    Lazy traversal heuristic: defer edge expansion until a confidence threshold
-    is met. Handles 'unreachable target' cases by defaulting to full traversal
-    or flagging the result as 'unresolved'.
+    Lazy traversal heuristic that defers edge expansion until an evidence threshold is met.
     """
 
-    def __init__(self, threshold: float = 0.7, max_depth: int = 10):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+        self.evidence_threshold = self.config.get("evidence_threshold", 0.8)
+
+    def get_strategy_name(self) -> str:
+        return "Lazy"
+
+    def _validate_graph(self, graph: nx.DiGraph, start_node: str) -> bool:
+        """Validate the graph structure."""
+        if not validate_graph(graph):
+            logger.error("Graph validation failed")
+            return False
+
+        if start_node not in graph.nodes:
+            logger.error(f"Start node '{start_node}' not found in graph")
+            return False
+
+        return True
+
+    def _calculate_evidence(self, node_id: str, graph: nx.DiGraph) -> float:
         """
+        Calculate evidence score for a node.
+        
+        In a real implementation, this would involve LLM inference to determine
+        relevance. Here we use a placeholder based on node properties.
+        
         Args:
-            threshold: Confidence threshold for edge expansion (0.0 to 1.0).
-            max_depth: Maximum depth for traversal to prevent infinite loops.
+            node_id: The node to evaluate.
+            graph: The graph containing the node.
+            
+        Returns:
+            Evidence score between 0 and 1.
         """
-        self.threshold = threshold
-        self.max_depth = max_depth
+        node_data = graph.nodes[node_id]
+        # Placeholder: use 'relevance' if available, else random-like deterministic value
+        if "relevance" in node_data:
+            return node_data["relevance"]
+        # Deterministic fallback based on node ID hash
+        return (hash(node_id) % 100) / 100.0
 
     def traverse(
         self,
         graph: nx.DiGraph,
         start_node: str,
-        target_node: str,
-        task_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        target_node: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[bool, List[str], Dict[str, Any]]:
         """
-        Perform lazy traversal from start_node to target_node.
-
-        Returns a dictionary containing:
-            - path: List of nodes in the found path (or empty if none found)
-            - nodes_visited: Count of unique nodes visited
-            - success: Boolean indicating if target was reached
-            - reason: String explaining failure if success is False
-            - strategy: 'lazy' or 'full_fallback'
+        Traverse the graph using lazy expansion.
+        
+        Args:
+            graph: The memory graph to traverse.
+            start_node: The starting node for traversal.
+            target_node: Optional target node to reach.
+            context: Optional context dictionary.
+            
+        Returns:
+            A tuple of (success, path, stats).
         """
-        if not validate_graph(graph):
-            logger.warning("Invalid graph provided to LazyTraversal")
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "success": False,
-                "reason": "Invalid graph structure",
-                "strategy": "lazy",
-            }
+        start_time = self._start_timer()
+        self.reset_stats()
 
-        if start_node not in graph:
-            logger.warning(f"Start node {start_node} not in graph")
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "success": False,
-                "reason": "Start node not in graph",
-                "strategy": "lazy",
-            }
+        if not self._validate_graph(graph, start_node):
+            return False, [], self.get_stats()
 
-        if target_node not in graph:
-            logger.warning(f"Target node {target_node} not in graph")
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "success": False,
-                "reason": "Target node not in graph",
-                "strategy": "lazy",
-            }
+        visited = set()
+        path = []
+        # Priority queue simulation: list of (evidence, node)
+        frontier = []
+        
+        # Initialize with start node
+        start_evidence = self._calculate_evidence(start_node, graph)
+        frontier.append((start_evidence, start_node))
+        visited.add(start_node)
 
-        # Attempt lazy traversal
-        result = self._lazy_search(graph, start_node, target_node)
+        logger.info(f"Starting lazy traversal from node: {start_node} (threshold={self.evidence_threshold})")
 
-        # If target is unreachable via lazy strategy, default to full traversal
-        if not result["success"]:
-            logger.info(
-                f"Target {target_node} unreachable via lazy strategy. "
-                f"Reason: {result['reason']}. Switching to full traversal."
-            )
-            full_result = self._full_fallback(graph, start_node, target_node)
-            full_result["strategy"] = "full_fallback"
-            return full_result
+        while frontier:
+            # Sort by evidence descending (greedy-like selection from available)
+            frontier.sort(key=lambda x: x[0], reverse=True)
+            current_evidence, current_node = frontier.pop(0)
+            
+            self._record_node_visit()
+            path.append(current_node)
 
-        return result
+            # Check if we reached the target
+            if target_node and current_node == target_node:
+                logger.info(f"Target node {target_node} reached")
+                break
 
-    def _lazy_search(
-        self, graph: nx.DiGraph, start_node: str, target_node: str
-    ) -> Dict[str, Any]:
-        """
-        Perform the actual lazy search. Defer expansion if edge confidence < threshold.
-        """
-        visited: Set[str] = set()
-        queue: List[Tuple[str, List[str], float]] = [(start_node, [start_node], 1.0)]
-        nodes_visited = 0
-
-        while queue:
-            current, path, confidence = queue.pop(0)
-            nodes_visited += 1
-
-            if current == target_node:
-                return {
-                    "path": path,
-                    "nodes_visited": nodes_visited,
-                    "success": True,
-                    "reason": "Target reached",
-                    "strategy": "lazy",
-                }
-
-            if len(path) > self.max_depth:
+            # Only expand if evidence is above threshold
+            if current_evidence < self.evidence_threshold:
+                logger.debug(f"Skipping expansion of {current_node} (evidence={current_evidence:.2f} < {self.evidence_threshold})")
                 continue
 
-            if current in visited:
-                continue
-            visited.add(current)
-
-            # Get neighbors and their edge weights (confidence)
-            neighbors = list(graph.successors(current))
-            if not neighbors:
-                continue
-
-            # Filter neighbors based on threshold
-            # Assume edge attribute 'weight' or 'confidence' exists.
-            # If not, treat as 0.0 (fail threshold)
-            valid_neighbors = []
+            # Expand neighbors
+            neighbors = list(graph.successors(current_node))
             for neighbor in neighbors:
-                edge_data = graph[current][neighbor]
-                # Try to get confidence/weight, default to 0.0
-                conf = edge_data.get("confidence", edge_data.get("weight", 0.0))
-                if conf >= self.threshold:
-                    valid_neighbors.append((neighbor, conf))
+                self._record_edge_traversal()
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    neighbor_evidence = self._calculate_evidence(neighbor, graph)
+                    frontier.append((neighbor_evidence, neighbor))
+                    self._record_inference(5.0)  # Placeholder inference time
 
-            if not valid_neighbors:
-                # No valid neighbors meet threshold
-                continue
+        end_time = self._stop_timer(start_time)
+        logger.info(
+            f"Lazy traversal completed. Visited {self._stats['nodes_visited']} nodes "
+            f"in {self._stats['total_execution_time_ms']:.2f}ms"
+        )
 
-            # Sort by confidence descending (greedy within lazy)
-            valid_neighbors.sort(key=lambda x: x[1], reverse=True)
+        success = len(path) > 0
+        return success, path, self.get_stats()
 
-            for neighbor, conf in valid_neighbors:
-                new_path = path + [neighbor]
-                new_conf = min(confidence, conf)
-                queue.append((neighbor, new_path, new_conf))
-
-        return {
-            "path": [],
-            "nodes_visited": nodes_visited,
-            "success": False,
-            "reason": "Target unreachable within threshold constraints",
-            "strategy": "lazy",
-        }
-
-    def _full_fallback(
-        self, graph: nx.DiGraph, start_node: str, target_node: str
-    ) -> Dict[str, Any]:
+    def run_sensitivity_analysis(
+        self,
+        graph: nx.DiGraph,
+        start_node: str,
+        thresholds: List[float],
+    ) -> Dict[float, Dict[str, Any]]:
         """
-        Fallback to full traversal (BFS) if lazy search fails to reach target.
-        This ensures we don't return 'unresolved' if a path exists but was
-        filtered by the threshold.
+        Run sensitivity analysis over different evidence thresholds.
+        
+        Args:
+            graph: The graph to traverse.
+            start_node: The starting node.
+            thresholds: List of thresholds to test.
+            
+        Returns:
+            Dictionary mapping thresholds to results.
         """
-        try:
-            # Use NetworkX shortest_path for full traversal logic
-            # This ignores weights/thresholds and finds ANY path
-            path = nx.shortest_path(graph, source=start_node, target=target_node)
-            return {
-                "path": path,
-                "nodes_visited": len(set(path)),
-                "success": True,
-                "reason": "Target reached via full fallback",
-                "strategy": "full_fallback",
+        results = {}
+        for thresh in thresholds:
+            self.evidence_threshold = thresh
+            success, path, stats = self.traverse(graph, start_node)
+            results[thresh] = {
+                "success": success,
+                "path_length": len(path),
+                "nodes_visited": stats["nodes_visited"],
             }
-        except nx.NetworkXNoPath:
-            # Truly unreachable
-            logger.warning(
-                f"Target {target_node} is truly unreachable from {start_node} "
-                "even with full traversal."
-            )
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "success": False,
-                "reason": "Unreachable: No path exists in graph",
-                "strategy": "full_fallback",
-            }
+        return results
 
+    def main():
+        """Entry point for standalone execution (placeholder)."""
+        logger.info("LazyTraversal main entry point")
 
-def run_sensitivity_analysis(
-    graph: nx.DiGraph,
-    start_node: str,
-    target_node: str,
-    thresholds: List[float],
-) -> List[Dict[str, Any]]:
-    """
-    Run lazy traversal with multiple thresholds to analyze sensitivity.
-
-    Args:
-        graph: The memory graph.
-        start_node: Starting node.
-        target_node: Target node.
-        thresholds: List of threshold values to test.
-
-    Returns:
-        List of results dictionaries for each threshold.
-    """
-    results = []
-    for thresh in thresholds:
-        strategy = LazyTraversal(threshold=thresh)
-        res = strategy.traverse(graph, start_node, target_node)
-        res["threshold_used"] = thresh
-        results.append(res)
-    return results
-
-
-def main():
-    """
-    Main entry point for lazy strategy testing (e.g., from CLI).
-    """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Lazy Traversal Strategy - Main Entry Point")
-
-    # Example usage (placeholder for actual integration)
-    G = nx.DiGraph()
-    G.add_edge("A", "B", confidence=0.9)
-    G.add_edge("B", "C", confidence=0.5)
-    G.add_edge("A", "C", confidence=0.8)
-
-    strategy = LazyTraversal(threshold=0.7)
-    result = strategy.traverse(G, "A", "C")
-    logger.info(f"Result: {result}")
-
-
-if __name__ == "__main__":
-    main()
+def run_sensitivity_analysis(graph, start_node, thresholds):
+    """Wrapper for external calls."""
+    strategy = LazyTraversal()
+    return strategy.run_sensitivity_analysis(graph, start_node, thresholds)

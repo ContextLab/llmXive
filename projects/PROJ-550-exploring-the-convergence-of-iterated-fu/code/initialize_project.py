@@ -5,23 +5,12 @@ from pathlib import Path
 def main():
     """
     Initialize the project directory structure for PROJ-550.
-    Creates the required directories under the project root.
+    Creates the required folder hierarchy under projects/PROJ-550-exploring-the-convergence-of-iterated-fu/.
     """
-    # Define the project root relative to this file's location (code/)
-    # Assuming the script is run from the project root or code/ directory.
-    # We use the parent of this file's directory as the base if run from code/,
-    # but the task implies a specific project path.
-    # To be robust, we create the structure relative to the current working directory
-    # or the script's parent if we assume standard project layout.
+    project_root = Path("projects/PROJ-550-exploring-the-convergence-of-iterated-fu")
     
-    # Based on the task: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/...
-    # We will create this relative to the current working directory.
-    
-    project_root = Path.cwd()
-    project_name = "PROJ-550-exploring-the-convergence-of-iterated-fu"
-    base_path = project_root / "projects" / project_name
-    
-    dirs = [
+    # Define the subdirectories to create based on task T001 requirements
+    subdirs = [
         "code",
         "data/raw",
         "data/derived",
@@ -30,19 +19,19 @@ def main():
         "docs"
     ]
     
-    print(f"Creating project structure at: {base_path}")
+    # Create directories
+    for subdir in subdirs:
+        dir_path = project_root / subdir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
     
-    created_count = 0
-    for dir_name in dirs:
-        target_dir = base_path / dir_name
-        if not target_dir.exists():
-            target_dir.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {target_dir}")
-            created_count += 1
-        else:
-            print(f"  Exists:  {target_dir}")
+    # Create placeholder files to ensure directories are not empty and ready for use
+    # This helps in immediate verification and prevents issues with empty directory handling in some tools
+    (project_root / "README.md").touch(exist_ok=True)
+    (project_root / "data" / ".gitkeep").touch(exist_ok=True)
+    (project_root / "tests" / ".gitkeep").touch(exist_ok=True)
     
-    print(f"Project structure initialization complete. Created {created_count} new directories.")
+    print(f"Project structure initialized at: {project_root}")
     return 0
 
 if __name__ == "__main__":

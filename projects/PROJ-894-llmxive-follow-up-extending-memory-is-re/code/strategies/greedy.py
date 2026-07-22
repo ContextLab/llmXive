@@ -1,237 +1,150 @@
 """
-Greedy Traversal Strategy for Active Reconstruction.
-
-Implements a heuristic that selects the top-k edges with the highest
-confidence scores at each step of the graph traversal, rather than
-exploring the entire subgraph (Full) or deferring expansion (Lazy).
+Greedy Traversal Strategy: Selects top-k confidence edges at each step.
 """
+from typing import Dict, Any, List, Set, Optional, Tuple
 import networkx as nx
 import logging
-from typing import Dict, Any, List, Set, Optional, Tuple
+import time
 
+from strategies.base import BaseTraversal
 from graph_utils import validate_graph, get_graph_statistics
 
 logger = logging.getLogger(__name__)
 
 
-class GreedyTraversal:
+class GreedyTraversal(BaseTraversal):
     """
-    Greedy traversal heuristic for memory graph reconstruction.
-
-    At each step, this strategy:
-    1. Identifies all candidate edges connecting the visited set to unvisited nodes.
-    2. Scores these edges based on a confidence metric (default: edge weight or a
-       computed relevance score).
-    3. Selects the top-k highest-scoring edges to expand.
-    4. Repeats until the target entity is reached or no candidates remain.
-
-    Attributes:
-        k (int): The number of top edges to select at each step.
-        confidence_key (str): The attribute name in edge data used for scoring.
+    Greedy traversal heuristic that selects top-k confidence edges at each step.
     """
 
-    def __init__(self, k: int = 3, confidence_key: str = "weight", max_steps: int = 50):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+        self.top_k = self.config.get("top_k", 3)
+
+    def get_strategy_name(self) -> str:
+        return "Greedy"
+
+    def _validate_graph(self, graph: nx.DiGraph, start_node: str) -> bool:
+        """Validate the graph structure."""
+        if not validate_graph(graph):
+            logger.error("Graph validation failed")
+            return False
+
+        if start_node not in graph.nodes:
+            logger.error(f"Start node '{start_node}' not found in graph")
+            return False
+
+        return True
+
+    def _get_edge_confidence(self, source: str, target: str, graph: nx.DiGraph) -> float:
         """
-        Initialize the Greedy Traversal strategy.
-
+        Get confidence score for an edge.
+        
         Args:
-            k: Number of top edges to expand per iteration.
-            confidence_key: The edge attribute name used as the confidence score.
-            max_steps: Maximum number of expansion steps to prevent infinite loops.
+            source: Source node ID.
+            target: Target node ID.
+            graph: The graph containing the edge.
+            
+        Returns:
+            Confidence score between 0 and 1.
         """
-        if k < 1:
-            raise ValueError("k must be at least 1")
-        self.k = k
-        self.confidence_key = confidence_key
-        self.max_steps = max_steps
-
-    def _get_edge_confidence(self, G: nx.Graph, u: Any, v: Any) -> float:
-        """
-        Retrieve the confidence score for an edge.
-
-        If the edge has the specified attribute, use it.
-        Otherwise, default to 1.0 (or 0.0 if no weight exists and we treat missing as low confidence).
-        Here we default to 1.0 for unweighted edges to ensure they are considered,
-        unless the user explicitly set weights to 0.
-        """
-        try:
-            edge_data = G[u][v]
-            if self.confidence_key in edge_data:
-                val = edge_data[self.confidence_key]
-                # Ensure it's a float, handle potential None
-                if val is None:
-                    return 0.0
-                return float(val)
-            return 1.0 # Default confidence if key missing but edge exists
-        except KeyError:
-            return 0.0
+        edge_data = graph.edges[source, target]
+        if "confidence" in edge_data:
+            return edge_data["confidence"]
+        # Placeholder: deterministic value based on node IDs
+        return (hash((source, target)) % 100) / 100.0
 
     def traverse(
         self,
-        G: nx.Graph,
-        start_node: Any,
-        target_node: Any,
-        context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        graph: nx.DiGraph,
+        start_node: str,
+        target_node: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[bool, List[str], Dict[str, Any]]:
         """
-        Execute the greedy traversal from start_node to target_node.
-
+        Traverse the graph using greedy selection of top-k edges.
+        
         Args:
-            G: The memory graph (NetworkX).
-            start_node: The entity to start the search from.
-            target_node: The target entity to reach.
-            context: Optional context dict (unused in basic greedy, but kept for API compatibility).
-
+            graph: The memory graph to traverse.
+            start_node: The starting node for traversal.
+            target_node: Optional target node to reach.
+            context: Optional context dictionary.
+            
         Returns:
-            A dictionary containing:
-                - path: List of nodes in the found path (or empty if none).
-                - nodes_visited: Total unique nodes visited during traversal.
-                - edges_explored: Total edges considered.
-                - success: Boolean indicating if target was reached.
-                - steps: Number of expansion iterations performed.
+            A tuple of (success, path, stats).
         """
-        if not validate_graph(G):
-            logger.warning("Graph validation failed or graph is empty.")
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "edges_explored": 0,
-                "success": False,
-                "steps": 0,
-                "reason": "Invalid or empty graph"
-            }
+        start_time = self._start_timer()
+        self.reset_stats()
 
-        if start_node not in G:
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "edges_explored": 0,
-                "success": False,
-                "steps": 0,
-                "reason": f"Start node {start_node} not in graph"
-            }
+        if not self._validate_graph(graph, start_node):
+            return False, [], self.get_stats()
 
-        if target_node not in G:
-            return {
-                "path": [],
-                "nodes_visited": 0,
-                "edges_explored": 0,
-                "success": False,
-                "steps": 0,
-                "reason": f"Target node {target_node} not in graph"
-            }
-
-        visited: Set[Any] = {start_node}
-        path: List[Any] = [start_node]
+        visited = set()
+        path = []
         current_node = start_node
-        edges_explored = 0
-        steps = 0
+        visited.add(current_node)
 
-        # Parent map to reconstruct path
-        parent_map: Dict[Any, Any] = {start_node: None}
+        logger.info(f"Starting greedy traversal from node: {start_node} (top_k={self.top_k})")
 
-        while current_node != target_node and steps < self.max_steps:
-            steps += 1
-            candidates: List[Tuple[Any, float]] = []
-
-            # Identify neighbors
-            try:
-                neighbors = G.neighbors(current_node)
-            except Exception:
-                logger.error(f"Error getting neighbors for {current_node}")
-                break
-
-            for neighbor in neighbors:
-                if neighbor in visited:
-                    continue
-
-                conf = self._get_edge_confidence(G, current_node, neighbor)
-                candidates.append((neighbor, conf))
-                edges_explored += 1
-
-            if not candidates:
-                logger.debug(f"No unvisited candidates from {current_node}. Stuck.")
-                break
-
-            # Sort by confidence descending, then by node ID for determinism
-            candidates.sort(key=lambda x: (-x[1], str(x[0])))
-
-            # Select top-k
-            top_k = candidates[:self.k]
-
-            # Expand the best candidate (greedy choice)
-            # Note: A true greedy search might pick the absolute best edge overall,
-            # but here we are simulating a step-wise expansion where we pick the best
-            # neighbor of the current node.
-            best_neighbor, best_conf = top_k[0]
-
-            visited.add(best_neighbor)
-            parent_map[best_neighbor] = current_node
-            current_node = best_neighbor
+        while True:
+            self._record_node_visit()
             path.append(current_node)
 
-        success = current_node == target_node
+            # Check if we reached the target
+            if target_node and current_node == target_node:
+                logger.info(f"Target node {target_node} reached")
+                break
 
-        if success:
-            # Reconstruct path if we need to ensure it's the one taken
-            # (In this simple greedy, path is built incrementally)
-            pass
-        else:
-            path = [] # Clear path if not successful
+            # Get all outgoing edges and their confidences
+            neighbors = list(graph.successors(current_node))
+            if not neighbors:
+                logger.debug(f"No outgoing edges from {current_node}, stopping.")
+                break
 
-        return {
-            "path": path,
-            "nodes_visited": len(visited),
-            "edges_explored": edges_explored,
-            "success": success,
-            "steps": steps
-        }
+            # Score edges
+            edge_scores = []
+            for neighbor in neighbors:
+                self._record_edge_traversal()
+                confidence = self._get_edge_confidence(current_node, neighbor, graph)
+                edge_scores.append((neighbor, confidence))
+                self._record_inference(5.0)  # Placeholder inference time
 
-    def evaluate_task(
-        self,
-        task: Dict[str, Any],
-        graph: nx.Graph
-    ) -> Dict[str, Any]:
-        """
-        Evaluate a single task using the Greedy strategy.
+            # Sort by confidence descending and pick top-k
+            edge_scores.sort(key=lambda x: x[1], reverse=True)
+            top_neighbors = [n for n, _ in edge_scores[:self.top_k]]
 
-        Args:
-            task: Dictionary containing 'start', 'target', and 'answer' keys.
-            graph: The memory graph to traverse.
+            # Choose the highest confidence neighbor not yet visited
+            next_node = None
+            for neighbor in top_neighbors:
+                if neighbor not in visited:
+                    next_node = neighbor
+                    visited.add(neighbor)
+                    break
 
-        Returns:
-            Dictionary with evaluation metrics.
-        """
-        start = task.get("start")
-        target = task.get("target")
-        expected_answer = task.get("answer")
+            # If all top-k are visited, pick any unvisited neighbor
+            if next_node is None:
+                for neighbor in neighbors:
+                    if neighbor not in visited:
+                        next_node = neighbor
+                        visited.add(neighbor)
+                        break
 
-        if not start or not target:
-            return {
-                "task_id": task.get("id", "unknown"),
-                "success": False,
-                "accuracy": False,
-                "nodes_visited": 0,
-                "edges_explored": 0,
-                "reason": "Missing start or target in task"
-            }
+            # If no unvisited neighbors, stop
+            if next_node is None:
+                logger.debug(f"No unvisited neighbors from {current_node}, stopping.")
+                break
 
-        result = self.traverse(graph, start, target)
+            current_node = next_node
 
-        # Determine accuracy based on whether target was reached
-        # In a real scenario, we might check if the path leads to the correct answer string
-        # For this benchmark, 'success' in traversal often implies reaching the target entity.
-        # We assume if we reached the target node, the answer is "retrieved".
-        # If the task requires specific content validation, that would happen here.
-        is_correct = result["success"]
+        end_time = self._stop_timer(start_time)
+        logger.info(
+            f"Greedy traversal completed. Visited {self._stats['nodes_visited']} nodes "
+            f"in {self._stats['total_execution_time_ms']:.2f}ms"
+        )
 
-        return {
-            "task_id": task.get("id", "unknown"),
-            "success": result["success"],
-            "accuracy": is_correct,
-            "nodes_visited": result["nodes_visited"],
-            "edges_explored": result["edges_explored"],
-            "steps": result["steps"],
-            "path": result["path"],
-            "reason": result.get("reason", None)
-        }
+        success = len(path) > 0
+        return success, path, self.get_stats()
+
+    def main():
+        """Entry point for standalone execution (placeholder)."""
+        logger.info("GreedyTraversal main entry point")

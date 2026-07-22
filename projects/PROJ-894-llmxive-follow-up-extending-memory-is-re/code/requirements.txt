@@ -1,4 +1,3 @@
-# Core dependencies
 pandas
 numpy
 scipy
@@ -12,10 +11,6 @@ huggingface_hub
 pytest
 spacy
 statsmodels
-
-# Additional dependencies for report generation (T026)
 jinja2
-
-# Testing
-pytest
-pytest-cov
+cProfile
+pstats

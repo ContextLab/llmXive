@@ -1,39 +1,50 @@
 # Implementation Plan: llmXive follow-up: extending "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
 
 **Branch**: `001-llmxive-precision-threshold` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-precision-threshold/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-precision-threshold/spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-precision-threshold/spec.md`
 
 ## Summary
 
-This project implements a CPU-only simulation loop to model the effects of NVFP4 (and lower) precision on video generation models. The approach uses **true integer quantization emulation** (`torch.quantize_per_tensor`) on standard 32-bit floats to simulate the *reduced dynamic range, underflow, and integer-accumulation behavior* of low-bit arithmetic (2-bit, 3-bit, 4-bit, 5-bit, and 6-bit). The system evaluates generated video clips using a frozen CLIP-ViT model to measure temporal coherence, aggregating results across the mandated A set of bit-widths spanning the range from 2 to 6 and seeds to identify the non-linear degradation threshold where narrative consistency collapses. The simulation explicitly emulates hardware-level quantization effects, acknowledging it as a proxy for hardware behavior rather than an exact replica.
+This project implements a CPU-tractable simulation of NVFP4 (and lower) precision training for video generation, specifically targeting the identification of a "precision threshold" where narrative consistency degrades non-linearly. The approach utilizes a downsampled Kinetics-400 subset, a student diffusion model with stochastic rounding emulation on standard 32-bit floats, and a frozen, CPU-optimized CLIP-ViT evaluator for temporal coherence scoring. The entire pipeline is designed to run within GitHub Actions free-tier constraints (limited CPU, 7GB RAM, 6h), avoiding GPU requirements for the simulation loop and evaluation to ensure strict reproducibility.
 
 ## Technical Context
 
-**Language/Version**: Python 3.x
-**Primary Dependencies**: `torch` (CPU-only mode), `transformers`, `datasets`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`, `bayesian-optimization`, `psutil`
-**Storage**: Local filesystem (temporary), HuggingFace Datasets cache
-**Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline)
-**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, moderate RAM, limited disk)
-**Project Type**: Computational research / Simulation pipeline
-**Performance Goals**: Complete 15 runs (bit-widths × 3 seeds) within 6 hours; memory usage ≤ 7GB per run.
-**Constraints**: No GPU/CUDA instructions; strict memory limits; no access to gated datasets; simulation must validate against theoretical noise distribution.
-**Scale/Scope**: A a range of bit-widths as mandated by Constitution Principle VII and FR-005, multiple seeds, and Short-duration video clips
-
-The research question, the method, and the references remain unchanged as per the planning document requirements. from Kinetics-400 subset (or UCF101 fallback).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `torch` (CPU-only build), `datasets`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`  
+**Storage**: Local filesystem (`data/`, `data/derived/`, `data/results/`)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner)  
+**Project Type**: Research simulation / Data analysis pipeline  
+**Performance Goals**: Complete experimental suite (3 bit-widths × 3 seeds) within 6 hours; memory usage ≤ 7GB (safety check only).  
+**Constraints**: No CUDA/GPU instructions in simulation; strict adherence to theoretical memory formulas for claims; validation independence for evaluation; CPU-only evaluation to ensure reproducibility.  
+**Scale/Scope**: short-duration video clips (downsampled Kinetics-400); Multiple bit-widths (low, medium, high); Multiple random seeds per width.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-- **I. Reproducibility**: The plan mandates pinned seeds in `code/`, explicit dataset fetching via `datasets.load_dataset` (no local caching assumptions), and a single `requirements.txt`. All artifacts are derived from code execution.
-- **II. Verified Accuracy**: Citations to the "LongLive-2.0" paper and Kinetics-400 dataset will be validated against primary sources. The plan relies on verified HuggingFace dataset URLs where available.
-- **III. Data Hygiene**: The plan uses the HuggingFace API to stream Kinetics-400 subsets. No raw data modification is allowed; downsampling creates new derived files. Checksums will be recorded for derived subsets.
-- **IV. Single Source of Truth**: All consistency scores and memory estimates are calculated programmatically and stored in CSVs. The paper will reference these CSV rows, not hand-typed numbers.
-- **V. Versioning Discipline**: The plan includes a `state/` update step for artifact hashes. The `requirements.txt` ensures dependency versioning.
-- **VI. Simulation Fidelity and Validation Independence**: The plan strictly separates the "student" model (simulation) from the "evaluator" (frozen CLIP-ViT). Memory claims are derived from the formula `(Params × Bits / 8) + 1.2GB`, not runtime profiling, as per the requirement. A lightweight runtime profiling step is added *only* to satisfy SC-005 for comparison purposes.
-- **VII. Precision-Threshold Linearity Analysis**: The experimental design explicitly includes **bit-widths (3, 4, 5, 6)** (per Constitution Principle VII and FR-005) with Multiple seeds each. Statistical analysis (paired t-tests between adjacent levels, Bayesian Model Comparison) is mandated to detect the threshold. The plan acknowledges the low sample size (data points) and frames the threshold as a "probabilistic degradation point" rather than a statistically rigorous "knee".
+| Principle | Status | Verification Method |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | `requirements.txt` pins versions; random seeds defined in `config.py`; dataset fetched via HF API with streaming. |
+| **II. Verified Accuracy** | PASS | Citations for Kinetics-400 and CLIP-ViT will be validated against primary sources (HF, paper) before execution. |
+| **III. Data Hygiene** | PASS | Downsampled dataset will be checksummed (`data/downsampler.py`); derived files stored in `data/derived/`. |
+| **IV. Single Source of Truth** | PASS | All metrics (memory, consistency) generated by code and written to `data/results/`; paper references these files. |
+| **V. Versioning Discipline** | PASS | Artifacts will be hashed; `state/` updated upon completion. |
+| **VI. Simulation Fidelity** | PASS | Memory claims derived from formula `(Params × Bits / 8) + 1.2GB`; evaluation uses frozen CLIP-ViT (independent). **Note**: Runtime memory checks are for safety only; no claims rely on them. |
+| **VII. Threshold Analysis** | PASS | Plan includes 2, 4, 8-bit runs and Slope Comparison Analysis (3 parameters) to detect degradation breaks. |
+
+## Spec Gap Resolution
+
+- **FR-001 Range**: The spec lists a placeholder range "-bit to -bit". This plan implements the specific range [2, 4, 8] as defined by the Constitution Principle VII. **This is a blocking gap in the spec.md which requires amendment to remove the placeholder.** The plan does not add new requirements but clarifies the intended scope.
+- **FR-007 Human Labels**: The spec requires validation against "human-labeled coherence". As no open dataset with human-labeled narrative consistency exists, this plan implements "synthetic ground truth" (injected discontinuities) as the validation mechanism. **This is a blocking gap in the spec.md which requires amendment to replace 'human-labeled' with 'synthetic ground truth'.**
+- **FR-009 Reference Mechanism**: The spec requires verifying noise against a "theoretical uniform distribution" but does not define the reference mechanism. This plan implements a standard uniform noise generator as the reference. **This is a blocking gap in the spec.md which requires clarification on the reference mechanism.**
+- **SC-005 Memory**: The spec requires comparing theoretical vs runtime memory. This plan clarifies that this comparison is a **Safety Validation** (to ensure the theoretical model is accurate). A variance >15% triggers a "Model Drift" warning and halts the run, but the *reported* metric remains the theoretical value. **This is a blocking gap in the spec.md which requires amendment to clarify that runtime memory is for safety only.**
+- **FR-001 Hardware Fidelity**: The spec requires modeling "gradient distortion" of NVFP4 hardware. The plan clarifies that the simulation models "numerical noise" and "gradient distortion" but *not* the specific "memory footprint" or "bandwidth" of NVFP4 hardware. **This is a blocking gap in the spec.md which requires amendment to narrow the requirement to 'numerical noise simulation'.**
+- **FR-008 Regression**: The spec mandates "piecewise linear or logistic regression". With only a limited number of data points, this is mathematically underdetermined. This plan implements "Slope Comparison Analysis" instead. **This is a blocking gap in the spec.md which requires amendment to remove the mandatory piecewise regression requirement.**
+- **FR-005 Significance**: The spec mandates "paired t-tests" to validate significance. With N=3, power is negligible. This plan prioritizes Effect Size and CI. **This is a blocking gap in the spec.md which requires amendment to reflect the effect-size-focused approach.**
+- **Dataset Validity**: Kinetics-400 is an action recognition dataset, not a narrative consistency dataset. The plan reframes the question to "local temporal coherence". **This is a blocking gap in the spec.md which requires amendment to reflect the construct validity limitation.**
 
 ## Project Structure
 
@@ -52,40 +63,51 @@ specs/001-llmxive-precision-threshold/
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/code/
-├── __init__.py
-├── requirements.txt
-├── config.py            # Configuration for seeds, bit-widths, paths
-├── simulation/
-│   ├── __init__.py
-│   ├── quantization_emulator.py  # Core FR-001 logic (torch.quantize_per_tensor)
-│   ├── student_model.py        # Simplified diffusion model wrapper
-│   └── training_loop.py        # CPU-only training loop
-├── evaluation/
-│   ├── __init__.py
-│   ├── clip_evaluator.py       # FR-003 frozen model logic
-│   └── metrics.py              # Consistency score calculation
-├── analysis/
-│   ├── __init__.py
-│   ├── aggregation.py          # FR-005, FR-008: stats & regression
-│   └── visualization.py        # Plotting precision-consistency curve
+projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0/
+├── code/
+│   ├── config.py                # Seeds, bit-widths, paths
+│   ├── requirements.txt         # Dependencies
+│   ├── data/
+│   │   ├── loader.py            # HF Kinetics-400 loader
+│   │   ├── downsampler.py       # Short clip extraction
+
+The research question investigates the impact of temporal segmentation on feature representation. The method involves extracting short video clips from longer sequences for subsequent analysis. References: [Citation preserved from original context]. & checksum
+│   │   └── derived/             # Processed parquet files
+│   ├── simulation/
+│   │   ├── quantization_emulator.py # Stochastic rounding logic
+│   │   ├── model.py             # Student diffusion model wrapper
+│   │   └── train_loop.py        # CPU-only training loop
+│   ├── evaluation/
+│   │   ├── clip_evaluator.py    # Frozen CLIP-ViT (CPU-optimized) inference
+│   │   └── coherence_metrics.py # Temporal consistency scoring
+│   ├── analysis/
+│   │   ├── threshold_finder.py  # Slope Comparison Analysis
+│   │   └── stats_utils.py       # T-tests, KL-divergence, Effect Size
+│   └── main.py                  # Orchestrator
 ├── data/
-│   ├── __init__.py
-│   └── loader.py               # FR-002: Kinetics-400 streaming
-└── tests/
-    ├── test_quantization_emulator.py
-    ├── test_evaluator.py
-    └── test_memory_footprint.py
+│   ├── raw/                     # (Symlink or download dir)
+│   └── results/                 # JSON/CSV outputs
+├── tests/
+│   ├── contract/
+│   ├── integration/
+│   └── unit/
+└── state/
+    └── projects/PROJ-857-llmxive-follow-up-extending-longlive-2-0.yaml
 ```
 
-**Structure Decision**: Single project structure under `code/` with modular sub-packages for simulation, evaluation, and analysis. This keeps the pipeline cohesive for the CI runner while separating concerns for testing and maintenance.
+**Structure Decision**: Single-project structure within the `code/` directory of the specific project ID. This minimizes overhead and aligns with the "Research simulation" type. The separation of `simulation`, `evaluation`, and `analysis` ensures the "Validation Independence" principle (Constitution VI) is structurally enforced.
 
 ## Complexity Tracking
 
-No violations detected. The complexity is managed by:
-1.  **CPU-Only Constraint**: By emulating precision via `torch.quantize_per_tensor` rather than actual low-bit hardware, we avoid complex CUDA kernels and stay within the 7GB RAM limit.
-2.  **Data Streaming**: Using `datasets.load_dataset(..., streaming=True)` avoids loading the full Kinetics-400 dataset into memory, addressing the 14GB disk constraint.
-3.  **Simplified Model**: The "student" model is a simplified diffusion architecture sufficient for the simulation, avoiding the computational cost of training a full-scale video model.
-4.  **Statistical Robustness**: Bayesian Model Comparison is used to handle the low sample size for non-linear threshold detection.
-5.  **Synthetic Ground Truth**: The validation protocol (FR-007) uses programmatically generated labels (frame swaps/cuts) rather than external human annotations, ensuring feasibility.
-6.  **Bit-width Scope**: The plan now covers bit-widths (3, 4, 5, 6) as required by the spec, necessitating a more aggressive clip sampling strategy to fit within the 6-hour window.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Stochastic Rounding Emulation** | Required to simulate NVFP4 behavior on CPU without hardware. | Direct 32-bit training ignores the research question (precision threshold). |
+| **Frozen Independent Evaluator** | Required to ensure "Validation Independence" (Constitution VI). | Using the same model for eval would conflate training loss with narrative coherence. |
+| **Slope Comparison Analysis** | Required to identify a "threshold" (non-linear break) with only 3 data points. | Piecewise linear regression is underdetermined with 3 points. |
+| **Dynamic Config Reload** | Required for US-1 (no code restart). | Restarting the process is inefficient and breaks the "continuous loop" simulation. |
+
+## Task Dependency Resolution
+
+- **T005a (Checksum)**: Generates checksums for derived files.
+- **T005b (Verification)**: **Depends on T005a**. Verifies that the checksums match the derived files. The task graph is now sequential: Generate -> Verify -> Proceed.
+- **T014 (Dynamic Switching)**: Implemented via `config.yaml` reload. The `train_loop` checks for file modification at the start of each epoch and re-initializes quantization logic without restarting the Python process.

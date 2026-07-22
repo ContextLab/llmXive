@@ -1,60 +1,102 @@
 # Data Model: llmXive follow-up: extending "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation"
 
-## 1. Entities
+## Entity Relationship Diagram (Conceptual)
 
-### 1.1 VideoClip
-A short-duration video segment from the Kinetics-400 dataset (or UCF101 fallback).
-- **Attributes**:
-  - `clip_id`: Unique identifier (string).
-  - `source`: Original dataset source (string: "kinetics-400" or "ucf101").
-  - `duration`: Duration in seconds (float).
-  - `frames`: List of frame tensors (float32).
-  - `label`: Action label from dataset (string, optional).
-  - `has_synthetic_discontinuity`: Boolean (for validation set).
+```mermaid
+erDiagram
+    EXPERIMENT_RUN ||--o{ VIDEO_CLIP : processes
+    EXPERIMENT_RUN ||--o{ METRIC : generates
+    VIDEO_CLIP ||--o{ METRIC : evaluated_by
+    BIT_WIDTH_CONFIG ||--|| EXPERIMENT_RUN : defines
+    
+    EXPERIMENT_RUN {
+        int run_id
+        string bit_width
+        int seed
+        datetime timestamp
+        string status
+    }
+    
+    VIDEO_CLIP {
+        string clip_id
+        string source_path
+        int duration_seconds
+        string checksum
+    }
+    
+    METRIC {
+        int metric_id
+        float consistency_score
+        float memory_footprint
+        float kl_divergence
+        string model_version
+    }
+    
+    BIT_WIDTH_CONFIG {
+        string bit_width
+        float theoretical_memory
+    }
+```
 
-### 1.2 ExperimentRun
-A single execution instance of the simulation and evaluation pipeline.
-- **Attributes**:
-  - `run_id`: Unique identifier (string).
-  - `bit_width`: Simulated bit-width (int: 2, 3, 4, 5, 6).
-  - `seed`: Random seed (int).
-  - `model_params`: Number of parameters in the student model (int).
-  - `theoretical_memory_gb`: Calculated memory footprint (float).
-  - `runtime_memory_gb`: Measured peak RSS memory (float, for SC-005).
-  - `consistency_score`: Mean temporal coherence score (float).
-  - `convergence_status`: Status of training (e.g., "converged", "collapsed", "timeout").
-  - `noise_kl_divergence`: KL-divergence of quantization emulation noise (float).
-  - `timestamp`: Execution timestamp (datetime).
+## Data Schemas
 
-### 1.3 ConsistencyScore
-The metric derived from the frozen evaluator.
-- **Attributes**:
-  - `run_id`: Reference to ExperimentRun (string).
-  - `clip_id`: Reference to VideoClip (string).
-  - `frame_similarity`: Cosine similarity between consecutive frames (float).
-  - `aggregated_score`: Mean similarity for the clip (float).
-  - `ground_truth_label`: Boolean (for synthetic validation).
+### 1. Experiment Run Metadata
+Captures the configuration and status of each experimental run.
 
-## 2. Data Flow
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `run_id` | String | Unique identifier (e.g., `run_2bit_seed1`) | Generated |
+| `bit_width` | Integer | Simulated bit-width (2, 4, 8) | Config |
+| `seed` | Integer | Random seed for reproducibility | Config |
+| `timestamp` | ISO8601 | Start time of the run | System |
+| `status` | String | "completed", "collapsed", "timeout" | Code |
+| `theoretical_memory_gb` | Float | Calculated memory `(Params × Bits / 8) + 1.2` | Formula |
 
-1. **Ingestion**: `data/loader.py` streams clips from Kinetics-400 (or UCF101).
-2. **Simulation**: `simulation/training_loop.py` generates video outputs for each `ExperimentRun`.
-3. **Evaluation**: `evaluation/clip_evaluator.py` scores each generated clip.
-4. **Aggregation**: `analysis/aggregation.py` compiles results into a master CSV.
-5. **Analysis**: `analysis/visualization.py` generates plots and statistical tests.
+### 2. Video Clip
+Represents the input/output unit of the simulation.
 
-## 3. Storage
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `clip_id` | String | Unique ID (e.g., `kinetics_001`) | Dataset |
+| `source_path` | String | Path to the video file | Dataset |
+| `duration_seconds` | Integer | Duration (target 4s) | Dataset |
+| `checksum` | String | SHA256 of the file | Code |
+| `label` | String | Action label (optional) | Dataset |
 
-- **Raw Data**: Streamed from HuggingFace (not stored locally).
-- **Derived Data**:
-  - `data/derived/clips_{seed}_{bit_width}.csv`: List of processed clips.
-  - `data/derived/results.csv`: Aggregated experiment results.
-  - `data/derived/figures/`: Generated plots.
-- **Checkpoints**: Model checkpoints are stored temporarily and deleted after evaluation to save disk space.
+### 3. Consistency Metric
+The primary outcome variable.
 
-## 4. Constraints
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `metric_id` | String | Foreign key to run/clip | Generated |
+| `consistency_score` | Float | CLIP-ViT temporal coherence score | Evaluator |
+| `frame_count` | Integer | Number of frames processed | Evaluator |
+| `inference_time_s` | Float | Time taken for evaluation | System |
+| `is_nan` | Boolean | Flag if score is undefined (collapse) | Code |
 
-- **Memory**: Total memory usage must not exceed a predefined system threshold.
-- **Disk**: Total disk usage must not exceed a predefined storage threshold.
-- **Time**: Total execution time must not exceed a practical limit suitable for iterative experimentation.
-- **Data Integrity**: No raw data modification. All derived data must be checksummed.
+### 4. Aggregated Results
+The final CSV output for analysis.
+
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `bit_width` | Integer | Grouping variable | Aggregation |
+| `seed` | Integer | Grouping variable | Aggregation |
+| `mean_consistency` | Float | Average score for this run | Aggregation |
+| `std_consistency` | Float | Standard deviation | Aggregation |
+| `convergence_epoch` | Integer | Epoch where loss plateaued | Training Log |
+| `memory_gb` | Float | Theoretical memory | Formula |
+
+## Data Flow
+
+1.  **Ingestion**: `data/loader.py` streams Kinetics-400.
+2.  **Transformation**: `data/downsampler.py` extracts 4s clips, computes checksums, writes to `data/derived/`.
+3.  **Simulation**: `simulation/train_loop.py` processes clips, applies stochastic rounding, logs metrics.
+4.  **Evaluation**: `evaluation/clip_evaluator.py` scores generated clips.
+5.  **Aggregation**: `analysis/threshold_finder.py` merges results into `data/results/aggregated.csv`.
+
+## Data Hygiene Rules
+
+- **Immutable Raw**: Raw dataset files are never modified.
+- **Derived Files**: All derived files (parquet, json) are stored in `data/derived/` with versioned names.
+- **Checksums**: Every file in `data/` must have a corresponding `.sha256` file.
+- **No PII**: Kinetics-400 is public; no PII expected. If detected, files are redacted.

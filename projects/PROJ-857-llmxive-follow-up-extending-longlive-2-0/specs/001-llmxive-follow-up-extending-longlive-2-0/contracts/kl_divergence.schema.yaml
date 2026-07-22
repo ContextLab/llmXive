@@ -1,0 +1,25 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: KL Divergence Validation Schema
+description: Schema for validating the noise distribution of stochastic rounding.
+type: object
+properties:
+  bit_width:
+    type: integer
+    description: "Bit-width used in the simulation"
+  kl_divergence:
+    type: number
+    description: "KL divergence between simulated noise and uniform distribution"
+    minimum: 0
+  is_valid:
+    type: boolean
+ description: "True if KL divergence < 0.05"
+  threshold:
+    type: number
+    description: "The 5% threshold used for validation"
+    const: 0.05
+required:
+  - bit_width
+  - kl_divergence
+  - is_valid
+  - threshold
+additionalProperties: false

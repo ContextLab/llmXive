@@ -350,23 +350,6 @@
   updated_at: '2026-07-11T15:59:40Z'
 - artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
   attempts: 1
-  canonical: Box-counting dimension analysis uses exactly 50 scale levels
-  claim_id: c_7769a1bc
-  context: 'Implement box-counting dimension calculator in code/topology.py: Multi-scale
-    grid analysis using exactly 50 scale levels as mandated by Constitution Principle
-    VI.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Multi-scale grid analysis using exactly 50 scale levels.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T16:00:03Z'
-- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
-  attempts: 1
   canonical: Build fails if benchmark validation MAE exceeds 0.1
   claim_id: c_8efadd40
   context: 'Validate SC-002: Load data/derived/benchmark_results.parquet, compute
@@ -406,24 +389,6 @@
   source_type: external
   status: refuted
   updated_at: '2026-07-11T16:00:25Z'
-- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
-  attempts: 1
-  canonical: Top 100 most complex cases selected based on high entropy and boundedness
-  claim_id: c_d30c5e4b
-  context: 'Address Wolfram (Selection): Select top 100 most ''complex'' cases (high
-    entropy, bounded) and save raw orbit traces to data/derived/ruliad_samples/.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Top_100_most_complex_cases_selected_based_on_high_entropy_an
-  kind: magnitude
-  raw_text: Select top 100 most complex cases (high entropy, bounded).
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T16:00:49Z'
 - artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
   attempts: 1
   canonical: Synthetic IFS generation uses 2-4 affine maps with Lipschitz targets
@@ -1462,3 +1427,472 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T10:19:07Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: 50 IFS instances generated with Lipschitz error within 0.05 on 1000-point
+    grid
+  claim_id: c_4010b921
+  context: "Independent Test: Generate 50 instances, compute Lipschitz on 1000-point\
+    \ grid, verify computed values are within \xB10.05 of targets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate 50 instances, compute Lipschitz on 1000-point grid, verify computed\
+    \ values are within \xB10.05 of targets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:43:49Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: 50 IFS instances with seed 42 have Lipschitz MAE less than or equal to
+    0.05 on 1000-point grid
+  claim_id: c_077fef38
+  context: "Unit test test_lipschitz_accuracy in tests/unit/test_generators.py: Generate\
+    \ 50 instances with seed 42, compute Lipschitz on 1000-point grid, verify MAE\
+    \ \u2264 0.05 against targets."
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 50.0
+    - - IFS instances with seed
+      - 42.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/50_IFS_instances_with_seed_42_have_Lipschitz_MAE_less_than_o
+  kind: magnitude
+  raw_text: "Generate 50 instances with seed 42, compute Lipschitz on 1000-point grid,\
+    \ verify MAE \u2264 0.05 against targets."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-22T15:44:25Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Lipschitz targets range from 0.5 to 2.0 in fine increments
+  claim_id: c_f5f6e97b
+  context: Create 2-4 affine maps with Lipschitz targets in fine increments from 0.5
+    to 2.0 (discrete set, not continuous random).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lipschitz targets in fine increments from 0.5 to 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:44:48Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Sierpinski, Barnsley, and da Cunha maps use specific affine matrix, translation,
+    and probability parameters per da Cunha et al. 2021
+  claim_id: c_638331fb
+  context: 'Hardcode Sierpinski Triangle, Barnsley Fern, and da Cunha expanding map
+    parameters per da Cunha et al. (2021) (Affine matrix: [[scale_factor, 0.0], [0.0,
+    scale_factor]], Translation: [0.0, 0.0], Probability: 1.0).'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Affine matrix: [[scale_factor, 0.0], [0.0, scale_factor]], Translation:
+    [0.0, 0.0], Probability: 1.0 per da Cunha et al. (2021)'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T15:44:48Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 2
+  canonical: Box-counting dimension analysis uses exactly 50 scale levels
+  claim_id: c_7769a1bc
+  context: 'Implement box-counting dimension calculator in code/topology.py: Multi-scale
+    grid analysis using exactly 50 scale levels as mandated by Constitution Principle
+    VI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multi-scale grid analysis using exactly 50 scale levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:45:25Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Benchmark validation fails if Mean Absolute Error exceeds 0.1
+  claim_id: c_b140c821
+  context: Load data/derived/benchmark_results.parquet (Depends on T017B), compute
+    box-counting dimensions for benchmarks, compare against theoretical values, record
+    MAE in data/derived/benchmark_validation.csv. Fail build if MAE > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail build if MAE > 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:45:25Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Orbit plots generated for contractive and non-contractive IFS with identical
+    seed
+  claim_id: c_cd896c06
+  context: 'Implement code/visualizer.py: Generate side-by-side orbit plots for contractive
+    vs. non-contractive IFS with same seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orbit_plots_generated_for_contractive_and_non-contractive_IF
+  kind: entity_fact
+  raw_text: Generate side-by-side orbit plots for contractive vs. non-contractive
+    IFS with same seed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:45:50Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Visualizations generated for Lipschitz threshold values 0.8, 1.0, and
+    1.2
+  claim_id: c_bd392794
+  context: 'Create script code/run_visualization.py: Generate data/derived/visualizations/
+    (PDF/PNG) for key threshold cases (L=0.8, 1.0, 1.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate visualizations for key threshold cases (L=0.8, 1.0, 1.2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:46:41Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Large-scale parameter sweep of non-contractive maps executed
+  claim_id: c_89ab5916
+  context: 'Address Wolfram (Sweep): Run a large-scale parameter sweep of non-contractive
+    maps using the metric from Ta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_parameter_sweep_of_non-contractive_maps_executed
+  kind: entity_fact
+  raw_text: Run a large-scale parameter sweep of non-contractive maps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:47:17Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 2
+  canonical: Top 100 most complex cases selected based on high entropy and boundedness
+  claim_id: c_d30c5e4b
+  context: 'Address Wolfram (Selection): Select top 100 most ''complex'' cases (high
+    entropy, bounded) and save raw orbit traces to data/derived/ruliad_samples/.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_100_most_complex_cases_selected_based_on_high_entropy_an
+  kind: magnitude
+  raw_text: Select top 100 most complex cases (high entropy, bounded).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:47:54Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Simulation runtime verified under 5.5 hours for 500 instances on 2-core
+    runner
+  claim_id: c_b8a5f317
+  context: 'Benchmark: Run code/run_simulation.py on 500 instances locally on 2-core
+    runner; verify runtime < 5.5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 5.5 hours on 500 instances locally on 2-core runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:47:54Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Benchmark validation writes data/derived/benchmark_results.parquet
+  claim_id: c_ed72d743
+  context: 'Execute benchmark validation: Run code/benchmarks.py to verify benchmarks,
+    compute initial metrics, and write data/derived/benchmark_results.parquet (Depends
+    on T017).'
+  evidence:
+    entailment_evidence: Benchmark validation writes data/derived/benchmark results.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Benchmark_validation_writes_data/derived/benchmark_results.p
+  kind: entity_fact
+  raw_text: 'T017B Execute benchmark validation: Run code/benchmarks.py to verify
+    benchmarks, compute initial metrics, and write data/derived/benchmark_results.parquet'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-22T15:48:48Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Benchmark validation fails build if MAE > 0.1
+  claim_id: c_b3155267
+  context: 'Validate SC-002: Load data/derived/benchmark_results.parquet (Depends
+    on T017B), compute box-counting dimensions for benchmarks, compare against theoretical
+    values, record MAE in data/derived/benchmark_validation.csv. Fail build if MAE
+    > 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T031B Fail build if MAE > 0.1 in benchmark validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:49:07Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Select top 100 most complex cases for ruliad samples
+  claim_id: c_7ca8f3dc
+  context: Select top 100 most 'complex' cases (high entropy, bounded) and save raw
+    orbit traces to data/derived/ruliad_samples/.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_top_100_most_complex_cases_for_ruliad_samples
+  kind: magnitude
+  raw_text: T044c Select top 100 most 'complex' cases and save raw orbit traces to
+    data/derived/ruliad_samples/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:49:37Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Simulation on 500 instances on 2-core runner runtime < 5.5 hours
+  claim_id: c_4e91386b
+  context: 'Benchmark: Run code/run_simulation.py on 500 instances locally on 2-core
+    runner; verify runtime < 5.5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T047b Run code/run_simulation.py on 500 instances locally on 2-core runner;
+    verify runtime < 5.5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:49:55Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: 50 IFS instances generated with Lipschitz verification within 0.05 of
+    targets on 1000-point grid
+  claim_id: c_34bc76a1
+  context: "Phase 3: User Story 1 - Synthetic IFS Generation and Lipschitz Validation\
+    \ (Priority: P1) Goal: Generate diverse synthetic IFS... Independent Test: Generate\
+    \ 50 instances, compute Lipschitz on 1000-point grid, verify computed values are\
+    \ within \xB10.05 of targets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The independent test requires generating 50 instances and computing Lipschitz\
+    \ on a 1000-point grid to verify computed values are within \xB10.05 of targets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:50:43Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Sierpinski Barnsley and da Cunha map parameters hardcoded per da Cunha
+    et al. 2021
+  claim_id: c_66d03f66
+  context: 'T017 [US1] Implement benchmark loader in code/benchmarks.py: Hardcode
+    Sierpinski Triangle, Barnsley Fern, and da Cunha expanding map parameters per
+    da Cunha et al. (2021)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark parameters for Sierpinski Triangle, Barnsley Fern, and da Cunha
+    expanding map are hardcoded per da Cunha et al. (2021).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:51:20Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Box-counting dimension calculation uses 50 scale levels
+  claim_id: c_c44728cb
+  context: 'T031 [US3] Implement box-counting dimension calculator in code/topology.py:
+    Multi-scale grid analysis using exactly 50 scale levels as mandated by Constitution
+    Principle VI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The box-counting dimension calculator uses exactly 50 scale levels as
+    mandated by Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:51:43Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Benchmark validation fails if MAE exceeds 0.1
+  claim_id: c_989061b7
+  context: T031B [US3] Validate SC-002... compare against theoretical values, record
+    MAE in data/derived/benchmark_validation.csv. Fail build if MAE > 0.1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_validation_fails_if_MAE_exceeds_0.1
+  kind: magnitude
+  raw_text: The benchmark validation will fail the build if the Mean Absolute Error
+    (MAE) between computed and theoretical box-counting dimensions is greater than
+    0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:52:23Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Logistic regression significance validated with p < 0.05 permutation
+    test
+  claim_id: c_8cb2b54b
+  context: 'T035 [US3] Implement permutation test in code/analysis.py: Validate logistic
+    regression AUC significance (p < 0.05).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Logistic_regression_significance_validated_with_p_%3C_0.05_per
+  kind: magnitude
+  raw_text: The logistic regression significance is validated using a permutation
+    test with a p-value threshold of less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:52:54Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: 500 instances simulation runtime under 5.5 hours on 2-core runner
+  claim_id: c_ee21bcd0
+  context: 'T047b [US3] Benchmark: Run code/run_simulation.py on 500 instances locally
+    on 2-core runner; verify runtime < 5.5 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/500_instances_simulation_runtime_under_5.5_hours_on_2-core_r
+  kind: magnitude
+  raw_text: The script run_simulation.py is expected to run on 500 instances locally
+    on a 2-core runner with a runtime verification target of less than 5.5 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:54:00Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Top 100 most complex cases selected for raw orbit traces
+  claim_id: c_caeb616e
+  context: 'T044c [US3] Address Wolfram (Selection): Select top 100 most ''complex''
+    cases (high entropy, bounded) and save raw orbit traces to data/derived/ruliad_samples/.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_100_most_complex_cases_selected_for_raw_orbit_traces
+  kind: magnitude
+  raw_text: The top 100 most complex cases based on high entropy and boundedness will
+    be selected and saved as raw orbit traces.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:54:18Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Visualizations generated for Lipschitz thresholds 0.8 1.0 and 1.2
+  claim_id: c_68a64b3b
+  context: 'T042 [US3] Create script code/run_visualization.py: Generate data/derived/visualizations/
+    (PDF/PNG) for key threshold cases (L=0.8, 1.0, 1.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Visualizations are generated for key threshold cases at Lipschitz values
+    of 0.8, 1.0, and 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:54:52Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Points escaping 1 to 2 squared bounding box flagged immediately
+  claim_id: c_c980343e
+  context: "T021 [P] [US2] Unit test test_divergence_detection in tests/unit/test_chaos_game.py:\
+    \ Verify points escaping [-1, 2]\xB2 are flagged immediately."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 requires verifying that points escaping
+    the [-1, 2] squared bounding box are flagged immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:55:18Z'
+- artifact_path: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu/tasks.md
+  attempts: 1
+  canonical: Histogram generator references Wikidata Q103833088
+  claim_id: c_3beaec6f
+  context: 'T025 [US2] Implement histogram generator in code/chaos_game.py: {{claim:c_2a829d40}}
+    (Wikidata Q103833088, https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Histogram_generator_references_Wikidata_Q103833088
+  kind: entity_fact
+  raw_text: The histogram generator implementation references Wikidata Q103833088.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T15:55:40Z'

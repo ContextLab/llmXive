@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Consistency Metric Schema
+description: Schema for the output of the CLIP-ViT evaluation pipeline.
+type: object
+properties:
+  metric_id:
+    type: string
+    description: "Unique identifier for the metric entry"
+  run_id:
+    type: string
+    description: "Foreign key to the experiment run"
+  clip_id:
+    type: string
+    description: "Unique ID of the video clip"
+  consistency_score:
+    type: number
+    description: "Temporal coherence score from CLIP-ViT"
+  frame_count:
+    type: integer
+    description: "Number of frames processed"
+  inference_time_s:
+    type: number
+    description: "Time taken for evaluation in seconds"
+  is_nan:
+    type: boolean
+    description: "True if the score is undefined (model collapse)"
+required:
+  - metric_id
+  - run_id
+  - clip_id
+  - consistency_score
+  - frame_count
+  - inference_time_s
+  - is_nan
+additionalProperties: false

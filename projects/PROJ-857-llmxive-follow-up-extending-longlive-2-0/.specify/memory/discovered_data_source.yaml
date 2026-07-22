@@ -1,0 +1,13 @@
+status: none
+intent: Kinetics-400 full and downsampled 4-second clips downloadable python package
+  dataset
+required_fields:
+- video_id
+- video_path
+- label
+- start_time
+- end_time
+- duration
+cache_key: 683c734636a382eeb196e3076ca30936362b720cd09e7c8329c51461a639c437
+searched_at: '2026-07-22T16:17:59.333571+00:00'
+retry_count: 1

@@ -111,7 +111,7 @@
 - [X] T022 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline); **if the dataset lacks an `expected_answer` column, raise a ConfigurationError and halt** (FR-006)
 - [X] T023 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$
 - [X] T024 [US2] Implement `code/main.py` perturbation sweep loop: Iterate $\sigma$ across a range of small positive values. -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **Call check_validity_collapse; if true: record validity collapse point (sigma, pass-rate) for THIS TASK TYPE to validity_log.csv and break ONLY the sigma-loop for this task type, then continue to the next task type** -> Save results (FR-003, FR-011)
-- [ ] T025 [US2] Save perturbed vectors and metadata to `data/processed/perturbed_vectors.csv` linked by `PairID` and `sigma`
+- [X] T025 [US2] Save perturbed vectors and metadata to `data/processed/perturbed_vectors.csv` linked by `PairID` and `sigma`
 - [ ] T026 [US2] Add logging for sweep progress and memory usage
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,13 +126,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for normality check and test selection logic in `tests/unit/test_statistical_test.py`
-- [ ] T028 [P] [US3] Integration test for end-to-end analysis pipeline in `tests/integration/test_analysis.py`
+- [X] T027 [P] [US3] Unit test for normality check and test selection logic in `tests/unit/test_statistical_test.py`
+- [X] T028 [P] [US3] Integration test for end-to-end analysis pipeline in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis.py` function `calculate_pairwise_cosine_similarity(vectors, pair_ids)` to generate similarity distributions for baseline and perturbed sets
-- [ ] T030 [US3] Implement `code/analysis.py` function `run_hypothesis_test(baseline_sims, perturbed_sims)` that:
+- [X] T029 [P] [US3] Implement `code/analysis.py` function `calculate_pairwise_cosine_similarity(vectors, pair_ids)` to generate similarity distributions for baseline and perturbed sets
+- [X] T030 [US3] Implement `code/analysis.py` function `run_hypothesis_test(baseline_sims, perturbed_sims)` that:
  - Filters pairs based on `data/processed/validity_log.csv` (passed both input drift and output validity)
  - Checks normality (Shapiro-Wilk) and sample size (n ≥ 30)
  - Selects Paired t-test or Wilcoxon signed-rank test

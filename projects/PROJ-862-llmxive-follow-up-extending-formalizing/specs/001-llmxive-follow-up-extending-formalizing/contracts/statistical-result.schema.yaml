@@ -1,78 +1,94 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
-title: Statistical Result Schema
-description: >
-  Schema for the output of the separability analysis (US3).
+title: Statistical Analysis Result Schema
+description: |
+  Schema for the output of the statistical separability analysis.
   Contains hypothesis test results and sensitivity reports.
 type: object
 required:
-  - task_type
+  - analysis_id
   - test_type
   - p_value
   - corrected_p_value
-  - significance
-  - validity_collapse_point
-  - trade_off_curve
+  - significance_level
+  - conclusion
+  - sample_sizes
 properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run.
   task_type:
     type: string
-    description: The task category analyzed.
+    description: The specific task type analyzed.
   test_type:
     type: string
-    enum: [paired_t_test, wilcoxon_signed_rank]
-    description: The statistical test selected based on normality/sample size.
-  sample_size:
-    type: integer
-    minimum: 1
-    description: Number of pairs included in the test.
-  baseline_mean_similarity:
-    type: number
-    description: Mean pairwise cosine similarity for baseline vectors.
-  perturbed_mean_similarity:
-    type: number
-    description: Mean pairwise cosine similarity for perturbed vectors.
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Raw p-value from the statistical test.
-  correction_method:
-    type: string
-    enum: [bonferroni, holm, none]
-    description: Family-wise error correction method applied.
+    description: The statistical test used (e.g., 'paired_t_test', 'wilcoxon_signed_rank').
+    enum:
+      - paired_t_test
+      - wilcoxon_signed_rank
+      - mann_whitney_u
+  normality_check:
+    type: object
+    properties:
+      method:
+        type: string
+        enum: [shapiro_wilk, kolmogorov_smirnov]
+      p_value:
+        type: number
+      is_normal:
+        type: boolean
+  sample_sizes:
+    type: object
+    properties:
+      baseline_n:
+        type: integer
+        minimum: 1
+      perturbed_n:
+        type: integer
+        minimum: 1
+  test_statistics:
+    type: object
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
   corrected_p_value:
     type: number
+    description: P-value after family-wise error rate correction (Bonferroni/Holm).
     minimum: 0
     maximum: 1
-    description: P-value after correction.
-  significance:
+  significance_level:
+    type: number
+    description: The alpha threshold used for significance (e.g., 0.05).
+    minimum: 0
+    maximum: 1
+  conclusion:
+    type: string
+    description: Human-readable conclusion of the test.
+  separability_increase:
     type: boolean
-    description: True if corrected_p_value < 0.05.
-  validity_collapse_point:
+    description: True if the test indicates a significant increase in separability.
+  sensitivity_report:
     type: object
-    description: >
-      The sigma value where validity pass-rate drops below 10% (or threshold).
-      Null if no collapse observed within the sweep range.
+    description: Report on validity collapse points and trade-off curves.
     properties:
-      sigma:
+      validity_collapse_point:
         type: number
-      pass_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-  trade_off_curve:
-    type: array
-    description: >
-      List of {sigma, pass_rate} points for the full sweep.
-      Used to visualize the trade-off between perturbation and validity.
-    items:
-      type: object
-      properties:
-        sigma:
-          type: number
-        pass_rate:
-          type: number
-        input_drift_pass:
-          type: boolean
-        output_validity_pass:
-          type: boolean
+        description: The sigma value where validity dropped below threshold.
+        nullable: true
+      trade_off_curve:
+        type: array
+        description: List of {sigma, pass_rate} points.
+        items:
+          type: object
+          properties:
+            sigma:
+              type: number
+            pass_rate:
+              type: number
+  timestamp:
+    type: string
+    format: date-time
 additionalProperties: false

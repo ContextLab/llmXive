@@ -1,0 +1,49 @@
+T013:
+  c: false
+  h: 1b464e21d5779994711a11c694eb3128f09386e0abd7df7b53b462dd32843184
+  r: "The repository contains a partially\u2011implemented `code/runner.py` (the `save_results_to_csv`\
+    \ function is truncated and there is no logic that writes `task_id`, `accuracy`,\
+    \ `nodes_visited`, `latency_ms`). Moreover, the required output file `data/processed/baseline_results.csv`\
+    \ does not exist. Both the runner functionality and the CSV output are missing,\
+    \ so the task is not genuinely completed."
+T013b:
+  c: false
+  h: 2b58ac9324da0b8c3a0d85297f29a19c17c228cc5170cefef9af737b8eb2cdfd
+  r: The required output file `data/processed/noisy_baseline_results.csv` is absent,
+    and the provided `code/runner.py` is incomplete (truncated) and does not contain
+    logic to run the noisy baseline on synthetic graphs or to log the required columns
+    (`task_id`, `accuracy`, `nodes_visited`, `latency_ms`). The task therefore remains
+    unfinished.
+T019:
+  c: false
+  h: e16ced90415fc96bd6d906546b0e41cb34fd9f4813186b5448194b95ad25f85d
+  r: "The repository contains a partially\u2011implemented `code/runner.py` (the `save_results_to_csv`\
+    \ function is truncated and no logic for Lazy/Greedy strategy execution or CSV\
+    \ writing is present). Moreover, the required output files `data/processed/lazy_results.csv`\
+    \ and `data/processed/greedy_results.csv` are absent. Consequently the runners\
+    \ are not fully implemented nor do they produce the mandated result files."
+T019b:
+  c: false
+  h: a8f0869c5376e53a243959e4da6f758eb66a5f561745d1a3a18fb7d1c524d776
+  r: "The required result files `data/processed/noisy_lazy_results.csv` and `data/processed/noisy_greedy_results.csv`\
+    \ are absent, and the provided `code/runner.py` contains only generic timeout\
+    \ and batch\u2011run utilities without any implementation of noisy execution for\
+    \ Lazy or Greedy strategies. The task\u2019s core requirement is therefore not\
+    \ satisfied."
+T020:
+  c: false
+  h: bebd72c8d490b3cdb9f1ac4f61922eb90d37afda7c0cd735f9faec96ad0bde41
+  r: "The required `data/processed/sweep_results.csv` file does not exist, and the\
+    \ `lazy.py` implementation only defines the `LazyTraversal` class with a fixed\
+    \ `evidence_threshold` (default 0.8) and no code that runs a sensitivity\u2011\
+    analysis sweep over the thresholds (e.g., 0.7, 0.9) or writes results to the CSV.\
+    \ Both the output artifact and the sweep logic are missing."
+T033:
+  c: false
+  h: e98c0b3bfb7bb3f678a14b473f3a26b2f1e242da5a7949c0ad9b6cab82ca075b
+  r: "The required `contracts/results.schema.yaml` file is missing, so the script\
+    \ cannot validate against the official contract and falls back to a hard\u2011\
+    coded placeholder schema. Moreover, the provided `validate_results.py` is truncated\
+    \ (e.g., an unfinished `error` line) and does not show full logic for loading\
+    \ all six CSVs and enforcing the contract. Both the missing schema file and the\
+    \ incomplete script mean the task is not truly fulfilled."

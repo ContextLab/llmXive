@@ -1,45 +1,59 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
 title: Latent Vector Schema
-description: >
-  Schema for extracted hidden state vectors (baseline and perturbed).
-  Represents the "thought" token embedding.
+description: |
+  Schema for extracted latent vectors (hidden states) from the transformer model.
+  Includes baseline and perturbed vectors.
 type: object
 required:
   - pair_id
-  - sigma
-  - vector
-  - dimension
+  - vector_type
+  - vector_data
+  - model_hidden_size
   - is_normalized
 properties:
   pair_id:
+    type: integer
+    description: The unique identifier linking this vector to its question pair.
+    minimum: 0
+  vector_type:
     type: string
-    description: Foreign key linking to the dataset entry.
-  sigma:
+    description: Type of vector: 'baseline' or 'perturbed'.
+    enum:
+      - baseline
+      - perturbed
+  sigma_value:
     type: number
-    description: >
-      The noise magnitude used for this vector.
-      0.0 indicates baseline (no noise).
-  vector:
+    description: Noise magnitude if vector_type is 'perturbed'.
+    minimum: 0
+    nullable: true
+  vector_data:
     type: array
+    description: The raw float values of the hidden state vector.
     items:
       type: number
-    description: >
-      The flattened L2-normalized hidden state vector.
-      Length must match model hidden dimension.
-  dimension:
+    minItems: 1
+  model_hidden_size:
     type: integer
+    description: Expected dimensionality of the vector (e.g., 4096 for Llama-7B).
     minimum: 1
-    description: The dimensionality of the vector (e.g., 4096 for Llama-7B).
   is_normalized:
     type: boolean
-    description: Must be true. Vectors are L2-normalized before storage.
+    description: True if the vector has been L2-normalized to unit length.
+  task_type:
+    type: string
+    description: The task type associated with this vector.
   extraction_step:
-    type: string
-    description: >
-      The specific step in the pipeline that generated this vector.
-      Values: 'baseline', 'perturbed'
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of extraction.
+    type: integer
+    description: The token position or step where the hidden state was extracted.
+    minimum: 0
 additionalProperties: false
+examples:
+  - pair_id: 101
+    vector_type: "baseline"
+    vector_data: [0.012, -0.45, 0.99, ...]
+    model_hidden_size: 4096
+    is_normalized: true
+    task_type: "math"
+    extraction_step: 15

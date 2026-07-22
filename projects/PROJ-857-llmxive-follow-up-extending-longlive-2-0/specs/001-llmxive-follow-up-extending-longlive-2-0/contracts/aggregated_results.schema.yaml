@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aggregated Results Schema
+description: Schema for the final aggregated CSV output used for threshold analysis.
+type: object
+properties:
+  bit_width:
+    type: integer
+    enum: [2, 4, 8]
+    description: "Bit-width grouping variable"
+  seed:
+    type: integer
+    description: "Seed grouping variable"
+  mean_consistency:
+    type: number
+    description: "Average consistency score for the run"
+  std_consistency:
+    type: number
+    description: "Standard deviation of consistency scores"
+  convergence_epoch:
+    type: integer
+    description: "Epoch where training loss plateaued"
+  memory_gb:
+    type: number
+    description: "Theoretical memory footprint"
+required:
+  - bit_width
+  - seed
+  - mean_consistency
+  - std_consistency
+  - convergence_epoch
+  - memory_gb
+additionalProperties: false
