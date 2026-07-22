@@ -104,8 +104,8 @@
 - [X] T017 [US1] Implement beta-diversity (Bray-Curtis) and alpha-diversity (Shannon, Observed ASVs) calculation in `src/pipelines/preprocess.py` using `skbio`; **Output**: Bray-Curtis distance matrix and Euclidean distance matrix (FR-002).
 - [ ] T018 [US1] Implement PERMANOVA (adonis2) with ≥999 permutations and Benjamini-Hochberg FDR correction in `src/pipelines/analysis.py`. **Conditional Logic**: If sample size < 20, use **exact permutation test** or **≥9999 permutations** (FR-003). **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R2, p-value, p-value_adj.
 - [X] T019 [US1] Implement variance partitioning (varpart) to quantify unique/shared variance by predictor in `src/pipelines/analysis.py` (FR-004).
-- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T022 [US1] Generate `results/permanova_summary.csv` and `results/db_rda_variance.csv` with FDR-corrected p-values.
+- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T022 [US1] Generate `results/permanova_summary.csv` and `results/db_rda_variance.csv` with FDR-corrected p-values. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -149,7 +149,7 @@
 ### Implementation for User Story 3
 
 - [ ] T033 [US3] Implement threshold sweep logic in `src/pipelines/report.py` to iterate p-values across conventional significance thresholds and R² cutoffs across a range of explanatory power benchmarks.
-- [~] T034 [US3] Re-evaluate top driver ranking for each threshold combination.
+- [ ] T034 [US3] Re-evaluate top driver ranking for each threshold combination.
 - [ ] T035 [US3] Generate `results/sensitivity_analysis.csv` documenting top driver per threshold set. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 6, column 1:
  **File**: `code/src/pipelines/re...
@@ -158,7 +158,7 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 6, column 2:
  **File**: `code/src/pipelines/rep...
  ^) -->
-- [~] T036 [US3] Implement robustness metric calculation: Count rows in `sensitivity_analysis.csv` where top_driver is stable; calculate percentage against total rows; flag Pass if ≥ 80%, Fail otherwise (SC-004).
+- [ ] T036 [US3] Implement robustness metric calculation: Count rows in `sensitivity_analysis.csv` where top_driver is stable; calculate percentage against total rows; flag Pass if ≥ 80%, Fail otherwise (SC-004).
 - [ ] T037 [US3] Generate `results/robustness_summary.md` stating the percentage and Pass/Fail status against the 80% threshold.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -170,8 +170,8 @@ expected alphabetic or numeric character, but found '*'
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T038 [P] Generate `results/sampling_report.csv` documenting subsampling ratios (FR-009)
-- [~] T040 [P] Implement fatal error handling for < 3 valid datasets in Research Mode. **Requirement**: If < 3 valid datasets, exit with code 1 and log exactly: `{"level": "FATAL", "msg": "No sufficient ITS datasets found: <count> valid datasets, minimum required"}` (Edge Cases).
-- [~] T041 [P] Add null result handling: generate report explicitly stating "No significant abiotic drivers detected" if p > 0.05
+- [ ] T040 [P] Implement fatal error handling for < 3 valid datasets in Research Mode. **Requirement**: If < 3 valid datasets, exit with code 1 and log exactly: `{"level": "FATAL", "msg": "No sufficient ITS datasets found: <count> valid datasets, minimum required"}` (Edge Cases).
+- [ ] T041 [P] Add null result handling: generate report explicitly stating "No significant abiotic drivers detected" if p > 0.05
 - [ ] T042 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T043 Run quickstart.md validation
 

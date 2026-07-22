@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "predicting-molecular-excitation-wavelengths"
 version = "0.1.0"
 description = "Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "rdkit==2023.9.5",
@@ -34,7 +33,7 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | .eggs
+  | \.eggs
 )/
 '''
 
@@ -42,8 +41,14 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["code", "tests"]
+known_third_party = ["rdkit", "torch", "pandas", "sklearn", "numpy", "yaml", "pytest"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers =
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    "unit: unit tests"
+    "integration: integration tests"

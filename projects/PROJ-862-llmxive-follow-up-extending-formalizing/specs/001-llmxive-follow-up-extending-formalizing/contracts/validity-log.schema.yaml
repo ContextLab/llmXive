@@ -1,47 +1,73 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validity Log Schema
-description: Schema for logging validity check results (input drift and output validity).
+description: >
+  Schema for the log of validity checks performed during the perturbation sweep.
+  Tracks which pairs passed/failed specific checks.
 type: object
 required:
   - pair_id
   - sigma
-  - input_drift_passed
-  - output_validity_passed
-  - overall_valid
-  - input_similarity_score
-  - output_f1_score
-  - output_perplexity_ratio
-  - failure_reason
+  - input_drift_check
+  - output_validity_check
+  - overall_status
+  - failure_reasons
 properties:
   pair_id:
-    type: integer
-    description: Foreign key linking to the dataset.
+    type: string
+    description: Foreign key to the dataset entry.
   sigma:
     type: number
-    description: The noise level applied.
-  input_drift_passed:
-    type: boolean
-    description: True if cosine similarity with baseline input >= 0.95.
-  input_similarity_score:
-    type: number
-    description: The actual cosine similarity score.
-  output_validity_passed:
-    type: boolean
-    description: True if BERTScore F1 >= 0.85 and perplexity ratio <= 2.0.
-  output_f1_score:
-    type: number
-    description: The BERTScore F1 metric.
-  output_perplexity_ratio:
-    type: number
-    description: Ratio of perturbed perplexity to baseline perplexity.
-  overall_valid:
-    type: boolean
-    description: True if both input and output checks passed.
-  failure_reason:
+    description: Noise magnitude applied.
+  input_drift_check:
+    type: object
+    description: Result of SBERT cosine similarity check (threshold >= 0.95).
+    properties:
+      passed:
+        type: boolean
+      score:
+        type: number
+        minimum: 0
+        maximum: 1
+      threshold:
+        type: number
+        const: 0.95
+  output_validity_check:
+    type: object
+    description: Result of BERTScore and Perplexity checks.
+    properties:
+      passed:
+        type: boolean
+      bertscore_f1:
+        type: number
+        minimum: 0
+        maximum: 1
+      perplexity_ratio:
+        type: number
+        minimum: 0
+      thresholds:
+        type: object
+        properties:
+          bertscore_min:
+            type: number
+            const: 0.85
+          perplexity_max_ratio:
+            type: number
+            const: 2.0
+  overall_status:
     type: string
-    enum: [none, input_drift, output_invalid, both]
-    description: Reason for failure if overall_valid is False.
+    enum: [valid, invalid, dropped]
+    description: >
+      'valid': passed both checks.
+      'invalid': failed one or both.
+      'dropped': excluded from analysis due to validity collapse.
+  failure_reasons:
+    type: array
+    items:
+      type: string
+      enum: [input_drift_low, bertscore_low, perplexity_high, collapse_detected]
+    description: List of specific reasons for failure.
   timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of the check.
+additionalProperties: false

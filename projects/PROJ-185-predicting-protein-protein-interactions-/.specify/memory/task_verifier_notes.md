@@ -7,7 +7,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — The claim provides no linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, `.style.yapf`, or similar) and no evidence that `ruff`, `black`, or `styler` have been added to the project. The artifacts listed are unrelated to the linting task, so the required configuration is missing.
 - **T005** — declared artifact(s) missing/empty/invalid: github/workflows/ci.yml
 - **T006** — declared artifact(s) missing/empty/invalid: src/utils/logger.py
-- **T007** — declared artifact(s) missing/empty/invalid: src/cli/run_pipeline.py
 - **T009** — declared artifact(s) missing/empty/invalid: species.yaml, parameters.yaml
 - **T010** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T012** — The claim provides no code, file, or snippet showing a CLI argument validator in `run_pipeline.py`, nor any test or documentation confirming that `--threshold` is enforced to be ≥ 0.75. Without the actual artifact, the requirement is not satisfied.
@@ -15,5 +14,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T098** — No code changes, configuration, or example `pipeline.log` showing the added command‑line, version, and seed information were provided; thus the required logger extension cannot be verified. The implementer must supply the modified logger implementation and a sample log entry demonstrating the new fields.
 - **T099** — No test script, CI configuration, or code artifact was presented that runs the CLI validator with a threshold below 0.75 and checks for rejection. The required CI test file (e.g., a pytest or GitHub Actions step) is missing, so the claim is unsupported.
 - **T100** — The implementer provided no CI configuration, script, or workflow file that runs a Reference‑Validator Agent, nor any evidence that the pipeline would fail on citation mismatches. Consequently, the required artifact is missing.
-- **T064** — declared artifact(s) missing/empty/invalid: src/pipeline/download.py, state/artifact_hashes.yaml
+- **T064** — The required `src/pipeline/download.py` file does not exist, and `state/artifact_hashes.yaml` is empty (`{}`) with no recorded SHA‑256 hashes. Both the downloader implementation and the hash recording are missing.
 - **T043** — No code changes, log files, or test output were provided to demonstrate that the downloader now checks sample counts, skips series with fewer than 30 samples, and writes a warning to `pipeline.log`. Without such artifacts, the requirement cannot be verified as satisfied.
+- **T042** — No unit or integration test code, test data, or test results were provided to demonstrate that the edge‑list size is verified; the claim is only a placeholder token with no accompanying artifact. The required test artifact is missing.
+- **T069** — The claim provides no concrete artifact such as a test file, test runner output, or log demonstrating a unit test that checks the pipeline’s skip behavior for GEO series with fewer than 30 samples. Without any code, test results, or evidence of proper logging and graceful continuation, the requirement is not satisfied. The next implementer must add the unit test implementation and include its execution evidence.

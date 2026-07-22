@@ -83,7 +83,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data_loader.py` function to pair questions by task type and assign unique `PairID`s (output: `data/processed/pairing_config.json`)
+- [X] T013 [US1] Implement `code/data_loader.py` function to pair questions by task type and assign unique `PairID`s (output: `data/processed/pairing_config.json`)
 - [X] T014 [US1] Implement `code/model_utils.py` function `extract_thought_vector(model, input_ids, thought_token_pos)` to return the hidden state vector
 - [ ] T015 [US1] Implement `code/main.py` baseline extraction loop: Load data -> Extract vectors -> Normalize to unit length -> Save to `data/processed/baseline_vectors.csv`
 - [ ] T016 [US1] Add validation to ensure output vectors match model hidden dimension and are L2-normalized
@@ -108,9 +108,9 @@
 
 - [X] T020 [P] [US2] Implement `code/perturbation.py` function `inject_and_project(embedding, sigma, model_embedding_matrix)` that adds Gaussian noise and **projects to nearest valid token by minimizing Euclidean distance against model.embedding_matrix**, returning `perturbed_token_ids` and `perturbed_embeddings`
 - [ ] T021 [US2] Implement `code/validity_check.py` function `check_input_drift(baseline_input, perturbed_input, sbert_model)` using `sentence-transformers/all-MiniLM-L6-v2` (threshold ≥ 0.95); **explicitly exclude pairs failing this check (cosine similarity < 0.95) from the dataset immediately** and save the filtered pair set to `data/processed/filtered_pairs_input_drift.csv` (FR-009)
-- [ ] T022 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline); **if the dataset lacks an `expected_answer` column, raise a ConfigurationError and halt** (FR-006)
-- [ ] T023 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$
-- [ ] T024 [US2] Implement `code/main.py` perturbation sweep loop: Iterate $\sigma$ across a range of small positive values. -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **Call check_validity_collapse; if true: record validity collapse point (sigma, pass-rate) for THIS TASK TYPE to validity_log.csv and break ONLY the sigma-loop for this task type, then continue to the next task type** -> Save results (FR-003, FR-011)
+- [X] T022 [US2] Implement `code/validity_check.py` function `check_output_validity(model_output, expected_answer)` using BERTScore (F1 ≥ 0.85) and perplexity bound (≤ 2.0x baseline); **if the dataset lacks an `expected_answer` column, raise a ConfigurationError and halt** (FR-006)
+- [X] T023 [US2] Implement `code/validity_check.py` function `check_validity_collapse(pass_rate, threshold)` to detect if >90% of pairs fail at a specific $\sigma$
+- [X] T024 [US2] Implement `code/main.py` perturbation sweep loop: Iterate $\sigma$ across a range of small positive values. -> **Call streaming/batching logic (T008)** -> Perturb inputs -> Extract vectors -> Run validity checks -> **Call check_validity_collapse; if true: record validity collapse point (sigma, pass-rate) for THIS TASK TYPE to validity_log.csv and break ONLY the sigma-loop for this task type, then continue to the next task type** -> Save results (FR-003, FR-011)
 - [ ] T025 [US2] Save perturbed vectors and metadata to `data/processed/perturbed_vectors.csv` linked by `PairID` and `sigma`
 - [ ] T026 [US2] Add logging for sweep progress and memory usage
 

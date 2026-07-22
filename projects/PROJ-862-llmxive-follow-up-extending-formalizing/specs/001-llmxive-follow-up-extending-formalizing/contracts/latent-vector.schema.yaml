@@ -1,39 +1,45 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Latent Vector Schema
-description: Schema for extracted hidden state vectors (baseline and perturbed).
+description: >
+  Schema for extracted hidden state vectors (baseline and perturbed).
+  Represents the "thought" token embedding.
 type: object
 required:
   - pair_id
   - sigma
   - vector
-  - is_baseline
-  - task_type
+  - dimension
+  - is_normalized
 properties:
   pair_id:
-    type: integer
-    description: Foreign key linking to the dataset schema.
+    type: string
+    description: Foreign key linking to the dataset entry.
   sigma:
     type: number
-    description: The noise standard deviation used for perturbation (0.0 for baseline).
+    description: >
+      The noise magnitude used for this vector.
+      0.0 indicates baseline (no noise).
   vector:
     type: array
     items:
       type: number
-      format: float
-    description: The L2-normalized hidden state vector (float32).
-  vector_shape:
+    description: >
+      The flattened L2-normalized hidden state vector.
+      Length must match model hidden dimension.
+  dimension:
     type: integer
-    description: Dimensionality of the vector (should match model hidden size).
-  is_baseline:
+    minimum: 1
+    description: The dimensionality of the vector (e.g., 4096 for Llama-7B).
+  is_normalized:
     type: boolean
-    description: True if this vector is from the unperturbed baseline extraction.
-  task_type:
-    type: string
-    description: The task type for grouping analysis.
+    description: Must be true. Vectors are L2-normalized before storage.
   extraction_step:
-    type: integer
-    description: The layer or step index if multi-layer extraction is performed.
+    type: string
+    description: >
+      The specific step in the pipeline that generated this vector.
+      Values: 'baseline', 'perturbed'
   timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of extraction.
+additionalProperties: false

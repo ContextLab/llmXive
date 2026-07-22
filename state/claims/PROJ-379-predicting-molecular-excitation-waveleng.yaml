@@ -35,3 +35,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T00:58:59Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: UV-Vis data source is zjunlp/UV-Vis-ML dataset
+  claim_id: c_624b51c8
+  context: 'Implement code/ingest.py: Fetch UV-Vis data from datasets.load_dataset(''zjunlp/UV-Vis-ML'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UV-Vis_data_source_is_zjunlp/UV-Vis-ML_dataset
+  kind: entity_fact
+  raw_text: Fetch UV-Vis data from datasets.load_dataset('zjunlp/UV-Vis-ML').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:01:07Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: UV-Vis dataset source zjunlp/UV-Vis-ML
+  claim_id: c_6b77c8a3
+  context: 'T008 [US1] Implement code/ingest.py: 1. Fetch UV-Vis data from datasets.load_dataset(''zjunlp/UV-Vis-ML'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UV-Vis_dataset_source_zjunlp/UV-Vis-ML
+  kind: entity_fact
+  raw_text: Fetch UV-Vis data from datasets.load_dataset('zjunlp/UV-Vis-ML').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:03:07Z'

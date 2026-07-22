@@ -1,0 +1,21 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file tree was provided showing the required `data/raw`,
+    `data/processed`, `code`, `tests`, and `docs` folders under `projects/PROJ-379-predicting-molecular-excitation-waveleng/`.
+    Without concrete evidence that these directories exist, the task requirement is
+    not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file or its contents are provided; without the file we cannot\
+    \ confirm that a Quickstart section with environment setup, data fetching, and\
+    \ end\u2011to\u2011end pipeline instructions exists. The required artifact is\
+    \ missing."
+T022:
+  c: false
+  h: ba6daf0bf9afd833e0adb6b3e2d7ffcef07f10952eb25cc6be62a9976a53f3af
+  r: The required artifact `tests/test_sensitivity.py` does not exist in the repository,
+    so no integration test for the sensitivity sweep and collinearity flags is present.
+    The task cannot be considered completed until this test file is added with appropriate
+    test implementations.

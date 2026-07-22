@@ -1,3 +1,4 @@
+# Core scientific stack (already present in the project)
 numpy
 pandas
 networkx
@@ -5,4 +6,7 @@ goatools
 scikit-learn
 tqdm
 requests
-# Existing dependencies retained; ``requests`` added for citation validation.
+
+# Additional dependencies added for the GEO downloader
+PyYAML
+# No external GEO parsing library is required; the downloader uses plain HTTP.

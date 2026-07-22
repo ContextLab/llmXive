@@ -506,3 +506,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T03:45:37Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted PPI edge list contains at least 10000 edges
+  claim_id: c_3a3a3e0d
+  context: Unit/integration test T042 asserts that the predicted_ppi_<species>.tsv
+    file is either header-only or contains at least 10,000 edges.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predicted_PPI_edge_list_contains_at_least_10000_edges
+  kind: magnitude
+  raw_text: "predicted_ppi_<species>.tsv is either header-only (if no edges meet threshold)\
+    \ OR contains \u2265 10\u202F000 edges"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:20:23Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: wall-clock time less than or equal to 6 hours on GitHub Actions runner
+  claim_id: c_33089b93
+  context: "T037 Run comprehensive performance benchmark script `scripts/benchmark.sh`\
+    \ to ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub Actions\
+    \ runner; log results in `results/benchmark_report.txt`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wall-clock_time_less_than_or_equal_to_6_hours_on_GitHub_Acti
+  kind: magnitude
+  raw_text: "total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub Actions\
+    \ runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:22:52Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: predicted edge list contains at least 10000 edges
+  claim_id: c_cf34d127
+  context: "Unit/integration test T042 verifies edge\u2011list size, requiring the\
+    \ output file to have either only a header or at least ten thousand edges."
+  evidence:
+    entailment_evidence: Predicted edge list contains at least 10000 edges - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Predicted_edge_list_contains_at_least_10000_edges
+  kind: magnitude
+  raw_text: "asserts `predicted_ppi_<species>.tsv` is either header-only (if no edges\
+    \ meet threshold) OR contains \u2265 10\u202F000 edges"
+  resolved_value: predicted edge list contains at least 10000 edges
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T13:24:20Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: benchmark runtime is at most 6 hours
+  claim_id: c_3498230a
+  context: Performance benchmark script T037 must complete within six hours on the
+    CI runner and log the result.
+  evidence:
+    entailment_evidence: Benchmark runtime is at most 6 hours
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Benchmark_runtime_is_at_most_6_hours
+  kind: magnitude
+  raw_text: "ensure total wall\u2011clock time \u2264\u202F6\u202Fh on the GitHub\
+    \ Actions runner"
+  resolved_value: benchmark runtime is at most 6 hours
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T13:24:22Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "STRING high\u2011confidence interactions have combined score of at least\
+    \ 700"
+  claim_id: c_f9a05961
+  context: "STRING downloader T021 retrieves interactions whose combined confidence\
+    \ score meets or exceeds 700, excluding the co\u2011expression evidence channel."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/STRING_high%E2%80%91confidence_interactions_have_combined_score_of_a
+  kind: magnitude
+  raw_text: "high-confidence set (combined score\u202F\u2265\u202F700)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:24:48Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: balanced negative sampling creates 10 independent negative sets
+  claim_id: c_34676fd4
+  context: "Negative\u2011sampling module T091 generates ten independent balanced\
+    \ negative sets matching the size of the positive set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: draws N=10 independent balanced negative sets (size = positive set)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:25:41Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "STRING downloader downloads high-confidence interactions with combined\
+    \ score \u2265 700 and excludes co-expression channel"
+  claim_id: c_4ad6964a
+  context: "T021 US2 Implement STRING downloader src/pipeline/download_string.py (fixed\
+    \ URL, checksum verification) \u2013 downloads high-confidence set (combined score\
+    \ \u2265 700) and explicitly filters out the co-expression evidence channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The STRING downloader downloads high-confidence set (combined score \u2265\
+    \ 700) and explicitly filters out the co-expression evidence channel."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:28:50Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: "benchmark script runtime \u2264 6 hours"
+  claim_id: c_83eeb470
+  context: "T037 Run comprehensive performance benchmark script scripts/benchmark.sh\
+    \ to {{claim:c_3498230a}}; log results in results/benchmark_report.txt (note:\
+    \ enforcement of the 6\u2011hour limit is performed by T046)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The benchmark script reports runtime \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:28:51Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: GEO downloader skips series with < 30 samples
+  claim_id: c_3930a709
+  context: 'T043 US1 Skip GEO series with < 30 samples: modify downloader to check
+    sample count; if < 30 skip that series with a warning in pipeline.log and continue
+    with remaining series (per spec Edge Cases).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GEO_downloader_skips_series_with_%3C_30_samples
+  kind: magnitude
+  raw_text: The GEO downloader skips GEO series with fewer than 30 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:29:12Z'
+- artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/tasks.md
+  attempts: 1
+  canonical: balanced negative sampling draws 10 independent sets of size equal to
+    positive set from STRING complement excluding co-expression channel
+  claim_id: c_2b20bf43
+  context: "T091 US2 Implement balanced negative-sampling module src/pipeline/negative_sampling.py\
+    \ that draws N=10 independent balanced negative sets (size = positive set) from\
+    \ the complement of STRING (excluding co-expression channel), using the global\
+    \ random seed (FR\u2011032)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The balanced negative-sampling module draws 10 independent balanced negative
+    sets, each equal in size to the positive set, from the complement of STRING excluding
+    the co-expression channel.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T13:29:33Z'

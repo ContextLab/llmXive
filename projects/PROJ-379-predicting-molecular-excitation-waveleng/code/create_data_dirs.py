@@ -1,41 +1,34 @@
-"""
-Task T004: Create data directory structure and empty checksums file.
-
-This script ensures the existence of `data/raw/`, `data/processed/`,
-and creates an empty `data/checksums.txt` file.
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Define project root relative to script location or use current working directory
-    # Assuming script is run from project root or code/ directory
-    project_root = Path.cwd()
+    """
+    Create the data directory structure and an empty checksums file.
     
-    # Ensure we are in the correct project context if run from code/
-    if (project_root / "data").exists() or project_root.name == "code":
-        if project_root.name == "code":
-            project_root = project_root.parent
+    This task implements T004:
+    - Creates data/raw/
+    - Creates data/processed/
+    - Creates an empty data/checksums.txt
+    """
+    # Define the base directory for this project
+    # Since this script runs from the project root, we assume 'data' is relative to cwd
+    base_path = Path.cwd()
+    data_dir = base_path / "data"
     
-    data_dir = project_root / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
     checksums_file = data_dir / "checksums.txt"
-
+    
     # Create directories
     raw_dir.mkdir(parents=True, exist_ok=True)
     processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create empty checksums file if it doesn't exist
+    # Create empty checksums.txt if it doesn't exist
     if not checksums_file.exists():
         checksums_file.touch()
-        print(f"Created: {checksums_file}")
-    else:
-        print(f"Exists: {checksums_file}")
-
-    print(f"Created/Verified: {raw_dir}")
-    print(f"Created/Verified: {processed_dir}")
-    print("Data directory structure ready.")
+    
+    print(f"Created directories: {raw_dir}, {processed_dir}")
+    print(f"Created empty file: {checksums_file}")
 
 if __name__ == "__main__":
     main()

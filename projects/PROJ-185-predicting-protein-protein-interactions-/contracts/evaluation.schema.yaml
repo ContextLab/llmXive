@@ -1,50 +1,29 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Evaluation Metrics for Predicted PPI Network
-description: |
-  Schema for the JSON file written by the evaluation step. It records
-  performance metrics comparing the predicted interaction network against a
-  high‑confidence reference set (e.g., STRING). All metric values are
-  floating‑point numbers in the range [0, 1] unless otherwise noted.
+title: Evaluation Metrics
 type: object
-properties:
-  auroc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Area under the ROC curve for the predicted edges.
-  auprc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Area under the Precision‑Recall curve for the predicted edges.
-  baseline_auroc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: AUROC for a degree‑preserving random baseline graph.
-  baseline_auprc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: AUPRC for the random baseline graph.
-  precision_at_1000:
-    type: number
-    minimum: 0
-    description: Precision of the top‑1000 predicted interactions.
-  median_auroc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Median AUROC across the 10 balanced negative‑sampling runs.
-  median_auprc:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Median AUPRC across the 10 balanced negative‑sampling runs.
-required:
-  - auroc
-  - auprc
-  - baseline_auroc
-  - baseline_auprc
-  - precision_at_1000
+description: Mapping from species identifier to metric results produced by the evaluation step.
+patternProperties:
+  "^[a-zA-Z0-9_]+$":
+    type: object
+    description: Metrics for a single species.
+    properties:
+      auroc:
+        type: number
+        description: Area Under the ROC curve.
+      auprc:
+        type: number
+        description: Area Under the Precision‑Recall curve.
+      baseline_auroc:
+        type: number
+        description: AUROC for the degree‑preserving random baseline.
+      baseline_auprc:
+        type: number
+        description: AUPRC for the baseline.
+      precision_at_1000:
+        type: number
+        description: Precision among the top 1 000 predicted edges.
+    required:
+      - auroc
+      - auprc
+    additionalProperties: false
 additionalProperties: false

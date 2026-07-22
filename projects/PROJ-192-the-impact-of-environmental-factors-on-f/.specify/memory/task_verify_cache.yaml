@@ -42,3 +42,32 @@ T030:
   r: No summary report file (e.g., CSV, PDF, or markdown) showing the top predictor
     per biome was provided; the evidence consists only of the task description and
     specifications, with no actual output artifact to verify the required analysis.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts (e.g., CSV tables, plots, or code) were provided that show the top
+    driver rankings recomputed for each threshold combination, nor any evidence that
+    the analysis was rerun. The required output files or results are missing, so the
+    task is not satisfied.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or generated output (e.g., a CSV or report) that reads
+    `sensitivity_analysis.csv`, counts stable `top_driver` rows, computes the percentage,
+    and flags Pass/Fail is present. Without any such artifact, the required robustness
+    metric calculation cannot be verified as implemented.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that demonstrates the required fatal\u2011\
+    error handling for fewer than three valid datasets. The artifact showing an exit\
+    \ with code\u202F1 and the exact JSON log message is missing, so the task\u2019\
+    s requirement is not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (code change, report template, or example output) was provided showing\
+    \ that the workflow now generates an explicit \u201CNo significant abiotic drivers\
+    \ detected\u201D message when all p\u2011values exceed 0.05. Without a concrete\
+    \ file or snippet demonstrating this null\u2011result handling, the requirement\
+    \ is unmet."

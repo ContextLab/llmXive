@@ -1,63 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Statistical Result Schema
-description: Schema for the output of the separability analysis and hypothesis testing.
+description: >
+  Schema for the output of the separability analysis (US3).
+  Contains hypothesis test results and sensitivity reports.
 type: object
 required:
   - task_type
   - test_type
   - p_value
   - corrected_p_value
-  - significant
-  - sample_size
+  - significance
   - validity_collapse_point
+  - trade_off_curve
 properties:
   task_type:
     type: string
-    description: The task type this result applies to.
+    description: The task category analyzed.
   test_type:
     type: string
-    enum: [paired_ttest, wilcoxon_signed_rank]
-    description: The statistical test performed.
-  baseline_stats:
-    type: object
-    properties:
-      mean:
-        type: number
-      std:
-        type: number
-      n:
-        type: integer
-  perturbed_stats:
-    type: object
-    properties:
-      mean:
-        type: number
-      std:
-        type: number
-      n:
-        type: integer
-  p_value:
-    type: number
-    description: Raw p-value from the test.
-  corrected_p_value:
-    type: number
-    description: P-value after family-wise error correction (Bonferroni/Holm).
-  significant:
-    type: boolean
-    description: True if corrected_p_value < 0.05.
+    enum: [paired_t_test, wilcoxon_signed_rank]
+    description: The statistical test selected based on normality/sample size.
   sample_size:
     type: integer
-    description: Number of pairs used in the test.
+    minimum: 1
+    description: Number of pairs included in the test.
+  baseline_mean_similarity:
+    type: number
+    description: Mean pairwise cosine similarity for baseline vectors.
+  perturbed_mean_similarity:
+    type: number
+    description: Mean pairwise cosine similarity for perturbed vectors.
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Raw p-value from the statistical test.
+  correction_method:
+    type: string
+    enum: [bonferroni, holm, none]
+    description: Family-wise error correction method applied.
+  corrected_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: P-value after correction.
+  significance:
+    type: boolean
+    description: True if corrected_p_value < 0.05.
   validity_collapse_point:
     type: object
-    description: The sigma value where validity rate dropped below 10%.
+    description: >
+      The sigma value where validity pass-rate drops below 10% (or threshold).
+      Null if no collapse observed within the sweep range.
     properties:
       sigma:
         type: number
       pass_rate:
         type: number
+        minimum: 0
+        maximum: 1
   trade_off_curve:
     type: array
+    description: >
+      List of {sigma, pass_rate} points for the full sweep.
+      Used to visualize the trade-off between perturbation and validity.
     items:
       type: object
       properties:
@@ -65,10 +71,8 @@ properties:
           type: number
         pass_rate:
           type: number
-        separability_metric:
-          type: number
-    description: List of (sigma, pass_rate, metric) points for the trade-off analysis.
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of analysis.
+        input_drift_pass:
+          type: boolean
+        output_validity_pass:
+          type: boolean
+additionalProperties: false

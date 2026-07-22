@@ -8,12 +8,12 @@ T013:
     are missing.
 T015:
   c: false
-  h: 637b8090a1864e2f808bf330ac428d69d66a10f049760baf16f51199447a7cb7
-  r: "The provided `code/main.py` is incomplete (it ends abruptly inside `extract_baseline_vectors`\
-    \ and does not contain the full extraction\u2011normalize\u2011save loop). Moreover,\
-    \ the required output file `data/processed/baseline_vectors.csv` is absent. Both\
-    \ the implementation and the generated artifact are missing, so the task is not\
-    \ genuinely fulfilled."
+  h: 138d1a94fe775cd710388f19ace1de8e7203caba3461cfd38113fafb4198d1b3
+  r: "The repository contains a partially\u2011written `code/main.py` that stops mid\u2011\
+    function (the `extract_baseline_vectors` loop is cut off and never calls the normalization\
+    \ or CSV\u2011writing logic), and the required output file `data/processed/baseline_vectors.csv`\
+    \ is absent. Consequently the baseline extraction pipeline is not fully implemented\
+    \ nor does it produce the expected CSV file."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,3 +28,18 @@ T017:
     \ memory\u2011usage logging was added to the baseline extraction pipeline. Without\
     \ any artifact demonstrating new logging statements or generated logs, the requirement\
     \ cannot be verified as met."
+T021:
+  c: false
+  h: 9cd9bd8cdceb2edc8b64a16a988c145aac1a732fff0d17110aca7d01581235c6
+  r: The `check_input_drift` function in `code/validity_check.py` is truncated and
+    does not contain a full implementation (no SBERT loading, embedding computation,
+    cosine similarity check, or dataset filtering/saving). Additionally, the required
+    output file `data/processed/filtered_pairs_input_drift.csv` is missing. Both the
+    code and the artifact needed to satisfy the task are absent.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that implement \u201CAdd\
+    \ logging for sweep progress and memory usage.\u201D The evidence contains only\
+    \ a feature specification unrelated to logging, and there are no artifacts showing\
+    \ the required logging functionality. The task therefore remains unfinished."

@@ -29,7 +29,7 @@ description: "Task list for Predict Protein‑Protein Interactions from Co‑exp
 ## Phase 1 – Foundational (Blocking Prerequisites)
 
 - [ ] T006 [P] Create central logger module `src/utils/logger.py` that writes ISO‑8601 timestamps to `pipeline.log`
-- [ ] T007 [P] Implement CLI entry point `src/cli/run_pipeline.py` with argument parsing (`--norm-method`, `--threshold`, `--seed`, `--species`, etc.)
+- [X] T007 [P] Implement CLI entry point `src/cli/run_pipeline.py` with argument parsing (`--norm-method`, `--threshold`, `--seed`, `--species`, etc.)
 - [X] T008 [P] Write Makefile with targets `all`, `evaluate`, `enrich`, `clean`, `validate`, `sensitivity`, `reproducibility-check` (calls appropriate Python/R scripts)
 - [ ] T009 Create configuration directory `src/config/` with `species.yaml` (default Arabidopsis GEO list) and `parameters.yaml` (default threshold set to a high confidence level, seed 42)
 - [ ] T010 Implement schema files in `contracts/` (`predicted_ppi.schema.yaml`, `evaluation.schema.yaml`)
@@ -44,7 +44,7 @@ description: "Task list for Predict Protein‑Protein Interactions from Co‑exp
 
 - [ ] T064 US1 Implement GEO downloader `src/pipeline/download.py` (fetches count matrices, records SHA‑256 in `state/artifact_hashes.yaml`)
 - [ ] T043 US1 Skip GEO series with < 30 samples: modify downloader to check sample count; if `< 30` skip that series with a warning in `pipeline.log` and continue with remaining series (per spec Edge Cases)
-- [ ] T042 US1 Verify edge‑list size: unit/integration test that asserts `predicted_ppi_<species>.tsv` is either header-only (if no edges meet threshold) OR contains ≥ 10 000 edges
+- [ ] T042 US1 Verify edge‑list size: unit/integration test that {{claim:c_cf34d127}}
 - [ ] T069 US1 Unit test to verify skip behavior for GEO series with < 30 samples (ensures proper logging and graceful continuation)
 - [ ] T113 US1 Unit test for GEO downloader (checksum recording, error handling)
 - [ ] T065 US1 Implement batch‑effect correction wrapper `src/pipeline/batch_correct.py` using ComBat (R via `rpy2` or subprocess)
@@ -107,7 +107,7 @@ Rewritten passage:) with Fisher’s exact test and Benjamini–Hochberg correcti
 
 - [ ] T036 [P] Update `README.md` and `docs/quickstart.md` with full end‑to‑end usage instructions, including the new validation-set calibration sections
 - [ ] T108 [P] Documentation update (renamed from duplicate T064) – ensures no ID conflict
-- [ ] T037 Run comprehensive performance benchmark script `scripts/benchmark.sh` to ensure total wall‑clock time ≤ 6 h on the GitHub Actions runner; log results in `results/benchmark_report.txt` (note: enforcement of the 6‑hour limit is performed by T046)
+- [ ] T037 Run comprehensive performance benchmark script `scripts/benchmark.sh` to {{claim:c_3498230a}}; log results in `results/benchmark_report.txt` (note: enforcement of the 6‑hour limit is performed by T046)
 - [ ] T038 Run CI step to enforce reproducibility: after a successful run, re‑run the pipeline with the same `--seed` and `git diff` the resulting `evaluation_metrics.json` and all `go_enrichment_*.tsv` files; fail if any differences are detected (FR‑012)
 - [ ] T121 CI step that executes the reproducibility re‑run (`make reproducibility-check`) and diffs outputs (ensures T038 is actually executed)
 - [ ] T039 Code cleanup: remove dead imports, ensure full type‑hint coverage, and produce a linting report `lint_report.txt` (generated via `ruff` and `mypy`)

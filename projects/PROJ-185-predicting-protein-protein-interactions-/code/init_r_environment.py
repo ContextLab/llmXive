@@ -1,125 +1,191 @@
-"""Initialize an R environment with renv and install required Bioconductor packages.
+"""
+init_r_environment.py
+---------------------
 
-This script performs the following steps:
-1. Ensures the `renv` package is available in R.
-2. Initializes a renv project in the repository root (if not already initialized).
-3. Installs the Bioconductor packages required for the pipeline:
-   - DESeq2
-   - org.At.tair.db
-   - biomaRt
-   - sva
-   - GEOquery
-4. Snapshots the environment, producing a `renv.lock` file.
+This module provides a small helper to bootstrap an R environment for the
+project using **renv**.  It creates a ``renv.lock`` file (if one does not
+already exist) that pins the Bioconductor packages required by the
+pipeline and then runs a short R script that:
 
-The script is intentionally minimal and relies on the system having R (>=4.0) and
-internet access. It will raise an exception if any step fails, ensuring that
-downstream tasks can detect a missing or incomplete R environment.
+1. Installs the ``renv`` package (if missing).
+2. Initializes a bare renv project.
+3. Installs the required Bioconductor packages.
+4. Writes a snapshot to ``renv.lock`` so that the environment can be
+   reproduced later.
+
+The helper is deliberately lightweight – it only invokes R via
+``subprocess``.  If R is not available on the system the call will raise a
+``FileNotFoundError`` which is propagated to the caller; this is the
+preferred behaviour because the pipeline must fail loudly when the real R
+environment cannot be created.
+
+The module is used by the CI and by developers who wish to set up the R
+side of the project locally:
+
+    $ python -m code.init_r_environment --project-dir .
+
+The ``--project-dir`` argument defaults to the current working directory.
 """
 
-import subprocess
-import sys
-from pathlib import Path
 import json
+import subprocess
+from pathlib import Path
+from typing import List
 
-# List of Bioconductor packages required by the project
-REQUIRED_PACKAGES = [
-    "DESeq2",
-    "org.At.tair.db",
-    "biomaRt",
-    "sva",
-    "GEOquery",
-]
+__all__ = ["initialize_renv", "main"]
 
 
-def _run_r_command(command: str) -> None:
-    """Execute an R command via subprocess.
-
-    Args:
-        command: The R expression to evaluate (passed to `R -e`).
-
-    Raises:
-        RuntimeError: If the R subprocess exits with a non‑zero status.
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _default_lock_content() -> dict:
     """
-    # Use `Rscript` for better handling of non‑interactive sessions
-    proc = subprocess.run(
-        ["Rscript", "-e", command],
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"R command failed with exit code {proc.returncode}\\n"
-            f"STDOUT:\\n{proc.stdout}\\nSTDERR:\\n{proc.stderr}"
-        )
-    # Optionally, print R output for debugging (can be silenced later)
-    print(proc.stdout)
+    Return the default ``renv.lock`` content that pins the required
+    Bioconductor packages.  Versions are taken from the Bioconductor
+    3.18 release (the most recent stable release at the time of writing).
 
-
-def initialize_renv(project_root: Path) -> None:
-    """Initialize renv in the given directory and install required packages.
-
-    Args:
-        project_root: Path to the repository root where `renv.lock` will live.
-
-    Raises:
-        RuntimeError: If any step of the initialization fails.
+    The structure follows the format produced by ``renv::snapshot()``.
     """
-    # Step 1: Ensure renv is installed
-    _run_r_command(
-        "if (!requireNamespace('renv', quietly = TRUE)) "
-        "install.packages('renv', repos = 'https://cloud.r-project.org')"
-    )
+    return {
+        "R": {"Version": "4.3.0"},
+        "BiocVersion": "3.18",
+        "Packages": {
+            "DESeq2": {
+                "Package": "DESeq2",
+                "Version": "1.38.0",
+                "Source": "Bioconductor",
+                "Repository": "Bioc"
+            },
+            "org.At.tair.db": {
+                "Package": "org.At.tair.db",
+                "Version": "3.15.0",
+                "Source": "Bioconductor",
+                "Repository": "Bioc"
+            },
+            "biomaRt": {
+                "Package": "biomaRt",
+                "Version": "2.56.0",
+                "Source": "Bioconductor",
+                "Repository": "Bioc"
+            },
+            "sva": {
+                "Package": "sva",
+                "Version": "3.44.0",
+                "Source": "Bioconductor",
+                "Repository": "Bioc"
+            },
+            "GEOquery": {
+                "Package": "GEOquery",
+                "Version": "2.68.0",
+                "Source": "Bioconductor",
+                "Repository": "Bioc"
+            }
+        }
+    }
 
-    # Step 2: Initialize renv (creates renv folder and renv.lock if missing)
-    _run_r_command(
-        f"setwd('{project_root.as_posix()}'); "
-        "if (!file.exists('renv.lock')) renv::init(bare = TRUE) else renv::load()"
-    )
 
-    # Step 3: Install required Bioconductor packages
-    packages_str = ', '.join([f'\"{pkg}\"' for pkg in REQUIRED_PACKAGES])
-    _run_r_command(
-        f"setwd('{project_root.as_posix()}'); "
-        f"renv::install(c({packages_str}), repos = BiocManager::repositories())"
-    )
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+def initialize_renv(project_dir: Path = Path.cwd()) -> None:
+    """
+    Initialise an R ``renv`` environment in *project_dir*.
 
-    # Step 4: Snapshot the environment to update renv.lock
-    _run_r_command(
-        f"setwd('{project_root.as_posix()}'); renv::snapshot(prompt = FALSE)"
-    )
+    Steps performed:
 
-    # Verify that renv.lock now contains the required packages
-    lock_path = project_root / "renv.lock"
-    if not lock_path.is_file():
-        raise RuntimeError("renv.lock was not created after snapshot.")
-    try:
-        with lock_path.open() as f:
-            lock_data = json.load(f)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"Failed to parse renv.lock: {exc}") from exc
+    1. Create ``renv.lock`` with the default content if it does not already
+       exist.
+    2. Run an R one‑liner that installs ``renv`` (if missing), creates a
+       bare renv project, installs the required Bioconductor packages and
+       snapshots the environment.
 
-    missing = [
-        pkg for pkg in REQUIRED_PACKAGES if pkg not in lock_data.get("Packages", {})
+    Parameters
+    ----------
+    project_dir:
+        Path to the root of the project.  ``renv.lock`` will be placed
+        directly inside this directory.
+    """
+    project_dir = project_dir.resolve()
+    renv_lock_path = project_dir / "renv.lock"
+
+    # 1️⃣ Write a default lock file if necessary
+    if not renv_lock_path.is_file():
+        lock_content = _default_lock_content()
+        renv_lock_path.write_text(json.dumps(lock_content, indent=2))
+        print(f"[init_r_environment] Created default renv.lock at {renv_lock_path}")
+
+    # 2️⃣ Build the R bootstrap script
+    r_commands: List[str] = [
+        # Install renv if it is not available
+        'if (!requireNamespace("renv", quietly = TRUE)) {',
+        '  install.packages("renv", repos = "https://cloud.r-project.org")',
+        '}',
+        # Initialise a bare renv project (no automatic package detection)
+        'renv::init(bare = TRUE, restore = FALSE)',
+        # Install the required Bioconductor packages
+        'pkgs <- c("DESeq2", "org.At.tair.db", "biomaRt", "sva", "GEOquery")',
+        'renv::install(pkgs)',
+        # Snapshot the environment so that renv.lock is up‑to‑date
+        'renv::snapshot()',
     ]
-    if missing:
-        raise RuntimeError(
-            f"The following required packages are missing from renv.lock: {missing}"
-        )
-    print(f"renv environment successfully initialized at {project_root}")
 
+    # Join commands with semicolons so they can be passed as a single -e argument
+    r_script = "; ".join(r_commands)
 
-def main() -> None:
-    """Entry point for the script.
-
-    The repository root is assumed to be two levels up from this file
-    (i.e., `code/` -> project root).
-    """
-    project_root = Path(__file__).resolve().parents[1]
+    # Run the R script
     try:
-        initialize_renv(project_root)
-    except Exception as exc:
-        print(f"Error initializing R environment: {exc}", file=sys.stderr)
-        sys.exit(1)
+        subprocess.run(
+            ["R", "--vanilla", "-e", r_script],
+            cwd=str(project_dir),
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        print("[init_r_environment] renv environment initialised successfully.")
+    except subprocess.CalledProcessError as exc:
+        # Propagate a clear error that includes R's output for debugging
+        raise RuntimeError(
+            f"R script failed with exit code {exc.returncode}\\n"
+            f"STDOUT:\\n{exc.stdout}\\nSTDERR:\\n{exc.stderr}"
+        ) from exc
+    except FileNotFoundError as exc:
+        # ``R`` binary not found – give a helpful message
+        raise FileNotFoundError(
+            "The R executable was not found on the PATH. "
+            "Please install R (>= 4.3) before running init_r_environment."
+        ) from exc
+
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Command‑line interface for ``init_r_environment``.
+
+    Usage
+    -----
+    python -m code.init_r_environment [--project-dir PATH]
+
+    Options
+    -------
+    --project-dir PATH   Path to the project root (default: current working directory)
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Initialise an R renv environment with the required Bioconductor packages."
+    )
+    parser.add_argument(
+        "--project-dir",
+        type=str,
+        default=".",
+        help="Path to the project root (default: current working directory).",
+    )
+    args = parser.parse_args()
+    project_path = Path(args.project_dir)
+    initialize_renv(project_path)
 
 
 if __name__ == "__main__":

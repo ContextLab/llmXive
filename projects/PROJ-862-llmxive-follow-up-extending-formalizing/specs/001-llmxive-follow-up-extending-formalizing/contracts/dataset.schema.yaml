@@ -1,40 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Reasoning Dataset Schema
-description: Schema for the raw and processed reasoning dataset used in the noise injection pipeline.
+description: >
+  Schema for the input reasoning dataset used in the noise injection pipeline.
+  Derived from BigBench subset or equivalent verified source.
 type: object
 required:
   - question
   - expected_answer
   - task_type
   - pair_id
-  - thought_token_pos
-  - input_ids
 properties:
   question:
     type: string
-    description: The original question text.
+    description: The raw question prompt sent to the model.
+    minLength: 1
   expected_answer:
     type: string
-    description: The ground truth answer for validity checking.
+    description: >
+      The ground truth answer used for validity checks (BERTScore).
+      Must be present for US2 and US3.
+    minLength: 1
   task_type:
     type: string
-    description: Category of the reasoning task (e.g., 'math', 'logic', 'commonsense').
+    description: >
+      Classification of the reasoning task (e.g., 'math', 'logic', 'commonsense').
+      Used for grouping and PairID assignment.
   pair_id:
-    type: integer
-    description: Unique identifier for the question pair used in contrastive analysis.
-  thought_token_pos:
-    type: integer
-    description: Index of the token representing the 'thought' or reasoning step in the input sequence.
-  input_ids:
-    type: array
-    items:
-      type: integer
-    description: Tokenized input sequence IDs.
-  attention_mask:
-    type: array
-    items:
-      type: integer
-    description: Attention mask corresponding to input_ids.
+    type: string
+    description: >
+      Unique identifier for the question pair (baseline vs perturbed).
+      Assigned during the pairing phase (T013).
+      Format: "tasktype-XXXX"
+  source_id:
+    type: string
+    description: Original ID from the source dataset (e.g., BigBench ID).
   metadata:
     type: object
-    description: Optional metadata fields (source, difficulty, etc.).
+    description: Optional metadata fields (e.g., difficulty, tags).
+    additionalProperties: true
+additionalProperties: false

@@ -1,0 +1,2 @@
+# This directory is for log files generated during execution.
+# The baseline extraction script will write to logs/baseline_extraction.log

@@ -1,43 +1,39 @@
-#!/usr/bin/env python3
 """
-CI entry point for citation validation.
+Citation verification entry point for CI.
 
-This script invokes the Reference‑Validator Agent implemented in
-``src.ci.validate_citations``.  It exits with a non‑zero status code if any
-citation mismatch is detected, causing the CI pipeline to fail.
+This script is intended to be invoked during continuous integration to ensure
+that all markdown (``*.md``) and code (``*.py``) files in the repository contain
+valid citations.  It delegates the heavy‑lifting to :pymod:`src.ci.validate_citations`,
+which implements the actual crawling, URL extraction and validation logic.
 
-The ``validate_citations.main`` function is expected to perform the actual
-validation work and return ``True`` when all citations are correct or
-``False`` when mismatches are found.  If the function raises an exception,
-the script also exits with a non‑zero code.
+The script exits with status ``0`` when all citations are valid and with a non‑zero
+status when any citation fails validation.  CI pipelines can therefore simply run
+this module and fail the job if the exit code is non‑zero.
 """
 
 import sys
 from src.ci.validate_citations import main as validate_citations_main
 
-def _run_validation() -> int:
-    """
-    Run the citation validator and return an appropriate exit code.
-
-    Returns
-    -------
-    int
-        ``0`` if validation succeeded (no mismatches),
-        ``1`` otherwise.
-    """
-    try:
-        result = validate_citations_main()
-        # If the validator returns a truthy value we consider it a success.
-        # Any falsy value (e.g., ``False`` or ``None``) indicates failure.
-        return 0 if result else 1
-    except Exception:
-        # Unexpected errors should also cause CI to fail.
-        return 1
-
 def main() -> None:
-    """Entry point for the script."""
-    exit_code = _run_validation()
+    """
+    Run the citation validator and propagate its exit status.
+
+    The underlying ``validate_citations_main`` function performs:
+    * Discovery of target files (``*.md`` and ``*.py``) under the repository root.
+    * Extraction of URLs from those files.
+    * HTTP ``HEAD`` requests to verify that each URL is reachable and returns a
+      successful status code (2xx/3xx).
+    * Reporting of any failures to ``stderr`` and returning a non‑zero exit code.
+
+    This wrapper exists so that CI can invoke ``python -m src.ci.run_citation_validation``
+    without needing to know the internals of the validator.
+    """
+    # ``validate_citations_main`` returns an integer exit code.
+    # ``sys.exit`` will raise ``SystemExit`` with that code, which is the
+    # conventional way for a CLI entry point to signal success/failure.
+    exit_code = validate_citations_main()
     sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

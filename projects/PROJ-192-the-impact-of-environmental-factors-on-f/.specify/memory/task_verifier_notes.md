@@ -12,3 +12,10 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T029** — declared artifact(s) missing/empty/invalid: results/biome_ranking_summary.csv
 - **T030** — No summary report file (e.g., CSV, PDF, or markdown) showing the top predictor per biome was provided; the evidence consists only of the task description and specifications, with no actual output artifact to verify the required analysis.
 - **T033** — declared artifact(s) missing/empty/invalid: src/pipelines/report.py
+- **T034** — No artifacts (e.g., CSV tables, plots, or code) were provided that show the top driver rankings recomputed for each threshold combination, nor any evidence that the analysis was rerun. The required output files or results are missing, so the task is not satisfied.
+- **T035** — declared artifact(s) missing/empty/invalid: results/sensitivity_analysis.csv
+- **T036** — No code, script, notebook, or generated output (e.g., a CSV or report) that reads `sensitivity_analysis.csv`, counts stable `top_driver` rows, computes the percentage, and flags Pass/Fail is present. Without any such artifact, the required robustness metric calculation cannot be verified as implemented.
+- **T037** — declared artifact(s) missing/empty/invalid: results/robustness_summary.md
+- **T038** — declared artifact(s) missing/empty/invalid: results/sampling_report.csv
+- **T040** — No code, script, or log file was provided that demonstrates the required fatal‑error handling for fewer than three valid datasets. The artifact showing an exit with code 1 and the exact JSON log message is missing, so the task’s requirement is not satisfied.
+- **T041** — No artifact (code change, report template, or example output) was provided showing that the workflow now generates an explicit “No significant abiotic drivers detected” message when all p‑values exceed 0.05. Without a concrete file or snippet demonstrating this null‑result handling, the requirement is unmet.
