@@ -1,302 +1,425 @@
 """
 Integration test for the full analysis pipeline on mock data.
 
-This test verifies the end-to-end execution of the analysis pipeline (T018-T023 logic)
-using a deterministic mock dataset that satisfies the data contracts.
+This test verifies that the analysis pipeline (code/analysis.py) can:
+1. Load mock complexity metrics (LZC and PE) and fatigue scores.
+2. Validate metadata and detect paired vs. cross-sectional mode.
+3. Run correlation analysis (Pearson/Spearman) with appropriate corrections.
+4. Apply Benjamini-Hochberg correction.
+5. Generate sensitivity analysis tables.
+6. Write all declared output artifacts to disk (data/analysis/).
 
-The mock data simulates:
-1. A metadata file with required columns: pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id.
-2. Complexity metrics files (LZC and PE) with valid numeric values per channel.
-
-The test asserts:
-- The pipeline runs without raising exceptions.
-- The Benjamini-Hochberg correction is applied correctly.
-- The correlation analysis produces valid coefficients and p-values.
-- The sensitivity analysis table is generated.
-- The final report file is written to disk.
+The mock data is generated deterministically to ensure reproducibility without
+relying on external real datasets for this specific unit/integration check.
 """
 import os
 import sys
-import csv
-import json
 import tempfile
 import shutil
-import pytest
+import json
 import pandas as pd
 import numpy as np
+import pytest
 from pathlib import Path
 
-# Add project root to path to import analysis module
-project_root = Path(__file__).resolve().parent.parent.parent
-code_dir = project_root / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add project root to path to import code modules
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root / "code"))
 
-from analysis import load_config, validate_metadata, run_benjamini_hochberg, run_correlation_analysis, main
+from analysis import (
+    load_config,
+    validate_metadata,
+    run_benjamini_hochberg,
+    run_correlation_analysis,
+    main as analysis_main
+)
 
-class TestAnalysisPipeline:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self, tmp_path):
-        """
-        Setup: Create a temporary directory structure with mock data.
-        Teardown: Cleanup handled by pytest's tmp_path fixture.
-        """
-        self.tmp_dir = tmp_path
-        self.data_dir = self.tmp_dir / "data"
-        self.data_processed = self.data_dir / "processed"
-        self.data_analysis = self.data_dir / "analysis"
-        
-        self.data_processed.mkdir(parents=True)
-        self.data_analysis.mkdir(parents=True)
-
-        # 1. Create Mock Metadata
-        # Must contain: pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id
-        # We create a small deterministic dataset (N=10)
-        np.random.seed(42)
-        n_participants = 10
-        
-        metadata_data = {
-            "participant_id": [f"sub-{i:03d}" for i in range(n_participants)],
-            "pre_fatigue": np.random.uniform(2.0, 4.0, n_participants),
-            "post_fatigue": np.random.uniform(4.5, 6.5, n_participants),
-            "pre_eeg_id": [f"eeg_pre_{i:03d}" for i in range(n_participants)],
-            "post_eeg_id": [f"eeg_post_{i:03d}" for i in range(n_participants)],
-            "session_date": ["2026-01-01"] * n_participants
-        }
-        self.metadata_df = pd.DataFrame(metadata_data)
-        self.metadata_path = self.data_processed / "metadata.csv"
-        self.metadata_df.to_csv(self.metadata_path, index=False)
-
-        # 2. Create Mock Complexity Metrics (LZC)
-        # Must contain: participant_id, channel, metric_value, metric_type
-        # We simulate 5 channels: Fp1, Fp2, Cz, Pz, Oz
-        channels = ["Fp1", "Fp2", "Cz", "Pz", "Oz"]
-        lzc_data = []
-        for pid in metadata_data["participant_id"]:
-            for ch in channels:
-                # Generate a value correlated with fatigue for realism
-                base_val = 0.4
-                # Add some noise
-                noise = np.random.normal(0, 0.05)
-                val = base_val + noise
-                lzc_data.append({
-                    "participant_id": pid,
-                    "channel": ch,
-                    "metric_value": val,
-                    "metric_type": "LZC"
-                })
-        
-        self.lzc_df = pd.DataFrame(lzc_data)
-        self.lzc_path = self.data_processed / "lzc_metrics.csv"
-        self.lzc_df.to_csv(self.lzc_path, index=False)
-
-        # 3. Create Mock Complexity Metrics (PE)
-        pe_data = []
-        for pid in metadata_data["participant_id"]:
-            for ch in channels:
-                base_val = 0.6
-                noise = np.random.normal(0, 0.05)
-                val = base_val + noise
-                pe_data.append({
-                    "participant_id": pid,
-                    "channel": ch,
-                    "metric_value": val,
-                    "metric_type": "PE"
-                })
-        
-        self.pe_df = pd.DataFrame(pe_data)
-        self.pe_path = self.data_processed / "pe_metrics.csv"
-        self.pe_df.to_csv(self.pe_path, index=False)
-
-        # 4. Create Mock Config
-        config_data = {
-            "paths": {
-                "data_dir": str(self.data_dir),
-                "processed_dir": str(self.data_processed),
-                "analysis_dir": str(self.data_analysis)
-            },
-            "analysis": {
-                "alpha": 0.05,
-                "method": "spearman",
-                "paired": True
-            }
-        }
-        self.config_path = self.tmp_dir / "config_test.yaml"
-        with open(self.config_path, 'w') as f:
-            import yaml
-            yaml.dump(config_data, f)
-
-        yield
-
-    def test_validate_metadata(self):
-        """Test that metadata validation passes with correct schema."""
-        config = load_config(str(self.config_path))
-        # Mock the metadata path in config for the test
-        metadata_path = self.data_processed / "metadata.csv"
-        df = pd.read_csv(metadata_path)
-        
-        # The validate_metadata function expects specific columns
-        # We check if the function runs without error on our mock data
-        # Note: The actual implementation might raise if columns are missing
-        try:
-            # We assume the implementation checks for these columns
-            required = ["pre_fatigue", "post_fatigue", "pre_eeg_id", "post_eeg_id"]
-            for col in required:
-                assert col in df.columns, f"Missing column: {col}"
-            # If we get here, the schema is valid
-            assert True
-        except AssertionError:
-            pytest.fail("Metadata schema validation failed")
-
-    def test_benjamini_hochberg_correction(self):
-        """Test the Benjamini-Hochberg correction implementation."""
-        # Create a set of mock p-values
-        mock_p_values = [0.001, 0.004, 0.009, 0.015, 0.025, 0.035, 0.045, 0.055, 0.065, 0.100]
-        df_p = pd.DataFrame({
-            "channel": ["Fp1", "Fp2", "Cz", "Pz", "Oz"] * 2,
-            "p_value": mock_p_values * 2
+# Mock data generation helper
+def generate_mock_data(n_participants=50, n_channels=10, seed=42):
+    """
+    Generate deterministic mock data for testing the analysis pipeline.
+    
+    Args:
+        n_participants: Number of mock participants
+        n_channels: Number of EEG channels
+        seed: Random seed for reproducibility
+    
+    Returns:
+        Tuple of (lzc_df, pe_df, metadata_df)
+    """
+    np.random.seed(seed)
+    
+    # Create participant IDs
+    participant_ids = [f"sub-{i:03d}" for i in range(n_participants)]
+    
+    # Generate mock LZC metrics
+    lzc_data = []
+    for pid in participant_ids:
+        for ch_idx in range(n_channels):
+            channel_name = f"EEG{ch_idx:03d}"
+            # Simulate LZC values with some correlation to a hidden "fatigue" factor
+            fatigue_factor = np.random.uniform(0, 1)
+            lzc_val = 0.4 + 0.1 * fatigue_factor + np.random.normal(0, 0.02)
+            lzc_data.append({
+                "participant_id": pid,
+                "channel": channel_name,
+                "lzc_value": round(lzc_val, 4)
+            })
+    
+    lzc_df = pd.DataFrame(lzc_data)
+    
+    # Generate mock PE metrics
+    pe_data = []
+    for pid in participant_ids:
+        for ch_idx in range(n_channels):
+            channel_name = f"EEG{ch_idx:03d}"
+            fatigue_factor = np.random.uniform(0, 1)
+            pe_val = 0.9 + 0.05 * fatigue_factor + np.random.normal(0, 0.01)
+            pe_data.append({
+                "participant_id": pid,
+                "channel": channel_name,
+                "pe_value": round(pe_val, 4)
+            })
+    
+    pe_df = pd.DataFrame(pe_data)
+    
+    # Generate mock metadata with paired fatigue scores
+    metadata_data = []
+    for pid in participant_ids:
+        pre_fatigue = np.random.uniform(1, 5)
+        post_fatigue = pre_fatigue + np.random.uniform(-1, 2) # Some increase expected
+        metadata_data.append({
+            "participant_id": pid,
+            "pre_fatigue": round(pre_fatigue, 2),
+            "post_fatigue": round(post_fatigue, 2),
+            "pre_eeg_id": f"{pid}_pre",
+            "post_eeg_id": f"{pid}_post"
         })
-        
-        result = run_benjamini_hochberg(df_p, "p_value", "channel", 0.05)
-        
-        assert isinstance(result, pd.DataFrame)
-        assert "is_significant" in result.columns
-        assert "adj_p_value" in result.columns
-        
-        # Check that at least the smallest p-value is significant
-        # (In a real run, this depends on the rank, but 0.001 should be significant)
-        sig_count = result["is_significant"].sum()
-        assert sig_count > 0, "Expected at least one significant result in mock data"
+    
+    metadata_df = pd.DataFrame(metadata_data)
+    
+    return lzc_df, pe_df, metadata_df
 
-    def test_full_pipeline_execution(self):
-        """
-        Integration test: Run the full analysis pipeline.
-        This tests the flow from data loading -> validation -> correlation -> BH correction -> report.
-        """
-        # We need to mock the paths in the config to point to our temp data
-        # The main() function expects a config file path
+@pytest.fixture
+def mock_data_dir(tmp_path):
+    """
+    Fixture to set up a temporary directory with mock data files.
+    Returns the path to the temporary directory.
+    """
+    # Create necessary subdirectories
+    data_processed = tmp_path / "data" / "processed"
+    data_analysis = tmp_path / "data" / "analysis"
+    data_processed.mkdir(parents=True, exist_ok=True)
+    data_analysis.mkdir(parents=True, exist_ok=True)
+    
+    # Generate and save mock data
+    lzc_df, pe_df, metadata_df = generate_mock_data()
+    
+    lzc_path = data_processed / "lzc_metrics.csv"
+    pe_path = data_processed / "pe_metrics.csv"
+    meta_path = data_processed / "metadata.csv"
+    
+    lzc_df.to_csv(lzc_path, index=False)
+    pe_df.to_csv(pe_path, index=False)
+    metadata_df.to_csv(meta_path, index=False)
+    
+    # Create a mock config file
+    config = {
+        "filter_low": 1,
+        "filter_high": 40,
+        "artifact_threshold": 100,
+        "random_seed": 42,
+        "embedding_dim": 3,
+        "lzc_file": str(lzc_path),
+        "pe_file": str(pe_path),
+        "metadata_file": str(meta_path),
+        "output_dir": str(data_analysis)
+    }
+    
+    config_path = tmp_path / "code" / "config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(config_path, "w") as f:
+        import yaml
+        yaml.dump(config, f)
+    
+    return tmp_path
+
+def test_analysis_pipeline_integration(mock_data_dir):
+    """
+    Integration test: Run the full analysis pipeline on mock data and verify outputs.
+    
+    This test:
+    1. Sets up mock data files in a temporary directory.
+    2. Runs the analysis pipeline (code/analysis.py).
+    3. Verifies that all declared output files are created.
+    4. Checks that the output files contain valid, non-empty data.
+    5. Validates the schema of output files.
+    """
+    # Change to the temporary directory to simulate running from project root
+    original_cwd = os.getcwd()
+    os.chdir(str(mock_data_dir))
+    
+    try:
+        # Ensure the code directory is in the path
+        code_dir = mock_data_dir / "code"
+        if str(code_dir) not in sys.path:
+            sys.path.insert(0, str(code_dir))
         
-        # Update config to point to temp paths (already done in setup)
-        # But we need to ensure the main function can find the files
-        # The main function logic:
-        # 1. Load config
-        # 2. Validate metadata
-        # 3. Load complexity metrics
-        # 4. Run correlation
-        # 5. Run BH
-        # 6. Generate report
+        # Reload the analysis module to pick up the new path if needed
+        import importlib
+        import analysis
+        importlib.reload(analysis)
         
-        # Since we created the files in the temp dir and config points there,
-        # we can run main() directly.
+        # Run the main analysis function
+        # We need to pass the config path or let it find it
+        # The main function typically loads from code/config.yaml
+        config_path = code_dir / "config.yaml"
+        
+        # Mock sys.argv to simulate command line execution
+        original_argv = sys.argv
+        sys.argv = ["analysis.py", "--config", str(config_path)]
         
         try:
-            # We cannot easily mock sys.argv for main() in a test function without side effects,
-            # so we will manually call the logical steps that main() performs.
-            # This is safer for unit/integration testing.
-            
-            config = load_config(str(self.config_path))
-            
-            # 1. Validate Metadata
-            metadata_path = self.data_processed / "metadata.csv"
-            metadata_df = pd.read_csv(metadata_path)
-            # Simulate validation check
-            assert "pre_fatigue" in metadata_df.columns
-            assert "post_fatigue" in metadata_df.columns
-            
-            # 2. Load Complexity Metrics (Simulate loading both)
-            lzc_path = self.data_processed / "lzc_metrics.csv"
-            lzc_df = pd.read_csv(lzc_path)
-            pe_path = self.data_processed / "pe_metrics.csv"
-            pe_df = pd.read_csv(pe_path)
-            
-            assert not lzc_df.empty
-            assert not pe_df.empty
-            
-            # 3. Run Correlation Analysis (Simulate)
-            # We'll create a small dataframe of correlations to test the BH function
-            # In a real run, this would compute correlations between delta complexity and delta fatigue
-            correlations = []
-            channels = ["Fp1", "Fp2", "Cz", "Pz", "Oz"]
-            for ch in channels:
-                # Mock correlation values
-                correlations.append({
-                    "channel": ch,
-                    "metric": "LZC",
-                    "correlation": 0.45,
-                    "p_value": 0.03,
-                    "n": 10
-                })
-                correlations.append({
-                    "channel": ch,
-                    "metric": "PE",
-                    "correlation": -0.35,
-                    "p_value": 0.08,
-                    "n": 10
-                })
-            
-            corr_df = pd.DataFrame(correlations)
-            
-            # 4. Run Benjamini-Hochberg
-            bh_result = run_benjamini_hochberg(corr_df, "p_value", "channel", 0.05)
-            assert not bh_result.empty
-            
-            # 5. Check Output Files
-            # The main() function writes to data/analysis/
-            # We check if the expected output files exist after the logic runs
-            # Since we are manually executing the logic, we simulate the file write
-            # to verify the path construction is correct.
-            
-            report_path = self.data_analysis / "analysis_report.json"
-            sensitivity_path = self.data_analysis / "sensitivity_table.csv"
-            
-            # Simulate writing the report
-            report_data = {
-                "status": "success",
-                "n_participants": 10,
-                "significant_correlations": int(bh_result["is_significant"].sum()),
-                "method": "spearman"
-            }
-            with open(report_path, 'w') as f:
-                json.dump(report_data, f, indent=2)
-                
-            # Simulate writing sensitivity table
-            sens_data = {
-                "threshold": [0.05, 0.01],
-                "significant_count": [int(bh_result[bh_result["p_value"] <= 0.05]["is_significant"].sum()),
-                                     int(bh_result[bh_result["p_value"] <= 0.01]["is_significant"].sum())]
-            }
-            sens_df = pd.DataFrame(sens_data)
-            sens_df.to_csv(sensitivity_path, index=False)
-            
-            # Assertions
-            assert report_path.exists(), "Analysis report not written"
-            assert sensitivity_path.exists(), "Sensitivity table not written"
-            
-            # Verify content
-            with open(report_path) as f:
-                content = json.load(f)
-                assert content["status"] == "success"
-                assert content["n_participants"] == 10
-                
-            with open(sensitivity_path) as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 2
-            
-        except Exception as e:
-            pytest.fail(f"Full pipeline execution failed: {str(e)}")
-
-    def test_output_file_paths(self):
-        """Verify that output files are written to the correct paths relative to config."""
-        # This is implicitly tested in test_full_pipeline_execution, but we make it explicit.
-        config = load_config(str(self.config_path))
-        analysis_dir = Path(config["paths"]["analysis_dir"])
+            analysis_main()
+        except SystemExit as e:
+            # Expected if the script finishes successfully with exit(0)
+            if e.code != 0:
+                pytest.fail(f"Analysis pipeline exited with non-zero code: {e.code}")
+        finally:
+            sys.argv = original_argv
+        
+        # Verify output files exist
+        data_analysis = mock_data_dir / "data" / "analysis"
         
         expected_files = [
-            "analysis_report.json",
-            "sensitivity_table.csv"
+            "correlation_results.csv",
+            "bh_corrected_results.csv",
+            "sensitivity_table.csv",
+            "vif_report.csv",
+            "final_report.md"
         ]
         
-        for fname in expected_files:
-            fpath = analysis_dir / fname
-            assert fpath.exists(), f"Expected file {fpath} does not exist"
+        for filename in expected_files:
+            filepath = data_analysis / filename
+            assert filepath.exists(), f"Expected output file {filename} was not created."
+            assert filepath.stat().st_size > 0, f"Output file {filename} is empty."
+        
+        # Validate schemas
+        # 1. Correlation results
+        corr_df = pd.read_csv(data_analysis / "correlation_results.csv")
+        required_corr_cols = ["channel", "correlation_type", "correlation_coefficient", "p_value", "method"]
+        assert all(col in corr_df.columns for col in required_corr_cols), \
+            f"Correlation results missing required columns. Found: {corr_df.columns.tolist()}"
+        assert len(corr_df) > 0, "Correlation results dataframe is empty."
+        
+        # 2. BH corrected results
+        bh_df = pd.read_csv(data_analysis / "bh_corrected_results.csv")
+        required_bh_cols = ["channel", "p_value_raw", "p_value_adj", "significant"]
+        assert all(col in bh_df.columns for col in required_bh_cols), \
+            f"BH results missing required columns. Found: {bh_df.columns.tolist()}"
+        
+        # 3. Sensitivity table
+        sens_df = pd.read_csv(data_analysis / "sensitivity_table.csv")
+        required_sens_cols = ["threshold", "count_significant"]
+        assert all(col in sens_df.columns for col in required_sens_cols), \
+            f"Sensitivity table missing required columns. Found: {sens_df.columns.tolist()}"
+        assert 0.05 in sens_df["threshold"].values or 0.05 in sens_df["threshold"].astype(float).values, \
+            "Sensitivity table should include 0.05 threshold."
+        
+        # 4. VIF report
+        vif_df = pd.read_csv(data_analysis / "vif_report.csv")
+        required_vif_cols = ["variable", "vif_value"]
+        assert all(col in vif_df.columns for col in required_vif_cols), \
+            f"VIF report missing required columns. Found: {vif_df.columns.tolist()}"
+        
+        # 5. Final report
+        report_path = data_analysis / "final_report.md"
+        with open(report_path, "r") as f:
+            report_content = f.read()
+        assert "Correlation Analysis" in report_content, "Final report missing 'Correlation Analysis' section."
+        assert "Statistical Significance" in report_content, "Final report missing 'Statistical Significance' section."
+        assert "Sensitivity Analysis" in report_content, "Final report missing 'Sensitivity Analysis' section."
+        
+        # Verify that correlation coefficients are within valid range [-1, 1]
+        assert (corr_df["correlation_coefficient"] >= -1.0).all() and \
+               (corr_df["correlation_coefficient"] <= 1.0).all(), \
+               "Correlation coefficients out of valid range."
+        
+        # Verify p-values are in valid range [0, 1]
+        assert (corr_df["p_value"] >= 0.0).all() and \
+               (corr_df["p_value"] <= 1.0).all(), \
+               "P-values out of valid range."
+    
+    finally:
+        os.chdir(original_cwd)
+
+def test_analysis_mode_selection(mock_data_dir):
+    """
+    Test that the analysis pipeline correctly selects between paired and cross-sectional modes.
+    
+    We create two scenarios:
+    1. Paired data (pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id present) -> Paired mode
+    2. Cross-sectional data (only baseline fatigue) -> Cross-sectional mode
+    """
+    # Scenario 1: Paired data (already set up in mock_data_dir fixture)
+    # The previous test already validates paired mode implicitly.
+    # We'll explicitly check the metadata validation here.
+    
+    config_path = mock_data_dir / "code" / "config.yaml"
+    config = load_config(config_path)
+    
+    metadata_df = pd.read_csv(config["metadata_file"])
+    
+    # Check if paired data exists
+    has_pre = "pre_fatigue" in metadata_df.columns
+    has_post = "post_fatigue" in metadata_df.columns
+    has_pre_eeg = "pre_eeg_id" in metadata_df.columns
+    has_post_eeg = "post_eeg_id" in metadata_df.columns
+    
+    assert has_pre and has_post and has_pre_eeg and has_post_eeg, \
+        "Mock data setup failed: missing paired data columns."
+    
+    # Scenario 2: Cross-sectional data
+    # Create a new temp directory with cross-sectional metadata
+    tmp_cross = Path(tempfile.mkdtemp())
+    try:
+        data_processed_cross = tmp_cross / "data" / "processed"
+        data_analysis_cross = tmp_cross / "data" / "analysis"
+        data_processed_cross.mkdir(parents=True, exist_ok=True)
+        data_analysis_cross.mkdir(parents=True, exist_ok=True)
+        
+        # Generate mock data for cross-sectional
+        lzc_df, pe_df, _ = generate_mock_data()
+        lzc_df.to_csv(data_processed_cross / "lzc_metrics.csv", index=False)
+        pe_df.to_csv(data_processed_cross / "pe_metrics.csv", index=False)
+        
+        # Create cross-sectional metadata (only baseline)
+        meta_cross = pd.DataFrame({
+            "participant_id": [f"sub-{i:03d}" for i in range(10)],
+            "baseline_fatigue": np.random.uniform(1, 5, 10),
+            "eeg_id": [f"sub-{i:03d}_baseline" for i in range(10)]
+        })
+        meta_cross.to_csv(data_processed_cross / "metadata_cross.csv", index=False)
+        
+        # Create config for cross-sectional
+        config_cross = {
+            "filter_low": 1,
+            "filter_high": 40,
+            "artifact_threshold": 100,
+            "random_seed": 42,
+            "embedding_dim": 3,
+            "lzc_file": str(data_processed_cross / "lzc_metrics.csv"),
+            "pe_file": str(data_processed_cross / "pe_metrics.csv"),
+            "metadata_file": str(data_processed_cross / "metadata_cross.csv"),
+            "output_dir": str(data_analysis_cross)
+        }
+        
+        config_path_cross = tmp_cross / "code" / "config.yaml"
+        config_path_cross.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_path_cross, "w") as f:
+            import yaml
+            yaml.dump(config_cross, f)
+        
+        # Validate metadata for cross-sectional
+        mode, error_msg = validate_metadata(pd.read_csv(config_cross["metadata_file"]))
+        
+        # Should detect cross-sectional mode (or fail if it strictly requires paired)
+        # Based on T018, it should pivot to cross-sectional if paired is missing
+        # We expect it to either identify as cross-sectional or fail gracefully
+        # For this test, we just ensure it doesn't crash and returns a valid mode or error
+        assert mode in ["paired", "cross-sectional", "failed"], \
+            f"Unexpected mode returned: {mode}"
+        
+    finally:
+        shutil.rmtree(tmp_cross)
+
+def test_benjamini_hochberg_correction(mock_data_dir):
+    """
+    Test the Benjamini-Hochberg correction implementation with known p-values.
+    
+    This test creates a set of known p-values and verifies that the BH correction
+    produces the expected adjusted p-values.
+    """
+    # Known p-values (sorted)
+    p_values = np.array([0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.1, 0.2, 0.5])
+    n = len(p_values)
+    m = n # total number of tests
+    
+    # Expected BH adjusted p-values
+    # Formula: p_adj[i] = min(p[i] * m / (i+1), p_adj[i+1]) working backwards
+    # Rank i starts at 1 for the smallest p-value
+    ranks = np.arange(1, m + 1)
+    expected_raw = p_values * m / ranks
+    
+    # Ensure monotonicity (working backwards)
+    expected_adj = np.zeros(m)
+    expected_adj[-1] = expected_raw[-1]
+    for i in range(m - 2, -1, -1):
+        expected_adj[i] = min(expected_raw[i], expected_adj[i+1])
+    
+    # Cap at 1.0
+    expected_adj = np.minimum(expected_adj, 1.0)
+    
+    # Run the BH correction
+    # We need to create a DataFrame with these p-values
+    df = pd.DataFrame({
+        "channel": [f"ch_{i}" for i in range(m)],
+        "p_value": p_values
+    })
+    
+    # Import the function
+    from benjamini_hochberg import run_benjamini_hochberg
+    
+    result_df = run_benjamini_hochberg(df, "p_value")
+    
+    # Verify the results
+    assert len(result_df) == m, "BH correction returned wrong number of rows."
+    
+    # Compare adjusted p-values (allowing for small floating point differences)
+    for i in range(m):
+        assert np.isclose(result_df.iloc[i]["p_value_adj"], expected_adj[i], atol=1e-6), \
+            f"BH correction mismatch at index {i}: expected {expected_adj[i]}, got {result_df.iloc[i]['p_value_adj']}"
+        
+        # Verify significance flag
+        expected_sig = expected_adj[i] <= 0.05
+        assert result_df.iloc[i]["significant"] == expected_sig, \
+            f"Significance flag mismatch at index {i}: expected {expected_sig}, got {result_df.iloc[i]['significant']}"
+
+def test_correlation_calculation(mock_data_dir):
+    """
+    Test correlation calculation with known mock data.
+    
+    We create a simple mock dataset where we know the expected correlation
+    and verify the calculation matches.
+    """
+    # Create a simple mock dataset
+    n = 20
+    x = np.linspace(0, 10, n)
+    y = 2 * x + np.random.normal(0, 0.5, n) # Strong positive correlation
+    
+    df = pd.DataFrame({
+        "x": x,
+        "y": y
+    })
+    
+    # Calculate Pearson correlation manually
+    expected_corr = np.corrcoef(x, y)[0, 1]
+    
+    # Use the analysis function (simplified for this test)
+    # We'll mock the input to the correlation function
+    from scipy.stats import pearsonr, spearmanr
+    
+    r_pearson, p_pearson = pearsonr(x, y)
+    r_spearman, p_spearman = spearmanr(x, y)
+    
+    # Verify Pearson
+    assert np.isclose(r_pearson, expected_corr, atol=1e-5), \
+        f"Pearson correlation mismatch: expected {expected_corr}, got {r_pearson}"
+    assert 0 <= p_pearson <= 1, "P-value out of range."
+    
+    # Verify Spearman (should also be high positive)
+    assert r_spearman > 0.8, "Spearman correlation unexpectedly low."
+    assert 0 <= p_spearman <= 1, "P-value out of range."
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

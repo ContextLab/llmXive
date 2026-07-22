@@ -1,14 +1,26 @@
 """
-Benjamini-Hochberg Correction for Multiple Comparisons.
+Benjamini-Hochberg Correction Implementation for Multiple Comparisons.
 
-Implements the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR)
-across multiple hypothesis tests (e.g., correlations across electrodes).
+This module implements the Benjamini-Hochberg (BH) procedure to control the
+False Discovery Rate (FDR) across multiple statistical tests (e.g., across electrodes).
+It reads p-values from the analysis results, applies the correction, and saves
+the adjusted p-values to a CSV file.
+
+Dependencies:
+    - pandas
+    - numpy
+    - pathlib
+    - logging
+    - os
+    - yaml (for config)
 """
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import logging
 import os
+import sys
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -17,162 +29,155 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_config(config_path='code/config.yaml'):
-    """Load pipeline configuration."""
+def load_config(config_path="code/config.yaml"):
+    """Load pipeline configuration from YAML file."""
     if not os.path.exists(config_path):
-        logger.warning(f"Config file {config_path} not found. Using defaults.")
-        return {'alpha': 0.05}
-    
-    import yaml
+        logger.error(f"Configuration file not found: {config_path}")
+        sys.exit(1)
     with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    return config
+        return yaml.safe_load(f)
 
-def run_benjamini_hochberg(p_values, alpha=0.05, method='indep'):
+def run_benjamini_hochberg(p_values, alpha=0.05):
     """
-    Apply Benjamini-Hochberg correction to a list/array of p-values.
+    Apply the Benjamini-Hochberg correction to a list/array of p-values.
 
-    Parameters
-    ----------
-    p_values : array-like
-        List or array of raw p-values.
-    alpha : float
-        Target False Discovery Rate (FDR) level (default 0.05).
-    method : str
-        'indep' for independent tests, 'poscorr' for positive dependency.
-        We use 'indep' as the standard assumption for electrode correlations.
+    The BH procedure controls the False Discovery Rate (FDR).
+    Steps:
+    1. Sort p-values in ascending order.
+    2. Calculate the critical value for each rank: (i / m) * alpha
+    3. Find the largest k such that p_(k) <= (k / m) * alpha.
+    4. Reject all hypotheses for ranks 1 to k.
+    5. Adjusted p-values are calculated as: p_adj[i] = min(p_adj[j] for j >= i)
 
-    Returns
-    -------
-    df_results : pd.DataFrame
-        DataFrame containing:
-        - raw_p: original p-value
-        - corrected_p: BH-adjusted p-value
-        - is_significant: boolean, True if corrected_p <= alpha
+    Parameters:
+        p_values (pd.Series or list): Array of raw p-values.
+        alpha (float): Significance level (default 0.05).
+
+    Returns:
+        pd.DataFrame: DataFrame containing original p-values, adjusted p-values,
+                      and significance status (True/False).
     """
-    p_values = np.array(p_values)
-    n = len(p_values)
-    
-    if n == 0:
-        logger.warning("No p-values provided for correction.")
-        return pd.DataFrame(columns=['raw_p', 'corrected_p', 'is_significant'])
+    if not isinstance(p_values, pd.Series):
+        p_values = pd.Series(p_values)
 
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-    
-    # Calculate BH critical values
-    # For 'indep' or 'poscorr' (standard BH)
-    ranks = np.arange(1, n + 1)
-    critical_values = (ranks / n) * alpha
-    
-    # Find the largest k where p_(k) <= critical_value_(k)
-    # Then reject all hypotheses 1..k
-    # Alternatively, compute adjusted p-values:
-    # p_adj(i) = min( (n/k) * p(k), p_adj(i+1) ) going backwards from n to 1
-    
-    adjusted_p = np.zeros(n)
-    adjusted_p[-1] = min(1.0, n * sorted_p[-1] / n) # p_(n) * n / n = p_(n)
-    
-    for i in range(n - 2, -1, -1):
-        # p_adj(i) = min( (n/(i+1)) * p(i), p_adj(i+1) )
-        # Note: ranks are 1-based, so rank of index i is i+1
-        rank = i + 1
-        raw_p_val = sorted_p[i]
-        factor = n / rank
-        candidate = factor * raw_p_val
-        # Ensure monotonicity
-        adjusted_p[i] = min(1.0, candidate, adjusted_p[i+1])
-    
+    if p_values.isna().any():
+        logger.warning("Input p-values contain NaN. Dropping them for calculation.")
+        p_values = p_values.dropna()
+
+    if len(p_values) == 0:
+        logger.warning("No valid p-values provided for BH correction.")
+        return pd.DataFrame(columns=['p_value', 'p_adj', 'significant'])
+
+    m = len(p_values)
+    sorted_indices = p_values.argsort()
+    sorted_p = p_values.iloc[sorted_indices]
+
+    # Calculate BH adjusted p-values
+    # Formula: p_adj[i] = min( (m/j) * p[j] for j >= i )
+    # We compute the raw multiplier first, then take the cumulative minimum from the end
+    ranks = np.arange(1, m + 1)
+    raw_adj = (m / ranks) * sorted_p.values
+
+    # Ensure monotonicity: p_adj[i] <= p_adj[i+1]
+    # We iterate backwards to ensure the cumulative minimum
+    adjusted = np.empty(m)
+    adjusted[-1] = raw_adj[-1]
+    for i in range(m - 2, -1, -1):
+        adjusted[i] = min(raw_adj[i], adjusted[i + 1])
+
+    # Cap values at 1.0
+    adjusted = np.minimum(adjusted, 1.0)
+
     # Map back to original order
-    final_adjusted_p = np.zeros(n)
-    final_adjusted_p[sorted_indices] = adjusted_p
-    
+    p_adj = pd.Series(adjusted, index=sorted_indices)
+    p_adj = p_adj.sort_index()
+
     # Determine significance
-    is_significant = final_adjusted_p <= alpha
-    
-    df_results = pd.DataFrame({
-        'raw_p': p_values,
-        'corrected_p': final_adjusted_p,
-        'is_significant': is_significant
+    significant = p_adj <= alpha
+
+    result_df = pd.DataFrame({
+        'p_value': p_values,
+        'p_adj': p_adj,
+        'significant': significant
     })
-    
-    return df_results
+
+    return result_df
 
 def main():
     """
-    Main entry point to run BH correction on analysis results.
-    Expects data/processed/complexity_metrics.csv or similar to exist.
-    Reads correlation results from data/results/correlation_results.csv (if exists)
-    or expects the user to pipe data. For this task, we assume the input comes
-    from a standard analysis output file.
-    
-    Since T019 (Correlation Analysis) produces the raw p-values, this script
-    reads that file, applies BH correction, and saves the corrected results.
+    Main execution function for BH correction.
+    Reads complexity metrics and analysis results (if available),
+    performs BH correction on correlation p-values per electrode,
+    and saves the results to data/analysis/bh_corrected_results.csv.
     """
     logger.info("Starting Benjamini-Hochberg correction pipeline.")
-    
+
+    # Load config
     config = load_config()
-    alpha = config.get('alpha', 0.05)
-    
-    # Determine input file
-    # T019 produces data/results/correlation_results.csv with columns:
-    # channel, correlation, p_value, method
-    input_path = Path('data/results/correlation_results.csv')
-    
-    if not input_path.exists():
-        # Fallback: check data/processed if that's where T019 put it (though spec says results)
-        input_path = Path('data/processed/correlation_results.csv')
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. "
-                     "Run T019 (analysis.py) first to generate correlation results.")
-        # We cannot proceed without data. In a real run, this would exit 1.
-        # However, for the purpose of this task implementation, we must ensure
-        # the script logic is correct. We will create a dummy result if the file
-        # is missing ONLY IF the file is expected to be generated by a previous step
-        # that failed in the environment. But per constraints, we must not fabricate data.
-        # Instead, we raise a clear error.
-        raise FileNotFoundError(f"Correlation results file not found at {input_path}. "
-                                "Ensure T019 (code/analysis.py) has been run successfully.")
+    alpha = config.get('analysis', {}).get('alpha', 0.05)
 
-    logger.info(f"Loading correlation results from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    # Validate columns
-    required_cols = ['p_value', 'channel']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
-    
-    p_values = df['p_value'].values
-    
-    logger.info(f"Applying BH correction with alpha={alpha} to {len(p_values)} tests.")
-    
-    df_corrected = run_benjamini_hochberg(p_values, alpha=alpha)
-    
-    # Merge with original data
-    df_final = pd.concat([df.drop(columns=['p_value']), df_corrected], axis=1)
-    
+    # Define input/output paths
+    # The analysis step (T019) should have generated a file with correlations per channel.
+    # We expect a file like data/analysis/correlation_results.csv or similar.
+    # Since T019 implementation details might vary, we look for the most likely output.
+    # Based on T019 description: "Output to data/analysis/correlation_results.csv" (implied).
+    # If T019 output is missing, we check for a generic analysis result.
+
+    # Let's assume the analysis stage produced a file with columns:
+    # ['channel', 'correlation', 'p_value', 'method']
+    input_path = Path("data/analysis/correlation_results.csv")
+
+    if not input_path.exists():
+        # Fallback: Try to construct a dummy result for verification if the file is missing
+        # BUT per strict constraints, we must fail loudly if real data is missing.
+        # However, T020 is a verification task. If the upstream analysis failed (as per execution log),
+        # we cannot proceed with real data.
+        # The execution log says: "code/analysis.py -> rc=1 ... Complexity metrics file not found".
+        # Therefore, correlation_results.csv does not exist.
+        # We must exit with an error to prevent fabrication.
+        logger.error("Input file not found: data/analysis/correlation_results.csv")
+        logger.error("Upstream analysis (T019) failed to produce results. Cannot perform BH correction.")
+        sys.exit(1)
+
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        logger.error(f"Failed to read input file {input_path}: {e}")
+        sys.exit(1)
+
+    # Validate required columns
+    required_cols = ['p_value']
+    if not all(col in df.columns for col in required_cols):
+        logger.error(f"Input file missing required columns: {required_cols}. Found: {df.columns.tolist()}")
+        sys.exit(1)
+
+    # Extract p-values
+    p_values = df['p_value']
+
+    # Run BH correction
+    logger.info(f"Applying BH correction to {len(p_values)} p-values with alpha={alpha}.")
+    corrected_df = run_benjamini_hochberg(p_values, alpha=alpha)
+
+    # Merge back with original dataframe (assuming index alignment or merge on channel if present)
+    # If the input had 'channel' or other identifiers, we need to preserve them.
+    # The run_benjamini_hochberg function returns a DataFrame with the same index as input.
+    # We assume the input index corresponds to the rows.
+    final_result = df.copy()
+    final_result['p_adj'] = corrected_df['p_adj']
+    final_result['significant_bh'] = corrected_df['significant']
+
     # Ensure output directory exists
-    output_path = Path('data/results/bh_corrected_results.csv')
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df_final.to_csv(output_path, index=False)
-    logger.info(f"Corrected results saved to {output_path}")
-    
-    # Summary
-    n_sig = df_final['is_significant'].sum()
-    logger.info(f"Significant findings after BH correction: {n_sig} / {len(df_final)}")
-    
-    # Also save a summary table for the report
-    summary_path = Path('data/results/bh_summary.csv')
-    summary_df = pd.DataFrame({
-        'metric': ['total_tests', 'significant_at_alpha', 'alpha_threshold'],
-        'value': [len(df_final), n_sig, alpha]
-    })
-    summary_df.to_csv(summary_path, index=False)
-    logger.info(f"Summary saved to {summary_path}")
+    output_dir = Path("data/analysis")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "bh_corrected_results.csv"
 
-if __name__ == '__main__':
+    # Save results
+    final_result.to_csv(output_path, index=False)
+    logger.info(f"BH correction complete. Results saved to {output_path}")
+
+    # Print summary
+    n_sig = final_result['significant_bh'].sum()
+    logger.info(f"Significant electrodes after BH correction: {n_sig}/{len(final_result)}")
+
+if __name__ == "__main__":
     main()

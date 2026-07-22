@@ -7,6 +7,8 @@ from pathlib import Path
 import mne
 from scipy.stats import entropy
 from collections import Counter
+import re
+import math
 
 sys.path.insert(0, str(Path(__file__).parent))
 from utils.logging import get_logger
@@ -19,37 +21,49 @@ def load_config():
 def calculate_lzc(signal):
     """
     Calculate Lempel-Ziv Complexity.
-    Uses a simple implementation or library if available.
+    Uses a robust implementation.
     """
-    try:
-        from lempel_ziv_complexity import lempel_ziv_complexity
-        # Normalize signal to 0/1 for LZC
-        binary_signal = (signal > np.mean(signal)).astype(int)
-        lzc, _ = lempel_ziv_complexity(binary_signal)
-        return lzc
-    except ImportError:
-        # Fallback implementation if library not installed
-        # Simple LZC calculation
-        s = "".join(map(str, (signal > np.mean(signal)).astype(int).tolist()))
-        n = len(s)
-        lzc = 1
-        k = 1
-        while k < n:
-            found = False
-            for i in range(k):
-                if s[i:i+k] in s[k:]:
-                    found = True
-                    break
-            if found:
-                k += 1
-            else:
-                lzc += 1
-                k += 1
-        return lzc / (n / np.log2(n))
+    # Normalize signal to binary (0/1) based on median
+    median_val = np.median(signal)
+    binary_signal = (signal > median_val).astype(int)
+    
+    # Convert to string for algorithm
+    s = "".join(map(str, binary_signal.tolist()))
+    n = len(s)
+    
+    if n == 0:
+        return 0.0
+
+    # Robust LZC algorithm
+    lzc = 1
+    k = 1
+    len_k = 1
+    
+    while k <= n:
+        sub = s[:k]
+        if sub in s[k:]:
+            k += 1
+            len_k += 1
+        else:
+            lzc += 1
+            if k == n:
+                break
+            if k > len_k:
+                len_k = k
+            k += 1
+            len_k = 1
+    
+    # Normalization: C(n) ~ n / log2(n)
+    if n / np.log2(n) == 0:
+        return 0.0
+    
+    return lzc / (n / np.log2(n))
 
 def calculate_permutation_entropy(signal, order=3, delay=1):
     """
-    Calculate Permutation Entropy.
+    Calculate Normalized Permutation Entropy.
+    Returns value in range [0, 1].
+    For white noise, the value should be close to 1.0.
     """
     n = len(signal)
     if n < order * delay:
@@ -58,9 +72,8 @@ def calculate_permutation_entropy(signal, order=3, delay=1):
     # Create embeddings
     embeddings = []
     for i in range(n - (order - 1) * delay):
-        # Extract the segment
         segment = signal[i : i + order * delay : delay]
-        # Get the permutation (argsort)
+        # argsort returns indices that would sort the array
         emb = tuple(np.argsort(segment))
         embeddings.append(emb)
     
@@ -74,7 +87,15 @@ def calculate_permutation_entropy(signal, order=3, delay=1):
     # Avoid log(0)
     probs = probs[probs > 0]
     
-    return entropy(probs, base=2)
+    # Calculate raw entropy
+    raw_entropy = entropy(probs, base=2)
+    
+    # Normalize by max possible entropy (log2(order!))
+    max_entropy = np.log2(math.factorial(order))
+    if max_entropy == 0:
+        return 0.0
+    
+    return raw_entropy / max_entropy
 
 def process_eeg_segments(raw_file):
     logger = get_logger("features")
@@ -94,12 +115,7 @@ def process_eeg_segments(raw_file):
     sfreq = raw.info['sfreq']
     ch_names = raw.ch_names
     
-    # Determine participant ID from filename if possible, otherwise use generic
-    # Assuming the file name might contain participant info, e.g., 'sub-001_cleaned_eeg.fif'
-    # For now, we'll extract a generic ID or use 'combined' if not found
     base_name = Path(raw_file).stem
-    # Try to extract 'sub-XXX' pattern
-    import re
     match = re.search(r'sub-(\w+)', base_name)
     participant_id = match.group(1) if match else "unknown"
 
@@ -108,18 +124,14 @@ def process_eeg_segments(raw_file):
     for ch_idx, ch_name in enumerate(ch_names):
         channel_data = data[ch_idx]
         
-        # Skip channels that are obviously not EEG (e.g., EOG, EMG if present and labeled)
-        # But for now, process all
-        
-        # Calculate metrics
         lzc_val = calculate_lzc(channel_data)
         pe_val = calculate_permutation_entropy(channel_data)
         
         metrics.append({
             "participant_id": participant_id,
             "channel": ch_name,
-            "lzc_value": round(lzc_val, 4),
-            "pe_value": round(pe_val, 4)
+            "lzc_value": round(float(lzc_val), 4),
+            "pe_value": round(float(pe_val), 4)
         })
     
     return metrics
@@ -145,7 +157,6 @@ def main():
         logger.error(f"Input file not found: {input_file}")
         sys.exit(1)
     
-    # Process data
     metrics = process_eeg_segments(input_file)
     
     if not metrics:

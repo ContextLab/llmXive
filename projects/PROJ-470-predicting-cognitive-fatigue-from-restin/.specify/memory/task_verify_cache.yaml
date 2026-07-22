@@ -1,27 +1,13 @@
-T006:
+T010:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/models/EEGSegment.py` or `ComplexityMetric.py` (or equivalent) files
-    were presented, nor any test script importing them and checking attributes. The
-    required model classes and verification code are missing, so the task is not satisfied.
-T014:
-  c: false
-  h: e589310c0bde824332ddebabaa1d2077b45913af49b4117cadcbb83556bfd109
-  r: "The repository contains a partially implemented `code/features.py`, but it does\
-    \ not include logic to write the required `data/processed/lzc_metrics.csv` file,\
-    \ nor does it perform the synthetic\u2011signal verification. The expected CSV\
-    \ file is missing entirely, so the task\u2019s output and validation steps are\
-    \ not satisfied."
-T015:
-  c: false
-  h: 396d9f78ccd075383d2b0c0a77ac3be77f464138ed2b2684d59c64cf8dd52638
-  r: "The repository contains a partial `code/features.py` with a PE function, but\
-    \ it does not include logic to process all channels, generate the required `data/processed/pe_metrics.csv`,\
-    \ or perform the synthetic\u2011signal test. The expected CSV file is missing\
-    \ entirely, so the verification steps cannot be satisfied. The implementer must\
-    \ add code that iterates over EEG channels, writes the three\u2011column CSV in\
-    \ the specified order with four\u2011decimal PE values, and include the synthetic\u2011\
-    signal assertion."
+  h: cc9eb46e885b37cc78d9e7fc6e67b84fe800d154fcd93b12033f1e845e6cecab
+  r: "The required output file `data/processed/cleaned_eeg.fif` does not exist, and\
+    \ the integration test `test_line_noise_attenuation` (which must check >20\u202F\
+    dB attenuation and handle the \u226530\u2011participant condition) is missing\
+    \ from `tests/integration/test_preprocess.py`. Additionally, the provided `preprocess.py`\
+    \ snippet is truncated and does not show logic for writing the output file, generating\
+    \ the justification document conditionally, or handling the \u226530 participant\
+    \ requirement. These pieces must be added for the task to be considered complete."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,11 +17,12 @@ T020:
     \ been added, so the required implementation is missing."
 T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or documentation was presented that implements a\
-    \ Variance Inflation Factor (VIF) collinearity diagnostic with a threshold of\u202F\
-    5, nor any evidence that such a check is applied when combining metrics per SC\u2011\
-    004. The required artifact is missing, so the task is not satisfied."
+  h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601
+  r: "The provided `tests/unit/test_analysis.py` contains only Benjamini\u2011Hochberg\
+    \ tests and does not define a `test_vif_check` that verifies VIF calculation or\
+    \ warning logging. Additionally, the required output file `data/analysis/vif_report.csv`\
+    \ is absent. Both the test and the CSV report need to be added to satisfy the\
+    \ task."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,9 +30,3 @@ T024:
     that any documentation covering pipeline parameters, data sources, or statistical
     interpretation guidelines exists. The required artifact is missing, so the task
     is not satisfied.
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files under `tests/unit/` containing edge\u2011case unit\
-    \ tests (e.g., handling missing data, analysis mode failures) is provided. The\
-    \ required test artifacts are missing, so the task is not satisfied."

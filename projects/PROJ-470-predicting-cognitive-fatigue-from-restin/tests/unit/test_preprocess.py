@@ -1,10 +1,11 @@
 """
-Unit tests for edge cases in code/preprocess.py.
-Specifically tests missing data scenarios.
+Unit tests for preprocessing functions in code/preprocess.py.
+Includes tests for bandpass filter attenuation and edge cases.
 """
 import os
 import sys
 import pytest
+import numpy as np
 from pathlib import Path
 import tempfile
 import shutil
@@ -13,8 +14,64 @@ import shutil
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from preprocess import stream_eeg_files, load_config
+from preprocess import stream_eeg_files, load_config, apply_bandpass_filter
 from utils.logging import get_logger
+
+class TestBandpassFilterAttenuation:
+    """Tests for verifying bandpass filter attenuation characteristics."""
+
+    def test_bandpass_attenuation(self):
+        """
+        Verify that the bandpass filter attenuates frequencies outside the passband.
+        Specifically tests that a 0.5 Hz signal (below passband) and a 60 Hz signal 
+        (above passband) are attenuated by >20dB compared to a 10 Hz signal (in passband).
+        
+        Verification: Run `pytest tests/unit/test_preprocess.py::test_bandpass_attenuation` 
+        and assert it fails initially, then passes after implementation.
+        """
+        # Create a synthetic signal with known frequency components
+        fs = 256  # Sampling frequency
+        duration = 10  # seconds
+        t = np.arange(0, duration, 1/fs)
+        
+        # Create a signal with three frequency components:
+        # 0.5 Hz (below passband), 10 Hz (in passband), 60 Hz (above passband)
+        signal = (
+            1.0 * np.sin(2 * np.pi * 0.5 * t) +   # Low frequency (should be attenuated)
+            1.0 * np.sin(2 * np.pi * 10.0 * t) +  # Passband frequency (reference)
+            1.0 * np.sin(2 * np.pi * 60.0 * t)    # High frequency (should be attenuated)
+        )
+        
+        # Apply the bandpass filter (1-40 Hz as per config)
+        filtered_signal = apply_bandpass_filter(signal, fs, 1, 40)
+        
+        # Calculate power spectral density using FFT
+        n = len(signal)
+        freqs = np.fft.rfftfreq(n, 1/fs)
+        spectrum = np.abs(np.fft.rfft(signal))
+        filtered_spectrum = np.abs(np.fft.rfft(filtered_signal))
+        
+        # Find indices for our test frequencies
+        idx_low = np.argmin(np.abs(freqs - 0.5))
+        idx_pass = np.argmin(np.abs(freqs - 10.0))
+        idx_high = np.argmin(np.abs(freqs - 60.0))
+        
+        # Calculate attenuation in dB
+        # Attenuation = 20 * log10(filtered_amplitude / original_amplitude)
+        # We want to show that filtered amplitude is much smaller than original
+        # for out-of-band frequencies
+        
+        attenuation_low = 20 * np.log10(np.abs(filtered_spectrum[idx_low]) / np.abs(spectrum[idx_low]))
+        attenuation_high = 20 * np.log10(np.abs(filtered_spectrum[idx_high]) / np.abs(spectrum[idx_high]))
+        
+        # Verify attenuation > 20dB (which means ratio < 0.1)
+        # Note: attenuation will be negative, so we check if it's less than -20
+        assert attenuation_low < -20, f"Low frequency attenuation {attenuation_low:.2f}dB is not > 20dB"
+        assert attenuation_high < -20, f"High frequency attenuation {attenuation_high:.2f}dB is not > 20dB"
+        
+        # Verify that the passband frequency is not significantly attenuated (< 3dB)
+        attenuation_pass = 20 * np.log10(np.abs(filtered_spectrum[idx_pass]) / np.abs(spectrum[idx_pass]))
+        assert attenuation_pass > -3, f"Passband attenuation {attenuation_pass:.2f}dB is too high"
 
 class TestMissingDataEdgeCases:
     """Tests for handling missing data in preprocessing."""

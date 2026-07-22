@@ -1,173 +1,181 @@
 """
-Unit tests for the Benjamini-Hochberg correction implementation in code/analysis.py.
-This module verifies that the False Discovery Rate (FDR) correction is applied
-correctly across multiple comparisons (electrodes).
+Unit tests for the analysis module, specifically focusing on the
+Benjamini-Hochberg correction implementation (T020) and collinearity diagnostics (T023).
 """
-import os
-import sys
 import pytest
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pandas as pd
 import numpy as np
+import os
+import sys
+from pathlib import Path
+import tempfile
+import shutil
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add the project root to the path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from analysis import run_benjamini_hochberg, load_config, validate_metadata
-import yaml
+from code.analysis import run_benjamini_hochberg
+from code.benjamini_hochberg import run_benjamini_hochberg as bh_main_impl
+from code.collinearity import calculate_vif, run_collinearity_diagnostics, load_analysis_results
 
-class TestBenjaminiHochbergCorrection:
-    """Tests for the Benjamini-Hochberg FDR correction logic."""
+# Mock data for VIF tests
+def create_mock_metrics_data(tmp_dir):
+    """Create mock LZC and PE metrics files for testing."""
+    lzc_path = Path(tmp_dir) / "lzc_metrics.csv"
+    pe_path = Path(tmp_dir) / "pe_metrics.csv"
 
-    def test_bh_correction_basic(self, tmp_path):
+    # Create mock data
+    participants = [f"sub_{i:03d}" for i in range(1, 51)]
+    channels = ['Fz', 'Cz', 'Pz']
+
+    lzc_data = []
+    pe_data = []
+
+    for p in participants:
+        for ch in channels:
+            # Generate correlated data to trigger VIF
+            base = np.random.uniform(0.4, 0.6)
+            lzc_val = base + np.random.normal(0, 0.05)
+            # PE is highly correlated with LZC here to test VIF
+            pe_val = base * 1.8 + np.random.normal(0, 0.05)
+
+            lzc_data.append({'participant_id': p, 'channel': ch, 'lzc_value': lzc_val})
+            pe_data.append({'participant_id': p, 'channel': ch, 'pe_value': pe_val})
+
+    pd.DataFrame(lzc_data).to_csv(lzc_path, index=False)
+    pd.DataFrame(pe_data).to_csv(pe_path, index=False)
+    return lzc_path, pe_path
+
+class TestBenjaminiHochberg:
+    """Tests for the Benjamini-Hochberg correction implementation."""
+
+    def test_bh_correction_theoretical(self):
         """
-        Verify that run_benjamini_hochberg correctly computes adjusted p-values
-        for a known set of p-values.
+        Test BH correction on a known set of p-values.
+        Reference: Standard BH procedure example.
         """
-        # Create a dataframe with known p-values
-        # Expected behavior: sorted p-values are multiplied by (m/i) and capped
+        p_values = np.array([0.001, 0.004, 0.009, 0.015, 0.025, 0.035, 0.05, 0.1, 0.2, 0.3])
+        alpha = 0.05
+        m = len(p_values)
+
+        result_df = bh_main_impl(p_values, alpha=alpha)
+
+        assert len(result_df) == m
+        assert result_df['significant'].sum() == 5
+
+        expected_p_adj = [0.01, 0.02, 0.03, 0.0375, 0.05, 0.058333, 0.071428, 0.125, 0.222222, 0.3]
+        for i, expected in enumerate(expected_p_adj):
+            assert np.isclose(result_df['p_adj'].iloc[i], expected, rtol=1e-4), \
+                f"Mismatch at index {i}: expected {expected}, got {result_df['p_adj'].iloc[i]}"
+
+    def test_bh_correction_with_nan(self):
+        """Test that BH correction handles NaN values gracefully."""
+        p_values = [0.01, np.nan, 0.05, 0.1]
+        result_df = bh_main_impl(p_values, alpha=0.05)
+        assert len(result_df) == 3
+        assert not result_df['p_adj'].isna().any()
+
+    def test_bh_correction_empty(self):
+        """Test BH correction on empty input."""
+        p_values = []
+        result_df = bh_main_impl(p_values, alpha=0.05)
+        assert len(result_df) == 0
+
+    def test_bh_correction_all_significant(self):
+        """Test case where all p-values are very small."""
+        p_values = [0.001, 0.002, 0.003]
+        result_df = bh_main_impl(p_values, alpha=0.05)
+        assert result_df['significant'].all()
+
+    def test_bh_correction_none_significant(self):
+        """Test case where no p-values are significant."""
+        p_values = [0.2, 0.3, 0.4]
+        result_df = bh_main_impl(p_values, alpha=0.05)
+        assert not result_df['significant'].any()
+
+class TestCollinearityDiagnostics:
+    """Tests for the collinearity diagnostics (VIF) implementation (T023)."""
+
+    def test_vif_check(self, tmp_path):
+        """
+        Verify VIF calculation and logging of warning if VIF >= 5.
+        Output should be written to data/analysis/vif_report.csv.
+        """
+        # Create temporary directory structure
+        test_data_dir = tmp_path / "data" / "processed"
+        test_data_dir.mkdir(parents=True)
+        test_analysis_dir = tmp_path / "data" / "analysis"
+        test_analysis_dir.mkdir(parents=True)
+
+        # Create mock files in the temp directory
+        lzc_path, pe_path = create_mock_metrics_data(test_data_dir)
+
+        # Temporarily override the paths in the module or mock the load function
+        # Since the function uses hardcoded paths relative to code/, we need to
+        # simulate the environment or patch the load function.
+        # For this test, we will patch load_analysis_results to return our data.
+
+        import code.collinearity as collinearity_module
+
+        original_load = collinearity_module.load_analysis_results
+
+        def mock_load():
+            lzc_df = pd.read_csv(lzc_path)
+            pe_df = pd.read_csv(pe_path)
+            return lzc_df, pe_df
+
+        collinearity_module.load_analysis_results = mock_load
+
+        try:
+            # Run the diagnostics
+            report = run_collinearity_diagnostics()
+
+            # Assert report exists and has correct columns
+            assert report is not None
+            assert 'vif' in report.columns
+            assert 'status' in report.columns
+
+            # Assert that warnings were logged (we can't easily capture logs in this simple test,
+            # but we can check the status column)
+            assert 'WARNING' in report['status'].values or 'CRITICAL' in report['status'].values
+
+            # Check that the file was written to the expected location (mocked path)
+            # Since we patched load, the save path might still be the original.
+            # Let's just verify the data integrity.
+            assert len(report) > 0
+            assert all(report['vif'] >= 1.0) # VIF is always >= 1
+
+        finally:
+            # Restore original function
+            collinearity_module.load_analysis_results = original_load
+
+    def test_vif_calculation_basic(self):
+        """Test basic VIF calculation on a simple dataframe."""
         data = {
-            'channel': ['A', 'B', 'C', 'D', 'E'],
-            'p_value': [0.001, 0.01, 0.02, 0.03, 0.04]
+            'x1': [1, 2, 3, 4, 5],
+            'x2': [2, 4, 6, 8, 10]  # Perfectly collinear with x1
         }
         df = pd.DataFrame(data)
+        vif_df = calculate_vif(df, ['x1', 'x2'])
 
-        # Run BH correction with alpha=0.05
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
+        assert len(vif_df) == 2
+        # With perfect collinearity, VIF should be very large or infinite (NaN in some implementations)
+        # statsmodels might return inf or a very large number.
+        assert any(vif_df['vif'] > 100) or any(vif_df['vif'].isna())
 
-        # Verify columns exist
-        assert 'p_value' in result_df.columns
-        assert 'p_adj' in result_df.columns
-        assert 'significant' in result_df.columns
-
-        # Verify monotonicity of adjusted p-values (sorted by original p-value)
-        # The BH procedure ensures that adjusted p-values are non-decreasing
-        # when sorted by original p-values
-        sorted_result = result_df.sort_values('p_value').reset_index(drop=True)
-        assert (sorted_result['p_adj'].diff().dropna() >= -1e-9).all(), \
-            "Adjusted p-values must be monotonically non-decreasing"
-
-        # Verify specific calculation for the largest p-value
-        # m = 5, i = 5 (for 0.04), raw = 0.04 * 5/5 = 0.04
-        # The smallest p-value (0.001) -> 0.001 * 5/1 = 0.005
-        # Check that the logic holds for the first row (smallest p)
-        first_row = sorted_result.iloc[0]
-        expected_adj_min = min(0.001 * (5 / 1), 1.0)
-        assert abs(first_row['p_adj'] - expected_adj_min) < 1e-6, \
-            f"Expected adjusted p-value {expected_adj_min}, got {first_row['p_adj']}"
-
-    def test_bh_correction_all_significant(self, tmp_path):
-        """
-        Verify that all p-values are marked significant when they are very small.
-        """
+    def test_vif_no_collinearity(self):
+        """Test VIF on uncorrelated data."""
+        np.random.seed(42)
         data = {
-            'channel': ['A', 'B', 'C'],
-            'p_value': [0.0001, 0.0002, 0.0003]
+            'x1': np.random.randn(100),
+            'x2': np.random.randn(100)
         }
         df = pd.DataFrame(data)
+        vif_df = calculate_vif(df, ['x1', 'x2'])
 
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
+        assert len(vif_df) == 2
+        # VIF should be close to 1 for uncorrelated variables
+        assert all(vif_df['vif'] < 1.5)
 
-        assert all(result_df['significant']), "All p-values should be significant"
-
-    def test_bh_correction_none_significant(self, tmp_path):
-        """
-        Verify that no p-values are marked significant when they are all large.
-        """
-        data = {
-            'channel': ['A', 'B', 'C'],
-            'p_value': [0.5, 0.6, 0.7]
-        }
-        df = pd.DataFrame(data)
-
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
-
-        assert not any(result_df['significant']), "No p-values should be significant"
-
-    def test_bh_correction_edge_case_zero_p(self, tmp_path):
-        """
-        Verify handling of p-value = 0 (or very close to 0).
-        """
-        data = {
-            'channel': ['A', 'B'],
-            'p_value': [0.0, 0.05]
-        }
-        df = pd.DataFrame(data)
-
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
-
-        # 0.0 should remain 0.0 or very close, and be significant
-        assert result_df.loc[result_df['channel'] == 'A', 'p_adj'].iloc[0] <= 0.001
-        assert result_df.loc[result_df['channel'] == 'A', 'significant'].iloc[0] is True
-
-    def test_bh_correction_single_test(self, tmp_path):
-        """
-        Verify behavior with a single test (no multiple comparison correction needed).
-        """
-        data = {
-            'channel': ['A'],
-            'p_value': [0.04]
-        }
-        df = pd.DataFrame(data)
-
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
-
-        # For a single test, adjusted p-value should be the same as raw
-        assert abs(result_df['p_adj'].iloc[0] - 0.04) < 1e-6
-        assert result_df['significant'].iloc[0] is True
-
-    def test_bh_correction_preserves_order(self, tmp_path):
-        """
-        Verify that the row order is preserved in the output dataframe.
-        """
-        # Create dataframe with specific order
-        data = {
-            'channel': ['Z', 'A', 'M'],
-            'p_value': [0.05, 0.01, 0.03]
-        }
-        df = pd.DataFrame(data)
-
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
-
-        # Check that the order of channels is preserved
-        assert list(result_df['channel']) == ['Z', 'A', 'M']
-
-    def test_bh_correction_alpha_0_01(self, tmp_path):
-        """
-        Verify that the alpha threshold correctly filters significance.
-        """
-        data = {
-            'channel': ['A', 'B', 'C'],
-            'p_value': [0.005, 0.008, 0.015]
-        }
-        df = pd.DataFrame(data)
-
-        result_df = run_benjamini_hochberg(df, alpha=0.01)
-
-        # With alpha=0.01, only the most significant might pass depending on correction
-        # We verify the logic runs without error and returns boolean column
-        assert 'significant' in result_df.columns
-        assert result_df['significant'].dtype == bool
-
-    def test_bh_correction_with_nan(self, tmp_path):
-        """
-        Verify that the function handles NaN values gracefully (either drops or marks as non-significant).
-        """
-        data = {
-            'channel': ['A', 'B', 'C'],
-            'p_value': [0.01, np.nan, 0.03]
-        }
-        df = pd.DataFrame(data)
-
-        # The function should not crash. It may drop NaNs or handle them.
-        # We check that it returns a valid dataframe with the same number of rows
-        # or fewer (if NaNs were dropped).
-        result_df = run_benjamini_hochberg(df, alpha=0.05)
-
-        assert isinstance(result_df, pd.DataFrame)
-        assert 'p_adj' in result_df.columns
-        assert 'significant' in result_df.columns
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

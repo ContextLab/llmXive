@@ -4,6 +4,10 @@
     "required": []
   },
   {
+    "data_file": "data/processed/lzc_metrics.csv",
+    "required": []
+  },
+  {
     "data_file": "data/processed/preprocessed_eeg.npy",
     "required": []
   }
