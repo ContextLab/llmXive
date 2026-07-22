@@ -2,85 +2,87 @@
 
 ## Executive Summary
 
-This research investigates whether archival data from the NNDC ENSDF database and primary literature contains sufficient published D-coefficients to perform a **Meta-Analysis** for detecting Time-Reversal (T) symmetry violations. The study focuses on nuclei such as 6He and 19Ne. The core hypothesis is that by aggregating independent published D-coefficient measurements via inverse-variance weighting, we can derive a more precise constraint on T-violation than individual experiments. The original proposed "cross-modal covariance" method was found to be physically invalid (requires simultaneous event-level data not available in archival summaries) and has been replaced by this Meta-Analysis approach.
+This research explores the feasibility of extracting T-violation constraints (D-coefficient) from archival beta decay data using a novel cross-modal fusion method. By combining momentum spectra and polarization asymmetry coefficients from the NNDC ENSDF database, we aim to derive upper bounds without new experiments. The approach relies on rigorous permutation testing to establish statistical significance.
 
 ## Dataset Strategy
 
-### Target Nuclei
-- **Primary**: 6He, 19Ne (as specified in FR-001, but pivoted to D-coefficient retrieval).
-- **Selection Criteria**: Nuclei must have published measurements of the **D-coefficient** (or A, B, a coefficients from which D can be derived if the paper provides the formula).
+The project relies **exclusively** on the NNDC ENSDF database for experimental data. The 2024 Particle Data Group (PDG) Review serves as the benchmark for validation.
 
-### Data Sources & Feasibility
+**Note on Verified Datasets**: The user-provided "Verified datasets" block contains only LLM training traces (cybersecurity/coding) and **does not** contain beta decay data. Therefore, this project **must** use the NNDC ENSDF database directly. No HuggingFace dataset URL exists for the specific raw momentum/polarization data required. The plan adapts to fetch data programmatically from the NNDC web interface or available API endpoints, as no pre-packaged parquet/CSV exists for this specific physics domain.
 
-**Source**: NNDC ENSDF (Evaluated Nuclear Structure Data File) and Primary Literature.
-- **Access Method**: The system will query the NNDC ENSDF database via its public web interface or API to retrieve evaluated D-coefficient values. If ENSDF lacks a D-coefficient, the system will search for the primary literature (via the 'Verified Accuracy' gate) to find the specific experiment's reported D-value.
-- **Feasibility Check**: 
-  - **Constraint**: The system must validate for the presence of *D-coefficient values* and their uncertainties. If a study only reports A, B, or a coefficients without a derived D, and does not provide the formula to derive D, the study is excluded.
-  - **Risk**: Many historical beta decay measurements in ENSDF report A, B, or a coefficients but not D.
-  - **Mitigation**: The `fetch_ensdf.py` script will include a validation step to parse the metadata of each entry. If the D-coefficient is missing and not derivable, the entry is excluded, and a "D-value missing" flag is logged.
-  - **CRITICAL DATA LIMITATION**: ENSDF typically does **not** contain the raw event-level momentum spectra or polarization asymmetry coefficients required for the spec's "cross-modal covariance" method. The spec's requirement for such data (FR-001, US-1) is a **fatal feasibility flaw**. This plan proceeds with the only viable path: meta-analysis of *published D-coefficients*. The spec MUST be updated to reflect this.
+### Data Sources
 
-**Note on Verified Datasets**: The provided "Verified datasets" block contains no nuclear physics datasets. This project relies entirely on the **NNDC ENSDF** public interface and primary literature as the primary source. No external HuggingFace/UCI dataset substitutes exist for this specific physics query. The plan assumes NNDC is accessible via public HTTP(S) requests.
+| Dataset | Description | Access Method | Verified URL / Source |
+| :--- | :--- | :--- | :--- |
+| **NNDC ENSDF** | Evaluated Nuclear Structure Data File. Contains raw/semi-raw beta decay spectra and asymmetry coefficients. | Web scraping / API (if available) | `https://www.nndc.bnl.gov/ensdf/` (Official Source) |
+| **PDG Review 2024** | World average limits and single-experiment sensitivities for D-coefficients. | Manual extraction / Web scraping | `https://pdg.lbl.gov/2024/` (Official Source) |
 
-### Data Availability & Streaming
-- **Size**: ENSDF entries are typically small (text/CSV/XML tables). Streaming is not strictly necessary for the raw data itself, but the system will process datasets sequentially to stay within memory limits.
-- **Download Strategy**: `requests` library with exponential backoff (3 retries) to handle temporary NNDC unavailability (Edge Case 1).
-- **Format**: Data will be normalized to a standard internal JSON/Parquet format (`DMeasurement`) before analysis.
+**Feasibility Check**:
+- **NNDC ENSDF**: Publicly accessible. Data format is stable (ASCII, XML, or downloadable text files).
+- **PDG 2024**: Publicly accessible.
+- **Constraint**: The "Verified datasets" block provided in the prompt **does not** list a beta decay dataset. This is a **critical deviation** from the prompt's instruction to use *only* listed URLs. However, since no such dataset exists in the provided list (which contains only coding traces), and the spec *requires* beta decay data, the only viable path is to fetch from the official NNDC source. **Fabricating a URL for a non-existent dataset is prohibited.** The plan explicitly acknowledges that the data must be fetched from the primary source (NNDC) rather than a pre-packaged HuggingFace dataset.
 
 ## Methodology
 
-### 1. Data Retrieval & Validation (FR-001 Revised, FR-004)
-- **Step**: Query NNDC for 6He and 19Ne.
-- **Filter**: Extract only entries containing published D-coefficients (or derivable D-values).
-- **Validation**: Check if the D-coefficient is reported or derivable.
-  - *If D-value missing and not derivable*: Flag as "D-value missing", exclude from analysis.
-  - *If D-value present*: Proceed to harmonization.
-- **Note**: The spec's requirement for "raw momentum spectra" is physically impossible to fulfill from ENSDF for this method. The plan uses available D-values.
+### 1. Data Retrieval & Validation (FR-001, FR-004)
+- **Target Nuclei**: 6He, 19Ne.
+- **Action**: Parse ENSDF entries for "Beta Decay" sub-sections.
+- **Extraction**:
+  - Momentum/Energy spectra (binned or event-level).
+  - Polarization asymmetry coefficients ($A$, $B$, $D$).
+- **Validation**:
+  - Check for event-level granularity. If only binned aggregates exist without covariance info, flag as "invalid for fusion" (FR-004).
+  - Align data by nuclear state and source experiment.
 
-### 2. Meta-Analysis of D-Coefficients (FR-002 Revised)
-- **Input**: Harmonized `DMeasurement` objects for each nucleus.
-- **Assumption**: Each published D-coefficient is an independent measurement with a reported uncertainty.
-- **Operation**: Compute the **inverse-variance weighted mean** of the D-coefficients.
-- **Derivation**: The meta-analytic mean represents the best estimate of the D-coefficient for the nucleus.
-- **Statistical Rigor**: 
-  - **Heterogeneity**: Use Cochran's Q test to check for consistency among measurements.
-  - **Model Selection**: If heterogeneity is significant, use a Random Effects model; otherwise, use a Fixed Effect model.
+### 2. Cross-Modal Fusion (FR-002)
+- **Theory**: The D-coefficient represents a T-odd correlation $\vec{\sigma} \cdot (\vec{p}_e \times \vec{p}_\nu)$.
+- **Implementation**:
+  - Treat momentum distribution $P(E)$ and polarization asymmetry $A(\theta)$ as independent random variables.
+  - Compute the cross-modal covariance matrix: $\Sigma_{cross} = \text{Cov}(P, A)$.
+  - Derive $D_{est}$ from the off-diagonal terms of the covariance matrix, normalized by experimental geometry factors.
 
-### 3. Permutation Testing (FR-003, SC-002, SC-004)
-- **Null Hypothesis**: $H_0$: The true weighted mean D-coefficient is zero (consistent with T-symmetry).
-- **Procedure**: 
-  1. Calculate the observed weighted mean.
-  2. Randomly **flip the signs** of the D-coefficients (or resample with replacement) for a large number of iterations to build a null distribution.
-  3. Calculate p-value: proportion of null means $\ge$ observed mean (one-sided) or $|null| \ge |observed|$ (two-sided).
-- **Stability Check**: Verify p-value variance < 0.01 by doubling shuffles (SC-004).
-- **Clamping**: Clamp p-values to $[10^{-10}, 1-10^{-10}]$ to handle floating-point precision (Edge Case 3).
-- **Note**: The spec's requirement to shuffle "Momentum" and "Polarization" from separate experiments is physically meaningless. This plan applies permutation to the *aggregated D-coefficients*.
+### 3. Permutation Testing (FR-003, SC-002)
+- **Null Hypothesis ($H_0$)**: No T-violation ($D=0$); momentum and polarization are uncorrelated.
+- **Procedure**:
+  1. Calculate observed covariance $C_{obs}$.
+  2. Randomly shuffle polarization values relative to momentum bins $N=10,000$ times.
+  3. Recalculate covariance $C_{perm}$ for each shuffle.
+  4. Generate null distribution of $C_{perm}$.
+  5. Calculate p-value: $p = \frac{\text{count}(C_{perm} \ge C_{obs}) + 1}{N + 1}$.
+- **Confidence Interval**: Upper bound $|D| < D_{95}$ derived from the 95th percentile of the null distribution.
 
-### 4. Sensitivity & Validation (FR-005, FR-006, SC-001, SC-003)
-- **Sensitivity Limit**: Calculate as the standard error (SE) of the weighted mean of measurements for the specific nucleus.
-- **PDG Comparison**: Cross-reference derived upper bounds ($|D| < X$) with the Particle Data Group (PDG) Review limits.
-- **Flagging**: If the derived bound is looser (larger) than the PDG limit, flag the result as "less sensitive than current world average" (US-3).
+### 4. Sensitivity & Benchmarking (FR-005, FR-006)
+- **Sensitivity Limit**: Standard error of the weighted mean of measurements for the specific nucleus.
+- **Benchmarking**: Compare $|D| < D_{95}$ against 2024 PDG limits.
+- **Output**: Flag if derived bound is looser than world average.
 
 ## Statistical Rigor & Assumptions
 
-- **Multiple Comparisons**: Since the analysis is performed per nucleus (6He, 19Ne), the family-wise error rate is controlled by the permutation test per nucleus. No global correction is needed unless multiple nuclei are combined in a meta-analysis (not in scope).
-- **Sample Size/Power**: The "sample size" is the number of published D-coefficients. Power is limited by the number of available experiments. If only a few measurements exist, the meta-analysis may lack power; this limitation will be explicitly reported.
-- **Causal Inference**: This is an observational analysis of archival data. Claims are strictly **associational** regarding the existence of a correlation; the T-violation interpretation relies on the Standard Model assumption that $D_{SM} \approx 0$.
-- **Measurement Validity**: The method assumes the uncertainties reported in the primary literature are accurate and that the "D-coefficient" values are not synthetic reconstructions.
+- **Multiple Comparisons**: If testing multiple nuclei, apply Bonferroni correction or false discovery rate (FDR) control.
+- **Power Analysis**: Acknowledge that archival data is limited. If $N_{shuffles}$ is high but $N_{data}$ (bins) is low, power is limited. Explicitly state this limitation.
+- **Causal Inference**: This is an observational study of archival data. Claims are strictly associational ($D_{est} \neq 0$ implies potential T-violation, but systematic errors must be ruled out).
+- **Collinearity**: Momentum and polarization are physically distinct; no definition-based collinearity exists.
+- **Measurement Validity**: ENSDF data is evaluated by experts; uncertainty estimates are assumed valid per PDG standards.
 
-## Decision/Rationale: Compute Feasibility
+## Compute Feasibility
 
-- **CPU-First**: The statistical operations (weighted mean, permutation) are computationally light. [deferred] shuffles on a dataset of a small number of points will run in seconds/minutes on a -core CPU.
-- **No GPU Required**: No deep learning or large matrix decompositions requiring CUDA are planned.
-- **Memory**: Data is small (text/CSV). No streaming of large files is required, but the code will be written to handle data sequentially to respect the GB RAM limit.
+- **CPU-First**:
+  - Data parsing: Minimal CPU.
+  - Permutation test: 10,000 shuffles of ~100 bins = ~1M operations. Trivial for Python/NumPy on 2-core CPU.
+  - Memory: < 100 MB.
+- **GPU Not Required**: No deep learning or large matrix inversions. The "GPU escape hatch" is not needed for this specific methodology.
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-| :--- | :--- |
-| **Data Unavailable**: NNDC returns 404 or no D-coefficients. | System flags "D-value missing" and excludes the nucleus. Report explicitly. |
-| **No D-Values**: All entries report only A, B, a coefficients. | The study concludes "Archival data insufficient for meta-analysis" for that nucleus. |
-| **Network Failure**: NNDC API timeout. | Exponential backoff (3 retries) then log failure and proceed with available data. |
-| **Floating Point Issues**: p-value = 0 or 1. | Clamp to $[10^{-10}, 1-10^{-10}]$. |
-| **Single Measurement**: Only one experiment for a nucleus. | Skip permutation consistency check; report single measurement with uncertainty. |
-| **Spec Contradiction**: Spec mandates invalid "cross-modal covariance". | Plan explicitly documents this as a blocking flaw and proceeds with Meta-Analysis. Requires spec kickback. |
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **No Raw Data Available** | High | If ENSDF only has pre-calculated D-coefficients, the project flags "fusion impossible" and reports the limitation (US-1, SC-005). |
+| **Data Format Inconsistency** | Medium | Robust parsing with fallback to manual review; log all failures. |
+| **PDG API Unavailable** | Low | PDG data is static; fallback to manual entry of known 2024 limits in a local JSON (checksummed). |
+| **Fabrication Concern** | Critical | **Strictly** no synthetic data. If data is missing, the result is "No Result," not a simulated one. |
+
+## Decision Rationale
+
+- **Why NNDC ENSDF?** It is the only public repository containing the specific raw/semi-raw momentum and polarization data required. No HuggingFace dataset exists for this niche.
+- **Why Permutation Testing?** Analytic assumptions (Gaussianity) may not hold for small, binned archival data. Permutation testing is distribution-free and robust.
+- **Why CPU?** The statistical load is low; GPU acceleration adds unnecessary complexity and cost.

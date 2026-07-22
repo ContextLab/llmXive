@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Beta Decay Archival Dataset Schema"
+description: "Schema for harmonized beta decay data from NNDC ENSDF"
+type: "object"
+properties:
+  nucleus_id:
+    type: "string"
+    description: "Nucleus identifier (e.g., '6He')"
+  modality_type:
+    type: "string"
+    enum:
+      - "momentum_spectrum"
+      - "polarization_asymmetry"
+    description: "Type of observable"
+  values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Measured values (counts or asymmetry)"
+  uncertainties:
+    type: "array"
+    items:
+      type: "number"
+    description: "Uncertainties for each value"
+  bins:
+    type: "array"
+    items:
+      type: "number"
+    description: "Bin edges or centers"
+  source_experiment:
+    type: "string"
+    description: "Reference to the original experiment"
+  is_valid_for_fusion:
+    type: "boolean"
+    description: "True if data is granular enough for cross-modal fusion"
+required:
+  - nucleus_id
+  - modality_type
+  - values
+  - uncertainties
+  - bins
+  - source_experiment
+  - is_valid_for_fusion

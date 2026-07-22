@@ -3,66 +3,73 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `venv`
-- Access to the internet (for NNDC ENSDF retrieval)
+- `pip`
+- Access to the internet (for NNDC ENSDF and PDG retrieval).
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` includes `requests`, `pandas`, `numpy`, `scipy`, `pytest`.*
 
-## Running the Pipeline
+## Data Retrieval
 
-### 1. Fetch and Validate Data
-Run the data extraction script to retrieve data for the target nuclei (6He, 19Ne). This step handles network retries and format validation.
+The system fetches data from the NNDC ENSDF database.
 
-```bash
-python -m code.cli.main fetch --nuclei 6He,19Ne
-```
+1.  **Run the fetch script**:
+    ```bash
+    python code/data/fetch_ensdf.py --nuclei 6He,19Ne
+    ```
+    - This will download raw data to `data/raw/`.
+    - **Edge Case**: If NNDC is down, the script retries with exponential backoff (max 3 times).
 
-*Output*: Raw data files saved to `data/raw/`. Validation report printed to console.
+2.  **Validate Data**:
+    ```bash
+    python code/data/validate_data.py
+    ```
+    - Checks if raw/semi-raw data exists.
+    - Flags nuclei as "fusion impossible" if only aggregates are found.
 
-### 2. Perform Meta-Analysis & Permutation
-Run the analysis pipeline to compute weighted mean, perform permutation testing, and derive D-coefficient bounds.
+## Analysis
 
-```bash
-python -m code.cli.main analyze --shuffles 10000
-```
+1.  **Run the fusion and permutation analysis**:
+    ```bash
+    python code/analysis/fusion.py --shuffles 10000 --seed 42
+    ```
+    - Computes cross-modal covariance.
+    - Runs 10,000 permutation shuffles.
+    - Outputs `data/processed/fusion_results.json`.
 
-*Output*: `meta_analysis_results.json` in `data/processed/`. Console summary of p-values and bounds.
+2.  **Benchmark against PDG**:
+    ```bash
+    python code/validation/benchmark.py
+    ```
+    - Compares derived bounds with 2024 PDG limits.
+    - Generates a summary table.
 
-### 3. Generate Report
-Generate the final comparison against PDG 2024 limits.
+## Verification
 
-```bash
-python -m code.cli.main report --output docs/report.md
-```
+1.  **Run tests**:
+    ```bash
+    pytest tests/ -v
+    ```
+    - Verifies statistical stability (p-value variance < 0.01 when doubling shuffles).
+    - Checks data parsing logic.
 
-*Output*: `docs/report.md` containing the sensitivity limits and PDG comparison.
-
-## Verifying Results
-
-To ensure reproducibility, re-run the analysis and verify the checksums:
-
-```bash
-# Verify data integrity
-python -m code.cli.main verify-checksums
-
-# Re-run analysis and compare results (should be identical)
-python -m code.cli.main analyze --shuffles 10000 --check-deterministic
-```
+2.  **Check reproducibility**:
+    - Re-run `fetch_ensdf.py` and `fusion.py`.
+    - Verify checksums in `state/` match.
 
 ## Troubleshooting
 
-- **Network Error**: If NNDC is unreachable, the script will retry with exponential backoff. If it fails after 3 retries, it logs the error and proceeds with available data.
-- **No D-Values**: If the script reports "D-value missing" for a nucleus, it means the archival data does not contain published D-coefficients. This is an expected outcome for some historical data.
-- **Permutation Instability**: If the p-value variance exceeds 0.01 when doubling shuffles, increase `--shuffles` (e.g., to [deferred]).
-- **Spec Contradiction**: If the pipeline fails due to missing "raw momentum spectra", this is expected as the spec's requirement is invalid. The pipeline correctly falls back to D-coefficient meta-analysis.
+- **NNDC 404 Error**: The script logs the failure and proceeds with available nuclei.
+- **Floating Point Precision**: p-values are clamped to $[10^{-10}, 1-10^{-10}]$ to avoid exact 0/1.
+- **Insufficient Data**: If a nucleus has only one measurement, the permutation test is skipped, and the single measurement's uncertainty is reported.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1206.2560",
+  "judged_at": "2026-07-22T19:50:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper focuses on neutrinoless double beta decay and lepton number violation (Majorana neutrinos), which is a distinct physical mechanism from the time-reversal symmetry (T-symmetry) violation in standard beta decay (typically probed via T-odd correlations like the D-coefficient). While both topics fall under nuclear and particle physics, the paper does not measure the specific observable (T-violation) or address the specific mechanism (time-reversal symmetry breaking) requested by the user, ",
+  "relevant": false
+}

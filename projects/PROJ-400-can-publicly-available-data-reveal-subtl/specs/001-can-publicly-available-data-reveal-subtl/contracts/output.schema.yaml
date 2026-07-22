@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fusion Analysis Output Schema"
+description: "Schema for the results of the T-violation fusion analysis"
+type: "object"
+properties:
+  nucleus_id:
+    type: "string"
+    description: "Nucleus identifier"
+  d_coefficient_estimate:
+    type: "number"
+    description: "Estimated D-coefficient"
+  p_value_null:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation test"
+  d_upper_bound_95:
+    type: "number"
+    description: "95% confidence interval upper bound on |D|"
+  sensitivity_limit:
+    type: "number"
+    description: "Standard error of the weighted mean"
+  pdg_limit_2024:
+    type: "number"
+    description: "2024 PDG Review limit for comparison"
+  comparison_status:
+    type: "string"
+    enum:
+      - "tighter"
+      - "looser"
+      - "inconclusive"
+    description: "Comparison status against PDG limits"
+required:
+  - nucleus_id
+  - d_coefficient_estimate
+  - p_value_null
+  - d_upper_bound_95
+  - sensitivity_limit
+  - pdg_limit_2024
+  - comparison_status

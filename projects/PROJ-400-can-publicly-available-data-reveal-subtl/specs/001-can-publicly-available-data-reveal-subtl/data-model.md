@@ -2,83 +2,58 @@
 
 ## Overview
 
-This document defines the data structures used to represent the published D-coefficients, the meta-analytic results, and the intermediate states of the analysis pipeline. The model is designed to be schema-validated via YAML contracts to ensure data hygiene and reproducibility.
+This document defines the data structures used to ingest, process, and analyze beta decay archival data. The model supports the cross-modal fusion of momentum spectra and polarization asymmetry coefficients.
 
-**Note on Spec Inconsistency**: The spec defines `RawObservable` and `FusionResult` as active entities. However, the implementation plan pivots to `DMeasurement` and `MetaAnalysisResult` because the "cross-modal fusion" method is physically invalid. The `RawObservable` and `FusionResult` schemas are retained here as **Legacy/Deprecated** for compatibility but are not used in the primary analysis. The spec requires an update to deprecate these entities.
-
-## Key Entities
+## Entities
 
 ### 1. Nucleus
-Represents a specific atomic nucleus being analyzed.
+Represents a specific atomic nucleus under analysis.
 
-- **Attributes**:
-  - `name`: String (e.g., "6He", "19Ne")
-  - `mass_number`: Integer
-  - `atomic_number`: Integer
-  - `experimental_conditions`: String (summary of conditions)
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `str` | Nucleus identifier (e.g., "6He", "19Ne"). |
+| `mass_number` | `int` | Mass number (A). |
+| `atomic_number` | `int` | Atomic number (Z). |
+| `experimental_conditions` | `dict` | Metadata: temperature, source type, detector geometry. |
 
-### 2. DMeasurement
-Represents a single published measurement of the T-violation D-coefficient.
+### 2. RawObservable
+Represents a single measurement from an experiment.
 
-- **Attributes**:
-  - `nucleus`: String (e.g., "6He")
-  - `value`: Float (the reported D-coefficient value)
-  - `uncertainty`: Float (the reported standard error)
-  - `source_experiment`: String (citation/experiment ID)
-  - `reference_id`: String (DOI or unique identifier)
-  - `retrieval_status`: Enum ["success", "failed", "range_inferred", "static_fallback"]
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `str` | Unique identifier (e.g., "ENSDF-6He-Exp1"). |
+| `nucleus_id` | `str` | Foreign key to `Nucleus`. |
+| `modality_type` | `str` | Enum: `"momentum_spectrum"`, `"polarization_asymmetry"`. |
+| `source_experiment` | `str` | Author/Year of the measurement. |
+| `reference_id` | `str` | ENSDF record ID or DOI. |
+| `values` | `list[float]` | Binned values (counts or asymmetry). |
+| `uncertainties` | `list[float]` | Corresponding uncertainties. |
+| `bins` | `list[float]` | Bin edges or centers. |
+| `is_valid_for_fusion` | `bool` | Flag: `True` if granular enough; `False` if only aggregates. |
 
-### 3. MetaAnalysisResult
-Represents the statistical output of the meta-analysis for a specific nucleus.
+### 3. FusionResult
+The output of the statistical analysis for a specific nucleus.
 
-- **Attributes**:
-  - `nucleus`: String
-  - `weighted_average`: Float (inverse-variance weighted mean of D-coefficients)
-  - `combined_uncertainty`: Float (uncertainty of the weighted mean)
-  - `p_value_heterogeneity`: Float (from Cochran's Q test)
-  - `d_upper_bound_95`: Float (95% CI upper bound)
-  - `n_measurements`: Integer (number of measurements included)
-  - `is_consistent`: Boolean (True if p_value_heterogeneity > 0.05)
-  - `sensitivity_limit`: Float (SE of the weighted mean)
-  - `model_type`: Enum ["fixed_effect", "random_effects"]
-
-### 4. FusionResult (Legacy)
-Represents the statistical output of the data fusion analysis (legacy/placeholder for compatibility).
-
-- **Attributes**:
-  - `nucleus_id`: String
-  - `d_coefficient_estimate`: Float (derived D-coefficient estimate)
-  - `p_value_null`: Float (from permutation test)
-  - `d_upper_bound_95`: Float (95% CI upper bound)
-  - `sensitivity_limit`: Float (SE of weighted mean)
-  - `pdg_comparison_status`: Enum ["better", "worse", "comparable", "no_data"]
-  - `fusion_status`: Enum ["success", "invalid_for_fusion", "insufficient_data"]
-  - `shuffles_count`: Integer (number of permutations performed)
-
-### 5. RawObservable (Legacy)
-Represents a raw/semi-raw measurement from ENSDF (legacy/placeholder for compatibility).
-
-- **Attributes**:
-  - `value`: Float
-  - `uncertainty`: Float
-  - `modality_type`: Enum ["momentum_spectrum", "polarization_asymmetry"]
-  - `source_experiment`: String
-  - `reference_id`: String
-  - `data_granularity`: Enum ["event_level", "binned_granular", "binned_aggregate"]
-  - `covariance_available`: Boolean
-  - `nucleus_name`: String
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `nucleus_id` | `str` | Target nucleus. |
+| `d_coefficient_estimate` | `float` | Derived D-coefficient. |
+| `p_value_null` | `float` | Permutation test p-value. |
+| `d_upper_bound_95` | `float` | 95% CI upper bound on $|D|$. |
+| `sensitivity_limit` | `float` | Standard error of the weighted mean. |
+| `pdg_limit_2024` | `float` | World average limit from PDG. |
+| `comparison_status` | `str` | Enum: `"tighter"`, `"looser"`, `"inconclusive"`. |
 
 ## Data Flow
 
-1. **Input**: Raw text/XML from NNDC ENSDF.
-2. **Parsed**: `DMeasurement` objects (stored in `data/processed/d_measurements.json`).
-3. **Validated**: Filtered for `retrieval_status` == "success".
-4. **Fused**: `MetaAnalysisResult` objects generated (stored in `data/processed/meta_analysis_results.json`).
-5. **Output**: Final report generated from `MetaAnalysisResult` objects.
+1.  **Ingestion**: `fetch_ensdf.py` reads raw text/XML from NNDC.
+2.  **Validation**: `validate_data.py` checks `is_valid_for_fusion`.
+3.  **Processing**: `preprocess.py` aligns bins and normalizes values.
+4.  **Analysis**: `fusion.py` and `permutation.py` generate `FusionResult`.
+5.  **Output**: Results serialized to `data/processed/results.json` and `data/processed/summary.csv`.
 
-## Validation Rules
+## Storage Format
 
-- **Completeness**: Every `MetaAnalysisResult` must have a non-null `p_value_heterogeneity` and `d_upper_bound_95`.
-- **Range**: `p_value_heterogeneity` must be in $[0, 1]$.
-- **Consistency**: `d_upper_bound_95` must be $\ge 0$ (absolute value bound).
-- **Model Consistency**: If `is_consistent` is False, `model_type` must be "random_effects".
+- **Raw Data**: `data/raw/{nucleus}_ensdf.txt` (Original download).
+- **Processed Data**: `data/processed/{nucleus}_harmonized.parquet` (Pandas DataFrame).
+- **Results**: `data/processed/fusion_results.json` (JSON array of `FusionResult` objects).
