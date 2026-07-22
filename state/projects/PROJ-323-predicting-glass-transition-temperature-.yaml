@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T17:41:00.870691Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-323-predicting-glass-transition-temperature-
-last_run_id: 4f8a6bc8-04e3-40de-81cc-5fb64dd5eb38
+last_run_id: a54568b8-d32c-4f0c-afa0-e369fd79e6b7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Glass Transition Temperature from Compositional Descriptors with
   Explainable Boosting Machines
-updated_at: '2026-06-15T09:49:05.660139Z'
+updated_at: '2026-07-22T22:07:55.048938Z'

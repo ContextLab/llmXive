@@ -1,141 +1,93 @@
-#' @description
-#' Logging infrastructure and helper utilities for the climate niche project.
-#' Provides timestamped logging, directory management, and data validation.
-utils.R
+# src/code/utils.R
+# Shared utilities for logging, directory creation, and data validation.
+# Task: T004 (Enhanced) and T009 (Tested)
 
-# Global log file path
-log_file <- NULL
-
-#' @description
-#' Initialize logging to a specific file.
-#' @param filename Character string, name of the log file (relative to project root).
-init_logging <- function(filename = "pipeline.log") {
-  log_file <<- file.path("logs", filename)
-  dir.create(dirname(log_file), showWarnings = FALSE, recursive = TRUE)
-  message(sprintf("[LOG] Initialized logging to %s", log_file))
+# --- Logging ---
+init_logging <- function(prefix = "project") {
+  log_file <- file.path("logs", paste0(prefix, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".log"))
+  create_dir_if_missing("logs")
+  con <- file(log_file, open = "a")
+  return(con)
 }
 
-#' @description
-#' Write a log entry with timestamp and level.
-#' @param level Character string, e.g., "INFO", "WARN", "ERROR".
-#' @param msg Character string, the message to log.
-log_msg <- function(level, msg) {
-  if (is.null(log_file)) {
-    # Fallback to console if not initialized
-    cat(sprintf("[%s] [%s] %s\n", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), level, msg))
-    return(invisible(NULL))
-  }
-
-  entry <- sprintf("[%s] [%s] %s",
-                   format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
-                   level,
-                   msg)
-
-  tryCatch({
-    cat(entry, "\n", file = log_file, append = TRUE)
-  }, error = function(e) {
-    cat(sprintf("[FATAL] Failed to write to log: %s\n", e$message))
-  })
-
-  # Also print to console for immediate feedback
-  cat(entry, "\n")
+log_message <- function(con, level, msg) {
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  line <- paste0("[", timestamp, "] [", level, "] ", msg, "\n")
+  writeLines(line, con)
 }
 
-#' @description
-#' Log an informational message.
-log_info <- function(msg) log_msg("INFO", msg)
+log_info <- function(con, msg) log_message(con, "INFO", msg)
+log_warning <- function(con, msg) log_message(con, "WARNING", msg)
+log_error <- function(con, msg) log_message(con, "ERROR", msg)
 
-#' @description
-#' Log a warning message.
-log_warn <- function(msg) log_msg("WARN", msg)
+close_log <- function(con) {
+  close(con)
+}
 
-#' @description
-#' Log an error message.
-log_error <- function(msg) log_msg("ERROR", msg)
-
-#' @description
-#' Ensure a directory exists.
-#' @param dir_path Character string, path to directory.
-ensure_dir <- function(dir_path) {
+# --- Directory Creation ---
+create_dir_if_missing <- function(dir_path) {
   if (!dir.exists(dir_path)) {
-    dir.create(dir_path, recursive = TRUE, showWarnings = FALSE)
-    log_info(sprintf("Created directory: %s", dir_path))
+    dir.create(dir_path, recursive = TRUE)
   }
-  return(invisible(TRUE))
 }
 
-#' @description
-#' Validate that a data frame has no NA in critical coordinate columns.
-#' @param df Data frame to check.
-#' @param lat_col Character, name of latitude column.
-#' @param lon_col Character, name of longitude column.
-#' @return Logical, TRUE if valid, FALSE otherwise.
+# --- Checksum Validation ---
+compute_checksum <- function(file_path, algo = "md5") {
+  if (!file.exists(file_path)) return(NA)
+  # Use tools::md5sum or digest package if available. 
+  # Base R has tools::md5sum
+  tryCatch({
+    tools::md5sum(file_path)
+  }, error = function(e) {
+    NA
+  })
+}
+
+validate_checksum <- function(file_path, expected_checksum) {
+  if (is.na(expected_checksum)) return(TRUE)
+  actual <- compute_checksum(file_path)
+  return(identical(actual, expected_checksum))
+}
+
+# --- Data Validation ---
+
+# Handle missing climate values (NA)
+# Returns a logical vector indicating if a value is valid (not NA)
+is_valid_climate <- function(value) {
+  !is.na(value)
+}
+
+# Coordinate precision check (>10km uncertainty)
+# GBIF has a 'coordinateUncertaintyInMeters' field.
+# 10km = 10,000 meters.
+# We assume the dataframe has a column 'coordinateUncertaintyInMeters' or similar.
+# If not present, we assume it's valid (or NA -> invalid).
+check_coordinate_precision <- function(df, uncertainty_col = "coordinateUncertaintyInMeters", threshold_m = 10000) {
+  if (!uncertainty_col %in% colnames(df)) {
+    # If column missing, we can't check. Return all TRUE or all FALSE?
+    # Conservative: assume valid if no data, or mark as warning.
+    # For this task, we return TRUE (assume valid) if column missing.
+    return(rep(TRUE, nrow(df)))
+  }
+  
+  # Filter: uncertainty <= threshold OR uncertainty is NA (unknown)
+  # If we strictly require < 10km and we don't know, we might exclude.
+  # But usually, if uncertainty is not reported, we can't exclude.
+  # Let's assume: if uncertainty is NA, we keep it (conservative).
+  # If uncertainty is reported and > 10000, we exclude.
+  
+  valid <- is.na(df[[uncertainty_col]]) | (df[[uncertainty_col]] <= threshold_m)
+  return(valid)
+}
+
+# Validate coordinates (lat/lon not NA, not 0,0)
 validate_coordinates <- function(df, lat_col = "decimalLatitude", lon_col = "decimalLongitude") {
-  if (!all(c(lat_col, lon_col) %in% names(df))) {
-    log_error("Coordinate columns missing in data frame")
-    return(FALSE)
+  if (!all(c(lat_col, lon_col) %in% colnames(df))) {
+    return(rep(FALSE, nrow(df)))
   }
-
-  na_count <- sum(is.na(df[[lat_col]]) | is.na(df[[lon_col]]))
-  if (na_count > 0) {
-    log_warn(sprintf("Found %d records with missing coordinates", na_count))
-  }
-  return(TRUE)
-}
-
-#' @description
-#' Check if coordinate precision is sufficient (uncertainty <= 10km).
-#' WorldClim resolution is ~1km, so 10km is a reasonable cutoff.
-#' @param df Data frame.
-#' @param col Character, name of coordinate uncertainty column (e.g., coordinateUncertaintyInMeters).
-#' @return Logical, TRUE if all valid records pass.
-check_coordinate_precision <- function(df, col = "coordinateUncertaintyInMeters") {
-  if (!(col %in% names(df))) {
-    log_warn(sprintf("Column '%s' not found, skipping precision check", col))
-    return(TRUE)
-  }
-
-  # Filter out NAs first
-  valid_rows <- !is.na(df[[col]])
-  if (sum(valid_rows) == 0) return(TRUE)
-
-  high_uncertainty <- df[[col]][valid_rows] > 10000 # 10km in meters
-  if (any(high_uncertainty)) {
-    log_warn(sprintf("Found %d records with coordinate uncertainty > 10km", sum(high_uncertainty)))
-  }
-  return(TRUE)
-}
-
-#' @description
-#' Handle missing climate values.
-#' @param df Data frame with climate columns.
-#' @param cols Character vector of climate column names.
-#' @return Logical, TRUE if handling is consistent (logs warning if NAs found).
-handle_missing_climate <- function(df, cols = c("temp", "precip")) {
-  missing_found <- FALSE
-  for (c in cols) {
-    if (c %in% names(df) && any(is.na(df[[c]]))) {
-      missing_found <- TRUE
-      log_warn(sprintf("Found %d NA values in climate column '%s'", sum(is.na(df[[c]])), c))
-    }
-  }
-  return(missing_found)
-}
-
-#' @description
-#' Calculate MD5 checksum of a file.
-#' @param filepath Character string, path to file.
-#' @return Character string, MD5 hash.
-get_checksum <- function(filepath) {
-  if (!file.exists(filepath)) {
-    stop(sprintf("File not found: %s", filepath))
-  }
-  # Using digest package if available, else fallback to simple file hash simulation
-  # For robustness in standard R without extra deps, we use tools::md5sum if available
-  if (requireNamespace("tools", quietly = TRUE)) {
-    return(tools::md5sum(filepath))
-  }
-  # Fallback: read file and hash (simplified)
-  # In production, ensure 'digest' is installed or use system command
-  stop("MD5 calculation requires 'tools' package or 'digest' package.")
+  
+  valid <- !is.na(df[[lat_col]]) & !is.na(df[[lon_col]]) &
+           (abs(df[[lat_col]]) > 0.01 | abs(df[[lon_col]]) > 0.01) # Avoid 0,0
+  
+  return(valid)
 }

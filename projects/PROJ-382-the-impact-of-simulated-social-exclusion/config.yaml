@@ -1,0 +1,11 @@
+osf_urls: []
+paths:
+  base: .
+  raw: data/raw
+  processed: data/processed
+  code: code
+  tests: tests
+  state: state
+analysis:
+  min_valid_datasets: 3
+  random_seed: 42

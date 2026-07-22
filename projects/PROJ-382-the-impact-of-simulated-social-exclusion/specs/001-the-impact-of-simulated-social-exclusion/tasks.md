@@ -46,13 +46,13 @@
 - [ ] T001a [P] Create directory structure: `projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/`, `data/raw/`, `data/processed/`, `tests/`, `state/`
 - [ ] T001b [P] Create `projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/requirements.txt` with pinned dependencies (pandas, numpy, scipy, statsmodels, matplotlib, pyyaml, requests, scikit-learn, memory_profiler, psutil)
 - [ ] T002a [P] Create `.flake8` configuration file with explicit rules (e.g., `max-line-length=88`, `exclude=venv,.git,build,dist`)
-- [ ] T002b [P] Create `pyproject.toml` configuration for `black` (e.g., `line-length=88`, `target-version=['py311']`)
-- [ ] T002c [P] Create a verification script or Makefile target to run `flake8` and `black --check` to validate linting compliance
-- [ ] T003 [P] Implement base configuration loader (`code/config.py`) to read OSF URLs from YAML
-- [ ] T004 [P] Setup logging infrastructure with deterministic logging format for `data/processed/mapping_log.json`
-- [~] T005 Create base data validation schema (Pydantic or Pandas dtype checks) for `condition`, `prosocial_amount`, `randomized`
-- [~] T006 Implement error handling wrapper for network requests (timeouts, 404s) to ensure pipeline continuity
-- [~] T007 Setup environment configuration management for `PYTHONHASHSEED` and random seeds
+- [X] T002b [P] Create `pyproject.toml` configuration for `black` (e.g., `line-length=88`, `target-version=['py311']`)
+- [X] T002c [P] Create a verification script or Makefile target to run `flake8` and `black --check` to validate linting compliance
+- [X] T003 [P] Implement base configuration loader (`code/config.py`) to read OSF URLs from YAML
+- [X] T004 [P] Setup logging infrastructure with deterministic logging format for `data/processed/mapping_log.json`
+- [ ] T005 Create base data validation schema (Pydantic or Pandas dtype checks) for `condition`, `prosocial_amount`, `randomized`
+- [ ] T006 Implement error handling wrapper for network requests (timeouts, 404s) to ensure pipeline continuity
+- [ ] T007 Setup environment configuration management for `PYTHONHASHSEED` and random seeds
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,13 +74,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement OSF downloader in `code/ingest.py` with retry logic and checksum verification
-- [ ] T012 [US1] Implement schema validator in `code/ingest.py` to check for `condition`, `prosocial_amount`, `randomized` columns
-- [ ] T013 [US1] Implement column normalizer in `code/ingest.py` to map variants (donation/allocation/transfer -> `prosocial_amount`) and condition strings (ignored/excluded -> 1)
-- [ ] T014 [US1] Implement missing value handler in `code/preprocess.py`: median imputation (<5% NaN) or row exclusion (>=5% NaN), ensuring structural zeros (0) are preserved; **Output**: Write cleaned DataFrame to `data/processed/cleaned_data.parquet` and log imputation details to `data/processed/imputation_log.json`
-- [ ] T015 [US1] Implement dataset merger in `code/ingest.py` to combine valid datasets into a single DataFrame
-- [ ] T016 [US1] Implement "Insufficient Data" halt logic: check if valid dataset count <3 and exit with non-zero status
-- [ ] T017 [US1] Implement keyword search fallback in `code/ingest.py`: **Trigger**: if the initial URL list yields **fewer than 3** valid datasets, perform a keyword-based search on OSF for "social exclusion" AND "prosocial" OR "donation"
+- [X] T011 [P] [US1] Implement OSF downloader in `code/ingest.py` with retry logic and checksum verification
+- [X] T012 [US1] Implement schema validator in `code/ingest.py` to check for `condition`, `prosocial_amount`, `randomized` columns
+- [X] T013 [US1] Implement column normalizer in `code/ingest.py` to map variants (donation/allocation/transfer -> `prosocial_amount`) and condition strings (ignored/excluded -> 1)
+- [~] T014 [US1] Implement missing value handler in `code/preprocess.py`: median imputation (<5% NaN) or row exclusion (>=5% NaN), ensuring structural zeros (0) are preserved; **Output**: Write cleaned DataFrame to `data/processed/cleaned_data.parquet` and log imputation details to `data/processed/imputation_log.json`
+- [X] T015 [US1] Implement dataset merger in `code/ingest.py` to combine valid datasets into a single DataFrame
+- [~] T016 [US1] Implement "Insufficient Data" halt logic: check if valid dataset count <3 and exit with non-zero status
+- [X] T017 [US1] Implement keyword search fallback in `code/ingest.py`: **Trigger**: if the initial URL list yields **fewer than 3** valid datasets, perform a keyword-based search on OSF for "social exclusion" AND "prosocial" OR "donation"
 - [ ] T018 [US1] Write mapping log to `data/processed/mapping_log.json` recording raw-to-binary condition mappings for Principle VI compliance
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

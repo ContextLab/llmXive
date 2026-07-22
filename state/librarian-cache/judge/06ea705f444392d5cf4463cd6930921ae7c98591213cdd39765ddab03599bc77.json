@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-22T22:07:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "rationale": "The paper is rejected because it is off-domain entirely (biology vs. materials science) and addresses a distinct construct (general ML validation guidelines) rather than the specific mechanism of predicting glass transition temperature or the use of Explainable Boosting Machines in materials science. It fails to satisfy any inclusion criteria (a-f) as it does not measure the target variables, establish an empirical baseline for the specific property, or provide the foundational methodology for t",
+  "relevant": false
+}

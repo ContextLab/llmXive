@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-22T22:07:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not measure glass transition temperature, use compositional descriptors, or apply Explainable Boosting Machines to materials science data. It fails to satisfy criteria (a) or (b) because it lacks the specific dependent variable (Tg) and domain (materials science) required for inclusion, and it is not the foundational paper for the specific technique (EBM) mentioned in the us",
+  "relevant": false
+}

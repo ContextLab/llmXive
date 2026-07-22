@@ -1,0 +1,47 @@
+T015a:
+  c: false
+  h: 9b874a504c573cb0958e128d0eb8af9b649e58ccb829c3b5455633ee8ed5e833
+  r: "The repository contains a `compute_centroids.R` script that appears to implement\
+    \ the required calculations and writes to `data/processed/centroids.csv`, but\
+    \ the expected output file `data/processed/centroids.csv` is absent from the project\
+    \ directory. Without the actual CSV artifact, the task\u2019s deliverable is not\
+    \ satisfied."
+T015b:
+  c: false
+  h: 43b3e5b10438e2315555f5e54b804198a43698e416b3dba01152609d2d1fa0fd
+  r: "The `src/code/compute_centroids.R` script is present but the expected output\
+    \ file `data/processed/points_with_climate.csv` does not exist on disk, and the\
+    \ script\u2019s copy\u2011logic is truncated. Without this intermediate artifact,\
+    \ the task requirement is not satisfied."
+T023a:
+  c: false
+  h: c78dfa2c8b588a73be3bea08b1ef3d01f473c49fe7bcc5ca76d0e62faf51e11c
+  r: "The provided `src/code/analyze_shifts.R` stops after preliminary data checks\
+    \ and does not contain any code that performs the PGLS or WLS regression, computes\
+    \ or writes the slope, confidence interval, R\xB2, p\u2011value, or per\u2011\
+    region summaries. Additionally, the required `data/phylogeny.tre` file is absent,\
+    \ so the primary\u2011method branch cannot be exercised. These core elements of\
+    \ the task are missing."
+T025:
+  c: false
+  h: 73c1807a98497c0ce9f882050ad022cbe83026d1594c4eddeaeff1737952cd3b
+  r: The required script `src/code/power_analysis.R` does not exist, and the expected
+    output file `results/power_analysis_report.csv` is also missing, so no power analysis
+    was performed or reported. The existing `config.yaml` alone does not fulfill the
+    implementation or output requirements.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, log files, or other artifacts (e.g., modified `analyze_shifts.R`\
+    \ or `plotting.R` with added logging, generated logs, or regression output) were\
+    \ presented. Without any tangible files to inspect, we cannot verify that logging\
+    \ was added as required. The implementer must supply the updated R scripts and\
+    \ example log/output files demonstrating the recorded regression steps, per\u2011\
+    region results, and plot generation details."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test results, logs, or any evidence of a `testthat` suite execution were supplied;
+    the implementer did not provide the required artifact (e.g., a test report, console
+    output, or CI badge) demonstrating that all unit and integration tests were actually
+    run. Consequently the claim cannot be verified.

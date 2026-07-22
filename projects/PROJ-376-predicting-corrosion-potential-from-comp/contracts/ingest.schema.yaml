@@ -1,81 +1,98 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: NIST Ingest Raw Schema
-description: >
-  Schema for raw data fetched from NIST-IR-8200 before preprocessing.
-  Corresponds to the initial ingestion step in code/data/download_nist.py.
-type: object
-required:
-  - metadata
-  - records
-properties:
-  metadata:
-    type: object
-    required:
-      - source
-      - fetched_at
-      - version
-    properties:
-      source:
-        type: string
-        const: "NIST-IR-8200"
-      fetched_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of the fetch operation.
-      version:
-        type: string
-        description: Version of the dataset or schema used.
-  records:
-    type: array
-    minItems: 0
-    items:
-      type: object
-      required:
-        - record_id
-        - alloy_composition
-        - environment
-        - measurement
-      properties:
-        record_id:
-          type: string
-          description: Unique identifier for the raw record.
-        alloy_composition:
-          type: object
-          description: Raw composition data (may contain nulls or varied units).
-          properties:
-            alloy_designation:
-              type: ["string", "null"]
-            elements:
-              type: array
-              items:
-                type: object
-                properties:
-                  symbol:
-                    type: string
-                  weight_fraction:
-                    type: ["number", "null"]
-                  unit:
-                    type: ["string", "null"]
-        environment:
-          type: object
-          description: Raw environmental conditions.
-          properties:
-            temperature_c:
-              type: ["number", "null"]
-            ph:
-              type: ["number", "null"]
-            electrolyte:
-              type: ["string", "null"]
-        measurement:
-          type: object
-          description: Raw corrosion measurement.
-          properties:
-            corrosion_potential_mv:
-              type: ["number", "null"]
-            corrosion_rate:
-              type: ["number", "null"]
-            unit:
-              type: ["string", "null"]
-additionalProperties: false
+# Ingest Schema Contract
+# Defines the expected structure of raw data downloaded from NIST-IR-8200
+# before any preprocessing occurs.
+#
+# Used by: code/data/download_nist.py (validation step)
+# Enforced by: code/utils/validation.py
+#
+# This schema ensures that the raw download contains the mandatory fields
+# required to construct AlloyRecord, EnvironmentRecord, and CorrosionMeasurement
+# dataclasses defined in code/data/models.py.
+
+schema_version: "1.0.0"
+source: "NIST-IR-8200"
+format: "csv" # Expected format of the raw file
+
+required_fields:
+  # Alloy Composition (mapped to AlloyRecord)
+  - field: "alloy_designation"
+    type: "string"
+    nullable: false
+    description: "Unique identifier or name for the alloy (e.g., '304SS', 'Al-2024')"
+  - field: "cr_weight_pct"
+    type: "float"
+    nullable: true
+    description: "Chromium weight percentage"
+  - field: "ni_weight_pct"
+    type: "float"
+    nullable: true
+    description: "Nickel weight percentage"
+  - field: "mo_weight_pct"
+    type: "float"
+    nullable: true
+    description: "Molybdenum weight percentage"
+  - field: "fe_weight_pct"
+    type: "float"
+    nullable: true
+    description: "Iron weight percentage (calculated if missing)"
+  - field: "other_elements"
+    type: "string"
+    nullable: true
+    description: "JSON string or semicolon-separated list of other alloying elements"
+
+  # Environmental Conditions (mapped to EnvironmentRecord)
+  - field: "solution_ph"
+    type: "float"
+    nullable: false
+    description: "pH of the corrosive solution"
+  - field: "solution_temp_c"
+    type: "float"
+    nullable: false
+    description: "Temperature of the solution in Celsius"
+  - field: "solution_type"
+    type: "string"
+    nullable: true
+    description: "Type of solution (e.g., 'NaCl', 'HCl')"
+  - field: "concentration_m"
+    type: "float"
+    nullable: true
+    description: "Molar concentration of the solution"
+
+  # Corrosion Measurements (mapped to CorrosionMeasurement)
+  - field: "corrosion_potential_mv"
+    type: "float"
+    nullable: false
+    description: "Measured corrosion potential in millivolts (vs. reference)"
+  - field: "corrosion_rate_mpy"
+    type: "float"
+    nullable: true
+    description: "Corrosion rate in mils per year (optional)"
+  - field: "test_duration_hours"
+    type: "float"
+    nullable: true
+    description: "Duration of the test in hours"
+
+constraints:
+  # Global constraints on the dataset
+  min_records: 500
+  max_null_ratio_critical: 0.0 # No nulls allowed in critical fields (ph, temp, potential)
+
+validation_rules:
+  - rule: "non_null_critical"
+    fields: ["alloy_designation", "solution_ph", "solution_temp_c", "corrosion_potential_mv"]
+    error: "SchemaMismatchError"
+  - rule: "numeric_bounds_ph"
+    field: "solution_ph"
+    min: 0.0
+    max: 14.0
+    error: "DataInsufficientError" # If out of bounds, data is considered insufficient/invalid
+  - rule: "numeric_bounds_temp"
+    field: "solution_temp_c"
+    min: -273.15
+    max: 1000.0
+    error: "DataInsufficientError"
+
+metadata:
+  last_updated: "2023-10-27"
+  referenced_spec: "specs/001-predict-corrosion-potential/spec.md"
+  referenced_plan: "plan.md"

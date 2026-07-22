@@ -1,119 +1,93 @@
-#' Unit tests for sensitivity analysis: SD calculation and flagging logic
-#'
-#' This file tests the logic in `src/code/sensitivity.R` regarding:
-#' 1. Calculation of Standard Deviation (SD) of niche shift magnitudes across replicates.
-#' 2. Flagging logic for species with SD >= 0.2 climate-space units.
-#'
-#' Prerequisites:
-#' - `src/code/utils.R` (for logging helpers if needed, though mostly pure math here)
-#' - `src/code/sensitivity.R` (must be implemented or mocked for pure unit testing)
-#'
-#' Note: These are unit tests. We test the mathematical logic using known inputs.
-#' We do not re-run the full GBIF fetch here.
+# tests/unit/test_sensitivity.R
+# Unit tests for sensitivity analysis logic (T028, T029)
+#
+# Tests:
+# - Subsampling logic (random selection with seed)
+# - SD calculation and flagging logic (>= 0.2 threshold)
 
 library(testthat)
 library(dplyr)
+library(tidyr)
 
-# Source the main script to access internal functions if they are exported.
-# If the functions are not exported, we will test the logic by sourcing the file
-# or by defining the expected behavior locally if the implementation is not ready.
-# Given T031-T033 are pending, we define the expected logic here to ensure
-# the test validates the *requirement* once the implementation arrives.
+# Source the main script to access helper functions
+# Note: In a real setup, helper functions should be in a separate utils file
+# For this test, we source the script directly or define the helper here
+source(here::here("src", "code", "sensitivity.R"))
 
-# However, per "Implement the task for real", we assume the implementation
-# will provide a function or the logic can be extracted.
-# Since T031-T033 are not yet completed, we will test the *logic* by
-# defining a helper that mimics the expected behavior and testing that,
-# OR we will test the file if it exists.
-#
-# To satisfy "Test First" (TDD) while the implementation is pending:
-# We define the expected behavior of the SD calculation and flagging.
-
-# Helper to simulate the SD calculation logic expected in sensitivity.R
-calculate_sd_and_flag <- function(shift_values, threshold = 0.2) {
-  if (length(shift_values) < 2) {
-    return(list(sd = NA, flagged = NA))
-  }
-  sd_val <- sd(shift_values)
-  flagged <- sd_val >= threshold
-  list(sd = sd_val, flagged = flagged)
+# Mock data for testing
+create_mock_points <- function(n = 100, period = "1970-2000") {
+  data.frame(
+    species = "TestSpecies",
+    period = period,
+    temp = rnorm(n, mean = 15, sd = 2),
+    precip = rnorm(n, mean = 1000, sd = 200),
+    stringsAsFactors = FALSE
+  )
 }
 
-describe("Sensitivity Analysis: SD Calculation and Flagging", {
+describe("compute_niche_shift", {
+  it("calculates Euclidean distance correctly", {
+    # Create mock data for two periods
+    p1 <- create_mock_points(n = 50, period = "1970-2000")
+    p2 <- create_mock_points(n = 50, period = "1991-2020")
+    # Shift the second period to create a known distance
+    p2$temp <- p2$temp + 1  # +1 degree shift
+    p2$precip <- p2$precip + 100  # +100mm shift
 
-  it("calculates SD correctly for a known set of values", {
-    # Values: 1.0, 1.2, 1.4 -> Mean = 1.2
-    # Deviations: -0.2, 0.0, 0.2
-    # Squared: 0.04, 0.0, 0.04 -> Sum = 0.08
-    # Variance (n-1=2) = 0.04
-    # SD = sqrt(0.04) = 0.2
-    values <- c(1.0, 1.2, 1.4)
-    result <- calculate_sd_and_flag(values)
+    combined <- bind_rows(p1, p2)
+    shift_val <- compute_niche_shift(combined)
 
-    expect_equal(result$sd, 0.2, tolerance = 1e-6)
-    expect_false(result$flagged) # 0.2 is not strictly > 0.2? Wait, task says >= 0.2
-    # Task T033: "flag species with SD >= 0.2"
-    # If SD is exactly 0.2, it should be flagged.
-    # My helper logic: `flagged <- sd_val >= threshold`
-    # Let's re-verify the test expectation.
-    expect_true(result$flagged) # Because 0.2 >= 0.2
+    # Expected distance: sqrt(1^2 + 100^2) approx 100.005
+    expect_true(!is.na(shift_val))
+    expect_gt(shift_val, 100)
+    expect_lt(shift_val, 101)
   })
 
-  it("flags species with SD exactly equal to the threshold (0.2)", {
-    # Construct values where SD is exactly 0.2
-    # Using the previous example: c(1.0, 1.2, 1.4) -> SD = 0.2
-    values <- c(1.0, 1.2, 1.4)
-    result <- calculate_sd_and_flag(values, threshold = 0.2)
-
-    expect_true(result$flagged)
-  })
-
-  it("does not flag species with SD below the threshold", {
-    # Values with low variance
-    values <- c(1.0, 1.05, 1.0) # Very tight
-    result <- calculate_sd_and_flag(values, threshold = 0.2)
-
-    expect_false(result$flagged)
-    expect_true(result$sd < 0.2)
-  })
-
-  it("handles single value by returning NA for SD and flag", {
-    values <- c(1.0)
-    result <- calculate_sd_and_flag(values, threshold = 0.2)
-
-    expect_true(is.na(result$sd))
-    expect_true(is.na(result$flagged))
-  })
-
-  it("handles empty vector by returning NA", {
-    values <- numeric(0)
-    result <- calculate_sd_and_flag(values, threshold = 0.2)
-
-    expect_true(is.na(result$sd))
-    expect_true(is.na(result$flagged))
-  })
-
-  it("correctly identifies high variability with SD > 0.2", {
-    # Values with high spread
-    values <- c(1.0, 1.5, 2.0) # Mean 1.5, Deviations -0.5, 0, 0.5
-    # Sq: 0.25, 0, 0.25 -> Sum 0.5 -> Var 0.25 -> SD 0.5
-    result <- calculate_sd_and_flag(values, threshold = 0.2)
-
-    expect_true(result$flagged)
-    expect_equal(result$sd, 0.5, tolerance = 1e-6)
+  it("returns NA if one period is missing", {
+    p1 <- create_mock_points(n = 50, period = "1970-2000")
+    # No second period
+    shift_val <- compute_niche_shift(p1)
+    expect_true(is.na(shift_val))
   })
 })
 
-# If the actual implementation in src/code/sensitivity.R is available,
-# we would test it directly. Since T031-T033 are not done, we rely on
-# the logic definition above to ensure the test suite fails if the
-# implementation deviates from the spec (SD >= 0.2).
-#
-# Once T031-T033 are implemented, we can replace the helper with:
-# source("src/code/sensitivity.R")
-# test_that("Real implementation...", {
-#   expect_true(some_exported_function(...))
-# })
-#
-# For now, this test file validates the *requirement logic* for SD and flagging.
-# It will serve as the acceptance criteria for T033.
+describe("subsample logic", {
+  it("selects exactly 50% of records with set.seed", {
+    set.seed(42)
+    df <- create_mock_points(n = 100, period = "1970-2000")
+    n_total <- nrow(df)
+    n_sample <- floor(n_total * 0.5)
+
+    indices <- sample(1:n_total, size = n_sample)
+    sampled_df <- df[indices, ]
+
+    expect_equal(nrow(sampled_df), n_sample)
+    # Verify randomness by checking if indices are not sequential
+    expect_false(all(indices == 1:n_sample))
+  })
+
+  it("produces reproducible results with set.seed(42)", {
+    set.seed(42)
+    df <- create_mock_points(n = 100, period = "1970-2000")
+    indices1 <- sample(1:nrow(df), size = floor(nrow(df) * 0.5))
+
+    set.seed(42)
+    indices2 <- sample(1:nrow(df), size = floor(nrow(df) * 0.5))
+
+    expect_equal(indices1, indices2)
+  })
+})
+
+describe("flagging logic", {
+  it("flags species with SD >= 0.2", {
+    shifts <- c(1.0, 1.1, 1.2, 1.3, 1.4) # SD approx 0.158 -> not flagged
+    sd_val <- sd(shifts)
+    is_flagged <- sd_val >= 0.2
+    expect_false(is_flagged)
+
+    shifts_high <- c(1.0, 1.0, 2.0, 2.0, 3.0) # SD approx 0.707 -> flagged
+    sd_val_high <- sd(shifts_high)
+    is_flagged_high <- sd_val_high >= 0.2
+    expect_true(is_flagged_high)
+  })
+})

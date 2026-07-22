@@ -1,217 +1,157 @@
 """
-Base data model classes for the corrosion potential prediction pipeline.
-
-Defines structured records for Alloy composition, Environmental conditions,
-and Corrosion measurements. These classes enforce strict typing and
-basic validation to ensure data integrity before processing.
+Base data model classes for the corrosion prediction pipeline.
 """
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 import json
+
 
 @dataclass
 class AlloyRecord:
     """
-    Represents a specific alloy composition.
-    
+    Represents a single alloy composition record.
+
     Attributes:
-        alloy_id: Unique identifier for the alloy (e.g., from NIST database).
-        designation: Commercial or standard designation (e.g., "304L", "Inconel 625").
-        composition: Dictionary mapping element symbol to weight fraction (0.0-1.0).
-        source: Reference to the source of the composition data.
-        created_at: Timestamp of record creation.
+        alloy_id: Unique identifier for the alloy
+        alloy_name: Human-readable name or designation
+        specific_alloy_designation_id: Standard designation (e.g., UNS, ASTM)
+        base_element: Primary metal element (e.g., 'Fe', 'Ni', 'Ti')
+        weight_fractions: Dictionary of element -> weight fraction (0.0-1.0)
+        heat_number: Batch/heat identification number
+        manufacturer: Alloy manufacturer name
+        notes: Additional notes or comments
+        created_at: Timestamp of record creation
     """
     alloy_id: str
-    designation: str
-    composition: Dict[str, float]
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-
-    def __post_init__(self) -> None:
-        """Validate composition data after initialization."""
-        if not self.alloy_id:
-            raise ValueError("alloy_id cannot be empty")
-        if not self.designation:
-            raise ValueError("designation cannot be empty")
-        if not self.composition:
-            raise ValueError("composition dictionary cannot be empty")
-        
-        # Validate weight fractions are within [0, 1]
-        for element, fraction in self.composition.items():
-            if not isinstance(fraction, (int, float)):
-                raise TypeError(f"Composition fraction for {element} must be numeric")
-            if fraction < 0.0 or fraction > 1.0:
-                raise ValueError(f"Composition fraction for {element} must be between 0.0 and 1.0")
-        
-        # Ensure total composition is reasonable (allow small floating point errors)
-        total = sum(self.composition.values())
-        if total < 0.99 or total > 1.01:
-            # Log warning or raise error depending on strictness requirements
-            # For now, we allow it but note it
-            pass
+    alloy_name: Optional[str] = None
+    specific_alloy_designation_id: Optional[str] = None
+    base_element: Optional[str] = None
+    weight_fractions: Dict[str, float] = field(default_factory=dict)
+    heat_number: Optional[str] = None
+    manufacturer: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = field(default_factory=datetime.now)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
+        """Convert record to dictionary."""
         return {
-            "alloy_id": self.alloy_id,
-            "designation": self.designation,
-            "composition": self.composition,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
+            'alloy_id': self.alloy_id,
+            'alloy_name': self.alloy_name,
+            'specific_alloy_designation_id': self.specific_alloy_designation_id,
+            'base_element': self.base_element,
+            'weight_fractions': self.weight_fractions,
+            'heat_number': self.heat_number,
+            'manufacturer': self.manufacturer,
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat()
         }
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AlloyRecord":
-        """Create an AlloyRecord from a dictionary."""
-        # Handle datetime parsing if needed
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
+    def to_json(self) -> str:
+        """Convert record to JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
 
 
 @dataclass
 class EnvironmentRecord:
     """
-    Represents the environmental conditions of a corrosion test.
-    
+    Represents environmental conditions for a corrosion test.
+
     Attributes:
-        env_id: Unique identifier for the environment condition.
-        ph: pH value of the solution.
-        temperature_c: Temperature in Celsius.
-        solution_composition: Dictionary of solution components (e.g., {"Cl-": 0.5, "SO4--": 0.1}).
-        aeration: Description of aeration state (e.g., "aerated", "deaerated").
-        source: Reference to the source of the environmental data.
-        created_at: Timestamp of record creation.
+        env_id: Unique identifier for the environment record
+        solution_type: Type of solution (e.g., 'NaCl', 'H2SO4')
+        concentration: Concentration of solution (mol/L or wt%)
+        ph: pH value of the solution
+        temperature: Temperature in Celsius
+        pressure: Pressure in atm (optional)
+        aeration: Aeration status ('aerated', 'deaerated', 'unknown')
+        flow_rate: Flow rate if applicable (m/s)
+        reference_electrode: Reference electrode used
+        notes: Additional notes
+        created_at: Timestamp of record creation
     """
     env_id: str
+    solution_type: Optional[str] = None
+    concentration: Optional[float] = None
     ph: Optional[float] = None
-    temperature_c: Optional[float] = None
-    solution_composition: Dict[str, float] = field(default_factory=dict)
+    temperature: Optional[float] = None
+    pressure: Optional[float] = None
     aeration: Optional[str] = None
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-
-    def __post_init__(self) -> None:
-        """Validate environment data after initialization."""
-        if not self.env_id:
-            raise ValueError("env_id cannot be empty")
-        
-        # Validate pH if present
-        if self.ph is not None:
-            if not isinstance(self.ph, (int, float)):
-                raise TypeError("pH must be numeric")
-            # pH is typically 0-14, but extreme conditions exist. We allow >14 or <0 with a note.
-            if self.ph < 0.0 or self.ph > 14.0:
-                # Log warning or raise error depending on strictness
-                pass
-
-        # Validate temperature if present
-        if self.temperature_c is not None:
-            if not isinstance(self.temperature_c, (int, float)):
-                raise TypeError("temperature must be numeric")
-            if self.temperature_c < -273.15:
-                raise ValueError("Temperature cannot be below absolute zero")
+    flow_rate: Optional[float] = None
+    reference_electrode: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = field(default_factory=datetime.now)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
+        """Convert record to dictionary."""
         return {
-            "env_id": self.env_id,
-            "ph": self.ph,
-            "temperature_c": self.temperature_c,
-            "solution_composition": self.solution_composition,
-            "aeration": self.aeration,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
+            'env_id': self.env_id,
+            'solution_type': self.solution_type,
+            'concentration': self.concentration,
+            'ph': self.ph,
+            'temperature': self.temperature,
+            'pressure': self.pressure,
+            'aeration': self.aeration,
+            'flow_rate': self.flow_rate,
+            'reference_electrode': self.reference_electrode,
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat()
         }
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EnvironmentRecord":
-        """Create an EnvironmentRecord from a dictionary."""
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
+    def to_json(self) -> str:
+        """Convert record to JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
 
 
 @dataclass
 class CorrosionMeasurement:
     """
-    Represents a single corrosion measurement result.
-    
-    This class links an AlloyRecord and an EnvironmentRecord to a specific
-    measurement result (e.g., corrosion potential, corrosion rate).
-    
+    Represents a corrosion measurement result.
+
     Attributes:
-        measurement_id: Unique identifier for the measurement.
-        alloy_id: Reference to the alloy used.
-        env_id: Reference to the environment condition.
-        corrosion_potential_mv: Measured corrosion potential in millivolts (vs. reference).
-        corrosion_rate_mpy: Corrosion rate in mils per year (optional).
-        corrosion_rate_mm_y: Corrosion rate in mm/year (optional).
-        method: Measurement method used (e.g., "potentiodynamic polarization", "EIS").
-        reference_electrode: Reference electrode used (e.g., "SCE", "Ag/AgCl").
-        source: Reference to the source of the measurement data.
-        created_at: Timestamp of record creation.
+        measurement_id: Unique identifier for the measurement
+        alloy_id: Reference to the alloy used
+        env_id: Reference to the environment conditions
+        corrosion_rate: Corrosion rate (mm/year or mpy)
+        corrosion_potential: Corrosion potential (V vs reference)
+        current_density: Current density (A/cm^2)
+        test_duration: Duration of the test in hours
+        test_method: Method used (e.g., 'potentiodynamic', 'weight_loss')
+        standard: Standard followed (e.g., 'ASTM G59')
+        uncertainty: Measurement uncertainty
+        notes: Additional notes
+        measured_at: Timestamp of measurement
     """
     measurement_id: str
     alloy_id: str
     env_id: str
-    corrosion_potential_mv: Optional[float] = None
-    corrosion_rate_mpy: Optional[float] = None
-    corrosion_rate_mm_y: Optional[float] = None
-    method: Optional[str] = None
-    reference_electrode: Optional[str] = None
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-
-    def __post_init__(self) -> None:
-        """Validate measurement data after initialization."""
-        if not self.measurement_id:
-            raise ValueError("measurement_id cannot be empty")
-        if not self.alloy_id:
-            raise ValueError("alloy_id reference cannot be empty")
-        if not self.env_id:
-            raise ValueError("env_id reference cannot be empty")
-
-        # Validate potential if present
-        if self.corrosion_potential_mv is not None:
-            if not isinstance(self.corrosion_potential_mv, (int, float)):
-                raise TypeError("corrosion_potential_mv must be numeric")
-
-        # Validate rates if present
-        if self.corrosion_rate_mpy is not None and self.corrosion_rate_mpy < 0:
-            raise ValueError("corrosion_rate_mpy cannot be negative")
-        if self.corrosion_rate_mm_y is not None and self.corrosion_rate_mm_y < 0:
-            raise ValueError("corrosion_rate_mm_y cannot be negative")
+    corrosion_rate: Optional[float] = None
+    corrosion_potential: Optional[float] = None
+    current_density: Optional[float] = None
+    test_duration: Optional[float] = None
+    test_method: Optional[str] = None
+    standard: Optional[str] = None
+    uncertainty: Optional[float] = None
+    notes: Optional[str] = None
+    measured_at: datetime = field(default_factory=datetime.now)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
+        """Convert record to dictionary."""
         return {
-            "measurement_id": self.measurement_id,
-            "alloy_id": self.alloy_id,
-            "env_id": self.env_id,
-            "corrosion_potential_mv": self.corrosion_potential_mv,
-            "corrosion_rate_mpy": self.corrosion_rate_mpy,
-            "corrosion_rate_mm_y": self.corrosion_rate_mm_y,
-            "method": self.method,
-            "reference_electrode": self.reference_electrode,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
+            'measurement_id': self.measurement_id,
+            'alloy_id': self.alloy_id,
+            'env_id': self.env_id,
+            'corrosion_rate': self.corrosion_rate,
+            'corrosion_potential': self.corrosion_potential,
+            'current_density': self.current_density,
+            'test_duration': self.test_duration,
+            'test_method': self.test_method,
+            'standard': self.standard,
+            'uncertainty': self.uncertainty,
+            'notes': self.notes,
+            'measured_at': self.measured_at.isoformat()
         }
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CorrosionMeasurement":
-        """Create a CorrosionMeasurement from a dictionary."""
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
-
     def to_json(self) -> str:
-        """Serialize the record to a JSON string."""
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "CorrosionMeasurement":
-        """Deserialize a JSON string to a CorrosionMeasurement."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
+        """Convert record to JSON string."""
+        return json.dumps(self.to_dict(), indent=2)

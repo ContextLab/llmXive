@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-22T22:07:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of materials science, the prediction of glass transition temperature, or the use of Explainable Boosting Machines for compositional descriptors. It fails to meet any inclusion criteria (a-f) as it lacks the necessary mechanism, domain variables, empirical population, or specific methodological application required for the user's literature review.",
+  "relevant": false
+}

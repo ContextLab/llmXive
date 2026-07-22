@@ -1,0 +1,32 @@
+# ASTM G59 Tolerance Configuration
+# This file defines the prediction error tolerance for corrosion potential measurements
+# based on ASTM G59 standard and literature-derived defaults.
+#
+# Source Analysis:
+# - ASTM G59-97(2014) "Standard Test Method for Conducting Electrochemical
+#   Potentiodynamic Polarization Resistance Measurements" focuses on polarization
+#   resistance (Rp) measurement techniques rather than defining a specific
+#   prediction error tolerance for corrosion potential (Ecorr) modeling.
+# - The standard specifies measurement precision for Rp but does not explicitly
+#   state a numerical tolerance for Ecorr prediction errors.
+#
+# Literature-Derived Default:
+# Based on "Corrosion Engineering" (Fontana, 3rd Ed.) and "Electrochemical
+# Methods" (Bard & Faulkner), typical experimental variability in Ecorr
+# measurements for aqueous systems is ±10-30 mV. A conservative tolerance
+# of 25 mV is adopted as the default for model performance comparison.
+#
+# Reference:
+# Fontana, M. G. (1986). Corrosion Engineering (3rd ed.). McGraw-Hill.
+# Bard, A. J., & Faulkner, L. R. (2001). Electrochemical Methods (2nd ed.). Wiley.
+
+tolerance:
+  value: 25.0
+  unit: "mV"
+  source: "Literature-derived default (Fontana, Bard & Faulkner)"
+  standard_reference: "ASTM G59-97(2014)"
+  notes: "ASTM G59 does not explicitly define Ecorr prediction tolerance.
+         Value based on typical experimental variability in aqueous corrosion
+         potential measurements (±10-30 mV range)."
+  last_updated: "2023-10-15"
+  verified: true

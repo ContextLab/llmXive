@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is presented in the evidence; the required folders (`projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/`,
+    `data/raw/`, `data/processed/`, `tests/`, `state/`) are not shown to exist or
+    contain any files. The implementer must create these directories (and optionally
+    add placeholder files) to satisfy the task.
+T001b:
+  c: false
+  h: 08f150d1e188f79c6869f16476fb0c844b6437d212f94789bc6eed44f9fc6aee
+  r: The required file `projects/PROJ-382-the-impact-of-simulated-social-exclusion/code/requirements.txt`
+    does not exist, so the pinned dependencies are not provided at the specified location.
+    The existing `code/requirements.txt` is irrelevant to the task. The missing artifact
+    must be created with the listed dependencies.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` configuration file was presented in the provided evidence; the claim
+    that such a file exists with the required explicit rules cannot be verified. The
+    required artifact is missing.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No schema definition (e.g., a Pydantic model or Pandas dtype\u2011check code)\
+    \ is present in the provided evidence; the required artifact for validating the\
+    \ three columns is missing. The implementer must supply a concrete validation\
+    \ schema file or code snippet."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for an error\u2011handling wrapper around\
+    \ network requests (e.g., handling timeouts, 404 responses) is present. The implementer\
+    \ provided no artifact to verify that such a wrapper exists or that it integrates\
+    \ with the pipeline, so the task requirement is unmet."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only specifications for data ingestion and statistical\
+    \ analysis; there is no script, configuration file, or documentation that sets\
+    \ up `PYTHONHASHSEED` or controls random seeds for reproducibility. Consequently,\
+    \ the required environment\u2011configuration management artifact is missing."

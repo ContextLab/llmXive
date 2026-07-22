@@ -1,0 +1,15 @@
+# Configuration for PROJ-450
+# T025 Power Analysis Parameters
+
+# Effect size for power analysis (Cohen's r or f^2)
+# Default moderate magnitude: 0.3 (correlation)
+effect_size: 0.3
+
+# Output settings
+output_dir: results
+
+# Power analysis parameters
+alpha: 0.05
+target_power: 0.80
+target_moe: 0.15
+min_species: 30

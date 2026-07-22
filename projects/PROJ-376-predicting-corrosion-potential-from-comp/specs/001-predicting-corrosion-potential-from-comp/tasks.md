@@ -54,8 +54,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create schema contracts: `contracts/ingest.schema.yaml` and `contracts/dataset.schema.yaml`
-- [ ] T005 [P] Implement custom exceptions in `code/utils/exceptions.py` (DataInsufficientError, SchemaMismatchError)
-- [ ] T006 [P] Setup reproducible logging infrastructure in `code/utils/logging.py` (FR-010)
+- [X] T005 [P] Implement custom exceptions in `code/utils/exceptions.py` (DataInsufficientError, SchemaMismatchError)
+- [X] T006 [P] Setup reproducible logging infrastructure in `code/utils/logging.py` (FR-010)
 - [ ] T007 Create base data model classes for AlloyRecord, EnvironmentRecord, CorrosionMeasurement
 - [ ] T008 Setup environment configuration management for random seeds and file paths
 - [X] T009 Define schema validation utility in `code/utils/validation.py` to enforce non-null constraints (Dependency: T004)
@@ -81,7 +81,7 @@
 
 - [X] T012 [P] [US1] Implement `code/data/download_nist.py` to fetch from NIST-IR-8200. **Pre-fetch**: Check verified-datasets registry/config for URL. **Halt**: If URL is missing, raise `DataInsufficientError` immediately and halt (Plan Data Acquisition Strategy). **Fetch**: Implement retry logic (exponential backoff, limited retries) and halt on /404 (FR-001, FR-002)
 - [X] T013 [P] [US1] Implement `code/data/preprocess.py` to encode weight fractions, filter missing pH/temp, and exclude outliers (FR-003, FR-013)
-- [~] T014 [US1] Implement schema validation step in `code/data/preprocess.py` to enforce non-nulls and count records. **Halt Condition**: If <500 records, write exact record count to `data/logs/pipeline.log` AND `data/logs/diagnostics/count_report.txt`, then raise `DataInsufficientError` (FR-014, Plan Data Acquisition Strategy). **Note**: This task enforces Spec FR-014's `DataInsufficientError` requirement.
+- [ ] T014 [US1] Implement schema validation step in `code/data/preprocess.py` to enforce non-nulls and count records. **Halt Condition**: If <500 records, write exact record count to `data/logs/pipeline.log` AND `data/logs/diagnostics/count_report.txt`, then raise `DataInsufficientError` (FR-014, Plan Data Acquisition Strategy). **Note**: This task enforces Spec FR-014's `DataInsufficientError` requirement.
 - [X] T015 [US1] Implement `code/data/split.py` with **GroupKFold (k=5)** logic to ensure statistical power while preventing alloy leakage. **Pre-check**: Verify dataset contains ≥10 specific alloy designations; if not, raise `DataInsufficientError`. **Output**: Generate train/test indices for multiple folds ensuring no alloy overlap between folds (FR-004, FR-012, Plan Complexity Tracking). **Note**: This task implements the Plan's GroupKFold (k=5) strategy which supersedes the Spec's single-split LOSO requirement to ensure sufficient test set size for statistical power.
 - [ ] T016 [US1] Add diagnostic logging for excluded records (missing pH, extreme pH) to `data/logs/pipeline.log`
 - [ ] T017 [US1] Verify split integrity: ensure strict GroupKFold constraint is met (zero overlap of specific_alloy_designation_id between folds). **Deliverable**: Write `data/logs/split_validation.json` containing fold statistics and overlap verification (SC-004).
@@ -98,16 +98,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for model training timing (must complete <30 mins) in `tests/unit/test_model_timing.py`
-- [ ] T019 [P] [US2] Integration test for end-to-end training and evaluation in `tests/integration/test_model_training.py`
+- [X] T018 [P] [US2] Unit test for model training timing (must complete <30 mins) in `tests/unit/test_model_timing.py`
+- [X] T019 [P] [US2] Integration test for end-to-end training and evaluation in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/models/train.py` to train Random Forest and Gradient Boosting (CPU-only, scikit-learn) with `random_state=42` using GroupKFold (k=5) indices (FR-005)
+- [X] T020 [P] [US2] Implement `code/models/train.py` to train Random Forest and Gradient Boosting (CPU-only, scikit-learn) with `random_state=42` using GroupKFold (k=5) indices (FR-005)
 - [ ] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and RMSE on held-out test sets from GroupKFold (k=5) and aggregate metrics (FR-006)
 - [ ] T022 [US2] Implement null baseline comparison (mean prediction) and "learnable" classification logic (R² > 0.0, p < 0.05 via permutation test on aggregated predictions) (SC-001, SC-007)
-- [ ] T023a [US2] Create `config/astm_g59_tolerance.yaml` and parse ASTM G59 standard to extract prediction error tolerance. If standard does not define a specific value, set a literature-derived default and log the source. (SC-002). **Note**: This task ensures a tolerance value is always defined for comparison.
-- [ ] T023b [US2] Implement RMSE calculation in millivolts (mV) and compare against the tolerance defined in `config/astm_g59_tolerance.yaml`. **Verification**: Report comparison result; do not allow 'N/A' path (SC-002). **Note**: This task enforces SC-002 by requiring a comparison against a defined tolerance.
+- [X] T023a [US2] Create `config/astm_g59_tolerance.yaml` and parse ASTM G59 standard to extract prediction error tolerance. If standard does not define a specific value, set a literature-derived default and log the source. (SC-002). **Note**: This task ensures a tolerance value is always defined for comparison.
+- [X] T023b [US2] Implement RMSE calculation in millivolts (mV) and compare against the tolerance defined in `config/astm_g59_tolerance.yaml`. **Verification**: Report comparison result; do not allow 'N/A' path (SC-002). **Note**: This task enforces SC-002 by requiring a comparison against a defined tolerance.
 - [ ] T024 [US2] Save model artifacts and metrics to `data/processed/model_results.json` conforming to `contracts/model_results.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

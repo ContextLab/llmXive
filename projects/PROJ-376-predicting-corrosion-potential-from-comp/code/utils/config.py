@@ -1,281 +1,243 @@
 """
-Environment configuration management for random seeds and file paths.
-
-This module provides centralized configuration handling for the corrosion
-prediction pipeline, ensuring reproducibility through random seed management
-and consistent file path resolution.
+Configuration management module for the corrosion potential prediction pipeline.
+Handles random seeds, file paths, and environment configuration.
 """
+
 import os
 import random
-from pathlib import Path
-from typing import Optional, Dict, Any
-from dataclasses import dataclass, field
 import yaml
+from pathlib import Path
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass, field
 
 from utils.logging import get_logger
+from utils.exceptions import CorrosionPipelineError
 
 logger = get_logger(__name__)
 
-
 @dataclass
 class ProjectConfig:
-    """
-    Centralized project configuration.
-    
-    Attributes:
-        project_root: Root directory of the project
-        data_dir: Directory for all data files
-        data_raw_dir: Directory for raw data
-        data_processed_dir: Directory for processed data
-        data_logs_dir: Directory for log files
-        state_dir: Directory for state files
-        config_dir: Directory for configuration files
-        code_dir: Directory for code files
-        models_dir: Directory for model artifacts
-        utils_dir: Directory for utility modules
-        tests_dir: Directory for test files
-        contracts_dir: Directory for schema contracts
-        random_seed: Random seed for reproducibility
-        environment: Current environment (development, testing, production)
-        verbose: Verbosity level for logging
-    """
-    project_root: Path
-    data_dir: Path = field(init=False)
-    data_raw_dir: Path = field(init=False)
-    data_processed_dir: Path = field(init=False)
-    data_logs_dir: Path = field(init=False)
-    state_dir: Path = field(init=False)
-    config_dir: Path = field(init=False)
-    code_dir: Path = field(init=False)
-    models_dir: Path = field(init=False)
-    utils_dir: Path = field(init=False)
-    tests_dir: Path = field(init=False)
-    contracts_dir: Path = field(init=False)
-    random_seed: int = 42
-    environment: str = "development"
-    verbose: bool = True
+    """Holds all project-wide configuration settings."""
+    random_seeds: Dict[str, int] = field(default_factory=dict)
+    file_paths: Dict[str, str] = field(default_factory=dict)
+    data_sources: Dict[str, Any] = field(default_factory=dict)
+    processing: Dict[str, Any] = field(default_factory=dict)
+    model_training: Dict[str, Any] = field(default_factory=dict)
+    validation: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Initialize derived paths based on project_root."""
-        self.data_dir = self.project_root / "data"
-        self.data_raw_dir = self.data_dir / "raw"
-        self.data_processed_dir = self.data_dir / "processed"
-        self.data_logs_dir = self.data_dir / "logs"
-        self.state_dir = self.project_root / "state"
-        self.config_dir = self.project_root / "config"
-        self.code_dir = self.project_root / "code"
-        self.models_dir = self.code_dir / "models"
-        self.utils_dir = self.code_dir / "utils"
-        self.tests_dir = self.code_dir / "tests"
-        self.contracts_dir = self.project_root / "contracts"
-
-        # Ensure all directories exist
-        for dir_path in [
-            self.data_dir, self.data_raw_dir, self.data_processed_dir,
-            self.data_logs_dir, self.state_dir, self.config_dir,
-            self.code_dir, self.models_dir, self.utils_dir,
-            self.tests_dir, self.contracts_dir
-        ]:
-            dir_path.mkdir(parents=True, exist_ok=True)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to dictionary."""
-        return {
-            "project_root": str(self.project_root),
-            "data_dir": str(self.data_dir),
-            "data_raw_dir": str(self.data_raw_dir),
-            "data_processed_dir": str(self.data_processed_dir),
-            "data_logs_dir": str(self.data_logs_dir),
-            "state_dir": str(self.state_dir),
-            "config_dir": str(self.config_dir),
-            "random_seed": self.random_seed,
-            "environment": self.environment,
-            "verbose": self.verbose
-        }
-
-    def save_to_yaml(self, path: Optional[Path] = None) -> None:
-        """Save configuration to YAML file."""
-        if path is None:
-            path = self.config_dir / "project_config.yaml"
-        
-        with open(path, 'w') as f:
-            yaml.dump(self.to_dict(), f, default_flow_style=False)
-        
-        logger.info(f"Configuration saved to {path}")
-
+        # Set defaults if not provided
+        if not self.random_seeds:
+            self.random_seeds = {
+                'global_seed': 42,
+                'train_test_split_seed': 42,
+                'model_training_seed': 42,
+                'permutation_test_seed': 42
+            }
+        if not self.file_paths:
+            self.file_paths = {
+                'raw_data_dir': 'data/raw',
+                'processed_data_dir': 'data/processed',
+                'log_dir': 'data/logs',
+                'state_dir': 'state',
+                'figures_dir': 'figures',
+                'processed_dataset_path': 'data/processed/corrosion_dataset.parquet',
+                'model_results_path': 'data/processed/model_results.json',
+                'pipeline_log_path': 'data/logs/pipeline.log'
+            }
 
 class ConfigManager:
-    """
-    Manages project configuration and random seed initialization.
-    
-    This class provides methods to load, create, and manage project configuration,
-    as well as to set random seeds for reproducibility across numpy, random, and
-    torch (if available).
-    """
-    
+    """Manages loading, saving, and accessing project configuration."""
+
     _instance: Optional['ConfigManager'] = None
     _config: Optional[ProjectConfig] = None
 
     def __new__(cls):
-        """Singleton pattern to ensure single configuration instance."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):
-        """Initialize configuration manager."""
-        if self._config is not None:
-            return
-        
-        # Try to load from existing config file
-        config_path = Path("config") / "project_config.yaml"
-        if config_path.exists():
-            self._config = self._load_from_yaml(config_path)
-            logger.info(f"Loaded configuration from {config_path}")
-        else:
-            # Create default configuration
-            project_root = Path(__file__).resolve().parent.parent.parent
-            self._config = ProjectConfig(project_root=project_root)
-            logger.info("Created default configuration")
+        if self._config is None:
+            self._config = self._load_config()
 
     @classmethod
-    def get_config(cls) -> ProjectConfig:
-        """Get the current configuration."""
-        instance = cls()
-        return instance._config
-
-    @classmethod
-    def set_random_seed(cls, seed: Optional[int] = None) -> None:
-        """
-        Set random seeds for reproducibility.
-        
-        Args:
-            seed: Random seed value. If None, uses the seed from configuration.
-        """
-        if seed is None:
-            seed = cls.get_config().random_seed
-        
-        # Set seed for Python's random module
-        random.seed(seed)
-        logger.info(f"Set random seed to {seed}")
-
-        # Set seed for numpy if available
-        try:
-            import numpy as np
-            np.random.seed(seed)
-            logger.debug("Set numpy random seed")
-        except ImportError:
-            logger.debug("numpy not available, skipping numpy seed")
-
-        # Set seed for torch if available
-        try:
-            import torch
-            torch.manual_seed(seed)
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed(seed)
-                torch.cuda.manual_seed_all(seed)
-            logger.debug("Set torch random seed")
-        except ImportError:
-            logger.debug("torch not available, skipping torch seed")
-
-    @classmethod
-    def _load_from_yaml(cls, path: Path) -> ProjectConfig:
+    def _load_config(cls, config_path: Optional[str] = None) -> ProjectConfig:
         """Load configuration from YAML file."""
-        with open(path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        project_root = Path(data.get("project_root", Path(__file__).resolve().parent.parent.parent))
-        
-        return ProjectConfig(
-            project_root=project_root,
-            random_seed=data.get("random_seed", 42),
-            environment=data.get("environment", "development"),
-            verbose=data.get("verbose", True)
-        )
+        if config_path is None:
+            config_path = "config/pipeline_config.yaml"
 
-    @classmethod
-    def save_config(cls, path: Optional[Path] = None) -> None:
+        config_path = Path(config_path)
+
+        if not config_path.exists():
+            raise CorrosionPipelineError(
+                f"Configuration file not found: {config_path}. "
+                "Please ensure config/pipeline_config.yaml exists."
+            )
+
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config_data = yaml.safe_load(f)
+
+            return ProjectConfig(
+                random_seeds=config_data.get('random_seeds', {}),
+                file_paths=config_data.get('file_paths', {}),
+                data_sources=config_data.get('data_sources', {}),
+                processing=config_data.get('processing', {}),
+                model_training=config_data.get('model_training', {}),
+                validation=config_data.get('validation', {})
+            )
+        except yaml.YAMLError as e:
+            raise CorrosionPipelineError(f"Failed to parse config file: {e}")
+
+    def get_config(self) -> ProjectConfig:
+        """Return the current configuration."""
+        return self._config
+
+    def update_config(self, updates: Dict[str, Any]):
+        """Update configuration with new values."""
+        for key, value in updates.items():
+            if hasattr(self._config, key):
+                current = getattr(self._config, key)
+                if isinstance(current, dict) and isinstance(value, dict):
+                    current.update(value)
+                else:
+                    setattr(self._config, key, value)
+        logger.info(f"Configuration updated: {list(updates.keys())}")
+
+    def save_config(self, output_path: Optional[str] = None):
         """Save current configuration to YAML file."""
-        cls.get_config().save_to_yaml(path)
+        if output_path is None:
+            output_path = "config/pipeline_config.yaml"
 
-    @classmethod
-    def update_config(cls, **kwargs) -> None:
-        """
-        Update configuration with new values.
-        
-        Args:
-            **kwargs: Key-value pairs to update in configuration.
-        """
-        config = cls.get_config()
-        for key, value in kwargs.items():
-            if hasattr(config, key):
-                setattr(config, key, value)
-                logger.debug(f"Updated config.{key} to {value}")
-            else:
-                logger.warning(f"Unknown configuration key: {key}")
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    @classmethod
-    def get_path(cls, *paths) -> Path:
-        """
-        Get an absolute path relative to project root.
-        
-        Args:
-            *paths: Path components to join with project root.
-        
-        Returns:
-            Absolute Path object.
-        """
-        config = cls.get_config()
-        return config.project_root / Path(*paths)
+        config_dict = {
+            'random_seeds': self._config.random_seeds,
+            'file_paths': self._config.file_paths,
+            'data_sources': self._config.data_sources,
+            'processing': self._config.processing,
+            'model_training': self._config.model_training,
+            'validation': self._config.validation
+        }
 
-    @classmethod
-    def get_data_path(cls, *paths) -> Path:
-        """Get a path relative to the data directory."""
-        config = cls.get_config()
-        return config.data_dir / Path(*paths)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config_dict, f, default_flow_style=False, sort_keys=False)
 
-    @classmethod
-    def get_processed_data_path(cls, *paths) -> Path:
-        """Get a path relative to the processed data directory."""
-        config = cls.get_config()
-        return config.data_processed_dir / Path(*paths)
+        logger.info(f"Configuration saved to {output_path}")
 
-    @classmethod
-    def get_log_path(cls, *paths) -> Path:
-        """Get a path relative to the logs directory."""
-        config = cls.get_config()
-        return config.data_logs_dir / Path(*paths)
+# Global config manager instance
+_config_manager = None
 
-
-# Convenience functions for common operations
 def get_config() -> ProjectConfig:
-    """Get the current project configuration."""
-    return ConfigManager.get_config()
+    """Get the global configuration instance."""
+    global _config_manager
+    if _config_manager is None:
+        _config_manager = ConfigManager()
+    return _config_manager.get_config()
 
-def set_random_seed(seed: Optional[int] = None) -> None:
-    """Set random seeds for reproducibility."""
-    ConfigManager.set_random_seed(seed)
+def set_random_seed(seed: Optional[int] = None, seed_name: str = 'global_seed') -> int:
+    """
+    Set random seed for reproducibility.
 
-def get_path(*paths) -> Path:
-    """Get an absolute path relative to project root."""
-    return ConfigManager.get_path(*paths)
+    Args:
+        seed: The seed value. If None, uses the value from config.
+        seed_name: The name of the seed in config (default: 'global_seed')
 
-def get_data_path(*paths) -> Path:
-    """Get a path relative to the data directory."""
-    return ConfigManager.get_data_path(*paths)
+    Returns:
+        The seed value that was set.
+    """
+    config = get_config()
 
-def get_processed_data_path(*paths) -> Path:
-    """Get a path relative to the processed data directory."""
-    return ConfigManager.get_processed_data_path(*paths)
+    if seed is None:
+        seed = config.random_seeds.get(seed_name, 42)
 
-def get_log_path(*paths) -> Path:
-    """Get a path relative to the logs directory."""
-    return ConfigManager.get_log_path(*paths)
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-def save_config(path: Optional[Path] = None) -> None:
-    """Save current configuration to YAML file."""
-    ConfigManager.save_config(path)
+    logger.info(f"Random seed set to {seed} ({seed_name})")
+    return seed
 
-def update_config(**kwargs) -> None:
-    """Update configuration with new values."""
-    ConfigManager.update_config(**kwargs)
+def get_path(key: str) -> Path:
+    """
+    Get a file path from configuration.
+
+    Args:
+        key: The key in file_paths configuration
+
+    Returns:
+        Path object for the configured path
+    """
+    config = get_config()
+    path_str = config.file_paths.get(key)
+
+    if path_str is None:
+        raise CorrosionPipelineError(f"Path key not found in config: {key}")
+
+    return Path(path_str)
+
+def get_data_path() -> Path:
+    """Get the raw data directory path."""
+    return get_path('raw_data_dir')
+
+def get_processed_data_path() -> Path:
+    """Get the processed data directory path."""
+    return get_path('processed_data_dir')
+
+def get_log_path() -> Path:
+    """Get the log directory path."""
+    return get_path('log_dir')
+
+def save_config(output_path: Optional[str] = None):
+    """Save configuration to file."""
+    ConfigManager().save_config(output_path)
+
+def update_config(updates: Dict[str, Any]):
+    """Update configuration values."""
+    ConfigManager().update_config(updates)
+
+# Convenience functions for common paths
+def get_processed_dataset_path() -> Path:
+    """Get the path to the processed dataset."""
+    return get_path('processed_dataset_path')
+
+def get_model_results_path() -> Path:
+    """Get the path to model results."""
+    return get_path('model_results_path')
+
+def get_pipeline_log_path() -> Path:
+    """Get the path to the pipeline log."""
+    return get_path('pipeline_log_path')
+
+def get_split_indices_path() -> Path:
+    """Get the path to split indices."""
+    return get_path('split_indices_path')
+
+def get_split_validation_path() -> Path:
+    """Get the path to split validation results."""
+    return get_path('split_validation_path')
+
+def get_diagnostics_path() -> Path:
+    """Get the diagnostics directory path."""
+    return get_path('diagnostics_path')
+
+def get_count_report_path() -> Path:
+    """Get the count report file path."""
+    return get_path('count_report_path')
+
+def get_figures_path() -> Path:
+    """Get the figures directory path."""
+    return get_path('figures_dir')
+
+def get_interpretability_path() -> Path:
+    """Get the interpretability results directory path."""
+    return get_path('interpretability_dir')
+
+def get_astm_tolerance_config_path() -> Path:
+    """Get the ASTM G59 tolerance configuration path."""
+    return get_path('astm_tolerance_config')
+
+def get_verified_datasets_config_path() -> Path:
+    """Get the verified datasets configuration path."""
+    return get_path('verified_datasets_config')
