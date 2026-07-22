@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-393-predicting-the-influence-of-composition-",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python main.py; 2 command(s) failed: python -m src.ingestion.fetch_nist (rc=1); python -m src.ingestion.fetch_journal_data (rc=1); 6 declared deliverable(s) absent: data/processed/alloys_features.csv; data/processed/alloys_raw.csv; data/processed/completeness_report.json",
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python main.py; 2 command(s) failed: python -m src.ingestion.fetch_nist (rc=1); python -m src.ingestion.fetch_journal_data (rc=1); 5 declared deliverable(s) absent: data/processed/alloys_features.csv; data/processed/alloys_raw.csv; data/processed/model_metrics.json",
   "artifacts": [],
   "failures": [
     "python -m src.ingestion.fetch_nist -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/code/.venv/bin/python: No module named src.ingestion.fetch_nist",
     "python -m src.ingestion.fetch_journal_data -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/code/.venv/bin/python: No module named src.ingestion.fetch_journal_data",
     "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-393-predicting-the-influence-of-composition-/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-21T15:39:14Z"
+  "updated_at": "2026-07-22T09:13:41Z"
 }

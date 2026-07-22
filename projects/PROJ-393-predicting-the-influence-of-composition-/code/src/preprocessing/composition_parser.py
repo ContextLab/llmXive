@@ -1,125 +1,96 @@
-"""
-Composition Parser Module for Heusler Alloy Analysis.
-
-This module converts chemical composition strings (e.g., 'Co2MnGa') into
-atomic fractions with at least 4 decimal places of precision.
-"""
 import re
 import logging
 from typing import Dict, List, Tuple, Optional
 from pathlib import Path
+from src.utils.logging_config import setup_logging, create_logger
+import sys
+import pandas as pd
 
-# Configure logging
-logger = logging.getLogger(__name__)
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Regex pattern to parse chemical formulas
-# Matches element symbol (1-2 chars) followed by an optional integer count
-FORMULA_PATTERN = re.compile(r'([A-Z][a-z]?)(\d*)')
-
-def parse_composition(composition_str: str) -> Dict[str, float]:
-    """
-    Parse a chemical composition string into atomic fractions.
-
-    Args:
-        composition_str: A string representing the composition, e.g., 'Co2MnGa', 'FeNi3'.
-
-    Returns:
-        A dictionary mapping element symbols to their atomic fractions (float).
-        Values are normalized to sum to 1.0.
-
-    Raises:
-        ValueError: If the composition string is empty or cannot be parsed.
-        ValueError: If the sum of counts is zero.
-    """
-    if not composition_str or not isinstance(composition_str, str):
-        raise ValueError(f"Invalid composition string: '{composition_str}'")
-
-    composition_str = composition_str.strip()
-    if not composition_str:
-        raise ValueError("Composition string is empty after stripping.")
-
-    # Parse the formula
-    elements_counts: Dict[str, int] = {}
-    matches = FORMULA_PATTERN.findall(composition_str)
-
-    if not matches:
-        raise ValueError(f"Could not parse any elements from formula: '{composition_str}'")
-
-    total_atoms = 0
-    for element, count_str in matches:
-        count = int(count_str) if count_str else 1
-        if count <= 0:
-            raise ValueError(f"Invalid atom count for element '{element}' in '{composition_str}'")
-        
-        elements_counts[element] = elements_counts.get(element, 0) + count
-        total_atoms += count
-
-    if total_atoms == 0:
-        raise ValueError(f"Total atom count is zero for formula: '{composition_str}'")
-
-    # Convert to fractions
-    fractions = {
-        elem: round(count / total_atoms, 4) 
-        for elem, count in elements_counts.items()
-    }
-
-    # Log the parsing result
-    logger.debug(f"Parsed composition '{composition_str}' -> {fractions}")
-
-    return fractions
+logger = create_logger(__name__)
 
 def parse_formula_to_fractions(formula: str) -> Dict[str, float]:
     """
-    Alias for parse_composition to satisfy test imports and interface consistency.
+    Parse a chemical formula string (e.g., "Co2MnGa") into atomic fractions.
+    Returns a dict of element -> fraction.
+    """
+    if not isinstance(formula, str) or not formula:
+        return {}
     
-    Args:
-        formula: Chemical formula string.
-        
-    Returns:
-        Dictionary of element to atomic fraction.
-    """
-    return parse_composition(formula)
+    # Regex to match element symbols and optional counts
+    # Matches: Element (Capital + optional lowercase) followed by optional number
+    pattern = r'([A-Z][a-z]?)(\d*)'
+    matches = re.findall(pattern, formula)
+    
+    if not matches:
+        logger.warning(f"Could not parse formula: {formula}")
+        return {}
+    
+    total_atoms = 0
+    elements = {}
+    
+    for elem, count_str in matches:
+        count = int(count_str) if count_str else 1
+        elements[elem] = count
+        total_atoms += count
+    
+    if total_atoms == 0:
+        return {}
+    
+    fractions = {elem: count / total_atoms for elem, count in elements.items()}
+    return fractions
 
-def parse_batch_compositions(compositions: List[str]) -> List[Dict[str, float]]:
-    """
-    Parse a list of composition strings.
+def parse_composition(composition: str) -> Dict[str, float]:
+    """Parse a single composition string."""
+    return parse_formula_to_fractions(composition)
 
-    Args:
-        compositions: List of composition strings.
-
-    Returns:
-        List of dictionaries mapping elements to atomic fractions.
+def parse_batch_compositions(df: pd.DataFrame) -> pd.DataFrame:
     """
-    results = []
-    for comp in compositions:
-        try:
-            results.append(parse_composition(comp))
-        except ValueError as e:
-            logger.warning(f"Failed to parse composition '{comp}': {e}")
-            results.append({})
-    return results
+    Parse compositions in a DataFrame and add fractional columns.
+    Adds columns: 'Co_frac', 'Mn_frac', etc.
+    """
+    if df.empty:
+        return df
+    
+    logger.info("Parsing batch compositions...")
+    
+    if 'composition' not in df.columns:
+        logger.warning("No 'composition' column found.")
+        return df
+    
+    # Collect all unique elements first
+    all_elements = set()
+    for comp in df['composition']:
+        if pd.isna(comp): continue
+        parsed = parse_formula_to_fractions(str(comp))
+        all_elements.update(parsed.keys())
+    
+    # Add columns for each element
+    for elem in all_elements:
+        col_name = f"{elem}_frac"
+        df[col_name] = 0.0
+    
+    # Fill fractions
+    for idx, row in df.iterrows():
+        comp = row['composition']
+        if pd.isna(comp):
+            continue
+        parsed = parse_formula_to_fractions(str(comp))
+        for elem, frac in parsed.items():
+            col_name = f"{elem}_frac"
+            if col_name in df.columns:
+                df.at[idx, col_name] = round(frac, 4)
+    
+    logger.info(f"Parsed {len(all_elements)} unique elements.")
+    return df
 
 def main():
-    """
-    Entry point for testing the composition parser directly.
-    """
-    test_cases = [
-        "Co2MnGa",
-        "FeNi3",
-        "MnFeCo",
-        "Co2Mn1.5Ga0.5", # Note: Current regex doesn't support decimals, will parse as 1.5 -> 1, 5? No, regex is \d*
-        "InvalidString",
-        ""
-    ]
-
-    for case in test_cases:
-        try:
-            result = parse_composition(case)
-            print(f"Input: {case} -> Output: {result}")
-        except Exception as e:
-            print(f"Input: {case} -> Error: {e}")
+    setup_logging()
+    logger.info("Composition Parser Main Entry")
+    return 0
 
 if __name__ == "__main__":
-    # Setup basic logging for direct execution
-    logging.basicConfig(level=logging.DEBUG)
-    main()
+    sys.exit(main())

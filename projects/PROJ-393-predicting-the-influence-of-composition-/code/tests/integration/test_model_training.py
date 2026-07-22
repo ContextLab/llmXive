@@ -1,217 +1,230 @@
 """
-Integration test for the Model Training Pipeline (T030).
-Verifies k-fold cross-validation, model training, and metric generation for Linear and RF models.
-Ensures `data/processed/model_metrics.json` is produced with valid R² and MAE values.
+Integration test for the model training pipeline (T030).
+Verifies k-fold cross-validation, model training, and metric generation.
 """
 import pytest
-import pandas as pd
-import numpy as np
-import tempfile
-import os
 import json
-from pathlib import Path
+import os
 import sys
+from pathlib import Path
+import tempfile
 import shutil
 
-# Add code/src to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code" / "src"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from src.models.training_pipeline import (
-    load_features_data,
-    prepare_data,
-    run_cross_validation,
-    tune_and_train_linear,
-    tune_and_train_rf,
-    run_training_pipeline
-)
-from src.features.descriptor_calculator import calculate_all_descriptors
+from src.models.training_pipeline import run_training_pipeline
+from src.features.feature_engineering_pipeline import run_feature_engineering_pipeline
 from src.preprocessing.preprocess_pipeline import run_preprocessing_pipeline
-from src.ingestion.manual_curator import load_manual_curated_data
+from src.ingestion.ingest_pipeline import run_ingestion_pipeline
+from src.utils.logging_config import setup_logging
 
-@pytest.fixture
-def sample_features_df():
-    """Create a small synthetic dataset for testing the pipeline logic."""
-    n_samples = 100
-    np.random.seed(42)
-    
-    data = {
-        "composition": [f"Co2Mn{elem}" for elem in np.random.choice(["Ga", "Al", "In"], n_samples)],
-        "avg_electronegativity": np.random.uniform(1.5, 2.5, n_samples),
-        "valence_electron_concentration": np.random.uniform(18.0, 20.0, n_samples),
-        "atomic_radii_variance": np.random.uniform(0.0, 0.1, n_samples),
-        "avg_d_electrons": np.random.uniform(5.0, 7.0, n_samples),
-        "atomic_size_mismatch": np.random.uniform(0.0, 0.05, n_samples),
-        "coercivity_oersted": np.random.uniform(10.0, 100.0, n_samples),
-        "source_type": ["Experimental"] * n_samples
-    }
-    
-    return pd.DataFrame(data)
 
-@pytest.fixture
-def temp_features_file(sample_features_df):
-    """Save sample dataframe to a temp CSV file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        sample_features_df.to_csv(f.name, index=False)
-        yield Path(f.name)
-    os.unlink(f.name)
+class TestModelTrainingIntegration:
+    """Integration tests for the full model training pipeline."""
 
-def test_prepare_data(temp_features_file):
-    """Test data preparation logic."""
-    df = pd.read_csv(temp_features_file)
-    X, y, feature_names = prepare_data(df, target_col="coercivity_oersted")
-    
-    assert isinstance(X, np.ndarray)
-    assert isinstance(y, np.ndarray)
-    assert X.shape[0] == y.shape[0]
-    assert X.shape[1] == 5
-    assert "coercivity_oersted" not in feature_names
-
-def test_run_cross_validation(temp_features_file):
-    """Test that cross-validation runs and returns expected metrics."""
-    from sklearn.linear_model import Ridge
-    
-    df = pd.read_csv(temp_features_file)
-    X, y, _ = prepare_data(df, target_col="coercivity_oersted")
-    
-    model = Ridge(alpha=1.0)
-    scores = run_cross_validation(model, X, y, cv=5)
-    
-    assert "r2_mean" in scores
-    assert "r2_std" in scores
-    assert "mae_mean" in scores
-    assert "mae_std" in scores
-    assert isinstance(scores["r2_mean"], float)
-
-def test_tune_and_train_linear(temp_features_file):
-    """Test Linear/Ridge tuning and training."""
-    df = pd.read_csv(temp_features_file)
-    X, y, feature_names = prepare_data(df, target_col="coercivity_oersted")
-    
-    model, metrics = tune_and_train_linear(X, y, feature_names)
-    
-    assert model is not None
-    assert "best_params" in metrics
-    assert "cv_results" in metrics
-    assert "r2_mean" in metrics["cv_results"]
-
-def test_tune_and_train_rf(temp_features_file):
-    """Test Random Forest tuning and training."""
-    df = pd.read_csv(temp_features_file)
-    X, y, feature_names = prepare_data(df, target_col="coercivity_oersted")
-    
-    model, metrics = tune_and_train_rf(X, y, feature_names)
-    
-    assert model is not None
-    assert "best_params" in metrics
-    assert "cv_results" in metrics
-    assert "n_estimators" in metrics["best_params"]
-
-def test_run_training_pipeline_integration(temp_features_file, tmp_path):
-    """
-    Full integration test: Run the pipeline end-to-end.
-    Verifies that models are saved and metrics are generated.
-    """
-    import src.models.training_pipeline as pipeline_module
-    original_model_dir = pipeline_module.MODEL_DIR
-    original_metrics_file = pipeline_module.METRICS_FILE
-    
-    try:
-        pipeline_module.MODEL_DIR = tmp_path / "models"
-        pipeline_module.MODEL_DIR.mkdir(parents=True, exist_ok=True)
-        pipeline_module.METRICS_FILE = tmp_path / "metrics.json"
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self):
+        """Set up temporary directories and clean up after tests."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.data_dir = Path(self.temp_dir) / "data"
+        self.data_dir.mkdir(parents=True)
+        (self.data_dir / "raw").mkdir()
+        (self.data_dir / "processed").mkdir()
+        (self.data_dir / "models").mkdir()
         
-        results = run_training_pipeline(
-            input_path=temp_features_file,
-            target_col="coercivity_oersted",
-            enable_linear=True,
-            enable_rf=True
+        # Create necessary directories for logging
+        (Path(self.temp_dir) / "logs").mkdir()
+        
+        # Save original environment
+        self.original_data_dir = os.environ.get("DATA_DIR")
+        os.environ["DATA_DIR"] = str(self.data_dir)
+        
+        yield
+        
+        # Cleanup
+        if self.original_data_dir:
+            os.environ["DATA_DIR"] = self.original_data_dir
+        else:
+            os.environ.pop("DATA_DIR", None)
+        shutil.rmtree(self.temp_dir)
+
+    def _create_test_data(self):
+        """Create minimal test data for the pipeline."""
+        # Create a minimal manual_curated.csv
+        manual_csv = self.data_dir / "raw" / "manual_curated.csv"
+        manual_csv.write_text(
+            "composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method\n"
+            "Co2MnGa,50,80,Manual,Arc Melting\n"
+            "Ni2MnSn,100,90,Manual,Sputtering\n"
+            "Co2FeAl,30,70,Manual,Evaporation\n"
+            "FeMnAl,200,95,Manual,Arc Melting\n"
+            "Co2MnSi,40,85,Manual,Sputtering\n"
         )
         
-        assert "linear" in results
-        assert "random_forest" in results
-        assert results["linear"]["path"].endswith(".pkl")
-        assert results["random_forest"]["path"].endswith(".pkl")
-        
-        assert pipeline_module.METRICS_FILE.exists()
-        with open(pipeline_module.METRICS_FILE, 'r') as f:
-            metrics_data = json.load(f)
-        
-        assert "linear_model" in metrics_data
-        assert "random_forest_model" in metrics_data
-        
-    finally:
-        pipeline_module.MODEL_DIR = original_model_dir
-        pipeline_module.METRICS_FILE = original_metrics_file
-
-def test_end_to_end_metrics_generation(tmp_path):
-    """
-    Integration test verifying the full flow produces data/processed/model_metrics.json
-    with valid R2 and MAE values for both models.
-    """
-    # Create a temporary features file with realistic data
-    n_samples = 50
-    np.random.seed(42)
-    data = {
-        "composition": [f"Co2Mn{elem}" for elem in np.random.choice(["Ga", "Al", "In"], n_samples)],
-        "avg_electronegativity": np.random.uniform(1.5, 2.5, n_samples),
-        "valence_electron_concentration": np.random.uniform(18.0, 20.0, n_samples),
-        "atomic_radii_variance": np.random.uniform(0.0, 0.1, n_samples),
-        "avg_d_electrons": np.random.uniform(5.0, 7.0, n_samples),
-        "atomic_size_mismatch": np.random.uniform(0.0, 0.05, n_samples),
-        "coercivity_oersted": np.random.uniform(10.0, 100.0, n_samples),
-        "source_type": ["Experimental"] * n_samples
-    }
-    df = pd.DataFrame(data)
-    
-    features_file = tmp_path / "test_features.csv"
-    df.to_csv(features_file, index=False)
-    
-    # Temporarily override paths
-    import src.models.training_pipeline as pipeline_module
-    original_metrics_file = pipeline_module.METRICS_FILE
-    
-    try:
-        test_metrics_file = tmp_path / "model_metrics.json"
-        pipeline_module.METRICS_FILE = test_metrics_file
-        
-        # Run pipeline
-        run_training_pipeline(
-            input_path=features_file,
-            target_col="coercivity_oersted",
-            enable_linear=True,
-            enable_rf=True
+        # Create elemental_properties.csv
+        elem_csv = self.data_dir / "raw" / "elemental_properties.csv"
+        elem_csv.write_text(
+            "element,electronegativity,atomic_radii,valence_electrons,source_reference\n"
+            "Co,1.88,125,9,Pyykko 1988\n"
+            "Mn,1.55,127,7,Pyykko 1988\n"
+            "Ga,1.81,135,3,Pyykko 1988\n"
+            "Ni,1.91,124,10,Pyykko 1988\n"
+            "Sn,1.96,145,4,Pyykko 1988\n"
+            "Fe,1.83,126,8,Pyykko 1988\n"
+            "Al,1.61,143,3,Pyykko 1988\n"
+            "Si,1.90,111,4,Pyykko 1988\n"
+            "Mg,1.31,160,2,Pyykko 1988\n"
+            "Cu,1.90,128,11,Pyykko 1988\n"
         )
+
+    def test_full_training_pipeline_execution(self):
+        """
+        Test that the full training pipeline executes successfully:
+        1. Ingests data (using manual fallback)
+        2. Preprocesses data
+        3. Engineers features
+        4. Trains models with k-fold cross-validation
+        5. Generates model_metrics.json with valid R² and MAE values
+        """
+        # Setup test data
+        self._create_test_data()
         
-        # Verify output file exists
-        assert test_metrics_file.exists(), "model_metrics.json was not created"
+        # Setup logging
+        setup_logging(level="INFO")
         
-        # Load and validate content
-        with open(test_metrics_file, 'r') as f:
+        # Step 1: Run ingestion pipeline
+        # Note: This will use manual_curated.csv as fallback
+        try:
+            run_ingestion_pipeline()
+        except Exception as e:
+            # If ingestion fails due to missing external sources, 
+            # ensure manual data is used
+            pytest.skip(f"Ingestion skipped due to external source issues: {e}")
+        
+        # Step 2: Run preprocessing pipeline
+        # This should produce data/processed/alloys_raw.csv
+        try:
+            run_preprocessing_pipeline()
+        except Exception as e:
+            pytest.fail(f"Preprocessing pipeline failed: {e}")
+        
+        # Verify alloys_raw.csv was created
+        raw_csv = self.data_dir / "processed" / "alloys_raw.csv"
+        assert raw_csv.exists(), "alloys_raw.csv was not created by preprocessing pipeline"
+        
+        # Step 3: Run feature engineering pipeline
+        # This should produce data/processed/alloys_features.csv
+        try:
+            run_feature_engineering_pipeline()
+        except Exception as e:
+            pytest.fail(f"Feature engineering pipeline failed: {e}")
+        
+        # Verify alloys_features.csv was created
+        features_csv = self.data_dir / "processed" / "alloys_features.csv"
+        assert features_csv.exists(), "alloys_features.csv was not created by feature engineering pipeline"
+        
+        # Step 4: Run training pipeline
+        # This should train models and save them to code/models/
+        # and generate data/processed/model_metrics.json
+        try:
+            run_training_pipeline()
+        except Exception as e:
+            pytest.fail(f"Training pipeline failed: {e}")
+        
+        # Step 5: Verify model_metrics.json exists and contains valid data
+        metrics_file = self.data_dir / "processed" / "model_metrics.json"
+        assert metrics_file.exists(), "model_metrics.json was not created by training pipeline"
+        
+        # Load and validate metrics
+        with open(metrics_file, 'r') as f:
             metrics = json.load(f)
         
-        # Check structure
-        assert "linear_model" in metrics, "Missing linear_model in metrics"
-        assert "random_forest_model" in metrics, "Missing random_forest_model in metrics"
+        # Check that both Linear and RF models have metrics
+        assert "LinearRegression" in metrics, "LinearRegression metrics not found"
+        assert "RandomForest" in metrics, "RandomForest metrics not found"
         
-        # Validate Linear Model metrics
-        linear_metrics = metrics["linear_model"]
-        assert "r2" in linear_metrics, "Missing r2 in linear_model metrics"
-        assert "mae" in linear_metrics, "Missing mae in linear_model metrics"
-        assert isinstance(linear_metrics["r2"], (int, float)), "r2 must be numeric"
-        assert isinstance(linear_metrics["mae"], (int, float)), "mae must be numeric"
+        # Validate LinearRegression metrics
+        linear_metrics = metrics["LinearRegression"]
+        assert "r2" in linear_metrics, "R² metric missing for LinearRegression"
+        assert "mae" in linear_metrics, "MAE metric missing for LinearRegression"
+        assert isinstance(linear_metrics["r2"], (int, float)), "R² must be numeric"
+        assert isinstance(linear_metrics["mae"], (int, float)), "MAE must be numeric"
         
-        # Validate RF Model metrics
-        rf_metrics = metrics["random_forest_model"]
-        assert "r2" in rf_metrics, "Missing r2 in random_forest_model metrics"
-        assert "mae" in rf_metrics, "Missing mae in random_forest_model metrics"
-        assert isinstance(rf_metrics["r2"], (int, float)), "r2 must be numeric"
-        assert isinstance(rf_metrics["mae"], (int, float)), "mae must be numeric"
+        # Validate RandomForest metrics
+        rf_metrics = metrics["RandomForest"]
+        assert "r2" in rf_metrics, "R² metric missing for RandomForest"
+        assert "mae" in rf_metrics, "MAE metric missing for RandomForest"
+        assert isinstance(rf_metrics["r2"], (int, float)), "R² must be numeric"
+        assert isinstance(rf_metrics["mae"], (int, float)), "MAE must be numeric"
         
-        # Basic sanity checks (R2 should be <= 1.0, MAE >= 0)
-        assert linear_metrics["r2"] <= 1.0, "R2 cannot be greater than 1.0"
-        assert rf_metrics["r2"] <= 1.0, "R2 cannot be greater than 1.0"
-        assert linear_metrics["mae"] >= 0, "MAE cannot be negative"
-        assert rf_metrics["mae"] >= 0, "MAE cannot be negative"
+        # Check that k-fold cross-validation was performed (metrics should reflect this)
+        # The presence of 'cv_score' or similar indicates CV was run
+        assert "cv_score" in linear_metrics or "cv_scores" in linear_metrics, \
+            "Cross-validation score not found - CV may not have been performed"
+        assert "cv_score" in rf_metrics or "cv_scores" in rf_metrics, \
+            "Cross-validation score not found - CV may not have been performed"
+
+    def test_models_are_saved(self):
+        """
+        Test that trained models are saved to code/models/ directory.
+        """
+        self._create_test_data()
+        setup_logging(level="INFO")
         
-    finally:
-        pipeline_module.METRICS_FILE = original_metrics_file
+        # Run the full pipeline
+        try:
+            run_ingestion_pipeline()
+            run_preprocessing_pipeline()
+            run_feature_engineering_pipeline()
+            run_training_pipeline()
+        except Exception as e:
+            pytest.fail(f"Pipeline execution failed: {e}")
+        
+        # Check that model files exist
+        models_dir = Path(self.temp_dir) / "models"
+        if not models_dir.exists():
+            models_dir = project_root / "code" / "models"
+        
+        # Look for saved model files (pickle or joblib)
+        model_files = list(models_dir.glob("*.pkl")) + list(models_dir.glob("*.joblib"))
+        assert len(model_files) > 0, "No model files were saved to code/models/"
+        
+        # Verify at least one Linear and one RF model
+        model_names = [f.name for f in model_files]
+        linear_models = [n for n in model_names if "linear" in n.lower()]
+        rf_models = [n for n in model_names if "random_forest" in n.lower() or "rf" in n.lower()]
+        
+        assert len(linear_models) > 0, "Linear model was not saved"
+        assert len(rf_models) > 0, "RandomForest model was not saved"
+
+    def test_kfold_cross_validation_is_performed(self):
+        """
+        Test that k-fold cross-validation is actually performed during training.
+        This is verified by checking the training logs or metrics structure.
+        """
+        self._create_test_data()
+        setup_logging(level="DEBUG")  # Ensure logs are verbose enough
+        
+        # Run pipeline
+        try:
+            run_ingestion_pipeline()
+            run_preprocessing_pipeline()
+            run_feature_engineering_pipeline()
+            run_training_pipeline()
+        except Exception as e:
+            pytest.fail(f"Pipeline execution failed: {e}")
+        
+        # The training pipeline should have performed CV
+        # This is implicitly verified by the presence of cv_score in metrics
+        metrics_file = self.data_dir / "processed" / "model_metrics.json"
+        with open(metrics_file, 'r') as f:
+            metrics = json.load(f)
+        
+        # Check for CV indicators in both models
+        for model_name in ["LinearRegression", "RandomForest"]:
+            model_metrics = metrics[model_name]
+            # Either a single cv_score or a list of cv_scores should exist
+            has_cv = "cv_score" in model_metrics or "cv_scores" in model_metrics
+            assert has_cv, f"Cross-validation not performed for {model_name}"

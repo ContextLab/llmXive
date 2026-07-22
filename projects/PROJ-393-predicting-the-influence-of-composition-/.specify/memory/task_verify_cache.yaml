@@ -12,11 +12,21 @@ T018:
     \ for `data/raw/manual_curated.csv`, logs a warning when it is absent, and returns\
     \ an empty DataFrame, fulfilling the graceful\u2011degradation requirement. The\
     \ required artifact is present and implements the specified behavior."
-T027:
+T028b:
   c: false
-  h: a1c2623a07e75f59bd25a8fec29cb67a46449cba402dfe54fcb9bed32e7fbcaf
-  r: "The repository contains `code/src/preprocessing/preprocess_pipeline.py`, but\
-    \ the script is truncated and does not show any logic that writes `data/processed/alloys_raw.csv`.\
-    \ Moreover, the required output file `data/processed/alloys_raw.csv` is absent\
-    \ from the project. The task\u2019s guarantee of producing that CSV (even empty)\
-    \ is therefore not fulfilled."
+  h: 13ceee65977a9b32efa09f441387de6d20f154aed21f3c5444fb8f7cf0a7cde8
+  r: "The required data file `data/processed/alloys_raw.csv` is missing, so the checker\
+    \ cannot count rows, and the script only logs an error (not a critical error)\
+    \ when the file is absent. Moreover, the implementation is truncated/incomplete,\
+    \ does not correctly call `check_and_warn` with the required arguments, and writes\
+    \ a flag file containing extra fields instead of the exact `{\"n\": N, \"threshold\"\
+    : 50}` JSON. These issues prevent the task\u2019s specifications from being satisfied."
+T032:
+  c: true
+  h: e702be7204fb8d09278bf124e939228a21f8f94d7621ef8cb8fabc2457681914
+  r: "The repository contains a non\u2011empty `code/src/features/feature_engineering_pipeline.py`\
+    \ that checks for the input CSV, raises `FileNotFoundError` if missing, loads\
+    \ the data, calls `calculate_all_descriptors` (T031) on the rows, and writes the\
+    \ resulting DataFrame to `data/processed/alloys_features.csv`. The missing `alloys_raw.csv`\
+    \ and `alloys_features.csv` are expected\u2014they are inputs/outputs of the pipeline,\
+    \ not required artifacts for the implementation itself."

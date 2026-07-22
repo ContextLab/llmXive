@@ -1,12 +1,18 @@
-143 3|aluminum atomic electron electronegativity radius valence:
-  quote: An aluminium atom has 13 electrons with an electron configuration of [Ne]
-    3s2 3p1, with three electrons beyond a stable noble gas configuration. Accordingly,
-    the combined first three ionization energies of aluminium are far lower than the
-    fourth ionization energy alone. Such an electron configuration is shared with
-    the other well-characterized members of its group, boron, gallium, indium, and
-    thallium; it is also expected for nihonium. Aluminium can surrender its three
-    outermost electrons in many chemical reactions (see below). The electronegativity
-    of aluminium is 1.61 on the Pauling scale.
+3|al atomic electron radius valence:
+  quote: 'A free aluminium atom has an atomic radius of 143 pm. With the three outermost
+    electrons removed, the radius shrinks to 39 pm for a 4-coordinated atom or 53.5
+    pm for a 6-coordinated atom. At standard temperature and pressure, aluminium atoms
+    (when not affected by atoms of other elements) form a face-centered cubic crystal
+    system bound by metallic bonding provided by atoms'' outermost electrons; hence,
+    aluminium (at these conditions) is a metal. This crystal system is shared by many
+    other metals, such as lead and copper; the size of a unit cell of aluminium is
+    comparable to that of those other metals. This system, however, is not shared
+    by the other members of its group: boron has ionization energies too high to allow
+    metallization, thallium has a hexagonal close-packed structure, and gallium and
+    indium have unusual structures that are not close-packed like those of aluminium
+    and thallium. The few electrons that are available for metallic bonding in aluminium
+    are a probable cause for it being soft with a low melting point and low electrical
+    resistivity.'
   source_id: Aluminium
   url: https://en.wikipedia.org/wiki/Aluminium
-  value: '1.61'
+  value: 143 pm

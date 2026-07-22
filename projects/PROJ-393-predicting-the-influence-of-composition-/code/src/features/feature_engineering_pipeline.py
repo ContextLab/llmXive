@@ -1,159 +1,130 @@
-"""
-Feature Engineering Pipeline for Heusler Alloy Hysteresis Prediction.
-
-This module orchestrates the application of compositional descriptors to the
-preprocessed alloy dataset and saves the enriched dataset with features.
-
-Dependencies:
-  - code/src/features/descriptor_calculator.py (calculate_all_descriptors)
-  - data/processed/alloys_raw.csv (Input from T027)
-  - data/processed/alloys_features.csv (Output)
-"""
-
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
-
 import pandas as pd
-
-# Import from sibling module using the verified API surface
+import numpy as np
 from src.features.descriptor_calculator import calculate_all_descriptors
-from src.utils.logging_config import setup_logging
+from src.utils.logging_config import setup_logging, create_logger
 
-# Configure logger
-logger = setup_logging(__name__)
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
+logger = create_logger(__name__)
+INPUT_FILE = project_root / "data" / "processed" / "alloys_raw.csv"
+OUTPUT_FILE = project_root / "data" / "processed" / "alloys_features.csv"
 
-def load_processed_data(input_path: Path) -> pd.DataFrame:
-    """
-    Load the preprocessed alloys dataset.
-
-    Args:
-        input_path: Path to 'data/processed/alloys_raw.csv'
-
-    Returns:
-        DataFrame containing the raw processed alloy data.
-
+def load_processed_data() -> Optional[pd.DataFrame]:
+    """Load the preprocessed alloys data.
+    
     Raises:
         FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or missing required columns.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-
-    if df.empty:
-        raise ValueError(f"Input file {input_path} is empty. Cannot compute features.")
-
-    required_cols = ["composition", "coercivity_Oe", "saturation_magnetization_emu_g"]
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Input file missing required columns: {missing}")
-
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    return df
-
+    if not INPUT_FILE.exists():
+        error_msg = f"Processed data file not found: {INPUT_FILE}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+    
+    try:
+        df = pd.read_csv(INPUT_FILE)
+        if df.empty:
+            logger.warning(f"Processed data file is empty: {INPUT_FILE}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading processed data: {e}")
+        raise
 
 def apply_descriptors(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply descriptor calculation to every row in the DataFrame.
-
-    This function calls `calculate_all_descriptors` for each row,
-    extracting the composition string and returning the full row with
-    appended feature columns.
-
+    """Apply descriptor calculator to each row of the dataframe.
+    
     Args:
-        df: DataFrame with at least a 'composition' column.
-
+        df: DataFrame containing alloy compositions and properties.
+        
     Returns:
-        DataFrame with original columns plus new descriptor columns:
-        - avg_electronegativity
-        - valence_electron_concentration
-        - atomic_radii_variance
-        - avg_d_electrons
-        - atomic_size_mismatch
+        DataFrame with calculated descriptors appended as new columns.
     """
-    logger.info("Starting feature engineering on all rows...")
+    if df.empty:
+        logger.warning("Input DataFrame is empty; returning empty DataFrame.")
+        return df
+    
+    logger.info(f"Calculating descriptors for {len(df)} rows...")
+    try:
+        descriptors = calculate_all_descriptors(df)
+        
+        if isinstance(descriptors, pd.DataFrame):
+            if descriptors.empty:
+                logger.warning("Descriptor calculation returned an empty DataFrame.")
+                return df
+            df = pd.concat([df.reset_index(drop=True), descriptors.reset_index(drop=True)], axis=1)
+        elif isinstance(descriptors, dict):
+            # If a single dict is returned (e.g., for a single row), convert to DF
+            desc_df = pd.DataFrame([descriptors])
+            df = pd.concat([df.reset_index(drop=True), desc_df.reset_index(drop=True)], axis=1)
+        else:
+            logger.warning(f"Descriptor calculation returned unexpected type: {type(descriptors)}")
+            
+    except Exception as e:
+        logger.error(f"Error during descriptor calculation: {e}")
+        raise
+    
+    logger.info("Descriptor calculation completed.")
+    return df
 
-    # Use apply to process row by row
-    # The descriptor_calculator expects a dict-like row with 'composition'
-    def process_row(row):
-        try:
-            descriptors = calculate_all_descriptors(row)
-            # Merge original row with descriptors
-            return pd.Series({**row, **descriptors})
-        except Exception as e:
-            logger.error(f"Error processing row with composition '{row.get('composition', 'N/A')}': {e}")
-            # Return original row with NaNs for descriptors to avoid dropping data
-            result = pd.Series(row)
-            result["avg_electronegativity"] = None
-            result["valence_electron_concentration"] = None
-            result["atomic_radii_variance"] = None
-            result["avg_d_electrons"] = None
-            result["atomic_size_mismatch"] = None
-            return result
-
-    # Apply function
-    df_features = df.apply(process_row, axis=1)
-
-    logger.info(f"Feature engineering complete. Calculated {len(df_features.columns) - len(df.columns)} new features.")
-    return df_features
-
-
-def save_features(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save the feature-enriched DataFrame to CSV.
-
+def save_features(df: pd.DataFrame):
+    """Save the feature-engineered dataframe to CSV.
+    
     Args:
-        df: DataFrame with added features.
-        output_path: Destination path (e.g., 'data/processed/alloys_features.csv').
+        df: DataFrame to save.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved feature-enriched dataset to {output_path} ({len(df)} rows)")
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_FILE, index=False)
+    logger.info(f"Features saved to {OUTPUT_FILE}")
 
-
-def run_feature_engineering_pipeline(
-    input_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Main orchestration function for the feature engineering pipeline.
-
-    Steps:
-      1. Load raw processed data (default: data/processed/alloys_raw.csv).
-      2. Calculate descriptors for all rows.
-      3. Save results (default: data/processed/alloys_features.csv).
-
-    Args:
-        input_path: Optional override for input file path.
-        output_path: Optional override for output file path.
-
+def run_feature_engineering_pipeline() -> pd.DataFrame:
+    """Orchestrate the feature engineering pipeline.
+    
+    1. Check if input file exists (raises FileNotFoundError if not).
+    2. Load the CSV.
+    3. Apply descriptors.
+    4. Save results to output path.
+    
     Returns:
-        The resulting DataFrame with features.
+        The processed DataFrame with features.
     """
-    if input_path is None:
-        input_path = Path("data/processed/alloys_raw.csv")
-    if output_path is None:
-        output_path = Path("data/processed/alloys_features.csv")
-
-    logger.info(f"Feature Engineering Pipeline starting.")
-    logger.info(f"Input: {input_path}, Output: {output_path}")
-
-    df_raw = load_processed_data(input_path)
-    df_features = apply_descriptors(df_raw)
-    save_features(df_features, output_path)
-
+    logger.info("Starting Feature Engineering Pipeline (T032)...")
+    
+    # 1. Check existence and load (will raise if missing)
+    df = load_processed_data()
+    
+    # 2. Handle empty case
+    if df.empty:
+        logger.warning("Processed data is empty. Saving empty output file.")
+        save_features(df)
+        return df
+    
+    # 3. Apply descriptors
+    df = apply_descriptors(df)
+    
+    # 4. Save results
+    save_features(df)
+    
     logger.info("Feature Engineering Pipeline completed successfully.")
-    return df_features
+    return df
 
-
-def main() -> None:
-    """Entry point for script execution."""
-    run_feature_engineering_pipeline()
-
+def main():
+    """Entry point for the feature engineering pipeline."""
+    setup_logging()
+    logger.info("Feature Engineering Pipeline Main Entry")
+    try:
+        run_feature_engineering_pipeline()
+        return 0
+    except FileNotFoundError as e:
+        logger.critical(f"Input file missing: {e}")
+        return 1
+    except Exception as e:
+        logger.critical(f"Feature Engineering pipeline failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

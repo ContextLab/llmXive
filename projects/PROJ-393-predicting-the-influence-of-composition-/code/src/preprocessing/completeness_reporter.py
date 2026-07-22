@@ -4,148 +4,94 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Optional
 from src.utils.logging_config import setup_logging, create_logger
+import sys
+
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 logger = create_logger(__name__)
+INPUT_FILE = project_root / "data" / "processed" / "alloys_raw.csv"
+OUTPUT_FILE = project_root / "data" / "processed" / "completeness_report.json"
 
-def load_processed_data(file_path: Path) -> Optional[pd.DataFrame]:
-    """Load the processed alloys CSV."""
-    if not file_path.exists():
-        logger.error(f"Processed data file not found: {file_path}")
+def load_processed_data() -> Optional[pd.DataFrame]:
+    if not INPUT_FILE.exists():
+        logger.error(f"Processed data file not found: {INPUT_FILE}")
         return None
     try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded {len(df)} rows from {file_path}")
-        return df
+        return pd.read_csv(INPUT_FILE)
     except Exception as e:
         logger.error(f"Error loading processed data: {e}")
         return None
 
-def get_source_counts(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
-    """
-    Count total and valid rows per source.
-    We assume 'source_type' column exists.
-    Valid rows are those where source_type is one of the expected types.
-    """
-    expected_sources = ["NIST", "Journal", "Manual"]
-    counts = {src: {"total_rows": 0, "valid_rows": 0} for src in expected_sources}
+def get_source_counts(df: pd.DataFrame) -> Dict[str, int]:
+    if df.empty:
+        return {}
+    return df['source_type'].value_counts().to_dict()
+
+def calculate_source_proportions(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
+    if df.empty:
+        return {}
     
-    if df is None or df.empty:
-        logger.warning("DataFrame is empty or None. Returning zero counts.")
-        return counts
-
-    # Group by source_type if it exists
-    if 'source_type' not in df.columns:
-        logger.warning("Column 'source_type' not found. Treating all as 'Unknown' or defaulting.")
-        # If no source_type, we can't differentiate. 
-        # Based on T028c, we might have a flag or metadata. 
-        # For now, if missing, we assume the data came from the pipeline which tags it.
-        # If truly missing, we report 0 for all specific sources and maybe 0 total valid.
-        return counts
-
-    for source in expected_sources:
-        mask = df['source_type'] == source
-        total = mask.sum()
-        # A row is valid if it has non-null values in critical columns?
-        # The task description implies "valid_rows" might just be the count of that source.
-        # But completeness_pct = valid/total. If total=0, pct=0.
-        # Let's assume all rows of a specific source_type are 'valid' for that source count,
-        # unless there's a specific 'valid' flag. 
-        # Re-reading T028: "completeness_pct" = (valid_rows / total_rows).
-        # If we treat 'total_rows' as the count of that source, and 'valid_rows' as the count of that source 
-        # (since they passed the pipeline filters), then pct is 100.
-        # However, often 'total_rows' refers to raw ingestion count and 'valid_rows' to post-filter.
-        # Since we are loading `data/processed/alloys_raw.csv`, these are already filtered.
-        # Let's assume the task wants to know: Of the data in this file, how much came from each source?
-        # And if there were rows dropped (not in this file) from a source, we can't know that from this file alone.
-        # BUT, T028c generates a report of counts per source. 
-        # Let's interpret "valid_rows" as the rows present in this file for that source.
-        # And "total_rows" as the same, making completeness 100% for present sources, 0% for missing.
-        # OR, perhaps "total_rows" is the count of rows that *attempted* to be loaded (from T028c context)?
-        # Since T028 depends on T027 and T028c, and T028c produces a JSON with counts, 
-        # we might need to load that context or infer.
-        # Given the constraint to write the JSON here:
-        # Let's count rows per source_type.
-        counts[source]["total_rows"] = int(total)
-        counts[source]["valid_rows"] = int(total) # Assuming all in processed file are valid
-
-    return counts
-
-def calculate_source_proportions(counts: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, float]]:
-    """Calculate completeness percentage for each source."""
-    proportions = {}
-    for source, data in counts.items():
-        total = data["total_rows"]
-        valid = data["valid_rows"]
-        if total > 0:
-            pct = (valid / total) * 100.0
-        else:
-            pct = 0.0
-        proportions[source] = {
+    sources = df['source_type'].unique()
+    result = {}
+    total_rows = len(df)
+    
+    for source in sources:
+        source_df = df[df['source_type'] == source]
+        total = len(source_df)
+        # Assume valid_rows = total for now, or count non-null critical fields
+        valid = source_df[['coercivity_oe', 'saturation_magnetization_emu_g']].notna().all(axis=1).sum()
+        pct = (valid / total * 100) if total > 0 else 0.0
+        
+        result[source] = {
             "total_rows": total,
-            "valid_rows": valid,
+            "valid_rows": int(valid),
             "completeness_pct": round(pct, 2)
         }
-    return proportions
-
-def generate_completeness_report(counts: Dict[str, Dict[str, int]]) -> Dict[str, Any]:
-    """Generate the final report structure."""
-    proportions = calculate_source_proportions(counts)
     
-    total_rows = sum(c["total_rows"] for c in proportions.values())
-    valid_rows = sum(c["valid_rows"] for c in proportions.values())
-    
-    if total_rows > 0:
-        overall_pct = (valid_rows / total_rows) * 100.0
-    else:
-        overall_pct = 0.0
+    return result
 
+def generate_completeness_report(df: pd.DataFrame) -> Dict[str, Any]:
+    sources_data = calculate_source_proportions(df)
+    total_rows = len(df)
+    valid_rows = df[['coercivity_oe', 'saturation_magnetization_emu_g']].notna().all(axis=1).sum()
+    
     report = {
-        "sources": proportions,
+        "sources": sources_data,
         "overall": {
             "total_rows": total_rows,
-            "valid_rows": valid_rows,
-            "completeness_pct": round(overall_pct, 2)
+            "valid_rows": int(valid_rows),
+            "completeness_pct": round((valid_rows / total_rows * 100) if total_rows > 0 else 0.0, 2)
         }
     }
     return report
 
-def run_completeness_report_pipeline(input_path: Path, output_path: Path) -> bool:
-    """Orchestrate the generation of the completeness report."""
-    logger.info(f"Starting completeness report generation for {input_path}")
-    
-    df = load_processed_data(input_path)
+def run_completeness_report_pipeline() -> Dict[str, Any]:
+    logger.info("Running Completeness Report Pipeline (T028)...")
+    df = load_processed_data()
     if df is None:
-        # If file missing, create a report with 0s
-        logger.warning("No data to process. Generating empty report.")
-        counts = {
-            "NIST": {"total_rows": 0, "valid_rows": 0},
-            "Journal": {"total_rows": 0, "valid_rows": 0},
-            "Manual": {"total_rows": 0, "valid_rows": 0}
-        }
-    else:
-        counts = get_source_counts(df)
+        logger.error("Cannot generate report: no processed data.")
+        return {"error": "No processed data"}
     
-    report = generate_completeness_report(counts)
+    report = generate_completeness_report(df)
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_FILE, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Completeteness report saved to {output_path}")
-    return True
+    logger.info(f"Completeness report saved to {OUTPUT_FILE}")
+    return report
 
 def main():
-    """Entry point for the script."""
     setup_logging()
-    project_root = Path(__file__).resolve().parent.parent.parent.parent
-    input_path = project_root / "data" / "processed" / "alloys_raw.csv"
-    output_path = project_root / "data" / "processed" / "completeness_report.json"
-    
-    success = run_completeness_report_pipeline(input_path, output_path)
-    if not success:
-        logger.error("Failed to generate completeness report")
-        sys.exit(1)
+    logger.info("Completeness Reporter Main Entry")
+    try:
+        run_completeness_report_pipeline()
+        return 0
+    except Exception as e:
+        logger.critical(f"Completeness report failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    import sys
-    main()
+    sys.exit(main())

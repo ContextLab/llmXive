@@ -1788,3 +1788,1029 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T16:54:01Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv contains Pyykko 1988 data for 20 elements
+  claim_id: c_e55ca40b
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys... Source: Pyykko 1988 and
+    standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:21:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation switches to listwise deletion if missing rate exceeds 15 percent
+  claim_id: c_9fb2a375
+  context: 'T015 Integration test for imputation logic... Test Logic: Implement a
+    function test_imputation_logic_switches_at_15_percent... Assertion: if missing_rate
+    > 0.15: assert listwise_deletion else: assert mean_imputation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:21:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: NIST fetcher uses fallback if API returns no data
+  claim_id: c_c1d2ed96
+  context: T016 NIST Source Verification & Fetch... If the API returns no data or
+    is unreachable, the pipeline MUST proceed with the static fallback file data/raw/nist_fallback.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_fetcher_uses_fallback_if_API_returns_no_data
+  kind: entity_fact
+  raw_text: The pipeline MUST proceed with the static fallback file data/raw/nist_fallback.json
+    if the API returns no data or is unreachable
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:22:26Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Journal fetcher uses fallback if no valid DOI found
+  claim_id: c_3eff3e57
+  context: T017 Journal Source Verification & Fetch... If no valid DOI is found, the
+    pipeline MUST proceed with the static fallback file data/raw/journal_fallback.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Journal_fetcher_uses_fallback_if_no_valid_DOI_found
+  kind: entity_fact
+  raw_text: If no valid DOI is found, the pipeline MUST proceed with the static fallback
+    file data/raw/journal_fallback.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:22:56Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Spec requires aggregation from at least 3 sources
+  claim_id: c_0b8695bf
+  context: 'T028c Source Availability Validation... HALT the pipeline with a CRITICAL
+    error: ''FR-001 Violation: Fewer than 3 distinct sources found. Spec requires
+    aggregation from at least 3 sources.'''
+  evidence:
+    entailment_evidence: Spec requires aggregation from at least 3 sources
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Spec_requires_aggregation_from_at_least_3_sources
+  kind: magnitude
+  raw_text: Spec requires aggregation from at least 3 sources
+  resolved_value: Spec requires aggregation from at least 3 sources
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T09:22:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Scarcity warning triggered if data points are fewer than 50
+  claim_id: c_d5653614
+  context: 'T028b Scarcity Check & Warning Trigger... If N < 50, call function check_and_warn()
+    in code/src/validation/scarcity_warning.py and write a flag file data/.scarcity_warning
+    with content {"n": N, "threshold": 50}.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scarcity_warning_triggered_if_data_points_are_fewer_than_50
+  kind: magnitude
+  raw_text: If N < 50, call function check_and_warn() and write a flag file data/.scarcity_warning
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:23:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Model evaluation proceeds if R-squared is less than 0.6
+  claim_id: c_645021fb
+  context: "T049 Implement code/src/validation/final_evaluator.py... If R\xB2 < 0.6,\
+    \ log 'Consistent with Physical Reality' and proceed (NO FAIL state)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_evaluation_proceeds_if_R-squared_is_less_than_0.6
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.6, log 'Consistent with Physical Reality' and proceed (NO\
+    \ FAIL state)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:23:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping requires at least 1000 resamples
+  claim_id: c_017edf01
+  context: T059 Bootstrapping Resample Count Verification... If n_resamples < 1000,
+    raise a ValueError with the message 'Bootstrapping requires at least 1000 resamples
+    for robust CI estimation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping requires at least 1000 resamples for robust CI estimation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:24:01Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap resample count set to 1000
+  claim_id: c_a2af26d2
+  context: T042 Implement code/src/validation/bootstrap_validation.py... Set n_resamples=1000
+    explicitly.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T09:24:09Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 6 hours and memory under 7 GB
+  claim_id: c_8119742d
+  context: T055 Verify pipeline execution time < 6 hours and memory < 7 GB on local
+    CPU (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:24:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation uses Jaccard similarity with threshold 0.7
+  claim_id: c_632e69d0
+  context: "T005b Implement code/src/utils/citation_validator.py... verify fetched\
+    \ citations against primary sources (DOI/URL) with title-overlap check \u2265\
+    \ 0.7. Algorithm: Use Jaccard similarity on tokenized titles... similarity = len(set(tokens)\
+    \ & set(tokens)) / len(set(tokens1) | set(tokens2))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Jaccard similarity on tokenized titles... similarity = len(set(tokens)
+    & set(tokens)) / len(set(tokens1) | set(tokens2))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:24:23Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Descriptor robustness check perturbs descriptors by 5 percent
+  claim_id: c_0bc5e08a
+  context: "T064 Descriptor Robustness Check... Logic: Perturb each descriptor by\
+    \ \xB15% and re-run the model training (T035) to observe stability in R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perturb each descriptor by \xB15% and re-run the model training"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:24:23Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv contains representative values from Pyykko 1988
+    and standard references
+  claim_id: c_a77ac346
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys including columns: element,
+    electronegativity, atomic_radii, valence_electrons, source_reference. Source:
+    Pyykko 1988 and standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:27:42Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mn atomic radius 127 valence electrons 7
+  claim_id: c_6590c016
+  context: 'CSV content for elemental_properties.csv: Mn,,127,7,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mn has an atomic radius of 127 and 7 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:28:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Co atomic radius 125 valence electrons 9
+  claim_id: c_7ba367aa
+  context: 'CSV content for elemental_properties.csv: Co,,125,9,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Co has an atomic radius of 125 and 9 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:28:26Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Fe covalent radius 126 valence electrons 8
+  claim_id: c_18727db2
+  context: 'CSV content for elemental_properties.csv: Fe, covalent radius, 126, 8,
+    Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fe has a covalent radius of 126 and 8 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:28:42Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ga atomic radius 135 valence electrons 3
+  claim_id: c_350505db
+  context: 'CSV content for elemental_properties.csv: Ga,,135,3,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ga has an atomic radius of 135 and 3 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:29:02Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Al atomic radius 143 valence electrons 3
+  claim_id: c_594b2f05
+  context: 'CSV content for elemental_properties.csv: Al,,143,3,Pyykko 1988'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'A free aluminium atom has an atomic radius of 143 pm. With the three
+        outermost electrons removed, the radius shrinks to 39 pm for a 4-coordinated
+        atom or 53.5 pm for a 6-coordinated atom. At standard temperature and pressure,
+        aluminium atoms (when not affected by atoms of other elements) form a face-centered
+        cubic crystal system bound by metallic bonding provided by atoms'' outermost
+        electrons; hence, aluminium (at these conditions) is a metal. This crystal
+        system is shared by many other metals, such as lead and copper; the size of
+        a unit cell of aluminium is comparable to that of those other metals. This
+        system, however, is not shared by the other members of its group: boron has
+        ionization energies too high to allow metallization, thallium has a hexagonal
+        close-packed structure, and gallium and indium have unusual structures that
+        are not close-packed like those of aluminium and thallium. The few electrons
+        that are available for metallic bonding in aluminium are a probable cause
+        for it being soft with a low melting point and low electrical resistivity.'
+      source_id: Aluminium
+      url: https://en.wikipedia.org/wiki/Aluminium
+      value: 143 pm
+    filled: true
+  kind: numeric
+  raw_text: Al has an atomic radius of 143 and 3 valence electrons.
+  resolved_value: 143 pm
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T09:29:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ni atomic radius 124 valence electrons 10
+  claim_id: c_d593f026
+  context: 'CSV content for elemental_properties.csv: Ni, approximately 2,124,10,Pyykko
+    1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ni has a covalent radius of approximately 2 and 124 atomic radius and
+    10 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:29:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cu electronegativity 1.9 atomic radius 128 valence electrons 11
+  claim_id: c_9f163488
+  context: 'CSV content for elemental_properties.csv: Cu, approximately 1.9,128,11,Pyykko
+    1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cu has an electronegativity of approximately 1.9, atomic radius of 128,
+    and 11 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:29:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sn atomic radius 145 valence electrons 4
+  claim_id: c_2957da20
+  context: 'CSV content for elemental_properties.csv: Sn,,145,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sn has an atomic radius of 145 and 4 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:30:14Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: In atomic radius 167 valence electrons 3
+  claim_id: c_bf17981f
+  context: 'CSV content for elemental_properties.csv: In,,167,3,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In has an atomic radius of 167 and 3 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:30:34Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ti atomic radius 147 valence electrons 4
+  claim_id: c_a70ed9b6
+  context: 'CSV content for elemental_properties.csv: Ti,,147,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ti has an atomic radius of 147 and 4 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:30:54Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: V electronegativity 1.6 atomic radius 134 valence electrons 5
+  claim_id: c_aeeb2b6d
+  context: 'CSV content for elemental_properties.csv: V, approximately 1.6, 134, 5,
+    Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: V has an electronegativity of approximately 1.6, atomic radius of 134,
+    and 5 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:31:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Zn atomic radius 134 valence electrons 12
+  claim_id: c_25e1c31a
+  context: 'CSV content for elemental_properties.csv: Zn, approximately, 134, 12,
+    Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zn has an atomic radius of approximately 134 and 12 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:31:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Si atomic radius 111 valence electrons 4
+  claim_id: c_e1f5928d
+  context: 'CSV content for elemental_properties.csv: Si, [variable], 111, 4, Pyykko
+    1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Si has a variable electronegativity, atomic radius of 111, and 4 valence
+    electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:31:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ge atomic radius 122 valence electrons 4
+  claim_id: c_e5ed1f23
+  context: 'CSV content for elemental_properties.csv: Ge,,122,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ge has an atomic radius of 122 and 4 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:32:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Sb atomic radius 140 valence electrons 5
+  claim_id: c_093fa776
+  context: 'CSV content for elemental_properties.csv: Sb,,140,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sb has an atomic radius of 140 and 5 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:32:31Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pb electronegativity 2.3 atomic radius 175 valence electrons 4
+  claim_id: c_66e8b995
+  context: 'CSV content for elemental_properties.csv: Pb, approximately 2.3, 175,
+    4, Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pb has an electronegativity of approximately 2.3, atomic radius of 175,
+    and 4 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:32:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Mg atomic radius 160 valence electrons 2
+  claim_id: c_baf2543a
+  context: 'CSV content for elemental_properties.csv: Mg, approximately, 160, 2, Pyykko
+    1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mg has an atomic radius of approximately 160 and 2 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:33:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cr atomic radius 128 valence electrons 6
+  claim_id: c_a73a81f5
+  context: 'CSV content for elemental_properties.csv: Cr, [estimated value], 128,
+    6, Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cr has an estimated atomic radius of 128 and 6 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:33:22Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Nb atomic radius 146 valence electrons 5
+  claim_id: c_ed79de5f
+  context: 'CSV content for elemental_properties.csv: Nb,,146,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nb has an atomic radius of 146 and 5 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:33:42Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Ta electronegativity 1.5 atomic radius 146 valence electrons 5
+  claim_id: c_815202ca
+  context: 'CSV content for elemental_properties.csv: Ta, approximately 1.5,146,5,Pyykko
+    1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ta has an electronegativity of approximately 1.5, atomic radius of 146,
+    and 5 valence electrons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:33:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI workflow memory limit 7GB
+  claim_id: c_b3cc6c7d
+  context: "Constraint: Must enforce \u22647GB RAM and \u2264360 minutes (6h) timeout.\
+    \ The resource check steps are implemented in T004b."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The CI workflow must enforce a memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:34:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: citation validation Jaccard similarity threshold 0.7
+  claim_id: c_70915376
+  context: "Implement code/src/utils/citation_validator.py to verify fetched citations\
+    \ against primary sources (DOI/URL) with title-overlap check \u2265 0.7. Algorithm:\
+    \ Use Jaccard similarity on tokenized titles."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation validation algorithm uses a Jaccard similarity threshold
+    of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:34:37Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: imputation strategy switches at 15 percent missing rate
+  claim_id: c_05399323
+  context: 'Test Logic: Implement a function test_imputation_logic_switches_at_15_percent
+    that calls the imputation logic with a missing rate of 0.14 and asserts mean_imputation
+    is used, then calls with 0.16 and asserts listwise_deletion is used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The imputation strategy switches from mean imputation to listwise deletion
+    when the missing rate exceeds 15%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:34:37Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: pipeline requires 3 distinct data sources
+  claim_id: c_2070a05a
+  context: 'If the count of distinct sources with data > 0 is < 3, HALT the pipeline
+    with a CRITICAL error: ''FR-001 Violation: Fewer than 3 distinct sources found.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_requires_3_distinct_data_sources
+  kind: magnitude
+  raw_text: The pipeline requires data from at least 3 distinct sources to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:35:01Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: data scarcity warning triggered if N < 50
+  claim_id: c_768476db
+  context: 'If N < 50, call function check_and_warn() in code/src/validation/scarcity_warning.py
+    and write a flag file data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/data_scarcity_warning_triggered_if_N_%3C_50
+  kind: magnitude
+  raw_text: A data scarcity warning is triggered if the dataset contains fewer than
+    50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:35:40Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: model performance benchmark R2 threshold 0.6
+  claim_id: c_0f8846ec
+  context: "If R\xB2 < 0.6, log 'Consistent with Physical Reality' and proceed (NO\
+    \ FAIL state). SC-006 (R\xB2 \u2265 0.6 AND p < 0.05) is an Exploratory Benchmark."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_performance_benchmark_R2_threshold_0.6
+  kind: magnitude
+  raw_text: "The model performance benchmark requires an R\xB2 value of at least 0.6."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:36:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: bootstrapping requires 1000 resamples
+  claim_id: c_49d4f4ff
+  context: 'Logic: If n_resamples < 1000, raise a ValueError with the message ''Bootstrapping
+    requires at least 1000 resamples for robust CI estimation.'' Set n_resamples=1000
+    explicitly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping for confidence interval estimation requires at least 1000
+    resamples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:36:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: manual curated template includes Co2MnGa NiMnSn Co2FeAl FeMnAl Co2MnSi
+  claim_id: c_37cd4f33
+  context: 'Content: Include several example rows with valid Heusler alloy compositions
+    (e.g., Co2MnGa, Ni2MnSn) and realistic hysteresis values to demonstrate the expected
+    format.'
+  evidence:
+    entailment_evidence: Manual curated template includes Co2MnGa NiMnSn Co2FeAl FeMn
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Manual_curated_template_includes_Co2MnGa_NiMnSn_Co2FeAl_FeMn
+  kind: entity_fact
+  raw_text: The manual curated template includes example data for Co2MnGa, NiMnSn,
+    Co2FeAl, FeMnAl, and Co2MnSi.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-22T09:36:41Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: NiMnSn saturation magnetization 80 emu/g
+  claim_id: c_5306ae24
+  context: 'CSV content: NiMnSn,150,80,Manual,Sputtering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curated template lists a saturation magnetization of 80 emu/g
+    for NiMnSn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:36:59Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: NiMnSn coercivity 150 Oe
+  claim_id: c_f9ccab38
+  context: 'CSV content: NiMnSn,150,80,Manual,Sputtering'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curated template lists a coercivity of 150 Oe for NiMnSn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:37:39Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: FeMnAl coercivity 200 Oe
+  claim_id: c_6b6c0d4b
+  context: 'CSV content: FeMnAl,200,90,Manual,Arc Melting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curated template lists a coercivity of 200 Oe for FeMnAl.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:37:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: FeMnAl saturation magnetization 90 emu/g
+  claim_id: c_0151074d
+  context: 'CSV content: FeMnAl,200,90,Manual,Arc Melting'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual curated template lists a saturation magnetization of 90 emu/g
+    for FeMnAl.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:38:11Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental properties source Pyykko 1988
+  claim_id: c_f6388b45
+  context: 'T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys... Source: Pyykko 1988 and
+    standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: Pyykko 1988 and standard references.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:40:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation uses Jaccard similarity threshold 0.7 on tokenized
+    titles
+  claim_id: c_5e3bf6d8
+  context: "T005b [P] Implement `code/src/utils/citation_validator.py` to verify fetched\
+    \ citations against primary sources (DOI/URL) with title-overlap check \u2265\
+    \ 0.7. **Algorithm**: Use Jaccard similarity on tokenized titles (lowercase, split\
+    \ by non-alphanumeric)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T005b uses Jaccard similarity on tokenized titles (lowercase, split by\
+    \ non-alphanumeric) with a threshold of \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:42:38Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties sourced from Pyykko 1988
+  claim_id: c_a2e54fc3
+  context: 'Create `data/raw/elemental_properties.csv` with fixed periodic table data...
+    **Source**: Pyykko 1988 and standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Elemental properties data is sourced from Pyykko 1988 and standard references.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:43:00Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties CSV contains 20 elements
+  claim_id: c_6d007fc5
+  context: Create `data/raw/elemental_properties.csv` with fixed periodic table data
+    for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn,
+    In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The CSV file for elemental properties contains rows for 20 specific elements:
+    Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:43:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation strategy switches at 15% missing rate
+  claim_id: c_a9878558
+  context: "Implement `code/src/preprocessing/imputation_orchestrator.py`... if >15%,\
+    \ perform listwise deletion of rows; if \u226415%, perform mean imputation..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The imputation strategy switches at a missing rate of 15%: mean imputation\
+    \ is used if \u2264 15%, and listwise deletion if > 15%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:43:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if fewer than 3 distinct data sources found
+  claim_id: c_42b1c479
+  context: 'If the count of distinct sources with data > 0 is < 3, HALT the pipeline
+    with a CRITICAL error: ''FR-001 Violation: Fewer than 3 distinct sources found.'''
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if the number of distinct data sources with entries
+    is fewer than 3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T09:43:45Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Data scarcity warning triggered if N < 50
+  claim_id: c_5c6c639a
+  context: 'If N < 50, call function `check_and_warn()`... and write a flag file...
+    with content `{''n'': N, ''threshold'': 50}`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_warning_triggered_if_N_%3C_50
+  kind: magnitude
+  raw_text: A data scarcity warning is triggered if the dataset contains fewer than
+    50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:43:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping requires at least 1000 resamples
+  claim_id: c_b2ddf20a
+  context: If `n_resamples < 1000`, raise a `ValueError` with the message 'Bootstrapping
+    requires at least 1000 resamples for robust CI estimation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping for confidence interval estimation requires at least 1000
+    resamples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:43:47Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Model consistent with physical reality if R2 < 0.6
+  claim_id: c_31b57d24
+  context: "If R\xB2 < 0.6, log 'Consistent with Physical Reality' and proceed (NO\
+    \ FAIL state)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CI-006 benchmark considers the model consistent with physical reality\
+    \ if R\xB2 < 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:44:13Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI-006 requires p-value < 0.05
+  claim_id: c_75ef142f
+  context: "Verify that `model_metrics.json` exists and contains valid R\xB2 and MAE\
+    \ values... Check p-value < 0.05 for significant results."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI-006 benchmark requires a p-value < 0.05 for statistical significance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:44:38Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time less than 6 hours
+  claim_id: c_12b2e7af
+  context: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+    (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: The CI pipeline execution time must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:45:04Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage less than 7 GB
+  claim_id: c_5f79de78
+  context: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+    (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: The CI pipeline memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T09:45:25Z'
