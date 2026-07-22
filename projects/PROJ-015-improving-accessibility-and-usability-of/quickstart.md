@@ -1,60 +1,35 @@
 # Quickstart Guide
 
-This guide describes how to run the full research pipeline from raw data collection to final statistical analysis.
-
 ## Prerequisites
+- Python 3.8+
+- Install dependencies: `pip install -r requirements.txt`
 
-- Python 3.9+
-- Dependencies installed: `pip install -r requirements.txt`
-
-## Step 1: Data Collection (Simulation or Real)
-
-### Option A: Run the Web Simulator (Real Data)
-Run the Streamlit app to collect real participant data.
+## 1. Data Cleaning
+Run the cleaning pipeline to generate `data/processed/cleaned_sessions.csv`.
 ```bash
-streamlit run code/simulator/app.py
-```
-*This generates JSON files in `data/raw/`.*
-
-### Option B: Generate Simulated Data (CI/Pilot Only)
-Use the deterministic simulator for testing the pipeline logic.
-```bash
-python -m code.simulator.simulator --n 50 --seed 42 --output data/raw/simulated_sessions.json
-```
-*Note: This is strictly for CI validation. Do not use for final research claims.*
-
-## Step 2: Data Cleaning (T021c)
-
-Run the cleaning pipeline to load raw JSON, exclude incomplete sessions, impute SUS scores, and coerce types.
-**Output**: `data/processed/cleaned_sessions.csv`
-
-```bash
-python code/analysis/run_cleaning_pipeline.py
+python -m code.analysis.clean_data --input data/raw --output data/processed/cleaned_sessions.csv
 ```
 
-## Step 3: Statistical Analysis
-
-Run the full analysis pipeline (ANOVA, Holm-Bonferroni, Power Analysis).
-**Output**: `data/processed/metrics_summary.csv`, `data/processed/report_summary.txt`, `figures/*.png`
-
+## 2. Normality Audit (T022)
+Run the Shapiro-Wilk normality test on difference scores.
 ```bash
-python code/analysis/run_analysis.py
+python -m code.analysis.run_normality_audit --input data/processed/cleaned_sessions.csv --output data/processed/normality_log.txt
 ```
 
-## Step 4: Validation
-
-Validate the Jupyter notebook execution.
+## 3. Statistical Analysis
+Run the full analysis pipeline (ANOVA, Holm-Bonferroni).
 ```bash
-python code/analysis/run_notebook_validation.py
+python -m code.analysis.run_analysis --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv
 ```
 
-## Verification
+## 4. Visualization
+Generate publication-quality plots.
+```bash
+python -m code.analysis.run_visualizations --input data/processed/cleaned_sessions.csv --output figures/
+```
 
-After running the pipeline, verify the existence of the following artifacts:
-- `data/processed/cleaned_sessions.csv`
-- `data/processed/metrics_summary.csv`
-- `figures/completion_time.png`
-- `figures/error_count.png`
-- `figures/sus_score.png`
-
-If all artifacts exist and the pipeline exits with code 0, the task is complete.
+## 5. Notebook Execution
+Validate the full pipeline via Jupyter.
+```bash
+python -m code.analysis.run_notebook_validation
+```

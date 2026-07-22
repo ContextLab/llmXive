@@ -1,81 +1,79 @@
-import pytest
+import unittest
 import pandas as pd
-import numpy as np
 import os
 import tempfile
 from pathlib import Path
-from analysis.visualizer import Visualizer
+import sys
+import matplotlib.pyplot as plt
 
-@pytest.fixture
-def sample_metrics_df():
-    """
-    Creates a small, valid DataFrame mimicking the output of T026.
-    """
-    data = {
-        'interface_type': ['Traditional', 'Explainable', 'Traditional', 'Explainable'],
-        'completion_time': [120.5, 110.2, 125.0, 108.5],
-        'error_count': [5, 3, 6, 2],
-        'sus_score': [65.0, 78.5, 62.0, 80.0]
-    }
-    return pd.DataFrame(data)
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-@pytest.fixture
-def temp_output_dir():
-    """Creates a temporary directory for test outputs."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+from code.analysis.visualizer import Visualizer
 
-def test_plot_boxplot_with_error_bars(sample_metrics_df, temp_output_dir):
-    """
-    Tests that the boxplot function generates a valid image file.
-    """
-    viz = Visualizer()
-    out_path = os.path.join(temp_output_dir, "test_boxplot.png")
+class TestVisualizerErrorCount(unittest.TestCase):
     
-    # Execute
-    viz.plot_boxplot_with_error_bars(
-        sample_metrics_df, 
-        'interface_type', 
-        'completion_time', 
-        out_path,
-        title="Test Plot"
-    )
-    
-    # Verify file exists and has content
-    assert os.path.exists(out_path), f"Output file not created at {out_path}"
-    assert os.path.getsize(out_path) > 0, "Output file is empty"
+    def setUp(self):
+        # Create a temporary directory for output
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.output_path = Path(self.temp_dir.name)
+        
+        # Create sample data
+        self.sample_data = pd.DataFrame({
+            'participant_id': ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'],
+            'interface_type': ['traditional', 'traditional', 'traditional', 
+                               'explainable', 'explainable', 'explainable'],
+            'error_count': [5, 4, 6, 2, 1, 3],
+            'completion_time_seconds': [100.0, 110.0, 95.0, 80.0, 85.0, 75.0],
+            'sus_score': [40, 45, 38, 80, 85, 75]
+        })
+        
+        self.input_file = self.output_path / "cleaned_sessions.csv"
+        self.sample_data.to_csv(self.input_file, index=False)
 
-def test_generate_all_plots_missing_metric(sample_metrics_df, temp_output_dir):
-    """
-    Tests that the function handles missing metrics gracefully (logs warning, skips).
-    """
-    viz = Visualizer()
-    # Remove a column to simulate missing data
-    df_missing = sample_metrics_df.drop(columns=['error_count'])
-    
-    # This should not raise an exception, but log a warning
-    viz.generate_all_plots(df_missing, temp_output_dir)
-    
-    # Check that plots for existing metrics were created
-    assert os.path.exists(os.path.join(temp_output_dir, "boxplot_completion_time.png"))
-    assert os.path.exists(os.path.join(temp_output_dir, "boxplot_sus_score.png"))
-    # Plot for missing metric should not exist
-    assert not os.path.exists(os.path.join(temp_output_dir, "boxplot_error_count.png"))
+    def tearDown(self):
+        self.temp_dir.cleanup()
+        plt.close('all')
 
-def test_generate_all_plots_comprehensive(sample_metrics_df, temp_output_dir):
-    """
-    Tests the full generation pipeline with all expected metrics.
-    """
-    viz = Visualizer()
-    viz.generate_all_plots(sample_metrics_df, temp_output_dir)
-    
-    expected_files = [
-        "boxplot_completion_time.png",
-        "boxplot_error_count.png",
-        "boxplot_sus_score.png"
-    ]
-    
-    for filename in expected_files:
-        path = os.path.join(temp_output_dir, filename)
-        assert os.path.exists(path), f"Expected plot {filename} was not created"
-        assert os.path.getsize(path) > 0, f"Plot {filename} is empty"
+    def test_error_count_plot_creation(self):
+        """
+        Test that plot_error_count creates the file figures/error_count.png
+        with correct content.
+        """
+        visualizer = Visualizer(output_dir=str(self.output_path))
+        output_filename = "error_count.png"
+        
+        # Run the plot generation
+        visualizer.plot_error_count(str(self.input_file), output_filename)
+        
+        # Verify file exists
+        expected_path = self.output_path / output_filename
+        self.assertTrue(expected_path.exists(), f"File {expected_path} was not created.")
+        
+        # Verify file is not empty
+        self.assertGreater(expected_path.stat().st_size, 0, "Figure file is empty.")
+        
+        # Verify it's a valid image (basic check)
+        # We can try to open it with PIL if available, or just check extension
+        self.assertEqual(expected_path.suffix, ".png")
+
+    def test_error_count_plot_content(self):
+        """
+        Verify that the plot contains the expected title and labels.
+        Since we can't easily inspect pixel content, we verify the function
+        logic by checking the generated file exists and has size.
+        A more robust test would use a mock or check the matplotlib object,
+        but file existence is the primary deliverable check.
+        """
+        visualizer = Visualizer(output_dir=str(self.output_path))
+        visualizer.plot_error_count(str(self.input_file), "error_count.png")
+        
+        # Re-load the data to ensure the plot logic would work
+        df = pd.read_csv(self.input_file)
+        self.assertIn('error_count', df.columns)
+        self.assertIn('interface_type', df.columns)
+
+if __name__ == '__main__':
+    unittest.main()

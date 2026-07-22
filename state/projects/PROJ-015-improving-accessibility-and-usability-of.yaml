@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-015-improving-accessibility-and-usability-of
-last_run_id: 35d762c5-df97-43de-a4f4-13c6e61b2947
+last_run_id: dbe6cc63-5caf-4e75-bdc6-02fe431cd587
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of
 title: Improving Accessibility and Usability of Complex Computer Systems for People
   with Disabilities
-updated_at: '2026-07-19T13:13:07.423369Z'
+updated_at: '2026-07-22T00:30:14.905899Z'

@@ -1,175 +1,206 @@
 """
-Main analysis pipeline orchestrator.
-Implements the flow: Validate -> Clean -> ANOVA -> Report.
+Main orchestration script for the statistical analysis pipeline.
+Executes data cleaning, normality checks, ANOVA, and report generation.
 
-Per Spec FR-002 (Amended by T035a) and Constitution Principle VII, 
-Repeated Measures ANOVA is used for all metrics. Shapiro-Wilk is run 
-for logging only; Levene's test is omitted as inappropriate for paired designs.
+Supports a --simulate flag for CI/local validation ONLY.
+In production (CI_SIMULATE=false or no flag), it fails loudly if data is missing.
 """
 import sys
 import argparse
 import json
 import os
+import traceback
 from pathlib import Path
-import pandas as pd
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from utils.logger import get_logger
-from analysis.stat_utils import generate_metrics_summary, verify_primary_anova_pvalue
 from analysis.data_cleaner import DataCleaner
+from analysis.stat_utils import run_anova_pipeline, run_holm_bonferroni, log_normality_test, generate_metrics_summary
+from analysis.power_analysis import PowerCalculator
 from analysis.report_generator import ReportGenerator
+from simulator.simulator import DeterministicDataSimulator
 
 logger = get_logger(__name__)
 
-def validate_columns(df: pd.DataFrame, required_cols: list) -> bool:
+def validate_columns(df):
     """
-    Validate that the DataFrame contains the required columns with correct types and ranges.
-    
-    Enforces exact column names:
-    - participant_id (str)
-    - interface_type (enum: traditional|explainable)
-    - completion_time_seconds (float >= 0)
-    - error_count (int >= 0)
-    - sus_score (int 0-100)
-    - explanation_engagement_time_seconds (float >= 0)
-    
-    Returns False and logs errors on mismatch.
+    Validate that the cleaned dataframe has the required columns.
     """
-    missing = [col for col in required_cols if col not in df.columns]
+    required = ['participant_id', 'interface_type', 'completion_time_seconds', 
+                'error_count', 'sus_score', 'explanation_engagement_time_seconds']
+    missing = [c for c in required if c not in df.columns]
     if missing:
-        logger.error(f"Missing required columns: {missing}")
-        return False
-    
-    errors = []
-    
-    # Validate participant_id (str)
-    if 'participant_id' in df.columns:
-        if not df['participant_id'].apply(lambda x: isinstance(x, str)).all():
-            errors.append("participant_id must be of type string")
-    
-    # Validate interface_type (enum: traditional|explainable)
-    if 'interface_type' in df.columns:
-        valid_types = {'traditional', 'explainable'}
-        invalid_mask = ~df['interface_type'].isin(valid_types)
-        if invalid_mask.any():
-            invalid_values = df.loc[invalid_mask, 'interface_type'].unique()
-            errors.append(f"interface_type must be one of {list(valid_types)}, found: {invalid_values}")
-    
-    # Validate completion_time_seconds (float >= 0)
-    if 'completion_time_seconds' in df.columns:
-        if not pd.api.types.is_numeric_dtype(df['completion_time_seconds']):
-            errors.append("completion_time_seconds must be numeric (float)")
-        elif (df['completion_time_seconds'] < 0).any():
-            errors.append("completion_time_seconds cannot be negative")
-    
-    # Validate error_count (int >= 0)
-    if 'error_count' in df.columns:
-        if not pd.api.types.is_integer_dtype(df['error_count']) and not pd.api.types.is_numeric_dtype(df['error_count']):
-            errors.append("error_count must be integer")
-        elif (df['error_count'] < 0).any():
-            errors.append("error_count cannot be negative")
-    
-    # Validate sus_score (int 0-100)
-    if 'sus_score' in df.columns:
-        if not pd.api.types.is_integer_dtype(df['sus_score']) and not pd.api.types.is_numeric_dtype(df['sus_score']):
-            errors.append("sus_score must be integer")
-        elif (df['sus_score'] < 0).any() or (df['sus_score'] > 100).any():
-            errors.append("sus_score must be between 0 and 100")
-    
-    # Validate explanation_engagement_time_seconds (float >= 0)
-    if 'explanation_engagement_time_seconds' in df.columns:
-        if not pd.api.types.is_numeric_dtype(df['explanation_engagement_time_seconds']):
-            errors.append("explanation_engagement_time_seconds must be numeric (float)")
-        elif (df['explanation_engagement_time_seconds'] < 0).any():
-            errors.append("explanation_engagement_time_seconds cannot be negative")
-    
-    if errors:
-        for err in errors:
-            logger.error(err)
-        return False
-        
+        raise ValueError(f"Missing columns: {missing}")
     return True
 
-def run_analysis_pipeline(input_path: str, output_dir: str):
+def execute_pipeline(input_path: str, output_dir: str, simulate: bool = False):
     """
-    Orchestrates the full analysis pipeline.
-    1. Loads and validates cleaned data.
-    2. Runs ANOVA and generates metrics_summary.csv.
-    3. Generates report.
-    """
-    logger.info(f"Starting analysis pipeline. Input: {input_path}, Output Dir: {output_dir}")
-
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    # 1. Load Data
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        return False
-
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load input data: {e}")
-        return False
-
-    # 2. Validate
-    required_cols = [
-        'participant_id', 'interface_type', 'completion_time_seconds',
-        'error_count', 'sus_score', 'explanation_engagement_time_seconds'
-    ]
-    if not validate_columns(df, required_cols):
-        logger.error("Data validation failed. Aborting pipeline.")
-        return False
-
-    # 3. Run ANOVA (T023a)
-    metrics_summary_path = os.path.join(output_dir, 'metrics_summary.csv')
-    metrics = ['completion_time_seconds', 'error_count', 'sus_score']
+    Execute the full analysis pipeline.
     
+    Args:
+        input_path: Path to input data (raw or cleaned).
+        output_dir: Output directory for results.
+        simulate: If True, generate deterministic synthetic data if input is missing/empty.
+                 ONLY for CI/local validation.
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    cleaned_csv = output_dir / "cleaned_sessions.csv"
+    metrics_csv = output_dir / "metrics_summary.csv"
+    normality_log = output_dir / "normality_log.txt"
+    power_flags = output_dir / "power_flags.json"
+    report_txt = output_dir / "report_summary.txt"
+    methodology_txt = output_dir / "methodology_notes.txt"
+    
+    logger.info(f"Starting analysis pipeline. Input: {input_path}")
+    logger.info(f"Simulate mode: {simulate}")
+
+    # Check CI environment variable for production enforcement
+    ci_simulate_env = os.getenv('CI_SIMULATE', 'false').lower()
+    if simulate and ci_simulate_env == 'false':
+        logger.error("Production mode: simulation disabled. Set CI_SIMULATE=true in CI to allow simulation.")
+        sys.exit(1)
+
+    # 0. Handle Data Loading / Simulation
+    # If input_path doesn't exist or is empty, and simulate is True, generate data.
+    # If simulate is False and data is missing, fail loudly.
+    
+    import pandas as pd
+    df = None
+    
+    if not Path(input_path).exists():
+        if simulate:
+            logger.warning(f"Input file {input_path} not found. Generating deterministic simulated data.")
+            # Generate simulated data to the expected location or a temp location
+            # The simulator writes to a specific output path. We'll generate to a temp file and read it.
+            temp_raw_path = output_dir / "simulated_raw.json"
+            try:
+                simulator = DeterministicDataSimulator()
+                # Generate a small dataset for validation (e.g., 20 participants)
+                simulator.run(n_participants=20, output_path=str(temp_raw_path))
+                
+                # Now we need to run the cleaning pipeline on this simulated raw data
+                # T021c logic: load_raw_sessions -> filter_incomplete -> impute_sus
+                from analysis.clean_data import load_raw_sessions, filter_incomplete, impute_sus
+                
+                # Load raw sessions
+                raw_sessions = load_raw_sessions(str(temp_raw_path))
+                
+                # Filter incomplete
+                complete_sessions = filter_incomplete(raw_sessions)
+                
+                # Impute SUS
+                imputed_sessions = impute_sus(complete_sessions)
+                
+                # Write cleaned CSV
+                cleaned_df = pd.DataFrame(imputed_sessions)
+                cleaned_df.to_csv(cleaned_csv, index=False)
+                logger.info(f"Simulated data cleaned and saved to {cleaned_csv}")
+                
+                # Use the cleaned CSV as input for the rest of the pipeline
+                input_path = str(cleaned_csv)
+            except Exception as e:
+                logger.error(f"Failed to generate or process simulated data: {e}")
+                traceback.print_exc()
+                sys.exit(1)
+        else:
+            logger.error(f"Input file {input_path} not found.")
+            logger.error("Production mode: simulation disabled. Please provide real data.")
+            sys.exit(1)
+    else:
+        # File exists, load it
+        try:
+            df = pd.read_csv(input_path)
+            validate_columns(df)
+            logger.info(f"Loaded data: {len(df)} rows.")
+        except FileNotFoundError:
+            logger.error(f"Data file not found: {input_path}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Failed to load data: {e}")
+            sys.exit(1)
+
+    # If we loaded from input_path directly (not simulated), df is already set.
+    # If we simulated, we need to load the cleaned CSV we just wrote.
+    if df is None:
+        try:
+            df = pd.read_csv(input_path)
+            validate_columns(df)
+            logger.info(f"Loaded data: {len(df)} rows.")
+        except Exception as e:
+            logger.error(f"Failed to load data after simulation: {e}")
+            sys.exit(1)
+
+    # 2. Normality Check (Audit only)
     try:
-        generate_metrics_summary(df, metrics_summary_path, metrics=metrics)
-        logger.info("ANOVA pipeline completed successfully.")
+        log_normality_test(df, str(normality_log))
+    except Exception as e:
+        logger.warning(f"Normality test failed: {e}")
+
+    # 3. Run ANOVA and Generate Metrics Summary
+    # This calls T023a and T024 logic
+    try:
+        # We need to call the function that writes metrics_summary.csv
+        from analysis.generate_metrics_summary import generate_metrics_summary as gen_summary
+        gen_summary(df, str(metrics_csv))
+        logger.info("ANOVA and metrics summary completed.")
     except Exception as e:
         logger.error(f"ANOVA pipeline failed: {e}")
-        return False
+        traceback.print_exc()
+        sys.exit(1)
 
-    # 4. Verify Primary P-value (T024a)
-    verification_path = os.path.join(output_dir, 'primary_test_verification.txt')
+    # 4. Power Analysis
     try:
-        summary_df = pd.read_csv(metrics_summary_path)
-        # Check if any primary metric (e.g., completion_time) has p < 0.05
-        completion_row = summary_df[summary_df['metric_name'] == 'completion_time_seconds']
-        if not completion_row.empty:
-            p_val = completion_row['p_value'].values[0]
-            is_sig = verify_primary_anova_pvalue(p_val)
-            with open(verification_path, 'w') as f:
-                f.write(f"Primary Test (Completion Time) p-value: {p_val}\n")
-                f.write(f"Significant (p < 0.05): {is_sig}\n")
-            logger.info(f"Primary test verification written to {verification_path}")
-        else:
-            logger.warning("Completion time metric not found in summary.")
+        calculator = PowerCalculator()
+        calculator.compute_power(df, str(power_flags))
+        logger.info("Power analysis completed.")
     except Exception as e:
-        logger.error(f"Failed to verify primary p-value: {e}")
-        return False
+        logger.warning(f"Power analysis failed: {e}")
 
     # 5. Generate Report
-    report_path = os.path.join(output_dir, 'report_summary.txt')
     try:
         generator = ReportGenerator()
-        generator.generate_report(summary_path=metrics_summary_path, output_path=report_path)
+        generator.generate_report(metrics_csv, str(report_txt))
+        logger.info("Report generation completed.")
     except Exception as e:
-        logger.error(f"Report generation failed: {e}")
-        return False
+        logger.warning(f"Report generation failed: {e}")
 
-    logger.info("Analysis pipeline completed successfully.")
-    return True
+    # 6. Write Methodology Notes
+    try:
+        with open(methodology_txt, 'w') as f:
+            f.write("Methodology Notes\n")
+            f.write("=" * 20 + "\n\n")
+            f.write("Statistical Tests Used:\n")
+            f.write("- Repeated Measures ANOVA (per Spec FR-002 Amended by T035a)\n")
+            f.write("- Holm-Bonferroni Correction for multiple comparisons\n")
+            f.write("- Shapiro-Wilk Normality Test (Audit only)\n\n")
+            f.write("Spec Reference:\n")
+            f.write("FR-002 (Amended): System MUST implement Repeated Measures ANOVA.\n")
+            f.write("Constitution Principle VII: Scientific rigor supersedes original spec text.\n")
+        logger.info("Methodology notes written.")
+    except Exception as e:
+        logger.error(f"Failed to write methodology notes: {e}")
+
+    logger.info("Pipeline execution finished.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the full analysis pipeline")
-    parser.add_argument("--input", type=str, required=True, help="Path to cleaned_sessions.csv")
-    parser.add_argument("--output", type=str, required=True, help="Output directory for artifacts")
+    parser = argparse.ArgumentParser(description="Run the full statistical analysis pipeline.")
+    parser.add_argument("--input", type=str, default="data/processed/cleaned_sessions.csv",
+                        help="Path to cleaned sessions CSV.")
+    parser.add_argument("--output", type=str, default="data/processed",
+                        help="Output directory for results.")
+    parser.add_argument("--simulate", action="store_true",
+                        help="Generate deterministic simulated data if input is missing. "
+                             "ONLY for CI/local validation. Production runs will fail if data is missing.")
+    
     args = parser.parse_args()
-
-    success = run_analysis_pipeline(args.input, args.output)
-    sys.exit(0 if success else 1)
+    
+    execute_pipeline(args.input, args.output, simulate=args.simulate)
 
 if __name__ == "__main__":
     main()

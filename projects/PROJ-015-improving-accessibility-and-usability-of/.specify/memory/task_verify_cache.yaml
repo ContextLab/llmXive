@@ -1,12 +1,10 @@
-T022:
+T019c:
   c: false
-  h: 70036832bd58cb3c2a8d1918c9953812709c79c38c62b9fc876d564d78d1a3c4
-  r: "The `stat_utils.py` file contains a `log_normality_test` function that performs\
-    \ the Shapiro\u2011Wilk test and writes results to a given path, satisfying the\
-    \ code\u2011side part of the task. However, the required output file `data/processed/normality_log.txt`\
-    \ is missing, and there is no evidence that the function is invoked to create\
-    \ or populate this log. The logging artifact therefore does not exist, so the\
-    \ task is not fully completed."
+  h: 7fc27de9830fb9340002b72d6856e3a20d48b4b1fe3bd2c7b4c2e2698a6a44cb
+  r: The `validator.py` file is present but the `validate_session` function is truncated
+    and does not contain a complete implementation, and the required schema file `contracts/session.schema.yaml`
+    is missing entirely. Both the runtime validation logic and the schema it must
+    load are absent, so the task is not genuinely fulfilled.
 T023a:
   c: false
   h: eedc55ae90ef10539b663979c6589a845af673641d511b0b7b51d255c8b4e00f
@@ -21,6 +19,35 @@ T023b:
     \ there is no evidence that `explanation_engagement_time` was excluded from the\
     \ ANOVA input and logged as required. Without this artifact, the task\u2019s core\
     \ requirement is unmet."
+T027a:
+  c: false
+  h: 67c0e2e52065fc023f1206689a95469b264d1ac1cf1dd924a924a1c718aeeeea
+  r: "The repository lacks the required `figures/completion_time.png` file, and the\
+    \ provided `visualizer.py` is truncated and does not show a concrete function\
+    \ that generates a completion\u2011time box plot (only a generic private method).\
+    \ Consequently the task\u2019s specified output and dedicated implementation are\
+    \ missing."
+T027b:
+  c: false
+  h: ee5cdaa912a6bbdba8273307de67dbeaa03bc833e534ec247fb637544d8b32be
+  r: "The repository contains a partially\u2011implemented `visualizer.py` with a\
+    \ generic `_create_boxplot_with_ci` method, but no concrete function that creates\
+    \ the Error Count plot and saves it as `figures/error_count.png`. Moreover, the\
+    \ expected output file `figures/error_count.png` is absent. The task\u2019s required\
+    \ artifact is therefore missing."
+T027c:
+  c: false
+  h: 869af154f07bc824894853a8cfa1c1e0166deb179f05913c6f5bbe424d3d5db7
+  r: "The required output file `figures/sus_score.png` does not exist, and the provided\
+    \ `visualizer.py` only contains a generic `_create_boxplot_with_ci` method (truncated)\
+    \ with no concrete SUS\u2011specific function that saves to the required filename.\
+    \ Consequently the task\u2019s deliverable is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No notebook, seed\u2011pinning code, exact file\u2011path usage, or checksum\
+    \ verification for generated figures was provided. Without these artifacts there\
+    \ is no evidence that the notebook is fully deterministic as required."
 T035a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

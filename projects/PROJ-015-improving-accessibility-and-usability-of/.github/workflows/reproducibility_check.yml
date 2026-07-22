@@ -1,0 +1,84 @@
+name: Reproducibility Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  execute-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install nbformat nbconvert
+
+      - name: Ensure data directories exist
+        run: |
+          mkdir -p data/raw data/processed figures
+
+      - name: Run cleaning pipeline
+        run: |
+          python code/analysis/clean_data.py --input data/raw --output data/processed/cleaned_sessions.csv
+
+      - name: Run analysis pipeline
+        run: |
+          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed
+
+      - name: Execute Notebook
+        run: |
+          python code/analysis/run_notebook_validation.py --notebook code/analysis/analysis.ipynb --output-dir data/processed
+
+      - name: Generate Execution Log
+        id: log_gen
+        run: |
+          NOTEBOOK_PATH="code/analysis/analysis.ipynb"
+          LOG_FILE="data/processed/notebook_execution_log.txt"
+          
+          # Compute checksum
+          CHECKSUM=$(sha256sum "$NOTEBOOK_PATH" | cut -d' ' -f1)
+          
+          # Get status from previous step (nbconvert exit code)
+          if [ $? -eq 0 ]; then
+            STATUS="SUCCESS"
+          else
+            STATUS="FAIL"
+          fi
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          echo "Notebook: $NOTEBOOK_PATH" > "$LOG_FILE"
+          echo "SHA-256: $CHECKSUM" >> "$LOG_FILE"
+          echo "Status: $STATUS" >> "$LOG_FILE"
+          echo "Timestamp: $TIMESTAMP" >> "$LOG_FILE"
+          
+          echo "log_content=$(cat $LOG_FILE)" >> $GITHUB_OUTPUT
+
+      - name: Upload Execution Log
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-log
+          path: data/processed/notebook_execution_log.txt
+
+      - name: Upload Processed Data
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-data
+          path: data/processed/
+
+      - name: Upload Figures
+        uses: actions/upload-artifact@v4
+        with:
+          name: figures
+          path: figures/

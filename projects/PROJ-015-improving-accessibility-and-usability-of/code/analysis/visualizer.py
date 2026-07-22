@@ -1,129 +1,235 @@
+"""
+Visualization module for generating publication-quality plots.
+Implements box plots with 95% CI error bars for key metrics.
+"""
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from utils.logger import get_logger
 import os
 from pathlib import Path
-import numpy as np
+from typing import Optional, List
 
 logger = get_logger(__name__)
 
+
 class Visualizer:
-    def __init__(self, output_dir: Path):
-        self.output_dir = output_dir
+    """Generates visualization plots for usability metrics."""
+
+    def __init__(self, output_dir: str = "figures"):
+        self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        plt.style.use('seaborn-v0_8-whitegrid')
-    
-    def create_boxplot(self, data: pd.DataFrame, metric: str, x_col: str = 'interface_type', 
-                     y_col: str = None, title: str = None, output_file: str = None):
-        """Create a box plot with error bars for a given metric."""
-        if y_col is None:
-            y_col = metric
-        
-        if metric not in data.columns or x_col not in data.columns:
-            raise ValueError(f"Required columns not found. Available: {data.columns.tolist()}")
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        # Group data by interface type
+        logger.info(f"Visualization output directory set to: {self.output_dir}")
+
+    def _create_boxplot_with_ci(
+        self,
+        data: pd.DataFrame,
+        x_col: str,
+        y_col: str,
+        title: str,
+        xlabel: str,
+        ylabel: str,
+        output_filename: str,
+        ci_level: float = 0.95
+    ) -> str:
+        """
+        Create a box plot with 95% confidence interval error bars.
+
+        Args:
+            data: DataFrame containing the data
+            x_col: Column name for x-axis categories
+            y_col: Column name for y-axis values
+            title: Plot title
+            xlabel: X-axis label
+            ylabel: Y-axis label
+            output_filename: Name of the output file
+            ci_level: Confidence level for error bars (default 0.95)
+
+        Returns:
+            Path to the saved figure
+        """
+        plt.figure(figsize=(10, 6))
+        ax = plt.gca()
+
+        # Group by x_col and compute statistics
         groups = data.groupby(x_col)[y_col]
-        
-        # Extract data for each group
-        box_data = [group.dropna().values for name, group in groups]
-        labels = [name for name, _ in groups]
-        
-        # Create box plot
-        bp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)
-        
+
+        # Calculate means and standard errors for error bars
+        means = groups.mean()
+        stds = groups.std()
+        n = groups.count()
+        se = stds / np.sqrt(n)
+
+        # Calculate 95% CI using t-distribution
+        from scipy import stats
+        t_crit = stats.t.ppf((1 + ci_level) / 2, n - 1)
+        ci = t_crit * se
+
+        # Plot boxplot
+        bp = ax.boxplot(
+            [data[data[x_col] == cat][y_col] for cat in data[x_col].unique()],
+            labels=data[x_col].unique(),
+            patch_artist=True,
+            showfliers=False
+        )
+
         # Color the boxes
-        colors = ['#3498db', '#e74c3c']
+        colors = ['#4C72B0', '#DD8452']
         for patch, color in zip(bp['boxes'], colors):
             patch.set_facecolor(color)
             patch.set_alpha(0.7)
-        
-        # Add mean points
-        for i, group in enumerate(groups):
-            mean_val = group.mean()
-            ax.plot(i + 1, mean_val, 'g^', markersize=10, label='Mean' if i == 0 else "")
-        
-        # Labels and title
-        if title is None:
-            title = f"{metric.replace('_', ' ').title()} by Interface Type"
-        ax.set_title(title, fontsize=14, fontweight='bold')
-        ax.set_xlabel('Interface Type', fontsize=12)
-        ax.set_ylabel(metric.replace('_', ' ').title(), fontsize=12)
-        
-        # Add legend if means are plotted
-        if any(bp['fliers']):
-            ax.legend(loc='upper right')
-        
+
+        # Add error bars representing 95% CI
+        for i, (mean, err) in enumerate(zip(means.values, ci.values)):
+            ax.errorbar(
+                i + 1, mean, yerr=[[err], [err]],
+                fmt='o', color='black', capsize=5,
+                markersize=8, markeredgewidth=1.5
+            )
+
+        plt.title(title, fontsize=14, fontweight='bold')
+        plt.xlabel(xlabel, fontsize=12)
+        plt.ylabel(ylabel, fontsize=12)
+        plt.grid(axis='y', linestyle='--', alpha=0.3)
         plt.tight_layout()
-        
-        # Save plot
-        if output_file is None:
-            output_file = f"boxplot_{metric}.png"
-        
-        output_path = self.output_dir / output_file
+
+        output_path = self.output_dir / output_filename
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
-        
-        logger.info(f"Box plot saved: {output_path}")
-        return output_path
-    
-    def create_comparison_plot(self, data: pd.DataFrame, metrics: list, output_prefix: str = None):
-        """Create box plots for multiple metrics."""
-        if output_prefix is None:
-            output_prefix = "boxplot"
-        
-        output_files = []
-        for metric in metrics:
-            if metric in data.columns:
-                output_file = f"{output_prefix}_{metric}.png"
-                try:
-                    path = self.create_boxplot(data, metric, output_file=output_file)
-                    output_files.append(path)
-                except Exception as e:
-                    logger.error(f"Failed to create plot for {metric}: {e}")
-            else:
-                logger.warning(f"Metric {metric} not found in data, skipping plot.")
-        
-        return output_files
+
+        logger.info(f"Saved visualization to: {output_path}")
+        return str(output_path)
+
+    def plot_completion_time(self, data: pd.DataFrame) -> str:
+        """
+        Generate box plot for completion time.
+
+        Args:
+            data: DataFrame with columns ['interface_type', 'completion_time_seconds']
+
+        Returns:
+            Path to saved figure
+        """
+        return self._create_boxplot_with_ci(
+            data=data,
+            x_col='interface_type',
+            y_col='completion_time_seconds',
+            title='Completion Time by Interface Type',
+            xlabel='Interface Type',
+            ylabel='Completion Time (seconds)',
+            output_filename='completion_time.png'
+        )
+
+    def plot_error_count(self, data: pd.DataFrame) -> str:
+        """
+        Generate box plot for error count.
+
+        Args:
+            data: DataFrame with columns ['interface_type', 'error_count']
+
+        Returns:
+            Path to saved figure
+        """
+        return self._create_boxplot_with_ci(
+            data=data,
+            x_col='interface_type',
+            y_col='error_count',
+            title='Error Count by Interface Type',
+            xlabel='Interface Type',
+            ylabel='Number of Errors',
+            output_filename='error_count.png'
+        )
+
+    def plot_sus_score(self, data: pd.DataFrame) -> str:
+        """
+        Generate box plot for SUS (System Usability Scale) scores.
+
+        Args:
+            data: DataFrame with columns ['interface_type', 'sus_score']
+
+        Returns:
+            Path to saved figure
+        """
+        return self._create_boxplot_with_ci(
+            data=data,
+            x_col='interface_type',
+            y_col='sus_score',
+            title='System Usability Scale (SUS) Score by Interface Type',
+            xlabel='Interface Type',
+            ylabel='SUS Score (0-100)',
+            output_filename='sus_score.png'
+        )
+
+    def plot_explanation_engagement(self, data: pd.DataFrame) -> str:
+        """
+        Generate box plot for explanation engagement time.
+
+        Args:
+            data: DataFrame with columns ['interface_type', 'explanation_engagement_time_seconds']
+
+        Returns:
+            Path to saved figure
+        """
+        return self._create_boxplot_with_ci(
+            data=data,
+            x_col='interface_type',
+            y_col='explanation_engagement_time_seconds',
+            title='Explanation Engagement Time by Interface Type',
+            xlabel='Interface Type',
+            ylabel='Engagement Time (seconds)',
+            output_filename='explanation_engagement.png'
+        )
+
 
 def main():
-    """Main entry point for visualization generation."""
-    project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / 'data' / 'processed' / 'cleaned_sessions.csv'
-    output_dir = project_root / 'data' / 'processed'
-    
-    if not input_path.exists():
-        print(f"Error: Input file not found: {input_path}")
-        return 1
-    
-    try:
-        # Load data
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows for visualization")
-        
-        # Create visualizer
-        visualizer = Visualizer(output_dir)
-        
-        # Generate plots for key metrics
-        metrics = ['completion_time', 'error_count', 'sus_score']
-        output_files = visualizer.create_comparison_plot(df, metrics)
-        
-        if output_files:
-            print(f"Generated {len(output_files)} plots:")
-            for f in output_files:
-                print(f"  - {f}")
-            return 0
-        else:
-            print("No plots were generated.")
-            return 1
-            
-    except Exception as e:
-        logger.error(f"Visualization failed: {e}")
-        print(f"Error: {e}")
-        return 1
+    """
+    Main entry point for generating visualizations.
+    Loads cleaned data and generates all required plots.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Generate visualization plots')
+    parser.add_argument('--input', type=str, default='data/processed/cleaned_sessions.csv',
+                      help='Path to cleaned data CSV')
+    parser.add_argument('--output_dir', type=str, default='figures',
+                      help='Output directory for figures')
+    args = parser.parse_args()
+
+    # Load data
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+
+    logger.info(f"Loading data from: {args.input}")
+    data = pd.read_csv(args.input)
+
+    # Validate required columns
+    required_cols = ['interface_type', 'completion_time_seconds', 'error_count', 'sus_score']
+    missing_cols = [col for col in required_cols if col not in data.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        sys.exit(1)
+
+    # Initialize visualizer
+    visualizer = Visualizer(output_dir=args.output_dir)
+
+    # Generate plots
+    logger.info("Generating completion time plot...")
+    visualizer.plot_completion_time(data)
+
+    logger.info("Generating error count plot...")
+    visualizer.plot_error_count(data)
+
+    logger.info("Generating SUS score plot...")
+    visualizer.plot_sus_score(data)
+
+    # Only plot if explanation engagement time exists
+    if 'explanation_engagement_time_seconds' in data.columns:
+        logger.info("Generating explanation engagement plot...")
+        visualizer.plot_explanation_engagement(data)
+
+    logger.info("All visualizations generated successfully.")
+
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+    main()
