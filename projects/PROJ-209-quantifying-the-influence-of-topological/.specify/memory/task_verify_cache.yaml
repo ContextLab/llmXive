@@ -1,11 +1,52 @@
-T016b:
+T010:
   c: false
-  h: 8512bcb7c8b206671cac84bd42ff4fe60c335b62604f30ab4c5c4720ce8e730d
-  r: The repository lacks the three required output files (`data/processed/mock_dftb_results.csv`,
-    `data/state/mock_dftb_exclusions.json`, `data/state/fallback_verification.json`).
-    Moreover, the provided `code/01_data_acquisition.py` is truncated and contains
-    no logic for detecting missing `fracture_energy` in synthetic data or invoking
-    the T013 synthetic generator, so the specified step is not implemented.
+  h: 4d24e025f2cd13dd8998257410fde054fb6444a5b8bbcb4b59dab8f8241ed39d
+  r: "The repository contains a partially shown `code/01_data_acquisition.py` that\
+    \ does not include any logic for querying the Materials Project API, performing\
+    \ exponential backoff, or writing the required `data/raw/pristine_structures.csv`\
+    \ and `data/state/data_source.json`. Both expected output files are missing from\
+    \ the filesystem. Consequently, the task\u2019s functional and output requirements\
+    \ are not met."
+T011:
+  c: false
+  h: 35644a06c628b76df8fa05ff90546c7f4997de45fada2afee624de724db2a033
+  r: "The required output files `data/raw/defect_dataset_2022.csv` and `data/state/source_validation.json`\
+    \ are absent, and the provided `code/01_data_acquisition.py` does not contain\
+    \ the logic to download the dataset, validate its schema, handle missing `fracture_energy`\
+    \ via the mock DFTB+ simulation, or log exclusions. The task\u2019s core requirements\
+    \ are therefore unmet."
+T012:
+  c: false
+  h: 3b682969979fa165b16bb63b2da102ae46eee36b2cae1da128b0241bdc612b70
+  r: "The required `data/state/source_validation.json` file is absent, so the script\
+    \ cannot perform the \u201CSource Validity Check & Branching\u201D step it was\
+    \ supposed to implement. Additionally, the provided `code/01_data_acquisition.py`\
+    \ excerpt is truncated and does not show any logic that reads this JSON or branches\
+    \ based on its contents. The missing JSON and lack of evident implementation mean\
+    \ the task is not genuinely completed."
+T013:
+  c: false
+  h: 17efb9ff36870ee43ae2ca775adcdd9335277bdb19a1699e59b1b16939758c28
+  r: "The repository lacks the required `data/state/generation_status.json` and the\
+    \ generated CSV files (`synthetic_train.csv`, `synthetic_holdout.csv`). Moreover,\
+    \ the provided `code/01_data_acquisition.py` snippet ends before any synthetic\u2011\
+    data generation logic is implemented, so the script does not fulfill the specified\
+    \ step. The task therefore remains unfinished."
+T016a:
+  c: false
+  h: 820aea9b1c1a62185db9bdb1c2212dff847e47b16704cf42b1fc80b3b3726cc1
+  r: "The repository lacks the required `data/state/exclusion_log.json` file, and\
+    \ the provided `code/01_data_acquisition.py` does not contain any implementation\
+    \ of checksum verification, required\u2011field checks, defect\u2011density filtering,\
+    \ or logging of excluded entries as specified in Step\u202F6. The task\u2019s\
+    \ core functionality and output are therefore missing."
+T018:
+  c: false
+  h: c358d1a397877ecc5909edd6f38f6107d05ccf578c4026ce1e930b63a3bb2e0c
+  r: The repository lacks the required `data/raw/pristine_structures.csv` input, and
+    the expected output files (`data/processed/features.csv`, `data/processed/targets.csv`,
+    `data/state/normalization_log.json`) are not present. Consequently the processing
+    script cannot run nor produce the mandated artifacts.
 T020:
   c: false
   h: a2acae030db14c32f296237f2252d23727022d67491a3742aee895cac7e10509
