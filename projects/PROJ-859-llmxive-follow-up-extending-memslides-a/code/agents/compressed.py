@@ -29,20 +29,33 @@ class CompressedAgent:
 
     def _load_rules(self):
         """Load symbolic rules from the processed rules directory."""
+        # Explicit dependency check: T026b must have generated global_rules.json
         if not self.rule_bank_path.exists():
-            # If rules don't exist yet, initialize with an empty list
-            # This allows the agent to be instantiated even before T026 completes
-            self._rules = []
-            return
+            raise FileNotFoundError(
+                f"Rule bank directory not found at {self.rule_bank_path}. "
+                "Ensure T026b (global rule induction) has completed successfully."
+            )
+
+        global_rules_file = self.rule_bank_path / "global_rules.json"
+        if not global_rules_file.exists():
+            raise FileNotFoundError(
+                f"Global rules file not found at {global_rules_file}. "
+                "Ensure T026b has generated the global rule set."
+            )
 
         self._rules = []
-        for rule_file in sorted(self.rule_bank_path.glob("*.json")):
-            try:
-                with open(rule_file, "r", encoding="utf-8") as f:
-                    rule_data = json.load(f)
-                    self._rules.append(rule_data)
-            except (json.JSONDecodeError, IOError):
-                continue
+        try:
+            with open(global_rules_file, "r", encoding="utf-8") as f:
+                rule_data = json.load(f)
+                # global_rules.json is expected to contain a list of rules or a dict with a 'rules' key
+                if isinstance(rule_data, list):
+                    self._rules = rule_data
+                elif isinstance(rule_data, dict) and "rules" in rule_data:
+                    self._rules = rule_data["rules"]
+                else:
+                    raise ValueError("Invalid format in global_rules.json: expected a list or a dict with 'rules' key.")
+        except (json.JSONDecodeError, IOError) as e:
+            raise RuntimeError(f"Failed to load global rules from {global_rules_file}: {e}")
 
     def _apply_rules(self, trace: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -58,13 +71,18 @@ class CompressedAgent:
         # Try to find a specific rule for this trace
         matched_rule = None
         for rule in self._rules:
+            # Check if rule has a trace_id match
             if rule.get("trace_id") == session_id:
+                matched_rule = rule
+                break
+            # Fallback: check session_id if trace_id is not present
+            elif rule.get("session_id") == session_id:
                 matched_rule = rule
                 break
         
         if matched_rule:
             reconstructed = matched_rule.get("reconstructed_state", {})
-            reconstructed["rule_applied"] = matched_rule.get("rule_id", "unknown")
+            reconstructed["rule_applied"] = matched_rule.get("rule_id", matched_rule.get("id", "unknown"))
             reconstructed["reconstructed"] = True
             return reconstructed
 
@@ -109,16 +127,20 @@ class CompressedAgent:
 def main():
     """Entry point for running the compressed agent benchmark."""
     config = get_config()
-    agent = CompressedAgent(config)
-    
-    # Example usage with a test trace
-    test_trace = {
-        "session_id": "test-123",
-        "final_state": {"slide_count": 5}
-    }
-    
-    result, latency = agent.process_trace(test_trace)
-    print(f"Compressed Agent Result: {result}, Latency: {latency:.6f}s")
+    try:
+        agent = CompressedAgent(config)
+        
+        # Example usage with a test trace
+        test_trace = {
+            "session_id": "test-123",
+            "final_state": {"slide_count": 5}
+        }
+        
+        result, latency = agent.process_trace(test_trace)
+        print(f"Compressed Agent Result: {result}, Latency: {latency:.6f}s")
+    except (FileNotFoundError, RuntimeError, ValueError) as e:
+        print(f"Error initializing CompressedAgent: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

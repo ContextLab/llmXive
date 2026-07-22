@@ -1,157 +1,169 @@
 """
-Integration test for the synthetic trace generation pipeline.
-Validates the end-to-end flow of T012 (synthetic_trace.py).
-
-This test:
-1. Executes the generation script.
-2. Verifies output files exist in data/raw/.
-3. Validates the schema of generated files against contracts/trace.schema.yaml.
-4. Ensures statistical variance (sequence lengths, tool types) are present.
+Integration tests for the synthetic generation pipeline.
+Validates end-to-end flow of T012 (synthetic_trace.py).
 """
+import pytest
 import json
 import os
-import subprocess
-import sys
 from pathlib import Path
-from typing import List, Dict, Any
+import sys
+import shutil
+from datetime import datetime
 
-import pytest
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Project root detection (assumes running from project root or tests/)
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "trace.schema.yaml"
-
-# Add code directory to path for imports if running directly
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
-
+from generators.synthetic_trace import generate_synthetic_traces, SyntheticTraceGenerator, DataGenerationError
 from utils.validators import TraceValidator
-from config import Config
+from config import get_config
 
-
-class TestSyntheticGenerationPipeline:
-    """Integration tests for the synthetic data generation pipeline."""
-
+class TestSyntheticGeneration:
+    """Integration tests for synthetic trace generation."""
+    
     @pytest.fixture(autouse=True)
-    def setup(self):
-        """Ensure directories exist before tests run."""
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        # Clean up any previous generation runs for a clean test state
-        for f in DATA_RAW_DIR.glob("session_*.json"):
-            f.unlink()
-
-    def test_01_script_execution(self):
-        """Test that the generation script runs without error."""
-        script_path = CODE_DIR / "generators" / "synthetic_trace.py"
+    def setup_teardown(self):
+        """Setup and teardown for tests."""
+        self.test_dir = Path("data/test_integration")
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        yield
+        # Cleanup
+        if self.test_dir.exists():
+            shutil.rmtree(self.test_dir)
+    
+    def test_generate_small_dataset(self):
+        """Test generation of a small dataset (10 traces)."""
+        num_traces = 10
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
         
-        if not script_path.exists():
-            pytest.fail(f"Generation script not found at {script_path}. "
-                        "T012 implementation is missing.")
-
-        # Run the script
-        result = subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True
-        )
-
-        assert result.returncode == 0, (
-            f"Script execution failed.\n"
-            f"STDOUT:\n{result.stdout}\n"
-            f"STDERR:\n{result.stderr}"
-        )
-
-    def test_02_output_files_created(self):
-        """Test that session files are created in data/raw/."""
-        # Re-run to ensure fresh data if previous test passed
-        script_path = CODE_DIR / "generators" / "synthetic_trace.py"
-        subprocess.run([sys.executable, str(script_path)], cwd=str(PROJECT_ROOT), check=True)
-
-        session_files = list(DATA_RAW_DIR.glob("session_*.json"))
+        assert "training_path" in results
+        assert "heldout_path" in results
+        assert results["stats"]["total_generated"] == num_traces
         
-        assert len(session_files) > 0, "No session files were generated in data/raw/."
-        assert len(session_files) >= 5, f"Expected at least 5 sessions for variance testing, found {len(session_files)}."
-
-    def test_03_schema_compliance(self):
-        """Test that all generated files adhere to the trace schema."""
-        script_path = CODE_DIR / "generators" / "synthetic_trace.py"
-        subprocess.run([sys.executable, str(script_path)], cwd=str(PROJECT_ROOT), check=True)
-
-        session_files = list(DATA_RAW_DIR.glob("session_*.json"))
-        validator = TraceValidator(schema_path=SCHEMA_PATH)
-
-        failed_files = []
-        for file_path in session_files:
+        # Check training files
+        training_dir = Path(results["training_path"])
+        training_files = list(training_dir.glob("session_*.json"))
+        assert len(training_files) == 8  # 80% of 10
+        
+        # Check held-out files
+        heldout_dir = Path(results["heldout_path"])
+        heldout_files = list(heldout_dir.glob("session_*.json"))
+        assert len(heldout_files) == 2  # 20% of 10
+    
+    def test_trace_schema_compliance(self):
+        """Test that generated traces comply with the schema."""
+        num_traces = 50
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        validator = TraceValidator()
+        all_valid = True
+        
+        # Check training traces
+        for file_path in Path(results["training_path"]).glob("session_*.json"):
             with open(file_path, 'r') as f:
-                try:
-                    data = json.load(f)
-                except json.JSONDecodeError as e:
-                    failed_files.append((file_path.name, f"Invalid JSON: {e}"))
-                    continue
-
-            is_valid, errors = validator.validate(data)
-            if not is_valid:
-                failed_files.append((file_path.name, errors))
-
-        if failed_files:
-            error_msg = "Schema validation failed for:\n"
-            for fname, err in failed_files:
-                error_msg += f" - {fname}: {err}\n"
-            pytest.fail(error_msg)
-
-    def test_04_variance_in_generation(self):
-        """Test that the generator produces variance in sequence length and tool types."""
-        script_path = CODE_DIR / "generators" / "synthetic_trace.py"
-        subprocess.run([sys.executable, str(script_path)], cwd=str(PROJECT_ROOT), check=True)
-
-        session_files = list(DATA_RAW_DIR.glob("session_*.json"))
-        assert len(session_files) > 0
-
-        sequence_lengths = []
-        tool_types_seen = set()
-
-        for file_path in session_files:
+                trace = json.load(f)
+            if not validator.validate(trace):
+                all_valid = False
+                break
+        
+        # Check held-out traces
+        for file_path in Path(results["heldout_path"]).glob("session_*.json"):
             with open(file_path, 'r') as f:
-                data = json.load(f)
-
-            # Check for exact_tool_sequence
-            if "exact_tool_sequence" in data and isinstance(data["exact_tool_sequence"], list):
-                sequence_lengths.append(len(data["exact_tool_sequence"]))
-                for step in data["exact_tool_sequence"]:
-                    if isinstance(step, dict) and "tool_type" in step:
-                        tool_types_seen.add(step["tool_type"])
-                    elif isinstance(step, str):
-                        # Handle potential string-only format if schema allows
-                        tool_types_seen.add(step)
-
-        # Assert variance exists
-        assert len(sequence_lengths) > 1, "Only one session generated; cannot test variance."
-        unique_lengths = len(set(sequence_lengths))
-        assert unique_lengths > 1, (
-            f"All generated sessions have the same length ({sequence_lengths[0]}). "
-            "T013 (variation logic) may not be implemented."
-        )
-
-        # Assert multiple tool types are used
-        assert len(tool_types_seen) > 1, (
-            f"Only one tool type ({tool_types_seen}) was used. "
-            "T013 (variation logic) may not be implemented."
-        )
-
-    def test_05_required_fields_present(self):
-        """Test that critical fields defined in the task description are present."""
-        script_path = CODE_DIR / "generators" / "synthetic_trace.py"
-        subprocess.run([sys.executable, str(script_path)], cwd=str(PROJECT_ROOT), check=True)
-
-        session_files = list(DATA_RAW_DIR.glob("session_*.json"))
-        required_fields = ["exact_tool_sequence", "raw_arg_variance"]
-
-        for file_path in session_files:
+                trace = json.load(f)
+            if not validator.validate(trace):
+                all_valid = False
+                break
+        
+        assert all_valid, "Some traces failed schema validation"
+    
+    def test_reproducibility(self):
+        """Test that generation is reproducible with the same seed."""
+        num_traces = 10
+        
+        # Generate first set
+        results1 = generate_synthetic_traces(num_traces=num_traces, seed=123)
+        traces1 = []
+        for file_path in Path(results1["training_path"]).glob("session_*.json"):
             with open(file_path, 'r') as f:
-                data = json.load(f)
-
-            missing = [field for field in required_fields if field not in data]
-            assert not missing, f"File {file_path.name} is missing required fields: {missing}"
+                traces1.append(json.load(f))
+        
+        # Generate second set with same seed
+        results2 = generate_synthetic_traces(num_traces=num_traces, seed=123)
+        traces2 = []
+        for file_path in Path(results2["training_path"]).glob("session_*.json"):
+            with open(file_path, 'r') as f:
+                traces2.append(json.load(f))
+        
+        # Compare (session IDs will differ due to UUID, but structure should match)
+        assert len(traces1) == len(traces2)
+        for t1, t2 in zip(traces1, traces2):
+            assert t1["metadata"]["sequence_length"] == t2["metadata"]["sequence_length"]
+            assert t1["raw_arg_variance"] == t2["raw_arg_variance"]
+            assert len(t1["exact_tool_sequence"]) == len(t2["exact_tool_sequence"])
+    
+    def test_varied_sequence_lengths(self):
+        """Test that generated traces have varied sequence lengths."""
+        num_traces = 100
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        lengths = []
+        for file_path in Path(results["training_path"]).glob("session_*.json"):
+            with open(file_path, 'r') as f:
+                trace = json.load(f)
+            lengths.append(trace["metadata"]["sequence_length"])
+        
+        # Check for variance
+        assert len(set(lengths)) > 1, "All traces have the same sequence length"
+        assert min(lengths) >= 5, "Sequence length too short"
+        assert max(lengths) <= 50, "Sequence length too long"
+    
+    def test_varied_tool_types(self):
+        """Test that generated traces use varied tool types."""
+        num_traces = 100
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        all_tools = set()
+        for file_path in Path(results["training_path"]).glob("session_*.json"):
+            with open(file_path, 'r') as f:
+                trace = json.load(f)
+            for step in trace["exact_tool_sequence"]:
+                all_tools.add(step["tool_name"])
+        
+        # Should have multiple tool types
+        assert len(all_tools) > 3, "Not enough variety in tool types"
+    
+    def test_varied_argument_variance(self):
+        """Test that generated traces have varied argument variance."""
+        num_traces = 100
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        variances = []
+        for file_path in Path(results["training_path"]).glob("session_*.json"):
+            with open(file_path, 'r') as f:
+                trace = json.load(f)
+            variances.append(trace["raw_arg_variance"])
+        
+        # Check for variance
+        assert len(set([round(v, 4) for v in variances])) > 1, "All traces have the same argument variance"
+    
+    def test_edge_case_zero_repetition(self):
+        """Test handling of traces with zero tool repetitions (high entropy)."""
+        # This is tested implicitly by the variety test, but we ensure no crashes
+        num_traces = 10
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        assert results["stats"]["total_generated"] == num_traces
+    
+    def test_large_generation(self):
+        """Test generation of the full 5000 trace dataset."""
+        num_traces = 5000
+        results = generate_synthetic_traces(num_traces=num_traces, seed=42)
+        
+        assert results["stats"]["total_generated"] == num_traces
+        assert results["stats"]["training_count"] == 4000
+        assert results["stats"]["heldout_count"] == 1000
+        
+        # Verify file counts
+        training_count = len(list(Path(results["training_path"]).glob("session_*.json")))
+        heldout_count = len(list(Path(results["heldout_path"]).glob("session_*.json")))
+        
+        assert training_count == 4000
+        assert heldout_count == 1000

@@ -38,3 +38,310 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T04:59:19Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_eb49917e
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate **5000**
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:55:48Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_4f8297ff
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_argument_semantic_variance_using_sentence-transforme
+  kind: entity_fact
+  raw_text: Compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:59:18Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_3502cf0e
+  context: 'Implementation for User Story 1 - T012: Implement code/generators/synthetic_trace.py
+    to generate 5000 multi-turn sessions mimicking MemSlides schema (FR-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:00:29Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_511f1b93
+  context: 'Implementation for User Story 2 - T020: Implement code/metrics/extract.py
+    to compute all structural metrics... using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+    calculation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:07:23Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_3f83fb22
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics (sequence entropy, tool-repetition frequency, argument semantic variance
+    using sentence-transformers/all-MiniLM-L6-v2 CPU-only) for traces in data/training/
+    and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:10:35Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_f8236ed1
+  context: 'Phase 4: User Story 2. Implementation for User Story 2. T020 [US2] Implement
+    code/metrics/extract.py to compute all structural metrics (sequence entropy, tool-repetition
+    frequency, argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only) for traces in data/training/ and data/held_out/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:12:04Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance
+  claim_id: c_45d36c88
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_CPU-only_for_argu
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:13:11Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: models must be CPU-tractable using Decision Tree, RuleFit, or scikit-learn
+  claim_id: c_6d6a903b
+  context: 'Constraint: All models must be CPU-tractable (Decision Tree, RuleFit,
+    scikit-learn). No GPU, no 8-bit/4-bit quantization, no large LMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models must be CPU-tractable (Decision Tree, RuleFit, scikit-learn).
+    No GPU, no 8-bit/4-bit quantization, no large LMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:13:46Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: compressibility_analysis.schema.yaml validates beta_coefficients, p_values,
+    trade_off_curve_points, edit_accuracy_difference, and delta_accuracy
+  claim_id: c_c66b41c2
+  context: 'T004 Create contract schemas... compressibility_analysis.schema.yaml must
+    validate statistical artifacts including: beta_coefficients, p_values, trade_off_curve_points,
+    edit_accuracy_difference, and delta_accuracy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compressibility_analysis.schema.yaml_validates_beta_coeffici
+  kind: entity_fact
+  raw_text: The compressibility_analysis.schema.yaml must validate statistical artifacts
+    including beta_coefficients, p_values, trade_off_curve_points, edit_accuracy_difference,
+    and delta_accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:14:03Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 3
+  canonical: generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_0f4a07dd
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate 5000
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:14:46Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Compute structural metrics using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_f1501d18
+  context: 'Phase 4: User Story 2. T020 [US2] Implement code/metrics/extract.py to
+    compute all structural metrics... using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_structural_metrics_using_sentence-transformers/all-M
+  kind: entity_fact
+  raw_text: Compute structural metrics (sequence entropy, tool-repetition frequency,
+    argument semantic variance) using sentence-transformers/all-MiniLM-L6-v2 CPU-only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:15:47Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_112dfbae
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate 5000
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:16:58Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_1269f121
+  context: Implementation for User Story 1 - T012 [US1] Implement code/generators/synthetic_trace.py
+    to generate 5000 multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:17:42Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_a5dbfeca
+  context: Implement code/metrics/extract.py to compute all structural metrics (sequence
+    entropy, tool-repetition frequency, argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only) for traces in data/training/ and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:17:44Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Variance defined as mean pairwise cosine distance of all argument embeddings
+  claim_id: c_52464462
+  context: 'Generate data/processed/feature_matrix.csv containing structural metrics
+    for every trace. Definition: Variance = mean pairwise cosine distance of all argument
+    embeddings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_defined_as_mean_pairwise_cosine_distance_of_all_arg
+  kind: entity_fact
+  raw_text: Variance is defined as mean pairwise cosine distance of all argument embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:18:32Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Compressibility Score calculated as RuleSetSize divided by TraceLength
+    conditioned on Fidelity threshold
+  claim_id: c_7423e1a6
+  context: Calculate 'Compressibility Score' for each trace in the held-out set as
+    RuleSetSize / TraceLength conditioned on Fidelity >= config.threshold (where Fidelity
+    is derived from the model's held-out prediction accuracy).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compressibility_Score_calculated_as_RuleSetSize_divided_by_T
+  kind: entity_fact
+  raw_text: Compressibility Score is calculated as RuleSetSize / TraceLength conditioned
+    on Fidelity >= config.threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:19:16Z'

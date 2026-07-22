@@ -1,11 +1,7 @@
-"""
-Metric extraction module for trace compressibility analysis.
-
-Implements FR-002: Compute sequence entropy, tool-repetition frequency,
-and argument semantic variance for generated synthetic traces.
-"""
 import json
 import math
+import os
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
@@ -13,234 +9,242 @@ from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from config import Config
-from utils.loaders import TraceLoader
-from utils.metrics_extract import (
-    calculate_sequence_entropy,
-    calculate_tool_repetition_frequency,
-    calculate_argument_variance,
-)
+# Ensure project root is in path for imports
+ROOT = Path(__file__).resolve().parent.parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-# Singleton for the embedding model to avoid reloading on every call
-_EMBEDDING_MODEL = None
-_MODEL_NAME = "all-MiniLM-L6-v2"
+from config import get_config
+from utils.validators import MetricsValidator
 
-def _get_embedding_model() -> SentenceTransformer:
-    """
-    Lazy load the sentence-transformers model.
-    Returns a cached instance to ensure CPU-only usage and efficiency.
-    """
-    global _EMBEDDING_MODEL
-    if _EMBEDDING_MODEL is None:
-        # Explicitly force CPU as per task constraints
-        _EMBEDDING_MODEL = SentenceTransformer(_MODEL_NAME, device="cpu")
-    return _EMBEDDING_MODEL
+# Constants
+MODEL_NAME = "all-MiniLM-L6-v2"
+DEFAULT_VARIANCE = 0.0  # Imputation default for undefined variance
 
-def _compute_semantic_variance(arguments: List[str]) -> float:
+class MetricExtractionError(Exception):
+    """Raised when metric extraction fails."""
+    pass
+
+def calculate_sequence_entropy(tool_sequence: List[str]) -> float:
     """
-    Compute the semantic variance of a list of argument strings.
-    
-    Definition: Variance = mean pairwise cosine distance of all argument embeddings.
-    
-    Args:
-        arguments: List of argument strings from the trace.
-        
-    Returns:
-        Mean pairwise cosine distance. Returns 0.0 if fewer than 2 arguments.
+    Calculate Shannon entropy of the tool sequence.
+    H = - sum(p(x) * log2(p(x)))
     """
-    if len(arguments) < 2:
+    if not tool_sequence:
         return 0.0
     
-    model = _get_embedding_model()
-    embeddings = model.encode(arguments, show_progress_bar=False)
+    counts = Counter(tool_sequence)
+    total = len(tool_sequence)
+    entropy = 0.0
     
-    n = len(embeddings)
-    total_distance = 0.0
-    count = 0
+    for count in counts.values():
+        if count > 0:
+            p = count / total
+            entropy -= p * math.log2(p)
     
-    # Calculate mean pairwise cosine distance
-    # Cosine distance = 1 - cosine_similarity
-    for i in range(n):
-        for j in range(i + 1, n):
-            # Normalize vectors for cosine similarity calculation
-            vec_i = embeddings[i]
-            vec_j = embeddings[j]
-            
-            dot_product = np.dot(vec_i, vec_j)
-            norm_i = np.linalg.norm(vec_i)
-            norm_j = np.linalg.norm(vec_j)
-            
-            if norm_i == 0 or norm_j == 0:
-                # If a vector is zero, distance is 1 (max dissimilarity)
-                cosine_similarity = 0.0
-            else:
-                cosine_similarity = dot_product / (norm_i * norm_j)
-            
-            cosine_distance = 1.0 - cosine_similarity
-            total_distance += cosine_distance
-            count += 1
+    return entropy
+
+def calculate_tool_repetition_frequency(tool_sequence: List[str]) -> float:
+    """
+    Calculate the frequency of repeated tools.
+    Defined as: (Total Length - Number of Unique Tools) / Total Length
+    Range: [0, 1], where 1 means all tools are the same, 0 means all unique.
+    """
+    if not tool_sequence:
+        return 0.0
     
-    if count == 0:
+    unique_count = len(set(tool_sequence))
+    total_count = len(tool_sequence)
+    
+    if unique_count == 0:
         return 0.0
         
-    return total_distance / count
+    return (total_count - unique_count) / total_count
 
-def extract_metrics_for_trace(trace_data: Dict[str, Any]) -> Dict[str, float]:
+def calculate_argument_variance(arguments: List[str]) -> float:
     """
-    Compute structural metrics for a single trace.
+    Calculate argument semantic variance using sentence embeddings.
+    Variance = Mean pairwise cosine distance of all argument embeddings.
+    
+    If arguments list is empty or has only one element, variance is 0.0.
+    """
+    if not arguments or len(arguments) < 2:
+        return DEFAULT_VARIANCE
+    
+    try:
+        # Load model (cached on first call)
+        model = SentenceTransformer(MODEL_NAME)
+        embeddings = model.encode(arguments, show_progress_bar=False)
+        
+        n = len(embeddings)
+        if n < 2:
+            return DEFAULT_VARIANCE
+        
+        # Calculate mean pairwise cosine distance
+        # Cosine distance = 1 - cosine_similarity
+        total_distance = 0.0
+        count = 0
+        
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Normalize vectors for cosine similarity
+                vec_i = embeddings[i]
+                vec_j = embeddings[j]
+                
+                norm_i = np.linalg.norm(vec_i)
+                norm_j = np.linalg.norm(vec_j)
+                
+                if norm_i == 0 or norm_j == 0:
+                    continue
+                
+                cosine_sim = np.dot(vec_i, vec_j) / (norm_i * norm_j)
+                cosine_dist = 1.0 - cosine_sim
+                total_distance += cosine_dist
+                count += 1
+        
+        if count == 0:
+            return DEFAULT_VARIANCE
+            
+        return total_distance / count
+        
+    except Exception as e:
+        raise MetricExtractionError(f"Failed to calculate argument variance: {e}")
+
+def extract_metrics_for_trace(trace_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract all structural metrics for a single trace.
     
     Args:
-        trace_data: Dictionary containing trace data with 'exact_tool_sequence' 
-                    and optionally 'arguments' keys.
-    
+        trace_data: Dictionary containing 'exact_tool_sequence' and 'raw_arg_variance' (or raw args)
+        
     Returns:
-        Dictionary containing computed metrics:
-        - sequence_entropy: Shannon entropy of the tool sequence
-        - tool_repetition_frequency: Frequency of tool repetitions
-        - argument_variance: Semantic variance of arguments (if available)
-        - trace_length: Number of tools in the sequence
+        Dictionary with computed metrics
     """
     tool_sequence = trace_data.get("exact_tool_sequence", [])
-    trace_length = len(tool_sequence)
-    
-    if trace_length == 0:
-        return {
-            "sequence_entropy": 0.0,
-            "tool_repetition_frequency": 0.0,
-            "argument_variance": 0.0,
-            "trace_length": 0,
-        }
-    
-    # Calculate sequence entropy
-    sequence_entropy = calculate_sequence_entropy(tool_sequence)
-    
-    # Calculate tool repetition frequency
-    tool_repetition_frequency = calculate_tool_repetition_frequency(tool_sequence)
-    
-    # Calculate argument variance if arguments are available
     arguments = trace_data.get("arguments", [])
-    if arguments:
-        argument_variance = _compute_semantic_variance(arguments)
-    else:
-        # Default to 0.0 if no arguments (imputed default as per T016)
-        argument_variance = 0.0
+    
+    # If arguments are not provided as a list, try to extract from raw_arg_variance if it's a string representation
+    if not arguments and "raw_arg_variance" in trace_data:
+        # Fallback: if raw_arg_variance is a list of strings
+        if isinstance(trace_data["raw_arg_variance"], list):
+            arguments = [str(arg) for arg in trace_data["raw_arg_variance"]]
+    
+    sequence_entropy = calculate_sequence_entropy(tool_sequence)
+    repetition_freq = calculate_tool_repetition_frequency(tool_sequence)
+    arg_variance = calculate_argument_variance(arguments)
     
     return {
-        "sequence_entropy": float(sequence_entropy),
-        "tool_repetition_frequency": float(tool_repetition_frequency),
-        "argument_variance": float(argument_variance),
-        "trace_length": trace_length,
+        "sequence_entropy": sequence_entropy,
+        "tool_repetition_frequency": repetition_freq,
+        "argument_semantic_variance": arg_variance,
+        "trace_length": len(tool_sequence)
     }
 
-def extract_metrics_from_trace_file(trace_file_path: Path) -> Optional[Dict[str, Any]]:
+def extract_metrics_from_trace_file(file_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Extract metrics from a single trace file.
+    Load a trace file and extract metrics.
     
     Args:
-        trace_file_path: Path to the trace JSON file.
-    
+        file_path: Path to the JSON trace file
+        
     Returns:
-        Dictionary containing trace_id and computed metrics, or None if file is invalid.
+        Dictionary with trace_id and metrics, or None if file is invalid
     """
     try:
-        with open(trace_file_path, "r", encoding="utf-8") as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             trace_data = json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"Error loading trace file {trace_file_path}: {e}")
+        
+        # Extract trace ID from filename or data
+        trace_id = trace_data.get("trace_id", file_path.stem)
+        
+        metrics = extract_metrics_for_trace(trace_data)
+        metrics["trace_id"] = trace_id
+        
+        return metrics
+        
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON in {file_path}: {e}", file=sys.stderr)
         return None
-    
-    trace_id = trace_data.get("trace_id", trace_file_path.stem)
-    metrics = extract_metrics_for_trace(trace_data)
-    
-    return {
-        "trace_id": trace_id,
-        **metrics,
-    }
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}", file=sys.stderr)
+        return None
 
-def process_all_traces(data_dir: Path, output_path: Path) -> List[Dict[str, Any]]:
+def process_all_traces(input_dirs: List[Path], output_path: Path) -> None:
     """
-    Process all trace files in a directory and write metrics to CSV.
+    Process all trace files in the given directories and write metrics to CSV.
     
     Args:
-        data_dir: Directory containing trace JSON files.
-        output_path: Path to write the output CSV file.
-    
-    Returns:
-        List of dictionaries containing trace metrics.
+        input_dirs: List of directories containing trace JSON files
+        output_path: Path to write the feature_matrix.csv
     """
-    config = Config()
-    loader = TraceLoader(config)
-    
-    # Use the loader to get all trace files
-    trace_files = loader.get_all_traces(data_dir)
-    
-    if not trace_files:
-        print(f"No trace files found in {data_dir}")
-        return []
+    config = get_config()
+    validator = MetricsValidator(config)
     
     all_metrics = []
-    for trace_file in trace_files:
-        metrics_data = extract_metrics_from_trace_file(trace_file)
-        if metrics_data:
-            all_metrics.append(metrics_data)
-    
-    # Write metrics to CSV
-    if all_metrics:
-        _write_metrics_to_csv(all_metrics, output_path)
-    
-    return all_metrics
-
-def _write_metrics_to_csv(metrics_list: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Write metrics list to a CSV file.
-    
-    Args:
-        metrics_list: List of dictionaries containing metrics.
-        output_path: Path to write the CSV file.
-    """
-    if not metrics_list:
-        return
+    processed_count = 0
+    failed_count = 0
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Define CSV columns
-    columns = [
-        "trace_id",
-        "sequence_entropy",
-        "tool_repetition_frequency",
-        "argument_variance",
-        "trace_length",
-    ]
+    for dir_path in input_dirs:
+        if not dir_path.exists():
+            raise FileNotFoundError(f"Input directory not found: {dir_path}")
+        
+        # Find all JSON files
+        trace_files = list(dir_path.glob("*.json"))
+        
+        for trace_file in trace_files:
+            result = extract_metrics_from_trace_file(trace_file)
+            if result:
+                # Validate against schema
+                if validator.validate_metrics(result):
+                    all_metrics.append(result)
+                    processed_count += 1
+                else:
+                    print(f"Validation failed for {trace_file}", file=sys.stderr)
+                    failed_count += 1
+            else:
+                failed_count += 1
     
-    with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=columns)
+    if processed_count == 0:
+        raise MetricExtractionError("No valid traces were processed. Check input directories.")
+    
+    # Write to CSV
+    fieldnames = ["trace_id", "sequence_entropy", "tool_repetition_frequency", 
+                 "argument_semantic_variance", "trace_length"]
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for metrics in metrics_list:
-            # Ensure all columns are present
-            row = {col: metrics.get(col, "") for col in columns}
+        for metrics in all_metrics:
+            # Ensure all fields are present
+            row = {field: metrics.get(field, 0.0) for field in fieldnames}
             writer.writerow(row)
+    
+    print(f"Processed {processed_count} traces, {failed_count} failed.")
+    print(f"Feature matrix written to {output_path}")
 
-def main() -> None:
-    """
-    Main entry point for metric extraction.
+def main():
+    """Main entry point for the metrics extraction script."""
+    config = get_config()
     
-    Reads all traces from data/raw/, computes structural metrics,
-    and writes results to data/processed/feature_matrix.csv.
-    """
-    config = Config()
+    # Define input directories based on config
+    training_dir = Path(config.data_training_path)
+    held_out_dir = Path(config.data_held_out_path)
     
-    input_dir = config.raw_data_path
-    output_path = config.processed_data_path / "feature_matrix.csv"
+    input_dirs = [d for d in [training_dir, held_out_dir] if d.exists()]
     
-    print(f"Processing traces from: {input_dir}")
-    print(f"Output metrics to: {output_path}")
+    if not input_dirs:
+        raise FileNotFoundError("No valid input directories found for trace data.")
     
-    metrics = process_all_traces(input_dir, output_path)
+    output_path = Path(config.data_processed_path) / "feature_matrix.csv"
     
-    print(f"Successfully processed {len(metrics)} traces.")
-    print(f"Metrics written to: {output_path}")
-
+    try:
+        process_all_traces(input_dirs, output_path)
+    except Exception as e:
+        print(f"Fatal error in metrics extraction: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

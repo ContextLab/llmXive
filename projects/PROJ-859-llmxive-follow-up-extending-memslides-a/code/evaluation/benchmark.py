@@ -1,186 +1,192 @@
 """
-Benchmarking Module for Agent Comparison.
-
-Runs both Baseline and Compressed agents on a held-out test set
-and generates a comparative report.
+Benchmark runner to compare BaselineAgent and CompressedAgent on the held-out test set.
+Implements FR-004: Run both agents on the held-out test set.
 """
+
 import json
 import time
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
+# Project imports based on API surface
 from config import get_config
 from utils.loaders import TraceLoader
 from agents.baseline import BaselineAgent
 from agents.compressed import CompressedAgent
 
-class BenchmarkRunner:
-    """Manages the execution of the agent comparison benchmark."""
-    
-    def __init__(self, config=None):
-        self.config = config or get_config()
-        self.baseline_agent = BaselineAgent(self.config)
-        self.compressed_agent = CompressedAgent(self.config)
-        self.loader = TraceLoader(self.config)
 
-    def load_test_set(self) -> List[Dict[str, Any]]:
-        """Loads the held-out test set from data/raw/."""
+class BenchmarkRunner:
+    """
+    Orchestrates the benchmarking of Baseline and Compressed agents.
+    """
+
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.held_out_dir = Path(config['paths']['held_out'])
+        self.output_dir = Path(config['paths']['processed'])
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Initialize agents
+        self.baseline_agent = BaselineAgent(config)
+        self.compressed_agent = CompressedAgent(config)
+
+        # Results storage
+        self.results: List[Dict[str, Any]] = []
+
+    def load_held_out_traces(self) -> List[Dict[str, Any]]:
+        """
+        Loads all traces from the held-out directory.
+        Raises FileNotFoundError if the directory is empty or missing.
+        """
+        loader = TraceLoader()
         traces = []
-        raw_dir = self.config.data_raw_path
         
-        if not raw_dir.exists():
-            raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
-        
-        session_files = list(raw_dir.glob("session_*.json"))
-        if not session_files:
-            raise ValueError(f"No session files found in {raw_dir}")
-        
-        for file_path in session_files:
+        if not self.held_out_dir.exists():
+            raise FileNotFoundError(f"Held-out directory not found: {self.held_out_dir}")
+
+        json_files = list(self.held_out_dir.glob("*.json"))
+        if not json_files:
+            raise ValueError(f"No JSON trace files found in {self.held_out_dir}")
+
+        for file_path in json_files:
             try:
-                trace = self.loader.load_trace(file_path)
-                if trace and "final_state" in trace:
-                    traces.append(trace)
+                trace = loader.load_trace(file_path)
+                traces.append(trace)
             except Exception as e:
-                # Log warning but continue processing other traces
-                print(f"Warning: Failed to load {file_path}: {e}")
-                continue
-        
-        if not traces:
-            raise ValueError("No valid traces loaded from the test set.")
+                print(f"Warning: Failed to load {file_path}: {e}", file=sys.stderr)
         
         return traces
 
-    def calculate_edit_accuracy(self, predicted: Dict[str, Any], ground_truth: Dict[str, Any]) -> float:
-        """Calculates Edit Accuracy (exact match fraction)."""
+    def run_single_trace(self, trace: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Runs a single trace against both agents and records metrics.
+        """
+        trace_id = trace.get('trace_id', str(trace.get('id', 'unknown')))
+        ground_truth = trace.get('final_state')
+
         if not ground_truth:
-            return 0.0 if not predicted else 0.0
-        if not predicted:
-            return 0.0
-        
-        # Exact match for structured objects
-        if predicted == ground_truth:
-            return 1.0
-        
-        # Fallback: key overlap ratio for partial credit if exact match fails
-        p_keys = set(predicted.keys())
-        g_keys = set(ground_truth.keys())
-        if not p_keys or not g_keys:
-            return 0.0
-        
-        matching = len(p_keys.intersection(g_keys))
-        return matching / len(g_keys)
+            raise ValueError(f"Trace {trace_id} missing 'final_state' ground truth.")
 
-    def run_benchmark(self) -> Dict[str, Any]:
-        """
-        Executes the benchmark and returns the full result dictionary.
-        Measures Edit Accuracy and Retrieval Latency for both agents.
-        """
-        test_set = self.load_test_set()
-        
-        results = []
-        baseline_latencies = []
-        compressed_latencies = []
-        baseline_accuracies = []
-        compressed_accuracies = []
+        # --- Baseline Agent ---
+        start_time = time.perf_counter()
+        try:
+            baseline_result = self.baseline_agent.process(trace)
+        except Exception as e:
+            baseline_result = {'final_state': None, 'error': str(e)}
+        baseline_latency = time.perf_counter() - start_time
 
-        for trace in test_set:
-            session_id = trace.get("session_id", "unknown")
-            gt_state = trace.get("final_state", {})
-            
-            if not gt_state:
-                print(f"Warning: Skipping {session_id} due to missing final_state.")
-                continue
+        # --- Compressed Agent ---
+        start_time = time.perf_counter()
+        try:
+            compressed_result = self.compressed_agent.process(trace)
+        except Exception as e:
+            compressed_result = {'final_state': None, 'error': str(e)}
+        compressed_latency = time.perf_counter() - start_time
 
-            # Baseline Agent
-            t0 = time.perf_counter()
-            try:
-                pred_base, _ = self.baseline_agent.process_trace(trace)
-                lat_base = time.perf_counter() - t0
-                acc_base = self.calculate_edit_accuracy(pred_base, gt_state)
-            except Exception as e:
-                print(f"Error running baseline on {session_id}: {e}")
-                lat_base = -1.0
-                acc_base = 0.0
-                pred_base = {}
-            
-            baseline_latencies.append(lat_base)
-            baseline_accuracies.append(acc_base)
-            
-            # Compressed Agent
-            t1 = time.perf_counter()
-            try:
-                pred_comp, _ = self.compressed_agent.process_trace(trace)
-                lat_comp = time.perf_counter() - t1
-                acc_comp = self.calculate_edit_accuracy(pred_comp, gt_state)
-            except Exception as e:
-                print(f"Error running compressed on {session_id}: {e}")
-                lat_comp = -1.0
-                acc_comp = 0.0
-                pred_comp = {}
-            
-            compressed_latencies.append(lat_comp)
-            compressed_accuracies.append(acc_comp)
-            
-            results.append({
-                "session_id": session_id,
-                "baseline": {"accuracy": acc_base, "latency": lat_base},
-                "compressed": {"accuracy": acc_comp, "latency": lat_comp}
-            })
-
-        # Aggregate Statistics
-        def safe_avg(vals):
-            valid = [v for v in vals if v >= 0]
-            return sum(valid) / len(valid) if valid else 0.0
+        # Calculate Edit Accuracy (Exact Match for this benchmark scope)
+        # Note: FR-005 specifies Edit Accuracy. For this implementation, 
+        # we assume exact structural match for simplicity unless a diff lib is requested.
+        # A more complex edit distance could be implemented if ground_truth and result are complex objects.
+        baseline_acc = 1.0 if baseline_result.get('final_state') == ground_truth else 0.0
+        compressed_acc = 1.0 if compressed_result.get('final_state') == ground_truth else 0.0
 
         return {
-            "metadata": {
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "num_traces": len(test_set),
-                "baseline_agent": self.baseline_agent.name,
-                "compressed_agent": self.compressed_agent.name
-            },
-            "aggregates": {
-                "baseline": {
-                    "edit_accuracy": safe_avg(baseline_accuracies),
-                    "avg_retrieval_latency": safe_avg(baseline_latencies)
-                },
-                "compressed": {
-                    "edit_accuracy": safe_avg(compressed_accuracies),
-                    "avg_retrieval_latency": safe_avg(compressed_latencies)
-                }
-            },
-            "per_trace_results": results
+            "trace_id": trace_id,
+            "baseline_accuracy": baseline_acc,
+            "baseline_latency_ms": baseline_latency * 1000,
+            "compressed_accuracy": compressed_acc,
+            "compressed_latency_ms": compressed_latency * 1000,
+            "baseline_error": baseline_result.get('error'),
+            "compressed_error": compressed_result.get('error')
         }
 
-    def save_report(self, report: Dict[str, Any], output_path: Optional[Path] = None):
-        """Saves the benchmark report to JSON."""
-        if output_path is None:
-            output_path = self.config.data_processed_path / "benchmark_results.json"
+    def run_benchmark(self) -> List[Dict[str, Any]]:
+        """
+        Runs the benchmark on all held-out traces.
+        """
+        print(f"Starting benchmark on held-out set: {self.held_out_dir}")
+        traces = self.load_held_out_traces()
+        print(f"Loaded {len(traces)} traces.")
+
+        for i, trace in enumerate(traces):
+            trace_id = trace.get('trace_id', 'unknown')
+            print(f"Processing [{i+1}/{len(traces)}]: {trace_id}")
+            try:
+                result = self.run_single_trace(trace)
+                self.results.append(result)
+            except Exception as e:
+                print(f"Error processing {trace_id}: {e}", file=sys.stderr)
+                # Log failure but continue with next trace
+                self.results.append({
+                    "trace_id": trace_id,
+                    "baseline_accuracy": 0.0,
+                    "baseline_latency_ms": 0.0,
+                    "compressed_accuracy": 0.0,
+                    "compressed_latency_ms": 0.0,
+                    "baseline_error": str(e),
+                    "compressed_error": str(e)
+                })
+
+        return self.results
+
+    def save_results(self):
+        """
+        Saves the benchmark results to a JSON file.
+        """
+        if not self.results:
+            raise RuntimeError("No results to save. Run benchmark first.")
+
+        output_path = self.output_dir / "benchmark_results.json"
+        with open(output_path, 'w') as f:
+            json.dump(self.results, f, indent=2)
         
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2)
+        print(f"Benchmark results saved to: {output_path}")
+        return output_path
+
 
 def main():
-    """Entry point for running the full benchmark."""
+    """
+    Entry point for the benchmark script.
+    """
     config = get_config()
+    
+    # Dependency check: Ensure global rules exist (T026b output)
+    global_rules_path = Path(config['paths']['processed']) / "rules" / "global_rules.json"
+    if not global_rules_path.exists():
+        raise FileNotFoundError(
+            f"Global rules file not found at {global_rules_path}. "
+            "Please ensure T026b (Rule Induction/Aggregation) has completed successfully."
+        )
+
+    # Dependency check: Ensure held-out data exists (T012 output)
+    held_out_path = Path(config['paths']['held_out'])
+    if not held_out_path.exists() or not list(held_out_path.glob("*.json")):
+        raise FileNotFoundError(
+            f"Held-out data not found at {held_out_path}. "
+            "Please ensure T012 (Synthetic Trace Generation) has completed successfully."
+        )
+
     runner = BenchmarkRunner(config)
-    
-    print("Running benchmark...")
-    try:
-        report = runner.run_benchmark()
-    except (FileNotFoundError, ValueError) as e:
-        print(f"Benchmark failed: {e}")
-        return
-    
-    print(f"Benchmark complete. Processed {report['metadata']['num_traces']} traces.")
-    print(f"Baseline Accuracy: {report['aggregates']['baseline']['edit_accuracy']:.4f}")
-    print(f"Compressed Accuracy: {report['aggregates']['compressed']['edit_accuracy']:.4f}")
-    print(f"Baseline Avg Latency: {report['aggregates']['baseline']['avg_retrieval_latency']:.6f}s")
-    print(f"Compressed Avg Latency: {report['aggregates']['compressed']['avg_retrieval_latency']:.6f}s")
-    
-    runner.save_report(report)
-    print(f"Report saved to {config.data_processed_path / 'benchmark_results.json'}")
+    runner.run_benchmark()
+    runner.save_results()
+
+    # Print summary
+    if runner.results:
+        total = len(runner.results)
+        baseline_accs = [r['baseline_accuracy'] for r in runner.results if r.get('baseline_error') is None]
+        compressed_accs = [r['compressed_accuracy'] for r in runner.results if r.get('compressed_error') is None]
+        
+        avg_baseline = sum(baseline_accs) / len(baseline_accs) if baseline_accs else 0.0
+        avg_compressed = sum(compressed_accs) / len(compressed_accs) if compressed_accs else 0.0
+        
+        print(f"\n--- Benchmark Summary ---")
+        print(f"Total Traces: {total}")
+        print(f"Baseline Avg Accuracy: {avg_baseline:.4f}")
+        print(f"Compressed Avg Accuracy: {avg_compressed:.4f}")
+        print(f"Accuracy Delta (Baseline - Compressed): {avg_baseline - avg_compressed:.4f}")
+
 
 if __name__ == "__main__":
     main()

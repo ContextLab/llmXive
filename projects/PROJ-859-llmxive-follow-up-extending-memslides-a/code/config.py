@@ -1,156 +1,116 @@
 """
-Configuration management for llmXive research pipeline.
-Provides a unified interface for loading settings from YAML and environment variables.
+Configuration management for llmXive project.
+
+All configuration is defined here to ensure a single source of truth.
 """
+
 import os
 import secrets
 from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
+
 class Config:
-    """
-    Central configuration class.
-    Loads settings from code/config.yaml and overrides with environment variables.
-    """
+    """Centralized configuration class."""
 
-    _instance: Optional['Config'] = None
-
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[Path] = None):
         """
         Initialize configuration.
-        
+
         Args:
-            config_path: Path to config.yaml. Defaults to 'code/config.yaml'.
+            config_path: Optional path to YAML config file (not used per constraints)
         """
-        if config_path is None:
-            # Determine project root relative to this file
-            current_dir = Path(__file__).parent
-            config_path = current_dir / "config.yaml"
-        
-        self.config_path = Path(config_path)
-        self._config: Dict[str, Any] = {}
-        self._load_config()
-        self._load_env_overrides()
+        # Project root
+        self.project_root = Path(__file__).resolve().parent.parent
 
-    def _load_config(self) -> None:
-        """Load base configuration from YAML file."""
-        if not self.config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
-        
-        with open(self.config_path, 'r') as f:
-            self._config = yaml.safe_load(f)
+        # Random seed for reproducibility
+        self.seed = 42
 
-    def _load_env_overrides(self) -> None:
-        """Override configuration with environment variables."""
-        # Map environment variables to config keys
-        env_mappings = {
-            'RANDOM_SEED': ('project', 'seed'),
-            'DATA_RAW': ('paths', 'data_raw'),
-            'DATA_PROCESSED': ('paths', 'data_processed'),
-            'DATA_HELD_OUT': ('paths', 'data_held_out'),
-            'CONTRACTS_ROOT': ('paths', 'contracts'),
-            'RULE_INDUCTION_MAX_DEPTH': ('rule_induction', 'max_depth'),
-            'COMPRESSION_FIDELITY_THRESHOLD': ('rule_induction', 'fidelity_threshold'),
-            'SENTENCE_TRANSFORMER_MODEL': ('metrics', 'sentence_transformer_model'),
-            'EMBEDDING_BATCH_SIZE': ('metrics', 'embedding_batch_size'),
-            'EMBEDDING_DEVICE': ('metrics', 'embedding_device'),
-            'LOG_LEVEL': ('logging', 'level'),
+        # Paths
+        self.paths = {
+            'raw': self.project_root / 'data' / 'raw',
+            'training': self.project_root / 'data' / 'training',
+            'held_out': self.project_root / 'data' / 'held_out',
+            'processed': self.project_root / 'data' / 'processed',
+            'processed_rules': self.project_root / 'data' / 'processed' / 'rules',
+            'figures': self.project_root / 'figures',
+            'contracts': self.project_root / 'contracts',
         }
 
-        for env_var, config_keys in env_mappings.items():
-            value = os.getenv(env_var)
-            if value is not None:
-                # Convert types if necessary
-                if config_keys[-1] == 'seed' or config_keys[-1] == 'max_depth' or config_keys[-1] == 'embedding_batch_size':
-                    value = int(value)
-                elif config_keys[-1] == 'fidelity_threshold':
-                    value = float(value)
-                
-                self._set_nested_value(self._config, config_keys, value)
+        # Thresholds and parameters
+        self.thresholds = {
+            'fidelity': 0.9,
+            'min_support': 0.1,
+            'max_depth': 10,
+        }
 
-    def _set_nested_value(self, d: Dict, keys: tuple, value: Any) -> None:
-        """Set a value in a nested dictionary using a tuple of keys."""
-        for key in keys[:-1]:
-            if key not in d:
-                d[key] = {}
-            d = d[key]
-        d[keys[-1]] = value
+        # Sweep configuration for T027a
+        self.sweep = {
+            'method': 'min_support',
+            'thresholds': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        }
 
-    def get(self, *keys: str, default: Any = None) -> Any:
-        """
-        Get a configuration value by nested key path.
-        
-        Args:
-            *keys: Nested keys (e.g., 'project', 'seed')
-            default: Default value if key not found
-        
-        Returns:
-            The configuration value or default
-        """
-        current = self._config
-        for key in keys:
-            if isinstance(current, dict) and key in current:
-                current = current[key]
+        # Model parameters
+        self.model = {
+            'max_depth': 10,
+            'min_samples_split': 5,
+            'min_samples_leaf': 2,
+        }
+
+        # Embedding model
+        self.embedding_model = 'sentence-transformers/all-MiniLM-L6-v2'
+
+        # Ensure directories exist
+        self._ensure_directories()
+
+    def _ensure_directories(self):
+        """Create all required directories."""
+        for path in self.paths.values():
+            path.mkdir(parents=True, exist_ok=True)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get configuration value by dot-notation key."""
+        keys = key.split('.')
+        value = self
+        for k in keys:
+            if isinstance(value, dict):
+                value = value.get(k, default)
+            elif hasattr(value, k):
+                value = getattr(value, k)
             else:
                 return default
-        return current
+        return value
 
-    def get_paths(self) -> Dict[str, Path]:
-        """
-        Get all configured paths as Path objects.
-        
-        Returns:
-            Dictionary of path names to Path objects
-        """
-        paths = {}
-        path_keys = ['data_raw', 'data_processed', 'data_held_out', 'contracts']
-        
-        for key in path_keys:
-            raw_path = self.get('paths', key)
-            if raw_path:
-                # Resolve relative to project root (parent of code/)
-                project_root = self.config_path.parent.parent
-                paths[key] = project_root / raw_path
-            else:
-                paths[key] = None
-        
-        return paths
 
-    def get_seed(self) -> int:
-        """Get the random seed for reproducibility."""
-        return self.get('project', 'seed', default=42)
+_config_instance: Optional[Config] = None
 
-    def get_rule_induction_params(self) -> Dict[str, Any]:
-        """Get rule induction model parameters."""
-        return {
-            'max_depth': self.get('rule_induction', 'max_depth', default=3),
-            'min_samples_split': self.get('rule_induction', 'min_samples_split', default=2),
-            'min_samples_leaf': self.get('rule_induction', 'min_samples_leaf', default=1),
-            'fidelity_threshold': self.get('rule_induction', 'fidelity_threshold', default=0.90),
-        }
 
-    def get_embedding_config(self) -> Dict[str, Any]:
-        """Get sentence transformer embedding configuration."""
-        return {
-            'model': self.get('metrics', 'sentence_transformer_model', default='all-MiniLM-L6-v2'),
-            'batch_size': self.get('metrics', 'embedding_batch_size', default=32),
-            'device': self.get('metrics', 'embedding_device', default='cpu'),
-        }
-
-    def __repr__(self) -> str:
-        return f"Config(config_path={self.config_path})"
-
-def get_config(config_path: Optional[str] = None) -> Config:
+def get_config() -> Dict[str, Any]:
     """
-    Get or create the global Config instance.
-    
-    Args:
-        config_path: Optional path to config file
-    
+    Get configuration as a dictionary.
+
     Returns:
-        Config instance
+        Configuration dictionary
     """
-    if Config._instance is None:
-        Config._instance = Config(config_path)
-    return Config._instance
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+
+    # Convert to dictionary for compatibility
+    return {
+        'seed': _config_instance.seed,
+        'paths': {
+            'raw': str(_config_instance.paths['raw']),
+            'training': str(_config_instance.paths['training']),
+            'held_out': str(_config_instance.paths['held_out']),
+            'processed': str(_config_instance.paths['processed']),
+            'processed_rules': str(_config_instance.paths['processed_rules']),
+            'figures': str(_config_instance.paths['figures']),
+            'contracts': str(_config_instance.paths['contracts']),
+        },
+        'thresholds': _config_instance.thresholds,
+        'sweep': _config_instance.sweep,
+        'model': _config_instance.model,
+        'embedding_model': _config_instance.embedding_model,
+    }

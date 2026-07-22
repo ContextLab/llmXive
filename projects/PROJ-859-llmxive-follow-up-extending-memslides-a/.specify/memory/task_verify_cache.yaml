@@ -19,18 +19,47 @@ T012:
     incomplete (truncated) and contains no logic to write `session_{uuid}.json` files
     with the required `exact_tool_sequence` and `raw_arg_variance` fields, nor does
     it enforce a fixed random seed by default. These essential deliverables are missing.
-T013:
+T020:
+  c: false
+  h: ef4a14b0eb402218227fcc5ba302633638a4a7857b6be843d94e89946b45eb2d
+  r: The repository contains a partially shown `code/metrics/extract.py`, but the
+    required output file `data/processed/feature_matrix.csv` is absent, so the core
+    deliverable of generating the feature matrix was not produced. Additionally, the
+    shown portion of the script ends abruptly, suggesting the implementation may be
+    incomplete. The missing CSV must be created for the task to be considered complete.
+T027a:
+  c: false
+  h: 8e7e42517b1b7f6486914aa542f275c4d9cd363030f576822fbf584edf4e0526
+  r: The `sweep_thresholds.py` script is present but the provided excerpt shows only
+    loading and pruning helpers; there is no implementation that iterates thresholds,
+    writes compressed rule sets to `data/processed/rules/sweeps/`, or creates the
+    required `data/processed/sweep_config.json` (the file is missing). Hence the deliverables
+    are not fully realized.
+T027b:
+  c: false
+  h: 5e6471d35941c186d3a1509d3a301e0bc091574721f0225419b15eaf9b7334ca
+  r: "The required output file `data/processed/trade_off_curve.csv` does not exist,\
+    \ and the provided `calculate_compression_ratio.py` is only partially shown (truncated)\
+    \ with no evidence that it actually writes the CSV. Without the generated CSV\
+    \ mapping `threshold`, `compression_ratio`, and `fidelity_loss`, the task\u2019\
+    s deliverable is not satisfied."
+T031:
+  c: false
+  h: f1a91175f13356520b4880816491db887dcad3d6f3df1a86ca589405c4857b62
+  r: The `code/agents/compressed.py` file is incomplete (truncated at the end of the
+    `_apply_rules` method) and the required `data/processed/rules/global_rules.json`
+    does not exist, so the agent cannot load the global rule set as the task demands.
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `synthetic_trace.py` script or any evidence of its existence is provided,
-    and there is no demonstration that the script generates traces with varied sequence
-    lengths, tool types, and argument variance as required. The task lacks the necessary
-    artifact to verify compliance.
-T014:
+  r: No artifact containing the measured Edit Accuracy values (or a script/report
+    that computes them) was provided. The claim lacks any data, code, or results showing
+    the fraction of edits matching ground truth for the two agents, so the requirement
+    is not satisfied.
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or example trace files were provided showing that the
-    `exact_tool_sequence` and `raw_arg_variance` fields are actually recorded in trace
-    artifacts. Without such artifacts, we cannot confirm that the required logic was
-    implemented. The next implementer must supply the modified tracing module and
-    sample trace outputs that contain the new fields.
+  r: "The implementer supplied only a high\u2011level feature specification and user\
+    \ stories; there is no concrete artifact (e.g., latency logs, CSV/table, benchmark\
+    \ report) showing the measured \u201Ctime to context\u2011ready\u201D for either\
+    \ agent. Consequently the required retrieval\u2011latency data is missing."

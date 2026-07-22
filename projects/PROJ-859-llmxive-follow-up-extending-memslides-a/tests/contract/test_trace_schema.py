@@ -1,95 +1,123 @@
-"""Contract tests for trace schema validation."""
-
+"""
+Contract test for generated trace schema.
+Validates output of T012 (synthetic trace generation).
+"""
 import json
 import pytest
 from pathlib import Path
-from code.contracts import validate_trace_artifact, validate_json_file
+import sys
 
-# Valid trace artifact for testing
-VALID_TRACE = {
-    "session_id": "123e4567-e89b-12d3-a456-426614174000",
-    "timestamp": "2023-10-01T12:00:00Z",
-    "tool_sequence": [
-        {
-            "tool_name": "create_slide",
-            "arguments": {"title": "Intro", "index": 0}
-        },
-        {
-            "tool_name": "edit_text",
-            "arguments": {"slide_id": 0, "text": "Hello World"}
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+try:
+    from utils.validators import TraceValidator
+except ImportError:
+    from code.utils.validators import TraceValidator
+
+
+class TestTraceSchemaValidation:
+    """Tests for trace schema compliance."""
+    
+    def setup_method(self):
+        self.validator = TraceValidator()
+    
+    def test_valid_trace(self):
+        """Test that a valid trace passes validation."""
+        valid_trace = {
+            'exact_tool_sequence': ['edit_slide', 'add_text', 'format_text'],
+            'tool_calls': [
+                {
+                    'name': 'edit_slide',
+                    'arguments': {'slide_id': 1, 'content': 'Hello'}
+                },
+                {
+                    'name': 'add_text',
+                    'arguments': {'text': 'World', 'position': (10, 10)}
+                },
+                {
+                    'name': 'format_text',
+                    'arguments': {'bold': True}
+                }
+            ],
+            'session_id': 'test-001',
+            'raw_arg_variance': 0.25
         }
-    ],
-    "final_state": {
-        "slides": [
-            {"slide_id": 0, "title": "Intro", "content": ["Hello World"]}
-        ]
-    },
-    "metadata": {
-        "seed": 42,
-        "sequence_length": 2,
-        "exact_tool_sequence": ["create_slide", "edit_text"],
-        "raw_arg_variance": 0.5
-    }
-}
-
-INVALID_TRACE_MISSING_FIELD = {
-    "session_id": "123e4567-e89b-12d3-a456-426614174000",
-    "tool_sequence": [],
-    "final_state": {"slides": []},
-    "metadata": {}
-}
-
-INVALID_TRACE_BAD_ID = {
-    "session_id": "not-a-uuid",
-    "timestamp": "2023-10-01T12:00:00Z",
-    "tool_sequence": [],
-    "final_state": {"slides": []},
-    "metadata": {"seed": 1, "sequence_length": 0, "exact_tool_sequence": [], "raw_arg_variance": 0.0}
-}
-
-def test_validate_valid_trace():
-    """Test that a valid trace passes validation."""
-    is_valid, error = validate_trace_artifact(VALID_TRACE)
-    assert is_valid is True
-    assert error is None
-
-def test_validate_missing_field():
-    """Test that a trace missing a required field fails."""
-    is_valid, error = validate_trace_artifact(INVALID_TRACE_MISSING_FIELD)
-    assert is_valid is False
-    assert error is not None
-    assert "timestamp" in error or "required" in error
-
-def test_validate_bad_session_id():
-    """Test that a trace with an invalid session ID fails."""
-    is_valid, error = validate_trace_artifact(INVALID_TRACE_BAD_ID)
-    assert is_valid is False
-    assert error is not None
-    assert "pattern" in error or "uuid" in error.lower()
-
-def test_validate_json_file_valid(tmp_path):
-    """Test validation of a valid JSON file."""
-    file_path = tmp_path / "valid_trace.json"
-    with open(file_path, 'w') as f:
-        json.dump(VALID_TRACE, f)
+        
+        is_valid, errors = self.validator.validate(valid_trace)
+        
+        assert is_valid, f"Valid trace failed validation: {errors}"
+        assert len(errors) == 0
     
-    is_valid, error = validate_json_file(file_path, "trace.schema.yaml")
-    assert is_valid is True
-    assert error is None
-
-def test_validate_json_file_invalid(tmp_path):
-    """Test validation of an invalid JSON file."""
-    file_path = tmp_path / "invalid_trace.json"
-    with open(file_path, 'w') as f:
-        json.dump(INVALID_TRACE_MISSING_FIELD, f)
+    def test_missing_required_field(self):
+        """Test that missing required fields are detected."""
+        invalid_trace = {
+            'exact_tool_sequence': ['edit_slide'],
+            # Missing tool_calls
+        }
+        
+        is_valid, errors = self.validator.validate(invalid_trace)
+        
+        assert not is_valid
+        assert any('tool_calls' in error for error in errors)
     
-    is_valid, error = validate_json_file(file_path, "trace.schema.yaml")
-    assert is_valid is False
-    assert error is not None
-
-def test_validate_json_file_not_found():
-    """Test validation of a non-existent file."""
-    file_path = Path("/non/existent/path.json")
-    is_valid, error = validate_json_file(file_path, "trace.schema.yaml")
-    assert is_valid is False
-    assert "not found" in error.lower() or "File not found" in error
+    def test_invalid_tool_sequence_type(self):
+        """Test that non-list tool sequences are rejected."""
+        invalid_trace = {
+            'exact_tool_sequence': 'not_a_list',
+            'tool_calls': []
+        }
+        
+        is_valid, errors = self.validator.validate(invalid_trace)
+        
+        assert not is_valid
+        assert any('exact_tool_sequence' in error for error in errors)
+    
+    def test_invalid_tool_call_structure(self):
+        """Test that invalid tool call structures are detected."""
+        invalid_trace = {
+            'exact_tool_sequence': ['edit_slide'],
+            'tool_calls': [
+                {'name': 'edit_slide'}  # Missing arguments
+            ]
+        }
+        
+        is_valid, errors = self.validator.validate(invalid_trace)
+        
+        assert not is_valid
+        assert any('arguments' in error for error in errors)
+    
+    def test_empty_tool_sequence(self):
+        """Test that empty tool sequences are rejected (minItems: 1)."""
+        invalid_trace = {
+            'exact_tool_sequence': [],
+            'tool_calls': []
+        }
+        
+        is_valid, errors = self.validator.validate(invalid_trace)
+        
+        assert not is_valid
+        assert any('minItems' in error or 'empty' in error.lower() for error in errors) or len(errors) > 0
+    
+    def test_trace_from_generated_data(self):
+        """Test validation against actual generated trace files."""
+        training_dir = Path('data/training')
+        
+        if not training_dir.exists():
+            pytest.skip("Training directory not found, skipping integration test")
+        
+        json_files = list(training_dir.glob("*.json"))
+        
+        if not json_files:
+            pytest.skip("No JSON files found in training directory")
+        
+        # Test first 5 files
+        for json_file in json_files[:5]:
+            try:
+                with open(json_file, 'r') as f:
+                    trace_data = json.load(f)
+                
+                is_valid, errors = self.validator.validate(trace_data)
+                
+                assert is_valid, f"File {json_file} failed validation: {errors}"
+            except json.JSONDecodeError:
+                pytest.fail(f"Invalid JSON in {json_file}")

@@ -1,245 +1,296 @@
 """
-Module to measure and record Edit Accuracy for Baseline and Compressed agents.
+Measure Edit Accuracy for Baseline and Compressed agents.
 
-Edit Accuracy is defined as the fraction of edits matching the ground truth
-using exact match on structured slide objects.
+Edit Accuracy is defined as the fraction of edits matching ground truth.
+Method: Exact match on structured slide objects.
 
-FR-005 Implementation.
+This module implements T033: Measure and record Edit Accuracy for both agents.
 """
+
 import json
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-
 from config import get_config
 from utils.loaders import TraceLoader
-from agents.baseline import BaselineAgent
-from agents.compressed import CompressedAgent
-
 
 class EditAccuracyMeasurer:
     """
-    Measures Edit Accuracy for agents by comparing their output slide states
-    against ground truth slide states from traces.
+    Measures Edit Accuracy for agent outputs against ground truth traces.
+    
+    Edit Accuracy = (Number of exact matches between predicted and ground truth slides) 
+                  / (Total number of slides in ground truth)
     """
-
+    
     def __init__(self, config: Dict[str, Any]):
-        self.config = config
-        self.trace_loader = TraceLoader(config)
-        self.baseline_agent = BaselineAgent(config)
-        self.compressed_agent = CompressedAgent(config)
-
-    def _exact_match_slides(self, predicted: Dict[str, Any], ground_truth: Dict[str, Any]) -> bool:
         """
-        Perform exact match comparison between two slide state dictionaries.
+        Initialize the measurer with configuration.
         
         Args:
-            predicted: The slide state produced by an agent.
-            ground_truth: The ground truth slide state from the trace.
-            
-        Returns:
-            True if the structures and values match exactly, False otherwise.
+            config: Configuration dictionary containing paths and parameters.
         """
-        # Serialize to JSON for deep comparison to handle nested structures
-        # This ensures order-independent comparison for dicts if needed, 
-        # but standard JSON dumps preserves structure for exact match.
-        pred_str = json.dumps(predicted, sort_keys=True)
-        truth_str = json.dumps(ground_truth, sort_keys=True)
-        return pred_str == truth_str
-
-    def measure_single_trace(
+        self.config = config
+        self.loader = TraceLoader(config)
+        
+    def _normalize_slide(self, slide: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Normalize a slide object for comparison.
+        
+        Args:
+            slide: The slide dictionary to normalize.
+        
+        Returns:
+            Normalized slide dictionary.
+        """
+        # Create a normalized copy with sorted keys for consistent comparison
+        normalized = {}
+        for key in sorted(slide.keys()):
+            value = slide[key]
+            if isinstance(value, dict):
+                normalized[key] = self._normalize_slide(value)
+            elif isinstance(value, list):
+                # Sort lists of dicts by a stable key if possible
+                if value and isinstance(value[0], dict):
+                    normalized[key] = sorted(value, key=lambda x: tuple(sorted(x.items())))
+                else:
+                    normalized[key] = sorted(value) if all(isinstance(x, (str, int, float)) for x in value) else value
+            else:
+                normalized[key] = value
+        return normalized
+    
+    def _slides_match(self, predicted: Dict[str, Any], ground_truth: Dict[str, Any]) -> bool:
+        """
+        Check if two slide objects match exactly.
+        
+        Args:
+            predicted: The predicted slide.
+            ground_truth: The ground truth slide.
+        
+        Returns:
+            True if slides match exactly, False otherwise.
+        """
+        return self._normalize_slide(predicted) == self._normalize_slide(ground_truth)
+    
+    def calculate_edit_accuracy_for_trace(
         self, 
         trace_id: str, 
-        trace_data: Dict[str, Any]
-    ) -> Tuple[str, float, float, Optional[Dict], Optional[Dict], float, float]:
+        predicted_slides: List[Dict[str, Any]], 
+        ground_truth_slides: List[Dict[str, Any]]
+    ) -> Tuple[float, int, int]:
         """
-        Run both agents on a single trace and measure their edit accuracy.
+        Calculate edit accuracy for a single trace.
         
         Args:
-            trace_id: Unique identifier for the trace.
-            trace_data: The full trace dictionary containing tool sequence and ground truth.
-            
+            trace_id: The identifier for the trace.
+            predicted_slides: List of predicted slide objects.
+            ground_truth_slides: List of ground truth slide objects.
+        
         Returns:
-            Tuple of:
-            - trace_id
-            - baseline_accuracy (0.0 or 1.0)
-            - compressed_accuracy (0.0 or 1.0)
-            - baseline_output (dict or None)
-            - compressed_output (dict or None)
-            - baseline_latency (seconds)
-            - compressed_latency (seconds)
+            Tuple of (accuracy, matches, total).
         """
-        # Extract ground truth slide state
-        # The trace structure typically has a 'final_state' or similar key
-        # based on the synthetic generation schema.
-        ground_truth = trace_data.get('final_state') or trace_data.get('ground_truth_slide')
+        if not ground_truth_slides:
+            return 0.0, 0, 0
         
-        if ground_truth is None:
-            # Fallback: try to find a key containing 'state' or 'slide'
-            for key in trace_data:
-                if 'state' in key.lower() or 'slide' in key.lower():
-                    ground_truth = trace_data[key]
-                    break
+        matches = 0
+        total = len(ground_truth_slides)
         
-        if ground_truth is None:
-            raise ValueError(f"Trace {trace_id} missing ground truth slide state.")
-
-        # --- Baseline Agent ---
-        start_time = time.perf_counter()
-        baseline_output = self.baseline_agent.run(trace_data)
-        baseline_latency = time.perf_counter() - start_time
-
-        baseline_accuracy = 0.0
-        if baseline_output and 'final_state' in baseline_output:
-            baseline_accuracy = 1.0 if self._exact_match_slides(
-                baseline_output['final_state'], ground_truth
-            ) else 0.0
-        elif baseline_output and isinstance(baseline_output, dict):
-            # If the agent returns the state directly without a wrapper
-            baseline_accuracy = 1.0 if self._exact_match_slides(
-                baseline_output, ground_truth
-            ) else 0.0
-
-        # --- Compressed Agent ---
-        start_time = time.perf_counter()
-        compressed_output = self.compressed_agent.run(trace_data)
-        compressed_latency = time.perf_counter() - start_time
-
-        compressed_accuracy = 0.0
-        if compressed_output and 'final_state' in compressed_output:
-            compressed_accuracy = 1.0 if self._exact_match_slides(
-                compressed_output['final_state'], ground_truth
-            ) else 0.0
-        elif compressed_output and isinstance(compressed_output, dict):
-            compressed_accuracy = 1.0 if self._exact_match_slides(
-                compressed_output, ground_truth
-            ) else 0.0
-
-        return (
-            trace_id,
-            baseline_accuracy,
-            compressed_accuracy,
-            baseline_output,
-            compressed_output,
-            baseline_latency,
-            compressed_latency
-        )
-
-    def measure_all_traces(
+        # Compare predicted slides to ground truth
+        # We align by index, assuming the agent produces slides in the same order
+        for i, gt_slide in enumerate(ground_truth_slides):
+            if i < len(predicted_slides):
+                pred_slide = predicted_slides[i]
+                if self._slides_match(pred_slide, gt_slide):
+                    matches += 1
+            else:
+                # Missing predicted slide counts as non-match
+                break
+        
+        accuracy = matches / total if total > 0 else 0.0
+        return accuracy, matches, total
+    
+    def measure_for_agent(
         self, 
-        trace_ids: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
+        agent_name: str, 
+        held_out_dir: Path,
+        results_dir: Path
+    ) -> Dict[str, Any]:
         """
-        Measure edit accuracy for all traces in the dataset.
+        Measure edit accuracy for an agent across all held-out traces.
         
         Args:
-            trace_ids: Optional list of specific trace IDs to process.
-                       If None, processes all available traces.
-                       
-        Returns:
-            List of dictionaries containing accuracy and latency metrics.
-        """
-        results = []
+            agent_name: Name of the agent ('baseline' or 'compressed').
+            held_out_dir: Directory containing held-out trace files.
+            results_dir: Directory to save results.
         
-        if trace_ids is None:
-            # Load all traces from the raw data directory
-            trace_files = self.trace_loader.list_traces()
-            trace_ids = [Path(f).stem for f in trace_files]
+        Returns:
+            Dictionary containing accuracy metrics.
+        """
+        config = get_config()
+        trace_loader = TraceLoader(config)
+        
+        # Load all held-out traces
+        traces = list(trace_loader.load_traces(held_out_dir))
+        
+        if not traces:
+            raise ValueError(f"No traces found in {held_out_dir}")
+        
+        results = []
+        total_matches = 0
+        total_slides = 0
+        
+        for trace in traces:
+            trace_id = trace.get('trace_id', str(trace.get('id', '')))
+            
+            # Get ground truth slides
+            ground_truth_slides = trace.get('final_state', {}).get('slides', [])
+            
+            # Get predicted slides from agent output
+            # The agent output should be stored in the results directory
+            agent_output_path = results_dir / f"{agent_name}_{trace_id}.json"
+            
+            if not agent_output_path.exists():
+                # Try alternative naming
+                agent_output_path = results_dir / f"{agent_name}_output_{trace_id}.json"
+            
+            if not agent_output_path.exists():
+                # If agent output doesn't exist, we need to run the agent
+                # This is a fallback - normally agent outputs should exist
+                raise FileNotFoundError(
+                    f"Agent output not found for {trace_id}: {agent_output_path}"
+                )
+            
+            with open(agent_output_path, 'r') as f:
+                agent_output = json.load(f)
+            
+            predicted_slides = agent_output.get('final_state', {}).get('slides', [])
+            
+            # Calculate accuracy for this trace
+            accuracy, matches, total = self.calculate_edit_accuracy_for_trace(
+                trace_id, predicted_slides, ground_truth_slides
+            )
+            
+            total_matches += matches
+            total_slides += total
+            
+            results.append({
+                'trace_id': trace_id,
+                'agent': agent_name,
+                'accuracy': accuracy,
+                'matches': matches,
+                'total_slides': total,
+                'timestamp': time.time()
+            })
+        
+        # Calculate aggregate accuracy
+        aggregate_accuracy = total_matches / total_slides if total_slides > 0 else 0.0
+        
+        # Save results
+        results_file = results_dir / f"{agent_name}_edit_accuracy.csv"
+        self._save_results(results, results_file)
+        
+        return {
+            'agent': agent_name,
+            'aggregate_accuracy': aggregate_accuracy,
+            'total_matches': total_matches,
+            'total_slides': total_slides,
+            'num_traces': len(traces),
+            'per_trace_results': results
+        }
+    
+    def _save_results(self, results: List[Dict[str, Any]], output_path: Path):
+        """
+        Save results to a CSV file.
+        
+        Args:
+            results: List of result dictionaries.
+            output_path: Path to save the CSV file.
+        """
+        import csv
+        
+        if not results:
+            return
+        
+        fieldnames = list(results[0].keys())
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(results)
 
-        for trace_id in trace_ids:
-            try:
-                trace_data = self.trace_loader.load_trace(trace_id)
-                if not trace_data:
-                    continue
-                    
-                result = self.measure_single_trace(trace_id, trace_data)
-                results.append({
-                    'trace_id': result[0],
-                    'baseline_accuracy': result[1],
-                    'compressed_accuracy': result[2],
-                    'baseline_latency_s': result[5],
-                    'compressed_latency_s': result[6],
-                    # We don't store full outputs in the summary to save space,
-                    # but they are available if needed for debugging.
-                })
-            except Exception as e:
-                print(f"Error processing trace {trace_id}: {e}")
-                continue
-
-        return results
-
-
-def calculate_aggregate_metrics(results: List[Dict[str, Any]]) -> Dict[str, float]:
+def calculate_aggregate_metrics(
+    baseline_results: Dict[str, Any], 
+    compressed_results: Dict[str, Any]
+) -> Dict[str, Any]:
     """
-    Calculate aggregate statistics from the measurement results.
+    Calculate aggregate metrics comparing baseline and compressed agents.
     
     Args:
-        results: List of result dictionaries from measure_all_traces.
-                
+        baseline_results: Results from baseline agent measurement.
+        compressed_results: Results from compressed agent measurement.
+    
     Returns:
-        Dictionary with mean accuracy and latency for both agents.
+        Dictionary containing comparative metrics.
     """
-    if not results:
-        return {
-            'baseline_mean_accuracy': 0.0,
-            'compressed_mean_accuracy': 0.0,
-            'baseline_mean_latency_s': 0.0,
-            'compressed_mean_latency_s': 0.0,
-            'total_traces': 0
-        }
-
-    baseline_acc = [r['baseline_accuracy'] for r in results]
-    compressed_acc = [r['compressed_accuracy'] for r in results]
-    baseline_lat = [r['baseline_latency_s'] for r in results]
-    compressed_lat = [r['compressed_latency_s'] for r in results]
-
+    baseline_acc = baseline_results.get('aggregate_accuracy', 0.0)
+    compressed_acc = compressed_results.get('aggregate_accuracy', 0.0)
+    
+    delta = baseline_acc - compressed_acc
+    
     return {
-        'baseline_mean_accuracy': sum(baseline_acc) / len(baseline_acc),
-        'compressed_mean_accuracy': sum(compressed_acc) / len(compressed_acc),
-        'baseline_mean_latency_s': sum(baseline_lat) / len(baseline_lat),
-        'compressed_mean_latency_s': sum(compressed_lat) / len(compressed_lat),
-        'total_traces': len(results)
+        'baseline_accuracy': baseline_acc,
+        'compressed_accuracy': compressed_acc,
+        'accuracy_delta': delta,
+        'baseline_matches': baseline_results.get('total_matches', 0),
+        'baseline_total_slides': baseline_results.get('total_slides', 0),
+        'compressed_matches': compressed_results.get('total_matches', 0),
+        'compressed_total_slides': compressed_results.get('total_slides', 0),
+        'num_traces': baseline_results.get('num_traces', 0)
     }
-
 
 def main():
     """
-    Main entry point to measure edit accuracy and save results.
+    Main entry point for measuring edit accuracy.
+    
+    This function:
+    1. Loads configuration
+    2. Measures edit accuracy for baseline agent
+    3. Measures edit accuracy for compressed agent
+    4. Calculates aggregate metrics
+    5. Saves results to data/processed/
     """
     config = get_config()
     measurer = EditAccuracyMeasurer(config)
     
-    print("Starting Edit Accuracy Measurement...")
-    results = measurer.measure_all_traces()
+    # Paths
+    held_out_dir = Path(config['paths']['held_out'])
+    results_dir = Path(config['paths']['processed']) / 'agent_results'
+    output_dir = Path(config['paths']['processed'])
     
-    if not results:
-        print("No traces processed. Check data source.")
-        return
-
-    # Save detailed results to JSON
-    output_path = Path(config['paths']['processed']) / 'edit_accuracy_results.json'
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    print("Measuring Edit Accuracy for Baseline Agent...")
+    baseline_results = measurer.measure_for_agent('baseline', held_out_dir, results_dir)
+    print(f"Baseline Accuracy: {baseline_results['aggregate_accuracy']:.4f}")
     
-    print(f"Saved detailed results to {output_path}")
+    print("Measuring Edit Accuracy for Compressed Agent...")
+    compressed_results = measurer.measure_for_agent('compressed', held_out_dir, results_dir)
+    print(f"Compressed Accuracy: {compressed_results['aggregate_accuracy']:.4f}")
     
-    # Calculate and print aggregates
-    aggregates = calculate_aggregate_metrics(results)
-    print("\n--- Aggregate Metrics ---")
-    print(f"Total Traces: {aggregates['total_traces']}")
-    print(f"Baseline Mean Accuracy: {aggregates['baseline_mean_accuracy']:.4f}")
-    print(f"Compressed Mean Accuracy: {aggregates['compressed_mean_accuracy']:.4f}")
-    print(f"Baseline Mean Latency: {aggregates['baseline_mean_latency_s']:.4f}s")
-    print(f"Compressed Mean Latency: {aggregates['compressed_mean_latency_s']:.4f}s")
+    # Calculate aggregate metrics
+    aggregate = calculate_aggregate_metrics(baseline_results, compressed_results)
     
-    # Save aggregate summary
-    summary_path = Path(config['paths']['processed']) / 'edit_accuracy_summary.json'
-    with open(summary_path, 'w') as f:
-        json.dump(aggregates, f, indent=2)
-    print(f"Saved summary to {summary_path}")
-
+    # Save aggregate results
+    aggregate_file = output_dir / 'edit_accuracy_aggregate.json'
+    with open(aggregate_file, 'w') as f:
+        json.dump(aggregate, f, indent=2)
+    
+    print(f"Aggregate results saved to {aggregate_file}")
+    print(f"Accuracy Delta (Baseline - Compressed): {aggregate['accuracy_delta']:.4f}")
+    
+    return aggregate
 
 if __name__ == '__main__':
     main()

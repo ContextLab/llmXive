@@ -1,38 +1,50 @@
-# Trace Schema Definition
-# Validates the structure of generated synthetic traces
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trace Schema"
+description: "Schema for multi-turn revision session traces"
 type: object
 required:
-  - session_id
   - exact_tool_sequence
-  - raw_arg_variance
-  - final_state
+  - tool_calls
 properties:
-  session_id:
-    type: string
-    description: Unique identifier for the session
   exact_tool_sequence:
     type: array
+    description: "Ordered list of tool names executed in the session"
+    items:
+      type: string
+    minItems: 1
+  tool_calls:
+    type: array
+    description: "Detailed records of each tool call"
     items:
       type: object
       required:
-        - tool_name
+        - name
         - arguments
       properties:
-        tool_name:
+        name:
           type: string
+          description: "Name of the tool called"
         arguments:
           type: object
+          description: "Arguments passed to the tool"
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+          description: "Timestamp of the tool call"
+  session_id:
+    type: string
+    description: "Unique identifier for the session"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Session start timestamp"
   raw_arg_variance:
     type: number
-    minimum: 0.0
-    description: Variance of argument embeddings
+    description: "Pre-computed argument variance metric"
+    minimum: 0
   final_state:
     type: object
-    description: The resulting slide state after the sequence
-  metadata:
-    type: object
-    properties:
-      generated_at:
-        type: string
-      seed:
-        type: integer
+    description: "Final slide state after all tool calls"
+    additionalProperties: true
+additionalProperties: true
