@@ -1,5 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-genomic-significance"
+version = "0.1.0"
+description = "Assessing the Reliability of Statistical Significance in Openly Available Genomic Datasets"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "tqdm>=4.65.0",
+    "statsmodels>=0.14.0",
+    "scipy>=1.11.0",
+    "pytest>=7.4.0"
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -13,5 +36,15 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | figures
+  | artifacts
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

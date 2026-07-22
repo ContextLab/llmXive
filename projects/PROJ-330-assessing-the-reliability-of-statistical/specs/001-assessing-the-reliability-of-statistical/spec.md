@@ -1,60 +1,69 @@
-# Specification: Assessing the Reliability of Statistical Significance in Openly Available Genomic Datasets
+# Feature Specification: Assessing the Reliability of Statistical Significance
+# Version: 1.2 (Updated by T024c)
 
 ## Overview
-This document defines the requirements for a pipeline that assesses the reliability of statistical significance (p-values) and effect sizes in genomic datasets from public repositories (GEO, TCGA, ENCODE).
+This feature implements an automated pipeline to assess the reliability of statistical
+significance in openly available genomic datasets (GEO, TCGA, ENCODE). The core goal
+is to determine if parametric p-values are well-calibrated against a stratified block
+permutation null model.
 
 ## User Stories
 
-### US1: Stability of Effect Size Calculation (P1)
-As a researcher, I want to calculate the stability of effect sizes (log2 fold-changes) across stratified subsets of a dataset, so that I can determine if the reported effect sizes are robust to sampling variation.
+### US1: Stability of Effect Size Calculation (P1 - MVP)
+- **Goal**: Calculate the stability of log2 fold-changes across stratified subsets.
+- **Metric**: Pearson correlation of log2FC between full dataset and subsets.
+- **Scope**: ALL genes (to avoid Winner's Curse).
 
 ### US2: Stratified Block Permutation Null Modeling (P2)
-As a researcher, I want to generate a null distribution of p-values via stratified block permutations using a Fixed-Dispersion Wald Perturbation approximation, so that I can compare parametric p-values against empirical ones without exceeding 6-hour runtime constraints.
+- **Goal**: Generate a null distribution via stratified block permutations using the
+ Fixed-Dispersion Wald Perturbation strategy.
+- **Validation**: Compare parametric p-values against the empirical null distribution.
+- **Correction**: The statistical validity check uses the Kolmogorov-Smirnov (KS) test.
+ **CRITICAL**: The null hypothesis (uniform distribution) is accepted if the KS test
+ **p-value > 0.05** (not D < 0.05). A low D-statistic with a low p-value (due to
+ massive sample size) indicates rejection of uniformity, which is the desired failure
+ mode for unreliable p-values.
 
 ### US3: Cross-Dataset Benchmarking (P3)
-As a researcher, I want to aggregate results across multiple datasets from different repositories (GEO, TCGA, ENCODE), so that I can determine if reliability metrics vary by data source.
+- **Goal**: Aggregate results across GEO, TCGA, and ENCODE to identify repository-specific
+ reliability trends.
 
 ## Functional Requirements
 
-### FR-001: Data Loading
-The system must fetch RNA-seq count matrices from GEO, TCGA, and ENCODE via a manifest file.
+### FR-001: Data Ingestion
+- System must fetch RNA-seq count matrices from GEO, TCGA, and ENCODE via a manifest.
+- Checksums must be verified (SHA256).
 
 ### FR-002: Preprocessing
-The system must filter zero-count genes and handle missing batch metadata by defaulting to random stratification.
+- Filter zero-count genes.
+- Handle missing batch metadata by defaulting to random stratification.
 
-### FR-003: Effect Size Calculation
-The system must calculate Pearson correlation of log2FC between the full dataset and stratified subsets for ALL genes to avoid Winner's Curse (see Spec Correction #1).
+### FR-003: Differential Expression
+- Run DESeq2/edgeR via R script wrapper.
+- Extract fixed-dispersion parameters for the permutation step.
 
-### FR-004: Null Model Generation
-The system must generate a null distribution via stratified block permutations.
-**SPEC CORRECTION #3 (Authorized by T021a):** To meet the 6-hour runtime constraint, FR-004 is explicitly authorized to use the **"Fixed-Dispersion Wald Perturbation"** approximation. This method skips the full Differential Expression (DE) re-run (DESeq2/edgeR) for every permutation. Instead, it:
-1. Runs the full DE analysis ONCE to extract fixed dispersion parameters and model structure.
-2. Shuffles sample labels within batch groups.
-3. Recomputes Wald statistics using the fixed dispersions from step 1.
-4. This approximation is required for CPU-only feasibility and is the approved implementation strategy for US2.
+### FR-004: Permutation Null Model
+- Implement Fixed-Dispersion Wald Perturbation (skip full DE re-run).
+- Shuffle sample labels within batch groups.
+- Cap runtime at 6 hours; fallback to min 100 iterations.
 
-### FR-005: Metric Comparison
-The system must compare parametric p-values against empirical p-values using a Kolmogorov-Smirnov (KS) test.
+### FR-005: Metric Calculation
+- **Stability**: Pearson correlation of log2FC (ALL genes).
+- **Calibration**: KS test comparing empirical vs. parametric p-values.
+ - **Condition**: Pass if KS p-value > 0.05.
+- **Inflation**: Median Absolute Deviation (MAD) of p-values.
 
-### FR-006: Visualization
-The system must generate Bland-Altman plots and p-value histograms.
+### FR-006: Reporting
+- Generate Bland-Altman plots.
+- Apply Benjamini-Hochberg correction to reported p-values.
+- Aggregate metrics by data source (US3).
 
-### FR-007: Multiple Testing Correction
-The system must apply Benjamini-Hochberg correction to all reported p-values.
+## Spec Corrections Log
 
-## Non-Functional Requirements
-
-### NFR-001: Runtime Limit
-The entire analysis for a single dataset must complete within 6 hours. The Fixed-Dispersion approximation (FR-004) is critical to meeting this constraint.
-
-### NFR-002: Data Integrity
-All downloaded datasets must be verified via checksums.
-
-## Data Model
-- **Dataset**: { source: str, id: str, count_matrix: pd.DataFrame, metadata: pd.DataFrame }
-- **AnalysisResult**: { stability_correlation: float, pvalue_inflation: float, ks_statistic: float, ks_pvalue: float }
-
-## Constraints
-- **Winner's Curse Avoidance**: Effect size stability MUST be calculated on ALL genes, not just significant ones (Spec Correction #1).
-- **Runtime**: Permutation tasks MUST use the Fixed-Dispersion approximation (Spec Correction #3).
-- **KS Threshold**: A KS test p-value > 0.05 indicates uniform distribution (Spec Correction #2).
+- **SC-001 (T016a)**: Effect size stability must be calculated on "ALL genes", not just
+ significant ones, to avoid Winner's Curse bias.
+- **SC-002 (T024c)**: The KS test threshold for uniformity must be interpreted as
+ **p-value > 0.05** (accept null) rather than D < 0.05. The D-statistic alone is
+ insufficient due to sample size sensitivity; the p-value determines the statistical
+ conclusion.
+- **SC-003 (T021a)**: Fixed-Dispersion Wald Perturbation is authorized to meet 6h runtime.

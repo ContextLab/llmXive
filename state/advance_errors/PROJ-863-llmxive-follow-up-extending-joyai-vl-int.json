@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-863-llmxive-follow-up-extending-joyai-vl-int",
+  "stage": "in_progress",
+  "class": "deterministic_repair",
+  "fingerprint": "filesystem_file_exists",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-22T19:10:09.670177+00:00",
+  "last_seen": "2026-07-22T19:10:09.670177+00:00",
+  "retry_after": "2026-07-22T19:20:09.670177+00:00",
+  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data'",
+  "evidence": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-863-llmxive-follow-up-extending-joyai-vl-int/code/data'",
+  "remediation": "A deterministic filesystem collision (a dir/file already exists). Make the step idempotent (exist_ok=True / reconcile the existing artifact) then retry; backoff spaces the retries so it does not loop every tick meanwhile.",
+  "status": "retry_scheduled"
+}

@@ -1,15 +1,12 @@
+T007:
+  c: false
+  h: bbc3040f0763132134053d2e99a815cadd6571e22d6191bc6c26787080e0337b
+  r: "The required `.github/workflows/ci.yml` file does not exist in the repository,\
+    \ so the CI configuration deliverable is missing. Consequently the task\u2019\
+    s core requirement is not satisfied."
 T025:
   c: false
   h: 1eb037f6b7ece623923513f9b3f96b99ec6a26ddf68859de9e3fa6667fdbac2d
   r: The required output file `data/derived/final_report.csv` does not exist, and
     the input files `data/derived/baseline_results.csv` and `data/derived/robustResults.csv`
     are also missing, so the script cannot be run to produce the final report.
-T035:
-  c: false
-  h: a0d7189bb12866720aa42efb37f3909c0eb0544dc9efed31327cb02bb945b688
-  r: The repository contains the `code/synthetic_cluster_params.py` script, but the
-    required output file `data/derived/synthetic_cluster_structure.csv` is absent,
-    indicating the script either does not write the CSV or was never executed. Additionally,
-    the provided code excerpt does not show the validation step that checks the ICC_RANGE
-    constraint. The missing CSV (and likely missing validation) must be added to satisfy
-    the task.

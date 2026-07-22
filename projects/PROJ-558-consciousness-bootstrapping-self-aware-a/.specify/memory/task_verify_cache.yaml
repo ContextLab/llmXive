@@ -42,3 +42,23 @@ T012:
     \ that a joint loss combining cross\u2011entropy with the required confidence\u2011\
     prediction proxy (generated internal paths, majority\u2011vote correctness) has\
     \ been implemented. The required artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `train.py` was provided\u2014there is no code showing\
+    \ recursion\u2011depth validation, OOM detection, error logging, or a non\u2011\
+    zero exit on violation. The required artifact (the updated script) is missing."
+T025:
+  c: false
+  h: 645a3de685c899508b36db05435ec71c81e5f1cc07b4216f2ed143e5641cc2f4
+  r: "The required `artifacts/results/sensitivity_analysis.csv` file does not exist,\
+    \ and the `code/analysis/stats.py` module contains only generic statistical utilities\
+    \ with no code that performs a sweep over thresholds {0.4,0.5,0.6}, computes false\u2011\
+    positive/false\u2011negative rates, or writes the specified CSV columns. Both\
+    \ the output artifact and the necessary implementation are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `docs/` directory or any updated documentation files was provided;
+    the claim lacks the required artifact showing the new statistical report format.
+    The task remains undone until the documentation updates are added to the repository.

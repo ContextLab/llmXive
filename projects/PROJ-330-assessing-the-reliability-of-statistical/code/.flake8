@@ -1,20 +1,15 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
     build,
     dist,
     .eggs,
-    *.egg-info,
-    .venv,
-    venv,
-    env,
-    data,
-    figures,
-    artifacts
+    *.egg-info
 per-file-ignores =
-    # Allow higher line length for docstrings or comments if needed
-    */__init__.py: F401
-    code/tests/*: D100,D101,D102,D103,D104
+    # Allow unused imports in __init__.py if we add one later
+    code/src/__init__.py: F401
+    # Tests can have longer lines for fixtures sometimes
+    code/tests/*: E501

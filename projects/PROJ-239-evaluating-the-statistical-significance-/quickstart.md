@@ -1,95 +1,110 @@
-# Quickstart Guide
+# Quickstart Guide: Evaluating Statistical Significance with Non-Independent Observations
+
+This guide walks you through running the complete analysis pipeline.
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
+- Python 3.11
+- Install dependencies: `pip install -r requirements.txt`
 
-## Setup
+## Running the Pipeline
 
-1. Clone the repository and navigate to the project directory:
- ```bash
- cd projects/PROJ-239-evaluating-the-statistical-significance-
- ```
+The pipeline consists of several stages. Run them in order:
 
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+### 1. Generate Synthetic Cluster Structure
 
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+This script generates synthetic cluster sizes based on UCI Online Retail summary statistics.
 
-## Running the Simulation
+```bash
+python code/synthetic_cluster_params.py
+```
 
-### Baseline Simulation (Naive T-Test)
+**Output**: `data/derived/synthetic_cluster_structure.csv`
 
-Run the baseline simulation with default parameters:
+### 2. Run Baseline Simulation
+
+Runs the naive t-test simulation (violates cluster-aware inference for baseline comparison).
+
 ```bash
 python code/run_simulation_baseline.py
 ```
 
-This generates `data/derived/baseline_results.csv`.
+**Output**: `data/derived/baseline_results.csv`
 
-### Robust Simulation (Cluster-Aware Methods)
+### 3. Run Robust Simulation
 
-Run the robust simulation with default parameters:
+Runs the cluster-robust and block permutation test simulations.
+
 ```bash
 python code/run_simulation_robust.py
 ```
 
-This generates `data/derived/robustResults.csv`.
+**Output**: `data/derived/robustResults.csv`
 
-## Generating the Final Report
+### 4. Merge Results and Generate Final Report
 
-After running both simulations, generate the final report:
+Combines baseline and robust results, computes error rates, and generates the final report.
+
 ```bash
-python code/generate_final_report.py
+python code/scripts/merge_results.py
 ```
 
-This produces `specs/001-evaluating-the-statistical-significance/research.md` with results, tables, and plots.
+**Output**: `data/derived/final_report.csv`
+
+### 5. Generate Research Report
+
+Creates the final research report with visualizations.
+
+```bash
+python code/generate_report.py
+```
+
+**Outputs**:
+- `specs/001-evaluating-the-statistical-significance/research.md`
+- `data/derived/error_rate_vs_icc.png`
+
+## Full Pipeline Execution
+
+To run the entire pipeline from start to finish:
+
+```bash
+# 1. Generate cluster structure
+python code/synthetic_cluster_params.py
+
+# 2. Run baseline simulation
+python code/run_simulation_baseline.py
+
+# 3. Run robust simulation
+python code/run_simulation_robust.py
+
+# 4. Merge results
+python code/scripts/merge_results.py
+
+# 5. Generate final report
+python code/generate_report.py
+```
 
 ## Running Tests
 
-Execute the full test suite:
-```bash
-pytest tests/
-```
-
-To run with verbose output:
 ```bash
 pytest tests/ -v
 ```
 
 ## Configuration
 
-You can customize simulation parameters via CLI arguments:
+Most scripts accept CLI arguments for customization:
 
-- `--icc-range`: Comma-separated list of ICC values (e.g., `0.0,0.1,0.2`)
-- `--icc-step`: Step size for ICC values (default: 0.1)
-- `--alpha-list`: Comma-separated list of significance levels (e.g., `0.01,0.05,0.10`)
-- `--iterations`: Number of simulation iterations (default: 1000)
-- `--seed`: Random seed for reproducibility (default: 42)
+- `--icc`: Specific ICC value to test
+- `--icc-range`: Comma-separated list of ICC values
+- `--icc-step`: Step size for ICC range
+- `--alpha`: Significance level (default: 0.05)
+- `--alpha-list`: Comma-separated significance levels
+- `--iterations`: Number of simulation iterations
+- `--seed`: Random seed
+- `--n-clusters`: Number of clusters
+- `--n-obs-per-cluster`: Observations per cluster
 
 Example:
 ```bash
-python code/run_simulation_robust.py --icc-range 0.0,0.1,0.2 --alpha-list 0.01,0.05 --iterations 500
+python code/run_simulation_baseline.py --icc 0.1 --iterations 100 --seed 42
 ```
-
-## Data Ingestion (Optional)
-
-To download and validate the UCI Online Retail dataset:
-```bash
-python code/uci_ingest.py
-```
-
-This downloads the dataset to `data/raw/uci_online_retail.csv`, computes a SHA-256 checksum, and scans for PII.
-
-## Troubleshooting
-
-- **Memory Error**: If you encounter memory errors, reduce the number of iterations or observations per cluster.
-- **Import Errors**: Ensure all dependencies are installed via `requirements.txt`.
-- **Test Failures**: Check that the simulation scripts have been run to generate required data files.

@@ -4,218 +4,243 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 from scipy.stats import pearsonr, kstest, uniform
-import logging
-
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for script execution
+import matplotlib.pyplot as plt
+import seaborn as sns
 from src.config import PROJECT_ROOT
 
-logger = logging.getLogger(__name__)
-
-MIN_GENES_THRESHOLD: int = 5
-
 def calculate_pearson_correlation_all_genes(
-    full_log2fc: Union[pd.Series, np.ndarray],
-    subset_log2fc: Union[pd.Series, np.ndarray],
-    gene_ids: Optional[Union[pd.Series, np.ndarray]] = None
-) -> Tuple[float, float, int]:
+    full_log2fc: pd.Series,
+    subset_log2fc: pd.Series
+) -> float:
     """
-    Calculate Pearson correlation of log2FC between full set and a subset.
-    Returns (r, p_value, n_genes).
+    Calculate Pearson correlation of log2 fold-changes between full and subset analyses.
+    Uses ALL genes to avoid Winner's Curse (per Spec Correction #1).
+    
+    Args:
+        full_log2fc: Series of log2FC values from the full dataset analysis.
+        subset_log2fc: Series of log2FC values from the subset analysis.
+    
+    Returns:
+        Pearson correlation coefficient (r).
     """
-    if gene_ids is None:
-        # Assume parallel alignment if no IDs provided
-        common_mask = ~np.isnan(full_log2fc) & ~np.isnan(subset_log2fc)
-        x = np.asarray(full_log2fc)[common_mask]
-        y = np.asarray(subset_log2fc)[common_mask]
-    else:
-        # Align by gene ID
-        df = pd.DataFrame({
-            'gene': gene_ids,
-            'full': full_log2fc,
-            'subset': subset_log2fc
-        })
-        df = df.dropna(subset=['full', 'subset'])
-        x = df['full'].values
-        y = df['subset'].values
-
-    n = len(x)
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(
-            f"Insufficient total genes for correlation: found {n} genes "
-            f"(threshold: {MIN_GENES_THRESHOLD}). Returning NaN for metrics."
-        )
-        return np.nan, np.nan, n
-
-    r, p_val = pearsonr(x, y)
-    return float(r), float(p_val), n
+    # Ensure alignment on gene indices
+    common_genes = full_log2fc.index.intersection(subset_log2fc.index)
+    if len(common_genes) == 0:
+        raise ValueError("No common genes found between full and subset analyses.")
+    
+    x = full_log2fc.loc[common_genes].values
+    y = subset_log2fc.loc[common_genes].values
+    
+    r, _ = pearsonr(x, y)
+    return float(r)
 
 def calculate_stability_metrics(
-    results: List[Dict],
-    min_genes: int = MIN_GENES_THRESHOLD
+    correlations: List[float],
+    min_threshold: float = 0.8
 ) -> Dict[str, float]:
     """
-    Aggregate stability metrics from multiple subset analyses.
-    Handles insufficient data gracefully by marking metrics as NaN.
-    """
-    valid_corrs = [r['r'] for r in results if not np.isnan(r.get('r', np.nan))]
+    Aggregate stability metrics from a list of correlation coefficients.
     
-    if not valid_corrs:
-        logger.warning("No valid correlations found across subsets. Stability metrics unavailable.")
+    Args:
+        correlations: List of Pearson r values from subset comparisons.
+        min_threshold: Minimum acceptable correlation threshold.
+    
+    Returns:
+        Dictionary with mean, std, min, max, and pass_rate.
+    """
+    if not correlations:
         return {
-            'mean_stability': np.nan,
-            'std_stability': np.nan,
-            'min_genes_encountered': min_genes,
-            'valid_subsets': 0
+            "mean": 0.0,
+            "std": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "pass_rate": 0.0
         }
-
+    
+    arr = np.array(correlations)
+    pass_count = sum(1 for r in correlations if r >= min_threshold)
+    
     return {
-        'mean_stability': float(np.mean(valid_corrs)),
-        'std_stability': float(np.std(valid_corrs)),
-        'min_genes_encountered': min([r.get('n_genes', 0) for r in results]),
-        'valid_subsets': len(valid_corrs)
+        "mean": float(np.mean(arr)),
+        "std": float(np.std(arr)),
+        "min": float(np.min(arr)),
+        "max": float(np.max(arr)),
+        "pass_rate": float(pass_count / len(correlations))
     }
 
 def compare_parametric_empirical_pvalues(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray,
-    alpha: float = 0.05
-) -> Dict[str, Union[float, bool]]:
+    parametric_pvals: pd.Series,
+    empirical_pvals: pd.Series,
+    output_path: Optional[Union[str, Path]] = None
+) -> Dict[str, float]:
     """
-    Compare parametric vs empirical p-values using KS test.
-    Correcting spec: KS test verifies p-value > 0.05 (uniformity).
-    """
-    if len(parametric_pvals) == 0 or len(empirical_pvals) == 0:
-        logger.warning("Empty p-value arrays provided for comparison.")
-        return {'ks_statistic': np.nan, 'ks_pvalue': np.nan, 'is_uniform': False}
-
-    # Sort both to ensure valid comparison
-    parametric_pvals = np.sort(parametric_pvals)
-    empirical_pvals = np.sort(empirical_pvals)
-
-    # Use the smaller set for KS test to avoid length mismatch issues
-    # or pad/interpolate if strictly necessary. Here we assume similar sizes or take min.
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    x = parametric_pvals[:n]
-    y = empirical_pvals[:n]
-
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(f"Insufficient p-values ({n}) for KS test.")
-        return {'ks_statistic': np.nan, 'ks_pvalue': np.nan, 'is_uniform': False}
-
-    ks_stat, ks_p = kstest(y, 'uniform')
+    Compare parametric vs empirical p-values using KS test and generate Bland-Altman plot.
     
-    # Spec Correction #2: p-value > 0.05 implies uniformity (fail to reject null)
-    is_uniform = ks_p > alpha
-
-    return {
-        'ks_statistic': float(ks_stat),
-        'ks_pvalue': float(ks_p),
-        'is_uniform': is_uniform
+    Args:
+        parametric_pvals: Series of parametric p-values.
+        empirical_pvals: Series of empirical p-values from permutation.
+        output_path: Optional path to save the Bland-Altman plot.
+    
+    Returns:
+        Dictionary with KS statistic (D) and p-value.
+    """
+    # Align indices
+    common_idx = parametric_pvals.index.intersection(empirical_pvals.index)
+    if len(common_idx) == 0:
+        raise ValueError("No common indices for p-value comparison.")
+    
+    p_param = parametric_pvals.loc[common_idx].values
+    p_emp = empirical_pvals.loc[common_idx].values
+    
+    # KS Test: Verify if empirical distribution matches uniform (under null)
+    # Note: We test the empirical p-values against Uniform(0,1)
+    ks_stat, ks_pval = kstest(p_emp, 'uniform')
+    
+    result = {
+        "ks_statistic": float(ks_stat),
+        "ks_pvalue": float(ks_pval),
+        "pass_uniformity": float(ks_pval) > 0.05
     }
+    
+    if output_path:
+        generate_bland_altman_plot(p_param, p_emp, output_path)
+    
+    return result
 
 def calculate_pvalue_inflation(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray
+    parametric_pvals: pd.Series,
+    empirical_pvals: pd.Series
 ) -> float:
     """
-    Calculate Median Absolute Deviation (MAD) of p-values as an inflation metric.
+    Calculate Median Absolute Deviation (MAD) between parametric and empirical p-values.
+    This serves as a metric for p-value inflation/deflation.
+    
+    Args:
+        parametric_pvals: Series of parametric p-values.
+        empirical_pvals: Series of empirical p-values.
+    
+    Returns:
+        MAD value.
     """
-    if len(parametric_pvals) == 0 or len(empirical_pvals) == 0:
-        return np.nan
-
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    diff = np.abs(parametric_pvals[:n] - empirical_pvals[:n])
+    common_idx = parametric_pvals.index.intersection(empirical_pvals.index)
+    if len(common_idx) == 0:
+        return 0.0
+    
+    p_param = parametric_pvals.loc[common_idx].values
+    p_emp = empirical_pvals.loc[common_idx].values
+    
+    diff = np.abs(p_param - p_emp)
     return float(np.median(diff))
 
 def generate_bland_altman_plot(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray,
+    p_param: np.ndarray,
+    p_emp: np.ndarray,
     output_path: Union[str, Path]
-) -> Path:
+) -> None:
     """
     Generate a Bland-Altman plot comparing parametric and empirical p-values.
-    Saves to output_path.
+    Since p-values are bounded [0,1], we plot the difference against the mean.
+    
+    Args:
+        p_param: Array of parametric p-values.
+        p_emp: Array of empirical p-values.
+        output_path: Path to save the plot.
     """
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(f"Insufficient data ({n}) for Bland-Altman plot.")
-        # Create a placeholder file to satisfy artifact requirement
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            f.write("Plot skipped: Insufficient data points (<5).")
-        return output_path
-
-    x = parametric_pvals[:n]
-    y = empirical_pvals[:n]
-
-    mean_vals = (x + y) / 2
-    diff_vals = x - y
-
+    mean_vals = (p_param + p_emp) / 2
+    diff_vals = p_param - p_emp
+    
+    plt.figure(figsize=(10, 8))
+    plt.scatter(mean_vals, diff_vals, alpha=0.5, s=10)
+    
+    # Add mean difference line
     mean_diff = np.mean(diff_vals)
-    std_diff = np.std(diff_vals)
-    upper = mean_diff + 1.96 * std_diff
-    lower = mean_diff - 1.96 * std_diff
-
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(x=mean_vals, y=diff_vals, alpha=0.6, edgecolor=None)
     plt.axhline(mean_diff, color='red', linestyle='--', label=f'Mean Diff: {mean_diff:.4f}')
-    plt.axhline(upper, color='gray', linestyle=':', label=f'Upper (1.96 SD): {upper:.4f}')
-    plt.axhline(lower, color='gray', linestyle=':', label=f'Lower (1.96 SD): {lower:.4f}')
+    
+    # Add limits of agreement (mean ± 1.96*SD)
+    sd_diff = np.std(diff_vals)
+    upper = mean_diff + 1.96 * sd_diff
+    lower = mean_diff - 1.96 * sd_diff
+    plt.axhline(upper, color='gray', linestyle=':', label=f'Upper LoA: {upper:.4f}')
+    plt.axhline(lower, color='gray', linestyle=':', label=f'Lower LoA: {lower:.4f}')
+    
     plt.xlabel('Mean of Parametric and Empirical P-values')
     plt.ylabel('Difference (Parametric - Empirical)')
     plt.title('Bland-Altman Plot: Parametric vs Empirical P-values')
     plt.legend()
+    plt.grid(True, alpha=0.3)
     
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.tight_layout()
     plt.savefig(output_path, dpi=150)
     plt.close()
-    return output_path
 
 def apply_benjamini_hochberg_correction(
-    p_values: np.ndarray,
+    p_values: pd.Series,
     alpha: float = 0.05
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[pd.Series, pd.Series]:
     """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-    Returns adjusted p-values and boolean mask of significant results.
+    Apply Benjamini-Hochberg (BH) correction to a series of p-values.
+    This corrects for multiple hypothesis testing to control the False Discovery Rate (FDR).
+    
+    Args:
+        p_values: Series of raw p-values (indexed by gene ID or similar).
+        alpha: Significance threshold for FDR.
+    
+    Returns:
+        Tuple of (adjusted_p_values, boolean_rejection_mask).
+        - adjusted_p_values: Series of BH-adjusted p-values (q-values).
+        - boolean_rejection_mask: Boolean Series indicating which hypotheses are rejected (q < alpha).
     """
-    if len(p_values) == 0:
-        return np.array([]), np.array([])
-
-    p_values = np.asarray(p_values)
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-
-    # Calculate adjusted p-values
-    rank = np.arange(1, n + 1)
-    adjusted_p = (sorted_p * n) / rank
-    adjusted_p = np.minimum.accumulate(adjusted_p[::-1])[::-1]
-    adjusted_p = np.clip(adjusted_p, 0, 1)
-
+    if p_values.empty:
+        return pd.Series([], dtype=float), pd.Series([], dtype=bool)
+    
+    # Sort p-values
+    sorted_idx = p_values.argsort()
+    sorted_p = p_values.iloc[sorted_idx]
+    
+    n = len(sorted_p)
+    ranks = np.arange(1, n + 1)
+    
+    # Calculate BH adjusted p-values
+    # q_i = (n / i) * p_i
+    # Then enforce monotonicity (cumulative min from the end)
+    adjusted = (n / ranks) * sorted_p.values
+    
+    # Enforce monotonicity: q_i <= q_{i+1}
+    # Iterate from the end to the beginning
+    for i in range(n - 2, -1, -1):
+        if adjusted[i] > adjusted[i + 1]:
+            adjusted[i] = adjusted[i + 1]
+    
+    # Clip to [0, 1]
+    adjusted = np.clip(adjusted, 0, 1)
+    
     # Restore original order
-    final_adjusted = np.empty(n)
-    final_adjusted[sorted_indices] = adjusted_p
-
-    significant = final_adjusted <= alpha
-    return final_adjusted, significant
+    adjusted_series = pd.Series(adjusted, index=p_values.index)
+    adjusted_series = adjusted_series.iloc[sorted_idx.argsort()] # Unsort back to original order
+    
+    # Re-sort by original index to ensure consistency if needed, but index alignment is key
+    # The above logic restores the original index order of `p_values`
+    
+    # Calculate rejection mask
+    rejection_mask = adjusted_series < alpha
+    
+    return adjusted_series, rejection_mask
 
 def main():
     """
-    Main entry point for metrics module testing/demo.
+    Main entry point for metrics module (for CLI testing if needed).
+    Currently, this module is primarily imported by main.py or permutation.py.
     """
-    logger.info("Metrics module loaded.")
-    # Example usage for validation
-    test_p = np.array([0.01, 0.03, 0.04, 0.1, 0.2, 0.005])
-    adj, sig = apply_benjamini_hochberg_correction(test_p)
-    print(f"Original: {test_p}")
-    print(f"Adjusted: {adj}")
-    print(f"Significant: {sig}")
+    print("metrics.py module loaded successfully.")
+    print("Available functions:")
+    print("  - calculate_pearson_correlation_all_genes")
+    print("  - calculate_stability_metrics")
+    print("  - compare_parametric_empirical_pvalues")
+    print("  - calculate_pvalue_inflation")
+    print("  - generate_bland_altman_plot")
+    print("  - apply_benjamini_hochberg_correction")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

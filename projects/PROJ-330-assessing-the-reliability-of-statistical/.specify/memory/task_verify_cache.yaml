@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code/src/`, `code/scripts/`,
+    `code/tests/`) actually exist or contain any files; the implementer did not supply
+    a directory listing or any files to demonstrate the project structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,
+    or black/flake8 setup scripts) are present; the provided evidence only describes
+    statistical pipeline requirements, not the required linting setup. The task T003
+    therefore remains unfulfilled.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration artifact (e.g., YAML, .Renviron, or other environment\u2011\
+    management file) defining the R script locations and memory limits was provided,\
+    \ nor any documentation showing that such setup was implemented. Without these\
+    \ concrete files the requirement cannot be verified as satisfied."
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, nor any excerpt showing that FR\u2011\
+    006 (or the relevant section) now states that stability must be calculated on\
+    \ \u201CALL genes\u201D with a citation to plan.md Spec Correction #1. Without\
+    \ the actual modified specification document, the required artifact is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the pipeline now\
+    \ checks for fewer than five total genes across all categories and handles this\
+    \ case gracefully, replacing the previous \u201Csignificant genes\u201D check.\
+    \ Without any artifact to examine, we cannot confirm the required logic was implemented."
+T021a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing an updated `spec.md` was provided; the claim that FR\u2011\
+    004 now explicitly authorizes the Fixed\u2011Dispersion Wald Perturbation and\
+    \ cites \u201Cplan.md Spec Correction #3\u201D cannot be verified. The required\
+    \ documentation change is missing."

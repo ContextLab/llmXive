@@ -7,52 +7,79 @@ from pathlib import Path
 @dataclass
 class ModelCheckpoint:
     """
-    Dataclass representing a saved model state and metadata.
-    Used to track training progress, model configurations, and evaluation metrics at specific steps.
+    Dataclass to represent a model checkpoint.
+    
+    Attributes:
+        path: Path to the saved checkpoint file.
+        epoch: The epoch number when the checkpoint was saved.
+        step: The global training step number.
+        loss: The training loss at this checkpoint.
+        metrics: Dictionary of additional metrics at this checkpoint.
+        timestamp: ISO format timestamp of when the checkpoint was created.
+        model_config: Configuration dictionary used to create the model.
+        metadata: Arbitrary metadata dictionary.
     """
-    checkpoint_id: str
-    model_name: str
-    step: int
+    path: str
     epoch: int
-    timestamp: datetime
-    config: dict
+    step: int
+    loss: float
     metrics: dict = field(default_factory=dict)
-    loss: Optional[float] = None
-    validation_loss: Optional[float] = None
-    model_path: Optional[str] = None
-    optimizer_state_path: Optional[str] = None
-    tags: list = field(default_factory=list)
+    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    model_config: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        """Convert to dictionary for JSON serialization."""
+        """Convert the checkpoint to a dictionary for serialization."""
         return {
-            "checkpoint_id": self.checkpoint_id,
-            "model_name": self.model_name,
-            "step": self.step,
+            "path": self.path,
             "epoch": self.epoch,
-            "timestamp": self.timestamp.isoformat(),
-            "config": self.config,
-            "metrics": self.metrics,
+            "step": self.step,
             "loss": self.loss,
-            "validation_loss": self.validation_loss,
-            "model_path": self.model_path,
-            "optimizer_state_path": self.optimizer_state_path,
-            "tags": self.tags,
+            "metrics": self.metrics,
+            "timestamp": self.timestamp,
+            "model_config": self.model_config,
             "metadata": self.metadata
         }
 
-    def save_to_json(self, path: str) -> None:
-        """Save checkpoint metadata to a JSON file."""
-        data = self.to_dict()
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
+    def save_metadata(self, output_dir: str) -> Path:
+        """
+        Save the checkpoint metadata to a JSON file.
+        
+        Args:
+            output_dir: Directory to save the metadata file.
+            
+        Returns:
+            Path to the saved metadata file.
+        """
+        output_path = Path(output_dir) / f"checkpoint_{self.epoch}_{self.step}.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
+        
+        return output_path
 
     @classmethod
-    def load_from_json(cls, path: str) -> 'ModelCheckpoint':
-        """Load checkpoint metadata from a JSON file."""
-        with open(path, 'r', encoding='utf-8') as f:
+    def load_metadata(cls, path: str) -> "ModelCheckpoint":
+        """
+        Load a checkpoint metadata from a JSON file.
+        
+        Args:
+            path: Path to the checkpoint metadata JSON file.
+            
+        Returns:
+            ModelCheckpoint instance.
+        """
+        with open(path, "r") as f:
             data = json.load(f)
-        # Convert timestamp string back to datetime
-        data['timestamp'] = datetime.fromisoformat(data['timestamp'])
-        return cls(**data)
+        
+        return cls(
+            path=data["path"],
+            epoch=data["epoch"],
+            step=data["step"],
+            loss=data["loss"],
+            metrics=data.get("metrics", {}),
+            timestamp=data.get("timestamp", datetime.now().isoformat()),
+            model_config=data.get("model_config", {}),
+            metadata=data.get("metadata", {})
+        )

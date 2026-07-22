@@ -17,7 +17,15 @@ dependencies = [
     "requests",
     "tqdm",
     "statsmodels",
-    "scipy"
+    "scipy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.black]
@@ -27,24 +35,16 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-  | figures
-  | artifacts
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-skip = ["data", "figures", "artifacts", ".venv", "venv", "env"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]

@@ -85,7 +85,7 @@
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
 - [ ] T012 [P] [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from internal generation: generate multiple internal paths for the training batch, compute majority vote correctness, and use this binary signal to train the confidence head. This aligns with spec.md FR-002 and Assumptions.
 - [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`
-- [~] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
+- [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
 - [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,7 +105,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`
+- [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`
 - [X] T019 [US2] Implement `run_benchmarks.py` to generate **a set of reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) and run MMLU/GSM8K (US-02) in `code/evaluation/run_benchmarks.py`
 - [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`
 - [X] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
@@ -123,15 +123,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for paired t-test and Bonferroni correction logic in `tests/unit/analysis/test_stats.py` (Test: `test_paired_ttest`, `test_bonferroni_correction`)
+- [X] T023 [P] [US3] Unit test for paired t-test and Bonferroni correction logic in `tests/unit/analysis/test_stats.py` (Test: `test_paired_ttest`, `test_bonferroni_correction`)
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`
+- [X] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`
 - [ ] T024b [US3] Implement logic in `stats.py` to calculate and report the **percentage difference in self-consistency scores** between recursive and baseline models as required by spec.md SC-001. Output this to `artifacts/results/statistical_report.json`.
 - [ ] T025 [US3] Implement sensitivity analysis sweep for confidence thresholds across the discrete set **{0.4, 0.5, 0.6}** (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` with columns `threshold, false_positive_rate, false_negative_rate` in `code/analysis/stats.py`
-- [ ] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, and sensitivity plots (US-03) in `code/analysis/stats.py`
-- [ ] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`
+- [X] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, and sensitivity plots (US-03) in `code/analysis/stats.py`
+- [X] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

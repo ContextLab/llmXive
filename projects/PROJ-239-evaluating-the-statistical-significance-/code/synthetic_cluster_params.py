@@ -1,13 +1,19 @@
 """
 Synthetic Cluster Structure Parameter Generator.
 
-Generates synthetic cluster sizes based on summary statistics from the UCI Online Retail dataset.
-Uses a log-normal distribution to model cluster sizes, ensuring the generated structure
-supports the full ICC range [0.0, 0.5] for random intercept models.
+This module generates synthetic cluster size distributions based on summary
+statistics from the UCI Online Retail Data Set, without downloading the
+full dataset.
 
-This task strictly adheres to the constraint of NOT downloading the real UCI dataset,
-instead using hardcoded summary statistics to inform the synthetic generation.
+Source: UCI Machine Learning Repository: Online Retail Data Set
+Citation: Dua, D. and Graff, C. (2019). UCI Machine Learning Repository.
+http://archive.ics.uci.edu/ml. Irvine, CA: University of California, School
+of Information and Computer Science.
+
+The synthetic generation uses a log-normal distribution parameterized to
+match the provided summary statistics.
 """
+
 import os
 import sys
 import logging
@@ -15,198 +21,184 @@ import numpy as np
 import pandas as pd
 from code.config import ICC_RANGE, DEFAULT_N_CLUSTERS, validate_config, load_config
 
-# Configure logging
+# Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Hardcoded summary statistics for UCI Online Retail (Public Summary)
-# Source: UCI Machine Learning Repository summary data
+# Hardcoded summary statistics derived from UCI Online Retail Data Set
+# Source: Public summary statistics for the dataset
+# These values represent typical cluster (customer) behavior patterns
 UCI_SUMMARY_STATS = {
-    "avg_cluster_size": 15,
-    "total_clusters": 100,
-    "std_cluster_size": 5
+    "avg_cluster_size": 12.5,
+    "std_cluster_size": 8.2
 }
 
-def get_cluster_stats() -> dict:
+def get_cluster_stats():
     """
-    Returns the hardcoded summary statistics for UCI Online Retail.
+    Returns the hardcoded cluster statistics derived from UCI Online Retail.
 
     Returns:
-        dict: Dictionary containing avg_cluster_size, total_clusters, std_cluster_size.
+        dict: Dictionary containing 'avg_cluster_size' and 'std_cluster_size'.
     """
+    logger.info("Using hardcoded UCI Online Retail summary statistics.")
     return UCI_SUMMARY_STATS.copy()
 
-def generate_synthetic_cluster_sizes(
-    avg_size: float,
-    total_clusters: int,
-    std_size: float,
-    seed: int = 42
-) -> list:
+def generate_synthetic_cluster_sizes(avg_size, std_size, n_clusters, seed=42):
     """
-    Generates a list of synthetic cluster sizes using a log-normal distribution.
+    Generates synthetic cluster sizes using a log-normal distribution.
 
-    The log-normal distribution is chosen because cluster sizes (counts) are strictly
-    positive and often right-skewed in real-world transactional data.
+    The log-normal parameters (mu, sigma) are calculated to match the
+    target mean and standard deviation:
+    - mu = ln(mean^2 / sqrt(variance + mean^2))
+    - sigma = sqrt(ln(1 + variance / mean^2))
 
     Args:
-        avg_size (float): Target mean cluster size.
-        total_clusters (int): Number of clusters to generate.
+        avg_size (float): Target average cluster size.
         std_size (float): Target standard deviation of cluster sizes.
+        n_clusters (int): Number of clusters to generate.
         seed (int): Random seed for reproducibility.
 
     Returns:
-        list: A list of integer cluster sizes.
+        list: List of synthetic cluster sizes (integers >= 1).
     """
     np.random.seed(seed)
 
-    # Calculate parameters for log-normal distribution
-    # If X ~ LogNormal(mu, sigma), then:
-    # E[X] = exp(mu + sigma^2 / 2)
-    # Var[X] = (exp(sigma^2) - 1) * exp(2*mu + sigma^2)
-    # We solve for mu and sigma given mean and std.
-
-    mean = avg_size
+    # Calculate log-normal parameters
     variance = std_size ** 2
+    mu = np.log((avg_size ** 2) / np.sqrt(variance + avg_size ** 2))
+    sigma = np.sqrt(np.log(1 + (variance / avg_size ** 2)))
 
-    if variance <= 0:
-        logger.warning("Variance is non-positive, using deterministic sizes.")
-        return [int(mean)] * total_clusters
+    logger.info(f"Log-normal parameters: mu={mu:.4f}, sigma={sigma:.4f}")
+    logger.info(f"Generating {n_clusters} cluster sizes with target mean={avg_size:.2f}, std={std_size:.2f}")
 
-    # sigma^2 = ln(1 + (variance / mean^2))
-    sigma_sq = np.log(1 + (variance / (mean ** 2)))
-    sigma = np.sqrt(sigma_sq)
+    # Generate from log-normal distribution
+    raw_sizes = np.random.lognormal(mean=mu, sigma=sigma, size=n_clusters)
 
-    # mu = ln(mean) - sigma^2 / 2
-    mu = np.log(mean) - (sigma_sq / 2)
+    # Ensure all sizes are at least 1 (valid cluster)
+    cluster_sizes = np.maximum(np.round(raw_sizes).astype(int), 1)
 
-    # Generate samples
-    samples = np.random.lognormal(mu, sigma, total_clusters)
+    # Verify statistics
+    actual_mean = np.mean(cluster_sizes)
+    actual_std = np.std(cluster_sizes)
 
-    # Round to nearest integer and ensure at least 1
-    sizes = np.maximum(1, np.round(samples)).astype(int).tolist()
+    logger.info(f"Actual generated stats: mean={actual_mean:.2f}, std={actual_std:.2f}")
 
-    logger.info(f"Generated {total_clusters} cluster sizes.")
-    logger.info(f"Actual mean: {np.mean(sizes):.2f}, Actual std: {np.std(sizes):.2f}")
+    return cluster_sizes.tolist()
 
-    return sizes
-
-def validate_structure(cluster_sizes: list, icc_range: list, n_clusters: int) -> bool:
+def validate_structure(cluster_sizes, icc_range, n_clusters_default):
     """
     Validates that the generated cluster structure supports the full ICC range.
 
-    For a random intercept model Y_ij = mu + u_i + e_ij, the variance components
-    must be estimable. A critical constraint is having sufficient total observations
-    and clusters to estimate the intra-cluster correlation reliably, especially
-    at higher ICC values where the design effect is large.
-
-    Design Effect (DEFF) = 1 + (m - 1) * ICC
-    Where m is the average cluster size.
-
-    This function checks:
-    1. The total number of clusters meets the minimum requirement.
-    2. The total number of observations is sufficient for the maximum ICC.
-       (Heuristic: Total N > 1000 for robust estimation at ICC=0.5)
+    For a random intercept model to be stable across the ICC range, we need
+    sufficient total observations. The validation checks:
+    1. Total observations (n_clusters * avg_size) is adequate for variance constraints.
+    2. No clusters have size 0 (already handled by generation).
+    3. The distribution is not extremely skewed (warn if > 50% of clusters are size 1).
 
     Args:
         cluster_sizes (list): List of cluster sizes.
-        icc_range (list): List of ICC values to validate against.
-        n_clusters (int): Expected number of clusters.
+        icc_range (list): Range of ICC values to validate against.
+        n_clusters_default (int): Default number of clusters from config.
 
     Returns:
         bool: True if validation passes, False otherwise.
-    """
-    if len(cluster_sizes) < n_clusters:
-        logger.error(f"Insufficient clusters: generated {len(cluster_sizes)}, required {n_clusters}")
-        return False
 
+    Raises:
+        ValueError: If validation fails.
+    """
+    n_clusters = len(cluster_sizes)
     total_obs = sum(cluster_sizes)
     avg_size = np.mean(cluster_sizes)
-    max_icc = max(icc_range)
 
-    # Calculate Design Effect for the max ICC
-    deff = 1 + (avg_size - 1) * max_icc
+    # Check 1: Sufficient total observations for variance constraints
+    # For ICC up to 0.5, we need enough observations to estimate variance components
+    min_obs_threshold = 1000  # Conservative threshold for stable estimation
+    if total_obs < min_obs_threshold:
+        raise ValueError(
+            f"Total observations ({total_obs}) is below threshold ({min_obs_threshold}) "
+            f"for stable variance component estimation across ICC range {icc_range}."
+        )
 
-    # Heuristic: Effective sample size should be reasonable (e.g., > 100)
-    # Effective N = Total N / DEFF
-    effective_n = total_obs / deff
+    # Check 2: Validate against default cluster count
+    if n_clusters < 50:
+        # Allow smaller n_clusters only if ICC is 0.0 (independent case)
+        if 0.0 in icc_range and max(icc_range) == 0.0:
+            logger.warning("Small number of clusters detected, but only ICC=0.0 is requested.")
+        else:
+            raise ValueError(
+                f"Number of clusters ({n_clusters}) is below minimum (50) for "
+                f"non-zero ICC values in range {icc_range}."
+            )
 
-    logger.info(f"Total observations: {total_obs}")
-    logger.info(f"Max ICC: {max_icc}, Design Effect: {deff:.2f}")
-    logger.info(f"Effective sample size: {effective_n:.2f}")
+    # Check 3: Skewness warning
+    size_1_count = sum(1 for s in cluster_sizes if s == 1)
+    if size_1_count > len(cluster_sizes) * 0.5:
+        logger.warning(
+            f"More than 50% of clusters have size 1 ({size_1_count}/{n_clusters}). "
+            f"This may limit the ability to estimate intra-cluster correlation."
+        )
 
-    if effective_n < 100:
-        logger.warning(f"Effective sample size ({effective_n:.2f}) is low for ICC={max_icc}. "
-                       "Results may have high variance.")
-        # We do not fail the task for this, just warn, as the task is to generate
-        # the structure. However, for robustness, we ensure it's not catastrophically low.
-        if effective_n < 10:
-            logger.error("Effective sample size is critically low. Validation failed.")
-            return False
-
-    logger.info("Validation passed: Structure supports the full ICC range.")
+    logger.info(
+        f"Validation passed: {n_clusters} clusters, {total_obs} total observations, "
+        f"avg size {avg_size:.2f}"
+    )
     return True
 
 def main():
     """
-    Main entry point for generating synthetic cluster parameters.
-    """
-    logger.info("Starting synthetic cluster parameter generation.")
+    Main entry point for generating synthetic cluster structure.
 
+    Reads configuration, generates cluster sizes, validates them,
+    and saves to data/derived/synthetic_cluster_structure.csv.
+    """
     # Load configuration
     cfg = load_config()
     validate_config(cfg)
 
-    # Get summary stats
+    # Get summary statistics
     stats = get_cluster_stats()
-    avg_size = stats['avg_cluster_size']
-    total_clusters = stats['total_clusters']
-    std_size = stats['std_cluster_size']
+    avg_size = stats["avg_cluster_size"]
+    std_size = stats["std_cluster_size"]
 
-    logger.info(f"Using summary stats: avg={avg_size}, clusters={total_clusters}, std={std_size}")
+    # Use configured or default number of clusters
+    n_clusters = cfg.get("n_clusters", DEFAULT_N_CLUSTERS)
+    seed = cfg.get("seed", 42)
 
-    # Generate sizes
+    logger.info(f"Starting synthetic cluster generation with n_clusters={n_clusters}, seed={seed}")
+
+    # Generate cluster sizes
     cluster_sizes = generate_synthetic_cluster_sizes(
         avg_size=avg_size,
-        total_clusters=total_clusters,
         std_size=std_size,
-        seed=cfg.get('seed', 42)
+        n_clusters=n_clusters,
+        seed=seed
     )
 
-    # Validate
-    if not validate_structure(cluster_sizes, ICC_RANGE, DEFAULT_N_CLUSTERS):
-        logger.error("Validation failed. Aborting.")
+    # Validate the structure
+    icc_range = cfg.get("icc_range", ICC_RANGE)
+    try:
+        validate_structure(cluster_sizes, icc_range, DEFAULT_N_CLUSTERS)
+    except ValueError as e:
+        logger.error(f"Validation failed: {e}")
         sys.exit(1)
 
-    # Create DataFrame
-    df = pd.DataFrame({
-        'cluster_id': range(1, len(cluster_sizes) + 1),
-        'cluster_size': cluster_sizes
-    })
-
-    # Ensure output directory exists
-    output_path = 'data/derived/synthetic_cluster_structure.csv'
+    # Create DataFrame and save
+    output_path = "data/derived/synthetic_cluster_structure.csv"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Save to CSV
+    df = pd.DataFrame({
+        "cluster_id": range(1, len(cluster_sizes) + 1),
+        "cluster_size": cluster_sizes
+    })
+
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved synthetic cluster structure to {output_path}")
+    logger.info(f"Successfully saved synthetic cluster structure to {output_path}")
+    logger.info(f"Total clusters: {len(cluster_sizes)}, Total observations: {sum(cluster_sizes)}")
 
-    # Verify file exists and has content
-    if os.path.exists(output_path):
-        saved_df = pd.read_csv(output_path)
-        if len(saved_df) > 0:
-            logger.info(f"Verification: File contains {len(saved_df)} rows.")
-        else:
-            logger.error("Verification failed: File is empty.")
-            sys.exit(1)
-    else:
-        logger.error("Verification failed: File was not created.")
-        sys.exit(1)
+    return df
 
-    logger.info("Task completed successfully.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
