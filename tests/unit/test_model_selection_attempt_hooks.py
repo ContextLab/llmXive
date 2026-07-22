@@ -85,9 +85,12 @@ def test_reservation_authority_is_structural():
 def test_route_audit_is_structural_and_records_events():
     rec = _Recorder()
     assert isinstance(rec, RouteAudit)
-    rec.record(ChainResolved(snapshot_digest="d", selection_policy_version=1,
-                             resolved_at="t", explanation=(), candidate_model_ids=("m",)))
-    rec.record(DispatchStarted(model_id="m", reservation_id=None))
+    rec.record(ChainResolved(
+        route_id="R", requirement_digest="rq", prompt_digest="pd", context_digest="cd",
+        snapshot_digest="d", snapshot_provenance={}, selection_policy_version=1,
+        resolved_at="t", explanation=(), candidates=(_ref(),),
+    ))
+    rec.record(DispatchStarted(route_id="R", candidate_index=0, candidate=_ref(), reservation_id=None))
     assert len(rec.events) == 2
 
 
@@ -97,8 +100,8 @@ def test_route_audit_error_is_runtime_error():
 
 
 def test_selection_failure_carries_structured_reason():
-    ev = SelectionFailure(exception_type="ModelUnavailable", message="none eligible",
-                          requirement_digest="rq", snapshot_provenance="catalog=live")
+    ev = SelectionFailure(route_id="R", exception_type="ModelUnavailable", message="none eligible",
+                          requirement_digest="rq", snapshot_provenance={})
     assert ev.exception_type == "ModelUnavailable"
 
 
@@ -107,8 +110,23 @@ def test_public_exports_resolve():
     for name in ("ReservationAuthority", "RouteAudit", "RouteAuditError",
                  "ChainResolved", "SelectionFailure", "ReservationOpened",
                  "DispatchStarted", "DispatchCompleted", "DispatchUnknown",
-                 "CandidateOutcome"):
+                 "CandidateOutcome", "emit_audit"):
         assert hasattr(ms, name), name
+
+
+def test_event_id_is_deterministic_within_a_route():
+    # F1: event_id is auto-derived from route_id + (candidate_index, kind) — so a
+    # reconciler can recompute the SAME id twice for the SAME logical event, without
+    # any extra state, and pair a DispatchStarted with its DispatchCompleted.
+    started = DispatchStarted(route_id="R", candidate_index=2, candidate=_ref(), reservation_id=None)
+    assert started.event_id == "R:candidate:2:dispatch-started"
+
+    resolved = ChainResolved(
+        route_id="R", requirement_digest="rq", prompt_digest="pd", context_digest="cd",
+        snapshot_digest="d", snapshot_provenance={}, selection_policy_version=1,
+        resolved_at="t", explanation=(), candidates=(_ref(),),
+    )
+    assert resolved.event_id == "R:chain-resolved"
 
 
 def test_eager_export_does_not_load_networked_snapshot():

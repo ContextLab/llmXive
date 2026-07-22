@@ -33,6 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+import uuid
 from collections.abc import Callable, Iterable
 from dataclasses import replace
 from pathlib import Path
@@ -44,6 +45,7 @@ from llmxive.model_selection.attempt_hooks import (
     ReservationAuthority,
     RouteAudit,
     SelectionFailure,
+    emit_audit,
 )
 from llmxive.model_selection.execute import execute
 from llmxive.model_selection.ledger_transport import LedgerConfig
@@ -55,6 +57,7 @@ from llmxive.model_selection.types import (
     ExecutionOptions,
     IndependenceBaseline,
     ModelChain,
+    ModelRef,
     ModelRequirement,
     ModelUnavailable,
     RequirementOverrides,
@@ -176,22 +179,35 @@ def _requirement_digest(requirement: ModelRequirement) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
+def _messages_digest(messages: list[ChatMessage]) -> str:
+    """Stable SHA-256 over the routed messages (F2): identifies WHAT prompt/context
+    was actually sent, distinct from the requirement/snapshot digests. Deterministic
+    + cross-process-stable: a canonical ``(role, content)`` projection, no object
+    identity/repr involved."""
+    payload = [(m.role, m.content) for m in messages]
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+
 def _select_audited(
-    requirement: ModelRequirement, snap: RuntimeSnapshot, route_audit: RouteAudit | None
+    requirement: ModelRequirement,
+    snap: RuntimeSnapshot,
+    route_audit: RouteAudit | None,
+    route_id: str,
 ) -> ModelChain:
     """Run select; on ModelUnavailable emit a SelectionFailure audit event (so the
     proposal reroute's failed first leg is auditable, FR-002/F3) and RE-RAISE — the
-    caller's fail-closed / reroute logic is unchanged. A route_audit failure here is
-    itself route-fatal (RouteAuditError propagates)."""
+    caller's fail-closed / reroute logic is unchanged. The emit itself goes through
+    ``emit_audit`` (F4) so a sink failure here is normalized to ``RouteAuditError``
+    and takes precedence over the ``ModelUnavailable`` being reported — an
+    audit-system failure is route-fatal."""
     try:
         return select(requirement, snap)
     except ModelUnavailable as exc:
-        if route_audit is not None:
-            prov = ",".join(f"{k}={v.source}" for k, v in snap.sources.items())
-            route_audit.record(SelectionFailure(
-                exception_type=type(exc).__name__, message=str(exc),
-                requirement_digest=_requirement_digest(requirement), snapshot_provenance=prov,
-            ))
+        emit_audit(route_audit, SelectionFailure(
+            route_id=route_id,
+            exception_type=type(exc).__name__, message=str(exc),
+            requirement_digest=_requirement_digest(requirement), snapshot_provenance=dict(snap.sources),
+        ))
         raise
 
 
@@ -213,6 +229,8 @@ def route_chat(
     overrides: RequirementOverrides | None = None,
     reservation_authority: ReservationAuthority | None = None,
     route_audit: RouteAudit | None = None,
+    prompt_digest: str | None = None,
+    context_digest: str | None = None,
 ) -> ChatResponse:
     """Route one chat call through select()→execute() and return its response.
 
@@ -237,6 +255,14 @@ def route_chat(
     ``select`` call that raises ``ModelUnavailable`` emits ``SelectionFailure``
     (then re-raises unchanged — the reroute logic that catches it is a later
     slice), and the final resolved chain emits ``ChainResolved`` before dispatch.
+    A single ``route_id`` (a fresh ``uuid.uuid4().hex``) is generated once per call
+    and threaded through both events plus :func:`execute`'s own outbox (F1), so the
+    lane can correlate every event this ONE logical call produced. ``prompt_digest``
+    / ``context_digest`` default to a digest of the actual routed ``messages`` (via
+    :func:`_messages_digest`) when not supplied — ``ChainResolved`` carries them
+    (with the requirement/snapshot digests + full provenance + the winning
+    candidates' ``ModelRef``s) so the lane can reconstruct an ``InvocationIdentity``
+    without re-deriving it (F2).
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
@@ -248,7 +274,10 @@ def route_chat(
             "agent must never reach model selection/execution"
         )
 
+    route_id = uuid.uuid4().hex
     msg_list = list(messages)
+    pdig = prompt_digest if prompt_digest is not None else _messages_digest(msg_list)
+    cdig = context_digest if context_digest is not None else _messages_digest(msg_list)
     # Production ledger source (review finding 1): the reservation ledger lives on a
     # protected ref in the MAIN repo (bootstrapped at repo_root() by `cli` /
     # infra/credit-ledger-ops.md), so a routed PAID candidate can open an
@@ -295,26 +324,29 @@ def route_chat(
             # PASS 1 (pure, no I/O): resolve who would lead, then exclude exactly
             # that model. If pass 1 raises ModelUnavailable it propagates
             # immediately — there is no leader to exclude and pass 2 never runs.
-            leader = _select_audited(requirement, snap, route_audit).candidates[0].model_ref.model_id
+            leader = _select_audited(requirement, snap, route_audit, route_id).candidates[0].model_ref.model_id
             requirement = replace(
                 requirement, exclude_models=requirement.exclude_models | {leader}
             )
-    chain = _select_audited(requirement, snap, route_audit)   # PASS 2 — THE decision
+    chain = _select_audited(requirement, snap, route_audit, route_id)   # PASS 2 — THE decision
     chain = _promote_primary(chain, caller_model)
 
     # ChainResolved (spec 025): emitted once, after the final decision, before any
-    # dispatch. The bare route_audit.record here (not via execute's `_audit`
-    # helper) is intentional — a ChainResolved/SelectionFailure sink failure is
-    # pre-dispatch and route-fatal, so letting the raw exception propagate is
-    # correct.
-    if route_audit is not None:
-        route_audit.record(ChainResolved(
-            snapshot_digest=chain.snapshot_digest,
-            selection_policy_version=chain.selection_policy_version,
-            resolved_at=chain.resolved_at.isoformat(),
-            explanation=chain.explanation,
-            candidate_model_ids=tuple(c.model_ref.model_id for c in chain.candidates),
-        ))
+    # dispatch, via emit_audit (F4) — a sink failure here is pre-dispatch and
+    # route-fatal, so it is normalized to RouteAuditError and propagates.
+    winning_refs: tuple[ModelRef, ...] = tuple(c.model_ref for c in chain.candidates)
+    emit_audit(route_audit, ChainResolved(
+        route_id=route_id,
+        requirement_digest=_requirement_digest(requirement),
+        prompt_digest=pdig,
+        context_digest=cdig,
+        snapshot_digest=chain.snapshot_digest,
+        snapshot_provenance=chain.snapshot_provenance,
+        selection_policy_version=chain.selection_policy_version,
+        resolved_at=chain.resolved_at.isoformat(),
+        explanation=chain.explanation,
+        candidates=winning_refs,
+    ))
 
     options = ExecutionOptions(
         max_tokens=max_tokens, temperature=temperature, deadline_s=deadline_s
@@ -327,6 +359,7 @@ def route_chat(
         retries=retries,
         ledger_repo=ledger_repo,
         ledger_config=ledger_config,
+        route_id=route_id,
         reservation_authority=reservation_authority,
         route_audit=route_audit,
     )

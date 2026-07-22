@@ -654,3 +654,44 @@ def test_route_audit_predispatch_failure_paid_releases_reservation(repo, monkeyp
     assert budget.open == {}
     assert rid in budget.released
     assert budget.retained == set()
+
+
+class _ReleaseRaisingBudget(_Budget):
+    """A REAL in-memory ReservationAuthority (subclass of the real ``_Budget``)
+    whose ``release`` raises — used to prove the F3 independent-cleanup guard
+    (execute.py's pre-dispatch ``except RouteAuditError:`` block): a failing
+    ``release()`` must NOT suppress ``settle()``, and the primary
+    ``RouteAuditError`` must still be what surfaces (not the release exception)."""
+
+    def release(self, reservation_id: str) -> None:
+        raise RuntimeError("simulated release failure (e.g. lane DB down)")
+
+
+def test_route_audit_predispatch_failure_release_error_does_not_suppress_settle(repo, monkeypatch):
+    """F3: when a PRE-dispatch audit event fails AND reservation_authority.release()
+    itself raises, execute() must NOT let the release exception surface (masking the
+    real RouteAuditError), and must NOT skip settle() just because release() blew up
+    — release() and settle() each run in their OWN try/except, so one failing does
+    not suppress the other, and the original RouteAuditError stays primary.
+    Non-vacuity: WITHOUT the independent try/except, the raising release() would
+    propagate INSTEAD of RouteAuditError — this test fails (a RuntimeError leaks
+    past ``pytest.raises(RouteAuditError)``) against that unfixed code."""
+    from llmxive.model_selection.attempt_hooks import RouteAuditError
+
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")  # else the candidate is skipped pre-dispatch
+    budget = _ReleaseRaisingBudget(10_000.0)
+    rec = _FailingRecorder(fail_on={"DispatchStarted"})
+
+    class _MustNotDispatch:
+        def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+            raise AssertionError("dispatched despite pre-dispatch audit failure")
+
+    with pytest.raises(RouteAuditError):
+        execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=lambda name: _MustNotDispatch(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                credit_observer=_observer(), balance_fetch=_balance(),
+                reservation_authority=budget, route_audit=rec)
+    # settle() still ran DESPITE the raising release() — the 026 hold reached
+    # settling, proving release()'s failure did not suppress settle().
+    (r,) = project(read_events(repo)).values()
+    assert r.state == STATE_SETTLING

@@ -19,6 +19,7 @@ from llmxive.backends.base import (
     PaidGuardDenied,
     PermanentBackendError,
 )
+from llmxive.model_selection.attempt_hooks import RouteAuditError
 from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.types import (
     CallBudget,
@@ -29,6 +30,7 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
+from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 EP = "https://chat.dartmouth.edu"
@@ -219,9 +221,6 @@ def test_paid_candidate_skipped_on_non_live_credit_snapshot():
 # the real ledger fixture to open an actual reservation).
 # --------------------------------------------------------------------------- #
 
-from llmxive.model_selection.attempt_hooks import RouteAuditError
-from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
-
 
 def test_route_audit_emits_dispatch_lifecycle_free_chain():
     rec = _Recorder()
@@ -247,3 +246,31 @@ def test_route_audit_none_is_behavior_preserving():
     result = execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
                      backend_factory=_factory(ScriptedBackend({})))
     assert result.response is not None
+
+
+def test_concurrent_same_model_calls_are_distinguishable_by_route_id():
+    # F1: two independent execute() calls for the SAME free model, each with its
+    # OWN recorder, must carry DIFFERENT route_id/event_id on their DispatchStarted/
+    # DispatchCompleted events — otherwise a reconciler could not tell which
+    # DispatchCompleted pairs with which DispatchStarted when two calls for the
+    # same model are in flight at once. execute() generates a random route_id when
+    # none is passed, so two calls must differ.
+    rec1, rec2 = _Recorder(), _Recorder()
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_factory(ScriptedBackend({})), route_audit=rec1)
+    execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_factory(ScriptedBackend({})), route_audit=rec2)
+
+    started1 = next(e for e in rec1.events if type(e).__name__ == "DispatchStarted")
+    completed1 = next(e for e in rec1.events if type(e).__name__ == "DispatchCompleted")
+    started2 = next(e for e in rec2.events if type(e).__name__ == "DispatchStarted")
+    completed2 = next(e for e in rec2.events if type(e).__name__ == "DispatchCompleted")
+
+    # Same route → DispatchStarted and DispatchCompleted pair by route_id.
+    assert started1.route_id == completed1.route_id
+    assert started2.route_id == completed2.route_id
+    # Different routes → distinguishable route_id and event_id.
+    assert started1.route_id != started2.route_id
+    assert started1.event_id != started2.event_id
+    assert completed1.event_id != completed2.event_id

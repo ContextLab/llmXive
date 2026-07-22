@@ -29,6 +29,7 @@ from llmxive.model_selection.attempt_hooks import (
     RouteAudit,
     RouteAuditError,
     SelectionFailure,
+    emit_audit,
 )
 from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.policy import (
@@ -91,6 +92,7 @@ __all__ = [
     "SelectionFailure",
     "SnapshotProvenance",
     "build_requirement",
+    "emit_audit",
     "execute",
     "profile",
     "route_chat",

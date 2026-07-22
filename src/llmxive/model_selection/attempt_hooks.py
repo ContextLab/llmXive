@@ -17,14 +17,24 @@ chokepoint accepts two OPTIONAL hooks the lane injects:
   preserved. ``DispatchUnknown`` is produced by the lane's reconciler from a durable
   un-completed ``DispatchStarted`` — the chokepoint never emits it.
 
+Every event carries a ``route_id`` (threaded from ``route_chat``/``execute``) and an
+auto-derived, deterministic-within-a-route ``event_id`` (spec-025 maintainer review
+F1) so the lane can correlate/pair events (e.g. a ``DispatchStarted`` with its
+``DispatchCompleted``) without inventing its own correlation scheme. Candidate
+events additionally carry the full ``ModelRef`` identity + a ``candidate_index``
+(F2) so the lane can reconstruct an ``InvocationIdentity`` without a second lookup.
+
 This module is pure types (no I/O, no networked imports), so it is safe to import
 eagerly from the package root — unlike ``snapshot``/``route``.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
+
+from llmxive.model_selection.types import ModelRef, SnapshotProvenance
 
 
 class RouteAuditError(RuntimeError):
@@ -33,6 +43,10 @@ class RouteAuditError(RuntimeError):
     candidate (an audit outage must not silently change which model executes).
     Distinct from ``ModelUnavailable`` (nothing eligible) and ``ChainExhausted``
     (the chain ran, none succeeded), so it does not trigger the proposal reroute."""
+
+
+def _candidate_event_id(route_id: str, candidate_index: int, kind: str) -> str:
+    return f"{route_id}:candidate:{candidate_index}:{kind}"
 
 
 @runtime_checkable
@@ -58,79 +72,131 @@ class ReservationAuthority(Protocol):
 
 @dataclass(frozen=True)
 class ChainResolved:
-    """Emitted once after ``select`` succeeds, before any dispatch."""
+    """Emitted once after ``select`` succeeds, before any dispatch. Carries the
+    full provenance the lane needs to build an ``InvocationIdentity`` for the
+    winning candidate (FR-002): the candidate ``ModelRef``s (→ model/backend/
+    family/vendor/endpoint), the requirement + prompt + context digests, the
+    snapshot digest AND per-component provenance, and the selection policy
+    version. ``prompt_digest``/``context_digest`` are caller-supplied (route_chat
+    defaults them to a digest of the actual routed messages)."""
 
+    route_id: str
+    requirement_digest: str
+    prompt_digest: str
+    context_digest: str
     snapshot_digest: str
+    snapshot_provenance: Mapping[str, SnapshotProvenance]
     selection_policy_version: int
     resolved_at: str
     explanation: tuple[str, ...]
-    candidate_model_ids: tuple[str, ...]
+    candidates: tuple[ModelRef, ...]
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "event_id", f"{self.route_id}:chain-resolved")
 
 
 @dataclass(frozen=True)
 class SelectionFailure:
-    """Emitted when ``select`` raises ``ModelUnavailable`` (so the failed first leg
-    of the proposal reroute is auditable). Carries the KNOWN raw failure only — no
-    causal claim (FR-002/F3)."""
+    """Emitted when ``select`` raises ``ModelUnavailable`` (the failed first leg
+    of the proposal reroute, FR-002/F3). Raw failure only — no causal claim.
+    ``snapshot_provenance`` is the full per-component mapping."""
 
+    route_id: str
     exception_type: str
     message: str
     requirement_digest: str
-    snapshot_provenance: str
+    snapshot_provenance: Mapping[str, SnapshotProvenance]
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "event_id", f"{self.route_id}:selection-failure")
 
 
 @dataclass(frozen=True)
 class ReservationOpened:
     """Emitted once per paid candidate whose Attempt + 026 reservations both opened."""
 
+    route_id: str
+    candidate_index: int
+    candidate: ModelRef
     reservation_id: str
-    model_id: str
     reserved_credits: float
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "event_id", _candidate_event_id(self.route_id, self.candidate_index, "reservation-opened")
+        )
 
 
 @dataclass(frozen=True)
 class DispatchStarted:
     """Emitted (durably) immediately BEFORE the backend call for a candidate."""
 
-    model_id: str
+    route_id: str
+    candidate_index: int
+    candidate: ModelRef
     reservation_id: str | None
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "event_id", _candidate_event_id(self.route_id, self.candidate_index, "dispatch-started")
+        )
 
 
 @dataclass(frozen=True)
 class DispatchCompleted:
     """Emitted immediately AFTER a successful backend call for a candidate."""
 
-    model_id: str
+    route_id: str
+    candidate_index: int
+    candidate: ModelRef
     reservation_id: str | None
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "event_id", _candidate_event_id(self.route_id, self.candidate_index, "dispatch-completed")
+        )
 
 
 @dataclass(frozen=True)
 class DispatchUnknown:
-    """NOT emitted by ``execute``. The lane's reconciler produces this from a
-    durable ``DispatchStarted`` with no matching ``DispatchCompleted`` (a crash
-    between). Defined here so the lane and the chokepoint share one event vocabulary."""
+    """NOT emitted by ``execute``; the lane's reconciler produces it from a durable
+    ``DispatchStarted`` with no matching ``DispatchCompleted``."""
 
-    model_id: str
+    route_id: str
+    candidate_index: int
+    candidate: ModelRef
     reservation_id: str | None
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "event_id", _candidate_event_id(self.route_id, self.candidate_index, "dispatch-unknown")
+        )
 
 
 @dataclass(frozen=True)
 class CandidateOutcome:
     """Emitted once per candidate terminal disposition."""
 
-    model_id: str
+    route_id: str
+    candidate_index: int
+    candidate: ModelRef
     outcome: str  # "success" | "skip" | "advance" | "abort"
     reason: str
+    event_id: str = ""
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "event_id", _candidate_event_id(self.route_id, self.candidate_index, "outcome"))
 
 
 RouteAuditEvent = (
-    ChainResolved
-    | SelectionFailure
-    | ReservationOpened
-    | DispatchStarted
-    | DispatchCompleted
-    | DispatchUnknown
-    | CandidateOutcome
+    ChainResolved | SelectionFailure | ReservationOpened | DispatchStarted
+    | DispatchCompleted | DispatchUnknown | CandidateOutcome
 )
 
 
@@ -141,3 +207,19 @@ class RouteAudit(Protocol):
     ``RouteAuditError``)."""
 
     def record(self, event: RouteAuditEvent) -> None: ...
+
+
+def emit_audit(route_audit: RouteAudit | None, event: RouteAuditEvent) -> None:
+    """Emit one mandatory audit event. A ``None`` sink is a no-op. A sink exception
+    is NEVER swallowed: a ``RouteAuditError`` propagates as-is; ANY other exception
+    is normalized to ``RouteAuditError`` — so callers in BOTH ``route_chat`` and
+    ``execute`` get ONE dependable failure type, distinct from ``ModelUnavailable``/
+    ``ChainExhausted`` (F4). This is the SINGLE audit-emit path (Constitution I)."""
+    if route_audit is None:
+        return
+    try:
+        route_audit.record(event)
+    except RouteAuditError:
+        raise
+    except Exception as exc:  # mandatory sink: surface, never swallow
+        raise RouteAuditError(f"route_audit.record({type(event).__name__}) failed: {exc}") from exc

@@ -11,13 +11,14 @@ never a model mock) so we assert which candidate/backend actually answered.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 import pytest
 
 from llmxive.backends.base import ChatMessage, ChatResponse, TransientBackendError
-from llmxive.model_selection.attempt_hooks import ChainResolved, SelectionFailure
+from llmxive.model_selection.attempt_hooks import ChainResolved, RouteAuditError, SelectionFailure
 from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import (
     Candidate,
@@ -31,7 +32,7 @@ from llmxive.model_selection.types import (
     RuntimeSnapshot,
     SnapshotProvenance,
 )
-from tests.unit.test_model_selection_attempt_hooks import _Recorder
+from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
 
 NOW = datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC)
 DARTMOUTH_EP = "https://chat.dartmouth.edu"
@@ -524,3 +525,74 @@ def test_selection_failure_requirement_digest_changes_with_requirement():
     digest_standard, _ = _selection_failure_digest(profile="standard_generation")
     digest_cheap, _ = _selection_failure_digest(profile="cheap_structured")
     assert digest_standard != digest_cheap
+
+
+# --------------------------------------------------------------------------- #
+# Spec-025 maintainer review F2 + F4: ChainResolved carries the InvocationIdentity
+# payload, and a route-level record() failure normalizes to RouteAuditError.
+# --------------------------------------------------------------------------- #
+
+
+def test_route_chat_emits_chain_resolved_with_invocation_identity_payload():
+    # F2: ChainResolved must carry everything the lane needs to reconstruct an
+    # InvocationIdentity for the winning candidate WITHOUT a second lookup: a
+    # non-empty snapshot_provenance mapping, the requirement/prompt/context
+    # digests, the selection policy version, and the winning candidates as real
+    # ModelRefs (so .model_family/.backend/.vendor/.serving_endpoint are present).
+    from llmxive.model_selection.route import route_chat
+
+    rec = _Recorder()
+    resp = route_chat(
+        _MSGS, profile="standard_generation", max_tokens=32,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+        route_audit=rec,
+    )
+    assert isinstance(resp, ChatResponse)
+    (resolved,) = (e for e in rec.events if isinstance(e, ChainResolved))
+
+    assert isinstance(resolved.snapshot_provenance, Mapping)
+    assert len(resolved.snapshot_provenance) > 0
+    assert resolved.requirement_digest
+    assert resolved.prompt_digest
+    assert resolved.context_digest
+    assert resolved.selection_policy_version > 0
+    assert resolved.candidates
+    for ref in resolved.candidates:
+        assert isinstance(ref, ModelRef)
+        assert ref.model_family
+        assert ref.backend
+        assert ref.vendor
+        assert ref.serving_endpoint
+
+
+def test_route_chat_chain_resolved_sink_failure_raises_route_audit_error():
+    # F4: a route-level record() failure (ChainResolved, emitted directly by
+    # route_chat, not execute) must normalize to RouteAuditError — the SAME
+    # dependable failure type execute()'s outbox raises — not the raw sink
+    # exception (a plain RuntimeError here).
+    from llmxive.model_selection.route import route_chat
+
+    rec = _FailingRecorder(fail_on={"ChainResolved"})
+    with pytest.raises(RouteAuditError):
+        route_chat(
+            _MSGS, profile="standard_generation", max_tokens=32,
+            snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec,
+        )
+
+
+def test_route_chat_selection_failure_sink_failure_raises_route_audit_error_not_model_unavailable():
+    # F4: when the SelectionFailure emit ITSELF fails, the resulting
+    # RouteAuditError must take precedence over the ModelUnavailable being
+    # reported (an audit-system failure is route-fatal) — pytest.raises(RouteAuditError)
+    # would NOT match a leaking ModelUnavailable, so this is non-vacuous.
+    from llmxive.model_selection.route import route_chat
+
+    rec = _FailingRecorder(fail_on={"SelectionFailure"})
+    with pytest.raises(RouteAuditError):
+        route_chat(
+            _MSGS, profile="standard_generation", max_tokens=32,
+            snapshot=_no_eligible_snapshot(),
+            backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec,
+        )

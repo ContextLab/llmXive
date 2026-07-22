@@ -57,6 +57,7 @@ from llmxive.model_selection.attempt_hooks import (
     ReservationOpened,
     RouteAudit,
     RouteAuditError,
+    emit_audit,
 )
 from llmxive.model_selection.ledger_transport import (
     LedgerConfig,
@@ -243,20 +244,6 @@ def _open_paid_reservation(
     return rid, reserve_credits, None
 
 
-def _audit(route_audit: RouteAudit | None, event) -> None:
-    """Emit one mandatory audit event. A sink exception is NEVER swallowed — it is
-    re-raised as RouteAuditError so the caller can apply the route-fatal (pre-dispatch)
-    or fail-closed (post-dispatch) rule. A None sink is a no-op."""
-    if route_audit is None:
-        return
-    try:
-        route_audit.record(event)
-    except RouteAuditError:
-        raise
-    except Exception as exc:  # mandatory sink: surface, never swallow
-        raise RouteAuditError(f"route_audit.record({type(event).__name__}) failed: {exc}") from exc
-
-
 def execute(
     chain: ModelChain,
     messages: Iterable[ChatMessage],
@@ -272,6 +259,7 @@ def execute(
     call_id: str | None = None,
     reservation_authority: ReservationAuthority | None = None,
     route_audit: RouteAudit | None = None,
+    route_id: str | None = None,
 ) -> ExecutionResult:
     """Execute ``chain`` against ``messages`` and return the first successful
     :class:`ExecutionResult`.
@@ -296,7 +284,11 @@ def execute(
     (raises ``RouteAuditError``) with the reservation left RETAINED — the existing
     ``finally`` still settles + marks it. Skip/advance/abort dispositions each emit their
     own ``CandidateOutcome``. Default ``None`` is a no-op — zero audit calls, behavior
-    byte-for-byte unchanged.
+    byte-for-byte unchanged. ``route_id`` identifies the logical call for
+    correlation (spec-025 maintainer review F1): ``route_chat`` generates one and
+    threads it through; a direct caller of ``execute`` gets a fresh
+    ``uuid.uuid4().hex`` when omitted. It also seeds ``call_id`` (the reservation-id
+    token) when ``call_id`` itself is not given — still independently overridable.
 
     **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
     ``None`` = the PRODUCTION config, resolved via
@@ -312,7 +304,8 @@ def execute(
     unchanged; raises ``ValueError`` on the fail-fast budget check before any call.
     """
     now = now or datetime.now(UTC)
-    call_id = call_id or uuid.uuid4().hex[:12]
+    route_id = route_id or uuid.uuid4().hex
+    call_id = call_id or route_id
     msg_list = list(messages)
 
     if not chain.candidates:
@@ -340,7 +333,7 @@ def execute(
             ledger_config_error = str(exc)  # paid candidates fail closed (skip) below
 
     notes: list[str] = []
-    for candidate in chain.candidates:
+    for candidate_index, candidate in enumerate(chain.candidates):
         ref = candidate.model_ref
         reservation_id: str | None = None
         reserved_credits = 0.0
@@ -351,7 +344,10 @@ def execute(
                     f"paid {ref.model_id!r} skipped: production ledger not configured "
                     f"({ledger_config_error}) — fail closed"
                 )
-                _audit(route_audit, CandidateOutcome(ref.model_id, "skip", "production ledger not configured"))
+                emit_audit(
+                    route_audit,
+                    CandidateOutcome(route_id, candidate_index, ref, "skip", "production ledger not configured"),
+                )
                 continue
             reservation_id, reserved_credits, skip = _open_paid_reservation(
                 candidate, chain, options=options, retries=retries,
@@ -361,7 +357,7 @@ def execute(
             )
             if skip is not None:
                 notes.append(skip)
-                _audit(route_audit, CandidateOutcome(ref.model_id, "skip", skip))
+                emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", skip))
                 continue
 
         # Pre-dispatch audits (FR-033a outbox), durable BEFORE the backend call.
@@ -371,12 +367,20 @@ def execute(
         # so a ReservationOpened failure cannot leak the reservation.
         try:
             if reservation_id is not None:
-                _audit(route_audit, ReservationOpened(reservation_id, ref.model_id, reserved_credits))
-            _audit(route_audit, DispatchStarted(ref.model_id, reservation_id))
+                emit_audit(
+                    route_audit,
+                    ReservationOpened(route_id, candidate_index, ref, reservation_id, reserved_credits),
+                )
+            emit_audit(route_audit, DispatchStarted(route_id, candidate_index, ref, reservation_id))
         except RouteAuditError:
             if reservation_id is not None:
+                # F3: run BOTH cleanups independently — a failing release() must not
+                # suppress settle(), and neither must mask the primary RouteAuditError.
                 if reservation_authority is not None:
-                    reservation_authority.release(reservation_id)
+                    try:
+                        reservation_authority.release(reservation_id)
+                    except Exception as exc:  # best-effort; log, never mask the audit error
+                        logger.warning("execute: release(%s) after audit-abort failed: %s", reservation_id, exc)
                 try:
                     settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
                 except Exception as exc:  # best-effort; the sweeper backstops a lost settle
@@ -409,8 +413,8 @@ def execute(
             # Post-dispatch (FR-033a/F2): a failure here fails the call CLOSED, but the
             # reservation stays RETAINED (the finally settles/marks it) — the backend
             # already ran, so we never advance.
-            _audit(route_audit, DispatchCompleted(ref.model_id, reservation_id))
-            _audit(route_audit, CandidateOutcome(ref.model_id, "success", "ok"))
+            emit_audit(route_audit, DispatchCompleted(route_id, candidate_index, ref, reservation_id))
+            emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "success", "ok"))
             return ExecutionResult(
                 response=response,
                 model_ref=ref,
@@ -424,10 +428,16 @@ def execute(
             disp = disposition_of(exc)
             if disp is CandidateDisposition.ABORT:
                 # Request-level permanent refusal — stop the chain and re-raise.
-                _audit(route_audit, CandidateOutcome(ref.model_id, "abort", f"{type(exc).__name__}: {exc}"))
+                emit_audit(
+                    route_audit,
+                    CandidateOutcome(route_id, candidate_index, ref, "abort", f"{type(exc).__name__}: {exc}"),
+                )
                 raise
             notes.append(f"{ref.model_id!r}: {disp.value}: {type(exc).__name__}: {exc}")
-            _audit(route_audit, CandidateOutcome(ref.model_id, "advance", f"{disp.value}: {type(exc).__name__}"))
+            emit_audit(
+                route_audit,
+                CandidateOutcome(route_id, candidate_index, ref, "advance", f"{disp.value}: {type(exc).__name__}"),
+            )
         finally:
             if reservation_id is not None:
                 # Retain the hold (settle → settling) on ANY outcome — never
