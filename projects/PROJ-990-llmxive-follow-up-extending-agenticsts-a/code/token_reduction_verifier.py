@@ -13,45 +13,46 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-THRESHOLD_PERCENT = 30.0
-INPUT_FILE = "data/processed/baseline_comparison.csv"
-OUTPUT_FILE = "data/processed/token_reduction_verification.json"
-FAILURE_FILE = "data/processed/verification_failed.json"
+BASELINE_COMPARISON_PATH = Path("data/processed/baseline_comparison.csv")
+OUTPUT_PATH = Path("data/processed/token_reduction_verification.json")
+THRESHOLD = 0.30  # 30% reduction required
 
-def load_baseline_comparison(filepath: str) -> pd.DataFrame:
+def load_baseline_comparison() -> pd.DataFrame:
     """
     Load the baseline comparison CSV.
-    Expects columns: condition, win_rate, avg_tokens, std_dev_tokens
+    Expected columns: condition, win_rate, avg_tokens, std_dev_tokens
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {filepath}")
+    if not BASELINE_COMPARISON_PATH.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {BASELINE_COMPARISON_PATH}. "
+            "Ensure T022 has been executed successfully."
+        )
     
-    df = pd.read_csv(path)
-    
-    required_cols = ['condition', 'win_rate', 'avg_tokens', 'std_dev_tokens']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {filepath}: {missing}")
-    
+    df = pd.read_csv(BASELINE_COMPARISON_PATH)
+    required_cols = {'condition', 'win_rate', 'avg_tokens', 'std_dev_tokens'}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(
+            f"Input CSV missing required columns. Expected: {required_cols}, "
+            f"Found: {set(df.columns)}"
+        )
     return df
 
 def calculate_reduction(df: pd.DataFrame) -> float:
     """
-    Calculate the percentage reduction in token usage for the Dynamic policy
-    compared to the Static All-Layers baseline.
-    
+    Calculate the percentage reduction in token usage between Dynamic and Static policies.
     Formula: ((Static_Avg_Tokens - Dynamic_Avg_Tokens) / Static_Avg_Tokens) * 100
+    
+    Raises:
+        ValueError: If 'Static' or 'Dynamic' conditions are missing.
     """
-    # Identify rows
+    # Filter for relevant conditions
     static_row = df[df['condition'] == 'Static']
     dynamic_row = df[df['condition'] == 'Dynamic']
-    
+
     if static_row.empty:
-        raise ValueError("No 'Static' condition found in baseline comparison.")
+        raise ValueError("Input data missing 'Static' baseline condition.")
     if dynamic_row.empty:
-        raise ValueError("No 'Dynamic' condition found in baseline comparison.")
+        raise ValueError("Input data missing 'Dynamic' policy condition.")
     
     static_tokens = static_row['avg_tokens'].iloc[0]
     dynamic_tokens = dynamic_row['avg_tokens'].iloc[0]
@@ -62,76 +63,73 @@ def calculate_reduction(df: pd.DataFrame) -> float:
     reduction = ((static_tokens - dynamic_tokens) / static_tokens) * 100.0
     return float(reduction)
 
-def generate_verification_report(actual_reduction: float, passed: bool) -> Dict[str, Any]:
+    if static_tokens <= 0:
+        raise ValueError(f"Static avg_tokens must be positive, got {static_tokens}")
+
+    reduction = ((static_tokens - dynamic_tokens) / static_tokens) * 100.0
+    return reduction
+
+def generate_verification_report(reduction_percent: float) -> Dict[str, Any]:
     """
     Generate the verification report dictionary.
     """
-    return {
-        "passed": passed,
-        "actual_reduction_percent": actual_reduction,
-        "threshold_percent": THRESHOLD_PERCENT
-    }
-
-def save_report(report: Dict[str, Any], filepath: str) -> None:
-    """
-    Save the verification report to a JSON file.
-    """
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Verification report saved to {filepath}")
-
-def generate_failure_artifact(actual_reduction: float) -> None:
-    """
-    Generate a failure artifact if the reduction threshold is not met.
-    """
-    failure_data = {
-        "status": "FAILED",
-        "reason": "Token reduction threshold not met",
-        "actual_reduction_percent": actual_reduction,
-        "required_threshold_percent": THRESHOLD_PERCENT,
-        "message": f"Actual reduction ({actual_reduction:.2f}%) is less than required ({THRESHOLD_PERCENT}%)."
-    }
-    save_report(failure_data, FAILURE_FILE)
-    logger.error(f"Failure artifact generated: {FAILURE_FILE}")
-
-def main() -> int:
-    """
-    Main entry point for the token reduction verification task.
+    passed = reduction_percent >= (THRESHOLD * 100)
     
-    Returns:
-        int: 0 if passed, 1 if failed (enforcing SC-002 hard gate).
+    report = {
+        "passed": passed,
+        "actual_reduction_percent": round(reduction_percent, 4),
+        "threshold_percent": THRESHOLD * 100,
+        "message": "Success" if passed else "Failed: Token reduction below 30% threshold"
+    }
+
+def save_report(report: Dict[str, Any]) -> None:
     """
-    logger.info(f"Starting token reduction verification. Input: {INPUT_FILE}")
+    Save the report to the output JSON file.
+    """
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUTPUT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Verification report saved to {OUTPUT_PATH}")
+
+def main():
+    """
+    Main entry point for T022a.
+    Loads baseline comparison, calculates reduction, and enforces the hard gate.
+    """
+    logger.info("Starting Token Reduction Verification (T022a)")
     
     try:
-        # Load data
-        df = load_baseline_comparison(INPUT_FILE)
+        # 1. Load Data
+        df = load_baseline_comparison()
+        logger.info(f"Loaded baseline comparison with {len(df)} rows.")
         
-        # Calculate reduction
+        # 2. Calculate Reduction
         reduction = calculate_reduction(df)
         logger.info(f"Calculated token reduction: {reduction:.2f}%")
         
-        # Check threshold
-        passed = reduction >= THRESHOLD_PERCENT
+        # 3. Generate Report
+        report = generate_verification_report(reduction)
         
-        # Generate report
-        report = generate_verification_report(reduction, passed)
-        save_report(report, OUTPUT_FILE)
+        # 4. Save Report
+        save_report(report)
         
-        if passed:
-            logger.info(f"SUCCESS: Token reduction ({reduction:.2f}%) meets threshold ({THRESHOLD_PERCENT}%).")
-            return 0
-        else:
-            logger.error(f"FAILURE: Token reduction ({reduction:.2f}%) does not meet threshold ({THRESHOLD_PERCENT}%).")
-            generate_failure_artifact(reduction)
-            return 1
-            
+        # 5. Enforce Hard Gate (SC-002)
+        if not report['passed']:
+            logger.error(f"CRITICAL: Token reduction ({reduction:.2f}%) is below threshold ({THRESHOLD*100}%).")
+            logger.error("Pipeline halted due to failure of Success Criterion SC-002.")
+            sys.exit(1)
+        
+        logger.info("Token reduction verification PASSED. Pipeline continues.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data source missing: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during verification: {e}")
-        # If we can't even calculate, we fail the gate
-        return 1
+        logger.error(f"Unexpected error during verification: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

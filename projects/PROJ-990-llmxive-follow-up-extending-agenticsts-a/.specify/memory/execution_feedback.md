@@ -17,7 +17,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    2026-07-22 18:31:19,691 - llmXive.main - INFO - Starting FULL pipeline execution.
+    2026-07-22 18:33:17,812 - llmXive.main - INFO - Starting FULL pipeline execution.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py", line 230, in <module>
     main()

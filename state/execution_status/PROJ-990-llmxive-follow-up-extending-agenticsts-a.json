@@ -4,7 +4,7 @@
   "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/stats.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ion, we will construct a dummy contingency table if not available,\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 18 declared deliverable(s) absent: data/processed/ablation_labels_train.json; data/processed/ablation_labels_validation.json; data/processed/ablation_train_set.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    2026-07-22 18:31:19,691 - llmXive.main - INFO - Starting FULL pipeline execution.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 230, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 227, in main\n    run_full_pipeline(config)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 158, in run_full_"
+    "python code/main.py -> rc=1\n    2026-07-22 18:33:17,812 - llmXive.main - INFO - Starting FULL pipeline execution.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 230, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 227, in main\n    run_full_pipeline(config)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/code/main.py\", line 158, in run_full_"
   ],
   "fix_rounds": 1,
   "model_tier": 0,
@@ -12,5 +12,5 @@
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-22T18:31:21Z"
+  "updated_at": "2026-07-22T18:33:19Z"
 }

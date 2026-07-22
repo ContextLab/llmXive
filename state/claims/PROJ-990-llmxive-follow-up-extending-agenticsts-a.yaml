@@ -370,46 +370,269 @@
   updated_at: '2026-07-21T20:11:28Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: Validation set contains at least 20 trajectories
-  claim_id: c_2758bae9
-  context: The Validation set MUST contain at least 20 trajectories (FR-006) and is
-    distinct from the Ablation-Train set. The Ablation-Train set is used exclusively
-    to generate ground-truth utility labels via ablation.
+  canonical: Warning logged for n less than 300 with specific message for n=298
+  claim_id: c_7b64dc0e
+  context: 'Logic: If n < 300, MUST log a WARNING to data/processed/edge_case_warnings.log
+    with the exact text: ''Warning: statistical power is marginal (n=298); recommend
+    expanding the dataset'', generate data/processed/fallback_flag.json with content
+    {"fallback": true, "reason": "n < 300"}, and proceed.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Validation_set_contains_at_least_20_trajectories
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_for_n_less_than_300_with_specific_message_for
   kind: magnitude
-  raw_text: The Validation set MUST contain at least 20 trajectories.
+  raw_text: 'If n < 300, the system MUST log a WARNING with the text ''Warning: statistical
+    power is marginal (n=298); recommend expanding the dataset'''
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T18:45:15Z'
+  updated_at: '2026-07-22T18:53:55Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: Warning logged for n=298 statistical power
-  claim_id: c_09b3d8d9
-  context: 'If n < 300, MUST log a WARNING to data/processed/edge_case_warnings.log
-    with the exact text: ''Warning: statistical power is marginal (n=298); recommend
-    expanding the dataset'', generate data/processed/fallback_flag.json with content
-    {"fallback": true, "reason": "n < 300"}, and proceed.'
+  canonical: Fallback flag generated for actual dataset size of 298
+  claim_id: c_beef9f47
+  context: 'Action: For n=298 (the actual dataset), this task MUST generate the fallback
+    flag and continue. Do NOT generate synthetic labels.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'If n < 300, the system MUST log a WARNING with the exact text: ''Warning:
-    statistical power is marginal (n=298); recommend expanding the dataset''.'
+  raw_text: For n=298 (the actual dataset), this task MUST generate the fallback flag
+    and continue
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T18:45:35Z'
+  updated_at: '2026-07-22T18:54:21Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: Fallback flag generated for n=298
-  claim_id: c_01d97af1
+  canonical: Pearson correlation between static log proxy and ablation utility is
+    at least 0.7
+  claim_id: c_ff196b09
+  context: "Check Pearson correlation (\u2265 0.7) between static log proxy and ablation\
+    \ utility on the Validation set. Output: data/processed/proxy_validation_report.json.\
+    \ Action: Raise exception if r < 0.7."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_static_log_proxy_and_ablation_ut
+  kind: magnitude
+  raw_text: "Check Pearson correlation (\u2265 0.7) between static log proxy and ablation\
+    \ utility on the Validation set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:54:43Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Prompt size truncated to 4096 tokens if exceeding limit
+  claim_id: c_9ccdc817
+  context: "Maximum Budget: If predicted token count > 4096, truncate or prune the\
+    \ least useful layers until the prompt size is \u2264 4096."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If predicted token count > 4096, truncate or prune the least useful layers\
+    \ until the prompt size is \u2264 4096"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:54:43Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Current Objective layer appended if token count is less than 256
+  claim_id: c_6c0f510d
+  context: 'Minimum Floor: If the selected layers result in a token count < 256 tokens,
+    append the ''Current Objective'' layer to enforce the minimum context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Current_Objective_layer_appended_if_token_count_is_less_than
+  kind: causal
+  raw_text: If the selected layers result in a token count < 256 tokens, append the
+    'Current Objective' layer
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:54:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Model training uses 80/20 split on ablation labels
+  claim_id: c_17794145
+  context: 'If checks pass: Train on data/processed/ablation_labels_train.json (ablation-derived
+    ground-truth utility from T008). Target: utility_score. Split: 80/20 (within train
+    set). Output: models/layer_utility_classifier.pkl.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train on data/processed/ablation_labels_train.json with an 80/20 split
+    within the train set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:55:00Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 if token reduction is less than 30%
+  claim_id: c_c204da98
+  context: "Generate data/processed/token_reduction_verification.json containing a\
+    \ boolean field passed (true if reduction \u2265 30%) and a numeric field actual_reduction_percent.\
+    \ Action: If passed is false, exit with code 1 to enforce SC-002 as a hard gate."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_exits_with_code_1_if_token_reduction_is_less_than_3
+  kind: magnitude
+  raw_text: Exit with code 1 if token reduction is less than 30%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:55:30Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if token reduction criterion is not met
+  claim_id: c_10b5c1e3
+  context: 'Action: If passed is false, exit with code 1 to enforce SC-002 as a hard
+    gate. The pipeline must halt if the success criterion is not met.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_token_reduction_criterion_is_not_met
+  kind: entity_fact
+  raw_text: The pipeline must halt if the token reduction success criterion is not
+    met
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:55:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to win rate and token usage tests
+  claim_id: c_84168e6d
+  context: 'Correction: Apply Bonferroni correction to the family of tests comprising
+    the win rate test AND the token usage test simultaneously to control the family-wise
+    error rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_win_rate_and_token_usage_te
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to the family of tests comprising the win
+    rate test AND the token usage test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:56:22Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if engine error rate exceeds 5% of test set
+  claim_id: c_334593b0
+  context: Log the specific error type and trajectory ID to data/processed/engine_errors.log
+    and fail the pipeline (exit code 1) if the error rate exceeds 5% of the test set,
+    preventing silent data loss.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the pipeline if the error rate exceeds 5% of the test set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:56:22Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Stream mode processes data in batches of 100 lines
+  claim_id: c_1ad0fdee
+  context: 'Add a --stream flag to code/parser.py to support chunked processing of
+    large trajectory files. Behavior: Process data in batches of 100 lines at a time.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process data in batches of 100 lines at a time with --stream flag
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:56:45Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage verified to be less than 7GB for 1GB file in stream mode
+  claim_id: c_be4af024
+  context: 'Behavior: Process data in batches of 100 lines at a time. Verification:
+    Verify memory usage < 7GB with --stream on a 1GB file.'
+  evidence:
+    candidates:
+    - - Memory usage verified to be less than
+      - 7.0
+    - - GB for
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_verified_to_be_less_than_7GB_for_1GB_file_in_st
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-22T18:57:33Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Code refactored if runtime exceeds 6 hours
+  claim_id: c_c5e7d180
+  context: "Logic: If optimization_report.md indicates runtime > 6 hours, refactor\
+    \ code to reduce runtime. Verification: Re-run benchmark and confirm runtime \u2264\
+    \ 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code if runtime > 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:57:33Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Statistical power warning and fallback flag triggered at n < 300
+  claim_id: c_2edac0ee
+  context: 'Logic: If n < 300, MUST log a WARNING... and proceed. If n >= 300, generate
+    data/processed/fallback_flag.json with {fallback: false}. Action: For n=298 (the
+    actual dataset), this task MUST generate the fallback flag and continue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If n < 300, the system MUST log a WARNING... and generate fallback_flag.json...
+    If n >= 300, generate fallback_flag.json with fallback: false.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T19:08:07Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Actual dataset sample size is 298
+  claim_id: c_ccb80902
   context: 'Action: For n=298 (the actual dataset), this task MUST generate the fallback
     flag and continue. Do NOT generate synthetic labels.'
   evidence:
@@ -422,209 +645,30 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T18:45:52Z'
+  updated_at: '2026-07-22T19:08:07Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: Pearson correlation >= 0.7 between static log proxy and ablation utility
-  claim_id: c_2893e495
+  canonical: Pearson correlation threshold between static log proxy and ablation utility
+    is 0.7
+  claim_id: c_ec28dd45
   context: "Check Pearson correlation (\u2265 0.7) between static log proxy and ablation\
     \ utility on the Validation set. Output: data/processed/proxy_validation_report.json.\
     \ Action: Raise exception if r < 0.7."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "The system must check Pearson correlation (\u2265 0.7) between static\
-    \ log proxy and ablation utility on the Validation set."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:45:52Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Maximum token budget 4096
-  claim_id: c_30f78bdb
-  context: "Maximum Budget: If predicted token count > 4096, truncate or prune the\
-    \ least useful layers until the prompt size is \u2264 4096."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The maximum token budget is 4096 tokens.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:46:11Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Minimum context floor 256 tokens
-  claim_id: c_35654d0d
-  context: 'Minimum Floor: If the selected layers result in a token count < 256 tokens,
-    append the ''Current Objective'' layer to enforce the minimum context.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The minimum context floor is 256 tokens.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:46:59Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Pipeline halts if token reduction < 30%
-  claim_id: c_ae939030
-  context: "Action: If passed is false, exit with code 1 to enforce SC-002 as a hard\
-    \ gate. The pipeline must halt if the success criterion is not met. Logic: ...\
-    \ a boolean field passed (true if reduction \u2265 30%)."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_token_reduction_%3C_30%25
-  kind: magnitude
-  raw_text: The pipeline must halt if the token reduction is less than 30%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:47:31Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Pipeline fails if error rate > 5%
-  claim_id: c_a080c83d
-  context: Log the specific error type and trajectory ID to data/processed/engine_errors.log
-    and fail the pipeline (exit code 1) if the error rate exceeds 5% of the test set,
-    preventing silent data loss.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The system must fail the pipeline if the error rate exceeds 5% of the
-    test set.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:47:31Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Runtime refactored to be <= 6 hours if > 6 hours
-  claim_id: c_bc4b4bff
-  context: "Logic: If optimization_report.md indicates runtime > 6 hours, refactor\
-    \ code to reduce runtime. Verification: Re-run benchmark and confirm runtime \u2264\
-    \ 6 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "If the optimization report indicates runtime > 6 hours, code must be\
-    \ refactored to reduce runtime to \u2264 6 hours."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:47:31Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Memory usage < 7GB on 1GB file with stream flag
-  claim_id: c_a74b8aad
-  context: 'Behavior: Process data in batches of 100 lines at a time. Verification:
-    Verify memory usage < 7GB with --stream on a 1GB file.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Memory_usage_%3C_7GB_on_1GB_file_with_stream_flag
-  kind: entity_fact
-  raw_text: The --stream flag must verify memory usage < 7GB on a 1GB file.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:47:36Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Stream flag processes 100 lines per batch
-  claim_id: c_c0d035f8
-  context: 'Behavior: Process data in batches of 100 lines at a time. Verification:
-    Verify memory usage < 7GB with --stream on a 1GB file.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The --stream flag processes data in batches of 100 lines.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T18:47:40Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: warning logged if sample count n < 300 with specific text
-  claim_id: c_57efdb02
-  context: 'Logic: If n < 300, MUST log a WARNING to data/processed/edge_case_warnings.log
-    with the exact text: ''Warning: statistical power is marginal (n=298); recommend
-    expanding the dataset'', generate data/processed/fallback_flag.json with content
-    {"fallback": true, "reason": "n < 300"}, and proceed.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'If n < 300, the system MUST log a WARNING to data/processed/edge_case_warnings.log
-    with the exact text: ''Warning: statistical power is marginal (n=298); recommend
-    expanding the dataset''.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T19:01:23Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: fallback flag generated for dataset with n=298
-  claim_id: c_cda2c19b
-  context: 'Action: For n=298 (the actual dataset), this task MUST generate the fallback
-    flag and continue. Do NOT generate synthetic labels. Note: T014 depends on this
-    output.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: For n=298 (the actual dataset), this task MUST generate the fallback flag
-    and continue.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T19:01:24Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: Pearson correlation between static log proxy and ablation utility on
-    validation set is at least 0.7
-  claim_id: c_dd626251
-  context: "Check Pearson correlation (\u2265 0.7) between static log proxy and ablation\
-    \ utility on the Validation set. Output: data/processed/proxy_validation_report.json.\
-    \ Action: Raise exception if r < 0.7."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_static_log_proxy_and_ablation_ut
-  kind: magnitude
   raw_text: "Check Pearson correlation (\u2265 0.7) between static log proxy and ablation\
     \ utility on the Validation set."
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:01:42Z'
+  updated_at: '2026-07-22T19:08:08Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: token budget enforced at 4096 tokens
-  claim_id: c_cfbe5258
+  canonical: Maximum token budget is 4096
+  claim_id: c_d0659737
   context: "Maximum Budget: If predicted token count > 4096, truncate or prune the\
     \ least useful layers until the prompt size is \u2264 4096. Minimum Floor: If\
     \ the selected layers result in a token count < 256 tokens, append the 'Current\
@@ -639,19 +683,19 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:01:42Z'
+  updated_at: '2026-07-22T19:08:08Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: minimum context floor enforced at 256 tokens
-  claim_id: c_e43fdb0e
-  context: 'Minimum Floor: If the selected layers result in a token count < 256 tokens,
-    append the ''Current Objective'' layer to enforce the minimum context. NaN/Inf
-    Handling: If entropy returns a sentinel (NaN/Inf), default to retrieving the full
-    ''all-layers'' set for that turn and log a warning to data/processed/edge_case_warnings.log.'
+  canonical: Minimum context floor is 256 tokens
+  claim_id: c_705d771d
+  context: "Maximum Budget: If predicted token count > 4096, truncate or prune the\
+    \ least useful layers until the prompt size is \u2264 4096. Minimum Floor: If\
+    \ the selected layers result in a token count < 256 tokens, append the 'Current\
+    \ Objective' layer to enforce the minimum context."
   evidence:
     entailment_status: not_found
     reason: source found but does not address causal claim
-    source_url: https://en.wikipedia.org/wiki/Minimum_context_floor_enforced_at_256_tokens
+    source_url: https://en.wikipedia.org/wiki/Minimum_context_floor_is_256_tokens
   kind: causal
   raw_text: If the selected layers result in a token count < 256 tokens, append the
     'Current Objective' layer to enforce the minimum context.
@@ -660,129 +704,92 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:01:44Z'
+  updated_at: '2026-07-22T19:08:09Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: fixed k=2 retrieval used when fallback is active
-  claim_id: c_328ac523
-  context: Check fallback_flag.json (from T008c). If true, use fixed k=2 retrieval
-    (select top 2 layers by static frequency or predefined priority). If false, use
-    trained model (T009) to predict top-k layers based on current turn entropy (from
-    T005), integrating this prediction with the token budget constraint logic (4096
-    tokens).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If fallback is true, use fixed k=2 retrieval (select top 2 layers by static
-    frequency or predefined priority).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T19:03:19Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: token reduction verification requires at least 30% reduction
-  claim_id: c_d3b575bd
-  context: "Generate data/processed/token_reduction_verification.json containing a\
-    \ boolean field passed (true if reduction \u2265 30%) and a numeric field actual_reduction_percent.\
+  canonical: Token reduction success criterion is 30%
+  claim_id: c_b43e847c
+  context: "Output: Generate data/processed/token_reduction_verification.json containing\
+    \ a boolean field passed (true if reduction \u2265 30%) and a numeric field actual_reduction_percent.\
     \ Action: If passed is false, exit with code 1 to enforce SC-002 as a hard gate."
   evidence:
-    candidates:
-    - - ''
-      - 30.0
-    - - ''
-      - 25.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Token_reduction_verification_requires_at_least_30%25_reduction
-  kind: magnitude
-  raw_text: "Generate data/processed/token_reduction_verification.json containing\
-    \ a boolean field passed (true if reduction \u2265 30%) and a numeric field actual_reduction_percent."
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output: data/processed/token_reduction_verification.json containing a\
+    \ boolean field passed (true if reduction \u2265 30%) and a numeric field actual_reduction_percent."
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
-  status: refuted
-  updated_at: '2026-07-22T19:04:02Z'
+  status: not_enough_info
+  updated_at: '2026-07-22T19:08:10Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: pipeline fails if engine error rate exceeds 5% of test set
-  claim_id: c_035a2297
-  context: 'Log the specific error type and trajectory ID to data/processed/engine_errors.log
+  canonical: Engine error rate failure threshold is 5%
+  claim_id: c_a1707d46
+  context: Log the specific error type and trajectory ID to data/processed/engine_errors.log
     and fail the pipeline (exit code 1) if the error rate exceeds 5% of the test set,
-    preventing silent data loss. Verification: Add unit test tests/unit/test_engine_runner.py::test_error_handling_catches_timeout
-    to verify the try/except blocks function as described.'
+    preventing silent data loss.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Fail the pipeline (exit code 1) if the error rate exceeds 5% of the test
-    set.
+  raw_text: If the error rate exceeds 5% of the test set, fail the pipeline (exit
+    code 1) to prevent silent data loss.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:04:29Z'
+  updated_at: '2026-07-22T19:08:10Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: stream mode memory usage less than 7GB on 1GB file
-  claim_id: c_f407cdb3
+  canonical: Stream mode batch size is 100 lines
+  claim_id: c_f0edc148
   context: 'Add a --stream flag to code/parser.py to support chunked processing of
-    large trajectory files. Behavior: Process data in batches of 100 lines at a time.
-    Verification: Verify memory usage < 7GB with --stream on a 1GB file.'
-  evidence:
-    candidates:
-    - - Log in Stream mode memory usage less than
-      - 7.0
-    - - Stream mode memory usage less than 7GB on
-      - 1.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/Stream_mode_memory_usage_less_than_7GB_on_1GB_file
-  kind: magnitude
-  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-22T19:05:12Z'
-- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  attempts: 1
-  canonical: runtime optimization required if exceeds 6 hours
-  claim_id: c_7751f73b
-  context: "Logic: If optimization_report.md indicates runtime > 6 hours, refactor\
-    \ code to reduce runtime. Verification: Re-run benchmark and confirm runtime \u2264\
-    \ 6 hours. Depends on: T031b."
+    large trajectory files. Behavior: Process data in batches of 100 lines at a time.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Refactor code to reduce runtime if optimization_report.md indicates runtime
-    > 6 hours.
+  raw_text: Process data in batches of 100 lines at a time.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:05:12Z'
+  updated_at: '2026-07-22T19:08:33Z'
 - artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   attempts: 1
-  canonical: test set evaluation compares win rate against static baseline
-  claim_id: c_1c7ce4af
-  context: 'Note: The test set evaluation compares outcomes (win rate) against the
-    static baseline, not layer utility predictions against ground truth (which is
-    impossible without re-running the game engine for every layer removal on the test
-    set). The primary hypothesis test is valid as designed.'
+  canonical: Memory usage limit for stream mode is 7GB on 1GB file
+  claim_id: c_39b3a2a2
+  context: 'Behavior: Process data in batches of 100 lines at a time. Verification:
+    Verify memory usage < 7GB with --stream on a 1GB file.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Test_set_evaluation_compares_win_rate_against_static_baselin
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_for_stream_mode_is_7GB_on_1GB_file
   kind: entity_fact
-  raw_text: The test set evaluation compares outcomes (win rate) against the static
-    baseline, not layer utility predictions against ground truth.
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-22T19:05:29Z'
+  updated_at: '2026-07-22T19:08:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Runtime refactoring threshold is 6 hours
+  claim_id: c_5216df5f
+  context: "Logic: If optimization_report.md indicates runtime > 6 hours, refactor\
+    \ code to reduce runtime. Verification: Re-run benchmark and confirm runtime \u2264\
+    \ 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If optimization_report.md indicates runtime > 6 hours, refactor code to
+    reduce runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T19:08:35Z'

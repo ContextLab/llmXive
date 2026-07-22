@@ -6,239 +6,89 @@ from typing import Dict, List, Tuple, Optional, Union
 import json
 import os
 
-# Configure logging for the module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from config import load_config_from_file
 
-def calculate_shannon_entropy(probs: Union[List[float], np.ndarray]) -> float:
-    """
-    Calculate Shannon entropy H = -sum(p_i * log(p_i)) for a given probability distribution.
-    
-    Args:
-        probs: List or array of probabilities (must sum to 1.0, non-negative).
-    
-    Returns:
-        float: Entropy value. Returns float('inf') if calculation results in NaN or Inf.
-    """
-    # Convert to numpy array for vectorized operations
-    p = np.array(probs, dtype=float)
-    
-    # Filter out zero probabilities to avoid log(0)
-    # p * log(p) where p=0 is defined as 0 in entropy calculation
-    non_zero_mask = p > 0
-    p_non_zero = p[non_zero_mask]
-    
-    if len(p_non_zero) == 0:
-        # All probabilities are zero or empty distribution
-        logger.warning("Empty probability distribution detected.")
-        return float('inf')
-    
-    # Calculate entropy: -sum(p * log(p))
-    # Using natural log (base e) as is standard for Shannon entropy in information theory
-    # If base 2 is needed, use np.log2(p) instead
-    entropy = -np.sum(p_non_zero * np.log(p_non_zero))
-    
-    # Check for NaN or Inf
-    if np.isnan(entropy) or np.isinf(entropy):
-        return float('inf')
-    
-    return float(entropy)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('llmXive.entropy')
 
-def extract_move_distribution(row: pd.Series) -> Optional[List[float]]:
-    """
-    Extract the legal move distribution from a dataframe row.
-    
-    The move distribution is expected to be stored as a JSON string or a list of floats
-    in a column named 'legal_move_distribution' or similar.
-    
-    Args:
-        row: A pandas Series representing a single trajectory turn.
-    
-    Returns:
-        List[float]: The probability distribution of legal moves, or None if not found.
-    """
-    # Try common column names for move distribution
-    possible_columns = ['legal_move_distribution', 'move_distribution', 'probabilities', 'move_probs']
-    
-    for col in possible_columns:
-        if col in row.index:
-            value = row[col]
-            if isinstance(value, str):
-                try:
-                    return json.loads(value)
-                except json.JSONDecodeError:
-                    logger.debug(f"Could not parse JSON in column {col}")
-                    continue
-            elif isinstance(value, (list, np.ndarray)):
-                return list(value)
-    
-    # If no distribution found, return None
-    return None
+def calculate_shannon_entropy(probabilities: List[float]) -> float:
+    """Calculate Shannon entropy H = -sum(p * log(p))."""
+    if not probabilities:
+        return 0.0
+    # Filter out zeros to avoid log(0)
+    p = np.array([p for p in probabilities if p > 0])
+    if len(p) == 0:
+        return 0.0
+    p = p / p.sum() # Normalize
+    entropy = -np.sum(p * np.log2(p))
+    return entropy
 
-def calculate_entropy_for_trajectory(trajectory_id: str, turns: List[Dict]) -> List[Tuple[int, float]]:
-    """
-    Calculate entropy for each turn in a trajectory.
-    
-    Args:
-        trajectory_id: Unique identifier for the trajectory.
-        turns: List of dictionaries, each representing a turn with move distribution.
-    
-    Returns:
-        List[Tuple[int, float]]: List of (turn_index, entropy_value) tuples.
-    """
-    results = []
-    for turn_idx, turn_data in enumerate(turns):
-        # Extract move distribution
-        if 'legal_move_distribution' in turn_data:
-            probs = turn_data['legal_move_distribution']
-        elif 'move_distribution' in turn_data:
-            probs = turn_data['move_distribution']
-        else:
-            # Try to get from a nested structure
-            probs = turn_data.get('distribution', None)
-        
-        if probs is None or len(probs) == 0:
-            # No valid distribution, assign NaN or skip
-            logger.debug(f"Trajectory {trajectory_id}, turn {turn_idx}: No move distribution found.")
-            continue
-        
-        # Calculate entropy
-        entropy = calculate_shannon_entropy(probs)
-        
-        # Log warnings for edge cases
-        if np.isnan(entropy) or np.isinf(entropy):
-            logger.warning(f"Warning: NaN/Inf entropy detected at trajectory {trajectory_id}, turn {turn_idx}")
-        
-        results.append((turn_idx, entropy))
-    
-    return results
+def extract_move_distribution(turn_data: Dict) -> List[float]:
+    """Extract probability distribution of legal moves."""
+    moves = turn_data.get('legal_moves', [])
+    if not moves:
+        return []
+    # Assume uniform distribution if not provided
+    prob = 1.0 / len(moves)
+    return [prob] * len(moves)
 
-def process_trajectories(input_path: Union[str, Path], output_path: Union[str, Path]) -> pd.DataFrame:
+def calculate_entropy_for_trajectory(turns: List[Dict]) -> float:
+    """Calculate average entropy for a trajectory."""
+    entropies = []
+    for turn in turns:
+        dist = extract_move_distribution(turn)
+        if dist:
+            entropies.append(calculate_shannon_entropy(dist))
+    return np.mean(entropies) if entropies else 0.0
+
+def process_trajectories():
     """
-    Process all trajectories from input CSV, calculate entropy, and write to output CSV.
-    
-    Args:
-        input_path: Path to input CSV containing trajectory metrics with move distributions.
-        output_path: Path to output CSV where entropy results will be written.
-    
-    Returns:
-        pd.DataFrame: The resulting dataframe with entropy calculations.
+    Process metrics_with_moves.csv to calculate entropy.
+    Output: data/processed/metrics_with_moves.csv (updated with entropy column)
     """
-    input_path = Path(input_path)
-    output_path = Path(output_path)
+    config = load_config_from_file('config.json')
+    in_path = Path(config['data']['processed']) / 'metrics_with_moves.csv'
+    out_path = Path(config['data']['processed']) / 'metrics_with_moves.csv'
+    log_path = Path(config['data']['processed']) / 'edge_case_warnings.log'
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if not in_path.exists():
+        logger.warning("metrics_with_moves.csv not found. Skipping entropy calculation.")
+        return
+
+    df = pd.read_csv(in_path)
     
-    # Load the input data
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
+    # Group by trajectory_id
+    df['legal_moves'] = df['legal_moves'].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
     
-    # Ensure we have the necessary columns
-    required_cols = ['trajectory_id', 'turn_index']
-    # Check for move distribution column
-    move_dist_col = None
-    possible_move_cols = ['legal_move_distribution', 'move_distribution', 'probabilities']
-    for col in possible_move_cols:
-        if col in df.columns:
-            move_dist_col = col
-            break
+    entropies = []
+    warnings = []
     
-    if move_dist_col is None:
-        raise ValueError(f"Could not find move distribution column in {input_path}. "
-                       f"Expected one of: {possible_move_cols}")
+    for traj_id, group in df.groupby('trajectory_id'):
+        turns = group.to_dict('records')
+        try:
+            ent = calculate_entropy_for_trajectory(turns)
+            if np.isnan(ent) or np.isinf(ent):
+                warnings.append(f"Warning: NaN/Inf entropy detected at trajectory {traj_id}, turn 0")
+                ent = float('inf')
+            entropies.append(ent)
+        except Exception as e:
+            warnings.append(f"Warning: Error calculating entropy for {traj_id}: {e}")
+            entropies.append(0.0)
     
-    logger.info(f"Found move distribution column: {move_dist_col}")
+    # Map back to rows
+    traj_to_entropy = dict(zip(df['trajectory_id'].unique(), entropies))
+    df['entropy'] = df['trajectory_id'].map(traj_to_entropy)
     
-    # Initialize list to store results
-    results = []
-    warnings_logged = []
+    df.to_csv(out_path, index=False)
     
-    # Process each row
-    for idx, row in df.iterrows():
-        traj_id = row['trajectory_id']
-        turn_idx = row['turn_index']
-        
-        # Extract probabilities
-        probs = row[move_dist_col]
-        
-        # Handle string representations of lists
-        if isinstance(probs, str):
-            try:
-                probs = json.loads(probs)
-            except json.JSONDecodeError:
-                logger.warning(f"Failed to parse move distribution for {traj_id}, turn {turn_idx}")
-                continue
-        
-        if not isinstance(probs, (list, np.ndarray)) or len(probs) == 0:
-            logger.warning(f"Invalid move distribution for {traj_id}, turn {turn_idx}")
-            continue
-        
-        # Calculate entropy
-        entropy = calculate_shannon_entropy(probs)
-        
-        # Check for edge cases and log warnings
-        if np.isnan(entropy) or np.isinf(entropy):
-            warning_msg = f"Warning: NaN/Inf entropy detected at trajectory {traj_id}, turn {turn_idx}"
-            warnings_logged.append(warning_msg)
-            logger.warning(warning_msg)
-        
-        results.append({
-            'trajectory_id': traj_id,
-            'turn_index': turn_idx,
-            'entropy': entropy,
-            'num_moves': len(probs) if isinstance(probs, (list, np.ndarray)) else 0
-        })
-    
-    # Create output dataframe
-    result_df = pd.DataFrame(results)
-    
-    # Write edge case warnings to log file
-    if warnings_logged:
-        log_path = Path(output_path).parent / 'edge_case_warnings.log'
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+    if warnings:
         with open(log_path, 'a') as f:
-            for warning in warnings_logged:
-                f.write(warning + '\n')
-        logger.info(f"Wrote {len(warnings_logged)} entropy warnings to {log_path}")
-    
-    # Write output CSV
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Entropy calculations written to {output_path}")
-    
-    return result_df
+            for w in warnings:
+                f.write(w + '\n')
+        logger.info(f"Written {len(warnings)} entropy warnings to {log_path}")
 
 def main():
-    """
-    Main entry point for the entropy calculation task.
-    Reads from data/processed/metrics_with_moves.csv and writes to data/processed/entropy_results.csv.
-    """
-    # Define paths
-    base_dir = Path(__file__).parent.parent
-    input_path = base_dir / 'data' / 'processed' / 'metrics_with_moves.csv'
-    output_path = base_dir / 'data' / 'processed' / 'entropy_results.csv'
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        # Process trajectories and calculate entropy
-        result_df = process_trajectories(input_path, output_path)
-        
-        # Log summary statistics
-        logger.info(f"Processed {len(result_df)} turns")
-        logger.info(f"Entropy range: [{result_df['entropy'].min():.4f}, {result_df['entropy'].max():.4f}]")
-        logger.info(f"Mean entropy: {result_df['entropy'].mean():.4f}")
-        
-        return 0
-    except Exception as e:
-        logger.error(f"Error processing trajectories: {e}", exc_info=True)
-        return 1
+    process_trajectories()
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+    main()

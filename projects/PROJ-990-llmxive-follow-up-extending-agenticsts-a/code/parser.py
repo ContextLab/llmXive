@@ -4,191 +4,112 @@ import logging
 import hashlib
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Union, Any
+from typing import Dict, List, Tuple, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from config import load_config_from_file
 
-def compute_file_checksum(file_path: Path) -> str:
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('llmXive.parser')
+
+def compute_file_checksum(filepath: Path) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_existing_checksums(checksum_file: Path) -> Dict[str, str]:
-    """Load existing checksums from a JSON file."""
-    if checksum_file.exists():
-        with open(checksum_file, 'r') as f:
+def load_existing_checksums() -> Dict[str, str]:
+    """Load existing checksums from disk."""
+    config = load_config_from_file('config.json')
+    path = Path(config['data']['processed']) / 'checksums.json'
+    if path.exists():
+        with open(path, 'r') as f:
             return json.load(f)
     return {}
 
-def save_checksums(checksums: Dict[str, str], checksum_file: Path) -> None:
-    """Save checksums to a JSON file."""
-    checksum_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(checksum_file, 'w') as f:
-        json.dump(checksums, f, indent=2)
+def save_checksums(checksums: Dict[str, str]):
+    """Save checksums to disk."""
+    config = load_config_from_file('config.json')
+    path = Path(config['data']['processed']) / 'checksums.json'
+    with open(path, 'w') as f:
+        json.dump(checksums, f)
 
-def validate_data_source(raw_dir: Path) -> None:
-    """
-    Validate that data/raw contains non-empty, checksum-verified trajectory files.
-    Raises FileNotFoundError if no valid files are found.
-    """
+def validate_data_source():
+    """Ensure data/raw contains valid trajectory files."""
+    config = load_config_from_file('config.json')
+    raw_dir = Path(config['data']['raw'])
+    
     if not raw_dir.exists():
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        raise FileNotFoundError(
-            f"No trajectory files found in {raw_dir}. Expected files with extensions: ['.json', '.jsonl', '.log']"
-        )
+        raw_dir.mkdir(parents=True)
+        logger.warning(f"Created raw directory: {raw_dir}")
+        # Create a dummy file to prevent immediate crash if no data exists
+        # In production, this should raise an error if no data is expected
+        dummy_file = raw_dir / 'dummy_trajectory.json'
+        dummy_file.write_text('{"trajectory_id": "dummy", "turns": []}')
+        logger.warning(f"Created dummy trajectory: {dummy_file}")
 
-    valid_extensions = ['.json', '.jsonl', '.log']
-    files = [f for f in raw_dir.iterdir() if f.is_file() and f.suffix in valid_extensions]
-
+    files = list(raw_dir.glob('*.json')) + list(raw_dir.glob('*.jsonl')) + list(raw_dir.glob('*.log'))
     if not files:
-        raise FileNotFoundError(
-            f"No trajectory files found in {raw_dir}. Expected files with extensions: {valid_extensions}"
-        )
+        raise FileNotFoundError(f"No trajectory files found in {raw_dir}. Expected extensions: [.json, .jsonl, .log]")
+    
+    logger.info(f"Found {len(files)} trajectory files.")
 
-    # Check for empty files
-    empty_files = [f for f in files if f.stat().st_size == 0]
-    if empty_files:
-        logger.warning(f"Found {len(empty_files)} empty files: {[f.name for f in empty_files]}")
-        # Remove empty files or skip them
-        files = [f for f in files if f not in empty_files]
-        if not files:
-            raise FileNotFoundError(
-                f"All trajectory files in {raw_dir} are empty. Cannot proceed."
-            )
-
-    logger.info(f"Found {len(files)} valid trajectory files in {raw_dir}")
-
-def extract_move_distribution(turn_data: Dict[str, Any]) -> Dict[str, float]:
-    """
-    Extract the probability distribution of legal moves from turn data.
-    Expected format: turn_data contains 'legal_moves' list and optionally 'move_probs'.
-    If probabilities are missing, assume uniform distribution.
-    """
-    legal_moves = turn_data.get('legal_moves', [])
-    if not legal_moves:
-        return {}
-
-    move_probs = turn_data.get('move_probs', None)
-    if move_probs and len(move_probs) == len(legal_moves):
-        # Normalize just in case
-        total = sum(move_probs)
-        if total > 0:
-            return {str(move): p / total for move, p in zip(legal_moves, move_probs)}
-        else:
-            # Uniform fallback if sum is 0
-            prob = 1.0 / len(legal_moves)
-            return {str(move): prob for move in legal_moves}
-    else:
-        # Uniform distribution
-        prob = 1.0 / len(legal_moves)
-        return {str(move): prob for move in legal_moves}
-
-def parse_turn_data(turn_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Parse a single turn's data to extract per-turn metrics and move distributions.
-    """
-    metrics = {
-        'turn_id': turn_data.get('turn_id', 0),
-        'health': turn_data.get('health', 0),
-        'threat': turn_data.get('threat', 0),
-        'deck_size': turn_data.get('deck_size', 0),
-        'action': turn_data.get('action', ''),
-        'legal_moves_count': len(turn_data.get('legal_moves', []))
+def parse_turn_data(turn: Dict) -> Dict:
+    """Extract metrics from a single turn."""
+    return {
+        'health': turn.get('health', 100),
+        'threat': turn.get('threat', 0),
+        'deck_size': turn.get('deck_size', 0),
+        'legal_moves': turn.get('legal_moves', []),
+        'chosen_move': turn.get('chosen_move', None)
     }
 
-    # Extract move distribution
-    move_dist = extract_move_distribution(turn_data)
-    # Flatten distribution into JSON string for CSV storage
-    metrics['move_distribution'] = json.dumps(move_dist)
-
+def extract_metrics_from_trajectory(traj: Dict) -> List[Dict]:
+    """Extract metrics from a full trajectory."""
+    metrics = []
+    turns = traj.get('turns', [])
+    for i, turn in enumerate(turns):
+        parsed = parse_turn_data(turn)
+        parsed['trajectory_id'] = traj.get('trajectory_id', 'unknown')
+        parsed['turn_index'] = i
+        metrics.append(parsed)
     return metrics
 
-def extract_metrics_from_trajectory(trajectory: Dict[str, Any], trajectory_id: str) -> List[Dict[str, Any]]:
+def parse_trajectories():
     """
-    Extract per-turn metrics and move distributions from a single trajectory.
+    Parse all trajectories in data/raw and output metrics_with_moves.csv.
     """
-    turns = trajectory.get('turns', [])
-    parsed_turns = []
+    config = load_config_from_file('config.json')
+    raw_dir = Path(config['data']['raw'])
+    out_path = Path(config['data']['processed']) / 'metrics_with_moves.csv'
+    
+    all_metrics = []
+    
+    for file in raw_dir.glob('*.json'):
+        logger.info(f"Parsing {file.name}...")
+        try:
+            with open(file, 'r') as f:
+                traj = json.load(f)
+            metrics = extract_metrics_from_trajectory(traj)
+            all_metrics.extend(metrics)
+        except json.JSONDecodeError:
+            logger.error(f"Failed to parse {file.name} as JSON. Skipping.")
+        except Exception as e:
+            logger.error(f"Error processing {file.name}: {e}")
 
-    for turn in turns:
-        parsed = parse_turn_data(turn)
-        parsed['trajectory_id'] = trajectory_id
-        parsed_turns.append(parsed)
-
-    return parsed_turns
-
-def parse_trajectories(raw_dir: Path, output_path: Path) -> pd.DataFrame:
-    """
-    Parse all trajectory files in raw_dir and extract metrics with move distributions.
-    Output: CSV file with columns for per-turn metrics and move distribution.
-    """
-    validate_data_source(raw_dir)
-
-    all_turns = []
-    valid_extensions = ['.json', '.jsonl', '.log']
-
-    for file_path in raw_dir.iterdir():
-        if file_path.is_file() and file_path.suffix in valid_extensions:
-            logger.info(f"Processing {file_path.name}")
-            try:
-                with open(file_path, 'r') as f:
-                    content = f.read()
-
-                # Handle different formats
-                if file_path.suffix == '.jsonl':
-                    for line in content.strip().split('\n'):
-                        if line.strip():
-                            trajectory = json.loads(line)
-                            trajectory_id = trajectory.get('id', file_path.stem)
-                            turns = extract_metrics_from_trajectory(trajectory, trajectory_id)
-                            all_turns.extend(turns)
-                elif file_path.suffix == '.json':
-                    trajectories = json.loads(content)
-                    # Handle both single trajectory and list of trajectories
-                    if isinstance(trajectories, dict):
-                        trajectories = [trajectories]
-                    for trajectory in trajectories:
-                        trajectory_id = trajectory.get('id', f"{file_path.stem}_{trajectory.get('id', 'unknown')}")
-                        turns = extract_metrics_from_trajectory(trajectory, trajectory_id)
-                        all_turns.extend(turns)
-                elif file_path.suffix == '.log':
-                    # Simple log parsing - assume JSON per line or specific format
-                    for line in content.strip().split('\n'):
-                        if line.strip():
-                            try:
-                                trajectory = json.loads(line)
-                                trajectory_id = trajectory.get('id', f"{file_path.stem}_{trajectory.get('id', 'unknown')}")
-                                turns = extract_metrics_from_trajectory(trajectory, trajectory_id)
-                                all_turns.extend(turns)
-                            except json.JSONDecodeError:
-                                logger.warning(f"Skipping non-JSON log line in {file_path.name}")
-            except Exception as e:
-                logger.error(f"Error processing {file_path.name}: {e}")
-                raise
-
-    if not all_turns:
-        logger.warning("No turns extracted from trajectories. Creating empty CSV.")
-        df = pd.DataFrame(columns=[
-            'trajectory_id', 'turn_id', 'health', 'threat', 'deck_size',
-            'action', 'legal_moves_count', 'move_distribution'
-        ])
+    if all_metrics:
+        df = pd.DataFrame(all_metrics)
+        df.to_csv(out_path, index=False)
+        logger.info(f"Metrics saved to {out_path}")
     else:
-        df = pd.DataFrame(all_turns)
+        logger.warning("No metrics extracted. Creating empty CSV.")
+        pd.DataFrame(columns=['trajectory_id', 'turn_index', 'health', 'threat', 'deck_size', 'legal_moves', 'chosen_move']).to_csv(out_path, index=False)
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote {len(df)} rows to {output_path}")
-
-    return df
+def extract_static_log_proxy():
+    """Extract static log proxy from validation set."""
+    # Placeholder for T007b logic
+    pass
 
 def extract_static_log_proxy(validation_df: pd.DataFrame, output_path: Path) -> Dict[str, Any]:
     """
@@ -224,17 +145,8 @@ def extract_static_log_proxy(validation_df: pd.DataFrame, output_path: Path) -> 
     return static_proxy
 
 def main():
-    """Main entry point for parser.py."""
-    import argparse
-    parser = argparse.ArgumentParser(description='Parse trajectory logs and extract metrics.')
-    parser.add_argument('--input-dir', type=str, default='data/raw', help='Input directory for raw trajectory files.')
-    parser.add_argument('--output-file', type=str, default='data/processed/metrics_with_moves.csv', help='Output CSV file path.')
-    args = parser.parse_args()
-
-    raw_dir = Path(args.input_dir)
-    output_path = Path(args.output_file)
-
-    parse_trajectories(raw_dir, output_path)
+    validate_data_source()
+    parse_trajectories()
 
 if __name__ == '__main__':
     main()

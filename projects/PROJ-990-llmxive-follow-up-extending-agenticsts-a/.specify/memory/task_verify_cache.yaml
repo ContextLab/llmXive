@@ -20,8 +20,8 @@ T030:
     \ or a report of refactoring changes, the requirement cannot be verified."
 T031:
   c: false
-  h: b5ab847f28df23a839a021d3d020d10d51eeb2ec2d5aa34b276e54f3fee20170
-  r: "The repository contains a non\u2011empty `code/benchmark.py`, but the script\
-    \ never writes its timing results to `data/processed/benchmark_log.json` (no JSON\u2011\
-    output code is visible) and the expected `benchmark_log.json` file is absent.\
-    \ Hence the required logging artifact is missing."
+  h: 48b0bf4c3655b5ac390e54932f223ae06cdb17080fa6010b51cc326361a5935d
+  r: "The provided `code/benchmark.py` exists, but it neither records a total runtime\
+    \ nor has produced the required `data/processed/benchmark_log.json` file. The\
+    \ JSON log is missing, and the script does not aggregate a total execution time,\
+    \ so the task\u2019s specification is not satisfied."

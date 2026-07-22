@@ -1,0 +1,10 @@
+{
+  "data": {
+    "raw": "data/raw",
+    "processed": "data/processed",
+    "models": "models"
+  },
+  "TOKEN_BUDGET": 4096,
+  "MIN_CONTEXT": 256,
+  "random_seed": 42
+}

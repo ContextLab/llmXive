@@ -1,58 +1,25 @@
 # llmXive Quickstart Guide
 
-This guide provides the commands to run the full llmXive pipeline for the AgenticSTS follow-up project.
+## Overview
+
+This guide walks through the complete execution of the llmXive automated science pipeline
+for the AgenticSTS follow-up project.
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed: `pip install -r requirements.txt`
-- Raw trajectory data in `data/raw/` (JSON, JSONL, or LOG files)
+- pip dependencies installed (see `requirements.txt`)
+- Project structure initialized (T001)
 
-## Quickstart Commands
+## Installation
 
-Run the following commands in order to execute the full pipeline:
+```bash
+pip install -r requirements.txt
+```
 
-1. **Initialize and Parse Data**
- ```bash
- python code/parser.py
- ```
- *Output*: `data/processed/metrics_with_moves.csv`, `data/processed/edge_case_warnings.log`
+## Execution
 
-2. **Split Dataset**
- ```bash
- python code/splitter.py
- ```
- *Output*: `data/processed/train_set.csv`, `data/processed/ablation_train_set.csv`, `data/processed/validation_set.csv`, `data/processed/test_set.csv`, `data/processed/validation_set_ids.json`
-
-3. **Extract Static Proxy (Validation Set Only)**
- ```bash
- python code/parser.py --extract-static-proxy
- ```
- *Output*: `data/processed/static_log_proxy.json`
-
-4. **Run Ablation Study (Train Set)**
- ```bash
- python code/ablation.py --dataset train_set
- ```
- *Output*: `data/processed/ablation_labels_train.json`
-
-5. **Run Ablation Study (Validation Set)**
- ```bash
- python code/ablation.py --dataset validation_set
- ```
- *Output*: `data/processed/ablation_labels_validation.json`
-
-6. **Validate Sample Count and Generate Fallback Flag**
- ```bash
- python code/validator.py
- ```
- *Output*: `data/processed/fallback_flag.json`
-
-7. **Validate Proxy Correlation and Train Classifier**
- ```bash
- python code/classifier.py
- ```
- *Output*: `models/layer_utility_classifier.pkl`, `data/processed/proxy_validation_report.json`
+Run the full pipeline:
 
 8. **Run Simulations (Dynamic, Static, Random)**
  ```bash
@@ -123,16 +90,101 @@ Alternatively, run the entire pipeline with a single command:
 python code/main.py
 ```
 
-## Validation
+This will execute all phases in order:
+1. **Phase 1**: Setup (already completed)
+2. **Phase 2**: Foundational (data parsing, splitting, ablation, validation)
+3. **Phase 3**: User Stories 1 & 2 (Dynamic policy, baselines, aggregation)
+4. **Phase 4**: Statistical Significance Reporting
+5. **Polish**: Documentation and cleanup
 
-To validate the pipeline outputs:
+## Individual Task Execution
+
+If you need to run specific tasks independently:
+
+### Data Processing
+```bash
+# Parse trajectories
+python code/parser.py
+
+# Split data
+python code/splitter.py
+
+# Calculate entropy
+python code/entropy.py
+```
+
+### Ablation & Validation
+```bash
+# Run ablation study
+python code/ablation.py
+
+# Validate proxy correlation
+python code/classifier.py
+```
+
+### Simulation & Baselines
+```bash
+# Run dynamic simulation
+python code/simulator.py --policy dynamic
+
+# Run static baseline
+python code/baseline_static_runner.py
+
+# Run random baseline
+python code/simulator.py --policy random
+```
+
+### Aggregation & Statistics
+```bash
+# Generate baseline comparison
+python code/generate_baseline_comparison.py
+
+# Check token reduction
+python code/token_reduction_verifier.py
+
+# Check token consistency (T023)
+python code/token_consistency_checker.py
+
+# Run statistical tests
+python code/stats.py
+```
+
+### Validation & Reporting
+```bash
+# Generate final statistical report
+python code/generate_statistical_report.py
+
+# Run quickstart validation
+python code/run_quickstart_validation.py
+```
+
+## Output Artifacts
+
+All processed data will be written to `data/processed/`:
+
+- `metrics_with_moves.csv` - Parsed trajectory metrics
+- `train_set.csv`, `validation_set.csv`, `test_set.csv` - Data splits
+- `ablation_labels_*.json` - Ablation study results
+- `simulation_logs_*.json` - Simulation outputs
+- `baseline_comparison.csv` - Aggregated statistics
+- `token_consistency_report.json` - Token savings consistency (T023)
+- `statistical_results.json` - Final statistical analysis
+
+## Troubleshooting
+
+### Missing Data Files
+Ensure `data/raw/` contains trajectory files (`.json`, `.jsonl`, `.log`).
+
+### Pipeline Failures
+Check `data/processed/edge_case_warnings.log` for specific error details.
+
+### Memory Issues
+Use `--dry-run` flag for a quick validation on a subset:
 ```bash
 python code/quickstart_validator.py
 ```
 
-## Cleanup
+## Next Steps
 
-To run code quality checks:
-```bash
-python code/cleanup_runner.py
-```
+After successful execution, review the final reports in `data/processed/` and
+proceed to Phase 4 (Statistical Significance) if not automatically completed.
