@@ -1,62 +1,55 @@
 import logging
 import sys
 from pathlib import Path
+from typing import Dict, Any, Optional
+
 from utils.config import get_project_root, get_path, ensure_dir, get_config
 from utils.versioning import write_project_state_yaml
 from ingest.annotate_graph import main as annotate_main
 
-def write_state_file(project_id: str, artifact_path: str, output_path: str) -> None:
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def write_state_file(
+    project_id: str, 
+    task_id: str, 
+    artifact_path: Path
+) -> None:
     """
-    Compute the hash of an artifact and write it to the project state YAML file.
+    Write the version state file for the project.
     
     Args:
-        project_id: The project identifier
-        artifact_path: Path to the artifact to hash
-        output_path: Path to the output YAML state file
+        project_id: Project identifier.
+        task_id: Task identifier.
+        artifact_path: Path to the artifact to hash.
     """
-    from utils.versioning import compute_sha256
+    project_root = get_project_root()
+    state_dir = project_root / "state" / "projects"
+    ensure_dir(state_dir)
     
-    # Ensure the artifact exists
-    artifact_file = Path(artifact_path)
-    if not artifact_file.exists():
-        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    state_path = state_dir / f"{project_id}.yaml"
     
-    # Compute hash
-    artifact_hash = compute_sha256(artifact_file)
-    
-    # Prepare artifacts dictionary
-    artifacts = {
-        f"{artifact_file.name}": artifact_hash
-    }
-    
-    # Write state file
-    write_project_state_yaml(project_id, artifacts, output_path)
-    logging.info(f"State file written to {output_path} with hash for {artifact_file.name}")
+    write_project_state_yaml(
+        state_path=state_path,
+        project_id=project_id,
+        task_id=task_id,
+        artifact_path=artifact_path
+    )
+    logger.info(f"State written to {state_path}")
 
-def main():
-    """
-    Main entry point for writing the project state file.
-    Computes the hash of data/processed/annotated_videokr.csv and writes it to
-    state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml
-    """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def main() -> None:
+    """Main entry point for writing version state."""
+    project_id = "PROJ-961-llmxive-follow-up-extending-videokr-towa"
+    task_id = "T013" # Assuming this task produces the annotated data
     
     project_root = get_project_root()
-    project_id = "PROJ-961-llmxive-follow-up-extending-videokr-towa"
-    
-    # Define paths relative to project root
     artifact_path = project_root / "data" / "processed" / "annotated_videokr.csv"
-    output_path = project_root / "state" / "projects" / f"{project_id}.yaml"
     
-    try:
-        write_state_file(project_id, str(artifact_path), str(output_path))
-        logging.info("Successfully wrote project state file.")
-    except FileNotFoundError as e:
-        logging.error(f"Artifact not found: {e}")
+    if not artifact_path.exists():
+        logger.error("Annotated data not found. Run annotate_graph.py first.")
         sys.exit(1)
-    except Exception as e:
-        logging.error(f"Error writing state file: {e}")
-        sys.exit(1)
+        
+    write_state_file(project_id, task_id, artifact_path)
 
 if __name__ == "__main__":
     main()

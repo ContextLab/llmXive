@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.27955",
+  "judged_at": "2026-07-22T07:51:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational overview and canonical reference for the intersection of Reinforcement Learning and GUI agents, which is the core mechanism and domain of the user's question regarding \"On-Policy Distillation\" and \"Continual GUI Agent\" systems. Although it does not specifically mention \"linguistics\" or the exact \"UI-MOPD\" framework, it establishes the essential empirical baseline and technical taxonomy (including continual RL and reward engineering) tha",
+  "relevant": true
+}

@@ -36,23 +36,24 @@ T014b:
   r: "The required `data/processed/annotation_coverage.json` file is missing, so the\
     \ proportion of successfully annotated questions has not been calculated or logged\
     \ as specified. The task\u2019s primary artifact is absent."
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No comparison table (or any other output) was provided; the response contains
-    only the task description and no concrete artifact such as a CSV/markdown table
-    showing accuracy or other metrics across hop thresholds. The required deliverable
-    is missing.
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No overlay plot or any data/analysis artifacts were provided; the claim contains
-    only the task description and specifications, with no figure, code, or results
-    to verify that accuracy curves for different threshold definitions were actually
-    created. The required overlay plot is missing.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No README or usage instruction files were provided in a `docs/` directory, nor
     any evidence that documentation was updated; the response only contains a feature
     specification and no documentation artifacts.
+T031a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files from the `code/` directory or a diff/report showing that unused imports
+    were removed are present. Without the actual script contents or a verification
+    log, we cannot confirm that the imports have been cleaned. The implementer must
+    provide the updated scripts or a tool-generated report confirming removal of all
+    unused imports.
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files from the `code/` directory were presented, nor any diff, type\u2011\
+    hinted signatures, or a report confirming that every public function now includes\
+    \ type annotations. Without concrete artifacts showing the added type hints, the\
+    \ requirement cannot be verified as satisfied."

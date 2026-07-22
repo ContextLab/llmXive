@@ -1,3 +1,1 @@
-"""
-Ingest module for data download, verification, and annotation.
-"""
+"""Ingest module for data downloading, annotation, and verification."""

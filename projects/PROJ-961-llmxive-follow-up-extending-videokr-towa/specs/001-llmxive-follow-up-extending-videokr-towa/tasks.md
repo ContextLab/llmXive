@@ -93,7 +93,7 @@
  - **Enforce Shortest Path**: Use the shortest path rule for multiple paths.
  - **Stratified Oversampling Logic**: If the pilot phase reveals any hop bin (1-5) has <50 records, perform **stratified oversampling with replacement** ONLY on that specific bin to ensure n>=50. Log the method used. This ensures n>=50 without violating data hygiene (no synthetic data).
  - **Output**: Write `data/processed/annotated_videokr.csv` with columns: `id`, `question`, `answer`, `chain_length` (integer), `chain_bin` (categorical), `correctness`. (FR-001, FR-002, SC-001)
-- [ ] T014a [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002).
+- [ ] T014a [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002). <!-- FAILED: unspecified -->
 - [ ] T014b [US1] Calculate and log the proportion of questions successfully annotated to `data/processed/annotation_coverage.json`. **Logic**: `proportion = (total_input_records - unresolvable_count) / total_input_records`. This explicitly measures against the total input records as required by SC-001. (SC-001)
 - [X] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
 

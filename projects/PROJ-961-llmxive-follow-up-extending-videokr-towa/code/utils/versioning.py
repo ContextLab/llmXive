@@ -1,17 +1,20 @@
-"""
-Versioning and state management for data artifacts.
-Implements the Constitution Principle V: Write SHA-256 hashes of data artifacts.
-"""
 import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+
 from utils.config import get_project_root, get_path, ensure_dir, get_config
 
-def compute_sha256(file_path: Union[str, Path]) -> str:
+def compute_sha256(file_path: Path) -> str:
     """
-    Computes the SHA-256 hash of a file.
+    Compute the SHA-256 hash of a file.
+    
+    Args:
+        file_path: Path to the file.
+        
+    Returns:
+        Hex digest of the hash.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -19,69 +22,87 @@ def compute_sha256(file_path: Union[str, Path]) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def hash_artifact(file_path: Union[str, Path]) -> Dict[str, str]:
+def hash_artifact(file_path: Path) -> str:
     """
-    Generates a hash record for a single artifact.
+    Hash an artifact file.
+    
+    Args:
+        file_path: Path to the artifact.
+        
+    Returns:
+        Hex digest of the hash.
     """
-    p = get_path(file_path) if isinstance(file_path, str) else file_path
-    return {
-        "path": str(p),
-        "sha256": compute_sha256(p),
-        "size_bytes": p.stat().st_size
-    }
+    return compute_sha256(file_path)
 
-def hash_directory(dir_path: Union[str, Path], pattern: str = "*") -> List[Dict[str, str]]:
+def hash_directory(directory: Path) -> Dict[str, str]:
     """
-    Generates hash records for all files in a directory.
+    Hash all files in a directory.
+    
+    Args:
+        directory: Path to the directory.
+        
+    Returns:
+        Dictionary of file paths to hashes.
     """
-    p = get_path(dir_path) if isinstance(dir_path, str) else dir_path
-    records = []
-    if p.exists():
-        for file in p.rglob(pattern):
-            if file.is_file():
-                records.append(hash_artifact(file))
-    return records
+    hashes = {}
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(directory)
+            hashes[str(rel_path)] = compute_sha256(file_path)
+    return hashes
 
-def verify_artifact(file_path: Union[str, Path], expected_hash: str) -> bool:
+def verify_artifact(file_path: Path, expected_hash: str) -> bool:
     """
-    Verifies a file's hash against an expected value.
+    Verify an artifact's hash.
+    
+    Args:
+        file_path: Path to the artifact.
+        expected_hash: Expected hash string.
+        
+    Returns:
+        True if hash matches.
     """
-    return compute_sha256(file_path) == expected_hash
+    actual_hash = compute_sha256(file_path)
+    return actual_hash == expected_hash
 
-def write_version_manifest(artifacts: List[Dict[str, str]], output_path: Union[str, Path]) -> None:
+def write_version_manifest(manifest_path: Path, artifacts: Dict[str, str]) -> None:
     """
-    Writes a JSON manifest of artifact hashes.
+    Write a version manifest file.
+    
+    Args:
+        manifest_path: Path to the manifest file.
+        artifacts: Dictionary of artifact paths to hashes.
     """
-    p = get_path(output_path) if isinstance(output_path, str) else output_path
-    ensure_dir(p.parent)
-    with open(p, "w") as f:
+    ensure_dir(manifest_path.parent)
+    with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(artifacts, f, indent=2)
 
-def write_project_state_yaml(project_id: str, artifacts: List[Dict[str, str]], output_path: Optional[Union[str, Path]] = None) -> None:
+def write_project_state_yaml(
+    state_path: Path, 
+    project_id: str, 
+    task_id: str, 
+    artifact_path: Path
+) -> None:
     """
-    Writes the project state to a YAML file.
-    Format:
-    project_id: ...
-    artifacts:
-      - path: ...
-        hash: ...
-    """
-    import yaml
+    Write a project state YAML file.
     
-    if output_path is None:
-        # Default location based on project ID
-        state_dir = get_path("state/projects")
-        ensure_dir(state_dir)
-        safe_id = project_id.replace("/", "-").replace("\\", "-")
-        output_path = state_dir / f"{safe_id}.yaml"
+    Args:
+        state_path: Path to the state file.
+        project_id: Project identifier.
+        task_id: Task identifier.
+        artifact_path: Path to the artifact.
+    """
+    ensure_dir(state_path.parent)
+    
+    if artifact_path.exists():
+        artifact_hash = compute_sha256(artifact_path)
     else:
-        output_path = get_path(output_path) if isinstance(output_path, str) else output_path
-        ensure_dir(output_path.parent)
-
-    state = {
-        "project_id": project_id,
-        "artifacts": artifacts
-    }
-    
-    with open(output_path, "w") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+        artifact_hash = "missing"
+        
+    yaml_content = f"""project_id: {project_id}
+task_id: {task_id}
+artifact_path: {str(artifact_path)}
+artifact_hash: {artifact_hash}
+"""
+    with open(state_path, 'w', encoding='utf-8') as f:
+        f.write(yaml_content)

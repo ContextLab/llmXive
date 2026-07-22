@@ -1,7 +1,7 @@
 # IRB Approval Placeholder
 
 ## Study Protocol Summary
-**Title:** The Impact of Visual Detail on False Memory Susceptibility
+**Title:** The Impact of Visual Detail on False Memory Susceptibility (PROJ-317)
 **Protocol ID:** [To be assigned by IRB]
 **Principal Investigator:** [Researcher Name]
 **Institution:** [Institution Name]
@@ -29,7 +29,7 @@ Participants will be recruited via [method, e.g., university participant pool, o
 - The study has been designed to minimize any potential psychological discomfort.
 
 ## IRB Approval
-This document serves as a placeholder for the official IRB approval letter. The actual approval must be obtained before any data collection begins.
+This document serves as a placeholder for the official IRB approval letter. **The research team MUST obtain formal IRB approval before recruiting participants or collecting data.** Verification of IRB approval will be conducted prior to study launch. If no IRB doc is found, the task must fail and the pipeline halted.
 
 **IRB Approval Number:** [To be assigned]
 **Approval Date:** [To be assigned]

@@ -1,3 +1,1 @@
-"""
-Analysis module for threshold detection, sensitivity analysis, and plotting.
-"""
+"""Analysis module for accuracy stratification, threshold detection, and sensitivity analysis."""

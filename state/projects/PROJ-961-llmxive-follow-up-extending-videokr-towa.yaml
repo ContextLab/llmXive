@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T18:04:55.303388Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-961-llmxive-follow-up-extending-videokr-towa
-last_run_id: b6a987ec-fe05-4b05-934c-7488a3985590
+last_run_id: b7609b9b-913c-4fb9-a22d-5cc6274bd45c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa
 title: 'llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive
   Video Understandin"'
-updated_at: '2026-07-21T06:49:55.556178Z'
+updated_at: '2026-07-22T08:18:35.804533Z'

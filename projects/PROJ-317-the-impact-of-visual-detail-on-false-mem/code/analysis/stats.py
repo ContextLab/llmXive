@@ -43,7 +43,7 @@ def calculate_anova_power(effect_size: float = 0.25, alpha: float = 0.05, power:
         logger.error(f"Power analysis failed: {e}")
         raise
 
-def save_power_analysis(result: Dict[str, Any], filename: str = "power_analysis.json"):
+def save_power_analysis(result: Dict[str, Any], filename: str = "power_report.json"):
     """Save power analysis results to JSON file."""
     output_path = get_processed_dir() / filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -95,6 +95,14 @@ def check_dataset_fit(data: np.ndarray, target_dist: str = "normal") -> Dict[str
 def main():
     """Main entry point for power analysis."""
     result = calculate_anova_power()
+    
+    # Constraint: If calculated N < 50, raise error and halt pipeline
+    if result['total_required_participants'] < 50:
+        raise ValueError(
+            f"Power analysis constraint violated: Calculated total N ({result['total_required_participants']}) "
+            f"is less than the minimum threshold of 50. Pipeline halted."
+        )
+    
     save_power_analysis(result)
     print(f"Power analysis complete. Required N: {result['total_required_participants']}")
 
