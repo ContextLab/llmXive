@@ -13,8 +13,8 @@ properties:
   geomagnetic_index:
     type: string
     enum:
-      - kp_index
-      - dst_index
+      - Kp
+      - Dst
     description: "The geomagnetic variable being tested."
   lag_hours:
     type: integer
@@ -33,13 +33,13 @@ properties:
     description: "Spearman rank correlation coefficient."
   p_raw:
     type: number
-    description: "Raw p-value adjusted for effective sample size (Neff)."
-  p_bonferroni:
+    description: "Raw p-value adjusted for effective degrees of freedom (EDF) using Thomson's MTM."
+  p_holm_bonferroni:
     type: number
-    description: "Bonferroni-corrected p-value (global threshold applied)."
+    description: "Holm-Bonferroni-corrected p-value (family-wise error rate controlled)."
   significance_flag:
     type: boolean
-    description: "True if p_bonferroni < 0.05."
+    description: "True if p_holm_bonferroni < 0.05."
   effect_size_flag:
     type: boolean
     description: "True if absolute(pearson_r) > 0.5."
@@ -50,7 +50,7 @@ required:
   - pearson_r
   - spearman_rho
   - p_raw
-  - p_bonferroni
+  - p_holm_bonferroni
   - significance_flag
   - effect_size_flag
 additionalProperties: false

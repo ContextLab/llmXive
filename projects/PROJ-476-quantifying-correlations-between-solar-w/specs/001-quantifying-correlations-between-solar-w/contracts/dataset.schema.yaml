@@ -1,41 +1,41 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Synchronized Solar Wind and Geomagnetic Dataset
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synchronized Solar Wind and Geomagnetic Dataset"
 description: "Schema for the aligned hourly dataset used in correlation analysis."
-type: object
+type: "object"
 properties:
   timestamp:
-    type: string
-    format: date-time
-    description: "UTC timestamp of the observation."
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp (hourly resolution)."
   proton_density:
-    type: number
-    description: "Proton number density (cm⁻³)."
+    type: "number"
+    description: "Proton density in cm^-3. May be interpolated."
     minimum: 0
   temperature:
-    type: number
-    description: "Proton temperature (K)."
+    type: "number"
+    description: "Proton temperature in Kelvin. May be interpolated."
     minimum: 0
   helium_abundance:
-    type: number
-    description: "Helium abundance ratio (dimensionless or %)."
+    type: "number"
+    description: "Helium abundance (He2+/H+ ratio) as percentage. May be interpolated."
     minimum: 0
-  kp_index:
-    type: number
-    description: "Planetary K index (0-9)."
+  Kp:
+    type: "number"
+    description: "Planetary K-index (0-9)."
     minimum: 0
     maximum: 9
-  dst_index:
-    type: number
-    description: "Disturbance Storm Time index (nT)."
-  interpolated:
-    type: boolean
-    description: "True if any value was filled by linear interpolation."
+  Dst:
+    type: "number"
+    description: "Disturbance Storm Time index in nT."
+  interpolated_flag:
+    type: "boolean"
+    description: "True if any value in this row was interpolated."
 required:
   - timestamp
   - proton_density
   - temperature
   - helium_abundance
-  - kp_index
-  - dst_index
-  - interpolated
+  - Kp
+  - Dst
+  - interpolated_flag
 additionalProperties: false

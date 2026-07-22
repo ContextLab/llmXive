@@ -1,44 +1,88 @@
-- artifact_hash: 9101a01fe8481015eb24cc5cde4466782f01dde6b87672409533815ee72e45a5
+- artifact_hash: cebc418cf32976aed360473896038c413d9b5b849ef71b668dc637e8aa7d5da8
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Lock
+  kind: url
+  value: https://cdaweb.gsfc.nasa.gov/index.html/`
+  verification_status: pending
+  verified_against_url: https://cdaweb.gsfc.nasa.gov/index.html
+  verified_at: '2026-07-22T09:06:34.626108Z'
+- artifact_hash: cebc418cf32976aed360473896038c413d9b5b849ef71b668dc637e8aa7d5da8
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Index of /pub/data/ace
+  kind: url
+  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/`
+  verification_status: pending
+  verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/
+  verified_at: '2026-07-22T09:06:34.626108Z'
+- artifact_hash: cebc418cf32976aed360473896038c413d9b5b849ef71b668dc637e8aa7d5da8
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.swpc.noaa.gov/products/kp-planetary-indices`
+  verification_status: mismatch
+  verified_against_url: https://www.spaceweather.gov/products/kp-planetary-indices
+  verified_at: '2026-07-22T09:06:34.626108Z'
+- artifact_hash: cebc418cf32976aed360473896038c413d9b5b849ef71b668dc637e8aa7d5da8
+  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/plan.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.swpc.noaa.gov/products/dst-index`
+  verification_status: mismatch
+  verified_against_url: https://www.spaceweather.gov/products/dst-index
+  verified_at: '2026-07-22T09:06:34.626108Z'
+- artifact_hash: a02ecdfc2fe1db7531581d6e70a79fe7e973c8dabe7a870c4c070c565e6068f8
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: assets.zip
+  fetched_title: Lock
   kind: url
-  value: https://huggingface.co/datasets/ij5/ace/resolve/main/assets.zip`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62ec9a0c71495fbbf835c8a9/6944d82b065f92ba54205bb8f31d75a465a46c955e6bc5957ec25e290ca807ae?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27assets.zip%3B+filename%3D%22assets.zip%22%3B&response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&user_id=public&Expires=1782996124&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJlYzlhMGM3MTQ5NWZiYmY4MzVjOGE5LzY5NDRkODJiMDY1ZjkyYmE1NDIwNWJiOGYzMWQ3NWE0NjVhNDZjOTU1ZTZiYzU5NTdlYzI1ZTI5MGNhODA3YWVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YXNzZXRzLnppcCUzQitmaWxlbmFtZSUzRCUyMmFzc2V0cy56aXAlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGemlwJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5OTYxMjR9fX1dfQ__&Signature=MEUCIQCe410hU3AfOZUA7c1z2OMnQzQtE0xYyCVUH21fMestDgIgCN13JcW2mvDbL5TDNsY6arMXKXpWp0oJvumMGf0WUOM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T11:42:04.266903Z'
-- artifact_hash: 9101a01fe8481015eb24cc5cde4466782f01dde6b87672409533815ee72e45a5
+  value: https://cdaweb.gsfc.nasa.gov/index.html/`
+  verification_status: pending
+  verified_against_url: https://cdaweb.gsfc.nasa.gov/index.html
+  verified_at: '2026-07-22T09:06:52.931456Z'
+- artifact_hash: a02ecdfc2fe1db7531581d6e70a79fe7e973c8dabe7a870c4c070c565e6068f8
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: test.tsv
+  fetched_title: Index of /pub/data/ace
   kind: url
-  value: https://huggingface.co/datasets/ErickP/ace1/resolve/main/test.tsv`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ErickP/ace1/9322c806ba8db944d6d476d2657bf6f521ff4c84/test.tsv?%2Fdatasets%2FErickP%2Face1%2Fresolve%2Fmain%2Ftest.tsv=&etag=%2298eb957dc371d2b591df044152d922d1d7f047f6%22
-  verified_at: '2026-07-02T11:42:04.266903Z'
-- artifact_hash: 9101a01fe8481015eb24cc5cde4466782f01dde6b87672409533815ee72e45a5
+  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/`
+  verification_status: pending
+  verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/
+  verified_at: '2026-07-22T09:06:52.931456Z'
+- artifact_hash: a02ecdfc2fe1db7531581d6e70a79fe7e973c8dabe7a870c4c070c565e6068f8
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: challenge_set.jsonl
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/nikitam/ACES/resolve/main/challenge_set.jsonl`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6347c043dd46870a5aebec30/be0f70c07dd4b1bbdae6d0cee0190d62729ff24ebad4916c50f2f1a32495f7c2?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27challenge_set.jsonl%3B+filename%3D%22challenge_set.jsonl%22%3B&Expires=1782996125&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM0N2MwNDNkZDQ2ODcwYTVhZWJlYzMwL2JlMGY3MGMwN2RkNGIxYmJkYWU2ZDBjZWUwMTkwZDYyNzI5ZmYyNGViYWQ0OTE2YzUwZjJmMWEzMjQ5NWY3YzJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Y2hhbGxlbmdlX3NldC5qc29ubCUzQitmaWxlbmFtZSUzRCUyMmNoYWxsZW5nZV9zZXQuanNvbmwlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjk5NjEyNX19fV19&Signature=MEUCIGwzQgWFoZBG-Z4OwakLhFOlQpaTIrFiesF0nlEZLGiYAiEAn7dMFSFwzBQh3a0ppqdbIwE7usTL59i1ImH0-4e2-nU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T11:42:04.266903Z'
-- artifact_hash: 9101a01fe8481015eb24cc5cde4466782f01dde6b87672409533815ee72e45a5
+  value: https://www.swpc.noaa.gov/products/kp-planetary-indices`
+  verification_status: mismatch
+  verified_against_url: https://www.spaceweather.gov/products/kp-planetary-indices
+  verified_at: '2026-07-22T09:06:52.931456Z'
+- artifact_hash: a02ecdfc2fe1db7531581d6e70a79fe7e973c8dabe7a870c4c070c565e6068f8
   artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/research.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: _utcd_info.json
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/claritylab/utcd/resolve/main/_utcd_info.json`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/claritylab/utcd/a8ae39963cef8309a23c63334cd5c6c6604942f2/_utcd_info.json?%2Fdatasets%2Fclaritylab%2Futcd%2Fresolve%2Fmain%2F_utcd_info.json=&etag=%22d4617f2e5f574cfbe815a0d482a7f107a06cdf76%22
-  verified_at: '2026-07-02T11:42:04.266903Z'
+  value: https://www.swpc.noaa.gov/products/dst-index`
+  verification_status: mismatch
+  verified_against_url: https://www.spaceweather.gov/products/dst-index
+  verified_at: '2026-07-22T09:06:52.931456Z'

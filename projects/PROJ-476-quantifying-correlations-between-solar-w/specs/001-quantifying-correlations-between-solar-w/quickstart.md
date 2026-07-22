@@ -1,49 +1,63 @@
 # Quickstart: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
 
 ## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (or a local machine with ≤ 7 GB RAM).
+
+*   Python 3.11+
+*   `pip` (package manager)
+*   Internet access (to fetch data from CDAWeb/NOAA)
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-476-quantifying-correlations-between-solar-w
-pip install -r code/requirements.txt
-```
+1.  **Clone the repository** (or navigate to the project directory):
+    ```bash
+    cd projects/PROJ-476-quantifying-correlations-between-solar-w
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Dependencies include: `pandas`, `numpy`, `scipy`, `statsmodels`, `requests`, `matplotlib`, `seaborn`.*
 
 ## Running the Pipeline
 
-> **Important**: The NOAA Kp/Dst dataset currently lacks a verified download URL. The pipeline will abort with a clear error until a verified source is added (see Constitution Principle II).
+### 1. Data Acquisition & Synchronization
 
-### 1. Fetch & Validate
+Run the main script to fetch and sync data for the default period (1998–2020).
 ```bash
-python code/main.py fetch --start 1998-01-01 --end 2020-12-31
+python code/main.py --fetch --sync --start 1998-01-01 --end 2020-12-31
 ```
-Creates `data/processed/synced.csv` (no NaNs).
+*   **Output**: `data/processed/synced.csv`
+*   **Logs**: Check `logs/sync.log` for interpolation warnings.
 
-### 2. Compute Global Thresholds
+### 2. Correlation Analysis
+
+Run the analysis on the synced data.
 ```bash
-python code/main.py compute-thresholds
+python code/main.py --analyze --period train
 ```
-Generates `artifacts/thresholds/global_threshold.json`.
+*   **Output**: `results/correlations.csv`
+*   **Method**: Pearson/Spearman with Bonferroni correction and $N_{eff}$ adjustment.
 
-### 3. Correlation Analysis
+### 3. Validation & Visualization
+
+Run validation on the held-out period (2018–2020) and generate plots.
 ```bash
-python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6
+python code/main.py --validate --period test --plots
 ```
-Outputs `artifacts/correlations.csv`.
+*   **Output**:
+    *   `results/validation_report.md`
+    *   `figures/ts_overlay.png`
+    *   `figures/heatmap.png`
 
-### 4. Validation (held‑out 2018‑2020)
-```bash
-python code/main.py validate --data data/processed/synced.csv --test-start 2018-01-01 --test-end 2020-12-31
-```
-Produces PNGs under `artifacts/plots/` (≤ 5 MB each) and `artifacts/reports/validation_report.md`.
+## Verifying Results
 
-## Expected Outputs
-- `data/processed/synced.csv` – aligned, gap‑filled (no NaNs).  
-- `artifacts/thresholds/global_threshold.json` – Neff & Bonferroni α_adj.  
-- `artifacts/correlations.csv` – 30 rows of results.  
-- PNG heatmaps & time‑series overlays (≤ 5 MB).  
-- `validation_report.md` – summary of effect‑size and significance.
+1.  **Check the report**: Open `results/validation_report.md` to see if any pair exceeded $|r| > 0.5$ with corrected significance.
+2.  **Inspect the heatmap**: Ensure the `figures/heatmap.png` shows the lagged correlations clearly.
+3.  **Reproducibility**: Run the pipeline again. Results should be identical (due to fixed random seeds and deterministic data fetch).
+
+## Troubleshooting
+
+*   **Missing Data**: If the pipeline aborts with "Missing variable: helium_abundance", check the ACE data source for gaps > 6 hours.
+*   **Network Error**: If data fetch fails, ensure your firewall allows access to `cdaweb.gsfc.nasa.gov` and `www.swpc.noaa.gov`.
+*   **Memory Error**: The pipeline is designed for < 7 GB RAM. If you encounter memory issues, ensure no other heavy processes are running.

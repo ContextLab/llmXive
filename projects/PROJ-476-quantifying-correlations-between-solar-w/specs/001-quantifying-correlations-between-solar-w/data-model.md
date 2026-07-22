@@ -3,44 +3,65 @@
 ## Entities
 
 ### SolarWindRecord
-- `timestamp`: `datetime` (UTC, 1‑hour)
-- `proton_density`: `float` (cm⁻³) – from **N_p**
-- `temperature`: `float` (K) – from **T_p**
-- `helium_abundance`: `float` (dimensionless) – from **He2+_ratio**
+
+Represents a single hourly measurement of solar wind composition.
+
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `timestamp` | `datetime` | UTC timestamp (hourly resolution) | ACE Level 2 |
+| `proton_density` | `float` | Proton density ($cm^{-3}$) | ACE SWEPAM (`N_p`) |
+| `temperature` | `float` | Proton temperature (K) | ACE SWEPAM (`T_p`) |
+| `helium_abundance` | `float` | Helium abundance (He$^{2+}$/H$^+$ ratio, %) | ACE SWICS (`He2+_ratio`) |
 
 ### GeomagneticRecord
-- `timestamp`: `datetime` (UTC, 1‑hour)
-- `kp_index`: `float` (0‑9)
-- `dst_index`: `float` (nT)
+
+Represents a single hourly measurement of geomagnetic activity.
+
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `timestamp` | `datetime` | UTC timestamp (hourly resolution) | NOAA SWPC |
+| `Kp` | `float` | Planetary K-index (0–9, 1/3 steps) | NOAA |
+| `Dst` | `float` | Disturbance Storm Time index (nT) | NOAA |
 
 ### SynchronizedRecord
-- `timestamp`: `datetime`
-- `proton_density`: `float`
-- `temperature`: `float`
-- `helium_abundance`: `float`
-- `kp_index`: `float`
-- `dst_index`: `float`
-- `interpolated`: `boolean` – true if any field was linearly interpolated (≤ 6 h).
+
+The unified record after alignment (1-hour grid).
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `timestamp` | `datetime` | Common UTC timestamp |
+| `proton_density` | `float` | Interpolated if missing |
+| `temperature` | `float` | Interpolated if missing |
+| `helium_abundance` | `float` | Interpolated if missing |
+| `Kp` | `float` | Interpolated if missing |
+| `Dst` | `float` | Interpolated if missing |
+| `interpolated_flag` | `bool` | True if any value was interpolated |
 
 ### CorrelationResult
-- `composition_parameter`: `string`
-- `geomagnetic_index`: `string`
-- `lag_hours`: `int`
-- `pearson_r`: `float`
-- `spearman_rho`: `float`
-- `p_raw`: `float`
-- `p_bonferroni`: `float`
-- `significance_flag`: `boolean`
-- `effect_size_flag`: `boolean`
+
+The output of the statistical analysis.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `composition_param` | `str` | One of: `proton_density`, `temperature`, `helium_abundance` |
+| `geomagnetic_index` | `str` | One of: `Kp`, `Dst` |
+| `lag_hours` | `int` | Lag in hours (0, 1, 2, 3, 6) |
+| `pearson_r` | `float` | Pearson correlation coefficient |
+| `spearman_rho` | `float` | Spearman rank correlation coefficient |
+| `p_raw` | `float` | Raw p-value (using $N_{eff}$) |
+| `p_bonferroni` | `float` | Bonferroni-corrected p-value |
+| `significant` | `bool` | True if `p_bonferroni` < 0.05 |
+| `effect_size_large` | `bool` | True if `abs(pearson_r)` > 0.5 |
 
 ## Data Flow
 
-1. **Raw Ingestion** – `data/raw/ace_*.csv`, `data/raw/noaa_*.csv`.  
-2. **Validation** – `code/data/validate.py` checks for `N_p`, `T_p`, `He2+_ratio`; aborts with explicit missing‑variable message (SC‑002).  
-3. **Alignment** – `code/data/align.py` produces `SynchronizedRecord` rows; guarantees no NaNs (SC‑004).  
-4. **Analysis** – `code/analysis/neff.py` & `correlation.py` generate `CorrelationResult` rows (30 total).  
-5. **Output** – `artifacts/correlations.csv` (conforms to `contracts/analysis_schema.schema.yaml`).  
-6. **Visualization** – PNG artefacts (validated by `contracts/visual_artifact.schema.yaml`).  
-7. **Report** – Markdown report (`contracts/output.schema.yaml`).  
+1.  **Fetch**: Raw CSVs from ACE/NOAA → `data/raw/`.
+2.  **Sync**: Parse, align, interpolate → `data/processed/synced.csv`.
+3.  **Analyze**: Compute correlations → `results/correlations.csv`.
+4.  **Validate**: Filter for hold-out period, check thresholds → `results/validation_report.md`.
 
-All artefacts are version‑hashed and recorded in `state/`.
+## Constraints
+
+*   **Missing Variables**: If `helium_abundance` is missing for > 6 hours, the pipeline aborts (FR-006).
+*   **Interpolation**: Max gap for interpolation is 6 hours. Larger gaps are flagged and excluded.
+*   **Lag Range**: Only 0, 1, 2, 3, 6 hours are analyzed.

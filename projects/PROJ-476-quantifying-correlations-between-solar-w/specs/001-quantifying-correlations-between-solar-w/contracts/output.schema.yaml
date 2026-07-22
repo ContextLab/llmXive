@@ -1,66 +1,56 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Correlation Analysis Results
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
 description: "Schema for the output of the lagged correlation analysis."
-type: object
+type: "object"
 properties:
-  param_name:
-    type: string
-    description: "Name of the solar wind parameter (e.g., 'helium_abundance')."
+  composition_param:
+    type: "string"
     enum:
-      - proton_density
-      - temperature
-      - helium_abundance
-  index_name:
-    type: string
-    description: "Name of the geomagnetic index."
+      - "proton_density"
+      - "temperature"
+      - "helium_abundance"
+    description: "The solar wind parameter being analyzed."
+  geomagnetic_index:
+    type: "string"
     enum:
-      - kp_index
-      - dst_index
+      - "Kp"
+      - "Dst"
+    description: "The geomagnetic index being analyzed."
   lag_hours:
-    type: integer
-    description: "Time lag in hours."
+    type: "integer"
     enum:
       - 0
       - 1
       - 2
       - 3
       - 6
+    description: "The time lag in hours."
   pearson_r:
-    type: number
+    type: "number"
     description: "Pearson correlation coefficient."
   spearman_rho:
-    type: number
+    type: "number"
     description: "Spearman rank correlation coefficient."
-  n_raw:
-    type: integer
-    description: "Raw sample size."
-    minimum: 1
-  n_eff:
-    type: number
-    description: "Effective sample size after autocorrelation adjustment (calculated on full series)."
-    minimum: 1
   p_raw:
-    type: number
-    description: "Raw p-value."
-    minimum: 0
-    maximum: 1
-  p_bonferroni:
-    type: number
-    description: "Bonferroni-corrected p-value (global threshold)."
-    minimum: 0
-    maximum: 1
-  is_significant:
-    type: boolean
-    description: "True if p_bonferroni < 0.05."
+    type: "number"
+    description: "Raw p-value adjusted for effective degrees of freedom (EDF) using Thomson's MTM."
+  p_holm_bonferroni:
+    type: "number"
+    description: "Holm-Bonferroni-corrected p-value."
+  significant:
+    type: "boolean"
+    description: "True if p_holm_bonferroni < 0.05."
+  effect_size_large:
+    type: "boolean"
+    description: "True if abs(pearson_r) > 0.5."
 required:
-  - param_name
-  - index_name
+  - composition_param
+  - geomagnetic_index
   - lag_hours
   - pearson_r
   - spearman_rho
-  - n_raw
-  - n_eff
   - p_raw
-  - p_bonferroni
-  - is_significant
+  - p_holm_bonferroni
+  - significant
+  - effect_size_large
 additionalProperties: false
