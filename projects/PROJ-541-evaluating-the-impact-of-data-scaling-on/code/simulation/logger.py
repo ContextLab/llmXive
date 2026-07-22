@@ -4,12 +4,10 @@ from __future__ import annotations
 import functools
 import json
 import logging
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Optional
-
-from logging.handlers import RotatingFileHandler
-from pathlib import Path
+from typing import Any
 
 @dataclass
 class LogEntry:
@@ -20,6 +18,7 @@ class LogEntry:
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
+
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
@@ -29,7 +28,15 @@ class ReproducibilityLogger:
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        # Handle both string name and keyword arguments
+        if args:
+            self.name = args[0]
+        else:
+            self.name = kwargs.get("name", kwargs.get("batch_id", "reproducibility"))
+        
+        # Extract batch_id and seed for context if provided
+        self.batch_id = kwargs.get("batch_id", None)
+        self.seed = kwargs.get("seed", None)
         self.entries: list = []
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
@@ -75,55 +82,32 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def setup_logger(*args: Any, batch_id: Optional[str] = None, **kwargs: Any) -> Any:
+def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
     """
-    Setup a logger compatible with all call sites.
-
-    Accepts:
-      - setup_logger("name")
-      - setup_logger(batch_id="main_pipeline")
-      - setup_logger(__name__)
-
-    Returns a ReproducibilityLogger instance that never raises.
-    If a real logging setup is needed for file rotation, it is configured
-    separately but the return value remains the ReproducibilityLogger to
-    satisfy the 'to_json' and flexible argument requirements.
+    Setup a logger instance. Accepts multiple call shapes:
+    1. setup_logger("name_string") -> positional arg
+    2. setup_logger(batch_id="id") -> keyword arg
+    3. setup_logger(__name__) -> positional arg
+    
+    Returns a ReproducibilityLogger that never raises on unexpected call shapes.
     """
-    # Extract name if passed as positional arg
-    name = None
+    global _GLOBAL_LOGGER
+    
+    # If called with positional args, use the first as name
     if args:
-        if isinstance(args[0], str):
-            name = args[0]
-        elif hasattr(args[0], '__name__'):
-            name = args[0].__name__
-
-    if not name:
-        name = kwargs.get("name", "reproducibility")
-
-    # Configure the standard library logger for file rotation if requested
-    # This is side-effect only; we still return the ReproducibilityLogger
-    std_logger = logging.getLogger(name)
-    std_logger.setLevel(logging.INFO)
-    std_logger.propagate = False  # Avoid double logging if handlers exist
-
-    # Check if handlers already exist to avoid duplicates
-    if not std_logger.handlers:
-        log_dir = Path("logs")
-        log_dir.mkdir(exist_ok=True)
-        log_file = log_dir / "simulation.log"
-
-        handler = RotatingFileHandler(
-            log_file, maxBytes=10*1024*1024, backupCount=5
-        )
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        std_logger.addHandler(handler)
-
-    # Log batch_id if provided for Constitution Principle VI
-    if batch_id:
-        std_logger.info(f"Batch ID initialized: {batch_id}")
-
-    # Return the tolerant ReproducibilityLogger
-    return ReproducibilityLogger(name=name, batch_id=batch_id)
+        name_or_batch = args[0]
+        if isinstance(name_or_batch, str):
+            # If it looks like a module name or simple string, use as name
+            logger = ReproducibilityLogger(name=name_or_batch, **kwargs)
+        else:
+            # Fallback
+            logger = ReproducibilityLogger(*args, **kwargs)
+    else:
+        # If called with only kwargs (e.g., batch_id=...), use kwargs
+        logger = ReproducibilityLogger(**kwargs)
+    
+    # Update global if not set
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = logger
+    
+    return logger

@@ -12,7 +12,10 @@ class TestFullPipeline:
         # Create sample data
         df = pd.DataFrame({
             "p_value": [0.01, 0.05, 0.1, 0.03, 0.04],
-            "ground_truth": [True, True, False, True, True]
+            "ground_truth": [True, True, False, True, True],
+            "scaling_method": ["std"] * 5,
+            "test_type": ["t-test"] * 5,
+            "config_id": ["c1"] * 5
         })
         
         # Run pipeline
@@ -20,33 +23,36 @@ class TestFullPipeline:
         
         # Verify result structure
         assert result is not None
-        assert "type1_error_rate" in result or "error_rate" in result
+        assert "status" in result
+        assert result["status"] == "success"
+        assert "metrics" in result
 
     def test_run_full_analysis_pipeline_no_args(self):
         """Test run_full_analysis_pipeline with no args (tolerant)."""
         # This should not crash even if no data is provided
         # Implementation should handle missing file gracefully
-        try:
-            result = run_full_analysis_pipeline()
-            # If it returns, it handled the missing file
-            assert isinstance(result, dict)
-        except FileNotFoundError:
-            # Expected if file doesn't exist and we choose to raise
-            pass
-        except Exception as e:
-            # Should not crash with other errors
-            raise e
+        result = run_full_analysis_pipeline()
+        
+        # If it returns, it handled the missing file
+        assert isinstance(result, dict)
+        # It should contain an error key if no files found
+        if "error" in result:
+            assert "No data found" in result["error"]
 
 class TestEmpiricalErrorRate:
     def test_error_rate_calculation(self):
         """Test error rate calculation."""
         df = pd.DataFrame({
             "p_value": [0.01, 0.05, 0.1, 0.03, 0.04],
-            "ground_truth": [True, True, False, True, True]
+            "ground_truth": [True, True, False, True, True],
+            "scaling_method": ["std"] * 5,
+            "test_type": ["t-test"] * 5,
+            "config_id": ["c1"] * 5
         })
         metrics = calculate_aggregate_metrics(df)
         # Check if metrics contain error rate
-        assert "error_rate" in metrics or "type1_error_rate" in metrics
+        assert "error_rate" in metrics.columns or "type1_error_rate" in metrics.columns
+        assert len(metrics) > 0
 
 class TestComparisonReport:
     def test_generate_comparison_report(self):
@@ -54,16 +60,22 @@ class TestComparisonReport:
         # Create synthetic data
         synth_df = pd.DataFrame({
             "p_value": np.random.rand(100),
-            "ground_truth": np.random.choice([True, False], 100)
+            "ground_truth": np.random.choice([True, False], 100),
+            "scaling_method": ["std"] * 100,
+            "test_type": ["t-test"] * 100,
+            "config_id": ["c1"] * 100
         })
         
         # Create real data
         real_df = pd.DataFrame({
             "p_value": np.random.rand(100),
+            "ground_truth": np.random.choice([True, False], 100),
+            "scaling_method": ["std"] * 100,
+            "test_type": ["t-test"] * 100,
             "dataset_id": ["d1"] * 100
         })
         
-        output_path = "results/test_comparison_report.md"
+        output_path = "results/comparison_report.md"
         
         # Generate report
         generate_comparison_report(synth_df, real_df, output_path)
@@ -81,6 +93,9 @@ class TestComparisonReport:
         assert "Real_Value" in content
         assert "Mean_Absolute_Difference" in content
         assert "Correlation_Coefficient" in content
+        
+        # Cleanup
+        os.remove(output_path)
 
 class TestMixedEffectsModel:
     def test_mixed_effects_model(self):
@@ -91,11 +106,12 @@ class TestMixedEffectsModel:
             df = pd.DataFrame({
                 "p_value": np.random.rand(100),
                 "scaling_method": np.random.choice(["std", "minmax", "robust"], 100),
-                "dataset_id": np.random.choice(["d1", "d2"], 100)
+                "config_id": np.random.choice(["c1", "c2"], 100),
+                "error_rate": np.random.rand(100)
             })
             # Run model
             from analysis.metrics import fit_mixed_effects_model
-            result = fit_mixed_effects_model(df)
+            result = fit_mixed_effects_model(df, data_type="synthetic")
             assert result is not None
         except ImportError:
             pytest.skip("statsmodels not installed")

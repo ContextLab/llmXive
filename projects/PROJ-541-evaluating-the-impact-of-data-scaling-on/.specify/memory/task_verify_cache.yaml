@@ -9,6 +9,13 @@ T027c:
     \ test to pass. The next implementer must create the missing CSV log with the\
     \ specified columns and ensure the full ingestion logic and all referenced functions\
     \ are implemented and exercise"
+T028a:
+  c: false
+  h: 7c480ebea748c0b882aa42a0b013d00695380b85ac19da470d99cc578e3440eb
+  r: "The required output file `results/simulation_results.csv` does not exist, and\
+    \ the provided `code/main.py` excerpt stops mid\u2011function without showing\
+    \ a full iteration loop, CSV writing, or the time\u2011limit/exit\u2011code logic.\
+    \ Consequently the deliverable specified in the task is not present."
 T028b:
   c: false
   h: 0aaaf589fdd7c3d4c2e1ed84795107daef8e89080e2f21c906e6ee37b2f84eb8
@@ -26,14 +33,6 @@ T028c:
     \ that creates a CSV at a temporary path, checks that the file is written, and\
     \ validates the schema. The test imports the function successfully, confirming\
     \ the aggregation and CSV\u2011writing logic is present."
-T029:
-  c: false
-  h: 0990ab58877cac85ce1d3711cfda7c2e2f0758171068336f934d2f22fdaf958f
-  r: "The `calculate_aggregate_metrics` function is cut off and never finishes computing\
-    \ Type\u202FI error or power (e.g., it ends with `null_rejections = results` and\
-    \ lacks the rest of the logic). Additionally, the required `results/simulation_results.csv`\
-    \ file is absent, so the function cannot be exercised on real data. Both the implementation\
-    \ and the dependent data artifact are missing."
 T039:
   c: false
   h: 7ce3bfe1c83a7a1af0d44673bce7447d7abc93bd6b75a815203391c8869d2f3b
@@ -96,6 +95,13 @@ T050:
     \ the required simulation generator, scaling pipeline, statistical test outputs,\
     \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
     \ are absent."
+T057:
+  c: false
+  h: 4e07702e79339f7682ef642655571889825b6b89a86273ed911ba79f23b40587
+  r: The provided `metrics.py` does not contain a `run_sensitivity_analysis` implementation
+    (the file ends abruptly with a typo in `calculate_aggregate_metrics`), and the
+    required output file `results/sensitivity_analysis.csv` is absent. Both the function
+    and the CSV result are needed to satisfy the task.
 T064:
   c: false
   h: 298b1d41597eadef2e1bac295d860e235529aed726f489d03a81d71525acbf19
