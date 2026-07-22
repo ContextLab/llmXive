@@ -1,10 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or a `black` config)
-    or scripts were presented to show that ruff linting and black formatting have
-    been set up for the project. Without these artifacts, we cannot confirm that the
-    linting/formatting requirement has been satisfied.
 T009:
   c: false
   h: eea8f740c0f4c9a614aaec466be00d952051ad60f5357d3b563232efff77b786
@@ -23,11 +16,37 @@ T014:
     \ and writes `data/derived/baseline_predictions.csv`. Moreover, the required `data/derived/baseline_predictions.csv`\
     \ file is absent. Hence the task\u2019s requirement\u2014to compute Crippen contributions\
     \ for all test molecules and output the predictions CSV\u2014has not been fulfilled."
-T029:
+T015:
   c: false
-  h: 29665490a33b505eae68c6320ac38ee40361fafc2ce9ce466541f6bf806b7327
-  r: "The required output `data/derived/deviation_contexts.csv` is absent, and the\
-    \ provided `explainability.py` does not contain any implementation that uses RDKit\
-    \ to map SHAP interaction bits back to chemical substructures (the file is truncated\
-    \ and lacks such functionality). Consequently the task\u2019s core requirement\
-    \ (FR\u2011007) is not satisfied."
+  h: 5c04ed9ceb38c15c52d7a11a3fbc0a67a6c9cc4a283c8d446cd1e45d1ca78c95
+  r: The provided `code/analysis/stats.py` is incomplete (the core logic for calculating
+    MAE/RMSE and creating the residual plot is truncated and not present). Moreover,
+    the required output file `data/derived/baseline_residuals.png` does not exist.
+    Both the functional implementation and the expected artifact are missing.
+T022:
+  c: false
+  h: e8ee8441caaae741e876b47096b25fb61652bfdbebda2c290c7cfd3342fb4ce1
+  r: The required output image `data/derived/model_comparison.png` does not exist,
+    and the provided `code/analysis/stats.py` is truncated before any plotting logic
+    is shown, so there is no evidence that the script actually generates and saves
+    the comparison plot. The task therefore remains unfinished.
+T027:
+  c: false
+  h: 6bf08daf2f896ad806346cc0514b6927aac364bf1e4d49c6953dc2d04bfa6ad4
+  r: "The required output image `data/derived/shap_interactions.png` does not exist,\
+    \ so the explainability script has not produced the heatmap it was supposed to\
+    \ generate. Without this artifact the task\u2019s core requirement is unmet."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifacts or ruff output were provided, so we cannot confirm that docstrings
+    were added to every public function in `code/` (including subfolders) or that
+    `ruff --select D code/` passes without violations. The required evidence is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/quickstart.md` or `docs/research.md` files were presented, nor any excerpt
+    or listing showing that these documentation updates exist. Without the actual
+    markdown files, the claim that the documentation was updated cannot be verified.
+    The implementer must add the required files (or provide their contents) in the
+    `docs/` directory.

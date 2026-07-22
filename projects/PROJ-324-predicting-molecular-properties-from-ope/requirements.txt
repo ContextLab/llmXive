@@ -5,5 +5,9 @@ pandas
 numpy
 datasets
 requests
+pubchempy
 matplotlib
-joblib
+seaborn
+pyarrow
+ruff
+black

@@ -1,19 +1,21 @@
+# Ruff configuration file
+# This file is an alternative to pyproject.toml configuration
+# If both exist, ruff prefers pyproject.toml, but this is provided for clarity
+
+line-length = 88
+target-version = "py310"
+
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
 ]
-ignore = [
-  "E501", # line-too-long (handled by black)
-  "B008", # do-not-perform-function-calls-in-argument-defaults (common in ML)
-]
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+ignore = ["E501"]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+[lint.pydocstyle]
+convention = "google"

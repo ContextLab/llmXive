@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-properties-prediction"
+name = "proj-324-predicting-molecular-properties"
 version = "0.1.0"
-description = "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests"
+description = "Predicting molecular properties from Open Babel fingerprints with Random Forests"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "rdkit",
@@ -15,72 +16,35 @@ dependencies = [
     "numpy",
     "datasets",
     "requests",
-    "obabel-wrapper",
-    "ruff",
-    "black",
+    "pubchempy",
+    "matplotlib",
+    "openpyxl",
 ]
-
-[tool.ruff]
-# Target Python version
-target-version = "py310"
-
-# Line length for formatting and linting
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-    "data",
-    "figures",
-]
-
-[tool.ruff.lint]
-# Select specific rules
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-
-# Ignore specific rules if needed
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[tool.ruff.lint.per-file-ignores]
-# Ignore specific rules for specific files if necessary
-"__init__.py" = ["F401"] # Unused imports in __init__ are common
 
 [tool.black]
-# Line length for black formatter
 line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | figures
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
 )/
 '''
+
+[tool.ruff]
+# Inherits from code/.ruff.toml if run from root, or can be defined here
+line-length = 88
+target-version = "py310"
+src = ["code", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

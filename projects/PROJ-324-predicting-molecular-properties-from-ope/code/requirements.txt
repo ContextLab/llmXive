@@ -1,0 +1,17 @@
+# Core dependencies
+rdkit
+scikit-learn
+shap
+pandas
+numpy
+datasets
+requests
+pubchempy
+matplotlib
+joblib
+
+# Development dependencies (linting and formatting)
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
