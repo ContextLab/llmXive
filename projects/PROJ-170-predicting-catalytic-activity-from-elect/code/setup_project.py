@@ -5,56 +5,49 @@ from config import get_project_root
 
 def create_directories():
     """
-    Creates the required project directory structure as defined in T001a.
-    
-    Directories created:
-    - data/raw/
-    - data/processed/
-    - code/
-    - outputs/
-    - tests/
-    - state/projects/
-    - code/models/
-    
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Create all required project directories.
+    Returns a dictionary mapping directory names to their paths and creation status.
     """
     root = get_project_root()
-    if root is None:
-        raise RuntimeError("Project root could not be determined. Ensure CONFIG_PATH is set.")
-    
-    root_path = Path(root)
-    
-    required_dirs = [
+    directories = [
         "data/raw",
         "data/processed",
         "code",
+        "code/models",
         "outputs",
         "tests",
         "state/projects",
-        "code/models"
+        "code/utils"
     ]
-    
-    created_count = 0
-    for dir_name in required_dirs:
-        dir_path = root_path / dir_name
+
+    results = {}
+    for dir_name in directories:
+        dir_path = root / dir_name
         try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Directory created/verified: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-            return False
+            results[dir_name] = {"path": str(dir_path), "status": "created", "exists": True}
+        except Exception as e:
+            results[dir_name] = {"path": str(dir_path), "status": "failed", "error": str(e), "exists": False}
     
-    print(f"Successfully created/verified {created_count} directories.")
-    return True
+    return results
 
 def main():
-    """Entry point for the setup script."""
-    success = create_directories()
-    if not success:
+    """Entry point for directory creation."""
+    print("Creating project directories...")
+    results = create_directories()
+    
+    all_success = True
+    for dir_name, info in results.items():
+        if info["status"] == "failed":
+            print(f"ERROR: Failed to create {dir_name}: {info.get('error')}")
+            all_success = False
+        else:
+            print(f"OK: {dir_name} ({info['path']})")
+    
+    if not all_success:
         sys.exit(1)
-    sys.exit(0)
+    print("All directories created successfully.")
+    return results
 
 if __name__ == "__main__":
     main()

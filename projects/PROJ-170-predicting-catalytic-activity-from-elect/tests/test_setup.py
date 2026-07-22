@@ -1,78 +1,53 @@
-"""
-Tests for the project setup script.
-Verifies that all required directories are created.
-"""
 import os
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
-
-# Import the setup logic
-import sys
 from pathlib import Path
+from config import get_project_root
 
-# Add parent directory to path to import setup_project
-parent_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(parent_dir))
+def get_required_dirs():
+    """Returns the list of required directories for Phase 1 setup."""
+    return [
+        "data/raw",
+        "data/processed",
+        "code",
+        "outputs",
+        "tests",
+        "state/projects",
+        "code/models",
+    ]
 
-from code.setup_project import PROJECT_DIRS, create_directories
+def test_phase1_directories_exist():
+    """
+    Test that all Phase 1 directories created by T001a-T001g exist.
+    This satisfies the verification requirement for T001h.
+    """
+    root = get_project_root()
+    base_path = Path(root)
+    required = get_required_dirs()
 
+    missing = []
+    for dir_name in required:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            missing.append(dir_name)
+        elif not full_path.is_dir():
+            missing.append(f"{dir_name} (exists but is not a directory)")
 
-class TestProjectSetup:
-    """Test cases for project directory creation."""
+    assert len(missing) == 0, f"Missing required directories: {missing}"
 
-    def test_directory_list_defined(self):
-        """Test that PROJECT_DIRS is defined and contains expected entries."""
-        assert isinstance(PROJECT_DIRS, list)
-        assert len(PROJECT_DIRS) > 0
-        assert "data/raw" in PROJECT_DIRS
-        assert "data/processed" in PROJECT_DIRS
-        assert "code" in PROJECT_DIRS
-        assert "outputs" in PROJECT_DIRS
-        assert "tests" in PROJECT_DIRS
-        assert "state/projects" in PROJECT_DIRS
-        assert "code/models" in PROJECT_DIRS
+def test_init_files_exist():
+    """
+    Test that __init__.py files exist in Python package directories.
+    This satisfies the requirement for T001i.
+    """
+    root = get_project_root()
+    base_path = Path(root)
+    package_dirs = ["code", "tests", "code/utils"]
 
-    def test_create_directories_in_temp(self):
-        """Test directory creation in a temporary directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            
-            # Temporarily change the working directory for the test
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                created, skipped = create_directories()
-                
-                # Verify all expected directories were created
-                for dir_path in PROJECT_DIRS:
-                    full_path = tmp_path / dir_path
-                    assert full_path.exists(), f"Directory {full_path} was not created"
-                    assert full_path.is_dir(), f"{full_path} exists but is not a directory"
-                
-                # In a fresh temp dir, all should be created
-                assert len(created) == len(PROJECT_DIRS)
-                assert len(skipped) == 0
-            finally:
-                os.chdir(original_cwd)
+    missing_init = []
+    for pkg_dir in package_dirs:
+        full_path = base_path / pkg_dir
+        init_file = full_path / "__init__.py"
+        if not init_file.exists():
+            missing_init.append(str(init_file))
 
-    def test_create_directories_idempotent(self):
-        """Test that running create_directories twice doesn't fail."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # First run
-                created1, skipped1 = create_directories()
-                
-                # Second run - should skip all
-                created2, skipped2 = create_directories()
-                
-                assert len(created2) == 0, "Second run should not create any directories"
-                assert len(skipped2) == len(PROJECT_DIRS)
-            finally:
-                os.chdir(original_cwd)
+    assert len(missing_init) == 0, f"Missing __init__.py files: {missing_init}"

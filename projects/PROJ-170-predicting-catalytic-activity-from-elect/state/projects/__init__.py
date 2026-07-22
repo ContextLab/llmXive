@@ -1,0 +1,3 @@
+"""
+State projects directory placeholder.
+"""

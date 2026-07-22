@@ -1,51 +1,78 @@
-T001a:
+T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided showing the required folders
-    (`data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`, `state/projects/`,
-    `code/models/`). Without concrete evidence that these directories exist, the task
-    is not satisfied.
-T001b:
+  r: No evidence of an `outputs/` directory is provided; the artifact list is empty,
+    so the required directory has not been shown to exist. The implementer must create
+    the directory (and optionally list its presence) to satisfy the task.
+T001e:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no artifact (e.g., a script, log, or report) that checks
-    for the required directories from T001a, nor any evidence that such directories
-    exist. Without concrete output or code demonstrating the verification step, the
-    task requirement is not satisfied.
-T001c:
+  r: No evidence was provided that a `tests/` directory exists in the repository;
+    the artifact list is empty and there is no indication of its creation or contents.
+    The required directory must be present (and preferably contain at least one test
+    file) to satisfy task T001e.
+T001f:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `__init__.py` files in the required directories (`code/`, `tests/`,
-    `code/utils/`) was provided; the artifacts are missing or not shown, so the task
-    requirement is not satisfied.
-T002:
+  r: No evidence was provided that a `state/projects/` directory actually exists;
+    the artifact list is empty and there is no file system snapshot or command output
+    confirming its creation. The required directory is therefore missing.
+T001g:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `.flake8` files, or a setup script invoking ruff/flake8/black)
-    were presented. Without these artifacts, the requirement to configure the tools
-    cannot be verified as satisfied. The next implementer should add the appropriate
-    configuration files and, optionally, a brief usage guide.
-T010:
+  r: No evidence was provided that a `code/models/` directory actually exists in the
+    repository; the claim is unsubstantiated. The implementer must create the directory
+    (and optionally add a placeholder file) and show its presence.
+T001h:
   c: false
-  h: 3f46edfcd6e1df99d41476ee802a4f45d104c17db512df3a696c4c3c363f35ac
-  r: The provided `code/download_data.py` is incomplete (the core `download_stratified_sample`
-    function is truncated) and the required output file `data/raw/oc20_sample.h5`
-    does not exist. The script does not demonstrably perform the stratified download
-    and save the file as specified.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, log file, or test output) was provided that demonstrates\
+    \ the verification of directories created in T001a\u2011T001g, nor any evidence\
+    \ that the check fails loudly if a directory is missing. The required evidence\
+    \ is missing, so the task is not satisfied."
+T001i:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are shown in the provided evidence; the artifact list
+    is empty, so we cannot confirm that the required files exist in `code/`, `tests/`,
+    and `code/utils/`. The implementer must add these files (even if empty) and present
+    their contents as proof.
+T017:
+  c: false
+  h: 98341fefede2a25da6a8ec5e47a3b9f91270b8c992b5469506290ee4471402e9
+  r: "The repository contains a `code/preprocess.py` file, but it does not implement\
+    \ the required k\u2011nearest\u2011neighbors imputation based on normalized stoichiometry,\
+    \ nor does it save an imputed CSV or a JSON of flagged entries. Moreover, the\
+    \ expected output files `data/processed/imputed_dataset.csv` and `outputs/flagged_entries.json`\
+    \ are absent. The task therefore remains unfinished."
+T026:
+  c: false
+  h: 70b1be90737008c6f1fda7438078d8d4122da6080fc8a64d54007644d37233f7
+  r: "The required model file `code/models/best_xgboost.json` is absent, and the provided\
+    \ `code/train.py` does not contain a complete implementation of the nested 5\u2011\
+    fold outer CV with an inner grid search over the specified hyperparameters nor\
+    \ does it save the best XGBoost model to the required path. The script is truncated\
+    \ and lacks the necessary training, evaluation, and model\u2011saving logic."
 T028a:
   c: false
-  h: 97230bb33bea33340f1446fd115c62ce3a20d2147560c0d2ccc8174a0a487752
-  r: "The `code/evaluate.py` file is truncated and does not contain the logic to compute\
-    \ paired absolute\u2011error differences, run a Shapiro\u2011Wilk test, or write\
-    \ the decision to `outputs/normality_check.json`. Moreover, the required `outputs/normality_check.json`\
-    \ file is absent. The task\u2019s core functionality and output are therefore\
+  h: fcd23009c1de8545f432ba63201ecb14c3ecf11103fed815c6ad682f365b5e49
+  r: "The required output file `outputs/normality_check_paired.json` does not exist,\
+    \ and the provided `code/evaluate.py` is truncated (ends mid\u2011statement) and\
+    \ contains no implementation of the paired\u2011difference normality check or\
+    \ JSON writing logic. The task\u2019s statistical\u2011test functionality is therefore\
     \ missing."
+T028c:
+  c: false
+  h: f55f7e79272636c32ad4270c6b6d4247dc68216779012d4885862df98207e316
+  r: "The repository lacks the required `outputs/normality_check_absolute.json` file,\
+    \ and the provided `code/evaluate.py` is truncated (ends mid\u2011function) with\
+    \ no implementation of the absolute\u2011error distribution, Shapiro\u2011Wilk\
+    \ test, or JSON output. Consequently the task\u2019s statistical\u2011test logic\
+    \ and output artifact are not present."
 T035:
   c: false
-  h: a5f9229810e85609893a4652f72057e2c5b64b1e6a31246134e2726720433705
-  r: "The repository contains a partially\u2011written `code/evaluate.py` that stops\
-    \ mid\u2011function and never implements the SHAP calculation or the bar\u2011\
-    plot generation. Moreover, the required output file `outputs/feature_importance.png`\
-    \ is absent. Consequently the task of generating the top\u20115 descriptor importance\
-    \ plot has not been fulfilled."
+  h: 4b00ec33eb22ac271bb22e4b6096da8f1f75595b1fb56dc321e96f9bc181e264
+  r: "The required output file `outputs/feature_importance.png` does not exist, and\
+    \ the provided `code/evaluate.py` is truncated (ends mid\u2011function) with no\
+    \ implementation that creates the bar plot of the top\u20115 descriptors. Consequently\
+    \ the task\u2019s deliverable is missing."

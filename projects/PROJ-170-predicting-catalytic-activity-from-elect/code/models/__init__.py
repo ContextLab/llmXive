@@ -1,3 +1,3 @@
 """
-Initialize the models sub-package.
+Models package initialization.
 """

@@ -1,1 +1,3 @@
-# Utils package
+"""
+Utility functions package initialization
+"""

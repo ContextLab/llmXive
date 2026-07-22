@@ -1,32 +1,50 @@
+"""
+Verification script for project directory structure.
+Ensures all required directories created in T001a-T001g exist.
+Fails loudly if any are missing.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
+
+# Import project configuration utilities
 from config import get_project_root, get_data_path, get_output_path
 
-def verify_directories() -> bool:
+# Configure logging to output to console and file
+def setup_verification_logging():
+    """Setup basic logging for the verification script."""
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    logging.basicConfig(
+        level=logging.INFO,
+        format=log_format,
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler("outputs/verify_directories.log")
+        ]
+    )
+
+def verify_directories():
     """
-    Verify existence of all required directories from T001a.
-    
-    Required directories:
-    - data/raw/
-    - data/processed/
-    - code/
-    - outputs/
-    - tests/
-    - state/projects/
-    - code/models/
-    
-    Returns:
-        bool: True if all directories exist, False otherwise.
-        
-    Raises:
-        RuntimeError: If any required directory is missing.
+    Verify the existence of all directories created in T001a-T001g.
+    Returns True if all exist, False otherwise.
     """
-    project_root = get_project_root()
+    setup_verification_logging()
     logger = logging.getLogger(__name__)
     
-    # Define required directories relative to project root
+    project_root = get_project_root()
+    logger.info(f"Verifying directories in project root: {project_root}")
+
+    # List of required directories relative to project root
+    # Based on T001a-T001g:
+    # T001a: data/raw/
+    # T001b: data/processed/
+    # T001c: code/
+    # T001d: outputs/
+    # T001e: tests/
+    # T001f: state/projects/
+    # T001g: code/models/
+    
     required_dirs = [
         "data/raw",
         "data/processed",
@@ -36,45 +54,37 @@ def verify_directories() -> bool:
         "state/projects",
         "code/models"
     ]
-    
+
     missing_dirs = []
-    
+    existing_dirs = []
+
     for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            missing_dirs.append(dir_path)
-            logger.error(f"Missing required directory: {full_path}")
-        elif not full_path.is_dir():
-            missing_dirs.append(dir_path)
-            logger.error(f"Path exists but is not a directory: {full_path}")
+        full_path = Path(project_root) / dir_path
+        if full_path.exists() and full_path.is_dir():
+            existing_dirs.append(dir_path)
+            logger.info(f"✓ Found: {dir_path}")
         else:
-            logger.info(f"Verified directory exists: {full_path}")
-    
+            missing_dirs.append(dir_path)
+            logger.error(f"✗ MISSING: {dir_path} (Expected at: {full_path})")
+
+    logger.info(f"\nSummary: {len(existing_dirs)} found, {len(missing_dirs)} missing")
+
     if missing_dirs:
-        error_msg = (
-            f"Verification failed. Missing {len(missing_dirs)} required directories:\n"
-            + "\n".join([f"  - {d}" for d in missing_dirs])
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.info("All required directories verified successfully.")
-    return True
+        logger.error("FATAL: Required directories are missing. Verification failed.")
+        logger.error("Missing directories:")
+        for d in missing_dirs:
+            logger.error(f"  - {d}")
+        return False
+    else:
+        logger.info("SUCCESS: All required directories verified.")
+        return True
 
 def main():
-    """Entry point for directory verification."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    try:
-        verify_directories()
-        print("SUCCESS: All required directories exist.")
-        sys.exit(0)
-    except RuntimeError as e:
-        print(f"FAILURE: {e}")
+    """Entry point for the script."""
+    success = verify_directories()
+    if not success:
         sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
