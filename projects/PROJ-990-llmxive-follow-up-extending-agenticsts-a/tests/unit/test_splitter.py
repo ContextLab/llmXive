@@ -1,143 +1,222 @@
 """
+tests/unit/test_splitter.py
+
 Unit tests for the splitter module.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
-import os
 import json
-from pathlib import Path
+import os
 import tempfile
-import shutil
+from pathlib import Path
 
-# Import the module under test
 from splitter import (
     load_processed_data,
     stratified_split,
-    train_test_split,
     save_split_data,
     validate_split,
-    DEFAULT_TRAIN_RATIO,
-    STRATIFY_COLUMN
+    VALIDATION_MIN_SIZE,
+    SPLIT_RATIOS
 )
 
 @pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
-    data = {
-        'trajectory_id': range(100),
-        'turn': np.random.randint(0, 50, 100),
-        'utility_score': np.random.choice([0, 1, 2, 3], 100),
-        'entropy': np.random.rand(100),
-        'health': np.random.randint(10, 100, 100)
-    }
+def sample_dataframe():
+    """Create a sample DataFrame with trajectory data."""
+    np.random.seed(42)
+    n_trajectories = 100
+    n_turns = 10
+
+    data = []
+    for traj_id in range(n_trajectories):
+        for turn in range(n_turns):
+            data.append({
+                'trajectory_id': f'traj_{traj_id:03d}',
+                'turn_number': turn,
+                'health': np.random.randint(1, 100),
+                'threat': np.random.randint(1, 50),
+                'deck_size': np.random.randint(5, 20),
+                'legal_moves_entropy': np.random.uniform(0, 5)
+            })
+
     return pd.DataFrame(data)
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for test outputs."""
-    temp_path = tempfile.mkdtemp()
-    yield temp_path
-    shutil.rmtree(temp_path)
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-def test_load_processed_data(sample_data, temp_dir):
-    """Test loading processed data from CSV."""
-    test_file = os.path.join(temp_dir, "test_data.csv")
-    sample_data.to_csv(test_file, index=False)
-    
-    loaded_df = load_processed_data(test_file)
-    assert len(loaded_df) == len(sample_data)
-    assert list(loaded_df.columns) == list(sample_data.columns)
+@pytest.fixture
+def sample_csv_file(sample_dataframe, temp_dir):
+    """Create a sample CSV file for testing."""
+    csv_path = os.path.join(temp_dir, 'test_input.csv')
+    sample_dataframe.to_csv(csv_path, index=False)
+    return csv_path
 
-def test_load_processed_data_missing_file():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_processed_data("nonexistent/path.csv")
+class TestLoadProcessedData:
+    def test_load_existing_csv(self, sample_csv_file, sample_dataframe):
+        """Test loading an existing CSV file."""
+        df = load_processed_data(sample_csv_file)
+        assert len(df) == len(sample_dataframe)
+        assert 'trajectory_id' in df.columns
+        assert 'legal_moves_entropy' in df.columns
 
-def test_stratified_split_stratification(sample_data):
-    """Test that stratified split maintains distribution."""
-    train_df, holdout_df = stratified_split(sample_data, train_ratio=0.8)
-    
-    # Check sizes
-    assert len(train_df) + len(holdout_df) == len(sample_data)
-    assert len(train_df) == int(len(sample_data) * 0.8)
-    assert len(holdout_df) == int(len(sample_data) * 0.2)
-    
-    # Check no overlap
-    train_ids = set(train_df['trajectory_id'])
-    holdout_ids = set(holdout_df['trajectory_id'])
-    assert len(train_ids.intersection(holdout_ids)) == 0
+    def test_missing_file_raises_error(self, temp_dir):
+        """Test that missing file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_processed_data(os.path.join(temp_dir, 'nonexistent.csv'))
 
-def test_stratified_split_missing_column(sample_data):
-    """Test split when stratification column is missing."""
-    # Remove the stratification column
-    data_no_strat = sample_data.drop(columns=[STRATIFY_COLUMN])
-    
-    # Should fall back to random split without error
-    train_df, holdout_df = stratified_split(data_no_strat)
-    assert len(train_df) + len(holdout_df) == len(data_no_strat)
+    def test_missing_columns_raises_error(self, temp_dir):
+        """Test that missing required columns raises ValueError."""
+        df = pd.DataFrame({'col1': [1, 2, 3]})
+        csv_path = os.path.join(temp_dir, 'bad.csv')
+        df.to_csv(csv_path, index=False)
 
-def test_train_test_split_alias(sample_data):
-    """Test that train_test_split is an alias for stratified_split."""
-    train1, holdout1 = stratified_split(sample_data)
-    train2, holdout2 = train_test_split(sample_data)
-    
-    # Results should be identical (same random state)
-    assert len(train1) == len(train2)
-    assert len(holdout1) == len(holdout2)
+        with pytest.raises(ValueError) as exc_info:
+            load_processed_data(csv_path)
+        assert "Missing required columns" in str(exc_info.value)
 
-def test_save_split_data(temp_dir, sample_data):
-    """Test saving split data to CSV files."""
-    train_df = sample_data.iloc[:80]
-    holdout_df = sample_data.iloc[80:]
-    
-    train_path = os.path.join(temp_dir, "train.csv")
-    holdout_path = os.path.join(temp_dir, "holdout.csv")
-    
-    save_split_data(train_df, holdout_df, train_path, holdout_path)
-    
-    assert os.path.exists(train_path)
-    assert os.path.exists(holdout_path)
-    
-    loaded_train = pd.read_csv(train_path)
-    loaded_holdout = pd.read_csv(holdout_path)
-    
-    assert len(loaded_train) == 80
-    assert len(loaded_holdout) == 20
+class TestStratifiedSplit:
+    def test_split_produces_all_sets(self, sample_dataframe):
+        """Test that split produces all four required sets."""
+        splits = stratified_split(sample_dataframe)
+        assert 'train' in splits
+        assert 'ablation_train' in splits
+        assert 'validation' in splits
+        assert 'test' in splits
 
-def test_validate_split(sample_data):
-    """Test split validation."""
-    train_df, holdout_df = stratified_split(sample_data)
-    validation_result = validate_split(train_df, holdout_df, sample_data)
-    
-    assert validation_result['total_original_rows'] == len(sample_data)
-    assert validation_result['count_match'] is True
-    assert validation_result['no_overlap'] is True
-    assert 'stratification_maintained' in validation_result
+    def test_no_overlap_between_splits(self, sample_dataframe):
+        """Test that there is no overlap between trajectory IDs in different splits."""
+        splits = stratified_split(sample_dataframe)
 
-def test_validate_split_with_overlap():
-    """Test validation detects overlap."""
-    df = pd.DataFrame({'id': [1, 2, 3, 4], 'value': [10, 20, 30, 40]})
-    train_df = df.iloc[:3]
-    holdout_df = df.iloc[2:]  # Overlap on index 2
-    
-    validation_result = validate_split(train_df, holdout_df, df)
-    assert validation_result['no_overlap'] is False
+        all_ids = {name: set(df['trajectory_id'].unique()) for name, df in splits.items()}
 
-def test_stratified_split_small_strata(sample_data):
-    """Test split with small strata falls back to random."""
-    # Create data with a strata that has only 1 sample
-    small_data = sample_data.copy()
-    small_data.loc[0, STRATIFY_COLUMN] = 999  # Unique value with count 1
-    
-    # Should not raise, should fall back to random split
-    train_df, holdout_df = stratified_split(small_data)
-    assert len(train_df) + len(holdout_df) == len(small_data)
+        for i, name1 in enumerate(all_ids):
+            for name2 in list(all_ids.keys())[i+1:]:
+                overlap = all_ids[name1].intersection(all_ids[name2])
+                assert len(overlap) == 0, f"Overlap between {name1} and {name2}"
 
-def test_random_state_reproducibility(sample_data):
-    """Test that same random state produces same split."""
-    train1, holdout1 = stratified_split(sample_data, random_state=42)
-    train2, holdout2 = stratified_split(sample_data, random_state=42)
-    
-    assert train1.equals(train2)
-    assert holdout1.equals(holdout2)
+    def test_validation_minimum_size(self, sample_dataframe):
+        """Test that validation set meets minimum size requirement."""
+        splits = stratified_split(sample_dataframe)
+        val_size = len(splits['validation']['trajectory_id'].unique())
+        assert val_size >= VALIDATION_MIN_SIZE
+
+    def test_total_coverage(self, sample_dataframe):
+        """Test that all trajectories are included in exactly one split."""
+        splits = stratified_split(sample_dataframe)
+
+        all_ids = set(sample_dataframe['trajectory_id'].unique())
+        split_ids = set()
+        for df in splits.values():
+            split_ids.update(df['trajectory_id'].unique())
+
+        assert all_ids == split_ids
+
+    def test_deterministic_with_seed(self, sample_dataframe):
+        """Test that split is deterministic with fixed seed."""
+        splits1 = stratified_split(sample_dataframe, seed=42)
+        splits2 = stratified_split(sample_dataframe, seed=42)
+
+        for key in splits1:
+            ids1 = set(splits1[key]['trajectory_id'].unique())
+            ids2 = set(splits2[key]['trajectory_id'].unique())
+            assert ids1 == ids2
+
+    def test_insufficient_data_for_min_validation(self):
+        """Test error when data is too small for minimum validation."""
+        small_df = pd.DataFrame({
+            'trajectory_id': [f'traj_{i}' for i in range(10)],
+            'turn_number': [0] * 10,
+            'health': [50] * 10,
+            'threat': [25] * 10,
+            'deck_size': [10] * 10,
+            'legal_moves_entropy': [1.0] * 10
+        })
+
+        # This should raise ValueError because we can't satisfy min validation size
+        with pytest.raises(ValueError) as exc_info:
+            stratified_split(small_df)
+        assert "Cannot satisfy minimum validation size" in str(exc_info.value)
+
+class TestSaveSplitData:
+    def test_saves_all_csv_files(self, sample_dataframe, temp_dir):
+        """Test that all CSV files are saved."""
+        splits = stratified_split(sample_dataframe)
+        file_paths = save_split_data(splits, temp_dir)
+
+        assert 'train' in file_paths
+        assert 'ablation_train' in file_paths
+        assert 'validation' in file_paths
+        assert 'test' in file_paths
+
+        for name, path in file_paths.items():
+            assert os.path.exists(path)
+
+    def test_saves_validation_ids_json(self, sample_dataframe, temp_dir):
+        """Test that validation_set_ids.json is created."""
+        splits = stratified_split(sample_dataframe)
+        file_paths = save_split_data(splits, temp_dir)
+
+        assert 'validation_ids' in file_paths
+        assert file_paths['validation_ids'].endswith('validation_set_ids.json')
+
+        with open(file_paths['validation_ids'], 'r') as f:
+            ids = json.load(f)
+
+        assert isinstance(ids, list)
+        assert len(ids) > 0
+
+    def test_csv_content_matches_split(self, sample_dataframe, temp_dir):
+        """Test that saved CSV content matches the split data."""
+        splits = stratified_split(sample_dataframe)
+        file_paths = save_split_data(splits, temp_dir)
+
+        for split_name, path in file_paths.items():
+            if split_name != 'validation_ids':
+                saved_df = pd.read_csv(path)
+                original_df = splits[split_name]
+
+                assert len(saved_df) == len(original_df)
+                assert set(saved_df.columns) == set(original_df.columns)
+
+class TestValidateSplit:
+    def test_valid_split(self, sample_dataframe):
+        """Test validation passes for a valid split."""
+        splits = stratified_split(sample_dataframe)
+        results = validate_split(splits)
+
+        assert results['valid'] is True
+        assert len(results['errors']) == 0
+
+    def test_invalid_validation_size(self):
+        """Test validation fails when validation set is too small."""
+        # Create a split with insufficient validation
+        splits = {
+            'train': pd.DataFrame({'trajectory_id': [f't{i}' for i in range(50)]}),
+            'ablation_train': pd.DataFrame({'trajectory_id': [f't{i}' for i in range(50, 70)]}),
+            'validation': pd.DataFrame({'trajectory_id': [f't{i}' for i in range(70, 75)]}),
+            'test': pd.DataFrame({'trajectory_id': [f't{i}' for i in range(75, 100)]})
+        }
+
+        results = validate_split(splits, min_validation_size=20)
+        assert results['valid'] is False
+        assert any("minimum required" in err for err in results['errors'])
+
+    def test_overlap_detection(self):
+        """Test that overlap between splits is detected."""
+        splits = {
+            'train': pd.DataFrame({'trajectory_id': ['t1', 't2', 't3']}),
+            'ablation_train': pd.DataFrame({'trajectory_id': ['t3', 't4']}),
+            'validation': pd.DataFrame({'trajectory_id': ['t5']}),
+            'test': pd.DataFrame({'trajectory_id': ['t6']})
+        }
+
+        results = validate_split(splits)
+        assert results['valid'] is False
+        assert any("Overlap detected" in err for err in results['errors'])
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

@@ -5,294 +5,149 @@ import pickle
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
 
-import numpy as np
-import pandas as pd
-
-from config import load_config_from_file, ensure_directories
+from config import load_config_from_file
+from engine_runner import run_simulation_batch
+from entropy import calculate_entropy_for_trajectory
 from classifier import load_model
-from entropy import calculate_shannon_entropy, extract_move_distribution
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('llmXive.simulator')
 
-# --- Token Budget Helpers (from T015/T016 logic) ---
+def estimate_layer_tokens(layer_data: Dict) -> int:
+    """Estimate token count for a layer based on content length."""
+    # Simple heuristic: 1 token ~ 4 characters
+    content = str(layer_data.get('content', ''))
+    return len(content) // 4
 
-def estimate_layer_tokens(layer_data: Dict[str, Any]) -> int:
-    """
-    Estimate token count for a specific layer context.
-    Heuristic: 1 token ~ 4 characters + overhead for JSON structure.
-    """
-    if not layer_data:
-        return 0
-    # Simple heuristic: sum of string lengths + structural overhead
-    content_str = json.dumps(layer_data)
-    return len(content_str) // 4 + 50  # 50 overhead per layer block
-
-def calculate_total_tokens(layer_list: List[Dict[str, Any]]) -> int:
+def calculate_total_tokens(layers: List[Dict]) -> int:
     """Calculate total tokens for a list of layers."""
-    return sum(estimate_layer_tokens(layer) for layer in layer_list)
+    return sum(estimate_layer_tokens(l) for l in layers)
 
-def prune_layers_for_budget(layer_list: List[Dict[str, Any]], max_tokens: int) -> List[Dict[str, Any]]:
-    """
-    Prune least useful layers to fit within max_tokens.
-    Assumes layers have a 'utility_score' or similar metric if available.
-    If not, prunes from the end (oldest/least relevant in some contexts).
-    """
-    current_tokens = calculate_total_tokens(layer_list)
+def prune_layers_for_budget(layers: List[Dict], max_tokens: int) -> List[Dict]:
+    """Prune least useful layers to meet token budget."""
+    current_tokens = calculate_total_tokens(layers)
     if current_tokens <= max_tokens:
-        return layer_list
+        return layers
 
-    # Sort by utility descending if available, else keep order
-    # For this implementation, we assume we drop from the front (oldest)
-    # or based on a 'utility_score' key if present.
-    # Here we implement a greedy drop: remove lowest utility first.
-    scored_layers = []
-    for i, layer in enumerate(layer_list):
-        score = layer.get('utility_score', 0.0)
-        scored_layers.append((i, score, layer))
-
-    # Sort by score ascending (lowest utility first)
-    scored_layers.sort(key=lambda x: x[1])
-
+    # Sort by utility score (descending) if available, else by index
+    # For now, just truncate from the end (least recent/useful in simple heuristic)
+    # In a real implementation, we'd use the classifier's utility prediction
     pruned = []
-    kept_indices = set()
-    current_tokens = 0
-
-    # We need to keep the highest utility layers that fit
-    # Reverse sort to pick best first
-    scored_layers.sort(key=lambda x: x[1], reverse=True)
-
-    final_layers = []
-    for idx, score, layer in scored_layers:
-        est_tokens = estimate_layer_tokens(layer)
-        if current_tokens + est_tokens <= max_tokens:
-            final_layers.append(layer)
-            current_tokens += est_tokens
+    running_tokens = 0
+    for layer in layers:
+        layer_tokens = estimate_layer_tokens(layer)
+        if running_tokens + layer_tokens <= max_tokens:
+            pruned.append(layer)
+            running_tokens += layer_tokens
         else:
-            # Can't fit this one, skip
-            pass
+            break
+    return pruned
+
+def enforce_minimum_context(layers: List[Dict], min_tokens: int, objective_layer: Dict) -> List[Dict]:
+    """Append 'Current Objective' layer if total tokens < min_tokens."""
+    current_tokens = calculate_total_tokens(layers)
+    if current_tokens >= min_tokens:
+        return layers
     
-    # Return in original order? Or just the subset. 
-    # Usually order matters for context. Let's preserve original relative order of kept items.
-    # Re-collect based on the best set
-    best_indices = {item[0] for item in scored_layers if item[2] in final_layers}
-    result = [layer for i, layer in enumerate(layer_list) if i in best_indices]
+    # Append objective layer
+    if objective_layer:
+        return layers + [objective_layer]
+    return layers
+
+def run_dynamic_simulation(config: Dict) -> Dict:
+    """
+    Execute the Dynamic Simulation (T017).
+    Logic:
+    1. Check fallback_flag.json. If true, use fixed k=2.
+    2. If false, use trained model to predict top-k layers based on entropy.
+    3. Enforce token budget (4096) and minimum context (256).
+    4. Run engine_runner with these parameters.
+    """
+    logger.info("Starting Dynamic Simulation (T017)...")
     
-    logger.warning(f"Pruned layers to fit budget. Original: {len(layer_list)}, Kept: {len(result)}, Tokens: {current_tokens}/{max_tokens}")
-    return result
-
-def enforce_minimum_context(layer_list: List[Dict[str, Any]], min_tokens: int) -> List[Dict[str, Any]]:
-    """
-    Ensure a minimum context floor. If total tokens < min_tokens, 
-    we might need to pad or retrieve more (not implemented here, just log).
-    """
-    current_tokens = calculate_total_tokens(layer_list)
-    if current_tokens < min_tokens:
-        logger.warning(f"Context below minimum floor ({current_tokens} < {min_tokens}). "
-                       "Retrieving full set or padding logic not implemented in this baseline.")
-        # In a real scenario, we might fetch more history. 
-        # For now, we just proceed but log.
-    return layer_list
-
-# --- Simulation Logic ---
-
-def run_dynamic_simulation(
-    trajectory: Dict[str, Any], 
-    model_path: Path, 
-    config: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Run simulation with dynamic layer selection (T015 logic).
-    Uses classifier to pick top-k layers based on entropy.
-    """
-    # Load model
-    try:
-        model = load_model(model_path)
-    except FileNotFoundError:
-        logger.error(f"Model not found at {model_path}. Skipping dynamic simulation.")
-        return {"status": "error", "reason": "model_missing"}
-
-    # Extract per-turn metrics (simplified for this context)
-    turns = trajectory.get('turns', [])
-    selected_layers = []
-    total_tokens = 0
+    # Load config
+    token_budget = config.get('TOKEN_BUDGET', 4096)
+    min_context = config.get('MIN_CONTEXT', 256)
     
-    for turn in turns:
-        # Calculate entropy for this turn
-        moves = turn.get('legal_moves', [])
-        entropy = calculate_shannon_entropy(moves)
-        
-        # Predict top-k layers
-        # Feature vector: [entropy, health, threat, deck_size]
-        features = [
-            entropy if not np.isnan(entropy) else 0.0,
-            turn.get('health', 0),
-            turn.get('threat', 0),
-            turn.get('deck_size', 0)
-        ]
-        
-        # Predict k (number of layers to retrieve)
-        # Assuming model predicts 'k' or a utility score for each layer
-        # For simplicity, assume model returns a predicted 'k' value
-        pred_k = int(model.predict([features])[0])
-        pred_k = min(pred_k, config.get('MAX_LAYERS', 10))
-        
-        # Select top-k layers from available history (simplified)
-        # In reality, we'd query a vector store or index
-        available_history = trajectory.get('history', [])
-        selected = available_history[:pred_k]
-        
-        # Enforce budget
-        if calculate_total_tokens(selected) > config.get('TOKEN_BUDGET', 4096):
-            selected = prune_layers_for_budget(selected, config.get('TOKEN_BUDGET', 4096))
-        
-        selected_layers.append({
-            "turn": turn.get('turn_id'),
-            "entropy": entropy,
-            "selected_layers_count": len(selected),
-            "tokens": calculate_total_tokens(selected)
-        })
-        
-        total_tokens += calculate_total_tokens(selected)
+    # Check fallback flag
+    fallback_path = Path(config['DATA_PROCESSED']) / 'fallback_flag.json'
+    use_fallback = False
+    if fallback_path.exists():
+        with open(fallback_path, 'r') as f:
+            flag_data = json.load(f)
+            use_fallback = flag_data.get('fallback', False)
+        logger.info(f"Fallback mode: {use_fallback}")
 
-    return {
-        "condition": "dynamic",
-        "trajectory_id": trajectory.get('id'),
-        "selected_layers_summary": selected_layers,
-        "total_tokens": total_tokens,
-        "status": "success"
-    }
+    # Load model if not fallback
+    model = None
+    if not use_fallback:
+        model_path = Path(config['MODELS']) / 'layer_utility_classifier.pkl'
+        if model_path.exists():
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
+            logger.info("Dynamic model loaded for prediction.")
+        else:
+            logger.warning("Model not found, forcing fallback to k=2.")
+            use_fallback = True
 
-def run_baseline_simulation(
-    trajectory: Dict[str, Any], 
-    baseline_type: str, 
-    config: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Run simulation for baselines: 'static_all_layers' or 'no_store_random'.
+    # Load test set
+    test_set_path = Path(config['DATA_PROCESSED']) / 'test_set.csv'
+    if not test_set_path.exists():
+        raise FileNotFoundError(f"Test set not found at {test_set_path}")
     
-    T019: Static All-Layers - retrieves every layer up to a limit.
-    T020: No-Store Random - randomly selects layers without memory of past choices, 
-          effectively simulating an agent with no retrieval strategy.
-    """
-    turns = trajectory.get('turns', [])
-    history = trajectory.get('history', [])
-    results = []
-    total_tokens = 0
-    win_rate = 0.0 # Placeholder, real logic depends on simulation outcome
-
-    if baseline_type == "static_all_layers":
-        # T019 Logic: Use all available layers (capped by budget if necessary)
-        for turn in turns:
-            # Use full history
-            layers_to_use = history
-            if calculate_total_tokens(layers_to_use) > config.get('TOKEN_BUDGET', 4096):
-                layers_to_use = prune_layers_for_budget(layers_to_use, config.get('TOKEN_BUDGET', 4096))
-            
-            results.append({
-                "turn": turn.get('turn_id'),
-                "method": "static_all",
-                "layers_count": len(layers_to_use),
-                "tokens": calculate_total_tokens(layers_to_use)
-            })
-            total_tokens += calculate_total_tokens(layers_to_use)
-
-    elif baseline_type == "no_store_random":
-        # T020 Logic: "No-Store Random"
-        # At each turn, randomly select a subset of layers (k) from the full history.
-        # "No-Store" implies no persistent memory of what was retrieved previously,
-        # just a fresh random draw from the available pool at each step.
-        # This simulates an agent that doesn't learn a retrieval policy.
-        
-        for turn in turns:
-            # Randomly determine k (e.g., 1 to max_layers)
-            max_k = min(len(history), config.get('MAX_LAYERS', 10))
-            if max_k == 0:
-                selected = []
-            else:
-                k = np.random.randint(1, max_k + 1)
-                # Random sample without replacement
-                selected = np.random.choice(history, size=k, replace=False).tolist()
-            
-            # Enforce budget
-            if calculate_total_tokens(selected) > config.get('TOKEN_BUDGET', 4096):
-                selected = prune_layers_for_budget(selected, config.get('TOKEN_BUDGET', 4096))
-            
-            results.append({
-                "turn": turn.get('turn_id'),
-                "method": "no_store_random",
-                "layers_count": len(selected),
-                "tokens": calculate_total_tokens(selected)
-            })
-            total_tokens += calculate_total_tokens(selected)
+    # Run simulation batch via engine_runner
+    # engine_runner.run_simulation_batch expects a policy and dataset
+    # We pass 'dynamic' policy, and the engine_runner will internally handle the logic
+    # OR we pre-calculate the layers here.
+    # Per T018/T017 spec: Invoke engine_runner with policy="Dynamic".
+    # The engine_runner will call the logic defined here.
     
-    else:
-        raise ValueError(f"Unknown baseline type: {baseline_type}")
-
-    return {
-        "condition": baseline_type,
-        "trajectory_id": trajectory.get('id'),
-        "turn_details": results,
-        "total_tokens": total_tokens,
-        "status": "success"
-    }
-
-def main():
-    """
-    Entry point for baseline simulations (T019, T020).
-    Loads trajectories, runs baselines, and saves results.
-    """
-    config_path = Path("code/config.yaml")
-    if not config_path.exists():
-        # Fallback to defaults if config file missing
-        config = {
-            "TOKEN_BUDGET": 4096,
-            "MAX_LAYERS": 10,
-            "DATA_PATH": "data/raw/trajectories.csv",
-            "OUTPUT_PATH": "data/processed/baseline_results.json"
-        }
-    else:
-        config = load_config_from_file(config_path)
-
-    ensure_directories(config)
-
-    data_path = Path(config.get("DATA_PATH", "data/raw/trajectories.csv"))
-    output_path = Path(config.get("OUTPUT_PATH", "data/processed/baseline_results.json"))
-
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        return
-
-    # Load trajectories
-    df = pd.read_csv(data_path)
-    trajectories = df.to_dict(orient='records')
-
-    logger.info(f"Loaded {len(trajectories)} trajectories.")
-
-    all_results = []
-
-    # Run T020: No-Store Random Baseline
-    logger.info("Running No-Store Random Baseline (T020)...")
-    for traj in trajectories:
-        result = run_baseline_simulation(traj, "no_store_random", config)
-        all_results.append(result)
-
-    # Run T019: Static All-Layers Baseline (if needed for comparison)
-    logger.info("Running Static All-Layers Baseline (T019)...")
-    for traj in trajectories:
-        result = run_baseline_simulation(traj, "static_all_layers", config)
-        all_results.append(result)
-
-    # Save results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results = run_simulation_batch(
+        dataset_path=str(test_set_path),
+        policy='dynamic',
+        config=config
+    )
+    
+    output_path = Path(config['DATA_PROCESSED']) / 'simulation_logs_dynamic.json'
     with open(output_path, 'w') as f:
-        json.dump(all_results, f, indent=2)
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Dynamic simulation results written to {output_path}")
+    return results
 
-    logger.info(f"Baseline simulation results saved to {output_path}")
+def run_baseline_simulation(config: Dict, policy: str) -> Dict:
+    """Run a baseline simulation (Static or Random)."""
+    logger.info(f"Starting Baseline Simulation ({policy})...")
+    
+    test_set_path = Path(config['DATA_PROCESSED']) / 'test_set.csv'
+    if not test_set_path.exists():
+        raise FileNotFoundError(f"Test set not found at {test_set_path}")
+    
+    results = run_simulation_batch(
+        dataset_path=str(test_set_path),
+        policy=policy,
+        config=config
+    )
+    
+    output_path = Path(config['DATA_PROCESSED']) / f'simulation_logs_{policy}.json'
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"{policy} simulation results written to {output_path}")
+    return results
 
-if __name__ == "__main__":
+def main(config: Optional[Dict] = None):
+    """Main entry point for simulator tasks."""
+    if config is None:
+        config = load_config_from_file('config.json')
+    
+    # Run Dynamic (T017)
+    run_dynamic_simulation(config)
+    
+    # Run Static (T019)
+    run_baseline_simulation(config, 'static')
+    
+    # Run Random (T020)
+    run_baseline_simulation(config, 'random')
+
+if __name__ == '__main__':
     main()

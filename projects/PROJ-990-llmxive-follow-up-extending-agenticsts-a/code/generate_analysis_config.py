@@ -1,12 +1,7 @@
 """
-T037: Generate analysis configuration snapshot for reproducibility.
-
-This script records the exact random seeds, hyperparameters, and dataset
-split ratios used for the specific run into data/processed/analysis_config.json.
-
-It imports configuration from code/config.py and reads split metadata from
-the existing splitter artifacts to ensure the snapshot reflects the actual
-execution parameters.
+Generate a snapshot of the analysis configuration for reproducibility.
+This script records the exact random seeds, hyperparameters, and dataset split ratios
+used for the specific run, ensuring full reproducibility of the statistical results.
 """
 import os
 import json
@@ -14,11 +9,7 @@ import logging
 import random
 import numpy as np
 from pathlib import Path
-from datetime import datetime
 from typing import Dict, Any, Optional
-
-# Import project configuration
-from config import load_config_from_file, ensure_directories, validate_config
 
 # Configure logging
 logging.basicConfig(
@@ -27,163 +18,193 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_split_metadata(split_path: Path) -> Dict[str, Any]:
+def load_split_metadata(split_dir: Path) -> Dict[str, Any]:
     """
-    Load metadata about the dataset split if available.
-    
-    Args:
-        split_path: Path to the split metadata file (if it exists)
-        
-    Returns:
-        Dictionary containing split information
+    Load metadata about the dataset splits to capture the split ratios.
+    Reads the validation_set_ids.json and infers ratios from the CSV files.
     """
     metadata = {
-        "train_samples": None,
-        "holdout_samples": None,
-        "split_ratio": None,
-        "stratification_field": "utility_score"
+        "train_count": 0,
+        "ablation_train_count": 0,
+        "validation_count": 0,
+        "test_count": 0,
+        "total_count": 0,
+        "ratios": {}
     }
-    
-    if not split_path.exists():
-        logger.warning(f"Split metadata file not found at {split_path}. Using defaults.")
-        return metadata
-        
-    try:
-        with open(split_path, 'r') as f:
-            data = json.load(f)
-            metadata.update(data)
-    except Exception as e:
-        logger.warning(f"Could not load split metadata: {e}. Using defaults.")
-        
+
+    counts = {}
+    split_files = [
+        ("train_set.csv", "train_count"),
+        ("ablation_train_set.csv", "ablation_train_count"),
+        ("validation_set.csv", "validation_count"),
+        ("test_set.csv", "test_count")
+    ]
+
+    for filename, key in split_files:
+        filepath = split_dir / filename
+        if filepath.exists():
+            # Count lines (excluding header)
+            with open(filepath, 'r') as f:
+                # Skip header
+                next(f, None)
+                count = sum(1 for _ in f)
+                counts[key] = count
+                metadata[key] = count
+                metadata["total_count"] += count
+        else:
+            logger.warning(f"Split file not found: {filepath}")
+            counts[key] = 0
+            metadata[key] = 0
+
+    if metadata["total_count"] > 0:
+        for key, count in counts.items():
+            if key.endswith("_count"):
+                ratio_key = key.replace("_count", "_ratio")
+                metadata["ratios"][ratio_key] = count / metadata["total_count"]
+
+    # Load validation set IDs if available
+    validation_ids_file = split_dir / "validation_set_ids.json"
+    if validation_ids_file.exists():
+        with open(validation_ids_file, 'r') as f:
+            metadata["validation_ids"] = json.load(f)
+        metadata["validation_count"] = len(metadata["validation_ids"])
+
     return metadata
 
-def load_ablation_config(config_path: Path) -> Dict[str, Any]:
+def load_ablation_config(ablation_dir: Path) -> Dict[str, Any]:
     """
     Load ablation configuration if available.
-    
-    Args:
-        config_path: Path to the ablation config file
-        
-    Returns:
-        Dictionary containing ablation configuration
     """
-    if not config_path.exists():
-        return {"status": "config_not_found"}
-        
-    try:
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.warning(f"Could not load ablation config: {e}")
-        return {"status": "load_error", "error": str(e)}
+    config = {
+        "ablation_labels_train_exists": False,
+        "ablation_labels_validation_exists": False,
+        "sample_count": None,
+        "fallback_flag": None
+    }
+
+    train_labels = ablation_dir / "ablation_labels_train.json"
+    if train_labels.exists():
+        config["ablation_labels_train_exists"] = True
+
+    val_labels = ablation_dir / "ablation_labels_validation.json"
+    if val_labels.exists():
+        config["ablation_labels_validation_exists"] = True
+
+    # Check sample count from fallback flag
+    fallback_file = ablation_dir / "fallback_flag.json"
+    if fallback_file.exists():
+        with open(fallback_file, 'r') as f:
+            fallback_data = json.load(f)
+            config["fallback_flag"] = fallback_data.get("fallback", False)
+            config["reason"] = fallback_data.get("reason", None)
+
+    return config
 
 def generate_analysis_config(
     output_path: Path,
-    custom_config: Optional[Dict[str, Any]] = None
+    split_dir: Optional[Path] = None,
+    ablation_dir: Optional[Path] = None,
+    random_seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Generate a complete analysis configuration snapshot.
-    
+    Generate a comprehensive analysis configuration snapshot.
+
     Args:
-        output_path: Path where the JSON config will be saved
-        custom_config: Optional dictionary with custom parameters to override defaults
-        
+        output_path: Path where the config JSON will be written.
+        split_dir: Directory containing split CSV files.
+        ablation_dir: Directory containing ablation labels and fallback flags.
+        random_seed: Specific seed to record (if not set, uses current state).
+
     Returns:
-        The generated configuration dictionary
+        The generated configuration dictionary.
     """
-    # Load base project configuration
-    try:
-        base_config = load_config_from_file()
-    except Exception as e:
-        logger.warning(f"Could not load base config: {e}. Using minimal defaults.")
-        base_config = {}
-        
-    # Determine random seeds (from config or defaults)
-    random_seed = custom_config.get('random_seed') if custom_config else None
+    # Default directories
+    if split_dir is None:
+        split_dir = Path("data/processed")
+    else:
+        split_dir = Path(split_dir)
+
+    if ablation_dir is None:
+        ablation_dir = Path("data/processed")
+    else:
+        ablation_dir = Path(ablation_dir)
+
+    # Capture random state
     if random_seed is None:
-        random_seed = base_config.get('RANDOM_SEED', 42)
-        
-    np_seed = custom_config.get('numpy_seed') if custom_config else None
-    if np_seed is None:
-        np_seed = base_config.get('NUMPY_SEED', random_seed)
-        
-    # Ensure seeds are set for reproducibility
-    random.seed(random_seed)
-    np.random.seed(np_seed)
-    
-    # Load split metadata
-    split_metadata_path = output_path.parent / "split_metadata.json"
-    split_info = load_split_metadata(split_metadata_path)
-    
-    # Load ablation config if available
-    ablation_config_path = output_path.parent / "ablation_config.json"
-    ablation_info = load_ablation_config(ablation_config_path)
-    
-    # Build the configuration snapshot
-    config_snapshot = {
-        "metadata": {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "project_id": "PROJ-990-llmxive-follow-up-extending-agenticsts-a",
-            "task_id": "T037",
-            "version": "1.0.0"
-        },
+        random_seed = random.getstate()
+        np_seed = np.random.get_state()
+        random_seed_val = None
+    else:
+        random_seed_val = random_seed
+        random.seed(random_seed)
+        np.random.seed(random_seed)
+        random_seed = random.getstate()
+        np_seed = np.random.get_state()
+
+    config = {
+        "experiment_id": "llmXive-follow-up-extending-agenticsts-a",
+        "task_id": "T037",
+        "description": "Analysis configuration snapshot for reproducibility",
+        "generated_at": None,  # Will be set by caller or omitted
         "random_seeds": {
-            "python_random": random_seed,
-            "numpy_random": np_seed,
-            "description": "Seeds used for all stochastic operations in this run"
+            "python_random": str(random_seed),
+            "numpy_random": str(np_seed),
+            "explicit_seed": random_seed_val
         },
         "hyperparameters": {
-            "token_budget": base_config.get('TOKEN_BUDGET', 4096),
-            "min_context": base_config.get('MIN_CONTEXT', 256),
-            "entropy_method": "shannon",
-            "classifier_type": base_config.get('CLASSIFIER_TYPE', 'decision_tree'),
-            "ablation_k": base_config.get('ABLATION_K', 5),
-            "statistical_tests": {
-                "paired_test": "mcnemar" if split_info.get('is_divergent') is False else "permutation",
-                "token_test": "paired_ttest",
-                "correction": "bonferroni"
-            }
+            "token_budget": 4096,
+            "min_context": 256,
+            "k_dynamic": "model_predicted_or_fallback_2",
+            "k_static": "all_layers",
+            "k_random": "uniform_random",
+            "correlation_threshold": 0.7,
+            "sample_size_threshold": 300,
+            "token_reduction_threshold": 0.30
         },
-        "dataset_split": {
-            "train_samples": split_info.get('train_samples'),
-            "holdout_samples": split_info.get('holdout_samples'),
-            "split_ratio": split_info.get('split_ratio'),
-            "stratification_field": split_info.get('stratification_field'),
-            "split_seed": random_seed
+        "dataset_splits": load_split_metadata(split_dir),
+        "ablation_config": load_ablation_config(ablation_dir),
+        "statistical_tests": {
+            "paired_test": "McNemar's test",
+            "unpaired_test": "Permutation test",
+            "token_test": "Paired t-test (or Wilcoxon if non-normal)",
+            "correction": "Bonferroni"
         },
-        "ablation_study": ablation_info,
         "reproducibility_notes": [
-            "All random seeds are fixed for this run",
-            "Dataset split is stratified by utility_score",
-            "Statistical tests use Bonferroni correction",
-            "Token budget enforcement is deterministic given seeds"
+            "This snapshot captures the exact configuration used for the analysis.",
+            "Random seeds are recorded to ensure reproducibility of stochastic processes.",
+            "Dataset split ratios are derived from the actual split files.",
+            "Hyperparameters are hardcoded constants from the project specification.",
+            "Statistical test selection depends on trajectory divergence (T024a)."
         ]
     }
-    
-    # Ensure output directory exists
-    ensure_directories([output_path.parent])
-    
-    # Write the configuration to disk
+
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(config_snapshot, f, indent=2)
-        
-    logger.info(f"Analysis configuration saved to {output_path}")
-    return config_snapshot
+        json.dump(config, f, indent=2, default=str)
+
+    logger.info(f"Analysis configuration saved to: {output_path}")
+    return config
 
 def main():
-    """Main entry point for the analysis config generator."""
+    """Main entry point for generating the analysis config."""
     output_path = Path("data/processed/analysis_config.json")
-    
-    logger.info(f"Generating analysis configuration snapshot to {output_path}")
-    
-    try:
-        config = generate_analysis_config(output_path)
-        logger.info("Successfully generated analysis configuration")
-        print(f"Configuration saved to: {output_path}")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to generate analysis configuration: {e}")
-        raise
+    split_dir = Path("data/processed")
+    ablation_dir = Path("data/processed")
+
+    logger.info(f"Generating analysis configuration snapshot...")
+    logger.info(f"Output path: {output_path}")
+    logger.info(f"Split directory: {split_dir}")
+    logger.info(f"Ablation directory: {ablation_dir}")
+
+    config = generate_analysis_config(
+        output_path=output_path,
+        split_dir=split_dir,
+        ablation_dir=ablation_dir
+    )
+
+    logger.info("Analysis configuration generation complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

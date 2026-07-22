@@ -1,0 +1,19 @@
+status: none
+intent: AgenticSTS game trajectory dataset download site:github.com python package
+  dataset
+required_fields:
+- game_id
+- turn_id
+- turn_number
+- health_ratio
+- enemy_threat_level
+- deck_size
+- move_entropy
+- memory_layer_utility
+- selected_memory_layers
+- token_budget
+- token_usage
+- outcome
+cache_key: cd2589ec8f10e092ffdf94965fbea189087b56c9ef26dc17358a5a20ec088493
+searched_at: '2026-07-22T18:32:32.679205+00:00'
+retry_count: 1

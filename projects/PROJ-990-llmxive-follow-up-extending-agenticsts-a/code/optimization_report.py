@@ -1,260 +1,222 @@
-"""
-T031b: Optimization Report Generator
-
-Reads benchmark results from T031 and generates a detailed optimization report
-in data/processed/optimization_report.md.
-
-Logic:
-1. Load benchmark_log.json from T031.
-2. Check if total_runtime > 6 hours (21600 seconds).
-3. If > 6 hours, analyze phase breakdown to identify bottlenecks.
-4. Generate recommendations based on known optimization strategies (caching,
-   vectorization, parallel processing).
-5. Write optimization_report.md with specific changes and measured impact.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Configure logging
+# Configure logging for the analysis script
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-BENCHMARK_LOG_PATH = Path("data/processed/benchmark_log.json")
-OPTIMIZATION_REPORT_PATH = Path("data/processed/optimization_report.md")
-SIX_HOURS_SECONDS = 6 * 60 * 60  # 21600 seconds
-
-def load_benchmark_data() -> Optional[Dict[str, Any]]:
-    """Load benchmark results from T031."""
-    if not BENCHMARK_LOG_PATH.exists():
-        logger.error(f"Benchmark log not found at {BENCHMARK_LOG_PATH}")
+def load_benchmark_data(benchmark_path: str) -> Optional[Dict[str, Any]]:
+    """
+    Load the benchmark log from the specified JSON file.
+    
+    Args:
+        benchmark_path: Path to the benchmark_log.json file.
+        
+    Returns:
+        Dictionary containing benchmark data, or None if file not found/error.
+    """
+    path = Path(benchmark_path)
+    if not path.exists():
+        logger.error(f"Benchmark file not found: {benchmark_path}")
         return None
     
     try:
-        with open(BENCHMARK_LOG_PATH, 'r') as f:
-            return json.load(f)
+        with open(path, 'r') as f:
+            data = json.load(f)
+        logger.info(f"Successfully loaded benchmark data from {benchmark_path}")
+        return data
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse benchmark log: {e}")
+        logger.error(f"Failed to parse benchmark JSON: {e}")
         return None
     except Exception as e:
-        logger.error(f"Unexpected error reading benchmark log: {e}")
+        logger.error(f"Unexpected error loading benchmark data: {e}")
         return None
 
 def analyze_bottlenecks(benchmark_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Analyze benchmark data to identify performance bottlenecks."""
-    phases = benchmark_data.get('phases', [])
-    total_runtime = benchmark_data.get('total_runtime_seconds', 0)
+    """
+    Analyze the benchmark data to identify bottlenecks and performance issues.
     
-    if not phases:
-        return {
-            'is_bottleneck_detected': False,
-            'total_runtime': total_runtime,
-            'threshold_exceeded': total_runtime > SIX_HOURS_SECONDS,
-            'recommendations': []
-        }
-    
-    # Sort phases by runtime (descending)
-    sorted_phases = sorted(phases, key=lambda x: x.get('duration_seconds', 0), reverse=True)
-    top_bottleneck = sorted_phases[0] if sorted_phases else None
-    
-    recommendations = []
-    
-    if total_runtime > SIX_HOURS_SECONDS:
-        recommendations.append(
-            f"⚠️ **CRITICAL**: Total runtime ({total_runtime:.2f}s) exceeds 6-hour limit ({SIX_HOURS_SECONDS}s)."
-        )
+    Args:
+        benchmark_data: Dictionary containing benchmark results.
         
-        if top_bottleneck:
-            bottleneck_name = top_bottleneck.get('phase_name', 'Unknown')
-            bottleneck_time = top_bottleneck.get('duration_seconds', 0)
-            bottleneck_pct = (bottleneck_time / total_runtime * 100) if total_runtime > 0 else 0
-            
-            recommendations.append(
-                f"🔥 **Primary Bottleneck**: `{bottleneck_name}` ({bottleneck_time:.2f}s, {bottleneck_pct:.1f}% of total)"
-            )
-            
-            # Generate specific recommendations based on phase name
-            if 'parser' in bottleneck_name.lower():
-                recommendations.extend([
-                    "- **Enable Streaming**: Add `--stream` flag to `code/parser.py` to process large files in chunks.",
-                    "- **Implement Caching**: Use `code/perf_optimizer.py`'s `cached_operation` to avoid re-parsing unchanged files.",
-                    "- **Parallel Processing**: Leverage `parallel_parser` from `code/perf_optimizer.py` to utilize multiple CPU cores."
-                ])
-            elif 'ablation' in bottleneck_name.lower():
-                recommendations.extend([
-                    "- **Vectorize Calculations**: Replace loop-based ablation with `vectorized_statistical_tests` from `code/perf_optimizer.py`.",
-                    "- **Optimize Config**: Reduce search space in `generate_ablation_config` if feasible.",
-                    "- **Cache Intermediate Results**: Store intermediate ablation results to disk for incremental re-runs."
-                ])
-            elif 'simulation' in bottleneck_name.lower():
-                recommendations.extend([
-                    "- **Batch Execution**: Use `optimize_simulation_batch` from `code/perf_optimizer.py` to process multiple trajectories in parallel.",
-                    "- **Reduce Redundant Loads**: Cache loaded models and data structures in memory across simulation runs.",
-                    "- **Profile Token Estimation**: Optimize `estimate_layer_tokens` in `code/simulator.py` if it's a hot path."
-                ])
-            elif 'classifier' in bottleneck_name.lower():
-                recommendations.extend([
-                    "- **Simplify Model**: Use a lighter model (e.g., Logistic Regression instead of deeper trees) if accuracy permits.",
-                    "- **Feature Selection**: Reduce feature dimensionality before training.",
-                    "- **Early Stopping**: Implement early stopping during training to prevent unnecessary epochs."
-                ])
-            elif 'stats' in bottleneck_name.lower():
-                recommendations.extend([
-                    "- **Optimize Statistical Tests**: Use `vectorized_statistical_tests` for faster computation.",
-                    "- **Sample Size**: If trajectory count is very large, consider stratified sampling for statistical tests."
-                ])
-            else:
-                recommendations.append(
-                    "- **General Optimization**: Profile the code to identify specific hot spots and apply targeted optimizations."
-                )
-    else:
-        recommendations.append(f"✅ **Status**: Total runtime ({total_runtime:.2f}s) is within the 6-hour limit.")
+    Returns:
+        Dictionary containing analysis results.
+    """
+    if not benchmark_data:
+        return {"error": "No benchmark data provided"}
     
-    return {
-        'is_bottleneck_detected': len([r for r in recommendations if '⚠️' in r or '🔥' in r]) > 0,
-        'total_runtime': total_runtime,
-        'threshold_exceeded': total_runtime > SIX_HOURS_SECONDS,
-        'top_bottleneck': top_bottleneck,
-        'recommendations': recommendations
+    analysis = {
+        "total_runtime_seconds": benchmark_data.get("total_runtime_seconds", 0),
+        "phases": {},
+        "bottlenecks": [],
+        "recommendations": []
     }
-
-def generate_markdown_report(analysis: Dict[str, Any]) -> str:
-    """Generate the optimization report in Markdown format."""
-    lines = [
-        "# Optimization Report",
-        "",
-        f"**Generated**: {Path.cwd().name}",
-        f"**Benchmark Source**: `{BENCHMARK_LOG_PATH}`",
-        "",
-        "## Executive Summary",
-        "",
+    
+    phases = benchmark_data.get("phases", {})
+    if not phases:
+        logger.warning("No phase data found in benchmark results")
+        return analysis
+    
+    # Analyze each phase
+    total_phase_time = sum(p.get("duration_seconds", 0) for p in phases.values())
+    
+    for phase_name, phase_data in phases.items():
+        duration = phase_data.get("duration_seconds", 0)
+        memory_mb = phase_data.get("memory_mb", 0)
+        
+        phase_analysis = {
+            "duration_seconds": duration,
+            "memory_mb": memory_mb,
+            "percentage_of_total": (duration / total_phase_time * 100) if total_phase_time > 0 else 0
+        }
+        analysis["phases"][phase_name] = phase_analysis
+        
+        # Identify bottlenecks (phases taking > 20% of total time)
+        if duration > 0 and total_phase_time > 0:
+            percentage = (duration / total_phase_time) * 100
+            if percentage > 20:
+                analysis["bottlenecks"].append({
+                    "phase": phase_name,
+                    "duration_seconds": duration,
+                    "percentage": percentage
+                })
+    
+    # Sort bottlenecks by duration
+    analysis["bottlenecks"].sort(key=lambda x: x["duration_seconds"], reverse=True)
+    
+    # Generate recommendations based on analysis
+    if analysis["total_runtime_seconds"] > 6 * 3600:  # > 6 hours
+        analysis["recommendations"].append(
+            "Total runtime exceeds 6 hours. Consider parallelizing independent phases or optimizing bottlenecks."
+        )
+    
+    if analysis["bottlenecks"]:
+        top_bottleneck = analysis["bottlenecks"][0]
+        analysis["recommendations"].append(
+            f"Focus optimization efforts on '{top_bottleneck['phase']}' phase which consumes "
+            f"{top_bottleneck['percentage']:.1f}% of total runtime."
+        )
+    
+    # Check for memory issues
+    high_memory_phases = [
+        phase for phase, data in analysis["phases"].items()
+        if data["memory_mb"] > 7000  # > 7GB
     ]
+    if high_memory_phases:
+        analysis["recommendations"].append(
+            f"High memory usage detected in phases: {', '.join(high_memory_phases)}. "
+            "Consider streaming data or reducing batch sizes."
+        )
     
-    if analysis['threshold_exceeded']:
-        lines.append(f"⚠️ **Total runtime**: {analysis['total_runtime']:.2f} seconds ({analysis['total_runtime']/3600:.2f} hours)")
-        lines.append(f"❌ **Exceeds 6-hour limit**: Yes (limit: {SIX_HOURS_SECONDS} seconds)")
+    # Determine if refactoring is needed
+    analysis["refactoring_needed"] = (
+        analysis["total_runtime_seconds"] > 6 * 3600 or
+        len(analysis["bottlenecks"]) > 2 or
+        len(high_memory_phases) > 0
+    )
+    
+    return analysis
+
+def generate_markdown_report(analysis: Dict[str, Any], output_path: str) -> None:
+    """
+    Generate a markdown report documenting the runtime analysis.
+    
+    Args:
+        analysis: Dictionary containing analysis results.
+        output_path: Path to write the markdown report.
+    """
+    if "error" in analysis:
+        logger.error(f"Cannot generate report: {analysis['error']}")
+        return
+    
+    lines = []
+    lines.append("# Optimization Report")
+    lines.append("")
+    lines.append("## Executive Summary")
+    lines.append("")
+    lines.append(f"- **Total Runtime**: {analysis['total_runtime_seconds'] / 3600:.2f} hours")
+    lines.append(f"- **Refactoring Needed**: {'Yes' if analysis['refactoring_needed'] else 'No'}")
+    lines.append("")
+    
+    if analysis["bottlenecks"]:
+        lines.append("### Identified Bottlenecks")
         lines.append("")
-        lines.append("The pipeline requires optimization to meet the 6-hour runtime constraint.")
-    else:
-        lines.append(f"✅ **Total runtime**: {analysis['total_runtime']:.2f} seconds ({analysis['total_runtime']/3600:.2f} hours)")
-        lines.append(f"✅ **Within 6-hour limit**: Yes")
-        lines.append("")
-        lines.append("The pipeline meets the runtime constraint. No critical optimizations are required.")
-    
-    lines.append("")
-    lines.append("## Phase Breakdown")
-    lines.append("")
-    lines.append("| Phase | Duration (s) | % of Total |")
-    lines.append("|-------|--------------|------------|")
-    
-    phases = analysis.get('top_bottleneck', {}).get('phases', []) if 'phases' in analysis else []
-    # Re-load phases if needed from analysis structure
-    # Assuming analysis might have a 'phases' key or we need to reconstruct
-    # For robustness, let's assume the analysis dict passed here might need the phases list
-    # If the analysis dict doesn't have phases, we can't print the table. 
-    # But analyze_bottlenecks doesn't return the full list, just top. 
-    # Let's adjust: pass the full phases list to this function or reconstruct.
-    # Actually, let's just print the top bottleneck info if we don't have the full list here.
-    # To be safe, I'll assume the caller passes the full phases list or we re-read it.
-    # Since I can't re-read easily here without passing data, I'll assume the analysis dict 
-    # has a 'phases' key or I'll just print the top one.
-    
-    # Correction: Let's assume we pass the full phases list to this function or access it globally.
-    # For this implementation, I'll assume the `analysis` dict has a 'phases' list if available.
-    # If not, I'll skip the table or print a placeholder.
-    
-    # Let's restructure slightly: pass the full benchmark data or phases to generate_markdown_report
-    # But to keep the signature simple, I'll assume we can access the phases from the analysis dict
-    # if we stored them there. Let's update analyze_bottlenecks to return phases too.
-    # Actually, I'll just print the top bottleneck details if the full list isn't available.
-    
-    if 'phases' in analysis:
-        for phase in analysis['phases']:
-            duration = phase.get('duration_seconds', 0)
-            pct = (duration / analysis['total_runtime'] * 100) if analysis['total_runtime'] > 0 else 0
-            lines.append(f"| {phase.get('phase_name', 'Unknown')} | {duration:.2f} | {pct:.1f}% |")
-    else:
-        if analysis.get('top_bottleneck'):
-            tb = analysis['top_bottleneck']
-            duration = tb.get('duration_seconds', 0)
-            pct = (duration / analysis['total_runtime'] * 100) if analysis['total_runtime'] > 0 else 0
-            lines.append(f"| {tb.get('phase_name', 'Unknown')} | {duration:.2f} | {pct:.1f}% |")
-            lines.append("| ... (other phases) | ... | ... |")
-        else:
-            lines.append("| *No phase data available* | - | - |")
-    
-    lines.append("")
-    lines.append("## Optimization Recommendations")
-    lines.append("")
-    
-    if analysis['recommendations']:
-        for rec in analysis['recommendations']:
-            lines.append(rec)
-            lines.append("")
-    else:
-        lines.append("No specific recommendations at this time.")
+        lines.append("| Phase | Duration (s) | % of Total |")
+        lines.append("|-------|--------------|------------|")
+        for bottleneck in analysis["bottlenecks"]:
+            lines.append(
+                f"| {bottleneck['phase']} | {bottleneck['duration_seconds']:.2f} | "
+                f"{bottleneck['percentage']:.1f}% |"
+            )
         lines.append("")
     
-    lines.append("## Implementation Notes")
+    lines.append("### Phase Breakdown")
     lines.append("")
-    lines.append("The following optimizations have been identified based on the benchmark results:")
+    lines.append("| Phase | Duration (s) | Memory (MB) | % of Total |")
+    lines.append("|-------|--------------|-------------|------------|")
+    for phase_name, phase_data in analysis["phases"].items():
+        lines.append(
+            f"| {phase_name} | {phase_data['duration_seconds']:.2f} | "
+            f"{phase_data['memory_mb']:.2f} | {phase_data['percentage_of_total']:.1f}% |"
+        )
     lines.append("")
-    lines.append("1. **Caching**: Implement result caching for expensive operations (parsing, ablation).")
-    lines.append("2. **Parallelization**: Utilize multi-core processing for independent phases.")
-    lines.append("3. **Vectorization**: Replace loops with NumPy/Pandas vectorized operations where possible.")
-    lines.append("4. **Streaming**: Process large files in chunks to reduce memory footprint and improve I/O efficiency.")
+    
+    if analysis["recommendations"]:
+        lines.append("### Recommendations")
+        lines.append("")
+        for i, rec in enumerate(analysis["recommendations"], 1):
+            lines.append(f"{i}. {rec}")
+        lines.append("")
+    
+    lines.append("## Conclusion")
     lines.append("")
-    lines.append("## Next Steps")
-    lines.append("")
-    if analysis['threshold_exceeded']:
-        lines.append("1. Prioritize the top bottleneck phase for optimization.")
-        lines.append("2. Implement the recommended changes in the corresponding `code/` modules.")
-        lines.append("3. Re-run `code/benchmark.py` to measure the impact of optimizations.")
-        lines.append("4. Iterate until the total runtime is within the 6-hour limit.")
+    if analysis["refactoring_needed"]:
+        lines.append("**Action Required**: The current implementation requires optimization. "
+                   "Please review the recommendations above and proceed with T031c to refactor "
+                   "the codebase to reduce runtime below the 6-hour threshold.")
     else:
-        lines.append("The current runtime is acceptable. Continue monitoring performance as the dataset grows.")
+        lines.append("**Status**: The pipeline performance is within acceptable limits. "
+                   "No immediate refactoring is required.")
     lines.append("")
     lines.append("---")
-    lines.append(f"*Report generated by T031b optimization logic.*")
+    lines.append(f"*Report generated from benchmark data analysis*")
     
-    return "\n".join(lines)
+    # Write to file
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
+        f.write('\n'.join(lines))
+    
+    logger.info(f"Optimization report written to {output_path}")
 
 def main():
-    """Main entry point for T031b."""
-    logger.info("Starting T031b: Optimization Report Generation")
+    """Main entry point for the optimization report generation."""
+    # Define paths
+    project_root = Path(__file__).parent.parent
+    benchmark_path = project_root / "data" / "processed" / "benchmark_log.json"
+    output_path = project_root / "data" / "processed" / "optimization_report.md"
+    
+    logger.info("Starting benchmark analysis...")
     
     # Load benchmark data
-    benchmark_data = load_benchmark_data()
+    benchmark_data = load_benchmark_data(str(benchmark_path))
     if not benchmark_data:
         logger.error("Failed to load benchmark data. Aborting.")
-        # Create a minimal report indicating failure
-        report_content = "# Optimization Report\n\n**Error**: Failed to load benchmark data from `data/processed/benchmark_log.json`. Please ensure T031 has been completed successfully."
-        OPTIMIZATION_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(OPTIMIZATION_REPORT_PATH, 'w') as f:
-            f.write(report_content)
         return 1
     
     # Analyze bottlenecks
     analysis = analyze_bottlenecks(benchmark_data)
     
-    # Generate markdown report
-    report_content = generate_markdown_report(analysis)
+    # Generate report
+    generate_markdown_report(analysis, str(output_path))
     
-    # Ensure output directory exists
-    OPTIMIZATION_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write report
-    with open(OPTIMIZATION_REPORT_PATH, 'w') as f:
-        f.write(report_content)
-    
-    logger.info(f"Optimization report written to {OPTIMIZATION_REPORT_PATH}")
-    logger.info(f"Threshold exceeded: {analysis['threshold_exceeded']}")
-    
+    logger.info("Analysis complete.")
     return 0
 
 if __name__ == "__main__":
