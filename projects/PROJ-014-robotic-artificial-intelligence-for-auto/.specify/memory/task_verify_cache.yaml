@@ -1,0 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`code/src/environment`, `code/src/data`,
+    `code/src/agents`, `code/src/analysis`, `code/src/utils`, `code/scripts`, `code/tests`,
+    `code/data`, `code/results`) was provided; the implementer did not supply any
+    file listings, screenshots, or other proof that these folders exist. The task
+    therefore remains unfinished.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8`) or setup scripts are present
+    in the provided evidence, so the requirement to configure ruff/flake8 and Black
+    cannot be confirmed. The implementer must add the appropriate configuration files
+    and ensure they are committed to the repository.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g.,\u202F`pytest.ini`, `conftest.py`) or test\
+    \ discovery scripts are present in the provided artifacts, and nothing in the\
+    \ evidence addresses the requirement to set up pytest. The existing material only\
+    \ describes a sensory\u2011fidelity study, not a pytest setup."
+T015:
+  c: false
+  h: 41def13469ca931b6a3573adb242162f0dbb78fa4dfab7bdef8865c4a70d4703
+  r: The provided `run_baselines.py` is truncated, contains a syntax error (`elif
+    info.get("failure") or inf`), and does not include logic to loop over 30 seeds,
+    handle crashes, or write the required JSON file. Additionally, the expected `results/baseline_metrics.json`
+    file is absent. These missing/incorrect parts prevent the task from being fulfilled.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, tests, documentation, or any other artifact\
+    \ showing that error handling for memory\u2011pressure crashes and checkpoint\u2011\
+    resume logic was added. Consequently, the required functionality is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that demonstrate logging of
+    baseline path optimality ratios or success rates. Without concrete artifacts (e.g.,
+    modified `run_baselines.py` with logging statements, generated log files, or test
+    output showing the recorded metrics), the requirement cannot be verified as satisfied.

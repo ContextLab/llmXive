@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:05.950030Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-593-the-binding-problem-in-llms-implementing
-last_run_id: 721e542d-b0e9-4058-9d16-60c405fb5a81
+last_run_id: b38efee4-811a-45a4-986c-56e06f472771
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing
 title: 'The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature
   Integration'
-updated_at: '2026-07-19T07:42:48.378463Z'
+updated_at: '2026-07-22T10:58:54.327599Z'

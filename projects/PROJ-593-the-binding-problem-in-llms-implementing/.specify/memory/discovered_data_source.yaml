@@ -1,0 +1,15 @@
+status: none
+intent: DistilBERT attention activation time series dataset for oscillatory analysis
+  python package dataset
+required_fields:
+- sequence_id
+- token_index
+- layer_index
+- head_index
+- attention_score
+- timestamp
+- frequency_bin
+- spectral_power
+cache_key: fbf7d4820e5604db694fdba3f56643d0decd66591d2a6c9c3601e08938b54c2e
+searched_at: '2026-07-22T10:41:28.717200+00:00'
+retry_count: 1

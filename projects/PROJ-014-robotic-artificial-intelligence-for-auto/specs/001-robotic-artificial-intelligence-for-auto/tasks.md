@@ -38,7 +38,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement `code/src/utils/config.py` for hyperparameters, seeds, and path configuration
-- [ ] T006 Implement `code/src/utils/logger.py` for RAM/CPU logging (FR-006) with `log_metrics()` function, JSON format, and -second interval sampling <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
+- [X] T006 Implement `code/src/utils/logger.py` for RAM/CPU logging (FR-006) with `log_metrics()` function, JSON format, and -second interval sampling <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
 found character '`' that cannot start any token
  in "<unicode string>", line 3, column 1:
  ```python
@@ -70,9 +70,9 @@ found character '`' that cannot start any token
 - [X] T012 [P] [US1] Implement Pure Pursuit controller in `code/src/environment/baselines.py`
 - [X] T013 [P] [US1] Implement Dijkstra path planner in `code/src/environment/baselines.py` (CPU-optimized, x64 map resolution)
 - [X] T014 [P] [US1] Implement Stochastic (Random) policy in `code/src/environment/baselines.py`
-- [~] T015 [US1] Implement `code/scripts/run_baselines.py` to orchestrate N=30 seeds, handle crashes, and log results to `results/baseline_metrics.json` (schema: `{success_rate: float, path_optimality: float, seeds: list}`)
-- [~] T016 [US1] Add error handling for memory pressure crashes (resume from checkpoint) per Edge Cases
-- [~] T017 [US1] Add logging for baseline path optimality ratios and success rates
+- [ ] T015 [US1] Implement `code/scripts/run_baselines.py` to orchestrate N=30 seeds, handle crashes, and log results to `results/baseline_metrics.json` (schema: `{success_rate: float, path_optimality: float, seeds: list}`)
+- [ ] T016 [US1] Add error handling for memory pressure crashes (resume from checkpoint) per Edge Cases
+- [ ] T017 [US1] Add logging for baseline path optimality ratios and success rates
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,10 +92,10 @@ found character '`' that cannot start any token
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/src/data/pipeline.py` RGB preprocessing (center-crop, normalize, fixed spatial resolution)
-- [ ] T021 [P] [US2] Implement `code/src/data/pipeline.py` Depth map downsampling logic
-- [ ] T022 [P] [US2] Implement `code/src/data/pipeline.py` 2D Occupancy Grid generation (binary matrix, m-radius, noise handling)
-- [ ] T023 [US2] Implement `code/scripts/generate_modalities.py` to process raw sensor data AND consume validated calibration parameters from `results/calibration_report.json` (produced by T008b) to ensure spatial alignment; save modalities to `data/modalities/` (FR-009, US-2)
-- [ ] T024 [US2] Implement fallback logic for LiDAR dropout (substitute safe empty grid, log event) per Edge Cases
+- [X] T021 [P] [US2] Implement `code/src/data/pipeline.py` Depth map downsampling logic
+- [X] T022 [P] [US2] Implement `code/src/data/pipeline.py` 2D Occupancy Grid generation (binary matrix, m-radius, noise handling)
+- [~] T023 [US2] Implement `code/scripts/generate_modalities.py` to process raw sensor data AND consume validated calibration parameters from `results/calibration_report.json` (produced by T008b) to ensure spatial alignment; save modalities to `data/modalities/` (FR-009, US-2)
+- [~] T024 [US2] Implement fallback logic for LiDAR dropout (substitute safe empty grid, log event) per Edge Cases
 - [ ] T025 [US2] Verify spatial alignment across all three modalities for the same ground truth frame: Generate `results/alignment_report.json` with IoU scores (threshold > 0.95)
 - [ ] T026 [P] [US2] Implement sensitivity analysis script `scripts/sweep_thresholds.py` for occupancy grid threshold (FR-008)
 
@@ -111,13 +111,13 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for statistical report schema in `code/tests/contract/test_stats_schema.py`
-- [ ] T028 [P] [US3] Integration test for DQN training loop resource limits in `code/tests/integration/test_dqn_resources.py`
+- [X] T027 [P] [US3] Contract test for statistical report schema in `code/tests/contract/test_stats_schema.py`
+- [X] T028 [P] [US3] Integration test for DQN training loop resource limits in `code/tests/integration/test_dqn_resources.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/src/agents/dqn_agent.py` with pruned MobileNetV2 backbone (CPU-only, no CUDA)
-- [ ] T030 [P] [US3] Implement `code/src/agents/memory.py` for replay buffer (CPU-optimized)
+- [X] T029 [P] [US3] Implement `code/src/agents/dqn_agent.py` with pruned MobileNetV2 backbone (CPU-only, no CUDA)
+- [X] T030 [P] [US3] Implement `code/src/agents/memory.py` for replay buffer (CPU-optimized)
 - [ ] T030a [US3] Implement `code/scripts/train_and_analyze.py` master orchestrator with a GLOBAL -hour wall-clock timer (FR-003, SC-005) that wraps the seed loop, saving checkpoints and halting execution if the total budget is exceeded; this task must execute BEFORE T031
 - [ ] T031 [US3] Implement `code/scripts/train_and_analyze.py` to orchestrate training: (1) iterate through N=30 seeds per modality (RGB, Depth, Grid), (2) invoke T030a's global timer, (3) handle memory pressure crashes via checkpointing, and (4) output learning curve CSVs to `results/training_curves/`
 - [ ] T032 [US3] Integrate training loop logic (T031) with DQN agent (T029) to produce training data

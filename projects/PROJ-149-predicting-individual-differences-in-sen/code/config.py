@@ -1,76 +1,139 @@
 """
-Configuration constants for the EEG analysis pipeline.
+Configuration management for the EEG Sensory Speed project.
+Defines paths, filter parameters, band definitions, and random seeds.
 """
 import os
 import random
 import numpy as np
+import yaml
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 
-# Project root
+# Project Root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DATA_INTERIM = PROJECT_ROOT / "data" / "interim"
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-CODE_DIR = PROJECT_ROOT / "code"
-CODE_UTILS = CODE_DIR / "utils"
-TESTS_DIR = PROJECT_ROOT / "tests"
+CONFIG_FILE = PROJECT_ROOT / "config.yaml"
 
-# Random Seed
-RANDOM_SEED = 42
+# Global Seed
+_GLOBAL_SEED = 42
 
-# Filter Parameters
-FILTER_LOW = 1.0  # Hz
-FILTER_HIGH = 40.0  # Hz
-NOTCH_FREQ = 50  # Hz (or 60 depending on region, set to 50 as default)
-
-# Band Definitions (Hz)
-BAND_FREQS: Dict[str, Tuple[float, float]] = {
-    "delta": (1.0, 4.0),
-    "theta": (4.0, 8.0),
-    "alpha": (8.0, 13.0),
-    "low_beta": (13.0, 20.0),
-    "high_beta": (20.0, 30.0),
-    "gamma": (30.0, 40.0)
-}
-
-def ensure_dirs():
-    """Create necessary directories if they don't exist."""
-    for d in [DATA_RAW, DATA_INTERIM, DATA_PROCESSED, CODE_DIR, CODE_UTILS, TESTS_DIR]:
-        d.mkdir(parents=True, exist_ok=True)
-
-def set_global_seed(seed: int = RANDOM_SEED):
+def set_global_seed(seed: int = 42) -> None:
     """Set random seeds for reproducibility."""
+    global _GLOBAL_SEED
+    _GLOBAL_SEED = seed
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    try:
+        import tensorflow as tf
+        tf.random.set_seed(seed)
+    except ImportError:
+        pass
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass
 
-def get_path(category: str, filename: str = None) -> Path:
+def get_seed() -> int:
+    """Get the current global seed."""
+    return _GLOBAL_SEED
+
+def load_config() -> Dict[str, Any]:
+    """Load configuration from config.yaml if it exists."""
+    if not CONFIG_FILE.exists():
+        # Return defaults if config file is missing
+        return {
+            "paths": {
+                "data_raw": "data/raw",
+                "data_interim": "data/interim",
+                "data_processed": "data/processed",
+                "figures": "figures",
+                "code": "code"
+            },
+            "filter_params": {
+                "low_cut": 1.0,
+                "high_cut": 40.0,
+                "notch_freqs": [50.0, 60.0],
+                "variance_threshold": 3.0
+            },
+            "bands": {
+                "delta": (1.0, 4.0),
+                "theta": (4.0, 8.0),
+                "alpha": (8.0, 13.0),
+                "low_beta": (13.0, 20.0),
+                "high_beta": (20.0, 30.0),
+                "gamma": (30.0, 40.0)
+            }
+        }
+    
+    with open(CONFIG_FILE, 'r') as f:
+        return yaml.safe_load(f)
+
+def ensure_dirs() -> None:
+    """Ensure all required directories exist."""
+    config = load_config()
+    for key, path_str in config.get("paths", {}).items():
+        path = PROJECT_ROOT / path_str
+        path.mkdir(parents=True, exist_ok=True)
+
+def get_path(key: str) -> Path:
     """
-    Construct a path based on category.
+    Get a specific path from the configuration.
     
-    Categories:
-    - raw, interim, processed, features_raw, processed_features_raw, etc.
+    Args:
+        key: The key in the 'paths' section of config.yaml.
+             Special keys: 'features_raw', 'features', 'feasibility_report'
+    
+    Returns:
+        Absolute Path object.
     """
-    base_map = {
-        "raw": DATA_RAW,
-        "interim": DATA_INTERIM,
-        "interim_preprocessed_eeg": DATA_INTERIM / "preprocessed_eeg",
-        "processed": DATA_PROCESSED,
-        "processed_features_raw": DATA_PROCESSED / "features_raw.csv",
-        "processed_features": DATA_PROCESSED / "features.csv",
-    }
+    config = load_config()
+    paths_cfg = config.get("paths", {})
     
-    base = base_map.get(category, DATA_PROCESSED)
+    # Handle special derived paths
+    if key == 'features_raw':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'features_raw.csv'
+    elif key == 'features':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'features.csv'
+    elif key == 'feasibility_report':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'feasibility_report.md'
+    elif key == 'model_results':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'model_results.json'
+    elif key == 'split_indices':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'split_indices.json'
+    elif key == 'final_report':
+        return PROJECT_ROOT / paths_cfg.get('data_processed', 'data/processed') / 'final_report.md'
     
-    if filename:
-        return base / filename
-    return base
+    base_path = paths_cfg.get(key)
+    if not base_path:
+        raise KeyError(f"Path key '{key}' not found in config.")
+    
+    return PROJECT_ROOT / base_path
+
+def get_filter_params() -> Dict[str, Any]:
+    """Get EEG filter parameters."""
+    config = load_config()
+    return config.get("filter_params", {
+        "low_cut": 1.0,
+        "high_cut": 40.0,
+        "notch_freqs": [50.0, 60.0],
+        "variance_threshold": 3.0
+    })
 
 def get_band_freqs() -> Dict[str, Tuple[float, float]]:
-    """Return the frequency bands dictionary."""
-    return BAND_FREQS
+    """Get frequency definitions for EEG bands."""
+    config = load_config()
+    return config.get("bands", {
+        "delta": (1.0, 4.0),
+        "theta": (4.0, 8.0),
+        "alpha": (8.0, 13.0),
+        "low_beta": (13.0, 20.0),
+        "high_beta": (20.0, 30.0),
+        "gamma": (30.0, 40.0)
+    })
 
 def get_all_band_names() -> List[str]:
-    """Return list of band names."""
-    return list(BAND_FREQS.keys())
+    """Get list of all band names."""
+    return list(get_band_freqs().keys())

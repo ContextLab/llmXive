@@ -1,8 +1,8 @@
 """
 Schema validation helpers for YAML/JSON configuration and data files.
 
-Provides utilities to load, parse, and validate configuration files
-against defined schemas, ensuring data integrity for the research pipeline.
+This module provides utilities to validate structured data against defined schemas,
+ensuring type safety, required field presence, and value ranges before processing.
 """
 import json
 import yaml
@@ -27,25 +27,23 @@ def load_yaml(path: Union[str, Path]) -> Dict[str, Any]:
         Parsed dictionary content.
         
     Raises:
-        ValidationError: If file cannot be read or parsed.
+        ValidationError: If the file cannot be read or parsed.
+        FileNotFoundError: If the file does not exist.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise ValidationError(f"YAML file not found: {file_path}")
-    
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"YAML file not found: {path}")
+        
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
-            # Handle empty files
             if data is None:
                 return {}
             if not isinstance(data, Mapping):
-                raise ValidationError(f"YAML root must be a mapping (dict), got {type(data)}")
+                raise ValidationError(f"YAML root must be a mapping, got {type(data).__name__}")
             return dict(data)
     except yaml.YAMLError as e:
-        raise ValidationError(f"Failed to parse YAML file {file_path}: {e}")
-    except Exception as e:
-        raise ValidationError(f"Error reading YAML file {file_path}: {e}")
+        raise ValidationError(f"Failed to parse YAML: {e}")
 
 
 def load_json(path: Union[str, Path]) -> Dict[str, Any]:
@@ -59,59 +57,59 @@ def load_json(path: Union[str, Path]) -> Dict[str, Any]:
         Parsed dictionary content.
         
     Raises:
-        ValidationError: If file cannot be read or parsed.
+        ValidationError: If the file cannot be read or parsed.
+        FileNotFoundError: If the file does not exist.
     """
-    file_path = Path(path)
-    if not file_path.exists():
-        raise ValidationError(f"JSON file not found: {file_path}")
-    
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {path}")
+        
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             if not isinstance(data, Mapping):
-                raise ValidationError(f"JSON root must be a mapping (dict), got {type(data)}")
+                raise ValidationError(f"JSON root must be a mapping, got {type(data).__name__}")
             return dict(data)
     except json.JSONDecodeError as e:
-        raise ValidationError(f"Failed to parse JSON file {file_path}: {e}")
-    except Exception as e:
-        raise ValidationError(f"Error reading JSON file {file_path}: {e}")
+        raise ValidationError(f"Failed to parse JSON: {e}")
 
 
-def validate_type(value: Any, expected_type: type, field_name: str = "value") -> None:
+def validate_type(value: Any, expected_type: type, field_name: str) -> None:
     """
     Validate that a value matches the expected type.
     
     Args:
         value: The value to check.
         expected_type: The expected Python type.
-        field_name: Name of the field for error messaging.
+        field_name: Name of the field for error reporting.
         
     Raises:
-        ValidationError: If type mismatch occurs.
+        ValidationError: If the type does not match.
     """
     if not isinstance(value, expected_type):
         raise ValidationError(
-            f"Field '{field_name}' must be of type {expected_type.__name__}, "
-            f"got {type(value).__name__}"
+            f"Field '{field_name}' expected type '{expected_type.__name__}', "
+            f"got '{type(value).__name__}'"
         )
 
 
-def validate_required_fields(data: Dict[str, Any], required_fields: List[str], context: str = "data") -> None:
+def validate_required_fields(data: Dict[str, Any], required_fields: List[str], context: str = "") -> None:
     """
     Validate that all required fields are present in a dictionary.
     
     Args:
         data: The dictionary to check.
-        required_fields: List of required field names.
-        context: Context name for error messaging.
+        required_fields: List of field names that must be present.
+        context: Optional context string for error messages.
         
     Raises:
         ValidationError: If any required field is missing.
     """
     missing = [f for f in required_fields if f not in data]
     if missing:
+        context_str = f" in '{context}'" if context else ""
         raise ValidationError(
-            f"Missing required fields in {context}: {', '.join(missing)}"
+            f"Missing required field{ 's' if len(missing) > 1 else ''}{context_str}: {', '.join(missing)}"
         )
 
 
@@ -128,111 +126,118 @@ def validate_range(
         value: The numeric value to check.
         min_val: Minimum allowed value (inclusive).
         max_val: Maximum allowed value (inclusive).
-        field_name: Name of the field for error messaging.
+        field_name: Name of the field for error reporting.
         
     Raises:
-        ValidationError: If value is out of range.
+        ValidationError: If the value is out of range.
     """
     if min_val is not None and value < min_val:
-        raise ValidationError(
-            f"Field '{field_name}' value {value} is below minimum {min_val}"
-        )
+        raise ValidationError(f"Field '{field_name}' must be >= {min_val}, got {value}")
     if max_val is not None and value > max_val:
-        raise ValidationError(
-            f"Field '{field_name}' value {value} is above maximum {max_val}"
-        )
+        raise ValidationError(f"Field '{field_name}' must be <= {max_val}, got {value}")
 
 
-def validate_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> None:
+def validate_schema(
+    data: Dict[str, Any],
+    schema: Dict[str, Any],
+    strict: bool = False
+) -> None:
     """
-    Validate a dictionary against a simple schema definition.
+    Validate a dictionary against a schema definition.
     
-    Schema format:
-    {
-        "field_name": {
-            "type": <type>,
-            "required": <bool>,
-            "min": <number>,
-            "max": <number>,
-            "validator": <callable>
-        }
-    }
+    The schema is a dictionary where keys are field names and values are:
+    - A type object (e.g., `str`, `int`) for simple type checking.
+    - A dictionary with 'type' and optional 'required', 'min', 'max', 'choices' keys.
     
     Args:
         data: The data dictionary to validate.
-        schema: The schema definition dictionary.
+        schema: The schema definition.
+        strict: If True, raise an error if data contains keys not in the schema.
         
     Raises:
         ValidationError: If validation fails.
     """
-    for field_name, rules in schema.items():
-        is_required = rules.get("required", False)
-        
+    for field_name, definition in schema.items():
         if field_name not in data:
+            # Check if required
+            is_required = False
+            field_type = None
+            
+            if isinstance(definition, dict):
+                is_required = definition.get('required', False)
+                field_type = definition.get('type')
+            else:
+                field_type = definition
+                
             if is_required:
-                raise ValidationError(f"Missing required field: {field_name}")
+                raise ValidationError(f"Missing required field '{field_name}'")
             continue
         
         value = data[field_name]
         
-        # Type check
-        if "type" in rules:
-            validate_type(value, rules["type"], field_name)
+        # Determine field constraints
+        is_required = True
+        field_type = None
+        min_val = None
+        max_val = None
+        choices = None
         
-        # Range check
-        if "min" in rules or "max" in rules:
-            if not isinstance(value, (int, float)):
+        if isinstance(definition, dict):
+            is_required = definition.get('required', True)
+            field_type = definition.get('type')
+            min_val = definition.get('min')
+            max_val = definition.get('max')
+            choices = definition.get('choices')
+        else:
+            field_type = definition
+        
+        # Type validation
+        if field_type is not None:
+            validate_type(value, field_type, field_name)
+        
+        # Range validation
+        if isinstance(value, (int, float)):
+            validate_range(value, min_val, max_val, field_name)
+        
+        # Choices validation
+        if choices is not None:
+            if value not in choices:
                 raise ValidationError(
-                    f"Field '{field_name}' must be numeric for range validation"
+                    f"Field '{field_name}' must be one of {choices}, got {value}"
                 )
-            validate_range(value, rules.get("min"), rules.get("max"), field_name)
-        
-        # Custom validator
-        if "validator" in rules:
-            validator = rules["validator"]
-            if not callable(validator):
-                raise ValidationError(f"Validator for '{field_name}' must be callable")
-            try:
-                validator(value)
-            except Exception as e:
-                raise ValidationError(f"Custom validation failed for '{field_name}': {e}")
+    
+    # Strict mode: check for extra keys
+    if strict:
+        extra_keys = set(data.keys()) - set(schema.keys())
+        if extra_keys:
+            raise ValidationError(f"Unexpected fields in data: {', '.join(extra_keys)}")
 
 
 def validate_config_file(
-    config_path: Union[str, Path],
-    schema: Optional[Dict[str, Any]] = None,
-    required_fields: Optional[List[str]] = None,
+    path: Union[str, Path],
+    schema: Dict[str, Any],
     file_type: str = "yaml"
 ) -> Dict[str, Any]:
     """
-    Load and validate a configuration file against a schema or required fields.
+    Load and validate a configuration file against a schema.
     
     Args:
-        config_path: Path to the configuration file.
-        schema: Optional schema definition for validation.
-        required_fields: Optional list of required field names.
-        file_type: Type of file ('yaml' or 'json').
+        path: Path to the config file.
+        schema: Schema definition.
+        file_type: 'yaml' or 'json'.
         
     Returns:
-        The loaded configuration dictionary.
+        The validated and parsed configuration dictionary.
         
     Raises:
         ValidationError: If loading or validation fails.
     """
-    # Load the file
     if file_type.lower() == "yaml":
-        config = load_yaml(config_path)
+        data = load_yaml(path)
     elif file_type.lower() == "json":
-        config = load_json(config_path)
+        data = load_json(path)
     else:
         raise ValidationError(f"Unsupported file type: {file_type}")
-    
-    # Validate required fields
-    if required_fields:
-        validate_required_fields(config, required_fields, context=f"config file {config_path}")
-    
-    # Validate against schema
-    if schema:
-        validate_schema(config, schema)
-    
-    return config
+        
+    validate_schema(data, schema)
+    return data

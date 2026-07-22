@@ -1,86 +1,117 @@
-"""
-Unit tests for the data ingestion module.
-"""
-
 import pytest
 import pandas as pd
 import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-
-# Adjust import path for local testing
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.data.ingestion import _load_real_dft_data, _generate_mol_spectra_data, ingest_data
+# Ensure code/ is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from src.data.ingestion import ingest_data, fetch_real_data, generate_molspectra_simulation
 from src.utils.state_manager import load_state
 
 class TestIngestionLogic:
-    def test_load_real_dft_data_success(self):
-        """Test that real data loading returns a DataFrame."""
-        # Mock the load_dataset to return a known set of data
-        mock_item = {"smiles": "CCO", "total_energy": -100.5}
+    
+    @patch('src.data.ingestion.requests.get')
+    def test_fetch_real_data_success(self, mock_get):
+        """Test successful fetch from real source."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b"smiles,target_energy\nC,0.5"
+        mock_get.return_value = mock_response
         
-        with patch('src.data.ingestion.load_dataset') as mock_load:
-            # Simulate streaming iterator
-            mock_load.return_value = [mock_item] * 10
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest = Path(tmpdir) / "test.csv"
+            result = fetch_real_data("http://fake.url", dest)
             
-            df, source = _load_real_dft_data()
-            
-            assert isinstance(df, pd.DataFrame)
-            assert len(df) > 0
-            assert "total_energy_eV" in df.columns
-            assert source == "qm9_hf"
+            assert result is True
+            assert dest.exists()
+            mock_get.assert_called_once_with("http://fake.url", timeout=30)
 
-    def test_load_real_dft_data_network_error(self):
-        """Test that network errors raise an exception."""
-        with patch('src.data.ingestion.load_dataset') as mock_load:
-            mock_load.side_effect = ConnectionError("Network timeout")
+    @patch('src.data.ingestion.requests.get')
+    def test_fetch_real_data_404(self, mock_get):
+        """Test handling of 404 error."""
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest = Path(tmpdir) / "test.csv"
+            result = fetch_real_data("http://fake.url", dest)
+            
+            assert result is False
+            assert not dest.exists()
+
+    @patch('src.data.ingestion.requests.get')
+    def test_fetch_real_data_network_error(self, mock_get):
+        """Test that network errors raise exceptions."""
+        import requests
+        mock_get.side_effect = requests.exceptions.ConnectionError("Network error")
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest = Path(tmpdir) / "test.csv"
+            with pytest.raises(RuntimeError, match="Network error"):
+                fetch_real_data("http://fake.url", dest)
+
+    def test_generate_molspectra_simulation(self):
+        """Test simulated data generation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest = Path(tmpdir) / "simulated.csv"
+            generate_molspectra_simulation(dest)
+            
+            assert dest.exists()
+            df = pd.read_csv(dest)
+            
+            assert len(df) == 5000
+            assert "smiles" in df.columns
+            assert "target_energy" in df.columns
+            assert "spectra_ir" in df.columns
+            assert "spectra_raman" in df.columns
+            assert "spectra_nmr" in df.columns
+            assert "conditions_solvent" in df.columns
+            assert "conditions_catalyst" in df.columns
+            assert "conditions_temperature" in df.columns
+
+    @patch('src.data.ingestion.fetch_real_data')
+    def test_ingest_data_pivot_to_simulation(self, mock_fetch):
+        """Test that ingestion pivots to simulation when real source fails."""
+        mock_fetch.return_value = False  # Simulate 404
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Mock the RAW_DATA_DIR
+            with patch('src.data.ingestion.RAW_DATA_DIR', Path(tmpdir)):
+                result = ingest_data(output_filename="test_pivot.csv")
+                
+                assert result["status"] == "success"
+                assert result["source"] == "MolSpectra_Simulated_DFT_Energy"
+                assert result["pivot_reason"] is not None
+                assert "pivot" in result["pivot_reason"].lower()
+
+    @patch('src.data.ingestion.fetch_real_data')
+    def test_ingest_data_success_real_source(self, mock_fetch):
+        """Test successful ingestion from real source."""
+        mock_fetch.return_value = True
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest_file = Path(tmpdir) / "test_real.csv"
+            dest_file.write_text("smiles,target_energy\nC,0.5")
+            
+            with patch('src.data.ingestion.RAW_DATA_DIR', Path(tmpdir)):
+                with patch('src.data.ingestion.fetch_real_data', return_value=True):
+                    result = ingest_data(output_filename="test_real.csv")
+                    
+                    assert result["status"] == "success"
+                    assert result["source"] == "https://raw.githubusercontent.com/molecular-ml/MolSpectra/main/data/simulated_dft_energy_subset.csv"
+                    assert result["pivot_reason"] is None
+
+    def test_ingest_data_network_error_raises(self):
+        """Test that network errors in ingestion raise exceptions."""
+        import requests
+        
+        with patch('src.data.ingestion.fetch_real_data') as mock_fetch:
+            mock_fetch.side_effect = requests.exceptions.ConnectionError("Network error")
             
             with pytest.raises(RuntimeError, match="Network error"):
-                _load_real_dft_data()
-
-    def test_load_real_dft_data_404_fallback(self):
-        """Test that 404 errors trigger the MolSpectra fallback."""
-        with patch('src.data.ingestion.load_dataset') as mock_load:
-            mock_load.side_effect = Exception("404 Not Found")
-            
-            with patch('src.data.ingestion._generate_mol_spectra_data') as mock_gen:
-                mock_df = pd.DataFrame({"smiles": ["CCO"], "total_energy_eV": [-100.0], "source": ["test"]})
-                mock_gen.return_value = (mock_df, "mol_spectra_sim")
-                
-                df, source = _load_real_dft_data()
-                
-                assert source == "mol_spectra_sim"
-                assert len(df) > 0
-
-    def test_generate_mol_spectra_data_structure(self):
-        """Test that simulated data has the correct columns."""
-        df, source = _generate_mol_spectra_data()
-        
-        assert "smiles" in df.columns
-        assert "total_energy_eV" in df.columns
-        assert "spectrum_ir" in df.columns
-        assert source == "mol_spectra_sim"
-        assert len(df) > 0
-
-    def test_ingest_data_integration(self):
-        """Test the full ingestion flow with mocked dependencies."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock paths
-            with patch('src.data.ingestion.RAW_DIR', Path(tmpdir)):
-                with patch('src.data.ingestion.STATE_DIR', Path(tmpdir) / "state"):
-                    with patch('src.data.ingestion._load_real_dft_data') as mock_load:
-                        mock_df = pd.DataFrame({"smiles": ["CCO"], "total_energy_eV": [-100.0], "source": ["test"]})
-                        mock_load.return_value = (mock_df, "test_source")
-                        
-                        result_path = ingest_data(seed=42)
-                        
-                        assert os.path.exists(result_path)
-                        assert "test_source" in result_path
-                        
-                        # Check state update
-                        state = load_state()
-                        assert "data_ingestion" in state
-                        assert state["data_ingestion"]["data_source"] == "test_source"
+                ingest_data()

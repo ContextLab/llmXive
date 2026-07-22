@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for final results and statistical reports."
+type: "object"
+properties:
+  results_summary:
+    type: "object"
+    properties:
+      frequency_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            frequency_hz:
+              type: "integer"
+              description: "Frequency tested (e.g., 40)."
+            mean_snr:
+              type: "number"
+              description: "Mean Signal-to-Noise Ratio."
+            mean_plv:
+              type: "number"
+              description: "Mean Phase Locking Value."
+            p_value:
+              type: "number"
+              description: "Corrected p-value."
+            significance:
+              type: "boolean"
+              description: "Whether the result is statistically significant."
+      benchmark_performance:
+        type: "object"
+        properties:
+          clutrr:
+            type: "object"
+            properties:
+              accuracy:
+                type: "number"
+              f1_score:
+                type: "number"
+              p_value:
+                type: "number"
+          babi:
+            type: "object"
+            properties:
+              accuracy:
+                type: "number"
+              f1_score:
+                type: "number"
+              p_value:
+                type: "number"
+  statistical_report:
+    type: "object"
+    properties:
+      permutation_test:
+        type: "object"
+        properties:
+          n_permutations:
+            type: "integer"
+            description: "Number of permutations (e.g., 1000)."
+          null_distribution:
+            type: "array"
+            items:
+              type: "number"
+            description: "Null distribution values."
+          observed_value:
+            type: "number"
+            description: "Observed similarity score."
+          p_value:
+            type: "number"
+            description: "Calculated p-value."
+      correction_method:
+        type: "string"
+        description: "Method used for multiple comparison correction (e.g., 'bonferroni')."
+      assumptions:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of assumptions made (e.g., 'Associational Similarity')."
+required:
+  - "results_summary"
+  - "statistical_report"

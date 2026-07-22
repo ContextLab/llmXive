@@ -1,77 +1,50 @@
-"""
-Script to initialize the project directory structure for the Robotic AI Sensory Fidelity Ablation Study.
-Creates all required directories under the 'code/' folder as per the implementation plan.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the project directory structure."""
-    # Define the base directory for the project code
-    base_dir = Path(__file__).resolve().parent.parent  # code/
+    """
+    Creates the project directory structure as defined in T001.
+    This script ensures all required directories exist for the
+    Robotic AI Sensory Fidelity Ablation Study.
+    """
+    # Define the root of the project relative to the script location
+    # The script is located at code/scripts/, so root is two levels up
+    project_root = Path(__file__).resolve().parent.parent.parent
     
-    # Define the directory structure to create
+    # Define the directories to create relative to project_root
+    # Based on T001: `mkdir -p code/src/{environment,data,agents,analysis,utils} code/scripts code/tests code/data code/results`
     directories = [
-        # Source subdirectories
-        "src/environment",
-        "src/data",
-        "src/agents",
-        "src/analysis",
-        "src/utils",
-        
-        # Top-level tool directories
-        "scripts",
-        "tests",
-        
-        # Data and results storage
-        "data",
-        "results"
+        "code/src/environment",
+        "code/src/data",
+        "code/src/agents",
+        "code/src/analysis",
+        "code/src/utils",
+        "code/scripts",
+        "code/tests",
+        "code/data",
+        "code/results"
     ]
     
     created_count = 0
-    skipped_count = 0
+    existing_count = 0
     
-    print(f"Initializing project structure at: {base_dir}")
+    print(f"Project Root: {project_root}")
+    print("Creating project structure...")
     
     for dir_path in directories:
-        full_path = base_dir / dir_path
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"  Created: {full_path}")
             created_count += 1
         else:
-            skipped_count += 1
+            existing_count += 1
+            # Optional: print if needed, but silent is often better for idempotency
+            # print(f"  Exists:  {full_path}")
     
-    print(f"\nStructure initialization complete.")
-    print(f"  Created: {created_count} directories")
-    print(f"  Skipped (existing): {skipped_count} directories")
-    
-    # Verify critical paths exist
-    critical_paths = [
-        "src/environment",
-        "src/data",
-        "src/agents",
-        "src/analysis",
-        "src/utils",
-        "scripts",
-        "tests",
-        "data",
-        "results"
-    ]
-    
-    all_present = True
-    for cp in critical_paths:
-        if not (base_dir / cp).exists():
-            print(f"ERROR: Critical path missing: {base_dir / cp}")
-            all_present = False
-    
-    if all_present:
-        print("SUCCESS: All required directories are present.")
-        return 0
-    else:
-        print("FAILURE: Some required directories are missing.")
-        return 1
+    print(f"Structure setup complete. Created {created_count} directories, {existing_count} already existed.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

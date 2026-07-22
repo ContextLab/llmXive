@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-reaction-yields"
+name = "llmxive-reaction-yield-prediction"
 version = "0.1.0"
-description = "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms"
+description = "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms (Pivot: DFT Energy)"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "torch>=2.0.0",
@@ -17,64 +18,68 @@ dependencies = [
     "seaborn>=0.12.0",
     "pyyaml>=6.0",
     "pytest>=7.3.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "pytest-cov>=4.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+exclude = ["tests*"]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
     | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    | __pycache__
+    | data
+    | state
 )/
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
 target-version = "py311"
+src = ["code/src", "code/tests"]
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "data",
+    "state",
+    "build",
+    "dist",
+]
 
-# Assume Python 3.11
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in data classes)
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in ML)
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"] # Ignore unused imports in init files
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-]

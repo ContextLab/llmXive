@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and processed dataset files used in the project."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Source URL or identifier (e.g., Hugging Face dataset name)."
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw file."
+      version:
+        type: "string"
+        description: "Dataset version or commit hash."
+  raw_data:
+    type: "object"
+    properties:
+      openneuro_meg:
+        type: "object"
+        properties:
+          format:
+            type: "string"
+            enum: ["parquet", "json", "csv"]
+          fields:
+            type: "array"
+            items:
+              type: "string"
+          streaming:
+            type: "boolean"
+            description: "Whether the data is streamed to avoid RAM overflow."
+      clutrr:
+        type: "object"
+        properties:
+          format:
+            type: "string"
+            enum: ["parquet"]
+          fields:
+            type: "array"
+            items:
+              type: "string"
+          sample_size:
+            type: "integer"
+            description: "Number of samples used (e.g., 100)."
+  processed_data:
+    type: "object"
+    properties:
+      spectral_features:
+        type: "object"
+        properties:
+          frequency_band:
+            type: "string"
+            description: "Frequency band (e.g., '30-50Hz')."
+          snr_threshold:
+            type: "number"
+            description: "Minimum SNR for peak detection."
+      benchmark_results:
+        type: "object"
+        properties:
+          metrics:
+            type: "array"
+            items:
+              type: "string"
+            description: "List of metrics (e.g., 'accuracy', 'f1')."
+          seeds:
+            type: "array"
+            items:
+              type: "integer"
+            description: "Random seeds used (e.g., [42, 123, 456, 789, 101])."
+required:
+  - "metadata"
+  - "raw_data"
+  - "processed_data"

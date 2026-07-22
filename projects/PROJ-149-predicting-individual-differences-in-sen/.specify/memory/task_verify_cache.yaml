@@ -1,0 +1,43 @@
+T008a:
+  c: false
+  h: e2c034f6a3e80770ff53594859cb33671f2d97d089358fafe297ee93ecdcb791
+  r: "The required output `data/processed/feasibility_report.md` is absent, and the\
+    \ provided script does not demonstrably create this file (its content is truncated\
+    \ and does not show the join logic or report generation). The missing report means\
+    \ the task\u2019s exit\u2011condition and reporting requirements are not satisfied."
+T008b:
+  c: true
+  h: 8d23993b14835702a7e3326eef9846ecfac5ee89bc4566adbba7113ad7a837e9
+  r: "The repository contains a non\u2011empty `code/00_feasibility_check_report.py`\
+    \ that reads the join status JSON from T008a and formats a Markdown feasibility\
+    \ report intended for `data/processed/feasibility_report.md`. The required script\
+    \ is present and implements the specified behavior."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration or seed\u2011pinning artifacts were supplied (e.g., no `requirements.txt`,\
+    \ `environment.yml`, Dockerfile, or a script that sets NumPy/PyTorch/TensorFlow\
+    \ seeds). Consequently the claim does not meet the \u201Csetup environment configuration\
+    \ management and random seed pinning\u201D requirement."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output file implementing the required behavioral parsing
+    (median RT extraction, outlier removal, participant exclusion) was provided. Consequently,
+    there is no artifact to verify that the task runs after T010b or meets the specified
+    criteria. The implementer must supply the parsing implementation and any resulting
+    data files.
+T016:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` does not exist, so no schema\
+    \ validation (no\u2011null check, column verification, RT range check) could be\
+    \ performed. The task lacks the essential input file."
+T017:
+  c: false
+  h: 3f0b991b1439fbcb49c6ae45722800e5c08a9fefd19c5c2a6bce37250a8e8395
+  r: "The `code/04_modeling.py` file is cut off mid\u2011string (`\"a`) and does not\
+    \ contain a complete implementation (e.g., missing the rest of the results dict,\
+    \ CLI entry point, and any execution logic). Moreover, the required input `data/processed/features.csv`\
+    \ is absent from the repository. Both the script and its data dependency are missing,\
+    \ so the task is not genuinely fulfilled."

@@ -1,29 +1,3 @@
-T023a:
-  c: false
-  h: 569dca56a012ec45e356727b412b88ed6897f721eb7e9e2b5b1006a9cdfeb521
-  r: The repository lacks the required `data/processed/filtered_tasks.csv` and the
-    output `data/processed/monolithic_logs.json`, and the `contracts/execution-log.schema.yaml`
-    schema file is absent. Moreover, `code/agent/monolithic_runner.py` is truncated
-    (e.g., the `run_monolithic` implementation ends abruptly at `TaskCon`), so the
-    function is not fully implemented. These missing/unfinished artifacts prevent
-    the task from being genuinely completed.
-T023b:
-  c: false
-  h: 3fa6b09e4b66726546a746bd951c669fd817b73f16f95d6b27d923d807cf628f
-  r: "The repository contains a `dual_track_runner.py` file, but the `run_dual_track`\
-    \ function is truncated and its full implementation cannot be verified. Moreover,\
-    \ the required input dataset `data/processed/filtered_tasks.csv`, the output log\
-    \ file `data/processed/dual_track_logs.json`, and the schema file `contracts/execution-log.schema.yaml`\
-    \ are all absent. The missing files and incomplete code mean the task\u2019s requirements\
-    \ are not satisfied."
-T023c:
-  c: false
-  h: 76fdb98a5d6414152f45b256b2d9c60e73057b342fc7e360fe6d7e5e3537c8c6
-  r: "The `log_aggregator.py` file is present but the `aggregate_logs` function is\
-    \ incomplete (truncated and contains a syntax error) and never writes the merged\
-    \ data to `data/processed/execution_traces.csv`. Moreover, the required CSV file\
-    \ does not exist. The task\u2019s requirement to produce the combined CSV is therefore\
-    \ not satisfied."
 T027:
   c: false
   h: 34f65ed4e8fd71f753e397960200c4046d5af188f44e5268bebfc8785fbd9192
@@ -40,12 +14,6 @@ T030:
     \ 7, 8+\u201D). It also does not contain a runnable CLI entry point to generate\
     \ `annotation_sample.csv`. These missing/incorrect elements prevent the task from\
     \ being satisfied."
-T041a:
-  c: false
-  h: b5dd590739fa90b3e9911d3d2457d1be3cf5a42f5834a52f7a435d8c46bf98e0
-  r: The required new module `code/agent/intent_parser.py` does not exist, and `resolver.py`
-    still imports `parse_intent` from `agent.resolver_utils` instead of the new module,
-    indicating the refactor was not performed.
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

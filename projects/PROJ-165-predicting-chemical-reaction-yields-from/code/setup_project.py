@@ -1,101 +1,103 @@
 """
-T001: Create project structure per implementation plan.
-
-This script initializes the directory structure required for the
-llmXive research pipeline, creating the necessary folders for source code,
-data artifacts, tests, and state tracking.
-
-Directories created:
-  - code/ (source code)
-  - data/raw/ (raw input data)
-  - data/processed/ (processed data)
-  - data/artifacts/ (intermediate/final artifacts)
-  - tests/unit/ (unit tests)
-  - tests/integration/ (integration tests)
-  - state/ (state hashes and logs)
-  - specs/ (feature specifications)
-  - contracts/ (schema contracts)
-  - figures/ (plots and visualizations)
-
-Note: This script creates empty __init__.py files in Python package directories
-to ensure they are recognized as packages.
+Project Structure Setup Script for llmXive Pipeline.
+Creates the standard directory hierarchy required for the research project.
 """
 import os
 import sys
 from pathlib import Path
 
-def create_structure():
-    """Create the project directory structure."""
-    # Define relative paths based on project root
-    base_dirs = [
-        "code",
+def create_structure(base_dir: str = ".") -> None:
+    """
+    Creates the standard project directory structure under the specified base directory.
+    
+    Structure created:
+    - code/ (source code)
+      - src/
+        - cli/
+        - data/
+        - models/
+        - eval/
+        - utils/
+        - config/
+      - tests/
+        - unit/
+        - integration/
+        - contract/
+    - data/
+      - raw/
+      - processed/
+      - artifacts/
+      - figures/
+    - state/ (for state tracking and hashes)
+    - docs/
+    - logs/
+    
+    Args:
+        base_dir: Root directory where the structure will be created. Defaults to current directory.
+    """
+    base_path = Path(base_dir)
+    
+    # Define the directory structure to create
+    directories = [
+        # Source code structure
+        "code/src/cli",
+        "code/src/data",
+        "code/src/models",
+        "code/src/eval",
+        "code/src/utils",
+        "code/src/config",
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/tests/contract",
+        
+        # Data structure
         "data/raw",
         "data/processed",
         "data/artifacts",
-        "tests/unit",
-        "tests/integration",
-        "state",
-        "specs",
-        "contracts",
-        "figures",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/eval",
-        "code/config",
-        "code/cli",
-    ]
-
-    created_count = 0
-    skipped_count = 0
-
-    for dir_path in base_dirs:
-        full_path = Path(dir_path)
+        "data/figures",
         
-        # Create parent directories if they don't exist
+        # State and documentation
+        "state",
+        "docs",
+        "logs",
+    ]
+    
+    created_count = 0
+    for dir_path in directories:
+        full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
             created_count += 1
+            print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {full_path}")
-            skipped_count += 1
-
-        # Create __init__.py for Python package directories
-        if "code" in dir_path or "tests" in dir_path:
-            init_file = full_path / "__init__.py"
-            if not init_file.exists():
-                # Create an empty __init__.py to mark as package
-                init_file.touch()
-                print(f"Created: {init_file}")
-                created_count += 1
-            else:
-                print(f"__init__.py already exists: {init_file}")
-                skipped_count += 1
-
-    print(f"\nProject structure creation complete.")
-    print(f"Directories created: {created_count}")
-    print(f"Directories skipped (already exist): {skipped_count}")
+            # Check if it's actually a directory
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
     
-    # Verify critical paths exist
-    critical_paths = [
-        "code",
-        "data/processed",
-        "tests/unit",
-        "state",
-        "contracts",
+    # Create __init__.py files to make directories Python packages
+    init_files = [
+        "code/src/__init__.py",
+        "code/src/cli/__init__.py",
+        "code/src/data/__init__.py",
+        "code/src/models/__init__.py",
+        "code/src/eval/__init__.py",
+        "code/src/utils/__init__.py",
+        "code/src/config/__init__.py",
+        "code/tests/__init__.py",
+        "code/tests/unit/__init__.py",
+        "code/tests/integration/__init__.py",
+        "code/tests/contract/__init__.py",
     ]
     
-    missing = []
-    for path in critical_paths:
-        if not Path(path).exists():
-            missing.append(path)
+    for init_file in init_files:
+        full_path = base_path / init_file
+        if not full_path.exists():
+            full_path.touch()
+            print(f"Created package init: {full_path}")
     
-    if missing:
-        print(f"\nERROR: Critical paths missing: {missing}")
-        sys.exit(1)
-    
-    print("\nAll critical paths verified.")
+    print(f"\nProject structure setup complete. {created_count} new directories created.")
+    print(f"Base directory: {base_path.resolve()}")
 
 if __name__ == "__main__":
+    # If run directly, create structure in current directory
     create_structure()

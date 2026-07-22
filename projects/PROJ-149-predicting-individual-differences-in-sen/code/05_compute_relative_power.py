@@ -1,141 +1,153 @@
 """
-T015: Compute relative power (band/total) to control for total power confound.
+Task T015: Compute relative band power (band / total_power) for all bands.
 
-Consumes: data/processed/features_raw.csv (merged T012/T013 output)
-Produces: data/processed/features.csv (with relative power columns)
+Consumes: data/processed/features_raw.csv (output of T012/T013 merge)
+Produces: data/processed/features.csv
 
-Requirement FR-010: Implement relative power calculation (band/total) for all bands.
+Implements FR-010: Control for total power confound by normalizing band power.
 """
 import os
 import sys
 import argparse
 from pathlib import Path
-
 import pandas as pd
 import numpy as np
 
-# Import config for band definitions
-sys.path.insert(0, str(Path(__file__).parent))
-from config import get_band_freqs, get_all_band_names, ensure_dirs, get_path
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-def load_raw_features(input_path: str) -> pd.DataFrame:
-    """Load the merged raw features dataset."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+from config import get_path, load_config, get_all_band_names
+
+# Define the full set of bands used in the pipeline.
+# Note: 'total' is not a band name from config, but a computed aggregate.
+BANDS_TO_NORMALIZE = ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
+
+def load_raw_features(input_path: Path) -> pd.DataFrame:
+    """
+    Load the raw features dataframe produced by T012/T013.
+    
+    Args:
+        input_path: Path to features_raw.csv
+        
+    Returns:
+        DataFrame with columns: participant_id, median_rt, and absolute power bands.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                                "Ensure T012 and T013 have completed successfully.")
     
     df = pd.read_csv(input_path)
     
-    # Validate expected columns exist
-    band_cols = get_all_band_names()
-    # Check for absolute power columns (expected to be in raw features)
-    # The naming convention from T012 is typically 'power_{band}' or just 'delta', 'theta' etc.
-    # We assume the input has columns matching the band names or 'power_{band}'
-    # Let's check for standard naming: if 'delta' exists, use it. Else 'power_delta'.
-    available_cols = set(df.columns)
-    power_cols = {}
-    
-    for band in band_cols:
-        # Try direct name first, then 'power_{name}'
-        if band in available_cols:
-            power_cols[band] = band
-        elif f"power_{band}" in available_cols:
-            power_cols[band] = f"power_{band}"
-        else:
-            raise ValueError(f"Could not find absolute power column for band '{band}' in {input_path}. "
-                             f"Available columns: {list(available_cols)}")
-    
-    return df, power_cols
+    # Verify required columns exist
+    required_cols = ['participant_id', 'median_rt'] + BANDS_TO_NORMALIZE
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Input file missing required columns: {missing}")
+        
+    return df
 
-def compute_relative_power(df: pd.DataFrame, power_cols: dict) -> pd.DataFrame:
+def compute_relative_power(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate relative power for each band: relative_{band} = power_{band} / total_power.
-    Total power is the sum of all band powers.
+    Compute relative power for each band: rel_{band} = abs_{band} / total_power.
+    
+    Total power is defined as the sum of absolute powers across the defined bands.
+    This controls for global amplitude differences between participants.
+    
+    Args:
+        df: DataFrame with absolute band power columns.
+        
+    Returns:
+        DataFrame with new columns: rel_delta, rel_theta, etc.
     """
     df = df.copy()
     
-    # Calculate total power (sum of all band powers)
-    total_power = sum(df[col] for col in power_cols.values())
+    # Calculate total power as sum of the defined bands
+    # This assumes the bands partition the frequency range of interest sufficiently
+    # or represent the specific bands of interest for normalization.
+    power_cols = [f"{b}" for b in BANDS_TO_NORMALIZE]
     
-    # Handle potential division by zero or NaN
-    # If total power is 0 or NaN, relative power should be 0 or NaN (handled by pandas)
-    # We add a tiny epsilon to avoid division by zero if total is exactly 0, 
-    # though in EEG this is rare unless all channels were rejected.
-    epsilon = 1e-10
-    total_power_safe = total_power.replace(0, np.nan) # Replace 0 with NaN to propagate
+    # Ensure no negative values (should not happen with PSD, but safety check)
+    df[power_cols] = df[power_cols].clip(lower=0)
     
-    band_names = get_all_band_names()
-    relative_cols = {}
+    # Compute total power
+    df['total_power'] = df[power_cols].sum(axis=1)
     
-    for band in band_names:
-        col_name = power_cols[band]
-        rel_col_name = f"rel_{band}"
+    # Handle potential division by zero (if total power is 0)
+    # In real EEG data this is extremely unlikely, but we guard against it.
+    if (df['total_power'] == 0).any():
+        zero_indices = df[df['total_power'] == 0].index
+        print(f"Warning: {len(zero_indices)} participants have zero total power. "
+              "Setting relative power to NaN for these rows.")
+    
+    # Compute relative power
+    for band in BANDS_TO_NORMALIZE:
+        col_name = f"rel_{band}"
+        df[col_name] = df[band] / df['total_power']
         
-        # Compute relative power
-        df[rel_col_name] = df[col_name] / (total_power_safe + epsilon)
-        
-        # Ensure values are in [0, 1] range (sanity check, though mathematically should be)
-        # If total power was 0 (NaN), result is NaN. If total was 0 but we added epsilon, 
-        # it might be small. We clamp to [0, 1] just in case of floating point issues.
-        df[rel_col_name] = df[rel_col_name].clip(lower=0.0, upper=1.0)
-        
-        relative_cols[band] = rel_col_name
-    
-    return df, relative_cols
+    return df
 
 def validate_output(df: pd.DataFrame) -> None:
-    """Validate the output dataframe has no nulls in key columns."""
-    band_names = get_all_band_names()
-    key_cols = ['participant_id'] + [f"rel_{b}" for b in band_names]
+    """
+    Validate the output dataframe meets FR-010 requirements.
     
-    for col in key_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+    Checks:
+    - All relative power columns exist.
+    - No nulls in relative power columns.
+    - Values are between 0 and 1 (inclusive, allowing small float error).
+    """
+    rel_cols = [f"rel_{b}" for b in BANDS_TO_NORMALIZE]
+    
+    # Check existence
+    missing_cols = [c for c in rel_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Output validation failed: Missing relative power columns: {missing_cols}")
         
-        null_count = df[col].isna().sum()
-        if null_count > 0:
-            raise ValueError(f"Column '{col}' contains {null_count} null values.")
-    
-    # Check for infinite values
-    for col in key_cols:
-        if np.isinf(df[col]).any():
-            raise ValueError(f"Column '{col}' contains infinite values.")
+    # Check nulls
+    for col in rel_cols:
+        if df[col].isnull().any():
+            raise ValueError(f"Output validation failed: Null values found in {col}")
+            
+    # Check range [0, 1]
+    for col in rel_cols:
+        if (df[col] < -1e-9).any() or (df[col] > 1.0 + 1e-9).any():
+            raise ValueError(f"Output validation failed: Values in {col} outside [0, 1] range")
+            
+    print(f"Validation passed: {len(df)} rows, {len(rel_cols)} relative power columns.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute relative band powers from raw features.")
-    parser.add_argument("--input", type=str, default=None,
-                        help="Path to input features_raw.csv. Defaults to config path.")
-    parser.add_argument("--output", type=str, default=None,
-                        help="Path to output features.csv. Defaults to config path.")
+    """
+    Main entry point for T015.
+    """
+    parser = argparse.ArgumentParser(description="Compute relative band power features.")
+    parser.add_argument("--input", type=str, default=None, help="Path to features_raw.csv")
+    parser.add_argument("--output", type=str, default=None, help="Path to features.csv")
     args = parser.parse_args()
     
-    # Determine paths
-    if args.input:
-        input_path = args.input
-    else:
-        input_path = get_path("processed", "features_raw.csv")
-    
-    if args.output:
-        output_path = args.output
-    else:
-        output_path = get_path("processed", "features.csv")
-    
-    # Ensure output directory exists
-    ensure_dirs()
+    # Load config for paths if not provided
+    config = load_config()
+    input_path = Path(args.input) if args.input else get_path('features_raw')
+    output_path = Path(args.output) if args.output else get_path('features')
     
     print(f"Loading raw features from: {input_path}")
-    df_raw, power_cols = load_raw_features(input_path)
-    print(f"Loaded {len(df_raw)} participants.")
+    df_raw = load_raw_features(input_path)
     
-    print("Computing relative power...")
-    df_rel, rel_cols = compute_relative_power(df_raw, power_cols)
+    print(f"Computing relative power...")
+    df_rel = compute_relative_power(df_raw)
     
     print("Validating output...")
     validate_output(df_rel)
     
-    print(f"Saving processed features to: {output_path}")
-    df_rel.to_csv(output_path, index=False)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    print(f"Successfully generated {output_path} with relative power columns: {list(rel_cols.values())}")
+    # Save result
+    df_rel.to_csv(output_path, index=False)
+    print(f"Saved relative power features to: {output_path}")
+    
+    # Print summary
+    print(f"Summary statistics for relative power:")
+    print(df_rel[[f"rel_{b}" for b in BANDS_TO_NORMALIZE]].describe())
 
 if __name__ == "__main__":
     main()

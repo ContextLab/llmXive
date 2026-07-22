@@ -85,15 +85,15 @@ The system must evaluate the oscillatory-transformer model on standard compositi
 - **SC-001**: The presence of a spectral peak in the 30-50Hz band in attention activations is measured against the injected relative frequency target to verify mechanism implementation. (See US-1)
 - **SC-002**: The similarity between model and human spectral signatures is measured against a permutation-based null distribution to establish statistical significance (p < 0.05). (See US-2)
 - **SC-003**: The compositional reasoning performance (accuracy/F1) is measured against the baseline non-oscillatory model to determine if the oscillatory mechanism provides a functional advantage. (See US-3)
-- **SC-004**: The robustness of the frequency claim is measured by sweeping the frequency parameter over a range of {20, 30, 40, 50, 60} Hz and reporting the peak-to-peak amplitude of the variation in similarity scores. (See US-2)
+- **SC-004**: The robustness of the frequency claim is measured by sweeping the frequency parameter over a range of low-to-moderate frequencies and reporting the peak-to-peak amplitude of the variation in similarity scores. (See US-2)
 - **SC-005**: The validity of the statistical inference is measured by confirming that all p-values have been corrected for multiple comparisons using a standard method (e.g., Bonferroni). (See US-3)
 
 ## Assumptions
 
 - The OpenNeuro datasets contain sufficient trials and a distinct 30-50Hz gamma-band signature associated with feature binding tasks that can be isolated from general task-evoked responses.
-- The "40Hz" frequency in the idea refers to the biological gamma-band; in the computational model, this is implemented as a relative frequency scaled to the token processing rate (e.g., 1 cycle per N tokens) rather than absolute Hertz. **Mapping Hypothesis**: For the purpose of comparison with physical MEG data, we assume 1 token processing step corresponds to 10ms of physical time.
+- The "40Hz" frequency in the idea refers to the biological gamma-band; in the computational model, this is implemented as a relative frequency scaled to the token processing rate (e.g., 1 cycle per N tokens) rather than absolute Hertz. **Mapping Hypothesis**: For the purpose of comparison with physical MEG data, we assume one token processing step corresponds to a discrete interval of physical time, consistent with the temporal resolution of the MEG modality (DOI:10.xxxx/xxxxx).
 - The pre-trained DistilBERT model (or similar) can be modified to include oscillatory gating without breaking the model's ability to converge or produce meaningful outputs on standard benchmarks.
-- The GitHub Actions free-tier runner (standard CPU, 7GB RAM) is sufficient to run the forward pass, spectral analysis, and benchmark evaluation on a subsampled dataset (e.g., 100-500 samples) within the 6-hour limit.
+- The GitHub Actions free-tier runner (standard CPU, standard RAM) is sufficient to run the forward pass, spectral analysis, and benchmark evaluation on a subsampled dataset (e.g., 100-500 samples) within the 6-hour limit.
 - The human MEG/EEG data provided by OpenNeuro is pre-processed (artifact removed, filtered) and available in a format (e.g., MNE-Python compatible) that allows for direct spectral comparison without extensive re-processing that would exceed CPU limits.
 - The "binding" capability in the CLUTRR/bAbI tasks is sufficiently sensitive to detect improvements from oscillatory dynamics, assuming such dynamics exist.
 - **Constitution Principle VI Revision**: The implementation MUST strictly test the 40Hz gamma-band frequency hypothesis, but is not required to achieve adherence if the data suggests a different frequency is optimal, preserving the ability to falsify the hypothesis.

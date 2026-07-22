@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "robotic-ai-sensory-fidelity-ablation"
+name = "robotic-ai-sensory-fidelity"
 version = "0.1.0"
 description = "Robotic AI Sensory Fidelity Ablation Study"
 requires-python = ">=3.11"
@@ -15,83 +15,62 @@ dependencies = [
     "scikit-learn==1.3.2",
     "pandas==2.1.4",
     "numpy==1.26.2",
-    "ruff==0.1.6",
-    "black==23.11.0",
+    "pytest>=7.4.0",
+    "pytest-timeout>=2.2.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "psutil>=5.9.0"
 ]
-
-[tool.ruff]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "ARG", "SIM"]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-    "SIM105", # Use contextlib.suppress() (optional preference)
-]
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories from linting.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "code/results",
-    "code/data",
-]
-
-# Same as the default for `--line-length`.
-line-length = 100
-
-# Assume Python 3.11
-target-version = "py311"
-
-[tool.ruff.per-file-ignores]
-"code/tests/*" = ["ARG001", "S101"] # Allow assert in tests, unused args in fixtures
 
 [tool.black]
-line-length = 100
-target-version = ["py311"]
+line-length = 88
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | node_modules
-  | venv
-  | code/results
-  | code/data
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 100
-skip_gitignore = true
-skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "build", "dist", "node_modules", "venv", "code/results", "code/data"]
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "PIE", "RET", "SIM"]
+ignore = ["E501", "B008"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short --strict-markers"
+markers =
+    "unit: Unit tests"
+    "integration: Integration tests"
+    "contract: Contract tests"
+    "slow: Slow running tests"
+filterwarnings =
+    "ignore::DeprecationWarning"
+    "ignore::PendingDeprecationWarning"
+timeout = 300
+asyncio_mode = "auto"

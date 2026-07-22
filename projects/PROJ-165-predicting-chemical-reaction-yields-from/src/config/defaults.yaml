@@ -1,0 +1,118 @@
+# Default Configuration for Chemical Reaction Energy Prediction Pipeline
+# Generated for Task T006
+#
+# This file defines the hyperparameters and default settings for the
+# model training and evaluation pipeline.
+#
+# Note: The target variable for this project is "normalized DFT total molecular energy"
+# as per the project pivot from experimental yield prediction.
+
+# Model Architecture Hyperparameters
+model:
+  # Attention mechanism settings
+  attention:
+    num_heads: 8
+    head_dim: 64
+    dropout: 0.1
+    activation: "gelu"
+  
+  # Embedding dimensions
+  embedding:
+    fingerprint_dim: 2048  # ECFP4 standard length
+    spectrum_dim: 256      # Resampled spectrum feature dimension
+    condition_dim: 32      # Reaction condition embedding dimension
+  
+  # Network layers
+  layers:
+    encoder_layers: 4
+    decoder_layers: 2
+    hidden_dim: 512
+    ff_dim: 2048
+
+# Training Hyperparameters
+training:
+  learning_rate: 0.001       # 1e-3 as specified
+  batch_size: 32             # Batch size as specified
+  epochs: 10                 # Number of epochs as specified
+  warmup_epochs: 1           # Warmup period for learning rate scheduler
+  weight_decay: 0.01         # L2 regularization
+  gradient_clip: 1.0         # Gradient clipping threshold
+  
+  # Optimizer settings
+  optimizer:
+    type: "adam"
+    betas: [0.9, 0.999]
+    eps: 1e-08
+
+# Early Stopping Configuration
+early_stopping:
+  patience: 3                # Number of epochs to wait before stopping
+  min_delta: 0.0001          # Minimum change to qualify as an improvement
+  mode: "min"                # "min" for loss/RMSE, "max" for R²
+  restore_best_weights: true
+
+# Data Processing Settings
+data:
+  # Spectrum processing
+  spectrum:
+    ir_range: [400, 4000]    # Wavenumbers in cm⁻¹
+    raman_range: [100, 3500] # Wavenumbers in cm⁻¹
+    nmr_range: [-10, 20]     # Chemical shift in ppm
+    resample_points: 256     # Number of points to resample to
+    normalization: "unit_variance"  # Options: "unit_variance", "min_max", "none"
+  
+  # Reaction condition encoding
+  conditions:
+    encoding: "one_hot"      # Options: "one_hot", "embedding"
+    temperature_unit: "celsius"
+    pressure_unit: "atm"
+  
+  # Split configuration
+  split:
+    train_ratio: 0.8
+    val_ratio: 0.1
+    test_ratio: 0.1
+    seed: 42
+    method: "scaffold"       # "random" or "scaffold" (scaffold prevents leakage)
+
+# Evaluation Settings
+evaluation:
+  metrics:
+    - "rmse"
+    - "mae"
+    - "r2"
+    - "spearman_corr"
+  
+  # Statistical tests
+  statistical_tests:
+    paired_ttest: true
+    bonferroni_correction: true
+  
+  # Interpretability
+  attention_analysis:
+    threshold_percentiles: [5, 10, 15]  # For FR-009 compliance
+    correlation_with_residuals: true
+
+# Logging and Output Settings
+logging:
+  level: "INFO"
+  log_dir: "data/artifacts/logs"
+  checkpoint_dir: "data/artifacts/checkpoints"
+  report_dir: "data/artifacts/reports"
+  save_checkpoints: true
+  checkpoint_interval: 1  # Save every N epochs
+
+# Reproducibility Settings
+reproducibility:
+  seed: 42
+  deterministic: true
+  cudnn_deterministic: false  # Set to true for full reproducibility (may be slower)
+
+# Pivot & Limitation Tracking
+project_state:
+  pivot_applied: true
+  target_variable: "normalized_dft_total_molecular_energy"
+  original_target: "experimental_yield_percent"
+  pivot_reason: "Unavailability of verified real-world datasets containing paired (Reaction SMILES, Experimental Yield, Spectrum) data"
+  independent_validation_available: false
+  limitation_fr010: "Independent Experimental Validation (FR-010) not feasible due to pivot to simulated/synthetic data sources"

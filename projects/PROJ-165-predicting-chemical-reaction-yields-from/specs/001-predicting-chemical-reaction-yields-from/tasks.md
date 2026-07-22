@@ -61,8 +61,8 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/utils/seeds.py` for deterministic random seed management (global seed, PyTorch, NumPy, Python)
-- [ ] T005 [P] Implement `src/utils/state_manager.py` to update project state hashes and timestamps (Principle V)
-- [ ] T006 [P] Create `src/config/defaults.yaml` defining hyperparameters (LR=1e-3, batch=32, epochs=10, early stopping patience)
+- [X] T005 [P] Implement `src/utils/state_manager.py` to update project state hashes and timestamps (Principle V)
+- [X] T006 [P] Create `src/config/defaults.yaml` defining hyperparameters (LR=1e-3, batch=32, epochs=10, early stopping patience)
 - [ ] T007 Implement `src/utils/validators.py` for schema validation helpers (YAML/JSON)
 - [ ] T008 Create `contracts/` directory with `dataset.schema.yaml` and `model_output.schema.yaml` based on `data-model.md`
 - [ ] T009 Implement `src/cli/main.py` entry point with `--update-state` flag and basic argument parsing
@@ -88,7 +88,7 @@ This project has pivoted from "Predicting Reaction Yields" (as defined in `spec.
 ### Implementation for User Story 1
 
 - [ ] T013 [User Story 1] Implement `src/data/ingestion.py` to fetch data. **Logic**: 1) Attempt to fetch verified real experimental data from a canonical source (e.g., NIST/ZINC). 2) If the fetch fails with a 404 or "source unavailable" error, explicitly switch to the MolSpectra simulated pipeline and log the pivot. 3) If the fetch fails due to network error or timeout, raise an exception to trigger the execution stage's re-try logic (DO NOT fall back to synthetic). 4) Log the data source used and checksum in `state/`. 5) If an independent experimental dataset is found (see T013b), flag it for validation but DO NOT use it for training. <!-- FAILED: unspecified -->
-- [ ] T013b [User Story 1] Implement `src/data/ingestion.py` check for independent experimental dataset (FR-010). **Logic**: Attempt to locate and fetch the independent validation dataset. If successful, enable the validation pipeline (T043). If it fails (source unreachable), trigger the pivot to simulated data and ensure the limitation is documented in T020c. This task runs AFTER T013's initial fetch attempt to determine availability. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T013b [User Story 1] Implement `src/data/ingestion.py` check for independent experimental dataset (FR-010). **Logic**: Attempt to locate and fetch the independent validation dataset. If successful, enable the validation pipeline (T043). If it fails (source unreachable), trigger the pivot to simulated data and ensure the limitation is documented in T020c. This task runs AFTER T013's initial fetch attempt to determine availability. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T014 [P] [User Story 1] Implement `src/data/preprocessing.py`: Resampling IR/Raman to a standard mid-infrared range (starting from the lower wavenumber limit) and NMR to –10 ppm (or schema-defined ranges from MolSpectra) to fixed grids, unit variance normalization. Ensure target variable is "normalized DFT total molecular energy".
 - [X] T015 [User Story 1] Implement `src/data/preprocessing.py`: Encoding reaction conditions (solvent, catalyst, temperature) as one-hot or embedding vectors. **Note**: These MUST be used as features in the split logic (T017) to prevent confounding.
 - [X] T016 [User Story 1] Implement `src/data/preprocessing.py`: Reaction template extraction (substructure at reaction center) using RDKit.

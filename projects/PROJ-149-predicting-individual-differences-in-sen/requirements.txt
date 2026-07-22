@@ -1,23 +1,21 @@
-# llmXive Project: Predicting Individual Differences in Sensory Processing Speed
-# Core Data Science & EEG Processing Stack
-# Versions pinned for reproducibility as per task T002
+# Core Data Processing
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
 
 # EEG Processing
-mne==1.7.0
+mne>=1.0.0
 
 # Machine Learning
-scikit-learn==1.4.2
-
-# Data Manipulation
-pandas==2.2.2
-numpy==1.26.4
-
-# Scientific Computing
-scipy==1.13.1
+scikit-learn>=1.0.0
 
 # Visualization
-matplotlib==3.9.0
-seaborn==0.13.2
+matplotlib>=3.4.0
+seaborn>=0.11.0
 
-# Configuration
-pyyaml==6.0.1
+# Utilities
+pyyaml>=5.4.0
+requests>=2.25.0
+
+# Testing
+pytest>=6.2.0
