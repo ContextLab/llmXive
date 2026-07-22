@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are REQUIRED to satisfy the Independent Tests in US-1 and US-2.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -52,9 +52,9 @@
  │ ├── unit/
  │ └── integration/
  ├── requirements.txt
- └── {{claim:c_a934a92e}}
+ └── README.md
  ```
- **Execution**: Run the following commands to create the directory skeleton and empty `__init__.py` files. Note: The source code files (e.g., `config.py`, `ingest.py`) must be created in subsequent tasks (T003-T019).
+ **Execution**: Run the following commands to create the directory skeleton, empty `__init__.py` files, AND empty source code files (`config.py`, `ingest.py`, etc.) to complete the structure immediately.
  ```bash
  mkdir -p projects/PROJ-300-exploring-the-relationship-between-solar/{code/{data,analysis,viz},data/{raw,processed},tests/{unit,integration}}
  touch projects/PROJ-300-exploring-the-relationship-between-solar/code/__init__.py
@@ -62,19 +62,30 @@
  touch projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/__init__.py
  touch projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/__init__.py
  touch projects/PROJ-300-exploring-the-relationship-between-solar/tests/__init__.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt
+ touch projects/PROJ-300-exploring-the-relationship-between-solar/README.md
  ```
 
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt` containing the following exact pinned versions:
  ```
- {{claim:c_1723a9bd}}
- {{claim:c_27231540}}
- {{claim:c_93ea1b01}}
- {{claim:c_6131e93c}}
- {{claim:c_6757419e}}
- {{claim:c_dc69b28d}}
- {{claim:c_231b42cd}}
- {{claim:c_3937c789}}
- {{claim:c_084a930a}}
+ pandas==2.0.3
+ numpy==1.24.3
+ scipy==1.11.4
+ matplotlib==3.8.0
+ requests==2.31.0
+ tqdm==4.66.1
+ pyyaml==6.0.1
+ cdaweb==0.2.0
+ pytest==7.4.3
  ```
 
 ---
@@ -83,10 +94,10 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin untilthis phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `{{claim:c_f9c59f03}} `, `TAIL_DISTANCE_RE=60 `, `BOOTSTRAP_ITERATIONS=1000 `, `{{claim:c_255f7 ({{claim:c_017e90ea}}, https://oeis.org/A000796) cda}} `. The file path must be explicitly stated in the docstring.
-- [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py`function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from NASA OMNIWeb API v2 via `requests` (FR-001).
+- [X] T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30`, `LAG_WINDOW_MAX=90`, `LAG_STEP=5`, `PERMUTATION_ITERATIONS=10000`, `TAIL_DISTANCE_RE=60`, `BOOTSTRAP_ITERATIONS=1000`. The file path must be explicitly stated in the docstring.
+- [X] T004a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py` function `fetch_omni_sw(date_range)` to fetch solar wind data (Vsw, Bz) from the NASA OMNIWeb API via `requests` (FR-001).
  - **Deliverable**: Function returning a `pandas.DataFrame` with columns `[timestamp, Vsw, Bz]`.
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
 - [X] T004b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/ingest.py` function `fetch_themis_ey(date_range)` to fetch THEMIS data (Ey) from NASA CDAWeb via `cdaweb` (FR-002).
@@ -94,27 +105,23 @@
  - **Verification**: Run a unit test to verify the function returns a DataFrame with the correct columns for a 1-day range.
 - [X] T005 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py` for NaN removal and resampling to a fixed short-interval cadence using pandas (FR-003).
  - **Deliverable**: Function `clean_and_resample(df1, df2)` returning aligned DataFrames.
-- [X] T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` to calculate physics-based lag `L_phys` using formula `L_phys = (k * 6371) / Vsw_mean / k
-
-The specific value to remove/generalize: 'k'
-
-Rewritten passage:
-L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time series.
- - **Verification**: Ensure the code correctly handles the unit conversion (km/s to minutes) and includes the 60 factor.
+- [X] T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` to calculate physics-based lag `L_phys` and apply lag shifts.
+ - **Formula Requirement**: The implementation MUST explicitly calculate the distance in km (`Distance_km = 60 * 6371`), divide by the mean solar wind speed (`Vsw_mean` in km/s) to get seconds, and then divide by 60 to convert to minutes. The code must use the exact formula logic: `L_phys_minutes = (60 * 6371) / Vsw_mean / 60`.
+ - **Verification**: Ensure the code correctly handles the unit conversion (km/s to minutes) and uses the explicit steps defined above, matching FR-012 and Constitution Principle VII. The task must not simplify the formula to `6371 / Vsw_mean` without explicitly showing the unit cancellation logic in comments or code steps.
 - [X] T007 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `calculate_correlation` for Pearson/Spearman calculation (used by FR-005/FR-006).
-- [X] T008 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `circular_block_permutation` with iterations for empirical p-values (FR-005).
+- [X] T008 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `circular_block_permutation` with 10,000 iterations for empirical p-values (FR-005).
  - **Block Size**: Calculate block size based on the first lag where autocorrelation < 0.5, or use a default of a sufficient number of samples if autocorrelation is weak.
-- [X] T009 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `moving_block_bootstrap` with A sufficient number of iterations for 95% confidence intervals (FR-006).
+- [X] T009 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `moving_block_bootstrap` with 1,000 iterations for % confidence intervals (FR-006).
  - **Block Size**: Use the same block size logic as T008 to preserve temporal dependence.
-- [X] T010 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` function `find_optimal_lag` to sweep the early-to-mid duration window and identify optimal lag `L*` (FR-010).
-- [X] T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds T ∈ {high, medium, low} km/s and recompute correlations (FR-007).
+- [X] T010 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` function `find_optimal_lag` to sweep the multi-minute window and identify optimal lag `L*` (FR-010).
+- [X] T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds `T ∈ {, 500, 600} km s⁻¹` and recompute correlations (FR-007).
 - [X] T012 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line (FR-008a).
 - [X] T013 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey (FR-008b).
 - [X] T014 [P] Add docstring to `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` documenting the multiple-comparison correction method (permutation test) and total lag candidate count (FR-011).
-- [X] T015 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to insert the FR-013 narrative note into the "notes" field of the JSON report **only if** the permutation test (FR-005) was successfully executed. The exact string must be: "Note: Bonferroni correction is conservative for autocorrelated lag searches; the permutation test (FR-005) is the primary method for significance testing. Future work should consider adaptive FDR control." (FR-013). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to dynamically generate the narrative note for the "notes" field of the JSON report as required by FR-013. The note MUST be generated based on the method used (e.g., if permutation test was used) and must state that Bonferroni correction is conservative for autocorrelated lag searches and that the permutation test is the primary method for significance testing. The note should also mention that future work should consider adaptive FDR control. The logic must construct this string dynamically to ensure it remains consistent with the current spec requirements, rather than hard-coding a static string. (FR-013).
 - [X] T016 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to log data-quality warnings to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/quality_log.json` in JSON format (FR-009).
 - [X] T017 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to calculate and report `|L* - L_phys|` (SC-002) using the optimal lag L* from FR-010 and L_phys from FR-012.
-- [X] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003). <!-- FAILED: unspecified --> <!-- SKIPPED: non-mapping output --> <!-- FAILED: unspecified -->
+- [X] T018 [P] Implement logic in `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` to generate sensitivity table and append to JSON report (SC-003).
 - [X] T019 [P] Ensure all plots in `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` include correct axis labels, units, and optimal lag annotation (SC-005).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -129,8 +136,10 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T020 [US1] Integrate `data/clean.py`, `data/lag.py`, and `analysis/correlation.py` into a cohesive pipeline for US-1 in `main.py`.
+ - **Dependency**: This task depends on the *completion* of T005 and T006 implementation (not just file creation).
  - **Deliverable**: `results/us1_correlation.json` containing keys: `pearson`, `spearman`, `p_val_permutation`, `significant_flag`.
+ - **Verification**: Ensure `data/clean.py` and `data/lag.py` are fully implemented and runnable (T005, T006 completion) before integration. Run `pytest tests/integration/test_us1.py`.
 - [X] T021 [US1] Execute the pipeline on a sample date range to verify output includes numeric correlation coefficients and empirical p-values (US-1 Acceptance Scenario 1).
  - **Verification**: Run `pytest tests/integration/test_us1.py`.
 - [X] T022 [US1] Verify pipeline handles NaN gaps by cleaning, resampling, and producing correlation output without error (US-1 Acceptance Scenario 2).
@@ -142,7 +151,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 ## Phase 4: User Story 2 - Identify Optimal Propagation Lag (Priority: P2)
 
-**Goal**: Search a plausible lag window (30–90 min) and report the lag that maximizes the absolute correlation.
+**Goal**: Search a plausible lag window (–90 min) and report the lag that maximizes the absolute correlation.
 
 **Independent Test**: Execute the lag-search on a known synthetic dataset where the true lag is min; the pipeline must report 45 min (±1 min) as the optimal lag.
 
@@ -154,7 +163,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
  - **Verification**: Run `pytest tests/integration/test_us2.py`.
 - [X] T025 [US2] Verify the pipeline calculates and reports `|L* - L_phys|` (SC-002).
  - **Verification**: Check `results/us1_correlation.json` for `lag_difference` key.
-- [X] T026 [US2] Execute the lag-search on a synthetic dataset (true lag 45 min) and verify the pipeline reports 45 min (±1 min) (US-2 Independent Test).
+- [X] T026 [US2] Execute the lag-search on a synthetic dataset (true lag min) and verify the pipeline reports 45 min (±1 min) (US-2 Independent Test).
  - **Verification**: Run `pytest tests/integration/test_synthetic.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -165,19 +174,19 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 **Goal**: Generate scatter plots, time-series overlays, and sensitivity analysis for high-speed thresholds.
 
-**Independent Test**: After a successful run, verify PNG files (scatter, time-series) and sensitivity table (T ∈ {, 500, 600} km/s) are generated.
+**Independent Test**: After a successful run, verify PNG files (scatter, time-series) and sensitivity table (T ∈ {400, 500, 600} km/s) are generated.
 
 ### Implementation for User Story 3
 
 - [X] T027 [US3] Integrate `viz/plots.py` (scatter and time-series) with the main pipeline.
  - **Deliverable**: Generate `results/plot_scatter.png` and `results/plot_timeseries.png`.
-- [X] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for T ∈ {400, 500, 600} km/s (FR-007).
+- [X] T028 [US3] Integrate `analysis/sensitivity.py` to compute correlations for `T ∈ {400, 500, 600} km s⁻¹` (FR-007).
  - **Deliverable**: Update `results/us1_correlation.json` to include `sensitivity_table`.
-- [X] T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run. <!-- FAILED: unspecified -->
+- [X] T029 [US3] Generate PNG files (scatter, time-series) and sensitivity table for a sample run.
  - **Verification**: Run `pytest tests/integration/test_us3.py`.
 - [X] T030 [US3] Verify all plots load without error, include correct labels/units, and show the optimal lag annotation (SC-005).
  - **Verification**: Run `pytest tests/unit/test_plots.py`.
-- [X] T031 [US3] Verify the sensitivity table correctly reports correlation magnitude for each threshold (US-3 Acceptance Scenario 2). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T031 [US3] Verify the sensitivity table correctly reports correlation magnitude for each threshold (US-3 Acceptance Scenario 2).
  - **Verification**: Check `results/us1_correlation.json` for correct values.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -189,7 +198,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 **Purpose**: Unit and integration tests required by plan.md and spec.md Independent Tests. Tests are written alongside implementation to ensure verification during development.
 
 - [X] T032 [P] Write unit tests for `data/clean.py` in `tests/unit/test_clean.py` (FR-003).
- - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_5min `, `test_clean_handles_empty_input`.
+ - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_min`, `test_clean_handles_empty_input`.
 - [X] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).
  - **Test Functions**: `test_lag_calculation_formula`, `test_lag_shift_applies_correctly`.
 - [X] T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py` (US-1 Independent Test).
@@ -198,8 +207,8 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
  - **Test Functions**: `test_permutation_block_size`, `test_permutation_p_value_calculation`.
 - [X] T036 [P] Write unit tests for lag sweep logic in `tests/unit/test_lag_search.py` (FR-010).
  - **Test Functions**: `test_lag_sweep_window`, `test_optimal_lag_identification`.
-- [X] T037 [P] Write integration test for synthetic dataset validation in `tests/integration/test_synthetic.py` (US-2 Independent Test). <!-- FAILED: unspecified -->
- - **Test Function**: `test_synthetic_lag_45min` verifying {{claim:c_e52f93ed}} (pi, https://en.wikipedia.org/wiki/Pi).
+- [X] T037 [P] Write integration test for synthetic dataset validation in `tests/integration/test_synthetic.py` (US-2 Independent Test).
+ - **Test Function**: `test_synthetic_lag_45min` verifying `abs(reported_lag - 45) <= 1`.
 - [X] T038 [P] Write unit tests for sensitivity threshold filtering in `tests/unit/test_sensitivity.py` (FR-007).
  - **Test Functions**: `test_threshold_filtering`, `test_sensitivity_correlation_calculation`.
 - [X] T039 [P] Write unit tests for bootstrap resampling logic in `tests/unit/test_correlation.py` (FR-006).
@@ -216,7 +225,7 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 
 **Purpose**: Improvements that affect multiple user stories. (Note: Phases 8 and 9 were removed as they introduced scope creep contradicting the Spec.)
 
-- [X] T043 [P] Final review of all output artifacts to ensure they match the Spec's Success Criteria (SC-001 to SC-005). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T043 [P] Final review of all output artifacts to ensure they match the Spec's Success Criteria (SC-001 to SC-005). Verify specific artifacts: `results/us1_correlation.json` (schema check: keys `pearson`, `spearman`, `p_val_permutation`, `optimal_lag`, `lag_difference`, `sensitivity_table`), `results/plot_scatter.png` (existence & labels: X-axis "Vsw (km/s)", Y-axis "Ey (mV/m)", regression line), `results/plot_timeseries.png` (existence & labels: dual-axis, time range), and `results/quality_log.json` (existence & valid JSON).
 - [X] T044 [P] Update `README.md` with instructions on how to run the full pipeline and interpret the results.
 
 ---
@@ -252,7 +261,8 @@ L_phys = (k * 6371) / Vsw_mean / k ` (FR-012) and apply lag shifts to time serie
 - All tasks within a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Testing tasks (Phase 6) can run in parallel with implementation tasks once the target modules exist
-- Physics/Review tasks (Phases 8-9) have been removed as they were out of scope.
+- Physics/Review tasks (Phase 6.5) have been removed as they were out of scope.
+- Polish (Phase 7) tasks can run in parallel with final testing.
 
 ---
 
@@ -283,7 +293,7 @@ Task: "Implement projects/.../code/analysis/correlation.py Moving Block Bootstra
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Physics/Review fixes (Phases 8-9) → **REMOVED** as out of scope.
+5. Add Polish (Phase 7) → Final review and README update.
 6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -309,6 +319,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data ingestion must use verified URLs (OMNIWeb, CDAWeb) and no GPU libraries. Permutation tests must be optimized for CPU-only execution.
-- **Removed Scope Creep**: Tasks related to Lorentz transformations, Alfvén speed modeling, non-linear saturation fitting, and reference frame analysis (formerly Phases 8 & 9) have been removed as they lack FR/SC anchors and contradict the Spec.
+- **Removed Scope Creep**: Tasks related to Lorentz transformations, Alfvén speed modeling (T045-T046), energy budget estimation (T047), reference frame analysis (T048-T050), and dynamic X-line modeling have been removed as they lack FR/SC anchors and contradict the Spec. The Spec explicitly defers dynamic modeling and limits analysis to linear correlation and the fixed 60 Re heuristic.
 - **Test Coverage**: All Independent Tests from US-1 and US-2 are now explicitly mapped to test tasks (T034, T037) with specific function names and verification commands.
-- **Review Integration**: The scope has been strictly limited to the Spec's authorized methods (linear correlation, permutation tests, fixed 60 Re distance).
+- **Review Integration**: The scope has been strictly limited to the Spec's authorized methods (linear correlation, permutation tests, fixed 60 Re distance). The removal of Phase 6.5 ensures alignment with the spec's explicit deferral of dynamic modeling to future work.
+- **Removed Tasks**: T045-T050 have been removed as they referenced non-existent requirements and introduced unauthorized scope.
+- **Plan Kickback**: The plan.md "Constitution Check" section contains a formula description that contradicts spec.md FR-012 (using R_Earth instead of 60 Re). This is flagged for a separate plan.md update (kickback) to align with the spec.

@@ -17,7 +17,7 @@ This project implements a computational pipeline to quantify the correlation bet
 **Project Type**: Computational research pipeline / CLI.  
 **Performance Goals**: Complete end-to-end analysis of Multiple days of data within 6 hours; memory usage < 4 GB.  
 **Constraints**: CPU-only execution; no GPU libraries; strict adherence to verified dataset URLs; handling of missing data gaps as per spec.  
-**Scale/Scope**: Single-event analysis (-5 day intervals); A substantial number of data points per series after resampling
+**Scale/Scope**: Single-event analysis (day intervals); A substantial number of data points per series after resampling
 
 The research question, method, and references remain unchanged as required, with the specific empirical value generalized to a qualitative descriptor..
 
@@ -33,7 +33,7 @@ The research question, method, and references remain unchanged as required, with
 - **Principle IV (Single Source of Truth)**: All output statistics (correlation coefficients, p-values) and figures will be generated directly from the `data/processed/` artifacts by the analysis scripts, ensuring the final report reflects the exact code execution.
 - **Principle V (Versioning)**: The plan mandates that every artifact under this project carries a content hash. The Advancement-Evaluator Agent updates the `state/projects/PROJ-300-exploring-the-relationship-between-solar.yaml` file by populating the `artifact_hashes` map and updating the `updated_at` timestamp whenever a data or code artifact changes.
 - **Principle VI (Canonical Space-Weather Data Sources)**: The plan explicitly defines the ingestion mechanism: **NASA OMNIWeb API v2** is used via the `requests` library to fetch solar wind data, and **NASA CDAWeb** (specifically the THEMIS EFI instrument) is accessed via the `cdaweb` Python library or direct HDF5 download links. The implementation will not use the metadata links in the prompt as data sources, but will fetch the actual scientific variables from these canonical NASA endpoints.
-- **Principle VII (Propagation-Lag Estimation Consistency)**: The plan implements the specific formula `L_phys = (R_Earth) / Vsw_mean (km/s) / 60 s/min, where R_Earth represents the characteristic planetary radius.` as the reference lag, explicitly documenting the **60 Re** distance assumption and the heuristic nature of this value. The formula ensures dimensional consistency with the physical distance of Earth Radii.
+- **Principle VII (Propagation-Lag Estimation Consistency)**: The plan implements the specific formula `L_phys = (R_Earth) / Vsw_mean (km/s) / s/min, where R_Earth represents the characteristic planetary radius.` as the reference lag, explicitly documenting the assumption of a characteristic planetary distance and the heuristic nature of this value. The formula ensures dimensional consistency with the physical distance of Earth Radii.
 
 ## Project Structure
 
@@ -81,7 +81,7 @@ projects/PROJ-300-exploring-the-relationship-between-solar/
 └── README.md
 ```
 
-**Structure Decision**: A modular Python package structure is selected to separate data ingestion, cleaning, analysis, and visualization. This supports unit testing of individual components (e.g., verifying the lag shift logic) and ensures the main pipeline is a simple orchestration of these tested blocks, aligning with the reproducibility and testing requirements. `config.py` defines the default lag window parameters (30-90 min) and the Re constant, which are referenced in `data-model.md` and implemented in `lag.py`.
+**Structure Decision**: A modular Python package structure is selected to separate data ingestion, cleaning, analysis, and visualization. This supports unit testing of individual components (e.g., verifying the lag shift logic) and ensures the main pipeline is a simple orchestration of these tested blocks, aligning with the reproducibility and testing requirements. `config.py` defines the default lag window parameters (min) and the Re constant, which are referenced in `data-model.md` and implemented in `lag.py`.
 
 ## Complexity Tracking
 
@@ -89,4 +89,6 @@ projects/PROJ-300-exploring-the-relationship-between-solar/
 |-----------|------------|-------------------------------------|
 | Circular Block Permutation (with a sufficient number of iterations) | Required by FR-005 to handle autocorrelation and multiple comparisons in the lag search. | Standard permutation destroys the temporal autocorrelation structure, leading to invalid null distributions and inflated Type I error rates. |
 | Moving Block Bootstrap (multiple iterations) | Required by FR-006 to account for autocorrelation in confidence intervals. | Standard (i.i.d.) bootstrap assumes independence, which is violated by solar wind data, leading to underestimated confidence intervals. |
-| Lag Sweep (30-90 min) | Required by FR-010 to find the optimal physical coupling without biasing toward L_phys. | Using a fixed lag (e.g., L_phys) would ignore the dynamic nature of the reconnection site and the user's requirement to find the *optimal* lag empirically. |
+| Lag Sweep (extended temporal window)
+
+The research question remains: How does the temporal lag between exposure and outcome influence the observed association? The method involves conducting a lag sweep analysis across a range of extended temporal windows to identify the optimal lag structure. References: [Citation preserved as in original]. | Required by FR-010 to find the optimal physical coupling without biasing toward L_phys. | Using a fixed lag (e.g., L_phys) would ignore the dynamic nature of the reconnection site and the user's requirement to find the *optimal* lag empirically. |
