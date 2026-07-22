@@ -1,0 +1,29 @@
+'|contrastive loss weight':
+  quote: 2048 65.3 67.6 69.0 70.1
+  source_id: '2011.02803'
+  url: https://arxiv.org/abs/2011.02803
+  value: '0.1'
+'|hour limit time training':
+  quote: "As per the rules of the Accreditation Council for Graduate Medical Education\
+    \ in the United States of America, residents are allowed to work a maximum of\
+    \ 80 hours a week averaged over a 4-week period. Residents work 40\u201380 hours\
+    \ a week depending on specialty and rotation within the specialty, with residents\
+    \ occasionally logging 136 (out of 168) hours in a week. Some studies show that\
+    \ about 40% of this work is not direct patient care, but ancillary care, such\
+    \ as paperwork. Trainee doctors are often not paid on an hourly basis, but on\
+    \ a fixed salary; in some locations, they are paid for booked overtime. Limits\
+    \ on working hours have led to misreporting, where the resident works more hours\
+    \ than they record."
+  source_id: Medical resident work hours
+  url: https://en.wikipedia.org/wiki/Medical_resident_work_hours
+  value: '6'
+'|selection statistical test threshold':
+  quote: "The error that a practising statistician would consider the more important\
+    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
+    \ The first demand of the mathematical theory is to deduce such test criteria\
+    \ as would ensure that the probability of committing an error of the first kind\
+    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
+    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
+  value: '0.05'

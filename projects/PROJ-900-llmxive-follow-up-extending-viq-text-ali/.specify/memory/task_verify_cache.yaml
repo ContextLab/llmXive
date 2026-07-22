@@ -1,12 +1,18 @@
-T019:
+T012:
   c: false
-  h: bbb8a509c04fbb7dfa1e52bffbcf60d716114f0be17f126abc3745126428a4a4
-  r: "The `code/eval_high_res.py` file exists but its content is truncated and does\
-    \ not show the full logic for loading 1024\xD71024 images, encoding them, and\
-    \ writing projected embeddings to `data/results/embeddings_high_res.h5`. Additionally,\
-    \ the required checkpoint `data/results/codebook_v0.pth` (and the output H5 file)\
-    \ are missing, so the script cannot be verified as functional. The implementation\
-    \ must be completed and the necessary artifacts provided."
+  h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
+  r: "The repository contains a `code/train.py` file, but it is truncated and does\
+    \ not show a complete training loop, the required VQ\u2011VAE + InfoNCE loss computation,\
+    \ or code that saves `data/results/codebook_v0.pth`. Moreover, the checkpoint\
+    \ file `data/results/codebook_v0.pth` is absent. Consequently the deliverable\
+    \ requirements are not met."
+T014:
+  c: false
+  h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
+  r: The repository contains `code/train.py`, but the shown portion (and the truncated
+    remainder) does not include any logic that saves a checkpoint to `data/results/codebook_v0.pth`.
+    Moreover, the expected checkpoint file `data/results/codebook_v0.pth` is absent
+    from the disk. Both the required artifact and the saving implementation are missing.
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

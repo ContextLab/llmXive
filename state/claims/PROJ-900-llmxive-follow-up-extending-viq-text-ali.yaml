@@ -1,0 +1,483 @@
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_0f4f203b
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:07:36Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: transformers version 4.36.0
+  claim_id: c_5dc7dcfe
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.36.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:08:17Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_7e106c36
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:08:46Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_f0cd373a
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0,
+    scikit-learn==1.3.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:09:20Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: pillow version 10.1.0
+  claim_id: c_f5d871e7
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pillow==10.1.0...'
+  evidence:
+    asserted: '10.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pillow==10.1.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T00:09:20Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.8.0
+  claim_id: c_63e2a35d
+  context: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0,
+    scikit-learn==1.3.0, pillow==10.1.0, opencv-python-headless==4.8.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:09:51Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: batch_size default value is 8
+  claim_id: c_4224923a
+  context: 'Implement code/config.py with explicit keys: batch_size (default 8), learning_rate
+    (default 1e-4), seed (default 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch_size default 8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:10:30Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: learning_rate default value is 1e-4
+  claim_id: c_3dc680ab
+  context: 'Implement code/config.py with explicit keys: batch_size (default 8), learning_rate
+    (default 1e-4), seed (default 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: learning_rate default 1e-4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:10:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: seed default value is 42
+  claim_id: c_0a4b4fb5
+  context: 'Implement code/config.py with explicit keys: batch_size (default 8), learning_rate
+    (default 1e-4), seed (default 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed default 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:11:34Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: fallback architecture hidden_dim is 512
+  claim_id: c_69f3266f
+  context: 'If checkpoint missing, define fallback architecture: ResNet based VQ-VAE
+    with hidden_dim=512, codebook_size=1024, and global average pooling for resolution
+    invariance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fallback hidden_dim 512
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:12:18Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: fallback architecture codebook_size is 1024
+  claim_id: c_757b889d
+  context: 'If checkpoint missing, define fallback architecture: ResNet based VQ-VAE
+    with hidden_dim=512, codebook_size=1024, and global average pooling for resolution
+    invariance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fallback codebook_size 1024
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:12:49Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: test_data_loader_streaming_returns_64x64_shape test implemented
+  claim_id: c_cc37825a
+  context: Implement tests/test_data.py with test_data_loader_streaming_returns_64x64_shape
+    (ensure it FAILS initially).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_data_loader_streaming_returns_64x64_shape_test_implemen
+  kind: entity_fact
+  raw_text: test_data_loader_streaming_returns_64x64_shape
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:13:30Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: test_psnr_calculation_on_known_pair test implemented
+  claim_id: c_10a044d6
+  context: Implement tests/test_metrics.py with test_psnr_calculation_on_known_pair
+    (ensure it FAILS initially).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_psnr_calculation_on_known_pair_test_implemented
+  kind: entity_fact
+  raw_text: test_psnr_calculation_on_known_pair
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:14:16Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: InfoNCE temperature is 0.07
+  claim_id: c_1f19ab3b
+  context: Implement code/train.py with CPU-only training loop, frozen ViQ encoder,
+    and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling
+    via in-batch negatives) loss...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: InfoNCE temperature 0.07
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:14:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: VQ loss weight is 1.0
+  claim_id: c_d44e7b2d
+  context: '...Contrastive (InfoNCE, temp=0.07, negative sampling via in-batch negatives)
+    loss (weights: 1.0 VQ, 0.1 Contrastive).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VQ loss weight 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:15:22Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Contrastive loss weight is 0.1
+  claim_id: c_04de0ac9
+  context: '...Contrastive (InfoNCE, temp=0.07, negative sampling via in-batch negatives)
+    loss (weights: 1.0 VQ, 0.1 Contrastive).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2048 65.3 67.6 69.0 70.1
+      source_id: '2011.02803'
+      url: https://arxiv.org/abs/2011.02803
+      value: '0.1'
+    filled: true
+  kind: numeric
+  raw_text: Contrastive loss weight 0.1
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T00:16:07Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: batch size tuning fits 64x64 images within 7GB RAM
+  claim_id: c_3d8e1382
+  context: Implement dataset sampling strategy and batch size tuning loop in code/train.py
+    to fit 64x64 images within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_size_tuning_fits_64x64_images_within_7GB_RAM
+  kind: entity_fact
+  raw_text: batch size tuning for 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:16:49Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: training time limit is 6 hours
+  claim_id: c_471f4b29
+  context: Implement a runtime monitor in code/train.py that tracks cumulative wall-clock
+    time. If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without
+    convergence...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "As per the rules of the Accreditation Council for Graduate Medical Education\
+        \ in the United States of America, residents are allowed to work a maximum\
+        \ of 80 hours a week averaged over a 4-week period. Residents work 40\u2013\
+        80 hours a week depending on specialty and rotation within the specialty,\
+        \ with residents occasionally logging 136 (out of 168) hours in a week. Some\
+        \ studies show that about 40% of this work is not direct patient care, but\
+        \ ancillary care, such as paperwork. Trainee doctors are often not paid on\
+        \ an hourly basis, but on a fixed salary; in some locations, they are paid\
+        \ for booked overtime. Limits on working hours have led to misreporting, where\
+        \ the resident works more hours than they record."
+      source_id: Medical resident work hours
+      url: https://en.wikipedia.org/wiki/Medical_resident_work_hours
+      value: '6'
+    filled: true
+  kind: numeric
+  raw_text: training time limit 6 hours
+  resolved_value: '6'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T00:17:09Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: training time warning threshold is 5.5 hours
+  claim_id: c_2dbb516e
+  context: If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without
+    convergence, log a CRITICAL warning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training time warning threshold 5.5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:17:52Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: codebook_v0.pth checkpoint saved
+  claim_id: c_5b71c865
+  context: Script must save a checkpoint to data/results/codebook_v0.pth upon completion...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Codebook_v0.pth_checkpoint_saved
+  kind: entity_fact
+  raw_text: codebook_v0.pth checkpoint saved
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:18:09Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: semantic_baseline.json contains keys mean_similarity, count, resolution
+  claim_id: c_131070a4
+  context: Save results to data/results/semantic_baseline.json with keys mean_similarity,
+    count, and resolution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_baseline.json_contains_keys_mean_similarity,_count,
+  kind: entity_fact
+  raw_text: semantic_baseline.json keys mean_similarity, count, resolution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:18:49Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: train_log.json contains fields step, total_loss, vq_loss, contrastive_loss,
+    elapsed_time
+  claim_id: c_07d33430
+  context: Write metrics in JSON format to data/results/train_log.json with fields
+    step, total_loss, vq_loss, contrastive_loss, elapsed_time.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_log.json_contains_fields_step,_total_loss,_vq_loss,_co
+  kind: entity_fact
+  raw_text: train_log.json fields step, total_loss, vq_loss, contrastive_loss, elapsed_time
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:19:40Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: fidelity_metrics.json schema contains mean_psnr, mean_ssim, count, note
+  claim_id: c_29442d24
+  context: 'JSON Schema: {mean_psnr: float, mean_ssim: float, count: int, note: native
+    ground truth used per Plan Amendment}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fidelity_metrics.json_schema_contains_mean_psnr,_mean_ssim,
+  kind: entity_fact
+  raw_text: fidelity_metrics.json schema mean_psnr, mean_ssim, count, note
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:20:13Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test performed on error distribution
+  claim_id: c_72aac0df
+  context: Perform Shapiro-Wilk test on error distribution; if p > 0.05 use paired
+    t-test, else use Wilcoxon signed-rank test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_performed_on_error_distribution
+  kind: entity_fact
+  raw_text: Shapiro-Wilk test on error distribution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:20:49Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: p-value threshold 0.05 used for statistical test selection
+  claim_id: c_15680ea7
+  context: Perform Shapiro-Wilk test on error distribution; if p > 0.05 use paired
+    t-test, else use Wilcoxon signed-rank test.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: p-value threshold 0.05 for statistical test selection
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T00:21:08Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: semantic_diff.json calculates percentage difference as abs(high_res_mean
+    - low_res_mean) / low_res_mean * 100
+  claim_id: c_f39bd0ca
+  context: 'Logic: abs(high_res_mean - low_res_mean) / low_res_mean * 100. Flag if
+    > config.semantic_threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: semantic_diff.json calculation abs(high_res_mean - low_res_mean) / low_res_mean
+    * 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:21:36Z'

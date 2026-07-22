@@ -31,3 +31,25 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-14T02:40:58.288428Z'
+- artifact_hash: 42c654f3745f45306a4315ac4b4b9b3c4d46c993e0234fb14b749f5786e22606
+  artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2011.02803] Intriguing Properties of Contrastive Losses'
+  kind: url
+  value: https://arxiv.org/abs/2011.02803
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2011.02803
+  verified_at: '2026-07-22T00:21:36.696255Z'
+- artifact_hash: 42c654f3745f45306a4315ac4b4b9b3c4d46c993e0234fb14b749f5786e22606
+  artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-22T00:21:36.696255Z'

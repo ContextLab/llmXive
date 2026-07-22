@@ -1,3 +1,9 @@
+"""
+Model Definitions (T006).
+
+Defines VQ-VAE Codebook, Projection Head, and Frozen ViQ/CLIP wrappers.
+Includes fallback ResNetVQVAE if ViQ weights are missing.
+"""
 import math
 from typing import Optional, Tuple
 import torch
@@ -5,144 +11,139 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers import CLIPTextModel, CLIPTokenizer
 
-# T006: Codebook, ProjectionHead, FrozenViQWrapper, FrozenCLIPTextWrapper, ResNetVQVAE, get_model
-
 class Codebook(nn.Module):
-    def __init__(self, num_embeddings: int = 1024, embedding_dim: int = 512):
+    """Vector Quantization Codebook."""
+    def __init__(self, embedding_dim=512, codebook_size=1024):
         super().__init__()
-        self.num_embeddings = num_embeddings
+        self.codebook_size = codebook_size
         self.embedding_dim = embedding_dim
-        # Initialize embeddings randomly
-        self.embeddings = nn.Parameter(torch.randn(num_embeddings, embedding_dim))
+        
+        self.codebook = nn.Embedding(codebook_size, embedding_dim)
+        self.codebook.weight.data.uniform_(-1.0 / codebook_size, 1.0 / codebook_size)
     
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: (B, H, W, D) or (B, D)
-        # Flatten spatial dimensions if present
-        if x.dim() > 2:
-            original_shape = x.shape
-            x = x.view(-1, self.embedding_dim)
+    def forward(self, z_e: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Quantize input tensor z_e.
+        Args:
+            z_e: [B, H*W, C]
+        Returns:
+            z_q: Quantized tensor [B, H*W, C]
+            loss: Commitment loss
+            indices: Codebook indices
+        """
+        # Flatten spatial dims if not already
+        # Input expected: [B, L, C]
+        z_e_flat = z_e
         
-        # Compute distances
-        # dist = ||x - e||^2 = ||x||^2 + ||e||^2 - 2 x.e
-        x_norm = torch.norm(x, dim=1, keepdim=True)
-        e_norm = torch.norm(self.embeddings, dim=1, keepdim=True)
-        dist = x_norm**2 + e_norm.T**2 - 2 * torch.matmul(x, self.embeddings.T)
+        # Calculate distances
+        # z_e: [B, L, C], codebook: [C, K] -> [B, L, K]
+        dist = torch.sum(z_e_flat ** 2, dim=-1, keepdim=True) - \
+               2 * torch.matmul(z_e_flat, self.codebook.weight.T) + \
+               torch.sum(self.codebook.weight ** 2, dim=-1)
         
-        # Get indices
-        indices = torch.argmin(dist, dim=1)
+        indices = torch.argmin(dist, dim=-1)
+        z_q = self.codebook(indices)
         
-        # Lookup embeddings
-        quantized = self.embeddings[indices]
+        # Commitment loss: ||sg(z_e) - z_q||^2
+        loss_commit = F.mse_loss(z_q.detach(), z_e_flat)
         
-        # Reshape back if needed
-        if len(original_shape) > 2:
-            quantized = quantized.view(original_shape)
+        # Straight-through estimator
+        z_q = z_e_flat + (z_q - z_e_flat).detach()
         
-        return quantized, indices
+        return z_q, loss_commit, indices
 
 class ProjectionHead(nn.Module):
-    def __init__(self, input_dim: int = 512, output_dim: int = 512):
+    """Projection head to map codebook embeddings to text embedding space."""
+    def __init__(self, input_dim=512, output_dim=512):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, output_dim),
+            nn.Linear(input_dim, input_dim),
             nn.ReLU(),
-            nn.Linear(output_dim, output_dim)
+            nn.Linear(input_dim, output_dim)
         )
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x: (B, H, W, D) -> (B, H*W, D) -> (B, H*W, D_out)
-        # Or (B, D) -> (B, D_out)
-        if x.dim() > 2:
-            B, H, W, D = x.shape
-            x = x.view(B, H * W, D)
-            x = self.net(x)
-            return x.view(B, H, W, -1)
-        else:
-            return self.net(x)
+        return self.net(x)
 
 class FrozenViQWrapper(nn.Module):
-    def __init__(self):
+    """Wrapper for a frozen ViQ encoder."""
+    def __init__(self, embedding_dim=512):
         super().__init__()
-        # T006: ViQ-Base placeholder ID "viq-base-v"
-        # Since we don't have the real model, we use a dummy placeholder
-        # that returns random embeddings or identity if needed.
-        # For T016 training, we might not use this directly if we use ResNetVQVAE.
-        pass
-
+        self.embedding_dim = embedding_dim
+        # Placeholder for actual ViQ weights
+        # In a real scenario, this would load specific ViQ weights
+        # For now, we define a simple convolutional encoder that supports arbitrary resolution
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(256, embedding_dim, kernel_size=3, stride=2, padding=1),
+            nn.ReLU()
+        )
+    
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Placeholder
-        return torch.randn(x.shape[0], 512)
+        return self.encoder(x)
 
 class FrozenCLIPTextWrapper(nn.Module):
-    def __init__(self):
+    """Wrapper for frozen CLIP text encoder."""
+    def __init__(self, model_name="openai/clip-vit-base-patch32"):
         super().__init__()
-        self.tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
-        self.model = CLIPTextModel.from_pretrained("openai/clip-vit-base-patch32")
-        self.model.eval()
-        for param in self.model.parameters():
+        self.tokenizer = CLIPTokenizer.from_pretrained(model_name)
+        self.text_model = CLIPTextModel.from_pretrained(model_name)
+        self.text_model.eval()
+        for param in self.text_model.parameters():
             param.requires_grad = False
-
-    def forward(self, captions: list) -> torch.Tensor:
-        inputs = self.tokenizer(
-            captions, 
-            padding=True, 
-            truncation=True, 
-            max_length=77, 
-            return_tensors="pt"
-        )
+    
+    def forward(self, texts: list) -> torch.Tensor:
+        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt", max_length=77)
         with torch.no_grad():
-            outputs = self.model(**inputs)
-        # Use pooler output or last hidden state mean
-        return outputs.pooler_output
+            outputs = self.text_model(**inputs)
+        return outputs.last_hidden_state[:, 0, :]  # CLS token
 
 class ResNetVQVAE(nn.Module):
-    """
-    T006 Fallback Architecture:
-    ResNet based VQ-VAE with 512 hidden dimensions, 1024 codebook size.
-    """
-    def __init__(self, hidden_dim: int = 512, codebook_size: int = 1024, num_channels: int = 3):
+    """Fallback ResNet-based VQ-VAE encoder if ViQ weights missing."""
+    def __init__(self, hidden_dim=512, codebook_size=1024):
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(num_channels, hidden_dim, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(3, 64, 7, stride=2, padding=3),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(64, 128, 3, stride=2, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=1, padding=1)
+            nn.Conv2d(128, hidden_dim, 3, stride=2, padding=1),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU()
         )
-        
-        self.codebook = Codebook(num_embeddings=codebook_size, embedding_dim=hidden_dim)
-        
-        self.decoder = nn.Sequential(
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, stride=1, padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(hidden_dim, hidden_dim, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(hidden_dim, num_channels, kernel_size=4, stride=2, padding=1),
-            nn.Sigmoid() # Output in [0, 1]
-        )
+        self.codebook = Codebook(embedding_dim=hidden_dim, codebook_size=codebook_size)
+        self.projection = ProjectionHead(input_dim=hidden_dim, output_dim=hidden_dim)
+    
+    def forward(self, x: torch.Tensor):
+        z_e = self.encoder(x)
+        b, c, h, w = z_e.shape
+        z_e_flat = z_e.flatten(2).transpose(1, 2)
+        z_q, loss, indices = self.codebook(z_e_flat)
+        z_q = z_q.transpose(1, 2).reshape(b, c, h, w)
+        proj = self.projection(z_q)
+        return z_q, proj, loss
 
-    def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        # x: (B, C, H, W)
-        z = self.encoder(x) # (B, D, H', W')
-        z = z.permute(0, 2, 3, 1) # (B, H', W', D)
-        
-        quantized, indices = self.codebook(z)
-        
-        # Commitment loss calculation (part of vq_loss usually, but returning here for completeness)
-        # We return quantized, indices, and a dummy commitment loss (calculated in vq_loss)
-        return quantized.permute(0, 3, 1, 2), indices, torch.tensor(0.0)
-
-    def decode(self, quantized: torch.Tensor) -> torch.Tensor:
-        # quantized: (B, H', W', D)
-        z = quantized.permute(0, 3, 1, 2)
-        return self.decoder(z)
-
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        quantized, indices, _ = self.encode(x)
-        recon = self.decode(quantized)
-        return recon, quantized, indices
-
-def get_model(name: str = "resnet_vqvae") -> nn.Module:
-    if name == "resnet_vqvae":
-        return ResNetVQVAE()
-    raise ValueError(f"Unknown model: {name}")
+def get_model():
+    """
+    Factory function to get the model components.
+    Returns a dictionary of components: encoder, codebook, projection.
+    """
+    # Try to load ViQ weights if available, otherwise use fallback
+    # For T006, we define the structure. T012 will train the codebook.
+    
+    encoder = FrozenViQWrapper()
+    codebook = Codebook(embedding_dim=512, codebook_size=1024)
+    projection = ProjectionHead(input_dim=512, output_dim=512)
+    
+    return {
+        'encoder': encoder,
+        'codebook': codebook,
+        'projection': projection
+    }

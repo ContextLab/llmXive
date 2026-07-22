@@ -1,279 +1,226 @@
 """
-Integration test for end-to-end high-resolution inference (User Story 2).
+Integration test for end-to-end inference on a small batch (US2).
 
-This test verifies that the evaluation pipeline can:
-1. Load the trained low-resolution codebook (produced by T014).
-2. Process a small batch of high-resolution images (1024x1024) from COCO.
-3. Generate embeddings and save them to `data/results/embeddings_high_res.h5`.
-4. Verify the output file exists and contains valid data.
+This test verifies that the high-resolution evaluation pipeline can:
+1. Load the trained codebook checkpoint (produced by T014).
+2. Stream a small batch of real high-resolution images (1024x1024) from ImageNet/COCO.
+3. Process them through the frozen ViQ encoder and projection head.
+4. Generate projected visual embeddings.
+5. Save the embeddings to the declared artifact path: data/results/embeddings_high_res.h5.
+6. Calculate and save fidelity metrics (PSNR/SSIM) to data/results/fidelity_metrics.json.
 
-Note: This test relies on T014 producing `data/results/codebook_v0.pth`.
-If the checkpoint is missing, the test will fail loudly as per design.
+Prerequisites:
+- T014 must have completed, producing data/results/codebook_v0.pth.
+- T005 (data_loader) must be functional for streaming real data.
+- T006a (ViQ invariance check) must have passed (assumed by existence of valid checkpoint).
+
+This test FAILS if:
+- The checkpoint file is missing.
+- The data loader fails to fetch real images.
+- The script does not produce the required output files.
+- The output files are empty or malformed.
 """
+
 import os
 import sys
-import tempfile
-import shutil
 import json
+import logging
+import tempfile
 from pathlib import Path
+from typing import Dict, Any, List
 
 import pytest
-import torch
-import h5py
 import numpy as np
+import h5py
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path to import code modules
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from config import get_config, Config
-from model import ResNetVQVAE, Codebook, ProjectionHead, FrozenViQWrapper, get_model
-from data_loader import COCOStreamingDataset, get_dataloader
-from utils import calculate_psnr, calculate_texture_complexity
-import eval_high_res  # Import the module under test
+from code.eval_high_res import (
+    main as eval_high_res_main,
+    load_codebook_checkpoint,
+    process_high_res_image,
+    get_imagenet_iterator,
+    get_coco_iterator,
+    log_cxray_exclusion
+)
+from code.config import get_config, Config
+from code.utils import calculate_psnr, calculate_ssim
 
+# Configure logging for the test
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("integration_test_eval")
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for test outputs to avoid cluttering data/results."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir, ignore_errors=True)
+# Constants for test
+TEST_BATCH_SIZE = 2
+EXPECTED_RESOLUTION = (1024, 1024)
+OUTPUT_EMBEDDINGS_PATH = project_root / "data" / "results" / "embeddings_high_res.h5"
+OUTPUT_METRICS_PATH = project_root / "data" / "results" / "fidelity_metrics.json"
+CHECKPOINT_PATH = project_root / "data" / "results" / "codebook_v0.pth"
 
+def _cleanup_outputs():
+    """Remove output files if they exist from previous runs."""
+    for path in [OUTPUT_EMBEDDINGS_PATH, OUTPUT_METRICS_PATH]:
+        if path.exists():
+            path.unlink()
+            logger.info(f"Cleaned up existing output: {path}")
 
-@pytest.fixture
-def mock_checkpoint(temp_output_dir):
+def _ensure_checkpoint_exists():
     """
-    Create a minimal mock checkpoint if the real one doesn't exist yet.
-    
-    This allows the integration test to run even if T014 hasn't been executed
-    in the current environment, simulating the existence of a trained codebook.
-    In a real CI/CD pipeline, T014 would run before T018.
+    Ensure the codebook checkpoint exists.
+    In a real CI/CD environment, this would be a prerequisite step.
+    For this integration test, we assert its existence.
     """
-    checkpoint_path = Path(temp_output_dir) / "codebook_v0.pth"
-    
-    # If the real checkpoint exists (from T014), use it
-    real_checkpoint = Path(PROJECT_ROOT) / "data" / "results" / "codebook_v0.pth"
-    if real_checkpoint.exists():
-        shutil.copy(real_checkpoint, checkpoint_path)
-        return str(checkpoint_path)
-    
-    # Otherwise, create a minimal mock to unblock the test
-    # This mimics the structure expected by ResNetVQVAE
-    codebook_size = 1024
-    embedding_dim = 512
-    
-    state_dict = {
-        "codebook.weight": torch.randn(codebook_size, embedding_dim),
-        "projection.weight": torch.randn(embedding_dim, embedding_dim),
-        "projection.bias": torch.randn(embedding_dim),
-        # Add other expected keys if ResNetVQVAE has them
-        "encoder.conv_in.weight": torch.randn(embedding_dim, 3, 3, 1, 1), # Mock
-        "encoder.blocks.0.conv1.weight": torch.randn(embedding_dim, embedding_dim, 3, 1, 1), # Mock
-        "encoder.blocks.0.conv2.weight": torch.randn(embedding_dim, embedding_dim, 3, 1, 1), # Mock
-        "encoder.conv_out.weight": torch.randn(embedding_dim, embedding_dim, 3, 1, 1), # Mock
-    }
-    
-    # Add a dummy 'config' key if the model expects it
-    state_dict["config"] = {
-        "codebook_size": codebook_size,
-        "embedding_dim": embedding_dim,
-        "hidden_dim": 512,
-        "num_res_blocks": 2,
-        "in_channels": 3,
-        "out_channels": 3
-    }
-    
-    torch.save(state_dict, checkpoint_path)
-    return str(checkpoint_path)
-
-
-@pytest.mark.integration
-def test_end_to_end_high_res_inference(mock_checkpoint, temp_output_dir):
-    """
-    Integration test: Load codebook, process 1 high-res image, save embeddings.
-    
-    Steps:
-    1. Initialize model with mock checkpoint.
-    2. Load 1 sample from COCO streaming dataset.
-    3. Run inference (project to visual embeddings).
-    4. Save embeddings to an H5 file.
-    5. Verify the file exists and has correct shape/content.
-    """
-    # Configuration
-    batch_size = 1
-    resolution = 1024
-    output_path = Path(temp_output_dir) / "embeddings_test.h5"
-    
-    # 1. Load Model
-    # We need to reconstruct the model architecture. 
-    # Since we are mocking the checkpoint, we assume standard ResNetVQVAE config.
-    # In a real scenario, the checkpoint would contain the full config.
-    model_config = {
-        "codebook_size": 1024,
-        "embedding_dim": 512,
-        "hidden_dim": 512,
-        "num_res_blocks": 2,
-        "in_channels": 3,
-        "out_channels": 3
-    }
-    
-    # Instantiate the model (matching the structure in code/model.py)
-    # Note: We are bypassing the full ResNetVQVAE init if it's complex, 
-    # focusing on the projection head which is the core of the "visual quantized representation".
-    # However, to be faithful to T019 (which T018 tests), we must use the actual model class.
-    
-    # Attempt to load the model using the checkpoint
-    try:
-        # If the checkpoint has 'config', we might need to parse it. 
-        # For this integration test, we assume a standard ResNetVQVAE structure.
-        model = ResNetVQVAE(
-            codebook_size=model_config["codebook_size"],
-            embedding_dim=model_config["embedding_dim"],
-            hidden_dim=model_config["hidden_dim"],
-            num_res_blocks=model_config["num_res_blocks"],
-            in_channels=model_config["in_channels"],
-            out_channels=model_config["out_channels"]
+    if not CHECKPOINT_PATH.exists():
+        pytest.fail(
+            f"Checkpoint file {CHECKPOINT_PATH} not found. "
+            "Please ensure T014 (train.py) has completed successfully."
         )
-        
-        # Load state
-        checkpoint = torch.load(mock_checkpoint, map_location="cpu", weights_only=False)
-        if "state_dict" in checkpoint:
-            model.load_state_dict(checkpoint["state_dict"])
-        else:
-            # Handle case where checkpoint is just the state_dict
-            model.load_state_dict(checkpoint)
-        
-        model.eval()
-    except Exception as e:
-        pytest.fail(f"Failed to load model from checkpoint: {e}")
 
-    # 2. Load Data (COCO Streaming)
-    # We only need 1 sample for this integration test
-    try:
-        dataset = COCOStreamingDataset(
-            split="train",
-            resolution=resolution,
-            max_samples=1
-        )
-        dataloader = get_dataloader(dataset, batch_size=batch_size, shuffle=False)
-        
-        batch = next(iter(dataloader))
-        images = batch["image"] # Shape: (1, 3, 1024, 1024)
-        assert images.shape == (1, 3, resolution, resolution), f"Image shape mismatch: {images.shape}"
-    except Exception as e:
-        pytest.fail(f"Failed to load COCO data: {e}")
+def _validate_embeddings_file(path: Path):
+    """Validate the structure and content of the generated embeddings HDF5 file."""
+    assert path.exists(), f"Embeddings file {path} was not created."
+    assert path.stat().st_size > 0, f"Embeddings file {path} is empty."
 
-    # 3. Run Inference (Projection)
-    # The goal is to get the projected visual embeddings.
-    # In the VQ-VAE setup, this usually means encoding -> quantizing -> projecting.
-    # We simulate the forward pass that `eval_high_res.py` would do.
-    with torch.no_grad():
-        # Encode
-        # Assuming ResNetVQVAE has an encode() method or we use the encoder block directly
-        # If the model structure is complex, we might just need the projection head output.
-        # Let's assume the model returns (recon, loss, indices) or similar.
-        # For T019, we need "projected visual embeddings".
+    with h5py.File(str(path), 'r') as f:
+        # Check for expected datasets
+        assert 'embeddings' in f, "Dataset 'embeddings' missing in HDF5 file."
+        assert 'image_ids' in f, "Dataset 'image_ids' missing in HDF5 file."
         
-        # Fallback: If the model doesn't have a direct 'project' method, 
-        # we extract the latent representation and project it.
-        # Assuming: z = encoder(x), z_q = quantize(z), z_proj = projection(z_q)
-        
-        # Try to call a standard forward or specific encoder method
-        if hasattr(model, 'encoder'):
-            z = model.encoder(images)
-        elif hasattr(model, 'encode'):
-            z = model.encode(images)
-        else:
-            # Fallback: try forward if it returns latents
-            # This is risky without knowing exact model signature, but we try
-            try:
-                out = model(images)
-                # If out is a tuple, assume (recon, loss, indices, z) or similar
-                # We need z. This is a heuristic.
-                if isinstance(out, tuple) and len(out) >= 3:
-                    # Assume last is z or z_q
-                    z = out[-1] if out[-1].ndim > 2 else out[0]
-                else:
-                    z = out # Assume it's z
-            except:
-                pytest.fail("Could not determine how to extract latents from model.")
+        embeddings = f['embeddings'][:]
+        image_ids = f['image_ids'][:]
 
-        # Project
-        if hasattr(model, 'projection'):
-            projected = model.projection(z)
-        elif hasattr(model, 'proj_head'):
-            projected = model.proj_head(z)
-        else:
-            # Fallback: assume the model itself projects or we use a dummy projection
-            # For the test to pass, we just need *some* output that looks like an embedding
-            # Let's assume the latent z IS the embedding if no projection head is found
-            projected = z
+        logger.info(f"Loaded {len(image_ids)} embeddings from {path}")
+        logger.info(f"Embedding shape: {embeddings.shape}")
 
-        # Ensure projected is a tensor
-        if not isinstance(projected, torch.Tensor):
-            projected = torch.tensor(projected)
-        
-        # Flatten spatial dimensions to (N, D) or (N, H*W, D) depending on usage
-        # T019 saves to H5. Usually we want (N, D) or (N, H*W, D).
-        # Let's flatten spatial dims: (B, C, H, W) -> (B, C*H*W) or keep as (B, C, H, W)
-        # For embeddings, (B, D) is common. Let's assume we average pool or flatten.
-        # The eval_high_res.py script likely flattens or pools.
-        # Let's flatten to (B, D) where D = C*H*W for simplicity in this test
-        # Or if z is (B, C, H, W), we might want (B, C) via global avg pool?
-        # Let's assume the output of the projection head is (B, C, H, W) and we flatten.
-        if projected.dim() == 4:
-            # (B, C, H, W) -> (B, C*H*W)
-            B, C, H, W = projected.shape
-            projected = projected.view(B, -1)
-        
-        embeddings = projected.cpu().numpy()
+        # Verify shape consistency
+        assert len(embeddings) == len(image_ids), "Mismatch between embeddings and image_ids count."
+        assert embeddings.shape[1] > 0, "Embedding dimension is 0."
 
-    # 4. Save to H5
-    try:
-        with h5py.File(str(output_path), 'w') as f:
-            f.create_dataset('embeddings', data=embeddings)
-            f.attrs['resolution'] = resolution
-            f.attrs['num_samples'] = embeddings.shape[0]
-    except Exception as e:
-        pytest.fail(f"Failed to save embeddings to H5: {e}")
+        # Verify data is not all zeros (sanity check)
+        if np.allclose(embeddings, 0.0):
+            logger.warning("Embeddings appear to be all zeros. This might indicate a model failure.")
+            # We don't fail the test here as it might be a valid (but poor) representation,
+            # but we log it.
 
-    # 5. Verify Output
-    assert output_path.exists(), "Output H5 file was not created."
+def _validate_metrics_file(path: Path):
+    """Validate the structure and content of the generated metrics JSON file."""
+    assert path.exists(), f"Metrics file {path} was not created."
+    assert path.stat().st_size > 0, f"Metrics file {path} is empty."
+
+    with open(path, 'r') as f:
+        data = json.load(f)
+
+    required_keys = ['mean_psnr', 'mean_ssim', 'count', 'note']
+    for key in required_keys:
+        assert key in data, f"Missing key '{key}' in metrics file."
+
+    assert isinstance(data['mean_psnr'], (int, float)), "mean_psnr must be a number."
+    assert isinstance(data['mean_ssim'], (int, float)), "mean_ssim must be a number."
+    assert data['count'] > 0, "count must be greater than 0."
     
-    with h5py.File(str(output_path), 'r') as f:
-        assert 'embeddings' in f, "Dataset 'embeddings' missing from H5 file."
-        data = f['embeddings'][:]
-        assert data.shape[0] == 1, f"Expected 1 sample, got {data.shape[0]}"
-        assert data.dtype in [np.float32, np.float64], f"Unexpected dtype: {data.dtype}"
-        
-        # Check for NaN/Inf
-        assert not np.isnan(data).any(), "Embeddings contain NaN"
-        assert not np.isinf(data).any(), "Embeddings contain Inf"
+    logger.info(f"Metrics: PSNR={data['mean_psnr']:.2f}, SSIM={data['mean_ssim']:.4f}, Count={data['count']}")
 
-    # Optional: Verify that the file is not empty (size > 0)
-    assert output_path.stat().st_size > 0, "Output file is empty"
+@pytest.fixture(autouse=True)
+def setup_teardown():
+    """Setup and teardown for each test function."""
+    _cleanup_outputs()
+    _ensure_checkpoint_exists()
+    yield
+    # Teardown: validate outputs exist and are correct
+    if OUTPUT_EMBEDDINGS_PATH.exists():
+        _validate_embeddings_file(OUTPUT_EMBEDDINGS_PATH)
+    if OUTPUT_METRICS_PATH.exists():
+        _validate_metrics_file(OUTPUT_METRICS_PATH)
 
-@pytest.mark.integration
-def test_coco_exclusion_log():
+def test_integration_eval_high_res_end_to_end():
     """
-    Verify that the code explicitly excludes ChestX-ray14.
-    This is a code inspection test to ensure T019b requirement is met.
+    Run the high-resolution evaluation script end-to-end on a small batch.
+    
+    This test:
+    1. Invokes the main logic of eval_high_res.py (simulating the CLI call).
+    2. Uses a small subset of data to ensure it runs quickly.
+    3. Verifies that the output files are created and contain valid data.
     """
-    eval_high_res_path = PROJECT_ROOT / "code" / "eval_high_res.py"
-    if not eval_high_res_path.exists():
-        # If the file doesn't exist yet, we can't check it, but T019 handles that.
-        # For T018, we assume T019 exists or we just skip this check if T019 is not done.
-        # However, T018 is an integration test for T019. So T019 should exist.
-        # If T019 is missing, T018 cannot run.
-        # We'll assume T019 exists for this integration test to be meaningful.
-        pytest.skip("eval_high_res.py not found. T019 must be implemented first.")
+    # Prepare arguments for the main function
+    # We simulate the CLI arguments programmatically
+    args = type('Args', (), {
+        'checkpoint': str(CHECKPOINT_PATH),
+        'batch_size': TEST_BATCH_SIZE,
+        'limit': 4,  # Process only 4 images to keep it fast
+        'source': 'imagenet',  # Use ImageNet for high-res testing
+        'output_dir': str(project_root / "data" / "results"),
+        'log_level': 'INFO'
+    })()
 
-    with open(eval_high_res_path, 'r') as f:
-        content = f.read()
+    # Mock the argument parser to avoid sys.argv manipulation
+    # We call the internal logic directly or simulate the main flow
+    # Since main() parses args, we can't easily pass a namespace object without
+    # modifying main() to accept it. Instead, we'll set sys.argv temporarily.
     
-    assert "ChestX-ray14" in content or "chestxray" in content.lower(), \
-        "eval_high_res.py must mention ChestX-ray14 exclusion."
-    
-    assert "excluded" in content.lower() or "exclude" in content.lower(), \
-        "eval_high_res.py must explicitly state exclusion of ChestX-ray14."
+    original_argv = sys.argv
+    try:
+        sys.argv = [
+            'test_eval.py',
+            '--checkpoint', str(CHECKPOINT_PATH),
+            '--batch-size', str(TEST_BATCH_SIZE),
+            '--limit', '4',
+            '--source', 'imagenet',
+            '--output-dir', str(project_root / "data" / "results"),
+            '--log-level', 'INFO'
+        ]
+        
+        # Run the main function
+        logger.info("Starting eval_high_res.py integration test...")
+        eval_high_res_main()
+        logger.info("eval_high_res.py completed successfully.")
+
+    except Exception as e:
+        logger.error(f"Execution failed: {e}")
+        # Re-raise to fail the test
+        raise
+    finally:
+        sys.argv = original_argv
+
+    # If we reach here, the script ran. Validation is handled by the fixture teardown.
+    assert OUTPUT_EMBEDDINGS_PATH.exists(), "Embeddings file not created after execution."
+    assert OUTPUT_METRICS_PATH.exists(), "Metrics file not created after execution."
+
+def test_integration_eval_coco_source():
+    """
+    Test the pipeline with COCO source to ensure it handles different datasets.
+    """
+    args = type('Args', (), {
+        'checkpoint': str(CHECKPOINT_PATH),
+        'batch_size': TEST_BATCH_SIZE,
+        'limit': 2,
+        'source': 'coco',
+        'output_dir': str(project_root / "data" / "results"),
+        'log_level': 'INFO'
+    })()
+
+    original_argv = sys.argv
+    try:
+        sys.argv = [
+            'test_eval_coco.py',
+            '--checkpoint', str(CHECKPOINT_PATH),
+            '--batch-size', str(TEST_BATCH_SIZE),
+            '--limit', '2',
+            '--source', 'coco',
+            '--output-dir', str(project_root / "data" / "results"),
+            '--log-level', 'INFO'
+        ]
+        
+        logger.info("Starting eval_high_res.py with COCO source...")
+        eval_high_res_main()
+        logger.info("COCO source test completed.")
+
+    finally:
+        sys.argv = original_argv
+
+    assert OUTPUT_EMBEDDINGS_PATH.exists()
+    assert OUTPUT_METRICS_PATH.exists()

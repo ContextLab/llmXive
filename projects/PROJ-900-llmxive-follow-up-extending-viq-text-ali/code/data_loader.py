@@ -1,117 +1,147 @@
+"""
+Data Loader Module (T005).
+
+Implements streaming dataset loading for COCO and ImageNet.
+Explicitly excludes ChestX-ray14 per Plan Spec Amendments.
+Fails loudly if real data fetch fails.
+"""
 import os
 import logging
-from typing import Iterator, Dict, Any
+from typing import Iterator, Dict, Any, Optional, List
 import torch
 from torch.utils.data import DataLoader, Dataset
 from datasets import load_dataset
-from PIL import Image
-import torchvision.transforms as transforms
+from torchvision import transforms
+import PIL.Image as Image
 
-from config import Config
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class COCOStreamingDataset(Dataset):
     """
-    Wrapper for COCO dataset using streaming mode.
-    Resizes images to 64x64 as per T013/T005.
+    Wrapper for COCO streaming dataset to interface with PyTorch DataLoader.
+    Note: Streaming=True in datasets.load_dataset returns an iterable, not a map-style dataset.
+    This class is a placeholder for map-style access if needed, but we primarily use iterators.
     """
-    def __init__(self, config: Config, split: str = "train"):
-        self.config = config
+    def __init__(self, split="train"):
         self.split = split
-        self.transform = transforms.Compose([
-            transforms.Resize((config.dataset_limits.resolution, config.dataset_limits.resolution)),
-            transforms.ToTensor(),
-            # Normalize to [-1, 1] expected by model
-            transforms.Lambda(lambda x: x * 2.0 - 1.0)
-        ])
-        
-        logger.info(f"Initializing COCO streaming dataset (split={split})...")
+        logger.warning("COCOStreamingDataset is used for map-style fallback. Prefer get_coco_iterator.")
         try:
-            # T005 requirement: load_dataset("coco", streaming=True)
-            # Note: 'coco' in HuggingFace might require specific config or version.
-            # Using 'mscoco' or similar if 'coco' fails, but strictly following T005 instruction.
-            # If 'coco' is not a valid dataset ID on HF, this will raise an error.
-            # T005 says: datasets.load_dataset("coco", split="train", streaming=True)
-            # We assume 'coco' is the correct ID. If it fails, it fails loudly.
             self.dataset = load_dataset("coco", split=split, streaming=True)
         except Exception as e:
-            logger.error(f"Failed to load COCO dataset: {e}")
-            # Fail loudly as per constraints
-            raise RuntimeError(f"Real data fetch failed for COCO: {e}") from e
+            raise RuntimeError(f"Failed to load COCO dataset: {e}")
 
     def __len__(self):
-        # Streaming datasets don't have a known length, return a large number or None
-        # For DataLoader, we can iterate until StopIteration
-        return 1000000 # Approximate for iteration logic
+        # Unknown for streaming, return a large number or handle differently
+        return 10000 
 
     def __getitem__(self, idx):
-        # Since it's streaming, we can't index directly by int.
-        # We rely on the iterator in the DataLoader or manual iteration.
-        # This class structure is slightly incompatible with standard DataLoader __getitem__
-        # for streaming. We will implement the iterator in the get_dataloader function directly.
-        raise NotImplementedError("Use the iterator in get_dataloader for streaming.")
+        # Streaming datasets don't support random access by index efficiently
+        # This method is likely not used in the streaming pipeline
+        iterator = iter(self.dataset)
+        for _ in range(idx):
+            try:
+                next(iterator)
+            except StopIteration:
+                break
+        try:
+            return next(iterator)
+        except StopIteration:
+            raise IndexError("Index out of range for streaming dataset")
 
-def get_dataloader(config: Config, split: str = "train", streaming: bool = True) -> Iterator[Dict[str, Any]]:
+def get_dataloader(batch_size=8, split="train"):
     """
-    Returns an iterator over the dataset.
-    T005: COCO with streaming=True.
+    Create a DataLoader for COCO.
     """
-    logger.info(f"Creating dataloader for split={split}, streaming={streaming}")
-    
+    dataset = COCOStreamingDataset(split=split)
+    # Since it's streaming, we might need to wrap it or use the iterator directly
+    # For now, return a standard dataloader, but note that streaming behavior is special
+    return DataLoader(dataset, batch_size=batch_size, num_workers=0)
+
+def get_coco_iterator(split="train") -> Iterator[Dict[str, Any]]:
+    """
+    Returns an iterator for COCO dataset.
+    Loads real data from HuggingFace Hub.
+    Fails loudly if fetch fails.
+    """
+    logger.info("Initializing COCO streaming iterator...")
     try:
-        # T005: load_dataset("coco", split="train", streaming=True)
-        # We use the 'coco' dataset ID. If it's not available, it raises.
+        # Use streaming=True to avoid downloading full dataset to disk
         ds = load_dataset("coco", split=split, streaming=True)
+        # Map to ensure consistent output format
+        def transform_example(example):
+            # Ensure image is loaded if it's a path, or pass through if already loaded
+            if 'image' in example and example['image'] is not None:
+                if isinstance(example['image'], str):
+                    # If it's a path, load it (unlikely in streaming HF datasets usually they are loaded)
+                    example['image'] = Image.open(example['image']).convert('RGB')
+                elif hasattr(example['image'], 'load'):
+                    example['image'] = example['image'].convert('RGB')
+            return example
         
-        # Transform
-        transform = transforms.Compose([
-            transforms.Resize((config.dataset_limits.resolution, config.dataset_limits.resolution)),
-            transforms.ToTensor(),
-            transforms.Lambda(lambda x: x * 2.0 - 1.0)
-        ])
-
-        def process_batch(batch):
-            # Batch is a dict of lists or tensors
-            # 'image' is usually PIL images or paths
-            # 'caption' is text
-            processed_images = []
-            processed_captions = []
-            
-            images = batch['image']
-            captions = batch['caption']
-            
-            for img, cap in zip(images, captions):
-                if img is None:
-                    continue
-                # Ensure PIL Image
-                if not isinstance(img, Image.Image):
-                    try:
-                        img = Image.open(img).convert("RGB")
-                    except:
-                        continue
-                
-                processed_images.append(transform(img))
-                processed_captions.append(cap)
-            
-            if not processed_images:
-                return None
-                
-            return {
-                'image': torch.stack(processed_images),
-                'caption': processed_captions
-            }
-
-        # Return an iterator that yields processed batches
-        # We use a generator to handle streaming
-        def iter_dataset():
-            for batch in ds:
-                processed = process_batch(batch)
-                if processed is not None:
-                    yield processed
-
-        return iter_dataset()
-
+        return ds.map(transform_example)
     except Exception as e:
-        logger.error(f"Failed to fetch real data source (COCO): {e}")
-        raise RuntimeError(f"Real data fetch failed: {e}") from e
+        logger.error("CRITICAL: Failed to fetch real COCO data. Aborting.")
+        raise RuntimeError(f"Failed to fetch real COCO data: {e}")
+
+def get_imagenet_iterator(split="validation") -> Iterator[Dict[str, Any]]:
+    """
+    Returns an iterator for ImageNet-1K dataset.
+    Loads real data from HuggingFace Hub.
+    Fails loudly if fetch fails.
+    """
+    logger.info("Initializing ImageNet streaming iterator...")
+    try:
+        # ImageNet is large, use streaming
+        ds = load_dataset("imagenet-1k", split=split, streaming=True)
+        
+        def transform_example(example):
+            if 'image' in example and example['image'] is not None:
+                if isinstance(example['image'], str):
+                    example['image'] = Image.open(example['image']).convert('RGB')
+                elif hasattr(example['image'], 'load'):
+                    example['image'] = example['image'].convert('RGB')
+            return example
+
+        return ds.map(transform_example)
+    except Exception as e:
+        logger.error("CRITICAL: Failed to fetch real ImageNet data. Aborting.")
+        raise RuntimeError(f"Failed to fetch real ImageNet data: {e}")
+
+def main():
+    """
+    Entry point for testing data loading (T005).
+    """
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--download-only", action="store_true", help="Trigger download test.")
+    args = parser.parse_args()
+
+    logger.info("Testing data loaders...")
+    
+    # Test COCO
+    logger.info("Fetching COCO sample...")
+    coco_iter = get_coco_iterator()
+    try:
+        sample = next(iter(coco_iter))
+        logger.info(f"COCO sample loaded: keys={sample.keys()}, image type={type(sample.get('image'))}")
+    except StopIteration:
+        logger.warning("COCO dataset empty.")
+    except Exception as e:
+        raise RuntimeError(f"COCO fetch failed: {e}")
+
+    # Test ImageNet
+    logger.info("Fetching ImageNet sample...")
+    imagenet_iter = get_imagenet_iterator()
+    try:
+        sample = next(iter(imagenet_iter))
+        logger.info(f"ImageNet sample loaded: keys={sample.keys()}, image type={type(sample.get('image'))}")
+    except StopIteration:
+        logger.warning("ImageNet dataset empty.")
+    except Exception as e:
+        raise RuntimeError(f"ImageNet fetch failed: {e}")
+
+    logger.info("Data loader test passed.")
+
+if __name__ == "__main__":
+    main()
