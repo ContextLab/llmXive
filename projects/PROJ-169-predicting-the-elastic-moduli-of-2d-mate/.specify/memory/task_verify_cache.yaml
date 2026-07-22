@@ -1,3 +1,11 @@
+T008a:
+  c: false
+  h: 2944a4e112b8cae3fac654fac7dddf9f1f2646af01feff97aafeb3e3a7b14bdd
+  r: "The integration test file exists but its implementation is truncated and appears\
+    \ to \u201Csimulate\u201D pipeline processing rather than run the real T013d data\
+    \ loading pipeline, and it never creates the required `data/results/memory_test.log`.\
+    \ Consequently the test does not fulfill the memory\u2011usage verification or\
+    \ logging requirements."
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -6,13 +14,14 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
-T017:
+T018b:
   c: false
-  h: e894ef91677b94ed33386b75f94dccb055f29ddbb74b3fee902a5f80238ae170
-  r: "The repository contains a partially\u2011implemented `splitter.py`, but it does\
-    \ not include the required runtime assertion to abort on family overlap, nor does\
-    \ it write the resulting split to `data/processed/split_indices.json` (the file\
-    \ is missing). Consequently the task\u2019s core requirements are not fulfilled."
+  h: c4a4ba8816075f3c595347719656554eff6b1bbe1bbe1eeb7ddd961e00f17e49
+  r: "The `code/model/train.py` file is present but the visible portion does not show\
+    \ the required `tracemalloc` usage, CPU\u2011only enforcement, dynamic batch\u2011\
+    size reduction, or saving of `data/processed/model_v1.pt`. Moreover, the expected\
+    \ `data/processed/model_v1.pt` file is missing, and there is no evidence that\
+    \ a `predictions.json` file is generated. These core requirements are not satisfied."
 T018c:
   c: false
   h: 2188559b27a8f2bf6ff201e79ac6f3dc8adc021a4d4cd95d9f88c791411ffd49
@@ -57,13 +66,6 @@ T032:
     \ explicitly notes the model cannot extrapolate beyond the chemical space of the\
     \ training DFT data and that it does not discover new physics, satisfying the\
     \ task requirement."
-T036:
-  c: false
-  h: b59f2c4ff0cc6bb6f5967c2a27ccdf10cd71bdbbded5aa276129b16b4ebcaa7c
-  r: "The required output file `data/results/generalization_metrics.json` is missing,\
-    \ so the benchmark\u2019s results (including `inference_time_ms`, `cpu_model`,\
-    \ and the <\u202F100\u202Fms check) are not present. The implementation script\
-    \ exists, but without the generated JSON the task\u2019s deliverable is incomplete."
 T037:
   c: true
   h: 2c1ab07af4267b954220c7215969bc55d6b0ce589b1bede676ad5c9e4007c726
