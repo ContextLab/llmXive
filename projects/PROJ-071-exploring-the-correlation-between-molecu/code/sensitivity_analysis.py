@@ -1,25 +1,15 @@
 """
-Sensitivity Analysis Module.
+Sensitivity Analysis Module for PROJ-071.
 
-NOTE: This task (T022a) was originally marked as "Removed" in tasks.md because the 
-project plan stated "No synthetic data will be generated for hypothesis testing".
+This module implements sensitivity analysis using bootstrap resampling on correlation
+coefficients to assess the stability of the relationship between molecular complexity
+and degradation rates.
 
-However, the verifier rejected this reasoning, stating that a tangible artifact 
-documenting the methodology and execution of sensitivity analysis (or a formal 
-rejection with evidence) is required.
-
-This module implements a "Sensitivity Analysis" that:
-1. Loads the REAL processed data from the pipeline (data/processed/merged_drugs.csv).
-2. Performs a robustness check by re-running the correlation analysis on 
-   bootstrapped subsets of the REAL data (no synthetic generation).
-3. Documents the stability of the correlation coefficients (TPSA vs Half-Life) 
-   across these real-data subsets.
-4. Saves the results to data/output/sensitivity_analysis_results.json.
-
-This satisfies the requirement for a sensitivity analysis artifact without 
-violating the "no synthetic data" constraint, as all data used is real and 
-sourced from the pipeline's processed output.
+Note: While LASSO with K-fold CV (T024) addresses model stability, this module
+provides a complementary non-parametric sensitivity check on the correlation metrics
+themselves.
 """
+
 import os
 import sys
 import json
@@ -27,215 +17,239 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from scipy import stats
-import importlib.metadata
 
-# Add parent directory to path for imports if running as script
-if __package__ is None:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-else:
-    from code import logging_config
-from code.logging_config import get_logger, setup_logging
+from config import get_config
+from logging_config import get_logger
 
-# Configure logging
+# Ensure project root is in path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 logger = get_logger(__name__)
 
-def get_data_path(filename: str) -> Path:
-    """Construct path to data file relative to project root."""
-    # Assuming standard project structure: code/sensitivity_analysis.py
-    # Root is two levels up
-    root = Path(__file__).parent.parent
-    return root / "data" / "processed" / filename
+def get_data_path() -> Path:
+    """Return the path to the processed standard subset."""
+    config = get_config()
+    return Path(config["data_dir"]) / "processed" / "standard_subset.csv"
 
-def load_processed_data(filepath: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load the merged dataset from the pipeline.
+def load_processed_data() -> Optional[pd.DataFrame]:
+    """Load the standard subset data required for sensitivity analysis."""
+    data_path = get_data_path()
+    if not data_path.exists():
+        logger.error(f"Standard subset not found at {data_path}. "
+                     "Please ensure T021 (standardize.py) has run successfully.")
+        return None
     
-    Args:
-        filepath: Path to the CSV file. Defaults to data/processed/merged_drugs.csv.
-        
-    Returns:
-        DataFrame with molecule data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-    """
-    if filepath is None:
-        filepath = get_data_path("merged_drugs.csv")
-        
-    if not filepath.exists():
-        raise FileNotFoundError(
-            f"Processed data file not found at {filepath}. "
-            "Please run the ingestion pipeline (T017) first."
-        )
-        
-    logger.info(f"Loading processed data from {filepath}")
-    df = pd.read_csv(filepath)
-    
-    # Ensure required columns exist
-    required_cols = ['smiles', 'half_life_hours', 'TPSA']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in processed data: {missing}")
-        
-    # Filter out rows with NaN in key columns
-    initial_count = len(df)
-    df = df.dropna(subset=required_cols)
-    dropped = initial_count - len(df)
-    if dropped > 0:
-        logger.warning(f"Dropped {dropped} rows with missing values in key columns.")
-        
-    return df
+    try:
+        df = pd.read_csv(data_path)
+        logger.info(f"Loaded {len(df)} records from {data_path}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        return None
 
 def bootstrap_correlation(
-    df: pd.DataFrame,
-    x_col: str = 'TPSA',
-    y_col: str = 'half_life_hours',
-    n_iterations: int = 1000,
-    sample_fraction: float = 0.8,
+    x: np.ndarray, 
+    y: np.ndarray, 
+    n_bootstrap: int = 1000, 
     random_seed: int = 42
-) -> Dict[str, Any]:
+) -> Dict[str, float]:
     """
-    Perform bootstrap sensitivity analysis on the correlation between x and y.
-    
-    This resamples the REAL data with replacement to estimate the stability
-    of the correlation coefficient.
-    
+    Perform bootstrap resampling to estimate the stability of Pearson correlation.
+
     Args:
-        df: Input DataFrame.
-        x_col: Name of the independent variable column.
-        y_col: Name of the dependent variable column.
-        n_iterations: Number of bootstrap iterations.
-        sample_fraction: Fraction of data to sample in each iteration.
-        random_seed: Random seed for reproducibility.
-        
+        x: First variable array (e.g., TPSA)
+        y: Second variable array (e.g., half_life)
+        n_bootstrap: Number of bootstrap samples
+        random_seed: Random seed for reproducibility
+
     Returns:
-        Dictionary containing correlation statistics.
+        Dictionary containing:
+            - original_r: Original Pearson correlation
+            - original_p: Original p-value
+            - bootstrap_mean: Mean correlation from bootstrap
+            - bootstrap_std: Standard deviation of bootstrap correlations
+            - bootstrap_ci_lower: Lower bound of 95% CI
+            - bootstrap_ci_upper: Upper bound of 95% CI
     """
-    logger.info(f"Starting bootstrap sensitivity analysis ({n_iterations} iterations)...")
+    if len(x) != len(y) or len(x) < 2:
+        raise ValueError("Input arrays must have same length >= 2")
     
     rng = np.random.default_rng(random_seed)
-    n = len(df)
-    sample_size = int(n * sample_fraction)
-    
-    correlations = []
-    p_values = []
-    
-    for i in range(n_iterations):
+    n = len(x)
+    bootstrap_r = []
+
+    # Calculate original correlation
+    orig_r, orig_p = stats.pearsonr(x, y)
+
+    for _ in range(n_bootstrap):
         # Resample with replacement
-        indices = rng.choice(n, size=sample_size, replace=True)
-        sample = df.iloc[indices]
-        
-        # Calculate Pearson correlation
-        corr, p_val = stats.pearsonr(sample[x_col], sample[y_col])
-        correlations.append(corr)
-        p_values.append(p_val)
-    
-    correlations = np.array(correlations)
-    p_values = np.array(p_values)
-    
-    # Calculate statistics
-    mean_corr = np.mean(correlations)
-    std_corr = np.std(correlations)
-    ci_lower = np.percentile(correlations, 2.5)
-    ci_upper = np.percentile(correlations, 97.5)
-    
-    # Check stability
-    # If the 95% CI does not include 0, the correlation is stable
-    is_significant = (ci_lower > 0) or (ci_upper < 0)
-    
-    # Calculate coefficient of variation for stability metric
-    cv = std_corr / abs(mean_corr) if mean_corr != 0 else float('inf')
-    
+        indices = rng.choice(n, size=n, replace=True)
+        x_boot = x[indices]
+        y_boot = y[indices]
+
+        # Handle constant resampled data
+        if np.std(x_boot) == 0 or np.std(y_boot) == 0:
+            continue
+
+        r_boot, _ = stats.pearsonr(x_boot, y_boot)
+        bootstrap_r.append(r_boot)
+
+    if not bootstrap_r:
+        logger.warning("All bootstrap samples resulted in constant data. "
+                       "Returning original stats only.")
+        return {
+            "original_r": float(orig_r),
+            "original_p": float(orig_p),
+            "bootstrap_mean": float(orig_r),
+            "bootstrap_std": 0.0,
+            "bootstrap_ci_lower": float(orig_r),
+            "bootstrap_ci_upper": float(orig_r)
+        }
+
+    bootstrap_r = np.array(bootstrap_r)
+    ci_lower = np.percentile(bootstrap_r, 2.5)
+    ci_upper = np.percentile(bootstrap_r, 97.5)
+
     return {
-        "mean_correlation": float(mean_corr),
-        "std_correlation": float(std_corr),
-        "ci_95_lower": float(ci_lower),
-        "ci_95_upper": float(ci_upper),
-        "is_significant": bool(is_significant),
-        "coefficient_of_variation": float(cv),
-        "iterations": n_iterations,
-        "sample_fraction": sample_fraction,
-        "original_n": n,
-        "bootstrap_n": sample_size
+        "original_r": float(orig_r),
+        "original_p": float(orig_p),
+        "bootstrap_mean": float(np.mean(bootstrap_r)),
+        "bootstrap_std": float(np.std(bootstrap_r)),
+        "bootstrap_ci_lower": float(ci_lower),
+        "bootstrap_ci_upper": float(ci_upper)
     }
 
 def run_sensitivity_analysis(
-    data_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
-    n_iterations: int = 1000
+    df: pd.DataFrame,
+    features: List[str],
+    target: str,
+    n_bootstrap: int = 1000,
+    output_dir: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Main entry point for sensitivity analysis.
-    
+    Run full sensitivity analysis on specified features against target.
+
     Args:
-        data_path: Path to processed data CSV.
-        output_dir: Directory to save results.
-        n_iterations: Number of bootstrap iterations.
-        
+        df: DataFrame containing the data
+        features: List of feature column names
+        target: Target column name
+        n_bootstrap: Number of bootstrap iterations
+        output_dir: Directory to save results (defaults to data/output)
+
     Returns:
-        Results dictionary.
+        Dictionary containing analysis results for all features
     """
     if output_dir is None:
-        output_dir = Path(__file__).parent.parent / "data" / "output"
-        
+        config = get_config()
+        output_dir = Path(config["data_dir"]) / "output"
+    
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    try:
-        df = load_processed_data(data_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        return {"status": "failed", "error": str(e)}
-        
-    logger.info(f"Loaded {len(df)} records for sensitivity analysis.")
-    
-    # Run bootstrap analysis
-    results = bootstrap_correlation(df, n_iterations=n_iterations)
-    
-    # Add metadata
-    results["metadata"] = {
-        "method": "Bootstrap Resampling",
-        "data_source": str(data_path) if data_path else "data/processed/merged_drugs.csv",
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "variables": {"x": "TPSA", "y": "half_life_hours"},
-        "software": {
-            "python": sys.version.split()[0],
-            "numpy": importlib.metadata.version("numpy"),
-            "pandas": importlib.metadata.version("pandas"),
-            "scipy": importlib.metadata.version("scipy")
-        }
+    results_file = output_dir / "sensitivity_analysis_results.json"
+
+    results = {
+        "metadata": {
+            "n_samples": len(df),
+            "n_bootstrap": n_bootstrap,
+            "target_variable": target,
+            "features_analyzed": features
+        },
+        "feature_stability": {}
     }
-    
+
+    logger.info(f"Starting sensitivity analysis for {len(features)} features...")
+
+    for feature in features:
+        if feature not in df.columns or target not in df.columns:
+            logger.warning(f"Skipping {feature}: column not found.")
+            continue
+
+        x = df[feature].dropna().values
+        y = df[target].dropna().values
+
+        # Align indices after dropna
+        valid_mask = ~df[feature].isna() & ~df[target].isna()
+        x = df.loc[valid_mask, feature].values
+        y = df.loc[valid_mask, target].values
+
+        if len(x) < 10:
+            logger.warning(f"Skipping {feature}: insufficient valid pairs ({len(x)})")
+            continue
+
+        try:
+            stability_metrics = bootstrap_correlation(x, y, n_bootstrap)
+            results["feature_stability"][feature] = stability_metrics
+            logger.info(f"Completed analysis for {feature}: "
+                        f"mean={stability_metrics['bootstrap_mean']:.3f}, "
+                        f"std={stability_metrics['bootstrap_std']:.3f}")
+        except Exception as e:
+            logger.error(f"Failed to compute bootstrap for {feature}: {e}")
+            results["feature_stability"][feature] = {"error": str(e)}
+
     # Save results
-    output_file = output_dir / "sensitivity_analysis_results.json"
-    with open(output_file, 'w') as f:
+    with open(results_file, 'w') as f:
         json.dump(results, f, indent=2)
-        
-    logger.info(f"Sensitivity analysis results saved to {output_file}")
     
-    # Log summary
-    logger.info(f"Bootstrap Mean Correlation: {results['mean_correlation']:.4f} (+/- {results['std_correlation']:.4f})")
-    logger.info(f"95% CI: [{results['ci_95_lower']:.4f}, {results['ci_95_upper']:.4f}]")
-    logger.info(f"Stability (Significant): {results['is_significant']}")
-    
+    logger.info(f"Sensitivity analysis results saved to {results_file}")
     return results
 
 def main():
-    """CLI entry point."""
-    setup_logging()
+    """Entry point for running sensitivity analysis."""
     logger.info("Starting Sensitivity Analysis (T022a)...")
     
-    # Parse arguments if needed, for now use defaults
-    results = run_sensitivity_analysis(n_iterations=1000)
-    
-    if results.get("status") == "failed":
-        logger.error("Sensitivity analysis failed.")
+    # Load data
+    df = load_processed_data()
+    if df is None:
+        logger.error("Data loading failed. Aborting sensitivity analysis.")
         sys.exit(1)
-        
-    logger.info("Sensitivity analysis completed successfully.")
-    return 0
+
+    # Define features based on T014 descriptors
+    # We assume the standard_subset.csv contains these columns
+    potential_features = [
+        'tpsa', 'rotatable_bonds', 'molecular_weight', 
+        'aromatic_rings', 'wiener_index', 'zagreb_index'
+    ]
+    
+    # Filter to only available columns
+    available_features = [f for f in potential_features if f in df.columns]
+    
+    if not available_features:
+        logger.error("No descriptor features found in standard_subset.csv.")
+        logger.info(f"Available columns: {list(df.columns)}")
+        sys.exit(1)
+
+    target = 'half_life_hours'
+    if target not in df.columns:
+        # Fallback check for common naming
+        if 'half_life' in df.columns:
+            target = 'half_life'
+        else:
+            logger.error(f"Target variable '{target}' not found in columns.")
+            sys.exit(1)
+
+    # Run analysis
+    results = run_sensitivity_analysis(
+        df, 
+        available_features, 
+        target, 
+        n_bootstrap=1000
+    )
+
+    # Summary logging
+    logger.info("Sensitivity Analysis Summary:")
+    for feature, metrics in results.get("feature_stability", {}).items():
+        if "error" in metrics:
+            logger.warning(f"  {feature}: ERROR - {metrics['error']}")
+        else:
+            logger.info(f"  {feature}: r={metrics['original_r']:.3f}, "
+                        f"ci=[{metrics['bootstrap_ci_lower']:.3f}, "
+                        f"{metrics['bootstrap_ci_upper']:.3f}]")
+
+    logger.info("Sensitivity Analysis (T022a) completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

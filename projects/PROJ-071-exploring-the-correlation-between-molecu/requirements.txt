@@ -1,23 +1,15 @@
-# Core Data Science & Chemistry
-rdkit>=2023.9.5
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-scipy>=1.11.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-pyyaml>=6.0
-requests>=2.31.0
-
-# Data Loading
-datasets>=2.14.0
-
-# Testing & Quality
-pytest>=7.4.0
-pytest-cov>=4.1.0
-ruff>=0.1.0
-black>=23.0.0
-
-# Utilities
-pydantic>=2.0.0
-tqdm>=4.65.0
+# Project Dependencies for PROJ-071
+# Generated/Updated for T055a
+rdkit
+pandas
+scikit-learn
+numpy
+matplotlib
+seaborn
+pyyaml
+requests
+datasets
+pydantic
+pytest
+# Additional for T055a (standard lib only mostly, but ensuring deps for pipeline)
+# No new dependencies added for T055a specifically, as it uses standard lib and existing pipeline deps.

@@ -359,3 +359,534 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T14:29:48Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: "TPSA of Aspirin is 63.6 \xC5\xB2"
+  claim_id: c_e650f63f
+  context: "Unit test for TPSA in tests/test_descriptors.py. Function: test_tpsa_aspirin.\
+    \ Assertion: Calculated TPSA for Aspirin is 63.6 \xC5\xB2 within 1e-4."
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Calculated TPSA for Aspirin is 63.6 \xC5\xB2 within 1e-4."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:23:07Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Rotatable Bond Count of Aspirin is 3
+  claim_id: c_53514ffe
+  context: 'Unit test for Rotatable Bond Count in tests/test_descriptors.py. Function:
+    test_rotatable_bonds_aspirin. Assertion: Calculated Rotatable Bond Count for Aspirin
+    is exactly 3 (as derived from RDKit''s CalcNumRotatableBonds).'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculated Rotatable Bond Count for Aspirin is exactly 3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:23:07Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Molecular Weight of Aspirin is 180.16 g/mol
+  claim_id: c_2c3c0dbd
+  context: 'Unit test for Molecular Weight in tests/test_descriptors.py. Function:
+    test_mw_aspirin. Assertion: Calculated MW for Aspirin is 180.16 g/mol within 1e-4.'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculated MW for Aspirin is 180.16 g/mol within 1e-4.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:23:08Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Aromatic Ring Count of Aspirin is 1
+  claim_id: c_e3019f70
+  context: 'Unit test for Aromatic Ring Count in tests/test_descriptors.py. Function:
+    test_aromatic_rings_aspirin. Assertion: The Aromatic Ring Count for Aspirin is
+    exactly 1 (consistent with RDKit''s CalcNumAromaticRings).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Aromatic Ring Count for Aspirin is exactly 1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:23:08Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 0
+  canonical: Aspirin aromatic ring count is 1
+  claim_id: c_8eea1bc0
+  context: 'Unit test for Aromatic Ring Count in tests/test_descriptors.py. Function:
+    test_aromatic_rings_aspirin.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Aromatic Ring Count for Aspirin is exactly 1 (consistent with RDKit's
+    CalcNumAromaticRings).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:26:39Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Aspirin rotatable bond count is 3
+  claim_id: c_04f6b116
+  context: 'Unit test for Rotatable Bond Count in tests/test_descriptors.py. Function:
+    test_rotatable_bonds_aspirin.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Rotatable Bond Count for Aspirin is exactly 3 (as derived from
+    RDKit's CalcNumRotatableBonds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:27:02Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: t1_2 for k=0.01 is 69.31 hours
+  claim_id: c_7ddd4e6f
+  context: 'Unit test for unit conversion logic in tests/test_standardize.py. Function:
+    test_k_to_half_life_conversion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: t1_2 = ln(2)/0.01 equals 69.31 hours within 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:27:02Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time threshold is 21600 seconds
+  claim_id: c_39dee2ea
+  context: Validate pipeline execution time against a defined operational threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Threshold: 21600 seconds (6 hours).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:27:20Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO K-fold dynamic K calculation is min(5, max(2, n//5))
+  claim_id: c_baa468cd
+  context: Implement LASSO regression with dynamic K-fold cross-validation in code/analysis.py.
+  evidence:
+    entailment_evidence: LASSO K-fold dynamic K calculation is min(5, max(2, n//5))
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/LASSO_K-fold_dynamic_K_calculation_is_min(5,_max(2,_n//5))
+  kind: magnitude
+  raw_text: Determine K as a bounded function of n to ensure K is at most a constant
+    fraction of n (e.g., min(5, max(2, n//5))).
+  resolved_value: LASSO K-fold dynamic K calculation is min(5, max(2, n//5))
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:27:22Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO alpha parameter grid is [0.01, 0.1, 1.0]
+  claim_id: c_88ee8971
+  context: Implement LASSO regression with dynamic K-fold cross-validation in code/analysis.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use GridSearchCV with param_grid={''alpha'': [0.01, 0.1, 1.0]} to select
+    the optimal alpha parameter.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:27:39Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 0
+  canonical: Rotatable Bond Count for Aspirin is 3
+  claim_id: c_4f291154
+  context: 'Unit test for Rotatable Bond Count in tests/test_descriptors.py. Function:
+    test_rotatable_bonds_aspirin. Assertion: Calculated Rotatable Bond Count for Aspirin
+    is exactly 3 (as derived from RDKit''s CalcNumRotatableBonds).'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculated Rotatable Bond Count for Aspirin is exactly 3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:30:03Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 0
+  canonical: Aromatic Ring Count for Aspirin is 1
+  claim_id: c_1866241b
+  context: 'Unit test for Aromatic Ring Count in tests/test_descriptors.py. Function:
+    test_aromatic_rings_aspirin. Assertion: The Aromatic Ring Count for Aspirin is
+    exactly 1 (consistent with RDKit''s CalcNumAromaticRings).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Aromatic Ring Count for Aspirin is exactly 1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:30:03Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Synthyra/FDA-Approved-Drugs dataset contains expected degradation columns
+  claim_id: c_be8f8922
+  context: Run code/ingest.py in isolation to confirm that Synthyra/FDA-Approved-Drugs
+    is accessible via streaming=True and that the dataset contains the expected degradation
+    columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthyra/FDA-Approved-Drugs_dataset_contains_expected_degrad
+  kind: entity_fact
+  raw_text: The dataset contains the expected degradation columns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:30:28Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Half-life calculation for rate constant 0.01 is 69.31 hours
+  claim_id: c_d3403a5f
+  context: 'Unit test for unit conversion logic in tests/test_standardize.py. Function:
+    test_k_to_half_life_conversion. Assertion: t1_2 = ln(2)/0.01 equals 69.31 hours
+    within 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: t1_2 = ln(2)/0.01 equals 69.31 hours within 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:30:29Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Data Availability Gate requires N greater than or equal to 30
+  claim_id: c_3b2b1cd0
+  context: 'Implement Data Availability Gate in code/ingest.py: If degradation data
+    missing or N < 30, generate data_insufficiency_report.md, log the gate status
+    (N count, Pass/Fail) to data/gate_status.json, and exit.'
+  evidence:
+    entailment_evidence: Data Availability Gate requires N greater than or equal to
+      3
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Data_Availability_Gate_requires_N_greater_than_or_equal_to_3
+  kind: magnitude
+  raw_text: Data Availability Gate requires N >= 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-22T11:31:26Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO regression alpha parameter grid is 0.01, 0.1, 1.0
+  claim_id: c_8fa4f710
+  context: 'Use GridSearchCV with param_grid={''alpha'': [0.01, 0.1, 1.0]} to select
+    the optimal alpha parameter.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO regression alpha parameter grid is [0.01, 0.1, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:31:48Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO dynamic K-fold calculation is min(5, max(2, n//5))
+  claim_id: c_78fe07b7
+  context: Implement LASSO regression with dynamic K-fold cross-validation in code/analysis.py.
+    Determine K as a bounded function of n to ensure K is at most a constant fraction
+    of n (e.g., min(5, max(2, n//5))).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dynamic K-fold cross-validation K is calculated as min(5, max(2, n//5)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:33:28Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Regression requires N greater than or equal to 3 samples
+  claim_id: c_c3d7ccb0
+  context: 'Refactor code/analysis.py to explicitly handle the case where the standard_subset
+    has fewer than 3 samples (N < 3) after stratification. Action: If N < 3, log a
+    ''Data Insufficiency for Regression'' warning and generate data/insufficiency_regression_report.md.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_requires_N_greater_than_or_equal_to_3_samples
+  kind: magnitude
+  raw_text: Regression requires at least 3 samples (N >= 3) to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:34:27Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Standard conditions are 25 degrees Celsius and pH 7.4
+  claim_id: c_bd3aba92
+  context: "Filter for 'Standard' conditions (25\xB0C, pH 7.4) to create the standard_subset."
+  evidence:
+    asserted: '25.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Standard conditions are 25\xB0C and pH 7.4."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:34:27Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 0
+  canonical: Aspirin rotatable bond count is 3
+  claim_id: c_d0a1bf34
+  context: 'Unit test for Rotatable Bond Count in tests/test_descriptors.py. Function:
+    test_rotatable_bonds_aspirin. Assertion: Calculated Rotatable Bond Count for Aspirin
+    is exactly 3 (as derived from RDKit''s CalcNumRotatableBonds).'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculated Rotatable Bond Count for Aspirin is exactly 3
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:34:46Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 0
+  canonical: Aspirin aromatic ring count is 1
+  claim_id: c_8ef11a1c
+  context: 'Unit test for Aromatic Ring Count in tests/test_descriptors.py. Function:
+    test_aromatic_rings_aspirin. Assertion: The Aromatic Ring Count for Aspirin is
+    exactly 1 (consistent with RDKit''s CalcNumAromaticRings).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Aromatic Ring Count for Aspirin is exactly 1
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T11:34:46Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 2
+  canonical: Half-life calculation for rate constant 0.01 equals 69.31 hours
+  claim_id: c_7c3546bf
+  context: 'Unit test for unit conversion logic in tests/test_standardize.py. Function:
+    test_k_to_half_life_conversion. Assertion: t1_2 = ln(2)/0.01 equals 69.31 hours
+    within 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: t1_2 = ln(2)/0.01 equals 69.31 hours within 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:34:47Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 2
+  canonical: Pipeline execution time threshold is 21600 seconds
+  claim_id: c_f555eb27
+  context: 'Validate pipeline execution time against a defined operational threshold.
+    Threshold: 21600 seconds (6 hours). Action: If data/output/pipeline_metrics.json
+    is missing, malformed, or total_duration_seconds > 21600, FAIL the task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for pipeline execution time is 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:34:47Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Data Availability Gate minimum sample size is 30
+  claim_id: c_9a0f2cfa
+  context: 'Implement Data Availability Gate in code/ingest.py: If degradation data
+    missing or N < 30, generate data_insufficiency_report.md, log the gate status
+    (N count, Pass/Fail) to data/gate_status.json, and exit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data Availability Gate requires N >= 30 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:35:13Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO alpha parameter grid values are 0.01, 0.1, 1.0
+  claim_id: c_c86f7937
+  context: 'Implement LASSO regression with dynamic K-fold cross-validation in code/analysis.py.
+    Use GridSearchCV with param_grid={''alpha'': [0.01, 0.1, 1.0]} to select the optimal
+    alpha parameter.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO regression alpha parameter grid is [0.01, 0.1, 1.0]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:35:13Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO model R squared threshold is 0.4
+  claim_id: c_327e7a32
+  context: "Critical Validation: After selecting the best alpha, explicitly check\
+    \ if the resulting model meets pre-defined thresholds (|r| \u2265 0.5, p < 0.05,\
+    \ R^2 \u2265 0.4)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "LASSO model R\xB2 threshold is \u2265 0.4"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:35:13Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: LASSO K-fold value formula is min(5, max(2, n//5))
+  claim_id: c_ad7af077
+  context: Implement LASSO regression with dynamic K-fold cross-validation in code/analysis.py.
+    Determine K as a bounded function of n to ensure K is at most a constant fraction
+    of n (e.g., min(5, max(2, n//5))).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dynamic K-fold cross-validation uses K = min(5, max(2, n//5))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:36:00Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: Regression minimum sample size is 3
+  claim_id: c_220fb4c9
+  context: 'Refactor code/analysis.py to explicitly handle the case where the standard_subset
+    has fewer than 3 samples (N < 3) after stratification. Action: If N < 3, log a
+    ''Data Insufficiency for Regression'' warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_minimum_sample_size_is_3
+  kind: magnitude
+  raw_text: Regression fails if standard_subset has fewer than 3 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T11:36:36Z'

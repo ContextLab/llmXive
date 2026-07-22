@@ -4,6 +4,13 @@ T017:
   r: "The required `data/processed/merged_drugs.csv` file does not exist, and `data/checksums.txt`\
     \ contains only placeholder comments rather than actual SHA256 checksums of generated\
     \ artifacts. Both required outputs are missing or non\u2011functional."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a textual claim that the LASSO regression with\
+    \ K\u2011fold CV (FR\u2011005) satisfies the sensitivity analysis requirement,\
+    \ but no actual artifact (code, results, plots, or report) was supplied. Without\
+    \ concrete evidence of a completed sensitivity analysis, the task remains unfulfilled."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,10 +32,69 @@ T042:
     \ time, defines the operational threshold, or demonstrates validation against\
     \ that threshold. Consequently the requirement to \u201CValidate pipeline execution\
     \ time against a defined operational threshold\u201D is not satisfied."
-T046:
+T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or documentation artifact was provided for the \u201CSeparate\
-    \ `scipy` fallback\u201D task, and the claim that the logic was merged into T025\
-    \ is not substantiated with any tangible evidence. Consequently, the required\
-    \ implementation is missing."
+  r: "The implementer provided no code, data files, or documentation showing that\
+    \ the FDA\u2011approved structures were fetched from the HuggingFace dataset,\
+    \ nor any verification of degradation data. Consequently none of the required\
+    \ functional artifacts (data retrieval, metric calculations, or reproducibility\
+    \ logs) are present. The task remains undone."
+T053#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, logs, or documentation were provided showing that the HuggingFace dataset
+    `Synthyra/FDA-Approved-Drugs` was fetched or that its schema was verified before
+    ingestion, as required by the moved Data Source Verification task. Consequently,
+    the required artifact (schema verification evidence) is missing.
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, analysis scripts, plots, or reproducibility report are\
+    \ present. The required steps\u2014fetching the HuggingFace dataset, computing\
+    \ molecular complexity metrics, enforcing the N\u202F\u2265\u202F30 gate, performing\
+    \ multiple linear and LASSO regressions with cross\u2011validation, generating\
+    \ diagnostic plots, and logging metadata\u2014are not evidenced. The implementer\u2019\
+    s note that the task was \u201Cremoved\u201D does not satisfy any of the functional\
+    \ requirements."
+T054#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, analysis results, or reproducibility report were provided; the\
+    \ required regression stability test (T054a) using real FDA\u2011approved drug\
+    \ data, calculations, and diagnostics are absent. The implementer\u2019s claim\
+    \ cannot be verified without any tangible artifacts."
+T055:
+  c: false
+  h: 43192eae1b413abc276636617cb3d8bae13acd468ac5142feb60c2cca153241e
+  r: "The evidence shows that `data/processed/merged_drugs.csv` and `data/processed/analysis_results.json`\
+    \ do not exist, and there is no indication that `results_report.md` or `reproducibility_log.json`\
+    \ were created. Therefore the required output files are missing, so the smoke\u2011\
+    test success criteria are not met."
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No data files, code, analysis results, plots, or reproducibility report are present.
+    The required artifacts (dataset fetch, calculated molecular metrics, regression
+    analyses, diagnostics, and metadata logging) are missing, so the task is not satisfied.
+T056#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, analysis results, diagnostic plots, or reproducibility report
+    were provided; the implementer only gave a textual note about task removal. Consequently,
+    none of the functional requirements (data fetching, metric calculation, regression
+    analyses, diagnostics, or logging) can be verified as completed. The missing artifacts
+    must be supplied for the task to be considered complete.
+T056a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, log file, or execution output is present to show that SHA256 hashes
+    from `reproducibility_log.json` were compared against the actual `data/` files,
+    nor any indication that mismatches would cause a task failure. The required artifact
+    (the reproducibility audit script and its results) is missing.
+T057:
+  c: false
+  h: 3ed7fae82c4a704c6d35c24441a27b6a9782a428160dac8f28d3b3a1b6ea5883
+  r: The required artifact `data/gate_status.json` does not exist, so the gate outcome
+    cannot be verified and the branching logic cannot be confirmed. The task therefore
+    lacks the essential output.

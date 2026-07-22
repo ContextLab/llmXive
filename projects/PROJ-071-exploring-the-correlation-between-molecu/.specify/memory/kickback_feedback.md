@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T022a` (rejected 1x): The implementer provided only a textual statement that the sensitivity‑analysis task was “removed/rejected” and supplied no code, data, plots, or report implementing or documenting any sensitivity analysis. Since the required artifact (e.g., analysis results or methodology) is missing, the task is not genuinely satisfied.
+- `T046` (rejected 1x): No code, data, or documentation artifact was provided for the “Separate `scipy` fallback” task, and the claim that the logic was merged into T025 is not substantiated with any tangible evidence. Consequently, the required implementation is missing.
 
 ## Required change
 
