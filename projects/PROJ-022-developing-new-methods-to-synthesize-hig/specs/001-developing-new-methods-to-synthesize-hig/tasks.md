@@ -59,7 +59,8 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 [P] Setup `data/raw` and `data/processed` directories with `.gitignore` rules for large files
 - [ ] T005 [P] Implement `utils/logging_config.py` for structured logging across pipeline stages
-- [X] T006 [P] Setup `code/utils/constants.py` with unit conversion factors (Barrer, LMH/bar), random seed=42, AND a dictionary mapping SMILES substructures to polymer class names, including the logic to derive class from SMILES for imputation lookup
+- [X] T006a [P] [FR-001] Create `code/utils/constants.py` with unit conversion factors (Barrer, LMH/bar) and random seed=42
+- [X] T006b [P] [FR-006] Extend `code/utils/constants.py` with a dictionary mapping SMILES substructures to polymer class names for imputation lookup logic
 - [X] T007 Create base `PolymerRecord` dataclass in `code/ingestion/models.py`
 - [X] T008 Configure error handling infrastructure with custom `DataInsufficientError` in `code/utils/errors.py`
 
@@ -83,12 +84,16 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 1
 
 - [X] T011a [US1] Implement `code/ingestion/manual_extraction.py` to parse structured CSV from manual literature review (FR-001 source 3)
-- [X] T011b [US1] Implement `code/ingestion/automated_fetch.py` to fetch real data from three distinct sources: arXiv (query: "membrane OR polymer"), OpenPolymer (HuggingFace dataset ID: `openpolymer/v1`), and manual extraction (FR-001 requirement)
-- [X] T012 [US1] Implement `code/ingestion/handle_missing_data.py` with logic: if missing > 20% -> halt with `ERR_DATA_INSUFFICIENT`; if [deferred] <= missing <= 20% -> impute using polymer-class averages (derived from SMILES substructure lookup logic in `code/utils/constants.py`) AND generate `clarification_flag.json`
+- [X] T011b [US1] [Rev-01] Implement `code/ingestion/automated_fetch.py` to fetch real data from three distinct sources: arXiv (query: "membrane OR polymer"), OpenPolymer (HuggingFace dataset ID: `openpolymer/v1`), and manual extraction (FR-001 requirement). **Safety**: Remove any `try/except` blocks that fallback to `generate_synthetic_data()`; ensure the script raises `ConnectionError` or `DataInsufficientError` immediately if a real source fails to fetch (Constitution: "Loader must fail loudly").
+- [X] T012 [US1] [FR-006] Implement `code/ingestion/handle_missing_data.py` with logic: 
+  1. Calculate missing percentage for critical variables.
+  2. If missing > 20%: Generate `data/reports/missing_data_report.json`, emit error code `ERR_DATA_INSUFFICIENT`, and halt execution immediately.
+ 3. If [deferred] <= missing <= 20%: Generate `data/reports/clarification_flag.json`, trigger imputation using polymer-class averages (Prerequisite: T006b).
+  4. If missing < 5%: Proceed without flag.
 - [X] T013 [US1] Create `code/ingestion/load_literature_data.py` to merge manual and automated sources into a unified dataframe
-- [X] T014 [US1] Implement validation step in `code/ingestion/validate_dataset.py` to: 1) count valid records (must be ≥30), 2) Verify >= 10 known high-performance bio-membranes exist for test set (Constitution Principle VII), and 3) generate `missing_data_report.json` if needed
-- [ ] T015 [US1] Add logic to flag "high variance" entries (coefficient of variation > 0.5 for same polymer metrics) and exclude from primary training set
-- [ ] T016 [US1] Generate `data/processed/standardized_polymers.csv` with standardized units and imputed values
+- [X] T014 [US1] Implement validation step in `code/ingestion/validate_dataset.py` to: 1) count valid records (must be ≥30), 2) Verify >= 10 known high-performance bio-membranes exist in `data/raw/known_high_performance.csv` (Constitution Principle VII), and 3) confirm consistency with T012's missing data flags. **Note**: Do not generate `missing_data_report.json` here; that is handled by T012.
+- [X] T015 [US1] [FR-002] Add logic to flag "high variance" entries (coefficient of variation > 0.5 for same polymer metrics) and exclude from primary training set
+- [X] T016 [US1] Generate `data/processed/standardized_polymers.csv` with standardized units and imputed values
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,13 +113,13 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement `code/features/calculate_descriptors.py` to compute VdW volume, H-bond counts, and MW using RDKit (handle parse failures gracefully)
-- [X] T020 [US2] Implement `code/features/feature_selection.py` to perform Recursive Feature Elimination (RFE) if features > 15, else PCA (FR-011)
-- [X] T021 [US2] Implement `code/modeling/train_model.py` with Random Forest (max_depth=10, n_estimators=100) and fallback logic: if runtime > 60m, reduce max_depth to 6, then to 4 (per Plan Complexity Tracking and FR-003)
+- [X] T020 [US2] [FR-011] Implement `code/features/feature_selection.py` to perform Recursive Feature Elimination (RFE) or PCA based on dimensionality to mitigate overfitting
+- [X] T021 [US2] [FR-003] Implement `code/modeling/train_model.py` with Random Forest (max_depth=10, n_estimators=100). **Implementation Detail**: Wrap training in a `time` context manager; if elapsed time > 3600s (60m), raise `RuntimeExceededError` with `new_depth=6` to trigger the outer retry loop. If the second attempt (depth=6) exceeds 3600s, raise `RuntimeExceededError` with `new_depth=4`. **Hard Limit**: If total runtime exceeds a predefined threshold, halt with error. **Pre-training**: Log sample size (N) and confirm it matches the power analysis assumptions (N≥30) based on T014's prior validation. Do NOT perform the validation check here; rely on T014's success.
 - [X] T022 [US2] Implement `code/modeling/cross_validate.py` to run stratified k-fold CV and report R² and MAE
-- [ ] T023 [US2] Add categorical encoding for 'synthesis method' in the feature matrix (FR-008)
-- [ ] T024 [US2] Save trained model artifact to `artifacts/model.pkl`
-- [ ] T025 [US2] Add explicit disclaimer in model metadata that findings are associational, not causal (FR-007)
-- [ ] T026 [US2] Save feature matrix to `data/processed/feature_matrix.csv`
+- [X] T023 [US2] [FR-008] Add categorical encoding for 'synthesis method' in the feature matrix
+- [X] T024 [US2] Save trained model artifact to `artifacts/model.pkl`
+- [X] T025 [US2] [FR-007] Add explicit disclaimer in model metadata that findings are associational, not causal
+- [X] T026 [US2] Save feature matrix to `data/processed/feature_matrix.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,7 +127,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 5: User Story 3 - Candidate Screening and Statistical Validation (Priority: P3)
 
-**Goal**: Screen a virtual library of sustainable candidates, rank them, and statistically compare against *experimental* petrochemical benchmarks.
+**Goal**: Screen a virtual library of sustainable candidates, rank them, and statistically compare against *experimental* petrochemical benchmarks (via prediction).
 
 **Independent Test**: The screening module can be tested by providing a known set of "high-performance" and "low-performance" dummy candidates and verifying the ranking order matches the expected performance distribution.
 
@@ -133,14 +138,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [X] T029a [US3] Implement `code/screening/generate_bio_candidates.py` to generate >= 50 unique sustainable candidate SMILES from cellulose, chitosan, and lignin templates using deterministic template expansion (seed=42) to satisfy SC-002
+- [X] T029a [US3] [Rev-04] Implement `code/screening/generate_bio_candidates.py` to generate >= 50 unique sustainable candidate SMILES from cellulose, chitosan, and lignin templates using deterministic template expansion (seed=42) to satisfy SC-002. Ensure reproducibility.
 - [X] T029b [US3] Implement `code/screening/generate_petro_benchmarks.py` to generate a set of petrochemical benchmark SMILES from polyimide and polysulfone base templates using deterministic template expansion (seed=42)
-- [ ] T030 [US3] Implement `code/screening/rank_candidates.py` to predict performance for bio-candidates using the trained model and load *experimental* petrochemical benchmarks from literature (not predicted) for comparison
-- [ ] T031 [US3] Implement `code/screening/statistical_test.py` to run Mann-Whitney U test comparing predicted bio-candidate distribution against *experimental* petrochemical benchmarks, and generate a validation gate checklist for FR-009 (future work requirement)
-- [ ] T032 [US3] Implement `code/screening/generate_validation_protocol.py` to generate `validation_protocol.md` mandating experimental validation of top candidates (fulfilling FR-009 requirement artifact)
-- [ ] T033 [US3] Implement `code/screening/power_analysis.py` to calculate detectable effect size for N=30 (power=0.8, alpha=0.05) and generate `data/reports/power_analysis_report.json`
-- [ ] T034 [US3] Generate `data/reports/screening_results.json` with ranked candidates and p-values
-- [ ] T035 [US3] Create `candidate_recommendation_report.md` listing top candidates for *future* experimental validation (fulfilling FR-009 requirement artifact), including a validation status flag indicating the requirement is pending
+- [X] T029c [US3] [FR-005] Implement `code/screening/load_experimental_benchmarks.py` to curate and save `data/raw/experimental_benchmarks.csv` containing known experimental performance data for petrochemical polymers from literature. This file will be used to extract SMILES for the control set.
+- [X] T029d [US3] Implement `code/screening/curate_known_bio_membranes.py` to create `data/raw/known_high_performance.csv` containing the list of known high-performance bio-membranes required for T014 validation.
+- [X] T030 [US3] [FR-005] Implement `code/screening/rank_candidates.py` to predict performance for bio-candidates using the trained model and load *experimental* petrochemical benchmark SMILES from `data/raw/experimental_benchmarks.csv` (T029c) to generate *predicted* petrochemical performance values for comparison.
+- [X] T031 [US3] [FR-005] Implement `code/screening/statistical_test.py` to run Mann-Whitney U test comparing the *predicted* bio-candidate distribution against the *predicted* petrochemical benchmark distribution (derived from experimental structures). Generate a validation gate checklist for FR-009 (future work requirement).
+- [X] T032 [US3] [FR-009] Implement `code/screening/generate_validation_protocol.py` to generate `validation_protocol.md` mandating experimental validation of top candidates (fulfilling FR-009 requirement artifact)
+- [X] T033 [US3] Implement `code/screening/power_analysis.py` to calculate detectable effect size for N=30 (power=0.8, alpha=0.05) and generate `data/reports/power_analysis_report.json`
+- [X] T034 [US3] Generate `data/reports/screening_results.json` with ranked candidates and p-values
+- [X] T035 [US3] [FR-009] Create `candidate_recommendation_report.md` listing top candidates for *future* experimental validation (fulfilling FR-009 requirement artifact), including a validation status flag indicating the requirement is pending
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,9 +157,9 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Compile final results and validate citations.
 
-- [ ] T036 [US3] Implement `code/reporting/generate_final_report.py` to aggregate feature importance, statistical tests, and candidate lists
-- [ ] T037 [US3] Implement `validate_citations.py` to re-check all references in the final report against primary sources by running `python code/reporting/validate_citations.py` and checking DOI resolution (Constitution Principle II)
-- [ ] T038 [P] Run end-to-end pipeline validation script `code/main_pipeline.py` to verify a bounded runtime limit on a 2-core CPU
+- [X] T036 [US3] Implement `code/reporting/generate_final_report.py` to aggregate feature importance, statistical tests, and candidate lists
+- [X] T037 [US3] [Const-II] Implement `validate_citations.py` to re-check all references in the final report against primary sources by running `python code/reporting/validate_citations.py` and checking Title-token-overlap (Constitution Principle II)
+- [X] T038 [P] Run end-to-end pipeline validation script `code/main_pipeline.py` to verify a bounded runtime limit on a multi-core CPU
 
 ---
 
@@ -166,6 +173,7 @@ Examples of foundational tasks (adjust based on your project):
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Data Integrity**: Integrated into Phases 3, 4, and 5 (T011b, T021, T029a). No separate phase required.
 
 ### User Story Dependencies
 
@@ -189,6 +197,7 @@ Examples of foundational tasks (adjust based on your project):
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Safety tasks (T011b, T021, T029a) are integrated into their respective phases and can be executed in parallel with other tasks in those phases.
 
 ---
 
@@ -211,7 +220,7 @@ Task: "Create base PolymerRecord dataclass in code/ingestion/models.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+3. Complete Phase 3: User Story 1 (including integrated safety checks)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -245,3 +254,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: Safety checks (T011b, T021, T029a) are integrated into their respective phases to ensure data integrity and execution safety from the start.

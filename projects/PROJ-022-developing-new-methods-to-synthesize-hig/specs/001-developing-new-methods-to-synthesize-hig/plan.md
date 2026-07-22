@@ -137,7 +137,7 @@ The research question remains: How does the proposed model generalize across dif
 ### Phase 4: Reporting & Future Work (Output: `data/reports/final_report.md`)
 1. **Report Generation**: Compile results, feature importance, and statistical test outcomes.
 2. **Citation Re-Validation**: Re-run `validate_citations.py` to ensure all references in the report are valid.
-3. **Candidate Recommendation**: Output `candidate_recommendation_report.md` listing top 3 candidates for *future* experimental validation (FR-009). Explicitly state that experimental validation is a future work requirement not performed in this phase.
+3. **Candidate Recommendation**: Output `candidate_recommendation_report.md` listing a shortlist of candidates for *future* experimental validation (FR-009). Explicitly state that experimental validation is a future work requirement not performed in this phase.
 
 ## FR/SC Coverage Matrix
 
