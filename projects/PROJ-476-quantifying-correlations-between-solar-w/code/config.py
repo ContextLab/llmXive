@@ -4,10 +4,15 @@ Configuration constants for the Solar Wind Composition and Geomagnetic Indices p
 This module defines all project-wide constants including date ranges, variable names,
 and verified data source URLs. All downstream tasks MUST import these constants from
 this module.
+
+IMPORTANT: TRAIN_START (1998) to TEST_END (2020) covers the full multi-decadal span
+referenced in SC-001 for the "full 20-year lagged correlation analysis" performance
+benchmark, while TRAIN_START (1998) to TRAIN_END (2017) is the subset used for model
+fitting.
 """
 
 # Date Ranges
-# TRAIN_START to TEST_END covers the full multi-decade span referenced in SC-001
+# TRAIN_START to TEST_END covers the full multi-decadal span referenced in SC-001
 # for the "full 20-year lagged correlation analysis" performance benchmark.
 # TRAIN_START to TRAIN_END is the subset used for model fitting.
 TRAIN_START = 1998

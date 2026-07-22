@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "load_synced_data",
+    "owner": null
+  },
+  {
+    "symbol": "run_validation_report",
+    "owner": null
+  }
+]

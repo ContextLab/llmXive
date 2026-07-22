@@ -1,5 +1,5 @@
 status: none
-intent: ACE solar wind composition NOAA Kp Dst indices python package dataset
+intent: ACE solar wind composition download NOAA Kp Dst indices python package dataset
 required_fields:
 - timestamp
 - proton_density
@@ -7,6 +7,6 @@ required_fields:
 - helium_abundance
 - Kp
 - Dst
-cache_key: 719c57e83ebe66a1b30f4109e2eaa34f38a94d1ec8bd62683a8968d3d26ebc1d
-searched_at: '2026-07-22T08:58:56.036512+00:00'
+cache_key: 874bea56efca6115555816551e38a42ffa67118200ded0f3d45e33802d0ba7a7
+searched_at: '2026-07-22T09:34:27.164441+00:00'
 retry_count: 1

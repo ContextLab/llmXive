@@ -1,56 +1,105 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
-The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
 
-1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
-2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
-3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
-- code/analysis/neff.py: synthetic/fake INPUT data not authorized by the spec — “…:     # Simple test with synthetic data to verify logic     test…”
-- code/data/fetch.py: synthetic/fake INPUT data not authorized by the spec — “…alling back to synthetic/mock data.          Args:…”
+- `python code/main.py fetch --start 1998-01-01 --end 2020-12-31`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/neff.py: synthetic/fake INPUT data not authorized by the spec — “…:     # Simple test with synthetic data to verify logic     test…”; code/data/fetch.py: synthetic/fake INPUT data not authorized by the spec — “…alling back to synthetic/mock data.          Args:…”; 4 command(s) failed: python code/main.py fetch --start 1998-01-01 --end 2020-12-31 (rc=1); python code/main.py compute-thresholds (rc=1); python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6 (rc=1); 3 declared deliverable(s) absent: data/processed/synced.csv; data/raw/ace_raw.csv; data/raw/noaa_raw.csv
+**Summary**: 4 command(s) failed: python code/main.py fetch --start 1998-01-01 --end 2020-12-31 (rc=1); python code/main.py compute-thresholds (rc=1); python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6 (rc=1); 3 declared deliverable(s) absent: data/processed/synced.csv; data/raw/ace_raw.csv; data/raw/noaa_raw.csv
 
 ## Failing / missing run-book commands
 
 - python code/main.py fetch --start 1998-01-01 --end 2020-12-31 -> rc=1
-    2026-07-18 11:26:12,822 - solar_wind - INFO - Pipeline started at 2026-07-18T11:26:12.822635
-2026-07-18 11:26:12,822 - solar_wind - INFO - Configuration: Train=1998-2017, Test=2018-2020
-2026-07-18 11:26:12,822 - solar_wind - INFO - --- Phase 1: Data Acquisition & Synchronization ---
-2026-07-18 11:26:12,822 - solar_wind - INFO - Fetching ACE and NOAA data...
-2026-07-18 11:26:12,822 - solar_wind - INFO - Fetching ACE data from ftp://spdf.gsfc.nasa.gov/pub/data/ace/ for range 1998 to 2020
-2026-07-18 11:26:12,822 - solar_wind - ERROR - Failed to fetch data: strptime() argument 1 must be str, not int
+    turn self.getresp()
+           ^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/ftplib.py", line 254, in getresp
+    raise error_perm(resp)
+ftplib.error_perm: 550 SSL/TLS required on the control channel
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 257, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 237, in main
+    run_fetch(args.start, args.end)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 88, in run_fetch
+    ace_path = fetch_ace(start_date, end_date)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/data/fetch.py", line 161, in fetch_ace
+    raise ConnectionError(f"Failed to connect to NASA SPDF FTP: {e}")
+ConnectionError: Failed to connect to NASA SPDF FTP: 550 SSL/TLS required on the control channel
 - python code/main.py compute-thresholds -> rc=1
-    2026-07-18 11:26:14,289 - solar_wind - INFO - Pipeline started at 2026-07-18T11:26:14.289467
-2026-07-18 11:26:14,289 - solar_wind - INFO - Configuration: Train=1998-2017, Test=2018-2020
-2026-07-18 11:26:14,289 - solar_wind - INFO - --- Phase 1: Data Acquisition & Synchronization ---
-2026-07-18 11:26:14,289 - solar_wind - INFO - Fetching ACE and NOAA data...
-2026-07-18 11:26:14,289 - solar_wind - INFO - Fetching ACE data from ftp://spdf.gsfc.nasa.gov/pub/data/ace/ for range 1998 to 2020
-2026-07-18 11:26:14,289 - solar_wind - ERROR - Failed to fetch data: strptime() argument 1 must be str, not int
+    2026-07-22 09:33:21,565 - solar_wind - INFO - --- Phase 3: Global Threshold Calculation ---
+2026-07-22 09:33:21,566 - solar_wind - ERROR - Failed to calculate thresholds: load_synced_data() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 257, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 241, in main
+    run_thresholds(args.data, args.output)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 120, in run_thresholds
+    df = load_synced_data(data_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: load_synced_data() takes 0 positional arguments but 1 was given
 - python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6 -> rc=1
-    2026-07-18 11:26:15,755 - solar_wind - INFO - Pipeline started at 2026-07-18T11:26:15.755415
-2026-07-18 11:26:15,755 - solar_wind - INFO - Configuration: Train=1998-2017, Test=2018-2020
-2026-07-18 11:26:15,755 - solar_wind - INFO - --- Phase 1: Data Acquisition & Synchronization ---
-2026-07-18 11:26:15,755 - solar_wind - INFO - Fetching ACE and NOAA data...
-2026-07-18 11:26:15,755 - solar_wind - INFO - Fetching ACE data from ftp://spdf.gsfc.nasa.gov/pub/data/ace/ for range 1998 to 2020
-2026-07-18 11:26:15,755 - solar_wind - ERROR - Failed to fetch data: strptime() argument 1 must be str, not int
+    2026-07-22 09:33:22,810 - solar_wind - INFO - --- Phase 4: Lagged Correlation Analysis ---
+2026-07-22 09:33:22,810 - solar_wind - ERROR - Failed to run correlation analysis: load_synced_data() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 257, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 244, in main
+    run_analyze(args.data, lags, args.output)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 141, in run_analyze
+    df = load_synced_data(data_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: load_synced_data() takes 0 positional arguments but 1 was given
 - python code/main.py validate --data data/processed/synced.csv --test-start 2018-01-01 --test-end 2020-12-31 -> rc=1
-    2026-07-18 11:26:17,213 - solar_wind - INFO - Pipeline started at 2026-07-18T11:26:17.213046
-2026-07-18 11:26:17,213 - solar_wind - INFO - Configuration: Train=1998-2017, Test=2018-2020
-2026-07-18 11:26:17,213 - solar_wind - INFO - --- Phase 1: Data Acquisition & Synchronization ---
-2026-07-18 11:26:17,213 - solar_wind - INFO - Fetching ACE and NOAA data...
-2026-07-18 11:26:17,213 - solar_wind - INFO - Fetching ACE data from ftp://spdf.gsfc.nasa.gov/pub/data/ace/ for range 1998 to 2020
-2026-07-18 11:26:17,213 - solar_wind - ERROR - Failed to fetch data: strptime() argument 1 must be str, not int
+    2026-07-22 09:33:24,057 - solar_wind - INFO - --- Phase 5: Validation & Reporting ---
+2026-07-22 09:33:24,057 - solar_wind - ERROR - Failed to run validation: run_validation_report() got an unexpected keyword argument 'data_path'
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 257, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 246, in main
+    run_validate(args.data, args.correlations, args.thresholds, args.test_start, args.test_end, args.report)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-476-quantifying-correlations-between-solar-w/code/main.py", line 161, in run_validate
+    run_validation_report(
+TypeError: run_validation_report() got an unexpected keyword argument 'data_path'
 
 ## Declared deliverables still missing
 
 - data/processed/synced.csv
 - data/raw/ace_raw.csv
 - data/raw/noaa_raw.csv
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `load_synced_data` — defined in `code/analysis/correlation.py`; called 3 way(s):
+
+- code/main.py: df = load_synced_data(data_path)
+- code/viz/plots.py: df = load_synced_data(data_path)
+- code/analysis/correlation.py: df = load_synced_data()
+
+Make `load_synced_data` in `code/analysis/correlation.py` accept ALL of the above.
+
+### `run_validation_report` — defined in `code/viz/report.py`; called 1 way(s):
+
+- code/main.py: run_validation_report(
+
+Make `run_validation_report` in `code/viz/report.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -69,14 +118,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/raw/ace_raw.csv` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
     - `code/data/validate.py` — NOT invoked by the run-book
-    - `code/data/align.py` — NOT invoked by the run-book
     - `code/data/fetch.py` — NOT invoked by the run-book
     - `code/tests/test_pipeline.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/ace_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/noaa_raw.csv` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
     - `code/data/validate.py` — NOT invoked by the run-book
-    - `code/data/align.py` — NOT invoked by the run-book
     - `code/data/fetch.py` — NOT invoked by the run-book
     - `code/tests/test_pipeline.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/noaa_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

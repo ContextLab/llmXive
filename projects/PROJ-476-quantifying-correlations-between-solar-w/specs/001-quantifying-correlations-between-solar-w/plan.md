@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements an end-to-end observational study pipeline to quantify the association between solar wind composition (proton density, temperature, helium abundance) and geomagnetic activity (Kp, Dst indices). The system downloads multi-year ACE spacecraft and NOAA data, synchronizes them to a 1-hour UTC grid, computes lagged Pearson and Spearman correlations (0–6h) on the full continuous time series, and applies Holm-Bonferroni correction adjusted for autocorrelation via Thomson's Multitaper Method (MTM). The pipeline includes validation on a held-out period (2018–2020) and generates reproducible visualizations and a statistical report.
+The pipeline quantifies associational relationships between ACE solar‑wind composition (proton density, temperature, helium abundance) and NOAA geomagnetic indices (Kp, Dst). It downloads multi‑year data, validates required variables, aligns to a 1‑hour UTC grid with strict gap handling, computes lagged Pearson and Spearman correlations, adjusts raw p‑values using an effective sample size (Neff) that accounts for autocorrelation, applies a **global** Bonferroni correction derived from the **full 1998‑2020 series**, and generates visual artefacts and a validation report for the held‑out period.
 
 ## Technical Context
 

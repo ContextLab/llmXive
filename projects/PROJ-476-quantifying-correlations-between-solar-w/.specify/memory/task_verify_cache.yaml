@@ -1,9 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing, command output, or any other proof that the specified folders
+    (`code/data`, `code/analysis`, `code/viz`, `code/tests`, `artifacts/figures`,
+    `artifacts/reports`, `state/`) were actually created is present. Without such
+    evidence the task requirement cannot be confirmed.
 T005:
-  c: true
-  h: ef9293e98f2f466df2c9c5ba64c5637aade7a29d0930dcddfb97d280d9aefe19
-  r: The `code/data/fetch.py` file exists, defines the two required functions with
-    the correct signatures, and each returns the specified path strings. No further
-    implementation or additional files are required for this scaffolding task.
+  c: false
+  h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab
+  r: "The provided `code/data/fetch.py` is a full implementation with many helper\
+    \ functions and download logic, not a minimal stub containing only empty `fetch_ace(start_date,\
+    \ end_date) -> str` and `fetch_noaa(start_date, end_date) -> str` that simply\
+    \ return the hard\u2011coded paths. Consequently the file does not meet the task\u2019\
+    s specification."
+T013c:
+  c: false
+  h: 1311c7da7c05c40f9bc3eb9b1999ae3587bd344e230add0e77561ebbdc3d7a6a
+  r: "The `write_synced_csv` function in `code/data/align.py` is truncated and does\
+    \ not show the full implementation (e.g., the column\u2011assertion list is incomplete\
+    \ and there is no code that checks for NaNs or writes to `data/processed/synced.csv`).\
+    \ Moreover, the required output file `data/processed/synced.csv` does not exist.\
+    \ Both the function implementation and the expected output are missing."
 T019:
   c: false
   h: b44cde29835b4fa3ee028917511fcff06fbb35974f17cc17a044ae4d8b1184d0
