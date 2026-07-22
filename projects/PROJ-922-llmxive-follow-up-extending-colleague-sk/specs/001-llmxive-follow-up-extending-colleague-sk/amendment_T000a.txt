@@ -1,0 +1,14 @@
+# Spec Amendment Definition (T000a)
+# To be inserted into specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+
+## Amendment to Functional Requirement FR-006
+REPLACE: "Linear Mixed-Effects Model (LMM)"
+WITH: "Generalized Linear Mixed Model (GLMM)"
+
+RATIONALE: The GLMM is required to support the mixed outcome types (binary for Heuristic Adherence and Hallucination Rate, continuous for Style Consistency) inherent in this study. The LMM is insufficient for binary outcomes.
+
+## Amendment to Assumptions (Scale)
+REPLACE: "50 profiles × 200 tasks"
+WITH: "10 profiles × 50 tasks" (Total combinations: 500; Total runs with 3 conditions: 1,500)
+
+RATIONALE: The full matrix (50 profiles × 200 tasks × 3 conditions = 30,000 runs) exceeds the runtime and RAM constraints of the free-tier CPU-only CI runner. The reduced scale (10 profiles × 50 tasks) is statistically powered to detect a moderate effect size (Cohen's d ≈ 0.5) with sufficient random-effect levels (10 profiles, 50 tasks) for GLMM convergence within the CI time limits.

@@ -23,9 +23,9 @@ The plan strictly adheres to CPU-only constraints (≤7GB RAM, ≤6h runtime). I
 **Project Type**: Research CLI / Data Pipeline.  
 **Performance Goals**: Inference < 300s per task; Total runtime < 6h; RAM < 7GB.  
 **Constraints**: CPU-only inference; No GPU dependencies in default path; Deterministic evaluation (no LLM judges).  
-**Scale/Scope**: Target a large-scale set of runs (profiles × a substantial number of tasks × 3 conditions), but feasible execution is a balanced subset (10 profiles × 50 tasks × 3 conditions) to ensure LMM convergence.
+**Scale/Scope**: Target a large-scale set of runs (profiles × a substantial number of tasks × 3 conditions), but feasible execution is a balanced subset (Multiple profiles × 50 tasks × 3 conditions) to ensure LMM convergence.
 
-> Note: The full matrix is the theoretical target, but the **feasible run** is defined as a statistically powered balanced subset (10 profiles, 50 tasks) to ensure sufficient data per random-effect level for LMM convergence.
+> Note: The full matrix is the theoretical target, but the **feasible run** is defined as a statistically powered balanced subset (A set of profiles and 50 tasks) to ensure sufficient data per random-effect level for LMM convergence.
 
 ## Constitution Check
 
@@ -135,7 +135,7 @@ projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/
 ## Compute Feasibility Strategy
 
 *   **CPU First**: The primary path uses `transformers` with `torch_dtype=torch.float32` (or `float16` if available on CPU) for a quantized 8B model. If OOM occurs, the specific run is logged as `status: 'oom'` and excluded from analysis. **No GPU offload is permitted** to preserve causal validity.
-* **Data Streaming**: If the full 30k matrix exceeds RAM, the pipeline will process tasks in batches (e.g., 10 tasks at a time), writing results immediately to `data/interim` and deleting input batches to free memory. However, the feasible run is a balanced subset of [deferred] runs.
+* **Data Streaming**: If the full k matrix exceeds RAM, the pipeline will process tasks in batches (e.g., Multiple tasks at a time), writing results immediately to `data/interim` and deleting input batches to free memory. However, the feasible run is a balanced subset of [deferred] runs.
 
 ## References
 

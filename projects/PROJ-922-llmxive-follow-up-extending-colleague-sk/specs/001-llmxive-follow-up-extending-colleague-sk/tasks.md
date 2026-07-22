@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Di"
 
 **Input**: Design documents from `/specs/001-llmxive-skill-separation/`
@@ -37,16 +41,33 @@
  ============================================================================
 -->
 
+## Phase 0: Critical Spec Amendment (Prerequisite for All Analysis)
+
+**Purpose**: Formally amend the specification to authorize the statistical method and scope required for the feasible run, ensuring Single Source of Truth compliance.
+
+- [ ] T000a [P] **SPEC AMENDMENT DEFINITION**: Define the exact text block to be inserted into `specs/001-llmxive-follow-up-extending-colleague-sk/spec.md` to:
+ 1. Amend FR-006: Replace "Linear Mixed-Effects Model (LMM)" with "Generalized Linear Mixed Model (GLMM)" to support binary/continuous mixed outcomes.
+ 2. Amend Assumptions (Scale): Update the assumption regarding sample size from "50 profiles × 200 tasks" to "10 profiles × 50 tasks" (500 combinations × 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits.
+ 3. Rationale: The full matrix (a comprehensive set of runs) exceeds the runtime and RAM constraints of the free-tier runner.; the reduced scale is statistically powered for a moderate effect size (Cohen's d) with sufficient random-effect levels.
+ **Verification**: Text block is defined and ready for insertion.
+
+- [ ] T000b [P] **SPEC AMENDMENT APPLICATION**: Update `specs/001-llmxive-follow-up-extending-colleague-sk/spec.md` to reflect the changes defined in T000a.
+ **Action**: Insert the exact text block from T000a into FR-006 and the Assumptions section.
+ **Verification**: `spec.md` reflects the GLMM method and the reduced scale (10 profiles, 50 tasks).
+ **Dependency**: Must be the first task executed; ALL downstream tasks (T004c, T028, etc.) depend on this being completed and verified. **This is a hard blocking gate.**
+
+---
+
 ## Phase 1: Setup & Specification Alignment (Shared Infrastructure)
 
-**Purpose**: Project initialization, dependency pinning, and **critical spec updates** to align Single Source of Truth with implementation plan.
+**Purpose**: Project initialization, dependency pinning, and configuration setup.
 
 - [X] T001a [P] Create directory structure: `code/`, `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `state/projects/PROJ-922`
-- [X] T001b [P] Create `code/requirements.txt` pinning: `transformers==4.40.0`, `torch==2.2.0+cpu`, `llama-cpp-python==0.2.70`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`, `pytest==8.0.0`, `pyyaml==6.0.1`, `sympy==1.12`, `z3-solver==4.12.0`, `scikit-learn==1.4.0`, `datasets==2.18.0`
+- [X] T001b [P] Create `code/requirements.txt` pinning: `transformers==4.40.0 `, `torch==2.2.0+cpu `, `{{claim:c_53fa4f89}} (pi, https://en.wikipedia.org/wiki/Pi)`, `statsmodels==0.14.1 `, `pandas==2.2.0 `, `numpy==1.26.0 `, `pytest==8.0.0 `, `pyyaml==6.0.1 `, `sympy==1.12 `, `z3-solver==4.12.0 `, `{{claim:c_4c3c2059}}`, `{{claim:c_5266d6d5}}`
 - [X] T002a [P] Create `code/scripts/update_state.py` to calculate checksums for all `data/` artifacts and update `state/projects/.../artifacts.yaml`. **Verification**: Script exists and successfully updates `artifacts.yaml` when run.
-- [X] T004 [P] Implement `code/utils/config.py` for seed pinning (global seed=42), path management, and environment configuration. **Parameters**: Define `NON_INFERIORITY_MARGIN = 0.05` (5 percentage points) as per SC-002.
-- [X] T004b [P] [SC-002] Explicitly define `NON_INFERIORITY_MARGIN = 0.05` in `code/config.py` and document this value as the "predefined absolute percentage point threshold" required by SC-002. **Verification**: Config file contains the constant and docstring.
-- [X] T004c [P] [FR-006] **SPEC UPDATE**: Update `specs/001-llmxive-follow-up-extending-colleague-sk/spec.md` FR-006 to replace "Linear Mixed-Effects Model (LMM)" with "Generalized Linear Mixed Model (GLMM)" to authorize the statistical method used in the plan. **Verification**: `spec.md` text for FR-006 reflects GLMM. **Note**: This is a prerequisite for all Phase 2 and Phase 5 analysis tasks.
+- [X] T004 [P] Implement `code/utils/config.py` for seed pinning (global seed=42), path management, and environment configuration.
+- [X] T004b [P] [SC-002] Create/Update `code/utils/config.py` to explicitly define `NON_INFERIORITY_MARGIN = 0.05 ` (5 percentage points) as per SC-002. **Justification**: This value is the predefined constant derived from SC-002's requirement for a "small, predefined absolute percentage point threshold". **Verification**: File exists and contains the constant with docstring. **Dependency**: None (Setup phase).
+- [X] T004c [P] [FR-006] **SPEC REFERENCE**: Update `code/utils/config.py` to import `GLMM_AUTHORIZED = True` referencing T000b. **Verification**: Config reflects T000b amendment. **Dependency**: T000b (Spec Amendment Application).
 
 ---
 
@@ -59,8 +80,8 @@
 - [X] T005 [P] Implement `code/utils/logging.py` for structured logging (JSON format)
 - [X] T038 [P] [FR-030] **SAFETY GATE**: Implement `code/scripts/verify_data_source.py` to validate the existence and integrity of the "expert profiles" source (real or simulated). **Logic**: Must raise an exception if the source is inaccessible or malformed, preventing any downstream data generation. **Dependency**: Must run **before** T006. **Verification**: Script exits 0 only if source is valid.
 - [X] T039 [P] [FR-001] **SAFETY GATE**: Implement `code/scripts/cpu_feasibility_check.py` to attempt loading the quantized model with `n_ctx=512` and `n_threads=2` (simulating strictest CI runner). **Logic**: If OOM or timeout occurs, log `OOM_PRE_CHECK` and exit with a clear error message suggesting model size reduction. **Dependency**: Must run **before** T006/T007/T014a. **Verification**: Script exits 0 only if model loads successfully on CPU.
-- [X] T006 [P] [FR-002] Implement `code/data_generation/profiles.py` to generate **10 synthetic expert profiles** (2 per domain). **Schema**: `{"id": str, "domain": str, "capability_rules": str, "behavior_keywords": [str]}`. **Domains**: coding, math, logic, creative, factual (2 profiles each). **Rules**: Capability rules define heuristic constraints. Behavior keywords define a set of style markers. **Validation Logic**: Must validate that every generated profile contains non-empty `capability_rules` and `behavior_keywords`; if a profile is malformed (missing keys), **skip it, log an error, and proceed** with remaining valid profiles. **Strict Failure**: Raise exception if the internal generator encounters a fatal error (e.g., inability to write to disk) to prevent silent synthetic fallback. **Dependency**: Requires T038 (Source Verification) and T039 (CPU Feasibility) to pass.
-- [X] T007 [US1] [FR-002] Implement `code/data_generation/tasks.py` to generate a global pool of **50 stratified task scenarios** (reused across all profiles). **Domains**: A balanced set of coding, math, and logic tasks, alongside a larger set of creative/factual tasks. **Logic**: Must enforce **stratified sampling** and **proportional distribution** across the four domains (coding, math, logic, creative/factual) as per FR-002. Must validate that generated tasks do not contain ambiguous context that would prevent deterministic evaluation; if ambiguous, log and flag the specific task as "excluded" from Hallucination Rate calculation. **Sequential**: Must run **after** T006 to ensure task context compatibility. **Note**: This is a single execution step.
+- [X] T006 [P] [FR-002] Implement `code/data_generation/profiles.py` to generate **synthetic expert profiles** (multiple per domain). **Schema**: `{"id": str, "domain": str, "capability_rules": str, "behavior_keywords": [str]}`. **Domains**: coding, math, logic, creative, factual (2 profiles each). **Rules**: Capability rules define heuristic constraints. Behavior keywords define a set of style markers. **Validation Logic**: Must validate that every generated profile contains non-empty `capability_rules` and `behavior_keywords`; if a profile is malformed (missing keys), **skip it, log an error, and proceed** with remaining valid profiles. **Strict Failure**: Raise exception if the internal generator encounters a fatal error (e.g., inability to write to disk) to prevent silent synthetic fallback. **Dependency**: Requires T038 (Source Verification) and T039 (CPU Feasibility) to pass.
+- [X] T007 [US1] [FR-002] Implement `code/data_generation/tasks.py` to generate a global pool of **stratified task scenarios** (reused across all profiles). **Domains**: Enforce **exact proportional distribution** based on total 50 tasks: coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred] = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks) [UNRESOLVED-CLAIM: c_92ff6f25 — status=not_enough_info]. **Logic**: Must validate that generated tasks do not contain ambiguous context that would prevent deterministic evaluation; if ambiguous, log and flag the specific task as "excluded" from Hallucination Rate calculation. **Verification**: Script logs the actual distribution ratios (e.g., "Distribution: coding=20%, math=10%...") and exits 0 only if ratios match the spec. **Sequential**: Must run **after** T006 to ensure task context compatibility. **Note**: This is a single execution step. **Dependency**: T006. <!-- FAILED: unspecified -->
 - [X] T008 [P] [US1] Implement `code/inference/prompts.py` defining three distinct prompt templates with explicit text and placeholders:
  - **Monolithic**: `"[System: You are {domain_expert} who {behavior_keywords}. Task: {task}]"`
  - **Separated Tracks**: `"[System: Capability: {capability_rules}. Behavior: {behavior_keywords}. Task: {task}]"`
@@ -86,10 +107,24 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/inference/engine.py` logic to: 1) Load quantized model using `llama-cpp-python` with `device="cpu"`, `n_gpu_layers=0`; 2) Implement a **strict 300-second timeout handler** (configurable, default 300s as per spec US-1) and OOM exception catching for CPU runs; 3) Return output string or error code. **Must support all 3 conditions**: Monolithic, Separated Tracks, and Generic Baseline.
-- [X] T014a [US1] Implement `code/scripts/run_inference.py` to segment workload into parallel jobs (one per condition: Monolithic, Separated, Generic) to fit within 3600s CI limits. Each job processes a batch of tasks (multiple profiles × a fixed number of tasks).
-- [X] T014b [US1] [FR-002] Implement logic in `run_inference.py` to **consume** artifacts from T006 (Profiles) and T007 (Tasks) and iterate over all profiles, tasks, and conditions. **Scale**: 10 profiles × 50 tasks × **3 conditions** (Monolithic, Separated, Generic) = **1500 runs**. Save outputs to `data/interim/inference_outputs.jsonl` with schema `{profile_id, task_id, condition, latency, success_flag, output_text}`. **Verification**: File exists and contains **exactly 1500 rows**. **Note**: This scale is the feasible subset defined in plan.md to ensure GLMM convergence. **Dependency**: Requires T006 and T007 completion.
-- [X] T015 [US1] Add logging for inference status (start, progress, completion, failures) in `run_inference.py`.
+- [X] T012 [US1] Implement `code/inference/engine.py` logic to: 1) Load quantized model using `llama-cpp-python` with `device="cpu"`, `n_gpu_layers=0 `; 2) Implement a **strict 300-second timeout handler ** (configurable, default 300s as per spec US-1) and OOM exception catching for CPU runs; 3) Return output string or error code. **Must support all 3 conditions **: Monolithic, Separated Tracks, and Generic Baseline.
+- [ ] T014a [US1] Implement `code/scripts/run_inference.py` to execute the full inference pipeline.
+ **Algorithm**:
+ 1. Load profiles from `data/raw/profiles.json` and tasks from `data/raw/tasks.json`.
+ 2. Initialize `output_list = []`.
+ 3. **Batch Processing**: Group tasks into batches of appropriate size. (configurable) to manage RAM as per Plan.
+ 4. For each `batch` in tasks:
+ For each `profile` in profiles:
+ For each `condition` in ["Monolithic", "Separated", "Generic"]:
+ a. Build prompt using `code/inference/prompts.py`.
+ b. Call `code/inference/engine.py` with timeout=300s.
+ c. If success: append `{profile_id, task_id, condition, latency, success_flag: true, output_text}`.
+ d. If timeout/OOM: append `{profile_id, task_id, condition, latency, success_flag: false, output_text: null, error: "timeout"|"oom"}`.
+ Write `output_list` to `data/interim/inference_outputs.jsonl` (incremental write per batch).
+ 5. Finalize file.
+ **Scale**: 10 profiles × 50 tasks × **3 conditions ** = **1500 runs**.
+ **Verification**: File exists and contains a sufficient number of rows (including failed runs with `status='failure'`). **Dependency**: Requires T006 and T007 completion.
+- [ ] T015 [US1] Add logging for inference status (start, progress, completion, failures) in `run_inference.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,13 +143,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement `code/evaluation/validators.py` with specific mapping: Code tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks -> Z3 solver; Creative/Factual -> Regex/NLI checks. **Edge Case**: Must handle inputs from malformed profiles or ambiguous contexts by skipping and logging, consistent with T006/T007. **Ambiguity Handling**: Explicitly log the **reason** for exclusion (e.g., "Ambiguous Context", "Missing Capability Key") when a task is skipped.
-- [X] T020 [US2] Implement `code/evaluation/metrics.py` Heuristic Adherence calculation: 1 if task solved (validator pass), 0 otherwise.
+- [X] T019 [P] [US2] Implement `code/evaluation/validators.py` with specific mapping: Code tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks -> Z solver; Creative/Factual -> Regex/NLI checks. **Edge Case**: Must handle inputs from malformed profiles or ambiguous contexts by skipping and logging, consistent with T006/T007. **Ambiguity Handling**: Explicitly log the **reason** for exclusion (e.g., "Ambiguous Context", "Missing Capability Key") when a task is skipped.
+- [X] T020 [US2] Implement `code/evaluation/metrics.py` Heuristic Adherence calculation: a binary indicator reflecting whether the task is solved (validator pass) or not..
 - [X] T021a [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 1): Regex extraction of entity-value pairs (`\b(\w+): (\w+)\b`).
-- [X] T021b [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 2): **Multi-hop reasoning check**: Use logic verification (e.g., Z3/SymPy) to validate if inferred facts require multi-step deduction not present in context.
+- [X] T021b [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 2): **Multi-hop reasoning check**: Use logic verification (e.g., Z3/SymPy) to validate if inferred facts require multi-step deduction not present in context. **Implementation Note**: This task implements the "rule-based logic verification" and "entailment checks" required by FR-005 by encoding the extracted facts and context into Z3 constraints to verify logical entailment. **Input Format**: Text-to-SMT transformation logic must be defined to convert extracted entity-value pairs into Z3 constraints.
 - [X] T021c [US2] Implement `code/evaluation/metrics.py` Hallucination Rate calculation (Part 3): Compare extracted facts against external source traces; if fact not in context OR requires invalid multi-hop inference, increment hallucination counter.
 - [X] T022 [US2] Implement `code/evaluation/metrics.py` Style Consistency calculation: 1) Count occurrences of behavior track keywords (from profile) in output; 2) Calculate frequency ratio; 3) Match against structure rules (e.g., "must start with greeting").
-- [X] T023 [US2] Implement `code/scripts/evaluate.py` to process `data/interim/inference_outputs.jsonl` and generate `data/interim/evaluation_scores.jsonl` with schema `{profile_id, task_id, condition, heuristic_adherence, hallucination_rate, style_consistency}`. **Verification**: File exists and contains **exactly 1500 rows**.
+- [X] T023 [US2] Implement `code/scripts/evaluate.py` to process `data/interim/inference_outputs.jsonl` and generate `data/interim/evaluation_scores.jsonl` with schema `{profile_id, task_id, condition, heuristic_adherence, hallucination_rate, style_consistency}`. **Verification**: File exists and contains a sufficient number of rows for analysis.
 - [X] T024 [US2] Implement sensitivity analysis logic for Style Consistency threshold (FR-008) by **iterating over a range of specific thresholds**, calculating false-positive rates for each, and reporting the variance. **Output**: Save `data/processed/sensitivity_analysis.json` containing the variance in false-positive rates for each threshold.
 - [X] T025 [US2] Add error handling for malformed profiles/tasks (skip and log) and ambiguous context (flag as excluded). **Logic**: Implement detection to skip malformed input data (missing capability/behavior keys) and flag ambiguous contexts as excluded from Hallucination Rate calculation to prevent false positives, as required by spec Edge Cases.
 
@@ -128,21 +163,27 @@
 
 **Independent Test**: The analysis pipeline can be tested by running a simulation with synthetic data where the "Separated" condition is known to have a lower hallucination rate, verifying that the GLMM returns a significant fixed effect.
 
-**Note on Spec/Plan Alignment**: FR-006 in spec.md now explicitly mandates a **Generalized Linear Mixed Model (GLMM)** to handle binary/continuous mixed outcomes, aligning with implementation tasks.
+**Note on Spec/Plan Alignment**: FR-006 in spec.md now explicitly mandates a **Generalized Linear Mixed Model (GLMM)** to handle binary/continuous mixed outcomes, aligned with T000b amendment.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T026b [P] [US3] Unit test for GLMM fitting logic in `tests/unit/test_stats.py`
+- [ ] T026b [P] [US3] Unit test for GLMM fitting logic in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/analysis/stats.py` to load `data/interim/evaluation_scores.jsonl` (Output of T023). **Input**: T023 output. **Dependency**: Verify `data/interim/evaluation_scores.jsonl` exists before proceeding. Aggregate into a DataFrame. **Output**: Save `data/interim/aggregated_data.csv`. **Verification**: File exists and contains **exactly 1500 rows**.
-- [X] T028 [US3] [FR-006] Implement `code/analysis/stats.py` GLMM fitting with random intercepts for Profile and Task for Heuristic Adherence, Hallucination Rate, and Style Consistency. **CRITICAL**: Must include logic to calculate and output the **non-inferiority margin check** for Style Consistency as per SC-002, using **margin = 0.05**. **Output**: Save model summary to `data/processed/glm_results.json` including `p_values`, `effect_sizes`, and `non_inferiority_margin_check`. **Verification**: File exists and contains p-values for fixed effects and the non-inferiority check result.
-- [X] T029 [US3] [FR-007] Implement **Holm-Bonferroni** correction for multiple comparisons across metrics (FR-007) for all 3 conditions. **Output**: Update `data/processed/glm_results.json` with `corrected_p_value` field for each metric.
+- [ ] T027 [US3] Implement `code/analysis/stats.py` to load `data/interim/evaluation_scores.jsonl` (Output of T023). **Dependency**: T023. **Input**: T023 output. **Output**: Save `data/interim/aggregated_data.csv`. **Verification**: File exists and contains a substantial number of rows.
+- [ ] T028 [US3] [FR-006] Implement `code/analysis/stats.py` GLMM fitting using **`statsmodels`** library.
+ **Formula**: `metric ~ condition + (1 | profile_id) + (1 | task_id)`
+ **Random Intercepts**: Profile and Task.
+ **Metrics**: Heuristic Adherence (binomial), Hallucination Rate (binomial), Style Consistency (gaussian).
+ **Implementation**: Use `family=binomial(link='logit')` for binary outcomes and `family=gaussian` for continuous outcomes.
+ **CRITICAL**: Must include logic to calculate and output the **non-inferiority margin check** for Style Consistency as per SC-002, using **margin = 0.05** (from `code/utils/config.py`).
+ **Output**: Save model summary to `data/processed/glm_results.json` including `p_values`, `effect_sizes`, and `non_inferiority_margin_check`. **Verification**: File exists and contains p-values for fixed effects and the non-inferiority check result. **Dependency**: T000b (Spec Amendment), T004b (Config).
+- [ ] T029 [US3] [FR-007] Implement **Holm-Bonferroni** correction for multiple comparisons across metrics (FR-007) for all 3 conditions. **Output**: Update `data/processed/glm_results.json` with `corrected_p_value` field for each metric.
 - [X] T030 [US3] Implement `code/analysis/plots.py` to generate figures for the paper. **Output**: Generate `data/processed/figures/effect_sizes.png`, `data/processed/figures/p_values.png`, and `data/processed/figures/confidence_intervals.png`. **Verification**: All three PNG files exist in the directory.
-- [X] T031 [US3] Create `code/scripts/analyze.py` to run the full analysis pipeline and output `data/processed/final_results.csv` (aggregated metrics) and `data/processed/analysis_report.md` (summary of findings). **Verification**: Both files exist and contain expected headers/sections.
-- [X] T032 [US3] Verify that the direction of effect aligns with the hypothesis (Separated < Monolithic for Hallucination Rate) AND verify the **non-inferiority margin** (0.05) for Style Consistency. **Output**: Write `code/scripts/verify_hypothesis.py` that checks `Separated < Monolithic` in `data/processed/glm_results.json` and the non-inferiority check, outputting `data/processed/hypothesis_verification.json` with `status: PASS/FAIL`. **Verification**: JSON file exists with status field.
-- [X] T041 [US3] [FR-006] Implement `code/analysis/stats.py` to calculate the **effective sample size** per random effect level (Profile/Task) after exclusions. If any level has **< 5 observations**, flag the GLMM convergence as "UNRELIABLE" in `data/processed/glm_results.json`.
+- [ ] T031 [US3] Create `code/scripts/analyze.py` to run the full analysis pipeline and output `data/processed/final_results.csv` (aggregated metrics) and `data/processed/analysis_report.md` (summary of findings). **Verification**: Both files exist and contain expected headers/sections.
+- [ ] T032 [US3] Verify that the direction of effect aligns with the hypothesis (Separated < Monolithic for Hallucination Rate) AND verify the **non-inferiority margin** (0.05) for Style Consistency. **Output**: Write `code/scripts/verify_hypothesis.py` that checks `Separated < Monolithic` in `data/processed/glm_results.json` and the non-inferiority check, outputting `data/processed/hypothesis_verification.json` with `status: PASS/FAIL`. **Verification**: JSON file exists with status field.
+- [ ] T041 [US3] [FR-006] Implement `code/analysis/stats.py` to calculate the **effective sample size** per random effect level (Profile/Task) after exclusions. If any level has **< 5 observations**, flag the GLMM convergence as "UNRELIABLE" in `data/processed/glm_results.json` **AND** trigger a "CONVERGENCE_FAILURE" report in `data/processed/convergence_report.md`, halting further analysis. **Verification**: Report exists if triggered.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +196,7 @@
 - [X] T033 [P] Documentation updates in `specs/001-llmxive-follow-up-extending-colleague-sk/quickstart.md`: Add "Setup" section with install commands, "Inference" section with run examples, "Evaluation" section with metric definitions. **Verification**: File contains all three sections with code blocks.
 - [X] T034 Code cleanup and refactoring of `code/evaluation/metrics.py`: Refactor to use Strategy Pattern for validators; add unit tests in `tests/unit/test_metrics.py` for edge cases (empty input, null context). **Verification**: Refactored code exists and all new tests pass.
 - [X] T035 Performance optimization for inference pipeline: Target metric: reduce latency by calculating (Baseline - New) / Baseline. Method: Implement batch inference in `engine.py` to process a batch of tasks. **Verification**: Benchmark script `tests/benchmark_batch.py` must record the **actual achieved latency reduction percentage** and report it in the output log.
-- [X] T036 [P] Additional unit tests in `tests/unit/` for edge cases: empty input, null context, malformed JSON in `profiles.py` and `tasks.py`. **Verification**: All new tests pass and cover specified edge cases.
+- [ ] T036 [P] Additional unit tests in `tests/unit/` for edge cases: empty input, null context, malformed JSON in `profiles.py` and `tasks.py`. **Verification**: All new tests pass and cover specified edge cases.
 - [X] T037 [P] Run `code/scripts/update_state.py` (created in T002a) to update `state/projects/.../artifacts.yaml` checksums. **Verification**: Script exists and successfully updates `artifacts.yaml`.
 
 ---
@@ -165,6 +206,19 @@
 **Purpose**: Address specific reviewer concerns regarding data robustness, CPU feasibility, and statistical validity. **Note**: Safety gates (T038, T039) have been moved to Phase 2.
 
 - [X] T042 [US3] [SC-002] Explicitly implement the non-inferiority margin test for Style Consistency as per SC-002, calculating the absolute difference and checking against the predefined margin (0.05) in `code/scripts/verify_hypothesis.py`. **Note**: Logic for this is now also integrated into T028 and T032.
+
+---
+
+## Phase 8: Execution Feedback Remediation (Run-Book Alignment)
+
+**Purpose**: Resolve mismatches between the `quickstart.md` run-book and the actual file structure created by tasks, ensuring all referenced scripts exist.
+
+- [ ] T043 [P] [Execution Feedback] Reconcile run-book vs implementation: Update `quickstart.md` to invoke the **actual** implementation scripts defined in the plan:
+ - Replace `code/data/generators/profile_generator.py` with `code/data_generation/profiles.py` (T006).
+ - Replace `code/data/generators/task_generator.py` with `code/data_generation/tasks.py` (T007).
+ - Replace `code/evaluation/score.py` with `code/scripts/evaluate.py` (T023).
+ **Action**: Edit `quickstart.md` to point to these existing paths. Do NOT create wrapper scripts.
+ **Verification**: The commands in `quickstart.md` run successfully without `ModuleNotFoundError`.
 
 ---
 
@@ -179,6 +233,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Review Remediation (Phase 7)**: Depends on completion of US1, US2, and US3 core logic; addresses specific reviewer feedback.
+- **Execution Feedback Remediation (Phase 8)**: Can be done in parallel with Phase 6/7, but must be completed before final `quickstart.md` validation.
 
 ### User Story Dependencies
 
@@ -221,11 +276,12 @@ Task: "Create tasks.py in code/data_generation/tasks.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+1. Complete Phase 0: Spec Amendment (T000a, T000b)
+2. Complete Phase 1: Setup
+3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
@@ -257,11 +313,15 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Scale Note**: This project uses a reduced scale of 10 profiles × 50 tasks × **3 conditions** = 1,500 runs for CI feasibility, as defined in the Plan's Statistical Power section.
+- **Scale Note**: This project uses a reduced scale of 10 profiles × 50 tasks × **3 conditions ** = 1,500 runs for CI feasibility, as defined in the Plan's Statistical Power section and authorized by T000b.
 - **Revision Note**: Phase 7 tasks address specific reviewer concerns regarding data integrity, CPU feasibility, and statistical power validation.
 - **Consolidation Note**: Tasks T007a-T007d have been consolidated into T007 to prevent parallel write conflicts.
-- **Spec Alignment Note**: T026a has been moved to Phase 1/consolidated into T004c to ensure the spec is corrected before analysis implementation.
+- **Spec Alignment Note**: T000b amends the spec to allow GLMM and reduced scale. T004c and T028 reference T000b.
 - **Constraint Preservation Note**: All tasks have been updated to explicitly match the specific values and requirements in the spec (e.g., thresholds, conditions, correction methods).
 - **Ordering Note**: Safety gates (T038, T039) have been moved to Phase 2 to ensure they run before data generation and inference.
-- **Dependency Note**: T014b explicitly consumes artifacts from T006/T007.
+- **Dependency Note**: T014a explicitly consumes artifacts from T006/T007. T027 depends on T023. T028 depends on T000b and T004b.
 - **Tagging Note**: All tasks now include explicit FR/SC tags where applicable.
+- **Run-Book Alignment Note**: Phase 8 task (T043) updates `quickstart.md` to point to the actual implementation paths, eliminating the need for wrapper scripts.
+- **Convergence Note**: T041 handles the "UNRELIABLE" convergence case by halting analysis and generating a failure report.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->

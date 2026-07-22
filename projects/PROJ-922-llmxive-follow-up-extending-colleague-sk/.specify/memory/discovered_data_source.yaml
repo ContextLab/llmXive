@@ -1,11 +1,14 @@
 status: none
-intent: download Project Gutenberg full text dataset python package dataset
+intent: Hugging Face Model Hub Llama-2-8B Q4 GGML Phi-3-mini GGML python package dataset
 required_fields:
-- text
-- title
-- author
-- book_id
-- language
-cache_key: ff3e6adb77a2008fef8a2cbe06dd1df1024f735d5637b024eec0d2b286a71c67
-searched_at: '2026-07-17T19:16:54.206370+00:00'
+- model_name
+- model_size_parameters
+- quantization_format
+- model_weights_file
+- tokenizer_files
+- config_file
+- license
+- download_url
+cache_key: ed9fc54f56d1600c6e060bf3a3ac84268d0359ca737c46ade6bd545dc6758ee3
+searched_at: '2026-07-22T17:38:13.658248+00:00'
 retry_count: 1
