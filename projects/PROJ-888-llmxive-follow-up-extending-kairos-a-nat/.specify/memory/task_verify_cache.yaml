@@ -1,0 +1,46 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directory `projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/`
+    being created is provided; the implementer did not supply any artifact (e.g.,
+    a directory listing, screenshot, or log) confirming the `mkdir -p` command succeeded.
+    The task remains unverified.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that a `code/` directory actually exists (e.g., a directory
+    listing, screenshot, or file path confirmation). Without such proof, we cannot
+    verify that the required `mkdir -p code` command was executed. The implementer
+    must provide concrete proof that the `code/` directory was created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that a `tests/` directory actually exists in the repository;
+    the implementer provided no file listing, screenshots, or other proof of the `mkdir
+    -p tests` command having been run. Without such artifact, the task requirement
+    is not satisfied.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the `data/`, `state/`, and `docs/` directories\
+    \ were actually created; the implementer\u2019s claim is unsubstantiated. The\
+    \ required directory artifacts are missing from the supplied information."
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided in the evidence; therefore we\
+    \ cannot confirm that a non\u2011empty project overview and quickstart instructions\
+    \ exist. The required artifact is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation showing the added validation logic that detects\
+    \ degenerate cases (such as a 1\u2011bit collapse) and flags them as \u201CInvalid\
+    \ Data\u201D was provided. The required artifact is missing, so the task is not\
+    \ satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, logs, or data files were supplied; the implementer did not provide any
+    artifact showing logging of quantization levels, noise seeds, or peak RAM usage
+    per task. Consequently, the requirement cannot be verified as met.
