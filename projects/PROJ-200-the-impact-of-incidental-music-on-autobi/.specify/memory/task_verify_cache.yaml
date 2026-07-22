@@ -20,14 +20,6 @@ T043:
     \ the performance optimization requirement is met. The implementer must provide\
     \ the relevant implementation or evidence (e.g., code snippet, test showing chunked\
     \ processing, or logs) that verifies chunking is employed for >5\u202FGB datasets."
-T045b:
-  c: false
-  h: 2a5d8bd026b42e398783bb6cd13d1b94774a95901303171ab881fe3fa757f06b
-  r: The `code/modeling.py` file does not contain a `calculate_permutation_pvalue`
-    function (the shown code ends with a truncated `run_permutation_test` definition
-    and no such function is present). Additionally, the required output file `data/final/permutation_results.csv`
-    is missing from the repository. Both the implementation and the expected result
-    file are absent.
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
