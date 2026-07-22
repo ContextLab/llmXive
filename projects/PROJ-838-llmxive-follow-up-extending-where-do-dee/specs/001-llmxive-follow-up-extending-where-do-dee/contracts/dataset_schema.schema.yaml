@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TELBench Trajectory Schema"
+type: "object"
+description: "Schema for raw trajectory data from TELBench dataset."
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique identifier for the trajectory."
+  spans:
+    type: "array"
+    description: "Ordered list of semantic spans."
+    items:
+      type: "object"
+      properties:
+        text:
+          type: "string"
+          description: "Text content of the span."
+        timestamp:
+          type: "number"
+          description: "Timestamp of the span."
+        type:
+          type: "string"
+          description: "Type of span (e.g., query, response)."
+      required:
+        - "text"
+  label:
+    type: "string"
+    description: "Final outcome label."
+    enum:
+      - "success"
+      - "failure"
+required:
+  - "trajectory_id"
+  - "spans"
+  - "label"

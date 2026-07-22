@@ -1,0 +1,12 @@
+status: none
+intent: download TELBench deep research trajectories as python package dataset
+required_fields:
+- trajectory_id
+- span_index
+- span_text
+- claim_id
+- citations
+- coreference_links
+cache_key: 7f944975caee22cdb03c21438512b1d865e5cd69d066756642202d9959c5d481
+searched_at: '2026-07-22T10:13:29.680025+00:00'
+retry_count: 1

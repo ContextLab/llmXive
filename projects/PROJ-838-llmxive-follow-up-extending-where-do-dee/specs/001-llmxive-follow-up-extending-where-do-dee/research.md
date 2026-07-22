@@ -1,62 +1,71 @@
-# Research: llmXive follow-up: extending "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization"
+# Research: 001-gene-regulation
 
-## Problem Statement
-Deep-research agents often fail due to "collapse" in their reasoning process. This study investigates whether early-stage topological signatures (specifically low connectivity) in the claim-dependency graph of a trajectory can predict this collapse before the final outcome is known. The hypothesis is that successful trajectories exhibit higher structural interdependence in their early reasoning spans compared to those that eventually fail.
+## Overview
+
+This research investigates whether early-stage topological signatures (connectivity and branching) in deep-research agent trajectories can predict final trajectory collapse. The study utilizes the TELBench dataset to extract Claim-Dependency Graphs from the first portion of reasoning spans, computes normalized metrics, and validates a threshold-based predictor against ground-truth labels.
 
 ## Dataset Strategy
 
 ### Verified Datasets
-The following datasets are used, citing only the verified URLs provided in the project context:
+The project relies exclusively on the following verified sources, as mandated by the project constitution:
 
-| Dataset Name | Description | Verified URL | Usage |
-|:--- |:--- |:--- |:--- |
-| **TELBench** | Collection of annotated deep-research trajectories with success/failure labels. | ` | Primary source of trajectories, spans, and ground-truth labels. |
+| Dataset Name | Description | Verified URL | Load Strategy |
+| :--- | :--- | :--- | :--- |
+| **TELBench** | Annotated deep-research trajectories with success/failure labels. | `https://huggingface.co/datasets/NJU-LINK/TELBench` | `datasets.load_dataset("NJU-LINK/TELBench")` |
 
-*Note: The other URLs listed in the project context (DAG, F1-score benchmarks) are not used for this specific analysis as they do not contain the raw trajectory text required for graph construction. This study relies exclusively on TELBench.*
+*Note on Dataset Fit*: The TELBench dataset is confirmed to contain semantic spans and final success/failure labels, which are the required variables for this study. The dataset is public and accessible via the Hugging Face Hub.
 
-### Dataset Variable Fit
-* **Required Variables**: Semantic spans (text), trajectory ID, final success/failure label.
-* **Availability**: TELBench contains these fields.
-* **Gap Analysis**: The study requires "co-reference and citation logic" to be inferred from text. TELBench provides the raw text. The plan does **not** rely on pre-labeled error spans for graph construction (Constitution Principle VI), ensuring the dataset fit is valid for the *predictor* variables. The *target* variable (success/failure) is available for validation.
+### Data Availability & Feasibility
+- **Open Access**: TELBench is hosted on Hugging Face, allowing programmatic download via the `datasets` library without requiring special credentials (beyond standard HF token if any).
+- **Streaming**: To handle potential dataset size > 7 GB RAM, the `downloader.py` will use `streaming=True` to iterate over rows without loading the entire dataset into memory.
+- **No Synthetic Data**: The plan uses real data only. If the dataset is inaccessible, the pipeline will fail explicitly rather than generating synthetic stand-ins.
 
-## Methodology
+## Methodological Rigor
 
-### 1. Graph Construction (Independent of Ground Truth)
-* **Input**: First [deferred]% of semantic spans from a trajectory.
-* **Logic**:
- * Nodes: Individual semantic claims.
- * Edges: Inferred via textual co-reference and explicit citations.
- * **Implementation**: Uses `spaCy` (dependency parsing and pronoun resolution) and regex for explicit citations (e.g., "[1]"). This replaces vague "regex" with a standard, CPU-tractable NLP library.
- * **Constraint**: No use of ground-truth error annotations during this phase.
-* **Construct Validity Note**: Since edge detection relies on heuristics, the study will perform a manual spot-check of 50 graphs to estimate edge detection accuracy. If accuracy is low, the "Connectivity" metric will be framed as a "heuristic proxy" rather than a ground-truth structural measure.
-* **Output**: Directed Acyclic Graph (DAG) per trajectory.
+### Statistical Approach
+1. **Graph Construction**: Directed Acyclic Graphs (DAGs) built from the first `cutoff_depth` (default [deferred]) of spans. Edges inferred via textual co-reference and citation logic (e.g., "this claim", "as cited in").
+2. **Metrics**:
+   - **Average Branching Factor**: $\frac{\sum \text{out-degree}}{\text{node count}}$
+   - **Global Connectivity**: $\frac{\text{edge count}}{\text{node count} \times (\text{node count} - 1)}$
+   - **Linear Reasoning Index**: $\frac{\text{longest path length}}{\text{node count}}$ (to rule out valid linear reasoning).
+   - *Normalization*: Both metrics are normalized by node count to distinguish structural density from text volume.
+3. **Thresholding**: The prediction threshold is optimized on the training split by sweeping percentiles {10, 20, 30} to maximize F1-score, rather than fixed at 20th percentile a priori.
+4. **Validation**: Precision, Recall, F1-score, and Confusion Matrix calculated against ground-truth labels on the held-out test set.
+5. **Correlation**: Spearman/Pearson correlation and p-value calculated between connectivity and collapse.
 
-### 2. Topological Metrics
-* **Global Connectivity**: $\frac{\text{actual edges}}{\text{possible edges}}$. Normalized measure of graph density.
-* **Collinearity Handling**: Branching Factor and Connectivity are linearly dependent for a fixed node count. To avoid multicollinearity, the study will use **Global Connectivity** as the primary predictor. If multivariate analysis is required, PCA will be applied to raw graph statistics before modeling.
-* **Normalization**: The metric is divided by node count to ensure it measures *structure* rather than *volume*.
+### Rigor Checks
+- **Multiple Comparisons**: Sensitivity analysis (SC-004) sweeps thresholds to control for arbitrary cutoff selection.
+- **Sample Size/Power**: The study will report the number of trajectories used. If the dataset is small, the power limitation will be explicitly acknowledged in the final report.
+- **Causal Inference**: The study is **observational**. Claims will be framed as *associational* (e.g., "low connectivity is associated with collapse") rather than causal. No randomization exists.
+- **Measurement Validity**: The metrics (Branching, Connectivity) are standard graph theory measures. The "Claim-Dependency" inference is heuristic; validity will be checked via manual inspection of a sample (US-1).
+- **Collinearity**: Branching and Connectivity are mathematically related. The plan will use PCA or regularized logistic regression to handle this collinearity, ensuring a robust composite construct.
+- **Small Graph Stability**: For graphs with < 5 nodes, the metric will be flagged as 'unstable' and excluded from threshold derivation or handled via bootstrap resampling to ensure reliability.
 
-### 3. Prediction & Validation
-* **Threshold Selection**: The threshold is **not** a fixed percentile of the success class (which creates circular logic). Instead, the threshold is determined by maximizing the **F1-score** (or Youden's J statistic) on the **validation split** ([deferred] of data). This ensures the cutoff is data-driven based on the separation of the success and failure distributions.
- * *Rationale*: This avoids the "self-fulfilling prophecy" where the threshold is defined by the positive class alone. It tests whether the distributions actually overlap or are distinct.
-* **Evaluation**:
- * Compare predicted "Collapse" (metric < threshold) vs. Actual "Failure" on the **test split** ([deferred] of data).
- * Metrics: Precision, Recall, F1-score.
- * Significance: Pearson/Spearman correlation between early connectivity and final outcome (p < 0.05).
-* **Null Hypothesis Testing**: A **permutation test** (shuffling labels 1000 times) will be performed to generate a null distribution of the correlation coefficient. The observed correlation must significantly exceed this null distribution to claim a non-trivial relationship.
-* **Power Analysis**: A post-hoc power analysis will be conducted using the effect size (Cohen's d) from the training split. If power < 0.8, the study will explicitly report this limitation and interpret non-significant results with caution.
-* **Sensitivity Analysis**: Thresholds swept at {0.01, 0.05, 0.1} and percentiles at {10, 20, 30} to ensure robustness (SC-004). Results will be reported as a full table, and the "best" threshold will be selected based on the highest F1-score on the validation set.
+### Compute Feasibility (CPU-First)
+- **Method**: Graph construction and metric calculation are $O(N \cdot E)$ where $N$ is spans and $E$ is edges. For typical trajectories, this is trivial on CPU.
+- **Escape Hatch**: No GPU required. The entire pipeline is designed for the GitHub Actions free-tier (2 CPU, 7 GB RAM).
+- **Strategy**: Use `pandas` for tabular data and `networkx` for graph operations. Streaming ensures memory safety.
 
-## Statistical Rigor & Assumptions
+## Decision / Rationale
 
-* **Multiple Comparisons**: If multiple metrics were tested independently, a Bonferroni correction would be applied. However, due to collinearity, only the primary metric (Global Connectivity) is tested, mitigating this risk.
-* **Power Analysis**: As noted, a formal post-hoc power analysis is included. This addresses the risk of Type II errors.
-* **Causal Inference**: The study uses observational data. No randomization of topological structures exists. **All claims are framed as associational.** We do not claim low connectivity *causes* collapse, but that it is a *predictive signature*.
-* **Measurement Validity**: The validity of "co-reference" detection relies on `spaCy` heuristics. This is a limitation acknowledged in the discussion, and a manual spot-check is performed to quantify it.
-* **Collinearity**: Branching Factor and Connectivity are mathematically related. The study uses only Global Connectivity as the primary predictor to avoid multicollinearity issues in significance testing.
+| Decision | Rationale |
+| :--- | :--- |
+| **CPU-only execution** | The analysis involves graph theory on text, not deep learning. GPU is unnecessary and would waste resources. |
+| **Hugging Face `datasets` library** | Provides robust streaming and caching, essential for large datasets on constrained CI runners. |
+| **Optimized Threshold** | Replacing the fixed 20th percentile with an optimization sweep {10, 20, 30} ensures the threshold is data-driven and maximizes predictive power, avoiding arbitrary heuristics. |
+| **Normalization by Node Count** | Prevents conflating "longer trajectories" with "better structure". Ensures metrics are density-based. |
+| **Graceful Degradation** | Handles short trajectories (< cutoff) and zero-edge cases by returning 0.0, ensuring the pipeline does not crash on edge cases. |
+| **Data Leakage Prevention** | Explicit separation of training (threshold derivation) and test (evaluation) sets prevents circular validation. |
 
-## Decision Rationale (Compute Feasibility)
+## Limitations & Risks
 
-* **CPU-Only**: The plan explicitly avoids LLM-based co-reference resolution in favor of `spaCy` (CPU mode) and deterministic regex. This ensures the pipeline runs within the 6-hour GitHub Actions limit on 2 CPU cores.
-* **Sampling**: If the full TELBench dataset exceeds memory, the pipeline will process trajectories in batches, writing intermediate results to disk, ensuring < 7 GB RAM usage.
-* **Library Choice**: `networkx` is used for graph algorithms as it is pure Python/C and highly optimized for small-to-medium graphs (typical of reasoning trajectories). `spaCy`'s `en_core_web_sm` model is lightweight and CPU-tractable.
+- **Dataset Access**: If the dataset requires authentication not covered by the standard HF token, the pipeline may fail. Mitigation: Fallback to public mirror if available, or report access failure.
+- **Heuristic Edge Inference**: Co-reference/citation logic may miss implicit dependencies. This is a known limitation of text-based graph construction.
+- **Observational Nature**: Cannot claim causality between topology and collapse.
+- **Power**: If the dataset is small, statistical significance may be low.
+- **Metric Instability**: Small graphs may yield unstable metrics. Mitigation: Flag and exclude or use bootstrap.
+- **Collinearity**: Branching and Connectivity are correlated. Mitigation: Use PCA/regularized regression.
+
+## Data Leakage Prevention
+
+The threshold derivation (Phase 3) is performed **only** on the `train_metrics.csv` (derived from the training split). The evaluation (Phase 4) is performed **only** on the `test_metrics.csv`. The test set labels are never used during threshold optimization or metric calculation, ensuring no data leakage.

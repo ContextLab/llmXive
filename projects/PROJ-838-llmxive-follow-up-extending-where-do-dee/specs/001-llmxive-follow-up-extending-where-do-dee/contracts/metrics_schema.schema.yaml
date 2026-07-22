@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Topological Metrics Schema"
+type: "object"
+description: "Schema for processed metrics CSV file."
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique ID of the trajectory."
+  node_count:
+    type: "integer"
+    description: "Number of nodes in the graph."
+  edge_count:
+    type: "integer"
+    description: "Number of edges in the graph."
+  avg_branching_factor:
+    type: "number"
+    description: "Average branching factor (out-degree / node_count)."
+  global_connectivity:
+    type: "number"
+    description: "Global connectivity (edges / possible_edges)."
+  linear_reasoning_index:
+    type: "number"
+    description: "Linear reasoning index (longest path / node_count)."
+  label:
+    type: "string"
+    description: "Ground truth label."
+    enum:
+      - "success"
+      - "failure"
+  is_train:
+    type: "boolean"
+    description: "Whether the trajectory is in the training set."
+  is_stable:
+    type: "boolean"
+    description: "Whether the metric is stable (node_count >= 5)."
+required:
+  - "trajectory_id"
+  - "node_count"
+  - "edge_count"
+  - "avg_branching_factor"
+  - "global_connectivity"
+  - "linear_reasoning_index"
+  - "label"
+  - "is_train"
+  - "is_stable"
