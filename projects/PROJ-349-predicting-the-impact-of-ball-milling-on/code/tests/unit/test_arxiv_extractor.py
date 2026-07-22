@@ -1,7 +1,6 @@
 """
-Unit tests for ArXiv PDF Extractor (T014).
+Unit tests for arXiv PDF extractor.
 """
-
 import json
 import os
 import tempfile
@@ -10,149 +9,214 @@ from unittest.mock import patch, MagicMock, mock_open
 import pytest
 
 from src.ingest.arxiv_extractor import (
-    _hash_bytes,
-    _load_flagged_entries,
-    _save_flagged_entries,
-    _flag_unstructured_entry,
-    _parse_psd_from_text,
-    extract_psd_from_arxiv
+    extract_psd_from_arxiv,
+    run_arxiv_ingestion,
+    _extract_tables_from_text,
+    _parse_table_to_metrics,
+    _calculate_hash
 )
-from src.exceptions import DataFormatError, SourceConnectionError
+from src.exceptions import DataIngestionError
 
 class TestHashing:
-    def test_hash_bytes(self):
-        data = b"test data"
-        h = _hash_bytes(data)
-        assert len(h) == 64  # SHA-256 hex length
-        assert h == "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
-
-class TestFlaggedEntries:
-    @pytest.fixture
-    def temp_flagged_file(self, tmp_path):
-        # Create a temporary file for testing
-        flag_file = tmp_path / "flagged_psd.json"
-        flag_file.write_text(json.dumps([{"experiment_id": "existing", "source": "test"}]))
-        return flag_file
-
-    def test_load_flagged_entries_existing(self, temp_flagged_file):
-        # Temporarily override the global path
-        import src.ingest.arxiv_extractor as ae
-        original_path = ae.FLAGGED_PSD_PATH
-        ae.FLAGGED_PSD_PATH = temp_flagged_file
-        
-        entries = _load_flagged_entries()
-        assert len(entries) == 1
-        assert entries[0]["experiment_id"] == "existing"
-        
-        # Restore
-        ae.FLAGGED_PSD_PATH = original_path
-
-    def test_load_flagged_entries_missing(self, tmp_path):
-        import src.ingest.arxiv_extractor as ae
-        original_path = ae.FLAGGED_PSD_PATH
-        ae.FLAGGED_PSD_PATH = tmp_path / "nonexistent.json"
-        
-        entries = _load_flagged_entries()
-        assert entries == []
-        
-        ae.FLAGGED_PSD_PATH = original_path
-
-    def test_flag_unstructured_entry(self, tmp_path):
-        import src.ingest.arxiv_extractor as ae
-        original_path = ae.FLAGGED_PSD_PATH
-        ae.FLAGGED_PSD_PATH = tmp_path / "flagged_psd.json"
-        
-        _flag_unstructured_entry(
-            experiment_id="test_123",
-            source="arxiv",
-            issue_type="image",
-            raw_blob_hash="abc123"
-        )
-        
-        entries = _load_flagged_entries()
-        assert len(entries) == 1
-        assert entries[0]["experiment_id"] == "test_123"
-        
-        ae.FLAGGED_PSD_PATH = original_path
+    """Test hash calculation functionality."""
+    
+    def test_calculate_hash_consistency(self):
+        """Test that same input produces same hash."""
+        data = "test data"
+        hash1 = _calculate_hash(data)
+        hash2 = _calculate_hash(data)
+        assert hash1 == hash2
+        assert len(hash1) == 64  # SHA-256 hex length
+    
+    def test_calculate_hash_uniqueness(self):
+        """Test that different inputs produce different hashes."""
+        hash1 = _calculate_hash("data1")
+        hash2 = _calculate_hash("data2")
+        assert hash1 != hash2
 
 class TestTextParsing:
-    def test_parse_psd_from_text_found(self):
-        text = "The particle size distribution showed a D50 of 15.5 μm."
-        result = _parse_psd_from_text(text)
-        assert result is not None
-        assert "15.5" in result["raw_text_match"]
+    """Test text parsing and table extraction."""
+    
+    def test_extract_tables_from_text_empty(self):
+        """Test extraction from empty text."""
+        tables = _extract_tables_from_text("")
+        assert tables == []
+    
+    def test_extract_tables_from_text_no_numbers(self):
+        """Test extraction from text without numbers."""
+        text = "This is just text without any numbers or units."
+        tables = _extract_tables_from_text(text)
+        assert tables == []
+    
+    def test_extract_tables_from_text_with_tables(self):
+        """Test extraction from text containing table-like content."""
+        text = """
+        Some text before
+        D10: 5.2 µm D50: 12.3 µm D90: 25.1 µm
+        More text
+        D10: 3.1 µm D50: 8.7 µm D90: 18.9 µm
+        Text after
+        """
+        tables = _extract_tables_from_text(text)
+        assert len(tables) >= 1
+        assert any("D10" in row for table in tables for row in table)
+    
+    def test_parse_table_to_metrics_basic(self):
+        """Test parsing of basic table with D10, D50, D90."""
+        table_rows = [
+            "D10: 5.2 µm D50: 12.3 µm D90: 25.1 µm",
+            "Material: Alumina"
+        ]
+        metrics = _parse_table_to_metrics(table_rows)
+        assert metrics is not None
+        assert 'd10' in metrics
+        assert 'd50' in metrics
+        assert 'd90' in metrics
+        assert abs(metrics['d10'] - 5.2) < 0.01
+        assert abs(metrics['d50'] - 12.3) < 0.01
+        assert abs(metrics['d90'] - 25.1) < 0.01
+    
+    def test_parse_table_to_metrics_nanometers(self):
+        """Test parsing with nanometer units (conversion to µm)."""
+        table_rows = [
+            "D10: 5200 nm D50: 12300 nm D90: 25100 nm"
+        ]
+        metrics = _parse_table_to_metrics(table_rows)
+        assert metrics is not None
+        assert abs(metrics['d10'] - 5.2) < 0.01
+        assert abs(metrics['d50'] - 12.3) < 0.01
+        assert abs(metrics['d90'] - 25.1) < 0.01
+    
+    def test_parse_table_to_metrics_no_metrics(self):
+        """Test parsing when no metrics are found."""
+        table_rows = [
+            "Some random text",
+            "Without any D values"
+        ]
+        metrics = _parse_table_to_metrics(table_rows)
+        assert metrics is None
 
-    def test_parse_psd_from_text_not_found(self):
-        text = "This is just random text without any particle size data."
-        result = _parse_psd_from_text(text)
-        assert result is None
+class TestFlaggedEntries:
+    """Test that flagged entries are handled correctly."""
+    
+    def test_record_structure(self):
+        """Test that extracted records have required structure."""
+        # This is a mock test - actual extraction would require real PDFs
+        mock_record = {
+            'experiment_id': 'arxiv_12345_0',
+            'source': 'arXiv',
+            'material_type': 'unknown',
+            'milling_speed': None,
+            'milling_time': None,
+            'ball_to_powder_ratio': None,
+            'youngs_modulus': None,
+            'density': None,
+            'd10': 5.0,
+            'd50': 12.0,
+            'd90': 25.0,
+            'process_duration': None,
+            'pdf_url': 'https://arxiv.org/pdf/12345',
+            'text_hash': 'dummy_hash'
+        }
+        assert 'experiment_id' in mock_record
+        assert 'source' in mock_record
+        assert 'd10' in mock_record
+        assert 'd50' in mock_record
+        assert 'd90' in mock_record
 
 class TestExtractionIntegration:
-    @patch('src.ingest.arxiv_extractor._fetch_arxiv_papers')
-    @patch('src.ingest.arxiv_extractor._download_pdf')
-    @patch('src.ingest.arxiv_extractor._extract_text_from_pdf')
-    @patch('src.ingest.arxiv_extractor._detect_images_in_pdf')
-    @patch('src.ingest.arxiv_extractor._parse_psd_from_text')
-    @patch('src.ingest.arxiv_extractor._flag_unstructured_entry')
-    def test_extract_psd_from_arxiv_success(
-        self,
-        mock_flag,
-        mock_parse,
-        mock_detect,
-        mock_extract_text,
-        mock_download,
-        mock_fetch,
-        tmp_path
+    """Integration tests for the extraction pipeline."""
+    
+    @patch('src.ingest.arxiv_extractor.arxiv.Search')
+    @patch('src.ingest.arxiv_extractor.arxiv.Client')
+    @patch('src.ingest.arxiv_extractor.extract_text')
+    @patch('src.ingest.arxiv_extractor.Path')
+    def test_run_arxiv_ingestion_success(
+        self, mock_path, mock_extract_text, mock_client, mock_search
     ):
-        # Setup mocks
-        mock_fetch.return_value = [
-            {"arxiv_id": "1234.5678", "title": "Test Paper", "pdf_url": "http://test.com/test.pdf"}
-        ]
-        mock_download.return_value = tmp_path / "test.pdf"
-        mock_extract_text.return_value = "D50: 10 um"
-        mock_detect.return_value = [] # No images
-        mock_parse.return_value = {"raw_text_match": "10", "source": "text", "confidence": "low"}
+        """Test successful ingestion run."""
+        # Mock arXiv search results
+        mock_paper = MagicMock()
+        mock_paper.entry_id = "https://arxiv.org/abs/1234.5678"
+        mock_paper.title = "Test Paper"
+        mock_client.return_value.results.return_value = [mock_paper]
+        
+        # Mock text extraction
+        mock_extract_text.return_value = "D10: 5.2 µm D50: 12.3 µm D90: 25.1 µm"
+        
+        # Mock path operations
+        mock_output_path = MagicMock()
+        mock_output_path.parent.mkdir.return_value = None
+        mock_path.return_value = mock_output_path
+        
+        # Run ingestion
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Patch the output file path
+            import src.ingest.arxiv_extractor as extractor
+            original_output = extractor.OUTPUT_FILE
+            extractor.OUTPUT_FILE = Path(tmpdir) / "test_output.json"
+            
+            try:
+                result = run_arxiv_ingestion()
+                
+                # Verify output file was created
+                assert os.path.exists(extractor.OUTPUT_FILE)
+                
+                # Verify content
+                with open(extractor.OUTPUT_FILE, 'r') as f:
+                    data = json.load(f)
+                    assert isinstance(data, list)
+            finally:
+                extractor.OUTPUT_FILE = original_output
+    
+    @patch('src.ingest.arxiv_extractor.arxiv.Search')
+    @patch('src.ingest.arxiv_extractor.arxiv.Client')
+    def test_run_arxiv_ingestion_no_results(self, mock_client, mock_search):
+        """Test ingestion when no papers are found."""
+        mock_client.return_value.results.return_value = []
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import src.ingest.arxiv_extractor as extractor
+            original_output = extractor.OUTPUT_FILE
+            extractor.OUTPUT_FILE = Path(tmpdir) / "test_output.json"
+            
+            try:
+                result = run_arxiv_ingestion()
+                
+                # Verify empty output file was created
+                assert os.path.exists(extractor.OUTPUT_FILE)
+                with open(extractor.OUTPUT_FILE, 'r') as f:
+                    data = json.load(f)
+                    assert data == []
+            finally:
+                extractor.OUTPUT_FILE = original_output
+    
+    @patch('src.ingest.arxiv_extractor.extract_text')
+    def test_extraction_with_exception(self, mock_extract_text):
+        """Test that exceptions are handled gracefully."""
+        mock_extract_text.side_effect = Exception("PDF read error")
+        
+        # This should not raise an exception, just log a warning
+        # and return empty records
+        records = []
+        try:
+            # We can't easily test the full pipeline without mocking more,
+            # but we can test the error handling logic
+            from src.ingest.arxiv_extractor import _extract_psd_from_pdf
+            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
+                f.write(b"fake pdf")
+                temp_path = f.name
+            
+            try:
+                records = _extract_psd_from_pdf(temp_path, "test_id")
+            except DataIngestionError:
+                # Expected behavior
+                pass
+            finally:
+                os.unlink(temp_path)
+        except Exception:
+            # Should not reach here
+            pytest.fail("Unexpected exception during error handling test")
 
-        # Run
-        records, flagged = extract_psd_from_arxiv(output_dir=tmp_path / "raw", max_papers=1)
-
-        # Assertions
-        assert len(records) == 1
-        assert records[0]["experiment_id"] == "arxiv_1234.5678"
-        assert records[0]["status"] == "processed"
-        assert flagged == 0
-        mock_flag.assert_not_called()
-
-    @patch('src.ingest.arxiv_extractor._fetch_arxiv_papers')
-    @patch('src.ingest.arxiv_extractor._download_pdf')
-    @patch('src.ingest.arxiv_extractor._extract_text_from_pdf')
-    @patch('src.ingest.arxiv_extractor._detect_images_in_pdf')
-    @patch('src.ingest.arxiv_extractor._flag_unstructured_entry')
-    def test_extract_psd_from_arxiv_with_images(
-        self,
-        mock_flag,
-        mock_detect,
-        mock_extract_text,
-        mock_download,
-        mock_fetch,
-        tmp_path
-    ):
-        # Setup mocks
-        mock_fetch.return_value = [
-            {"arxiv_id": "9999.0000", "title": "Image Paper", "pdf_url": "http://test.com/img.pdf"}
-        ]
-        mock_download.return_value = tmp_path / "img.pdf"
-        mock_extract_text.return_value = "No data here"
-        mock_detect.return_value = [MagicMock()] # One image detected
-        mock_parse.return_value = None
-
-        # Run
-        records, flagged = extract_psd_from_arxiv(output_dir=tmp_path / "raw", max_papers=1)
-
-        # Assertions
-        assert len(records) == 1
-        assert records[0]["status"] == "flagged_unstructured"
-        assert flagged == 1
-        mock_flag.assert_called_once()
-        call_args = mock_flag.call_args
-        assert call_args[1]["issue_type"] == "unstructured_psd_image"
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

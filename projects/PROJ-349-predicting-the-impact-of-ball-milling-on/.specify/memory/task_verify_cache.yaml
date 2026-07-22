@@ -1,24 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or placeholder files were presented; without concrete evidence
-    that the required folders (`src/`, `tests/`, `data/raw`, `data/processed`, `data/splits`,
-    `results`, `contracts/`, `.github/workflows/`) exist, the claim cannot be verified.
-    The implementer must provide a listing or screenshots showing these directories
-    (and any placeholder files) in the repository.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `flake8 --version`, `black --version`, or a successful `black
-    --check src/` run is present; the required artifacts (version outputs and linting
-    check results) are missing, so the linting configuration cannot be confirmed as
-    completed.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or filesystem evidence were provided; the required `data/raw`,\
-    \ `data/processed`, `data/splits`, and `results` folders are not shown to exist,\
-    \ so the task\u2019s deliverable cannot be verified."
 T007a:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
@@ -34,14 +13,31 @@ T007b:
     \ `from src.exceptions import \u2026` does not match the actual location of `exceptions.py`\
     \ (`src/utils/exceptions.py`), so the module would fail to import. Both issues\
     \ prevent the function from being fully functional as required."
-T013b:
+T012:
   c: false
-  h: c628e90c982b9b235f35e247bf96bec82d39825ecd5dc800ec542970236744ec
-  r: "The repository contains `src/ingest/arxiv_extractor.py`, but the file is truncated\
-    \ and lacks any logic that extracts tables, writes them to `data/raw/arxiv_tables.json`,\
-    \ or raises `DataIngestionError` on failure. Moreover, the required output file\
-    \ `data/raw/arxiv_tables.json` does not exist. Consequently the task\u2019s core\
-    \ requirements are not met."
+  h: 51069ee0eb52e7709a5b59aacd55ba0433ca7fe6b04a26fc61815cd5b1486a33
+  r: "The repository contains `src/ingest/materials_project.py`, but the implementation\
+    \ is truncated and does not show a complete fetch\u2011parse\u2011write workflow,\
+    \ and the required output file `data/raw/materials_project_raw.json` is absent.\
+    \ Without the JSON file (and with an incomplete script), the task\u2019s verification\
+    \ condition of a non\u2011empty output file is not met. The next implementer must\
+    \ finish the fetcher logic and ensure the JSON file is created (or correctly logged/skipped)\
+    \ as specified."
+T013:
+  c: false
+  h: 04793116853942cfcd0d5a10c3609b5bb95e7455443d022e8c9c5d5d451d9764
+  r: "The required source file `src/ingest/nist_repo.py` does not exist, and the expected\
+    \ schema file `contracts/dataset.schema.yaml` is missing. Moreover, the produced\
+    \ CSV contains only three rows (far below the required \u2265150 rows) and cannot\
+    \ be verified against the missing schema. These gaps mean the implementation does\
+    \ not meet the task specifications."
+T013d:
+  c: false
+  h: c93c81e6c214ed26095b3e91b8f417ad008834bfffe5df07750931425e4019a8
+  r: "The CSV file exists but contains only 15 data rows (far fewer than the required\
+    \ \u2265150) and the referenced schema file (`contracts/dataset.schema.yaml`)\
+    \ is missing, so schema validation cannot be performed. Both the row\u2011count\
+    \ requirement and the validation step are unmet."
 T015b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

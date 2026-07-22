@@ -6,87 +6,55 @@ import pytest
 from setup_project_structure import setup_directories
 
 class TestSetupProjectStructure:
-    def test_setup_directories_creates_all_required_dirs(self, tmp_path):
-        """
-        Verify that setup_directories creates all required directories
-        and places .gitkeep files in empty ones.
-        """
-        # Change to the temporary directory to simulate the project root
+    def test_creates_directories(self, tmp_path):
+        """Test that setup_directories creates the required folder structure."""
+        # Change to temporary directory to avoid polluting real project
         original_cwd = os.getcwd()
         try:
             os.chdir(tmp_path)
             
-            # Mock the parent path to point to tmp_path
-            # Since the script uses Path(__file__).parent.parent, we need to
-            # ensure the script thinks tmp_path is the correct base.
-            # We will patch the base_path calculation inside the function
-            # or simply run the function and check tmp_path contents.
+            # Run the setup function
+            result = setup_directories()
             
-            # A simpler approach: Patch the base_path variable in the module
-            # or just verify the function creates dirs relative to where it's run.
-            # Let's patch the module's base_path logic by mocking Path.
+            assert result is True
             
-            # Actually, let's just run the function and verify the result.
-            # The function determines base_path based on its location.
-            # To test effectively, we should patch the base_path logic.
+            # Verify expected directories exist
+            expected_dirs = [
+                "src",
+                "tests",
+                "data/raw",
+                "data/processed",
+                "data/splits",
+                "results",
+                "contracts",
+                ".github/workflows"
+            ]
             
-            with patch('setup_project_structure.Path') as mock_path:
-                # Setup mock to return tmp_path for parent.parent
-                mock_instance = MagicMock()
-                mock_instance.parent.name = 'code' # Simulate being in code/
-                mock_instance.parent.parent = tmp_path
-                mock_path.return_value = mock_instance
+            for dir_name in expected_dirs:
+                dir_path = tmp_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_name} was not created"
+                assert dir_path.is_dir(), f"{dir_name} is not a directory"
                 
-                result = setup_directories()
+                # Check for .gitkeep
+                gitkeep = dir_path / ".gitkeep"
+                assert gitkeep.exists(), f".gitkeep missing in {dir_name}"
                 
-                assert result is True
-                
-                # Verify directories exist
-                required_dirs = [
-                    "src",
-                    "tests",
-                    "data/raw",
-                    "data/processed",
-                    "data/splits",
-                    "results",
-                    "contracts",
-                    ".github/workflows"
-                ]
-                
-                for dir_name in required_dirs:
-                    dir_path = tmp_path / dir_name
-                    assert dir_path.exists(), f"Directory {dir_name} was not created"
-                    assert dir_path.is_dir(), f"{dir_name} is not a directory"
-                    
-                    # Check for .gitkeep in empty directories
-                    # Since we just created them, they should be empty or have .gitkeep
-                    if not any(dir_path.iterdir()):
-                        assert (dir_path / ".gitkeep").exists(), f".gitkeep missing in {dir_name}"
-                        
         finally:
             os.chdir(original_cwd)
 
-    def test_setup_directories_handles_existing_dirs(self, tmp_path):
-        """
-        Verify that setup_directories does not fail if directories already exist.
-        """
+    def test_idempotent(self, tmp_path):
+        """Test that running setup_directories twice does not cause errors."""
         original_cwd = os.getcwd()
         try:
             os.chdir(tmp_path)
             
-            # Pre-create one directory
-            (tmp_path / "src").mkdir()
+            # Run twice
+            setup_directories()
+            setup_directories()
             
-            with patch('setup_project_structure.Path') as mock_path:
-                mock_instance = MagicMock()
-                mock_instance.parent.name = 'code'
-                mock_instance.parent.parent = tmp_path
-                mock_path.return_value = mock_instance
-                
-                result = setup_directories()
-                
-                assert result is True
-                assert (tmp_path / "src").exists()
-                
+            # Verify structure still exists and is valid
+            assert (tmp_path / "src").exists()
+            assert (tmp_path / "data/raw").exists()
+            
         finally:
             os.chdir(original_cwd)

@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: ed7fcca65795029bb3c61a529161dbe6e7c1368f4bd61dbb7abc41ff72471b63
+- artifact_hash: 4d60b731cf6ee6f05799e832a3636c8c77f536bb8212ceea4a05599f34492058
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,37 @@
   value: https://next-gen.materialsproject.org/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-20T09:15:30.291431Z'
+  verified_at: '2026-07-22T22:19:52.246097Z'
+- artifact_hash: 4d60b731cf6ee6f05799e832a3636c8c77f536bb8212ceea4a05599f34492058
+  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nist.gov/publications/ball-milling-data`
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/publications/ball-milling-data
+  verified_at: '2026-07-22T22:19:52.246097Z'
+- artifact_hash: 4d60b731cf6ee6f05799e832a3636c8c77f536bb8212ceea4a05599f34492058
+  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nist.gov/sites/default/files/documents/2023/05/ball_milling_data.csv`
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/sites/default/files/documents/2023/05/ball_milling_data.csv
+  verified_at: '2026-07-22T22:19:52.246097Z'
+- artifact_hash: 4d60b731cf6ee6f05799e832a3636c8c77f536bb8212ceea4a05599f34492058
+  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-22T22:19:52.246097Z'

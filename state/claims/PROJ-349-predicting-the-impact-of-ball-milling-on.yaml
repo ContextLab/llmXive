@@ -1142,3 +1142,160 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T08:25:47Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Target dataset size 500 experiments, minimum viable 150 experiments
+  claim_id: c_a298695d
+  context: 'Phase 3: User Story 1 - Data Aggregation and Preprocessing Pipeline (Priority:
+    P1) Goal: Automatically aggregate ball milling experimental data from public repositories...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_dataset_size_500_experiments,_minimum_viable_150_expe
+  kind: magnitude
+  raw_text: The goal is to create a clean, analysis-ready dataset of at least 500
+    experiments (target) or 150 (minimum viable).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:50:55Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Validation raises InsufficientDataError if row count less than 150
+  claim_id: c_c4803c09
+  context: 'T007b [P] Implement validation logic in src/preprocess/validate_schema.py
+    to enforce contracts/dataset.schema.yaml. Deliverable: A fully functional validate_schema(dataframe)
+    function that raises InsufficientDataError (defined in src.utils.exceptions via
+    T008) if row count < 150 or schema validation fails.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_raises_InsufficientDataError_if_row_count_less_th
+  kind: magnitude
+  raw_text: The validation logic raises InsufficientDataError if row count < 150 or
+    schema validation fails.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:51:14Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Static fallback subset must contain at least 150 rows
+  claim_id: c_f62c980b
+  context: 'T013d [US1] Implement sourcing and validation of the verified static fallback
+    subset. Output: data/fallback/verified_static_subset.csv with >= 150 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Static_fallback_subset_must_contain_at_least_150_rows
+  kind: magnitude
+  raw_text: The verified static fallback subset must contain >= 150 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:54:02Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Final merged dataset must have at least 150 rows
+  claim_id: c_abb17826
+  context: 'T013c [US1] Implement fallback aggregation from verified static subset.
+    Verification: Final merged dataset has >= 150 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_merged_dataset_must_have_at_least_150_rows
+  kind: magnitude
+  raw_text: The final merged dataset must have >= 150 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:54:28Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses at most 1000 trees
+  claim_id: c_7d56470e
+  context: "T024 [US2] Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_model_uses_at_most_1000_trees
+  kind: magnitude
+  raw_text: The Random Forest model uses <= 1000 trees.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:54:53Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Statistical test significance level alpha 0.05
+  claim_id: c_44a47674
+  context: "T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical test uses a significance level of alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T21:55:03Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: CI workflow job time limit 360 minutes
+  claim_id: c_b3631b50
+  context: 'T037c Enforce a job time limit of several hours to prevent indefinite
+    execution. using timeout-minutes: 360 in the workflow definition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI workflow enforces a job time limit of 360 minutes (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:55:17Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback triggered if runtime exceeds 1800 seconds or memory exceeds
+    5GB
+  claim_id: c_56758de6
+  context: 'Notes: Critical: GPR fallback to Random Forest must be automatic and logged
+    if >30min (1800s) or >5GB RAM (configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPR fallback to Random Forest is triggered if runtime exceeds 30 minutes
+    (1800 seconds) or memory exceeds 5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T21:55:30Z'

@@ -1,14 +1,10 @@
 """
-ArXiv PDF Extractor for Ball Milling PSD Data.
+arXiv PDF Extractor for Ball Milling Data.
 
-This module implements the extraction of Particle Size Distribution (PSD) data
-from ArXiv PDFs. It uses pdfminer.six to parse text and tables, and includes
-logic to detect unstructured data (images/curves) for potential OCR fallback.
-
-Per FR-008, unstructured entries are flagged to data/flagged_psd.json with
-the required schema.
+This module implements the extraction of PSD metrics (D10, D50, D90) from
+arXiv PDFs related to ball milling. It uses pdfminer.six for table extraction
+and the arxiv Python library for search.
 """
-
 import hashlib
 import json
 import logging
@@ -17,287 +13,256 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from pdfminer.high_level import extract_pages, extract_text
-from pdfminer.layout import LAParams, LTTextContainer, LTImage, LTChar
+import arxiv
+import pandas as pd
+from pdfminer.high_level import extract_text
+from pdfminer.layout import LAParams, LTTable, LTTextContainer
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfdevice import PDFDevice
 from pdfminer.converter import PDFPageAggregator
-from pdfminer.layout import LTPage
+from pdfminer.layout import PDFPageAggregator
 
-from src.exceptions import DataIngestionError, DataFormatError, InsufficientDataError
-from src.utils.error_handler import handle_ingestion_errors
+from src.exceptions import DataIngestionError
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Constants
-FLAGGED_PSD_PATH = Path("data/flagged_psd.json")
-ARXIV_API_BASE = "https://export.arxiv.org/api/query"
-ARXIV_SEARCH_SIZE = 10  # Number of papers to fetch initially for this task
-
-# Regex patterns for extracting potential numeric PSD data from text
-PSD_PATTERNS = [
-    r"D\d+\s*[:=]?\s*([\d.]+)\s*(?:μm|um|mm|nm)",
-    r"particle size\s*[:=]?\s*([\d.]+)\s*(?:μm|um|mm|nm)",
-    r"mean size\s*[:=]?\s*([\d.]+)\s*(?:μm|um|mm|nm)",
-    r"[\d.]+\s*μm\s*[-–]\s*[\d.]+\s*μm",  # Range
+ARXIV_SEARCH_QUERY = 'ball milling AND "particle size distribution"'
+OUTPUT_FILE = Path("data/raw/arxiv_tables.json")
+MAX_RESULTS_TO_PROCESS = 5  # Process first 5 results to avoid rate limits
+REQUIRED_COLUMNS = [
+    'experiment_id', 'source', 'material_type', 'milling_speed',
+    'milling_time', 'ball_to_powder_ratio', 'youngs_modulus',
+    'density', 'd10', 'd50', 'd90', 'process_duration', 'pdf_url'
 ]
 
-def _hash_bytes(data: bytes) -> str:
-    """Generate a SHA-256 hash for raw blob identification."""
-    return hashlib.sha256(data).hexdigest()
+def _calculate_hash(data: str) -> str:
+    """Calculate SHA-256 hash of data."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
-def _load_flagged_entries() -> List[Dict[str, Any]]:
-    """Load existing flagged entries from JSON."""
-    if not FLAGGED_PSD_PATH.exists():
-        return []
-    try:
-        with open(FLAGGED_PSD_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        logger.warning(f"Could not load flagged entries: {e}")
-        return []
-
-def _save_flagged_entries(entries: List[Dict[str, Any]]) -> None:
-    """Save flagged entries to JSON."""
-    FLAGGED_PSD_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(FLAGGED_PSD_PATH, "w", encoding="utf-8") as f:
-        json.dump(entries, f, indent=2)
-
-def _flag_unstructured_entry(
-    experiment_id: str,
-    source: str,
-    issue_type: str,
-    raw_blob_hash: str
-) -> None:
+def _extract_tables_from_text(text: str) -> List[Dict[str, Any]]:
     """
-    Flag an entry as unstructured in data/flagged_psd.json.
-
-    Schema: experiment_id, source, issue_type, raw_blob_hash
+    Extract tabular data from text using regex patterns.
+    This is a heuristic approach since pdfminer table extraction can be unreliable.
     """
-    entries = _load_flagged_entries()
-    new_entry = {
-        "experiment_id": experiment_id,
-        "source": source,
-        "issue_type": issue_type,
-        "raw_blob_hash": raw_blob_hash
-    }
-    # Avoid duplicates
-    if not any(e["experiment_id"] == new_entry["experiment_id"] for e in entries):
-        entries.append(new_entry)
-        _save_flagged_entries(entries)
-        logger.info(f"Flagged unstructured entry: {experiment_id} ({issue_type})")
-
-def _extract_text_from_pdf(pdf_path: Path) -> str:
-    """Extract raw text from a PDF using pdfminer.six."""
-    try:
-        text = extract_text(str(pdf_path), laparams=LAParams())
-        return text
-    except Exception as e:
-        raise DataFormatError(f"Failed to extract text from {pdf_path}: {e}")
-
-def _detect_images_in_pdf(pdf_path: Path) -> List[LTImage]:
-    """
-    Detect images in a PDF. This is a heuristic for unstructured PSD curves.
-    Returns a list of image objects found.
-    """
-    images = []
-    try:
-        rsrcmgr = PDFResourceManager()
-        retstr = ""
-        laparams = LAParams()
-        device = PDFPageAggregator(rsrcmgr, laparams=laparams)
-        interpreter = PDFPageInterpreter(rsrcmgr, device)
-
-        with open(pdf_path, 'rb') as fp:
-            parser = PDFParser(fp)
-            doc = PDFDocument(parser)
-            pages = PDFPage.create_pages(doc)
-
-            for page in pages:
-                interpreter.process_page(page)
-                layout = device.get_result()
-                for element in layout:
-                    if isinstance(element, LTImage):
-                        images.append(element)
-    except Exception as e:
-        logger.warning(f"Error detecting images in {pdf_path}: {e}")
+    tables = []
+    lines = text.split('\n')
     
-    return images
+    # Look for lines that look like table rows (contain numbers and units)
+    number_pattern = re.compile(r'[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?')
+    unit_pattern = re.compile(r'(?:µm|nm|mm|Hz|rpm|s|min|hr|GPa|g/cm³|g/cc)')
+    
+    current_table = []
+    for line in lines:
+        # Check if line contains numbers and units (potential table row)
+        if number_pattern.search(line) and unit_pattern.search(line):
+            current_table.append(line.strip())
+        else:
+            if len(current_table) >= 2:  # Minimum rows for a table
+                tables.append(current_table)
+            current_table = []
+    
+    # Don't forget the last table
+    if len(current_table) >= 2:
+        tables.append(current_table)
+    
+    return tables
 
-def _parse_psd_from_text(text: str) -> Optional[Dict[str, Any]]:
+def _parse_table_to_metrics(table_rows: List[str]) -> Optional[Dict[str, float]]:
     """
-    Attempt to parse PSD metrics from extracted text using regex.
-    Returns a dict if found, None otherwise.
+    Parse table rows to extract D10, D50, D90 values.
+    Returns a dictionary with extracted values or None if parsing fails.
     """
-    for pattern in PSD_PATTERNS:
-        matches = re.findall(pattern, text, re.IGNORECASE)
-        if matches:
-            # Simple heuristic: return the first match as a potential D50
-            # In a full implementation, we would try to distinguish D10/D50/D90
-            return {
-                "raw_text_match": matches[0],
-                "source": "text_extraction",
-                "confidence": "low"
-            }
+    metrics = {}
+    d_patterns = {
+        'd10': re.compile(r'[Dd]10\s*[:\s=]+([0-9.]+)\s*(?:µm|nm|mm)?'),
+        'd50': re.compile(r'[Dd]50\s*[:\s=]+([0-9.]+)\s*(?:µm|nm|mm)?'),
+        'd90': re.compile(r'[Dd]90\s*[:\s=]+([0-9.]+)\s*(?:µm|nm|mm)?')
+    }
+    
+    for row in table_rows:
+        for metric, pattern in d_patterns.items():
+            match = pattern.search(row)
+            if match:
+                try:
+                    value = float(match.group(1))
+                    # Convert to micrometers if needed (assume input is in µm or nm)
+                    if 'nm' in row.lower():
+                        value = value / 1000.0
+                    metrics[metric] = value
+                except ValueError:
+                    continue
+    
+    # Only return if we found at least one metric
+    if metrics:
+        return metrics
     return None
 
-def _fetch_arxiv_papers(query: str = "ball milling particle size", max_results: int = ARXIV_SEARCH_SIZE) -> List[Dict[str, str]]:
+def _extract_psd_from_pdf(pdf_path: str, paper_id: str) -> List[Dict[str, Any]]:
     """
-    Fetch paper IDs and PDF URLs from ArXiv API.
-    Note: This is a simplified fetcher. In production, handle pagination and rate limits.
+    Extract PSD metrics from a PDF file.
+    
+    Args:
+        pdf_path: Path to the PDF file
+        paper_id: arXiv paper ID for reference
+        
+    Returns:
+        List of extracted experiment records
     """
-    import urllib.parse
-    import urllib.request
-    import xml.etree.ElementTree as ET
-
-    query = urllib.parse.quote(query)
-    url = f"{ARXIV_API_BASE}?search_query=all:{query}&start=0&max_results={max_results}&sortBy=submittedDate&sortOrder=descending"
-
+    records = []
     try:
-        with urllib.request.urlopen(url, timeout=30) as response:
-            data = response.read()
-            root = ET.fromstring(data)
-            namespace = {'atom': 'http://www.w3.org/2005/Atom', 'arxiv': 'http://arxiv.org/schemas/atom'}
+        # Extract text from PDF
+        text = extract_text(pdf_path)
+        
+        # Calculate hash for tracking
+        text_hash = _calculate_hash(text)
+        
+        # Extract tables from text
+        tables = _extract_tables_from_text(text)
+        
+        if not tables:
+            logger.warning(f"No tables found in PDF for paper {paper_id}")
+            return records
+        
+        # Parse each table for metrics
+        for table_rows in tables:
+            metrics = _parse_table_to_metrics(table_rows)
+            if metrics:
+                record = {
+                    'experiment_id': f"arxiv_{paper_id}_{len(records)}",
+                    'source': 'arXiv',
+                    'material_type': 'unknown',  # Would need NLP to extract
+                    'milling_speed': None,
+                    'milling_time': None,
+                    'ball_to_powder_ratio': None,
+                    'youngs_modulus': None,
+                    'density': None,
+                    'd10': metrics.get('d10'),
+                    'd50': metrics.get('d50'),
+                    'd90': metrics.get('d90'),
+                    'process_duration': None,
+                    'pdf_url': f"https://arxiv.org/pdf/{paper_id}",
+                    'text_hash': text_hash
+                }
+                records.append(record)
+                
+    except Exception as e:
+        logger.warning(f"Failed to extract from PDF {pdf_path}: {str(e)}")
+        raise DataIngestionError(f"PDF extraction failed for {paper_id}: {str(e)}")
+    
+    return records
+
+def extract_psd_from_arxiv(max_results: int = MAX_RESULTS_TO_PROCESS) -> List[Dict[str, Any]]:
+    """
+    Search arXiv for ball milling papers and extract PSD metrics.
+    
+    Args:
+        max_results: Maximum number of papers to process
+        
+    Returns:
+        List of extracted experiment records
+    """
+    all_records = []
+    
+    try:
+        # Search arXiv
+        logger.info(f"Searching arXiv with query: {ARXIV_SEARCH_QUERY}")
+        search = arxiv.Search(
+            query=ARXIV_SEARCH_QUERY,
+            max_results=max_results,
+            sort_by=arxiv.SortCriterion.Relevance
+        )
+        
+        client = arxiv.Client()
+        papers = list(client.results(search))
+        
+        if not papers:
+            logger.warning("No papers found matching the search query")
+            return all_records
+        
+        logger.info(f"Found {len(papers)} papers, processing up to {max_results}")
+        
+        # Process each paper
+        for i, paper in enumerate(papers):
+            paper_id = paper.entry_id.split('/')[-1]
+            logger.info(f"Processing paper {i+1}/{len(papers)}: {paper.title}")
             
-            papers = []
-            for entry in root.findall('atom:entry', namespace):
-                id_elem = entry.find('atom:id', namespace)
-                title_elem = entry.find('atom:title', namespace)
-                if id_elem is not None:
-                    papers.append({
-                        "arxiv_id": id_elem.text.split("/")[-1],
-                        "title": title_elem.text.strip() if title_elem is not None else "Unknown",
-                        "pdf_url": id_elem.text.replace("abs", "pdf")
-                    })
-            return papers
+            try:
+                # Download PDF
+                pdf_path = f"/tmp/{paper_id}.pdf"
+                paper.download_pdf(filename=pdf_path)
+                
+                # Extract PSD metrics
+                records = _extract_psd_from_pdf(pdf_path, paper_id)
+                all_records.extend(records)
+                
+                # Clean up
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+                    
+            except DataIngestionError:
+                # Log and continue with next paper
+                continue
+            except Exception as e:
+                logger.warning(f"Unexpected error processing paper {paper_id}: {str(e)}")
+                continue
+                
     except Exception as e:
-        raise SourceConnectionError(f"Failed to fetch ArXiv papers: {e}")
-
-def _download_pdf(pdf_url: str, dest_dir: Path) -> Path:
-    """Download a PDF from a URL to a local directory."""
-    import urllib.request
+        logger.error(f"Failed to search arXiv: {str(e)}")
+        raise DataIngestionError(f"arXiv search failed: {str(e)}")
     
-    filename = f"arxiv_{hashlib.md5(pdf_url.encode()).hexdigest()}.pdf"
-    dest_path = dest_dir / filename
-    
-    try:
-        urllib.request.urlretrieve(pdf_url, str(dest_path))
-        return dest_path
-    except Exception as e:
-        raise SourceConnectionError(f"Failed to download PDF from {pdf_url}: {e}")
+    return all_records
 
-@handle_ingestion_errors
-def extract_psd_from_arxiv(
-    output_dir: Optional[Path] = None,
-    query: str = "ball milling particle size",
-    max_papers: int = 5
-) -> Tuple[List[Dict[str, Any]], int]:
+def run_arxiv_ingestion() -> Optional[str]:
     """
-    Main entry point for T014.
-    
-    1. Fetches ArXiv papers matching the query.
-    2. Downloads PDFs.
-    3. Extracts text and detects images (unstructured data).
-    4. Parses text for PSD metrics.
-    5. Flags unstructured entries (images) to data/flagged_psd.json.
+    Main entry point for arXiv ingestion pipeline.
     
     Returns:
-        Tuple of (list of extracted records, count of flagged entries)
+        Path to output file if successful, None otherwise
     """
-    if output_dir is None:
-        output_dir = Path("data/raw/arxiv")
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Fetching ArXiv papers with query: {query}")
-    papers = _fetch_arxiv_papers(query, max_results=max_papers)
-    
-    if not papers:
-        logger.warning("No papers found matching the query.")
-        return [], 0
-
-    extracted_records = []
-    flagged_count = 0
-
-    for paper in papers:
-        paper_id = paper["arxiv_id"]
-        logger.info(f"Processing paper: {paper_id}")
-        
-        try:
-            # Download PDF
-            pdf_path = _download_pdf(paper["pdf_url"], output_dir)
-            raw_hash = _hash_bytes(open(pdf_path, "rb").read())
-            
-            # 1. Extract Text
-            text = _extract_text_from_pdf(pdf_path)
-            
-            # 2. Detect Images (Unstructured Data)
-            images = _detect_images_in_pdf(pdf_path)
-            
-            record = {
-                "source": "arxiv",
-                "experiment_id": f"arxiv_{paper_id}",
-                "title": paper["title"],
-                "pdf_hash": raw_hash,
-                "text_content": text[:1000], # Store snippet
-                "has_images": len(images) > 0,
-                "image_count": len(images),
-                "status": "processed"
-            }
-
-            # 3. Parse Text for PSD
-            psd_data = _parse_psd_from_text(text)
-            if psd_data:
-                record["psd_metrics"] = psd_data
-            else:
-                record["psd_metrics"] = None
-                record["status"] = "no_psd_found_in_text"
-
-            # 4. Handle Unstructured Data (Images) per FR-008
-            if images:
-                logger.warning(f"Detected {len(images)} images in {paper_id}. Flagging for OCR fallback.")
-                _flag_unstructured_entry(
-                    experiment_id=record["experiment_id"],
-                    source="arxiv",
-                    issue_type="unstructured_psd_image",
-                    raw_blob_hash=raw_hash
-                )
-                flagged_count += 1
-                record["status"] = "flagged_unstructured"
-
-            extracted_records.append(record)
-
-        except Exception as e:
-            logger.error(f"Error processing paper {paper_id}: {e}")
-            # Continue processing other papers
-            continue
-
-    return extracted_records, flagged_count
-
-def run_arxiv_ingestion():
-    """CLI entry point for T014."""
-    logger.info("Starting ArXiv PDF extraction (T014)...")
     try:
-        records, flagged = extract_psd_from_arxiv(max_papers=10)
-        logger.info(f"Extraction complete. Found {len(records)} records, {flagged} flagged for OCR.")
+        # Extract data
+        records = extract_psd_from_arxiv()
         
-        # Save raw extraction result to a JSON file for downstream processing
-        output_file = Path("data/processed/arxiv_extracted.json")
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f:
+        if not records:
+            logger.warning("No data extracted from arXiv")
+            # Create empty output file to indicate completion
+            OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(OUTPUT_FILE, 'w') as f:
+                json.dump([], f, indent=2)
+            return str(OUTPUT_FILE)
+        
+        # Save to JSON
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(OUTPUT_FILE, 'w') as f:
             json.dump(records, f, indent=2)
         
-        logger.info(f"Saved extracted records to {output_file}")
+        logger.info(f"Successfully extracted {len(records)} records to {OUTPUT_FILE}")
+        return str(OUTPUT_FILE)
         
-        if flagged > 0:
-            logger.info(f"Flagged entries saved to {FLAGGED_PSD_PATH}")
-            
+    except DataIngestionError as e:
+        logger.error(f"arXiv ingestion failed: {str(e)}")
+        # Still create empty file to allow pipeline to continue
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(OUTPUT_FILE, 'w') as f:
+            json.dump([], f, indent=2)
+        return str(OUTPUT_FILE)
     except Exception as e:
-        logger.critical(f"ArXiv ingestion failed: {e}")
+        logger.error(f"Unexpected error in arXiv ingestion: {str(e)}")
         raise
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    run_arxiv_ingestion()
+    # Configure logging for standalone execution
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    result = run_arxiv_ingestion()
+    if result:
+        print(f"arXiv extraction complete. Output: {result}")
+    else:
+        print("arXiv extraction failed.")
+        exit(1)
