@@ -1,57 +1,61 @@
 # Quickstart: Investigate Brain Network Dynamics and VR Therapy Response
 
-## 1. Prerequisites
+## Prerequisites
 
--   Python 3.10+
--   `pip`
--   (Optional) `git` for cloning the repo.
+- **Python**: 3.11 or higher.
+- **Dependencies**: `pip install -r requirements.txt`.
+- **Data**: The pipeline expects the dataset to be available via the verified HuggingFace link. No manual download is required if using the automated downloader.
 
-## 2. Installation
+## Installation
+
+1.  **Clone the repository** (or navigate to the project root).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Running the Pipeline
+
+The pipeline is executed via the CLI. It performs the following steps in order:
+1.  **Verify** dataset availability and variables.
+2.  **Download** and preprocess data (streamed).
+3.  **Compute** network metrics.
+4.  **Run** statistical analysis and sensitivity checks.
+5.  **Generate** reports.
+
+### Command
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python -m src.cli.run_pipeline --config config/default.yaml
 ```
 
-## 3. Configuration
+### Configuration
 
-Before running, ensure a valid dataset is available.
-**Note**: The current `# Verified datasets` block does not contain a verified source for paired fMRI and clinical scores.
-1.  If you have a local dataset, place it in `data/raw/`.
-2.  If using OpenNeuro, update `config.yaml` (or environment variables) with the dataset ID.
-3.  **Critical**: The pipeline will halt if `pre_treatment_score` and `post_treatment_score` are missing from the metadata.
+The `config/default.yaml` file contains:
+- `dataset_url`: The verified HuggingFace URL.
+- `motion_threshold`: Default 3.0 mm.
+- `atlas`: Default 'Schaefer-100'.
+- `max_subjects`: Default 20.
 
-## 4. Running the Pipeline
+## Expected Outputs
 
-The pipeline executes in four stages:
+After successful execution, the following artifacts will be generated:
 
-```bash
-# Stage 1: Download & Validate (Halt if missing variables)
-python code/main.py --stage download
+- `data/processed/`: Preprocessed NIfTI files.
+- `data/metrics/network_metrics.csv`: Computed graph metrics.
+- `reports/statistical_results.json`: Regression coefficients, p-values, effect sizes.
+- `reports/sensitivity_analysis.md`: Summary of sensitivity sweeps (motion: {2.0, 3.0} mm; p: {0.01, 0.05, 0.1}).
+- `reports/diagnostic_plots/`: Scatter plots and residual diagnostics.
+- `data/verified_sources.json`: Verified dataset ID and validation log.
 
-# Stage 2: Preprocess (Motion correction, normalization)
-python code/main.py --stage preprocess
+## Troubleshooting
 
-# Stage 3: Compute Metrics (Network graphs)
-python code/main.py --stage compute
-
-# Stage 4: Analyze (ANCOVA State, Exploratory Response, Sensitivity, Plots)
-python code/main.py --stage analyze
-```
-
-## 5. Output
-
--   `data/metrics/network_metrics.csv`: Computed metrics per subject.
--   `data/results/analysis_results.json`: Regression coefficients and p-values (Primary: State, Secondary: Response, Tertiary: Delta-Delta).
--   `figures/`: Diagnostic plots (scatter, residuals, sensitivity).
--   `paper/draft.md`: Auto-generated text with associational framing.
-
-## 6. Troubleshooting
-
--   **"Fatal Error: Missing required variable"**: The dataset lacks pre/post clinical scores. Verify the dataset metadata.
--   **"Out of Memory"**: Reduce the number of subjects (N) in the configuration. The pipeline is designed for N=10.
--   **"High Collinearity"**: The system runs Univariate models but flags VIF > 5. Ridge regression is NOT used. **Spec update required to remove Ridge mandate.**
+- **"Missing required variable"**: The dataset lacks pre/post anxiety scores. The pipeline halts. No synthetic data is generated.
+- **"Memory Error"**: The `streaming=True` flag should prevent this. If it occurs, reduce `max_subjects` in config.
+- **"VIF > 5"**: The pipeline automatically switches to Ridge regression. Check `reports/statistical_results.json` for the `model_type` field.
+- **"No Open Longitudinal Dataset Found"**: The pipeline could not find a dataset with both rs-fMRI and pre/post clinical scores. The study cannot proceed.

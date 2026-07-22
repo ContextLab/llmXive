@@ -1,70 +1,82 @@
 # Data Model: Investigate Brain Network Dynamics and VR Therapy Response
 
-## 1. Conceptual Model
+## Entity Relationship Diagram (Conceptual)
 
-The data model tracks the lifecycle of a subject from raw scan to final statistical result.
+```mermaid
+erDiagram
+    Subject ||--o{ PreScan : has
+    Subject ||--o{ PostScan : has
+    Subject ||--o{ ClinicalRecord : has
+    Subject ||--o{ NetworkMetric : has
+    ClinicalRecord ||--|| AnxietyInstrument : uses
+    NetworkMetric ||--|| AtlasType : uses
+```
 
-### Entities
+## Core Entities
 
-1.  **Subject**: An individual participant.
-    -   `subject_id`: Unique identifier (string).
-    -   `group`: (e.g., "VR_Therapy", "Control" if applicable).
-    -   `age`: Integer.
-    -   `sex`: String (M/F/Other).
-    -   `medication_status`: String (None, SSRI, etc.).
-    -   `pre_treatment_score`: Float (Anxiety scale).
-    -   `post_treatment_score`: Float (Anxiety scale).
-    -   `instrument_name`: String (e.g., "GAD-7").
-    -   `motion_metrics`: Dict (mean_fd, max_translation, max_rotation).
-    -   `exclusion_reason`: String (null if included).
+### 1. Subject
+Represents a single participant in the study.
+- `subject_id` (string): Unique identifier (e.g., `sub-001`).
+- `age` (int): Age in years.
+- `gender` (string): 'M', 'F', 'Other'.
+- `medication_status` (string): 'None', 'SSRI', 'Benzodiazepine', 'Unknown'.
+- `exclusion_reason` (string or null): Reason for exclusion (e.g., "Motion > 3mm").
 
-2.  **Scan**: A single fMRI acquisition.
-    -   `scan_id`: Unique identifier.
-    -   `subject_id`: FK to Subject.
-    -   `timepoint`: Enum ("pre", "post").
-    -   `file_path_raw`: Path to NIfTI.
-    -   `file_path_processed`: Path to preprocessed NIfTI.
-    -   `checksum`: SHA256 string.
+### 2. Scan
+Represents a pre- or post-treatment fMRI scan.
+- `scan_id` (string): Unique identifier.
+- `subject_id` (string): FK to Subject.
+- `timepoint` (string): 'pre' or 'post'.
+- `file_path` (string): Path to NIfTI file.
+- `motion_fd` (float): Mean Framewise Displacement.
+- `quality_flag` (boolean): True if quality passes (motion < threshold).
 
-3.  **NetworkMetric**: Computed graph properties.
-    -   `metric_id`: Unique identifier.
-    -   `subject_id`: FK to Subject.
-    -   `timepoint`: Enum ("pre", "post").
-    -   `atlas`: String (e.g., "Schaefer100").
-    -   `modularity_q`: Float.
-    -   `global_efficiency`: Float.
-    -   `local_efficiency`: Float.
-    -   `valid`: Boolean (False if NaN or out of bounds).
+### 3. ClinicalRecord
+Represents clinical assessment scores.
+- `record_id` (string): Unique identifier.
+- `subject_id` (string): FK to Subject.
+- `timepoint` (string): 'pre' or 'post'.
+- `instrument` (string): 'GAD-7', 'HAM-A'.
+- `score` (float): Raw score.
+- `validation_status` (string): 'Validated', 'Invalid' (if instrument not in whitelist).
 
-4.  **AnalysisResult**: Statistical outcomes.
-    -   `result_id`: Unique identifier.
-    -   `metric_type`: String ("modularity", "global_efficiency", "local_efficiency").
-    -   `coefficient`: Float.
-    -   `p_value_uncorrected`: Float.
-    -   `p_value_corrected`: Float.
-    -   `effect_size`: Float (Cohen's d).
-    -   `model_type`: String ("ANCOVA_State", "Linear_Exploratory", "Delta_Delta_Exploratory").
-    -   `is_significant`: Boolean.
-    -   `framing`: String ("associational", "causal").
-    -   `collinearity_flag`: Boolean (True if VIF > 5 detected).
+### 4. NetworkMetric
+Represents computed graph-theoretic metrics.
+- `metric_id` (string): Unique identifier.
+- `subject_id` (string): FK to Subject.
+- `timepoint` (string): 'pre' (baseline metrics used for prediction).
+- `atlas` (string): 'AAL', 'Schaefer-100', 'Schaefer-200'.
+- `modularity_q` (float): Modularity value.
+- `global_efficiency` (float): Global efficiency.
+- `local_efficiency` (float): Local efficiency.
+- `connectivity_matrix_path` (string): Path to the correlation matrix file.
 
-## 2. Data Flow
+### 5. AnalysisResult
+Represents the output of the statistical model.
+- `result_id` (string): Unique identifier.
+- `model_type` (string): 'ANCOVA', 'Ridge', 'Univariate', 'PCA'.
+- `predictor` (string): e.g., 'modularity_q' or 'PC1'.
+- `coefficient` (float): Beta coefficient.
+- `p_value_uncorrected` (float).
+- `p_value_corrected` (float).
+- `effect_size_cohen_d` (float).
+- `vif` (float or null).
 
-1.  **Ingestion**: Raw NIfTI -> `data/raw/`.
-2.  **Validation**: Check metadata for `pre_treatment_score` and `post_treatment_score`.
-3.  **Preprocessing**: Raw -> `data/processed/`.
-4.  **Computation**: Processed -> `data/metrics/` (CSV).
-5.  **Analysis**: Metrics + Scores + Mean FD -> `data/results/` (JSON/CSV).
-6.  **Reporting**: Results -> `paper/` figures.
+### 6. TreatmentResponse
+Represents the clinical outcome (Change Score) for reporting.
+- `subject_id` (string): FK to Subject.
+- `pre_score` (float): Pre-treatment score.
+- `post_score` (float): Post-treatment score.
+- `delta_score` (float): Change score ($Y_{post} - Y_{pre}$).
+- `instrument` (string): 'GAD-7', 'HAM-A'.
 
-## 3. Constraints & Rules
+**Note on Outcome Definition**: The primary regression model uses $Y_{post}$ as the outcome to avoid regression to the mean artifacts. The `TreatmentResponse` entity (change score) is used for descriptive reporting and visualization only.
 
--   **Immutability**: Raw files in `data/raw/` are never overwritten.
--   **Checksums**: Every file in `data/` must have a corresponding checksum entry in the state file.
--   **Bounds**:
-    -   `modularity_q`: Must be in [0, 1].
-    -   `efficiency`: Must be >= 0 and finite.
--   **Collinearity**: **Ridge regression is NOT used**. If VIF > 5, the model is run but flagged as "High Collinearity". The primary strategy is Pre-specified Univariate models. **Spec update required to remove Ridge mandate.**
--   **Framing**: If `study_design` != "randomized", all `is_significant` findings must be labeled as "associational".
--   **Primary Outcome**: `post_treatment_score` (State). `change_score` (Delta) is secondary/exploratory.
--   **Motion Control**: Mean FD is included as a mandatory covariate in all regression models to control for residual motion artifacts.
+## File Formats
+
+- **Raw Data**: NIfTI (`.nii.gz`) stored in `data/raw/`.
+- **Processed Data**: NIfTI (`.nii.gz`) stored in `data/processed/`.
+- **Metrics**: CSV (`data/metrics/network_metrics.csv`) with columns: `subject_id, atlas, modularity_q, global_efficiency, local_efficiency`.
+- **Clinical Data**: CSV (`data/metrics/clinical_scores.csv`) with columns: `subject_id, timepoint, instrument, score`.
+- **Results**: JSON (`reports/statistical_results.json`) and Markdown (`reports/sensitivity_analysis.md`).
+- **Verified Sources**: JSON (`data/verified_sources.json`) with dataset ID and validation log.

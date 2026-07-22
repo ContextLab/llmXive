@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Clinical Scores Schema
+description: Schema for clinical anxiety scores CSV file.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  timepoint:
+    type: string
+    enum: [pre, post]
+    description: Timepoint of the assessment.
+  instrument:
+    type: string
+    enum: [GAD-7, HAM-A]
+    description: Validated anxiety assessment instrument.
+  score:
+    type: number
+    description: Raw score.
+  validation_status:
+    type: string
+    enum: [Validated, Invalid]
+    description: Whether the instrument is in the whitelist.
+required:
+  - subject_id
+  - timepoint
+  - instrument
+  - score
+  - validation_status
+additionalProperties: false

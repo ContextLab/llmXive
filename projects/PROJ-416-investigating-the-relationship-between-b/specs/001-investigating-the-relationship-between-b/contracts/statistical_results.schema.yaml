@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Results Schema
+description: Schema for the JSON output of the statistical analysis.
+type: object
+properties:
+  model_type:
+    type: string
+    enum: [ANCOVA, Ridge, Univariate, PCA]
+    description: Type of model used.
+  predictor:
+    type: string
+    description: Name of the network metric predictor.
+  coefficient:
+    type: number
+    description: Beta coefficient.
+  p_value_uncorrected:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Uncorrected p-value.
+  p_value_corrected:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Multiple-comparison corrected p-value.
+  effect_size_cohen_d:
+    type: number
+    description: Cohen's d effect size.
+  vif:
+    type: number
+    description: Variance Inflation Factor (if applicable).
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Number of subjects used in the model.
+  framing:
+    type: string
+    enum: [associational, causal, exploratory]
+    description: Framing of the result.
+required:
+  - model_type
+  - predictor
+  - coefficient
+  - p_value_uncorrected
+  - p_value_corrected
+  - effect_size_cohen_d
+  - sample_size
+  - framing
+additionalProperties: false

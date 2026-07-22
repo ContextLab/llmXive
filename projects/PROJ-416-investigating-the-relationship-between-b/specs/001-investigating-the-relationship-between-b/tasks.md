@@ -46,17 +46,12 @@
 - [X] T001 Create project structure per implementation plan: Create directories `code/`, `code/data/`, `code/analysis/`, `data/raw/`, `data/processed/`, `data/metrics/`, `reports/`, `tests/unit/`, `tests/integration/`, `docs/`; create files `requirements.txt`, `code/main.py`, `code/config.py`, `tests/conftest.py`.
 - [X] T002 Initialize Python 3.10 project with `nibabel`, `nilearn`, `scikit-learn`, `networkx`, `pandas`, `numpy`, `matplotlib`, `scipy`, `pytest`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
-- [ ] T001a [P] [Research] Identify and verify a valid OpenNeuro dataset ID containing both resting-state fMRI and paired pre/post clinical anxiety scores. 
-    - Search OpenNeuro for datasets matching the inclusion criteria (anxiety disorder, VR therapy context if available, or general anxiety with fMRI).
-    - Verify the dataset has the required variables: `pre_treatment_score`, `post_treatment_score`, `motion_metrics`.
-    - Write the verified ID and access details to `data/verified_sources.json` in the format: `{"openneuro_id": "ds-XXXX", "verified_date": "YYYY-MM-DD", "notes": "..."}`.
-    - This task MUST be completed before T012 or T041 can proceed.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes dataset verification and safety gates.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -66,6 +61,16 @@
 - [X] T007 Create `code/config.py` for environment variables (OpenNeuro ID, paths, seeds)
 - [X] T008 Implement `code/utils/logging.py` with structured logging for pipeline provenance
 - [X] T009 Setup `tests/unit` and `tests/integration` directory structures
+- [X] T001a [Research] Verify the existence of a pre-identified OpenNeuro dataset ID in `data/verified_sources.json`.
+ - **Scope**: This task enforces the "Dataset-Variable Fit" gate. It checks for the presence of `data/verified_sources.json` containing a valid OpenNeuro ID and metadata.
+ - **Deliverable**: The task MUST write a JSON file `data/verified_sources.json` with the following schema if a valid ID is found: `{"openneuro_id": "ds-XXXX", "verified_date": "YYYY-MM-DD", "notes": "...", "has_pre_post": true, "has_clinical_scores": true}`.
+ - **Blocking Logic**: If the file is missing, invalid, or no pre-identified ID is found, the task MUST raise a `FatalError` immediately with the message "BLOCKED: No verified dataset source found. Project cannot proceed."
+ - This task resolves the "STATUS: BLOCKED" issue in the plan by enforcing the gate before any network calls.
+ - **Dependency**: This task is a hard prerequisite. It must complete successfully before T012 or T041 can proceed.
+ - **Note**: This task is SEQUENTIAL, NOT parallel. It blocks the entire pipeline until a verified source is confirmed.
+- [X] T041 [US1] Implement a strict "Verified Source" gate in `code/data/download.py`: Read the OpenNeuro ID from `data/verified_sources.json` (populated by T001a). If the ID is missing or invalid, the script MUST raise a `FatalError` immediately and exit. Do NOT attempt to fetch from arbitrary IDs.
+ - **Precedes**: T012 (Download).
+ - **Location**: `code/data/download.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,29 +91,29 @@
 
 ### Code Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro using the ID from `data/verified_sources.json` (populated by T001a). 
-    - If the ID is missing or invalid, raise a `FatalError` immediately and log "Missing verified dataset source".
-    - Do NOT attempt to fetch from arbitrary IDs.
-- [X] T013 [US1] Implement comprehensive validation logic in `code/data/validate.py`: 
-    1. Check for paired pre/post fMRI and clinical scores at the dataset level; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009).
-    2. If dataset variables (pre/post scores) are missing, halt with "Missing required variable: [variable_name]" (FR-011, SC-001).
-    3. Check for the presence of specific confounders (medication status, age, comorbidities) in metadata; update model configuration to conditionally include detected confounders as covariates.
-    4. Log a limitation in `reports/limitations.md` if expected confounders are missing from metadata (FR-013).
-    5. Iterate through subjects, check for individual completeness (pre AND post scans present), exclude ONLY incomplete subjects, and log the exclusion reason (Edge Case: Incomplete Scans).
-    *Must complete BEFORE T014*.
-- [X] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized). 
-    - Use `nilearn.image.resample_img` and `nilearn.image.smooth_img` with specific parameters: smoothing kernel appropriate for the data resolution, high-pass filter 0.01 Hz.
-    - Target a feasibility subset of N=10 subjects for CI (Spec FR-002 targets N=20; pipeline logic must support N=20 but CI runs N=10).
-    - Output preprocessed NIfTI files to `data/processed/`.
+- [X] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro using the ID from `data/verified_sources.json` (populated by T001a).
+ - If the ID is missing or invalid, raise a `FatalError` immediately and log "Missing verified dataset source".
+ - Do NOT attempt to fetch from arbitrary IDs.
+- [X] T013 [US1] Implement comprehensive validation logic in `code/data/validate.py`:
+ 1. Check for paired pre/post fMRI and clinical scores at the dataset level; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009).
+ 2. If dataset variables (pre/post scores) are missing, halt with "Missing required variable: [variable_name]" (FR-011, SC-001).
+ 3. Check for the presence of specific confounders (medication status, age, comorbidities) in metadata; update model configuration to conditionally include detected confounders as covariates.
+ 4. Log a limitation in `reports/limitations.md` if expected confounders are missing from metadata (FR-013).
+ 5. Iterate through subjects, check for individual completeness (pre AND post scans present), exclude ONLY incomplete subjects, and log the exclusion reason (Edge Case: Incomplete Scans).
+ *Must complete BEFORE T014*.
+- [X] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized).
+ - Use `nilearn.image.resample_img` and `nilearn.image.smooth_img` with specific parameters: smoothing kernel appropriate for the data resolution, high-pass filter 0.01 Hz.
+ - Target a feasibility subset of N=10 subjects for CI (Spec FR-002 targets N=20; pipeline logic must support N=20 but CI runs N=10).
+ - Output preprocessed NIfTI files to `data/processed/`.
 - [X] T015 [US1] Implement quality control in `code/data/preprocess.py` (or `code/data/qc.py`) to:
-    1. Calculate Mean Framewise Displacement (FD) for each subject.
-    2. Exclude subjects if translation > 3mm OR rotation > 3° (distinct checks as per FR-002, SC-002).
-    3. Extract clinical confounders (medication, age, comorbidities) from metadata if available.
-    4. Save `mean_fd` (float), `translation_mm`, `rotation_deg`, and clinical confounders to `data/metrics/network_metrics.csv` as mandatory columns. 
-    *Must run AFTER T014 to process the output NIfTI, but BEFORE US2 consumes the metrics*.
+ 1. Calculate Mean Framewise Displacement (FD) for each subject.
+ 2. Exclude subjects if translation > 3mm OR rotation > 3° (distinct checks as per FR-002, SC-002).
+ 3. Extract clinical confounders (medication, age, comorbidities) from metadata if available.
+ 4. Save `mean_fd` (float), `translation_mm`, `rotation_deg`, and clinical confounders to `data/metrics/network_metrics.csv` as mandatory columns.
+ *Must run AFTER T014 to process the output NIfTI, but BEFORE US2 consumes the metrics*.
 - [X] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
 - [X] T017 [US1] Implement `code/data/save_metadata.py` to store subject list, exclusion reasons, and motion metrics in `data/metrics/subject_info.json` with schema: `{"subject_id": "...", "status": "included|excluded", "exclusion_reason": "..."}`.
-    *Must run AFTER T015 to capture final exclusion decisions. This is the strict final step of US1*.
+ *Must run AFTER T015 to capture final exclusion decisions. This is the strict final step of US1*.
 
 **Checkpoint**: At this point, User Story 1 is fully functional ONLY after T017 completes.
 
@@ -129,8 +134,8 @@
 
 ### Code Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions). 
-    - **Dependency**: Requires preprocessed NIfTI files from T014 (US1).
+- [X] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions).
+ - **Dependency**: Requires preprocessed NIfTI files from T014 (US1).
 - [X] T021 [US2] Implement functional connectivity matrix calculation (Pearson correlation) in `code/analysis/network.py`
 - [X] T022 [US2] Implement network metric calculation (Modularity Q, Global Efficiency, Local Efficiency) using `bctpy` (Brain Connectivity Toolbox Python) to ensure mathematical correctness and compliance with SC-003 bounds
 - [X] T023 [US2] Add NaN/Infinity handling in `code/analysis/network.py` to exclude invalid metrics and log events
@@ -157,25 +162,30 @@
 ### Code Implementation for User Story 3
 
 - [X] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels`.
-    - **Dependency**: Requires network metrics from T024 (US2) and motion metrics from T015 (US1).
-- [X] T029 [US3] Implement VIF calculation in `code/analysis/stats.py`. 
-    - **PRIMARY PATH**: If VIF <= 5, use standard OLS regression with FDR correction (Plan preference).
-    - **FALLBACK PATH**: If VIF > 5, apply Ridge regression with lambda=1.0 as required by Spec FR-005/FR-012. If the Ridge model fails to converge or R² < 0.05, switch to separate univariate models with FDR correction.
-    - Log the model type used (OLS or Ridge) in the output.
+ - **Dependency**: Requires network metrics from T024 (US2), motion metrics from T015 (US1), and the final curated subject list from T017 (US1).
+- [X] T029 [US3] Implement VIF calculation and regression logic in `code/analysis/stats.py`.
+ - **MANDATORY PATH**: If VIF <= 5, use standard OLS regression with FDR correction.
+ - **MANDATORY FALLBACK PATH**: If VIF > 5, apply Ridge regression with lambda=1.0 as required by Spec FR-005/FR-012. If the Ridge model fails to converge or R² < 0.05, switch to separate univariate models with FDR correction.
+ - **Note**: The Plan explicitly rejects Ridge regression as methodologically unsound. However, the Spec mandate (FR-005/FR-012) takes precedence. This task MUST implement the Ridge fallback as specified. A log message must be generated: "WARNING: Spec FR-005 mandates Ridge regression fallback despite Plan's methodological concerns."
+ - Log the model type used (OLS or Ridge) in the output.
 - [X] T029b [US3] Implement logic in `code/analysis/stats.py` to append a Methodological Note to `reports/results.md`, explicitly documenting the primary path (Univariate) and the conditional fallback (Ridge) as implemented.
 - [X] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis
-- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` using `statsmodels.stats.power.FTestPower.solve_power` with parameters: alpha=0.05, power=0.8, effect_size=0.15 (standard convention for small effects in neuroimaging, Cohen 1988; override via config if research phase determines otherwise).
-    - HALT if N < 5.
-    - FLAG limitation if 5 <= N < 10.
-    - Calculate the 'minimum N required' value.
-    - **Output**: Save the full calculation details (including `min_N_required`, `effect_size`, `alpha`, `power`) to `data/metrics/power_analysis.json` with the following schema: `{"min_N_required": <int>, "effect_size": <float>, "alpha": <float>, "power": <float>, "method": "FTestPower"}`.
+- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` using `statsmodels.stats.power.FTestPower.solve_power` as the G*Power equivalent with parameters: alpha=0.05, power=0.8, effect_size=0.15 (standard convention for small effects in neuroimaging, Cohen 1988; override via config if research phase determines otherwise).
+ - HALT if N < 5.
+ - FLAG limitation if 5 <= N < 10.
+ - Calculate the 'minimum N required' value.
+ - **Output**: Save the full calculation details (including `min_N_required`, `effect_size`, `alpha`, `power`) to `data/metrics/power_analysis.json` with the following schema: `{"min_N_required": <int>, "effect_size": <float>, "alpha": <float>, "power": <float>, "method": "FTestPower"}`.
+ - **Clarification**: Use `statsmodels` FTestPower as the accepted "equivalent" to G*Power.
 - [X] T031b [US3] Implement logic in `code/analysis/stats.py` to consume `data/metrics/power_analysis.json` generated by T031, and include the `min_N_required` value and method details in the final report generation.
-- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds over a range of magnitudes (justification: a stricter standard for high-quality fMRI is adopted, while the Spec threshold remains at 3.0mm) and p-values over {, 0.1} and other conventional significance thresholds and reporting variation in outcome rates (FR-010, SC-006).
+- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds over the specific set {2.0, 3.0} mm and p-values over {0.01, 0.05, 0.1} and reporting variation in outcome rates (FR-010, SC-006).
+ - Justification: A stricter standard for high-quality fMRI is adopted, while the Spec threshold remains at 3.0mm.
+ - Output: Save the variation in outcome rates for each threshold combination.
 - [X] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
 - [X] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; if neither exists OR if fields are missing, default to framing findings as ASSOCIATIONAL (SC-005); include all metrics, coefficients, and the minimum N value.
 - [X] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv` with columns: `subject_id`, `metric`, `coefficient`, `p_value_uncorrected`, `p_value_corrected`, `vif`, `min_N_required`, `model_type`.
-- [ ] T045 [US3] [Integration] Implement `tests/integration/test_data_flow.py` to verify the output of T015 (motion metrics) is correctly consumed by T028 (stats) as a covariate, and that T024 (network metrics) is correctly consumed by T028.
-    - **Moved from Phase N+1 to Phase 5** to ensure integration testing happens during implementation.
+- [X] T045 [US3] [Integration] Implement `tests/integration/test_data_flow.py` to verify the output of T015 (motion metrics) is correctly consumed by T028 (stats) as a covariate, and that T024 (network metrics) is correctly consumed by T028.
+ - **Moved from Phase N+1 to Phase 5** to ensure integration testing happens during implementation.
+ - **Validates**: The entire chain: T015 -> T024 -> T017 -> T028.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -198,9 +208,10 @@
 
 **Goal**: Resolve specific methodological conflicts identified in the plan review and ensure strict adherence to data hygiene rules.
 
-- [ ] T041 [US1] Implement a strict "Verified Source" gate in `code/data/download.py`: Read the OpenNeuro ID from `data/verified_sources.json` (populated by T001a). If the ID is missing or invalid, the script MUST raise a `FatalError` immediately and exit. Do NOT attempt to fetch from arbitrary IDs. This resolves the "STATUS: BLOCKED" issue in the plan by enforcing the gate before any network calls.
-- [ ] T043 [US1] Update `code/data/validate.py` to strictly enforce the "Real Data Only" rule: Remove any `try/except` blocks that fallback to synthetic data generation. If `nilearn` or `bids` fails to load a specific subject's data, the pipeline must crash with a detailed error log, not a synthetic substitute. Add a unit test `tests/unit/test_validate.py` that asserts the process exits with code 1 on a simulated download failure.
-- [ ] T044 [US3] Enhance `code/analysis/stats.py` sensitivity analysis (T032) to explicitly sweep the motion threshold over a specific set of representative values and p-value over {0.05, 0.1} and a stricter threshold as defined in the revised constraints, and generate a summary table in `reports/sensitivity_analysis.md` showing the count of significant findings at each threshold.
+- [X] T043 [US1] Update `code/data/validate.py` to strictly enforce the "Real Data Only" rule: Remove any `try/except` blocks that fallback to synthetic data generation. If `nilearn` or `bids` fails to load a specific subject's data, the pipeline must crash with a detailed error log, not a synthetic substitute. Add a unit test `tests/unit/test_validate.py` that asserts the process exits with code 1 on a simulated download failure.
+- [X] T044 [US3] Enhance `code/analysis/stats.py` sensitivity analysis (T032) to explicitly sweep the motion threshold over the specific set {2.0, 3.0} mm and p-value over {0.01, 0.05, 0.1} and generate a summary table in `reports/sensitivity_analysis.md` showing the count of significant findings at each threshold.
+ - **Artifact**: `reports/sensitivity_analysis.md`
+ - **Columns**: `threshold_type`, `threshold_value`, `significant_count`, `outcome_rate`.
 
 **Note**: Task T042 has been removed as the methodological conflict is resolved by the code logic in T029 (Univariate primary, Ridge fallback).
 

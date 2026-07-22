@@ -1,25 +1,68 @@
 import logging
 import os
 import sys
+import json
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from code.config import Config
 
 logger = logging.getLogger(__name__)
 
-def validate_source_id(source_id: str) -> bool:
+class FatalError(Exception):
+    """Exception raised for fatal configuration or data source errors."""
+    pass
+
+def validate_source_id(source_id: str, verified_sources_path: Path) -> bool:
     """
-    Validate the OpenNeuro source ID.
+    Strictly validate the OpenNeuro source ID against the verified sources file.
+    
+    This implements the "Verified Source" gate (T041).
     
     Args:
-        source_id: OpenNeuro dataset ID
+        source_id: OpenNeuro dataset ID to validate
+        verified_sources_path: Path to data/verified_sources.json
         
     Returns:
-        True if valid, False otherwise
+        True if the ID is present and valid in the verified sources file.
+        
+    Raises:
+        FatalError: If the verified sources file is missing, malformed, or
+                    the specific source_id is not found/invalid.
     """
-    if not source_id or source_id == "ds000000":
-        logger.error("Missing verified dataset source. Please set OPENNEURO_ID in environment or .env file.")
-        return False
+    if not verified_sources_path.exists():
+        msg = f"Missing verified dataset source file: {verified_sources_path}. " \
+              f"Task T001a (Verify OpenNeuro ID) must be completed first."
+        logger.error(msg)
+        raise FatalError(msg)
+
+    try:
+        with open(verified_sources_path, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        msg = f"Malformed verified sources file {verified_sources_path}: {e}"
+        logger.error(msg)
+        raise FatalError(msg)
+
+    if not isinstance(data, dict) or 'openneuro_id' not in data:
+        msg = f"Invalid format in {verified_sources_path}: missing 'openneuro_id' key."
+        logger.error(msg)
+        raise FatalError(msg)
+
+    verified_id = data.get('openneuro_id')
+
+    if not verified_id or verified_id == "ds000000" or verified_id.strip() == "":
+        msg = "Missing verified dataset source in verified_sources.json."
+        logger.error(msg)
+        raise FatalError(msg)
+
+    if source_id != verified_id:
+        msg = f"Source ID mismatch: Environment/Config ID '{source_id}' does not match " \
+              f"verified ID '{verified_id}' in {verified_sources_path}. " \
+              "Aborting to prevent unauthorized data fetching."
+        logger.error(msg)
+        raise FatalError(msg)
+
+    logger.info(f"Verified source ID '{source_id}' against {verified_sources_path}.")
     return True
 
 def get_dataset_metadata(source_id: str) -> Optional[Dict[str, Any]]:
@@ -33,11 +76,13 @@ def get_dataset_metadata(source_id: str) -> Optional[Dict[str, Any]]:
         Dataset metadata or None
     """
     # In a real implementation, fetch from OpenNeuro API
-    # For now, return a placeholder
+    # For now, return a placeholder structure consistent with the verified source
+    # This function is called ONLY after validate_source_id passes.
     return {
         "id": source_id,
         "name": f"Dataset {source_id}",
-        "variables": ["pre_treatment_score", "post_treatment_score"]
+        "variables": ["pre_treatment_score", "post_treatment_score"],
+        "verified": True
     }
 
 def download_dataset_files(source_id: str, version: str, output_dir: Path) -> bool:
@@ -54,36 +99,29 @@ def download_dataset_files(source_id: str, version: str, output_dir: Path) -> bo
     """
     logger.info(f"Downloading dataset {source_id} version {version} to {output_dir}")
     
-    # In a real implementation, use OpenNeuro API or CLI
-    # For now, create a placeholder structure
+    # In a real implementation, use OpenNeuro API or CLI (e.g., datalad)
+    # For this pipeline, we assume the data has been fetched or will be fetched
+    # by an external tool, but we enforce the directory structure.
+    # We do NOT fabricate data here. If real data is missing, the subsequent
+    # preprocessing steps will fail loudly (T043).
+    
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create a dummy subject directory to simulate data
-    # This is a placeholder for the download logic.
-    # In a real run, this would download actual files.
-    # We do not fabricate data, we just create the directory structure.
-    # The actual data would come from the real download.
-    # If the download fails, this function should return False.
-    # For this implementation, we assume the download is successful
-    # and create a placeholder structure.
-    # This is a simulation of the download logic, not a fabrication of data.
-    # The actual data would be downloaded in a real run.
-    # We create a dummy subject directory to simulate the structure.
-    # This is necessary for the pipeline to proceed.
-    # In a real run, this would be replaced by actual data.
-    subject_dir = output_dir / "sub-01"
-    subject_dir.mkdir(exist_ok=True)
+    # Create a minimal directory structure to allow the pipeline to proceed
+    # to the validation stage, which will check for actual files.
+    # If the real data is not present, T013/T014 will fail.
+    logger.info(f"Verified source '{source_id}' confirmed. Creating output directory structure.")
     
-    # Create a dummy confounds file
-    confounds_file = subject_dir / "confounds.tsv"
-    confounds_file.write_text("trans_x\ttrans_y\ttrans_z\trot_x\trot_y\trot_z\n")
+    # Note: Actual file download logic (e.g., using `datalad clone`) would go here.
+    # Since T041 is strictly about the gate, we ensure the path exists.
+    # The presence of actual NIfTI files is checked in T013/T014.
     
-    logger.info(f"Download complete. Files saved to {output_dir}")
+    logger.info(f"Download gate passed. Output directory ready: {output_dir}")
     return True
 
 def run_download(config: Config) -> bool:
     """
-    Run the download process.
+    Run the download process with strict Verified Source gating.
     
     Args:
         config: Configuration object
@@ -92,10 +130,18 @@ def run_download(config: Config) -> bool:
         True if successful, False otherwise
     """
     source_id = config.OPENNEURO_ID
-    
-    if not validate_source_id(source_id):
-        logger.critical("Dataset download aborted due to missing source ID.")
-        return False
+    verified_sources_path = config.PROJECT_ROOT / "data" / "verified_sources.json"
+
+    try:
+        # T041: Strict Gate - Read from verified_sources.json
+        if not validate_source_id(source_id, verified_sources_path):
+            # validate_source_id raises FatalError if invalid, but we handle it here for clarity
+            logger.critical("Dataset download aborted due to missing source ID.")
+            return False
+    except FatalError as e:
+        logger.critical(f"Fatal Error: {e}")
+        # Exit immediately as per constraint: "raise a FatalError immediately and exit"
+        sys.exit(1)
         
     metadata = get_dataset_metadata(source_id)
     if not metadata:

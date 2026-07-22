@@ -16,7 +16,7 @@ properties:
     description: "Unique identifier for the result."
   metric_type:
     type: "string"
-    enum: ["modularity", "global_efficiency", "local_efficiency"]
+    enum: ["modularity", "global_efficiency", "local_efficiency", "PC1"]
     description: "Type of network metric tested."
   coefficient:
     type: "number"
@@ -36,16 +36,16 @@ properties:
     description: "Effect size (Cohen's d)."
   model_type:
     type: "string"
-    enum: ["ANCOVA_State", "Linear_Exploratory", "Delta_Delta_Exploratory"]
-    description: "Statistical model used (Primary: State, Secondary: Response, Tertiary: Delta-Delta)."
+    enum: ["ANCOVA", "Ridge", "Univariate", "PCA"]
+    description: "Statistical model used (Primary: ANCOVA, Fallback: Ridge, Univariate, or PCA)."
   is_significant:
     type: "boolean"
     description: "True if corrected p-value < 0.05."
   framing:
     type: "string"
-    enum: ["associational", "causal"]
-    description: "Framing of the result based on study design."
+    enum: ["associational", "causal", "exploratory"]
+    description: "Framing of the result based on study design and power."
   collinearity_flag:
     type: "boolean"
-    description: "True if VIF > 5 was detected (Ridge not used)."
+    description: "True if VIF > 5 was detected."
 additionalProperties: false

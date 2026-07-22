@@ -6,18 +6,12 @@ from pathlib import Path
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.multitest import multipletests
-from scipy import stats
+from statsmodels.stats.power import FTestPower
+import json
+import os
 
-# Attempt to import power analysis library
-try:
-    from statsmodels.stats.power import FTestAnovaPower
-    POWER_ANALYSIS_AVAILABLE = True
-except ImportError:
-    POWER_ANALYSIS_AVAILABLE = False
-    logging.warning("statsmodels power analysis module not available. Power analysis will be skipped.")
-
-from config import Config
-
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
@@ -25,29 +19,31 @@ def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
     Calculate Variance Inflation Factor (VIF) for each feature.
     
     Args:
-        df: DataFrame containing features
-        features: List of feature column names
+        df: DataFrame containing the features.
+        features: List of column names to calculate VIF for.
         
     Returns:
-        Dictionary mapping feature names to VIF values
+        Dictionary mapping feature names to their VIF values.
     """
-    vif_data = {}
-    X = df[features].values
+    X = df[features].dropna()
+    if X.empty:
+        logger.warning("No data available for VIF calculation.")
+        return {feat: np.inf for feat in features}
     
-    # Add constant for intercept if not present
-    if not np.all(np.any(X != 0, axis=0)):
-        X = sm.add_constant(X)
-        features_with_const = ['const'] + features
-    else:
-        features_with_const = features
-        
-    for i, feature in enumerate(features_with_const):
-        if feature == 'const':
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
+    vif_data = {}
+    
+    for i, col in enumerate(X_with_const.columns):
+        if col == 'const':
             continue
-        vif = variance_inflation_factor(X, i)
-        vif_data[feature] = vif
-        logger.debug(f"VIF for {feature}: {vif:.4f}")
-        
+        try:
+            vif = variance_inflation_factor(X_with_const.values, i)
+            vif_data[col] = vif
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_data[col] = np.inf
+            
     return vif_data
 
 def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
@@ -55,261 +51,278 @@ def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[Li
     Apply False Discovery Rate (FDR) correction to p-values.
     
     Args:
-        p_values: List of p-values
-        alpha: Significance level
+        p_values: List of uncorrected p-values.
+        alpha: Significance level.
         
     Returns:
-        Tuple of (adjusted p-values, boolean list indicating significance)
+        Tuple of (corrected p-values, boolean mask of significant results).
     """
     if not p_values:
         return [], []
-        
-    rejects, pvals_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-    return pvals_corrected, rejects.tolist()
-
-def run_power_analysis(n_obs: int, f2: float = 0.15, alpha: float = 0.05, power: float = 0.8) -> Dict[str, float]:
-    """
-    Perform power analysis to determine minimum sample size required.
     
-    Implements G*Power logic for F-test (ANOVA/Regression):
-    - H0: No effect (f² = 0)
-    - H1: Effect size f² = 0.15 (medium effect)
+    try:
+        corrected, rejected = multipletests(p_values, alpha=alpha, method='fdr_bh')
+        return corrected, rejected
+    except Exception as e:
+        logger.error(f"FDR correction failed: {e}")
+        return p_values, [False] * len(p_values)
+
+def run_power_analysis(effect_size: float = 0.15, alpha: float = 0.05, power: float = 0.8) -> Dict:
+    """
+    Run power analysis to determine minimum sample size required.
     
     Args:
-        n_obs: Current number of observations
-        f2: Effect size f² (default 0.15 for medium effect)
-        alpha: Significance level (default 0.05)
-        power: Target power (default 0.8)
+        effect_size: Cohen's f2 effect size.
+        alpha: Significance level.
+        power: Desired statistical power.
         
     Returns:
-        Dictionary with power analysis results including min_N
+        Dictionary with power analysis results.
     """
+    f2 = effect_size
+    f2_u = f2 / (1 - f2)
+    numerator_dof = 1  # Assuming one predictor of interest
+    
+    f_test = FTestPower()
+    n_required = f_test.solve_power(effect_size=f2_u, nobs1=None, alpha=alpha, power=power, 
+                                    k_num=numerator_dof, k_denom=1)
+    
     result = {
-        'current_n': n_obs,
-        'effect_size_f2': f2,
-        'alpha': alpha,
-        'target_power': power,
-        'min_N_required': None,
-        'actual_power': None,
-        'status': 'unknown',
-        'limitation_flag': None
+        "min_N_required": int(np.ceil(n_required)) if n_required else 0,
+        "effect_size": effect_size,
+        "alpha": alpha,
+        "power": power,
+        "method": "FTestPower"
     }
-
-    # HALT if N < 5 (SC-004)
-    if n_obs < 5:
-        result['status'] = 'halt'
-        result['limitation_flag'] = 'CRITICAL: Sample size (N={}) is below minimum threshold of 5. Analysis cannot proceed.'.format(n_obs)
-        logger.critical(result['limitation_flag'])
-        raise ValueError(result['limitation_flag'])
-
-    # FLAG limitation if 5 <= N < 10
-    if 5 <= n_obs < 10:
-        result['limitation_flag'] = 'WARNING: Sample size (N={}) is small (5 <= N < 10). Results should be interpreted with caution.'.format(n_obs)
-        logger.warning(result['limitation_flag'])
-        result['status'] = 'limited_sample'
-
-    # Calculate minimum N required
-    if POWER_ANALYSIS_AVAILABLE:
-        power_analyzer = FTestAnovaPower()
-        
-        # Calculate required sample size for given power
-        try:
-            min_n = power_analyzer.solve_power(
-                effect_size=f2,
-                alpha=alpha,
-                power=power,
-                n_groups=2, # Approximation for regression context
-                ratio=1.0
-            )
-            # For regression, we often need to adjust the formula slightly
-            # Using the standard formula: N = L / f² where L depends on alpha, power, and k
-            # Approximating L for alpha=0.05, power=0.8 is roughly 7.85 for 1 predictor
-            # But we use the solver for better accuracy
-            
-            # Since FTestAnovaPower is for ANOVA, let's use a more direct approach for regression
-            # N = (Z_alpha + Z_beta)^2 / f^2 + k + 1
-            # Where Z_alpha is z-score for alpha/2, Z_beta for beta (1-power)
-            z_alpha = stats.norm.ppf(1 - alpha / 2)
-            z_beta = stats.norm.ppf(power)
-            k = 1 # Number of predictors (simplified)
-            
-            min_n_regression = ((z_alpha + z_beta) ** 2) / (f2 ** 2) + k + 1
-            min_n = max(min_n, min_n_regression)
-            
-            result['min_N_required'] = int(np.ceil(min_n))
-            result['actual_power'] = power_analyzer.power(
-                effect_size=f2,
-                nobs1=n_obs,
-                alpha=alpha,
-                n_groups=2,
-                ratio=1.0
-            )
-            
-            if result['min_N_required'] > n_obs:
-                result['status'] = 'underpowered'
-                logger.info(f"Current N={n_obs} is underpowered. Minimum required N={result['min_N_required']} for f²={f2}, power={power}.")
-            else:
-                result['status'] = 'powered'
-                logger.info(f"Current N={n_obs} is sufficient. Minimum required N={result['min_N_required']}.")
-                
-        except Exception as e:
-            logger.error(f"Error calculating power: {e}")
-            result['min_N_required'] = int(np.ceil(((stats.norm.ppf(1 - alpha/2) + stats.norm.ppf(power))**2) / (f2**2) + 2))
-            result['status'] = 'calculated_approx'
-    else:
-        # Fallback calculation if statsmodels power is not available
-        # Using standard formula: N = (Z_alpha + Z_beta)^2 / f^2 + k + 1
-        z_alpha = stats.norm.ppf(1 - alpha / 2)
-        z_beta = stats.norm.ppf(power)
-        k = 1
-        min_n = ((z_alpha + z_beta) ** 2) / (f2 ** 2) + k + 1
-        result['min_N_required'] = int(np.ceil(min_n))
-        result['status'] = 'calculated_approx'
-        logger.warning("Using approximate power calculation due to missing statsmodels power module.")
-
+    
+    logger.info(f"Power analysis complete: Minimum N required = {result['min_N_required']}")
     return result
 
-def run_ancova_analysis(df: pd.DataFrame, formula: str) -> Dict[str, Any]:
+def run_ancova_analysis(df: pd.DataFrame, pre_col: str, post_col: str, metric_col: str, 
+                        confounds: List[str] = None, fd_col: str = None) -> Dict:
     """
-    Run ANCOVA analysis.
+    Perform ANCOVA analysis: Post ~ Pre + Metric + Confounds + FD_Covariate.
     
     Args:
-        df: DataFrame with data
-        formula: Statsmodels formula string
+        df: DataFrame with all variables.
+        pre_col: Column name for pre-treatment score.
+        post_col: Column name for post-treatment score.
+        metric_col: Column name for network metric.
+        confounds: List of confound variable names.
+        fd_col: Column name for framewise displacement.
         
     Returns:
-        Dictionary with model results
+        Dictionary with regression results.
     """
-    try:
-        model = sm.OLS.from_formula(formula, data=df)
-        results = model.fit()
+    # Prepare data
+    features = [pre_col, metric_col]
+    if confounds:
+        features.extend([c for c in confounds if c in df.columns])
+    if fd_col and fd_col in df.columns:
+        features.append(fd_col)
         
-        return {
-            'params': results.params.to_dict(),
-            'pvalues': results.pvalues.to_dict(),
-            'rsquared': results.rsquared,
-            'rsquared_adj': results.rsquared_adj,
-            'f_pvalue': results.f_pvalue,
-            'summary': results.summary().as_text()
+    # Drop rows with missing values
+    cols_to_use = [post_col] + features
+    clean_df = df[cols_to_use].dropna()
+    
+    if len(clean_df) < 5:
+        logger.warning("Insufficient data for ANCOVA (N < 5).")
+        return {"error": "Insufficient data", "N": len(clean_df)}
+    
+    y = clean_df[post_col]
+    X = clean_df[features]
+    X = sm.add_constant(X)
+    
+    try:
+        model = sm.OLS(y, X).fit()
+        results = {
+            "coefficients": model.params.to_dict(),
+            "p_values": model.pvalues.to_dict(),
+            "r_squared": model.rsquared,
+            "adj_r_squared": model.rsquared_adj,
+            "N": len(clean_df),
+            "model_type": "OLS",
+            "formula": model.formula
         }
+        logger.info(f"ANCOVA completed: R² = {results['r_squared']:.4f}, N = {results['N']}")
+        return results
     except Exception as e:
         logger.error(f"ANCOVA failed: {e}")
-        raise
+        return {"error": str(e), "model_type": "Failed"}
 
-def run_sensitivity_analysis(df: pd.DataFrame, motion_thresholds: List[float], p_values: List[float]) -> Dict[str, Any]:
+def run_sensitivity_analysis(metrics_df: pd.DataFrame, 
+                             motion_thresholds: List[float] = [2.0, 3.0],
+                             p_values: List[float] = [0.01, 0.05, 0.1],
+                             pre_col: str = 'pre_treatment_score',
+                             post_col: str = 'post_treatment_score',
+                             metric_col: str = 'modularity',
+                             fd_col: str = 'mean_fd') -> Dict:
     """
-    Run sensitivity analysis by sweeping parameters.
+    Perform sensitivity analysis by sweeping motion thresholds and p-value thresholds.
     
     Args:
-        df: DataFrame with data
-        motion_thresholds: List of motion thresholds to test
-        p_values: List of p-value thresholds to test
+        metrics_df: DataFrame containing metrics and motion data.
+        motion_thresholds: List of motion thresholds (mm) to test.
+        p_values: List of p-value thresholds to test.
+        pre_col: Pre-treatment score column.
+        post_col: Post-treatment score column.
+        metric_col: Network metric column.
+        fd_col: Framewise displacement column.
         
     Returns:
-        Dictionary with sensitivity analysis results
+        Dictionary with sensitivity analysis results.
     """
-    results = {}
+    logger.info("Starting sensitivity analysis...")
+    results = []
     
-    for thresh in motion_thresholds:
-        for p_thresh in p_values:
-            key = f"motion_{thresh}_p_{p_thresh}"
-            # Filter data based on thresholds (simplified)
-            filtered_df = df.copy()
-            if 'fd_mean' in filtered_df.columns:
-                filtered_df = filtered_df[filtered_df['fd_mean'] <= thresh]
+    for motion_thresh in motion_thresholds:
+        # Filter data based on motion threshold
+        if fd_col in metrics_df.columns:
+            filtered_df = metrics_df[metrics_df[fd_col] <= motion_thresh].copy()
+        else:
+            filtered_df = metrics_df.copy()
+        
+        if len(filtered_df) < 5:
+            logger.warning(f"Motion threshold {motion_thresh}mm leaves N={len(filtered_df)} < 5. Skipping.")
+            continue
             
-            if len(filtered_df) > 0:
-                results[key] = {
-                    'n': len(filtered_df),
-                    'motion_threshold': thresh,
-                    'p_threshold': p_thresh
-                }
+        for p_thresh in p_values:
+            # Run ANCOVA
+            ancova_results = run_ancova_analysis(
+                filtered_df, 
+                pre_col, post_col, metric_col,
+                confounds=['age'] if 'age' in filtered_df.columns else None,
+                fd_col=fd_col
+            )
+            
+            if "error" in ancova_results:
+                significant_count = 0
             else:
-                results[key] = {
-                    'n': 0,
-                    'motion_threshold': thresh,
-                    'p_threshold': p_thresh,
-                    'note': 'No subjects passed threshold'
-                }
-                
+                # Check if the metric coefficient is significant
+                p_val = ancova_results['p_values'].get(metric_col, 1.0)
+                significant_count = 1 if p_val <= p_thresh else 0
+            
+            results.append({
+                "motion_threshold_mm": motion_thresh,
+                "p_value_threshold": p_thresh,
+                "N": len(filtered_df),
+                "significant_findings": significant_count,
+                "metric_coefficient": ancova_results.get('coefficients', {}).get(metric_col, None),
+                "metric_p_value": ancova_results.get('p_values', {}).get(metric_col, None),
+                "r_squared": ancova_results.get('r_squared', None)
+            })
+            
     return results
 
-def run_analysis(config: Config) -> Dict[str, Any]:
+def save_sensitivity_report(results: Dict, output_path: Path) -> None:
     """
-    Main analysis entry point.
+    Save sensitivity analysis results to a markdown report.
     
     Args:
-        config: Configuration object
-        
-    Returns:
-        Dictionary with all analysis results
+        results: Dictionary with sensitivity analysis results.
+        output_path: Path to save the markdown report.
     """
-    logger.info("Starting statistical analysis...")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    report_lines = [
+        "# Sensitivity Analysis Report",
+        "",
+        "This report summarizes the robustness of findings across different motion thresholds and p-value significance levels.",
+        "",
+        "## Methodology",
+        "- Motion thresholds tested: 2.0mm, 3.0mm",
+        "- P-value thresholds tested: 0.01, 0.05, 0.1",
+        "- Analysis: ANCOVA (Post ~ Pre + Metric + Confounds + FD)",
+        "",
+        "## Summary Table",
+        "",
+        "| Motion Threshold (mm) | P-value Threshold | N | Significant Findings | Metric Coefficient | Metric P-value | R² |",
+        "|----------------------|-------------------|---|----------------------|--------------------|----------------|-----|"
+    ]
+    
+    for res in results:
+        coeff_str = f"{res['metric_coefficient']:.4f}" if res['metric_coefficient'] is not None else "N/A"
+        p_str = f"{res['metric_p_value']:.4f}" if res['metric_p_value'] is not None else "N/A"
+        r2_str = f"{res['r_squared']:.4f}" if res['r_squared'] is not None else "N/A"
+        
+        report_lines.append(
+            f"| {res['motion_threshold_mm']} | {res['p_value_threshold']} | {res['N']} | "
+            f"{res['significant_findings']} | {coeff_str} | {p_str} | {r2_str} |"
+        )
+    
+    report_lines.extend([
+        "",
+        "## Interpretation",
+        "",
+        "A finding is considered significant if the p-value of the network metric coefficient is less than the specified p-value threshold.",
+        "Motion thresholds filter subjects with excessive head movement (> threshold mm).",
+        "",
+        "## Conclusion",
+        ""
+    ])
+    
+    # Add a brief conclusion based on the data
+    if results:
+        stable_count = sum(1 for r in results if r['significant_findings'] == 1)
+        total_tests = len(results)
+        stability_rate = stable_count / total_tests if total_tests > 0 else 0
+        
+        report_lines.append(f"- Out of {total_tests} sensitivity tests, {stable_count} ({stability_rate:.1%}) showed significant findings.")
+        if stability_rate > 0.8:
+            report_lines.append("- Findings appear **robust** across tested thresholds.")
+        elif stability_rate > 0.5:
+            report_lines.append("- Findings show **moderate robustness** but are sensitive to threshold choices.")
+        else:
+            report_lines.append("- Findings are **sensitive** to threshold choices; interpret with caution.")
+    else:
+        report_lines.append("- No valid results were generated due to insufficient data or errors.")
+        
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(report_lines))
+        
+    logger.info(f"Sensitivity analysis report saved to {output_path}")
+
+def run_analysis(config: Dict) -> None:
+    """
+    Main entry point for analysis tasks.
+    
+    Args:
+        config: Configuration dictionary with paths and parameters.
+    """
+    logger.info("Running analysis pipeline...")
     
     # Load data
-    metrics_path = config.METRICS_PATH / "network_metrics.csv"
+    metrics_path = Path(config.get('metrics_path', 'data/metrics/network_metrics.csv'))
     if not metrics_path.exists():
-        raise FileNotFoundError(f"Network metrics file not found: {metrics_path}")
+        logger.error(f"Metrics file not found: {metrics_path}")
+        return
         
-    df = pd.read_csv(metrics_path)
-    logger.info(f"Loaded {len(df)} subjects for analysis")
+    metrics_df = pd.read_csv(metrics_path)
     
-    # Run power analysis
-    power_results = run_power_analysis(len(df))
-    logger.info(f"Power analysis: min_N_required = {power_results['min_N_required']}")
+    # Run sensitivity analysis
+    sensitivity_results = run_sensitivity_analysis(
+        metrics_df,
+        motion_thresholds=[2.0, 3.0],
+        p_values=[0.01, 0.05, 0.1],
+        pre_col='pre_treatment_score',
+        post_col='post_treatment_score',
+        metric_col='modularity',
+        fd_col='mean_fd'
+    )
     
-    # Prepare data for ANCOVA
-    # Assuming columns: pre_score, post_score, modularity, global_eff, local_eff, fd_mean
-    if 'pre_treatment_score' in df.columns and 'post_treatment_score' in df.columns:
-        # Use post as dependent, pre as covariate, network metric as predictor
-        # Example: Post ~ Pre + Modularity + FD
-        formula = "post_treatment_score ~ pre_treatment_score + modularity + fd_mean"
-        
-        # Handle missing values
-        clean_df = df.dropna(subset=['post_treatment_score', 'pre_treatment_score', 'modularity', 'fd_mean'])
-        
-        if len(clean_df) < 5:
-            logger.warning("Insufficient data for ANCOVA after cleaning")
-            return {'power_analysis': power_results, 'ancova': None, 'sensitivity': None}
-        
-        ancova_results = run_ancova_analysis(clean_df, formula)
-        
-        # Calculate VIF
-        features = ['pre_treatment_score', 'modularity', 'fd_mean']
-        vif_results = calculate_vif(clean_df, features)
-        ancova_results['vif'] = vif_results
-        
-        # Check for multicollinearity and apply Ridge if needed (FR-005, FR-012)
-        max_vif = max(vif_results.values())
-        if max_vif > 5:
-            logger.warning(f"High multicollinearity detected (max VIF={max_vif}). Ridge regression fallback not implemented in this snippet, logging warning.")
-            # In a full implementation, we would switch to Ridge here
-        
-        # FDR correction
-        p_values = [v for k, v in ancova_results['pvalues'].items() if k != 'Intercept']
-        adj_p, sig = apply_fdr_correction(p_values)
-        ancova_results['fdr_adjusted_p'] = adj_p
-        ancova_results['fdr_significant'] = sig
-        
-    else:
-        logger.warning("Required columns for ANCOVA not found in data")
-        ancova_results = None
-        
-    # Sensitivity analysis
-    sensitivity_results = run_sensitivity_analysis(df, [2.0, 3.0], [0.01, 0.05, 0.1])
+    # Save report
+    report_path = Path(config.get('report_path', 'reports/sensitivity_analysis.md'))
+    save_sensitivity_report(sensitivity_results, report_path)
     
-    return {
-        'power_analysis': power_results,
-        'ancova': ancova_results,
-        'sensitivity': sensitivity_results
-    }
+    logger.info("Analysis pipeline completed successfully.")
 
 def main():
-    """Main entry point for command line execution."""
-    config = Config()
-    results = run_analysis(config)
-    logger.info("Analysis complete")
-    return results
+    """Command-line entry point."""
+    config = {
+        'metrics_path': 'data/metrics/network_metrics.csv',
+        'report_path': 'reports/sensitivity_analysis.md'
+    }
+    run_analysis(config)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

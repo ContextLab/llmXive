@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Metrics Schema
+description: Schema for the computed brain network metrics CSV file.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  timepoint:
+    type: string
+    enum: [pre, post]
+    description: Timepoint of the scan (pre or post).
+  atlas:
+    type: string
+    enum: [AAL, Schaefer-100, Schaefer-200]
+    description: Parcellation atlas used.
+  modularity_q:
+    type: number
+    minimum: 0
+    description: Modularity value (Q). Must be non-negative.
+  global_efficiency:
+    type: number
+    minimum: 0
+    description: Global efficiency. Must be non-negative and finite.
+  local_efficiency:
+    type: number
+    minimum: 0
+    description: Local efficiency. Must be non-negative and finite.
+required:
+  - subject_id
+  - timepoint
+  - atlas
+  - modularity_q
+  - global_efficiency
+  - local_efficiency
+additionalProperties: false
