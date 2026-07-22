@@ -93,7 +93,7 @@ Research question: Can CodeLlamaB be executed within limited memory resources on
 Method: Model quantization and memory-efficient inference techniques.
 References: [Preserve existing citations as per original document] (if API fails). | Running full precision CodeLlama-7B would exceed memory limits on the GitHub Actions free tier, causing job failure. |
 | **Paired Statistical Design** | Required to control for task difficulty variance between human and LLM solutions. | Unpaired tests would introduce high variance due to task difficulty differences, reducing statistical power. |
-| **Stratified Sampling** | Required to ensure the 50-task subset is representative of the full HumanEval difficulty distribution. | Random sampling might over-represent easy or hard tasks, biasing the results if failure rates correlate with difficulty. |
+| **Stratified Sampling** | Required to ensure the task subset is representative of the full HumanEval difficulty distribution. | Random sampling might over-represent easy or hard tasks, biasing the results if failure rates correlate with difficulty. |
 | **Permutation Test for Coverage** | Required for bounded, skewed data (Branch Coverage %). | Wilcoxon Signed-Rank assumes symmetric differences, which is invalid for coverage data with floor/ceiling effects. |
 
 ## Pipeline Execution Order
@@ -101,7 +101,7 @@ References: [Preserve existing citations as per original document] (if API fails
 1.  **Pre-Check**: Run Reference-Validator Agent on all citations (FR-010). Abort if any fail.
 2.  **Data Download**: Download HumanEval, verify SHA256, store in `data/raw/`.
 3.  **Sampling**: Select a representative subset of tasks via stratified sampling (by human pass-rate quartiles).
-4.  **Generation (Primary)**: Generate code for 50 tasks using `Salesforce/codegen-350M-mono`.
+4.  **Generation (Primary)**: Generate code for a set of tasks using `Salesforce/codegen-350M-mono`.
 5.  **Generation (Sensitivity)**: Select a set of disjoint tasks. Generate code using `CodeLlama-7B` (via API) or `CodeLlama-3B` (fallback).
 6.  **Analysis**: Run `radon` and `pytest --cov` on all samples. Log errors.
 7.  **Testing**: Run Wilcoxon (complexity/Halstead), Permutation (coverage), McNemar (pass-rate).
