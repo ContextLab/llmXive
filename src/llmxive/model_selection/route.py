@@ -38,7 +38,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import replace
 from pathlib import Path
 
-from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse
+from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse, ImagePart, TextPart
 from llmxive.backends.router import make_backend
 from llmxive.model_selection.attempt_hooks import (
     ChainResolved,
@@ -179,12 +179,34 @@ def _requirement_digest(requirement: ModelRequirement) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
+def _content_digest_value(content: str | tuple[TextPart | ImagePart, ...]) -> dict:
+    """Canonical, JSON-serializable projection of a :class:`ChatMessage.content`
+    (spec 025 maintainer review F1): ``content`` is either a plain string OR a
+    tuple of ``ContentPart``s (``TextPart`` / ``ImagePart``, both dataclasses that
+    ``json.dumps`` cannot serialize directly). An ``ImagePart``'s raw bytes are
+    NEVER embedded in the digest payload — only their SHA-256, so the digest stays
+    small and stable regardless of image size."""
+    if isinstance(content, str):
+        return {"type": "text", "text": content}
+    parts = []
+    for part in content:
+        if isinstance(part, TextPart):
+            parts.append({"type": "text", "text": part.text})
+        elif isinstance(part, ImagePart):
+            parts.append({
+                "type": "image", "mime": part.mime, "width": part.width,
+                "height": part.height, "data_sha256": hashlib.sha256(part.data).hexdigest(),
+            })
+    return {"type": "multipart", "parts": parts}
+
+
 def _messages_digest(messages: list[ChatMessage]) -> str:
     """Stable SHA-256 over the routed messages (F2): identifies WHAT prompt/context
     was actually sent, distinct from the requirement/snapshot digests. Deterministic
-    + cross-process-stable: a canonical ``(role, content)`` projection, no object
-    identity/repr involved."""
-    payload = [(m.role, m.content) for m in messages]
+    + cross-process-stable: a canonical ``(role, content)`` projection (multimodal
+    ``content`` is projected via :func:`_content_digest_value`, never passed to
+    ``json.dumps`` raw), no object identity/repr involved."""
+    payload = [(m.role, _content_digest_value(m.content)) for m in messages]
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
@@ -231,6 +253,7 @@ def route_chat(
     route_audit: RouteAudit | None = None,
     prompt_digest: str | None = None,
     context_digest: str | None = None,
+    route_id: str | None = None,
 ) -> ChatResponse:
     """Route one chat call through select()→execute() and return its response.
 
@@ -255,14 +278,19 @@ def route_chat(
     ``select`` call that raises ``ModelUnavailable`` emits ``SelectionFailure``
     (then re-raises unchanged — the reroute logic that catches it is a later
     slice), and the final resolved chain emits ``ChainResolved`` before dispatch.
-    A single ``route_id`` (a fresh ``uuid.uuid4().hex``) is generated once per call
-    and threaded through both events plus :func:`execute`'s own outbox (F1), so the
-    lane can correlate every event this ONE logical call produced. ``prompt_digest``
-    / ``context_digest`` default to a digest of the actual routed ``messages`` (via
-    :func:`_messages_digest`) when not supplied — ``ChainResolved`` carries them
-    (with the requirement/snapshot digests + full provenance + the winning
-    candidates' ``ModelRef``s) so the lane can reconstruct an ``InvocationIdentity``
-    without re-deriving it (F2).
+    A single ``route_id`` is threaded through both events plus :func:`execute`'s
+    own outbox (F1), so the lane can correlate every event this ONE logical call
+    produced. It defaults to a fresh ``uuid.uuid4().hex`` when not supplied; a
+    caller MAY inject a durable id instead (spec 025 slice 1 — a retried logical
+    invocation replays the identical event ids rather than minting new ones).
+    ``prompt_digest`` / ``context_digest`` default to a digest of the actual
+    routed ``messages`` (via :func:`_messages_digest`) when not supplied —
+    ``ChainResolved`` carries them (with the requirement/snapshot digests + full
+    provenance + the winning candidates' ``ModelRef``s) so the lane can
+    reconstruct an ``InvocationIdentity`` without re-deriving it (F2). Both digests
+    are computed ONLY when ``route_audit`` is given — the default no-hook path
+    computes neither, so a multimodal ``content`` payload never has to survive a
+    digest projection it does not need.
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
@@ -274,10 +302,8 @@ def route_chat(
             "agent must never reach model selection/execution"
         )
 
-    route_id = uuid.uuid4().hex
+    route_id = route_id or uuid.uuid4().hex
     msg_list = list(messages)
-    pdig = prompt_digest if prompt_digest is not None else _messages_digest(msg_list)
-    cdig = context_digest if context_digest is not None else _messages_digest(msg_list)
     # Production ledger source (review finding 1): the reservation ledger lives on a
     # protected ref in the MAIN repo (bootstrapped at repo_root() by `cli` /
     # infra/credit-ledger-ops.md), so a routed PAID candidate can open an
@@ -333,20 +359,27 @@ def route_chat(
 
     # ChainResolved (spec 025): emitted once, after the final decision, before any
     # dispatch, via emit_audit (F4) — a sink failure here is pre-dispatch and
-    # route-fatal, so it is normalized to RouteAuditError and propagates.
-    winning_refs: tuple[ModelRef, ...] = tuple(c.model_ref for c in chain.candidates)
-    emit_audit(route_audit, ChainResolved(
-        route_id=route_id,
-        requirement_digest=_requirement_digest(requirement),
-        prompt_digest=pdig,
-        context_digest=cdig,
-        snapshot_digest=chain.snapshot_digest,
-        snapshot_provenance=chain.snapshot_provenance,
-        selection_policy_version=chain.selection_policy_version,
-        resolved_at=chain.resolved_at.isoformat(),
-        explanation=chain.explanation,
-        candidates=winning_refs,
-    ))
+    # route-fatal, so it is normalized to RouteAuditError and propagates. The
+    # prompt/context digests are computed ONLY inside this branch (maintainer
+    # review finding #1): the default no-hook path must never touch
+    # ``_messages_digest`` at all, so a multimodal ``content`` never needs to
+    # survive a digest projection it does not need.
+    if route_audit is not None:
+        winning_refs: tuple[ModelRef, ...] = tuple(c.model_ref for c in chain.candidates)
+        pdig = prompt_digest if prompt_digest is not None else _messages_digest(msg_list)
+        cdig = context_digest if context_digest is not None else _messages_digest(msg_list)
+        emit_audit(route_audit, ChainResolved(
+            route_id=route_id,
+            requirement_digest=_requirement_digest(requirement),
+            prompt_digest=pdig,
+            context_digest=cdig,
+            snapshot_digest=chain.snapshot_digest,
+            snapshot_provenance=chain.snapshot_provenance,
+            selection_policy_version=chain.selection_policy_version,
+            resolved_at=chain.resolved_at.isoformat(),
+            explanation=chain.explanation,
+            candidates=winning_refs,
+        ))
 
     options = ExecutionOptions(
         max_tokens=max_tokens, temperature=temperature, deadline_s=deadline_s

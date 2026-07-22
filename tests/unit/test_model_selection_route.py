@@ -11,13 +11,20 @@ never a model mock) so we assert which candidate/backend actually answered.
 
 from __future__ import annotations
 
+import io
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 import pytest
 
-from llmxive.backends.base import ChatMessage, ChatResponse, TransientBackendError
+from llmxive.backends.base import (
+    ChatMessage,
+    ChatResponse,
+    ImagePart,
+    TextPart,
+    TransientBackendError,
+)
 from llmxive.model_selection.attempt_hooks import ChainResolved, RouteAuditError, SelectionFailure
 from llmxive.model_selection.snapshot import _family_of, _vendor_of
 from llmxive.model_selection.types import (
@@ -596,3 +603,125 @@ def test_route_chat_selection_failure_sink_failure_raises_route_audit_error_not_
             backend_factory=_factory(_RecordingBackend("dartmouth")),
             route_audit=rec,
         )
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #1 (BLOCKER): ``_messages_digest`` must handle multimodal
+# ``ChatMessage.content`` (a tuple of TextPart/ImagePart dataclasses), not just
+# plain strings — json.dumps cannot serialize a dataclass directly. AND the
+# digests must be computed ONLY when route_audit is given, so the DEFAULT
+# no-hook path (e.g. the real vision real-call suite) never touches
+# _messages_digest at all.
+# --------------------------------------------------------------------------- #
+
+
+def _tiny_png() -> tuple[bytes, int, int]:
+    """A REAL, minimal encoded PNG (not fabricated bytes) built the same way as
+    test_multimodal_content.py / test_vision_real.py, so ImagePart's
+    dimension-authority check (parsed vs. declared) passes."""
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (2, 2), (255, 0, 0)).save(buf, format="PNG")
+    return buf.getvalue(), 2, 2
+
+
+def _multimodal_msgs() -> list[ChatMessage]:
+    png, w, h = _tiny_png()
+    return [
+        ChatMessage(role="user", content=(
+            TextPart(text="describe"),
+            ImagePart(mime="image/png", data=png, width=w, height=h),
+        )),
+    ]
+
+
+def test_route_chat_multimodal_content_with_route_audit_does_not_raise():
+    # Regression for the BLOCKER: on the old code this raised
+    # "TypeError: Object of type TextPart is not JSON serializable" out of
+    # _messages_digest. With route_audit given, ChainResolved must carry a
+    # real, non-empty hex prompt_digest.
+    from llmxive.model_selection.route import route_chat
+
+    rec = _Recorder()
+    resp = route_chat(
+        _multimodal_msgs(), profile="standard_generation", max_tokens=64,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+        route_audit=rec,
+    )
+    assert isinstance(resp, ChatResponse)
+    (resolved,) = (e for e in rec.events if isinstance(e, ChainResolved))
+    assert isinstance(resolved.prompt_digest, str) and resolved.prompt_digest
+    assert all(c in "0123456789abcdef" for c in resolved.prompt_digest)
+    assert isinstance(resolved.context_digest, str) and resolved.context_digest
+
+
+def test_route_chat_multimodal_content_without_route_audit_does_not_raise():
+    # The DEFAULT no-hook path (spec 026 vision routing, e.g.
+    # tests/real_call/test_vision_real.py) must route multimodal content
+    # without ever computing (or raising while computing) a digest.
+    from llmxive.model_selection.route import route_chat
+
+    resp = route_chat(
+        _multimodal_msgs(), profile="standard_generation", max_tokens=64,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+    )
+    assert isinstance(resp, ChatResponse)
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #2 (HIGH): route_id must be caller-injectable (FR-011) so
+# a retried logical invocation can replay identical event ids.
+# --------------------------------------------------------------------------- #
+
+
+def test_route_chat_supplied_route_id_is_idempotent_across_calls():
+    from llmxive.model_selection.route import route_chat
+
+    rec1, rec2 = _Recorder(), _Recorder()
+    for rec in (rec1, rec2):
+        route_chat(
+            _MSGS, profile="standard_generation", max_tokens=32,
+            snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec, route_id="fixed-route-id",
+        )
+    (resolved1,) = (e for e in rec1.events if isinstance(e, ChainResolved))
+    (resolved2,) = (e for e in rec2.events if isinstance(e, ChainResolved))
+    assert resolved1.route_id == resolved2.route_id == "fixed-route-id"
+    assert resolved1.event_id == resolved2.event_id  # identical replay, same event id
+
+
+def test_route_chat_different_supplied_route_ids_are_distinguishable():
+    from llmxive.model_selection.route import route_chat
+
+    rec1, rec2 = _Recorder(), _Recorder()
+    route_chat(
+        _MSGS, profile="standard_generation", max_tokens=32,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+        route_audit=rec1, route_id="route-a",
+    )
+    route_chat(
+        _MSGS, profile="standard_generation", max_tokens=32,
+        snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+        route_audit=rec2, route_id="route-b",
+    )
+    (resolved1,) = (e for e in rec1.events if isinstance(e, ChainResolved))
+    (resolved2,) = (e for e in rec2.events if isinstance(e, ChainResolved))
+    assert resolved1.route_id != resolved2.route_id
+    assert resolved1.event_id != resolved2.event_id
+
+
+def test_route_chat_no_supplied_route_id_gets_a_fresh_one_each_call():
+    from llmxive.model_selection.route import route_chat
+
+    rec1, rec2 = _Recorder(), _Recorder()
+    for rec in (rec1, rec2):
+        route_chat(
+            _MSGS, profile="standard_generation", max_tokens=32,
+            snapshot=_snapshot(), backend_factory=_factory(_RecordingBackend("dartmouth")),
+            route_audit=rec,
+        )
+    (resolved1,) = (e for e in rec1.events if isinstance(e, ChainResolved))
+    (resolved2,) = (e for e in rec2.events if isinstance(e, ChainResolved))
+    assert resolved1.route_id and resolved2.route_id
+    assert resolved1.route_id != resolved2.route_id  # compatibility: no collision

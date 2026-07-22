@@ -503,6 +503,24 @@ def test_reservation_authority_none_is_behavior_preserving(repo, monkeypatch):
     assert result.reservation_id is not None
 
 
+def test_default_call_id_produces_12_hex_char_reservation_suffix(repo, monkeypatch):
+    # Maintainer review finding #3: call_id must default INDEPENDENTLY of
+    # route_id (both omitted here), preserving the PRIOR reservation-id suffix
+    # format (`uuid.uuid4().hex[:12]` = 12 hex chars) — a regression widened it
+    # to the 32-char route_id by seeding call_id from route_id.
+    import re
+
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    result = execute(_paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+                     backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+                     credit_observer=_observer(), balance_fetch=_balance())
+    assert result.reservation_id is not None
+    prefix = f"{CLAUDE}-"  # CLAUDE's id contains only chars _sanitize_reservation_id allows verbatim
+    assert result.reservation_id.startswith(prefix), result.reservation_id
+    suffix = result.reservation_id[len(prefix):]
+    assert re.fullmatch(r"[0-9a-f]{12}", suffix), suffix
+
+
 def test_reservation_authority_released_when_026_reserve_fails(repo, monkeypatch):
     # FR-033b step ii rollback: the Attempt reserve opens (budget has ample
     # headroom), then the 026 daily reserve() raises LedgerError (fault-injected,

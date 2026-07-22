@@ -287,8 +287,11 @@ def execute(
     byte-for-byte unchanged. ``route_id`` identifies the logical call for
     correlation (spec-025 maintainer review F1): ``route_chat`` generates one and
     threads it through; a direct caller of ``execute`` gets a fresh
-    ``uuid.uuid4().hex`` when omitted. It also seeds ``call_id`` (the reservation-id
-    token) when ``call_id`` itself is not given — still independently overridable.
+    ``uuid.uuid4().hex`` when omitted. ``call_id`` (the reservation-id token) is
+    DISTINCT from ``route_id`` (maintainer review finding #3) — it defaults to a
+    fresh ``uuid.uuid4().hex[:12]`` (the prior format
+    ``_sanitize_reservation_id`` bakes into every persisted reservation id) when
+    not given, never derived from ``route_id`` — still independently overridable.
 
     **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
     ``None`` = the PRODUCTION config, resolved via
@@ -305,7 +308,13 @@ def execute(
     """
     now = now or datetime.now(UTC)
     route_id = route_id or uuid.uuid4().hex
-    call_id = call_id or route_id
+    # call_id is the reservation-id token — DISTINCT from route_id (maintainer
+    # review finding #3): route_id is the (potentially long-lived, caller-injected)
+    # event-correlation id, while call_id preserves the prior 12-hex-char reservation
+    # suffix format (`uuid.uuid4().hex[:12]`) that `_sanitize_reservation_id` bakes
+    # into every persisted reservation id. Seeding call_id from route_id would widen
+    # that persisted suffix to 32 chars — never do that.
+    call_id = call_id or uuid.uuid4().hex[:12]
     msg_list = list(messages)
 
     if not chain.candidates:
