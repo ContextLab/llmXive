@@ -1,0 +1,391 @@
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Original pass@1 rate is 95.00%
+  claim_id: c_ddda965a
+  context: Pass@1 Degradation Analysis section listing original and perturbed rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Original Pass@1: 95.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:26Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Perturbed pass@1 rate is 60.00%
+  claim_id: c_7f710d7c
+  context: Pass@1 Degradation Analysis section listing original and perturbed rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Perturbed Pass@1: 60.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Relative pass@1 degradation is 36.84%
+  claim_id: c_f02f66e3
+  context: Pass@1 Degradation Analysis section showing the percentage drop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Relative Degradation: 36.84%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Synonym perturbation original pass@1 is 94.50%
+  claim_id: c_faf85d1d
+  context: Breakdown by Perturbation Type showing synonym metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synonym Original Pass@1 is 94.50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Synonym perturbation perturbed pass@1 is 61.20%
+  claim_id: c_160de159
+  context: Breakdown by Perturbation Type showing synonym metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synonym Perturbed Pass@1 is 61.20%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Typo perturbation original pass@1 is 95.30%
+  claim_id: c_cd240098
+  context: Breakdown by Perturbation Type showing typo metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Typo Original Pass@1 is 95.30%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Typo perturbation perturbed pass@1 is 58.70%
+  claim_id: c_565303fe
+  context: Breakdown by Perturbation Type showing typo metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Typo Perturbed Pass@1 is 58.70%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Rephrase perturbation original pass@1 is 94.80%
+  claim_id: c_774d59c9
+  context: Breakdown by Perturbation Type showing rephrase metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rephrase Original Pass@1 is 94.80%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Rephrase perturbation perturbed pass@1 is 60.10%
+  claim_id: c_c47deba0
+  context: Breakdown by Perturbation Type showing rephrase metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rephrase Perturbed Pass@1 is 60.10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:02:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: McNemar p-value for synonym perturbation is 0.0023
+  claim_id: c_777137ed
+  context: Results by Perturbation Type table showing p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar p-value for Synonym perturbation is 0.0023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:03:13Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: McNemar p-value for typo perturbation is 0.0015
+  claim_id: c_cb9226a5
+  context: Results by Perturbation Type table showing p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar p-value for Typo perturbation is 0.0015
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:03:39Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: McNemar p-value for rephrase perturbation is 0.0031
+  claim_id: c_3e1e6d63
+  context: Results by Perturbation Type table showing p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar p-value for Rephrase perturbation is 0.0031
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:04:02Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Variance component for task in mixed-effects model is 0.2845
+  claim_id: c_73def295
+  context: Mixed-Effects Logistic Regression section reporting variance components.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Component for 'task' in Mixed-Effects Logistic Regression is
+    0.2845
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:04:32Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Fixed effects coefficient for perturbation_type is -1.4523
+  claim_id: c_4b8dab59
+  context: Fixed Effects Coefficients section of Mixed-Effects Logistic Regression.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fixed effects coefficient for perturbation_type is -1.4523
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:15Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Fixed effects coefficient for original_success is 2.1034
+  claim_id: c_f7cb43c5
+  context: Fixed Effects Coefficients section of Mixed-Effects Logistic Regression.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fixed effects coefficient for original_success is 2.1034
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Pass@1 at semantic threshold 0.85 is 58.20%
+  claim_id: c_cef5b9a0
+  context: Sensitivity Analysis table showing pass@1 rates across thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass@1 rate at semantic threshold 0.85 is 58.20%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Pass@1 at semantic threshold 0.90 is 59.10%
+  claim_id: c_79637bca
+  context: Sensitivity Analysis table showing pass@1 rates across thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass@1 rate at semantic threshold 0.90 is 59.10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Pass@1 at semantic threshold 0.95 is 60.00%
+  claim_id: c_cd5490d7
+  context: Sensitivity Analysis table showing pass@1 rates across thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass@1 rate at semantic threshold 0.95 is 60.00%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Pass@1 at semantic threshold 0.99 is 61.50%
+  claim_id: c_d9c12874
+  context: Sensitivity Analysis table showing pass@1 rates across thresholds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass@1 rate at semantic threshold 0.99 is 61.50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:05:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Total failures analyzed in error classification is 40
+  claim_id: c_9117cccc
+  context: Error Classification Analysis section stating total failures.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total Failures Analyzed in Error Classification is 40
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:06:17Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Synonym perturbation resulted in 13 failures
+  claim_id: c_e95ecaf4
+  context: Failure Distribution by Perturbation Type in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synonym perturbation resulted in 13 failures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:06:47Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Typo perturbation resulted in 14 failures
+  claim_id: c_3814f2dc
+  context: Failure Distribution by Perturbation Type in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Typo perturbation resulted in 14 failures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:07:37Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Rephrase perturbation resulted in 13 failures
+  claim_id: c_ed4b71f8
+  context: Failure Distribution by Perturbation Type in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Rephrase perturbation resulted in 13 failures
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:08:16Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Logic errors accounted for 25 failures or 62.5%
+  claim_id: c_680feb8b
+  context: Failure Distribution by Error Category in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Logic errors accounted for 25 failures (62.5%)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:08:49Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Syntax errors accounted for 10 failures or 25.0%
+  claim_id: c_92442be3
+  context: Failure Distribution by Error Category in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Syntax errors accounted for 10 failures (25.0%)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:09:18Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/docs/research_report.md
+  attempts: 1
+  canonical: Timeout errors accounted for 5 failures or 12.5%
+  claim_id: c_297bd8ee
+  context: Failure Distribution by Error Category in Error Classification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout errors accounted for 5 failures (12.5%)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T23:09:50Z'

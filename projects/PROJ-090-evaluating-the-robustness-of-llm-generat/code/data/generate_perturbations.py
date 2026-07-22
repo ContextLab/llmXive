@@ -13,11 +13,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from datasets import load_dataset
 from config import get_semantic_threshold, get_budget_generations, ensure_directories
 from data.perturbations import generate_perturbation_variants
-from data.semantic_validator import validate_perturbation_batch
+from data.semantic_validator import validate_perturbation
 from utils.logging import get_perturbation_logger, init_logging
 
-POOL_FILE = "data/processed/perturbation_pool.json"
-RESULTS_FILE = "data/processed/perturbation_results.json"
+POOL_FILE = "data/processed/perturbation_candidates_raw.json"
+RESULTS_FILE = "data/processed/perturbation_candidates.json"
 
 def load_humaneval_tasks() -> List[Dict[str, Any]]:
     """
@@ -26,6 +26,7 @@ def load_humaneval_tasks() -> List[Dict[str, Any]]:
     """
     logger = get_perturbation_logger()
     logger.info("Loading HumanEval dataset...")
+    # Real source: openai_humaneval from HuggingFace datasets
     dataset = load_dataset("openai_humaneval", split="test")
     tasks = []
     for item in dataset:
@@ -40,27 +41,49 @@ def load_humaneval_tasks() -> List[Dict[str, Any]]:
 
 def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Generates up to 3 perturbation variants per task, validates them,
-    and filters based on the semantic threshold (> 0.95).
+    Generates perturbation variants per task, validates them,
+    and selects EXACTLY ONE valid variant per task (stopping immediately upon finding a candidate with score > 0.95).
+    
+    Logic:
+    1. Iterate through transformation types (synonym, typo, rephrase).
+    2. Generate a candidate.
+    3. Validate semantic similarity.
+    4. If valid (score > 0.95), log raw score, select it, and STOP for this task.
+    5. If no valid variant is found after trying all types, log a warning and proceed with 0 perturbations for that task.
     
     Returns:
-        Tuple of (valid_candidates, invalid_candidates)
+        Tuple of (selected_valid_candidates, all_generated_candidates_pool)
     """
     logger = get_perturbation_logger()
     threshold = get_semantic_threshold()
-    logger.info(f"Generating perturbations with threshold > {threshold}")
+    logger.info(f"Generating perturbations with strict threshold > {threshold}. Stopping at first valid match.")
     
-    all_candidates = []
+    selected_valid_candidates = []
+    all_generated_candidates_pool = []
     
     for task in tasks:
         task_id = task["task_id"]
         original_prompt = task["prompt"]
         
-        # Generate up to 3 variants
+        # We need to try types until we find a valid one.
+        # generate_perturbation_variants returns a list of candidates.
+        # We will iterate through the types explicitly to control the "first valid" logic if needed,
+        # but the helper generates all 3. We will process the generated list and pick the first valid one.
+        
         variants = generate_perturbation_variants(original_prompt, max_variants=3)
         
+        task_found_valid = False
+        
         for variant in variants:
+            if task_found_valid:
+                # We already found a valid one for this task, skip generating/validating more for budget
+                # But we still log the attempt as invalid/excluded if we want full pool?
+                # Task T017 says "stopping immediately upon finding a candidate".
+                # So we stop processing variants for this task.
+                break
+
             # Validate semantic similarity
+            # validate_perturbation returns (is_valid, score, reason)
             is_valid, score, reason = validate_perturbation(
                 original_prompt, 
                 variant["text"], 
@@ -76,22 +99,24 @@ def generate_and_filter_perturbations(tasks: List[Dict[str, Any]]) -> Tuple[List
                 "is_valid": is_valid,
                 "reason": reason
             }
-            all_candidates.append(candidate)
+            all_generated_candidates_pool.append(candidate)
             
             if is_valid:
-                logger.debug(f"Valid candidate: {task_id} ({variant['type']}) - {score}")
+                logger.info(f"Selected valid candidate: {task_id} ({variant['type']}) - score: {score:.4f}")
+                selected_valid_candidates.append(candidate)
+                task_found_valid = True
             else:
-                logger.debug(f"Invalid candidate: {task_id} ({variant['type']}) - {score}")
+                logger.debug(f"Invalid candidate: {task_id} ({variant['type']}) - score: {score:.4f}")
+        
+        if not task_found_valid:
+            logger.warning(f"No valid perturbation found for task {task_id} after trying all types.")
     
-    valid = [c for c in all_candidates if c["is_valid"]]
-    invalid = [c for c in all_candidates if not c["is_valid"]]
-    
-    logger.info(f"Generation complete. Valid: {len(valid)}, Invalid: {len(invalid)}")
-    return valid, all_candidates
+    logger.info(f"Generation complete. Selected: {len(selected_valid_candidates)}, Total Pool: {len(all_generated_candidates_pool)}")
+    return selected_valid_candidates, all_generated_candidates_pool
 
 def save_results(valid_candidates: List[Dict[str, Any]], output_path: str):
     """
-    Saves the final filtered set of perturbed tasks to a JSON file.
+    Saves the final filtered set of perturbed tasks (exactly one per task) to a JSON file.
     """
     ensure_directories()
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -100,8 +125,8 @@ def save_results(valid_candidates: List[Dict[str, Any]], output_path: str):
 
 def save_candidates_pool(all_candidates: List[Dict[str, Any]], output_path: str):
     """
-    Saves ALL generated candidates (both valid and invalid) to the pool file.
-    This is the input for T018 (log_perturbation_candidates).
+    Saves ALL generated candidates (both valid and invalid) to the raw pool file.
+    This is the input for T018 (filter_perturbations).
     """
     ensure_directories()
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -114,16 +139,16 @@ def main():
     """
     init_logging()
     logger = get_perturbation_logger()
-    logger.info("Starting T017: Perturbation Generation Pipeline")
+    logger.info("Starting T017: Perturbation Generation Pipeline (One Valid Variant Per Task)")
     
     try:
         tasks = load_humaneval_tasks()
         valid, all_candidates = generate_and_filter_perturbations(tasks)
         
-        # Save the final filtered results for inference
+        # Save the final filtered results for inference (one per task)
         save_results(valid, str(PROJECT_ROOT / RESULTS_FILE))
         
-        # Save the full pool for logging (T018)
+        # Save the full raw pool for logging (T018)
         save_candidates_pool(all_candidates, str(PROJECT_ROOT / POOL_FILE))
         
         logger.info("T017 Complete.")

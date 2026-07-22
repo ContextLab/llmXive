@@ -1,3 +1,12 @@
+T017:
+  c: false
+  h: c22a64d1fc7a2501305aa9eecfc0398fe42705807d2dd4e691ac550dae1e3594
+  r: The repository contains a partially shown `code/data/generate_perturbations.py`,
+    but the file is truncated and does not demonstrate the full required logic (e.g.,
+    stopping after the first >0.95 score, writing the raw pool JSON). Moreover, the
+    verification script `code/utils/validate_schema.py` is missing, and the expected
+    output file `data/processed/perturbation_candidates_raw.json` does not exist.
+    Without these artifacts the task cannot be considered completed.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,6 +14,29 @@ T023:
     \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
     \ that such an executor has been integrated or that it enforces the required timeout.\
     \ The required implementation and evidence are missing."
+T033:
+  c: false
+  h: 823fe40d31cc73456d80502f1bad2387eefe8b41e8bfed2e4efc400bda07f560
+  r: The repository lacks `data/processed/mixed_effects_results.json` (file is missing)
+    and the `MixedEffectsResult` dataclass in `statistics.py` does not contain the
+    fields (`std_dev_task`, `p_values`, `n_obs`, `n_groups`) that the unit tests expect,
+    nor is there evidence of a `run_mixed_effects_logistic_regression` implementation
+    that writes the required JSON. Consequently the tests cannot pass and the variance
+    component output is not produced.
+T034:
+  c: false
+  h: a1f1951ce214b74cc2dd388a543cafd2db3088c4e24e8382b4fc2a84c7f4c65d
+  r: "The required `data/processed/sensitivity_report.csv` file does not exist, and\
+    \ the provided `statistics.py` snippet shows only data\u2011class definitions\
+    \ and helper functions without any code that computes sensitivity across the four\
+    \ thresholds or writes the CSV. The task\u2019s deliverable is therefore missing."
+T035:
+  c: false
+  h: bc43cd58332bdd9ab8b705cce7e67d6beced60ec2eb69afe7b536aa72ffef009
+  r: "The required `data/processed/error_classification_report.json` file does not\
+    \ exist, and the provided `error_classifier.py` script (truncated) shows no logic\
+    \ that writes such a JSON report. Consequently the verification command cannot\
+    \ succeed. The task\u2019s deliverable is missing."
 T036:
   c: false
   h: 6f7e4334f75c4de3c9a090e2ba1635062126901d2caa6fafdcab91deb5d2d9bf
