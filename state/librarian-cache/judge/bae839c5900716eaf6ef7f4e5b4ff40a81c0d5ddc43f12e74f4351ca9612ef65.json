@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.21223",
+  "judged_at": "2026-07-22T01:08:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "The paper discusses a particle physics detector concept named \"IDEA\" for the FCC-ee collider, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and scientific lineage reasoning. The shared keyword \"IDEA\" is a homonym in this context (an acronym for a detector vs. a concept in computer science), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

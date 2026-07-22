@@ -8,5 +8,6 @@ scikit-learn
 statsmodels
 numpy
 psutil
+pytest
 flake8
 black

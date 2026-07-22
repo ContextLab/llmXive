@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.14790",
+  "judged_at": "2026-07-22T01:08:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the mechanism of \"scientific lineage reasoning\" and \"lineage\" (via citation evolution graphs and DAGs) to generate research ideas, which is the core subject of the user's question regarding the \"Ideas Have Genomes\" benchmark. It provides the necessary empirical baseline and methodological framework for extending lineage reasoning in LLMs, even if it focuses on the generation task rather than the specific benchmarking metrics of th",
+  "relevant": true
+}

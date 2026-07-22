@@ -1,13 +1,11 @@
-T001a [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/` directory: 2
-? T001b [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/`,
-  `data/processed/`, and `results/` directories
-: 2
-? T001c [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/`
-  and `tests/contract/` directories
-: 2
-? T002 [P] Initialize Python 3.11 project with `requirements.txt` containing `datasets`,
-  `pandas`, `radon`, `pylint`, `sentence-transformers`, `llama-cpp-python`, `scikit-learn`,
-  `statsmodels`, `numpy`, `psutil`
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools: 2
-T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`: 1
+T001a: 1
+T001b: 1
+T001c: 1
+T003: 1
+T011: 1
+T012: 1
+T013: 1
+T019: 1
+T026: 1
+T027: 1
+T028: 1

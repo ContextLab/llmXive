@@ -44,9 +44,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan by executing: `mkdir -p src/data src/models src/analysis data/raw data/processed data/interim tests/contract tests/unit tests/integration docs`
-- [ ] T003a Create `pyproject.toml` at repository root with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (lint.select=['E','F','W','I'], lint.ignore=[]) configuration sections
+- [X] T003a Create `pyproject.toml` at repository root with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (lint.select=['E','F','W','I'], lint.ignore=[]) configuration sections
 - [ ] T003b Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and configure pre-commit installation instructions in `README.md`
-- [ ] T004 Create empty `src/data/download.py` file at repository root
+- [X] T004 Create empty `src/data/download.py` file at repository root
 
 ---
 
@@ -56,24 +56,24 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `src/data/download.py` to:
+- [X] T005 [P] Implement `src/data/download.py` to:
  1. Check for real eBird/NOAA files in `data/raw/ebird/` and `data/raw/climate/`.
  2. **Production Mode**: If real data is missing, ABORT with exit code 1 and error message "Real data required for production run".
  3. **Development Mode**: If real data is missing, generate synthetic data using `numpy.random` with seed 42, writing `data/raw/synthetic_ebird.csv` and `data/raw/synthetic_climate.parquet` matching `contracts/dataset.schema.yaml`.
  4. Archive real files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
  5. Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
-- [ ] T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes` match expected types (TDD: Write before implementation)
+- [X] T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes` match expected types (TDD: Write before implementation)
 - [X] T007 [P] Implement `src/data/impute.py` for spatial interpolation of missing climate data.
  - **Input**: Read from `data/raw/climate.parquet` (DataFrame with columns: lat, lon, temp, week, precip).
  - **Logic**: Use `scipy.interpolate.griddata` with a 1° radius neighbor search in **degrees** (lat/lon).
  - **Output**: Write imputed data to `data/interim/climate_imputed.parquet` and update metadata with flagged cells.
 - [ ] T008 [P] Setup `src/models/utils.py` with statistical helpers (Benjamini-Hochberg FDR, bootstrapping logic, early stopping for permutations)
 - [X] T009 Create base data entities: `MigrationRecord`, `PhenologyMetric`, `ClimateVariable` classes in `src/models/entities.py`
-- [~] T010 [P] Configure logging infrastructure to record "insufficient data" events and model convergence failures.
+- [ ] T010 [P] Configure logging infrastructure to record "insufficient data" events and model convergence failures.
  - **Artifact**: Create `logs/pipeline.log`.
  - **Policy**: Max 5 files, 10MB each, rotate on size.
  - **Format**: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
-- [~] T011 [P] Setup environment configuration management for random seeds and sampling parameters.
+- [ ] T011 [P] Setup environment configuration management for random seeds and sampling parameters.
  - **Artifact**: Create `src/lib/config.py`.
  - **Variables**: Define `SEED=42`, `GRID_RES=0.5` (linked to T015 grid assignment), `SAMPLE_SIZE`, `PERMUTATIONS=10000`.
 
@@ -93,10 +93,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
+- [ ] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
 - [ ] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
 - [ ] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
-- [~] T018 [US1] Add logic to mark grid cells as "insufficient data" when observation density is too low, excluding them from downstream modeling (Depends on **completion** of T007 - file creation, not just module import)
+- [ ] T018 [US1] Add logic to mark grid cells as "insufficient data" when observation density is too low, excluding them from downstream modeling (Depends on **completion** of T007 - file creation, not just module import)
 - [ ] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
 - [ ] T019b [P] [US1] Implement **Tail-Preserving Stratified Sampling** (FR-002-S) in `src/data/preprocess.py`:
  1. Quantile-bin `first_arrival` into deciles.

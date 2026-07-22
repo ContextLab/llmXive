@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/` directory
 - [ ] T001b [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/`, `data/processed/`, and `results/` directories
 - [ ] T001c [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/` and `tests/contract/` directories
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` containing `datasets`, `pandas`, `radon`, `pylint`, `sentence-transformers`, `llama-cpp-python`, `scikit-learn`, `statsmodels`, `numpy`, `psutil`
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` containing `datasets`, `pandas`, `radon`, `pylint`, `sentence-transformers`, `llama-cpp-python`, `scikit-learn`, `statsmodels`, `numpy`, `psutil`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seeds, and batch size constants (LLM batch ≤ 10)
-- [ ] T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`
+- [X] T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`
 - [X] T006a [P] Setup logging configuration in `code/config.py` to define log format, file handlers, and levels for metrics (FR-008)
 - [X] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops (FR-008)
 
@@ -78,7 +78,7 @@
 - [X] T008 [US1] Implement structural metric calculation in `code/data_pipeline.py` using `radon` for LOC and Cyclomatic Complexity (FR-002)
 - [X] T009 [US1] Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names for deterministic baseline (FR-003)
 - [X] T010 [US1] Implement error handling in `code/data_pipeline.py` to catch `radon` parsing errors, log the file, and exclude from final count (Edge Case)
-- [~] T011 [US1] Implement CSV serialization in `code/data_pipeline.py` to write `data/static_baseline.csv` with normalized smell codes (FR-001)
+- [ ] T011 [US1] Implement CSV serialization in `code/data_pipeline.py` to write `data/static_baseline.csv` with normalized smell codes (FR-001)
 - [ ] T012 [US1] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -95,7 +95,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
+- [ ] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
 - [X] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
 - [X] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` to request a JSON list of smell categories (FR-004)
 - [X] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
@@ -122,12 +122,12 @@
 - [~] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
 - [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
 - [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
-- [ ] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, flags high-VIF predictors in output, and implements exclusion as the only fallback path (FR-007, FR-010)
-- [ ] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds (50, 100, 150) and calculating false-positive/negative rates (FR-009)
+- [X] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, flags high-VIF predictors in output, and implements exclusion as the only fallback path (FR-007, FR-010)
+- [X] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds (50, 100, 150) and calculating false-positive/negative rates (FR-009)
 - [ ] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)
 - [ ] T027 [US3] Generate `results/logistic_regression.json` containing coefficients and VIF scores (FR-007, SC-001, SC-002)
 - [ ] T028 [US3] Generate `results/sensitivity_report.md` listing smells detected *only* by static, *only* by LLM, and sensitivity results (FR-009)
-- [ ] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
+- [~] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -137,7 +137,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030a [P] Add usage instructions to `README.md`
+- [~] T030a [P] Add usage instructions to `README.md`
 - [ ] T030b [P] Update dependencies list in `README.md`
 - [ ] T030c [P] Create `quickstart.md` with setup and run instructions
 - [ ] T031a [P] Remove unused imports from all `code/` modules

@@ -1,19 +1,46 @@
 """
-Code analysis pipeline for evaluating LLM effectiveness on code smell detection.
-"""
-from .config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging
-from .data_pipeline import load_sampled_functions, compute_radon_metrics, run_pylint_analysis, normalize_pylint_smells, process_functions, save_to_csv, validate_output, run_pipeline
-from .monitoring import get_ram_usage_mb, get_cpu_utilization, get_system_ram_usage_mb, get_system_cpu_utilization, capture_snapshot, track_inference_time, record_batch_metrics, save_metrics_to_file, get_peak_ram_for_batch
-from .semantic_analysis import load_embeddings_model, load_baseline_data, compute_embeddings, save_embeddings_to_csv, load_llama_model, run_llm_inference, run_semantic_analysis
-from .linting_config import run_flake8_check, run_black_format, run_all_checks
+llmXive - Automated Science Pipeline for LLM Code Smell Detection
 
+This package provides the core functionality for evaluating LLM effectiveness
+in detecting code smells through static analysis and semantic inference.
+"""
+
+import os
+import logging
+from pathlib import Path
+
+# Ensure required directory structure exists
+def _ensure_directory_structure():
+    """
+    Create required project directories if they don't exist.
+    
+    Creates:
+        - data/raw: For raw input data
+        - data/processed: For processed datasets
+        - results: For analysis outputs and reports
+    """
+    # Determine project root (parent of the 'code' directory)
+    project_root = Path(__file__).parent.parent
+    
+    # Define required directories
+    required_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results"
+    ]
+    
+    # Create directories
+    for dir_path in required_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logging.debug(f"Ensured directory exists: {dir_path}")
+    
+    return required_dirs
+
+# Initialize directory structure on import
+_ensure_directories = _ensure_directory_structure()
+
+__version__ = "0.1.0"
 __all__ = [
-    'get_path', 'get_data_path', 'get_processed_path', 'get_results_path', 'setup_logging',
-    'load_sampled_functions', 'compute_radon_metrics', 'run_pylint_analysis', 'normalize_pylint_smells',
-    'process_functions', 'save_to_csv', 'validate_output', 'run_pipeline',
-    'get_ram_usage_mb', 'get_cpu_utilization', 'get_system_ram_usage_mb', 'get_system_cpu_utilization',
-    'capture_snapshot', 'track_inference_time', 'record_batch_metrics', 'save_metrics_to_file', 'get_peak_ram_for_batch',
-    'load_embeddings_model', 'load_baseline_data', 'compute_embeddings', 'save_embeddings_to_csv',
-    'load_llama_model', 'run_llm_inference', 'run_semantic_analysis',
-    'run_flake8_check', 'run_black_format', 'run_all_checks'
+    "ensure_directory_structure",
+    "_ensure_directories"
 ]

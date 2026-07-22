@@ -5,31 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line"
 
-## Summary of the prior work
-The paper introduces IdeaGene-Bench (IG-Bench), a framework and dataset that models scientific papers as "Idea Genomes" composed of typed, evidence-grounded objects to track evolutionary dynamics like inheritance and mutation across 10 domains. It evaluates 14 LLM-based systems on lineage reasoning (IG-Exam) and lineage-grounded idea generation (IG-Arena), revealing a significant compositional bottleneck where even the strongest models achieve only 27.3% exact accuracy in tracing scientific descent. The work demonstrates that providing structured lineage context reshuffles model rankings rather than uniformly improving performance, suggesting current architectures struggle with the complex, multi-step reasoning required to simulate scientific evolution.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "evolutionary operator" module, decoupled from the LLM's generative weights, significantly improve the *Population-Evolution Score (PES)* of generated ideas by enforcing strict adherence to the six operational evolutionary dynamics defined in the IdeaGene framework?
+## Research question
 
-**Why it matters:** The original study identifies a "compositional bottleneck" where LLMs fail to simultaneously track inheritance and generate valid mutations; this extension hypothesizes that offloading the structural constraints of scientific evolution to a deterministic, CPU-tractable logic layer will allow smaller models to produce higher-quality, lineage-grounded ideas without requiring massive compute or fine-tuning.
+Does decoupling structural lineage constraints into a deterministic, rule-based evolutionary operator module significantly improve the Population-Evolution Score (PES) of LLM-generated scientific ideas compared to end-to-end generation or raw context prompting?
+
+## Motivation
+
+The original "Ideas Have Genomes" study identifies a "compositional bottleneck" where even the strongest LLMs fail to simultaneously track inheritance and generate valid mutations in scientific lineages. This extension hypothesizes that scientific lineage reasoning is fundamentally a constraint satisfaction problem that can be solved more efficiently by offloading structural logic to a non-neural module, thereby enabling smaller models to produce higher-quality, lineage-grounded ideas without massive compute.
+
+## Related work
+
+- [Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation](https://arxiv.org/abs/2607.08758) — Establishes the baseline IG-Bench framework and demonstrates the current compositional bottleneck where LLMs struggle with multi-step lineage reasoning.
+- [Graphs of Research: Citation Evolution Graphs as Supervision for Research Idea Generation](https://arxiv.org/abs/2605.14790) — Explores using citation evolution graphs as supervision for idea generation, providing a structural alternative to the "Idea Genome" object model used in this proposal.
+- [Bayesian Epistemology with Weighted Authority: A Formal Architecture for Truth-Promoting Autonomous Scientific Reasoning](https://arxiv.org/abs/2506.16015) — Proposes formal architectures for autonomous scientific reasoning, offering a theoretical parallel for the proposed rule-based logic layer in handling epistemic constraints.
+
+## Expected results
+
+The hybrid approach (LLM + deterministic Operator Engine) will yield a statistically significant increase in Population-Evolution Score (targeting >40% improvement over the baseline) and exact lineage accuracy. This would confirm that structural constraints in scientific evolution are better handled by symbolic logic than by learning them implicitly within neural weights.
 
 ## Methodology sketch
-*   **Data:** Utilize the existing 1,961 golden lineage traces and 920 GenomeDiff records from IG-Bench, specifically selecting 500 "hard" cases where current LLMs failed to correctly identify mutation or inheritance patterns.
-*   **Procedure:** Implement a CPU-only "Genome Operator Engine" that takes a parent Idea Genome and a target evolutionary dynamic (e.g., "repair limitation") as input, using symbolic logic to generate a valid child Genome structure before the LLM is tasked only with natural language elaboration. Compare the PES of (1) LLMs generating freely, (2) LLMs provided with raw lineage context (original IG-Bench setup), and (3) LLMs guided by the output of the Genome Operator Engine.
-*   **Expected Result:** The hybrid approach (LLM + Operator Engine) will yield a statistically significant increase in PES (targeting >40% improvement over the baseline) and exact lineage accuracy, demonstrating that scientific lineage reasoning is a constraint satisfaction problem that can be solved via modular, non-neural logic rather than pure end-to-end learning.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the IG-Bench dataset (1,961 golden lineage traces, 920 GenomeDiff records) from the official repository or arXiv supplementary materials; filter for 500 "hard" cases where baseline LLMs previously failed on mutation/inheritance tracking.
+- **Operator Engine Implementation**: Develop a CPU-only Python module implementing the six operational evolutionary dynamics (e.g., inheritance, repair, recombination) as deterministic symbolic rules that transform parent Idea Genome objects into valid child structures.
+- **Experimental Setup**: Configure three conditions: (1) Baseline LLM generation (no structural guidance), (2) Raw lineage context prompting (original IG-Bench setup), and (3) Hybrid generation where the Operator Engine pre-structures the child genome and the LLM only performs natural language elaboration.
+- **Execution**: Run all three conditions on a selected subset of smaller, open-source LLMs (e.g., Llama-3-8B or Mistral-7B) available via HuggingFace, ensuring execution fits within 6 hours on a 2-CPU/7GB RAM runner.
+- **Evaluation**: Compute the Population-Evolution Score (PES) and exact lineage accuracy for each condition using the official IG-Bench evaluation metrics.
+- **Statistical Analysis**: Perform a non-parametric Kruskal-Wallis test followed by Dunn's post-hoc test to determine if differences in PES and accuracy between the three conditions are statistically significant (p < 0.05), ensuring the validation metric (PES) is calculated against the ground-truth golden traces which are independent of the model's generation process.
 
-- **Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation** — Yifan Zhou, Qihao Yang, Yan Li, Donggang Li, Xiru Hu, Hokin Deng, Ziyang Gong, Xuanyi Zhou, Huacan Wang, Xiangchao Yan, Wanghan Xu, Wenlong Zhang, Shaofeng Zhang, Yue Zhou, Yifan Yang, Zhihang Zhong, Xue Yang. https://arxiv.org/abs/2607.08758.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_08758,
-  title = {Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation},
-  author = {Yifan Zhou and Qihao Yang and Yan Li and Donggang Li and Xiru Hu and Hokin Deng and Ziyang Gong and Xuanyi Zhou and Huacan Wang and Xiangchao Yan and Wanghan Xu and Wenlong Zhang and Shaofeng Zhang and Yue Zhou and Yifan Yang and Zhihang Zhong and Xue Yang},
-  year = {2026},
-  eprint = {2607.08758},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.08758},
-  url = {https://arxiv.org/abs/2607.08758}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "Ideas Have Genomes...", Bayesian Epistemology with Weighted Authority, Graphs of Research.
+- Closest match: llmXive follow-up: extending "Ideas Have Genomes..." (similarity sketch: This is a direct extension of the brainstormed seed, focusing on the specific "rule-based operator" hypothesis).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-22T01:08:39Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line" computer science | 0 |
+| 1 | scientific lineage reasoning benchmarks | 2 |
+| 2 | tracing research idea evolution | 5 |
+| 3 | academic genealogy in scientific literature | 0 |
+| 4 | citation network lineage analysis | 0 |
+| 5 | scientific concept propagation tracking | 0 |
+| 6 | benchmarking AI reasoning on research history | 0 |
+| 7 | scientific knowledge graph evolution | 0 |
+| 8 | research paper dependency mapping | 0 |
+| 9 | tracking idea mutation in science | 0 |
+| 10 | scientific narrative lineage reconstruction | 0 |
+| 11 | automated tracing of research influence | 0 |
+| 12 | semantic lineage of scientific concepts | 0 |
+| 13 | benchmarking large language models on citation chains | 0 |
+| 14 | research trajectory prediction using LLMs | 0 |
+| 15 | mapping the genealogy of scientific theories | 0 |
+| 16 | causal reasoning in scientific literature networks | 0 |
+| 17 | evolution of scientific claims over time | 0 |
+| 18 | reconstructing research lineages with NLP | 0 |
+| 19 | scientific idea inheritance patterns | 0 |
+| 20 | longitudinal analysis of research topic emergence | 0 |
+
+### Verified citations
+
+1. **Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation** (2026). Yifan Zhou, Qihao Yang, Yan Li, Donggang Li, Xiru Hu, et al.. arXiv. [2607.08758](https://arxiv.org/abs/2607.08758). PDF-sampled: No.
+2. **Bayesian Epistemology with Weighted Authority: A Formal Architecture for Truth-Promoting Autonomous Scientific Reasoning** (2025). Craig S. Wright. arXiv. [2506.16015](https://arxiv.org/abs/2506.16015). PDF-sampled: No.
+3. **Enhancing Understandability and Transparency of Research Software: Tracing Research to Code** (2026). Adrian Bajraktari, Andreas Vogelsang. arXiv. [2604.10793](https://arxiv.org/abs/2604.10793). PDF-sampled: No.
+4. **Graphs of Research: Citation Evolution Graphs as Supervision for Research Idea Generation** (2026). Songyang Gao, Yinghui Xia, Siyi Liu, Hui Xiong. arXiv. [2605.14790](https://arxiv.org/abs/2605.14790). PDF-sampled: No.

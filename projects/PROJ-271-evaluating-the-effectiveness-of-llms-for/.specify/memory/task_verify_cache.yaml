@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`
+    directory (e.g., a directory listing, screenshot, or file inside it) was provided,
+    so we cannot confirm that the required directory actually exists. The implementer
+    must supply concrete evidence that the directory was created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or other evidence were provided showing that `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/`,\
+    \ `data/processed/`, or `results/` actually exist. The implementer must supply\
+    \ proof (e.g., a file tree snapshot or `ls` output) that these three directories\
+    \ have been created and are non\u2011empty."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/`
+    and `tests/contract/` actually exist or contain any files; the claim is unsupported.
+    The implementer must create these directories (and optionally add placeholder
+    test files) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) were presented, and the provided\
+    \ project excerpt does not contain any such artifacts. Without concrete, non\u2011\
+    empty config files, the requirement to configure flake8/black is not satisfied."
+T011:
+  c: false
+  h: cd7e4a86565ef24d0d7adf3af48acd299b45816fed8f32b19c4b72e5ddaabfa5
+  r: "The repository contains `code/data_pipeline.py`, but the shown content stops\
+    \ before any CSV\u2011writing logic and does not demonstrate that normalized smell\
+    \ codes are serialized to `data/static_baseline.csv`. Moreover, the required output\
+    \ file `data/static_baseline.csv` is absent from the project. Both the implementation\
+    \ and the generated artifact are missing, so the task is not satisfied."
+T013:
+  c: false
+  h: a7233287627f03cee2483228127b2c3aaa0604e719b6e3fee2af43ddea9221be
+  r: The repository contains `code/semantic_analysis.py`, but the required input file
+    `data/static_baseline.csv` is missing, so the module cannot actually load functions
+    and compute embeddings as specified. Without this CSV the implementation cannot
+    be verified or used.

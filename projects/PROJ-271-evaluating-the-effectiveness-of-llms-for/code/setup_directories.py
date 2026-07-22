@@ -3,34 +3,33 @@ from pathlib import Path
 
 def create_project_directories():
     """
-    Creates the required directory structure for the project:
-    - data/raw
-    - data/processed
-    - results
+    Create the required directory structure for the project.
     
-    This script ensures the directories exist on disk as per task T001b.
+    Creates:
+    - data/raw/
+    - data/processed/
+    - results/
+    
+    This function is idempotent and will not raise errors if directories
+    already exist.
     """
-    # Define the base project root relative to this script's location
-    # The script lives in code/, so root is one level up
-    base_dir = Path(__file__).resolve().parent.parent
+    base_path = Path(__file__).resolve().parent.parent
+    project_root = base_path / "projects" / "PROJ-271-evaluating-the-effectiveness-of-llms-for"
     
+    # Define directory paths
+    data_raw = project_root / "data" / "raw"
+    data_processed = project_root / "data" / "processed"
+    results_dir = project_root / "results"
+    
+    # Create directories
     directories = [
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "results"
+        data_raw,
+        data_processed,
+        results_dir
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
     
-    print(f"Setup complete. {created_count} new directories created.")
     return True
-
-if __name__ == "__main__":
-    create_project_directories()

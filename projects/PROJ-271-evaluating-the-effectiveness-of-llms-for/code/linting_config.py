@@ -2,19 +2,22 @@ import subprocess
 import sys
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+
 def run_flake8_check() -> bool:
     """
-    Run flake8 on the project root.
+    Run flake8 linter on the code directory.
     
     Returns:
-        True if linting passes (exit code 0), False otherwise.
+        True if checks pass, False if issues found or error occurs.
     """
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "flake8", "code", "tests"],
+            [sys.executable, "-m", "flake8", str(CODE_DIR)],
+            cwd=PROJECT_ROOT,
             capture_output=True,
-            text=True,
-            check=False
+            text=True
         )
         if result.returncode != 0:
             print("Flake8 found issues:")
@@ -24,7 +27,7 @@ def run_flake8_check() -> bool:
         print("Flake8 check passed.")
         return True
     except FileNotFoundError:
-        print("Error: flake8 not found. Please install it via pip.")
+        print("Error: flake8 not found. Please install it: pip install flake8")
         return False
     except Exception as e:
         print(f"Error running flake8: {e}")
@@ -32,36 +35,45 @@ def run_flake8_check() -> bool:
 
 def run_black_format(check_only: bool = True) -> bool:
     """
-    Run black on the project root.
+    Run black formatter on the code directory.
     
     Args:
-        check_only: If True, only check formatting (no writes). 
-                    If False, format files in place.
+        check_only: If True, only check formatting without modifying files.
+                   If False, reformat files in place.
     
     Returns:
-        True if formatting is correct (or applied successfully), False otherwise.
+        True if formatting is correct (or fixed), False if errors occur.
     """
     try:
-        cmd = [sys.executable, "-m", "black", "--check"] if check_only else [sys.executable, "-m", "black"]
+        cmd = [sys.executable, "-m", "black"]
+        if check_only:
+            cmd.append("--check")
+        cmd.append(str(CODE_DIR))
+        
         result = subprocess.run(
-            cmd + ["code", "tests"],
+            cmd,
+            cwd=PROJECT_ROOT,
             capture_output=True,
-            text=True,
-            check=False
+            text=True
         )
+        
         if result.returncode != 0:
             if check_only:
-                print("Black formatting check failed. Run with check_only=False to fix.")
+                print("Black formatting check failed. Run 'python -m black code' to fix.")
                 print(result.stdout)
                 print(result.stderr)
             else:
                 print("Black formatting applied.")
                 print(result.stdout)
-            return False if check_only else True
-        print("Black formatting check passed.")
+            return False
+        
+        if check_only:
+            print("Black formatting check passed.")
+        else:
+            print("Black formatting applied successfully.")
         return True
     except FileNotFoundError:
-        print("Error: black not found. Please install it via pip.")
+        print("Error: black not found. Please install it: pip install black")
         return False
     except Exception as e:
         print(f"Error running black: {e}")
@@ -72,23 +84,43 @@ def run_all_checks(fix: bool = False) -> bool:
     Run all linting and formatting checks.
     
     Args:
-        fix: If True, run black in fix mode. Does not fix flake8 errors automatically.
+        fix: If True, attempt to fix formatting issues with black.
+            If False, only check for issues.
     
     Returns:
-        True if all checks pass, False otherwise.
+        True if all checks pass (or fixes applied), False otherwise.
     """
     print("Running linting and formatting checks...")
+    print("-" * 50)
     
     flake8_ok = run_flake8_check()
+    print("-" * 50)
+    
     black_ok = run_black_format(check_only=not fix)
+    print("-" * 50)
     
-    if not fix and not black_ok:
-        print("\nHint: Run with --fix to automatically format code with black.")
+    if flake8_ok and black_ok:
+        print("All checks passed!")
+        return True
     
-    all_ok = flake8_ok and black_ok
-    if all_ok:
-        print("\nAll checks passed!")
-    else:
-        print("\nSome checks failed.")
+    if fix and not black_ok:
+        print("Attempting to fix formatting issues...")
+        run_black_format(check_only=False)
+        # Re-check after fixing
+        black_ok = run_black_format(check_only=True)
     
-    return all_ok
+    if flake8_ok and black_ok:
+        print("All checks passed after fixes!")
+        return True
+    
+    print("Some checks failed. Please review the output above.")
+    return False
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Run linting and formatting checks")
+    parser.add_argument("--fix", action="store_true", help="Attempt to fix formatting issues")
+    args = parser.parse_args()
+    
+    success = run_all_checks(fix=args.fix)
+    sys.exit(0 if success else 1)

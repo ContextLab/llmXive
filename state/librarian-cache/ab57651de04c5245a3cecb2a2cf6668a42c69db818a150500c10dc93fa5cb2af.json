@@ -1,0 +1,636 @@
+{
+  "fetched_at": "2026-07-22T01:08:39Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line\"",
+      "target_n": 5
+    },
+    "duration_seconds": 64.75,
+    "ended_at": "2026-07-22T01:08:39Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "scientific lineage reasoning benchmarks"
+        ],
+        [
+          2,
+          "tracing research idea evolution"
+        ],
+        [
+          3,
+          "academic genealogy in scientific literature"
+        ],
+        [
+          4,
+          "citation network lineage analysis"
+        ],
+        [
+          5,
+          "scientific concept propagation tracking"
+        ],
+        [
+          6,
+          "benchmarking AI reasoning on research history"
+        ],
+        [
+          7,
+          "scientific knowledge graph evolution"
+        ],
+        [
+          8,
+          "research paper dependency mapping"
+        ],
+        [
+          9,
+          "tracking idea mutation in science"
+        ],
+        [
+          10,
+          "scientific narrative lineage reconstruction"
+        ],
+        [
+          11,
+          "automated tracing of research influence"
+        ],
+        [
+          12,
+          "semantic lineage of scientific concepts"
+        ],
+        [
+          13,
+          "benchmarking large language models on citation chains"
+        ],
+        [
+          14,
+          "research trajectory prediction using LLMs"
+        ],
+        [
+          15,
+          "mapping the genealogy of scientific theories"
+        ],
+        [
+          16,
+          "causal reasoning in scientific literature networks"
+        ],
+        [
+          17,
+          "evolution of scientific claims over time"
+        ],
+        [
+          18,
+          "reconstructing research lineages with NLP"
+        ],
+        [
+          19,
+          "scientific idea inheritance patterns"
+        ],
+        [
+          20,
+          "longitudinal analysis of research topic emergence"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line\" computer science": 0,
+        "scientific lineage reasoning benchmarks": 2,
+        "tracing research idea evolution": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "scientific lineage graph reasoning",
+      "citation network provenance tracking",
+      "idea inheritance knowledge graph",
+      "benchmark dataset scientific evolution",
+      "traceable reasoning provenance verification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.10793"
+      ]
+    },
+    "per_query_hit_count": {
+      "benchmark dataset scientific evolution": 2,
+      "citation network provenance tracking": 3,
+      "idea inheritance knowledge graph": 3,
+      "llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line\" computer science": 3,
+      "scientific lineage graph reasoning": 3,
+      "traceable reasoning provenance verification": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2502.21223",
+          "rationale": "The paper discusses a particle physics detector concept named \"IDEA\" for the FCC-ee collider, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and scientific lineage reasoning. The shared keyword \"IDEA\" is a homonym in this context (an acronym for a detector vs. a concept in computer science), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "The IDEA detector concept for FCC-ee"
+        },
+        {
+          "primary_pointer": "1501.03632",
+          "rationale": "The paper focuses on biological evolutionary dynamics (fixation probability, mutation rates, and genetic drift in asexual populations), which is a distinct construct from the user's question about \"scientific lineage reasoning\" and \"ideas have genomes\" in the context of computer science and LLMs. While both use evolutionary metaphors, the paper does not measure the same mechanism, variables, or domain (scientific citation networks or LLM reasoning) and falls under the rejection rule for distinct",
+          "title": "Fixation probability of rare nonmutator and evolution of mutation rates"
+        },
+        {
+          "primary_pointer": "2206.14908",
+          "rationale": "The paper focuses on astrophysics and galaxy evolution using the Prime Focus Spectrograph, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and scientific lineage reasoning in computer science. It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "The Prime Focus Spectrograph Galaxy Evolution Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-22T01:07:35Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+      "raw": "llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-22T01:08:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-22T01:08:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-22T01:08:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-22T01:08:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-22T01:08:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Debugging transactions and understanding their execution are of immense importance for developing OLAP applications, to trace causes of errors in production systems, and to audit the operations of a database. However, debugging transactions is hard for several reasons: 1) after the execution of a transaction, its input is no longer available for debugging, 2) internal states of a transaction are typically not accessible, and 3) the execution of a transaction may be affected by concurrently running transactions. We present a debugger for transactions that enables non-invasive, post-mortem debugging of transactions with provenance tracking and supports what-if scenarios (changes to transaction code or data). Using reenactment, a declarative replay technique we have developed, a transaction is replayed over the state of the DB seen by its original execution including all its interactions with concurrently executed transactions from the history. Importantly, our approach uses the temporal database and audit logging capabilities available in many DBMS and does not require any modifications to the underlying database system nor transactional workload.",
+          "claimed_authors": [
+            "Xing Niu",
+            "Bahareh Sadat Arab",
+            "Seokki Lee",
+            "Su Feng",
+            "Xun Zou",
+            "Dieter Gawlick",
+            "Vasudha Krishnaswamy",
+            "Zhen Hua Liu",
+            "Boris Glavic"
+          ],
+          "claimed_title": "Debugging Transactions and Tracking their Provenance with Reenactment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09930"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Debugging Transactions and Tracking their Provenance with Reenactment')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores the integration of provenance tracking systems within the context of Semantic Web technologies to enhance data integrity in diverse operational environments. SURROUND Australia Pty Ltd demonstrates innovative applica-tions of the PROV Data Model (PROV-DM) and its Semantic Web variant, PROV-O, to systematically record and manage provenance information across multiple data processing domains. By employing RDF and Knowledge Graphs, SURROUND ad-dresses the critical challenges of shared entity identification and provenance granularity. The paper highlights the company's architecture for capturing comprehensive provenance data, en-abling robust validation, traceability, and knowledge inference. Through the examination of two projects, we illustrate how provenance mechanisms not only improve data reliability but also facilitate seamless integration across heterogeneous systems. Our findings underscore the importance of sophisticated provenance solutions in maintaining data integrity, serving as a reference for industry peers and academics engaged in provenance research and implementation.",
+          "claimed_authors": [
+            "Nilesh Jain"
+          ],
+          "claimed_title": "Enhancing Data Integrity through Provenance Tracking in Semantic Web Frameworks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.09029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Enhancing Data Integrity through Provenance Tracking in Semantic Web Frameworks')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard citation metrics treat all citations as equal, obscuring the social and structural pathways through which scholarly influence propagates. I introduce Citation-Constellation, a freely available no-code tool for citation network analysis with two complementary bibliometric scores that decompose a researcher's citation profile by network proximity between citing and cited authors. BARON (Boundary-Anchored Research Outreach Network score) is a strict binary metric counting only citations from outside the detected collaborative network. HEROCON (Holistic Equilibrated Research Outreach CONstellation score) applies graduated weights assigning partial credit to in-group citations based on relationship proximity. The gap between scores serves as a diagnostic of inner-circle dependence. An extended abstract with full details appears in the paper.\n  The tool implements this through a phased architecture: (1) self-citation analysis, (2) co-authorship graph traversal, (3) temporal institutional affiliation matching via ROR, and (4) AI-agent-driven venue governance extraction using a local LLM. Phases 1-3 are fully operational; Phase 4 is under development. Key design choices include ORCID-validated author identity resolution, an UNKNOWN classification for citations with insufficient metadata, and comprehensive audit trails documenting every classification decision. A no-code web interface enables researchers to compute scores without programming, installation, or registration.\n  I present these scores as structural diagnostics, not quality indicators. BARON and HEROCON describe where in the social graph citations originate. They should not be used for hiring, promotion, or funding decisions. HEROCON weights are experimental and require empirical calibration.",
+          "claimed_authors": [
+            "Mahbub Ul Alam"
+          ],
+          "claimed_title": "Where Do Your Citations Come From? Citation-Constellation: A Free, Open-Source, No-Code, and Auditable Tool for Citation Network Decomposition with Complementary BARON and HEROCON Scores",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.24216"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Where Do Your Citations Come From? Citation-Constellation: A Free, Open-Source, No-Code, and Auditable Tool for Citation Network Decomposition with Complementary BARON and HEROCON Scores')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid expansion of e-commerce platforms generates vast amounts of unstructured product data, creating significant challenges for information retrieval, recommendation systems, and data analytics. Knowledge Graphs (KGs) offer a structured, interpretable format to organize such data, yet constructing product-specific KGs remains a complex and manual process. This paper introduces a fully automated, AI agent-driven framework for constructing product knowledge graphs directly from unstructured product descriptions. Leveraging Large Language Models (LLMs), our method operates in three stages using dedicated agents: ontology creation and expansion, ontology refinement, and knowledge graph population. This agent-based approach ensures semantic coherence, scalability, and high-quality output without relying on predefined schemas or handcrafted extraction rules. We evaluate the system on a real-world dataset of air conditioner product descriptions, demonstrating strong performance in both ontology generation and KG population. The framework achieves over 97\\% property coverage and minimal redundancy, validating its effectiveness and practical applicability. Our work highlights the potential of LLMs to automate structured knowledge extraction in retail, providing a scalable path toward intelligent product data integration and utilization.",
+          "claimed_authors": [
+            "Dimitar Peshevski",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "claimed_title": "AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.11017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Enterprises often maintain multiple databases for storing critical business data in siloed systems, resulting in inefficiencies and challenges with data interoperability. A key to overcoming these challenges lies in integrating disparate data sources, enabling businesses to unlock the full potential of their data. Our work presents a novel approach for integrating multiple databases using knowledge graphs, focusing on the application of large language models as semantic agents for mapping and connecting structured data across systems by leveraging existing vocabularies. The proposed methodology introduces a semantic layer above tables in relational databases, utilizing a system comprising multiple LLM agents that map tables and columns to Schema.org terms. Our approach achieves a mapping accuracy of over 90% in multiple domains.",
+          "claimed_authors": [
+            "Milena Trajanoska",
+            "Riste Stojanov",
+            "Dimitar Trajanov"
+          ],
+          "claimed_title": "A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06455"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='A Multi-Agent System for Semantic Mapping of Relational Data to Knowledge Graphs')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A detector concept, named IDEA, optimized for the physics and running conditions at the FCC-ee is presented. After discussing the expected running conditions and the main physics drivers, a detailed description of the individual sub-detectors is given. These include: a very light tracking system with a powerful vertex detector inside a large drift chamber surrounded by a silicon wrapper, a high resolution dual readout crystal electromagnetic calorimeter, an HTS based superconducting solenoid, a dual readout fiber calorimeter and three layers of muon chambers embedded in the magnet flux return yoke. Some examples of the expected detector performance, based on fast and full simulation, are also given.",
+          "claimed_authors": [
+            " The IDEA Study Group"
+          ],
+          "claimed_title": "The IDEA detector concept for FCC-ee",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.21223"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='The IDEA detector concept for FCC-ee')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Provenance data from astronomical pipelines are instrumental in establishing trust and reproducibility in the data processing and products. In addition, astronomers can query their provenance to answer questions routed in areas such as anomaly detection, recommendation, and prediction. The next generation of astronomical survey telescopes such as the Vera Rubin Observatory or Square Kilometre Array, are capable of producing peta to exabyte scale data, thereby amplifying the importance of even small improvements to the efficiency of provenance storage or querying. In order to determine how astronomers should store and query their provenance data, this paper reports on a comparison between the turtle and JSON provenance serialisations. The triple store Apache Jena Fuseki and the graph database system Neo4j were selected as representative database management systems (DBMS) for turtle and JSON, respectively. Simulated provenance data was uploaded to and queried over each DBMS and the metrics measured for comparison were the accuracy and timing of the queries as well as the data upload times. It was found that both serialisations are competent for this purpose, and both have similar query accuracy. The turtle provenance was found to be more efficient at storing and uploading the data. Regarding queries, for small datasets ($<$5MB) and simple information retrieval queries, the turtle serialisation was also found to be more efficient. However, queries for JSON serialised provenance were found to be more efficient for more complex queries which involved matching patterns across the DBMS, this effect scaled with the size of the queried provenance.",
+          "claimed_authors": [
+            "Michael A. C. Johnson",
+            "Marcus Paradies",
+            "Hans-Rainer Klöckner",
+            "Albina Muzafarova",
+            "Kristen Lackeos",
+            "David J. Champion",
+            "Marta Dembska",
+            "Sirko Schindler"
+          ],
+          "claimed_title": "Evaluation of Provenance Serialisations for Astronomical Provenance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.14290"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Evaluation of Provenance Serialisations for Astronomical Provenance')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents results from the development and evaluation of a deductive verification benchmark consisting of 26 unmodified Linux kernel library functions implementing conventional memory and string operations. The formal contract of the functions was extracted from their source code and was represented in the form of preconditions and postconditions. The correctness of 23 functions was completely proved using AstraVer toolset, although success for 11 functions was achieved using 2 new specification language constructs. Another 2 functions were proved after a minor modification of their source code, while the final one cannot be completely proved using the existing memory model. The benchmark can be used for the testing and evaluation of deductive verification tools and as a starting point for verifying other parts of the Linux kernel.",
+          "claimed_authors": [
+            "Denis Efremov",
+            "Mikhail Mandrykin",
+            "Alexey Khoroshilov"
+          ],
+          "claimed_title": "Deductive Verification of Unmodified Linux Kernel Library Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.00626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Ideas Have Genomes: Benchmarking Scientific Lineag', candidate_title='Deductive Verification of Unmodified Linux Kernel Library Functions')",
+        "failed_at": "2026-07-22T01:08:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifan Zhou",
+            "Qihao Yang",
+            "Yan Li",
+            "Donggang Li",
+            "Xiru Hu",
+            "Hokin Deng",
+            "Ziyang Gong",
+            "Xuanyi Zhou",
+            "Huacan Wang",
+            "Xiangchao Yan",
+            "Wanghan Xu",
+            "Wenlong Zhang",
+            "Shaofeng Zhang",
+            "Yue Zhou",
+            "Yifan Yang",
+            "Zhihang Zhong",
+            "Xue Yang"
+          ],
+          "title": "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.08758",
+        "summary": "Scientific ideas rarely start from a blank page. They inherit mechanisms, repair known limitations, and recombine pieces of earlier work, much like biological genomes. Current benchmarks still say little about whether AI systems can follow this inheritance structure. We present IdeaGene-Bench (IG-Bench), a benchmark for scientific lineage reasoning and lineage-grounded idea generation. IG-Bench is organized around the IdeaGene framework: each paper or proposal is represented as a set of minimal, typed, evidence-grounded Idea Genome objects, and a GenomeDiff aligns these objects to record inheritance, mutation, loss, external import, and novel insertion under six operational evolutionary dynamics. The benchmark contains 1,961 golden lineage traces, 1,085 curated Idea Genome objects, and 920 pairwise GenomeDiff records across 10 scientific domains. It supports two evaluations. IG-Exam (42 task types, 1,029 instances) tests closed-form lineage reasoning across Idea Genome abstraction, inheritance tracing, evolutionary reasoning, and lineage verification. IG-Arena evaluates generation with a lineage-conditioned Population-Evolution Score(PES), asking whether a proposal can be inserted as a coherent descendant of a given lineage population: it should inherit the right Idea Genome objects, vary meaningfully from nearby work, and offer selection value for future research. Experiments on 14 LLM-based scientists expose a compositional bottleneck. The strongest system reaches only 27.3% exact accuracy on lineage reasoning, and structured lineage context reshuffles system rankings rather than helping every participant uniformly.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.08758",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T01:08:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Craig S. Wright"
+          ],
+          "title": "Bayesian Epistemology with Weighted Authority: A Formal Architecture for Truth-Promoting Autonomous Scientific Reasoning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.16015",
+        "summary": "The exponential expansion of scientific literature has surpassed the epistemic processing capabilities of both human experts and current artificial intelligence systems. This paper introduces Bayesian Epistemology with Weighted Authority (BEWA), a formally structured architecture that operationalises belief as a dynamic, probabilistically coherent function over structured scientific claims. Each claim is contextualised, author-attributed, and evaluated through a system of replication scores, citation weighting, and temporal decay. Belief updates are performed via evidence-conditioned Bayesian inference, contradiction processing, and epistemic decay mechanisms. The architecture supports graph-based claim propagation, authorial credibility modelling, cryptographic anchoring, and zero-knowledge audit verification. By formalising scientific reasoning into a computationally verifiable epistemic network, BEWA advances the foundation for machine reasoning systems that promote truth utility, rational belief convergence, and audit-resilient integrity across dynamic scientific domains.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.16015",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T01:08:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adrian Bajraktari",
+            "Andreas Vogelsang"
+          ],
+          "title": "Enhancing Understandability and Transparency of Research Software: Tracing Research to Code",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.10793",
+        "summary": "Modern research heavily relies on software. A significant challenge researchers face is understanding the complex software used in specific research fields. We target two scenarios in this context, namely long onboarding times for newcomers and conference reviewers evaluating replication packages. We hypothesize that both scenarios can be significantly improved when there is a clear link between the paper's ideas and the code that implements them. As a time- and staff-saving approach, we propose an LLM-based automation tool that takes in a paper and the software implementing the paper, and generates a trace mapping between research ideas and their locations in code. Initial experiments have shown that the tool can generate quite useful mappings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.10793",
+          "http_status": 200,
+          "pdf_sample_score": 0.1653,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T01:08:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Songyang Gao",
+            "Yinghui Xia",
+            "Siyi Liu",
+            "Hui Xiong"
+          ],
+          "title": "Graphs of Research: Citation Evolution Graphs as Supervision for Research Idea Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.14790",
+        "summary": "Research idea generation is the innovation-driving step of automated scientific research. Recently, large language models (LLMs) have shown potential for automating idea generation at scale. However, existing methods mainly condition LLMs on eliciting idea generation through static retrieval of relevant literature or complex prompt engineering, without discarding the structural relations among references. We propose Graphs of Research (GoR), a supervised fine-tuning method that extracts a 2-hop reference neighborhood for each seed paper, derives the relations among those references from citation position, frequency, predecessor links, and publication time, and organizes them into a paper-evolution directed acyclic graph (DAG). We construct an automated extraction pipeline that draws data from five major ML/NLP venues, comprising 498/50/50 train/validation/test seed papers and approximately 7,600 cited references. Qwen2.5-7B-Instruct-1M is fine-tuned on a structured-text prompt that includes the citation graph, edge signals, reference information, and task definition to predict the idea for the seed paper. Across head-to-head LLM-judge tournaments against gpt-4o-driven baselines, GoR-SFT achieves SOTA, demonstrating the effectiveness of citation-evolution graphs as supervision signal for LLM-based idea generation. We hope that this reduces the barrier for citation evolution graphs as a supervision, accelerating automated scientific innovation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.14790",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T01:08:20Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

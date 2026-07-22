@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the required directories (`src/data`,\
+    \ `src/models`, `src/analysis`, `data/raw`, `data/processed`, `data/interim`,\
+    \ `tests/contract`, `tests/unit`, `tests/integration`, `docs`) actually exist\
+    \ on disk. Without a listing, screenshot, or other artifact confirming the `mkdir\
+    \ -p \u2026` command was run, we cannot confirm the task was completed."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging configuration files, code snippets, or documentation were provided\
+    \ that set up a logging infrastructure to capture \u201Cinsufficient data\u201D\
+    \ events or model convergence failures. Without concrete artifacts (e.g., a logging\
+    \ module, config files, or example log entries), the requirement cannot be verified\
+    \ as met. The implementer must supply the actual logging setup and evidence that\
+    \ it records the specified events."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration artifact (e.g., a YAML/JSON/INI file, environment variable\
+    \ definitions, or code that loads and applies random seeds and sampling parameters)\
+    \ was provided. The task required concrete environment\u2011configuration management\
+    \ for reproducible random seeding and sampling, but the evidence contains only\
+    \ high\u2011level project specifications and no actual config files or implementation.\
+    \ The implementer must add the appropriate configuration files and loading logic."
+T014:
+  c: false
+  h: e54b4837935106f97bcc5c25898dc65a522cf61cfa2919768ebbeaa547451908
+  r: "The required file `src/data/preprocess.py` does not exist, so no code can call\
+    \ the T005 download functions or perform file\u2011presence and checksum verification.\
+    \ The artifact is missing, making the task unfulfilled."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration file, or data artifact was provided that implements\
+    \ the required logic to flag grid cells with insufficient observation density\
+    \ and to exclude them from downstream modeling. The claim lacks any tangible implementation\
+    \ or evidence that the feature depends on the completed T007 file\u2011creation\
+    \ step. The missing artifact must be supplied (e.g., a Python module or pipeline\
+    \ step with unit tests demonstrating the marking behavior)."

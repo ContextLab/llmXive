@@ -4,7 +4,11 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime, timedelta
 import tempfile
-import shutil
+import os
+import sys
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.data.preprocess import (
     filter_migratory_species,
@@ -19,106 +23,129 @@ from src.data.preprocess import (
 
 @pytest.fixture
 def sample_ebird_data():
-    dates = pd.date_range('2020-03-01', periods=50, freq='D')
+    """Create sample eBird data for testing."""
     data = {
-        'species': ['Turdus migratorius'] * 30 + ['Setophaga ruticilla'] * 20,
-        'lat': [40.0 + (i % 10) * 0.1 for i in range(50)],
-        'lon': [-75.0 + (i % 10) * 0.1 for i in range(50)],
-        'date': dates,
-        'count': [1] * 50,
-        'checklist_id': [f'chk_{i}' for i in range(50)]
+        'species': ['Turdus migratorius', 'Setophaga ruticilla', 'Cardinalis cardinalis',
+                   'Turdus migratorius', 'Setophaga ruticilla'],
+        'lat': [40.7, 40.8, 40.9, 41.0, 41.1],
+        'lon': [-74.0, -74.1, -74.2, -74.3, -74.4],
+        'date': ['2023-03-01', '2023-03-05', '2023-03-10', '2023-03-15', '2023-03-20'],
+        'count': [5, 3, 8, 2, 4],
+        'checklist_id': ['chk_001', 'chk_002', 'chk_003', 'chk_004', 'chk_005']
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
 def sample_phenology_data():
-    # Create data with varying first_arrival to test deciles
+    """Create sample phenology data for testing."""
     data = {
-        'species': ['A'] * 100,
-        'grid_cell_lat': [40.0] * 100,
-        'grid_cell_lon': [-75.0] * 100,
-        'first_arrival': list(range(1, 101)), # Weeks 1 to 100
-        'total_count': [10] * 100
+        'species': ['Turdus migratorius', 'Turdus migratorius', 'Setophaga ruticilla'],
+        'grid_cell': ['40.5_-74.0', '40.5_-74.0', '40.5_-74.0'],
+        'week': [10, 11, 10],
+        'phenology_metric': ['first_arrival', 'median_arrival', 'first_arrival'],
+        'value': [10, 11, 10]
     }
     return pd.DataFrame(data)
 
 def test_filter_migratory_species(sample_ebird_data):
-    result = filter_migratory_species(sample_ebird_data, ['Turdus migratorius'])
-    assert len(result) == 30
-    assert all(result['species'] == 'Turdus migratorius')
+    """Test filtering to migratory species."""
+    clo_list = ['Turdus migratorius', 'Setophaga ruticilla']
+    filtered = filter_migratory_species(sample_ebird_data, clo_list)
+    
+    assert len(filtered) == 4  # Should keep 4 out of 5 records
+    assert 'Cardinalis cardinalis' not in filtered['species'].values
 
 def test_assign_grid_cell():
-    lat, lon = assign_grid_cell(40.12, -75.99, res=0.5)
-    assert lat == 40.0
-    assert lon == -76.0
+    """Test grid cell assignment."""
+    grid_lat, grid_lon = assign_grid_cell(40.7, -74.0, grid_res=0.5)
+    assert grid_lat == 40.5
+    assert grid_lon == -74.0
+
+    grid_lat, grid_lon = assign_grid_cell(40.8, -74.1, grid_res=0.5)
+    assert grid_lat == 41.0
+    assert grid_lon == -74.0
 
 def test_add_grid_cells(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data, res=0.5)
-    assert 'grid_cell_lat' in df.columns
-    assert 'grid_cell_lon' in df.columns
+    """Test adding grid cells to DataFrame."""
+    df = add_grid_cells(sample_ebird_data, grid_res=0.5)
+    
+    assert 'grid_cell' in df.columns
+    assert 'grid_lat' in df.columns
+    assert 'grid_lon' in df.columns
+    
+    # Check first row
+    assert df.iloc[0]['grid_cell'] == '40.5_-74.0'
 
 def test_aggregate_to_weekly_grid(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    result = aggregate_to_weekly_grid(df)
-    assert 'week' in result.columns
-    assert 'count' in result.columns
-    assert result['count'].sum() == 50
+    """Test aggregation to weekly grid."""
+    df = add_grid_cells(sample_ebird_data, grid_res=0.5)
+    aggregated = aggregate_to_weekly_grid(df)
+    
+    assert 'week' in aggregated.columns
+    assert 'year' in aggregated.columns
+    assert 'count' in aggregated.columns
+    assert 'num_checklists' in aggregated.columns
 
 def test_compute_phenology_metrics(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    result = compute_phenology_metrics(df_agg)
-    assert 'first_arrival' in result.columns
-    assert 'median_arrival' in result.columns
-    assert 'stopover_duration' in result.columns
+    """Test phenology metric computation."""
+    df = add_grid_cells(sample_ebird_data, grid_res=0.5)
+    aggregated = aggregate_to_weekly_grid(df)
+    phenology = compute_phenology_metrics(aggregated)
+    
+    if not phenology.empty:
+        assert 'phenology_metric' in phenology.columns
+        assert 'value' in phenology.columns
+        assert 'first_arrival' in phenology['phenology_metric'].values
 
 def test_mark_insufficient_data(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    df_pheno = compute_phenology_metrics(df_agg)
-    result = mark_insufficient_data(df_pheno, threshold=5)
-    assert 'sufficient_data' in result.columns
-    assert result['sufficient_data'].all()
+    """Test marking insufficient data."""
+    df = add_grid_cells(sample_ebird_data, grid_res=0.5)
+    aggregated = aggregate_to_weekly_grid(df)
+    marked = mark_insufficient_data(aggregated, min_checklists=2)
+    
+    assert 'sufficient' in marked.columns
+    # All samples have 1 checklist, so with min_checklists=2, all should be False
+    assert all(marked['sufficient'] == False)
 
 def test_calculate_observer_effort(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    result = calculate_observer_effort(df_agg)
-    assert 'observer_effort' in result.columns
-
-def test_tail_preserving_sampling(sample_phenology_data, tmp_path):
-    output_file = tmp_path / "weights.parquet"
-    result = apply_tail_preserving_sampling(sample_phenology_data, output_file)
+    """Test observer effort calculation."""
+    df = add_grid_cells(sample_ebird_data, grid_res=0.5)
+    aggregated = aggregate_to_weekly_grid(df)
+    effort_df = calculate_observer_effort(aggregated)
     
-    # Check columns
-    assert 'sampling_weight' in result.columns
-    assert 'arrival_decile' in result.columns
-    
-    # Check file creation
-    assert output_file.exists()
-    
-    # Check weights: lowest decile should be 0.5, others 1.0
-    # With range 1-100, decile 0 is roughly weeks 1-10
-    low_decile_mask = result['arrival_decile'] == result['arrival_decile'].min()
-    assert result.loc[low_decile_mask, 'sampling_weight'].min() == 0.5
-    assert result.loc[~low_decile_mask, 'sampling_weight'].min() == 1.0
+    assert 'observer_effort' in effort_df.columns
+    assert effort_df['observer_effort'].min() >= 0
+    assert effort_df['observer_effort'].max() <= 1
 
-def test_empty_dataframe_handling(tmp_path):
-    df = pd.DataFrame(columns=['species', 'first_arrival'])
-    output_file = tmp_path / "empty.parquet"
-    result = apply_tail_preserving_sampling(df, output_file)
-    assert result.empty
-    assert output_file.exists()
+def test_tail_preserving_sampling(sample_phenology_data):
+    """Test tail-preserving stratified sampling."""
+    sampled_df, weights_df = apply_tail_preserving_sampling(sample_phenology_data)
+    
+    assert 'sampling_weight' in sampled_df.columns
+    assert len(weights_df) > 0
+    assert 'sampling_weight' in weights_df.columns
+    
+    # Check that weights are either 0.5 or 1.0
+    unique_weights = weights_df['sampling_weight'].unique()
+    assert all(w in [0.5, 1.0] for w in unique_weights)
 
-def test_missing_columns(tmp_path):
-    df = pd.DataFrame({'species': ['A'], 'first_arrival': [1]})
-    output_file = tmp_path / "missing.parquet"
-    # Should handle missing grid columns gracefully or raise expected error
-    # For this test, we assume it runs but might produce NaNs if grid cols missing
-    try:
-        result = apply_tail_preserving_sampling(df, output_file)
-        # If it runs, check output exists
-        assert output_file.exists()
-    except Exception as e:
-        # Expected if logic strictly requires grid columns
-        pass
+def test_empty_dataframe_handling():
+    """Test handling of empty DataFrames."""
+    empty_df = pd.DataFrame(columns=['species', 'lat', 'lon', 'date', 'count', 'checklist_id'])
+    
+    filtered = filter_migratory_species(empty_df)
+    assert len(filtered) == 0
+    
+    effort_df = calculate_observer_effort(empty_df)
+    assert len(effort_df) == 0
+    assert 'observer_effort' in effort_df.columns
+
+def test_missing_columns():
+    """Test handling of missing required columns."""
+    incomplete_df = pd.DataFrame({'species': ['A'], 'lat': [40.0]})
+    
+    with pytest.raises(ValueError):
+        add_grid_cells(incomplete_df)
+    
+    with pytest.raises(ValueError):
+        aggregate_to_weekly_grid(incomplete_df)

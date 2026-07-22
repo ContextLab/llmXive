@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-evaluation"
+name = "llmxive-proj-271"
 version = "0.1.0"
 description = "Evaluating the Effectiveness of LLMs for Detecting Code Smells"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "datasets",
@@ -19,12 +20,12 @@ dependencies = [
     "numpy",
     "psutil",
     "flake8",
-    "black"
+    "black",
 ]
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -41,15 +42,20 @@ exclude = '''
 '''
 
 [tool.flake8]
-max-line-length = 88
-extend-ignore = "E203, W503"
+max-line-length = 100
 exclude = [
     ".git",
     "__pycache__",
-    ".venv",
     "build",
-    "dist"
+    "dist",
+    ".venv",
+    ".tox",
+    ".mypy_cache",
 ]
-per-file-ignores = [
-    "tests/*: S101"
-]
+ignore = ["E203", "W503"]
+per-file-ignores = {}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

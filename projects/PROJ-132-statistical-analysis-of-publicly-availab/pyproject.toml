@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "statistical-analysis-of-publicly-availab"
+name = "llmxive-bird-migration"
 version = "0.1.0"
 description = "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
 requires-python = ">=3.11"
@@ -14,8 +14,6 @@ dependencies = [
     "pyyaml",
     "joblib",
     "pytest",
-    "black",
-    "ruff",
 ]
 
 [tool.black]

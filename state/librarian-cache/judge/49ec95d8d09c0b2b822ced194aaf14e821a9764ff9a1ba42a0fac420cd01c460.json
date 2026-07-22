@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.08758",
+  "judged_at": "2026-07-22T01:08:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "This paper is the foundational source for the user's question, as the user's query explicitly references the paper's title (\"Ideas Have Genomes...\") and frames their work as a \"follow-up\" to it. It satisfies criterion (d) as the canonical reference for the \"IdeaGene\" framework and \"scientific lineage reasoning\" benchmark that the user intends to extend.",
+  "relevant": true
+}
