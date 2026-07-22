@@ -164,7 +164,7 @@
 
 **Purpose**: Address specific reviewer concerns regarding data robustness, CPU feasibility, and statistical validity. **Note**: Safety gates (T038, T039) have been moved to Phase 2.
 
-- [ ] T042 [US3] [SC-002] Explicitly implement the non-inferiority margin test for Style Consistency as per SC-002, calculating the absolute difference and checking against the predefined margin (0.05) in `code/scripts/verify_hypothesis.py`. **Note**: Logic for this is now also integrated into T028 and T032.
+- [X] T042 [US3] [SC-002] Explicitly implement the non-inferiority margin test for Style Consistency as per SC-002, calculating the absolute difference and checking against the predefined margin (0.05) in `code/scripts/verify_hypothesis.py`. **Note**: Logic for this is now also integrated into T028 and T032.
 
 ---
 

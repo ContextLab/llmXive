@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-922-llmxive-follow-up-extending-colleague-sk",
+  "ok": false,
+  "reason": "",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 0,
+  "model_tier": 0,
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-922-llmxive-follow-up-extending-colle",
+    "submitted_at": "2026-07-22T16:38:49Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-07-22T16:38:55Z"
+}
