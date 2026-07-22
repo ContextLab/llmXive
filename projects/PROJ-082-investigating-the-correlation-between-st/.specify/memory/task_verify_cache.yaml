@@ -24,43 +24,59 @@ T007c:
     absence means the requirement is not satisfied.
 T008c:
   c: false
-  h: b638115c02b4625f8abbaf5cb247d7e26b3e2101225a22d235d017a5562de83f
-  r: The repository lacks the required `data/processed/extracted_studies.csv` input
-    file and the `data/processed/tract_count.json` output file, so the script cannot
-    be executed or verified. Moreover, the provided `tract_counting.py` is truncated
-    and does not contain the full implementation (e.g., applying harmonization and
-    writing the JSON result). The task therefore remains unfinished.
+  h: cd6d224b198faa442ec3f6d895132e8de7e52cad38f5c285afff917443b2ffb7
+  r: "The repository contains a partially shown `code/analysis/tract_counting.py`\
+    \ that appears to implement the required logic, but the file is truncated (e.g.,\
+    \ the `run_tract_counting` function ends abruptly) and there is no evidence that\
+    \ it was executed. Moreover, the required input file `data/processed/extracted_studies.csv`\
+    \ and the expected output `data/processed/tract_count.json` are both missing,\
+    \ so the task\u2019s deliverable has not been produced. The next implementer must\
+    \ provide a complete, runnable script and generate the JSON output from an actual\
+    \ `extracted_studies.csv`."
 T013:
   c: false
-  h: ceb7aa02d69b89e7c1a10aaa98e9ecbd7d28255167fdabdfcfd8faa9e8325b08
-  r: "The repository contains a partially shown `parser.py`, but the file is truncated\
-    \ and does not demonstrate writing to `data/logs/exclusion_log.csv` or creating\
-    \ `data/processed/extracted_studies.csv`. Both required output artifacts are missing,\
-    \ so the task\u2019s output requirements are not satisfied."
+  h: a466deabbf5fc6bb421178f61e95f24db25ea7889d046e484ab744f8cfbc0392
+  r: "The repository contains a non\u2011empty `code/extraction/parser.py`, but the\
+    \ required supporting files are absent: `data/config/tract_lexicon.yaml` does\
+    \ not exist, and the expected output files `data/logs/exclusion_log.csv` and `data/processed/extracted_studies.csv`\
+    \ are missing. Without the lexicon and the generated CSV/logs, the parser cannot\
+    \ fulfill the extraction, exclusion\u2011logging, and narrative\u2011pool output\
+    \ requirements. The next implementer must add the missing lexicon file and ensure\
+    \ the parser creates the `extracted_studies.csv` with the required columns and\
+    \ logs exclusions as specified."
 T014:
   c: false
-  h: 879a512788cc41a099841278fd7cf7a5ce85294fda569144b584f7e730339e55
-  r: "The provided `meta_analysis.py` is incomplete (truncated) and does not implement\
-    \ the required gate logic, nor does it use `statsmodels` for the random\u2011\
-    effects model. Moreover, the expected output files `data/processed/meta_status.json`\
-    \ and `data/derived/results_quant.json` are absent. The task therefore remains\
-    \ unfinished."
+  h: 165026bcb26434fd2f48b9f5ad8506ebe3e88bc21502128378722c80fa80a6ed
+  r: "The repository lacks the required `data/processed/study_count.json` file, and\
+    \ the provided `code/analysis/meta_analysis.py` is truncated (ends mid\u2011function)\
+    \ with no visible implementation of the random\u2011effects model, convergence\
+    \ handling, or fallback to fixed\u2011effects. Consequently the script does not\
+    \ demonstrably read the study count at runtime nor meet the specified behavior."
 T014a:
   c: false
-  h: d0207a37f8699165f12d6e8b127e435e2e339ca8d6524325d9052a035b8a87f7
-  r: "The `study_counter.py` file is truncated (e.g., `run_study_counter` ends abruptly\
-    \ with \u201Cro\u201D) and does not contain a complete implementation, and the\
-    \ required input CSV (`data/processed/extracted_studies.csv`) and output JSON\
-    \ (`data/processed/study_count.json`) are absent. The task\u2019s core functionality\
-    \ cannot be verified or executed."
+  h: c088b8732a7cee8f98b352bddde5a63156a93944e563fa755eae3e83afea52c4
+  r: "The `study_counter.py` script is truncated (the `run_study_counter` function\
+    \ is incomplete and there is no entry\u2011point to invoke it). Moreover, the\
+    \ required input file `data/processed/extracted_studies.csv` and the expected\
+    \ output `data/processed/study_count.json` are absent, so the script cannot be\
+    \ executed to produce the required JSON. The implementer must provide a complete,\
+    \ runnable script and ensure the input CSV exists (or handle its absence) and\
+    \ that the JSON output is generated."
 T015:
   c: false
-  h: 4f2e85e1baaa1517dc4aedb002783f7ed1d3caeaff43357556b7a06c9e22d3c3
-  r: The required input files `data/processed/study_count.json` and `data/processed/extracted_studies.csv`
-    are absent, and the expected output `data/derived/narrative_summary.md` was not
-    created. Moreover, the provided `code/analysis/narrative.py` is truncated and
-    lacks a runnable entry point that reads the inputs and writes the markdown summary.
-    The implementation therefore does not fulfill the task.
+  h: e2e5b758bcfa7303f5afe12709bac666fc29bf2c2fd394eb3150c4c050b84fff
+  r: "The repository contains a partially\u2011implemented `code/analysis/narrative.py`\
+    \ (truncated and not completing the generation of the markdown summary), and the\
+    \ required input files (`data/processed/study_count.json`, `data/derived/narrative_themes.json`,\
+    \ `data/config/narrative_methodology.yaml`) as well as the expected output `data/derived/narrative_summary.md`\
+    \ are all missing. Consequently the task\u2019s specifications are not satisfied."
+T015a:
+  c: false
+  h: 1303c7048955e4fa62e83e2fe89fc179da7ec7228f1a16af58088b89389625c2
+  r: The required input files `data/processed/extracted_studies.csv` and `data/config/narrative_methodology.yaml`
+    are absent, and the expected output `data/derived/narrative_themes.json` was not
+    created. Without these artifacts the script cannot perform the aggregation nor
+    produce the required JSON.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -68,13 +84,6 @@ T017:
     and error handling for missing effect sizes were added, nor any log entries indicating
     excluded studies when conversion fails. Without concrete files or snippets demonstrating
     the new functionality, the requirement cannot be verified as met.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `narrative.py` (or any script) that checks for an\
-    \ empty CSV and outputs a \u201CNo studies found\u201D summary is provided. The\
-    \ required artifact is missing, so the zero\u2011studies edge case has not been\
-    \ demonstrated as handled."
 T040:
   c: false
   h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b

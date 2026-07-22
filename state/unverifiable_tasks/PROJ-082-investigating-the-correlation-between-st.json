@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-082-investigating-the-correlation-between-st",
+  "tasks": [
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "No evidence of a modified `narrative.py` (or any script) that checks for an empty CSV and outputs a \u201cNo studies found\u201d summary is provided. The required artifact is missing, so the zero\u2011studies edge case has not been demonstrated as handled.",
+      "first_seen": "2026-07-22T18:25:39.015230+00:00",
+      "last_seen": "2026-07-22T18:25:39.015230+00:00"
+    }
+  ],
+  "updated_at": "2026-07-22T18:25:39.015230+00:00"
+}

@@ -1,140 +1,174 @@
-"""
-Unit tests for code/extraction/parser.py
-"""
-import json
 import csv
+import json
 import tempfile
+import os
 from pathlib import Path
 import pytest
+import yaml
 
+# Import the module under test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.extraction.parser import parse_row, parse_csv_file, parse_json_file, _find_proximity_match
+from extraction.parser import parse_row, parse_csv_file, parse_json_file, save_extracted_studies, load_tract_lexicon
+from utils.config import get_project_root
 
+@pytest.fixture
+def mock_lexicon():
+    """Create a temporary mock lexicon for testing."""
+    return {
+        "directional_verbs": ["increased", "decreased", "correlated", "associated"],
+        "tracts": ["arcuate fasciculus", "cingulum bundle", "uncinate fasciculus"]
+    }
 
-class TestParseRow:
-    def test_extract_quantitative_direct(self):
-        """Test direct extraction of r and n."""
-        row = {"r": 0.45, "n": 120, "author": "Smith"}
-        result = parse_row(row)
-        assert result["r"] == 0.45
-        assert result["n"] == 120
-        assert result["quantitative_available"] is True
+@pytest.fixture
+def exclusion_log_path(tmp_path):
+    return tmp_path / "exclusion_log.csv"
 
-    def test_extract_quantitative_string(self):
-        """Test extraction from string values."""
-        row = {"r": "0.32", "n": "85", "author": "Jones"}
-        result = parse_row(row)
-        assert result["r"] == 0.32
-        assert result["n"] == 85
-        assert result["quantitative_available"] is True
+def test_parse_row_with_r_n(mock_lexicon, exclusion_log_path):
+    """Test parsing a row with r and n values."""
+    row = {
+        "author": "Smith",
+        "year": 2020,
+        "tract": "arcuate fasciculus",
+        "r": 0.5,
+        "n": 100,
+        "qualitative_desc": "The arcuate fasciculus showed increased connectivity."
+    }
+    
+    result = parse_row(row, mock_lexicon, exclusion_log_path)
+    
+    assert result["author"] == "Smith"
+    assert result["year"] == 2020
+    assert result["tract"] == "arcuate fasciculus"
+    assert result["r"] == 0.5
+    assert result["n"] == 100
+    assert result["narrative_pool"] == True  # Because descriptors were found
+    assert "increased" in result["qualitative_desc"]
 
-    def test_extract_quantitative_missing(self):
-        """Test when r or n is missing."""
-        row = {"r": 0.45, "author": "Doe"}
-        result = parse_row(row)
-        assert result["r"] == 0.45
-        assert result["n"] is None
-        assert result["quantitative_available"] is False
+def test_parse_row_without_descriptors(mock_lexicon, exclusion_log_path):
+    """Test parsing a row with r and n but no qualitative descriptors."""
+    row = {
+        "author": "Jones",
+        "year": 2021,
+        "tract": "cingulum bundle",
+        "r": 0.3,
+        "n": 50,
+        "qualitative_desc": "Some random text without tract terms."
+    }
+    
+    result = parse_row(row, mock_lexicon, exclusion_log_path)
+    
+    assert result["narrative_pool"] == False
+    assert result["qualitative_desc"] == ""
+    
+    # Check exclusion log
+    assert exclusion_log_path.exists()
+    with open(exclusion_log_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1
+        assert rows[0]["reason"] == "No tract-directional verb pair found in text"
 
-    def test_qualitative_specific_tract_found(self):
-        """Test detection of specific tract near directional verb."""
-        row = {
-            "abstract": "The arcuate fasciculus showed increased connectivity in music lovers.",
-            "author": "Test"
+def test_parse_row_with_p_value(mock_lexicon, exclusion_log_path):
+    """Test parsing a row with p-value and n, but no r."""
+    # Assuming p=0.05, n=100 converts to a small r
+    row = {
+        "author": "Doe",
+        "year": 2022,
+        "tract": "uncinate fasciculus",
+        "p": 0.05,
+        "n": 100,
+        "qualitative_desc": "uncinate fasciculus associated with reward."
+    }
+    
+    result = parse_row(row, mock_lexicon, exclusion_log_path)
+    
+    assert result["r"] is not None  # Should be converted
+    assert result["n"] == 100
+    assert result["narrative_pool"] == True  # Because "associated" was found
+
+def test_parse_csv_file(tmp_path, mock_lexicon):
+    """Test parsing a CSV file."""
+    csv_path = tmp_path / "input.csv"
+    exclusion_log_path = tmp_path / "exclusion_log.csv"
+    
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["author", "year", "tract", "r", "n", "qualitative_desc"])
+        writer.writeheader()
+        writer.writerow({
+            "author": "Test1",
+            "year": 2020,
+            "tract": "arcuate fasciculus",
+            "r": 0.4,
+            "n": 80,
+            "qualitative_desc": "arcuate fasciculus increased connectivity."
+        })
+        writer.writerow({
+            "author": "Test2",
+            "year": 2021,
+            "tract": "cingulum bundle",
+            "r": 0.2,
+            "n": 60,
+            "qualitative_desc": "random text."
+        })
+    
+    studies = parse_csv_file(csv_path, mock_lexicon, exclusion_log_path)
+    
+    assert len(studies) == 2
+    assert studies[0]["narrative_pool"] == True
+    assert studies[1]["narrative_pool"] == False
+
+def test_parse_json_file(tmp_path, mock_lexicon):
+    """Test parsing a JSON file."""
+    json_path = tmp_path / "input.json"
+    exclusion_log_path = tmp_path / "exclusion_log.csv"
+    
+    data = [
+        {
+            "author": "Test1",
+            "year": 2020,
+            "tract": "arcuate fasciculus",
+            "r": 0.4,
+            "n": 80,
+            "qualitative_desc": "arcuate fasciculus increased connectivity."
+        },
+        {
+            "author": "Test2",
+            "year": 2021,
+            "tract": "cingulum bundle",
+            "r": 0.2,
+            "n": 60,
+            "qualitative_desc": "random text."
         }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["tract"] == "arcuate fasciculus"
-        assert result["qualitative_descriptor"]["context"] == "specific_circuitry_found"
+    ]
+    
+    with open(json_path, 'w') as f:
+        json.dump(data, f)
+    
+    studies = parse_json_file(json_path, mock_lexicon, exclusion_log_path)
+    
+    assert len(studies) == 2
+    assert studies[0]["narrative_pool"] == True
+    assert studies[1]["narrative_pool"] == False
 
-    def test_qualitative_no_tract_no_music(self):
-        """Test fallback when no tract or music context found."""
-        row = {
-            "abstract": "General brain activity was measured.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["no_qualitative_data"] is True
-
-    def test_qualitative_music_only_no_tract(self):
-        """Test when music preference is mentioned but no specific tract."""
-        row = {
-            "abstract": "Participants reported their music preference, and general brain scans were done.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["no_qualitative_data"] is True
-        assert result["qualitative_descriptor"]["context"] == "music_preference_only"
-
-    def test_qualitative_uncinate_tract(self):
-        """Test detection of uncinate fasciculus."""
-        row = {
-            "abstract": "A negative correlation was found between uncinate fasciculus integrity and jazz preference.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["tract"] == "uncinate fasciculus"
-        assert result["qualitative_descriptor"]["context"] == "specific_circuitry_found"
-
-
-class TestParseCSV:
-    def test_parse_csv_file(self):
-        """Test parsing a CSV file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.DictWriter(f, fieldnames=['id', 'r', 'n', 'abstract'])
-            writer.writeheader()
-            writer.writerow({'id': 'S1', 'r': '0.5', 'n': '100', 'abstract': 'Arcuate increased in music fans.'})
-            temp_path = f.name
-
-        try:
-            results = parse_csv_file(temp_path)
-            assert len(results) == 1
-            assert results[0]['r'] == 0.5
-            assert results[0]['n'] == 100
-            assert results[0]['qualitative_descriptor']['tract'] == 'arcuate'
-        finally:
-            Path(temp_path).unlink()
-
-
-class TestParseJSON:
-    def test_parse_json_file(self):
-        """Test parsing a JSON file."""
-        data = [
-            {
-                "id": "S1",
-                "r": 0.6,
-                "n": 50,
-                "abstract": "Cingulum bundle correlated with classical music preference."
-            }
-        ]
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(data, f)
-            temp_path = f.name
-
-        try:
-            results = parse_json_file(temp_path)
-            assert len(results) == 1
-            assert results[0]['r'] == 0.6
-            assert results[0]['n'] == 50
-            assert results[0]['qualitative_descriptor']['tract'] == 'cingulum bundle'
-        finally:
-            Path(temp_path).unlink()
-
-
-class TestFindProximityMatch:
-    def test_match_arcuate(self):
-        text = "The study found that the arcuate fasciculus was increased in individuals with high music preference."
-        assert _find_proximity_match(text) == "arcuate fasciculus"
-
-    def test_match_cingulum(self):
-        text = "Reduced integrity in the cingulum bundle was associated with lower music liking."
-        assert _find_proximity_match(text) == "cingulum bundle"
-
-    def test_no_match(self):
-        text = "General brain structures were analyzed without specific tract focus."
-        assert _find_proximity_match(text) is None
-
-    def test_match_unspecified_tract(self):
-        text = "The corpus callosum showed a positive correlation with music enjoyment."
-        assert _find_proximity_match(text) == "corpus callosum"
+def test_save_extracted_studies(tmp_path, mock_lexicon):
+    """Test saving extracted studies to CSV."""
+    studies = [
+        {"author": "A", "year": 2020, "tract": "T1", "r": 0.1, "n": 10, "qualitative_desc": "desc1", "narrative_pool": True},
+        {"author": "B", "year": 2021, "tract": "T2", "r": 0.2, "n": 20, "qualitative_desc": "", "narrative_pool": False}
+    ]
+    
+    output_path = tmp_path / "output.csv"
+    save_extracted_studies(studies, output_path)
+    
+    assert output_path.exists()
+    
+    with open(output_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 2
+        assert rows[0]["author"] == "A"
+        assert rows[0]["narrative_pool"] == "True"
+        assert rows[1]["author"] == "B"
+        assert rows[1]["narrative_pool"] == "False"

@@ -11,7 +11,7 @@ def load_study_count_from_json(file_path: Path) -> int:
         return 0
     with open(file_path, 'r') as f:
         data = json.load(f)
-    return data.get('study_count', 0)
+    return data.get('N', 0)
 
 def load_effect_sizes_and_se(file_path: Path) -> Tuple[List[float], List[float]]:
     """Load effect sizes and standard errors from a JSON file."""
@@ -49,26 +49,30 @@ def run_eggerr_regression(effects: List[float], ses: List[float]) -> Dict[str, A
     y = np.array(effects)
     
     # Linear regression: y = intercept + slope * x
-    # Using numpy for simple linear regression
     n = len(x)
     sum_x = np.sum(x)
     sum_y = np.sum(y)
     sum_xy = np.sum(x * y)
     sum_x2 = np.sum(x ** 2)
     
-    slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
+    denominator = n * sum_x2 - sum_x ** 2
+    if denominator == 0:
+        return {
+            "egger_skipped_reason": "Skipped: Variance in standard errors is zero"
+        }
+
+    slope = (n * sum_xy - sum_x * sum_y) / denominator
     intercept = (sum_y - slope * sum_x) / n
     
     # Calculate standard error of intercept
     residuals = y - (intercept + slope * x)
     mse = np.sum(residuals ** 2) / (n - 2)
-    se_intercept = math.sqrt(mse * sum_x2 / (n * sum_x2 - sum_x ** 2))
+    se_intercept = math.sqrt(mse * sum_x2 / denominator)
     
     # t-statistic for intercept
     t_stat = intercept / se_intercept if se_intercept != 0 else 0
     
     # Two-tailed p-value (approximation using normal distribution for large n)
-    # For small n, t-distribution would be more appropriate
     p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
     
     return {

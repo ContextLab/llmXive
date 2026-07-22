@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import csv
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -16,73 +17,46 @@ logger = get_logger(__name__)
 
 def load_extracted_studies(input_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the extracted studies CSV (or JSON if stored as such) from T013.
-    Expects a file with at least one column containing tract information.
-    For this implementation, we assume the CSV has a 'tract' or 'harmonized_tract' column,
-    or we extract from 'qualitative_desc' if needed (though T013 should have normalized).
-    We will look for 'tract', 'harmonized_tract', or 'qualitative_desc'.
+    Load the extracted studies CSV from T013.
+    Expects a file with a 'tract', 'harmonized_tract', or 'qualitative_desc' column.
     """
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
     studies = []
     try:
-        # Attempt to load as CSV first, as per T013 output description
-        import csv
         with open(input_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                studies.append(row)
+                studies.append(dict(row))
     except Exception as e:
-        # Fallback to JSON if CSV fails, though T013 specifies CSV
-        try:
-            with open(input_path, 'r', encoding='utf-8') as f:
-                studies = json.load(f)
-        except Exception as json_err:
-            raise RuntimeError(f"Failed to parse input as CSV or JSON: {e}, {json_err}")
+        raise RuntimeError(f"Failed to parse input CSV: {e}")
 
     return studies
 
 def extract_tract_names(studies: List[Dict[str, Any]]) -> List[str]:
     """
     Extract tract names from the study records.
-    Prioritizes 'harmonized_tract' if present (from T013/T008), then 'tract', then 'qualitative_desc'.
+    Prioritizes 'harmonized_tract' if present, then 'tract'.
     """
     tract_names = []
     for study in studies:
         # Priority 1: Already harmonized tract
         if 'harmonized_tract' in study and study['harmonized_tract']:
-            tract_names.append(study['harmonized_tract'])
+            tract_names.append(str(study['harmonized_tract']))
         # Priority 2: Raw tract field
         elif 'tract' in study and study['tract']:
-            tract_names.append(study['tract'])
-        # Priority 3: Qualitative description (fallback, though T013 should have parsed this)
-        elif 'qualitative_desc' in study and study['qualitative_desc']:
-            # If it's a list or string, handle accordingly
-            desc = study['qualitative_desc']
-            if isinstance(desc, str):
-                # Simple heuristic: if it looks like a tract name, add it
-                # In a full NLP pipeline, this would be more complex, but T013 should have done the heavy lifting
-                # We assume T013 populated 'tract' or 'harmonized_tract' if found.
-                # If we are here, we might need to parse, but for T008c we rely on T013's extraction.
-                # If T013 failed to extract, we might get noise here.
-                # We will just add it if it's not empty, trusting T013's logic or T008 harmonization.
-                # However, to be safe and count unique *tracts*, we should ideally only count valid tract names.
-                # Since T013 uses T008, we assume 'tract' or 'harmonized_tract' is the source of truth.
-                # If both are missing, we skip.
-                pass
+            tract_names.append(str(study['tract']))
     return tract_names
 
 def count_unique_tracts(tract_names: List[str]) -> int:
     """
-    Count the number of unique tract names.
+    Count the number of unique tract names after harmonization.
     """
     unique_tracts = set()
     for name in tract_names:
         if name:
-            # Normalize again to be sure, in case T013 didn't fully clean
-            # T008 (harmonize_tract_list) is the canonical harmonizer
-            # We can pass a list of one to get the standard name
+            # Apply harmonization to ensure canonical names are used for counting
             harmonized = harmonize_tract_list([name])
             if harmonized:
                 unique_tracts.add(harmonized[0])

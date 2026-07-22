@@ -68,6 +68,7 @@ def count_unique_studies(studies: List[Dict[str, Any]]) -> int:
     
     for study in studies:
         # Handle potential missing keys gracefully
+        # The parser produces 'Author' and 'Year' columns
         author = study.get('Author', '').strip()
         year = study.get('Year', '').strip()
         

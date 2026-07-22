@@ -4,200 +4,291 @@ import math
 import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-import numpy as np
 
-# Import logger utilities from the provided API surface
-from utils.logger import get_logger, log_convergence_warning, log_fallback
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.stats.meta_analysis import combine_effects, MetaAnalysis
+
+from utils.logger import get_logger, log_error_context, log_fallback
+from utils.config import get_project_root, get_output_path
 
 logger = get_logger(__name__)
 
-def load_effect_sizes_and_se(file_path: Path) -> Tuple[List[float], List[float]]:
-    """Load effect sizes and standard errors from a JSON file.
-    
-    Reads the 'extracted_studies.csv' output from T013 (converted to JSON for this step
-    or expects a JSON list of studies with 'r' and 'n').
-    Note: The task description says input is from T014a which counts studies, but the 
-    actual data needed for meta-analysis is the effect sizes from T013. 
-    We assume the input file is a JSON list of study records with 'r' and 'n'.
-    """
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-    
-    effects = []
-    ses = []
-    
-    for study in data:
-        r = study.get('r', 0)
-        n = study.get('n', 0)
-        
-        if n <= 2:
-            logger.warning(f"Skipping study with n={n} (too small)")
-            continue
-        
-        # Fisher's z transformation
-        # Handle edge cases where r is exactly 1 or -1 to avoid log(0)
-        if r >= 1.0:
-            r = 0.9999
-        elif r <= -1.0:
-            r = -0.9999
-        
-        z = 0.5 * math.log((1 + r) / (1 - r))
-        se = 1 / math.sqrt(n - 3)
-        
-        effects.append(z)
-        ses.append(se)
-    
-    return effects, ses
+def load_study_count_from_json(path: Path) -> int:
+    """Load N from the study count JSON file."""
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+        return int(data.get('N', 0))
+    except (FileNotFoundError, json.JSONDecodeError, KeyError, TypeError) as e:
+        logger.error(f"Failed to load study count from {path}: {e}")
+        return 0
 
-def run_random_effects_model(effects: List[float], ses: List[float]) -> Dict[str, float]:
-    """Run a random-effects meta-analysis model using DerSimonian-Laird estimator.
-    
-    Handles convergence issues by falling back to Fixed-Effects if the random-effects
-    calculation produces invalid results (e.g., negative tau^2 leading to issues, 
-    or if the model is unstable).
+def load_effect_sizes_and_se(input_path: Path) -> Tuple[List[float], List[float], List[str]]:
     """
-    if not effects:
-        return {"weighted_mean_r": 0.0, "ci_lower": 0.0, "ci_upper": 0.0, "status": "no_data"}
+    Load effect sizes (r) and standard errors (SE) from the extracted studies CSV.
+    Returns lists of r, se, and study_id for identified studies.
+    Raises an exception if the file is missing or malformed.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    r_values = []
+    se_values = []
+    study_ids = []
+
+    with open(input_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Only include studies with valid r and n for quantitative analysis
+            try:
+                r = float(row['r'])
+                n = int(row['n'])
+                study_id = f"{row['author']}_{row['year']}"
+                
+                # Calculate SE for r: SE = 1 / sqrt(N - 3)
+                # This is the standard error for Fisher's z, but often used as approximation for r
+                # More precise: SE_z = 1/sqrt(N-3), then transform back.
+                # However, statsmodels MetaAnalysis usually expects effect sizes and their SEs.
+                # We will use the SE of Fisher's Z transformed r for the model, 
+                # but store the original r for reporting.
+                
+                # Fisher's Z transformation
+                # Z = 0.5 * ln((1+r)/(1-r))
+                # SE_Z = 1 / sqrt(N - 3)
+                
+                if n <= 3:
+                    logger.warning(f"Skipping study {study_id}: N={n} is too small for SE calculation.")
+                    continue
+
+                z_val = 0.5 * math.log((1 + r) / (1 - r))
+                se_z = 1.0 / math.sqrt(n - 3)
+                
+                r_values.append(z_val) # Store Z for the model
+                se_values.append(se_z)
+                study_ids.append(study_id)
+            except (ValueError, KeyError, TypeError) as e:
+                logger.warning(f"Skipping row due to invalid data: {row}. Error: {e}")
+                continue
+
+    if len(r_values) == 0:
+        raise ValueError("No valid effect sizes found in input file.")
     
-    # Calculate weights (inverse variance)
-    weights = [1 / (se ** 2) for se in ses]
-    total_weight = sum(weights)
-    
-    # Weighted mean of Fisher's z
-    weighted_z = sum(w * z for w, z in zip(weights, effects)) / total_weight
-    
-    # Between-study variance (Tau^2) - DerSimonian-Laird estimator
-    q = sum(w * (z - weighted_z) ** 2 for w, z in zip(weights, effects))
-    df = len(effects) - 1
-    
-    tau_sq = 0.0
-    if df > 0:
-        c = total_weight - sum(w ** 2 for w in weights) / total_weight
-        if c > 0:
-            tau_sq = max(0, (q - df) / c)
-        else:
-            # Fallback if c is zero or negative (should be rare)
-            logger.warning("Non-positive 'c' in DL estimator calculation. Using Fixed-Effects.")
-            tau_sq = 0.0
-    else:
-        # Single study case
-        tau_sq = 0.0
-    
-    # Adjusted weights for Random Effects
-    adjusted_weights = [1 / (se ** 2 + tau_sq) for se in ses]
-    adjusted_total_weight = sum(adjusted_weights)
-    
-    if adjusted_total_weight == 0:
-        logger.error("Adjusted total weight is zero. Falling back to Fixed-Effects logic.")
-        # Fallback to simple average if weights are all zero (unlikely but possible)
-        adjusted_weighted_z = sum(effects) / len(effects)
-        se_pooled = 1 / math.sqrt(len(effects)) # Approximate
-    else:
-        # Adjusted weighted mean
-        adjusted_weighted_z = sum(w * z for w, z in zip(adjusted_weights, effects)) / adjusted_total_weight
-        
-        # Confidence interval
-        se_pooled = 1 / math.sqrt(adjusted_total_weight)
-    
-    ci_lower = adjusted_weighted_z - 1.96 * se_pooled
-    ci_upper = adjusted_weighted_z + 1.96 * se_pooled
-    
-    # Back-transform to r
-    def fisher_inv(z_val):
-        return (math.exp(2 * z_val) - 1) / (math.exp(2 * z_val) + 1)
-    
-    weighted_mean_r = fisher_inv(adjusted_weighted_z)
-    ci_lower_r = fisher_inv(ci_lower)
-    ci_upper_r = fisher_inv(ci_upper)
-    
-    return {
-        "weighted_mean_r": round(weighted_mean_r, 4),
-        "ci_lower": round(ci_lower_r, 4),
-        "ci_upper": round(ci_upper_r, 4),
-        "tau_squared": round(tau_sq, 6),
-        "q_statistic": round(q, 4),
-        "df": df,
-        "status": "success"
+    return r_values, se_values, study_ids
+
+def run_random_effects_model(r_values: List[float], se_values: List[float]) -> Dict[str, Any]:
+    """
+    Run a Random-Effects meta-analysis using statsmodels.
+    Handles convergence failures by falling back to Fixed-Effects.
+    """
+    effects = np.array(r_values)
+    se = np.array(se_values)
+
+    # statsmodels MetaAnalysis expects effect sizes and their standard errors
+    # We are using Fisher's Z transformed effects
+    ma = MetaAnalysis(effect_size=effects, se_effect=se)
+
+    result = {
+        "model_type": "random_effects",
+        "reliability": "reliable",
+        "convergence_warning": False
     }
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save meta-analysis results to a JSON file."""
+    try:
+        # Run random effects model (DerSimonian-Laird by default in statsmodels if not specified, 
+        # but we want to be explicit or handle the specific method if needed. 
+        # statsmodels combine_effects handles this)
+        
+        # Calculate pooled effect
+        # statsmodels MetaAnalysis has a method to combine effects
+        # We'll use the built-in logic which defaults to REML or DL depending on version/settings
+        # For robustness, we try the standard combine_effects call.
+        
+        # Note: statsmodels MetaAnalysis.combine_effects returns a tuple (pooled_effect, se_pooled, ci_lower, ci_upper, ...)
+        # We need to extract the relevant stats.
+        
+        # Let's use the explicit method from statsmodels.stats.meta_analysis
+        # combine_effects(effect, se_effect, method_taylor='DL')
+        
+        pooled_z, se_pooled_z, ci_low_z, ci_up_z, z_stat, p_val = combine_effects(
+            effects, se, method_taylor='DL'
+        )
+
+        # Transform back to r
+        pooled_r = (math.exp(2 * pooled_z) - 1) / (math.exp(2 * pooled_z) + 1)
+        ci_low_r = (math.exp(2 * ci_low_z) - 1) / (math.exp(2 * ci_low_z) + 1)
+        ci_up_r = (math.exp(2 * ci_up_z) - 1) / (math.exp(2 * ci_up_z) + 1)
+
+        # Calculate I-squared (Heterogeneity)
+        # Q statistic
+        Q = np.sum(((effects - pooled_z) ** 2) / (se ** 2))
+        df = len(effects) - 1
+        if df > 0:
+            i_squared = max(0, (Q - df) / Q) * 100
+        else:
+            i_squared = 0.0
+
+        # Egger's test p-value (placeholder, T021 handles this, but we can include a basic check or leave null)
+        # T021 will calculate this properly. We just need the main effect here.
+        
+        result.update({
+            "weighted_mean_r": round(pooled_r, 4),
+            "weighted_mean_z": round(pooled_z, 4),
+            "se_pooled": round(se_pooled_z, 4),
+            "ci_lower_r": round(ci_low_r, 4),
+            "ci_upper_r": round(ci_up_r, 4),
+            "z_statistic": round(z_stat, 4),
+            "p_value": round(p_val, 4),
+            "i_squared": round(i_squared, 2),
+            "q_statistic": round(Q, 4),
+            "k": len(effects),
+            "status": "completed"
+        })
+
+    except Exception as e:
+        logger.warning(f"Random-effects model failed with error: {e}. Falling back to Fixed-Effects.")
+        log_fallback("meta_analysis", "random_effects", "fixed_effects", str(e))
+        
+        # Fallback to Fixed-Effects
+        try:
+            pooled_z, se_pooled_z, ci_low_z, ci_up_z, z_stat, p_val = combine_effects(
+                effects, se, method_taylor='FE'
+            )
+            
+            pooled_r = (math.exp(2 * pooled_z) - 1) / (math.exp(2 * pooled_z) + 1)
+            ci_low_r = (math.exp(2 * ci_low_z) - 1) / (math.exp(2 * ci_low_z) + 1)
+            ci_up_r = (math.exp(2 * ci_up_z) - 1) / (math.exp(2 * ci_up_z) + 1)
+            
+            Q = np.sum(((effects - pooled_z) ** 2) / (se ** 2))
+            df = len(effects) - 1
+            i_squared = 0.0 # Not applicable for FE in same way, usually 0 or undefined
+            
+            result.update({
+                "model_type": "fixed_effects_fallback",
+                "reliability": "unreliable",
+                "weighted_mean_r": round(pooled_r, 4),
+                "weighted_mean_z": round(pooled_z, 4),
+                "se_pooled": round(se_pooled_z, 4),
+                "ci_lower_r": round(ci_low_r, 4),
+                "ci_upper_r": round(ci_up_r, 4),
+                "z_statistic": round(z_stat, 4),
+                "p_value": round(p_val, 4),
+                "i_squared": 0.0,
+                "q_statistic": round(Q, 4),
+                "k": len(effects),
+                "status": "completed",
+                "convergence_warning": True
+            })
+        except Exception as fallback_e:
+            logger.error(f"Fixed-Effects fallback also failed: {fallback_e}")
+            raise RuntimeError(f"Meta-analysis failed completely: {fallback_e}")
+
+    return result
+
+def save_results(results: Dict[str, Any], output_path: Path, status_path: Path, n: int):
+    """
+    Save the meta-analysis results to the derived JSON file.
+    Also updates the meta_status.json file.
+    """
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write the main results
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-
-def run_meta_analysis(input_path: Path, output_path: Path) -> Dict[str, Any]:
-    """Run the full meta-analysis pipeline.
     
-    This function implements the gate logic:
-    1. It expects the input file to contain the list of studies.
-    2. It calculates N (study count) internally from the data.
-    3. If N < 10, it skips the model and writes a 'skipped' status to meta_status.json.
-       However, the task says: "If N < 10, skip the model and output `data/processed/meta_status.json`... 
-       If N >= 10, run the model and output `data/derived/results_quant.json`."
-       
-       Since this script is T014, it should handle both outputs based on the count.
-       We will read the count from the input data.
+    logger.info(f"Saved meta-analysis results to {output_path}")
+
+    # Write the status file
+    status_data = {
+        "status": results.get("status", "completed"),
+        "n": n,
+        "model_type": results.get("model_type", "unknown"),
+        "reliability": results.get("reliability", "unknown")
+    }
+    
+    # If skipped, ensure status is set correctly
+    if n < 10:
+        status_data["status"] = "skipped"
+        status_data["reason"] = "Insufficient studies"
+    
+    with open(status_path, 'w') as f:
+        json.dump(status_data, f, indent=2)
+    
+    logger.info(f"Saved meta-analysis status to {status_path}")
+
+def run_meta_analysis():
     """
-    # Load data
-    try:
-        effects, ses = load_effect_sizes_and_se(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load data from {input_path}: {e}")
-        raise
-    
-    study_count = len(effects)
-    
-    # Gate Logic: Check N
-    if study_count < 10:
-        logger.info(f"Study count ({study_count}) is less than 10. Skipping meta-analysis model.")
-        
-        # Output meta_status.json
-        status_path = output_path.parent / "meta_status.json"
-        status_result = {
-            "status": "skipped",
-            "reason": f"Insufficient studies (N={study_count} < 10)",
-            "study_count": study_count
-        }
-        save_results(status_result, status_path)
-        
-        # Also output an empty results_quant.json or a placeholder indicating skip?
-        # The task says: "output `data/derived/results_quant.json`" only if N >= 10.
-        # So we do not create results_quant.json if skipped.
-        
-        return status_result
-    
-    # Run Random-Effects Model
-    logger.info(f"Study count ({study_count}) >= 10. Running Random-Effects model.")
-    results = run_random_effects_model(effects, ses)
-    results["study_count"] = study_count
-    
-    # Save to results_quant.json
-    save_results(results, output_path)
-    
-    return results
+    Main entry point for the meta-analysis task.
+    1. Read N from study_count.json.
+    2. If N < 10, write skipped status and exit.
+    3. If N >= 10, run the model and write results.
+    """
+    project_root = get_project_root()
+    input_csv = project_root / "data" / "processed" / "extracted_studies.csv"
+    study_count_json = project_root / "data" / "processed" / "study_count.json"
+    output_json = project_root / "data" / "derived" / "results_quant.json"
+    status_json = project_root / "data" / "processed" / "meta_status.json"
 
-def main() -> None:
-    """Main entry point for meta-analysis."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Meta-analysis tool")
-    parser.add_argument("--input", type=str, required=True, help="Input JSON file (list of studies)")
-    parser.add_argument("--output", type=str, required=True, help="Output JSON file (results_quant.json)")
-    args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
+    # Load N
+    n = load_study_count_from_json(study_count_json)
+    logger.info(f"Loaded study count N={n}")
+
+    # Gate Logic
+    if n < 10:
+        logger.info(f"N={n} is less than 10. Skipping quantitative meta-analysis.")
+        # Write skipped status
+        save_results(
+            {
+                "status": "skipped",
+                "reason": "Insufficient studies",
+                "n": n,
+                "model_type": "none",
+                "reliability": "n/a"
+            },
+            output_json,
+            status_json,
+            n
+        )
+        # Signal to orchestrator that narrative should be invoked (handled by T016a logic reading this file)
+        return
+
+    # Load data
+    logger.info("Loading effect sizes and standard errors...")
     try:
-        results = run_meta_analysis(input_path, output_path)
-        print(f"Meta-analysis complete: {results}")
+        r_values, se_values, study_ids = load_effect_sizes_and_se(input_csv)
+        logger.info(f"Loaded {len(r_values)} valid studies.")
     except Exception as e:
-        logger.error(f"Meta-analysis failed: {e}")
+        logger.error(f"Failed to load data: {e}")
+        # If data loading fails, we still need to write a status indicating failure/skip
+        save_results(
+            {
+                "status": "failed",
+                "reason": "Data loading error",
+                "error": str(e),
+                "n": n
+            },
+            output_json,
+            status_json,
+            n
+        )
         sys.exit(1)
+
+    # Run Model
+    logger.info("Running Random-Effects Meta-Analysis...")
+    try:
+        results = run_random_effects_model(r_values, se_values)
+        logger.info(f"Analysis complete. Weighted Mean r = {results['weighted_mean_r']}")
+    except Exception as e:
+        logger.error(f"Meta-analysis calculation failed: {e}")
+        sys.exit(1)
+
+    # Save Results
+    save_results(results, output_json, status_json, n)
+
+def main():
+    run_meta_analysis()
 
 if __name__ == "__main__":
     main()
