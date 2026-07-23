@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prime-gap-riemann"
+name = "llmXive-prime-gaps"
 version = "0.1.0"
 description = "Exploring the relationship between prime gaps and the Riemann Hypothesis"
 requires-python = ">=3.9"
@@ -14,75 +14,13 @@ dependencies = [
     "pyyaml",
     "requests",
     "pytest",
-    "ruff",
-    "black",
+    "ruff>=0.1.0",
+    "black>=23.0.0"
 ]
-
-[project.optional-dependencies]
-dev = [
-    "ruff",
-    "black",
-    "pytest",
-    "pytest-cov",
-]
-
-[tool.ruff]
-# Same as Black.
-line-length = 88
-indent-width = 4
-target-version = "py39"
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # assert allowed in tests
 
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311"]
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -90,24 +28,34 @@ exclude = '''
     | \.git
     | \.hg
     | \.mypy_cache
-    | \.nox
-    | \.pants.d
-    | \.pytype
-    | \.ruff_cache
-    | \.svn
     | \.tox
     | \.venv
-    | __pypackages__
     | _build
     | buck-out
     | build
     | dist
-    | node_modules
-    | venv
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
+[tool.ruff]
+# Explicitly point to the ruff.toml for lint rules if needed, 
+# or define inline here for simplicity in pyproject.toml
+# We rely on the separate ruff.toml for detailed rule selection
+src = ["src", "tests", "setup_structure.py"]
+line-length = 88
+target-version = "py39"
+extend-exclude = [
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env"
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"] # Handled by black
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests", "setup_structure"]
+force-sort-within-sections = true
+lines-after-imports = 2

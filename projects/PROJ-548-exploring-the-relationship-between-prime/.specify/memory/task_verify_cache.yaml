@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided showing the required folders
+    (`src/data/`, `src/analysis/`, `src/utils/`, `src/cli/`, `tests/unit/`, `tests/integration/`,
+    `data/raw/`, `data/processed/`, `data/results/`, `results/`, `state/`). Without
+    concrete evidence that these paths exist, the task is not satisfied. The implementer
+    must create and show the full project structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or CI integration\
+    \ scripts) were provided. Without these artifacts the project does not have Ruff\
+    \ and Black set up as required."
 T009:
   c: false
   h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
@@ -11,6 +26,13 @@ T010a:
     value CDF definition, Tracy\u2011Widom approximation, and normalization derivation\
     \ was provided. Without the actual written formula the task\u2019s deliverable\
     \ is absent."
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data-model.md` file (or equivalent) is present in the provided evidence,\
+    \ and thus the required mathematical notation for PrimeGap, ZetaZero, and the\
+    \ GUE\u2011derived extreme value CDF has not been supplied. The implementer must\
+    \ add the file with the specified content."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

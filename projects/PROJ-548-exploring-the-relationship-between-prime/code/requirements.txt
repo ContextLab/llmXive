@@ -4,6 +4,6 @@ pandas
 pyyaml
 requests
 pytest
-matplotlib
-ruff
-black
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.0.0

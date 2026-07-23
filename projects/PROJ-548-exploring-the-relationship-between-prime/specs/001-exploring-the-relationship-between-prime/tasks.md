@@ -20,25 +20,6 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
@@ -57,11 +38,12 @@
 
 - [X] T004 Implement memory-efficient logging infrastructure in `src/utils/logging.py` (handles chunked processing logs and OOM warnings)
 - [X] T005 [P] Create configuration management in `src/utils/config.py` (defines N=10^10, W=10^6, file paths, and `WINDOW_STEP` for sliding window stride).
-- [X] T006 Implement deterministic random seed management in `src/utils/config.py` by defining a `GLOBAL_SEED` constant and ensuring all random generators use it. **(Not [P] as it writes to config.py which T005 also edits. Must follow T005.)**
+- [X] T006 [US1] Implement deterministic random seed management in `src/utils/config.py` by defining a `GLOBAL_SEED` constant and ensuring all random generators use it. **(Depends on T005 completion; NOT [P] as it writes to config.py which T005 also edits. T006 must run before T007/T008a).**
 - [X] T007 Create base data models in `src/utils/models.py` (PrimeGap, ZetaZero, WindowStats entities per spec)
 - [X] T008a [P] **Initialize State File**: Create and initialize the file `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml` with the required schema, including an empty `artifact_hashes` map and `updated_at` timestamp, to satisfy Constitution Principles III and V.
 - [X] T008 [US1] Implement checksumming logic in `src/utils/io.py` for updates to `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`. **(Depends on T008a).**
-- [ ] T010a [US2] **Define Formula**: Author the mathematical definition of the **GUE-derived extreme value CDF** for maximal gaps in `data-model.md`. This includes the Tracy-Widom distribution approximation for GUE maxima and the normalization logic, explicitly deriving it from the pair-correlation distribution required by FR-004. **(Moved to Phase 2 to break circular dependency with T021b).**
+- [ ] T010b [US2] **Create Data Model File**: Create the file `data-model.md` in the project root (or `specs/.../`) and define the mathematical notation for PrimeGap, ZetaZero, and the GUE-derived extreme value CDF. This file MUST be created before T010a can be fully realized. **(Linked to FR-004).**
+- [ ] T010a [US2] **Define Formula**: Author the mathematical definition of the **GUE-derived extreme value CDF** for maximal gaps in `data-model.md`. This includes the Tracy-Widom distribution approximation for GUE maxima and the normalization logic, explicitly deriving it from the pair-correlation distribution required by FR-004. **(Depends on T010b completion; must be completed before T021b).**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +53,7 @@
 
 **Goal**: Generate primes up to 10^10 and ingest zeta zeros, ensuring memory safety and data validity.
 
-**Independent Test**: Run `src/data/generate_primes.py` and `src/data/ingest_zeros.py` in isolation; verify `data/processed/primes_gaps.csv` and `data/processed/zeta_zeros.csv` exist, contain correct counts, and peak RAM < 7GB.
+**Independent Test**: Run `src/data/generate_primes.py` and `src/data/ingest_zeros.py` in isolation; verify `data/processed/raw_gaps.csv` and `data/processed/zeta_zeros.csv` exist, contain correct counts, and peak RAM < 7GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -80,12 +62,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement segmented sieve algorithm in `src/data/generate_primes.py` to generate primes up to 10^10, processing in chunks to stay within 7GB RAM. **CRITICAL**: The primary target is $N=10^{10}$ per FR-001. The pipeline MUST complete within the CI time limit. If the $N=10^{10}$ sieve exceeds the runtime limit, the run MUST fail with a clear error message; automatic fallback to $N=10^9$ is NOT permitted as it violates SC-004.
-- [ ] T012 [US1] Implement logic in `src/data/generate_primes.py` to compute consecutive prime gaps and stream results to `data/processed/primes_gaps.csv` (format: `prime_before, prime_after, gap_size, normalized_gap`)
-- [X] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py` to verify and fetch zeta zeros from the following **hardcoded verified sources** (per Constitution Principle II):
- 1. LMFDB: `https://www.lmfdb.org/api/` (or equivalent API endpoint for first non-trivial zeros)
- 2. Odlyzko: `
- If these specific URLs are unreachable, the pipeline MUST halt with a clear "Data Unavailable" error. Do NOT fall back to synthetic data. Record verification status in `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`.
+- [ ] T011 [US1] Implement segmented sieve algorithm in `src/data/generate_primes.py` to generate primes up to 10^10, processing in chunks to stay within 7GB RAM. **CRITICAL**: The primary target is $N=10^{10}$ per FR-001. The pipeline MUST complete within the CI time limit. If the $N=10^{10}$ sieve exceeds the runtime limit, the run MUST automatically switch to a subsampled mode ($N=10^9$) and log this limitation to ensure SC-004 is met; this fallback is authorized by plan.md.
+- [ ] T012 [US1] Implement logic in `src/data/generate_primes.py` to compute consecutive prime gaps and stream results to `data/processed/raw_gaps.csv` (format: `prime_before, prime_after, gap_size`). **Verification**: Verify output file schema matches spec Key Entities. **Status**: Active implementation required. **(Note: Normalization is handled in T019).**
+- [X] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py` to verify and fetch zeta zeros by reading the list of verified URLs from `research.md` (per Constitution Principle II). If the verified sources in `research.md` are unreachable, the pipeline MUST halt with a clear "Data Unavailable" error. Do NOT fall back to synthetic data. Record verification status in `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`.
+- [ ] T015 [US1] **Implement Ingestion**: Implement the core data ingestion logic in `src/data/ingest_zeros.py` to fetch and parse the zeta zero data from the verified sources defined in T013a and populate `data/raw/zeta_zeros.csv`. (Addresses FR-002).
 - [X] T014 [US1] Implement data validation in `src/data/ingest_zeros.py` to skip malformed zero entries and log warnings. If verification fails, the pipeline MUST halt with a clear error message.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,13 +85,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018b [US2] **Primary Analysis (FR-003)**: Implement sliding window analysis in `src/analysis/distribution_test.py` to compute *maximal* prime gap $g_{max}$ within **sliding windows** of length $W=10^6$. Use the `WINDOW_STEP` parameter defined in `config.py` (defaulting to 1 for full overlap) to compute the stride. Normalize by $\log^2 p$, satisfying spec FR-003.
-- [ ] T019 [US2] Implement normalization of gaps by Cramér prediction ($\log^2 p$) in `src/analysis/distribution_test.py`. **Logic**: Divide `gap_size` by `log(prime_before)**2` for each gap. Output normalized values to `data/processed/normalized_gaps.csv`.
-- [ ] T020 [US2] Implement empirical distribution calculation for normalized maximal gaps (from T018b) in `src/analysis/distribution_test.py`.
-- [ ] T021b [US2] **Implement CDF**: Implement the theoretical **GUE-derived extreme value CDF** for maximal gaps in `src/analysis/distribution_test.py`, referencing the formula defined in `data-model.md` by T010a. This CDF must be the integration of the pair-correlation distribution (FR-004) into an extreme value distribution. Use `scipy.stats` for the Tracy-Widom distribution approximation.
-- [ ] T022 [US2] Perform Kolmogorov-Smirnov (KS) test comparing the *empirical maximal gap distribution* (from T020) against the GUE theoretical extreme value distribution (from T021b).
+- [ ] T018b [US2] **Primary Analysis (FR-003)**: Implement sliding window analysis in `src/analysis/distribution_test.py` to compute *maximal* prime gap $g_{max}$ within **sliding windows** of length $W=10^6$. Use the `WINDOW_STEP` parameter defined in `config.py` (defaulting to 1 for full overlap) to compute the stride. Explicitly define the window step logic to handle full overlap vs. stride. The window sizes for the robustness sweep (T028) are configurable via `config.py`.
+- [ ] T019 [US2] Implement normalization of gaps by Cramér prediction ($\log^2 p$) in `src/analysis/distribution_test.py`. **Logic**: Read `data/processed/raw_gaps.csv` (from T012), divide `gap_size` by `log(prime_before)**2`, and output to `data/processed/normalized_gaps.csv`. **(Depends on T012).**
+- [ ] T020 [US2] Implement empirical distribution calculation for normalized maximal gaps (from T019) in `src/analysis/distribution_test.py`.
+- [ ] T021b [US2] **Implement CDF**: Implement the theoretical **GUE-derived extreme value CDF** for maximal gaps in `src/analysis/distribution_test.py`, referencing the formula defined in `data-model.md` by T010a. This CDF must be the integration of the pair-correlation distribution (FR-004) into an extreme value distribution. Use `scipy.stats` for the Tracy-Widom distribution approximation. **(Depends on T010a completion).**
+- [ ] T021c [US2] **Implement Pair-Correlation**: Implement the theoretical **pair-correlation distribution** of zeta zero spacings in `src/analysis/distribution_test.py` as required by FR-004. This task explicitly calculates the theoretical distribution against which the empirical gap distribution is compared.
+- [ ] T022 [US2] Perform Kolmogorov-Smirnov (KS) test comparing the *empirical maximal gap distribution* (from T020) against the GUE theoretical extreme value distribution (from T021b) and the pair-correlation distribution (from T021c).
 - [X] T023 [US2] Implement Monte Carlo simulation using the Cramér model in `src/analysis/monte_carlo.py` to generate a null distribution of the KS statistic. **Output**: `results/cramer_null_distribution.json`.
-- [ ] T024 [US2] Calculate p-value for observed distributional alignment against the Cramér null distribution.
+- [ ] T023b [US2] **Permutation Test**: Implement a permutation test (shuffling the gap sequence) in `src/analysis/monte_carlo.py` to generate a null distribution of the KS statistic as mandated by Constitution Principle VI. **Output**: `results/permutation_null_distribution.json`.
+- [ ] T024 [US2] Calculate p-value for observed distributional alignment against the Cramér null distribution and the permutation null distribution.
 - [ ] T025 [US2] Generate visualization (CDF overlay of empirical vs. theoretical maximal gap distributions) using `matplotlib` and save to `results/correlation_plot.png` and `results/correlation_results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,7 +112,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement sensitivity analysis loop in `src/analysis/robustness.py` sweeping window size $W$ over a representative set of scales. **Execution Logic**: The task MUST re-run the full distributional analysis (T018b-T022) for *each* window size to generate the variation in KS statistics. The specific window sizes to sweep are $W \in \{^5, 10^6, 10^7\}$. (Traces to SC-002 and FR-006).
+- [ ] T028 [US3] Implement sensitivity analysis loop in `src/analysis/robustness.py` sweeping window size $W$ over a representative set of scales. **Execution Logic**: The task MUST re-run the full distributional analysis (T018b-T022) for *each* window size to generate the variation in KS statistics. The specific window sizes to sweep are read from `config.py` (defaulting to $10^5, 10^6, 10^7$). (Traces to SC-002 and FR-006). **Dependency**: Requires T018b-T022 code implementation to be available.
 - [ ] T029 [US3] Generate synthetic Cramér model dataset of comparable size in `data/null/cramer_sample.csv`
 - [ ] T030 [US3] Perform distributional analysis on the synthetic Cramér dataset to establish a baseline
 - [ ] T031 [US3] Compare observed KS statistics from prime data against the synthetic Cramér baseline and the permutation test results
@@ -169,7 +151,6 @@
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (T012)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and results from US2
  - **Critical**: Task T028 (US3) explicitly re-runs the analysis for each window size, ensuring it is self-contained but logically follows the definition of the analysis in US2. T028 requires the analysis logic defined in T018b-T022 to be complete.
-- **Phase N**: Depends on all user stories being complete
 
 ### Within Each User Story
 
@@ -182,7 +163,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T005 and T006 which both write to `src/utils/config.py` and must run sequentially (T005 then T006).
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T005 and T006 which both write to `src/utils/config.py` and must run sequentially (T005 then T006). T006 must run before T007 and T008a.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -226,7 +207,7 @@ Task: "Implement zeta zero ingestion in src/data/ingest_zeros.py"
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together (Note: T005 and T006 must be sequential)
+1. Team completes Setup + Foundational together (Note: T005 and T006 must be sequential; T006 before T007/T008a)
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Analysis)
@@ -247,10 +228,14 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM). No GPU, no 8-bit models, no large LLMs.
 - **Data Integrity**: No fake data. All primes must be generated via sieve; all zeros must be from verified LMFDB/Odlyzko URLs. If verification fails, pipeline halts.
 - **Constitution Compliance**: T008 and T013a use the correct constitutional path `state/projects/PROJ-548-exploring-the-relationship-between-prime.yaml`. T008a ensures the file exists.
-- **Scope Correction**: Phase 6 (Topological Visualization) has been REMOVED as it was not supported by the spec and constituted unapproved scope creep. The project scope is strictly limited to the statistical distributional analysis defined in the spec.
-- **Clarified Scope**: Task T018b is the sole implementation of FR-003 (Maximal Gaps) with explicit **sliding window** logic. The step size is now configurable via `config.py` to avoid unauthorized assumptions. Task T028 explicitly lists the required window sizes: $10^5, 10^6, 10^7$.
-- **Corrected Methodology**: Task T010a and T021b now correctly target the GUE-derived extreme value CDF for maximal gaps, explicitly derived from the pair-correlation distribution required by FR-004.
-- **Fallback Mechanism**: Task T011 has been updated to strictly target $N=10^{10}$. Automatic fallback to $N=10^9$ is removed to preserve the success criterion SC-004.
-- **Parallelism Correction**: T005 and T006 both write to `src/utils/config.py` and cannot run in parallel. T006 must follow T005 and is NOT marked [P].
-- **Requirement Tracing**: Task T026 (Permutation Test) has been removed as it was not explicitly required by the spec (FR-005 only requires Cramér model). The null distribution is now solely generated via the Cramér model.
-- **Formula Dependency**: Task T010a creates the formula in `data-model.md` in Phase 2, resolving the circular dependency for T021b. Task T021a has been removed as it was redundant.
+- **Scope Correction**: Phase 6 (Topological Visualization) has been REMOVED as it was unauthorized scope creep. The project now strictly adheres to FR-001 through FR-007.
+- **Clarified Scope**: Task T018b is the sole implementation of FR-003 (Maximal Gaps) with explicit **sliding window** logic. The step size is now configurable via `config.py` to avoid unauthorized assumptions. Task T028 reads window sizes from `config.py`.
+- **Corrected Methodology**: Task T010a and T021b now correctly target the GUE-derived extreme value CDF for maximal gaps, explicitly derived from the pair-correlation distribution required by FR-004. Task T021c explicitly implements the pair-correlation distribution.
+- **Fallback Mechanism**: Task T011 has been updated to strictly include the authorized fallback to $N=10^9$ if the $10^{10}$ sieve exceeds the 6-hour CI limit, aligning with plan.md.
+- **Parallelism Correction**: T005 and T006 both write to `src/utils/config.py` and cannot run in parallel. T006 must follow T005 and is NOT marked [P]. T006 must run before T007 and T008a.
+- **Requirement Tracing**: Task T023b (Permutation Test) has been added to satisfy Constitution Principle VI. Task T015 (Ingestion) has been added to satisfy FR-002.
+- **Formula Dependency**: Task T010b creates the `data-model.md` file in Phase 2, resolving the circular dependency for T010a/T021b. T010a now implements the specific formula.
+- **Status Correction**: Task T012 is restored as an active, unchecked item to ensure the gap-streaming step is clearly defined and ready for implementation. T012 now outputs raw gaps; T019 handles normalization.
+- **Data Hygiene**: T012 outputs raw gaps; T019 normalizes them. This preserves raw data for re-normalization if needed.
+- **URL Configuration**: T013a reads URLs from `research.md` instead of hardcoding, ensuring flexibility.
+- **Window Size Configuration**: T028 reads window sizes from `config.py` instead of hardcoding, ensuring flexibility.

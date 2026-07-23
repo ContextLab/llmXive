@@ -1,123 +1,95 @@
-# Data Model and Mathematical Formulas
+# Data Model and Mathematical Notation
+**Project**: Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis
+**Version**: 1.0
+**Date**: 2026-05-14
 
-## Overview
+This document defines the mathematical entities, notation, and theoretical distributions used throughout the analysis pipeline, specifically supporting FR-004 (Pair-Correlation) and the derivation of the GUE Extreme Value Distribution for maximal gaps.
 
-This document defines the mathematical entities, data structures, and specific formulas used in the "Exploring the Relationship Between Prime Gaps and the Riemann Hypothesis" project. It serves as the canonical reference for the implementation of statistical tests and data processing pipelines.
+## 1. Fundamental Entities
 
-## 1. Core Entities
-
-### 1.1 Prime Gap
-A prime gap $g_n$ is the difference between consecutive prime numbers $p_{n+1}$ and $p_n$:
+### 1.1 Prime Gap ($g_p$)
+Let $p_n$ denote the $n$-th prime number. The prime gap following $p_n$ is defined as:
 $$ g_n = p_{n+1} - p_n $$
 
-**Data Representation**:
-- `prime_before` (int): $p_n$
-- `prime_after` (int): $p_{n+1}$
-- `gap_size` (int): $g_n$
-- `normalized_gap` (float): $g_n / (\ln p_n)^2$ (Cramér normalization)
+**Data Structure (`PrimeGap`)**:
+- `prime_before`: $p_n$ (integer, $64$-bit)
+- `prime_after`: $p_{n+1}$ (integer, $64$-bit)
+- `gap_size`: $g_n$ (integer, $32$-bit)
 
-### 1.2 Zeta Zero
-A non-trivial zero of the Riemann zeta function $\zeta(s)$, located at $s = \frac{1}{2} + i\gamma$.
+### 1.2 Riemann Zeta Zero ($\gamma$)
+Let $\rho = \frac{1}{2} + i\gamma$ be a non-trivial zero of the Riemann zeta function $\zeta(s)$, where $\gamma > 0$. We denote the ordered sequence of imaginary parts as $0 < \gamma_1 \le \gamma_2 \le \dots$.
 
-**Data Representation**:
-- `index` (int): The $n$-th zero
-- `imaginary_part` (float): $\gamma_n$
-- `spacing` (float): $\gamma_{n+1} - \gamma_n$ (local spacing)
+**Data Structure (`ZetaZero`)**:
+- `index`: $n$ (integer)
+- `gamma`: $\gamma_n$ (float, $64$-bit)
+- `spacing`: $\delta_n = \gamma_{n+1} - \gamma_n$ (float, $64$-bit)
 
-### 1.3 Window Statistics
-Aggregated statistics computed over a sliding window of primes.
+## 2. Normalization and Scaling
 
-**Data Representation**:
-- `window_start_prime` (int): $p_{start}$
-- `window_end_prime` (int): $p_{end}$
-- `max_gap` (int): $\max(g_i)$ within the window
-- `normalized_max_gap` (float): $\max(g_i) / (\ln p_{start})^2$
+### 2.1 Prime Gap Normalization
+To compare gaps across different scales, we normalize by the Cramér prediction. The expected gap size near $p$ is $\ln p$. The normalized gap $x_n$ is:
+$$ x_n = \frac{g_n}{(\ln p_n)^2} $$
+*Note: The square $(\ln p_n)^2$ is used to normalize the distribution of *maximal* gaps to a non-degenerate limit, consistent with extreme value theory for the Poisson process of large gaps.*
 
----
+### 2.2 Zeta Zero Spacing Normalization
+The average spacing between zeros near height $T$ is approximately $2\pi / \ln T$. The normalized spacing $y_n$ for a zero at height $\gamma_n$ is:
+$$ y_n = \frac{\gamma_{n+1} - \gamma_n}{2\pi / \ln \gamma_n} $$
+Under the Riemann Hypothesis and the GUE hypothesis, the distribution of $y_n$ converges to the GUE spacing distribution (Dyson's sine kernel).
 
-## 2. Mathematical Formulas
+## 3. Theoretical Distributions
 
-### 2.1 Normalization (Cramér Model)
-To compare gaps of different magnitudes, we normalize by the expected average gap size at $p$, which is $\ln p$. The Cramér model suggests that the distribution of normalized gaps $x = g / (\ln p)^2$ converges to an exponential distribution $e^{-x}$ for small gaps. However, for *extreme* values (maximal gaps), we look to Random Matrix Theory.
-
-$$ \tilde{g}_n = \frac{g_n}{(\ln p_n)^2} $$
-
-### 2.2 Zeta Zero Pair Correlation (GUE Hypothesis)
-Montgomery's Pair Correlation Conjecture states that the normalized spacings between consecutive zeta zeros follow the same distribution as the eigenvalues of large random matrices from the Gaussian Unitary Ensemble (GUE).
-
-The pair correlation function is:
+### 3.1 Pair-Correlation Distribution (GUE)
+The pair-correlation function $R_2(u)$ for the normalized zero spacings, assuming the GUE hypothesis, is given by:
 $$ R_2(u) = 1 - \left( \frac{\sin(\pi u)}{\pi u} \right)^2 $$
+This describes the probability density of finding two zeros at a normalized distance $u$.
 
-### 2.3 GUE-Derived Extreme Value CDF for Maximal Gaps (FR-004)
+### 3.2 GUE-Derived Extreme Value CDF for Maximal Gaps
+We are interested in the distribution of the *maximum* gap $M_W$ within a sliding window $W$ of normalized prime gaps.
+According to the Montgomery-Odlyzko law, the local statistics of primes mimic those of the eigenvalues of large random matrices from the Gaussian Unitary Ensemble (GUE).
 
-**Derivation**:
-The Riemann Hypothesis implies that the statistical properties of the zeta zeros are identical to the eigenvalues of GUE matrices. The distribution of the *maximum* of a set of correlated random variables (like eigenvalues in a window) is governed by Extreme Value Theory.
+Let $F_{GUE}(x)$ be the cumulative distribution function (CDF) of the largest eigenvalue of an $N \times N$ GUE matrix, which converges to the Tracy-Widom distribution $F_2(s)$ as $N \to \infty$.
 
-For the Gaussian Unitary Ensemble (GUE), the distribution of the largest eigenvalue $\lambda_{max}$, after appropriate centering and scaling, converges to the **Tracy-Widom distribution** ($F_2$).
+For the extreme values of the normalized prime gaps, we model the CDF of the maximum gap $M$ in a window as:
+$$ P(M \le x) \approx F_2\left( \frac{x - \mu_W}{\sigma_W} \right) $$
+where:
+- $F_2(s)$ is the Tracy-Widom distribution for $\beta=2$ (GUE).
+- $\mu_W$ and $\sigma_W$ are location and scale parameters dependent on the window size $W$.
+- $\mu_W \approx \ln W$ (roughly, the expected maximum of $W$ i.i.d. exponential variables, adjusted for GUE repulsion).
+- $\sigma_W \approx (\ln W)^{1/3}$.
 
-While prime gaps are not eigenvalues, the GUE hypothesis for the zeros suggests that the *extremal statistics* of the prime gaps (when normalized and viewed through the lens of the zero spacings) should exhibit similar universal behavior. Specifically, the distribution of the maximal normalized gap $M_N = \max_{1 \le i \le N} \tilde{g}_i$ in a window of size $N$ is hypothesized to follow the Tracy-Widom $F_2$ distribution, shifted and scaled by the window parameters.
+**Tracy-Widom Approximation**:
+The CDF $F_2(s)$ is defined via the solution $q(s)$ to the Painlevé II equation:
+$$ q''(s) = s q(s) + 2 q(s)^3 $$
+with asymptotic behavior $q(s) \sim \text{Ai}(s)$ as $s \to \infty$.
+$$ F_2(s) = \exp\left( -\int_s^\infty (x-s) q(x)^2 \, dx \right) $$
 
-**The Formula**:
-Let $x$ be the normalized maximal gap. The theoretical Cumulative Distribution Function (CDF) $F_{GUE}(x)$ is approximated by the Tracy-Widom distribution $F_2$:
+In implementation (`src/analysis/distribution_test.py`), we use the `scipy.stats.tracywidom` or a numerical approximation of the Painlevé II solution to evaluate this CDF.
 
-$$ F_{GUE}(x) \approx F_2\left( \frac{x - \mu_N}{\sigma_N} \right) $$
+## 4. Hypothesis Testing Framework
 
-Where:
-- $F_2(s) = \exp\left( -\int_s^\infty (t-s) u(t)^2 dt \right)$
-- $u(t)$ is the solution to the Painlevé II equation: $u'' = t u + 2u^3$ with boundary condition $u(t) \sim \text{Ai}(t)$ as $t \to \infty$.
-- $\mu_N$ and $\sigma_N$ are location and scale parameters dependent on the window size $N$ and the density of primes/zeros.
+### 4.1 Null Hypothesis ($H_0$)
+The distribution of normalized maximal prime gaps in sliding windows is statistically indistinguishable from the theoretical GUE-derived extreme value distribution.
 
-**Approximation for Implementation**:
-Since the exact Painlevé solution is computationally expensive, we utilize the `scipy.stats` implementation of the Tracy-Widom distribution ($F_2$) as the proxy for the GUE extreme value CDF.
+### 4.2 Test Statistic
+The Kolmogorov-Smirnov (KS) statistic $D_{N}$ is used:
+$$ D_N = \sup_x | F_{emp}(x) - F_{GUE}(x) | $$
+where $F_{emp}$ is the empirical CDF of the observed normalized maximal gaps, and $F_{GUE}$ is the theoretical CDF defined in Section 3.2.
 
-The theoretical CDF for the normalized maximal gap $X$ is defined as:
-$$ P(X \le x) = F_{TW2}\left( \frac{x - \mu}{\sigma} \right) $$
+### 4.3 Significance
+The p-value is calculated by comparing $D_N$ against a null distribution generated via:
+1. Monte Carlo simulation of the Cramér model (random primes).
+2. Permutation tests of the observed gap sequence.
 
-Where:
-- $F_{TW2}$ is the Tracy-Widom $F_2$ CDF.
-- $\mu$ is the mean of the maximal gap distribution for the specific window size.
-- $\sigma$ is the standard deviation scaling factor.
+## 5. Constants and Parameters
 
-**Normalization Logic**:
-1. Calculate raw maximal gap $g_{max}$ in a window of primes.
-2. Normalize: $x = g_{max} / (\ln p_{start})^2$.
-3. Compare the empirical CDF of $x$ values against $F_{TW2}((x - \mu)/\sigma)$.
+- $N_{max} = 10^{10}$: Upper bound for prime generation (FR-001).
+- $W = 10^6$: Default sliding window size (FR-003).
+- $WINDOW\_STEP = 1$: Default stride for sliding windows (configurable).
+- $GLOBAL\_SEED$: Deterministic seed for reproducibility (config.py).
 
-**Note on Derivation from Pair-Correlation**:
-The pair-correlation function $R_2(u)$ describes the local density of zeros. The extreme value distribution is the integral of the probability that *no* eigenvalues (or zeros) exceed a certain threshold in a given interval. The Tracy-Widom distribution arises as the limiting distribution of the largest eigenvalue in the GUE, which is the mathematical object corresponding to the "largest gap" in the dual spectrum. Thus, the GUE extreme value CDF is the direct consequence of the pair-correlation hypothesis applied to the extremal statistics.
+## 6. References
 
----
-
-## 3. Data Files Schema
-
-### 3.1 `data/processed/primes_gaps.csv`
-| Column | Type | Description |
-|:--- |:--- |:--- |
-| prime_before | int64 | The smaller prime $p_n$ |
-| prime_after | int64 | The larger prime $p_{n+1}$ |
-| gap_size | int64 | $p_{n+1} - p_n$ |
-| normalized_gap | float64 | $gap\_size / (\ln(prime\_before))^2$ |
-
-### 3.2 `data/processed/zeta_zeros.csv`
-| Column | Type | Description |
-|:--- |:--- |:--- |
-| index | int64 | $n$-th zero |
-| gamma | float64 | Imaginary part $\gamma_n$ |
-| spacing | float64 | $\gamma_n - \gamma_{n-1}$ (if $n>0$) |
-
-### 3.3 `results/correlation_results.json`
-| Key | Type | Description |
-|:--- |:--- |:--- |
-| ks_statistic | float | Kolmogorov-Smirnov statistic |
-| p_value | float | P-value of the KS test |
-| window_size | int | $W$ used in analysis |
-| max_gap_mean | float | Mean of maximal gaps observed |
-| max_gap_std | float | Std dev of maximal gaps observed |
-
----
-
-## 4. Implementation Notes
-
-- **Tracy-Widom Source**: Use `scipy.stats.tracy_widom` (if available) or a high-precision numerical approximation of $F_2$ for the theoretical CDF.
-- **Parameters**: $\mu$ and $\sigma$ for the Tracy-Widom fit are derived empirically from the Cramér model simulation (Task T023) or analytically approximated as $\mu \approx 2\sqrt{N}$ and $\sigma \approx N^{-1/6}$ for GUE eigenvalues, adapted for the prime gap density.
-- **Verification**: The KS test (Task T022) compares the empirical CDF of normalized maximal gaps against this theoretical $F_{GUE}$ CDF.
+1. Odlyzko, A. M. (1987). "On the distribution of spacings between zeros of the zeta function".
+2. Tracy, C. A., & Widom, H. (1994). "Level-spacing distributions and the Airy kernel".
+3. Montgomery, H. L. (1973). "The pair correlation of zeros of the zeta function".
+4. Cramér, H. (1936). "On the order of magnitude of the difference between consecutive prime numbers".

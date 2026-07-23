@@ -20,14 +20,3 @@
   verification_status: verified
   verified_against_url: https://www.lmfdb.org/zeros/zeta/
   verified_at: '2026-07-05T22:18:20.077298Z'
-- artifact_hash: a3f30f40e0018c9b32fc694e0a87f546a540e2e76ff94b007f12df1256ca43ee
-  artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: LMFDB - API
-  kind: url
-  value: https://www.lmfdb.org/api/`
-  verification_status: pending
-  verified_against_url: https://www.lmfdb.org/api/
-  verified_at: '2026-07-19T02:25:43.423005Z'
