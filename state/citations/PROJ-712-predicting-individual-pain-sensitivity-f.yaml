@@ -1,4 +1,4 @@
-- artifact_hash: 543ef6b9fe5f1f54659749bd7225ff51c1530a9c3884a8076c70e9b71418f2f0
+- artifact_hash: 572f2f5379a483052170501077c5c999d645b5895110543988d2cf4a62d2b88f
   artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: Vif - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-07T08:40:43.267847Z'
+  verified_at: '2026-07-23T01:30:34.679523Z'

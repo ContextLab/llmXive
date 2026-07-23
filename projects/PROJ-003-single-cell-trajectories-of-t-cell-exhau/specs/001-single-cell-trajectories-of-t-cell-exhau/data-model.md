@@ -2,69 +2,45 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline, from raw download to final report. All data is stored in standard, reproducible formats (`.h5ad`, `.csv`, `.json`) to ensure the "Single Source of Truth" principle.
+This document defines the data structures, schemas, and relationships for the T-cell exhaustion trajectory analysis pipeline. All data flows from raw count matrices through preprocessing, velocity estimation, fork-point identification, and validation to final reporting.
 
 ## Entities
 
-### 1. Raw Dataset
-- **Description**: Unprocessed count matrix downloaded from GEO.
-- **Format**: `.mtx` (Matrix Market) + `.tsv` (genes/cells) or `.h5` (if available).
-- **Storage**: `data/raw/{GSE_ID}/`
-- **Fields**:
-    - `counts`: Sparse matrix (genes x cells).
-    - `metadata`: Cell barcodes, gene symbols.
+### Dataset
+Represents a raw scRNA-seq count matrix with associated metadata.
+- **Fields**: `dataset_id` (string), `source` (string), `raw_counts_path` (string), `metadata_path` (string), `checksum` (string), `cell_count` (integer), `gene_count` (integer).
+- **Constraints**: `dataset_id` must be unique; `checksum` must match SHA256 of raw file.
 
-### 2. Preprocessed Dataset (Annotated)
-- **Description**: QC-filtered and normalized data.
-- **Format**: `.h5ad` (AnnData).
-- **Storage**: `data/processed/{GSE_ID}_preprocessed.h5ad`
-- **Fields**:
-    - `X`: Normalized counts (sparse).
-    - `obs`: Cell metadata (mito_pct, n_counts, n_genes, condition).
-    - `var`: Gene metadata (highly_variable, mito_gene).
+### Trajectory
+Represents the inferred developmental path of T-cells for a single dataset.
+- **Fields**: `dataset_id` (string), `pseudotime_path` (string), `velocity_graph_path` (string), `alignment_status` (string: "success", "failed", "partial"), `fork_points` (list of ForkPoint).
+- **Constraints**: `alignment_status` must be "success" for downstream analysis.
 
-### 3. Velocity Object
-- **Description**: Data with RNA velocity and pseudotime.
-- **Format**: `.h5ad` (AnnData).
-- **Storage**: `data/processed/{GSE_ID}_velocity.h5ad`
-- **Fields**:
-    - `uns`: Velocity graph, parameters.
-    - `obsm`: `X_umap`, `X_pca`, `pseudotime`.
-    - `obsp`: `connectivities`.
-    - `layers`: `spliced`, `unspliced`, `velocity`.
+### ForkPoint
+Represents a branch point in the trajectory where velocity vectors diverge.
+- **Fields**: `fork_id` (string), `dataset_id` (string), `divergence_score` (float), `null_mean` (float), `null_std` (float), `genes` (list of ForkPointGene).
+- **Constraints**: `divergence_score` must be > 2.0 * `null_std` to be considered significant.
+- **Schema Reference**: `contracts/fork_point.schema.yaml`.
 
-### 4. Fork-Point Results
-- **Description**: Identified branch points and associated genes.
-- **Format**: `.csv`
-- **Storage**: `data/results/fork_points_{GSE_ID}.csv`
-- **Fields**:
-    - `branch_id`: Unique identifier for the branch.
-    - `divergence_score`: Statistical divergence metric (derived from permutation test of therapy response labels).
-    - `p_value`: From permutation test.
-    - `genes`: List of top genes (JSON string or separate table).
+### ForkPointGene
+Represents a gene expressed at a fork-point, ranked by timing.
+- **Fields**: `gene_symbol` (string), `fork_id` (string), `timing_rank` (integer), `expression_level` (float), `differential_timing` (float).
+- **Constraints**: `timing_rank` must be unique per fork-point; `differential_timing` must be > 0.1 pseudotime units.
 
-### 5. Validation Metrics
-- **Description**: Cross-dataset consistency and clinical enrichment.
-- **Format**: `.json`
-- **Storage**: `data/results/validation_metrics.json`
-- **Fields**:
-    - `spearman_correlation`: Float (top 3 genes).
-    - `jaccard_index`: Float (top 50 genes).
-    - `enrichment_p_value`: Float (therapy response).
-    - `bootstrap_iterations`: Integer (1000).
-    - `datasets_used`: List of dataset IDs used in validation.
+### ValidationResult
+Represents the outcome of cross-dataset validation and enrichment analysis.
+- **Fields**: `gene_symbol` (string), `enrichment_pvalue` (float), `bootstrap_iterations` (integer), `confidence_interval` (tuple), `cross_dataset_correlation` (float).
+- **Constraints**: `enrichment_pvalue` must be < 0.01 for significant findings (SC-002/003) and < 0.05 for SC-006.
 
 ## Data Flow
 
-1.  **Download**: `Raw Dataset` -> `data/raw/`
-2.  **Preprocess**: `Raw Dataset` -> `Preprocessed Dataset`
-3.  **Velocity**: `Preprocessed Dataset` -> `Velocity Object`
-4.  **Detect**: `Velocity Object` -> `Fork-Point Results`
-5.  **Validate**: `Fork-Point Results` (all datasets) -> `Validation Metrics`
-6.  **Report**: `Validation Metrics` + `Fork-Point Results` -> Final Report (PDF/HTML)
+1. **Raw Data**: Downloaded from SRA/GEO → `data/raw/`.
+2. **Preprocessed Data**: QC-filtered, normalized matrices → `data/processed/`.
+3. **Velocity Data**: Velocity graphs and pseudotime → `data/processed/`.
+4. **Fork-Point Data**: Ranked gene lists → `data/results/fork_points/`.
+5. **Validation Data**: Bootstrap results, heatmaps → `data/results/validation/`.
+6. **Report**: Final PDF/HTML report → `data/results/report/`.
 
-## Constraints
+## Schema Definitions
 
-- **Immutability**: Raw data in `data/raw/` is never modified.
-- **Checksums**: Every file in `data/raw/` and `data/processed/` is checksummed (SHA256) and recorded in `state/`.
-- **Privacy**: No PII. Clinical labels (responder/non-responder) are treated as anonymous categorical variables.
+See `contracts/` for detailed YAML schemas.

@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,\
+    \ `state/`) is provided; the artifact list is empty, so the task\u2019s requirement\
+    \ is not satisfied."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file content was presented; the required file excluding `data/raw/*.nii*`,\
+    \ `data/processed/*.csv`, `__pycache__`, `*.pyc`, and `env/` is missing. The implementer\
+    \ must supply a non\u2011empty `.gitignore` with those patterns."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file was presented in the evidence, and thus the required skeleton\
+    \ with a project title and empty installation/usage sections is missing. The implementer\
+    \ must add a non\u2011empty `README.md` containing at least the title and placeholder\
+    \ sections for installation and usage."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, and the provided\
+    \ artifacts relate only to the research pipeline, not to the requested linting\
+    \ setup. The task therefore remains unfulfilled."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation for memory\u2011efficient streaming of large\
+    \ NIfTI files is present; the claim lacks any artifact demonstrating that the\
+    \ utilities exist or that they keep RAM usage under 7\u202FGB. The required implementation\
+    \ and evidence are missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a high\u2011level feature specification for data\
+    \ ingestion and analysis; no files, scripts, or configuration related to \u201C\
+    Setup environment configuration management for OpenNeuro credentials\u201D are\
+    \ present. The required artifact (e.g., a configuration file, secret\u2011management\
+    \ script, or documentation showing how OpenNeuro credentials are stored and accessed)\
+    \ is missing."

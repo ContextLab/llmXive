@@ -1,48 +1,48 @@
-"""
-Setup script for llmXive project structure.
-Creates required directories for code, tests, data, and state management.
-"""
 import os
 import sys
-
-# Define the project root relative to this script's location or current working dir
-# Assuming this script runs from the project root or code/ subdirectory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Directories to create relative to project root
-DIRECTORIES = [
-    "code",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "state"
-]
+from pathlib import Path
+from config import ensure_directories
 
 def create_directories():
-    """Create the required directory structure."""
-    created = []
-    failed = []
+    """
+    Creates the required project directory structure:
+    code/, tests/, data/raw/, data/processed/, state/
     
-    for dir_path in DIRECTORIES:
-        full_path = os.path.join(BASE_DIR, dir_path)
-        try:
-            if not os.path.exists(full_path):
-                os.makedirs(full_path, exist_ok=True)
-                created.append(dir_path)
-                print(f"Created directory: {dir_path}")
-            else:
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            failed.append((dir_path, str(e)))
-            print(f"Error creating directory {dir_path}: {e}")
+    This function ensures all directories exist as per T001a.
+    """
+    # Define the root directory (assumed to be the project root)
+    # We assume this script is run from the project root or passed the root path.
+    # For safety, we use the current working directory as the base.
+    base_path = Path.cwd()
     
-    if failed:
-        print(f"\nFailed to create {len(failed)} directories:")
-        for path, err in failed:
-            print(f"  - {path}: {err}")
-        sys.exit(1)
+    directories = [
+        "code",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "state"
+    ]
+    
+    created_count = 0
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
+    
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directory(s).")
     else:
-        print(f"\nSuccessfully created {len(created)} directories.")
+        print("All required directories already exist.")
+        
+    # Ensure the parent directories for data exist too
+    ensure_directories()
+
+def main():
+    create_directories()
 
 if __name__ == "__main__":
-    create_directories()
+    main()

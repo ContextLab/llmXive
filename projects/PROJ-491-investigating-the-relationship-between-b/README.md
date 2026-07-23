@@ -1,8 +1,6 @@
 # Investigating the Relationship Between Brain Network Dynamics and Anticipatory Reward Processing
 
-## Project Overview
-
-This project investigates the relationship between brain network dynamics and anticipatory reward processing using fMRI data from the Human Connectome Project (HCP).
+This project analyzes the relationship between dynamic functional connectivity patterns in brain networks and anticipatory reward processing using fMRI data from the Human Connectome Project (HCP).
 
 ## Installation
 
@@ -12,10 +10,18 @@ This project investigates the relationship between brain network dynamics and an
 
 <!-- Usage instructions to be added -->
 
-## Data
+## Data Sources
 
-<!-- Data documentation to be added -->
+- HCP 1200 Subjects Data Release (OpenNeuro ds000224)
+- Power 264 Atlas
+- Ventral Striatum ROI
+
+## Pipeline Stages
+
+1. Data Ingestion and Preprocessing
+2. Dynamic Connectivity and Flexibility Calculation
+3. Correlation Analysis and Significance Testing
 
 ## License
 
-<!-- License information to be added -->
+This project is for research purposes only.

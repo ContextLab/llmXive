@@ -1,42 +1,65 @@
-"""
-Tests for the setup_directories script.
-Verifies that the required directory structure is created correctly.
-"""
 import os
-import tempfile
 import shutil
+from pathlib import Path
 import pytest
+from code.setup_directories import create_directories
 
-# Import the function to test
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Create a temporary directory to act as the project root."""
+    return tmp_path
 
-# We need to mock the BASE_DIR logic since it's hardcoded in the script
-# Instead, we'll test the logic directly
-from setup_directories import DIRECTORIES
+def test_create_directories_structure(temp_project_root):
+    """
+    Test that create_directories creates the required folder structure:
+    code/, tests/, data/raw/, data/processed/, state/
+    """
+    # Change to the temp directory to simulate running in project root
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_root)
+        
+        # Run the function
+        create_directories()
+        
+        # Verify directories exist
+        required_dirs = [
+            "code",
+            "tests",
+            "data/raw",
+            "data/processed",
+            "state"
+        ]
+        
+        for dir_name in required_dirs:
+            dir_path = temp_project_root / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created."
+            assert dir_path.is_dir(), f"{dir_name} exists but is not a directory."
+        
+        # Verify nested structure (data/raw and data/processed)
+        assert (temp_project_root / "data").exists()
+        assert (temp_project_root / "data/raw").exists()
+        assert (temp_project_root / "data/processed").exists()
+        
+    finally:
+        os.chdir(original_cwd)
 
-class TestDirectoryCreation:
-    """Test cases for directory creation logic."""
-
-    def test_directories_defined(self):
-        """Verify that all required directories are defined."""
-        required_dirs = {"code", "tests", "data/raw", "data/processed", "state"}
-        assert set(DIRECTORIES) == required_dirs, f"Expected {required_dirs}, got {set(DIRECTORIES)}"
-
-    def test_directory_paths_valid(self):
-        """Verify that directory paths don't contain invalid characters."""
-        for dir_path in DIRECTORIES:
-            assert not os.path.isabs(dir_path), f"Directory path should be relative: {dir_path}"
-            assert ".." not in dir_path, f"Directory path should not contain '..': {dir_path}"
-            assert dir_path.startswith("data/") or dir_path in ["code", "tests", "state"], \
-                f"Unexpected directory structure: {dir_path}"
-
-    def test_data_subdirectories_exist(self):
-        """Verify that data subdirectories are properly nested."""
-        data_dirs = [d for d in DIRECTORIES if d.startswith("data/")]
-        assert len(data_dirs) == 2, f"Expected 2 data subdirectories, found {len(data_dirs)}"
-        assert "data/raw" in data_dirs
-        assert "data/processed" in data_dirs
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_create_directories_idempotent(temp_project_root):
+    """
+    Test that running create_directories multiple times does not cause errors.
+    """
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_root)
+        
+        # Run twice
+        create_directories()
+        create_directories()
+        
+        # Verify all still exist
+        required_dirs = ["code", "tests", "data/raw", "data/processed", "state"]
+        for dir_name in required_dirs:
+            assert (temp_project_root / dir_name).exists()
+            
+    finally:
+        os.chdir(original_cwd)

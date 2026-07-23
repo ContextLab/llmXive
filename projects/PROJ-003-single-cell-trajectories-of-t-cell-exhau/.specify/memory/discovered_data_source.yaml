@@ -1,11 +1,14 @@
 status: none
-intent: pysradb GEOquery python package to download GEO scRNAseq count matrices dataset
+intent: GEO scRNA-seq dataset downloader python package for GSE136103 GSE127465 GSE111075
+  GSE138852 python package dataset
 required_fields:
 - gene_id
+- gene_name
 - cell_barcode
 - raw_counts
-- mitochondrial_percent
 - sample_id
-cache_key: 9a95576238d3dad0a6c667d372d240c5dfb052eeac1cf9ee905271c94551b521
-searched_at: '2026-07-20T08:29:13.925837+00:00'
+- batch
+- mitochondrial_percent
+cache_key: 3314194e622235e1cd39cd696a0d8857857f0991d058f7f6e481225918920163
+searched_at: '2026-07-23T00:52:58.873025+00:00'
 retry_count: 1

@@ -1,137 +1,122 @@
 """
-Linting and formatting configuration for the project.
-
-This module centralizes configuration for flake8 and black to ensure
-consistent code style across the project.
+Linting and formatting utilities for the project.
+Provides functions to run flake8, black, and isort checks.
 """
-
 import subprocess
 import sys
 from pathlib import Path
 
 
-def run_flake8(path: str = "code", max_line_length: int = 88) -> int:
+def run_flake8() -> int:
     """
-    Run flake8 linting on the specified path.
-
-    Args:
-        path: Directory or file path to lint. Defaults to 'code'.
-        max_line_length: Maximum line length allowed. Defaults to 88 (black compatible).
-
-    Returns:
-        Exit code from flake8 (0 if no issues, non-zero otherwise).
+    Run flake8 linting checks.
+    Returns 0 if successful, non-zero otherwise.
     """
+    project_root = Path(__file__).resolve().parent.parent
+    config_path = project_root / ".flake8"
+    
+    if not config_path.exists():
+        print("Warning: .flake8 config file not found. Using defaults.")
+    
     cmd = [
         sys.executable, "-m", "flake8",
-        path,
-        f"--max-line-length={max_line_length}",
-        "--exclude=venv,env,build,dist,.git",
-        "--ignore=E203,W503"  # Black compatibility
+        "code/", "tests/"
     ]
-    result = subprocess.run(cmd)
-    return result.returncode
+    
+    try:
+        result = subprocess.run(cmd, cwd=project_root)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: flake8 not found. Please install it: pip install flake8")
+        return 1
 
 
-def run_black(path: str = "code", check_only: bool = False) -> int:
+def run_black(check_only: bool = True) -> int:
     """
-    Run black code formatter on the specified path.
-
-    Args:
-        path: Directory or file path to format. Defaults to 'code'.
-        check_only: If True, only check formatting without modifying files.
-
-    Returns:
-        Exit code from black (0 if successful, non-zero otherwise).
+    Run black formatting checks.
+    If check_only is True, only check formatting without modifying files.
+    Returns 0 if successful, non-zero otherwise.
     """
+    project_root = Path(__file__).resolve().parent.parent
+    config_path = project_root / "pyproject.toml"
+    
+    if not config_path.exists():
+        print("Warning: pyproject.toml config file not found. Using defaults.")
+    
     cmd = [
         sys.executable, "-m", "black",
-        path
+        "--config", str(config_path)
     ]
+    
     if check_only:
         cmd.append("--check")
+        cmd.append("--diff")
+    
+    cmd.extend(["code/", "tests/"])
+    
+    try:
+        result = subprocess.run(cmd, cwd=project_root)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: black not found. Please install it: pip install black")
+        return 1
 
-    result = subprocess.run(cmd)
-    return result.returncode
 
-
-def run_isort(path: str = "code", check_only: bool = False) -> int:
+def run_isort(check_only: bool = True) -> int:
     """
-    Run isort import sorter on the specified path.
-
-    Args:
-        path: Directory or file path to sort. Defaults to 'code'.
-        check_only: If True, only check sorting without modifying files.
-
-    Returns:
-        Exit code from isort (0 if successful, non-zero otherwise).
+    Run isort import sorting checks.
+    If check_only is True, only check sorting without modifying files.
+    Returns 0 if successful, non-zero otherwise.
     """
+    project_root = Path(__file__).resolve().parent.parent
+    config_path = project_root / "pyproject.toml"
+    
+    if not config_path.exists():
+        print("Warning: pyproject.toml config file not found. Using defaults.")
+    
     cmd = [
         sys.executable, "-m", "isort",
-        path,
-        "--profile=black",
-        "--line-length=88"
+        "--settings-path", str(config_path)
     ]
+    
     if check_only:
         cmd.append("--check-only")
-
-    result = subprocess.run(cmd)
-    return result.returncode
+        cmd.append("--diff")
+    
+    cmd.extend(["code/", "tests/"])
+    
+    try:
+        result = subprocess.run(cmd, cwd=project_root)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: isort not found. Please install it: pip install isort")
+        return 1
 
 
 def main():
-    """Main entry point for linting and formatting checks."""
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Run linting and formatting tools on the codebase."
-    )
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="Run in check-only mode (fail if issues found, don't modify)."
-    )
-    parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Run in fix mode (attempt to automatically fix issues)."
-    )
-    parser.add_argument(
-        "--path",
-        default="code",
-        help="Path to run checks on (default: code)."
-    )
-
-    args = parser.parse_args()
-
-    if args.check or args.fix:
-        check_only = args.check
-    else:
-        check_only = False
-
-    print(f"Running linting and formatting checks on '{args.path}'...")
-
-    # Run isort first to sort imports
-    print("\n[1/3] Running isort...")
-    isort_code = run_isort(args.path, check_only=check_only)
-
-    # Run black to format code
-    print("\n[2/3] Running black...")
-    black_code = run_black(args.path, check_only=check_only)
-
-    # Run flake8 for linting (black and isort may have fixed some issues)
-    print("\n[3/3] Running flake8...")
-    flake8_code = run_flake8(args.path)
-
-    print("\n--- Summary ---")
-    print(f"isort: {'PASSED' if isort_code == 0 else 'FAILED'}")
-    print(f"black: {'PASSED' if black_code == 0 else 'FAILED'}")
-    print(f"flake8: {'PASSED' if flake8_code == 0 else 'FAILED'}")
-
-    if isort_code == 0 and black_code == 0 and flake8_code == 0:
-        print("\nAll checks passed!")
+    """
+    Main entry point for running all linting and formatting checks.
+    """
+    print("Running flake8...")
+    flake8_result = run_flake8()
+    
+    print("\nRunning black (check mode)...")
+    black_result = run_black(check_only=True)
+    
+    print("\nRunning isort (check mode)...")
+    isort_result = run_isort(check_only=True)
+    
+    if flake8_result == 0 and black_result == 0 and isort_result == 0:
+        print("\n✓ All linting and formatting checks passed!")
         return 0
     else:
-        print("\nSome checks failed.")
+        print("\n✗ Some checks failed.")
+        if flake8_result != 0:
+            print("  - flake8 failed")
+        if black_result != 0:
+            print("  - black failed")
+        if isort_result != 0:
+            print("  - isort failed")
         return 1
 
 

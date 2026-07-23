@@ -1,35 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Metadata Contract"
-description: "Schema for validated dataset metadata and checksums."
-type: object
+type: "object"
+title: "Dataset Schema"
+description: "Schema for raw and processed scRNA-seq datasets in the T-cell exhaustion trajectory analysis."
 properties:
   dataset_id:
-    type: string
-    description: "GEO accession ID (e.g., GSE136103)"
-  source_url:
-    type: string
-    description: "Direct download URL (must be verified)"
-  checksum_sha256:
-    type: string
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA256 checksum of the raw file"
-  file_size_bytes:
-    type: integer
-    minimum: 0
-    description: "Size of the downloaded file"
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., GSE136103)."
+  source:
+    type: "string"
+    description: "Source of the dataset (e.g., GEO, SRA)."
+  raw_counts_path:
+    type: "string"
+    description: "Path to the raw count matrix file."
+  metadata_path:
+    type: "string"
+    description: "Path to the metadata file."
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of the raw data file."
+  cell_count:
+    type: "integer"
+    description: "Number of cells in the dataset."
+  gene_count:
+    type: "integer"
+    description: "Number of genes in the dataset."
   status:
-    type: string
-    enum:
-      - "available"
-      - "download_failed"
-      - "auth_required"
-      - "substituted"
-    description: "Status of data acquisition"
-  substitution_source:
-    type: string
-    description: "If status is 'substituted', the URL of the substitute dataset"
+    type: "string"
+    enum: ["available", "unavailable", "partial"]
+    description: "Availability status of the dataset."
 required:
   - dataset_id
-  - checksum_sha256
+  - source
+  - raw_counts_path
+  - checksum
+  - cell_count
+  - gene_count
   - status
 additionalProperties: false

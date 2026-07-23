@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Trajectory Schema"
+description: "Schema for RNA velocity and pseudotime trajectories."
+properties:
+  dataset_id:
+    type: "string"
+    description: "Associated dataset ID."
+  pseudotime_path:
+    type: "string"
+    description: "Path to the pseudotime ordering file."
+  velocity_graph_path:
+    type: "string"
+    description: "Path to the velocity graph file."
+  alignment_status:
+    type: "string"
+    enum: ["success", "failed", "partial"]
+    description: "Status of the alignment process."
+  fork_points:
+    type: "array"
+    description: "List of fork-points identified in the trajectory."
+    items:
+      $ref: "#/definitions/fork_point"
+required:
+  - dataset_id
+  - pseudotime_path
+  - velocity_graph_path
+  - alignment_status
+additionalProperties: false
+
+definitions:
+  fork_point:
+    type: "object"
+    properties:
+      fork_id:
+        type: "string"
+      divergence_score:
+        type: "number"
+      null_mean:
+        type: "number"
+      null_std:
+        type: "number"
+      genes:
+        type: "array"
+        items:
+          $ref: "#/definitions/fork_point_gene"
+    required:
+      - fork_id
+      - divergence_score
+      - null_mean
+      - null_std
+      - genes
+    additionalProperties: false
+  fork_point_gene:
+    type: "object"
+    properties:
+      gene_symbol:
+        type: "string"
+      timing_rank:
+        type: "integer"
+      expression_level:
+        type: "number"
+      differential_timing:
+        type: "number"
+    required:
+      - gene_symbol
+      - timing_rank
+      - expression_level
+      - differential_timing
+    additionalProperties: false

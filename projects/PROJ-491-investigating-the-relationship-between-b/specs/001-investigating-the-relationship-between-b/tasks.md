@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 Create `code/config.py` defining paths, seeds (), and parameters (window sizes:, 30, 40 TRs)
 - [X] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
@@ -80,13 +80,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for session ID validation logic in `tests/unit/test_data_ingestion.py`
-- [ ] T011 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_ingestion_flow.py`
+- [X] T010 [P] [US1] Unit test for session ID validation logic in `tests/unit/test_data_ingestion.py`
+- [X] T011 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_ingestion_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001)
-- [ ] T013 [US1] Implement session ID distinctness validation logic in `code/data_ingestion.py` (FR-008), explicitly excluding subjects with matching session IDs from the downstream pipeline
+- [X] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001)
+- [X] T013 [US1] Implement session ID distinctness validation logic in `code/data_ingestion.py` (FR-008), explicitly excluding subjects with matching session IDs from the downstream pipeline
 - [ ] T013b [US1] Implement logic to calculate the pass-rate percentage of subjects with distinct session IDs and write this metric to `data/processed/session_validation_metrics.json` (SC-005)
 - [ ] T013c [US1] Implement logic to write the list of excluded subject IDs (due to session ID mismatch) to `data/processed/excluded_session_ids.csv`
 - [ ] T014 [US1] Implement logic to skip corrupted/missing subjects and log warnings to `data/processed/ingestion_warnings.log` (Edge Case)

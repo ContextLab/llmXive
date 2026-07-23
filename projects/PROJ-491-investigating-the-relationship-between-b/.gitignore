@@ -1,9 +1,32 @@
-# Python bytecode and cache
+# Data files
+data/raw/*.nii*
+data/raw/*.nii
+data/raw/*.nii.gz
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.log
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual environments
 env/
@@ -11,37 +34,27 @@ venv/
 ENV/
 .env
 
-# Raw data (large neuroimaging files)
-data/raw/*.nii*
-data/raw/*.gz
-data/raw/*.tar*
-data/raw/*.zip
-
-# Processed data (intermediate CSVs, large derived files)
-data/processed/*.csv
-data/processed/*.tsv
-data/processed/*.parquet
-data/processed/*.nii*
-data/processed/*.json
-
-# State and logs
-state/*.yaml
-state/*.yml
-data/processed/*.log
-data/processed/*.txt
-
-# IDE and OS files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Jupyter
+.ipynb_checkpoints/
 
-# Jupyter notebooks (optional, usually tracked but can be ignored if desired)
-# *.ipynb_checkpoints/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# State
+state/*.yaml
+state/*.json
+
+# Logs
+*.log

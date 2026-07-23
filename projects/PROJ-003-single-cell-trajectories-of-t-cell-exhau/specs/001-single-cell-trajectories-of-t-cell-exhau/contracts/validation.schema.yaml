@@ -1,36 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Validation Metrics Schema"
-description: "Schema for cross-dataset validation and clinical enrichment results."
-type: object
+type: "object"
+title: "Validation Result Schema"
+description: "Schema for bootstrap validation and enrichment analysis results."
 properties:
-  spearman_correlation:
-    type: number
-    minimum: -1
-    maximum: 1
-    description: "Rank correlation of top 3 genes across datasets (after functional alignment)"
-  jaccard_index:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Consistency of top 50 gene sets"
-  enrichment_p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "P-value for therapy response enrichment (if labels are available)"
+  gene_symbol:
+    type: "string"
+    description: "Symbol of the fork-point gene."
+  enrichment_pvalue:
+    type: "number"
+    description: "P-value for enrichment against therapy response signatures."
   bootstrap_iterations:
-    type: integer
-    minimum: 100
-    description: "Number of bootstrap iterations performed"
-  datasets_used:
-    type: array
+    type: "integer"
+    description: "Number of bootstrap iterations performed (patient-level)."
+  confidence_interval:
+    type: "array"
     items:
-      type: string
-    description: "List of dataset IDs used in validation"
+      type: "number"
+    description: "95% confidence interval for the enrichment metric."
+  cross_dataset_correlation:
+    type: "number"
+    description: "Spearman rank correlation across datasets."
+  significance_level:
+    type: "number"
+    description: "Significance threshold (e.g., 0.01 or 0.05)."
+  discovery_dataset_ids:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of discovery dataset IDs used to derive fork-points."
+  validation_dataset_id:
+    type: "string"
+    description: "Validation dataset ID used for therapy response labels."
 required:
-  - spearman_correlation
-  - jaccard_index
-  - enrichment_p_value
+  - gene_symbol
+  - enrichment_pvalue
   - bootstrap_iterations
-  - datasets_used
+  - confidence_interval
+  - cross_dataset_correlation
+  - significance_level
+  - discovery_dataset_ids
+  - validation_dataset_id
 additionalProperties: false

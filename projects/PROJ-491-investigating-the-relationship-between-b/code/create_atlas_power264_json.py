@@ -1,95 +1,47 @@
-"""
-create_atlas_power264_json.py
-
-This script fetches the Power 264 functional atlas node coordinates in MNI space
-using Nilearn's built‑in dataset loader and writes them to a JSON contract file
-located at ``data/contracts/atlas_power264.json``.
-
-The generated JSON has the following structure::
-
-    [
-        {"node": 1, "x": -24, "y": -30, "z":  36},
-        {"node": 2, "x":  26, "y": -30, "z":  36},
-        ...
-    ]
-
-Each entry corresponds to a node (1‑based indexing) and its MNI coordinates in
-millimetres.  The file can be consumed by downstream preprocessing code that
-extracts time‑series from the Power atlas.
-"""
-
 import json
 import os
 from pathlib import Path
-
-# Nilearn is used to fetch the official Power 264 atlas coordinates.
-# It is listed as a runtime dependency in ``requirements.txt``.
 from nilearn.datasets import fetch_atlas_power_2011
 
-# Project‑wide configuration utilities (ensure directories exist, etc.)
-# If the project later adds more helpers to ``config`` they can be imported
-# here without changing this script.
-try:
-    from config import ensure_directories
-except Exception:  # pragma: no cover
-    # Fallback: a minimal implementation if ``config`` is not yet providing
-    # ``ensure_directories``.  This keeps the script runnable in isolation.
-    def ensure_directories(*paths: Path) -> None:
-        for p in paths:
-            p.mkdir(parents=True, exist_ok=True)
-
-
-def fetch_power264_coordinates() -> list[dict]:
+def fetch_power264_coordinates():
     """
-    Retrieve Power 264 node coordinates using Nilearn.
-
-    Returns
-    -------
-    list[dict]
-        A list of dictionaries, each containing the node index (1‑based)
-        and its ``x``, ``y``, ``z`` MNI coordinates.
+    Fetch Power 2011 atlas coordinates.
+    Note: This uses nilearn's fetch_atlas_power_2011 which returns 264 nodes.
     """
-    atlas = fetch_atlas_power_2011()
-    # ``coordinates`` is an ``(264, 3)`` NumPy array of (x, y, z) values.
-    coords = atlas["coordinates"]
-    nodes = []
-    for idx, (x, y, z) in enumerate(coords, start=1):
-        nodes.append({"node": idx, "x": float(x), "y": float(y), "z": float(z)})
-    return nodes
+    try:
+        data = fetch_atlas_power_2011()
+        # The function returns a dictionary.
+        # 'rois' usually contains the coordinates.
+        # We need to extract MNI coordinates.
+        if hasattr(data, 'rois'):
+            return data.rois
+        # Fallback or specific handling if structure differs
+        return data
+    except Exception as e:
+        print(f"Error fetching Power 2011 atlas: {e}")
+        return None
 
+def write_json_contract(coords, output_path: Path):
+    """Write the coordinates to a JSON contract file."""
+    data = {
+        "atlas": "Power 2011 (264 nodes)",
+        "space": "MNI",
+        "nodes": coords.tolist() if hasattr(coords, 'tolist') else coords
+    }
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f"Written atlas contract to {output_path}")
 
-def write_json_contract(nodes: list[dict], output_path: Path) -> None:
-    """
-    Write the node list to a JSON file with pretty formatting.
-
-    Parameters
-    ----------
-    nodes : list[dict]
-        List of node dictionaries as produced by ``fetch_power264_coordinates``.
-    output_path : Path
-        Destination path for the JSON contract.
-    """
-    # Ensure the parent directory exists.
-    ensure_directories(output_path.parent)
-
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(nodes, f, indent=2, sort_keys=False)
-    print(f"Power 264 atlas contract written to {output_path}")
-
-
-def main() -> None:
-    """
-    Main entry point.
-
-    The script can be executed directly:
-        python code/create_atlas_power264_json.py
-    """
-    # Define the contract location relative to the repository root.
-    contract_path = Path(__file__).resolve().parents[1] / "data" / "contracts" / "atlas_power264.json"
-
-    nodes = fetch_power264_coordinates()
-    write_json_contract(nodes, contract_path)
-
+def main():
+    ensure_dir = Path("data/contracts")
+    ensure_dir.mkdir(parents=True, exist_ok=True)
+    output_path = ensure_dir / "atlas_power264.json"
+    
+    coords = fetch_power264_coordinates()
+    if coords is not None:
+        write_json_contract(coords, output_path)
+    else:
+        print("Failed to fetch coordinates.")
 
 if __name__ == "__main__":
     main()

@@ -2,85 +2,73 @@
 
 ## Prerequisites
 
-- **Python**: 3.11+
-- **System**: Linux (Ubuntu 22.04 recommended), 8GB+ RAM (for full dataset), 10GB+ disk.
-- **Dependencies**: `wget`, `curl`, `git`.
+- Python 3.10+
+- R 4.3+ (for Seurat preprocessing)
+- Git
+- Access to GitHub Actions runner (or local environment with 2 CPU cores, 7 GB RAM)
 
 ## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau
-    ```
+1. **Clone Repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ```
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install Dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-4.  **Verify Data Access (Critical Step)**:
-    *Note: This step attempts to download the four GEO datasets. If they are not publicly accessible without auth, this will fail.*
-    ```bash
-    python code/download_data.py --check
-    ```
-    *If this fails, see the "Data Availability" section in `research.md` for fallback strategies.*
+## Data Download
+
+**Critical Step**: Verify dataset availability before proceeding.
+
+```bash
+# Attempt to download raw count matrices (replace with actual download commands)
+python code/download_data.py --datasets GSE136103,GSE127465,GSE111075,GSE138852
+```
+
+**Note**: If any dataset fails to download (due to access restrictions), the pipeline will halt and report the gap.
 
 ## Running the Pipeline
 
-### Option A: Full Pipeline (Single Run)
-Executes download, preprocess, velocity, fork-point detection, and validation.
+### 1. Preprocessing (Seurat v4)
 ```bash
-python code/run_pipeline.py
+python code/preprocess.py --input data/raw/ --output data/processed/
 ```
-*Output*: `data/results/validation_metrics.json`, `data/results/report.html`
 
-### Option B: Step-by-Step
-1.  **Download**:
-    ```bash
-    python code/download_data.py
-    ```
-2.  **Preprocess**:
-    ```bash
-    python code/preprocess.py
-    ```
-3.  **Velocity**:
-    ```bash
-    python code/velocity_analysis.py
-    ```
-4.  **Fork-Point Detection**:
-    ```bash
-    python code/fork_point_detection.py
-    ```
-5.  **Validation**:
-    ```bash
-    python code/validation.py
-    ```
+### 2. Velocity Estimation (scVelo)
+```bash
+python code/velocity.py --input data/processed/ --output data/processed/
+```
 
-### Option C: CI/CD (GitHub Actions)
-The pipeline is configured to run automatically on push to `main` or `feature/*`.
-- **Trigger**: Push to branch.
-- **Runner**: `ubuntu-latest` (Free Tier).
-- **Timeout**: 6 hours.
+### 3. Fork-Point Identification
+```bash
+python code/forkpoint.py --input data/processed/ --output data/results/fork_points/
+```
 
-## Output Interpretation
+### 4. Validation & Reporting
+```bash
+python code/validate.py --input data/results/fork_points/ --output data/results/validation/
+python code/report.py --input data/results/validation/ --output data/results/report/
+```
 
-- **`fork_points_*.csv`**: Lists genes with high divergence at branch points. `p_value` < 0.05 indicates significance.
-- **`validation_metrics.json`**:
-    - `spearman_correlation`: > 0.80 indicates high cross-dataset consistency.
-    - `jaccard_index`: > 0.80 indicates consistent fork point identification across datasets.
-    - `enrichment_p_value`: < 0.05 indicates association with therapy response.
-- **`report.html`**: Interactive heatmap and summary of findings.
+## Expected Outputs
+
+- `data/results/fork_points/ranked_genes.csv`: List of fork-point genes with timing ranks.
+- `data/results/validation/enrichment_report.json`: Bootstrap enrichment statistics.
+- `data/results/report/final_report.html`: Final report with heatmaps and disclaimers.
 
 ## Troubleshooting
 
-- **Error: "Dataset Unavailable"**: The GEO datasets require manual download. Use `data/raw/manual/` to place downloaded files and re-run.
-- **Error: "Memory Limit Exceeded"**: The dataset is too large for 7GB RAM. The pipeline will automatically subsample to 10k cells.
-- **Error: "Convergence Failed"**: Velocity estimation failed. Check `logs/velocity.log` for details. The pipeline will retry with higher regularization; if it continues to fail, the dataset may be excluded from downstream analysis.
-- **Error: Fabrication Detected**: Data could not be downloaded or processed. The system halted to prevent generating fake results.
+- **Dataset Download Failed**: Check GEO/SRA status; verify accession IDs; abort if no open substitute exists.
+- **Memory Overflow**: Reduce dataset size via sampling; enable streaming.
+- **scVelo Convergence Failed**: Increase regularization; retry; flag as "Alignment Failed".
+- **No Significant Fork-Points**: Check divergence threshold; verify data quality.

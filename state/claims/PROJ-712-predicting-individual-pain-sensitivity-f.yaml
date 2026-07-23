@@ -476,3 +476,264 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T08:40:43Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Output CSV contains fixed features and heat-pain threshold labels with
+    no NaN values
+  claim_id: c_956576f2
+  context: 'Independent Test: The pipeline can be executed end-to-end on a sample
+    of participants; the output must be a CSV file containing a fixed set of features
+    per participant and heat-pain threshold labels, with no NaN values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_fixed_features_and_heat-pain_threshold_l
+  kind: entity_fact
+  raw_text: The pipeline can be executed end-to-end on a sample of participants; the
+    output must be a CSV file containing a fixed set of features per participant and
+    heat-pain threshold labels, with no NaN values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:18:04Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Unit test asserts ICA n_components > 0 and fit completes without error
+    on dummy MNE Epochs
+  claim_id: c_1a9dd432
+  context: Write unit test test_ica_artifact_removal in tests/unit/test_preprocessing.py
+    that asserts ica.n_components_ > 0 and ica.fit() completes without error on a
+    dummy MNE Epochs object.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Write unit test test_ica_artifact_removal in tests/unit/test_preprocessing.py
+    that asserts ica.n_components_ > 0 and ica.fit() completes without error on a
+    dummy MNE Epochs object.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:18:05Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Integration test asserts output has 30 columns and 0 NaN values after
+    running on 5 dummy participants
+  claim_id: c_298f4872
+  context: Write integration test test_full_preprocessing_pipeline in tests/integration/test_pipeline.py
+    that asserts len(output_df.columns) == 30 and output_df.isna().sum().sum() ==
+    0 after running the pipeline on 5 dummy participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Write integration test test_full_preprocessing_pipeline in tests/integration/test_pipeline.py
+    that asserts len(output_df.columns) == 30 and output_df.isna().sum().sum() ==
+    0 after running the pipeline on 5 dummy participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:23:31Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Fetch OpenNeuro dataset ds003392 and save to data/raw/
+  claim_id: c_8cf3c863
+  context: Implement `code/preprocessing.py` function to fetch OpenNeuro dataset **ds003392**
+    (using `mne.datasets` or direct URL) and save to `data/raw/`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OpenNeuro_dataset_ds003392_and_save_to_data/raw/
+  kind: entity_fact
+  raw_text: Implement `code/preprocessing.py` function to fetch OpenNeuro dataset
+    ds003392 (using mne.datasets or direct URL) and save to data/raw/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:25:55Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Exclude participants if less than 4 minutes of valid data remains
+  claim_id: c_46c3c6f8
+  context: 'Implement participant exclusion logic in `code/preprocessing.py`: exclude
+    if < 4 minutes valid data remains, log warning'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_if_less_than_4_minutes_of_valid_data_re
+  kind: magnitude
+  raw_text: 'Implement participant exclusion logic in code/preprocessing.py: exclude
+    if < 4 minutes valid data remains, log warning'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:26:07Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Aggregate features into feature_matrix.csv with exactly 30 columns
+  claim_id: c_460bb7fb
+  context: 'Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv`
+    with EXACTLY 30 columns. Add explicit assertion: `assert len(df.columns) == 30
+    ` before saving to prevent silent data corruption.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` step to aggregate features into data/processed/feature_matrix.csv
+    with EXACTLY 30 columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:26:15Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Calculate empirical p-value comparing observed Pearson r against null
+    distribution from nested permutations
+  claim_id: c_7a7c0da1
+  context: Implement calculation of empirical p-value comparing observed r against
+    null distribution from nested permutations
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_empirical_p-value_comparing_observed_Pearson_r_aga
+  kind: entity_fact
+  raw_text: Implement calculation of empirical p-value comparing observed r against
+    null distribution from nested permutations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:26:36Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Training script produces cross-validated Pearson r, bootstrap CI, and
+    empirical p-value from nested permutation test
+  claim_id: c_08c8eb37
+  context: 'Independent Test: Running the training script produces a cross-validated
+    Pearson r, a bootstrap confidence interval, and an empirical p-value from the
+    nested permutation test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_produces_cross-validated_Pearson_r,_bootstra
+  kind: entity_fact
+  raw_text: Running the training script produces a cross-validated Pearson r, a bootstrap
+    confidence interval, and an empirical p-value from the nested permutation test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:26:51Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with at least 200 iterations to calculate confidence
+    interval for Pearson r
+  claim_id: c_a10026ed
+  context: "Implement bootstrap resampling (\u2265200 iterations) to calculate a confidence\
+    \ interval for Pearson r"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_with_at_least_200_iterations_to_calcula
+  kind: magnitude
+  raw_text: "Implement bootstrap resampling (\u2265200 iterations) to calculate a\
+    \ confidence interval for Pearson r"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:29:50Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Calculate VIF using statsmodels referencing Wikidata Q113106917
+  claim_id: c_9a174c49
+  context: Implement VIF calculation in `code/diagnostics.py` using `statsmodels`;
+    {{claim:c_2decf651}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
+    but do NOT exclude them or re-run the model
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_VIF_using_statsmodels_referencing_Wikidata_Q113106
+  kind: entity_fact
+  raw_text: Implement VIF calculation in code/diagnostics.py using statsmodels; {{claim:c_2decf651}}
+    (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) but do NOT exclude
+    them or re-run the model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:29:58Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Report includes VIF flags for predictors greater than 33
+  claim_id: c_32f4e60b
+  context: 'Independent Test: The report includes adjusted p-values for permutation
+    importance, VIF flags for predictors > 33, and sensitivity plots showing effect
+    size stability across threshold sweeps.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: The report includes adjusted p-values for permutation importance, VIF
+    flags for predictors > 33, and sensitivity plots showing effect size stability
+    across threshold sweeps.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T01:30:03Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Calculate permutation importance scores for all 30 features
+  claim_id: c_56b4dd9c
+  context: Implement `code/diagnostics.py` function to calculate **permutation importance
+    scores** for all 30 features (shuffling each feature individually)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/diagnostics.py` function to calculate permutation importance
+    scores for all 30 features (shuffling each feature individually)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:30:22Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Final validation ensures feature_matrix.csv has exactly 30 columns and
+    no NaNs
+  claim_id: c_fee09b43
+  context: 'Final validation: Ensure `data/processed/feature_matrix.csv` has exactly
+    30 columns, no NaNs, and `artifacts/` contains all required reports.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Final validation: Ensure data/processed/feature_matrix.csv has exactly
+    30 columns, no NaNs, and artifacts/ contains all required reports.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:30:34Z'

@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/` and `data/processed/`
 - [ ] T001b [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/` and `state/`
 - [ ] T001c [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/` and `tests/`
-- [ ] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_d59ac8aa — status=not_enough_info] with `requirements.txt` (pinning `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
 
 ---
@@ -71,7 +71,7 @@
 
 **Goal**: Ingest OpenNeuro ds003392, preprocess EEG (re-reference, filter, ICA), and extract microstate features per participant.
 
-**Independent Test**: The pipeline can be executed end-to-end on a sample of participants; the output must be a CSV file containing a fixed set of features per participant and heat-pain threshold labels, with no NaN values.
+**Independent Test**: The pipeline can be executed end-to-end on a sample of participants; the output must be a CSV file containing a fixed set of features per participant and heat-pain threshold labels, with no NaN values. [UNRESOLVED-CLAIM: c_956576f2 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -98,7 +98,7 @@
 
 **Goal**: Train Elastic Net with nested 5-fold CV, perform a permutation test *within* the nested loop as per FR-004, and report Pearson r with bootstrap CI.
 
-**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the nested permutation test.
+**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the nested permutation test. [UNRESOLVED-CLAIM: c_08c8eb37 — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -107,10 +107,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/modeling.py` function for Elastic Net (α=0.5) with nested 5-fold cross-validation [UNRESOLVED-CLAIM: c_f59f34fc — status=not_enough_info]
+- [ ] T021 [US2] Implement `code/modeling.py` function for Elastic Net (α=0.5) with nested 5-fold cross-validation
 - [ ] T022 [US2] Implement **nested** permutation test in `code/modeling.py`: shuffle labels **independently within each outer fold iteration** ([deferred] iterations total) to generate null distribution, ensuring valid null hypothesis per FR-004. Use random seed = `global_seed + fold_index` for reproducibility.
-- [ ] T023 [US2] Implement bootstrap resampling (≥200 iterations) to calculate a confidence interval for Pearson r [UNRESOLVED-CLAIM: c_949f08e6 — status=not_enough_info]
-- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from nested permutations
+- [ ] T023 [US2] Implement bootstrap resampling (≥200 iterations) to calculate a confidence interval for Pearson r [UNRESOLVED-CLAIM: c_a10026ed — status=not_enough_info]
+- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from nested permutations [UNRESOLVED-CLAIM: c_7a7c0da1 — status=not_enough_info]
 - [ ] T025 [US2] Implement convergence check in `code/modeling.py`: if Elastic Net fails to converge, increase `max_iter` to [deferred]; if still failing, raise explicit error
 - [ ] T026 [US2] Implement `code/main.py` step to train model, generate `artifacts/model_result.json` (r, p-value, MAE, CI), log execution time, and verify total time < 6 hours (GitHub Actions free-tier limit per SC-005).
 
@@ -122,7 +122,7 @@
 
 **Goal**: Perform FDR correction on **permutation importance** scores, VIF diagnostics, and dual sensitivity analysis (median-split + regularization sweep).
 
-**Independent Test**: The report includes adjusted p-values for permutation importance, VIF flags for predictors > 33, and sensitivity plots showing effect size stability across threshold sweeps.
+**Independent Test**: {{claim:c_32f4e60b}}
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

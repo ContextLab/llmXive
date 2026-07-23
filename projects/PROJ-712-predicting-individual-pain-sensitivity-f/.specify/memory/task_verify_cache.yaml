@@ -1,0 +1,20 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that the required directories `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/`
+    and `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/processed/`
+    actually exist on disk; the response contains no file listings, screenshots, or
+    other verification of their creation. The task therefore remains unfulfilled.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/`\
+    \ and `state/`) is provided; the response contains only the task description and\
+    \ no file\u2011system listing or screenshots confirming their creation. The implementer\
+    \ must create the directories and supply proof (e.g., a directory tree listing)."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/`
+    and `tests/`) is provided; the claim is unsubstantiated and the artifacts are
+    missing.
