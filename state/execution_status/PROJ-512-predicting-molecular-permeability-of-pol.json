@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-512-predicting-molecular-permeability-of-pol",
+  "ok": false,
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate synthetic polymer data using the s\u2026\u201d; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d representation for the synthetic dataset     char_map = {\u2026\u201d; code/data/simulation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generates synthetic polymer graphs with asso\u2026\u201d; 2 command(s) failed: python code/data/ingestion.py --download-pubchem (rc=1); python code/data/ingestion.py --generate-mock-target (rc=1); 3 declared deliverable(s) absent: data/processed/polymers.h5; data/processed/scaffold_split_indices.json; data/raw/checksums.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/ingestion.py --download-pubchem -> rc=1\n    ^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py\", line 151, in fetch_nist_pubchem_data\n    raise DataUnavailableError(\"Real data source unavailable. Falling back to simulation.\")\nDataUnavailableError: Real data source unavailable. Falling back to simulation.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-512-predicting-molecular-permeability-of",
+    "python code/data/ingestion.py --generate-mock-target -> rc=1\n    ^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py\", line 151, in fetch_nist_pubchem_data\n    raise DataUnavailableError(\"Real data source unavailable. Falling back to simulation.\")\nDataUnavailableError: Real data source unavailable. Falling back to simulation.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-512-predicting-molecular-permeabilit"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-23T10:32:55Z"
+}
