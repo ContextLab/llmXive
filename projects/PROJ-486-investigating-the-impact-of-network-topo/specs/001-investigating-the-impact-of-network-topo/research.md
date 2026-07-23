@@ -1,74 +1,68 @@
 # Research: Investigating the Impact of Network Topology on Neural Entrainment to Rhythmic Stimuli
 
-## Executive Summary
+## Scientific Background
 
-This research investigates the association between structural network topology (Clustering Coefficient, Path Length) and neural entrainment. Given the absence of a real-world dataset containing matched HCP fMRI connectivity and rhythmic entrainment metrics for the same subjects (Assumption in Spec), the primary execution path utilizes a **Simulated Data Fallback** (FR-009).
+Neural entrainment to rhythmic stimuli is a fundamental mechanism for temporal prediction in the brain. While the temporal dynamics of entrainment are well-studied, the role of **resting-state network topology** (the structural organization of functional connectivity) in modulating this process remains unclear. This project hypothesizes that specific topological properties—specifically **Clustering Coefficient** (local segregation) and **Characteristic Path Length** (global integration)—predict the strength of neural entrainment.
 
-**Methodological Framing**: The simulation generates data with a known ground-truth correlation (r=0.5) strictly for **Pipeline Validation** (verifying the code detects the injected signal). The study explicitly acknowledges that it cannot test the biological hypothesis with current data availability. Success is defined by the pipeline's robustness, correct application of statistical corrections, and the generation of a power analysis for future real-data collection.
+## Data Availability
 
-The analysis applies a deterministic statistical strategy (MLR or Univariate fallback based on VIF) with Holm-Bonferroni correction and evaluates robustness across Schaefer, AAL, and Power 264 parcellations.
+### Primary Data Source
+The primary intended source for connectivity data is the **Human Connectome Project (HCP) S1200 Release**. 
+*   **Source**: `https://www.humanconnectome.org/study/hcp-young-adult/data-releases`
+*   **Status**: **Restricted Access**. Requires Data Use Agreement (DUA) and credentials.
+*   **Implication**: The CI runner cannot authenticate. Therefore, the pipeline must implement a **Simulated Data Fallback** (FR-009) as the default execution path for CI runs.
+*   **Note**: No public dataset exists containing **matched** HCP fMRI connectivity and rhythmic entrainment metrics for the same subjects. The "Verified Datasets" table from previous iterations has been removed as it contained unusable links; the correct source is the official HCP release, which is restricted.
 
-## Dataset Strategy
+### Simulation Strategy
+Given the unavailability of matched real data in the CI environment, the project employs a dual-mode simulation strategy:
+1.  **Scientific Analysis Mode (Null Hypothesis)**: Generates synthetic data where `entrainment` is **uncorrelated** with topology (r=0). This tests the pipeline's ability to correctly fail to reject the null hypothesis (Type I error control). This is the **default** mode for scientific inquiry.
+2.  **Validation Mode (Unit Test)**: Generates synthetic data with a **target r=0.5**. This is strictly a unit test to verify that the pipeline *can* detect a signal when one exists. This mode is **not** used for scientific hypothesis testing and is explicitly labeled as "Unit Test" in all outputs.
 
-### Primary Data Source: Simulation (FR-009)
-Since no verified dataset exists for the specific combination of HCP resting-state topology and rhythmic entrainment, the system defaults to simulation.
-- **Source**: `code/simulation.py`
-- **Mechanism**: Generates synthetic `subject_id`, `clustering_coefficient`, `path_length`, and `entrainment_metric`.
-- **Parameters**: Target correlation `r=0.5`, noise `= 0.2`.
-- **Label**: All outputs will be tagged with `source: "Simulated"`.
-- **Validation Role**: This data validates the *software* (does the pipeline detect r=0.5?). It does *not* validate the *hypothesis*.
+## Methodological Rigor
 
-### Verified Datasets (Reference Only)
-The following datasets are listed in the project's verified sources but **cannot** be used for the primary matched analysis due to missing entrainment metrics:
-- **HCP (Parquet)**: `
-- **HCP (CSV)**: `
-- **HCP (Parquet)**: `
+### Statistical Approach
+1.  **Graph Metrics**:
+    *   **Clustering Coefficient (CC)**: Measures local efficiency.
+    *   **Characteristic Path Length (CPL)**: Measures global integration.
+    *   *Collinearity Handling*: CC and CPL are often inversely related (mathematically coupled in small-world networks). We will calculate the **Variance Inflation Factor (VIF)**. 
+        *   **If VIF > 5**: We will perform **Orthogonalization** (e.g., regress CC on CPL, use residuals as the predictor) to estimate unique effects. We will **report** standardized betas and p-values for the orthogonalized model and the joint R-squared. We will **not** suppress p-values, as this would render the hypothesis untestable.
+        *   **If VIF <= 5**: Report standard MLR coefficients and p-values.
+    *   *Interpretation*: Even with orthogonalization, the interpretation is limited to "unique variance explained" rather than independent biological signals, acknowledging the inherent coupling of these metrics.
+2.  **Primary Analysis**:
+    *   **Model**: Multiple Linear Regression (MLR): `Entrainment ~ CC + CPL`.
+    *   **Correction**: **Holm-Bonferroni** correction applied to the p-values of the two predictors (FR-002, US-2).
+    *   **Null Hypothesis**: $H_0: r = 0$ (no association).
+    *   **Effect Size**: Report Pearson/Spearman correlation coefficient (r) and R-squared for all models.
+3.  **Robustness**:
+    *   Re-run analysis with **AAL** and **Power 264** parcellations.
+    *   Generate a **comparative bar chart** showing the absolute difference in effect sizes (FR-010).
 
-*Note*: These datasets may be used for *simulating* realistic connectivity matrices if required, but the entrainment metric must be synthetic. The pipeline will attempt an inner join on `subject_id` if a user provides an external CSV; if the join yields N < 30, the simulation fallback is triggered immediately (FR-003).
+### Power & Sample Size
+*   **Target N**: 50 (simulated).
+*   **Power Analysis**: For N=50 with two predictors, the power to detect a moderate effect (f² = 0.15, r ≈ 0.38) at α=0.05 is approximately 0.70. Power to detect small effects (f² = 0.02, r ≈ 0.14) is < 0.20.
+*   **Limitation**: N=50 is exploratory. The plan explicitly flags "Power Warning: N < 30" if the simulated N drops below 30. Results should be interpreted as preliminary.
+*   **Effect Size**: For Validation Mode, target correlation $r \ge 0.5$ to ensure the pipeline detects the signal. For Scientific Mode, we test against $r=0$.
 
-## Statistical Methodology
+### Causal Inference Assumptions
+*   **Observational Design**: The study is correlational. No randomization of network topology exists. Claims will be strictly framed as **associational**.
+*   **Measurement Validity**: Simulated metrics are validated against the known generation parameters. The simulation does not claim to prove the biological hypothesis but to validate the analytical pipeline.
 
-### Deterministic Collinearity Decision Tree
-To ensure the research question remains answerable and avoid unstable MLR coefficients, the following single decision tree is applied:
-1. **Calculate VIF** for `clustering_coefficient` and `characteristic_path_length`.
-2. **If VIF <= 5**:
- - Run **Multiple Linear Regression (MLR)**.
- - Report standardized coefficients, p-values, and joint R-squared.
- - Apply **Holm-Bonferroni** correction to the two predictor p-values.
-3. **If VIF > 5** (or if the raw correlation between predictors > 0.7, which predicts high VIF):
- - **Do NOT run MLR** (coefficients would be unstable).
- - Run **Separate Univariate Analyses** (Spearman/Pearson) for each predictor against the outcome.
- - Apply **Holm-Bonferroni** correction to the two univariate p-values.
- - Report individual effect sizes and corrected p-values.
- - Flag `collinearity_warning` as `true`.
- - *Rationale*: This ensures the study can still determine if *either* metric is associated with entrainment, even if they cannot be disentangled in a joint model.
+## Computational Feasibility
 
-### Multiple Comparisons Correction
-- **Method**: Holm-Bonferroni correction.
-- **Scope**: Applied to the two tests (whether in MLR or Univariate mode).
-- **Threshold**: Adjusted `p < 0.05` (FR-004, SC-003).
+*   **Environment**: GitHub Actions `ubuntu-latest` (2 CPU, 7GB RAM).
+*   **Strategy**:
+    *   **CPU-First**: All operations (NetworkX graph construction, MLR, plotting) are lightweight and run efficiently on CPU.
+    *   **Memory**: N=50 subjects with 200x200 matrices = ~200 MB total data. Well within 7GB RAM.
+    *   **Time**: Graph metric calculation for 50 nodes is trivial (<1 min). MLR is instantaneous. Total runtime < 10 mins.
+*   **GPU Escape Hatch**: Not required. No transformer models or heavy deep learning are used.
 
-### Sensitivity Analysis
-- **Atlases**: Schaefer (Primary), AAL, Power 264.
-- **Metric**: Absolute difference in effect size (R-squared or Beta) compared to the Schaefer baseline.
-- **Output**: Single comparative bar chart (FR-010).
+## Risks & Mitigations
 
-## Power & Sample Size Considerations
-
-### Simulation Power (Validated)
-- **Target N**: 50 subjects.
-- **Effect Size**: r=0.5 (injected).
-- **Result**: N=50 is sufficient (>80% power) to detect r=0.5 at alpha=0.05. This validates the pipeline's ability to detect strong signals.
-
-### Real-World Power (Exploratory)
-- **Limitation**: If real data were available, typical neuroimaging effect sizes are often smaller (e.g., r=0.2).
-- **Impact**: N=50 would be severely underpowered (power < 30%) to detect r=0.2.
-- **Protocol**:
- - If real data yields N < 30, the system triggers the simulation fallback and flags `Power Warning: N < 30 (Exploratory)` (FR-002).
- - If real data yields N >= 30 but effect size is small, the report will explicitly state "Low Power for small effects" and frame results as exploratory.
-- **Justification**: The study is explicitly framed as a **Pipeline Validation & Power Analysis**. The primary output is the *methodological framework* and the *demonstration of power limitations*, not a definitive biological claim.
-
-## Decision Rationale (Compute Feasibility)
-- **CPU-Only**: The pipeline uses `networkx` for graph metrics and `scikit-learn`/`scipy` for statistics. No GPU is required.
-- **Memory**: N=50 with 200x200 matrices fits comfortably within 7GB RAM.
-- **Runtime**: NetworkX graph metrics on 50 small graphs are computationally trivial (< 5 minutes). The MLR/Univariate and plotting steps are negligible. Total runtime is well under the -hour limit.
+| Risk | Mitigation |
+| :--- | :--- |
+| **Missing Real Data** | **Simulated Data Fallback** (FR-009) is the default path. Distinguished between Null (Scientific) and r=0.5 (Validation) modes. |
+| **Collinearity (VIF > 5)** | **Orthogonalization** implemented. Individual p-values are reported for the orthogonalized model, not suppressed. |
+| **Zero Variance** | `graph_metrics.py` detects zero variance and flags the metric as "Non-informative" (Edge Case). |
+| **Subject ID Mismatch** | Inner join performed; if N < 30, trigger simulation fallback (FR-003). |
+| **Invalid Input Data** | System halts with "Invalid Entrainment Data" if CSV structure is invalid (FR-008, SC-005). |
+| **Power Limitation** | Explicitly flag "Power Warning" in output and report effect sizes with confidence intervals. |

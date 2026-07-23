@@ -68,6 +68,9 @@ properties:
       - "Non-informative"
       - "Simulated"
     description: "Status of the analysis for this row."
+  effect_size_r:
+    type: number
+    description: "Correlation coefficient (r) for the primary relationship."
 required:
   - subject_id
   - atlas_type
@@ -79,4 +82,5 @@ required:
   - collinearity_warning
   - power_warning
   - status
+  - effect_size_r
 additionalProperties: false

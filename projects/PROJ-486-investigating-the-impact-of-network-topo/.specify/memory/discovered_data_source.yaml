@@ -1,0 +1,13 @@
+status: none
+intent: Human Connectome Project resting state fMRI Parquet dataset with Schaefer
+  atlas python package dataset
+required_fields:
+- subject_id
+- resting_state_fmri_time_series
+- schaefer_atlas_parcellation_labels
+- functional_connectivity_matrix
+- precomputed_clustering_coefficient
+- precomputed_characteristic_path_length
+cache_key: ce6f207dbe280ce3b76174b9d7f737fe3a2f8b773ce8ad13fa1dda2c143ec628
+searched_at: '2026-07-23T12:24:15.940052+00:00'
+retry_count: 1
