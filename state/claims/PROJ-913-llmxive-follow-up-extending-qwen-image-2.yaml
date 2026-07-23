@@ -1,0 +1,1037 @@
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt sets contain 20 in-distribution and 20 out-of-distribution
+    prompts
+  claim_id: c_f620f44b
+  context: T015a [US1] Implement `curate_pilot.py` to generate the **Pilot** prompt
+    sets (N=20 ID, N=20 OOD).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `curate_pilot.py` to generate the Pilot prompt sets (N=20 ID,
+    N=20 OOD).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:11:00Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Data leakage detected if cosine similarity exceeds 0.3
+  claim_id: c_74d2038d
+  context: 'T016 [US1] Implement `validate_ood.py` to compute cosine similarity between
+    OOD embeddings and ID centroids. **Must include**: (1) Abort with `[CRITICAL:
+    DATA LEAKAGE DETECTED]` if > 0.3 (integrated logic)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Abort with [CRITICAL: DATA LEAKAGE DETECTED] if cosine similarity is
+    > 0.3.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:11:00Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis calculates MDES at N=500 with alpha=0.05 and
+    power=0.8
+  claim_id: c_b2a80d18
+  context: T034 [US3] Implement `power_analysis.py` to calculate achieved statistical
+    power, **Minimum Detectable Effect Size (MDES) at N=500** using **Cohen's d on
+    the Generalization Gap and Pilot Degradation Variance** with **alpha=0.05 and
+    power_target=0.8**...
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate achieved statistical power, Minimum Detectable Effect Size (MDES)
+    at N=500 using Cohen's d on the Generalization Gap and Pilot Degradation Variance
+    with alpha=0.05 and power_target=0.8.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:11:00Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance saturation flag indicates VLM score variance less than 0.01
+  claim_id: c_7041c603
+  context: '...and a **''Variance Saturation Check'' flag** (indicating if VLM score
+    variance < 0.01) using `statsmodels` based on **Pilot** results (T020a).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_saturation_flag_indicates_VLM_score_variance_less_t
+  kind: magnitude
+  raw_text: Use a Variance Saturation Check flag indicating if VLM score variance
+    < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:11:50Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Bootstrap Resampling performed on Generalization Gap distribution
+  claim_id: c_4bba91e1
+  context: T033 [US3] Implement `statistical_test.py` (Bootstrap) to perform **Bootstrap
+    Resampling** on the Generalization Gap distribution to ensure stability of the
+    estimated confidence intervals as per FR-007.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_Resampling_performed_on_Generalization_Gap_distrib
+  kind: entity_fact
+  raw_text: Perform Bootstrap Resampling on the Generalization Gap distribution to
+    ensure stability of the estimated confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:12:06Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Power analysis calculates MDES at N=500 with alpha 0.05 and power 0.8
+  claim_id: c_1b72eada
+  context: Implement power_analysis.py to calculate achieved statistical power, Minimum
+    Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization Gap
+    and Pilot Degradation Variance with alpha=0.05 and power_target=0.8...
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Power Analysis calculates Minimum Detectable Effect Size (MDES) at
+    N=500 using Cohen's d on the Generalization Gap and Pilot Degradation Variance
+    with alpha=0.05 and power_target=0.8.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:14:05Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance saturation check flag indicates VLM score variance less than
+    0.01
+  claim_id: c_e61f348d
+  context: '...and a ''Variance Saturation Check'' flag (indicating if VLM score variance
+    < 0.01) using statsmodels based on Pilot results (T020a).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_saturation_check_flag_indicates_VLM_score_variance
+  kind: magnitude
+  raw_text: The Power Analysis uses a Variance Saturation Check flag indicating if
+    VLM score variance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:15:10Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: External consistency check uses HuggingFaceH4/image-reward model as proxy
+  claim_id: c_6480d0af
+  context: Implement external_consistency.py to load the HuggingFaceH4/image-reward
+    model as a proxy, calculate the Generalization Gap using this proxy model...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_consistency_check_uses_HuggingFaceH4/image-reward_m
+  kind: entity_fact
+  raw_text: The external consistency check uses the HuggingFaceH4/image-reward model
+    as a proxy to calculate the Generalization Gap.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:15:39Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: External consistency calculates Pearson correlation between VLM-derived
+    and Proxy-derived Generalization Gap
+  claim_id: c_578bb18c
+  context: '...and Calculate Pearson correlation (r) between the VLM-derived Gap (T031)
+    and the Proxy-derived Gap.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_consistency_calculates_Pearson_correlation_between
+  kind: entity_fact
+  raw_text: The external consistency check calculates Pearson correlation (r) between
+    the VLM-derived Gap and the Proxy-derived Gap.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:16:13Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt sets contain 20 ID and 20 OOD prompts
+  claim_id: c_2bfd3278
+  context: Implement curate_pilot.py to generate the Pilot prompt sets (N=20 ID, N=20
+    OOD).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot prompt sets consist of N=20 ID and N=20 OOD prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:17:00Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt sets contain 500 or Max-Feasible prompts
+  claim_id: c_5a437e8e
+  context: Implement curate_full.py to generate the Target prompt sets (N=500 or Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target prompt sets consist of N=500 or Max-Feasible prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:17:38Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pipeline gate halts after 2 re-curation iterations if OOD validation
+    fails
+  claim_id: c_29914893
+  context: Implement pipeline_gate.py to implement the orchestration logic that halts
+    the entire pipeline (exit code 1) if T016 (OOD validation) fails after 2 re-curation
+    iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline gate halts execution after 2 re-curation iterations if OOD
+    validation fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:17:51Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt sets N=20 ID and N=20 OOD
+  claim_id: c_e3f719e7
+  context: T015a [US1] Implement curate_pilot.py to generate the Pilot prompt sets
+    (N=20 ID, N=20 OOD).
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Generate the Pilot prompt sets (N=20 ID, N=20 OOD).
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:19:03Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt sets N=500
+  claim_id: c_3ada1587
+  context: T015b [US1] Implement curate_full.py to generate the Target prompt sets
+    (N=500 or Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate the Target prompt sets (N=500 or Max-Feasible).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:19:47Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: MDES at N=500 with alpha 0.05 and power 0.8 using Cohen's d
+  claim_id: c_0b199de0
+  context: T034 [US3] Implement power_analysis.py to calculate achieved statistical
+    power, Minimum Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance with alpha=0.05 and power_target=0.8.
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate Minimum Detectable Effect Size (MDES) at N=500 using Cohen's
+    d on the Generalization Gap and Pilot Degradation Variance with alpha=0.05 and
+    power_target=0.8.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:19:47Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance saturation flag if VLM score variance less than 0.01
+  claim_id: c_83038af3
+  context: '...and a ''Variance Saturation Check'' flag (indicating if VLM score variance
+    < 0.01) using statsmodels based on Pilot results (T020a).'
+  evidence:
+    entailment_evidence: Variance saturation flag if VLM score variance less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Variance_saturation_flag_if_VLM_score_variance_less_than_0.0
+  kind: magnitude
+  raw_text: Flagging variance if VLM score variance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T18:20:10Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling on Generalization Gap distribution for confidence
+    interval stability
+  claim_id: c_d8ed3881
+  context: T033 [US3] Implement statistical_test.py (Bootstrap) to perform Bootstrap
+    Resampling on the Generalization Gap distribution to ensure stability of the estimated
+    confidence intervals as per FR-007.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_on_Generalization_Gap_distribution_for
+  kind: entity_fact
+  raw_text: Perform Bootstrap Resampling on the Generalization Gap distribution to
+    ensure stability of the estimated confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:20:11Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pearson correlation r between VLM-derived Gap and HuggingFaceH4/image-reward
+    proxy-derived Gap
+  claim_id: c_41a168a8
+  context: T045 [US3] Implement external_consistency.py to load the HuggingFaceH4/image-reward
+    model as a proxy, calculate the Generalization Gap using this proxy model, and
+    Calculate Pearson correlation (r) between the VLM-derived Gap (T031) and the Proxy-derived
+    Gap.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_r_between_VLM-derived_Gap_and_HuggingFac
+  kind: entity_fact
+  raw_text: Calculate Pearson correlation (r) between the VLM-derived Gap and the
+    Proxy-derived Gap using the HuggingFaceH4/image-reward model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:20:37Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 0
+  canonical: Pilot prompt sets N=20 ID and N=20 OOD
+  claim_id: c_b6076e71
+  context: Implement curate_pilot.py to generate the Pilot prompt sets (N=20 ID, N=20
+    OOD).
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Generate the Pilot prompt sets (N=20 ID, N=20 OOD).
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:23:15Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 0
+  canonical: MDES at N=500 alpha 0.05 power 0.8 Cohen's d
+  claim_id: c_44bf538d
+  context: Implement power_analysis.py to calculate achieved statistical power, Minimum
+    Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization Gap
+    and Pilot Degradation Variance with alpha=0.05 and power_target=0.8.
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate Minimum Detectable Effect Size (MDES) at N=500 using Cohen's
+    d on the Generalization Gap and Pilot Degradation Variance with alpha=0.05 and
+    power_target=0.8.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:23:15Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt sets N=500
+  claim_id: c_7755f925
+  context: Implement curate_full.py to generate the Target prompt sets (N=500 or Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate the Target prompt sets (N=500 or Max-Feasible).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:23:17Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance Saturation Check flag VLM score variance less than 0.01
+  claim_id: c_2cf1f9a9
+  context: and a 'Variance Saturation Check' flag (indicating if VLM score variance
+    < 0.01) using statsmodels based on Pilot results (T020a).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Saturation_Check_flag_VLM_score_variance_less_than
+  kind: magnitude
+  raw_text: Use a Variance Saturation Check flag indicating if VLM score variance
+    < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:23:19Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Bootstrap Resampling 10000 iterations Generalization Gap
+  claim_id: c_68c8fadf
+  context: Statistical analysis must use Paired T-Test with HC3 Robust Errors and
+    10,000 Bootstrap iterations as per Spec FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Bootstrap Resampling on the Generalization Gap distribution with
+    10,000 Bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:23:41Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pearson correlation r VLM-derived Gap Proxy-derived Gap HuggingFaceH4/image-reward
+  claim_id: c_be032fec
+  context: Implement external_consistency.py to load the HuggingFaceH4/image-reward
+    model as a proxy, calculate the Generalization Gap using this proxy model, and
+    Calculate Pearson correlation (r) between the VLM-derived Gap (T031) and the Proxy-derived
+    Gap.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_r_VLM-derived_Gap_Proxy-derived_Gap_Hugg
+  kind: entity_fact
+  raw_text: Calculate Pearson correlation (r) between the VLM-derived Gap and the
+    Proxy-derived Gap using the HuggingFaceH4/image-reward model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:23:42Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 2
+  canonical: OOD prompts have less than 0.3 cosine similarity to ID centroids
+  claim_id: c_e798ee5a
+  context: 'Independent Test: Verify model weights exist with correct SHA-256 checksums
+    and OOD prompts have < 0.3 cosine similarity to ID centroids.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OOD_prompts_have_less_than_0.3_cosine_similarity_to_ID_centr
+  kind: magnitude
+  raw_text: Verify model weights exist with correct SHA-256 checksums and OOD prompts
+    have < 0.3 cosine similarity to ID centroids.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:27:25Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Power Analysis uses alpha 0.05 and power target 0.8
+  claim_id: c_301ee677
+  context: Implement `power_analysis.py` to calculate achieved statistical power,
+    Minimum Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance with alpha=0.05 and power_target=0.8...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power Analysis must use alpha=0.05 and power_target=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:04Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Power Analysis calculates MDES at N=500
+  claim_id: c_940612d6
+  context: Implement `power_analysis.py` to calculate achieved statistical power,
+    Minimum Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power Analysis must calculate Minimum Detectable Effect Size (MDES) at
+    N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:57Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Power Analysis flags variance saturation if VLM score variance is less
+    than 0.01
+  claim_id: c_c544e7f5
+  context: '...and a ''Variance Saturation Check'' flag (indicating if VLM score variance
+    < 0.01) using `statsmodels` based on Pilot results (T020a).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_Analysis_flags_variance_saturation_if_VLM_score_varian
+  kind: magnitude
+  raw_text: Power Analysis uses a 'Variance Saturation Check' flag indicating if VLM
+    score variance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if OOD contamination detected with cosine similarity
+    greater than 0.3
+  claim_id: c_e97d4997
+  context: '(1) Abort with `[CRITICAL: DATA LEAKAGE DETECTED]` if > 0.3 (integrated
+    logic), (2) Logging for validation metrics.'
+  evidence:
+    asserted: '0.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must abort if OOD contamination is detected with > 0.3 cosine
+    similarity.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:28:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pipeline gate halts execution after 2 re-curation iterations if OOD validation
+    fails
+  claim_id: c_322aa494
+  context: Implement `pipeline_gate.py` to implement the orchestration logic that
+    halts the entire pipeline (exit code 1) if T016 (OOD validation) fails after 2
+    re-curation iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline gate halts execution if OOD validation fails after 2 re-curation
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt set consists of 20 ID and 20 OOD prompts
+  claim_id: c_a9ef372c
+  context: Implement `curate_pilot.py` to generate the Pilot prompt sets (N=20 ID,
+    N=20 OOD).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pilot prompt set consists of N=20 ID and N=20 OOD prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt set consists of 500 or Max-Feasible prompts
+  claim_id: c_a6b73f5d
+  context: Implement `curate_full.py` to generate the Target prompt sets (N=500 or
+    Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Target prompt set consists of N=500 or Max-Feasible prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:28:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 0
+  canonical: Pilot prompt sets size N=20 ID and N=20 OOD
+  claim_id: c_8c3f1ad7
+  context: Implement `curate_pilot.py` to generate the **Pilot** prompt sets (N=20
+    ID, N=20 OOD).
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Generate the Pilot prompt sets (N=20 ID, N=20 OOD).
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:31:47Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 0
+  canonical: Power analysis MDES at N=500 alpha 0.05 power 0.8 Cohen's d
+  claim_id: c_4e151b4a
+  context: Implement `power_analysis.py` to calculate achieved statistical power,
+    **Minimum Detectable Effect Size (MDES) at N=500** using **Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance** with **alpha=0.05 and power_target=0.8**.
+  evidence:
+    asserted: '500.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Calculate Minimum Detectable Effect Size (MDES) at N=500 using Cohen's
+    d on the Generalization Gap and Pilot Degradation Variance with alpha=0.05 and
+    power_target=0.8.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:31:47Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 4
+  canonical: OOD prompts cosine similarity to ID centroids less than 0.3
+  claim_id: c_141de9ff
+  context: 'Independent Test: Verify model weights exist with correct SHA-256 checksums
+    and OOD prompts have < 0.3 cosine similarity to ID centroids.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OOD_prompts_cosine_similarity_to_ID_centroids_less_than_0.3
+  kind: magnitude
+  raw_text: OOD prompts have < 0.3 cosine similarity to ID centroids.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:31:49Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt sets size N=500 or Max-Feasible
+  claim_id: c_32575e83
+  context: Implement `curate_full.py` to generate the **Target** prompt sets (N=500
+    or Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate the Target prompt sets (N=500 or Max-Feasible).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:31:49Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance saturation check flag VLM score variance less than 0.01
+  claim_id: c_0a2588bb
+  context: and a **'Variance Saturation Check' flag** (indicating if VLM score variance
+    < 0.01) using `statsmodels` based on **Pilot** results.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_saturation_check_flag_VLM_score_variance_less_than
+  kind: magnitude
+  raw_text: A 'Variance Saturation Check' flag indicates if VLM score variance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:32:36Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: OOD prompts cosine similarity threshold 0.3 to ID centroids
+  claim_id: c_d8fd59a9
+  context: 'Independent Test: Verify model weights exist with correct SHA-256 checksums
+    and Verify model weights exist with correct SHA-256 checksums and OOD prompts
+    have < 0.3 cosine similarity to ID centroids.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OOD prompts have < 0.3 cosine similarity to ID centroids.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:37:09Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt sets size 20 ID and 20 OOD
+  claim_id: c_852df8db
+  context: Implement `curate_pilot.py` to generate the **Pilot** prompt sets (N=20
+    ID, N=20 OOD).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pilot prompt sets (N=20 ID, N=20 OOD)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:37:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt sets size 500 or Max-Feasible
+  claim_id: c_f704fc9e
+  context: Implement `curate_full.py` to generate the **Target** prompt sets (N=500
+    or Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target prompt sets (N=500 or Max-Feasible)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:38:22Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: MDES calculation at sample size 500
+  claim_id: c_a94325ed
+  context: Implement `power_analysis.py` to calculate achieved statistical power,
+    **Minimum Detectable Effect Size (MDES) at N=500** using **Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance** with **alpha=0.05 and power_target=0.8**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum Detectable Effect Size (MDES) at N=500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:38:58Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Statistical power parameters alpha 0.05 and target 0.8
+  claim_id: c_7a269408
+  context: using **Cohen's d on the Generalization Gap and Pilot Degradation Variance**
+    with **alpha=0.05 and power_target=0.8**
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '16'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '16'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05 and power_target=0.8
+  resolved_value: '16'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T18:39:06Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance saturation threshold 0.01 for VLM score variance
+  claim_id: c_9100e40d
+  context: and a **"Variance Saturation Check" flag** (indicating if VLM score variance
+    < 0.01) using `statsmodels` based on **Pilot** results (T020a).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Saturation Check flag (indicating if VLM score variance < 0.01)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:39:07Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling iterations 10000
+  claim_id: c_9a0c6ec5
+  context: Statistical analysis must use **Paired T-Test with HC3 Robust Errors**
+    and **10,000 Bootstrap iterations** as per Spec FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 Bootstrap iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:39:32Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Dependency check aborts if unlisted ops required for Qwen-Image-2.0
+  claim_id: c_89230e5f
+  context: Implement `dependency_check.py` to verify `diffusers`/`transformers` compatibility
+    with Qwen-Image-2.0 by loading the model config and checking for required ops;
+    **MUST abort if specific unlisted ops are required** to mitigate the risk stated
+    in the Spec's 'Assumptions' section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Dependency_check_aborts_if_unlisted_ops_required_for_Qwen-Im
+  kind: causal
+  raw_text: Omitting specific unlisted ops will cause model loading to abort
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:39:34Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: OOD prompts cosine similarity to ID centroids is less than 0.3
+  claim_id: c_1ea8e85d
+  context: 'Independent Test: Verify model weights exist with correct SHA-256 checksums
+    and Verify model weights exist with correct SHA-256 checksums and OOD prompts
+    have < 0.3 cosine similarity to ID centroids.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OOD_prompts_cosine_similarity_to_ID_centroids_is_less_than_0
+  kind: magnitude
+  raw_text: OOD prompts have < 0.3 cosine similarity to ID centroids.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:41:05Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Fallback to LAION-4M Physics category if LAION-2B Physics/History shard
+    is exhausted during OOD re-sampling
+  claim_id: c_be772cfe
+  context: 'Implement `curate_pilot.py` to generate the Pilot prompt sets (N=20 ID,
+    N=20 OOD). Must include: (1) Dynamic scaling logic to measure runtime, (2) Iterative
+    Re-curation Loop: If OOD contamination is detected, re-sample from a fresh random
+    subset of the LAION-2B Physics/History shard with a new seed; if the shard is
+    exhausted, fallback to LAION-4M ''Physics'' category; (3) Logging for pilot stats.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_LAION-4M_Physics_category_if_LAION-2B_Physics/Hi
+  kind: entity_fact
+  raw_text: If OOD contamination is detected, re-sample from a fresh random subset
+    of the LAION-2B Physics/History shard with a new seed; if the shard is exhausted,
+    fallback to LAION-4M 'Physics' category
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:41:58Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Abort if OOD ID centroid cosine similarity exceeds 0.3
+  claim_id: c_dab6998b
+  context: 'Implement `validate_ood.py` to compute cosine similarity between OOD embeddings
+    and ID centroids. Must include: (1) Abort with [CRITICAL: DATA LEAKAGE DETECTED]
+    if > 0.3 (integrated logic), (2) Logging for validation metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Abort with [CRITICAL: DATA LEAKAGE DETECTED] if cosine similarity is
+    > 0.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:41:58Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Pilot prompt set size is 20 ID and 20 OOD
+  claim_id: c_00940f94
+  context: Implement `curate_pilot.py` to generate the Pilot prompt sets (N=20 ID,
+    N=20 OOD).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pilot prompt sets consist of N=20 ID and N=20 OOD prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:41:58Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Target prompt set size is 500 or Max-Feasible
+  claim_id: c_488db5f3
+  context: Implement `curate_full.py` to generate the Target prompt sets (N=500 or
+    Max-Feasible).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target prompt sets consist of N=500 or Max-Feasible prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:41:59Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses Paired T-Test with HC3 and 10000 Bootstrap
+    iterations
+  claim_id: c_0a1da863
+  context: 'Critical Constraint: Statistical analysis must use Paired T-Test with
+    HC3 Robust Errors and 10,000 Bootstrap iterations as per Spec FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical analysis must use Paired T-Test with HC3 Robust Errors and
+    10,000 Bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:42:52Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: External consistency check uses HuggingFaceH4/image-reward model
+  claim_id: c_6453418b
+  context: 'Critical Constraint: External consistency check (FR-008) MUST use the
+    HuggingFaceH4/image-reward model (T045), not a static dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_consistency_check_uses_HuggingFaceH4/image-reward_m
+  kind: entity_fact
+  raw_text: External consistency check MUST use the HuggingFaceH4/image-reward model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:43:22Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Power Analysis outputs MDES at N=500
+  claim_id: c_878b7310
+  context: Implement `power_analysis.py` to calculate achieved statistical power,
+    Minimum Detectable Effect Size (MDES) at N=500 using Cohen's d on the Generalization
+    Gap and Pilot Degradation Variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power Analysis must output Minimum Detectable Effect Size (MDES) at N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:44:15Z'
+- artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  attempts: 1
+  canonical: Variance Saturation Check flags if VLM score variance is less than 0.01
+  claim_id: c_09b8fdc0
+  context: Implement `power_analysis.py` to calculate achieved statistical power...
+    and a 'Variance Saturation Check' flag (indicating if VLM score variance < 0.01)
+    using statsmodels based on Pilot results.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Saturation_Check_flags_if_VLM_score_variance_is_les
+  kind: magnitude
+  raw_text: Variance Saturation Check flag indicates if VLM score variance < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T18:44:16Z'

@@ -1,0 +1,2 @@
+# This file ensures the code/ directory is tracked by git even if empty initially.
+# It is part of the project structure initialization.

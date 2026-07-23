@@ -1,0 +1,21 @@
+prompt_id,text,seed,category
+ID_000,a cat sitting on a mat,42,in_distribution
+ID_001,a dog playing in the park,42,in_distribution
+ID_002,a car driving on a highway,42,in_distribution
+ID_003,a person reading a book,42,in_distribution
+ID_004,a bird flying in the sky,42,in_distribution
+ID_005,a tree in a forest,42,in_distribution
+ID_006,a house in the suburbs,42,in_distribution
+ID_007,a cat sleeping on a sofa,42,in_distribution
+ID_008,a dog running in the field,42,in_distribution
+ID_009,a car parked in a garage,42,in_distribution
+ID_010,a person walking a dog,42,in_distribution
+ID_011,a bird perched on a branch,42,in_distribution
+ID_012,a tree with autumn leaves,42,in_distribution
+ID_013,a house with a red door,42,in_distribution
+ID_014,a cat chasing a toy,42,in_distribution
+ID_015,a dog barking at a mailman,42,in_distribution
+ID_016,a car speeding on a track,42,in_distribution
+ID_017,a person jogging in the morning,42,in_distribution
+ID_018,a bird building a nest,42,in_distribution
+ID_019,a tree in a snowy landscape,42,in_distribution

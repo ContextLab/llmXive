@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-913-llmxive-follow-up-extending-qwen-image-2
-last_run_id: d2902e19-a050-45b8-817e-ffccca4887d3
+last_run_id: 760030e8-3678-4f50-8534-171691761978
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2
 title: 'llmXive follow-up: extending "Qwen-Image-2.0-RL Technical Report"'
-updated_at: '2026-07-20T01:29:00.434324Z'
+updated_at: '2026-07-23T18:44:20.982340Z'

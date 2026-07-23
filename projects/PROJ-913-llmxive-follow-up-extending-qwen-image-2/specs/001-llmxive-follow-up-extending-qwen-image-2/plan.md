@@ -16,7 +16,7 @@ This feature implements a rigorous statistical evaluation of the "Generalization
 **Target Platform**: Linux (GitHub Actions Free Tier Runner: `ubuntu-latest`, 2 vCPU, ~7 GB RAM).  
 **Reproducibility Note**: Per Constitution Principle I, all runs MUST be reproducible on a fresh `ubuntu-latest` runner. The `requirements.txt` file in `code/` is the single source of truth for dependency versions; no global packages are assumed. All random seeds are pinned in `code/`.  
 **Project Type**: Computational Research / Data Analysis Pipeline.  
-**Performance Goals**: Complete inference and analysis for N=500 prompts (2 models x 5 images/prompt) within 6 hours; OOM protection via batch processing.  
+**Performance Goals**: Complete inference and analysis for N=500 prompts (Multiple models x multiple images/prompt) within 6 hours; OOM protection via batch processing.  
 **Constraints**: No local GPU; memory usage must stay < 7 GB; strict data leakage prevention; SHA-256 checksum verification for all artifacts.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

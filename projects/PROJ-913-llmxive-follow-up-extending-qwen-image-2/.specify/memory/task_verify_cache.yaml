@@ -1,0 +1,8 @@
+T016:
+  c: false
+  h: a1ec8f5999594cef88e5015380e307d30f549c9c2d1bbe33b579c904ad4eca08
+  r: "The repository lacks the required `data/prompts/validation_report.json` file,\
+    \ and the `code/data/validate_ood.py` script is incomplete (truncated) and does\
+    \ not show the abort logic (`[CRITICAL: DATA LEAKAGE DETECTED]`) or the final\
+    \ reporting step. The task\u2019s core functionality and output are therefore\
+    \ not present."

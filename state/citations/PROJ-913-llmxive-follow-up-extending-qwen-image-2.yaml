@@ -9,3 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/qwen-image-bench/datasets
   verified_at: '2026-07-20T01:28:47.610677Z'
+- artifact_hash: 3bcfae22c98b8d16f001145626d2e882b4c37a6ba6deb2c8d92b8d9af22cac22
+  artifact_path: projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/specs/001-llmxive-follow-up-extending-qwen-image-2/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Power_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Power
+  verified_at: '2026-07-23T18:44:17.127215Z'
