@@ -1,19 +1,17 @@
 status: none
-intent: Python packages to download World Bank LSMS FAOSTAT and NASA POWER datasets
-  python package dataset
+intent: download LSMS World Bank, FAOSTAT, NASA POWER data with python package dataset
 required_fields:
 - household_id
-- survey_year
 - country
+- region
+- survey_year
 - latitude
 - longitude
-- csa_practices
-- food_security_status
-- age
-- gender
-- household_size
-- faostat_crop_production
-- faostat_crop_yield
-cache_key: d4a9a79436d8bd4915eea4a52baea798a31c33fd9b8032106de78c5453820df7
-searched_at: '2026-07-17T18:12:48.999625+00:00'
+- agricultural_indicator_name
+- agricultural_indicator_value
+- temperature
+- precipitation
+- demographic_variables
+cache_key: 322c93b610f61e1aea8e59761c002d1fcce3d254ac6a094a39c77b851f913041
+searched_at: '2026-07-23T22:22:08.701247+00:00'
 retry_count: 1
