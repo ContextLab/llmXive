@@ -15,4 +15,7 @@ properties:
     minimum: 0
     maximum: 1
     description: "Proportion of bootstrap resamples where the predictor remains significant at this cutoff"
+  note:
+    type: "string"
+    description: "Note that FP/FN rates are not calculable without ground truth; stability reported instead."
 additionalProperties: false

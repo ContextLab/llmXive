@@ -52,7 +52,7 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 1. **Given** a cleaned dataset with ≥1000 issues across ≥20 repositories, **When** the Kruskal-Wallis test runs for programming language groups, **Then** a p-value is reported with Holm-Bonferroni adjusted α=0.05
 2. **Given** the mixed-effects model with random intercepts for repository, **When** leave-one-repository-out cross-validation executes, **Then** MAE and R² metrics are reported with standard deviation across folds
 3. **Given** any predictor with pairwise correlation |r|≥0.7, **When** the collinearity diagnostic runs, **Then** VIF is calculated from the full model design matrix and a VIF ≥5 is flagged (the model reports the joint relationship as descriptive rather than claiming independent effects)
-4. **Given** decision cutoffs for significance or effect size, **When** the sensitivity analysis runs, **Then** cutoffs are swept over {0.01, 0.05, 0.1} and false-positive/false-negative rates are reported for each threshold
+4. **Given** decision cutoffs for significance or effect size, **When** the sensitivity analysis runs, **Then** cutoffs are swept over a range of thresholds and false-positive/false-negative rates are reported for each threshold
 
 ---
 
@@ -74,10 +74,10 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 - **FR-004**: System MUST apply Holm-Bonferroni correction when conducting ≥3 hypothesis tests on the same outcome variable (See US-3)
 - **FR-005**: System MUST fit a linear mixed-effects model with random intercepts for repository and fixed effects for issue-level covariates (See US-3)
 - **FR-006**: System MUST calculate VIF from the full model design matrix after fitting and flag collinearity when VIF≥5; pairwise |r|≥0.7 triggers VIF calculation (See US-3)
-- **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over {0.01, 0.05, 0.1} and report how false-positive/false-negative rates vary (See US-3)
+- **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over a range of low-probability thresholds. and report how false-positive/false-negative rates vary (See US-3)
 - **FR-008**: System MUST include the phrase "associational" or "correlational" in all result text when describing relationships between variables (See US-3)
 - **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a multi-core CPU, 7GB RAM GitHub Actions runner (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
-- **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no 8-bit quantization, no deep network training from scratch) (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
+- **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no low-bit quantization, no deep network training from scratch) (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 
 ### Key Entities *(include if feature involves data)*
 

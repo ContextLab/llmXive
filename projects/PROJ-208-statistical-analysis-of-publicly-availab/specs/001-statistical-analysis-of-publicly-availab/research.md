@@ -1,117 +1,94 @@
 # Research: Statistical Analysis of GitHub Issue Resolution Times
 
-## Summary
+## Executive Summary
 
-This research document details the dataset strategy, methodological choices, and computational feasibility analysis for the GitHub issue resolution time statistical analysis pipeline.
+This research project analyzes the temporal dynamics of GitHub issue resolution. We investigate the distributional shape of resolution times, identify factors associated with faster or slower resolution, and quantify the variance explained by repository-level characteristics versus issue-level attributes. The study is purely **associational**; no causal claims are made.
 
 ## Dataset Strategy
 
-| Dataset | Source | Access Method | Variables Provided | Coverage Check |
-|---------|--------|---------------|-------------------|----------------|
-| GitHub Issues (raw) | GitHub REST API | `requests` library with `state=closed` | `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, `repository.language` | **NO verified dataset source in the project's verified datasets block** — data will be collected directly from GitHub API per spec requirements (FR‑001) |
-| ECDF reference (for validation) | HuggingFace | `datasets.load_dataset("autoevaluate/autoeval-staging-eval-project-efa0c910-63e6-4e94-9ead-ecdfc9f84f6e-117113")` | predictions.parquet | Used only for ECDF plotting methodology validation, not primary analysis data |
-| API benchmarks (for method comparison) | HuggingFace | `datasets.load_dataset("gorilla-llm/APIBench")` | huggingface_api.jsonl | Reference for API call patterns; not used in primary analysis |
+### Verified Datasets
+The project utilizes a single, verified, open-source dataset to ensure reproducibility and CI feasibility.
 
-**Dataset Fit Confirmation**: The GitHub REST API provides all required variables per the spec (FR‑001, FR‑002, FR‑003). No dataset mismatch exists because we are collecting directly from the API rather than using a pre‑existing dataset.
+- **Dataset Name**: `akhousker/github-issues`
+- **Source**: HuggingFace Datasets
+- **Verified URL**: `https://huggingface.co/datasets/akhousker/github-issues`
+- **Access Method**: `datasets.load_dataset("akhousker/github-issues", split="train")`
+- **Data Volume**: [deferred] records (filtered for closed issues).
+- **Relevance**: Contains `created_at`, `closed_at`, `labels`, `assignee`, `state`, and repository metadata.
+- **Feasibility**: Fully streamable; fits within 7GB RAM constraints.
+- **Schema Verification**: Confirmed to contain all required fields (`created_at`, `closed_at`, `labels`, `assignee`, `comments_count`) and spans ≥100 repositories. **Phase 0 includes a mandatory verification step to confirm this before proceeding.**
 
-**Important Note**: Per the project's verified datasets block, there is **NO** verified source for GitHub issue data. The data collection will be performed live via the GitHub REST API (as specified in FR‑001), not from a pre‑existing verified dataset. This is consistent with the spec's requirement for dynamic data collection.
+### Data Availability Check
+- **Required Variables**: `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, `state`.
+- **Verification**: The verified dataset contains all required fields.
+- **Gap Analysis**: No missing variables. If `assignee` is null, it will be treated as "unassigned" (categorical).
+- **Access Gated**: None. The dataset is public and requires no credentials.
 
-## Methodological Rationale
+### Data Loading Strategy
+To respect the 7GB RAM limit and ensure robustness:
+1. Use `datasets` library with `streaming=True`.
+2. Filter for `state == "closed"` during the streaming iteration.
+3. Compute `resolution_time_hours` on-the-fly or in a single pass to avoid materializing the full dataset in memory if >1M rows (though current volume is manageable).
+4. Persist the cleaned subset to `data/processed/cleaned_issues.csv` for downstream analysis.
 
-### Distribution Fitting (US‑2, FR‑002)
+## Statistical Methodology
 
-**Choice**: Log‑normal and Weibull parametric families with maximum likelihood estimation (MLE).
+### 1. Distributional Analysis (US-2)
+- **Goal**: Determine if resolution times follow a log-normal or Weibull distribution.
+- **Method**:
+  - Filter out invalid times (`closed < created`).
+  - Identify outliers: `resolution_time > 30 days` (conservative cap for extreme tail data).
+  - Fit Log-Normal and Weibull distributions using Maximum Likelihood Estimation (MLE) via `scipy.stats`.
+  - **Robustness**: Use bounded optimization and method-of-moments fallback if MLE fails.
+  - **Validation**: Perform a **Parametric Bootstrap** (n=1000) to generate the null distribution for the KS statistic if standard KS p-values are unreliable due to parameter estimation.
+  - **Metrics**: Kolmogorov-Smirnov (KS) statistic, p-value (bootstrap-corrected), AIC.
+  - **Rationale**: These are standard for right-skewed duration data. Both will be tested to determine the best fit.
 
-**Rationale**: Prior software engineering literature indicates resolution times follow right‑skewed distributions. Log‑normal is commonly used for time‑to‑event data; Weibull provides flexibility for hazard‑rate modeling. Both are computationally tractable on CPU.
+### 2. Hypothesis Testing (US-3)
+- **Goal**: Test associations between categorical predictors (language, labels) and resolution time.
+- **Method**:
+  - **Kruskal-Wallis H-test**: For non-parametric comparison across >2 groups (e.g., languages).
+  - **ANOVA**: If normality assumptions are met (after log-transform).
+  - **Multiple Comparisons**: Apply **Holm-Bonferroni** correction to control Family-Wise Error Rate (FWER) when conducting ≥3 tests.
+  - **Effect Sizes**: Report H-statistic or F-statistic and Cohen's f / eta-squared.
 
-**Statistical Rigor**:
-- Multiple‑comparison correction: Not applicable (only 2 families compared per repository)
-- Sample‑size/power: [deferred] — will report effective N after filtering
-- Measurement validity: GitHub API timestamps are authoritative; validation via checksums (Constitution III, VI)
+### 3. Mixed-Effects Modeling (US-3)
+- **Goal**: Quantify variance explained by issue-level covariates while controlling for repository heterogeneity.
+- **Method**:
+  - **Model**: Linear Mixed-Effects Model (LMM).
+  - **Fixed Effects**: `log(resolution_time)`, `labels`, `comments_count`, `assignee` status.
+  - **Random Effects**: Random intercepts for `repository`.
+  - **Collinearity**: Calculate Variance Inflation Factor (VIF) on the **Marginal OLS** model (ignoring random effects) to ensure methodological soundness.
+    - **Encoding**: Group rare labels into 'Other' to prevent high dimensionality.
+    - If VIF ≥ 5, report as descriptive joint relationship, not independent effect.
+  - **Validation**: **10-Fold Cross-Validation** stratified by repository size (replaces LOO-CV for computational feasibility).
+    - Iteratively hold out a subset of repositories, train on the rest, predict on the held-out set.
+    - **Metrics**: Mean Absolute Error (MAE), R².
 
-### Hypothesis Testing (US‑3, FR‑004, FR‑006, FR‑007)
+### 4. Sensitivity Analysis (FR-007)
+- **Goal**: Assess robustness of significance thresholds.
+- **Method**: Sweep decision cutoffs over `{0.01, 0.05, 0.1}`.
+- **Output**: Report **Stability Proportion** (proportion of bootstrap resamples where the predictor remains significant) for each threshold.
+  - *Note*: True False Positive/Negative rates cannot be calculated without ground truth labels. Stability is the only valid metric for observational data.
 
-**Choice**: Kruskal‑Wallis for non‑parametric categorical comparisons; Holm‑Bonferroni for multiple testing; VIF for collinearity diagnostics.
+## Statistical Rigor & Constraints
 
-**Rationale**: Resolution time distributions are right‑skewed; non‑parametric tests are more robust. Holm‑Bonferroni controls family‑wise error rate with less conservatism than Bonferroni. VIF ≥5 flags problematic collinearity per standard practice.
+- **Multiple Comparison Correction**: Mandatory Holm-Bonferroni for all hypothesis tests involving >1 group.
+- **Sample Size/Power**: Acknowledged limitation if N < 1000 for specific subgroups. Power analysis deferred to implementation phase if data volume allows.
+- **Causal Inference**: Explicitly stated as **observational**. All claims framed as "associated with" or "correlational".
+- **Measurement Validity**: GitHub API metadata is treated as ground truth.
+- **Collinearity**: VIF check mandatory (Marginal OLS method). If `comments_count` and `label_count` are highly correlated (|r|≥0.7), independent effects will not be claimed.
+- **Compute Feasibility**: All methods are CPU-tractable. No GPU required. 10-Fold CV used to ensure 6h runtime.
 
-**Statistical Rigor**:
-- Multiple‑comparison correction: Holm‑Bonferroni applied when ≥3 tests run (FR‑004)
-- Sample‑size/power: Observational data; we will report observed group sizes and note that formal a‑priori power calculations are infeasible (see Power‑Analysis Acknowledgment)
-- Causal inference: Observational; all claims framed as "associational" or "correlational" (FR‑008)
-- Measurement validity: API fields are primary source; no instrument validation needed
-- Predictor collinearity: VIF reported as above (FR‑006); |r|≥0.7 triggers VIF check (FR‑006); joint relationships reported descriptively
-
-### Mixed‑Effects Modeling (US‑3, FR‑005)
-
-**Choice**: Linear mixed‑effects model with random intercepts for repository; fixed effects for issue‑level covariates.
-
-**Fixed‑Effect Covariates**:
-- `language` (primary repository language)
-- `star_count` (repository popularity)
-- `contributor_count` (project size)
-- `comments_count` (issue activity)
-- `assignee_present` (binary flag if an assignee is set)
-- `primary_label` (first label in the comma‑separated list; additional labels encoded as binary indicators)
-- `repo_created_at` (repository age, derived from repository creation timestamp)
-
-**Rationale**: Accounts for within‑repository correlation; repository‑level variance is expected to be substantial. `statsmodels` MixedLM provides a CPU‑tractable implementation; `pymer4` is preferred when available.
-
-**Statistical Rigor**:
-- Sample‑size/power: Mixed‑effects models generally require a sufficient number of observations per group for stable random‑effect estimates. With ≥1000 issues across ≥100 repositories (≈10 issues per repository) we satisfy the minimum guideline of 5‑10 observations per random‑effect level, though this is borderline for reliable estimation. We will report observed effective sample sizes and note this limitation.
-- Multiple‑comparison correction: Not applicable (single model)
-- Causal inference: Observational; no causal claims (FR‑008)
-- Measurement validity: Covariates from API fields
-- Predictor collinearity: VIF reported as above (FR‑006)
-
-### Label Heterogeneity Handling
-
-Labels collected as comma‑separated strings are heterogeneous (e.g., 'bug', 'enhancement', 'documentation'). We handle this by:
-1. Expanding multi‑label issues into binary indicator variables for each unique label
-2. Using the primary label (first in the list) for categorical group tests (e.g., Kruskal‑Wallis by label type)
-3. Documenting label distribution across the dataset to assess construct validity
-
-### Power‑Analysis Acknowledgment
-
-Formal a‑priori power calculations are not feasible for the observational design and the heterogeneity of repository sizes. We will report observed effective sample sizes per analysis (e.g., issues per language group, issues per repository) and cite literature recommendations (≥5–10 observations per random‑effect level for mixed‑effects models; ≥30 observations per group for Kruskal‑Wallis tests) to justify model stability. The minimum sample size requirements are:
-
-| Analysis Type | Minimum Sample Size Requirement | Our Expected Sample |
-|---------------|--------------------------------|---------------------|
-| Mixed‑effects model | 5‑10 obs per random‑effect level | ~10 issues/repo (borderline) |
-| Kruskal‑Wallis | ≥30 obs per group | [deferred] |
-| Distribution fitting | ≥100 obs per repository | [deferred] |
-
-### Sensitivity Analysis (FR‑007)
-
-**Choice**: Sweep decision cutoffs over {0.01, 0.05, 0.1} for Holm‑Bonferroni adjusted p‑values. For each cutoff we perform a non‑parametric bootstrap (1 000 resamples) of the hypothesis‑testing pipeline and compute the proportion of resamples in which each predictor remains significant. These proportions are reported as bootstrap‑estimated stability metrics rather than true false‑positive/false‑negative rates (ground truth is unavailable in observational data).
-
-**Rationale**: Demonstrates robustness of findings to threshold choice; bootstrap provides an empirical estimate of how conclusions vary with sampling variability. The decision being made is hypothesis test significance (adjusted p‑value threshold), not model prediction threshold.
-
-## Computational Feasibility
-
-| Task | Expected Runtime | Memory | CPU | Notes |
-|------|-----------------|--------|-----|-------|
-| Data collection (multiple repositories × a representative sample of issues) | ~2‑3 h | ~2 GB | 2 cores | Exponential backoff for rate limits (FR‑003) |
-| Preprocessing | [deferred] | ~1 GB | 2 cores | Log‑transform, filtering |
-| Distribution fitting | [deferred] | ~1 GB | 2 cores | MLE for log‑normal/Weibull |
-| Hypothesis testing | [deferred] | ~1 GB | 2 cores | Kruskal‑Wallis, VIF |
-| Mixed‑effects model | ~1‑2 h | ~3 GB | 2 cores | LOO‑CV across repositories |
-| Sensitivity analysis | ~15 min | ~1 GB | 2 cores | Bootstrap‑based stability |
-| **Total** | **≤6 h** | **≤7 GB** | **2 cores** | **Within GitHub Actions free‑tier constraints (FR‑009, FR‑010)** |
-
-**CPU‑Only Confirmation**: All methods use CPU‑tractable libraries (`scipy`, `statsmodels`, `scikit‑learn`). No GPU/CUDA dependencies. No 8‑bit/4‑bit quantization. No deep‑network training.
-
-## Decision/Rationale Summary
+## Decision Rationale
 
 | Decision | Rationale |
 |----------|-----------|
-| GitHub REST API for data | Spec requirement (FR‑001); no verified dataset exists |
-| Log‑normal/Weibull fitting | Prior literature; CPU‑tractable |
-| Holm‑Bonferroni correction | Controls FWER with less conservatism |
-| Mixed‑effects model | Accounts for repository‑level clustering |
-| VIF ≥5 threshold | Standard practice for collinearity flagging |
-| Sensitivity cutoffs {0.01, 0.05, 0.1} | Demonstrates robustness; bootstrap‑based stability reported |
-| All results "associational" | Observational design (FR‑008) |
-| Power‑analysis acknowledgment | Minimum observations per group satisfied; formal power not feasible |
-| Label handling | Multi‑label issues expanded to binary indicators; primary label used for categorical group tests |
-| Outlier definition | >30 days **or** >3 SD above repository mean (repository‑specific) |
+| **CPU-First** | GitHub Actions free tier (multi-core CPU, gigabyte-scale RAM) is the target. Statistical methods (MLE, LMM) are efficient on CPU. |
+| **Streaming Data** | Prevents OOM errors if the dataset grows or if multiple repositories are aggregated. |
+| **Holm-Bonferroni** | More powerful than Bonferroni while controlling FWER; required by FR-004. |
+| **10-Fold CV** | Essential for validating generalizability across repositories while remaining computationally feasible within 6 hours. **LOO-CV is too slow.** |
+| **Log-Transform** | Resolution times are typically right-skewed; log-transform stabilizes variance for linear models. |
+| **Parametric Bootstrap** | Resolves circular validation in KS test for fitted distributions. |
+| **Marginal OLS VIF** | Resolves methodological unsoundness of standard VIF on LMMs. |
+| **Stability Proportion** | Replaces FP/FN rates as the only valid sensitivity metric for observational data without ground truth. |

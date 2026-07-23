@@ -1,40 +1,37 @@
 # Implementation Plan: Statistical Analysis of GitHub Issue Resolution Times
 
-**Branch**: `001-github-issue-resolution` | **Date**: 2024-01-15 | **Spec**: `specs/001-github-issue-resolution/spec.md`
+**Branch**: `001-github-issue-resolution` | **Date**: 2024-01-15 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-github-issue-resolution/spec.md`
 
 ## Summary
 
-This feature implements a statistical analysis pipeline for GitHub issue resolution times. The primary requirement is to collect closed issue data from ≥100 GitHub repositories via the GitHub REST API, compute resolution times, and perform distribution analysis, hypothesis testing, and mixed‑effects modeling. The technical approach uses CPU‑tractable Python libraries (pandas, scikit‑learn, statsmodels, scipy) within GitHub Actions free‑tier constraints (2 CPU, 7 GB RAM, ≤6 h runtime).
+This project implements a statistical analysis pipeline to characterize GitHub issue resolution times. The system collects closed issues from diverse repositories, preprocesses temporal data, fits parametric distributions (log-normal, Weibull), and performs hypothesis testing (ANOVA/Kruskal-Wallis) and mixed-effects modeling. The implementation strictly adheres to CPU-only constraints for GitHub Actions feasibility, ensures all datasets are open and streamable, and enforces "associational" language in all reporting.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas==2.2.1, numpy==1.26.4, scipy==1.13.0, scikit‑learn==1.5.0, statsmodels==0.14.2, requests==2.32.3, pymer4==0.7.0 (fallback to statsmodels MixedLM)  
-**Storage**: Local CSV/Parquet files under `data/`  
-**Testing**: pytest with contract tests against schema validators (see Contract‑to‑Test Mapping)  
-**Target Platform**: Linux (GitHub Actions free‑tier runner)  
-**Performance Goals**: ≤6 h total runtime, ≤7 GB peak memory, ≥1000 issues collected  
-**Constraints**: No GPU/CUDA, no deep network training, CPU‑only methods only  
-**Scale/Scope**: ≥100 repositories, ≥1000 issues, ≥5 programming languages
+**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `requests`, `resource` (for memory profiling)  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions Runner)  
+**Project Type**: CLI / Data Pipeline  
+**Performance Goals**: Complete analysis of [deferred] issues (verified dataset size) within 6 hours on 2 CPU cores, 7GB RAM.
+**Constraints**: No GPU usage; strict memory limits (streaming data); Holm-Bonferroni correction mandatory; VIF diagnostics mandatory (Marginal OLS method); **10-Fold CV** (not LOO-CV) for feasibility.  
+**Scale/Scope**: A set of repositories and deferred issues (verified dataset).
 
-> Domain‑specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Compute Feasibility Note**: All statistical methods (MLE fitting, mixed-effects models) are implemented using `scipy` and `statsmodels` which are CPU-tractable. The dataset is accessed via streaming to avoid OOM errors on the 7GB RAM limit. **10-Fold Cross-Validation** is used instead of LOO-CV to ensure the 6-hour runtime constraint is met and to avoid the computational explosion of fitting 100+ LMMs.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re‑check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Constitution Principle | Status | Notes |
-|------------------------|--------|-------|
-| I. Reproducibility | PASS | Random seeds pinned; external data fetched from canonical sources; `requirements.txt` pins all dependencies |
-| II. Verified Accuracy | PASS | API verification performed via HEAD request before data download (Principle II) |
-| III. Data Hygiene | PASS | Checksums recorded; raw data preserved; no PII |
-| IV. Single Source of Truth | PASS | All statistics trace to `data/` rows and `code/` blocks |
-| V. Versioning Discipline | PASS | Content hashes for artifacts; `state/projects/PROJ-208‑statistical-analysis-of-publicly-availab.yaml` updated on changes |
-| VI. Temporal Data Integrity | PASS | Timestamps stored unchanged; deterministic timezone handling |
-| VII. Reproducible Feature Engineering | PASS | Feature extraction scripts version‑controlled, deterministic |
-
-**GATE RESULT**: PASS — All constitution principles satisfied.
+- **I. Reproducibility**: Plan uses `datasets.load_dataset(..., streaming=True)` with pinned seeds. All scripts in `code/` will be deterministic.
+- **II. Verified Accuracy**: Plan includes a specific task (Phase 5, Task 5.2) to execute the Reference-Validator Agent on generated artifacts before the `research_accepted` transition.
+- **III. Data Hygiene**: Raw data from HuggingFace is checksummed upon download. No in-place modifications; all transformations produce new files in `data/processed/`.
+- **IV. Single Source of Truth**: All figures and stats trace to `data/processed/cleaned_issues.csv` and the specific script outputs.
+- **V. Versioning**: `requirements.txt` pins versions. Content hashes will be recorded in `state/`.
+- **VI. Temporal Data Integrity**: `created_at` and `closed_at` are stored as raw ISO strings from the API. Conversion to hours is done in a deterministic script.
+- **VII. Reproducible Feature Engineering**: Label extraction and language mapping are implemented in `code/features/` with explicit API field declarations.
 
 ## Project Structure
 
@@ -42,12 +39,12 @@ This feature implements a statistical analysis pipeline for GitHub issue resolut
 
 ```text
 specs/001-github-issue-resolution/
-├── plan.md              # This file (/speckit‑plan output)
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (not created by /speckit‑plan)
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -56,117 +53,139 @@ specs/001-github-issue-resolution/
 projects/PROJ-208-statistical-analysis-of-publicly-availab/
 ├── code/
 │   ├── __init__.py
-│   ├── collect/
-│   │   ├── __init__.py
-│   │   ├── github_collector.py
-│   │   └── preprocess.py
+│   ├── data/
+│   │   ├── loader.py          # Fetches from HuggingFace (verified source)
+│   │   ├── cleaner.py         # Handles time logic, outliers, missing values
+│   │   └── stream_utils.py    # Streaming helpers
 │   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── distribution_fitting.py
-│   │   ├── hypothesis_testing.py
-│   │   └── mixed_effects_model.py
-│   ├── diagnostics/
-│   │   ├── __init__.py
-│   │   ├── collinearity.py
-│   │   └── sensitivity_analysis.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── config.py
-│       └── logging.py
+│   │   ├── distribution.py    # ECDF, Log-Normal, Weibull fitting (MLE + Bootstrap)
+│   │   ├── hypothesis.py      # Kruskal-Wallis, ANOVA, Holm-Bonferroni
+│   │   ├── mixed_effects.py   # LMM fitting, 10-Fold CV
+│   │   └── diagnostics.py     # VIF (Marginal OLS), Sensitivity Analysis
+│   ├── viz/
+│   │   └── plots.py           # ECDF, histograms, figure captions (associational)
+│   └── main.py                # Orchestration script
 ├── data/
-│   ├── raw/
-│   │   └── .gitkeep
-│   ├── processed/
-│   │   └── .gitkeep
-│   └── checksums.txt
-├── state/
-│   └── projects/
-│       └── PROJ-208-statistical-analysis-of-publicly-availab.yaml
+│   ├── raw/                   # Parquet files (streamed/downloaded)
+│   └── processed/
+│       └── cleaned_issues.csv
 ├── tests/
-│   ├── contract/
-│   │   └── test_schemas.py
-│   ├── integration/
-│   │   └── test_pipeline.py
-│   └── unit/
-│       └── test_collect.py
+│   ├── unit/
+│   └── integration/
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single‑project structure under `code/` with modular sub‑packages for collection, analysis, and diagnostics. This aligns with the data‑pipeline nature of the feature and keeps all artifacts under one repo for reproducibility (Constitution Principles I, IV).
-
-## Functional Requirement Annotations
-
-| Functional Requirement | Addressed By |
-|------------------------|--------------|
-| FR‑001 (≥100 repos) | Data Collection (addressed by FR‑001) |
-| FR‑002 (resolution time & log‑transform) | Preprocessing (addressed by FR‑002) |
-| FR‑003 (exclude invalid timestamps) | Validity Filtering (addressed by FR‑003) |
-| FR‑004 (Holm‑Bonferroni) | Hypothesis Testing (addressed by FR‑004) |
-| FR‑005 (mixed‑effects model) | Mixed‑Effects Modeling (addressed by FR‑005) |
-| FR‑006 (VIF ≥5) | Collinearity Diagnostic (addressed by FR‑006) |
-| FR‑007 (sensitivity analysis) | Sensitivity Analysis (addressed by FR‑007) |
-| FR‑008 (associational language) | Result Generation (addressed by FR‑008) |
-| FR‑009 (runtime ≤6 h) | Computational Feasibility (addressed by FR‑009) |
-| FR‑010 (CPU‑only) | Computational Feasibility (addressed by FR‑010) |
-
-## Success Criterion Annotations
-
-| Success Criterion | Addressed By |
-|-------------------|--------------|
-| SC‑001 (dataset completeness ≥95 %) | Dataset Completeness Check (addressed by SC‑001) |
-| SC‑002 (KS‑test p‑value) | Distribution Goodness‑of‑Fit (addressed by SC‑002) |
-| SC‑003 (Holm‑Bonferroni adjusted p < 0.05) | Hypothesis Test Validity (addressed by SC‑003) |
-| SC‑004 (MAE & R²) | Model Predictive Performance (addressed by SC‑004) |
-| SC‑005 (compute feasibility) | Runtime & Memory Profiling (addressed by SC‑005) |
+**Structure Decision**: Single project structure chosen to minimize overhead and ensure tight coupling between data processing and analysis, fitting the 7GB RAM constraint by keeping data flow in-memory or streaming.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | Constitution Check passed with no violations | N/A |
+| Mixed-Effects Modeling | Required by FR-005 to account for repository-level variance. | Simple linear regression would violate the spec's requirement to handle hierarchical data (issues nested in repos). |
+| Streaming Data Load | Required by compute constraints (7GB RAM) for large datasets. | Loading full dataset into memory would cause OOM on GitHub Actions free tier. |
+| Holm-Bonferroni Correction | Required by FR-004 for multiple comparisons. | Standard Bonferroni is too conservative; Tukey's is for pairwise only. |
+| **10-Fold CV** | Required for computational feasibility (6h limit) and statistical robustness. | **LOO-CV** (100 fits) is too slow for the runtime constraint and risks timeout. |
+| Marginal OLS VIF | Required for methodological soundness. | Standard VIF on LMM is unsound; GVIF libraries are not standard in Python. |
 
-## Dependency Verification
+## Implementation Phases (Addressing Unresolved Concerns)
 
-- **Primary mixed‑effects library**: `pymer4` is listed in `requirements.txt` with a pinned version and verified via the Reference‑Validator Agent (Principle II).  
-- **Fallback**: If `pymer4` cannot be installed on the CI runner, the pipeline automatically imports `statsmodels` MixedLM; this fallback is also pinned and verified. Both libraries are CPU‑tractable and have been tested on GitHub Actions free‑tier runners. The fallback behavior is documented in `code/analysis/mixed_effects_model.py` with explicit import ordering and error handling.
+### Phase 0: Dataset Verification & Feasibility Check
+*Addresses: Data Resources Concerns, Early Failure Prevention.*
+- **Task 0.0 (T000)**: **Verify Dataset Schema and Size**.
+  - **Action**: Programmatically load the `akhousker/github-issues` dataset (streaming) and verify:
+    1. It contains `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`.
+    2. It contains data from ≥100 distinct repositories.
+    3. It contains ≥5000 closed issues (minimum for statistical power).
+  - **Fail Fast**: If any check fails, the pipeline halts with a clear error message and does not proceed to Phase 1. This prevents wasting compute on an invalid source.
 
-## Contract‑to‑Test Mapping
+### Phase 1: Data Collection & Preprocessing
+*Addresses: FR-001, FR-002, FR-003, US-1, US-1 Acceptance 1-3.*
+- **Task 1.1 (T005)**: Implement `data/loader.py` using the verified HuggingFace dataset `akhousker/github-issues`.
+  - **Constraint**: Primary data source is HuggingFace. API fallback is only for missing metadata.
+  - **Rate Limit Handling**: Implement exponential backoff with a **≥60 seconds** wait if the rate limit is hit. **This logic applies to ANY rate limit event (primary stream or fallback).**
+- **Task 1.2 (T012)**: Implement `data/cleaner.py` to:
+  - Calculate `resolution_time_hours`.
+  - Exclude issues where `closed_at < created_at` (log entry required).
+  - **Explicitly implement** the `≥60 seconds` wait logic for rate limits in the API fallback wrapper.
+  - Flag issues with `resolution_time > 30 days` as outliers (justified as a conservative cap for extreme tail data, aligned with 95th percentile).
+  - **Calculate and log** the count/percentage of outliers.
+- **Task 1.3 (T013)**: Output `data/processed/cleaned_issues.csv`. **Critical**: Ensure this file is non-empty and contains ≥1000 rows to satisfy US-1.
+- **Task 1.4 (T014)**: **Validate Dataset Size**. Verify `cleaned_issues.csv` contains ≥1000 rows and matches `contracts/dataset.schema.yaml` before proceeding. **This is a blocking gate.**
 
-| Contract Schema | Test File(s) |
-|-----------------|--------------|
-| `analysis_results.schema.yaml` | `tests/contract/test_schemas.py::test_analysis_results_schema` |
-| `collinearity.schema.yaml` | `tests/contract/test_schemas.py::test_collinearity_schema` |
-| `dataset.schema.yaml` | `tests/contract/test_schemas.py::test_dataset_schema` |
-| `sensitivity.schema.yaml` | `tests/contract/test_schemas.py::test_sensitivity_schema` |
+### Phase 2: Distribution Analysis
+*Addresses: FR-002, US-2, SC-002.*
+- **Task 2.1 (T015)**: Implement `analysis/distribution.py` to generate ECDF plots.
+- **Task 2.2 (T016)**: **Implement MLE Fitting**: Fit Log-Normal and Weibull distributions using `scipy.stats`.
+  - **Robustness**: Use bounded optimization and method-of-moments fallback if MLE fails due to heavy skew.
+  - **Validation**: If standard KS p-values are unreliable, perform a **Parametric Bootstrap** (n=1000) to generate the null distribution for the KS statistic (resolves circular validation concern).
+  - Report KS statistic, p-value, and AIC for **BOTH** families.
+- **Task 2.3 (T017)**: **Implement Outlier Detection**: Calculate and log the count/percentage of issues >30 days.
+- **Task 2.4 (T018)**: Save figures with captions containing "associational" (FR-008). **Ensure all figure titles and captions include the phrase.**
+- **Task 2.5 (T019)**: **Save Distribution Metrics**: Write KS, p-value, AIC for both families to `data/interim/distribution_metrics.json`.
+- **Task 2.6 (T020)**: **Save Outlier Report**: Write count and percentage of outliers to `data/interim/outlier_report.json` (merged into `distribution_metrics.json` as per schema).
+- **Task 2.7 (T021)**: **Validate Associational Language**: Check figure captions and JSON report text for "associational" or "correlational" phrasing.
 
-## Computational Feasibility
+### Phase 3: Hypothesis Testing & Modeling
+*Addresses: FR-004, FR-005, FR-006, FR-007, US-3.*
+- **Task 3.1 (T022)**: Implement `analysis/hypothesis.py` for Kruskal-Wallis/ANOVA.
+  - Apply **Holm-Bonferroni** correction for ≥3 tests.
+- **Task 3.2 (T023)**: Implement `analysis/diagnostics.py` for VIF calculation.
+  - **Method**: Calculate VIF on the **Marginal OLS** model (fixed effects only) to ensure methodological soundness.
+  - **Encoding**: Group rare labels into 'Other' to prevent high dimensionality and perfect multicollinearity.
+  - Flag VIF ≥ 5.
+  - Report joint relationships descriptively if collinearity exists.
+- **Task 3.3 (T024)**: **Save Collinearity Report**: Write VIF scores and flags to `data/interim/collinearity_report.json`.
+- **Task 3.4 (T025)**: Implement `analysis/mixed_effects.py` for LMM.
+  - Fit model with random intercepts for repository.
+  - **Validation**: Implement **k-Fold Cross-Validation** stratified by repository size (replaces LOO-CV for feasibility).
+- **Task 3.5 (T026)**: **Save CV Results**: Write MAE and R² metrics from **10-Fold CV** to `data/interim/mixed_effects_results.json`.
 
-| Task | Expected Runtime | Memory | CPU | Notes |
-|------|-----------------|--------|-----|-------|
-| Data collection (multiple repositories and associated issues) | ~2‑3 h | ~2 GB | 2 cores | Exponential backoff for rate limits (FR‑003) |
-| Preprocessing | [deferred] | ~1 GB | 2 cores | Log‑transform, filtering |
-| Distribution fitting | [deferred] | ~1 GB | 2 cores | MLE for log‑normal/Weibull |
-| Hypothesis testing | [deferred] | ~1 GB | 2 cores | Kruskal‑Wallis, VIF |
-| Mixed‑effects model | ~1‑2 h | ~3 GB | 2 cores | LOO‑CV across repositories |
-| Sensitivity analysis | ~15 min | ~1 GB | 2 cores | Bootstrap‑based stability |
-| **Total** | **≤6 h** | **≤7 GB** | **2 cores** | **Within GitHub Actions free‑tier constraints (FR‑009, FR‑010)** |
+### Phase 4: Sensitivity & Reporting
+*Addresses: FR-007, FR-008.*
+- **Task 4.1 (T027)**: Implement Sensitivity Analysis in `analysis/diagnostics.py`.
+  - **Explicitly sweep** thresholds: `{0.01, 0.05, 0.1}`.
+  - **Method**: Report **Stability Proportion** (proportion of bootstrap resamples significant) for each threshold. (Note: FP/FN rates are not calculable without ground truth; stability is the valid metric).
+- **Task 4.2 (T028)**: **Save Sensitivity Results**: Write stability analysis results to `data/interim/sensitivity_results.json`.
 
-**CPU‑Only Confirmation**: All methods use CPU‑tractable libraries (`scipy`, `statsmodels`, `scikit‑learn`). No GPU/CUDA dependencies.
+### Phase 5: Validation & Constitution Gate
+*Addresses: Constitution Principle II, FR-008.*
+- **Task 5.1 (T039)**: Implement Reference-Validator Agent execution script.
+- **Task 5.2 (T040)**: **Execute Reference-Validator**: Run the agent against all citations in `research.md`, `plan.md`, and generated JSON reports (`distribution_metrics.json`, `mixed_effects_results.json`, etc.) as a blocking gate before `research_accepted`.
+- **Task 5.3 (T041)**: Verify all figures have "associational" disclaimers.
 
-## Decision/Rationale Summary
+### Phase 6: Integration & CI
+*Addresses: FR-009, FR-010.*
+- **Task 6.1 (T042)**: Run full pipeline on GitHub Actions runner (standard CPU, sufficient RAM).
+- **Task 6.2 (T043)**: Verify runtime ≤ 6 hours.
+- **Task 6.3 (T044)**: **Measure and Record Compute Metrics**: Instrument pipeline to capture peak memory usage (via `resource` module) and total runtime, writing to `data/interim/compute_metrics.json`. Verify memory ≤ 7GB.
 
-| Decision | Rationale |
-|----------|-----------|
-| GitHub REST API for data | Spec requirement (FR‑001); no verified dataset exists |
-| Log‑normal/Weibull fitting | Prior literature; CPU‑tractable |
-| Holm‑Bonferroni correction | Controls FWER with reasonable power |
-| Mixed‑effects model | Accounts for repository‑level clustering |
-| VIF ≥5 threshold | Standard practice for collinearity flagging |
-| Sensitivity cutoffs {0.01, 0.05, 0.1} | Demonstrates robustness; bootstrap‑based stability reported |
-| All results "associational" | Observational design (FR‑008) |
-| Power analysis acknowledgment | Minimum observations per group satisfied; formal a‑priori power not feasible (addressed in research.md) |
-| Label handling | Multi‑label issues expanded to binary indicators; primary label used for categorical tests |
-| Outlier definition | >30 days **or** >3 SD above repo mean (repository‑specific) |
+## Tasks (Detailed)
+
+- [ ] **T000**: **Verify Dataset Schema and Size** (Phase 0). Fail fast if HuggingFace dataset is insufficient.
+- [ ] **T005**: Implement API client with exponential backoff and **≥60 seconds** wait logic for rate limits (applies to all rate limit events).
+- [ ] **T009**: Fetch data from HuggingFace `akhousker/github-issues` with streaming.
+- [ ] **T011**: Save cleaned dataset to `data/processed/cleaned_issues.csv`. **Must contain ≥1000 rows**.
+- [ ] **T012**: Implement logging for excluded issues and rate limit waits.
+- [ ] **T013**: Output `data/processed/cleaned_issues.csv`.
+- [ ] **T014**: **Validate Dataset Size** (Blocking Gate). Verify ≥1000 rows and schema compliance.
+- [ ] **T015**: Generate ECDF plots.
+- [ ] **T016**: Fit log-normal and Weibull models with MLE, robust initialization, and fallback. Report KS/AIC for **both** families.
+- [ ] **T017**: Detect and report extreme outliers (>30 days) and their percentage.
+- [ ] **T018**: Save figures with "associational" captions and results to `data/interim/distribution_metrics.json`.
+- [ ] **T019**: Save Distribution Metrics to JSON.
+- [ ] **T020**: Save Outlier Report to JSON.
+- [ ] **T021**: Validate Associational Language in figures and JSON.
+- [ ] **T022**: Implement Kruskal-Wallis/ANOVA with Holm-Bonferroni correction.
+- [ ] **T023**: Fit mixed-effects model with random intercepts.
+- [ ] **T024**: Calculate VIF on Marginal OLS model with label grouping.
+- [ ] **T025**: Perform sensitivity analysis sweeping thresholds **{0.01, 0.05, 0.1}** and report **Stability Proportion**.
+- [ ] **T026**: Enforce "associational" language in all result text and figure captions.
+- [ ] **T027**: Implement Sensitivity Analysis (Stability Proportion).
+- [ ] **T028**: Save Sensitivity Results to JSON.
+- [ ] **T039**: Implement Reference-Validator Agent.
+- [ ] **T040**: Execute Reference-Validator Agent on generated artifacts as a blocking gate.
+- [ ] **T041**: Validate associational language in result text and figure captions.
+- [ ] **T042**: Execute Reference-Validator Agent on generated artifacts as a blocking gate.
+- [ ] **T043**: Verify runtime ≤ 6 hours.
+- [ ] **T044**: Measure and Record Compute Metrics.

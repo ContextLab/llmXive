@@ -20,7 +20,7 @@ properties:
             type: "number"
             minimum: 0
             maximum: 1
-            description: "KS test p-value (SC-002)"
+            description: "KS test p-value (SC-002) - bootstrap corrected if applicable"
           aic:
             type: "number"
             description: "Akaike Information Criterion"
@@ -39,7 +39,7 @@ properties:
             type: "number"
             minimum: 0
             maximum: 1
-            description: "KS test p-value (SC-002)"
+            description: "KS test p-value (SC-002) - bootstrap corrected if applicable"
           aic:
             type: "number"
             description: "Akaike Information Criterion"
@@ -64,13 +64,17 @@ properties:
           - percentage
       lilliefors_limitation_noted:
         type: "boolean"
-        description: "Whether Lilliefors correction limitation was acknowledged"
+        description: "Whether Lilliefors limitation was acknowledged and Parametric Bootstrap used instead"
+      figure_captions_check:
+        type: "boolean"
+        description: "Whether figure captions were validated for 'associational' language (FR-008)"
     required:
       - ecdf_generated
       - log_normal_fit
       - weibull_fit
       - outliers
       - lilliefors_limitation_noted
+      - figure_captions_check
   hypothesis_tests:
     type: "array"
     items:
@@ -129,13 +133,16 @@ properties:
         items:
           type: "string"
           description: "Repository-level control variables (star_count, contributor_count, language)"
-      loo_cv:
+      cv_method:
+        type: "string"
+        description: "Cross-validation method (e.g., 10-Fold Stratified)"
+      cv_results:
         type: "object"
         properties:
           mae:
             type: "number"
             minimum: 0
-            description: "Leave-one-out cross-validation MAE (SC-004)"
+            description: "Cross-validation MAE (SC-004)"
           mae_std:
             type: "number"
             minimum: 0
@@ -144,7 +151,7 @@ properties:
             type: "number"
             minimum: 0
             maximum: 1
-            description: "R² metric (SC-004, expected ≥0.15 from literature)"
+            description: "R² metric (SC-004)"
           r_squared_std:
             type: "number"
             minimum: 0
@@ -152,7 +159,7 @@ properties:
           folds:
             type: "integer"
             minimum: 2
-            description: "Number of LOO-CV folds (equals number of repositories)"
+            description: "Number of CV folds"
         required:
           - mae
           - mae_std
@@ -171,7 +178,8 @@ properties:
       - random_intercepts
       - fixed_effects
       - repository_controls
-      - loo_cv
+      - cv_method
+      - cv_results
       - convergence
   collinearity:
     type: "object"
@@ -179,6 +187,9 @@ properties:
       vif_calculated:
         type: "boolean"
         description: "Whether VIF was calculated (FR-006)"
+      vif_method:
+        type: "string"
+        description: "Method used (e.g., Marginal OLS)"
       predictors_flagged:
         type: "array"
         items:
@@ -213,6 +224,7 @@ properties:
             - correlation
     required:
       - vif_calculated
+      - vif_method
       - predictors_flagged
       - pairwise_correlations
   sensitivity_analysis:
@@ -227,15 +239,17 @@ properties:
             - 0.05
             - 0.1
           description: "Alpha cutoff (FR-007)"
-        status_changes:
-          type: "integer"
-          description: "Number of hypotheses that changed significance status at this cutoff"
+        stability_proportion:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Proportion of bootstrap resamples where result remains significant"
         note:
           type: "string"
-          description: "Note that FP/FN rates cannot be computed without ground truth"
+          description: "Note that FP/FN rates are not calculable without ground truth; stability reported instead."
       required:
         - cutoff
-        - status_changes
+        - stability_proportion
         - note
   compute_metrics:
     type: "object"

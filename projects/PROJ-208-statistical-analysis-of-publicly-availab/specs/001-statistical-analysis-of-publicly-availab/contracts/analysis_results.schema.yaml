@@ -1,43 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-description: "Schema for validating statistical test outcomes (data/processed/test_results.json)"
+title: "Statistical Analysis Results"
+description: "Schema for hypothesis tests and model outputs"
 type: "object"
 properties:
   test_type:
     type: "string"
-    description: "Type of test (e.g., \"kruskal-wallis\", \"mixed-effects\")"
+    enum:
+      - "Kruskal-Wallis"
+      - "ANOVA"
+      - "LinearMixedEffects"
+      - "LogNormalFit"
+      - "WeibullFit"
+    description: "Type of statistical test performed"
   predictor:
     type: "string"
-    description: "Name of predictor variable"
+    description: "Name of the predictor variable tested"
   p_value:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value from test"
-  effect_size:
-    type: "number"
-    description: "Effect size metric (e.g., eta-squared, coefficient)"
-  ci_lower:
-    type: "number"
-    description: "Lower bound of confidence interval"
-  ci_upper:
-    type: "number"
-    description: "Upper bound of confidence interval"
+    description: "Raw p-value from the test"
   adjusted_p_value:
     type: "number"
-    minimum: 0
-    maximum: 1
     description: "Holm-Bonferroni adjusted p-value"
-  is_significant:
-    type: "boolean"
-    description: "True if adjusted p < 0.05"
+  effect_size:
+    type: "number"
+    description: "Effect size metric (e.g., eta-squared, H-statistic)"
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor (if applicable)"
+  cv_mae:
+    type: "number"
+    description: "Mean Absolute Error from Cross-Validation (10-Fold)"
+  cv_r2:
+    type: "number"
+    description: "R-squared from Cross-Validation (10-Fold)"
+  ks_statistic:
+    type: "number"
+    description: "Kolmogorov-Smirnov statistic for distribution fit"
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion for model fit"
 required:
   - test_type
   - predictor
   - p_value
-  - effect_size
-  - ci_lower
-  - ci_upper
   - adjusted_p_value
-  - is_significant
-additionalProperties: false
+  - effect_size
+additionalProperties: true

@@ -1,39 +1,19 @@
 # Dataset Schema for GitHub Issue Resolution Analysis
 # Defines the structure and constraints for the cleaned_issues.csv dataset
-version: "1.0.0"
+# Version: 1.0.0
+# Updated to align with dataset.schema.yaml (string IDs, no 'number' field)
+
 name: github_issue_resolution_dataset
 
 fields:
   issue_id:
-    type: integer
-    description: Unique identifier for the GitHub issue
-    required: true
-
-  repository_id:
-    type: integer
-    description: Unique identifier for the GitHub repository
-    required: true
-
-  repository_name:
     type: string
-    description: Repository name in format owner/repo
-    pattern: "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+    description: Unique identifier for the GitHub issue (string format)
     required: true
 
-  number:
-    type: integer
-    description: Issue number within the repository
-    required: true
-
-  title:
+  repo_id:
     type: string
-    description: Issue title
-    required: true
-
-  state:
-    type: string
-    description: State of the issue (closed)
-    enum: ["closed"]
+    description: Repository path (owner/repo)
     required: true
 
   created_at:
@@ -55,7 +35,7 @@ fields:
 
   labels:
     type: string
-    description: JSON-encoded list of labels attached to the issue
+    description: Comma-separated list of labels
     required: true
 
   has_pull_request:
@@ -69,24 +49,45 @@ fields:
     minimum: 0
     required: true
 
+  assignee:
+    type: string
+    description: Assignee username or 'unassigned'
+    required: true
+
+  comments_count:
+    type: integer
+    minimum: 0
+    description: Number of comments on the issue
+    required: true
+
+  is_outlier:
+    type: boolean
+    description: True if resolution_time_hours > 720 (30 days)
+    required: true
+
+  is_valid:
+    type: boolean
+    description: True if closed_at >= created_at
+    required: true
+
 required:
   - issue_id
-  - repository_id
-  - repository_name
-  - number
-  - title
-  - state
+  - repo_id
   - created_at
   - closed_at
   - author
   - labels
   - has_pull_request
   - resolution_time_hours
+  - assignee
+  - comments_count
+  - is_outlier
+  - is_valid
 
 constraints:
   resolution_time_hours:
     minimum: 0
     description: "Resolution time must be non-negative"
-  repository_name:
+  repo_id:
     pattern: "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
     description: "Must be in owner/repo format"

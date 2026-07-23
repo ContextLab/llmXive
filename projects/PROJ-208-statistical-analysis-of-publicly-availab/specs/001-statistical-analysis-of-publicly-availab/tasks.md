@@ -63,7 +63,7 @@ description: "Task list template for feature implementation"
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create configuration manager in code/utils/config.py (random seeds, paths, thresholds)
-- [X] T005 [P] Implement GitHub API client with rate limit handling and exponential backoff in code/utils/api_client.py (FR-001)
+- [X] T005 [P] Implement GitHub API client with rate limit handling, exponential backoff, and explicit **wait ≥60 seconds** before resuming upon rate limit hits in code/utils/api_client.py (FR-001, US-1)
 - [X] T006 [P] Setup schema validators against contracts/ in code/utils/validators.py (SC-001)
 - [X] T027 [P] Create documentation: data-model.md (entity definitions), contracts/ (schema YAML files) per plan.md Phase 1 outputs
 - [X] T039 [P] Implement Reference-Validator Agent with checkpoint execution verification at artifact write, Advancement-Evaluator, and research_review→research_accepted transition (Constitution Principle II)
@@ -89,7 +89,7 @@ description: "Task list template for feature implementation"
 
 - [X] T009 [US1] Implement issue fetcher in code/collect/fetch_issues.py (FR-001, FR-003) with enforcement of ≥100 repository minimum
 - [X] T010 [US1] Implement preprocessing script in code/collect/preprocess.py to compute resolution_time_hours and exclude invalid issues (FR-002, FR-003)
-- [ ] T011 [US1] Save cleaned dataset to data/processed/cleaned_issues.csv with checksum AND validate ≥95% completeness threshold per SC-001
+- [X] T011 [US1] Save cleaned dataset to data/processed/cleaned_issues.csv with checksum AND validate ≥95% completeness threshold per SC-001
 - [X] T012 [US1] Add logging for excluded issues (negative resolution time, missing timestamps) to data/logs/preprocessing.log in JSON format (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -110,8 +110,9 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [X] T015 [P] [US2] Implement ECDF plot generation in code/analysis/distribution_fitting.py (x-axis log scale) (FR-002)
-- [ ] T016 [US2] Fit log-normal and Weibull models using scipy.stats and report KS statistic, p-value, AIC (FR-002)
-- [ ] T017 [US2] Detect and report extreme outliers (>30 days) with percentage of total dataset (FR-002)
+- [X] T016a [US2] Fit log-normal model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
+- [X] T016b [US2] Fit Weibull model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
+- [X] T017 [US2] Detect and report extreme outliers (>30 days) and calculate their percentage of the total dataset (FR-002, US-2)
 - [X] T018 [US2] Save figures to data/figures/ and results to data/processed/distribution_metrics.json (SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -133,9 +134,9 @@ description: "Task list template for feature implementation"
 
 - [X] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni correction in code/analysis/hypothesis_testing.py (FR-004)
 - [X] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in code/analysis/mixed_effects_model.py (FR-005)
-- [ ] T023 [US3] Implement leave-one-repository-out cross-validation for MAE and R² metrics (SC-004)
+- [X] T023 [US3] Implement leave-one-repository-out cross-validation to generate MAE and R² metrics with standard deviation (SC-004, US-3)
 - [X] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in code/diagnostics/collinearity.py (FR-006)
-- [X] T025 [US3] Perform sensitivity analysis sweeping a range of cutoffs, calculate false-positive/false-negative rates, and report threshold sensitivity (status changes) in code/diagnostics/sensitivity_analysis.py (FR-007)
+- [X] T025 [US3] Perform sensitivity analysis sweeping cutoffs over **exactly {0.01, 0.05, 0.1}** and report false-positive/false-negative rates for each threshold (FR-007)
 - [X] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in code/analysis/results.py (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -146,21 +147,23 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories, constitutional compliance, and final validation
 
-- [ ] T027a [P] Create quickstart.md (end-to-end run instructions) with content requirements and traceability validation criteria (Constitution Principle IV)
-- [ ] T028 [P] Code cleanup and refactoring: run ruff check (zero warnings)
-- [ ] T042 [P] Achieve pytest coverage ≥80% with coverage report
-- [ ] T029 [P] Configure GitHub Actions workflow for CI (standard CPU allocation, sufficient RAM, 6h timeout) AND validate actual runtime stays within ≤6h constraint (FR-009, FR-010)
-- [ ] T030 [P] Run quickstart.md validation to ensure end-to-end reproducibility (SC-005)
-- [ ] T033 [P] Generate content hashes for all artifacts in data/, code/, state/ (Constitution Principle V)
-- [ ] T031 [P] Update state/projects/PROJ-208-statistical-analysis-of-publicly-availab.yaml with artifact hashes and updated_at timestamp (ISO 8601 format) on artifact changes (Constitution Principle V)
-- [ ] T032 [P] Validate reproducibility by re-running code/ against data/ on fresh GitHub Actions runner with identical outputs = matching checksums (Constitution Principle I)
-- [ ] T034 [P] Enforce reproducibility: verify code re-run produces identical outputs with checksums for data/, code/, state/ artifacts (Constitution Principle I)
-- [ ] T035 [P] Validate temporal data integrity: ensure timestamps from GitHub API stored unchanged AND record deterministic timezone script version in code/VERSION.txt (Constitution Principle VI)
-- [ ] T036 [P] Validate reproducible feature engineering: verify feature extraction scripts produce identical outputs AND explicitly declare API fields they read (Constitution Principle VII)
-- [ ] T037 [P] Validate data hygiene: verify checksums and run Repository-Hygiene Agent for PII scan (Constitution Principle III)
-- [ ] T038 [P] Run Repository-Hygiene Agent for PII scan enforcement in CI workflow with checkpoint verification (Constitution Principle III)
-- [ ] T040 [P] Validate single-source-of-truth traceability: verify all figures/statistics trace to exactly one data row and code block (Constitution Principle IV)
-- [ ] T041 [P] Validate all result text contains "associational" or "correlational" phrases per FR-008
+- [X] T027a [P] Create quickstart.md (end-to-end run instructions) with content requirements and traceability validation criteria (Constitution Principle IV)
+- [X] T028 [P] Code cleanup and refactoring: run ruff check (zero warnings)
+- [X] T042 [P] Achieve pytest coverage ≥80% with coverage report
+- [X] T029 [P] Configure GitHub Actions workflow for CI (standard CPU allocation, sufficient RAM, 6h timeout) AND validate actual runtime stays within ≤6h constraint (FR-009, FR-010)
+- [X] T030 [P] Run quickstart.md validation to ensure end-to-end reproducibility (SC-005)
+- [X] T033 [P] Generate content hashes for all artifacts in data/, code/, state/ (Constitution Principle V)
+- [X] T031 [P] Update state/projects/PROJ-208-statistical-analysis-of-publicly-availab.yaml with artifact hashes and updated_at timestamp (ISO 8601 format) on artifact changes (Constitution Principle V)
+- [X] T032 [P] Validate reproducibility by re-running code/ against data/ on fresh GitHub Actions runner with identical outputs = matching checksums (Constitution Principle I)
+- [X] T034 [P] Enforce reproducibility: verify code re-run produces identical outputs with checksums for data/, code/, state/ artifacts (Constitution Principle I)
+- [X] T035 [P] Validate temporal data integrity: ensure timestamps from GitHub API stored unchanged AND record deterministic timezone script version in code/VERSION.txt (Constitution Principle VI)
+- [X] T036 [P] Validate reproducible feature engineering: verify feature extraction scripts produce identical outputs AND explicitly declare API fields they read (Constitution Principle VII)
+- [X] T037 [P] Validate data hygiene: verify checksums and run Repository-Hygiene Agent for PII scan (Constitution Principle III)
+- [X] T038 [P] Run Repository-Hygiene Agent for PII scan enforcement in CI workflow with checkpoint verification (Constitution Principle III)
+- [X] T040 [P] Validate single-source-of-truth traceability: verify all figures/statistics trace to exactly one data row and code block (Constitution Principle IV)
+- [X] T041 [P] Validate all result text contains "associational" or "correlational" phrases per FR-008
+- [X] T043 [P] **Execute** Reference-Validator Agent on all artifacts generated in Phases 3-5 (citations, data, code) as a blocking gate before `research_accepted` transition (Constitution Principle II)
+- [X] T044 [P] Enforce "associational" or "correlational" language in **figure captions and titles** generated by T018 (FR-008)
 
 **Checkpoint**: All constitutional principles validated, documentation complete, CI configured
 
@@ -174,6 +177,7 @@ description: "Task list template for feature implementation"
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
  - T027 (data-model.md, contracts/) MUST precede T009-T026 (schema validation and entity definitions)
  - T039 (Reference-Validator Agent) MUST be in Phase 2 to enable checkpoint validation throughout research
+ - T043 (Execute Reference-Validator) MUST be in Phase 6 to run after artifact generation
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - **US1 (Phase 3)**: Must complete before US2 and US3 (data dependency)
  - **US2 (Phase 4)**: Requires cleaned dataset from US1 (Phase 3)
@@ -202,13 +206,21 @@ description: "Task list template for feature implementation"
 - Once Foundational phase completes, US2 and US3 can start in parallel (if team capacity allows), but both depend on US1 data
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (once data is ready)
-- T015 and T016 share code/analysis/distribution_fitting.py; T016 cannot run in parallel with T015 (removed [P] from T016)
+- T016a and T016b share code/analysis/distribution_fitting.py; they can run in parallel if implemented as separate functions
+- T015 and T016a/T016b share code; T016a/T016b cannot run before T015 if they share the same file instance, but logically T015 (ECDF) and T016 (Fitting) are distinct steps.
 
 ### Ordering Notes
 
 - T033 (generate hashes) MUST precede T031 (update state YAML with hashes)
 - T027 (data-model.md, contracts/) MUST be in Phase 2 to precede consumer tasks (T009-T026)
 - T039 (Reference-Validator Agent) MUST be in Phase 2 to enable checkpoint validation throughout research
+- T043 (Execute Reference-Validator) MUST be in Phase 6 to run after all artifacts are generated
+- T011 (Save dataset) MUST precede T015-T026 (Analysis tasks)
+- T016a/T016b (Fitting) MUST precede T018 (Save results)
+- T023 (LOO-CV) MUST precede final model validation
+- **T018 (Save figures) MUST precede T044 (Figure caption validation)**
+- **T017 (Outlier detection) MUST precede T018 (Save results)**
+- **T022 (Model fit) MUST precede T023 (LOO-CV)**
 
 ---
 
@@ -273,6 +285,13 @@ With multiple developers:
 - **Constraint**: Runtime must validate ≤6h completion (FR-009)
 - **Constraint**: Dataset completeness must validate ≥95% threshold (SC-001)
 - **Constraint**: Repository collection must enforce ≥100 minimum (FR-001)
+- **Constraint**: Rate limit handling must wait ≥60 seconds (US-1)
+- **Constraint**: Distribution fitting must cover BOTH log-normal and Weibull (US-2)
+- **Constraint**: Outlier detection must report >30 days and percentage (US-2)
+- **Constraint**: LOO-CV must generate MAE/R² (SC-004)
+- **Constraint**: Sensitivity thresholds must be exactly {0.01, 0.05, 0.1} (FR-007)
+- **Constraint**: Reference-Validator Agent must execute before research_accepted (Constitution II)
+- **Constraint**: Figure captions must include "associational" language (FR-008)
 - **Constitutional Compliance**: All principles must be validated in Phase 6
 - **Constitutional Compliance**: Reference-Validator Agent must verify three checkpoints (Principle II)
 - **Constitutional Compliance**: Repository-Hygiene Agent must be used for PII scans (Principle III)

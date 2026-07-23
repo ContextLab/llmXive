@@ -250,7 +250,7 @@ cross_validation_results:
       description: "Number of CV folds"
     method:
       type: string
-      description: "Cross-validation method (e.g., leave-one-repository-out)"
+      description: "Cross-validation method (e.g., 10-Fold Stratified)"
 
 # Collinearity Diagnostics Schema
 collinearity_results:
@@ -279,28 +279,20 @@ sensitivity_results:
   type: object
   required:
     - cutoffs
-    - fp_rates
-    - fn_rates
+    - stability_proportions
   properties:
     cutoffs:
       type: array
       items:
         type: number
       description: "List of cutoff thresholds tested"
-    fp_rates:
+    stability_proportions:
       type: array
       items:
         type: number
         minimum: 0
         maximum: 1
-      description: "False positive rates for each cutoff"
-    fn_rates:
-      type: array
-      items:
-        type: number
-        minimum: 0
-        maximum: 1
-      description: "False negative rates for each cutoff"
-    optimal_cutoff:
-      type: number
-      description: "Cutoff minimizing FP + FN"
+      description: "Stability proportion for each cutoff"
+    note:
+      type: string
+      description: "Note that FP/FN rates are not calculable; stability reported instead."

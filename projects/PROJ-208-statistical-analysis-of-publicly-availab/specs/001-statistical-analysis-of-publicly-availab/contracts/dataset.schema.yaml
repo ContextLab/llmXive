@@ -1,54 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GitHub Issue Dataset Schema"
-description: "Schema for validating the cleaned GitHub issue dataset (data/processed/issues_clean.csv)"
+title: "Cleaned GitHub Issues Dataset"
+description: "Schema for data/processed/cleaned_issues.csv"
 type: "object"
 properties:
   issue_id:
-    type: "integer"
-    description: "Unique issue identifier within repository"
-  repository:
+    type: "string"
+    description: "Unique GitHub issue identifier"
+  repo_id:
     type: "string"
     description: "Repository path (owner/repo)"
   created_at:
     type: "string"
     format: "date-time"
-    description: "Issue creation timestamp (ISO 8601)"
+    description: "ISO 8601 timestamp of issue creation"
   closed_at:
     type: "string"
     format: "date-time"
-    description: "Issue closure timestamp (ISO 8601)"
+    description: "ISO 8601 timestamp of issue closure"
+  resolution_time_hours:
+    type: "number"
+    description: "Time difference in hours (closed_at - created_at)"
+    minimum: 0
   labels:
     type: "string"
-    description: "Comma-separated label names"
+    description: "Comma-separated list of issue labels"
   assignee:
-    type: ["string", "null"]
-    description: "Assignee username or null"
+    type: "string"
+    description: "Assignee username or 'unassigned'"
   comments_count:
     type: "integer"
     minimum: 0
-    description: "Number of comments on issue"
-  resolution_time_hours:
-    type: "number"
-    minimum: 0
-    description: "closed_at - created_at in hours"
-  resolution_time_log:
-    type: "number"
-    description: "Natural log of resolution time"
+    description: "Number of comments on the issue"
   is_outlier:
     type: "boolean"
-    description: "True if resolution time >30 days **or** >3 standard deviations above the repository mean"
+    description: "True if resolution_time_hours > 720 (30 days)"
   is_valid:
     type: "boolean"
-    description: "True if closed_at >= created_at and no missing timestamps"
+    description: "True if closed_at >= created_at"
 required:
   - issue_id
-  - repository
+  - repo_id
   - created_at
   - closed_at
-  - labels
-  - comments_count
   - resolution_time_hours
-  - resolution_time_log
+  - labels
+  - assignee
+  - comments_count
   - is_outlier
   - is_valid
 additionalProperties: false

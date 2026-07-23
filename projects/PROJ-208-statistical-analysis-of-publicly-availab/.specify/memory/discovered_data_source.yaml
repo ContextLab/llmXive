@@ -1,0 +1,50 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import pandas as pd
+
+  from datasets import load_dataset
+
+
+  ds = load_dataset("akhousker/github-issues", split="train")
+
+  # Convert to DataFrame for easier manipulation
+
+  df = pd.DataFrame(ds)
+
+  # Keep only closed issues
+
+  closed = df[df["state"] == "closed"]
+
+  print(f"RECORDS={len(closed)}")
+
+  fields = [c for c in ["issue_id","repository","created_at","closed_at","resolution_time","title","body","labels","author","assignee","comments_count","state"]
+  if c in closed.columns]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 6315
+sample_fields:
+- created_at
+- closed_at
+- title
+- body
+- labels
+- assignee
+- state
+field_coverage: 0.583
+required_fields:
+- issue_id
+- repository
+- created_at
+- closed_at
+- resolution_time
+- title
+- body
+- labels
+- author
+- assignee
+- comments_count
+- state
+intent: GitHub closed issues dataset python package with resolution times and features
+  python package dataset
+cache_key: 3720252b906cb4300df07dd26261c8344796d1b83a2eae4797aa19e657562f26
