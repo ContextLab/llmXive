@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "User-Track Pair Schema"
+description: "Schema for the aggregated User-Track Pair dataset used in LMM analysis."
+type: object
+properties:
+  user_id:
+    type: string
+    description: "Unique identifier for the user."
+  track_id:
+    type: string
+    description: "Unique identifier for the track."
+  birth_year:
+    type:
+      - integer
+      - "null"
+    description: "User's birth year. May be null."
+  adolescent_exposure_ratio:
+    type:
+      - number
+      - "null"
+    description: "Ratio of listens during adolescence to total listens. Null if birth_year is missing and fallback not triggered."
+  total_listens:
+    type: integer
+    minimum: 3
+    description: "Total number of listens for this user-track pair. Must be >= 3."
+  mean_vividness:
+    type: number
+    description: "Average vividness rating."
+  mean_valence:
+    type: number
+    description: "Average valence rating."
+  n_cues:
+    type: integer
+    minimum: 1
+    description: "Number of memory cues for this pair. Must be >= 1."
+  popularity:
+    type: number
+    description: "Track popularity score."
+  match_threshold:
+    type: integer
+    description: "Levenshtein threshold used for matching."
+  global_exposure_proxy:
+    type:
+      - number
+      - "null"
+    description: "Global exposure metric if birth_year is missing and fallback triggered."
+required:
+  - user_id
+  - track_id
+  - mean_vividness
+  - mean_valence
+  - n_cues
+  - total_listens
+  - popularity
+  - match_threshold
+additionalProperties: false

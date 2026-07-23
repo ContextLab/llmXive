@@ -1,0 +1,108 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the regression summary, bootstrap results, and selection correction results."
+type: object
+properties:
+  regression_summary:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: integer
+          description: "Levenshtein threshold."
+        coef_adolescent_exposure:
+          type: number
+          description: "Coefficient for adolescent_exposure_ratio."
+        std_err:
+          type: number
+          description: "Standard error."
+        t_stat:
+          type: number
+          description: "T-statistic."
+        p_value:
+          type: number
+          description: "P-value from LMM."
+        vif_exposure:
+          type: number
+          description: "VIF for exposure variable."
+        vif_popularity:
+          type: number
+          description: "VIF for popularity variable."
+        n_observations:
+          type: integer
+          description: "Number of observations."
+        n_users:
+          type: integer
+          description: "Number of users."
+        is_simulated:
+          type: boolean
+          description: "True if data is simulated."
+      required:
+        - threshold
+        - coef_adolescent_exposure
+        - std_err
+        - t_stat
+        - p_value
+        - vif_exposure
+        - vif_popularity
+        - n_observations
+        - n_users
+        - is_simulated
+  bootstrap_results:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: integer
+          description: "Levenshtein threshold."
+        observed_coef:
+          type: number
+          description: "Observed coefficient."
+        bootstrap_coef_mean:
+          type: number
+          description: "Mean of bootstrap distribution."
+        bootstrap_coef_std:
+          type: number
+          description: "Std dev of bootstrap distribution."
+        p_value_bootstrap:
+          type: number
+          description: "Bootstrap p-value."
+        n_bootstraps:
+          type: integer
+          description: "Number of bootstraps."
+      required:
+        - threshold
+        - observed_coef
+        - bootstrap_coef_mean
+        - bootstrap_coef_std
+        - p_value_bootstrap
+        - n_bootstraps
+  selection_correction:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: integer
+          description: "Levenshtein threshold."
+        coef_adolescent_exposure_corrected:
+          type: number
+          description: "Coefficient after Heckman correction."
+        inverted_mills_ratio_coef:
+          type: number
+          description: "Coefficient for the inverse Mills ratio."
+        p_value_corrected:
+          type: number
+          description: "P-value after correction."
+      required:
+        - threshold
+        - coef_adolescent_exposure_corrected
+        - inverted_mills_ratio_coef
+        - p_value_corrected
+required:
+  - regression_summary
+  - bootstrap_results
+  - selection_correction
+additionalProperties: false

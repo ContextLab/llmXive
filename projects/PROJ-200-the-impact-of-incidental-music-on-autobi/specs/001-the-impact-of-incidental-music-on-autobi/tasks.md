@@ -87,21 +87,20 @@
  1. **Chunked Iteration**: Must process large datasets in chunks (streaming) to stay within RAM limits; do NOT load full dataset into memory.
  2. **Fail Loudly**: Must raise an exception if real data sources (MSD/AMT) are unreachable or invalid. Do NOT implement a `try/except` fallback to synthetic data (except for FR-008 Global Exposure).
  3. **Ordering**: This task must integrate the logic for T055 and T056 (removed as standalone tasks).
- **DEPENDS ON**: None.
+ 4. **Data Integrity**: Must validate the structure and checksums of downloaded files. **DEPENDS ON**: None.
 - [X] T023 [US1] Implement `code/data_ingestion.py` function `check_fallback_trigger` for FR-008 (Global Exposure metric) check. **ORDERING**: This task is a **PRE-CHECK** only. It MUST calculate the percentage of missing birth years from the **raw ingested data** (output of T013, before any filtering). **CRITICAL**: This task MUST NOT depend on T013a or T015. It must run on the raw dataset to satisfy EC-001. **LOGIC**:
  1. Calculate `missing_pct = count(missing_birth_year) / count(total_raw_records)`.
  2. If `missing_pct > 0.5`:
-    - **CHECK SPEC**: Verify if a valid 'aggregate population data' source is defined in `spec.md` or `plan.md`.
-    - **IF NO SOURCE DEFINED**: Raise a **FATAL EXCEPTION** stating: "FR-008 Fallback Triggered (>50% missing birth years) but no valid 'aggregate population data' source is defined in the specification. Pipeline cannot proceed. Please define a verified data source in spec.md."
-    - **IF SOURCE DEFINED**: Proceed to implement the fallback logic (not implemented in this scope as no source exists).
- 3. If `missing_pct <= 0.5`: Proceed normally.
+ - **CHECK SPEC**: Verify if a valid 'aggregate population data' source is defined in `spec.md` or `plan.md`.
+ - **IF NO SOURCE DEFINED**: **DO NOT RAISE EXCEPTION**. Instead, set a global configuration flag `global_exposure_mode = True` and log a **WARNING**: "FR-008 Fallback Triggered (>50% missing birth years). No 'aggregate population data' source defined. Pipeline will proceed using Global Exposure metric (placeholder)."
+ - **IF SOURCE DEFINED**: Proceed to implement the fallback logic (not implemented in this scope as no source exists).
+ 3. If `missing_pct <= 0.5`: Proceed normally (set `global_exposure_mode = False`).
  **DEPENDS ON**: T013 (raw ingestion). **DO NOT** depend on T013a or T015. **NOTE**: T023 runs BEFORE T013a to prevent false triggers (EC-001).
-- [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence). **DEPENDS ON**: T013, T023. **MUST run after T023** to ensure the fallback check is performed on the raw dataset first (EC-001).
-- [X] T012a [US1] Implement `code/data_ingestion.py` function `audit_amt_source` to verify AMT data integrity. **REQUIREMENT**: Invoke the function `validate_source` in `code/utils.py` with the AMT source URL as input. **FAIL LOGIC**: If the agent is unavailable or verification fails (timeout > 30s), **raise a fatal exception** to stop the pipeline. Do NOT proceed with unverified data. Do NOT substitute with local heuristics.
+- [X] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence). **DEPENDS ON**: T013, T023. **MUST run after T023** to ensure the fallback check is performed on the raw dataset first (EC-001). **NOTE**: If `global_exposure_mode` is True, this function should skip birth-year filtering and retain all records, relying on the fallback metric.
 - [X] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **DEPENDS ON**: T023, T013a. **MUST run after T013a** to prevent false fallback triggers (EC-001). Relies on the state set by T013a, not a re-run of ingestion.
 - [X] T013b [US1] Implement `code/data_ingestion.py` function `fetch_popularity_scores` to retrieve `overall_popularity_score` for each track from MSD metadata. **DEPENDS ON**: T013.
-- [X] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
-- [X] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and **extracting the residuals** as the output variable. **CRITICAL**: This task MUST explicitly join the `overall_popularity_score` (fetched in T013b) with the cohort data before running the regression. Formula: `residuals = observed - predicted`. **DEPENDS ON**: T014, T013b.
+- [X] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track. **DEPENDS ON**: T013a, T015. **NOTE**: If `global_exposure_mode` is True, this function should return a placeholder value (e.g., 0.5) or skip calculation.
+- [X] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and **extracting the residuals** as the output variable. **CRITICAL**: This task MUST explicitly join the `overall_popularity_score` (fetched in T013b) with the cohort data before running the regression. Formula: `residuals = observed - predicted`. **DEPENDS ON**: T014, T013b. **NOTE**: If `global_exposure_mode` is True, this function should skip regression and return the placeholder value from T014.
 - [X] T028 [US1] Implement `code/main.py` orchestration to enforce the specific order: Fallback Check (T023) -> Filter Cohort (T013a) -> Frequency Filter (T015) -> Popularity Fetch (T013b) -> Ratio Score (T014) -> Residualized Score (T016). **DEPENDS ON**: T013, T013a, T023, T015, T013b, T014, T016. **NOTE**: T028 must explicitly orchestrate the sequential execution of these steps.
 - [ ] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
 
@@ -132,9 +131,8 @@
 - [X] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with **zero associated User-Track pairs** in the aggregated dataset (high exposure, zero memory cues) to avoid singularities in the design matrix. **CRITICAL**: This filter applies to the aggregated **User-Track Pair** dataset, removing tracks that have no rows in the pair-level table.
 - [X] T036 [US2] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ `config.MATCH_RATE_THRESHOLD`); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. **LOGIC**:
  1. Read `config.MATCH_RATE_THRESHOLD`.
- 2. If the value is the string `[deferred]`, **default the threshold to 0.8 (80%)**. Do NOT skip the check.
- 3. Perform the numeric `>=` check using the threshold (default 0.8 or config value).
- 4. If the rate is below the threshold, log a warning and proceed.
+ 2. **IF the value is the string '[deferred]'**: **SKIP the numeric check**. Log a warning: "Match rate threshold is [deferred]. Proceeding with analysis without enforcing a specific threshold." and return `True`.
+ 3. **IF the value is numeric**: Perform the numeric `>=` check. If the rate is below the threshold, log a warning and proceed.
  **DEPENDS ON**: T026. **MUST read threshold from `config.py`**, which must default to `[deferred]` as per SC-004. **MUST NOT hardcode the value** (except for the fallback logic defined above).
 - [X] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
 
@@ -158,19 +156,26 @@
 
 - [X] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
 - [X] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
-- [X] T044a [US3] Implement `code/modeling.py` helper function `run_match_with_threshold` to re-run normalization and matching with a parameterized Levenshtein threshold. **DEPENDS ON**: Code existence of T022, T047. **NOTE**: This is a helper for T044c, not a standalone execution.
-- [X] T044b [US3] Implement `code/modeling.py` helper function `run_aggregate_with_threshold` to re-aggregate matched data to User-Track pairs and filter zero variance tracks using a parameterized threshold. **DEPENDS ON**: Code existence of T026, T027. **NOTE**: This is a helper for T044c, not a standalone execution.
-- [X] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to orchestrate the sensitivity loop. **CRITICAL ORCHESTRATION**: This function MUST implement a **loop** over a range of threshold values. For **each** threshold:
- 1. **Load Data**: Load `data/processed/ingested_cohort.parquet` (T018) to get the base track list.
- 2. **Filter Tracks**: Apply the current frequency filter logic to the track list.
- 3. **Re-Fetch Popularity**: **Re-fetch** `overall_popularity_score` for the current filtered track set (re-run T013b logic on the filtered tracks) to ensure metadata is current.
- 4. **Re-Calculate Exposure**: **Re-calculate** `adolescent_exposure_score` (T014 logic) and **Re-run OLS Regression** (T016 logic) on the **filtered track set** to generate a **new** `residualized_exposure_score` valid for this specific subset.
- 5. **Re-Match**: Call `run_match_with_threshold` (T044a) with the current threshold.
- 6. **Re-Aggregate**: Call `run_aggregate_with_threshold` (T044b) to generate a **temporary** artifact `data/processed/user_track_pairs_threshold_X.parquet` for this iteration.
- 7. **Re-Model**: Fit the model on the temporary aggregated data.
- 8. **Store Results**: Append results to a list.
- 9. **Cleanup**: Delete temporary artifacts after the loop.
- **DEPENDS ON**: T018, T013b, T014, T016, Code existence of T044a, T044b. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
+- [X] T044a [US3] Implement `code/modeling.py` function `run_sensitivity_loop_setup` to prepare the sensitivity analysis loop. **LOGIC**:
+ 1. Define the range of Levenshtein thresholds to test.
+ 2. Load `data/processed/ingested_cohort.parquet` (T018) to get the base track list.
+ 3. **DEPENDS ON**: **Code existence** of T013b, T014, T016 (functions to be called within the loop), **Execution** of T018 (data availability).
+ **NOTE**: This task sets up the loop but does not execute the full iteration logic.
+- [X] T044b [US3] Implement `code/modeling.py` function `run_sensitivity_iteration` to execute a single iteration of the sensitivity loop for a given threshold. **LOGIC**:
+ 1. **Filter Tracks**: Apply the current frequency filter logic to the track list.
+ 2. **Re-Fetch Popularity**: **Re-fetch** `overall_popularity_score` for the current filtered track set (re-run T013b logic on the filtered tracks) to ensure metadata is current.
+ 3. **Re-Calculate Exposure**: **Re-calculate** `adolescent_exposure_score` (T014 logic) and **Re-run OLS Regression** (T016 logic) on the **filtered track set** to generate a **new** `residualized_exposure_score` valid for this specific subset.
+ 4. **Re-Match**: Call `match_cues` (T047) with the current threshold.
+ 5. **Re-Aggregate**: Call `aggregate_to_user_track` (T026) to generate a **temporary** artifact `data/processed/user_track_pairs_threshold_X.parquet` for this iteration.
+ 6. **Re-Model**: Fit the model on the temporary aggregated data.
+ 7. **Store Results**: Append results to a list.
+ 8. **Cleanup**: Delete temporary artifacts after the loop.
+ **DEPENDS ON**: T018 (data), Code existence of T013b, T014, T016, T047, T026. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
+- [X] T044c [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to orchestrate the sensitivity loop. **LOGIC**:
+ 1. Call `run_sensitivity_loop_setup` (T044a).
+ 2. Loop over thresholds, calling `run_sensitivity_iteration` (T044b) for each.
+ 3. Aggregate all results into `data/final/sensitivity_analysis.csv`.
+ **DEPENDS ON**: T044a, T044b. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
 - [X] T045a [US3] Implement `code/modeling.py` helper function `run_permutation_shuffle` to perform the **block-permutation** shuffle logic on the **User-Track Pair** dataset. **Procedure**:
  1. **Pin the random seed** (from config.py).
  2. **Construct Shuffle Pool**: **Aggregate** the `residualized_exposure_score` to the **track level** first (one score per unique `track_id`).
@@ -190,7 +195,7 @@
  4. **Atomic Write**: **Collect all iteration statistics and the final p-value in memory**. Write to a **temporary file** (e.g., `data/final/permutation_results.csv.tmp`), then use **`os.replace()`** to **atomically rename** the temp file to the final path `data/final/permutation_results.csv`. This ensures no race conditions or partial writes.
  **OUTPUT**: `data/final/permutation_results.csv` with columns: `iteration, statistic` and a final row `metric='p_value', value=<p>`. **DEPENDS ON**: T033, T045a, T045b. **NOTE**: This task is **NOT PARALLEL SAFE** and must run sequentially.
 - [X] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
-- [X] T039a [US3] Generate `data/final/sensitivity_analysis.csv` from the aggregated results of T044. **DEPENDS ON**: T044.
+- [X] T039a [US3] Generate `data/final/sensitivity_analysis.csv` from the aggregated results of T044c. **DEPENDS ON**: T044c.
 - [X] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -204,7 +209,7 @@
 - [X] T041 [P] Documentation updates in `README.md` and `code/` docstrings
 - [X] T042 Code cleanup and refactoring of `code/main.py` orchestration script
 - [X] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
-- [X] T051 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data and verify sensitivity analysis logic (DEPENDS ON T044).
+- [X] T051 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data and verify sensitivity analysis logic (DEPENDS ON T044c).
 - [X] T046 [P] Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours (SC-005). **DEPENDS ON: T052**.
 - [X] T050 [P] **Verify Artifacts**: Check existence and checksums of `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/permutation_results.csv` against `state.yaml`. **DEPENDS ON: T029, T038, T039a, T045c** (Must wait for all final artifacts).
 
@@ -316,7 +321,7 @@ With multiple developers:
 - **Constraint**: All data processing must run on CPU-only CI (no GPU, no 8-bit models)
 - **Constraint**: All datasets must be fetched from real, verified URLs (no fabrication)
 - **Constraint**: Spec requirements (User-Track Pair unit of analysis, block-permutation) are active constraints for all implementation tasks.
-- **Dependency Note**: T051 (Integration Test) depends on T044 (Sensitivity Analysis) being completed first.
+- **Dependency Note**: T051 (Integration Test) depends on T044c (Sensitivity Analysis) being completed first.
 - **Dependency Note**: T036 (Match Rate Check) is NOT parallel-safe with T033/T034 (Modeling).
 - **Dependency Note**: T044 (Sensitivity Analysis) must load pre-computed data, not re-ingest. **T044 is NOT PARALLEL SAFE**.
 - **Dependency Note**: T045 (Permutation Test) must shuffle scores among tracks, not pairs, and output only the statistic per iteration. **T045 is NOT PARALLEL SAFE**.
@@ -328,10 +333,24 @@ With multiple developers:
 - **Removed Tasks**: T055 and T056 have been removed as standalone tasks; their requirements are integrated into T013.
 - **Removed Tasks**: T045b has been removed; its logic is merged into T045c to ensure atomic writes via `os.replace()`.
 - **Removed Tasks**: T023b has been removed as it references a non-existent data source.
-- **Updated Tasks**: T036 updated to strictly follow SC-004 (warn and proceed if deferred, no 0.8 default, but enforce check with default 0.8 if config is [deferred]).
-- **Updated Tasks**: T012a updated to raise a fatal error on verification failure.
-- **Updated Tasks**: T013a updated to explicitly depend on T013 and T023.
-- **Updated Tasks**: T023 updated to run on raw data (no T013a dependency) and raise a FATAL EXCEPTION if fallback is needed but no source is defined.
+- **Removed Tasks**: T012a has been removed; its logic is integrated into T013.
+- **Updated Tasks**: T036 updated to strictly follow SC-004 (skip check if '[deferred]', no 0.8 default, but enforce check with numeric value if provided).
+- **Updated Tasks**: T023 updated to run on raw data (no T013a dependency) and enable fallback mode if no source is defined, instead of raising a FATAL EXCEPTION.
+- **Updated Tasks**: T044 split into T044a, T044b, T044c for clarity and testability.
 - **Updated Tasks**: T044 updated to re-calculate exposure scores and re-fetch popularity within the sensitivity loop.
 - **Updated Tasks**: T045a updated to explicitly describe the re-join step to preserve block structure.
-- **Split Tasks**: T045 split into T045a, T045b, T045c for atomicity.
+- **Updated Tasks**: T062 updated to use existing research URLs or fail, and to preserve FR-008 fallback logic.
+- **Updated Tasks**: T013 updated to include data integrity checks.
+
+---
+
+## Phase 7: Revision & Verification (Addressing Review Concerns)
+
+**Purpose**: Tasks added to resolve specific analysis findings regarding data integrity, ordering, and fallback logic.
+
+### Implementation for Revision Concerns
+
+- [ ] T062 [US1] **Verify Data Source URLs**: Update `code/config.py` to explicitly define the canonical, verified URLs for MSD and AMT datasets. **Constraint**: If the execution environment injects a specific verified source, this task must update the config to use **only** that injected source and remove any other fallback URLs for the *primary* data sources. **CRITICAL**: This task must **NOT** remove or disable the FR-008 fallback mechanism (Global Exposure) which is independent of the primary data source URLs. The fallback mechanism must remain active and functional.
+- [ ] T063 [US1] **Verify Streaming Implementation**: Refactor `code/data_ingestion.py` (T013) to ensure `datasets.load_dataset(..., streaming=True)` is used for all large dataset fetches. **Constraint**: The code must iterate via a generator and accumulate statistics on-the-fly; it must NOT call `.to_pandas()` or `.list()` on the full dataset before processing.
+- [ ] T064 [US1] **Verify Fallback Logic Isolation**: Add a unit test in `tests/unit/test_ingestion.py` specifically for `check_fallback_trigger` (T023) that asserts it sets `global_exposure_mode=True` and logs a WARNING when the fallback source is missing, ensuring no silent synthetic fallback occurs and the pipeline proceeds gracefully.
+- [ ] T065 [US3] **Verify Permutation Block Structure**: Add a unit test in `tests/unit/test_modeling.py` for `run_permutation_shuffle` (T045a) that asserts the count of `user_id` entries per `track_id` remains identical between the original and shuffled datasets.

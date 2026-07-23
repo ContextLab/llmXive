@@ -3,71 +3,96 @@
 ## Prerequisites
 
 - Python 3.11+
-- Access to GitHub Actions (for CI) or a local Linux environment.
-- Internet access to download datasets from Hugging Face.
+- `git`
+- Access to the project repository
 
 ## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
-   ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
+ ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+
+ *Note: `requirements.txt` pins exact versions to ensure reproducibility (Constitution Principle I).*
 
 ## Running the Pipeline
 
-### 1. Download Data
-The script will fetch data from the verified URLs defined in `config.py`.
+The pipeline is executed in sequential stages. Each stage produces intermediate artifacts.
+
+### Step 1: Data Download & Ingestion
 ```bash
-python code/main.py --step download
+python code/01_download_data.py
 ```
-*Note: If `birth_year` is missing in the MSD source, the system will log a warning and prepare for the Global Exposure fallback.*
+- Downloads the simulated datasets (mock MSD/AMT) to `data/raw/`.
+- Computes checksums and records them in `state.yaml`.
 
-### 2. Process & Match
-Run the full ingestion, matching, and aggregation pipeline.
+### Step 2: Preprocessing & Matching
 ```bash
-python code/main.py --step process
+python code/02_preprocess.py
 ```
-*Outputs: `data/processed/aggregated_analysis.parquet`*
+- Cleans data, handles missing values.
+- Performs Levenshtein matching for cue-text to track-name.
+- Filters low-confidence matches (logs warnings if match rate < 80% per SC-004).
+- Outputs: `data/processed/ingested_cohort.parquet`.
 
-### 3. Run Analysis
-Fit the mixed-effects model and run sensitivity/permutation tests.
+### Step 3: Aggregation & Exposure Calculation
 ```bash
-python code/main.py --step analyze
+python code/03_aggregate.py
+python code/04_exposure.py
 ```
-*Outputs: `data/final/results_summary.csv`, `data/final/diagnostics.json`*
+- Aggregates data to User-Track Pair level.
+- Calculates `adolescent_exposure_ratio` (FR-001).
+- Checks for missing birth years (>50%) and triggers exclusion logic (FR-008, EC-001).
+- Filters by `total_listens` >= 3 (FR-009).
+- Outputs: `data/processed/user_track_pairs.parquet`.
 
-## Verification
-
-To verify the pipeline on a small subset (Unit Test):
+### Step 4: Modeling & Sensitivity Analysis
 ```bash
-pytest tests/unit/ -v
+python code/05_model.py
+python code/06_sensitivity.py
 ```
+- Fits LMM for each Levenshtein threshold (1-5). **Aggregation is re-run for each threshold.**
+- Checks VIF (EC-003).
+- Performs parametric bootstrap (replaces block-permutation).
+- Outputs: `data/final/regression_summary.csv`, `data/final/bootstrap_results.csv`, `data/final/sensitivity_analysis.csv`.
 
-To run the full integration test (requires full dataset):
+### Step 5: Selection Bias Correction
 ```bash
-pytest tests/integration/ -v
+python code/07_selection_correction.py
 ```
+- Applies Heckman correction to account for non-random cue selection.
+- Outputs: `data/final/selection_correction.csv`.
 
-## Expected Outputs
+### Step 6: Visualization
+```bash
+python code/08_visualize.py
+```
+- Generates diagnostic plots (residuals, QQ plots).
+- Outputs: `data/final/plots/`.
 
-- **`data/processed/aggregated_analysis.parquet`**: The final dataset ready for modeling.
-- **`data/final/results_summary.csv`**: Regression coefficients, p-values, and VIF scores.
-- **`data/final/diagnostics.json`**: Sensitivity analysis results and permutation test statistics.
+## Validation
+
+Run the test suite to verify the pipeline logic:
+```bash
+pytest tests/
+```
+- **Unit Tests**: Verify exposure calculation, fallback logic, and VIF checks.
+- **Integration Tests**: Run the full pipeline on a small mock dataset to ensure end-to-end flow.
 
 ## Troubleshooting
 
-- **Missing `birth_year`**: If the log indicates >50% missing, the system automatically switches to the Global Exposure metric. Check `logs/pipeline.log` for details.
-- **Low Match Rate**: If <80% of cues match, check the `match_distance` distribution in the output CSV. You may need to adjust the Levenshtein threshold in `config.py` (though 4 is the spec default).
-- **Memory Error**: If RAM exceeds 7 GB, reduce the dataset subset size in `config.py` or enable chunked processing.
+- **Missing Birth Years**: If users are excluded, check `data/processed/user_track_pairs.parquet` for the `is_excluded_from_primary` flag.
+- **Low Match Rate**: If the warning is logged, review `data/processed/ingested_cohort.parquet` for the distribution of Levenshtein scores.
+- **Multicollinearity**: If VIF > 5, review `data/final/regression_summary.csv` and consider removing the correlated predictor.

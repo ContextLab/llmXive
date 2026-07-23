@@ -1,47 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "User-Track Aggregated Analysis Dataset Schema"
-description: "Schema for the final dataset used in the mixed-effects model (FR-005). Contains one row per unique User-Track pair."
+title: "User-Track Pair Dataset Schema"
+description: "Schema for the aggregated analysis dataset at the User-Track Pair level. Matches FR-001 (adolescent_exposure_ratio) and FR-004 (User-Track Pair)."
 type: "object"
 properties:
   user_id:
     type: "string"
-    description: "User ID for the random intercept (1|User)."
+    description: "Unique identifier for the user."
   track_id:
     type: "string"
-    description: "ID of the matched track from MSD."
-  residualized_exposure_score:
-    type: "number"
-    description: "Residualized proportion of listens during ages 12-18 (adjusted for popularity)."
-    minimum: -10.0
-    maximum: 10.0
-  overall_popularity_score:
-    type: "number"
-    description: "Log-scaled total listens for the track."
+    description: "Unique identifier for the track."
   mean_vividness:
     type: "number"
-    description: "Mean memory vividness rating for this user-track pair."
-    minimum: 0.0
-    maximum: 100.0
+    description: "Average vividness rating for the user-track pair."
+    minimum: 1.0
+    maximum: 7.0
   mean_valence:
     type: "number"
-    description: "Mean emotional valence rating for this user-track pair."
-    minimum: -5.0
-    maximum: 5.0
-  memory_count:
+    description: "Average valence rating for the user-track pair."
+  adolescent_exposure_ratio:
+    type: "number"
+    description: "Raw ratio of listens during adolescence (birth year to birth year + 15) to total listens. (FR-001)."
+  log_odds_preference:
+    type: "number"
+    description: "Log-odds of adolescent preference (Valid Metric)."
+  popularity:
+    type: "number"
+    description: "Overall popularity score of the track."
+  n_cues:
     type: "integer"
-    description: "Number of memory cues aggregated for this pair."
+    description: "Number of memory cues matched for this pair."
     minimum: 1
-  match_distance:
+  total_listens:
     type: "integer"
-    description: "Levenshtein distance used for matching."
-    maximum: 4
+    description: "Total number of listens for this user-track pair."
+    minimum: 3
+  birth_year:
+    type:
+      - "integer"
+      - "null"
+    description: "User's birth year. May be null."
+  global_exposure_proxy:
+    type:
+      - "number"
+      - "null"
+    description: "Global exposure metric if birth_year is missing (FR-008). Used for descriptive analysis only."
+  is_excluded_from_primary:
+    type: "boolean"
+    description: "True if user has missing birth year and is excluded from primary LMM."
+  is_simulated:
+    type: "boolean"
+    description: "True if data is generated for prototype validation."
 required:
   - user_id
   - track_id
-  - residualized_exposure_score
-  - overall_popularity_score
   - mean_vividness
-  - mean_valence
-  - memory_count
-  - match_distance
+  - adolescent_exposure_ratio
+  - popularity
+  - n_cues
+  - total_listens
+  - match_threshold
 additionalProperties: false
