@@ -1,0 +1,40 @@
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `mode_selector.py` file or code snippet defining the required logic is provided;
+    the evidence contains only the task description without any implementation artifact,
+    so the required definition cannot be verified. The missing implementation must
+    be added to satisfy the task.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `validation_utils.py` file is present in the provided evidence, nor any code\
+    \ snippet showing checksum verification or file\u2011integrity functions. The\
+    \ required artifact is missing, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration file, code snippet, or documentation was presented that
+    sets up logging to both `logs/analysis.log` and standard output. The required
+    artifact is missing, so the task is not satisfied.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or test evidence was provided that demonstrates
+    loading `cutoff_radius` and `zenodo_url` from environment variables. The required
+    artifact (e.g., a module or script implementing this configuration management)
+    is missing, so the task is not satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `download.py` script or any code implementing the required download-and-checksum
+    functionality is present in the provided evidence. The task explicitly demands
+    a concrete implementation that can retrieve trajectories from Zenodo or HuggingFace
+    and verify their integrity, which is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or log artifacts were provided showing that validation logic\
+    \ for detecting disconnected graph components was added or that warnings are logged\
+    \ as required by US\u20111 Scenario\u202F3. The implementer\u2019s claim cannot\
+    \ be verified without concrete implementation evidence."

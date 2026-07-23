@@ -417,3 +417,775 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T16:23:45Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images
+  claim_id: c_7ad21079
+  context: "Phase 2: Foundational (Blocking Prerequisites) - T005 description noting\
+    \ a plan-driven correction to a previous spec of \u2265500 images."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:32:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator runtime on 2-core CPU is 6 hours or less
+  claim_id: c_5ab4144e
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005b benchmark requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify synthetic generator runtime for [deferred] images on 2-core CPU\
+    \ to verify \u22646h constraint"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:33:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 3-block CNN architecture with Conv-ReLU-BN-MaxPool
+  claim_id: c_78a39484
+  context: 'Phase 4: User Story 2 - Lightweight CNN Model Training and Baseline Comparison
+    goal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 3-block CNN architecture (Conv-ReLU-BN-MaxPool)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:33:22Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: fixed random seed 42 for data splits
+  claim_id: c_bd4936dd
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007 configuration management
+    description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed random seed 42 for splits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:33:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 'augmentation parameters: rotation 10%, noise 0.01, brightness 10%'
+  claim_id: c_f7ddf5d4
+  context: 'Phase 5: User Story 3 - Feature Attribution and Stability Reporting -
+    T043 implementation details.'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Use rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110% for augmentation pipeline"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T21:33:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: CPU-only CI execution on 2 cores and 7GB RAM within 6 hours
+  claim_id: c_88d90e31
+  context: Notes section - Critical Constraint regarding hardware and time limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:34:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation strategy includes rotation 10 degrees, Gaussian noise 0.01,
+    and brightness jitter 10 percent
+  claim_id: c_0be215f2
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Augmentation strategy includes rotation \xB110\xB0, Gaussian noise \u03C3\
+    =0.01, and brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T21:34:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_f75fe183
+  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:25Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator runtime on 2-core CPU is verified to be less than
+    or equal to 6 hours
+  claim_id: c_4c592fb7
+  context: "T005b [P] Benchmark synthetic generator runtime for [deferred] images\
+    \ on 2-core CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_runtime_on_2-core_CPU_is_verified_to_be
+  kind: magnitude
+  raw_text: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:32Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: data split is stratified by steel, aluminum, and titanium alloy families
+  claim_id: c_1907ade5
+  context: T014 [US1] Implement stratified split logic in code/data/preprocess.py
+    (seed 42, steel/Al/Ti stratification)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_split_is_stratified_by_steel,_aluminum,_and_titanium_al
+  kind: entity_fact
+  raw_text: Split data stratified by alloy family (steel, Al, Ti).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:42Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: data split random seed is set to 42
+  claim_id: c_8f0ab36d
+  context: T014 [US1] Implement stratified split logic in code/data/preprocess.py
+    (seed 42, steel/Al/Ti stratification)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed 42 for data splits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 3-block CNN architecture with Conv-ReLU-BN-MaxPool blocks is trained
+  claim_id: c_3f4bafec
+  context: T020 [P] [US2] Implement 3-block CNN architecture (Conv-ReLU-BN-MaxPool)
+    in code/models/cnn.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a 3-block CNN architecture with Conv-ReLU-BN-MaxPool blocks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: mean IoU stability threshold is greater than 0.5
+  claim_id: c_1e4377b7
+  context: T048 [US3] ... and check stability threshold (mean IoU > 0.5) per US-3
+    Acceptance Scenario 2
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_IoU_stability_threshold_is_greater_than_0.5
+  kind: magnitude
+  raw_text: Validate stability via IoU with a mean threshold > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline execution on 2-core CPU with 7GB RAM must complete within 6
+    hours
+  claim_id: c_e18c430b
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:35:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: system runs on 2-core CPU
+  claim_id: c_2e8cdc55
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system runs on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:36:01Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: system has 7GB RAM
+  claim_id: c_cfd7610f
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_has_7GB_RAM
+  kind: entity_fact
+  raw_text: The system has 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:36:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images
+  claim_id: c_2801f72b
+  context: "Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:26Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation strategy includes rotation 10 degrees, Gaussian noise 0.01,
+    brightness jitter 10 percent
+  claim_id: c_a0d91062
+  context: "Implement augmentation pipeline for stability testing in `code/explain/stability.py`\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:29Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability threshold mean IoU greater than 0.5
+  claim_id: c_aa68a778
+  context: Validate attribution outputs against `contracts/attribution_schema.schema.yaml`
+    (created in T006b) and check stability threshold (mean IoU > 0.5) per US-3 Acceptance
+    Scenario 2
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_mean_IoU_greater_than_0.5
+  kind: magnitude
+  raw_text: mean IoU > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: runtime benchmark on 2-core CPU
+  claim_id: c_7f15837c
+  context: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime constraint of 6 hours
+  claim_id: c_f65c02b2
+  context: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u22646h constraint"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: random seed fixed at 42 for data splits
+  claim_id: c_752d17f4
+  context: Implement configuration management for random seeds (fixed 42 for splits,
+    variable for training) in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed 42 for splits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: data split stratified by steel, aluminum, and titanium alloy families
+  claim_id: c_fc9a81e7
+  context: Implement stratified split logic in `code/data/preprocess.py` (seed 42,
+    steel/Al/Ti stratification)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_split_stratified_by_steel,_aluminum,_and_titanium_alloy
+  kind: entity_fact
+  raw_text: steel/Al/Ti stratification
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:37:53Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_70aaa12f
+  context: Phase 2 Foundational tasks include creating a synthetic generator with
+    a specific count correction from the original specification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:38:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Tasks executable on 2-core CPU with 7GB RAM within 6 hours
+  claim_id: c_24593643
+  context: Notes section specifies critical constraints for task execution regarding
+    hardware resources and time limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:38:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Augmentation pipeline uses rotation plus or minus 10 degrees, Gaussian
+    noise sigma 0.01, and brightness jitter plus or minus 10 percent
+  claim_id: c_a9c12ebd
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T21:39:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2,000 images with
+    physics-informed K_IC values
+  claim_id: c_ef88a7b9
+  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2,000_i
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:39:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Tasks executable on 2-core CPU with 7GB RAM within 6 hours
+  claim_id: c_54aea3f8
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:39:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Augmentation strategy uses rotation 10 degrees, Gaussian noise 0.01,
+    and brightness jitter 10 percent
+  claim_id: c_fd04de96
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in `code/explain/stability.py`\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Augmentation strategy includes rotation \xB110\xB0, Gaussian noise \u03C3\
+    =0.01, brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T21:39:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2000 images
+  claim_id: c_139f682f
+  context: "T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:03Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator runtime benchmark on 2-core CPU must be less than
+    or equal to 6 hours
+  claim_id: c_e8f6e2d0
+  context: "T005b [P] Benchmark synthetic generator runtime for [deferred] images\
+    \ on 2-core CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_runtime_benchmark_on_2-core_CPU_must_be
+  kind: magnitude
+  raw_text: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Pipeline execution on 2-core CPU with 7GB RAM must complete within 6
+    hours
+  claim_id: c_781eb471
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Stability threshold mean IoU greater than 0.5
+  claim_id: c_88191a38
+  context: T048 [US3] Validate attribution outputs against `contracts/attribution_schema.schema.yaml`
+    (created in T006b) and check stability threshold (mean IoU > 0.5) per US-3 Acceptance
+    Scenario 2
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_mean_IoU_greater_than_0.5
+  kind: magnitude
+  raw_text: Stability threshold is mean IoU > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images
+  claim_id: c_cb7262b7
+  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator runtime 6 hours on 2-core CPU
+  claim_id: c_ca82390f
+  context: "T005b [P] Benchmark synthetic generator runtime for [deferred] images\
+    \ on 2-core CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:40:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stratified split seed 42
+  claim_id: c_9c129593
+  context: T014 [US1] Implement stratified split logic in code/data/preprocess.py
+    (seed 42, steel/Al/Ti stratification)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed 42 used for stratified split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:41:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: rotation augmentation 10 degrees
+  claim_id: c_ea93bc99
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Rotation augmentation of \xB110\xB0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:41:25Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: gaussian noise sigma 0.01
+  claim_id: c_c49d5dfd
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian noise sigma of 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:41:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: brightness jitter 10 percent
+  claim_id: c_c1f93208
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Brightness jitter of \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:41:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: mean IoU stability threshold 0.5
+  claim_id: c_c37ffe8a
+  context: T048 [US3] Validate attribution outputs against contracts/attribution_schema.schema.yaml
+    (created in T006b) and check stability threshold (mean IoU > 0.5) per US-3 Acceptance
+    Scenario 2
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_IoU_stability_threshold_0.5
+  kind: magnitude
+  raw_text: Mean IoU stability threshold greater than 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:42:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime 6 hours on 2-core CPU
+  claim_id: c_056ba778
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline runtime constraint of 6 hours on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:42:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: CI memory limit 7GB RAM
+  claim_id: c_5da409e0
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_memory_limit_7GB_RAM
+  kind: entity_fact
+  raw_text: CI memory limit of 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T21:42:41Z'

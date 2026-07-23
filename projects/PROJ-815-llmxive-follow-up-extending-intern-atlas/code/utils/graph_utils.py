@@ -6,6 +6,7 @@ validating metadata, and enforcing the constraint that no LLM-inferred
 edges are present in the analysis pipeline.
 """
 
+import os
 import sys
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -16,6 +17,7 @@ except ImportError:
     nx = None  # type: ignore
 
 from code.utils.constants import EDGE_TYPES, LLM_INFERRRED_EDGE_TYPE, RETRACTION_LABELS
+
 
 def load_graph_from_gml(path: str) -> nx.Graph:
     """
@@ -182,5 +184,3 @@ def filter_nodes_by_year(G: nx.Graph, min_year: int, max_year: int) -> Set[Any]:
         if year is not None and min_year <= year <= max_year:
             valid_nodes.add(node)
     return valid_nodes
-    
-import os

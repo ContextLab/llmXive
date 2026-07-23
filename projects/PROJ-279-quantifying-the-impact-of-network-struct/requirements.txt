@@ -10,3 +10,4 @@ pyyaml
 python-dotenv
 ruff
 black
+pytest

@@ -1,79 +1,105 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Model Results Schema
-description: Schema for the output of the model training and validation phase.
+title: Model Training Schema
+description: Schema for model parameters, training configuration, and artifacts.
 type: object
+required:
+  - model_type
+  - parameters
+  - training_config
+  - performance_metrics
 properties:
   model_type:
     type: string
-    enum:
-      - Topological
-      - Baseline
-    description: Type of model trained.
-  auc_roc:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Area Under the ROC Curve.
-  precision:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Precision score.
-  recall:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Recall score.
-  f1_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: F1 score.
-  stability_flag:
-    type: boolean
-    description: True if VIF > 5 or MI > 0.1.
-  vif_value:
-    type: number
-    description: Variance Inflation Factor for predictors.
-  mi_value:
-    type: number
-    description: Mutual Information between predictors.
-  threshold_sweep:
+    enum: ["LogisticRegression", "MultinomialLogisticRegression"]
+    description: Type of model trained
+
+  parameters:
     type: object
-    description: FPR and FNR for cutoffs {0.3, 0.5, 0.7}.
+    description: Hyperparameters used for training
     properties:
-      "0.3":
-        type: object
-        properties:
-          fpr: { type: number }
-          fnr: { type: number }
-        required: [fpr, fnr]
-      "0.5":
-        type: object
-        properties:
-          fpr: { type: number }
-          fnr: { type: number }
-        required: [fpr, fnr]
-      "0.7":
-        type: object
-        properties:
-          fpr: { type: number }
-          fnr: { type: number }
-        required: [fpr, fnr]
-    required: ["0.3", "0.5", "0.7"]
-  permutation_test:
+      solver:
+        type: string
+      max_iter:
+        type: integer
+      random_state:
+        type: integer
+      multi_class:
+        type: string
+        enum: ["auto", "ovr", "multinomial"]
+      penalty:
+        type: string
+        enum: ["l1", "l2", "elasticnet", "none"]
+      C:
+        type: number
+    required:
+      - solver
+      - max_iter
+      - random_state
+
+  training_config:
     type: object
-    description: Results of the permutation test (n=100).
+    description: Configuration of the training process
     properties:
-      observed_auc: { type: number }
-      mean_permuted_auc: { type: number }
-      std_permuted_auc: { type: number }
-      significant: { type: boolean }
-    required: [observed_auc, mean_permuted_auc, std_permuted_auc, significant]
-required:
-  - model_type
-  - auc_roc
-  - stability_flag
-  - threshold_sweep
-  - permutation_test
+      features_used:
+        type: array
+        items:
+          type: string
+        description: List of feature column names used
+      target_column:
+        type: string
+        description: Name of the target variable column
+      split_strategy:
+        type: string
+        enum: ["time_based", "stratified_time_based", "random"]
+      train_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      seed:
+        type: integer
+    required:
+      - features_used
+      - target_column
+      - split_strategy
+
+  performance_metrics:
+    type: object
+    description: Evaluation metrics calculated on the validation/test set
+    properties:
+      auc_roc_macro:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      auc_roc_per_class:
+        type: object
+        additionalProperties:
+          type: number
+      precision_macro:
+        type: number
+      recall_macro:
+        type: number
+      f1_macro:
+        type: number
+      confusion_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+        description: 3x3 matrix for 3-class problem
+      coefficients:
+        type: object
+        description: Model coefficients per class (for multinomial)
+        additionalProperties:
+          type: array
+          items:
+            type: number
+    required:
+      - auc_roc_macro
+      - f1_macro
+
+  artifact_path:
+    type: string
+    description: Relative path to the saved model artifact (e.g., .pkl or .joblib)
+
 additionalProperties: false

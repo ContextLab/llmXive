@@ -1,0 +1,32 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `code/models/`,
+    `code/metrics/`, `code/stats/`, `results/`, `tests/unit/`, `tests/integration/`,
+    `code/utils/`) being present on disk is provided. The implementer must create
+    and show these directories for the task to be considered complete.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black config) or any lint/format check reports are present. Without
+    these artifacts, the requirement to configure ruff and black is not satisfied.
+T002c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt is provided, so we cannot confirm that SC\u2011\
+    005 has been updated to list \u201CBand Gap, Thermal Conductivity, Formation Energy.\u201D\
+    \ The required artifact is missing."
+T008:
+  c: true
+  h: 3c6e65c55f26e70b973b4296da46bf256dec464662669468ad78d7bb5170f6d1
+  r: "The repository contains a non\u2011empty `tests/unit/test_pipeline_schema.py`\
+    \ (\u22487\u202FKB) that defines unit tests checking the schema contract for the\
+    \ pipeline\u2019s per\u2011sample output, including contract file creation and\
+    \ DataFrame validation. This satisfies the task\u2019s requirement for a contract\
+    \ test of `code/pipeline.py` output schema."
+T024a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `results/per_sample_errors.csv` (or any schema definition file) was presented.
+    The required columns and saved location are missing, so the contract is not established.

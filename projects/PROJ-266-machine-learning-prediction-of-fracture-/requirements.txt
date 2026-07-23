@@ -1,9 +1,13 @@
-torch
-scikit-learn
-opencv-python-headless
-pandas
-numpy
-matplotlib
-captum
-pyyaml
-jsonschema
+torch==2.3.0+cpu
+torchvision==0.18.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+scikit-learn==1.4.2
+opencv-python-headless==4.9.0.80
+pandas==2.2.2
+numpy==1.26.4
+matplotlib==3.9.0
+captum==0.7.0
+pillow==10.3.0
+ruff==0.4.4
+black==24.4.2
+pyyaml==6.0.1

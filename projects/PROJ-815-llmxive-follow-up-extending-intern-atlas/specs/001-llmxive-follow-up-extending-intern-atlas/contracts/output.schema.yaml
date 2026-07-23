@@ -1,55 +1,129 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Final Output Schema
-description: Schema for the final aggregated results and report data.
+title: Final Results Output Schema
+description: Schema for the aggregated final results and reporting artifacts.
 type: object
+required:
+  - experiment_id
+  - timestamp
+  - dataset_summary
+  - model_comparison
+  - robustness_analysis
 properties:
-  summary:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run
+
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the run completion
+
+  dataset_summary:
     type: object
+    description: Summary statistics of the input dataset
     properties:
-      topological_model_auc: { type: number }
-      baseline_model_auc: { type: number }
-      improvement_delta: { type: number }
-      permutation_significance: { type: boolean }
-      stability_flag: { type: boolean }
-    required: [topological_model_auc, baseline_model_auc, improvement_delta, permutation_significance, stability_flag]
-  detailed_results:
-    type: array
-    items:
-      $ref: "#/definitions/ModelResult"
-  artifacts:
-    type: object
-    properties:
-      feature_dataset_checksum: { type: string }
-      model_checkpoint_checksum: { type: string }
-    required: [feature_dataset_checksum, model_checkpoint_checksum]
-definitions:
-  ModelResult:
-    type: object
-    properties:
-      model_type: { type: string }
-      auc_roc: { type: number }
-      precision: { type: number }
-      recall: { type: number }
-      f1_score: { type: number }
-      stability_flag: { type: boolean }
-      threshold_sweep:
+      total_nodes:
+        type: integer
+      date_range:
         type: object
         properties:
-          "0.3": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-          "0.5": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-          "0.7": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-        required: ["0.3", "0.5", "0.7"]
+          start: { type: integer }
+          end: { type: integer }
+        required: [start, end]
+      label_distribution:
+        type: object
+        properties:
+          robust: { type: integer }
+          fragile: { type: integer }
+          retraction_only: { type: integer }
+        required: [robust, fragile, retraction_only]
+      missing_labels_count:
+        type: integer
+        description: Count of nodes without ground truth labels
+
+  model_comparison:
+    type: object
+    description: Comparison between baseline and topological models
+    properties:
+      baseline_model:
+        $ref: "#/properties/model_comparison/additionalProperties"
+      topological_model:
+        $ref: "#/properties/model_comparison/additionalProperties"
+      delta_metrics:
+        type: object
+        properties:
+          auc_roc_delta:
+            type: number
+          f1_delta:
+            type: number
+        required: [auc_roc_delta, f1_delta]
+    patternProperties:
+      ".*":
+        type: object
+        properties:
+          model_type: { type: string }
+          auc_roc_macro: { type: number }
+          f1_macro: { type: number }
+          precision_macro: { type: number }
+          recall_macro: { type: number }
+        required: [model_type, auc_roc_macro, f1_macro]
+
+  robustness_analysis:
+    type: object
+    description: Results from permutation tests and sensitivity analysis
+    properties:
       permutation_test:
         type: object
         properties:
-          observed_auc: { type: number }
-          mean_permuted_auc: { type: number }
-          std_permuted_auc: { type: number }
-          significant: { type: boolean }
-        required: [observed_auc, mean_permuted_auc, std_permuted_auc, significant]
-    required: [model_type, auc_roc, stability_flag, threshold_sweep, permutation_test]
-required:
-  - summary
-  - detailed_results
-  - artifacts
+          iterations:
+            type: integer
+            const: 100
+          observed_auc:
+            type: number
+          mean_permuted_auc:
+            type: number
+          p_value:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          significant:
+            type: boolean
+        required: [iterations, observed_auc, mean_permuted_auc, p_value, significant]
+      sensitivity_analysis:
+        type: object
+        properties:
+          threshold_sweep:
+            type: array
+            items:
+              type: object
+              properties:
+                threshold:
+                  type: number
+                fpr:
+                  type: number
+                fnr:
+                  type: number
+              required: [threshold, fpr, fnr]
+          collinearity:
+            type: object
+            properties:
+              vif_scores:
+                type: object
+                additionalProperties:
+                  type: number
+              max_vif:
+                type: number
+              instability_flag:
+                type: boolean
+            required: [vif_scores, max_vif, instability_flag]
+        required: [threshold_sweep, collinearity]
+    required: [permutation_test, sensitivity_analysis]
+
+  artifacts_generated:
+    type: array
+    description: List of files generated by this run
+    items:
+      type: string
+      pattern: "^data/.*|^results/.*|^figures/.*"
+
 additionalProperties: false

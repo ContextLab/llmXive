@@ -1,0 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree (`projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/...`)\
+    \ was provided; the implementer did not supply a listing, screenshot, or any file\u2011\
+    system artifact confirming that the specified folders exist. The task cannot be\
+    \ considered complete until the full project structure is created and verified."
+T002:
+  c: false
+  h: 4908d2a664828161e83d2bb59df5942a78a50d5b65e0ff9063bafc40512671ef
+  r: "The required file `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/requirements.txt`\
+    \ is missing, and the existing `requirements.txt` includes extra packages not\
+    \ specified in the task. The task\u2019s requirement to create the project\u2011\
+    specific requirements file with only the listed base dependencies is therefore\
+    \ not met."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or setup scripts are present in the provided
+    evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
+    The implementer must add the appropriate configuration files and ensure they are
+    integrated into the project's workflow.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for a `data-model.md` file under `specs/001-llmxive-follow-up-extending-intern-atlas/`
+    that defines the schemas for `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`,
+    but no such file or its contents were provided. The required documentation is
+    missing, so the task is not satisfied.
+T013:
+  c: false
+  h: 967cc5796055e0dc1805859e15fcb24f44df845a25bfd2d53c469334ed436546
+  r: "The required script `code/data/extract_intern_atlas.py` does not exist, so no\
+    \ code loads the graph, filters by year, or calls any abort function. Moreover,\
+    \ the provided `code/utils/graph_utils.py` excerpt does not contain an `abort_if_llm_inferred()`\
+    \ implementation, so the enforcement step cannot be performed. The task\u2019\
+    s core functionality is therefore missing."
+T016:
+  c: false
+  h: 22f18990d0280f386904e2cd3436080ef8efa08a05c2e2ba6b3ae461f42e999d
+  r: "The repository lacks the required `data/processed/features_2010_2018.csv` file,\
+    \ so the three\u2011state label output cannot be verified. Moreover, the shown\
+    \ portion of `code/data/merge_retractions.py` does not contain the `map_retraction_status`\
+    \ or `convert_to_binary` implementations that the tests import, indicating the\
+    \ label\u2011mapping logic is not actually present. These missing artifacts prevent\
+    \ the task from being considered complete."

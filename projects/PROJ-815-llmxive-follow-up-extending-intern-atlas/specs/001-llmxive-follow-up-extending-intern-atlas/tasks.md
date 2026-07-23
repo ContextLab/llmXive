@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/utils/constants.py` defining constants for date ranges (2010-2018), edge types (`improves`, `replaces`, `extends`), and retraction label mappings (0=Robust, 1=Fragile, 2=Retraction-Only)
-- [ ] T005 [P] Create `code/utils/graph_utils.py` with helper functions for graph loading, edge filtering, and metadata validation
-- [ ] T007 [P] Configure environment configuration (`.env.example`) and logging infrastructure (`code/utils/logging_config.py`) with keys for `DATA_PATH`, `LOG_LEVEL`, `SEED`
+- [X] T005 [P] Create `code/utils/graph_utils.py` with helper functions for graph loading, edge filtering, and metadata validation
+- [X] T007 [P] Configure environment configuration (`.env.example`) and logging infrastructure (`code/utils/logging_config.py`) with keys for `DATA_PATH`, `LOG_LEVEL`, `SEED`
 - [ ] T008 [P] Create `data-model.md` in `specs/001-llmxive-follow-up-extending-intern-atlas/` defining the schema for `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`
 - [ ] T009 [P] Create `contracts/` directory and files: `dataset.schema.yaml`, `model.schema.yaml`, and `output.schema.yaml` in `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/` defining schemas for input data, model parameters, and final results respectively
 
@@ -75,26 +75,26 @@
 
 > **NOTE**: Create these test files first (empty or with placeholders) to define the interface. Execution happens after implementation.
 
-- [ ] T010 [P] [US1] Scaffold unit test file `tests/unit/test_feature_extraction.py` for edge type filtering logic (empty file creation)
-- [ ] T011 [P] [US1] Scaffold unit test file `tests/unit/test_graph_utils.py` for Levenshtein fuzzy matching logic (empty file creation)
-- [ ] T012 [P] [US1] Scaffold integration test file `tests/integration/test_pipeline.py` for full extraction pipeline on synthetic data (empty file creation)
+- [X] T010 [P] [US1] Scaffold unit test file `tests/unit/test_feature_extraction.py` for edge type filtering logic (empty file creation)
+- [X] T011 [P] [US1] Scaffold unit test file `tests/unit/test_graph_utils.py` for Levenshtein fuzzy matching logic (empty file creation)
+- [X] T012 [P] [US1] Scaffold integration test file `tests/integration/test_pipeline.py` for full extraction pipeline on synthetic data (empty file creation)
 
 ### Implementation for User Story 1
 
 - [ ] T013 [P] [US1] Implement `code/data/extract_intern_atlas.py`: Load graph, filter nodes by year (2010-2018), **import and call `abort_if_llm_inferred()` from `code/utils/graph_utils.py`** to enforce human-annotated edge types; if LLM-inferred types found, **ABORT immediately**. Handle missing edge types.
 - [ ] T014 [P] [US1] Implement `code/data/compute_features.py`: Calculate `bottleneck_resolution_ratio` (improves/replaces edges / total outgoing) and `branching_entropy` (Shannon entropy of downstream method types); handle nodes with 0 outgoing edges gracefully
-- [ ] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date, then alphabetical journal)
+- [X] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date, then alphabetical journal)
 - [ ] T016 [US1] Implement label mapping logic in `code/data/merge_retractions.py` to assign label `1` (Fragile), `2` (Retraction-Only), or `0` (Robust) based on retraction reason (FR-004); **Output must preserve all three states in `data/processed/features_2010_2018.csv`**. **Write test cases to `tests/unit/test_label_mapping.py`** with the following specific functions and assertions:
  - `test_label_mapping_methodological_error_returns_1`: Input reason="methodological error", Expected output=1.
  - `test_label_mapping_fraud_returns_2`: Input reason="fraud", Expected output=2.
  - `test_label_mapping_robust_returns_0`: Input reason="other", Expected output=0.
  - `test_label_mapping_irreproducibility_returns_1`: Input reason="irreproducibility", Expected output=1.
-- [ ] T016b [US1] Implement label conversion logic in `code/data/merge_retractions.py` to create a binary `retraction_status_binary` column (1=1, 0=0 or 2) for modeling, ensuring the original `retraction_status` (0,1,2) is preserved in the CSV; **Write test cases to `tests/unit/test_label_mapping.py`** with the following specific functions and assertions:
+- [X] T016b [US1] Implement label conversion logic in `code/data/merge_retractions.py` to create a binary `retraction_status_binary` column (1=1, 0=0 or 2) for modeling, ensuring the original `retraction_status` (0,1,2) is preserved in the CSV; **Write test cases to `tests/unit/test_label_mapping.py`** with the following specific functions and assertions:
  - `test_binary_conversion_preserves_0_1`: Input status=0 -> Binary=0; Input status=1 -> Binary=1.
  - `test_binary_conversion_maps_2_to_0`: Input status=2 -> Binary=0.
  - **NOTE**: This task depends on T016 completion (sequential).
-- [ ] T017 [US1] Implement main pipeline orchestrator in `code/data/run_extraction.py` to chain extraction, feature computation, and merging. **CRITICAL**: This function MUST call T013-T016 logic, check for the existence of ground truth labels; if missing, it MUST ABORT with the exact message: "No ground truth labels found for the specified time window; analysis cannot proceed." Output `data/processed/features_2010_2018.csv`. **NOTE**: This task is sequential and depends on T013-T016 completion.
-- [ ] T017b [US1] Validate contracts: Run schema validation on `data/processed/features_2010_2018.csv` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`; **Abort if validation fails**.
+- [~] T017 [US1] Implement main pipeline orchestrator in `code/data/run_extraction.py` to chain extraction, feature computation, and merging. **CRITICAL**: This function MUST call T013-T016 logic, check for the existence of ground truth labels; if missing, it MUST ABORT with the exact message: "No ground truth labels found for the specified time window; analysis cannot proceed." Output `data/processed/features_2010_2018.csv`. **NOTE**: This task is sequential and depends on T013-T016 completion.
+- [~] T017b [US1] Validate contracts: Run schema validation on `data/processed/features_2010_2018.csv` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`; **Abort if validation fails**.
 
 ### Execution for User Story 1 (Sequential - After Implementation)
 

@@ -1,223 +1,219 @@
 """
-Unit tests for graph construction with known coordinates.
-Tests the graph_builder module's ability to construct graphs from atomic configurations.
+Unit tests for graph_builder module.
+
+Tests graph construction from atomic configurations and sensitivity analysis
+functionality.
 """
 import pytest
 import numpy as np
+import networkx as nx
 from pathlib import Path
 import sys
+import json
+import tempfile
+import shutil
 
-# Add project root to path for imports
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from graph_builder import (
+    build_graph_from_atoms,
+    build_graphs,
+    validate_graph_connectivity,
+    run_sensitivity_analysis,
+    save_sensitivity_report
+)
 from models.atomic_config import AtomicConfiguration
-from graph_builder import build_graph, calculate_cutoff_neighbors, detect_disconnected_components
+from logging_config import setup_logging
 
+@pytest.fixture
+def sample_config():
+    """Create a simple sample atomic configuration for testing."""
+    # Create a simple cubic lattice of 8 atoms
+    coords = []
+    species = []
+    for x in [0, 1]:
+        for y in [0, 1]:
+            for z in [0, 1]:
+                coords.append([x * 2.35, y * 2.35, z * 2.35])  # Si bond length ~2.35 Å
+                species.append("Si")
+    
+    return AtomicConfiguration(
+        config_id="test_cubic_8",
+        coordinates=np.array(coords),
+        species=species,
+        source="test",
+        system_size=8
+    )
 
-class TestGraphConstruction:
-    """Test cases for graph builder functionality."""
+@pytest.fixture
+def sample_configs():
+    """Create multiple sample configurations for testing."""
+    configs = []
+    
+    # Config 1: Simple cubic (8 atoms)
+    coords1 = []
+    species1 = []
+    for x in [0, 1]:
+        for y in [0, 1]:
+            for z in [0, 1]:
+                coords1.append([x * 2.35, y * 2.35, z * 2.35])
+                species1.append("Si")
+    
+    configs.append(AtomicConfiguration(
+        config_id="test_cubic_8",
+        coordinates=np.array(coords1),
+        species=species1,
+        source="test",
+        system_size=8
+    ))
+    
+    # Config 2: Larger random-like structure
+    np.random.seed(42)
+    coords2 = np.random.rand(20, 3) * 5.0
+    species2 = ["Si"] * 20
+    
+    configs.append(AtomicConfiguration(
+        config_id="test_random_20",
+        coordinates=coords2,
+        species=species2,
+        source="test",
+        system_size=20
+    ))
+    
+    return configs
 
-    def test_simple_cube_graph(self):
-        """Test graph construction from a simple 2x2x2 cubic lattice."""
-        # Create a simple 2x2x2 cubic lattice of Silicon atoms
-        lattice_constant = 5.43  # Angstroms (approximate for Si)
-        positions = []
-        for x in [0, 1]:
-            for y in [0, 1]:
-                for z in [0, 1]:
-                    positions.append([x * lattice_constant / 2, y * lattice_constant / 2, z * lattice_constant / 2])
-        
-        positions = np.array(positions)
-        atomic_numbers = np.array([14] * len(positions))  # Silicon
-        
-        config = AtomicConfiguration(
-            config_id="test_simple_cube",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": len(positions)}
-        )
-        
-        # Build graph with a cutoff that captures nearest neighbors
-        cutoff = 2.5  # Angstroms
-        graph = build_graph(config, cutoff_radius=cutoff)
-        
-        # In a 2x2x2 simple cubic, each atom should have 3 nearest neighbors
-        # (along x, y, z axes) if cutoff is appropriate
-        assert graph.number_of_nodes() == 8
-        assert graph.number_of_edges() > 0
-        
-        # Check that all nodes are present
-        assert set(graph.nodes()) == set(range(8))
+def test_build_graph_from_atoms_basic(sample_config):
+    """Test basic graph construction from atomic configuration."""
+    cutoff = 3.0  # Å
+    G = build_graph_from_atoms(sample_config, cutoff)
+    
+    # Should have 8 nodes
+    assert G.number_of_nodes() == 8
+    
+    # Should have edges (cubic lattice with 2.35 Å spacing, cutoff 3.0 should connect neighbors)
+    assert G.number_of_edges() > 0
+    
+    # Each node should have a position attribute
+    for node in G.nodes():
+        assert 'position' in G.nodes[node]
+        assert 'species' in G.nodes[node]
 
-    def test_cutoff_neighbor_calculation(self):
-        """Test the neighbor calculation with known distances."""
-        # Create a linear chain with known spacing
-        positions = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [2.0, 0.0, 0.0],
-            [3.0, 0.0, 0.0]
-        ])
-        atomic_numbers = np.array([14, 14, 14, 14])
-        
-        config = AtomicConfiguration(
-            config_id="test_chain",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 4}
-        )
-        
-        # Test with cutoff = 1.5 (should connect adjacent atoms)
-        neighbors = calculate_cutoff_neighbors(config, cutoff_radius=1.5)
-        
-        # Atom 0 should connect to atom 1 (distance 1.0)
-        assert 1 in neighbors[0]
-        # Atom 0 should NOT connect to atom 2 (distance 2.0)
-        assert 2 not in neighbors[0]
-        
-        # Atom 1 should connect to atoms 0 and 2
-        assert 0 in neighbors[1]
-        assert 2 in neighbors[1]
+def test_build_graph_from_atoms_cutoff_effect(sample_config):
+    """Test that cutoff radius affects edge count."""
+    G_small = build_graph_from_atoms(sample_config, 2.0)  # Small cutoff
+    G_large = build_graph_from_atoms(sample_config, 4.0)  # Large cutoff
+    
+    # Larger cutoff should have more or equal edges
+    assert G_large.number_of_edges() >= G_small.number_of_edges()
+    
+    # Very small cutoff might result in no edges
+    if G_small.number_of_edges() == 0:
+        # Verify atoms are far enough apart
+        positions = sample_config.coordinates
+        min_dist = float('inf')
+        for i in range(len(positions)):
+            for j in range(i + 1, len(positions)):
+                dist = np.linalg.norm(positions[i] - positions[j])
+                min_dist = min(min_dist, dist)
+        assert min_dist >= 2.0  # Atoms are at least 2.0 Å apart
 
-    def test_disconnected_components_detection(self):
-        """Test detection of disconnected components in a graph."""
-        # Create two separate clusters
-        positions = np.array([
-            [0.0, 0.0, 0.0],  # Cluster 1
-            [1.0, 0.0, 0.0],  # Cluster 1
-            [10.0, 10.0, 10.0],  # Cluster 2 (far away)
-            [11.0, 10.0, 10.0]   # Cluster 2
-        ])
-        atomic_numbers = np.array([14, 14, 14, 14])
-        
-        config = AtomicConfiguration(
-            config_id="test_disconnected",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 4}
-        )
-        
-        # Build graph with small cutoff (should result in disconnected components)
-        cutoff = 2.0
-        graph = build_graph(config, cutoff_radius=cutoff)
-        
-        # Detect disconnected components
-        components = detect_disconnected_components(graph)
-        
-        # Should have 2 components
-        assert len(components) == 2
-        # Each component should have 2 nodes
-        assert all(len(comp) == 2 for comp in components)
+def test_build_graphs_multiple_configs(sample_configs):
+    """Test building graphs for multiple configurations."""
+    cutoff = 3.0
+    graphs = build_graphs(sample_configs, cutoff)
+    
+    assert len(graphs) == 2
+    assert "test_cubic_8" in graphs
+    assert "test_random_20" in graphs
+    
+    for config_id, G in graphs.items():
+        assert G.number_of_nodes() > 0
 
-    def test_graph_with_pbc(self):
-        """Test graph construction with periodic boundary conditions simulation."""
-        # Create a small box where atoms are close due to PBC
-        box_size = 5.0
-        positions = np.array([
-            [0.0, 0.0, 0.0],
-            [4.9, 0.0, 0.0],  # Close to atom 0 due to PBC
-            [2.5, 2.5, 2.5]
-        ])
-        atomic_numbers = np.array([14, 14, 14])
-        
-        config = AtomicConfiguration(
-            config_id="test_pbc",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 3, "box_size": box_size}
-        )
-        
-        # Build graph - note: full PBC handling would require a more sophisticated implementation
-        # For this test, we verify basic connectivity
-        cutoff = 1.0
-        graph = build_graph(config, cutoff_radius=cutoff)
-        
-        assert graph.number_of_nodes() == 3
-        # Without full PBC implementation, atoms 0 and 1 might not connect
-        # This test verifies the graph is built correctly regardless
+def test_validate_graph_connectivity_connected():
+    """Test connectivity validation on a connected graph."""
+    G = nx.complete_graph(5)  # Complete graph is always connected
+    
+    is_connected, largest_component = validate_graph_connectivity(G, "test_complete")
+    
+    assert is_connected is True
+    assert len(largest_component) == 5
 
-    def test_empty_configuration(self):
-        """Test handling of empty or single-atom configurations."""
-        # Single atom
-        positions = np.array([[0.0, 0.0, 0.0]])
-        atomic_numbers = np.array([14])
-        
-        config = AtomicConfiguration(
-            config_id="test_single",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 1}
-        )
-        
-        graph = build_graph(config, cutoff_radius=2.5)
-        assert graph.number_of_nodes() == 1
-        assert graph.number_of_edges() == 0
+def test_validate_graph_connectivity_disconnected():
+    """Test connectivity validation on a disconnected graph."""
+    G = nx.Graph()
+    G.add_edges_from([(0, 1), (1, 2)])  # Component 1
+    G.add_edges_from([(3, 4)])  # Component 2
+    
+    is_connected, largest_component = validate_graph_connectivity(G, "test_disconnected")
+    
+    assert is_connected is False
+    assert len(largest_component) == 3  # Largest component has 3 nodes
 
-    def test_graph_metadata_preservation(self):
-        """Test that graph construction preserves configuration metadata."""
-        positions = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0]
-        ])
-        atomic_numbers = np.array([14, 14])
-        
-        config = AtomicConfiguration(
-            config_id="test_metadata",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test_source", "size": 2, "temperature": 300}
-        )
-        
-        graph = build_graph(config, cutoff_radius=2.0)
-        
-        # Verify graph has expected structure
-        assert graph.number_of_nodes() == 2
-        assert graph.number_of_edges() == 1
+def test_run_sensitivity_analysis(sample_configs):
+    """Test sensitivity analysis across multiple cutoffs."""
+    cutoffs = [2.0, 3.0, 4.0]
+    report = run_sensitivity_analysis(sample_configs, cutoffs)
+    
+    assert "cutoff_radii" in report
+    assert "results" in report
+    assert len(report["results"]) == len(cutoffs)
+    
+    for result in report["results"]:
+        assert "cutoff_radius" in result
+        assert "average_degree" in result
+        assert "average_component_count" in result
+        assert "configurations_processed" in result
 
-    def test_coordination_number_distribution(self):
-        """Test that coordination numbers are correctly calculated."""
-        # Create a structure with known coordination
-        # Central atom with 4 neighbors (tetrahedral-like)
-        center = np.array([0.0, 0.0, 0.0])
-        neighbors = np.array([
-            [1.0, 1.0, 1.0],
-            [1.0, -1.0, -1.0],
-            [-1.0, 1.0, -1.0],
-            [-1.0, -1.0, 1.0]
-        ]) * 1.5  # Scale to appropriate distance
-        
-        positions = np.vstack([center, neighbors])
-        atomic_numbers = np.array([14] * 5)
-        
-        config = AtomicConfiguration(
-            config_id="test_coordination",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 5}
-        )
-        
-        graph = build_graph(config, cutoff_radius=3.0)
-        
-        # Central atom (node 0) should have 4 connections
-        degree_0 = graph.degree(0)
-        assert degree_0 == 4
+def test_run_sensitivity_analysis_empty_list():
+    """Test sensitivity analysis with empty config list."""
+    report = run_sensitivity_analysis([], [2.8, 3.0])
+    
+    assert "note" in report
+    assert report["note"] == "No data"
 
-    def test_invalid_cutoff_radius(self):
-        """Test behavior with invalid cutoff radius values."""
-        positions = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
-        atomic_numbers = np.array([14, 14])
+def test_save_sensitivity_report(sample_configs, tmp_path):
+    """Test saving sensitivity report to file."""
+    cutoffs = [2.5, 3.0]
+    report = run_sensitivity_analysis(sample_configs, cutoffs)
+    
+    output_path = tmp_path / "test_sensitivity_report.json"
+    saved_path = save_sensitivity_report(report, output_path)
+    
+    assert saved_path.exists()
+    assert saved_path == output_path
+    
+    # Verify content
+    with open(saved_path, 'r') as f:
+        loaded_report = json.load(f)
+    
+    assert loaded_report["cutoff_radii"] == cutoffs
+    assert len(loaded_report["results"]) == len(cutoffs)
+
+def test_graph_node_attributes(sample_config):
+    """Test that graph nodes have correct attributes."""
+    G = build_graph_from_atoms(sample_config, 3.0)
+    
+    for node_id in G.nodes():
+        # Check species
+        assert 'species' in G.nodes[node_id]
+        assert G.nodes[node_id]['species'] in sample_config.species
         
-        config = AtomicConfiguration(
-            config_id="test_invalid_cutoff",
-            positions=positions,
-            atomic_numbers=atomic_numbers,
-            metadata={"source": "test", "size": 2}
-        )
-        
-        # Test with zero cutoff
-        graph = build_graph(config, cutoff_radius=0.0)
-        assert graph.number_of_edges() == 0
-        
-        # Test with very large cutoff
-        graph = build_graph(config, cutoff_radius=100.0)
-        assert graph.number_of_edges() == 1  # Only one edge possible for 2 nodes
+        # Check position
+        assert 'position' in G.nodes[node_id]
+        assert len(G.nodes[node_id]['position']) == 3
+
+def test_sensitivity_analysis_degree_monotonicity(sample_configs):
+    """Test that average degree generally increases with cutoff radius."""
+    cutoffs = [2.0, 3.0, 4.0, 5.0]
+    report = run_sensitivity_analysis(sample_configs, cutoffs)
+    
+    degrees = [r["average_degree"] for r in report["results"]]
+    
+    # Degrees should be non-decreasing (with some tolerance for numerical issues)
+    for i in range(len(degrees) - 1):
+        assert degrees[i] <= degrees[i + 1] + 0.001, \
+            f"Degree should not decrease: {degrees[i]} -> {degrees[i+1]}"
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

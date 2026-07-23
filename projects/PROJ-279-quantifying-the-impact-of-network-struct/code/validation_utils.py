@@ -1,246 +1,213 @@
 """
-validation_utils.py
+Validation utilities for checksum verification and file integrity checks.
 
-Utility functions for checksum verification and file integrity checks.
-Implements Constitution Principle III: Data Integrity and Verification.
+Implements Constitution Principle III: Data integrity and reproducibility.
 """
-
 import hashlib
 import json
 import logging
 import os
+import time
 from pathlib import Path
-from typing import Dict, Optional, Tuple, List, Union
+from typing import Optional, Tuple, Dict, Any
+from logging_config import get_logger
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-CHECKSUM_ALGORITHM = "sha256"
-MANIFEST_FILENAME = "manifest.json"
-
-
-def compute_file_checksum(file_path: Union[str, Path], algorithm: str = CHECKSUM_ALGORITHM) -> str:
+def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Compute the cryptographic checksum (hash) of a file.
-
-    Args:
-        file_path: Path to the file to hash.
-        algorithm: Hash algorithm to use (default: sha256).
-
-    Returns:
-        Hexadecimal string of the file's checksum.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If an unsupported algorithm is requested.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found for checksum calculation: {path}")
-
-    if algorithm not in hashlib.algorithms_available:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}")
-
-    hasher = hashlib.new(algorithm)
+    Compute SHA256 checksum of a file.
     
-    # Read file in chunks to handle large files (e.g., MD trajectories)
-    try:
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(65536), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
-    except IOError as e:
-        logger.error(f"IOError while reading file {path} for checksum: {e}")
-        raise
-
+    Args:
+        file_path: Path to the file
+        algorithm: Hash algorithm to use (default: sha256)
+        
+    Returns:
+        Hex digest of the file checksum
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    hash_func = hashlib.new(algorithm)
+    
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_func.update(chunk)
+    
+    return hash_func.hexdigest()
 
 def verify_file_integrity(
-    file_path: Union[str, Path], 
+    file_path: Path, 
     expected_checksum: str, 
-    algorithm: str = CHECKSUM_ALGORITHM
+    actual_checksum: Optional[str] = None
 ) -> bool:
     """
-    Verify a file's integrity by comparing its computed checksum against an expected value.
-
+    Verify file integrity by comparing checksums.
+    
     Args:
-        file_path: Path to the file to verify.
-        expected_checksum: The expected hexadecimal checksum string.
-        algorithm: Hash algorithm to use.
-
+        file_path: Path to the file
+        expected_checksum: Expected checksum value
+        actual_checksum: Optional pre-computed checksum (if None, will compute)
+        
     Returns:
-        True if the checksum matches, False otherwise.
+        True if checksums match, False otherwise
     """
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"File missing during integrity check: {path}")
-        return False
-
-    try:
-        actual_checksum = compute_file_checksum(path, algorithm)
-        if actual_checksum.lower() == expected_checksum.lower():
-            logger.debug(f"Integrity check passed for {path}")
-            return True
-        else:
-            logger.error(
-                f"Integrity check FAILED for {path}. "
-                f"Expected: {expected_checksum}, Got: {actual_checksum}"
-            )
-            return False
-    except Exception as e:
-        logger.error(f"Error during integrity verification for {path}: {e}")
-        return False
-
-
-def create_manifest(
-    file_paths: List[Union[str, Path]], 
-    output_path: Union[str, Path], 
-    algorithm: str = CHECKSUM_ALGORITHM
-) -> Dict[str, str]:
-    """
-    Generate a manifest file containing checksums for a list of files.
-
-    Args:
-        file_paths: List of file paths to include in the manifest.
-        output_path: Path where the manifest JSON will be saved.
-        algorithm: Hash algorithm to use.
-
-    Returns:
-        Dictionary mapping relative file paths to their checksums.
-    """
-    manifest_dir = Path(output_path).parent
-    manifest_dir.mkdir(parents=True, exist_ok=True)
-
-    manifest_data = {
-        "algorithm": algorithm,
-        "files": {}
-    }
-
-    for file_path in file_paths:
-        path = Path(file_path)
-        if not path.exists():
-            logger.warning(f"Skipping non-existent file in manifest creation: {path}")
-            continue
-
-        checksum = compute_file_checksum(path, algorithm)
-        # Store relative path from the project root or the manifest's directory?
-        # Usually relative to the project root or the data directory. 
-        # We'll store the absolute path converted to string for clarity, 
-        # or relative if it's within the same tree. Let's use relative to current dir 
-        # if possible, otherwise absolute.
-        try:
-            rel_path = path.relative_to(Path.cwd())
-        except ValueError:
-            rel_path = path
-
-        manifest_data["files"][str(rel_path)] = checksum
-        logger.info(f"Added {rel_path} with checksum {checksum[:16]}... to manifest")
-
-    try:
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(manifest_data, f, indent=2)
-        logger.info(f"Manifest saved to {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to write manifest to {output_path}: {e}")
-        raise
-
-    return manifest_data["files"]
-
-
-def verify_manifest(
-    manifest_path: Union[str, Path],
-    base_dir: Optional[Union[str, Path]] = None
-) -> Tuple[bool, Dict[str, str]]:
-    """
-    Verify all files listed in a manifest against their recorded checksums.
-
-    Args:
-        manifest_path: Path to the manifest JSON file.
-        base_dir: Optional base directory to resolve relative paths in the manifest.
-
-    Returns:
-        Tuple of (all_valid: bool, failed_files: Dict[filename, reason])
-        - all_valid: True if all files pass verification.
-        - failed_files: Dictionary of files that failed, with reason ("missing", "checksum_mismatch").
-    """
-    path = Path(manifest_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {path}")
-
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            manifest_data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in manifest {path}: {e}")
-
-    algorithm = manifest_data.get("algorithm", CHECKSUM_ALGORITHM)
-    files = manifest_data.get("files", {})
-
-    if base_dir:
-        base_dir = Path(base_dir)
+    if actual_checksum is None:
+        actual_checksum = compute_file_checksum(file_path)
+    
+    is_valid = actual_checksum == expected_checksum
+    
+    if not is_valid:
+        logger.error(f"Checksum mismatch for {file_path}")
+        logger.error(f"Expected: {expected_checksum}")
+        logger.error(f"Actual:   {actual_checksum}")
     else:
-        base_dir = Path.cwd()
+        logger.debug(f"Checksum verified for {file_path}")
+    
+    return is_valid
 
-    failed_files = {}
+def create_manifest(directory: Path, patterns: Optional[list] = None) -> Dict[str, str]:
+    """
+    Create a manifest of files in a directory with their checksums.
+    
+    Args:
+        directory: Directory to scan
+        patterns: Optional list of filename patterns to include
+        
+    Returns:
+        Dictionary mapping relative paths to checksums
+    """
+    manifest = {}
+    patterns = patterns or ['*.json', '*.csv', '*.txt', '*.dat']
+    
+    import fnmatch
+    
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            # Check if file matches any pattern
+            if patterns:
+                if not any(fnmatch.fnmatch(file, pattern) for pattern in patterns):
+                    continue
+            
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(directory)
+            
+            try:
+                checksum = compute_file_checksum(file_path)
+                manifest[str(rel_path)] = checksum
+            except Exception as e:
+                logger.warning(f"Could not compute checksum for {file_path}: {e}")
+    
+    return manifest
+
+def verify_manifest(manifest_path: Path) -> Tuple[bool, Dict[str, str]]:
+    """
+    Verify files against a manifest.
+    
+    Args:
+        manifest_path: Path to the manifest JSON file
+        
+    Returns:
+        Tuple of (all_valid, failed_files) where failed_files maps path to error
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    
     all_valid = True
-
-    for rel_path_str, expected_checksum in files.items():
-        # Resolve path
-        if Path(rel_path_str).is_absolute():
-            current_path = Path(rel_path_str)
-        else:
-            current_path = base_dir / rel_path_str
-
-        if not current_path.exists():
-            failed_files[str(rel_path_str)] = "missing"
+    failed_files = {}
+    
+    base_dir = manifest_path.parent
+    
+    for rel_path, expected_checksum in manifest.items():
+        file_path = base_dir / rel_path
+        
+        if not file_path.exists():
             all_valid = False
-            logger.error(f"File missing in manifest verification: {current_path}")
+            failed_files[rel_path] = "File not found"
             continue
-
-        is_valid = verify_file_integrity(current_path, expected_checksum, algorithm)
-        if not is_valid:
-            failed_files[str(rel_path_str)] = "checksum_mismatch"
+        
+        actual_checksum = compute_file_checksum(file_path)
+        
+        if actual_checksum != expected_checksum:
             all_valid = False
-
+            failed_files[rel_path] = f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}"
+    
     return all_valid, failed_files
 
-
-def check_file_age(file_path: Union[str, Path], max_age_seconds: int) -> bool:
+def check_file_age(file_path: Path, max_age_hours: float) -> bool:
     """
-    Check if a file is older than a specified age in seconds.
-
+    Check if a file is newer than a specified age.
+    
     Args:
-        file_path: Path to the file.
-        max_age_seconds: Maximum allowed age in seconds.
-
-    Returns:
-        True if the file is within the age limit (or doesn't exist, handled as False),
-        False if it is older.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        return False
-
-    try:
-        mtime = path.stat().st_mtime
-        current_time = os.path.getctime(path) # Note: ctime is creation time on Windows, mtime on Linux. 
-                                              # For age, we usually want mtime.
-        # Re-evaluating: os.path.getmtime is the standard way to get modification time.
-        mtime = path.stat().st_mtime
-        age = os.path.getmtime(path) # This returns timestamp, not age.
-        # Correct logic:
-        current_ts = os.path.getmtime(path) # Wait, os.path.getmtime returns the mtime timestamp.
-        # We need current time.
-        import time
-        now = time.time()
-        age = now - mtime
+        file_path: Path to the file
+        max_age_hours: Maximum age in hours
         
-        if age > max_age_seconds:
-            logger.warning(f"File {path} is too old ({age:.0f}s > {max_age_seconds}s)")
-            return False
-        return True
-    except OSError as e:
-        logger.error(f"Error checking file age for {path}: {e}")
+    Returns:
+        True if file is newer than max_age_hours, False otherwise
+    """
+    if not file_path.exists():
         return False
+    
+    file_mtime = file_path.stat().st_mtime
+    current_time = time.time()
+    
+    age_seconds = current_time - file_mtime
+    age_hours = age_seconds / 3600
+    
+    is_fresh = age_hours <= max_age_hours
+    
+    if not is_fresh:
+        logger.warning(f"File {file_path} is {age_hours:.2f} hours old (max: {max_age_hours})")
+    
+    return is_fresh
 
-# Alias for consistency with task description
-verify_checksum = verify_file_integrity
+def save_manifest(manifest: Dict[str, str], output_path: Path) -> Path:
+    """
+    Save a manifest to a JSON file.
+    
+    Args:
+        manifest: Dictionary mapping paths to checksums
+        output_path: Path to save the manifest
+        
+    Returns:
+        Path to the saved manifest
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    
+    logger.info(f"Manifest saved to {output_path}")
+    return output_path
+
+def main():
+    """
+    Main entry point for validation utilities demonstration.
+    """
+    setup_logging()
+    
+    # Example usage
+    sample_dir = Path("data/raw")
+    if sample_dir.exists():
+        logger.info(f"Creating manifest for {sample_dir}")
+        manifest = create_manifest(sample_dir)
+        manifest_path = sample_dir / "manifest.json"
+        save_manifest(manifest, manifest_path)
+        
+        logger.info(f"Verifying manifest {manifest_path}")
+        is_valid, failures = verify_manifest(manifest_path)
+        
+        if is_valid:
+            logger.info("All files verified successfully")
+        else:
+            logger.error(f"Verification failed for {len(failures)} files")
+            for path, error in failures.items():
+                logger.error(f"  {path}: {error}")
+    else:
+        logger.warning(f"Directory {sample_dir} does not exist")
+
+if __name__ == "__main__":
+    main()

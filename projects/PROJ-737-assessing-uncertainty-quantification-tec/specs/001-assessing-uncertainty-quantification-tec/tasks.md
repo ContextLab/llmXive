@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/models/`, `code/metrics/`, `code/stats/`, `results/`, `tests/unit/`, `tests/integration/`, `code/utils/`
-- [ ] T001b [P] Initialize Python 3.11 project with `requirements.txt` (pinned versions: `scikit-learn`, `xgboost`, `torch`, `numpy`, `pandas`, `scipy`)
-- [ ] T001c [P] Create `code/__init__.py`, `tests/__init__.py`
+- [X] T001b [P] Initialize Python 3.11 project with `requirements.txt` (pinned versions: `scikit-learn`, `xgboost`, `torch`, `numpy`, `pandas`, `scipy`)
+- [X] T001c [P] Create `code/__init__.py`, `tests/__init__.py`
 
 ---
 
@@ -58,13 +58,13 @@
 - [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T002a [P] **Spec Amendment**: Update `spec.md` FR-004 to explicitly mandate **Paired Wilcoxon Signed-Rank tests** (replacing the independent-sample requirement) to align with the Constitution and Plan. Document the rationale (same test set, independent methods).
 - [X] T002b [P] **Spec Amendment**: Update `spec.md` FR-001 to explicitly substitute **Formation Energy (OQMD)** for **Elastic Modulus (Materials Project)** due to data unavailability. Update Success Criteria SC-005 accordingly.
-- [~] T002c [P] **Spec Amendment**: Update `spec.md` SC-005 to list the actual datasets: "Band Gap, Thermal Conductivity, Formation Energy".
+- [ ] T002c [P] **Spec Amendment**: Update `spec.md` SC-005 to list the actual datasets: "Band Gap, Thermal Conductivity, Formation Energy".
 - [X] T003 [P] Implement `code/download.py` to fetch real datasets: OQMD (Band Gap), OQMD (Formation Energy - substituted for Elastic Modulus), and AFLOW (Thermal Conductivity). **Endpoints**: OQMD via ` or fallback to pre-processed CSVs in `data/raw/` if API fails. AFLOW via `. **Constraint**: Must handle API rate limits, save to `data/raw/` with checksums, and fallback to local CSVs if API fails.
 - [X] T004 [P] Implement `code/featurize.py` using `matminer` (or fallback to `pymatgen` if `matminer` fails) to convert raw compositions/structures to feature vectors. **Constraint**: Must enforce a hard cap of **[deferred] samples** per dataset. Implement a memory-check loop: if RAM usage > 1.8GB during loading, downsample further. Must implement stratified train/validation/test split by property range using quantile-based bins and A fixed random seed will be used..
 - [X] T005 Create base data models in `code/__init__.py` (DataClasses for `MaterialsDataset`, `UQMethod`, `EvaluationMetric`)
 - [X] T006 Configure error handling and logging infrastructure in `code/utils/logger.py` to capture convergence failures and memory overflows
 - [X] T007 Setup environment configuration management (`.env` for API keys, `config.yaml` for hyperparameters)
-- [ ] T024 [P] **Statistical Contract**: Implement `code/stats/significance.py` function `run_paired_wilcoxon(metrics_df)`. **Constraint**: Must perform paired test on per-sample errors (same test set) for method pairs within each dataset. **Constraint**: Do NOT use ANOVA or Independent t-test. This task defines the statistical logic required by the amended FR-004.
+- [X] T024 [P] **Statistical Contract**: Implement `code/stats/significance.py` function `run_paired_wilcoxon(metrics_df)`. **Constraint**: Must perform paired test on per-sample errors (same test set) for method pairs within each dataset. **Constraint**: Do NOT use ANOVA or Independent t-test. This task defines the statistical logic required by the amended FR-004.
 - [ ] T024a [P] **Schema Contract**: Define and save the `per_sample_errors.csv` schema (columns: `sample_id`, `method`, `prediction`, `lower_bound`, `upper_bound`, `ground_truth`, `dataset`) to `results/`. This contract must be established before T014 runs to ensure correct data generation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -81,15 +81,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T008 [P] [US1] Contract test for `code/pipeline.py` output schema in `tests/unit/test_pipeline_schema.py`
-- [ ] T009 [P] [US1] Integration test for full pipeline execution on a 100-sample subset in `tests/integration/test_pipeline_e2e.py`
+- [X] T008 [P] [US1] Contract test for `code/pipeline.py` output schema in `tests/unit/test_pipeline_schema.py`
+- [X] T009 [P] [US1] Integration test for full pipeline execution on a 100-sample subset in `tests/integration/test_pipeline_e2e.py`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement `code/models/gpr.py` using `sklearn.gaussian_process.GaussianProcessRegressor`. **Constraint**: Use RBF kernel, no GPU, no 8-bit quantization. Handle `ConvergenceWarning` by logging and skipping.
-- [ ] T011 [P] [US1] Implement `code/models/mc_dropout.py` using PyTorch. **Constraint**: Use a small MLP (≤2M params) or XGBoost wrapper. Enable dropout during inference. **Convergence**: Limit MC passes to a maximum of 200 or until variance of predictions < 1e-4 over 50 consecutive passes.
-- [ ] T012 [P] [US1] Implement `code/models/deep_ensemble.py`. **Constraint**: Train 3 small models (XGBoost or small MLP) sequentially, discard weights after inference, and limit ensemble size to 3 to ensure total RAM usage ≤ 2GB.
-- [ ] T013 [P] [US1] Implement `code/models/conformal.py` using `conformal` or `scikit-learn` split-conformal logic. **Constraint**: Must work with any baseline regressor.
+- [X] T010 [P] [US1] Implement `code/models/gpr.py` using `sklearn.gaussian_process.GaussianProcessRegressor`. **Constraint**: Use RBF kernel, no GPU, no 8-bit quantization. Handle `ConvergenceWarning` by logging and skipping.
+- [X] T011 [P] [US1] Implement `code/models/mc_dropout.py` using PyTorch. **Constraint**: Use a small MLP (≤2M params) or XGBoost wrapper. Enable dropout during inference. **Convergence**: Limit MC passes to a maximum of 200 or until variance of predictions < 1e-4 over 50 consecutive passes.
+- [X] T012 [P] [US1] Implement `code/models/deep_ensemble.py`. **Constraint**: Train 3 small models (XGBoost or small MLP) sequentially, discard weights after inference, and limit ensemble size to 3 to ensure total RAM usage ≤ 2GB.
+- [X] T013 [P] [US1] Implement `code/models/conformal.py` using `conformal` or `scikit-learn` split-conformal logic. **Constraint**: Must work with any baseline regressor.
 - [ ] T014 [US1] Implement `code/pipeline.py` orchestration script. Logic: Download → Featurize → Loop (Method x Dataset) → Train → Predict → Generate `per_sample_errors.csv` (schema defined in T024a) → Save intermediate results. **Dependency**: Must depend on T024a (Schema Contract) to ensure correct output format for downstream statistical testing.
 - [ ] T015 [US1] Add robust error handling in `pipeline.py`: If any method fails for a dataset, log error, skip, and continue to next method/dataset. Ensure partial results are saved.
 

@@ -27,7 +27,7 @@
 - [ ] T001a [P] Create code directories (`code/`, `code/data/`, `code/models/`, `code/train/`, `code/explain/`)
 - [ ] T001b [P] Create data directories (`data/`, `data/raw/`, `data/processed/`, `data/explainability/`)
 - [ ] T001c [P] Create test directories (`tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (torch CPU, scikit-learn, opencv-python-headless, pandas, numpy, matplotlib, captum)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch CPU, scikit-learn, opencv-python-headless, pandas, numpy, matplotlib, captum)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T009 [P] Create `research.md` artifact in `projects/PROJ-266-machine-learning-prediction-of-fracture-/` with content structure: Introduction, Methodology, Resolution Limits, Results, Discussion. (Required for T037)
 
@@ -39,13 +39,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
-- [ ] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
+- [ ] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
+- [X] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
 - [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
-- [~] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
+- [~] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint [UNRESOLVED-CLAIM: c_ca82390f — status=not_enough_info] (SC-004)
 - [~] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
 - [ ] T006b [P] Create attribution schema contract `contracts/attribution_schema.schema.yaml` (required for T048)
-- [ ] T007 Implement configuration management for random seeds (fixed 42 for splits, variable for training) in `code/utils/config.py`
+- [X] T007 Implement configuration management for random seeds (fixed 42 for splits, variable for training) in `code/utils/config.py`
 - [ ] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
 - [ ] T031 [P] Extend synthetic generator (`code/data/synthetic_gen.py`) to embed metadata schema: `magnification`, `resolution_um` (pixels/μm), and `preparation_protocol` (SEM/TEM simulation flags) into JSON sidecar files. **Schema defined here for use in Phase 3.**
 

@@ -1,22 +1,16 @@
-"""
-Script to initialize the project directory structure for the
-llmXive automated science pipeline: Assessing Uncertainty Quantification
-Techniques for Materials Property Predictions.
-
-This script creates the necessary directories as defined in task T001a.
-"""
-
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the required directory structure."""
-    # Define the base project root (assuming this script is in code/ or code/setup/)
-    # We look for 'data', 'code', 'tests', 'results' relative to the script's parent
-    base_dir = Path(__file__).resolve().parent.parent
-
-    # Define the directories to create relative to the base directory
+    """
+    Creates the required directory structure for the llmXive project.
+    Ensures all paths listed in tasks.md T001a exist on disk.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define the directories required by T001a
+    # Note: 'code' and 'tests' are already present as packages, but we ensure subdirs exist.
     directories = [
         "data/raw",
         "data/processed",
@@ -26,24 +20,23 @@ def main():
         "code/utils",
         "results",
         "tests/unit",
-        "tests/integration",
+        "tests/integration"
     ]
-
+    
     created_count = 0
     existing_count = 0
-
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        
-        if full_path.exists():
-            existing_count += 1
-            print(f"Directory exists: {full_path}")
-        else:
+    
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-            print(f"Created directory: {full_path}")
-
-    print(f"\nSetup complete. Created {created_count} directories. {existing_count} already existed.")
+            print(f"Created directory: {full_path.relative_to(project_root)}")
+        else:
+            existing_count += 1
+            print(f"Directory already exists: {full_path.relative_to(project_root)}")
+    
+    print(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
     return 0
 
 if __name__ == "__main__":

@@ -2,41 +2,48 @@ import os
 import sys
 
 def main():
-    """Create the test directory structure for the project."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    project_root = os.path.dirname(base_dir)
-    
-    test_dirs = [
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration"
-    ]
-    
-    created = []
-    for d in test_dirs:
-        full_path = os.path.join(project_root, d)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created.append(d)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory exists: {full_path}")
-    
-    # Create __init__.py files to make them Python packages
-    init_files = []
-    for d in test_dirs:
-        init_path = os.path.join(project_root, d, "__init__.py")
-        if not os.path.exists(init_path):
-            with open(init_path, "w") as f:
-                f.write("")
-            init_files.append(d)
-            print(f"Created __init__.py in: {d}")
-    
-    if not created and not init_files:
-        print("All test directories and __init__.py files already exist.")
+    """
+    Creates the test directory structure for the project.
+    Directories created:
+      - tests/
+      - tests/unit/
+      - tests/contract/
+      - tests/integration/
+    """
+    base_dir = "tests"
+    sub_dirs = ["unit", "contract", "integration"]
+
+    # Create base test directory
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+        print(f"Created directory: {base_dir}")
     else:
-        print("\nTest directory structure setup complete.")
+        print(f"Directory already exists: {base_dir}")
+
+    # Create sub-directories
+    for sub in sub_dirs:
+        path = os.path.join(base_dir, sub)
+        if not os.path.exists(path):
+            os.makedirs(path)
+            print(f"Created directory: {path}")
+        else:
+            print(f"Directory already exists: {path}")
+
+    # Create placeholder __init__.py files to ensure they are recognized as packages
+    init_path = os.path.join(base_dir, "__init__.py")
+    if not os.path.exists(init_path):
+        with open(init_path, "w") as f:
+            f.write("")
+        print(f"Created placeholder: {init_path}")
+
+    for sub in sub_dirs:
+        path = os.path.join(base_dir, sub, "__init__.py")
+        if not os.path.exists(path):
+            with open(path, "w") as f:
+                f.write("")
+            print(f"Created placeholder: {path}")
+
+    print("Test directory structure creation complete.")
 
 if __name__ == "__main__":
     main()

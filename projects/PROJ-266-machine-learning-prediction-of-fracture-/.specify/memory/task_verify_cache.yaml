@@ -1,0 +1,44 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `code/data/`, `code/models/`,
+    `code/train/`, `code/explain/`) was provided; the response contains only the task
+    description and specifications, with no artifact listing or verification that
+    the directories exist. The implementer must create and show the directory structure.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required directories (`data/`, `data/raw/`,\
+    \ `data/processed/`, `data/explainability/`) actually exist on disk; the submission\
+    \ contains only the task description and no file\u2011system artifacts. The implementer\
+    \ must create and show these directories (e.g., a directory listing or screenshot)\
+    \ to satisfy the requirement."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/`)
+    is presented or described in the provided evidence, so we cannot confirm that
+    the required test directories were actually created. The implementer must supply
+    proof (e.g., a file tree listing or screenshots) showing these directories exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `black` settings,\
+    \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
+    \ present. The required artifacts to demonstrate that linting and formatting tools\
+    \ are configured are missing."
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw`, `data/processed`, or `data/explainability`
+    directories is provided; the implementer did not supply any artifact showing these
+    folders exist or contain any files. The task therefore remains unfulfilled.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented in the evidence, nor any excerpt showing
+    the required sections (Introduction, Methodology, Resolution Limits, Results,
+    Discussion). Without the artifact itself, we cannot confirm that it exists or
+    contains the specified structure. The implementer must provide the actual `research.md`
+    file located at `projects/PROJ-266-machine-learning-prediction-of-fracture-/`
+    with the five required sections.

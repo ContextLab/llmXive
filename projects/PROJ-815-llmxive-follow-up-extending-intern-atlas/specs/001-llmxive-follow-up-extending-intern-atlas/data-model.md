@@ -1,65 +1,86 @@
-# Data Model: llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct"
+# Data Model Specification: llmXive Follow-up (Extending Intern-Atlas)
+
+**Project**: PROJ-815-llmxive-follow-up-extending-intern-atlas
+**Version**: 1.0.0
+**Date**: 2023-10-27
+**Status**: Draft
 
 ## Overview
 
-This document defines the data structures used throughout the project, ensuring consistency between the extraction, training, and validation phases. All data is stored in CSV or Parquet format under `data/processed/`.
+This document defines the core data structures used to represent the scientific method evolution graph, retraction metadata, and computed topological features. These schemas ensure consistency across the extraction, feature engineering, and modeling phases of the pipeline.
 
-## Entities
+## Core Entities
 
-### 1. MethodNode (Raw & Processed)
+### 1. MethodNode
 
-Represents a single methodological paper in the Intern-Atlas graph.
+Represents a scientific method, technique, or algorithm as a node in the Intern-Atlas graph.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Unique identifier for the paper (e.g., DOI or internal ID). | Intern-Atlas |
-| `title` | string | Full title of the paper. | Intern-Atlas |
-| `year` | integer | Publication year (2010-2018). | Intern-Atlas |
-| `outgoing_edges` | list[dict] | List of edges: `{"target_id": str, "type": str}`. | Intern-Atlas |
-| `incoming_citations` | integer | Total number of incoming citations. | Intern-Atlas |
-| `field_of_study` | string | Domain classification (e.g., "Machine Learning", "Biology"). | Intern-Atlas |
-| `publication_venue` | string | Journal or conference name. | Intern-Atlas |
+| Field Name | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `node_id` | `str` | Unique identifier for the node (e.g., internal graph ID). | Required, Unique |
+| `method_name` | `str` | Human-readable name of the method. | Required |
+| `doi` | `str` | Digital Object Identifier of the primary publication. | Optional, Unique |
+| `publication_year` | `int` | Year of publication. | Required, Range: 2010-2018 (for this study) |
+| `field_of_study` | `str` | Broad academic field (e.g., "Machine Learning", "Genomics"). | Required |
+| `publication_venue` | `str` | Name of the journal or conference. | Required |
+| `citation_count` | `int` | Total number of citations at the time of data extraction. | Non-negative |
+| `is_llm_inferred` | `bool` | Flag indicating if edge types connected to this node were inferred by an LLM. | Required (Default: False) |
 
 ### 2. RetractionLabel
 
-External truth label mapped to a MethodNode.
+Represents the ground truth status of a method node based on retraction databases.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Matching paper ID. | Retraction Watch DB |
-| `status` | integer | 1 (Fragile), 2 (Retraction-Only), 0 (Robust). | Retraction Watch DB |
-| `reason` | string | Specific reason for retraction (if applicable). | Retraction Watch DB |
-| `source` | string | "Retraction Watch" or "Replication Index". | Retraction Watch DB |
+| Field Name | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `node_id` | `str` | Foreign key referencing `MethodNode.node_id`. | Required, Unique |
+| `retraction_status` | `int` | Categorical label for retraction status. | Enum: 0 (Robust), 1 (Fragile), 2 (Retraction-Only) |
+| `retraction_reason` | `str` | Textual reason for retraction (if applicable). | Optional |
+| `retraction_date` | `str` | ISO 8601 date string of the retraction notice. | Optional |
+| `journal` | `str` | Journal where the retraction was published. | Optional |
+| `match_type` | `str` | Method used to link the node to the retraction record. | Enum: "exact_doi", "fuzzy_title", "fuzzy_author" |
+| `match_confidence` | `float` | Confidence score for fuzzy matches (0.0-1.0). | Optional, Range: 0.85-1.0 for fuzzy |
+
+**Label Definitions**:
+- `0`: **Robust** - No retraction found; method is considered stable.
+- `1`: **Fragile** - Retraction due to methodological errors, irreproducibility, or honest mistakes.
+- `2`: **Retraction-Only** - Retraction due to fraud, misconduct, or data fabrication.
 
 ### 3. TopologicalFeatures
 
-Derived record for each MethodNode, ready for modeling.
+Computed features derived from the graph structure of the Intern-Atlas dataset.
 
-| Field | Type | Description | Calculation |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Foreign key to MethodNode. | Inherited |
-| `bottleneck_resolution_ratio` | float | Ratio of (`improves` + `replaces`) edges to total outgoing. | FR-002 |
-| `branching_entropy` | float | Shannon entropy of downstream edge types. | FR-003 |
-| `citation_count` | integer | Total incoming citations. | Inherited |
-| `label` | integer | 1 (Fragile), 0 (Robust). (Retraction-Only excluded from primary model). | FR-004 |
+| Field Name | Type | Description | Constraints |
+|:--- |:--- |:--- |:--- |
+| `node_id` | `str` | Foreign key referencing `MethodNode.node_id`. | Required, Unique |
+| `bottleneck_resolution_ratio` | `float` | Ratio of "improves"/"replaces" edges to total outgoing edges. | Range: 0.0-1.0 |
+| `branching_entropy` | `float` | Shannon entropy of the distribution of downstream method types. | Range: 0.0-∞ |
+| `total_out_degree` | `int` | Total number of outgoing edges. | Non-negative |
+| `improves_count` | `int` | Count of outgoing edges labeled "improves". | Non-negative |
+| `replaces_count` | `int` | Count of outgoing edges labeled "replaces". | Non-negative |
+| `extends_count` | `int` | Count of outgoing edges labeled "extends". | Non-negative |
 
-### 4. ModelResult
+## Derived Data Artifacts
 
-Record storing performance metrics.
+### Dataset: `features_2010_2018.csv`
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "Topological" or "Baseline". |
-| `auc_roc` | float | Area Under the ROC Curve. |
-| `precision` | float | Precision score. |
-| `recall` | float | Recall score. |
-| `f1_score` | float | F1 score. |
-| `stability_flag` | boolean | True if VIF > 5 or MI > 0.1. |
-| `threshold_sweep` | dict | FPR/FNR for cutoffs {0.3, 0.5, 0.7}. |
+The primary output of the data extraction pipeline (Task T017). This file merges `MethodNode`, `RetractionLabel`, and `TopologicalFeatures` into a single flat table for modeling.
 
-## Data Flow
+| Column Name | Source Entity | Type | Notes |
+|:--- |:--- |:--- |:--- |
+| `node_id` | MethodNode | str | Primary Key |
+| `method_name` | MethodNode | str | |
+| `publication_year` | MethodNode | int | Filtered 2010-2018 |
+| `field_of_study` | MethodNode | str | |
+| `citation_count` | MethodNode | int | |
+| `retraction_status` | RetractionLabel | int | 0, 1, or 2 |
+| `retraction_reason` | RetractionLabel | str | |
+| `bottleneck_resolution_ratio` | TopologicalFeatures | float | |
+| `branching_entropy` | TopologicalFeatures | float | |
+| `retraction_status_binary` | Derived | int | 1 if `retraction_status` == 1, else 0 |
 
-1.  **Raw Data**: `data/raw/intern_atlas_graph.json`, `data/raw/retraction_watch.csv`.
-2.  **Extraction**: `run_extraction.py` -> `data/processed/feature_dataset.csv` (contains `TopologicalFeatures` + `RetractionLabel`).
-3.  **Training**: `run_training.py` reads `feature_dataset.csv`, splits into train/val, trains models, outputs `data/processed/model_results.json` and `data/processed/permutation_results.csv`.
-4.  **Artifacts**: All files are checksummed and recorded in `state/...yaml`.
+## Validation Rules
+
+1. **Edge Type Integrity**: Any node connected to an edge where `is_llm_inferred` is `True` must be excluded from the training dataset unless explicitly handled by the abort logic in `code/utils/graph_utils.py`.
+2. **Label Consistency**: The sum of counts for `retraction_status` (0, 1, 2) must equal the total number of rows in the final dataset.
+3. **Feature Bounds**: `bottleneck_resolution_ratio` must be strictly within [0, 1]. `branching_entropy` must be >= 0.
+4. **Missing Data**: Nodes with missing `publication_year` or missing edge metadata must be dropped prior to feature computation.
