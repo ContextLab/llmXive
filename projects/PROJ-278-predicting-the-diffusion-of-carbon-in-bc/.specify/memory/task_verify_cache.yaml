@@ -1,10 +1,37 @@
-T021:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated documentation files (README, quickstart guide, or data provenance
-    notes) are present in a `docs/` directory, nor any evidence that such files were
-    created or modified. The required artifacts are missing, so the documentation
-    update task is not satisfied.
+  r: "I could find no evidence of the required directory tree under `projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/`\
+    \ nor the empty `__init__.py` files in `code/` and `tests/`. The implementer\u2019\
+    s claim cannot be confirmed because the necessary folders and files are missing."
+T003:
+  c: true
+  h: 67e384d6220243e2111c7a2d56c636170efb7943b23afed3ad88aa67df9573cd
+  r: "The provided `code/.ruff.toml` contains the required `[lint]` select list with\
+    \ E4, E7, E9, F, I, N, UP, W, and `code/.black.toml` specifies `line-length =\
+    \ 88` and `target-version = ['py311']`. Both files exist and are non\u2011empty,\
+    \ fulfilling the task\u2019s specifications."
+T012:
+  c: false
+  h: 72405138f7b27e83cb6ff3ce96d97acbb7742a1acbcd80773369f514d12638d4
+  r: The test function `test_dataset_schema_validation` is present and correctly uses
+    `jsonschema.validate`, but the required schema file `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`
+    is missing, so the test cannot actually perform validation. Add the missing schema
+    file with the proper definition.
+T013b:
+  c: false
+  h: 372942c830de08a024fca98c272a62acce529c10f97d042fea9ec092577bca71
+  r: "The required file `tests/test_provenance.py` does not exist, so no test suite\
+    \ validates the provenance exclusion logic. Consequently the task\u2019s core\
+    \ deliverable is missing."
+T014:
+  c: false
+  h: cb25980fa2c80a3d557f0ed7f8898e83e2c342308993d76649d31432fd35b4da
+  r: The `tests/test_contracts.py` file correctly implements `test_model_output_schema_validation`
+    using `jsonschema.validate`, but the required schema file `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`
+    is missing, so the test cannot actually validate `model_results.json` against
+    the intended schema. Add the missing schema file (with the definition from T005)
+    to complete the task.
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

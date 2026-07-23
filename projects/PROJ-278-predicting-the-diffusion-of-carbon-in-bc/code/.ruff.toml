@@ -1,35 +1,12 @@
-# Ruff configuration for PROJ-278
-# Linting rules aligned with scientific Python standards
-
 [lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = [
-  "E501",  # Line too long (handled by Black)
-  "F403",  # 'from module import *' used; unable to detect undefined names (allowed in specific utils)
-  "N806",  # Variable in function should be lowercase (relaxed for scientific notation)
-]
-
-# Allow autofix for all enabled rules
+select = ["E4", "E7", "E9", "F", "I", "N", "UP", "W"]
+ignore = []
 fixable = ["ALL"]
 unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Exclude a few files/folders
-exclude = [
-  ".git",
-  "__pycache__",
-  "data",
-  "contracts",
-  "docs",
-  "build",
-  "dist",
-]
-
-[lint.per-file-ignores]
-# Allow specific patterns in __init__.py if needed
-"code/__init__.py" = ["F401"]
-
-[lint.isort]
-known-first-party = ["config", "exceptions", "logging_config", "memory_monitor", "utils", "01_download", "02_preprocess", "03_train", "04_evaluate", "05_validate", "quickstart_runner", "refactor_utils"]
-force-single-line = false
-lines-after-imports = 2
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
