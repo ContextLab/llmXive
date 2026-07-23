@@ -13,7 +13,7 @@ This project implements a comparative machine learning pipeline to predict molec
 **Primary Dependencies**: `scikit-learn==1.5.0`, `rdkit==2024.3.2`, `pandas==2.2.0`, `numpy==1.26.0`, `datasets==2.19.0`, `matplotlib==3.9.0`, `seaborn==0.13.0`, `pyyaml==6.0.1`  
 **Storage**: Local file system (`data/` for raw/processed data, `artifacts/` for models and reports); no external database.  
 **Testing**: `pytest` (unit and integration tests), `mypy` (static typing), `ruff` (linting).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: vCPU, ~7 GB RAM).  
 **Project Type**: Computational research pipeline / CLI tool.  
 **Performance Goals**: Complete feature extraction and 5-fold CV training for both models within 6 hours (SC-003); peak memory usage < 7 GB (SC-004) with graceful downsampling at a substantial data scale (FR-006).  
 **Constraints**: No GPU access for training; strict adherence to open-source datasets only; no synthetic data generation.  
@@ -27,7 +27,7 @@ This project implements a comparative machine learning pipeline to predict molec
 
 | Spec Element | Original Requirement | Amended Requirement | Justification |
 | :--- | :--- | :--- | :--- |
-| **FR-001** | Download from Harvard Dataverse (doi:10.7910/DVN/28075). | Download from HuggingFace mirror (`lisn519010/QM9`) which is a verified programmatic proxy for the Dataverse record. | The Dataverse source lacks a direct programmatic API for CI runners. The HF mirror is verified for schema and bit-compatibility. |
+| **FR-001** | Download from Harvard Dataverse (doi:10.7910/DVN/28075). | Download from HuggingFace mirror (`lisn*/QM9`) which is a verified programmatic proxy for the Dataverse record. | The Dataverse source lacks a direct programmatic API for CI runners. The HF mirror is verified for schema and bit-compatibility. |
 | **US-3 (Stat Test)** | Paired t-test with p < 0.05. | Paired t-test **OR** Wilcoxon signed-rank test (if Shapiro-Wilk p < 0.05) with Bonferroni correction (p < 0.0167). | Ensures robustness against non-normal error distributions and error correlation while maintaining statistical rigor. |
 | **US-3 (Failure Logic)** | Failure if REI ≥ 10% **OR** p < 0.05. | Failure if REI ≥ 10% **AND** p < 0.0167. | Prevents flagging trivial error increases as failures based solely on statistical significance (large N). |
 | **FR-002** | Generate 2D/3D features. | Generate 2D/3D features via **Stratified Random Sampling** (stratified by target variables and atom count) to ensure chemical diversity. | Prevents selection bias during memory-constrained downsampling. |
