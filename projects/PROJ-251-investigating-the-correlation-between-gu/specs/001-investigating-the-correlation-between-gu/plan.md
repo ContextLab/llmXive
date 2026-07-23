@@ -96,7 +96,7 @@ projects/PROJ-251-investigating-the-correlation-between-gu/
 
 ### Phase 0: Data Ingestion & Validation
 - **T011**: Implement data download/fetch logic with Strategy A and Strategy B.
-  - *Strategy A (Primary)*: Fetch pre-processed CSV/Parquet for NCBI SRA accession SRP053178.
+  - *Strategy A (Primary)*: Fetch pre-processed CSV/Parquet for NCBI SRA accession SRP000000.
   - *Strategy B (Fallback)*: If Strategy A fails, download raw FASTQ files from SRA for the same accession and run a lightweight 16S processing pipeline (QIIME2 or DADA2) to generate the OTU table and taxonomy.
   - *Input*: Accession ID SRP053178.
   - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.

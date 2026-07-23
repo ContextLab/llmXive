@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination
 
 **Input**: Design documents from `/specs/001-investigating-the-correlation-between-gu/`
@@ -69,57 +73,51 @@
 
 **Goal**: Ingest pre-processed 16S rRNA OTU tables and serology metadata, filtering for complete records.
 
-**Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns. [UNRESOLVED-CLAIM: c_428dfbd2 — status=not_enough_info]
+**Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns.
 
 ### Strategy A: Primary Data Fetch (NCBI SRA)
 
-- [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for accession SRP053178 from NCBI SRA. <!-- FAILED: unspecified -->
- - *Method*: Use `sra-tools` (prefetch/fasterq-dump) or E-utilities API to retrieve metadata and raw data. If a pre-processed CSV/Parquet is available via a verified public mirror at `, use that; otherwise, download raw FASTQ and process via Strategy B logic.
- - *Constraint*: If the primary fetch fails at the specific URL, raise `DataUnavailableError` immediately. Do NOT fall back to synthetic data.
- - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv` (or raw FASTQ if pre-processed unavailable).
+- [ ] T011a [US1] **Orchestration & Strategy A**: Implement the main ingestion logic in `code/01_ingest.py` that attempts to fetch pre-processed data for a selected accession.
+  - *Source*: Use NCBI E-utilities API: `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=bioproject&term=SRP053178` to verify existence, then fetch associated metadata/OTU tables if available via canonical URLs.
+  - *Constraint*: If the primary fetch fails at the specific URL, raise `DataUnavailableError`. Do NOT fall back to synthetic data.
+  - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.
+- [ ] T011b [US1] **Strategy B (Fallback)**: If Strategy A fails, implement logic to download raw FASTQ files for SRP053178 using `sra-tools` (prefetch/fasterq-dump).
+  - *Trigger*: ONLY if T011a fails.
+  - *Output*: Raw FASTQ files in `data/raw/fastq/`.
+- [ ] T011c [US1] **Strategy B (Processing)**: If T011b succeeds, run 16S processing pipeline (QIIME2 or DADA2) to generate OTU table.
+  - *Trigger*: ONLY if T011b succeeds.
+  - *Output*: `data/raw/otutable_raw.csv`.
+- [ ] T011d [US1] **Strategy B (Merge)**: Merge generated OTU table with serology metadata using `subject_id`.
+  - *Trigger*: ONLY if T011c succeeds.
 
-### Strategy B: Fallback Raw FASTQ Processing (Conditional)
-
-- [ ] T011b [US1] Implement Strategy B: Download raw FASTQ files from NCBI SRA for the target study accession. <!-- FAILED: unspecified -->
- - *Trigger*: ONLY if Strategy A (T011a) fails to retrieve pre-processed data.
- - *Depends on*: T011a failure.
- - *Method*: Use `prefetch` and `fasterq-dump` from `sra-tools` to retrieve all run IDs associated with SRP053178.
-- [ ] T011c [US1] Implement Strategy B: Run 16S processing pipeline on raw FASTQ to generate OTU table.
- - *Trigger*: ONLY if T011b succeeds and Strategy A failed.
- - *Method*: Run QIIME2 (Docker: `qiime2/2023.7`) or DADA2 (Docker: `bioconductor/dada2:latest`).
- - *Parameters*: `truncLen=240`, `chimeraMethod=pooled`.
- - *Output*: `data/raw/otutable_raw.csv`.
-- [ ] T011d [US1] Implement Strategy B: Merge generated OTU table with serology metadata using `subject_id`.
- - *Trigger*: ONLY if T011c succeeds.
-- [X] T011e [US1] Implement orchestration logic in `code/01_ingest.py`:
- - *Logic*: Attempt T011a. If T011a fails, trigger T011b -> T011c -> T011d sequentially.
- - *CRITICAL*: If all real data fetch strategies fail, raise `DataUnavailableError` immediately. Do NOT fall back to synthetic/mock data.
-
-### Strategy C: Dynamic Sampling & Filtering
+### Strategy C: Filtering & Validation
 
 - [X] T012 [US1] Implement filtering logic in `code/01_ingest.py` to exclude subjects missing baseline or post-vaccination titers.
-- [ ] T013 [US1] Implement handling for subjects with antibody titers below limit of detection (LOD).
- - *Logic*: Default behavior is to **EXCLUDE** subjects with missing titers to satisfy FR-001.
- - *Research Variant*: Imputation with half the LOD (e.g., `LOD/2`) is ONLY allowed if explicitly enabled in `config.py` AND a spec amendment is present; this path does NOT satisfy the primary FR-001 acceptance criteria without that amendment.
- - *LOD Calculation*: If imputation is enabled, calculate `LOD = min(non-zero titer value)` across the dataset. If no non-zero value exists, raise `ValueError("LOD undefined")`.
- - *Requirement*: The choice (exclude vs impute) must be configurable via `config.py` and logged in the execution log.
- - *Output*: `data/processed/filtered_data.csv`.
+- [ ] T013 [US1] **LOD Handling (Exclude Only)**: Implement handling for subjects with antibody titers below limit of detection (LOD).
+  - *Logic*: **EXCLUDE** subjects with missing titers to satisfy FR-001.
+  - *Constraint*: Imputation (LOD/2) is strictly forbidden unless a spec amendment explicitly authorizes it. The default behavior MUST be exclusion.
+  - *Output*: `data/processed/filtered_data.csv`.
 - [X] T014a [US1] **Validation Gate**: Implement sample size validation in `code/01_ingest.py`.
- - *Logic*: Calculate N (count of subjects with complete data) AFTER filtering (T012/T013).
- - *Check*: **Check N >= 50 BEFORE any sampling logic; if N < 50, raise ValueError immediately. [UNRESOLVED-CLAIM: c_883f98e5 — status=not_enough_info]**
- - *Action*: If N < 50, raise `ValueError("ERR_NO_DATA: Insufficient Sample Size (N < 50)")`, log N to `data/results/N_count.json`, and HALT execution immediately.
- - *Dependency*: This check MUST occur BEFORE any sampling logic.
-- [X] T014b [US1] **Dynamic Sampling**: Implement stratified random sampling in `code/01_ingest.py`.
- - *Trigger*: ONLY IF T014a passes (N >= 50) AND the dataset exceeds available RAM (defined as `psutil.virtual_memory().available < 6GB`).
- - *Logic*: Perform stratified random sampling to reduce size while preserving class balance. [UNRESOLVED-CLAIM: c_62af86d0 — status=not_enough_info] Log the sampling method, final N, and write to `data/processed/filtered_data.csv`.
- - *Constraint*: If sampling reduces N to < 50, raise `ValueError("ERR_NO_DATA: Sampling reduced N below threshold")`.
- - *Depends on*: T014a success.
-- [ ] T016 [US1] Write filtered dataset to `data/processed/filtered_data.csv` and log exclusion counts.
+  - *Logic*: Calculate N (count of subjects with complete data) AFTER filtering (T012/T013).
+  - *Check*: **Check N >= 50 BEFORE any sampling logic; if N < 50, raise ValueError immediately. **
+  - *Action*: If N < 50, raise `ValueError("ERR_NO_DATA: Insufficient Sample Size (N < 50)")`.
+  - *Dependency*: This check MUST occur BEFORE any sampling logic.
+- [X] T015b [US1] **Logging N**: Log N to `data/results/N_count.json`.
+  - *Logic*: Write N to `data/results/N_count.json` **unconditionally** (both success and failure paths) BEFORE T014a raises an error or the pipeline continues.
+  - *Output*: `data/results/N_count.json`.
+  - *Constraint*: This task MUST run before T014a raises an exception to ensure the "Single Source of Truth" artifact exists even on failure.
+- [ ] T014b [US1] **Dynamic Sampling**: Implement stratified random sampling in `code/01_ingest.py`.
+ - *Trigger*: ONLY IF T015b passes (N >= 50) AND the dataset exceeds available RAM (defined as `psutil.virtual_memory.available < 6GB`) AND **N > 50 + [deferred] buffer**.
+  - *Logic*: Perform stratified random sampling to reduce size while preserving class balance. **Stratify by 'responder_status' if available; otherwise, stratify by 'titer_post' quantiles.**
+  - *Constraint*: **Pre-check**: If N <= 50 + buffer, SKIP sampling. Do NOT sample if it risks reducing N below 50.
+  - *Output*: If sampled, write to `data/processed/filtered_data_sampled.csv`. If not sampled, no new file.
+  - *Depends on*: T015b success.
+- [ ] T016 [US1] **Write Final Validated Dataset**: Write the final dataset to `data/processed/final_validated_data.csv`.
+  - *Input Logic*: Read `data/processed/filtered_data_sampled.csv` if it exists (from T014b), otherwise read `data/processed/filtered_data.csv` (from T013).
+  - *Output*: `data/processed/final_validated_data.csv`.
 - [ ] T017 [US1] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Contract test for data schema validation in `code/tests/test_ingest.py`: Add function `test_validate_schema_loads_yaml`.
 - [ ] T010 [P] [US1] Integration test for data filtering logic in `code/tests/test_ingest.py`: Add function `test_filter_excludes_null_titers`.
@@ -137,19 +135,23 @@
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement zero-variance taxa exclusion in `code/02_preprocess.py`: Filter out taxa with negligible variance across all subjects BEFORE transformation to avoid division-by-zero.
+  - *Input*: `data/processed/final_validated_data.csv`.
+  - *Output*: `data/processed/filtered_no_zero_var.csv`.
 - [ ] T020 [US2] Implement Centered Log-Ratio (CLR) transformation in `code/02_preprocess.py` (handle zeros with pseudocount = 1e-6).
+  - *Input*: `data/processed/filtered_no_zero_var.csv`.
+  - *Output*: `data/processed/cleared_default.csv`.
 - [ ] T020-B [US2] Implement Pseudocount Sensitivity Analysis in `code/02_preprocess.py`:
- - *Input*: Results from T020 (and other pseudocount runs: `1e-9`, `1e-6`, `1e-3`, `1e-1`).
- - *Logic*: Run CLR with multiple pseudocounts. Compare the stability of the most significant taxa across these runs, explicitly referencing the Plan's requirement to 'Compare the stability of the most significant taxa'.
- - *Metric*: Calculate the **Jaccard index** of the top-10 taxa sets across pseudocount runs to quantify stability.
- - *Output*: `data/results/pseudocount_sensitivity.json`.
+  - *Input*: `data/processed/filtered_no_zero_var.csv` (Run directly on this file, not T020 output).
+  - *Logic*: Run CLR with multiple pseudocounts spanning several orders of magnitude. Compare the stability of the most significant taxa across these runs.
+  - *Metric*: Determine the 'top-10' taxa for each run by the **absolute value of the correlation coefficient (|rho|)** from the raw (unadjusted) correlation test. Calculate the **Jaccard index** of these top-10 sets across pseudocount runs.
+  - *Output*: Write the Jaccard stability matrix and top-10 taxa lists to `data/results/pseudocount_sensitivity.json`.
 - [ ] T021 [US2] Implement Shannon diversity index calculation in `code/02_preprocess.py` using `data/processed/cleared_default.csv` (CLR-transformed data).
 - [ ] T022 [US2] Implement log-transformation of antibody titers in `code/02_preprocess.py`.
 - [ ] T023 [US2] Implement Spearman rank correlation test in `code/03_correlation.py` (exclude zero-variance taxa).
 - [ ] T024 [US2] Implement Benjamini-Hochberg FDR correction in `code/03_correlation.py`.
 - [ ] T025 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`.
- - *Validation*: Count taxa with adj-p < 0.05. Compare against the expected range of low to high single-digit values.
- - *Action*: If the count falls outside this range, log a warning and flag the result as "OUT_OF_EXPECTED_RANGE" in `data/results/significant_taxa_count.json`. This is a validation check, not a hard halt, but must be reported.
+  - *Validation*: Count taxa with adj-p < 0.05. Compare against the expected range of low to high single-digit values. Log a warning if count is outside this range and flag result as "OUT_OF_EXPECTED_RANGE" in `data/results/significant_taxa_count.json`.
+  - *Action*: If the count falls outside this range, log a warning and flag the result as "OUT_OF_EXPECTED_RANGE" in `data/results/significant_taxa_count.json`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -174,20 +176,19 @@
 - [ ] T030d [US3] Apply responder definition to dataset in `code/04_modeling.py`.
 - [ ] T031 [US3] Implement an outer k-fold cross-validation split loop in `code/04_modeling.py`.
 - [ ] T032 [US3] Implement an inner cross-validation loop for feature selection and hyperparameter tuning in `code/04_modeling.py`.
- - *Constraint*: Feature selection (identifying top taxa) MUST be performed dynamically within each inner fold using **ONLY the training split data from the current outer fold**. Do NOT use the global dataset or the test split of the outer fold for feature selection to prevent data leakage.
+  - *Constraint*: Feature selection (identifying top taxa) MUST be performed dynamically within each inner fold using **ONLY the training split data from the current outer fold**. Do NOT use the global dataset or the test split of the outer fold for feature selection to prevent data leakage.
 - [ ] T033 [US3] Implement Random Forest classifier training in `code/04_modeling.py` (CPU-only, default precision).
 - [ ] T034a [US3] Implement permutation baseline testing: Generate null distribution of accuracy scores by permuting microbiome rows relative to serology labels (feature permutation) multiple times with `random_seed=42` in `code/04_modeling.py`. Output `data/results/null_distribution.csv`.
 - [ ] T034b [US3] Implement Threshold Sweep & Robustness Check in `code/04_modeling.py`:
- - *Depends on*: T034a.
- - *Logic*: Sweep responder threshold ±10% of the defined cutoff in 5 steps. [UNRESOLVED-CLAIM: c_49ae6c56 — status=not_enough_info]
- - *Action*: For each threshold, re-run the model training (T031-T033) and compare accuracy against the null distribution (T034a).
- - *Output*: `data/results/sensitivity_analysis.csv`.
+  - *Depends on*: T031, T032, T033, T034a.
+  - *Logic*: Sweep responder threshold ±10% of the defined cutoff (4-fold rise) in **5 steps** (0.9x, 0.95x, 1.0x, 1.05x, 1.1x). Re-run the nested CV pipeline for each threshold step, and compare accuracy against the null distribution generated in T034a.
+  - *Optimization*: If estimated runtime > 5.5h, reduce inner CV folds to 3 or use a subset of thresholds to ensure completion within 6h.
+  - *Output Schema*: Write to `data/results/sensitivity_analysis.csv` with columns: `threshold_factor`, `accuracy_mean`, `accuracy_std`, `p_value_vs_null`.
 - [ ] T035 [US3] Implement Statistical Comparison in `code/04_modeling.py`:
- - *Depends on*: T034a.
- - *Logic*: Calculate p-value comparing Random Forest accuracy (from T033/T031/T032) against the null distribution generated in T034a.
- - *Action*: If p < 0.05, set `status='significant'`. Else, set `status='not_significant'`. Write status to `data/results/model_significance.json`.
- - *Constraint*: **Do NOT halt the pipeline** if the result is not significant. A non-significant result is a valid scientific outcome. Log result as significant or not significant; do not halt.
- - *Output*: `data/results/model_significance.json`.
+  - *Depends on*: T034a.
+  - *Logic*: Calculate p-value comparing Random Forest accuracy (from T033/T031/T032) against the null distribution generated in T034a. If p < 0.05, set `status='significant'`. Else, set `status='not_significant'`. Write status to `data/results/model_significance.json`.
+  - *Constraint*: **Do NOT halt the pipeline** if the result is not significant. A non-significant result is a valid scientific outcome. Log result as significant or not significant; do not halt.
+  - *Output*: `data/results/model_significance.json`.
 - [ ] T036 [US3] Calculate and log confusion matrix, precision, recall, F1-score for high/low responders.
 - [ ] T037 [US3] Write model metrics to `data/results/model_metrics.json`.
 - [ ] T038 [US3] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/model_metrics.schema.yaml`.
@@ -206,10 +207,15 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T039 Run ruff check and black format on all files in code/ and fix all reported issues
-- [ ] T040 [P] Additional unit tests for edge cases (zero variance, missing data)
+- [ ] T040a [P] [US1] Unit test for zero-variance taxa exclusion in `code/tests/test_preprocess.py`: Add function `test_zero_variance_taxa_exclusion`.
+- [ ] T040b [P] [US1] Unit test for LOD handling in `code/tests/test_ingest.py`: Add function `test_lod_exclusion_logic`.
+- [ ] T040c [P] [US2] Unit test for CLR pseudocount edge cases in `code/tests/test_correlation.py`: Add function `test_clr_pseudocount_handles_extreme_zeros`.
 - [ ] T041 Run quickstart.md validation
 - [ ] T042 Implement runtime monitoring in code/utils.py to log total runtime to `data/results/resource_usage.json` and assert < 21600s (6h).
 - [ ] T043 Implement memory monitoring in code/utils.py to log peak memory to `data/results/resource_usage.json` and assert < 7340 MB (7GB).
+- [ ] T044 [US1] Address FR-001 requirement: Verify data validation error messages provide actionable guidance to the user, including specific details about missing values or invalid formats in `code/01_ingest.py`. Rationale: Improve usability and debugging experience for users encountering data quality issues.
+- [ ] T045 [US2] Address SC-004 requirement: Implement the **Significant Taxa Count** check. Count taxa with adj-p < 0.05 and compare against the expected range (low to high single-digit). Log the count and flag if outside range in `data/results/significant_taxa_count.json`. Rationale: Ensure statistical findings align with biological expectations.
+- [ ] T046 [US3] Address FR-006 requirement: Implement a permutation baseline test to statistically validate the predictive power of the Random Forest model, minimizing the risk of false positives due to random chance in `code/04_modeling.py`. Rationale: Strengthen confidence in the model's ability to accurately predict responder status.
 
 ---
 
@@ -227,10 +233,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/processed/filtered_data.csv`)
+- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/processed/final_validated_data.csv`)
 - **User Story 3 (P3)**: Depends on User Story 2 (requires `data/results/correlation_results.csv` for feature selection validation, though feature selection itself is local to the loop)
- - *Note*: While US3 depends on US2 results for feature selection validation, the *code* for US3 can be written in parallel, but execution must be sequential.
-- **Sensitivity Analysis**: Integrated into T020-B (Phase 4) and T034b (Phase 5)
 
 ### Within Each User Story
 
@@ -246,22 +250,7 @@
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (code-wise), but execution remains sequential.
-- **CRITICAL SEQUENTIAL DEPENDENCY**: Within Phase 5, Task T034a (Permutation Baseline) MUST complete before Task T034b (Threshold Sweep) and T035 (Statistical Comparison) can begin. T034b and T035 consume the output of T034a. These tasks are **NOT** parallel.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schema validation in code/tests/test_ingest.py (test_validate_schema_loads_yaml)"
-Task: "Integration test for data filtering logic in code/tests/test_ingest.py (test_filter_excludes_null_titers)"
-
-# Launch all models for User Story 1 together:
-Task: "Implement Strategy A: Fetch NCBI SRA data in code/01_ingest.py"
-Task: "Implement Strategy B: Download raw FASTQ in code/01_ingest.py"
-Task: "Implement Strategy B: Run 16S pipeline in code/01_ingest.py"
-```
+- **CRITICAL SEQUENTIAL DEPENDENCY**: Within Phase 5, Task T034a (Permutation Baseline) must finish before Task T034b (Threshold Sweep) and T035 (Statistical Comparison) can begin. T034b re-runs the entire nested CV for each threshold step.
 
 ---
 
@@ -305,9 +294,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only GitHub Actions free-tier runners (≤7GB RAM, ≤6h). [UNRESOLVED-CLAIM: c_e9492c88 — status=not_enough_info] No GPU, no 8-bit quantization.
+- **Critical Constraint**: All tasks must run on CPU-only GitHub Actions free-tier runners (≤7GB RAM, ≤6h). No GPU, no 8-bit quantization.
 - **Data Strategy**: T011a (Strategy A) is preferred; T011b-d (Strategy B) is conditional fallback if T011a fails.
-- **Sequential Dependency**: T034a (Permutation) must finish before T034b (Threshold Sweep) and T035 (Comparison) starts.
+- **Sequential Dependency**: T034b depends on the output of T034a.
 - **Data Integrity**: Real data must be streamed or sampled honestly. Synthetic fallbacks are strictly forbidden.
-- **Hard Stop**: T014a enforces N >= 50 before any sampling (T014b) occurs.
-- **No False Halts**: T035 treats non-significant results as valid outcomes.
