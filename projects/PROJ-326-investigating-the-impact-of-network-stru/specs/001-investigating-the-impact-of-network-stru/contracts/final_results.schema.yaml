@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: FinalResults
+description: "Schema for data/analysis/final_results.json"
+type: object
+properties:
+  summary:
+    type: object
+    required:
+      - total_graphs_generated
+      - valid_graphs_count
+      - successful_simulations_count
+      - overall_diffusion_rate_mean
+      - overall_diffusion_rate_std
+    properties:
+      total_graphs_generated:
+        type: integer
+      valid_graphs_count:
+        type: integer
+      successful_simulations_count:
+        type: integer
+      overall_diffusion_rate_mean:
+        type: number
+      overall_diffusion_rate_std:
+        type: number
+  key_findings:
+    type: array
+    items:
+      type: string
+      description: "Associational findings (e.g., 'Higher clustering associated with slower diffusion')."
+  statistical_significance:
+    type: object
+    properties:
+      primary_metric:
+        type: string
+      p_value:
+        type: number
+      corrected_p_value:
+        type: number
+      is_significant:
+        type: boolean
+required:
+  - summary
+  - key_findings
+  - statistical_significance
+additionalProperties: false

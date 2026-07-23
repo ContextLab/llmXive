@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: NetworkManifest
+description: "Schema for data/raw/global_batch_manifest.json"
+type: object
+properties:
+  graphs:
+    type: array
+    items:
+      type: object
+      required:
+        - graph_id
+        - topology_type
+        - node_count
+        - clustering_coefficient
+        - average_path_length
+        - generation_seed
+        - generation_algorithm
+        - status
+      properties:
+        graph_id:
+          type: string
+          format: uuid
+        topology_type:
+          type: string
+          enum:
+            - erdos_renyi
+            - scale_free
+            - small_world
+        node_count:
+          type: integer
+        edge_count:
+          type: integer
+        clustering_coefficient:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        average_path_length:
+          type: number
+          description: "Null if disconnected."
+        degree_distribution_params:
+          type: object
+          additionalProperties: true
+        generation_seed:
+          type: integer
+        generation_algorithm:
+          type: string
+        status:
+          type: string
+          enum:
+            - valid
+            - disconnected_retry_exhausted
+            - clustering_deviation
+    description: "List of generated graphs."
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      batch_size:
+        type: integer
+      target_success_rate:
+        type: number
+required:
+  - graphs
+  - metadata
+additionalProperties: false

@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SimulationResults
+description: "Schema for data/analysis/simulation_results.json"
+type: object
+properties:
+  runs:
+    type: array
+    items:
+      type: object
+      required:
+        - run_id
+        - graph_id
+        - seed_node_id
+        - random_seed
+        - total_time_steps
+        - diffusion_rate
+        - runtime_duration_seconds
+        - status
+        - generation_algorithm
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          description: "Unique identifier for the simulation run."
+        graph_id:
+          type: string
+          format: uuid
+          description: "Reference to the NetworkGraph."
+        seed_node_id:
+          type: integer
+          description: "ID of the node where energy was injected."
+        random_seed:
+          type: integer
+          description: "Random seed used for the simulation."
+        total_time_steps:
+          type: integer
+          description: "Number of time steps simulated."
+        diffusion_rate:
+          type: number
+          description: "Rate of change of spatial variance (slope)."
+        runtime_duration_seconds:
+          type: number
+          description: "Wall-clock time taken for the simulation."
+        status:
+          type: string
+          enum:
+            - success
+            - divergence
+            - timeout
+          description: "Final status of the run."
+        generation_algorithm:
+          type: string
+          description: "Algorithm used to generate the graph (e.g., watts_strogatz)."
+        energy_profile:
+          type: array
+          description: "Optional: Full energy density history."
+          items:
+            type: object
+            properties:
+              time_step:
+                type: integer
+              spatial_variance:
+                type: number
+              total_energy:
+                type: number
+    description: "List of simulation runs."
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      config_hash:
+        type: string
+        description: "SHA-256 hash of the config.yaml used."
+required:
+  - runs
+  - metadata
+additionalProperties: false

@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisResults
+description: "Schema for data/analysis/aggregated_results.json"
+type: object
+properties:
+  regression:
+    type: object
+    required:
+      - model_type
+      - coefficients
+      - p_values
+      - corrected_p_values
+      - r_squared
+      - multiple_comparison_method
+    properties:
+      model_type:
+        type: string
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
+      corrected_p_values:
+        type: object
+        additionalProperties:
+          type: number
+      r_squared:
+        type: number
+      multiple_comparison_method:
+        type: string
+        enum:
+          - fdr_bh
+          - bonferroni
+  ridge_regression:
+    type: object
+    description: "Results from Ridge Regression if VIF > 5"
+    properties:
+      alpha:
+        type: number
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+      r_squared:
+        type: number
+  partial_correlation:
+    type: object
+    description: "Partial correlation results controlling for degree distribution"
+    properties:
+      metric:
+        type: string
+      controlled_for:
+        type: string
+      correlation:
+        type: number
+      p_value:
+        type: number
+  anova:
+    type: object
+    required:
+      - f_statistic
+      - p_value
+      - degrees_of_freedom
+    properties:
+      f_statistic:
+        type: number
+      p_value:
+        type: number
+      degrees_of_freedom:
+        type: array
+        items:
+          type: integer
+  effect_sizes:
+    type: object
+    additionalProperties:
+      type: number
+  power_analysis:
+    type: object
+    properties:
+      achieved_power:
+        type: number
+      target_effect_size:
+        type: number
+      alpha:
+        type: number
+required:
+  - regression
+  - anova
+  - effect_sizes
+additionalProperties: false

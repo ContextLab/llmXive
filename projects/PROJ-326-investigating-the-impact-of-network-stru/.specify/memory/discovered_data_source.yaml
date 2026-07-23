@@ -1,56 +1,19 @@
-status: verified
-kind: pypi_package
-ref: networkx
-access_python: "import networkx as nx\nimport random\n\nrecords = []\ngraph_id = 0\n\
-  \n# Helper to add edge records with graph-level metadata\ndef add_graph_edges(G,\
-  \ model, **meta):\n    global records, graph_id\n    is_conn = nx.is_connected(G)\
-  \ if G.number_of_nodes() > 0 and nx.is_connected(G) else False\n    avg_clust =\
-  \ nx.average_clustering(G)\n    for u, v in G.edges():\n        rec = {\n      \
-  \      \"graph_id\": graph_id,\n            \"node_id\": None,\n            \"edge_source\"\
-  : u,\n            \"edge_target\": v,\n            \"degree_distribution_type\"\
-  : model,\n            \"clustering_coefficient_target\": meta.get(\"clustering_target\"\
-  ),\n            \"clustering_coefficient_actual\": avg_clust,\n            \"rewiring_probability\"\
-  : meta.get(\"rewiring_prob\"),\n            \"scale_free_exponent_gamma\": meta.get(\"\
-  scale_free_gamma\"),\n            \"is_connected\": is_conn,\n            \"num_nodes\"\
-  : G.number_of_nodes(),\n            \"num_edges\": G.number_of_edges()\n       \
-  \ }\n        records.append(rec)\n    graph_id += 1\n\n# Erd\u0151s\u2011R\xE9nyi\
-  \ graphs\nfor p in [0.05, 0.1]:\n    G = nx.erdos_renyi_graph(n=100, p=p, seed=random.randint(0,\
-  \ 10000))\n    add_graph_edges(G, model=\"erdos_renyi\")\n\n# Watts\u2011Strogatz\
-  \ graphs\nfor k, p in [(4, 0.1), (6, 0.2)]:\n    G = nx.watts_strogatz_graph(n=100,\
-  \ k=k, p=p, seed=random.randint(0, 10000))\n    add_graph_edges(G, model=\"watts_strogatz\"\
-  , rewiring_prob=p, clustering_target=None)\n\n# Barab\xE1si\u2011Albert graphs\n\
-  for m in [2, 3]:\n    G = nx.barabasi_albert_graph(n=100, m=m, seed=random.randint(0,\
-  \ 10000))\n    # Approximate scale\u2011free exponent gamma \u2248 3 (theoretical)\
-  \ \u2013 use placeholder\n    add_graph_edges(G, model=\"barabasi_albert\", scale_free_gamma=3.0)\n\
-  \nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(records[0].keys()))"
-record_count: 1749
-sample_fields:
-- graph_id
-- node_id
-- edge_source
-- edge_target
-- degree_distribution_type
-- clustering_coefficient_target
-- clustering_coefficient_actual
-- rewiring_probability
-- scale_free_exponent_gamma
-- is_connected
-- num_nodes
-- num_edges
-field_coverage: 1.0
+status: none
+intent: "networkx synthetic graph generators Erd\u0151s-R\xE9nyi Watts-Strogatz Barab\xE1\
+  si\u2013Albert python package dataset"
 required_fields:
 - graph_id
-- node_id
-- edge_source
-- edge_target
-- degree_distribution_type
-- clustering_coefficient_target
-- clustering_coefficient_actual
-- rewiring_probability
-- scale_free_exponent_gamma
-- is_connected
+- graph_type
 - num_nodes
 - num_edges
-intent: "NetworkX synthetic graph generators Erd\u0151s-R\xE9nyi Watts-Strogatz Barab\xE1\
-  si-Albert python package dataset"
-cache_key: 808d7ddcbd20c9df29c74934f3ece0bc75313eb99471d38927683ef327dc5778
+- edge_source
+- edge_target
+- avg_clustering_coefficient
+- degree_exponent_gamma
+- rewiring_probability
+- edge_probability
+- is_connected
+- node_id
+cache_key: 2521627ad9c152c9a999b31b6d564320a5db56d15f7a70f7f0d012f1315f49a7
+searched_at: '2026-07-23T13:14:51.710272+00:00'
+retry_count: 1
