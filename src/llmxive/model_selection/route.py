@@ -299,6 +299,20 @@ def route_chat(
     are computed ONLY when ``route_audit`` is given — the default no-hook path
     computes neither, so a multimodal ``content`` payload never has to survive a
     digest projection it does not need.
+
+    **Additional raises when the spec-025 hooks are engaged (distinct retry
+    semantics — do NOT collapse either into an ordinary transient backend
+    failure).** ``RouteAuditError`` propagates from :func:`execute` (or from the
+    ``SelectionFailure``/``ChainResolved`` emits here) when the MANDATORY
+    ``route_audit`` sink fails: it is ROUTE-FATAL — the logical call is aborted
+    without silently changing which model ran, and because it is NOT a
+    ``ModelUnavailable`` it never triggers a reroute. ``RouteReplayError``
+    propagates when this ``(route_id, candidate)`` already crossed the atomic
+    dispatch-claim boundary (a retried/concurrent replay): the backend was NOT
+    re-invoked and any paid reservation is RETAINED by the original dispatch. It
+    MUST NOT be retried as a transient backend failure — reconcile from durable
+    dispatch state (an unresolved ``dispatch_started`` → ``dispatch_unknown``),
+    never re-dispatch (FR-033a).
     """
     # deterministic-no-llm bypasses snapshot / select / execute ENTIRELY: a no-llm
     # agent that reached the model layer is a programming error → fail fast before
