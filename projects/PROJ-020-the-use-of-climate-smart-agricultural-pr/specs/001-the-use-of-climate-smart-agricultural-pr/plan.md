@@ -9,7 +9,7 @@ This project implements a statistical analysis pipeline to quantify the associat
 
 ## Technical Context
 
-**Language/Version**: Python 3.x (Source: History of Python, https://en.wikipedia.org/wiki/History_of_Python).
+**Language/Version**: Python.x (Source: History of Python, https://en.wikipedia.org/wiki/History_of_Python).
 *Note: The Spec and Verified Facts mandate a recent, stable version of Python. The implementation MUST use this exact version. No fallback is permitted.*
 
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `requests`, `huggingface_hub`, `matplotlib`, `seaborn`, `worldbank-lsms`.
@@ -92,5 +92,5 @@ projects/PROJ-020-the-use-of-climate-smart-agricultural-pr/
 | **Bonferroni Correction** | >5 hypotheses tested (CSA, digital, finance, interactions). | Standard p-values would inflate family-wise error rate. |
 | **Provenance Logging** | Constitution Principle VI requires traceability to questionnaire IDs. | Aggregated indices without provenance violate survey data integrity rules. |
 | **Timeout Retry** | FR-010 requires a retry mechanism. | A defined retry logic (reduce by [deferred], then [deferred]) is deterministic and testable. |
-| **Sensitivity Range (0.2-0.8)** | FR-007 requires sweeping thresholds. | A defined range (0.2 to 0.8, step 0.1) is deterministic and testable. |
+| **Sensitivity Range (0.2-0.8)** | FR-007 requires sweeping thresholds. | A defined range is deterministic and testable. |
 | **N < 5000 Warning** | Edge Cases require proceeding with available data. | A hard failure would violate the resilience requirement; a warning is appropriate. |
