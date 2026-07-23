@@ -1,202 +1,220 @@
-"""
-Task T022: Merge rule-engine logs with external baseline logs.
-
-Implements logic to merge CI rule-engine logs (results.csv) with external
-baseline logs (baseline_results.json) into a single results.csv, ensuring
-strict ID matching for paired comparison using the manifest.
-"""
 import json
 import csv
 import sys
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
-
-# Import from sibling modules as per API surface
 from utils.logging import get_logger, log_stage_start, log_stage_end
 
 logger = get_logger(__name__)
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DERIVED = PROJECT_ROOT / "data" / "derived"
-MANIFEST_PATH = DATA_DERIVED / "experiment_manifest.csv"
-RULE_ENGINE_RESULTS_PATH = DATA_DERIVED / "results.csv"
-BASELINE_RESULTS_PATH = DATA_DERIVED / "baseline_results.json"
-FINAL_RESULTS_PATH = DATA_DERIVED / "results.csv"  # Overwrite/Update the single file
-
-# Expected schema for baseline results (from T021/T021b)
-# Expected: List of dicts with keys: task_id, time_to_pivot, success (or similar)
-# The merge logic must align these with the rule engine results.
-
-def load_manifest() -> List[Dict[str, str]]:
-    """Load the experiment manifest."""
-    if not MANIFEST_PATH.exists():
-        raise FileNotFoundError(f"Manifest not found at {MANIFEST_PATH}")
+def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
+    """Load the experiment manifest CSV."""
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
     
-    with open(MANIFEST_PATH, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
-
-def load_rule_engine_results() -> Dict[str, Dict[str, Any]]:
-    """
-    Load existing rule-engine results from results.csv.
-    Returns a dict keyed by task_id for O(1) lookup.
-    """
-    results = {}
-    if not RULE_ENGINE_RESULTS_PATH.exists():
-        logger.warning(f"Rule engine results not found at {RULE_ENGINE_RESULTS_PATH}. Starting fresh.")
-        return results
-
-    with open(RULE_ENGINE_RESULTS_PATH, 'r', newline='', encoding='utf-8') as f:
+    tasks = []
+    with open(manifest_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Ensure task_id is the key
-            tid = row.get('task_id')
-            if tid:
-                results[tid] = row
+            tasks.append({
+                'task_id': row['task_id'],
+                'failure_type': row['failure_type']
+            })
+    return tasks
+
+def load_rule_engine_results(results_path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load rule engine results from CSV into a dictionary keyed by task_id."""
+    if not results_path.exists():
+        raise FileNotFoundError(f"Rule engine results not found: {results_path}")
+    
+    results = {}
+    with open(results_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            task_id = row['task_id']
+            results[task_id] = {
+                'task_id': task_id,
+                'method': row['method'],
+                'time_to_pivot': float(row['time_to_pivot']),
+                'success': row['success'].lower() == 'true',
+                'failure_type': row['failure_type']
+            }
     return results
 
-def load_baseline_results() -> Dict[str, Dict[str, Any]]:
-    """
-    Load external baseline results from baseline_results.json.
-    Returns a dict keyed by task_id.
-    """
-    if not BASELINE_RESULTS_PATH.exists():
-        raise FileNotFoundError(f"Baseline results not found at {BASELINE_RESULTS_PATH}. "
-                                "T021b must complete successfully before running this merge.")
+def load_baseline_results(baseline_path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load external baseline results from JSON into a dictionary keyed by task_id."""
+    if not baseline_path.exists():
+        raise FileNotFoundError(f"Baseline results not found: {baseline_path}")
     
-    with open(BASELINE_RESULTS_PATH, 'r', encoding='utf-8') as f:
+    with open(baseline_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Normalize to a dict keyed by task_id
-    # Expected format: list of objects with 'task_id'
+    # Handle both list format and dict format
     if isinstance(data, list):
-        return {item['task_id']: item for item in data}
+        results = {}
+        for item in data:
+            task_id = item['task_id']
+            results[task_id] = {
+                'task_id': task_id,
+                'method': 'baseline',
+                'time_to_pivot': float(item['time_to_pivot']),
+                'success': bool(item['success']),
+                'failure_type': item.get('failure_type', 'Unknown')
+            }
+        return results
     elif isinstance(data, dict):
-        # If it's already a dict keyed by task_id, return as is
-        return data
+        # If it's already keyed by task_id
+        results = {}
+        for task_id, item in data.items():
+            results[task_id] = {
+                'task_id': task_id,
+                'method': 'baseline',
+                'time_to_pivot': float(item['time_to_pivot']),
+                'success': bool(item['success']),
+                'failure_type': item.get('failure_type', 'Unknown')
+            }
+        return results
     else:
         raise ValueError(f"Unexpected baseline results format: {type(data)}")
 
-def merge_results(manifest: List[Dict[str, str]], 
-                  rule_engine_data: Dict[str, Dict[str, Any]], 
-                  baseline_data: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+def merge_results(manifest: List[Dict[str, Any]], 
+                  rule_results: Dict[str, Dict[str, Any]], 
+                  baseline_results: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Merge rule-engine and baseline results based on the manifest.
-    Ensures strict ID matching.
+    Merge rule-engine logs with external baseline logs using strict ID matching.
     
-    Returns a list of rows to be written to results.csv.
-    Columns: task_id, method, time_to_pivot, success, failure_type
+    Validates that baseline_results contains all task IDs from the manifest.
+    Returns a list of merged result dictionaries.
     """
-    merged_rows = []
-    manifest_task_ids = set()
+    manifest_task_ids = {t['task_id'] for t in manifest}
+    baseline_task_ids = set(baseline_results.keys())
     
-    logger.info(f"Processing {len(manifest)} tasks from manifest...")
+    # Validation: Ensure baseline has all manifest IDs
+    missing_ids = manifest_task_ids - baseline_task_ids
+    if missing_ids:
+        raise ValueError(
+            f"Baseline results missing task IDs from manifest: {sorted(missing_ids)}"
+        )
     
-    for entry in manifest:
-        tid = entry.get('task_id')
-        failure_type = entry.get('failure_type', 'Unknown')
-        manifest_task_ids.add(tid)
+    # Build a lookup for manifest failure types
+    manifest_lookup = {t['task_id']: t['failure_type'] for t in manifest}
+    
+    merged = []
+    
+    for task_id in manifest_task_ids:
+        rule_entry = rule_results.get(task_id)
+        baseline_entry = baseline_results.get(task_id)
         
-        if not tid:
-            logger.warning("Skipping manifest entry with missing task_id")
+        if not rule_entry:
+            logger.warning(f"Rule engine result missing for task_id: {task_id}")
             continue
-
-        row = {
-            'task_id': tid,
+        
+        if not baseline_entry:
+            # This should not happen due to validation above, but safety check
+            logger.warning(f"Baseline result missing for task_id: {task_id}")
+            continue
+        
+        # Use failure_type from manifest for consistency
+        failure_type = manifest_lookup.get(task_id, 'Unknown')
+        
+        # Append rule engine result
+        merged_entry = {
+            'task_id': rule_entry['task_id'],
+            'method': rule_entry['method'],
+            'time_to_pivot': rule_entry['time_to_pivot'],
+            'success': str(rule_entry['success']).lower(),
             'failure_type': failure_type
         }
-
-        # 1. Rule Engine Data
-        if tid in rule_engine_data:
-            re_row = rule_engine_data[tid]
-            row['method'] = 'rule_engine'
-            row['time_to_pivot'] = re_row.get('time_to_pivot', '')
-            row['success'] = re_row.get('success', '')
-            merged_rows.append(row.copy())
-        else:
-            logger.warning(f"Rule engine result missing for task {tid} (in manifest)")
-
-        # 2. Baseline Data
-        if tid in baseline_data:
-            bl_row = baseline_data[tid]
-            # Map baseline keys to our standard schema if necessary
-            # Assuming baseline JSON has: task_id, time_to_pivot, success
-            row['method'] = 'baseline'
-            row['time_to_pivot'] = bl_row.get('time_to_pivot', '')
-            row['success'] = bl_row.get('success', '')
-            merged_rows.append(row.copy())
-        else:
-            logger.warning(f"Baseline result missing for task {tid} (in manifest)")
-
-    # Verify strict matching: every task in manifest should ideally have both
-    # (though the task says "merge", implying we output what we have, 
-    # but strict ID matching ensures we only output rows for IDs in the manifest)
+        merged.append(merged_entry)
+        
+        # Append baseline result
+        merged_entry_baseline = {
+            'task_id': baseline_entry['task_id'],
+            'method': baseline_entry['method'],
+            'time_to_pivot': baseline_entry['time_to_pivot'],
+            'success': str(baseline_entry['success']).lower(),
+            'failure_type': failure_type
+        }
+        merged.append(merged_entry_baseline)
     
-    logger.info(f"Merged {len(merged_rows)} total rows.")
-    return merged_rows
+    return merged
 
-def write_merged_results(rows: List[Dict[str, Any]], output_path: Path):
-    """Write the merged results to CSV."""
-    if not rows:
-        logger.warning("No rows to write.")
-        return
-
-    # Define standard columns
+def write_merged_results(merged_results: List[Dict[str, Any]], output_path: Path) -> None:
+    """Write merged results to CSV."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     fieldnames = ['task_id', 'method', 'time_to_pivot', 'success', 'failure_type']
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in rows:
-            # Ensure all keys exist, fill empty if missing
-            safe_row = {k: row.get(k, '') for k in fieldnames}
-            writer.writerow(safe_row)
+        writer.writerows(merged_results)
     
-    logger.info(f"Wrote merged results to {output_path}")
+    logger.info(f"Wrote {len(merged_results)} merged results to {output_path}")
 
-def run_experiments():
+def run_experiments(manifest_path: Path, 
+                    rule_results_path: Path, 
+                    baseline_results_path: Path, 
+                    output_path: Path) -> None:
     """
-    Main entry point for T022: Merge results.
+    Main orchestration function to merge rule-engine and baseline results.
     """
-    log_stage_start("T022_Merge_Results")
+    log_stage_start(logger, "merge_results")
     
     try:
-        # 1. Load Manifest
-        manifest = load_manifest()
-        logger.info(f"Loaded manifest with {len(manifest)} tasks.")
-
-        # 2. Load Rule Engine Results (if they exist)
-        rule_engine_data = load_rule_engine_results()
-        logger.info(f"Loaded {len(rule_engine_data)} rule engine results.")
-
-        # 3. Load Baseline Results (Mandatory for this task)
-        baseline_data = load_baseline_results()
-        logger.info(f"Loaded {len(baseline_data)} baseline results.")
-
-        # 4. Merge
-        merged_rows = merge_results(manifest, rule_engine_data, baseline_data)
-
-        # 5. Write Final Output
-        write_merged_results(merged_rows, FINAL_RESULTS_PATH)
-
-        log_stage_end("T022_Merge_Results", status="success")
-        return 0
-
+        # Load inputs
+        logger.info(f"Loading manifest from {manifest_path}")
+        manifest = load_manifest(manifest_path)
+        logger.info(f"Loaded {len(manifest)} tasks from manifest")
+        
+        logger.info(f"Loading rule engine results from {rule_results_path}")
+        rule_results = load_rule_engine_results(rule_results_path)
+        logger.info(f"Loaded {len(rule_results)} rule engine results")
+        
+        logger.info(f"Loading baseline results from {baseline_results_path}")
+        baseline_results = load_baseline_results(baseline_results_path)
+        logger.info(f"Loaded {len(baseline_results)} baseline results")
+        
+        # Merge
+        logger.info("Merging results with strict ID matching...")
+        merged = merge_results(manifest, rule_results, baseline_results)
+        logger.info(f"Total merged entries: {len(merged)}")
+        
+        # Write output
+        logger.info(f"Writing merged results to {output_path}")
+        write_merged_results(merged, output_path)
+        
     except FileNotFoundError as e:
-        logger.error(f"Required file missing: {e}")
-        log_stage_end("T022_Merge_Results", status="failed")
-        return 1
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error during merge: {e}", exc_info=True)
-        log_stage_end("T022_Merge_Results", status="failed")
-        return 1
+        logger.error(f"Unexpected error during merge: {e}")
+        raise
+    finally:
+        log_stage_end(logger, "merge_results")
 
-def main():
-    """CLI entry point."""
-    sys.exit(run_experiments())
+def main() -> None:
+    """Entry point for script execution."""
+    # Default paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    manifest_path = project_root / "data" / "derived" / "experiment_manifest.csv"
+    rule_results_path = project_root / "data" / "derived" / "results.csv"
+    baseline_results_path = project_root / "data" / "derived" / "baseline_results.json"
+    output_path = project_root / "data" / "derived" / "results.csv"
+    
+    # Allow override via command line arguments
+    if len(sys.argv) > 1:
+        manifest_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        baseline_results_path = Path(sys.argv[2])
+    if len(sys.argv) > 3:
+        output_path = Path(sys.argv[3])
+    
+    run_experiments(manifest_path, rule_results_path, baseline_results_path, output_path)
 
 if __name__ == "__main__":
     main()

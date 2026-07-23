@@ -1,28 +1,21 @@
-# Standalone ruff configuration for immediate CLI usage
-# This mirrors the settings in pyproject.toml for compatibility with older tools
+# Ruff configuration for llmXive project
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 
 [lint]
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
-    "E501",
-    "B008",
-    "C901",
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["utils", "01_data_ingestion", "02_annotation_distillation", "03_execution", "04_analysis", "setup", "tests"]

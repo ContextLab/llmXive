@@ -1,250 +1,158 @@
-"""
-Metrics Logging Module for AutoResearchClaw Pipeline.
-
-This module implements T016: Add logging to track annotation counts and rule generation metrics.
-It aggregates statistics from failure case annotations and distilled rules, calculating coverage
-and saving a comprehensive metrics report.
-"""
 import json
 import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
-from collections import defaultdict
 
-# Import from project utils
 from utils.logging import get_logger, log_stage_start, log_stage_end, log_resource_usage
 from utils.config import set_seed
 
-# Constants
-ANNOTATED_FAILURES_PATH = Path("data/derived/failure_cases.json")
-RULES_LIBRARY_PATH = Path("data/derived/rules_library.json")
-COVERAGE_REPORT_PATH = Path("data/derived/coverage_report.json")
-METRICS_OUTPUT_PATH = Path("data/derived/annotation_distillation_metrics.json")
-VALIDATION_SPLIT_SIZE = 0.2  # 20% for validation if splitting needed, though we use full set for stats
-
-logger = get_logger(__name__)
-
+# Ensure logger is configured
+logger = get_logger("log_metrics")
 
 def load_json_file(file_path: Path) -> List[Dict[str, Any]]:
     """Load a JSON file and return its contents as a list of dictionaries."""
     if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
-        raise FileNotFoundError(f"Required file missing: {file_path}")
-
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        if not isinstance(data, list):
-            logger.warning(f"Expected list in {file_path}, got {type(data)}")
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error in {file_path}: {e}")
-        raise
-
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    if not isinstance(data, list):
+        raise ValueError(f"Expected JSON list in {file_path}, got {type(data)}")
+    return data
 
 def count_annotations_by_type(annotations: List[Dict[str, Any]]) -> Dict[str, int]:
     """
-    Count the number of failure cases for each annotated structural feature type.
-
-    Args:
-        annotations: List of failure case dictionaries.
-
-    Returns:
-        Dictionary mapping feature type to count.
+    Count annotations by their 'annotated_structural_feature' field.
     """
-    counts = defaultdict(int)
-    total = len(annotations)
-
-    for item in annotations:
-        feature = item.get("annotated_structural_feature", "Unknown")
-        counts[feature] += 1
-
-    # Ensure all expected categories are present even if zero
-    expected_categories = [
-        "Syntactic Error",
-        "Logical Loop",
-        "Semantic Ambiguity",
-        "Missing Context",
-        "Unstructured"
-    ]
-    for cat in expected_categories:
-        if cat not in counts:
-            counts[cat] = 0
-
-    logger.info(f"Annotation counts calculated: {dict(counts)} (Total: {total})")
-    return dict(counts)
-
+    counts: Dict[str, int] = {}
+    for entry in annotations:
+        feature = entry.get("annotated_structural_feature", "Unknown")
+        counts[feature] = counts.get(feature, 0) + 1
+    return counts
 
 def count_rules_by_category(rules: List[Dict[str, Any]]) -> Dict[str, int]:
     """
-    Count rules by their category or type if available.
-    If no explicit category exists, groups by rule complexity or source.
-
-    Args:
-        rules: List of rule dictionaries.
-
-    Returns:
-        Dictionary mapping category to count.
+    Count rules by a categorical field if present, or total count.
+    For this task, we assume rules have a 'rule_id' and potentially a 'category' or similar.
+    If no specific category exists, we just count total rules.
     """
-    counts = defaultdict(int)
-    total = len(rules)
-
+    total_rules = len(rules)
+    # Attempt to group by a 'category' field if it exists in the rule structure
+    category_counts: Dict[str, int] = {}
     for rule in rules:
-        # Try to find a category field, fallback to 'type' or 'source'
-        category = rule.get("category") or rule.get("type") or rule.get("source") or "Uncategorized"
-        counts[category] += 1
-
-    logger.info(f"Rule counts by category: {dict(counts)} (Total: {total})")
-    return dict(counts)
-
-
-def calculate_rule_coverage_stats(coverage_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Calculate summary statistics from coverage report data.
-
-    Args:
-        coverage_data: Dictionary from coverage_report.json.
-
-    Returns:
-        Dictionary with coverage statistics.
-    """
-    if not coverage_data:
-        logger.warning("No coverage data provided for statistics calculation.")
-        return {
-            "total_coverage_pct": 0.0,
-            "covered_count": 0,
-            "uncovered_count": 0,
-            "total_cases": 0
-        }
-
-    total = coverage_data.get("total_cases", 0)
-    covered = coverage_data.get("covered_count", 0)
-    pct = coverage_data.get("coverage_percentage", 0.0)
-
-    logger.info(f"Coverage stats: {pct}% ({covered}/{total})")
+        # Check for a 'category' or 'type' field; if not present, use 'Unspecified'
+        cat = rule.get("category", rule.get("type", "Unspecified"))
+        category_counts[cat] = category_counts.get(cat, 0) + 1
     return {
-        "total_coverage_pct": pct,
-        "covered_count": covered,
-        "uncovered_count": total - covered,
-        "total_cases": total
+        "total_rules": total_rules,
+        "by_category": category_counts
     }
 
+def calculate_rule_coverage_stats(coverage_report: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Extract key coverage statistics from a coverage report.
+    Expected keys in coverage_report: 'coverage_percentage', 'total_cases', 'covered_cases'.
+    """
+    return {
+        "coverage_percentage": coverage_report.get("coverage_percentage", 0.0),
+        "total_cases": coverage_report.get("total_cases", 0),
+        "covered_cases": coverage_report.get("covered_cases", 0),
+        "uncovered_cases": coverage_report.get("uncovered_cases", 0)
+    }
 
 def aggregate_metrics(
-    annotations: List[Dict[str, Any]],
-    rules: List[Dict[str, Any]],
-    coverage_data: Optional[Dict[str, Any]]
+    failure_cases_path: Path,
+    rules_library_path: Path,
+    coverage_report_path: Path,
+    output_metrics_path: Path
 ) -> Dict[str, Any]:
     """
-    Aggregate all metrics into a single report structure.
-
-    Args:
-        annotations: List of annotated failure cases.
-        rules: List of distilled rules.
-        coverage_data: Optional coverage report data.
-
-    Returns:
-        Comprehensive metrics dictionary.
+    Aggregate all metrics: annotation counts, rule counts, coverage stats.
+    Logs the aggregated metrics and saves them to a JSON file.
     """
-    annotation_counts = count_annotations_by_type(annotations)
-    rule_counts = count_rules_by_category(rules)
-    coverage_stats = calculate_rule_coverage_stats(coverage_data)
+    # Load data
+    logger.info(f"Loading failure cases from {failure_cases_path}")
+    failure_cases = load_json_file(failure_cases_path)
 
+    logger.info(f"Loading rules library from {rules_library_path}")
+    rules = load_json_file(rules_library_path)
+
+    logger.info(f"Loading coverage report from {coverage_report_path}")
+    with open(coverage_report_path, 'r', encoding='utf-8') as f:
+        coverage_report = json.load(f)
+
+    # Compute metrics
+    annotation_counts = count_annotations_by_type(failure_cases)
+    rule_counts = count_rules_by_category(rules)
+    coverage_stats = calculate_rule_coverage_stats(coverage_report)
+
+    # Aggregate into a single metrics dictionary
     metrics = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "pipeline_stage": "annotation_distillation",
-        "annotation_metrics": {
-            "total_annotations": len(annotations),
-            "distribution": annotation_counts
-        },
-        "rule_metrics": {
-            "total_rules": len(rules),
-            "distribution": rule_counts
-        },
-        "coverage_metrics": coverage_stats,
-        "summary": {
-            "annotation_coverage": len(annotations) > 0,
-            "rule_generation_complete": len(rules) > 0,
-            "overall_status": "success" if (len(annotations) > 0 and len(rules) > 0) else "partial"
-        }
+        "annotation_counts": annotation_counts,
+        "rule_counts": rule_counts,
+        "coverage_stats": coverage_stats,
+        "total_annotations": len(failure_cases),
+        "total_rules": len(rules)
     }
 
-    logger.info("Metrics aggregation complete.")
+    # Log the metrics
+    log_stage_start(logger, "Aggregated Metrics")
+    logger.info(f"Total Annotations: {metrics['total_annotations']}")
+    logger.info(f"Annotation Breakdown: {json.dumps(annotation_counts)}")
+    logger.info(f"Total Rules: {metrics['total_rules']}")
+    logger.info(f"Rule Counts by Category: {json.dumps(rule_counts.get('by_category', {}))}")
+    logger.info(f"Coverage Stats: {json.dumps(coverage_stats)}")
+    log_stage_end(logger, "Aggregated Metrics")
+
+    # Save metrics to file
+    output_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_metrics_path, 'w', encoding='utf-8') as f:
+        json.dump(metrics, f, indent=2)
+
+    logger.info(f"Metrics saved to {output_metrics_path}")
     return metrics
 
-
 def save_metrics(metrics: Dict[str, Any], output_path: Path) -> None:
-    """
-    Save the aggregated metrics to a JSON file.
+    """Save metrics dictionary to a JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Metrics saved to {output_path}")
 
-    Args:
-        metrics: The metrics dictionary to save.
-        output_path: Path to the output file.
+def main():
     """
+    Main entry point for logging annotation counts and rule generation metrics.
+    Reads from standard paths and writes metrics to data/derived/metrics.json.
+    """
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    data_derived_dir = project_root / "data" / "derived"
+
+    failure_cases_path = data_derived_dir / "failure_cases.json"
+    rules_library_path = data_derived_dir / "rules_library.json"
+    coverage_report_path = data_derived_dir / "coverage_report.json"
+    output_metrics_path = data_derived_dir / "metrics.json"
+
+    # Validate input files exist
+    for path in [failure_cases_path, rules_library_path, coverage_report_path]:
+        if not path.exists():
+            logger.error(f"Required input file missing: {path}")
+            sys.exit(1)
+
+    # Run aggregation
     try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(metrics, f, indent=2, default=str)
-        logger.info(f"Metrics saved to {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to write metrics file: {e}")
-        raise
-
-
-def main() -> int:
-    """
-    Main entry point for T016: Log metrics for annotation and rule generation.
-
-    This function:
-    1. Loads annotated failure cases from data/derived/failure_cases.json
-    2. Loads distilled rules from data/derived/rules_library.json
-    3. Loads coverage report from data/derived/coverage_report.json (if exists)
-    4. Aggregates counts and statistics
-    5. Saves the final metrics report to data/derived/annotation_distillation_metrics.json
-
-    Returns:
-        0 on success, 1 on failure.
-    """
-    log_stage_start(logger, "T016: Log Annotation and Rule Metrics")
-
-    try:
-        # Set seed for reproducibility
-        set_seed(42)
-
-        # Load data
-        logger.info(f"Loading annotated failures from {ANNOTATED_FAILURES_PATH}")
-        annotations = load_json_file(ANNOTATED_FAILURES_PATH)
-
-        logger.info(f"Loading rules library from {RULES_LIBRARY_PATH}")
-        rules = load_json_file(RULES_LIBRARY_PATH)
-
-        # Load coverage report if it exists
-        coverage_data = None
-        if COVERAGE_REPORT_PATH.exists():
-            logger.info(f"Loading coverage report from {COVERAGE_REPORT_PATH}")
-            coverage_data = load_json_file(COVERAGE_REPORT_PATH)
-            # Ensure it's a dict, not a list (coverage report might be a single object)
-            if isinstance(coverage_data, list) and len(coverage_data) == 1:
-                coverage_data = coverage_data[0]
-        else:
-            logger.warning(f"Coverage report not found at {COVERAGE_REPORT_PATH}. Skipping coverage stats.")
-
-        # Aggregate metrics
-        metrics = aggregate_metrics(annotations, rules, coverage_data)
-
-        # Save metrics
-        save_metrics(metrics, METRICS_OUTPUT_PATH)
-
-        log_stage_end(logger, "T016: Log Annotation and Rule Metrics", status="success")
-        return 0
-
+        metrics = aggregate_metrics(
+            failure_cases_path,
+            rules_library_path,
+            coverage_report_path,
+            output_metrics_path
+        )
+        logger.info("Metric aggregation completed successfully.")
     except Exception as e:
-        logger.error(f"Task T016 failed: {e}", exc_info=True)
-        log_stage_end(logger, "T016: Log Annotation and Rule Metrics", status="failed")
-        return 1
-
+        logger.error(f"Error during metric aggregation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

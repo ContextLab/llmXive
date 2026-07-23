@@ -1,8 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Pivot Attempt Result
-description: >
-  Schema for a single pivot attempt result, whether from the rule engine or baseline.
-  Used in results.csv and statistical analysis.
+$schema: http://json-schema.org/draft-07/schema#
+title: Pivot Attempt Schema
+description: Schema for recording pivot attempt metrics including method, timing, success status, and failure type.
 type: object
 required:
   - task_id
@@ -13,28 +11,27 @@ required:
 properties:
   task_id:
     type: string
-    description: Unique identifier for the task.
-    pattern: "^task_\\d+$"
+    description: Unique identifier for the task being attempted.
+    minLength: 1
   method:
     type: string
-    description: The method used for the pivot attempt.
-    enum:
-      - "rule_engine"
-      - "baseline"
+    description: The method used for the pivot attempt (e.g., 'rule_engine', 'baseline').
+    minLength: 1
   time_to_pivot:
     type: number
-    description: Time taken to pivot in seconds.
-    minimum: 0.0
+    description: Time in seconds taken to execute the pivot.
+    minimum: 0
   success:
     type: boolean
     description: Whether the pivot attempt was successful.
   failure_type:
     type: string
-    description: The structural feature type of the original failure.
+    description: The type of failure encountered if the pivot was unsuccessful.
     enum:
       - "Syntactic Error"
       - "Logical Loop"
       - "Semantic Ambiguity"
       - "Missing Context"
       - "Unstructured"
+    minLength: 1
 additionalProperties: false

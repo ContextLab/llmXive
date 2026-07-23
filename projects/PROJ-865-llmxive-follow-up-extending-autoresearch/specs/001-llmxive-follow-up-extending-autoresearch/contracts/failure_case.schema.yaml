@@ -1,29 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Failure Case Schema
-description: Schema for annotated failure cases in the AutoResearchClaw pipeline.
-type: object
-required:
-  - task_id
-  - raw_error_log
-  - ground_truth_resolution
-  - annotated_structural_feature
-properties:
-  task_id:
-    type: string
-    description: Unique identifier for the task.
-  raw_error_log:
-    type: string
-    description: The raw error log text extracted from the reasoning trace.
-  ground_truth_resolution:
-    type: string
-    description: The correct resolution or pivot action for the failure.
-  annotated_structural_feature:
-    type: string
-    description: The classified structural feature of the failure.
-    enum:
-      - "Syntactic Error"
-      - "Logical Loop"
-      - "Semantic Ambiguity"
-      - "Missing Context"
-      - "Unstructured"
-additionalProperties: false
+# Schema for failure_case.json
+# Generated for Task T004a / T011b
+type: array
+description: List of annotated failure cases from ARC-Bench traces.
+items:
+  type: object
+  required:
+    - task_id
+    - raw_error_log
+    - ground_truth_resolution
+    - annotated_structural_feature
+  properties:
+    task_id:
+      type: string
+      description: Unique identifier for the task.
+    raw_error_log:
+      type: string
+      description: The raw error log string extracted from the reasoning trace.
+    ground_truth_resolution:
+      type: string
+      description: The correct resolution or answer for the task.
+    annotated_structural_feature:
+      type: string
+      enum:
+        - "Syntactic Error"
+        - "Logical Loop"
+        - "Semantic Ambiguity"
+        - "Missing Context"
+        - "Unstructured"
+      description: The classified structural feature of the failure.

@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up"
+name = "llmxive-followup"
 version = "0.1.0"
-description = "Automated science pipeline for failure mode annotation and rule distillation"
-requires-python = ">=3.9"
+description = "Automated science pipeline for failure mode analysis and rule distillation"
+requires-python = ">=3.10"
 dependencies = [
     "pandas",
     "numpy",
@@ -18,13 +18,13 @@ dependencies = [
     "transformers",
     "psutil",
     "scipy",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "pyyaml",
+    "jinja2",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311"]
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -41,31 +41,14 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
-indent-width = 4
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (black handles this)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
 
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
