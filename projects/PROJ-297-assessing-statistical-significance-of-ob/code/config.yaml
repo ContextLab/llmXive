@@ -1,0 +1,15 @@
+# Project Configuration
+random_seed: 42
+threshold: 0.3
+permutations: 2000
+alpha: 0.05
+synthetic_n: 500
+synthetic_v: 20
+sweep_thresholds: [0.3, 0.4, 0.5]
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  output_results: output/results
+  output_plots: output/plots
+  output_reports: output/reports

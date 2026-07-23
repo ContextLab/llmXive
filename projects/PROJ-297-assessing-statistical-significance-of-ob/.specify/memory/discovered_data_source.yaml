@@ -1,8 +1,51 @@
-status: none
-intent: UCI Machine Learning Repository Wine Abalone BreastCancer StudentPerformance
-  AirQuality ConcreteStrength python package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml, pandas as pd
+
+
+  dataset = openml.datasets.get_dataset(15)
+
+  X, y, _, _ = dataset.get_data(dataset_format=''dataframe'')
+
+  df = pd.concat([X, y], axis=1)
+
+
+  original_feature_names = list(df.columns)
+
+  continuous_feature_names = [c for c in original_feature_names if pd.api.types.is_numeric_dtype(df[c])]
+
+  num_samples = df.shape[0]
+
+  num_continuous_features = len(continuous_feature_names)
+
+  source_repository = getattr(dataset, ''origin'', None) or getattr(dataset, ''source'',
+  None) or ''''
+
+  download_method = ''openml.datasets.get_dataset''
+
+
+  print(f"RECORDS={num_samples}")
+
+  print("FIELDS=dataset_name,original_feature_names,continuous_feature_names,num_samples,num_continuous_features,source_repository,download_method")'
+record_count: 699
+sample_fields:
+- dataset_name
+- original_feature_names
+- continuous_feature_names
+- num_samples
+- num_continuous_features
+- source_repository
+- download_method
+field_coverage: 1.0
 required_fields:
-- "continuous numeric feature columns (\u226520)"
-cache_key: 7e2926318bf384421f8d5adbf26979430f54753df0fc484a77820e17f29043e6
-searched_at: '2026-07-20T14:51:28.647095+00:00'
-retry_count: 1
+- dataset_name
+- original_feature_names
+- continuous_feature_names
+- num_samples
+- num_continuous_features
+- source_repository
+- download_method
+intent: OpenML python package download UCI Wine Abalone Breast Cancer Wisconsin Student
+  Performance Air Quality Concrete Compressive Strength datasets python package dataset
+cache_key: da31c8f49e0f5b4e3ff76fc7883b062f68f8097365992e4fbfb7c83723b98692

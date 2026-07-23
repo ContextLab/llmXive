@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
   "ok": false,
-  "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=2); 1 declared deliverable(s) absent: data/raw/checksums.json",
+  "reason": "2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 218, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 198, in main\n    parser = argparse.ArgumentParser(description=\"Load and process datasets\")\n             ^^^^^^^^\nNameError: name 'argparse' is not defined",
-    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=2\n    INFO:matplotlib.font_manager:Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported\nINFO:matplotlib.font_manager:generated new fontManager\nusage: main.py [-h] [--permutations PERMUTATIONS] [--threshold THRESHOLD]\n               [--sweep] [--min-datasets MIN_DATASETS] [--output OUTPUT]\nmain.py: error: argument --permutations: invalid int value: '[variable]'"
+    "python code/loaders.py --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py\", line 12, in <module>\n    import openpyxl\nModuleNotFoundError: No module named 'openpyxl'",
+    "python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py\", line 12, in <module>\n    from config import get_config, ensure_dirs\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/config.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-20T14:50:52Z"
+  "updated_at": "2026-07-23T07:39:17Z"
 }

@@ -1,42 +1,48 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --permutations [variable] --threshold 0.3 --sweep`
-  - script usage: `main.py [-h] [--permutations PERMUTATIONS] [--threshold THRESHOLD]`
-  - argparse error: `main.py: error: argument --permutations: invalid int value: '[variable]'`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=2); 1 declared deliverable(s) absent: data/raw/checksums.json
+**Summary**: 2 command(s) failed: python code/loaders.py --output data/processed/ (rc=1); python code/main.py --permutations [variable] --threshold 0.3 --sweep (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/loaders.py --output data/processed/ -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py", line 218, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py", line 198, in main
-    parser = argparse.ArgumentParser(description="Load and process datasets")
-             ^^^^^^^^
-NameError: name 'argparse' is not defined
-- python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=2
-    INFO:matplotlib.font_manager:Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
-INFO:matplotlib.font_manager:generated new fontManager
-usage: main.py [-h] [--permutations PERMUTATIONS] [--threshold THRESHOLD]
-               [--sweep] [--min-datasets MIN_DATASETS] [--output OUTPUT]
-main.py: error: argument --permutations: invalid int value: '[variable]'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/loaders.py", line 12, in <module>
+    import openpyxl
+ModuleNotFoundError: No module named 'openpyxl'
+- python code/main.py --permutations [variable] --threshold 0.3 --sweep -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/main.py", line 12, in <module>
+    from config import get_config, ensure_dirs
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-297-assessing-statistical-significance-of-ob/code/config.py", line 4, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
 
-## Declared deliverables still missing
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
-- data/raw/checksums.json
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
-## Declared deliverables NOT produced — make the run-book produce them
+- **Install**: add `openml` to the project's `requirements.txt` and `pip install openml`.
+- **Verified**: this loads **699** real records with fields: dataset_name, original_feature_names, continuous_feature_names, num_samples, num_continuous_features, source_repository, download_method.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+```python
+import openml, pandas as pd
 
-- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
-    - `code/loaders.py` — IS a run-book command
-  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+dataset = openml.datasets.get_dataset(15)
+X, y, _, _ = dataset.get_data(dataset_format='dataframe')
+df = pd.concat([X, y], axis=1)
+
+original_feature_names = list(df.columns)
+continuous_feature_names = [c for c in original_feature_names if pd.api.types.is_numeric_dtype(df[c])]
+num_samples = df.shape[0]
+num_continuous_features = len(continuous_feature_names)
+source_repository = getattr(dataset, 'origin', None) or getattr(dataset, 'source', None) or ''
+download_method = 'openml.datasets.get_dataset'
+
+print(f"RECORDS={num_samples}")
+print("FIELDS=dataset_name,original_feature_names,continuous_feature_names,num_samples,num_continuous_features,source_repository,download_method")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

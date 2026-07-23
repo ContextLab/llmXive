@@ -1,0 +1,19 @@
+# Configuration for Statistical Significance Pipeline
+
+# Paths
+data_raw_dir: data/raw
+data_processed_dir: data/processed
+output_results_dir: output/results
+output_plots_dir: output/plots
+
+# Analysis Parameters
+permutations: 2000
+threshold: 0.3
+thresholds: [0.2, 0.3, 0.4, 0.5] # For sweep
+
+# Random Seed
+random_seed: 42
+
+# Validation
+validation_runs: 20
+validation_pass_threshold: 19

@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T016d** — The repository lacks the required `output/reports/synthetic_validation_log.json` file, and the provided excerpt of `code/main.py` shows only a helper function (`run_single_synthetic_validation`) with no evidence of the 3‑run loop, pass‑rate counting, SystemExit raise, or log‑writing logic. The core deliverables are therefore missing.
-- **T041** — The repository contains a `write_runtime_log` helper that would create the required JSON, but the file `output/reports/runtime_log.json` does not exist, and the provided excerpt shows no code that actually measures the pipeline’s total runtime or invokes `write_runtime_log` after completion. Consequently the required output artifact is missing and the timer functionality is not demonstrably implemented.
-- **T060** — The repository lacks the required `output/reports/profiling_log.json` file, and the shown `code/main.py` contains no logic that measures per‑phase timings, writes a JSON with the specified schema, or checks the >50 % condition. Consequently the profiling step demanded by T060 is not implemented.

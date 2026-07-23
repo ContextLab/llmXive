@@ -50,7 +50,7 @@ The system must perform a sensitivity analysis on the correlation threshold (|r|
 **Acceptance Scenarios**:
 
 1. **Given** a dataset and the primary threshold |r| > 0.3, **When** the sensitivity analysis is triggered, **Then** the system must re-run the permutation and significance test for thresholds in {0.1, 0.2, 0.3, 0.4, 0.5} and output a summary table of the results.
-2. **Given** the output of the sensitivity analysis, **When** a user reviews the table, **Then** they must be able to see the change in the number of significant statistics (e.g., "Significant at 0.3: 4/24; Significant at 0.4: 2/24") to assess robustness.
+2. **Given** the output of the sensitivity analysis, **When** a user reviews the table, **Then** they must be able to see the change in the number of significant statistics (e.g., "A minority of cases were significant at 0.4, while a larger subset reached significance at 0.3.") to assess robustness.
 3. **Given** the primary analysis results, **When** the system generates visualizations, **Then** it must produce a heatmap of the observed correlation matrix and a histogram of the null distribution with the observed value overlaid for at least one representative dataset.
 
 ---

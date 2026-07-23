@@ -8,7 +8,5 @@ openpyxl
 xlrd
 requests
 psutil
-pytest
-black
-flake8
-isort
+pyyaml
+openml
