@@ -100,7 +100,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/experiments/train.py` main loop with a SIGALRM signal handler that reads `cpu_timeout` from `code/config/config.yaml` and raises a TimeoutError after a specified duration to enforce a hard stop.
+- [X] T018 [P] [US2] Implement `code/experiments/train.py` main loop with a SIGALRM signal handler that reads `cpu_timeout` from `code/config/config.yaml` and raises a TimeoutError after a specified duration to enforce a hard stop.
 - [X] T019 [US2] Integrate gradient clipping (threshold ≤ 1.0) and log clipping frequency for stability
 - [X] T020 [US2] Implement logging for accuracy and loss curves at regular intervals
 - [X] T021 [US2] Add checkpoint saving logic for both models to enable downstream probing
@@ -119,13 +119,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Unit test for statistical analysis functions in `tests/test_analyze.py`
+- [X] T024 [P] [US3] Unit test for statistical analysis functions in `tests/test_analyze.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/experiments/probe.py` to train linear classifiers on intermediate layer representations for multiple random seeds as required for statistical power. This module will be invoked by T029.
-- [ ] T027 [US3] Implement `code/experiments/analyze.py` with Wilcoxon signed-rank or paired t-tests and Benjamini-Hochberg correction. This module will be invoked by T029.
-- [ ] T029 [US3] Implement FR-007 sensitivity analysis: Create an orchestrator in `code/experiments/analyze.py` (or a new script) that iterates over the `dendritic_thresholds` list from config. For each threshold, it must: 1) Run the probing logic (T025) on saved checkpoints, 2) Run the analysis logic (T027) to compute p-values/effect sizes, 3) Aggregate results to report variance in probing accuracy and stability of effect sizes. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T025 [P] [US3] Implement `code/experiments/probe.py` to train linear classifiers on intermediate layer representations for multiple random seeds as required for statistical power. This module will be invoked by T029.
+- [X] T027 [US3] Implement `code/experiments/analyze.py` with Wilcoxon signed-rank or paired t-tests and Benjamini-Hochberg correction. This module will be invoked by T029.
+- [X] T029 [US3] Implement FR-007 sensitivity analysis: Create an orchestrator in `code/experiments/analyze.py` (or a new script) that iterates over the `dendritic_thresholds` list from config. For each threshold, it must: 1) Run the probing logic (T025) on saved checkpoints, 2) Run the analysis logic (T027) to compute p-values/effect sizes, 3) Aggregate results to report variance in probing accuracy and stability of effect sizes. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T030 [US3] Add logic to measure "sample efficiency" defined as steps to reach a substantial fraction of the baseline model's final accuracy, using the baseline's final accuracy as the reference point.
 - [X] T031 [US3] Add logic to measure "hierarchical feature detection" (area under accuracy-vs-depth curve)
 - [X] T033 [US3] Add output to `artifacts/results/` including p-values, effect sizes, and stability metrics (effect size stability across sensitivity sweeps as per SC-004).
@@ -244,6 +244,6 @@ With multiple developers:
 - **Removed Review Tasks**: T050-T063 were removed because they introduced undefined concepts ('rule-space', 'behavioral assay', 'logical calculus' as a separate doc) that violated the project's scope defined in FR-001 to FR-007. The necessary logic is now embedded in the core implementation tasks.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T051 Reconcile run-book vs implementation for `code/utils/download_data.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/download_data.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T052 Reconcile run-book vs implementation for `code/tests/test_architecture_match.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/tests/test_architecture_match.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T051 Reconcile run-book vs implementation for `code/utils/download_data.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/download_data.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T052 Reconcile run-book vs implementation for `code/tests/test_architecture_match.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/tests/test_architecture_match.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T053 Reconcile run-book vs implementation for `code/tests/test_data_hygiene.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/tests/test_data_hygiene.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

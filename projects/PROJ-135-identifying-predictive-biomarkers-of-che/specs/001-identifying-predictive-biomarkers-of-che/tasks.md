@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `src/config.py`: Define paths, random seeds, FDR thresholds, CPU/memory limits, and `MAX_VARIANCE_GENES`
+- [X] T004 Implement `src/config.py`: Define paths, random seeds, FDR thresholds, CPU/memory limits, and `MAX_VARIANCE_GENES`
 - [ ] T005 [P] Implement `src/utils.py`: Logging setup, checksum generation, and timeout watchdog (5h limit)
 - [ ] T006 [P] Create schema definitions in `specs/001-chemo-biomarker-discovery/contracts/` (dataset.schema.yaml, model_output.schema.yaml, meta_analysis.schema.yaml)
 - [ ] T007 Implement `src/__init__.py` and basic `src/main.py` orchestrator skeleton
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA HTSeq-Counts & clinical via HuggingFace mirror for **≥3 tumor types** (FR-001). **Requirement**: Initial download MUST target ≥3 types before any filtering.
+- [ ] T012 [US1] Implement `src/data_acquisition.py`: Download TCGA HTSeq-Counts & clinical via HuggingFace mirror for **≥3 tumor types** (FR-001). **Requirement**: Initial download MUST target ≥3 types before any filtering. <!-- FAILED: unspecified -->
 - [ ] T013 [US1] Implement `src/data_acquisition.py`: Download GEO datasets (GSE25055, GSE42752) via HuggingFace mirror (FR-002). **Requirement**: Ensure at least 2 GEO datasets with response labels are acquired.
 - [ ] T013b [US1] Implement **Partial Success Handler** in `src/data_acquisition.py`: If TCGA download succeeds but GEO download fails (missing or no response labels), log a warning, set `external_validation_status: "skipped"` in `results/summary.md`, and **proceed** with internal validation only (Plan T011, Spec Edge Cases).
 - [ ] T014 [US1] Implement **Data Feasibility Gate** in `src/data_acquisition.py`: Verify response labels (RECIST/CR/PR); exclude tumor types lacking labels; **Terminate execution with exit code 1 and write `data/feasibility_gate.json` with `status: "halted"` and `reason: "insufficient_tcga_types"` ONLY IF the count of valid TCGA tumor types is < 3**. If TCGA >= 3 but GEO is missing, proceed with internal validation and log the limitation (FR-001, FR-002, Plan T011, T013).

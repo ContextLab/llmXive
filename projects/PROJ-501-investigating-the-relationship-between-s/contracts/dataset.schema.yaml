@@ -1,70 +1,58 @@
-%YAML 1.2
----
-name: merged_filtered_dataset
-description: >
-  Schema for the processed dataset resulting from merging stellar flare
-  catalogs with exoplanet parameters, filtered for M-dwarfs with >= 10 flares.
-  Used as input for physics modeling and statistical analysis.
-source_file: data/processed/merged_filtered.csv
-version: 1.0.0
-columns:
-  - name: star_id
-    type: string
-    description: Unique identifier for the host star (e.g., TIC ID or Gaia ID)
-    nullable: false
-    constraints:
-      - not_empty
-  - name: flare_count
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Filtered Stellar and Exoplanet Dataset Schema"
+description: |
+  Schema for the output of the data ingestion pipeline (User Story 1).
+  This file defines the structure of `data/processed/merged_filtered.csv`.
+  Contains merged data from MAST TESS Stellar Flare Catalog and NASA Exoplanet Archive,
+  filtered for M-dwarfs with >= 10 flare events.
+type: object
+properties:
+  star_id:
+    description: "Unique identifier for the host star (from TESS/MAST)."
     type: integer
-    description: Total number of flare events detected for this star
-    nullable: false
-    constraints:
-      - minimum: 10
-        reason: "Filter applied: Exclude systems with < 10 flare events"
-  - name: radius
-    type: float
-    description: Stellar radius in solar units (R_sun)
-    nullable: false
-    unit: R_sun
-    constraints:
-      - positive
-  - name: mass
-    type: float
-    description: Stellar mass in solar units (M_sun)
-    nullable: false
-    unit: M_sun
-    constraints:
-      - positive
-  - name: semi_major_axis
-    type: float
-    description: Planet semi-major axis in astronomical units (AU)
-    nullable: false
-    unit: AU
-    constraints:
-      - positive
-  - name: density
-    type: float
-    description: Planet bulk density in g/cm^3
-    nullable: true
-    unit: g/cm^3
-    constraints:
-      - positive
-        allow_null: true
-  - name: age
-    type: float
-    description: System age in Gyr. If missing in source, populated with DEFAULT_M_DWARF_AGE
-    nullable: true
-    unit: Gyr
-    constraints:
-      - positive
-        allow_null: false
-        default_source: "config.DEFAULT_M_DWARF_AGE"
-metadata:
-  filtering_criteria:
-    - "Host star must be an M-dwarf (mass < 0.6 M_sun)"
-    - "Flare count >= 10"
-    - "No missing values in mass, radius, or semi_major_axis"
-  imputation_policy:
-    age: "If missing, set to DEFAULT_M_DWARF_AGE and log warning"
-  generated_by: "code/data_ingestion.py::filter_and_impute"
-...
+  flare_count:
+    description: "Total number of flare events detected for this star."
+    type: integer
+    minimum: 10
+  radius:
+    description: "Stellar radius in solar units (R_sun)."
+    type: number
+    format: float
+    minimum: 0
+  mass:
+    description: "Stellar mass in solar units (M_sun)."
+    type: number
+    format: float
+    minimum: 0
+  semi_major_axis:
+    description: "Planetary semi-major axis in astronomical units (AU)."
+    type: number
+    format: float
+    minimum: 0
+  density:
+    description: "Stellar density in g/cm^3 or relative to solar density."
+    type: number
+    format: float
+    minimum: 0
+  age:
+    description: "System age in Gyr. May be imputed with DEFAULT_M_DWARF_AGE if missing."
+    type: number
+    format: float
+    minimum: 0
+required:
+  - star_id
+  - flare_count
+  - radius
+  - mass
+  - semi_major_axis
+  - density
+  - age
+additionalProperties: false
+examples:
+  - star_id: 12345
+    flare_count: 15
+    radius: 0.45
+    mass: 0.42
+    semi_major_axis: 0.05
+    density: 5.2
+    age: 3.5

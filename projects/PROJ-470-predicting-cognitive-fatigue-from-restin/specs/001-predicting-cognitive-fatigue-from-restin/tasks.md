@@ -24,25 +24,6 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as a MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
@@ -59,7 +40,7 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.yaml` with pipeline parameters. **Verification**: Parse `code/config.yaml` and assert it contains the following keys: `filter_low` (value 1), `filter_high` (value 40), `artifact_threshold` (value 100), `random_seed` (integer), `n_threshold` (value 30), and `embedding_dim` (value 3).
+- [X] T004 Create `code/config.yaml` with pipeline parameters. **Verification**: Parse `code/config.yaml` and assert it contains the following keys: `filter_low` (value 1), `filter_high` (value 40), `artifact_threshold` (value 100), `random_seed` (integer), `n_threshold` (value 30), `notch_frequency` (value 50), and `embedding_dim` (value 3).
 - [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track participant exclusion and artifact rejection reasons. **Verification**: Create `tests/unit/test_logging.py` that triggers a log entry and asserts `logs/exclusion_log.csv` is created with the correct format.
 - [X] T029 [P] Implement integration test for quickstart.md validation to ensure pipeline executes on CPU‑only CI. **Verification**: Create `tests/integration/test_quickstart_e2e.py` that executes the commands in `docs/quickstart.md` and asserts all steps complete successfully without errors. (Note: This task is moved here from Phase 6 to validate documentation early).
 
@@ -83,8 +64,8 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/download.py` to fetch a public EEG dataset. **CRITICAL**: Before proceeding, the script MUST validate the presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. The script MUST specifically look for columns named `pre_fatigue` (or similar standard naming) and `post_fatigue` in the metadata. **Implementation Detail**: The script MUST first inspect the metadata file (or API response) to count participants (`N`) and check for required variables BEFORE downloading full data. The script MUST read the `n_threshold` value from `code/config.yaml` (default). If the dataset lacks the required variables or yields N < `n_threshold`, the script MUST halt with exit code 1 and log `validation_report.json` with schema: `{ "status": "fail", "available_variables": [...], "participant_count": 0, "message": "Required variables missing or insufficient power" }`. Log specific error: "ERROR: No valid dataset found with required variables." **Verification**: The script MUST first inspect the metadata file (or API response) to count participants before downloading full data.
-- [ ] T010 [US1] Implement `code/preprocess.py` to apply a bandpass filter (1-40 Hz) and remove line noise (via 50 Hz notch filter) per FR-002 and Constitution Principle VI. **Justification**: The 50 Hz notch filter is a mandatory step per Constitution Principle VI and FR-002, applied unconditionally to ensure reproducibility. **CRITICAL**: The script MUST apply the 50 Hz notch filter unconditionally to all data. Output preprocessed data to `data/processed/cleaned_eeg.fif`. **Verification**: Create `tests/integration/test_preprocess.py::test_line_noise_attenuation` that computes PSD and asserts the peak at 50Hz is attenuated by >20dB compared to the raw signal. Assert file exists and contains data for ≥30 participants.
+- [ ] T009 [US1] Implement `code/download.py` to fetch a public EEG dataset. **CRITICAL**: Before proceeding, the script MUST validate the presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. The script MUST check for the presence of ANY of the following column name variations for pre/post fatigue ratings: `pre_fatigue`, `fatigue_pre`, `baseline_fatigue`, `post_fatigue`, `fatigue_post`, `end_fatigue`. **Implementation Detail**: The script MUST first inspect the metadata file (or API response) to count participants (`N`) and check for required variables BEFORE downloading full data. The script MUST read the `n_threshold` value from `code/config.yaml` (default). If the dataset lacks the required variables or yields an insufficient sample size, the script MUST halt with a non-zero exit code. and log `validation_report.json` with schema: `{ "status": "fail", "available_variables": [...], "participant_count": 0, "message": "Required variables missing or insufficient power" }`. Log specific error: "ERROR: No valid dataset found with required variables." **Verification**: The script MUST first inspect the metadata file (or API response) to count participants before downloading full data.
+- [ ] T010 [US1] Implement `code/preprocess.py` to apply a bandpass filter (1-40 Hz) and remove line noise per FR-002 and Constitution Principle VI. **Justification**: Line noise removal is a mandatory step per Constitution Principle VI and FR-002. **CRITICAL**: The script MUST apply a notch filter to remove line noise. The notch frequency MUST be read from `code/config.yaml` (default value set to an appropriate line frequency). to allow adaptation to 60 Hz datasets. Output preprocessed data to `data/processed/cleaned_eeg.fif`. **Verification**: Create `tests/integration/test_preprocess.py::test_line_noise_attenuation` that computes PSD and asserts the peak at the configured notch frequency is attenuated by >20dB compared to the raw signal. Assert file exists and contains data for ≥30 participants.
 - [ ] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons to `logs/exclusion_log.csv`. **Verification**: Assert `logs/exclusion_log.csv` exists and contains columns `[participant_id, reason, timestamp]`. Additionally, assert that the `reason` column contains valid rejection reasons (e.g., 'amplitude > 100uV', 'segment < 120s').
 - [ ] T026 [P] [US1] Verify streaming data loading in `code/preprocess.py` ensures peak memory usage ≤ 7 GB (per DC‑001 and SC‑003) (targeting DC‑001). **Implementation Detail**: This task is a verification step that runs AFTER T010 implementation. It asserts that `preload=False` is used and generator-based iteration is implemented. **Verification**: Assert peak memory usage stays below 7GB during processing of the full dataset using a memory profiler.
 
@@ -105,12 +86,8 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Implement `code/features.py` to calculate Lempel‑Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `lzc_value` (float64, decimal places). **Verification**: Assert `data/processed/lzc_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. The output MUST contain data for N≥30 participants. Additionally, run the calculation on a synthetic signal (white noise, A high sampling rate will be employed., s duration, amplitude normalized to unity) and assert the output value falls within the expected range (0.45 < value < 0.55).
-- [ ] T015 [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `pe_value` (float64, A high-precision numerical format.). **Verification**: Assert `data/processed/pe_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. The output MUST contain data for N≥30 participants. Additionally, run the calculation on a synthetic signal (white noise, Hz sampling rate, A duration of approximately two minutes., embedding dimension is set to a value appropriate for the task
-
-The research question is: How does embedding dimensionality affect model performance?
-The method is: Comparative analysis of model variants across different embedding sizes.
-References: [DOI/arXiv/author-year], delay 1, amplitude 1.0) and assert the output value falls within the expected range (0.9 < value < 1.1).
+- [ ] T014 [US2] Implement `code/features.py` to calculate Lempel‑Ziv complexity per channel per FR-003. Output to `data/processed/lzc_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `lzc_value` (float64). **Verification**: Assert `data/processed/lzc_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. The output MUST contain data for N≥30 participants. Additionally, run the calculation on a synthetic signal (white noise, 256 Hz sampling rate, 120 seconds duration, seed=42, amplitude normalized to unity) and assert the output value is a numeric float within the theoretical range of [0, 1].
+- [ ] T015 [US2] Implement `code/features.py` to calculate Permutation Entropy per channel per FR-003. Output to `data/processed/pe_metrics.csv`. **Schema**: `participant_id` (str), `channel` (str), `pe_value` (float64). **Verification**: Assert `data/processed/pe_metrics.csv` exists, is non‑empty, and contains the three columns in the specified order. The output MUST contain data for N≥30 participants. Additionally, run the calculation on a synthetic signal (white noise, 256 Hz sampling rate, 120 seconds duration, embedding dimension = 3, seed=42) and assert the output value is a numeric float within the theoretical range of [0, 1].
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,7 +107,7 @@ References: [DOI/arXiv/author-year], delay 1, amplitude 1.0) and assert the outp
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement `code/analysis.py` validation: Check for columns `[pre_fatigue, post_fatigue, pre_eeg_id, post_eeg_id]` in the metadata dataframe. **CRITICAL**: If paired data exists, proceed to paired analysis. The implementation MUST first attempt an ANCOVA model `Post ~ Pre + Fatigue` as a robustness check, but the primary statistical output MUST be Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores per FR-004. If paired data is missing but baseline fatigue exists, pivot to cross‑sectional analysis (Baseline Complexity vs. Baseline Fatigue). If neither condition is met, write `validation_report.json` with error details and exit with code 1. **Verification**: Create `tests/unit/test_analysis.py::test_ancova_implementation` that verifies the ANCOVA model is correctly applied for paired data and that correlation coefficients are reported.
+- [ ] T018 [US3] Implement `code/analysis.py` validation: Check for columns representing paired pre/post fatigue ratings in the metadata dataframe. **CRITICAL**: If paired data exists, proceed to paired analysis. The primary statistical output MUST be Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores per FR-004. An ANCOVA model (`Post ~ Pre + Fatigue`) may be run as an optional exploratory robustness check, but the primary reported results must be the correlation coefficients. If paired data is missing but baseline fatigue exists, pivot to cross‑sectional analysis (Baseline Complexity vs. Baseline Fatigue). If neither condition is met, write `validation_report.json` with error details and exit with code 1. **Verification**: Create `tests/unit/test_analysis.py::test_correlation_implementation` that verifies the correlation analysis is correctly applied for paired data and that correlation coefficients are reported as the primary output.
 - [ ] T019 [US3] Implement `code/analysis.py` for Pearson/Spearman correlation between complexity changes (delta) and fatigue delta scores (paired mode) OR baseline complexity vs baseline fatigue (cross‑sectional mode) per FR-004. **CRITICAL**: The implementation MUST explicitly exclude participants with missing fatigue ratings and log the exclusion count per Edge Cases. **Verification**: Create `tests/unit/test_analysis.py::test_correlation_calculation` that runs on mock data with known correlation values and asserts the output matches.
 - [ ] T020 [P] [US3] Implement Benjamini‑Hochberg correction for multiple comparisons across electrodes per FR-005. **Verification**: Create `tests/unit/test_analysis.py::test_bh_correction` that runs the correction on a known set of p-values (e.g., a range of representative values) and asserts the adjusted p-values match the theoretical calculation.
 - [ ] T021 [US3] Implement sensitivity analysis at p≤0.05 and p≤0.01 thresholds with result table per FR-006. Output table to `data/analysis/sensitivity_table.csv`. **Schema Requirement**: The CSV MUST contain columns: `threshold` (float), `count_significant` (int). **Verification**: Assert `data/analysis/sensitivity_table.csv` exists and contains the two specified columns with correct counts of significant electrodes at each threshold.
@@ -230,16 +207,19 @@ With multiple developers:
 - **Critical**: All tasks must run on CPU‑only CI (limited cores, constrained RAM, no GPU)
 - **Critical**: No synthetic/fake data allowed; must use real datasets from verified sources
 - **Critical**: T009 implements the mandatory validation logic for paired pre/post fatigue ratings as defined in FR-001.
-- **Critical**: T010 specifies the 1–40 Hz bandpass filter and mandatory 50 Hz notch filter as required by FR-002 and Constitution Principle VI.
-- **Critical**: T018 implements the conditional fallback logic (ANCOVA for paired, cross‑sectional for single-timepoint) as defined in the plan, using Pearson/Spearman correlation as mandated by FR-004.
+- **Critical**: T010 specifies the 1–40 Hz bandpass filter and configurable notch filter as required by FR-002 and Constitution Principle VI.
+- **Critical**: T018 implements the conditional fallback logic (correlation for paired, cross‑sectional for single-timepoint) as defined in the plan, using Pearson/Spearman correlation as mandated by FR-004.
 - **Critical**: T022, T023, T024, etc. respect the spec‑defined deliverables.
 - **Critical**: T021 now explicitly defines the schema for the sensitivity analysis table to meet FR-006 (count of significant electrodes).
 - **Critical**: T026 specifies the use of `preload=False` and generator iteration for streaming, with memory target aligned to DC-001 (≤ 7 GB).
 - **Critical**: T029 has been moved to Phase 2 to resolve the circular dependency with `quickstart.md`.
-- **Critical**: Tasks T030, T031, T032, T033, T034, T035, T036, T037, T038, T039, and T040 have been removed to strictly adhere to the spec's authorized features (FR-003: LZC and PE only) and eliminate unapproved scope creep.
+- **Critical**: Tasks T030, T031, T032, T033 have been removed to align with FR-003 and eliminate scope creep.
+- **Critical**: T006 (ComplexityMetric model class) has been removed to avoid over-engineering.
 - **Critical (Revision)**: Task T026 has been moved to Phase 3 to ensure memory constraints are met during preprocessing implementation.
-- **Critical (Revision)**: Task T010 now includes a mandatory 50 Hz notch filter application.
-- **Critical (Revision)**: Task T018 now explicitly implements the ANCOVA approach for paired data as required to complement the correlation analysis.
+- **Critical (Revision)**: Task T010 now includes a configurable notch filter frequency.
+- **Critical (Revision)**: Task T018 now explicitly prioritizes correlation analysis over ANCOVA.
 - **Critical (Revision)**: Task T021 now correctly defines the schema for the count of significant electrodes.
 - **Critical (Revision)**: Task T006 (ComplexityMetric model class) has been removed to avoid over-engineering.
 - **Critical (Revision)**: Task T009 now reads `n_threshold` from `code/config.yaml` to accommodate deferred power analysis.
+- **Critical (Revision)**: Task T009 now checks for multiple column name variations for fatigue ratings.
+- **Critical (Revision)**: Task T014 and T015 verification steps now use precise synthetic signal parameters and remove unverified numeric thresholds.

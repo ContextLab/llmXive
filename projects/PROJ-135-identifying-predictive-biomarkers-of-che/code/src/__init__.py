@@ -1,51 +1,31 @@
 """
-llmXive Automated Science Pipeline - Source Package.
-
-This package contains the core logic for the biomarker discovery pipeline,
-including data acquisition, preprocessing, differential expression,
-meta-analysis, and modeling.
+llmXive: Identifying Predictive Biomarkers of Chemotherapy Response
 """
-
-from .config import (
-    PROJECT_ROOT,
-    DATA_DIR,
-    RAW_DIR,
-    PROCESSED_DIR,
-    RESULTS_DIR,
-    META_ANALYSIS_DIR,
-    STATE_DIR,
-    CONTRACTS_DIR,
-    MAX_VARIANCE_GENES,
-    RANDOM_SEED,
-    FDR_THRESHOLD,
-    ensure_directories,
-)
+from .config import ensure_directories
 from .utils import (
     setup_logging,
     calculate_checksum,
     generate_checksums_for_directory,
     timeout_handler,
     watchdog,
-    TimeoutError,
+    ensure_path_exists,
+    get_file_size_mb,
+    update_state_artifact_hashes,
 )
-
-__all__ = [
-    "PROJECT_ROOT",
-    "DATA_DIR",
-    "RAW_DIR",
-    "PROCESSED_DIR",
-    "RESULTS_DIR",
-    "META_ANALYSIS_DIR",
-    "STATE_DIR",
-    "CONTRACTS_DIR",
-    "MAX_VARIANCE_GENES",
-    "RANDOM_SEED",
-    "FDR_THRESHOLD",
-    "ensure_directories",
-    "setup_logging",
-    "calculate_checksum",
-    "generate_checksums_for_directory",
-    "timeout_handler",
-    "watchdog",
-    "TimeoutError",
-]
+from .data_acquisition import (
+    download_from_huggingface,
+    verify_response_labels,
+    update_state_artifact_hashes as update_hashes_acq,
+    download_tcga_data,
+    run_data_feasibility_gate,
+    write_feasibility_gate_result,
+    main as data_acquisition_main,
+)
+from .preprocessing import (
+    load_processed_data,
+    harmonize_gene_ids,
+    filter_low_expression_genes,
+    save_filtered_data,
+    process_tumor_type,
+    main as preprocessing_main,
+)

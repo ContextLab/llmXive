@@ -1,105 +1,95 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Meta-Analysis Schema
-description: Schema for the meta-analysis results and the final selected gene panel.
+description: |
+  Schema for meta-analysis results, including gene panel selection,
+  Stouffer's method p-values, and intersection/union logic.
 type: object
 required:
   - metadata
   - gene_panel
-  - selection_method
-  - statistical_summary
+  - meta_analysis_results
 properties:
   metadata:
     type: object
     required:
       - analysis_date
+      - method
       - tumor_types_included
-      - total_discovery_samples
+      - selection_strategy
     properties:
       analysis_date:
         type: string
         format: date-time
+      method:
+        type: string
+        enum: ["intersection", "union", "stouffers"]
+        description: Primary selection method used
       tumor_types_included:
         type: array
         items:
           type: string
-        description: "List of tumor types included in the meta-analysis"
-      total_discovery_samples:
+        description: List of tumor types included in meta-analysis
+      selection_strategy:
+        type: string
+        description: Detailed strategy (e.g., "Intersection of significant genes")
+      fallback_reason:
+        type: string
+        nullable: true
+        description: Reason for fallback if union was used (e.g., "intersection_empty")
+  gene_panel:
+    type: object
+    required:
+      - genes
+      - count
+    properties:
+      genes:
+        type: array
+        items:
+          type: string
+        description: List of HGNC gene symbols in the final panel
+      count:
         type: integer
         minimum: 1
-      fdr_threshold:
-        type: number
-        minimum: 0
-        maximum: 1
-      log2fc_threshold:
-        type: number
-  selection_method:
-    type: string
-    enum:
-      - intersection
-      - union_top_ranked
-      - stouffer_meta_analysis
-    description: "Method used to select the final gene panel"
-  fallback_reason:
-    type: string
-    nullable: true
-    description: "Reason for fallback if intersection was empty (e.g., 'intersection_empty')"
-  gene_panel:
+        description: Number of genes in the panel
+  meta_analysis_results:
     type: array
-    description: "Final list of genes in the panel with their meta-analysis statistics"
+    description: Detailed results per gene
     items:
       type: object
       required:
         - gene_symbol
-        - rank
+        - combined_p_value
+        - z_score
+        - significant_in_count
       properties:
         gene_symbol:
           type: string
-        rank:
+        combined_p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        z_score:
+          type: number
+        log2fc_avg:
+          type: number
+        significant_in_count:
           type: integer
-        p_value_meta:
-          type: number
           minimum: 0
-          maximum: 1
-        combined_log2fc:
-          type: number
-        fdr_meta:
-          type: number
-          minimum: 0
-          maximum: 1
-        presence_count:
-          type: integer
-          description: "Number of tumor types where this gene was significant"
-        effect_direction_consistency:
-          type: number
-          description: "Fraction of tumor types with consistent effect direction"
-  statistical_summary:
+          description: Number of tumor types where gene was significant
+        tumor_type_pvalues:
+          type: object
+          description: P-values per tumor type
+          additionalProperties:
+            type: number
+  differential_expression_summary:
     type: object
-    required:
-      - n_genes_initial
-      - n_genes_final
-      - intersection_size
-    properties:
-      n_genes_initial:
-        type: integer
-        description: "Total unique genes tested across all tumor types"
-      n_genes_final:
-        type: integer
-        description: "Number of genes in the final panel"
-      intersection_size:
-        type: integer
-        description: "Size of the intersection set before fallback"
-      stouffer_z_max:
-        type: number
-        description: "Maximum Z-score from Stouffer's method"
-  de_results_by_tumor:
-    type: object
-    description: "Summary of DE results per tumor type (optional but useful for audit)"
+    description: Summary of DE results per tumor type
     additionalProperties:
       type: object
       properties:
-        n_sig_genes:
+        total_significant_genes:
           type: integer
-        top_gene:
-          type: string
-        auc_baseline:
+        fdr_threshold:
+          type: number
+        log2fc_threshold:
           type: number

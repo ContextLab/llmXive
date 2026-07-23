@@ -1,71 +1,58 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
 title: Correlation Results Schema
 description: >
-  Schema for the output of the statistical analysis phase (US3).
-  Defines the structure for partial Spearman correlation results,
-  p-values, and sensitivity analysis data as specified in FR-006 and FR-010.
+  Schema for the output of the statistical analysis phase (User Story 3).
+  Defines the structure of `data/results/correlation_results.json`.
+  Contains partial Spearman rank correlation statistics and sensitivity analysis data.
 type: object
 required:
-  - correlation
-  - sensitivity
+  - partial_correlation
+  - sensitivity_analysis
   - metadata
 properties:
-  correlation:
+  partial_correlation:
     type: object
-    description: Primary partial Spearman rank correlation results between cumulative XUV flux and retention fraction.
+    description: >
+      Results of the partial Spearman rank correlation between
+      cumulative_xuv_flux and retention_fraction, controlling for
+      stellar_mass and semi_major_axis.
     required:
       - rho_partial
       - p_value
+      - n_samples
       - method
-      - variables
-      - controls
     properties:
       rho_partial:
         type: number
         description: The partial Spearman rank correlation coefficient (ρ).
-        minimum: -1
-        maximum: 1
+        minimum: -1.0
+        maximum: 1.0
       p_value:
         type: number
-        description: The two-tailed p-value for the correlation test.
-        minimum: 0
-        maximum: 1
+        description: The p-value associated with the correlation coefficient.
+        minimum: 0.0
+        maximum: 1.0
+      n_samples:
+        type: integer
+        description: Number of samples (systems) included in the analysis.
+        minimum: 1
       method:
         type: string
+        description: The statistical method used.
         const: "partial_spearman_rank"
-        description: The specific statistical method used.
-      variables:
+      confidence_interval:
         type: object
-        description: The primary variables being correlated.
-        required:
-          - x
-          - y
+        description: Optional 95% confidence interval for rho_partial.
         properties:
-          x:
-            type: string
-            const: "cumulative_flux"
-            description: Name of the independent variable.
-          y:
-            type: string
-            const: "retention_fraction"
-            description: Name of the dependent variable.
-      controls:
-        type: array
-        description: List of control variables used in the partial correlation.
-        items:
-          type: string
-        example:
-          - mass
-          - semi_major_axis
-      sample_size:
-        type: integer
-        description: Number of data points used in the correlation.
-        minimum: 1
-  sensitivity:
+          lower:
+            type: number
+          upper:
+            type: number
+  sensitivity_analysis:
     type: object
-    description: Results from the sensitivity analysis varying atmospheric mass baselines (FR-010).
+    description: >
+      Results of the sensitivity analysis performed by varying the
+      initial atmospheric mass baseline (M_atm_initial).
     required:
       - baselines
       - correlations
@@ -73,46 +60,54 @@ properties:
     properties:
       baselines:
         type: array
-        description: List of M_atm_initial baseline values tested (as fraction of planet mass).
+        description: List of M_atm_initial baseline values tested.
         items:
           type: number
-        minItems: 1
       correlations:
         type: array
-        description: List of ρ_partial values corresponding to each baseline.
+        description: List of rho_partial values corresponding to each baseline.
         items:
           type: number
-          minimum: -1
-          maximum: 1
-        minItems: 1
       variation:
-        type: number
-        description: The range (max - min) or standard deviation of the correlation coefficients across baselines.
+        type: object
+        description: Statistical summary of the variation in correlation coefficients.
+        required:
+          - range
+          - std_dev
+        properties:
+          range:
+            type: object
+            properties:
+              min:
+                type: number
+              max:
+                type: number
+          std_dev:
+            type: number
+            description: Standard deviation of the correlation coefficients across baselines.
   metadata:
     type: object
-    description: Provenance and execution context.
+    description: Metadata about the analysis run.
     required:
-      - generated_at
       - input_file
-      - software_versions
+      - timestamp
+      - version
     properties:
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
       input_file:
         type: string
-        description: Relative path to the input data file (derived_physics.csv).
-      software_versions:
-        type: object
-        description: Versions of key libraries used.
-        properties:
-          python:
-            type: string
-          scipy:
-            type: string
-          numpy:
-            type: string
-          pingouin:
-            type: string
-additionalProperties: false
+        description: Path to the input data file used (e.g., data/processed/derived_physics.csv).
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the analysis was run.
+      version:
+        type: string
+        description: Version of the analysis script.
+      controls:
+        type: array
+        description: List of variables controlled for in the partial correlation.
+        items:
+          type: string
+        const:
+          - "mass"
+          - "semi_major_axis"

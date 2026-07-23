@@ -1,0 +1,45 @@
+T013:
+  c: false
+  h: 7d9ccf374aa973994f584f2224fb45212cd946dbcabac8d6ef5972cc826df1b0
+  r: "The `code/ingest.py` file contains placeholder functions (`fetch_dst_indices`\
+    \ returns an empty list and `write_dst_data` does nothing) and does not implement\
+    \ any logic to download Dst indices or write them to a CSV. Moreover, the required\
+    \ output file `data/raw/dst_indices.csv` is absent. The task\u2019s core requirement\u2014\
+    downloading Dst data and saving it to the specified CSV\u2014is therefore not\
+    \ satisfied."
+T013b:
+  c: false
+  h: 43585f5ca0754e941dc4e4e34c6eba0e576d4fb42a0129035899083c92f5c898
+  r: The repository lacks the required `data/raw/kp_indices.csv` file, and the provided
+    `code/ingest.py` contains only a stub for fetching Kp data without any logic to
+    write the results to CSV or validate against a schema. The implementation is therefore
+    incomplete.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `aligned_events.csv` (or any derived file) containing the required `is_recurrent`\
+    \ flag was provided. The evidence lacks the primary dataset with the recurrent\u2011\
+    activity flag, so the task\u2019s core requirement is not demonstrated."
+T017:
+  c: false
+  h: 7d6a797ebe2192b79a300201d2c4b25514aac3de2e3756dbe63a9f8f1d4fcdff
+  r: "The required file `data/processed/aligned_events.csv` does not exist, and the\
+    \ `data/source_manifest.yaml` still shows the aligned_events entry with status\
+    \ \u201CPending\u201D and no checksum values. Both the CSV output and the manifest\
+    \ updates are missing."
+T018:
+  c: false
+  h: 95a01c4dccad08c0e6f86156591830bbd3ade2ff2510fd607fc50f2f7d190d12
+  r: The repository contains a `code/validate.py` with a validation function, but
+    the required schema file `contracts/aligned_event.schema.yaml` is missing, so
+    the validation cannot actually be performed. Moreover, there is no evidence that
+    the validation result is used to prevent writing `aligned_events.csv` or updating
+    `data/source_manifest.yaml`. Both the schema and the blocking integration are
+    absent.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output was provided showing that data\u2011quality\
+    \ metrics (e.g., counts of missing CME speeds, missing flare entries, etc.) are\
+    \ being logged. Without an artifact demonstrating the added logging, the requirement\
+    \ cannot be confirmed as satisfied."

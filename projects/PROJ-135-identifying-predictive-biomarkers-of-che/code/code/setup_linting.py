@@ -3,110 +3,112 @@ import subprocess
 import sys
 from pathlib import Path
 
-
-def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
-    """Execute a shell command and return the result."""
+def run_command(cmd: list[str], description: str) -> bool:
+    """Run a shell command and return True if successful."""
+    print(f"Running: {description}")
     try:
         result = subprocess.run(
             cmd,
-            check=check,
+            check=True,
             capture_output=True,
-            text=True,
-            shell=False,
+            text=True
         )
         if result.stdout:
             print(result.stdout)
         if result.stderr:
             print(result.stderr, file=sys.stderr)
-        return result
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e}")
+        print(f"Error running {description}: {e}")
         if e.stderr:
             print(e.stderr, file=sys.stderr)
-        if check:
-            sys.exit(1)
-        return e
-
+        return False
 
 def check_tool_installed(tool_name: str) -> bool:
-    """Check if a tool is installed in the current environment."""
+    """Check if a tool is installed and accessible."""
     try:
         subprocess.run(
             [tool_name, "--version"],
             check=True,
-            capture_output=True,
-            text=True,
-            shell=False,
+            capture_output=True
         )
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-
-def install_tools():
+def install_tools() -> bool:
     """Install ruff and black if not present."""
     print("Checking and installing linting tools...")
-    tools = [("ruff", "ruff"), ("black", "black")]
-    for name, pkg in tools:
-        if not check_tool_installed(name):
-            print(f"Installing {name}...")
-            run_command([sys.executable, "-m", "pip", "install", pkg])
-        else:
-            print(f"{name} is already installed.")
+    success = True
 
+    if not check_tool_installed("ruff"):
+        print("Installing ruff...")
+        if not run_command([sys.executable, "-m", "pip", "install", "ruff"], "Install ruff"):
+            success = False
 
-def verify_config_files():
+    if not check_tool_installed("black"):
+        print("Installing black...")
+        if not run_command([sys.executable, "-m", "pip", "install", "black"], "Install black"):
+            success = False
+
+    return success
+
+def verify_config_files() -> bool:
     """Verify that configuration files exist in the project root."""
-    root = Path(__file__).resolve().parent
-    config_files = [
-        root / ".ruff.toml",
-        root / "pyproject.toml",
-    ]
-    missing = [f for f in config_files if not f.exists()]
-    if missing:
-        print(f"Warning: Missing configuration files: {missing}")
-        print("Please ensure .ruff.toml and pyproject.toml are present.")
+    config_file = Path("pyproject.toml")
+    if not config_file.exists():
+        print(f"Error: {config_file} not found in project root.")
         return False
+
+    # Check for ruff section
+    content = config_file.read_text()
+    if "[tool.ruff]" not in content:
+        print("Error: [tool.ruff] section missing in pyproject.toml")
+        return False
+
+    if "[tool.black]" not in content:
+        print("Error: [tool.black] section missing in pyproject.toml")
+        return False
+
     print("Configuration files verified.")
     return True
 
-
-def run_ruff_check():
+def run_ruff_check() -> bool:
     """Run ruff check on the codebase."""
-    root = Path(__file__).resolve().parent
-    print("Running ruff check...")
-    run_command(["ruff", "check", str(root)], check=False)
+    return run_command(["ruff", "check", "."], "Running ruff check")
 
-
-def run_ruff_format():
+def run_ruff_format() -> bool:
     """Run ruff format on the codebase."""
-    root = Path(__file__).resolve().parent
-    print("Running ruff format...")
-    run_command(["ruff", "format", str(root)], check=False)
+    return run_command(["ruff", "format", "."], "Running ruff format")
 
-
-def run_black_check():
+def run_black_check() -> bool:
     """Run black --check on the codebase."""
-    root = Path(__file__).resolve().parent
-    print("Running black --check...")
-    run_command(["black", "--check", str(root)], check=False)
+    return run_command(["black", "--check", "."], "Running black check")
 
-
-def main():
-    """Main entry point for the setup_linting script."""
+def main() -> int:
+    """Main entry point for linting setup."""
     print("=== Linting and Formatting Setup ===")
-    install_tools()
-    if not verify_config_files():
-        print("Configuration verification failed. Please check manually.")
-    else:
-        print("\n--- Running Checks ---")
-        run_ruff_check()
-        run_black_check()
-        print("\n--- Running Formatters ---")
-        run_ruff_format()
-        # Note: ruff format usually supersedes black, but we run both if configured
-        print("Linting setup complete.")
 
+    # 1. Install tools
+    if not install_tools():
+        print("Failed to install tools.")
+        return 1
+
+    # 2. Verify config
+    if not verify_config_files():
+        print("Configuration verification failed.")
+        return 1
+
+    # 3. Run checks (optional, just to demonstrate they work)
+    print("\n--- Running Initial Checks ---")
+    # We run check first, then format. If check fails, we might want to fix it.
+    # For setup, we just ensure the commands exist and run.
+    run_ruff_check()
+    run_ruff_format()
+    run_black_check()
+
+    print("\n=== Linting Setup Complete ===")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

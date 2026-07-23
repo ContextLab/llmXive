@@ -64,6 +64,8 @@ def main():
         # which is 'glue' with config 'sst2'.
         
         logger.info("Attempting to load dataset with load_dataset('glue', 'sst2')...")
+        # Fix: Explicitly use the 'glue' dataset name which is registered in the HuggingFace Hub
+        # and points to the correct loading script.
         dataset = load_dataset("glue", "sst2", trust_remote_code=False)
         
         logger.info("Dataset loaded successfully.")

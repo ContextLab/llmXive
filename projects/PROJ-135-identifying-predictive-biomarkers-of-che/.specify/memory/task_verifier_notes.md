@@ -4,7 +4,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T001** — No directory structure is presented in the provided evidence; the required folders (src/, data/raw/, data/processed/, results/, results/meta_analysis/, tests/, specs/001-chemo-biomarker-discovery/contracts/, state/) are not shown to exist or contain any files. The implementer must create and display this project hierarchy.
 - **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or a `black` config) or setup scripts are present in the provided evidence, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and ensure they are committed to the repository.
-- **T004** — declared artifact(s) missing/empty/invalid: src/config.py
 - **T005** — declared artifact(s) missing/empty/invalid: src/utils.py
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T007** — declared artifact(s) missing/empty/invalid: src/__init__.py, src/main.py
@@ -13,7 +12,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T012** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py
 - **T013** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py
 - **T013b** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py, results/summary.md
-- **T014** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py, data/feasibility_gate.json
-- **T015** — declared artifact(s) missing/empty/invalid: src/preprocessing.py
-- **T016** — declared artifact(s) missing/empty/invalid: src/preprocessing.py
-- **T017** — declared artifact(s) missing/empty/invalid: src/preprocessing.py

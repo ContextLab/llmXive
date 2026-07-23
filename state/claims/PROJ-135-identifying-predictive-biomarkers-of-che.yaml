@@ -1,0 +1,35 @@
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/results/summary.md
+  attempts: 1
+  canonical: 1250 total samples downloaded from TCGA for BRCA, LUAD, and COAD
+  claim_id: c_4430bc3c
+  context: TCGA Data section listing Tumor Types Downloaded as BRCA, LUAD, COAD and
+    Total Samples as 1250.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Samples: 1250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:11:18Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/results/summary.md
+  attempts: 1
+  canonical: GSE25055 and GSE42752 attempted but skipped due to missing data
+  claim_id: c_5525e959
+  context: GEO Data section listing Datasets Attempted as GSE25055, GSE42752 with
+    status Skipped.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSE25055_and_GSE42752_attempted_but_skipped_due_to_missing_d
+  kind: entity_fact
+  raw_text: GEO datasets GSE25055 and GSE42752 were attempted but skipped due to being
+    unavailable or missing response labels
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:20:53Z'

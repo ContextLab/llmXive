@@ -1,56 +1,61 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for processed cancer datasets (TCGA/GEO) after harmonization and normalization.
+title: Chemo Biomarker Dataset Schema
+description: |
+  Schema for processed cancer datasets used in the biomarker discovery pipeline.
+  Covers both TCGA and GEO derived data after harmonization and filtering.
 type: object
 required:
   - metadata
   - samples
   - features
-  - splits
 properties:
   metadata:
     type: object
     required:
       - source
       - tumor_type
-      - platform
       - processing_date
-      - checksum
+      - version
+      - sample_count
+      - gene_count
+      - response_distribution
     properties:
       source:
         type: string
-        description: "Data source (e.g., TCGA-BRCA, GEO-GSE25055)"
+        description: Source identifier (e.g., 'TCGA-BRCA', 'GSE25055')
       tumor_type:
         type: string
-        description: "Tumor type code (e.g., BRCA, LUAD)"
-      platform:
-        type: string
-        description: "Assay platform (e.g., RNA-seq, Affymetrix)"
+        description: Standardized tumor type code (e.g., 'BRCA', 'LUAD')
       processing_date:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of processing"
-      checksum:
+        description: ISO 8601 timestamp of processing
+      version:
         type: string
-        description: "SHA-256 checksum of the raw source file"
-      n_samples:
+        description: Pipeline version used for processing
+      sample_count:
         type: integer
         minimum: 1
-      n_genes:
+        description: Total number of samples in this dataset
+      gene_count:
         type: integer
         minimum: 1
+        description: Total number of genes (features) after filtering
       response_distribution:
         type: object
+        required:
+          - responders
+          - non_responders
         properties:
-          responder:
+          responders:
             type: integer
-          non_responder:
+            minimum: 0
+          non_responders:
             type: integer
-          unknown:
-            type: integer
+            minimum: 0
   samples:
     type: array
-    description: "List of sample identifiers and their clinical labels"
+    description: List of sample metadata
     items:
       type: object
       required:
@@ -59,35 +64,39 @@ properties:
       properties:
         sample_id:
           type: string
+          description: Unique sample identifier
         response_label:
           type: string
-          enum:
-            - responder
-            - non_responder
-            - unknown
-        clinical_covariates:
-          type: object
-          description: "Optional additional clinical data (age, stage, etc.)"
+          enum: ["responder", "non_responder"]
+          description: Clinical response status (RECIST/CR/PR based)
+        platform:
+          type: string
+          description: Platform used (e.g., 'Illumina HiSeq', 'Affymetrix')
+        batch_id:
+          type: string
+          description: Batch identifier for correction
   features:
     type: array
-    description: "List of feature (gene) identifiers"
+    description: List of gene features
     items:
-      type: string
-      description: "HGNC symbol or Ensembl ID"
-  splits:
+      type: object
+      required:
+        - gene_symbol
+        - biotype
+      properties:
+        gene_symbol:
+          type: string
+          description: HGNC gene symbol
+        biotype:
+          type: string
+          description: Gene biotype (e.g., 'protein_coding')
+  expression_data:
     type: object
-    description: "Indices or IDs belonging to discovery and training sets"
-    required:
-      - discovery_set
-      - training_set
-    properties:
-      discovery_set:
-        type: array
-        items:
-          type: string
-        description: "Sample IDs in the discovery set"
-      training_set:
-        type: array
-        items:
-          type: string
-        description: "Sample IDs in the training set"
+    description: |
+      Matrix of expression values. Keys are sample_ids, values are objects
+      mapping gene_symbols to numeric expression values (VST/normalized).
+      Represented as a nested dictionary for JSON compatibility.
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: number

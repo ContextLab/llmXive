@@ -1,23 +1,25 @@
-"""
-Statistical analysis module for dendritic transformer experiments.
-
-This module implements statistical tests (Wilcoxon signed-rank, paired t-test)
-and multiple hypothesis correction (Benjamini-Hochberg) to analyze the
-performance of dendritic vs baseline models across layers and thresholds.
-"""
-
 import os
 import sys
 import json
 import csv
 import argparse
 import logging
-from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass, asdict
+import statistics
 from pathlib import Path
+from typing import List, Dict, Any, Optional
+import yaml
 
-import numpy as np
-from scipy import stats
+# Ensure we can import from the project root
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Import from existing modules as per API surface
+from experiments.probe import set_seed, load_checkpoint, extract_layer_features, train_linear_probe, main as probe_main
+from experiments.analyze import (
+    ProbeResult, AnalysisResult, load_probe_results, pair_results,
+    wilcoxon_signed_rank_test, paired_t_test, compute_effect_size,
+    benjamini_hochberg_correction, analyze_layer_performance, save_results
+)
+from experiments.train import load_sst2_data, get_model
 
 # Configure logging
 logging.basicConfig(
@@ -26,432 +28,394 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def load_config(config_path: str) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-@dataclass
-class ProbeResult:
-    """Result from a single probing experiment."""
-    layer_name: str
-    model_type: str  # 'baseline' or 'dendritic'
-    threshold: Optional[float]  # None for baseline
-    accuracy: float
-    f1_score: float
-    seed: int
-    checkpoint_path: str
-
-
-@dataclass
-class AnalysisResult:
-    """Result from statistical analysis of probe results."""
-    layer_name: str
-    test_type: str  # 'wilcoxon' or 't_test'
-    statistic: float
-    p_value: float
-    effect_size: float  # Cohen's d or rank-biserial correlation
-    significant: bool
-    corrected_p_value: float
-    significant_after_correction: bool
-    n_pairs: int
-    mean_diff: float
-    std_diff: float
-
-
-def load_probe_results(input_dir: str) -> List[ProbeResult]:
+def run_probing_for_threshold(
+    threshold: float,
+    input_dir: str,
+    output_dir: str,
+    config: Dict[str, Any],
+    seed: int = 42
+) -> Optional[Dict[str, Any]]:
     """
-    Load probe results from CSV files in the input directory.
-
+    Run probing logic (T025) for a specific dendritic threshold.
+    
     Args:
-        input_dir: Directory containing probe result CSV files.
-
+        threshold: The dendritic threshold value to test
+        input_dir: Directory containing saved checkpoints
+        output_dir: Directory to save results
+        config: Configuration dictionary
+        seed: Random seed for reproducibility
+    
     Returns:
-        List of ProbeResult objects.
+        Dictionary containing probing results or None if failed
     """
-    results = []
-    input_path = Path(input_dir)
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input directory not found: {input_dir}")
-
-    csv_files = list(input_path.glob("probe_results_*.csv"))
-    if not csv_files:
-        logger.warning(f"No probe result CSV files found in {input_dir}")
-        return results
-
-    for csv_file in csv_files:
-        with open(csv_file, 'r') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                results.append(ProbeResult(
-                    layer_name=row['layer_name'],
-                    model_type=row['model_type'],
-                    threshold=float(row['threshold']) if row['threshold'] != 'None' else None,
-                    accuracy=float(row['accuracy']),
-                    f1_score=float(row['f1_score']),
-                    seed=int(row['seed']),
-                    checkpoint_path=row['checkpoint_path']
-                ))
-
-    logger.info(f"Loaded {len(results)} probe results from {len(csv_files)} files")
-    return results
-
-
-def pair_results(results: List[ProbeResult]) -> Dict[str, List[Tuple[ProbeResult, ProbeResult]]]:
-    """
-    Pair baseline and dendritic results for the same layer, seed, and threshold.
-
-    Args:
-        results: List of ProbeResult objects.
-
-    Returns:
-        Dictionary mapping layer names to lists of (baseline, dendritic) pairs.
-    """
-    # Group by layer, seed, and threshold
-    grouped: Dict[Tuple[str, int, Optional[float]], List[ProbeResult]] = {}
-
-    for result in results:
-        key = (result.layer_name, result.seed, result.threshold)
-        if key not in grouped:
-            grouped[key] = []
-        grouped[key].append(result)
-
-    # Pair baseline and dendritic
-    paired: Dict[str, List[Tuple[ProbeResult, ProbeResult]]] = {}
-
-    for (layer_name, seed, threshold), group in grouped.items():
-        baseline = next((r for r in group if r.model_type == 'baseline'), None)
-        dendritic = next((r for r in group if r.model_type == 'dendritic'), None)
-
-        if baseline and dendritic:
-            if layer_name not in paired:
-                paired[layer_name] = []
-            paired[layer_name].append((baseline, dendritic))
-
-    logger.info(f"Paired {sum(len(v) for v in paired.values())} results across {len(paired)} layers")
-    return paired
-
-
-def wilcoxon_signed_rank_test(baseline_values: List[float], dendritic_values: List[float]) -> Tuple[float, float]:
-    """
-    Perform Wilcoxon signed-rank test.
-
-    Args:
-        baseline_values: List of baseline accuracy values.
-        dendritic_values: List of dendritic accuracy values.
-
-    Returns:
-        Tuple of (statistic, p_value).
-    """
-    if len(baseline_values) != len(dendritic_values):
-        raise ValueError("Input lists must have the same length")
-
-    if len(baseline_values) < 3:
-        logger.warning("Too few samples for Wilcoxon test, returning NaN")
-        return float('nan'), float('nan')
-
-    statistic, p_value = stats.wilcoxon(baseline_values, dendritic_values)
-    return float(statistic), float(p_value)
-
-
-def paired_t_test(baseline_values: List[float], dendritic_values: List[float]) -> Tuple[float, float]:
-    """
-    Perform paired t-test.
-
-    Args:
-        baseline_values: List of baseline accuracy values.
-        dendritic_values: List of dendritic accuracy values.
-
-    Returns:
-        Tuple of (statistic, p_value).
-    """
-    if len(baseline_values) != len(dendritic_values):
-        raise ValueError("Input lists must have the same length")
-
-    if len(baseline_values) < 3:
-        logger.warning("Too few samples for t-test, returning NaN")
-        return float('nan'), float('nan')
-
-    statistic, p_value = stats.ttest_rel(baseline_values, dendritic_values)
-    return float(statistic), float(p_value)
-
-
-def compute_effect_size(baseline_values: List[float], dendritic_values: List[float], test_type: str) -> float:
-    """
-    Compute effect size (Cohen's d for t-test, rank-biserial for Wilcoxon).
-
-    Args:
-        baseline_values: List of baseline accuracy values.
-        dendritic_values: List of dendritic accuracy values.
-        test_type: 't_test' or 'wilcoxon'.
-
-    Returns:
-        Effect size value.
-    """
-    if len(baseline_values) != len(dendritic_values) or len(baseline_values) < 2:
-        return float('nan')
-
-    if test_type == 't_test':
-        # Cohen's d for paired samples
-        diff = np.array(dendritic_values) - np.array(baseline_values)
-        mean_diff = np.mean(diff)
-        std_diff = np.std(diff, ddof=1)
-        if std_diff == 0:
-            return 0.0
-        return float(mean_diff / std_diff)
-
-    elif test_type == 'wilcoxon':
-        # Rank-biserial correlation for Wilcoxon
-        n = len(baseline_values)
-        statistic, _ = stats.wilcoxon(baseline_values, dendritic_values)
-        # Rank-biserial = 1 - (2 * W) / (n * (n + 1))
-        r_biserial = 1 - (2 * statistic) / (n * (n + 1))
-        return float(r_biserial)
-
-    else:
-        raise ValueError(f"Unknown test type: {test_type}")
-
-
-def benjamini_hochberg_correction(p_values: List[float], alpha: float = 0.05) -> List[Tuple[float, bool]]:
-    """
-    Apply Benjamini-Hochberg correction for multiple comparisons.
-
-    Args:
-        p_values: List of raw p-values.
-        alpha: Significance level.
-
-    Returns:
-        List of (corrected_p_value, is_significant) tuples.
-    """
-    n = len(p_values)
-    if n == 0:
-        return []
-
-    # Sort p-values with their original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = [p_values[i] for i in sorted_indices]
-
-    # Calculate corrected p-values
-    corrected_p_values = [0.0] * n
-    for i, p in enumerate(sorted_p_values):
-        # BH procedure: p_corrected = p * n / rank
-        rank = i + 1
-        corrected_p = p * n / rank
-        corrected_p = min(corrected_p, 1.0)  # Cap at 1.0
-        corrected_p_values[sorted_indices[i]] = corrected_p
-
-    # Determine significance
-    results = []
-    for i, p_corr in enumerate(corrected_p_values):
-        is_sig = p_corr < alpha
-        results.append((p_corr, is_sig))
-
-    return results
-
-
-def analyze_layer_performance(paired_results: Dict[str, List[Tuple[ProbeResult, ProbeResult]]],
-                              use_wilcoxon: bool = True,
-                              use_t_test: bool = False) -> List[AnalysisResult]:
-    """
-    Analyze performance differences across layers.
-
-    Args:
-        paired_results: Dictionary of paired baseline/dendritic results by layer.
-        use_wilcoxon: Whether to use Wilcoxon signed-rank test.
-        use_t_test: Whether to use paired t-test.
-
-    Returns:
-        List of AnalysisResult objects.
-    """
-    if not use_wilcoxon and not use_t_test:
-        logger.warning("No test specified, defaulting to Wilcoxon")
-        use_wilcoxon = True
-
-    all_results = []
-    all_p_values = []
-
-    # First pass: collect all p-values for correction
-    for layer_name, pairs in paired_results.items():
-        baseline_vals = [p[0].accuracy for p in pairs]
-        dendritic_vals = [p[1].accuracy for p in pairs]
-
-        if use_wilcoxon:
-            _, p_val = wilcoxon_signed_rank_test(baseline_vals, dendritic_vals)
-            test_type = 'wilcoxon'
+    logger.info(f"Running probing for threshold: {threshold}")
+    
+    try:
+        # Set seed for reproducibility
+        set_seed(seed)
+        
+        # Create threshold-specific output directory
+        threshold_output_dir = os.path.join(output_dir, f"threshold_{threshold:.2f}")
+        os.makedirs(threshold_output_dir, exist_ok=True)
+        
+        # Load checkpoints and extract features
+        # We assume checkpoints are named with pattern: checkpoint_<model_type>.pt
+        checkpoint_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
+        
+        if not checkpoint_files:
+            logger.warning(f"No checkpoint files found in {input_dir}")
+            return None
+        
+        results = []
+        
+        for checkpoint_file in checkpoint_files:
+            checkpoint_path = os.path.join(input_dir, checkpoint_file)
+            
+            try:
+                # Load checkpoint
+                model_type = "dendritic" if "dendritic" in checkpoint_file else "baseline"
+                checkpoint = load_checkpoint(checkpoint_path)
+                
+                # Extract layer features
+                layer_features = extract_layer_features(checkpoint, model_type)
+                
+                # Train linear probe
+                probe_result = train_linear_probe(
+                    layer_features=layer_features,
+                    model_type=model_type,
+                    output_dir=threshold_output_dir,
+                    config=config
+                )
+                
+                if probe_result:
+                    results.append(probe_result)
+                    
+            except Exception as e:
+                logger.error(f"Error processing checkpoint {checkpoint_file}: {e}")
+                continue
+        
+        if not results:
+            logger.warning(f"No results obtained for threshold {threshold}")
+            return None
+        
+        # Save individual probing results
+        results_file = os.path.join(threshold_output_dir, "probe_results.json")
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        # Compute aggregate statistics for this threshold
+        accuracy_values = [r['accuracy'] for r in results if 'accuracy' in r]
+        
+        if accuracy_values:
+            threshold_summary = {
+                'threshold': threshold,
+                'num_seeds': len(results),
+                'mean_accuracy': statistics.mean(accuracy_values),
+                'std_accuracy': statistics.stdev(accuracy_values) if len(accuracy_values) > 1 else 0.0,
+                'min_accuracy': min(accuracy_values),
+                'max_accuracy': max(accuracy_values),
+                'results': results
+            }
+            
+            return threshold_summary
         else:
-            _, p_val = paired_t_test(baseline_vals, dendritic_vals)
-            test_type = 't_test'
+            return None
+            
+    except Exception as e:
+        logger.error(f"Failed to run probing for threshold {threshold}: {e}")
+        return None
 
-        all_p_values.append(p_val)
-
-    # Apply BH correction
-    corrected_results = benjamini_hochberg_correction(all_p_values)
-
-    # Second pass: create results with corrected p-values
-    for idx, (layer_name, pairs) in enumerate(paired_results.items()):
-        baseline_vals = [p[0].accuracy for p in pairs]
-        dendritic_vals = [p[1].accuracy for p in pairs]
-
-        if use_wilcoxon:
-            statistic, p_value = wilcoxon_signed_rank_test(baseline_vals, dendritic_vals)
-            test_type = 'wilcoxon'
-        else:
-            statistic, p_value = paired_t_test(baseline_vals, dendritic_vals)
-            test_type = 't_test'
-
-        effect_size = compute_effect_size(baseline_vals, dendritic_vals, test_type)
-        corrected_p, is_sig_corr = corrected_results[idx]
-        is_sig = p_value < 0.05
-
-        mean_diff = np.mean(dendritic_vals) - np.mean(baseline_vals)
-        std_diff = np.std([d - b for b, d in zip(baseline_vals, dendritic_vals)], ddof=1)
-
-        all_results.append(AnalysisResult(
-            layer_name=layer_name,
-            test_type=test_type,
-            statistic=statistic,
-            p_value=p_value,
-            effect_size=effect_size,
-            significant=is_sig,
-            corrected_p_value=corrected_p,
-            significant_after_correction=is_sig_corr,
-            n_pairs=len(pairs),
-            mean_diff=mean_diff,
-            std_diff=std_diff
-        ))
-
-    return all_results
-
-
-def analyze_threshold_sensitivity(paired_results: Dict[str, List[Tuple[ProbeResult, ProbeResult]]],
-                                  thresholds: List[float]) -> Dict[str, List[AnalysisResult]]:
+def analyze_threshold_sensitivity(
+    input_dir: str,
+    output_dir: str,
+    config_path: str,
+    use_wilcoxon: bool = True,
+    use_t_test: bool = True,
+    num_seeds: int = 3
+) -> Dict[str, Any]:
     """
-    Analyze sensitivity to different dendritic thresholds.
-
+    Main orchestrator for FR-007 sensitivity analysis (T029).
+    
+    Iterates over dendritic thresholds from config, runs probing (T025),
+    performs statistical analysis (T027), and aggregates results.
+    
     Args:
-        paired_results: Dictionary of paired results by layer.
-        thresholds: List of threshold values to analyze.
-
+        input_dir: Directory containing saved checkpoints
+        output_dir: Directory to save all results
+        config_path: Path to configuration file
+        use_wilcoxon: Whether to use Wilcoxon signed-rank test
+        use_t_test: Whether to use paired t-test
+        num_seeds: Number of random seeds to use for statistical power
+    
     Returns:
-        Dictionary mapping thresholds to lists of AnalysisResult objects.
+        Dictionary containing comprehensive analysis results
     """
+    logger.info("Starting threshold sensitivity analysis (T029)")
+    
+    # Load configuration
+    config = load_config(config_path)
+    thresholds = config.get('dendritic_thresholds', [0.1, 0.5, 0.9])
+    
+    logger.info(f"Testing thresholds: {thresholds}")
+    
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Run probing for each threshold
     threshold_results = {}
-
     for threshold in thresholds:
-        # Filter results for this threshold
-        threshold_pairs = {
-            layer: [(b, d) for b, d in pairs if d.threshold == threshold]
-            for layer, pairs in paired_results.items()
-            if any(d.threshold == threshold for _, d in pairs)
-        }
-
-        if threshold_pairs:
-          results = analyze_layer_performance(threshold_pairs, use_wilcoxon=True)
-          threshold_results[str(threshold)] = results
-          logger.info(f"Analyzed threshold {threshold}: {len(results)} layers")
-
-    return threshold_results
-
-
-def save_results(results: List[AnalysisResult], output_path: str):
-    """
-    Save analysis results to CSV and JSON files.
-
-    Args:
-        results: List of AnalysisResult objects.
-        output_path: Output file path (without extension).
-    """
-    # Save as CSV
-    csv_path = f"{output_path}.csv"
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=AnalysisResult.__dataclass_fields__.keys())
-        writer.writeheader()
-        for result in results:
-            writer.writerow(asdict(result))
-
-    # Save as JSON
-    json_path = f"{output_path}.json"
-    with open(json_path, 'w') as f:
-        json.dump([asdict(r) for r in results], f, indent=2)
-
-    logger.info(f"Saved results to {csv_path} and {json_path}")
-
+        result = run_probing_for_threshold(
+            threshold=threshold,
+            input_dir=input_dir,
+            output_dir=output_dir,
+            config=config,
+            seed=42  # Fixed seed for reproducibility in this analysis
+        )
+        if result:
+            threshold_results[threshold] = result
+    
+    if not threshold_results:
+        logger.error("No results obtained from any threshold")
+        return {}
+    
+    # Perform statistical analysis across thresholds
+    logger.info("Performing statistical analysis across thresholds")
+    
+    # Extract accuracy values for each threshold
+    accuracy_data = {}
+    for threshold, result in threshold_results.items():
+        if 'results' in result:
+            accuracy_data[threshold] = [r['accuracy'] for r in result['results'] if 'accuracy' in r]
+    
+    # Pair results for statistical tests (if we have multiple seeds per threshold)
+    statistical_results = {}
+    
+    # Compare each threshold to the baseline (threshold 0.0 or first threshold)
+    baseline_threshold = thresholds[0] if thresholds else None
+    
+    if baseline_threshold and baseline_threshold in accuracy_data:
+        baseline_values = accuracy_data[baseline_threshold]
+        
+        for threshold, values in accuracy_data.items():
+            if threshold != baseline_threshold:
+                # Pair results for statistical testing
+                paired_data = pair_results(baseline_values, values)
+                
+                if paired_data:
+                    stat_result = {
+                        'threshold': threshold,
+                        'baseline_threshold': baseline_threshold,
+                        'paired_samples': len(paired_data),
+                    }
+                    
+                    # Wilcoxon signed-rank test
+                    if use_wilcoxon and len(paired_data) >= 3:
+                        try:
+                            w_stat, w_pval = wilcoxon_signed_rank_test(paired_data)
+                            stat_result['wilcoxon_statistic'] = w_stat
+                            stat_result['wilcoxon_pvalue'] = w_pval
+                            stat_result['wilcoxon_significant'] = w_pval < 0.05
+                        except Exception as e:
+                            logger.warning(f"Wilcoxon test failed: {e}")
+                    
+                    # Paired t-test
+                    if use_t_test and len(paired_data) >= 3:
+                        try:
+                            t_stat, t_pval = paired_t_test(paired_data)
+                            stat_result['t_statistic'] = t_stat
+                            stat_result['t_pvalue'] = t_pval
+                            stat_result['t_significant'] = t_pval < 0.05
+                        except Exception as e:
+                            logger.warning(f"T-test failed: {e}")
+                    
+                    # Compute effect size
+                    if len(paired_data) >= 2:
+                        try:
+                            effect_size = compute_effect_size(paired_data)
+                            stat_result['effect_size_cohen_d'] = effect_size
+                        except Exception as e:
+                            logger.warning(f"Effect size computation failed: {e}")
+                    
+                    statistical_results[threshold] = stat_result
+    
+    # Apply Benjamini-Hochberg correction if we have multiple comparisons
+    pvalues = [v['wilcoxon_pvalue'] for v in statistical_results.values() 
+              if 'wilcoxon_pvalue' in v]
+    
+    if pvalues and use_wilcoxon:
+        try:
+            corrected = benjamini_hochberg_correction(pvalues)
+            for (thresh, res), pval_corr in zip(statistical_results.items(), corrected):
+                res['bh_corrected_pvalue'] = pval_corr
+                res['bh_significant'] = pval_corr < 0.05
+        except Exception as e:
+            logger.warning(f"Benjamini-Hochberg correction failed: {e}")
+    
+    # Compute stability metrics
+    logger.info("Computing stability metrics")
+    
+    stability_metrics = {
+        'accuracy_variance': {},
+        'effect_size_stability': {},
+        'threshold_sensitivity_summary': []
+    }
+    
+    # Variance in probing accuracy across thresholds
+    all_means = [v['mean_accuracy'] for v in threshold_results.values()]
+    if all_means:
+        stability_metrics['overall_mean_accuracy'] = statistics.mean(all_means)
+        stability_metrics['accuracy_variance'] = statistics.variance(all_means) if len(all_means) > 1 else 0.0
+        stability_metrics['accuracy_std'] = statistics.stdev(all_means) if len(all_means) > 1 else 0.0
+    
+    # Effect size stability (if we have effect sizes)
+    effect_sizes = [v.get('effect_size_cohen_d') for v in statistical_results.values() 
+                   if 'effect_size_cohen_d' in v]
+    if effect_sizes:
+        stability_metrics['effect_size_stability']['mean'] = statistics.mean(effect_sizes)
+        if len(effect_sizes) > 1:
+            stability_metrics['effect_size_stability']['std'] = statistics.stdev(effect_sizes)
+            stability_metrics['effect_size_stability']['variance'] = statistics.variance(effect_sizes)
+        else:
+            stability_metrics['effect_size_stability']['std'] = 0.0
+            stability_metrics['effect_size_stability']['variance'] = 0.0
+    
+    # Aggregate summary
+    summary = {
+        'analysis_type': 'threshold_sensitivity',
+        'config_path': config_path,
+        'thresholds_tested': thresholds,
+        'num_seeds_per_threshold': num_seeds,
+        'threshold_results': threshold_results,
+        'statistical_analysis': statistical_results,
+        'stability_metrics': stability_metrics,
+        'conclusions': []
+    }
+    
+    # Generate conclusions
+    if stability_metrics['accuracy_variance'] < 0.01:
+        summary['conclusions'].append(
+            "Dendritic thresholds show low variance in probing accuracy, "
+            "suggesting stable feature detection across threshold settings."
+        )
+    else:
+        summary['conclusions'].append(
+            "Dendritic thresholds show significant variance in probing accuracy, "
+            "indicating sensitivity to threshold selection."
+        )
+    
+    # Check for significant effects
+    significant_results = [
+        thresh for thresh, res in statistical_results.items()
+        if res.get('wilcoxon_significant', False) or res.get('t_significant', False)
+    ]
+    
+    if significant_results:
+        summary['conclusions'].append(
+            f"Thresholds {significant_results} show statistically significant "
+            "differences from baseline in probing accuracy."
+        )
+    else:
+        summary['conclusions'].append(
+            "No thresholds showed statistically significant differences from baseline "
+            "in probing accuracy."
+        )
+    
+    # Save comprehensive results
+    results_file = os.path.join(output_dir, "sensitivity_analysis_results.json")
+    save_results(summary, results_file)
+    
+    # Save CSV summary for easy viewing
+    csv_file = os.path.join(output_dir, "sensitivity_summary.csv")
+    with open(csv_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Threshold', 'Mean Accuracy', 'Std Accuracy', 'Effect Size', 'P-value', 'Significant'])
+        
+        for threshold, result in threshold_results.items():
+            stat_res = statistical_results.get(threshold, {})
+            writer.writerow([
+                threshold,
+                result['mean_accuracy'],
+                result['std_accuracy'],
+                stat_res.get('effect_size_cohen_d', 'N/A'),
+                stat_res.get('wilcoxon_pvalue', 'N/A'),
+                stat_res.get('wilcoxon_significant', False)
+            ])
+    
+    logger.info(f"Sensitivity analysis complete. Results saved to {output_dir}")
+    return summary
 
 def main():
-    """Main entry point for analysis script."""
-    parser = argparse.ArgumentParser(description='Analyze probe results with statistical tests')
-    parser.add_argument('--input-dir', type=str, required=True,
-                        help='Directory containing probe result CSV files')
-    parser.add_argument('--output-dir', type=str, default='artifacts/results',
-                        help='Output directory for analysis results')
-    parser.add_argument('--config', type=str, default='code/config/config.yaml',
-                        help='Path to configuration file')
-    parser.add_argument('--use-wilcoxon', action='store_true', default=True,
-                        help='Use Wilcoxon signed-rank test (default)')
-    parser.add_argument('--use-t-test', action='store_true', default=False,
-                        help='Use paired t-test instead')
-
-    args = parser.parse_args()
-
-    # Load configuration if provided
-    thresholds = [0.1, 0.5, 0.9]  # Default from FR-007
-    if os.path.exists(args.config):
-        try:
-            import yaml
-            with open(args.config, 'r') as f:
-                config = yaml.safe_load(f)
-                if 'dendritic_thresholds' in config:
-                    thresholds = config['dendritic_thresholds']
-                    logger.info(f"Loaded thresholds from config: {thresholds}")
-        except Exception as e:
-            logger.warning(f"Could not load config: {e}")
-
-    # Load and pair results
-    logger.info(f"Loading probe results from {args.input_dir}")
-    results = load_probe_results(args.input_dir)
-
-    if not results:
-        logger.error("No probe results found. Exiting.")
-        sys.exit(1)
-
-    paired = pair_results(results)
-
-    if not paired:
-        logger.error("No paired results found. Exiting.")
-        sys.exit(1)
-
-    # Create output directory
-    os.makedirs(args.output_dir, exist_ok=True)
-
-    # Analyze overall performance
-    logger.info("Analyzing layer performance...")
-    analysis_results = analyze_layer_performance(
-        paired,
-        use_wilcoxon=args.use_wilcoxon,
-        use_t_test=args.use_t_test
+    """Main entry point for the sensitivity analysis script."""
+    parser = argparse.ArgumentParser(
+        description='Run threshold sensitivity analysis (T029)'
     )
-
-    # Save overall results
-    save_results(analysis_results, os.path.join(args.output_dir, 'layer_analysis'))
-
-    # Analyze threshold sensitivity if dendritic thresholds are present
-    dendritic_results = [r for r in results if r.model_type == 'dendritic']
-    if dendritic_results:
-        logger.info("Analyzing threshold sensitivity...")
-        threshold_analysis = analyze_threshold_sensitivity(paired, thresholds)
-
-        for threshold_str, thr_results in threshold_analysis.items():
-            save_results(thr_results, os.path.join(args.output_dir, f'threshold_{threshold_str}_analysis'))
-
-    # Print summary
-    logger.info("\n=== Analysis Summary ===")
-    significant_count = sum(1 for r in analysis_results if r.significant_after_correction)
-    logger.info(f"Significant differences (BH-corrected): {significant_count}/{len(analysis_results)} layers")
-
-    for result in analysis_results:
-        sig_marker = "*" if result.significant_after_correction else " "
-        logger.info(f"{sig_marker} {result.layer_name}: p={result.corrected_p_value:.4f}, "
-                    f"effect_size={result.effect_size:.3f}, diff={result.mean_diff:.4f}")
-
-    logger.info("Analysis complete.")
-
+    parser.add_argument(
+        '--input-dir',
+        required=True,
+        help='Directory containing saved checkpoints'
+    )
+    parser.add_argument(
+        '--output-dir',
+        default='artifacts/results',
+        help='Directory to save analysis results'
+    )
+    parser.add_argument(
+        '--config',
+        default='code/config/config.yaml',
+        help='Path to configuration file'
+    )
+    parser.add_argument(
+        '--use-wilcoxon',
+        action='store_true',
+        default=True,
+        help='Use Wilcoxon signed-rank test'
+    )
+    parser.add_argument(
+        '--use-t-test',
+        action='store_true',
+        default=True,
+        help='Use paired t-test'
+    )
+    parser.add_argument(
+        '--num-seeds',
+        type=int,
+        default=3,
+        help='Number of random seeds for statistical power'
+    )
+    
+    args = parser.parse_args()
+    
+    # Validate input directory
+    if not os.path.exists(args.input_dir):
+        logger.error(f"Input directory does not exist: {args.input_dir}")
+        sys.exit(1)
+    
+    # Validate config file
+    if not os.path.exists(args.config):
+        logger.error(f"Config file does not exist: {args.config}")
+        sys.exit(1)
+    
+    # Run the analysis
+    results = analyze_threshold_sensitivity(
+        input_dir=args.input_dir,
+        output_dir=args.output_dir,
+        config_path=args.config,
+        use_wilcoxon=args.use_wilcoxon,
+        use_t_test=args.use_t_test,
+        num_seeds=args.num_seeds
+    )
+    
+    if not results:
+        logger.error("Analysis failed to produce results")
+        sys.exit(1)
+    
+    logger.info("Analysis completed successfully")
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()

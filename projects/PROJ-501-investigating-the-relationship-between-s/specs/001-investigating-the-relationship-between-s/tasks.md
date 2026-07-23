@@ -46,11 +46,11 @@
 - [ ] T001 Create project directory structure: `code/`, `tests/`
 - [ ] T002 Create project directory structure: `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`, `contracts/`
 - [X] T003 [P] Create `code/__init__.py` to ensure all modules import correctly without circular dependencies
-- [ ] T004 [P] Create `requirements.txt` with pinned versions: `requests`, `pandas`, `numpy`, `scipy`, `astropy`, `matplotlib`, `pyyaml`, `astroquery`, `pytest`, `pingouin`
-- [ ] T005 [P] Create virtual environment and install dependencies from `requirements.txt`
+- [X] T004 [P] Create `requirements.txt` with pinned versions: `requests`, `pandas`, `numpy`, `scipy`, `astropy`, `matplotlib`, `pyyaml`, `astroquery`, `pytest`, `pingouin`
+- [X] T005 [P] Create virtual environment and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining the input/output schema specifically for `data/processed/merged_filtered.csv` (star_id, flare_count, radius, mass, semi_major_axis, density, age)
 - [ ] T007 [P] Create `contracts/results.schema.yaml` defining the output schema for correlation results (ρ_partial, p-value, sensitivity data structure)
-- [~] T008 [P] Configure linting (flake8/pylint) and formatting (black) tools
+- [ ] T008 [P] Configure linting (flake8/pylint) and formatting (black) tools
 
 ---
 
@@ -117,13 +117,13 @@
  - FALLBACK: If `Rotation Period` is missing, use the fixed proxy $L_X = 10^{-4} L_{bol}$ and log a warning.
  - Output must be in erg/s (FR-003).
 - [X] T022 [US2] Implement `code/physics.py` function `calculate_cumulative_flux`: Compute $F_{XUV} = F_{quiescent} + \sum (E_{flare} \times f_{XUV} / (4 \pi a^2))$, where $f_{XUV}$ is a fixed conversion factor. (FR-003)
-- [ ] T023 [US2] Implement `code/physics.py` function `calculate_retention_fraction`:
+- [X] T023 [US2] Implement `code/physics.py` function `calculate_retention_fraction`:
  - Calculate instantaneous mass loss rate $\dot{M}$ using energy-limited model $\dot{M} = \frac{\epsilon \pi R_p^3 F_{XUV}}{G M_p K_{tide}}$ (FR-004).
  - Integrate $\dot{M}$ over system age (scalar) using the trapezoidal rule (or simple multiplication if rate is assumed constant over age).
  - Compute $Retention = 1 - (\int \dot{M} dt / M_{atm, initial})$ where $M_{atm, initial} = 0.01 \times M_p$.
  - **CRITICAL**: Do NOT implement the 'Atmospheric Erosion Index (AEI)' mentioned in the plan summary; strictly use the FR-005 formula (FR-005).
-- [ ] T024a [US2] Implement `code/physics.py` function `calculate_unphysical_flag`: Calculate a boolean flag for each row where mass loss rate > 10% $M_p$ / Gyr (FR-009).
-- [ ] T024b [US2] Implement `code/physics.py` function `apply_unphysical_filter`: Filter the DataFrame to remove rows where the flag from T024a is true, ensuring these are excluded from subsequent statistical analysis (FR-009).
+- [X] T024a [US2] Implement `code/physics.py` function `calculate_unphysical_flag`: Calculate a boolean flag for each row where mass loss rate > 10% $M_p$ / Gyr (FR-009).
+- [X] T024b [US2] Implement `code/physics.py` function `apply_unphysical_filter`: Filter the DataFrame to remove rows where the flag from T024a is true, ensuring these are excluded from subsequent statistical analysis (FR-009).
 - [ ] T025 [US2] Read `data/processed/merged_filtered.csv`, apply physics models (T021-T023), apply unphysical filters (T024a-T024b), and write the clean result to `data/processed/derived_physics.csv` with columns: `cumulative_flux`, `mass_loss_rate`, `retention_fraction`, `is_valid` (do NOT overwrite the original file).
 - [ ] T026 [US2] Add validation logic to ensure no NaN values in derived columns for valid inputs (US-2 Acceptance 3)
 
@@ -139,16 +139,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for partial correlation logic in `tests/test_analysis.py` (mock data with known correlation)
+- [X] T027 [P] [US3] Unit test for partial correlation logic in `tests/test_analysis.py` (mock data with known correlation)
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/analysis.py` function `run_partial_correlation`:
+- [X] T028 [US3] Implement `code/analysis.py` function `run_partial_correlation`:
  - Read the filtered `data/processed/derived_physics.csv` (post-T024b).
  - Perform a **partial Spearman rank correlation** between `cumulative_flux` and `retention_fraction` controlling for `mass` and `semi_major_axis`.
  - **Mandatory**: Explicitly rank-transform all variables using `scipy.stats.rankdata` before computing partial correlation (to ensure true rank-based method, as `pingouin.partial_corr` may default to Pearson).
  - Fallback: If rank-based partial correlation is not supported by the library version, implement manually using residuals of rank-transformed variables (FR-006, SC-001).
-- [ ] T029 [US3] Implement `code/analysis.py` function `run_sensitivity_analysis`: Re-run correlation with $M_{atm, initial}$ baselines across a range of low to moderate magnitudes., calculate the variation in correlation coefficients, and append the calculated variation to `correlation_results.json` (FR-010)
+- [X] T029 [US3] Implement `code/analysis.py` function `run_sensitivity_analysis`: Re-run correlation with $M_{atm, initial}$ baselines across a range of low to moderate magnitudes., calculate the variation in correlation coefficients, and append the calculated variation to `correlation_results.json` (FR-010)
 - [ ] T030 [US3] Save results to `data/results/correlation_results.json` including ρ_partial, p-value, and a structured summary of sensitivity results with keys: `baselines` (list of values), `correlations` (list of ρ values), and `variation` (range or std dev) (FR-006, FR-010)
 - [ ] T031 [US3] Implement `code/visualization.py` to generate scatter plot: X-axis = Cumulative XUV Flux, Y-axis = Retention Fraction, with regression line and labels (FR-007)
 - [ ] T032 [US3] Save plot to `data/results/flux_vs_retention.png`

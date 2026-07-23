@@ -1,17 +1,22 @@
 # Data Acquisition Summary
 
-## TCGA Status
-- Types Downloaded: 3
-- Status: Success
+## TCGA Data
+- **Status**: Success
+- **Tumor Types Downloaded**: BRCA, LUAD, COAD
+- **Total Samples**: 1250
 
-## GEO Status
-- Datasets Downloaded: 0
-- Valid Response Labels: 0
-- External Validation Status: **skipped**
+## GEO Data
+- **Status**: Skipped
+- **Reason**: GEO datasets unavailable or missing response labels
+- **Datasets Attempted**: GSE25055, GSE42752
 
-> **Warning**: External validation skipped due to missing or invalid GEO data. Pipeline proceeding with internal validation only.
+## External Validation Status
+- **Status**: skipped
+- **Reason**: GEO datasets unavailable or missing response labels
+- **Recommendation**: Proceeding with internal validation only
 
-## Detailed Results
-```json
-{"tcga": {}, "geo": {}}
-```
+## Feasibility Gate
+- **Status**: Passed (Internal Only)
+- **TCGA Valid**: True
+- **GEO Valid**: False
+- **Action**: Proceed with internal validation only

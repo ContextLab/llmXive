@@ -1,0 +1,28 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/` and `tests/` directories is provided; the
+    claim lacks any artifact showing that these folders exist and contain files. The
+    implementer must create and show the directory structure.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/results/`,\
+    \ `data/logs/`, `contracts/`) is present in the provided artifacts; the implementer\
+    \ did not supply any file\u2011system listing or screenshots showing the structure.\
+    \ The task cannot be considered completed until these directories exist and are\
+    \ non\u2011empty."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no linting or formatting configuration artifacts (e.g.,\
+    \ .flake8, .pylintrc, pyproject.toml for black) and the only material shown relates\
+    \ to an unrelated astrophysics data\u2011processing feature. Consequently, the\
+    \ required linting/formatting setup is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test files were provided that implement the required validation
+    logic to prevent NaN values in derived columns, nor any evidence (e.g., unit tests,
+    logs, or documentation) showing the logic works for valid inputs. The task therefore
+    lacks the necessary artifact to confirm completion.

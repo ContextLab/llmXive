@@ -1,117 +1,186 @@
 """
-Filter non-recurrent storms from the primary aligned dataset to create
-a derived analysis subset for correlation analysis (US2).
+Module to filter the primary aligned events dataset to create an analysis subset.
 
-This task implements T016b: creating data/processed/analysis_subset.csv
-by filtering out events where is_recurrent is True, while preserving
-the primary aligned_events.csv unchanged.
+This task implements the logic to filter non-recurrent storms from the primary
+dataset (`data/processed/aligned_events.csv`) to create a derived dataset
+(`data/processed/analysis_subset.csv`) for use in correlation analysis (US2).
+
+This satisfies the 'no exclusion' rule for the primary dataset while enabling
+the analysis requirement for US2.
 """
 import os
 import sys
 import argparse
+import logging
 from pathlib import Path
+from typing import Optional, List, Dict, Any
 
 import pandas as pd
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-from align import main as align_main, align_events
-
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_FILE = PROJECT_ROOT / "data" / "processed" / "aligned_events.csv"
+OUTPUT_FILE = PROJECT_ROOT / "data" / "processed" / "analysis_subset.csv"
 
 def filter_non_recurrent_storms(
-    input_path: str,
-    output_path: str,
-    recurrent_column: str = "is_recurrent"
-) -> int:
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    force: bool = False
+) -> Dict[str, Any]:
     """
-    Filter the aligned events dataset to exclude recurrent storms.
-
-    This creates a derived subset for analysis while preserving the
-    primary dataset (which must retain all events per US1 requirements).
-
+    Filter non-recurrent storms from the primary aligned events dataset.
+    
+    This function reads the primary aligned events dataset, filters out events
+    marked as recurrent (is_recurrent=True), and writes the result to a new
+    analysis subset file.
+    
     Args:
-        input_path: Path to the primary aligned_events.csv
-        output_path: Path where the filtered analysis_subset.csv will be written
-        recurrent_column: Name of the column containing recurrent flags
-
+        input_path: Path to the input aligned events CSV. Defaults to
+                   PROJECT_ROOT/data/processed/aligned_events.csv.
+        output_path: Path to the output analysis subset CSV. Defaults to
+                    PROJECT_ROOT/data/processed/analysis_subset.csv.
+        force: If True, overwrite the output file if it exists.
+    
     Returns:
-        Number of rows written to the output file
+        A dictionary with statistics about the filtering operation:
+        - total_input: Number of rows in the input file
+        - recurrent_count: Number of recurrent events filtered out
+        - non_recurrent_count: Number of non-recurrent events in the output
+        - output_path: Path to the created output file
+    
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the input file does not contain the 'is_recurrent' column.
+        RuntimeError: If the output file exists and force is False.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(
-            f"Primary aligned events file not found: {input_path}. "
-            "Ensure T017 has completed and written aligned_events.csv."
-        )
-
-    # Load the primary dataset
-    df = pd.read_csv(input_path)
-
-    if recurrent_column not in df.columns:
-        raise ValueError(
-            f"Required column '{recurrent_column}' not found in {input_path}. "
-            "Ensure T016 has completed and added the recurrent flag."
-        )
-
-    # Filter out recurrent storms (keep only non-recurrent where is_recurrent is False or NaN)
-    # Per US1: primary dataset retains all events; analysis subset excludes recurrent
-    non_recurrent_mask = (df[recurrent_column] == False) | (df[recurrent_column].isna())
-    analysis_df = df[non_recurrent_mask].copy()
-
+    input_path = input_path or INPUT_FILE
+    output_path = output_path or OUTPUT_FILE
+    
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Write the filtered subset
-    analysis_df.to_csv(output_path, index=False)
-
-    return len(analysis_df)
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if input file exists
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Check if output file exists and force is False
+    if output_path.exists() and not force:
+        raise RuntimeError(
+            f"Output file already exists: {output_path}. "
+            "Use force=True to overwrite."
+        )
+    
+    logger.info(f"Reading input file: {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Validate required column exists
+    if 'is_recurrent' not in df.columns:
+        raise ValueError(
+            f"Input file does not contain the 'is_recurrent' column. "
+            f"Available columns: {list(df.columns)}"
+        )
+    
+    total_input = len(df)
+    
+    # Filter non-recurrent events (is_recurrent == False or is_recurrent is null/NaN)
+    # The task requires filtering OUT recurrent storms, keeping only non-recurrent ones
+    non_recurrent_df = df[~df['is_recurrent'].astype(bool)]
+    
+    recurrent_count = total_input - len(non_recurrent_df)
+    non_recurrent_count = len(non_recurrent_df)
+    
+    logger.info(f"Input dataset: {total_input} events")
+    logger.info(f"Recurrent events filtered out: {recurrent_count}")
+    logger.info(f"Non-recurrent events in output: {non_recurrent_count}")
+    
+    if non_recurrent_count == 0:
+        logger.warning("No non-recurrent events found in the input dataset!")
+    
+    # Write the filtered dataset
+    logger.info(f"Writing output file: {output_path}")
+    non_recurrent_df.to_csv(output_path, index=False)
+    
+    # Compute and log a simple checksum for verification
+    import hashlib
+    with open(output_path, 'rb') as f:
+        file_hash = hashlib.sha256(f.read()).hexdigest()
+    logger.info(f"Output file checksum (SHA-256): {file_hash}")
+    
+    return {
+        "total_input": total_input,
+        "recurrent_count": recurrent_count,
+        "non_recurrent_count": non_recurrent_count,
+        "output_path": str(output_path),
+        "checksum": file_hash
+    }
 
 def main():
     """
-    Entry point for the analysis subset filtering script.
-
+    Command-line interface for filtering non-recurrent storms.
+    
     Usage:
-        python code/filter_analysis_subset.py
-        python code/filter_analysis_subset.py --input data/processed/aligned_events.csv --output data/processed/analysis_subset.csv
+        python code/filter_analysis_subset.py [--input PATH] [--output PATH] [--force]
     """
     parser = argparse.ArgumentParser(
-        description="Filter non-recurrent storms to create analysis subset for US2."
+        description="Filter non-recurrent storms from the primary aligned events dataset "
+                    "to create an analysis subset for correlation analysis."
     )
     parser.add_argument(
         "--input",
         type=str,
-        default="data/processed/aligned_events.csv",
-        help="Path to primary aligned_events.csv (default: data/processed/aligned_events.csv)"
+        default=str(INPUT_FILE),
+        help=f"Path to the input aligned events CSV (default: {INPUT_FILE})"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="data/processed/analysis_subset.csv",
-        help="Path for filtered analysis_subset.csv (default: data/processed/analysis_subset.csv)"
+        default=str(OUTPUT_FILE),
+        help=f"Path to the output analysis subset CSV (default: {OUTPUT_FILE})"
     )
-
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite the output file if it exists"
+    )
+    
     args = parser.parse_args()
-
-    print(f"Filtering analysis subset from: {args.input}")
-    print(f"Output will be written to: {args.output}")
-
+    
     try:
-        count = filter_non_recurrent_storms(args.input, args.output)
-        print(f"Successfully wrote {count} non-recurrent events to {args.output}")
+        result = filter_non_recurrent_storms(
+            input_path=Path(args.input),
+            output_path=Path(args.output),
+            force=args.force
+        )
+        
+        logger.info("Filtering completed successfully!")
+        logger.info(f"Statistics: {result}")
+        
+        # Print summary to stdout for pipeline consumption
+        print(f"SUCCESS: Created analysis subset with {result['non_recurrent_count']} non-recurrent events.")
+        print(f"Output file: {result['output_path']}")
+        print(f"Checksum: {result['checksum']}")
+        
+        return 0
+        
     except FileNotFoundError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"File not found: {e}")
+        return 1
     except ValueError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Validation error: {e}")
+        return 2
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+        return 3
     except Exception as e:
-        print(f"ERROR: Unexpected error during filtering: {e}", file=sys.stderr)
-        sys.exit(1)
-
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        return 99
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
