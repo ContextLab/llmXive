@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T17:41:00.870691Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-324-predicting-molecular-properties-from-ope
-last_run_id: a2906d80-d50c-4c3f-8fc1-9483919f09a8
+last_run_id: 8e9e6238-3b73-4ae4-8b63-cf225ea3326b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-324-predicting-molecular-properties-from-ope/specs/001-predicting-molecular-properties-from-ope
 title: Predicting Molecular Properties from Open Babel Fingerprints with Random Forests
-updated_at: '2026-07-22T05:05:04.387327Z'
+updated_at: '2026-07-23T02:26:10.634461Z'

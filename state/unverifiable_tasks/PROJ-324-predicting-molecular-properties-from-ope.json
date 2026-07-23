@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-324-predicting-molecular-properties-from-ope",
+  "tasks": [
+    {
+      "task_key": "T027",
+      "reject_count": 1,
+      "last_reason": "The repository lacks a `generate_shap_heatmap` implementation in `code/analysis/explainability.py` (the shown code ends with `save_interaction_summary` and is truncated, with no heatmap function). Moreover, the required output file `data/derived/shap_interactions.png` does not exist. Both the function and the expected artifact are missing.",
+      "first_seen": "2026-07-23T02:26:10.624615+00:00",
+      "last_seen": "2026-07-23T02:26:10.624615+00:00"
+    }
+  ],
+  "updated_at": "2026-07-23T02:26:10.624615+00:00"
+}

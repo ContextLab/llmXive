@@ -1,0 +1,14 @@
+[
+  {
+    "data_file": "data/derived/train_set.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/chembl_dataset.csv",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/data/derived/baseline_test_predictions.csv",
+    "required": []
+  }
+]

@@ -1,3 +1,12 @@
+T008:
+  c: false
+  h: 1324532c6b3330cfb02deb645cebff388806a0909424a165b8cf66609ee89ba2
+  r: "The repository contains a partially\u2011implemented `code/data/download.py`,\
+    \ but it never writes the required `data/raw/pubchem_raw.csv` (the file is missing)\
+    \ and the script does not produce a CSV with the specified columns (`smiles`,\
+    \ `property_name`, `value`, `source_type`). Moreover, placeholder functions for\
+    \ ChEMBL/MoleculeNet remain unimplemented, so the task\u2019s core requirement\
+    \ of fetching real PubChem data and saving it in the correct format is not satisfied."
 T009:
   c: false
   h: eea8f740c0f4c9a614aaec466be00d952051ad60f5357d3b563232efff77b786
@@ -18,24 +27,34 @@ T014:
     \ for all test molecules and output the predictions CSV\u2014has not been fulfilled."
 T015:
   c: false
-  h: 5c04ed9ceb38c15c52d7a11a3fbc0a67a6c9cc4a283c8d446cd1e45d1ca78c95
-  r: The provided `code/analysis/stats.py` is incomplete (the core logic for calculating
-    MAE/RMSE and creating the residual plot is truncated and not present). Moreover,
-    the required output file `data/derived/baseline_residuals.png` does not exist.
-    Both the functional implementation and the expected artifact are missing.
+  h: 83e0739eb1f1b2512b26e15fb2c0d078e2da9a932b3dda1f97dc64d39670ba0c
+  r: The repository lacks a `calculate_baseline_metrics` function in `code/analysis/stats.py`,
+    and the required output file `data/derived/baseline_residuals.png` is missing.
+    Consequently, the baseline MAE/RMSE calculation and residual plot generation have
+    not been implemented.
+T020:
+  c: false
+  h: 1a5fbb68a8848bd9f63297f53f20727049f4e3d993b51cae6020fa997eb07814
+  r: The repository contains `code/models/random_forest.py`, but the shown excerpt
+    is truncated and does not demonstrate a complete `train_rf` implementation with
+    nested CV, hyperparameter grid, seed handling, or final model saving. Moreover,
+    the required artifact `data/derived/final_model.pkl` is absent. Both the functional
+    output and the expected model file are missing, so the task is not satisfied.
 T022:
   c: false
-  h: e8ee8441caaae741e876b47096b25fb61652bfdbebda2c290c7cfd3342fb4ce1
-  r: The required output image `data/derived/model_comparison.png` does not exist,
-    and the provided `code/analysis/stats.py` is truncated before any plotting logic
-    is shown, so there is no evidence that the script actually generates and saves
-    the comparison plot. The task therefore remains unfinished.
-T027:
+  h: e70fe170efa2a6aa1874dc8b26ee8bc7202f6b644381e392c7f78d93622c210e
+  r: The repository lacks a `generate_model_comparison_plot` implementation in `code/analysis/stats.py`
+    (the file is truncated and does not define that function), and the expected output
+    image `data/derived/model_comparison.png` is not present. Both the required code
+    artifact and the generated plot are missing.
+T031:
   c: false
-  h: 6bf08daf2f896ad806346cc0514b6927aac364bf1e4d49c6953dc2d04bfa6ad4
-  r: "The required output image `data/derived/shap_interactions.png` does not exist,\
-    \ so the explainability script has not produced the heatmap it was supposed to\
-    \ generate. Without this artifact the task\u2019s core requirement is unmet."
+  h: 807e11ebc31faf01aeca2e879d60f96805d2dd705dea976657d672e1a71e1ac5
+  r: The repository lacks the required `data/raw/dataset_metadata.json` file, and
+    the shown portion of `code/data/download.py` does not contain any logic for documenting
+    experimental source, measurement conditions, source confidence, or performing
+    the runtime schema check and status field insertion described in the task. The
+    essential output artifact and corresponding code enhancements are missing.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
