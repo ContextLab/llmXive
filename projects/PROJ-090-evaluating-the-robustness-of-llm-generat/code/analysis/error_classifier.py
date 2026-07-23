@@ -1,12 +1,3 @@
-"""
-Error classifier for stratified sampling of execution failures.
-
-This module implements the error classification logic for User Story 3.
-It reads execution results, filters for failures, stratifies by perturbation type,
-samples up to 50 failures (or all if fewer), and tags them as 'syntax' or 'logic'.
-
-Deliverable: data/processed/error_classification_report.json
-"""
 import json
 import logging
 import random
@@ -14,190 +5,174 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from collections import defaultdict
 
-# Import from project API surface
-from config import ensure_directories
-from model.execution_results import ExecutionTag, load_results_from_json
+# Import from sibling modules based on provided API surface
+from model.execution_results import load_results_from_json, ExecutionTag
+from config import get_config_dict
 
 logger = logging.getLogger(__name__)
 
-# Configuration
-MAX_SAMPLE_SIZE = 50
-RANDOM_SEED = 42
-
-def load_execution_results() -> List[Dict[str, Any]]:
+def load_execution_results(results_path: str) -> List[Dict[str, Any]]:
     """
-    Load execution results from the standard output file.
+    Load execution results from a JSON file.
     
+    Args:
+        results_path: Path to the execution results JSON file.
+        
     Returns:
         List of execution result dictionaries.
     """
-    results_path = Path("data/processed/execution_results.json")
-    if not results_path.exists():
-        raise FileNotFoundError(
-            f"Execution results file not found at {results_path}. "
-            "Please ensure Phase 4 (T024, T025) has completed successfully."
-        )
+    config = get_config_dict()
+    if not Path(results_path).exists():
+        # Try relative to data/processed if absolute path not found
+        alt_path = Path(config.get('data_dir', 'data')) / 'processed' / Path(results_path).name
+        if alt_path.exists():
+            results_path = str(alt_path)
     
     return load_results_from_json(results_path)
 
 def filter_failures(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter results to include only failed executions.
+    Filter results to keep only failed executions.
     
     Args:
         results: List of execution result dictionaries.
         
     Returns:
-        List of failed execution results.
+        List of failed execution result dictionaries.
     """
     failures = []
-    for result in results:
-        # Check if the result indicates a failure (not pass)
-        # Based on ExecutionTag enum, we look for tags that are not 'pass'
-        tag = result.get("tag", "")
-        if tag != ExecutionTag.PASS.value:
-            failures.append(result)
-    
-    logger.info(f"Found {len(failures)} failed executions out of {len(results)} total.")
+    for r in results:
+        # Check if the execution status indicates failure
+        status = r.get('status', '')
+        if status in ['fail', 'error', 'timeout', 'syntax_error', 'runtime_error']:
+            failures.append(r)
+        # Also check for explicit error tags if present
+        elif r.get('error_tag') in ['syntax', 'logic', 'timeout', 'runtime']:
+            failures.append(r)
     return failures
 
 def stratify_by_perturbation_type(failures: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Group failures by perturbation type for stratified sampling.
+    Group failures by their perturbation type for stratified sampling.
     
     Args:
-        failures: List of failed execution results.
+        failures: List of failed execution result dictionaries.
         
     Returns:
         Dictionary mapping perturbation_type to list of failures.
     """
     stratified = defaultdict(list)
-    for failure in failures:
-        perturbation_type = failure.get("perturbation_type", "unknown")
-        stratified[perturbation_type].append(failure)
-    
-    logger.info(f"Stratified failures into {len(stratified)} perturbation types.")
+    for f in failures:
+        pert_type = f.get('perturbation_type', 'unknown')
+        stratified[pert_type].append(f)
     return dict(stratified)
 
 def sample_stratified(stratified_failures: Dict[str, List[Dict[str, Any]]], 
-                     max_sample_size: int = MAX_SAMPLE_SIZE, 
-                     seed: int = RANDOM_SEED) -> List[Dict[str, Any]]:
+                     max_total: int = 50, 
+                     seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Perform stratified sampling of failures.
-    
-    Samples proportionally from each perturbation type, ensuring representation
-    from all types, up to a maximum of max_sample_size total items.
+    Perform stratified sampling from failures, respecting a maximum total sample size.
     
     Args:
-        stratified_failures: Dictionary of failures grouped by perturbation type.
-        max_sample_size: Maximum total number of samples to return.
+        stratified_failures: Dictionary mapping perturbation_type to list of failures.
+        max_total: Maximum total number of samples to return.
         seed: Random seed for reproducibility.
         
     Returns:
-        List of sampled failure dictionaries.
+        List of sampled failure dictionaries, stratified by perturbation type.
     """
     random.seed(seed)
+    sampled = []
     
-    if not stratified_failures:
-        logger.warning("No stratified failures to sample from.")
+    # Calculate proportional allocation
+    total_failures = sum(len(v) for v in stratified_failures.values())
+    if total_failures == 0:
         return []
+        
+    # If total failures <= max_total, return all
+    if total_failures <= max_total:
+        for group in stratified_failures.values():
+            sampled.extend(group)
+        return sampled
     
-    total_failures = sum(len(items) for items in stratified_failures.values())
+    # Otherwise, sample proportionally
+    # Ensure each group gets at least 1 sample if it has failures, up to max_total
+    groups = list(stratified_failures.keys())
+    samples_per_group = {}
+    remaining = max_total
     
-    if total_failures <= max_sample_size:
-        # If total failures are within limit, return all
-        all_failures = []
-        for items in stratified_failures.values():
-            all_failures.extend(items)
-        logger.info(f"Total failures ({total_failures}) <= max sample size ({max_sample_size}). Returning all.")
-        return all_failures
+    # First pass: ensure minimum representation
+    for group in groups:
+        count = len(stratified_failures[group])
+        if count > 0:
+            # Allocate proportional to group size, at least 1
+            alloc = max(1, int((count / total_failures) * max_total))
+            alloc = min(alloc, count)  # Don't exceed group size
+            samples_per_group[group] = alloc
+            remaining -= alloc
     
-    # Calculate proportional sample size for each stratum
-    sample_sizes = {}
-    remaining = max_sample_size
-    types = list(stratified_failures.keys())
-    
-    # First pass: calculate proportional allocation
-    for ptype, items in stratified_failures.items():
-        proportion = len(items) / total_failures
-        allocated = max(1, int(proportion * max_sample_size))  # Ensure at least 1 per type if possible
-        sample_sizes[ptype] = allocated
-        remaining -= allocated
-    
-    # Adjust if we have remaining slots (due to rounding)
+    # Second pass: distribute remaining samples proportionally
     if remaining > 0:
-        # Distribute remaining slots to largest strata
-        sorted_types = sorted(stratified_failures.keys(), 
-                            key=lambda x: len(stratified_failures[x]), 
-                            reverse=True)
-        for ptype in sorted_types:
-            if remaining <= 0:
-                break
-            # Can we add more?
-            current_count = len(stratified_failures[ptype])
-            if sample_sizes[ptype] < current_count:
-                sample_sizes[ptype] += 1
-                remaining -= 1
+        for group in groups:
+            count = len(stratified_failures[group])
+            already_sampled = samples_per_group.get(group, 0)
+            available = count - already_sampled
+            if available > 0 and remaining > 0:
+                extra = min(remaining, int((count / total_failures) * remaining))
+                extra = min(extra, available)
+                samples_per_group[group] = samples_per_group.get(group, 0) + extra
+                remaining -= extra
     
-    # Sample from each stratum
-    sampled_failures = []
-    for ptype, items in stratified_failures.items():
-        sample_size = min(sample_sizes[ptype], len(items))
-        sampled = random.sample(items, sample_size)
-        sampled_failures.extend(sampled)
+    # Final sampling
+    for group, sample_count in samples_per_group.items():
+        group_failures = stratified_failures[group]
+        if sample_count >= len(group_failures):
+            sampled.extend(group_failures)
+        else:
+            sampled.extend(random.sample(group_failures, sample_count))
     
-    logger.info(f"Sampled {len(sampled_failures)} failures from {len(stratified_failures)} perturbation types.")
-    return sampled_failures
+    return sampled
 
 def classify_error(result: Dict[str, Any]) -> str:
     """
-    Classify an error as 'syntax' or 'logic' based on error message.
+    Classify an error as 'syntax' or 'logic' based on error message or tags.
     
     Args:
-        result: Execution result dictionary containing error information.
+        result: Execution result dictionary.
         
     Returns:
-        Error classification string: 'syntax' or 'logic'.
+        Error classification: 'syntax', 'logic', or 'unknown'.
     """
-    error_message = result.get("error_message", "").lower()
-    tag = result.get("tag", "").lower()
+    # Check for explicit error tags
+    error_tag = result.get('error_tag', '').lower()
+    if error_tag == 'syntax':
+        return 'syntax'
+    if error_tag == 'logic':
+        return 'logic'
     
-    # Syntax error indicators
-    syntax_indicators = [
-        "syntaxerror", "indentationerror", "nameerror", "importerror",
-        "module not found", "invalid syntax", "unexpected indent",
-        "eof while", "invalid token", "unexpected token"
-    ]
+    # Check status
+    status = result.get('status', '').lower()
+    if status in ['syntax_error', 'error']:
+        # Try to infer from message
+        message = result.get('message', '').lower()
+        if any(kw in message for kw in ['syntax', 'indentation', 'invalid syntax', 'unexpected']):
+            return 'syntax'
+        return 'logic'
     
-    # Logic error indicators (more general, as logic errors are harder to detect automatically)
-    # If it's not a syntax error and the code ran but failed, it's likely logic
-    logic_indicators = [
-        "assertionerror", "valueerror", "typeerror", "indexerror",
-        "keyerror", "timeout", "runtime error", "failed", "incorrect"
-    ]
+    # Check message for keywords
+    message = result.get('message', '').lower()
+    if any(kw in message for kw in ['syntax', 'indentation', 'invalid syntax', 'unexpected', 'eof']):
+        return 'syntax'
     
-    # Check for syntax errors first
-    for indicator in syntax_indicators:
-        if indicator in error_message or indicator in tag:
-            return "syntax"
-    
-    # Check for logic errors
-    for indicator in logic_indicators:
-        if indicator in error_message or indicator in tag:
-            return "logic"
-    
-    # Default to logic if we can't determine (most runtime failures are logic errors)
-    # or if the error is ambiguous
-    if tag in ["timeout", "oom", "fail"]:
-        return "logic"
-    
-    # If we still can't classify, default to 'logic' as it's the more common case
-    # for LLM-generated code that compiles but produces wrong output
-    return "logic"
+    # Default to logic for runtime errors, timeouts, etc.
+    if status in ['fail', 'timeout', 'runtime_error']:
+        return 'logic'
+        
+    return 'unknown'
 
 def create_error_classification_report(sampled_failures: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Create the final error classification report.
+    Create the error classification report by tagging each sampled failure.
     
     Args:
         sampled_failures: List of sampled failure dictionaries.
@@ -206,112 +181,83 @@ def create_error_classification_report(sampled_failures: List[Dict[str, Any]]) -
         List of dictionaries with error classification tags.
     """
     report = []
-    
-    for i, failure in enumerate(sampled_failures):
+    for failure in sampled_failures:
         entry = {
-            "task_id": failure.get("task_id", f"unknown_{i}"),
-            "perturbation_type": failure.get("perturbation_type", "unknown"),
-            "original_tag": failure.get("tag", "unknown"),
-            "error_message": failure.get("error_message", ""),
-            "classification": classify_error(failure),
-            "sample_index": i
+            'task_id': failure.get('task_id', 'unknown'),
+            'perturbation_type': failure.get('perturbation_type', 'unknown'),
+            'error_tag': failure.get('error_tag', 'unknown'),
+            'status': failure.get('status', 'unknown'),
+            'classification': classify_error(failure),
+            'message': failure.get('message', '')[:200]  # Truncate long messages
         }
         report.append(entry)
-    
     return report
 
-def save_report(report: List[Dict[str, Any]], output_path: Optional[str] = None) -> Path:
+def save_report(report: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Save the error classification report to JSON.
+    Save the error classification report to a JSON file.
     
     Args:
-        report: List of error classification entries.
-        output_path: Optional custom output path.
-        
-    Returns:
-        Path to the saved file.
+        report: List of classification report entries.
+        output_path: Path to the output JSON file.
     """
-    if output_path is None:
-        output_path = "data/processed/error_classification_report.json"
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    output_path = Path(output_path)
-    ensure_directories(output_path.parent)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"Error classification report saved to {output_path}")
-    return output_path
+    logger.info(f"Saved error classification report to {output_path} with {len(report)} entries.")
 
 def main():
     """
-    Main entry point for error classification.
-    
-    This function orchestrates the entire error classification pipeline:
-    1. Load execution results
-    2. Filter for failures
-    3. Stratify by perturbation type
-    4. Sample up to 50 failures (stratified)
-    5. Classify each as syntax or logic
-    6. Save report to JSON
+    Main entry point for the error classifier.
+    Reads execution results, filters failures, stratifies by perturbation type,
+    samples up to 50, classifies errors, and saves the report.
     """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    config = get_config_dict()
+    data_dir = Path(config.get('data_dir', 'data'))
+    processed_dir = data_dir / 'processed'
     
-    logger.info("Starting error classification pipeline (T035)...")
+    # Input: execution results from T024/T025
+    results_file = processed_dir / 'execution_results.json'
+    if not results_file.exists():
+        logger.error(f"Execution results file not found: {results_file}")
+        # Try alternative path
+        results_file = Path('data/processed/execution_results.json')
+        if not results_file.exists():
+            raise FileNotFoundError(f"Cannot find execution results at {results_file}")
     
-    try:
-        # Step 1: Load execution results
-        logger.info("Loading execution results...")
-        results = load_execution_results()
-        
-        if not results:
-            logger.warning("No execution results found. Creating empty report.")
-            save_report([])
-            return
-        
-        # Step 2: Filter for failures
-        logger.info("Filtering for failed executions...")
-        failures = filter_failures(results)
-        
-        if not failures:
-            logger.info("No failed executions found. Creating empty report.")
-            save_report([])
-            return
-        
-        # Step 3: Stratify by perturbation type
-        logger.info("Stratifying failures by perturbation type...")
-        stratified = stratify_by_perturbation_type(failures)
-        
-        # Step 4: Sample stratified
-        logger.info(f"Performing stratified sampling (max {MAX_SAMPLE_SIZE} samples)...")
-        sampled = sample_stratified(stratified, MAX_SAMPLE_SIZE, RANDOM_SEED)
-        
-        # Step 5: Classify errors
-        logger.info("Classifying errors as syntax or logic...")
-        report = create_error_classification_report(sampled)
-        
-        # Step 6: Save report
-        logger.info("Saving error classification report...")
-        output_path = save_report(report)
-        
-        # Summary
-        syntax_count = sum(1 for item in report if item["classification"] == "syntax")
-        logic_count = sum(1 for item in report if item["classification"] == "logic")
-        
-        logger.info(f"Classification complete: {syntax_count} syntax errors, {logic_count} logic errors.")
-        logger.info(f"Total samples: {len(report)}")
-        logger.info(f"Report saved to: {output_path}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error during error classification: {e}")
-        raise
+    logger.info(f"Loading execution results from {results_file}")
+    results = load_execution_results(str(results_file))
+    logger.info(f"Loaded {len(results)} execution results")
+    
+    # Filter failures
+    failures = filter_failures(results)
+    logger.info(f"Found {len(failures)} failed executions")
+    
+    if len(failures) == 0:
+        logger.warning("No failures found to classify. Creating empty report.")
+        save_report([], str(processed_dir / 'error_classification_report.json'))
+        return
+    
+    # Stratify by perturbation type
+    stratified = stratify_by_perturbation_type(failures)
+    logger.info(f"Stratified into {len(stratified)} perturbation types: {list(stratified.keys())}")
+    
+    # Sample stratified (max 50)
+    sampled = sample_stratified(stratified, max_total=50, seed=42)
+    logger.info(f"Sampled {len(sampled)} failures for classification")
+    
+    # Classify errors
+    report = create_error_classification_report(sampled)
+    
+    # Save report
+    output_file = processed_dir / 'error_classification_report.json'
+    save_report(report, str(output_file))
+    
+    logger.info("Error classification complete.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()

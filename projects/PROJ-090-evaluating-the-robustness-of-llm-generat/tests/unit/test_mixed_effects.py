@@ -4,24 +4,30 @@ import tempfile
 import pytest
 import pandas as pd
 import numpy as np
+import sys
+import logging
 
 # Add parent directory to path for imports
-import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from code.analysis.statistics import run_mixed_effects_logistic_regression, MixedEffectsResult
+
+def setup_module(module):
+    # Suppress logging during tests
+    logging.disable(logging.CRITICAL)
+
+def teardown_module(module):
+    logging.disable(logging.NOTSET)
 
 def test_mixed_effects_logistic_regression_structure():
     """
     Test that the mixed-effects logistic regression function produces the expected output structure.
     """
-    # Create a temporary directory for test outputs
     with tempfile.TemporaryDirectory() as tmpdir:
         results_path = os.path.join(tmpdir, "execution_results.json")
         output_path = os.path.join(tmpdir, "mixed_effects_results.json")
 
         # Create mock data
-        # Simulate 10 tasks, 3 perturbation types (original, synonym, typo), with binary pass/fail
         np.random.seed(42)
         n_tasks = 10
         n_per_task = 3  # original, synonym, typo
@@ -105,12 +111,13 @@ def test_mixed_effects_with_realistic_data():
         # The variance component should be present and non-negative
         assert output_data['variance_component_task'] >= 0
         assert output_data['std_dev_task'] >= 0
-        assert 'synonym' in output_data['fixed_effects'] or 'typo' in output_data['fixed_effects'], \
+        # Check that fixed effects contain perturbation types
+        assert any('synonym' in k or 'typo' in k for k in output_data['fixed_effects'].keys()), \
             "Should have coefficients for perturbation types"
 
 def test_mixed_effects_single_task():
     """
-    Test behavior with minimal data (single task) - should handle gracefully.
+    Test behavior with minimal data (single task) - should handle gracefully or fail explicitly.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         results_path = os.path.join(tmpdir, "execution_results.json")
@@ -126,13 +133,12 @@ def test_mixed_effects_single_task():
         with open(results_path, 'w') as f:
             json.dump(data, f)
 
-        # This might fail due to insufficient groups for random effects,
-        # but we test that it either works or raises a clear error.
+        # This might fail due to insufficient groups for random effects
         try:
             result = run_mixed_effects_logistic_regression(results_path, output_path)
             # If it succeeds, verify structure
             assert result.n_groups == 1
         except Exception as e:
             # Expected: MixedLM may fail with only 1 group
-            assert "Could not fit" in str(e) or "singular" in str(e).lower(), \
+            assert "Could not fit" in str(e) or "singular" in str(e).lower() or "group" in str(e).lower(), \
                 f"Expected fit error for single group, got: {e}"

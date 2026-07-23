@@ -1,252 +1,176 @@
-"""
-Unit tests for the error classifier module (T035).
-
-These tests verify:
-1. Stratified sampling logic
-2. Error classification (syntax vs logic)
-3. Report generation structure
-"""
+import pytest
 import json
 import random
 from pathlib import Path
-import pytest
 from unittest.mock import patch, MagicMock
 
-# Import the module under test
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
 from analysis.error_classifier import (
+    load_execution_results,
     filter_failures,
     stratify_by_perturbation_type,
     sample_stratified,
     classify_error,
-    create_error_classification_report
+    create_error_classification_report,
+    save_report,
+    main
 )
-from model.execution_results import ExecutionTag
 
+@pytest.fixture
+def sample_results():
+    """Fixture providing sample execution results for testing."""
+    return [
+        {'task_id': 'task1', 'perturbation_type': 'synonym', 'status': 'pass', 'error_tag': None},
+        {'task_id': 'task2', 'perturbation_type': 'typo', 'status': 'fail', 'error_tag': 'syntax', 'message': 'SyntaxError: invalid syntax'},
+        {'task_id': 'task3', 'perturbation_type': 'rephrase', 'status': 'fail', 'error_tag': 'logic', 'message': 'AssertionError: expected 5, got 3'},
+        {'task_id': 'task4', 'perturbation_type': 'synonym', 'status': 'timeout', 'error_tag': 'timeout', 'message': 'Execution timed out'},
+        {'task_id': 'task5', 'perturbation_type': 'typo', 'status': 'fail', 'error_tag': None, 'message': 'IndentationError: unexpected indent'},
+        {'task_id': 'task6', 'perturbation_type': 'rephrase', 'status': 'pass', 'error_tag': None},
+    ]
 
-class TestFilterFailures:
-    """Tests for filter_failures function."""
-    
-    def test_filter_passes_and_fails(self):
-        """Test that only failures are returned."""
-        results = [
-            {"task_id": "1", "tag": ExecutionTag.PASS.value, "error_message": ""},
-            {"task_id": "2", "tag": ExecutionTag.SYNTAX_ERROR.value, "error_message": "SyntaxError"},
-            {"task_id": "3", "tag": ExecutionTag.TIMEOUT.value, "error_message": "Timeout"},
-            {"task_id": "4", "tag": ExecutionTag.PASS.value, "error_message": ""},
-        ]
-        
-        failures = filter_failures(results)
-        
-        assert len(failures) == 2
-        assert failures[0]["task_id"] == "2"
-        assert failures[1]["task_id"] == "3"
-    
-    def test_empty_list(self):
-        """Test with empty input."""
-        failures = filter_failures([])
-        assert failures == []
-    
-    def test_all_passes(self):
-        """Test when all results pass."""
-        results = [
-            {"task_id": "1", "tag": ExecutionTag.PASS.value},
-            {"task_id": "2", "tag": ExecutionTag.PASS.value},
-        ]
-        failures = filter_failures(results)
-        assert failures == []
+@pytest.fixture
+def sample_failures(sample_results):
+    """Fixture providing sample failures."""
+    return filter_failures(sample_results)
 
+def test_filter_failures(sample_results):
+    """Test that filter_failures correctly identifies failed executions."""
+    failures = filter_failures(sample_results)
+    assert len(failures) == 4
+    task_ids = [f['task_id'] for f in failures]
+    assert 'task1' not in task_ids
+    assert 'task6' not in task_ids
+    assert 'task2' in task_ids
+    assert 'task3' in task_ids
+    assert 'task4' in task_ids
+    assert 'task5' in task_ids
 
-class TestStratifyByPerturbationType:
-    """Tests for stratify_by_perturbation_type function."""
+def test_stratify_by_perturbation_type(sample_failures):
+    """Test stratification by perturbation type."""
+    stratified = stratify_by_perturbation_type(sample_failures)
     
-    def test_stratification(self):
-        """Test that failures are correctly grouped by type."""
-        failures = [
-            {"task_id": "1", "perturbation_type": "synonym", "tag": "syntax"},
-            {"task_id": "2", "perturbation_type": "typo", "tag": "syntax"},
-            {"task_id": "3", "perturbation_type": "synonym", "tag": "timeout"},
-            {"task_id": "4", "perturbation_type": "rephrase", "tag": "fail"},
-        ]
-        
-        stratified = stratify_by_perturbation_type(failures)
-        
-        assert len(stratified) == 3
-        assert len(stratified["synonym"]) == 2
-        assert len(stratified["typo"]) == 1
-        assert len(stratified["rephrase"]) == 1
+    assert 'synonym' in stratified
+    assert 'typo' in stratified
+    assert 'rephrase' in stratified
     
-    def test_unknown_type(self):
-        """Test handling of missing perturbation_type."""
-        failures = [
-            {"task_id": "1", "tag": "syntax"},  # No perturbation_type
-            {"task_id": "2", "perturbation_type": "typo", "tag": "syntax"},
-        ]
-        
-        stratified = stratify_by_perturbation_type(failures)
-        
-        assert "unknown" in stratified
-        assert len(stratified["unknown"]) == 1
+    assert len(stratified['synonym']) == 1
+    assert len(stratified['typo']) == 2
+    assert len(stratified['rephrase']) == 1
 
+def test_sample_stratified_all(sample_failures):
+    """Test sampling when total failures <= max_total."""
+    sampled = sample_stratified(stratify_by_perturbation_type(sample_failures), max_total=100, seed=42)
+    assert len(sampled) == len(sample_failures)
 
-class TestSampleStratified:
-    """Tests for sample_stratified function."""
+def test_sample_stratified_limited(sample_failures):
+    """Test sampling when total failures > max_total."""
+    # Create more failures to test limiting
+    many_failures = sample_failures * 20  # 80 failures
+    stratified = stratify_by_perturbation_type(many_failures)
     
-    def test_sample_smaller_than_total(self):
-        """Test sampling when total > max_sample_size."""
-        # Create stratified data with 100 items across 2 types
-        stratified = {
-            "type1": [{"id": i} for i in range(50)],
-            "type2": [{"id": i} for i in range(50, 100)],
-        }
-        
-        sample = sample_stratified(stratified, max_sample_size=20, seed=42)
-        
-        assert len(sample) == 20
-        # Verify we got items from both types
-        type_ids = [item["id"] for item in sample]
-        assert any(id_ < 50 for id_ in type_ids)  # From type1
-        assert any(id_ >= 50 for id_ in type_ids)  # From type2
+    sampled = sample_stratified(stratified, max_total=50, seed=42)
+    assert len(sampled) <= 50
     
-    def test_sample_larger_than_total(self):
-        """Test when total <= max_sample_size (should return all)."""
-        stratified = {
-            "type1": [{"id": i} for i in range(10)],
-            "type2": [{"id": i} for i in range(10, 15)],
-        }
-        
-        sample = sample_stratified(stratified, max_sample_size=50, seed=42)
-        
-        assert len(sample) == 15  # All items
-    
-    def test_empty_input(self):
-        """Test with empty stratified data."""
-        sample = sample_stratified({}, max_sample_size=10, seed=42)
-        assert sample == []
-    
-    def test_deterministic_with_seed(self):
-        """Test that same seed produces same result."""
-        stratified = {
-            "type1": [{"id": i} for i in range(100)],
-            "type2": [{"id": i} for i in range(100, 200)],
-        }
-        
-        sample1 = sample_stratified(stratified, max_sample_size=10, seed=42)
-        sample2 = sample_stratified(stratified, max_sample_size=10, seed=42)
-        
-        assert sample1 == sample2
+    # Verify stratification is maintained (all types present)
+    types_present = set(f['perturbation_type'] for f in sampled)
+    assert len(types_present) >= 2  # Should have at least 2 types
 
+def test_sample_stratified_deterministic(sample_failures):
+    """Test that sampling is deterministic with same seed."""
+    stratified = stratify_by_perturbation_type(sample_failures)
+    
+    sampled1 = sample_stratified(stratified, max_total=50, seed=42)
+    sampled2 = sample_stratified(stratified, max_total=50, seed=42)
+    
+    assert len(sampled1) == len(sampled2)
+    assert [f['task_id'] for f in sampled1] == [f['task_id'] for f in sampled2]
 
-class TestClassifyError:
-    """Tests for classify_error function."""
+def test_classify_error_syntax():
+    """Test syntax error classification."""
+    result = {'error_tag': 'syntax', 'message': 'SyntaxError: invalid syntax'}
+    assert classify_error(result) == 'syntax'
     
-    def test_syntax_error_detection(self):
-        """Test detection of syntax errors."""
-        test_cases = [
-            {"error_message": "SyntaxError: invalid syntax", "tag": "syntax_error"},
-            {"error_message": "IndentationError: unexpected indent", "tag": ""},
-            {"error_message": "NameError: name 'x' is not defined", "tag": ""},
-            {"error_message": "ModuleNotFoundError: No module named 'foo'", "tag": ""},
-        ]
-        
-        for case in test_cases:
-            result = classify_error(case)
-            assert result == "syntax", f"Failed for {case}"
+    result = {'status': 'syntax_error', 'message': 'unexpected indent'}
+    assert classify_error(result) == 'syntax'
     
-    def test_logic_error_detection(self):
-        """Test detection of logic errors."""
-        test_cases = [
-            {"error_message": "AssertionError: expected True but got False", "tag": "fail"},
-            {"error_message": "ValueError: invalid literal", "tag": ""},
-            {"error_message": "Timeout exceeded", "tag": "timeout"},
-            {"error_message": "Output mismatch", "tag": "fail"},
-        ]
-        
-        for case in test_cases:
-            result = classify_error(case)
-            assert result == "logic", f"Failed for {case}"
-    
-    def test_default_to_logic(self):
-        """Test that unknown errors default to logic."""
-        case = {"error_message": "Some unknown error", "tag": "unknown"}
-        result = classify_error(case)
-        assert result == "logic"
+    result = {'message': 'IndentationError: unexpected indent'}
+    assert classify_error(result) == 'syntax'
 
-
-class TestCreateErrorClassificationReport:
-    """Tests for create_error_classification_report function."""
+def test_classify_error_logic():
+    """Test logic error classification."""
+    result = {'error_tag': 'logic', 'message': 'AssertionError'}
+    assert classify_error(result) == 'logic'
     
-    def test_report_structure(self):
-        """Test that report has correct structure."""
-        sampled_failures = [
-            {
-                "task_id": "test1",
-                "perturbation_type": "synonym",
-                "tag": "syntax_error",
-                "error_message": "SyntaxError: invalid syntax"
-            },
-            {
-                "task_id": "test2",
-                "perturbation_type": "typo",
-                "tag": "fail",
-                "error_message": "AssertionError"
-            }
-        ]
-        
-        report = create_error_classification_report(sampled_failures)
-        
-        assert len(report) == 2
-        assert all("task_id" in item for item in report)
-        assert all("perturbation_type" in item for item in report)
-        assert all("classification" in item for item in report)
-        assert all("original_tag" in item for item in report)
-        assert all("error_message" in item for item in report)
-        assert all("sample_index" in item for item in report)
+    result = {'status': 'fail', 'message': 'AssertionError: expected 5, got 3'}
+    assert classify_error(result) == 'logic'
     
-    def test_classification_values(self):
-        """Test that classifications are valid."""
-        sampled_failures = [
-            {"task_id": "1", "perturbation_type": "synonym", "tag": "syntax_error", "error_message": "SyntaxError"},
-            {"task_id": "2", "perturbation_type": "typo", "tag": "fail", "error_message": "AssertionError"},
-        ]
-        
-        report = create_error_classification_report(sampled_failures)
-        
-        classifications = [item["classification"] for item in report]
-        assert all(c in ["syntax", "logic"] for c in classifications)
+    result = {'status': 'timeout', 'message': 'Execution timed out'}
+    assert classify_error(result) == 'logic'
 
+def test_classify_error_unknown():
+    """Test unknown error classification."""
+    result = {'status': 'unknown', 'message': ''}
+    assert classify_error(result) == 'unknown'
 
-class TestIntegration:
-    """Integration tests for the full pipeline."""
+def test_create_error_classification_report(sample_failures):
+    """Test report creation."""
+    report = create_error_classification_report(sample_failures)
     
-    @patch('analysis.error_classifier.load_execution_results')
-    def test_full_pipeline(self, mock_load):
-        """Test the full pipeline from loading to report generation."""
-        # Mock execution results
-        mock_results = [
-            {"task_id": "1", "tag": ExecutionTag.PASS.value, "perturbation_type": "synonym"},
-            {"task_id": "2", "tag": ExecutionTag.SYNTAX_ERROR.value, "perturbation_type": "synonym", "error_message": "SyntaxError"},
-            {"task_id": "3", "tag": ExecutionTag.TIMEOUT.value, "perturbation_type": "typo", "error_message": "Timeout"},
-            {"task_id": "4", "tag": ExecutionTag.PASS.value, "perturbation_type": "rephrase"},
-            {"task_id": "5", "tag": ExecutionTag.FAILED.value, "perturbation_type": "typo", "error_message": "AssertionError"},
-        ]
-        
-        mock_load.return_value = mock_results
-        
-        # Run the pipeline components
-        failures = filter_failures(mock_results)
-        assert len(failures) == 3
-        
-        stratified = stratify_by_perturbation_type(failures)
-        assert len(stratified) == 2  # synonym and typo
-        
-        sampled = sample_stratified(stratified, max_sample_size=2, seed=42)
-        assert len(sampled) <= 2
-        
-        report = create_error_classification_report(sampled)
-        assert len(report) == len(sampled)
-        assert all("perturbation_type" in item for item in report)
-        assert all("classification" in item for item in report)
+    assert len(report) == len(sample_failures)
+    
+    for entry in report:
+        assert 'task_id' in entry
+        assert 'perturbation_type' in entry
+        assert 'classification' in entry
+        assert entry['classification'] in ['syntax', 'logic', 'unknown']
+
+def test_save_report(tmp_path):
+    """Test saving report to file."""
+    report = [{'task_id': 'test', 'perturbation_type': 'synonym', 'classification': 'syntax'}]
+    output_file = tmp_path / 'test_report.json'
+    
+    save_report(report, str(output_file))
+    
+    assert output_file.exists()
+    with open(output_file) as f:
+        loaded = json.load(f)
+    assert len(loaded) == 1
+    assert loaded[0]['task_id'] == 'test'
+
+def test_main_integration(tmp_path, sample_results):
+    """Test the main function integration."""
+    # Mock the execution results file
+    results_file = tmp_path / 'execution_results.json'
+    with open(results_file, 'w') as f:
+        json.dump(sample_results, f)
+    
+    output_file = tmp_path / 'error_classification_report.json'
+    
+    # Patch the functions to use our temp paths
+    with patch('analysis.error_classifier.load_execution_results') as mock_load, \
+         patch('analysis.error_classifier.save_report') as mock_save, \
+         patch('analysis.error_classifier.get_config_dict') as mock_config:
+         
+         mock_config.return_value = {'data_dir': str(tmp_path)}
+         mock_load.return_value = sample_results
+         
+         main()
+         
+         # Verify save_report was called
+         assert mock_save.called
+         call_args = mock_save.call_args[0]
+         assert len(call_args[0]) <= 50
+         assert all('perturbation_type' in entry for entry in call_args[0])
+
+def test_sample_stratified_empty():
+    """Test sampling with no failures."""
+    sampled = sample_stratified({}, max_total=50, seed=42)
+    assert len(sampled) == 0
+
+def test_sample_stratified_single_group():
+    """Test sampling with a single perturbation type."""
+    failures = [{'task_id': f't{i}', 'perturbation_type': 'synonym'} for i in range(100)]
+    stratified = {'synonym': failures}
+    
+    sampled = sample_stratified(stratified, max_total=50, seed=42)
+    assert len(sampled) == 50
+    assert all(f['perturbation_type'] == 'synonym' for f in sampled)
