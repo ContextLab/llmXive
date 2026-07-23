@@ -4,36 +4,59 @@ import os
 import glob
 import hashlib
 import re
-from typing import List, Dict, Any, Optional
+import sys
+from typing import List, Dict, Any, Optional, Tuple
+import yaml
+
+# Constants for metrics
+MAX_FILES = 500
+MAX_TIME_SECONDS = 2700  # 45 minutes
 
 def calculate_loc(file_path: str) -> int:
     """Calculate Lines of Code (LOC) for a Python file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             lines = f.readlines()
-        # Filter out empty lines and comments
-        code_lines = [
-            line for line in lines 
-            if line.strip() and not line.strip().startswith('#')
-        ]
-        return len(code_lines)
+        # Count non-empty, non-comment lines
+        loc = 0
+        in_multiline_comment = False
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith('"""') or stripped.startswith("'''"):
+                if in_multiline_comment:
+                    in_multiline_comment = False
+                    continue
+                else:
+                    if stripped.count('"""') == 1 or stripped.count("'''") == 1:
+                        # Single line docstring, count it
+                        pass
+                    else:
+                        in_multiline_comment = True
+                        continue
+            if in_multiline_comment:
+                continue
+            if stripped.startswith('#'):
+                continue
+            loc += 1
+        return loc
     except Exception:
         return 0
 
 def calculate_cyclomatic_complexity(file_path: str) -> int:
-    """Calculate Cyclomatic Complexity (CC) for a Python file using AST."""
+    """Calculate Cyclomatic Complexity (CC) for a Python file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             source = f.read()
         tree = ast.parse(source)
         
         cc = 1  # Base complexity
         for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler, 
+            if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler,
                                  ast.With, ast.Assert, ast.comprehension)):
                 cc += 1
             elif isinstance(node, ast.BoolOp):
-                # Each 'and' or 'or' adds to complexity
                 cc += len(node.values) - 1
         return cc
     except SyntaxError:
@@ -41,177 +64,222 @@ def calculate_cyclomatic_complexity(file_path: str) -> int:
     except Exception:
         return 0
 
-def analyze_file_metrics(repo_path: str) -> List[Dict[str, Any]]:
-    """Scan a repository and return metrics for each Python file."""
-    metrics = []
-    py_files = glob.glob(os.path.join(repo_path, "**", "*.py"), recursive=True)
+def analyze_file_metrics(file_path: str) -> Dict[str, Any]:
+    """Analyze LOC and CC for a single file."""
+    return {
+        'file': file_path,
+        'loc': calculate_loc(file_path),
+        'cc': calculate_cyclomatic_complexity(file_path)
+    }
+
+def scan_repository_for_metrics(repo_path: str) -> Tuple[int, int, int]:
+    """Scan a repository and return total LOC, total CC, and file count."""
+    total_loc = 0
+    total_cc = 0
+    file_count = 0
     
-    # Exclude common non-source directories
-    exclude_dirs = {'__pycache__', '.git', 'venv', 'env', '.tox', 'node_modules'}
+    python_files = glob.glob(os.path.join(repo_path, '**', '*.py'), recursive=True)
+    # Limit to MAX_FILES
+    python_files = python_files[:MAX_FILES]
     
-    for file_path in py_files:
-        # Check if file is in an excluded directory
-        parts = file_path.replace(repo_path, '').split(os.sep)
-        if any(p in exclude_dirs for p in parts):
+    for py_file in python_files:
+        # Skip __pycache__ and hidden directories
+        if '__pycache__' in py_file or '/.' in py_file:
             continue
         
-        loc = calculate_loc(file_path)
-        cc = calculate_cyclomatic_complexity(file_path)
+        metrics = analyze_file_metrics(py_file)
+        total_loc += metrics['loc']
+        total_cc += metrics['cc']
+        file_count += 1
         
-        metrics.append({
-            "file": file_path,
-            "loc": loc,
-            "cyclomatic_complexity": cc
-        })
-    
-    return metrics
+        if file_count >= MAX_FILES:
+            break
+            
+    return total_loc, total_cc, file_count
 
-def scan_repository_for_metrics(repo_path: str) -> Dict[str, Any]:
-    """Aggregate metrics for an entire repository."""
-    file_metrics = analyze_file_metrics(repo_path)
-    total_loc = sum(m['loc'] for m in file_metrics)
-    total_cc = sum(m['cyclomatic_complexity'] for m in file_metrics)
-    
-    return {
-        "total_loc": total_loc,
-        "total_cyclomatic_complexity": total_cc,
-        "file_count": len(file_metrics),
-        "average_cc": total_cc / len(file_metrics) if file_metrics else 0
-    }
-
-def check_documentation_criteria(repo_path: str) -> Dict[str, Any]:
-    """
-    Check if a repository meets basic documentation criteria:
-    - Has a README (README.md, README.rst, README.txt)
-    - Has a setup file (setup.py, pyproject.toml, setup.cfg)
-    - Has API documentation (docs/ folder or similar)
-    """
+def check_documentation_criteria(repo_path: str) -> Dict[str, bool]:
+    """Check for presence of key documentation criteria."""
     criteria = {
-        "has_readme": False,
-        "has_setup_file": False,
-        "has_api_docs": False,
-        "details": {}
+        'setup_instructions': False,
+        'api_ref': False,
+        'architecture': False
     }
     
-    # Check for README
-    readme_patterns = ['README.md', 'README.rst', 'README.txt', 'readme.md']
-    for pattern in readme_patterns:
-        if os.path.exists(os.path.join(repo_path, pattern)):
-            criteria["has_readme"] = True
-            criteria["details"]["readme_file"] = pattern
-            break
+    # Look for common documentation files
+    doc_files = glob.glob(os.path.join(repo_path, '**', '*.{md,txt,rst}'), recursive=True)
+    doc_content = ""
+    for f in doc_files[:10]:  # Check first 10 docs
+        try:
+            with open(f, 'r', encoding='utf-8', errors='ignore') as file:
+                doc_content += file.read().lower()
+        except Exception:
+            continue
     
-    # Check for setup files
-    setup_files = ['setup.py', 'pyproject.toml', 'setup.cfg']
-    for sf in setup_files:
-        if os.path.exists(os.path.join(repo_path, sf)):
-            criteria["has_setup_file"] = True
-            criteria["details"]["setup_file"] = sf
-            break
-    
-    # Check for docs folder
-    if os.path.isdir(os.path.join(repo_path, 'docs')):
-        criteria["has_api_docs"] = True
-        criteria["details"]["docs_folder"] = "docs/"
-    
+    # Heuristic checks
+    if any(kw in doc_content for kw in ['install', 'setup', 'getting started', 'quickstart']):
+        criteria['setup_instructions'] = True
+    if any(kw in doc_content for kw in ['api', 'reference', 'function', 'method']):
+        criteria['api_ref'] = True
+    if any(kw in doc_content for kw in ['architecture', 'structure', 'design', 'overview']):
+        criteria['architecture'] = True
+        
     return criteria
 
 def evaluate_repository_rubric(repo_path: str) -> Dict[str, Any]:
-    """
-    Evaluate a repository against the selection rubric.
-    Returns a score and pass/fail status.
-    Criteria: Setup instructions, API ref, Architecture docs.
-    """
-    doc_check = check_documentation_criteria(repo_path)
+    """Evaluate a repository against the documentation rubric."""
+    criteria = check_documentation_criteria(repo_path)
+    loc, cc, file_count = scan_repository_for_metrics(repo_path)
     
-    # Scoring logic (simple weighted sum)
-    score = 0
-    details = {}
-    
-    if doc_check["has_readme"]:
-        score += 40
-        details["readme"] = "Present"
-    else:
-        details["readme"] = "Missing"
-        
-    if doc_check["has_setup_file"]:
-        score += 30
-        details["setup"] = "Present"
-    else:
-        details["setup"] = "Missing"
-        
-    if doc_check["has_api_docs"]:
-        score += 30
-        details["api_docs"] = "Present"
-    else:
-        details["api_docs"] = "Missing"
-    
-    # Threshold: Must have at least README and Setup file to pass
-    passed = doc_check["has_readme"] and doc_check["has_setup_file"]
+    # Simple scoring: 1 point per criteria met
+    score = sum(1 for v in criteria.values() if v)
+    max_score = len(criteria)
     
     return {
-        "score": score,
-        "passed": passed,
-        "details": details
+        'repo_path': repo_path,
+        'criteria_met': criteria,
+        'score': score,
+        'max_score': max_score,
+        'pass': score >= 2,  # Must meet at least 2 criteria
+        'metrics': {
+            'loc': loc,
+            'cc': cc,
+            'file_count': file_count
+        }
     }
 
-def run_rubric_on_candidates(repos: List[str]) -> List[Dict[str, Any]]:
-    """Run the rubric on a list of repository paths."""
+def run_rubric_on_candidates(candidate_repos: List[str]) -> List[Dict[str, Any]]:
+    """Run rubric evaluation on a list of candidate repositories."""
     results = []
-    for repo in repos:
-        if os.path.exists(repo):
+    for repo in candidate_repos:
+        if os.path.isdir(repo):
             result = evaluate_repository_rubric(repo)
-            result["repo_path"] = repo
             results.append(result)
     return results
 
-def load_schema_from_file(schema_path: str) -> Dict[str, Any]:
-    """Load a JSON schema from a file."""
-    with open(schema_path, 'r') as f:
-        return json.load(f)
-
-def validate_json_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
-    """Basic validation of data against a schema (simplified)."""
-    # In a real implementation, use jsonschema library
-    required_fields = schema.get("required", [])
-    for field in required_fields:
-        if field not in data:
-            return False
-    return True
-
-def validate_data_file(file_path: str, schema_path: str) -> bool:
-    """Validate a data file against a schema."""
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        schema = load_schema_from_file(schema_path)
-        return validate_json_schema(data, schema)
-    except Exception:
-        return False
-
-def collect_covariates(repo_path: str) -> Dict[str, Any]:
-    """Collect covariates for a repository (LOC, CC, etc.)."""
-    metrics = scan_repository_for_metrics(repo_path)
-    return {
-        "repo": repo_path,
-        "loc": metrics["total_loc"],
-        "cyclomatic_complexity": metrics["total_cyclomatic_complexity"],
-        "average_cc": metrics["average_cc"]
-    }
-
-def generate_covariates_json(repos: List[str], output_path: str):
-    """Generate a JSON file with covariates for multiple repositories."""
+def collect_covariates(repo_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Collect covariate data from repository results."""
     covariates = []
-    for repo in repos:
-        if os.path.exists(repo):
-            covariates.append(collect_covariates(repo))
-    
-    with open(output_path, 'w') as f:
+    for res in repo_results:
+        covariates.append({
+            'repo_path': res['repo_path'],
+            'loc': res['metrics']['loc'],
+            'cc': res['metrics']['cc'],
+            'human_doc_quality_score': res['score'] / res['max_score'] if res['max_score'] > 0 else 0
+        })
+    return covariates
+
+def generate_covariates_json(repo_results: List[Dict[str, Any]], output_path: str) -> None:
+    """Generate the covariates JSON file."""
+    covariates = collect_covariates(repo_results)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(covariates, f, indent=2)
 
+def run_schema_validation(input_path: str, schema_path: str, output_path: str) -> bool:
+    """
+    Run schema validation on a JSON file against a YAML schema.
+    Returns True if validation passes, False otherwise.
+    Writes a validation report to output_path.
+    """
+    import jsonschema
+    
+    report = {
+        'validated_file': input_path,
+        'schema_file': schema_path,
+        'valid': False,
+        'errors': [],
+        'checked_at': None
+    }
+    
+    try:
+        # Load schema
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            schema = yaml.safe_load(f)
+        
+        # Load data
+        with open(input_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Validate
+        validator = jsonschema.Draft7Validator(schema)
+        errors = list(validator.iter_errors(data))
+        
+        report['checked_at'] = json.dumps({
+            'timestamp': __import__('datetime').datetime.now().isoformat(),
+            'error_count': len(errors)
+        })
+        
+        if errors:
+            report['errors'] = [
+                {
+                    'path': list(error.absolute_path),
+                    'message': error.message,
+                    'validator': error.validator
+                }
+                for error in errors
+            ]
+            report['valid'] = False
+        else:
+            report['valid'] = True
+            report['errors'] = []
+            
+    except FileNotFoundError as e:
+        report['errors'].append({
+            'path': [],
+            'message': f"File not found: {e.filename}",
+            'validator': 'file_io'
+        })
+    except json.JSONDecodeError as e:
+        report['errors'].append({
+            'path': [],
+            'message': f"Invalid JSON: {e.msg}",
+            'validator': 'json_decode'
+        })
+    except yaml.YAMLError as e:
+        report['errors'].append({
+            'path': [],
+            'message': f"Invalid YAML schema: {e}",
+            'validator': 'yaml_parse'
+        })
+    except ImportError:
+        # Fallback if jsonschema not installed, do basic checks
+        # This should ideally not happen in a proper environment
+        report['errors'].append({
+            'path': [],
+            'message': "jsonschema library not installed. Please install it.",
+            'validator': 'import_error'
+        })
+    
+    # Write report
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    return report['valid']
+
 def main():
-    """Entry point for validation module tests."""
-    print("Validation module loaded successfully.")
+    """Main entry point for validation script."""
+    # Default paths
+    input_file = "data/raw/participant_logs.json"
+    schema_file = "contracts/dataset.schema.yaml"
+    output_file = "data/processed/validation_report.json"
+    
+    if len(sys.argv) > 1:
+        input_file = sys.argv[1]
+    if len(sys.argv) > 2:
+        schema_file = sys.argv[2]
+    if len(sys.argv) > 3:
+        output_file = sys.argv[3]
+        
+    print(f"Validating {input_file} against {schema_file}...")
+    is_valid = run_schema_validation(input_file, schema_file, output_file)
+    
+    if is_valid:
+        print(f"Validation PASSED. Report written to {output_file}")
+        sys.exit(0)
+    else:
+        print(f"Validation FAILED. Report written to {output_file}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

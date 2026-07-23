@@ -1639,6 +1639,10 @@
     "classified_at": "2026-07-04T12:37:43Z",
     "verdict": false
   },
+  "PROJ-982-llmxive-follow-up-extending-dopd-dual-on::1.6.0": {
+    "classified_at": "2026-07-23T07:34:28Z",
+    "verdict": false
+  },
   "PROJ-985-llmxive-follow-up-extending-full-attenti::1.6.0": {
     "classified_at": "2026-07-09T10:39:02Z",
     "verdict": false

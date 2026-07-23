@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000202
   verified_at: '2026-07-07T01:39:31.781118Z'
-- artifact_hash: ae9a4c09b19625bbeee628b52f3a075bebb96927536d695e9dee30f2947aa2e8
+- artifact_hash: 45e58bbe82b93400bc91bfd0ba3401dd3272c656d577dbaeee78af6f8b922436
   artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,6 +41,6 @@
     mixture analyses: a simulation study'
   kind: url
   value: https://arxiv.org/abs/2607.02000
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.02000
-  verified_at: '2026-07-13T08:21:50.040166Z'
+  verified_at: '2026-07-23T07:14:19.209539Z'

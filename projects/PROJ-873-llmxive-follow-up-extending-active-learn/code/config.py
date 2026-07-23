@@ -1,66 +1,62 @@
-"""
-Configuration management module for llmXive pipeline.
-Provides PipelineConfig class and utility functions for resource management.
-"""
-
 import os
 import sys
-from dataclasses import dataclass, field
-from typing import Optional, Any, Dict
+import json
+import time
 import resource
 import logging
+from dataclasses import dataclass, field
+from typing import Optional, Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class PipelineConfig:
-    """Configuration for the llmXive pipeline."""
-    
-    # Resource limits
+    data_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data"))
+    results_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "results"))
+    logs_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "logs"))
+    processed_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "processed"))
     max_runtime_hours: float = 6.0
     max_memory_gb: float = 7.0
-    
-    # Data paths
-    data_dir: str = "data"
-    raw_data_dir: str = "data/raw"
-    processed_data_dir: str = "data/processed"
-    results_dir: str = "data/results"
-    figures_dir: str = "figures"
-    
-    # Model settings
     embedding_model: str = "all-MiniLM-L6-v2"
     llm_model: str = "llama-3-8b-instruct"
-    
-    # Pipeline settings
+    llm_temperature: float = 0.0
+    llm_max_tokens: int = 200
     redundancy_threshold: float = 0.95
-    jaccard_threshold: float = 0.95
-    minhash_num_permutations: int = 128
+    minhash_threshold: float = 0.95
+    budget_baseline: int = 100
+    budget_clustering: int = 50
+    seeds: list = field(default_factory=lambda: [42])
     
-    # Experiment settings
-    num_seeds: int = 5
-    budgets: list = field(default_factory=lambda: [20, 50, 100])
+    # T025: MinHash-LSH threshold sweep range configuration
+    # Defines the range of Jaccard similarity thresholds to sweep for sensitivity analysis (SC-005)
+    minhash_threshold_start: float = 0.95
+    minhash_threshold_end: float = 0.99
+    minhash_threshold_step: float = 0.01
     
-    # Logging
-    log_level: str = "INFO"
-    log_dir: str = "logs"
-    
-    def __getattr__(self, name: str) -> Any:
-        """
-        Permissive fallback for unknown attributes.
-        Returns a no-op callable for logger-style methods.
-        """
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+    def __post_init__(self):
+        # Ensure directories exist
+        for dir_path in [self.data_dir, self.results_dir, self.logs_dir, self.processed_dir]:
+            os.makedirs(dir_path, exist_ok=True)
 
 _config_instance: Optional[PipelineConfig] = None
 
 def get_config() -> PipelineConfig:
-    """Get or create the global PipelineConfig instance."""
+    """Get the global configuration instance."""
     global _config_instance
     if _config_instance is None:
         _config_instance = PipelineConfig()
     return _config_instance
+
+def update_config(**kwargs) -> None:
+    """Update the global configuration."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = PipelineConfig()
+    for key, value in kwargs.items():
+        if hasattr(_config_instance, key):
+            setattr(_config_instance, key, value)
+        else:
+            logger.warning(f"Unknown config key: {key}")
 
 def format_bytes(num_bytes: int) -> str:
     """Format bytes into human-readable string."""
@@ -70,52 +66,69 @@ def format_bytes(num_bytes: int) -> str:
         num_bytes /= 1024.0
     return f"{num_bytes:.2f} PB"
 
-def check_system_limits(max_memory_gb: Optional[float] = None) -> Dict[str, Any]:
-    """
-    Check current system resource usage against limits.
-    
-    Args:
-        max_memory_gb: Maximum allowed memory in GB (uses config default if None)
-        
-    Returns:
-        Dictionary with current usage and limit status
-    """
+def check_system_limits() -> Dict[str, Any]:
+    """Check current system resource usage against limits."""
     config = get_config()
-    max_mem = max_memory_gb or config.max_memory_gb
     
-    # Get current memory usage
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    current_memory_mb = usage.ru_maxrss / 1024  # Convert KB to MB (Linux)
-    current_memory_gb = current_memory_mb / 1024
+    usage = {}
+    try:
+        rusage = resource.getrusage(resource.RUSAGE_SELF)
+        usage['max_memory_mb'] = rusage.ru_maxrss # In KB on Linux, MB on macOS
+        # Adjust for platform differences if necessary
+        if sys.platform == 'linux':
+            usage['max_memory_mb'] /= 1024.0
+    except Exception as e:
+        logger.error(f"Failed to get resource usage: {e}")
+        usage['max_memory_mb'] = 0.0
     
-    # Check limits
-    memory_ok = current_memory_gb < max_mem
+    usage['current_time'] = time.time()
     
-    return {
-        "current_memory_gb": current_memory_gb,
-        "max_memory_gb": max_mem,
-        "memory_ok": memory_ok,
-        "max_runtime_hours": config.max_runtime_hours
-    }
-
-def update_config(**kwargs) -> PipelineConfig:
-    """Update configuration with provided values."""
-    config = get_config()
-    for key, value in kwargs.items():
-        if hasattr(config, key):
-            setattr(config, key, value)
-        else:
-            logger.warning(f"Unknown config key: {key}")
-    return config
+    return usage
 
 def main():
-    """Main entry point for config module."""
-    config = get_config()
-    print(f"Pipeline Configuration:")
-    print(f"  Max Runtime: {config.max_runtime_hours} hours")
-    print(f"  Max Memory: {config.max_memory_gb} GB")
-    print(f"  Data Dir: {config.data_dir}")
-    print(f"  Embedding Model: {config.embedding_model}")
+    """Main entry point for config script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Configuration management")
+    parser.add_argument("--show", action="store_true", help="Show current config")
+    parser.add_argument("--update", nargs="+", help="Update config (key=value)")
+    
+    args = parser.parse_args()
+    
+    if args.show:
+        config = get_config()
+        print(json.dumps({
+            "data_dir": config.data_dir,
+            "results_dir": config.results_dir,
+            "logs_dir": config.logs_dir,
+            "processed_dir": config.processed_dir,
+            "max_runtime_hours": config.max_runtime_hours,
+            "max_memory_gb": config.max_memory_gb,
+            "embedding_model": config.embedding_model,
+            "llm_model": config.llm_model,
+            "llm_temperature": config.llm_temperature,
+            "llm_max_tokens": config.llm_max_tokens,
+            "redundancy_threshold": config.redundancy_threshold,
+            "minhash_threshold": config.minhash_threshold,
+            "minhash_threshold_start": config.minhash_threshold_start,
+            "minhash_threshold_end": config.minhash_threshold_end,
+            "minhash_threshold_step": config.minhash_threshold_step,
+            "budget_baseline": config.budget_baseline,
+            "budget_clustering": config.budget_clustering,
+            "seeds": config.seeds
+        }, indent=2))
+    elif args.update:
+        for item in args.update:
+            key, value = item.split("=")
+            # Simple type conversion
+            if value.isdigit():
+                value = int(value)
+            elif value.replace('.', '', 1).isdigit():
+                value = float(value)
+            update_config(**{key: value})
+        logger.info("Config updated.")
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

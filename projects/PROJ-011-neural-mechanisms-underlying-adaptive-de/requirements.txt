@@ -1,13 +1,24 @@
+# Core Data Science
 numpy>=1.24.0
 pandas>=2.0.0
 scipy>=1.10.0
 scikit-learn>=1.2.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Neuroimaging
 nibabel>=5.0.0
 nilearn>=0.10.0
+openneuro-py>=2.0.0
+
+# Probabilistic Programming
 pymc>=5.0.0
 numpyro>=0.12.0
-openneuro-py>=2.0.0
+
+# Utilities
 pytest>=7.0.0
-pyyaml>=6.0
-flake8>=6.0.0
+pyyaml>=6.0.0
 black>=23.0.0
+flake8>=6.0.0
+jupyter>=1.0.0
+tqdm>=4.65.0

@@ -79,12 +79,12 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data validation in `tests/contract/test_data_validation.py` (verifies OpenNeuro ds003694 structure)
-- [ ] T011 [P] [US1] Integration test for ROI extraction in `tests/integration/test_roi_extraction.py` (verifies dimensions match timepoints)
+- [X] T010 [P] [US1] Contract test for data validation in `tests/contract/test_data_validation.py` (verifies OpenNeuro ds003694 structure)
+- [X] T011 [P] [US1] Integration test for ROI extraction in `tests/integration/test_roi_extraction.py` (verifies dimensions match timepoints)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice)
+- [X] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice)
 - [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 using `openneuro-py` or direct URL; include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
 - [X] T014 [US1] Implement `code/preprocessing/motion_correction.py` using `nibabel`/`nilearn` (no fMRIPrep dependency) to correct motion and extract framewise displacement
 - [X] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space (using `nilearn` templates)

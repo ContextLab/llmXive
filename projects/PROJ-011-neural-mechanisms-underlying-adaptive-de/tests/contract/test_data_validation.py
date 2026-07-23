@@ -1,122 +1,175 @@
 """
-Contract Test for Data Validation
-
-Verifies OpenNeuro ds003694 structure requirements.
+Contract Test for Data Validation.
+Verifies OpenNeuro ds003694 structure and required behavioral columns.
 """
 import os
-import sys
-from pathlib import Path
-import tempfile
 import json
+import tempfile
+from pathlib import Path
+import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from preprocessing.data_validation import validate_dataset_structure, validate_participant_data
-from utils.io import save_json
+from utils.io import save_csv, save_json
 
 @pytest.fixture
-def mock_openneuro_dataset(tmp_path):
+def temp_dataset_root(tmp_path):
     """
-    Create a mock OpenNeuro ds003694 structure for testing.
-    
-    Expected structure:
-    ds003694/
-      dataset_description.json
-      sub-01/
-        func/
-          sub-01_task-feedback_bold.nii.gz
-          sub-01_task-feedback_events.tsv
-        anat/
-          sub-01_T1w.nii.gz
-      sub-02/
-        func/
-          sub-02_task-feedback_bold.nii.gz
-          sub-02_task-feedback_events.tsv
-        anat/
-          sub-02_T1w.nii.gz
+    Creates a temporary directory structure mimicking OpenNeuro ds003694.
     """
-    base_dir = tmp_path / "ds003694"
-    base_dir.mkdir()
+    root = tmp_path / "ds003694"
+    root.mkdir()
     
-    # dataset_description.json
+    # Create dataset_description.json
     desc = {
         "Name": "Test Dataset",
+        "DatasetType": "raw",
         "BIDSVersion": "1.6.0"
     }
-    save_json(desc, base_dir / "dataset_description.json")
+    save_json(str(root / "dataset_description.json"), desc)
     
-    # Create participants
-    for sub_id in ["01", "02"]:
-        sub_dir = base_dir / f"sub-{sub_id}"
-        func_dir = sub_dir / "func"
-        anat_dir = sub_dir / "anat"
-        
-        func_dir.mkdir(parents=True)
-        anat_dir.mkdir(parents=True)
-        
-        # Create dummy files (empty is fine for structure validation)
-        (func_dir / f"sub-{sub_id}_task-feedback_bold.nii.gz").touch()
-        (func_dir / f"sub-{sub_id}_task-feedback_events.tsv").touch()
-        (anat_dir / f"sub-{sub_id}_T1w.nii.gz").touch()
-        
-    return str(base_dir)
+    # Create a participant
+    sub_id = "sub-01"
+    ses_id = "ses-01"
+    sub_dir = root / sub_id / ses_id
+    sub_dir.mkdir(parents=True)
+    
+    # Create func directory and dummy NIfTI (just a file for existence check)
+    func_dir = sub_dir / "func"
+    func_dir.mkdir()
+    nifti_file = func_dir / f"{sub_id}_{ses_id}_task-social_bold.nii.gz"
+    nifti_file.touch() # Create empty file to simulate existence
+    
+    # Create beh directory
+    beh_dir = sub_dir / "beh"
+    beh_dir.mkdir()
+    
+    # Create valid behavioral TSV
+    beh_file = beh_dir / f"{sub_id}_{ses_id}_task-social_beh.tsv"
+    data = {
+        "private_belief": [0, 1, 1, 0],
+        "social_feedback": [1, 0, 1, 1],
+        "choice": [1, 0, 0, 1],
+        "timestamp": [0.0, 1.0, 2.0, 3.0]
+    }
+    save_csv(str(beh_file), pd.DataFrame(data), sep="\t")
+    
+    return str(root), sub_id, ses_id
 
-def test_validate_dataset_structure(mock_openneuro_dataset):
+@pytest.fixture
+def temp_invalid_dataset_root(tmp_path):
     """
-    Contract test: Verify that a valid OpenNeuro structure passes validation.
+    Creates a temporary directory structure with missing behavioral columns.
     """
-    is_valid, errors = validate_dataset_structure(mock_openneuro_dataset)
+    root = tmp_path / "ds003694_invalid"
+    root.mkdir()
     
-    assert is_valid, f"Valid dataset structure failed validation: {errors}"
+    # Create dataset_description.json
+    desc = {"Name": "Invalid Test", "BIDSVersion": "1.6.0"}
+    save_json(str(root / "dataset_description.json"), desc)
+    
+    sub_id = "sub-02"
+    ses_id = "ses-01"
+    sub_dir = root / sub_id / ses_id
+    sub_dir.mkdir(parents=True)
+    
+    func_dir = sub_dir / "func"
+    func_dir.mkdir()
+    (func_dir / f"{sub_id}_{ses_id}_task-social_bold.nii.gz").touch()
+    
+    beh_dir = sub_dir / "beh"
+    beh_dir.mkdir()
+    
+    # Create behavioral TSV with MISSING required columns
+    beh_file = beh_dir / f"{sub_id}_{ses_id}_task-social_beh.tsv"
+    data = {
+        "trial_type": ["A", "B"],
+        "response_time": [100, 200]
+        # Missing private_belief, social_feedback, choice
+    }
+    save_csv(str(beh_file), pd.DataFrame(data), sep="\t")
+    
+    return str(root), sub_id, ses_id
+
+def test_validate_dataset_structure_valid(temp_dataset_root):
+    """Test that valid dataset structure passes validation."""
+    root, _, _ = temp_dataset_root
+    is_valid, errors = validate_dataset_structure(root)
+    
+    assert is_valid, f"Valid dataset failed: {errors}"
     assert len(errors) == 0
 
 def test_validate_dataset_structure_missing_description(tmp_path):
-    """
-    Contract test: Verify that missing dataset_description.json fails.
-    """
-    base_dir = tmp_path / "invalid_ds"
-    base_dir.mkdir()
+    """Test that missing dataset_description.json fails validation."""
+    root = tmp_path / "empty_ds"
+    root.mkdir()
+    # No dataset_description.json created
     
-    # No dataset_description.json
-    is_valid, errors = validate_dataset_structure(str(base_dir))
+    is_valid, errors = validate_dataset_structure(str(root))
     
     assert not is_valid
-    assert any("dataset_description.json" in str(e) for e in errors)
+    assert any("dataset_description.json" in err for err in errors)
 
-def test_validate_participant_data_valid(mock_openneuro_dataset):
-    """
-    Contract test: Verify valid participant data.
-    """
-    base_dir = Path(mock_openneuro_dataset)
-    participant_id = "01"
+def test_validate_participant_data_valid(temp_dataset_root):
+    """Test that participant with valid data passes."""
+    root, sub_id, ses_id = temp_dataset_root
+    is_valid, errors = validate_participant_data(root, sub_id, ses_id)
     
-    is_valid, errors = validate_participant_data(base_dir, participant_id)
-    
-    assert is_valid, f"Valid participant failed validation: {errors}"
+    assert is_valid, f"Valid participant failed: {errors}"
+    assert len(errors) == 0
 
-def test_validate_participant_data_missing_bold(tmp_path):
-    """
-    Contract test: Verify missing bold file fails.
-    """
-    base_dir = tmp_path / "ds003694"
-    base_dir.mkdir()
+def test_validate_participant_data_missing_nifti(tmp_path):
+    """Test that participant missing NIfTI fails."""
+    root = tmp_path / "ds"
+    root.mkdir()
+    (root / "dataset_description.json").write_text("{}")
     
-    # Create minimal valid structure but missing bold
-    sub_dir = base_dir / "sub-01"
-    func_dir = sub_dir / "func"
-    func_dir.mkdir(parents=True)
+    sub_id = "sub-03"
+    ses_id = "ses-01"
+    sub_dir = root / sub_id / ses_id
+    sub_dir.mkdir(parents=True)
+    # No func dir created
     
-    # Only events, no bold
-    (func_dir / "sub-01_task-feedback_events.tsv").touch()
-    
-    # dataset_description.json
-    save_json({"Name": "Test", "BIDSVersion": "1.6.0"}, base_dir / "dataset_description.json")
-    
-    is_valid, errors = validate_participant_data(base_dir, "01")
+    is_valid, errors = validate_participant_data(str(root), sub_id, ses_id)
     
     assert not is_valid
-    assert any("bold" in str(e).lower() for e in errors)
+    assert any("functional image" in err for err in errors)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_validate_participant_data_missing_behavioral_columns(temp_invalid_dataset_root):
+    """
+    Contract test: Verifies that behavioral logs MUST contain
+    'private_belief', 'social_feedback', and 'choice'.
+    """
+    root, sub_id, ses_id = temp_invalid_dataset_root
+    is_valid, errors = validate_participant_data(root, sub_id, ses_id)
+    
+    assert not is_valid, "Participant with missing columns should fail validation."
+    
+    # Verify specific error message about columns
+    col_errors = [e for e in errors if "missing required columns" in e]
+    assert len(col_errors) == 1, f"Expected exactly one column error, got: {errors}"
+    
+    error_msg = col_errors[0]
+    assert "private_belief" in error_msg
+    assert "social_feedback" in error_msg
+    assert "choice" in error_msg
+
+def test_validate_participant_data_missing_behavioral_file(tmp_path):
+    """Test that participant missing behavioral file fails."""
+    root = tmp_path / "ds"
+    root.mkdir()
+    (root / "dataset_description.json").write_text("{}")
+    
+    sub_id = "sub-04"
+    ses_id = "ses-01"
+    sub_dir = root / sub_id / ses_id
+    sub_dir.mkdir(parents=True)
+    
+    (sub_dir / "func").mkdir()
+    (sub_dir / "func" / f"{sub_id}_{ses_id}_task-social_bold.nii.gz").touch()
+    # No beh dir created
+    
+    is_valid, errors = validate_participant_data(str(root), sub_id, ses_id)
+    
+    assert not is_valid
+    assert any("Missing behavioral log" in err for err in errors)

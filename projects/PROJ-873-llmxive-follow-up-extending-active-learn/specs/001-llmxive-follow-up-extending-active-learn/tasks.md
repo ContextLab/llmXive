@@ -102,7 +102,7 @@
 - [X] T015b [US1] Run the baseline active ranker against the unique subset generated in T015a to establish the reference NDCG@10, calculate and log the NDCG@10 drop percentage to `data/results/us1_baseline_metrics.json`, serving US-1.
 - [X] T016 [US1] Implement NDCG@10 calculation against BEIR ground truth in `code/metrics.py` for both the full redundant run and the unique subset run, serving FR-004.
 - [ ] T017 [US1] Implement synthetic redundancy validation logic in `code/data_loader.py` against the `trec-covid` dataset fetched in T005b to ensure generalizability; verify injected similarity > 0.95 and output `data/results/trec_covid_validation.json` with pass/fail status, serving FR-009.
-- [ ] T037 [US1] Implement explicit failure mode handling in `code/data_loader.py` for the "paraphrasing fails to generate sufficient semantic similarity" edge case: if injected similarity < 0.95, raise a `DataInjectionError` with details rather than silently proceeding, serving Edge Case 2.
+- [X] T037 [US1] Implement explicit failure mode handling in `code/data_loader.py` for the "paraphrasing fails to generate sufficient semantic similarity" edge case: if injected similarity < 0.95, raise a `DataInjectionError` with details rather than silently proceeding, serving Edge Case 2.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Baseline behavior on redundant data)
 
@@ -130,8 +130,8 @@
 - [X] T024a [US2] Generate the labeled subset of pairs required for T024 by computing ground-truth similarity via LLM consensus validation (using the sample from T013b), writing the result to `data/results/labeled_subset.json`, serving FR-008.
 - [X] T024 [US2] Implement correlation validation logic in `code/metrics.py` between Jaccard (MinHash) and Cosine (Embeddings) similarity on the labeled subset generated in T024a, serving FR-008.
 - [X] T022 [US2] Implement NDCG@10 calculation for the clustering-aided variant in `code/metrics.py`, comparing against the unique-only baseline, serving FR-004.
-- [ ] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006.
-- [ ] T025 [US2] Define the MinHash-LSH threshold sweep range (e.g., to 0.99 in steps of 0.01) in `code/config.py`, serving SC-005.
+- [X] T023 [US2] Implement resource monitoring (time/memory) in `code/run_pipeline.py` to enforce runtime and RAM limits, serving FR-006.
+- [X] T025 [US2] Define the MinHash-LSH threshold sweep range (e.g., to 0.99 in steps of 0.01) in `code/config.py`, serving SC-005.
 - [X] T025b [US2] **Execute** the parameter sweep loop for T025, running the pipeline for each threshold and collecting NDCG@10 and wasted call ratio metrics, writing intermediate results to `data/results/sweep_intermediate.json`, serving SC-005.
 - [X] T025c [US2] Implement data aggregation logic for the sweep results in `code/metrics.py`, computing average metrics and standard deviations for each threshold, serving SC-005.
 - [X] T025a [US2] Compare resulting NDCG curves from T025c against the baseline and output the optimal threshold and sensitivity data to `data/results/threshold_sweep.json` as a machine-readable artifact, serving SC-005.
@@ -155,8 +155,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3.
-- [ ] T048 [US1/US2] Implement a "Cross-Dataset Generalization Check" in `code/run_pipeline.py` that compares the "wasted call" ratios between `nfcorpus`, `scifact`, and `trec-covid` to ensure the redundancy effect is not dataset-specific, serving FR-009 and US-1. **Execute T048** after T027.
+- [X] T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py` for both baseline and clustering-aided variants, enforcing exactly **5 independent runs** as per US-3.
+- [X] T048 [US1/US2] Implement a "Cross-Dataset Generalization Check" in `code/run_pipeline.py` that compares the "wasted call" ratios between `nfcorpus`, `scifact`, and `trec-covid` to ensure the redundancy effect is not dataset-specific, serving FR-009 and US-1. **Execute T048** after T027.
 - [X] T047 [US2] Implement a "MinHash Parameter Sensitivity Report" in `data/results/minhash_sensitivity.md` that documents the impact of varying the Jaccard threshold across a high-similarity range on NDCG recovery and wasted call reduction, serving SC-005 and FR-008. **Execute T047** using data from T025a.
 - [X] T028 [US3] Implement Wilcoxon signed-rank test on NDCG@10 scores in `code/metrics.py`, serving FR-005.
 - [X] T029 [US3] Implement Wilcoxon signed-rank test on "wasted call" ratios in `code/metrics.py`, serving FR-005.

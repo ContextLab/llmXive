@@ -68,7 +68,7 @@ expected alphabetic or numeric character, but found '*'
  **Task**: Consolidate validation...
  ^) -->
 - [X] T021a [P] Implement repository selection rubric logic (criteria: setup instructions, API ref, architecture) in `code/validation.py` (DEPENDS on T047).
-- [ ] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
+- [X] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
 - [ ] T021c [P] Implement metric collection for covariate adjustment in `code/validation.py` (DEPENDS on T021b). Output: `data/raw/repo_covariates.json`. This task replaces "quantitative matching" with metric collection for ANCOVA as per Plan updates.
 - [X] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021c).
 
@@ -116,9 +116,9 @@ expected alphabetic or numeric character, but found '*'
 ### Implementation for User Story 2
 
 - [X] T027 [P] [US2] Implement primary LLM API integration (e.g., OpenAI) for documentation generation in `code/doc_generation.py`
-- [ ] T028 [US2] Implement fallback logic to local CPU-optimized model. If API fails, load a quantized language model using `llama-cpp-python`. MUST pin the model to a specific HuggingFace commit hash (use `HF_COMMIT_HASH` env var or constant). Max a limited number of retries with exponential backoff (s base, max bounded interval). NO paid API fallbacks allowed. Log generation config (model, temp, prompt, commit hash) to `data/llm_config.yaml` and generate a checksum recorded in `data/checksums.txt` to satisfy Constitution Principle VII.
+- [X] T028 [US2] Implement fallback logic to local CPU-optimized model. If API fails, load a quantized language model using `llama-cpp-python`. MUST pin the model to a specific HuggingFace commit hash (use `HF_COMMIT_HASH` env var or constant). Max a limited number of retries with exponential backoff (s base, max bounded interval). NO paid API fallbacks allowed. Log generation config (model, temp, prompt, commit hash) to `data/llm_config.yaml` and generate a checksum recorded in `data/checksums.txt` to satisfy Constitution Principle VII.
 - [X] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/doc_generation.py`
-- [ ] T030 [US2] Implement generation config logging (model, temp, prompt, commit hash) to `data/llm_config.yaml` (Note: Config is now logged in T028).
+- [X] T030 [US2] Implement generation config logging (model, temp, prompt, commit hash) to `data/llm_config.yaml` (Note: Config is now logged in T028).
 - [X] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/doc_generation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,8 +130,8 @@ expected alphabetic or numeric character, but found '*'
 **Purpose**: Clean, anonymize, and validate data before analysis. Produces `cleaned_dataset.csv` for Phase 6.
 
 - [ ] T033 [P] Run schema validation on `data/raw/participant_logs.json` against `contracts/dataset.schema.yaml` in `code/validation.py`. Ensure validation passes before cleaning. **Gate**: Abort pipeline if validation fails. Output: `data/processed/validation_report.json`.
-- [ ] T032a [P] [US1/3] Implement PII removal logic (remove names, emails, etc.) in `code/analysis.py` (DEPENDS on T033).
-- [ ] T032b [US1/3] Implement incomplete record handling (flagging, exclusion logic) in `code/analysis.py` (DEPENDS on T033).
+- [X] T032a [P] [US1/3] Implement PII removal logic (remove names, emails, etc.) in `code/analysis.py` (DEPENDS on T033).
+- [X] T032b [US1/3] Implement incomplete record handling (flagging, exclusion logic) in `code/analysis.py` (DEPENDS on T033).
 - [ ] T032 [US1/3] Aggregate cleaning steps (T032a, T032b) to produce `data/processed/cleaned_dataset.csv`. Read validation status from T033's output (`validation_report.json`) before proceeding. (Note: Essential for US3 readiness).
 
 **Checkpoint**: Cleaned dataset ready for analysis.
@@ -148,7 +148,7 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T034 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py`
+- [X] T034 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py`
 - [ ] T035 [P] [US3] Integration test for synthetic data analysis pipeline in `tests/integration/test_synthetic_analysis.py`
 
 ### Implementation for User Story 3

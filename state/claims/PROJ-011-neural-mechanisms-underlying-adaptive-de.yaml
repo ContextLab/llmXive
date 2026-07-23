@@ -1242,3 +1242,289 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T08:19:34Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: voxel-wise inference using 1000 permutations with FDR correction at q
+    < 0.05
+  claim_id: c_63f602a4
+  context: T033 [US3] Implement `code/analysis/permutation_test.py` for voxel-wise
+    inference (1000 perms) with FDR correction explicitly applied to the union of
+    all p-values from voxel-wise and ROI analyses (q < 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/analysis/permutation_test.py` for voxel-wise inference
+    (1000 perms) with FDR correction explicitly applied to the union of all p-values
+    from voxel-wise and ROI analyses (q < 0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:07:08Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: held-out choice prediction accuracy target of 60%
+  claim_id: c_2930a06c
+  context: "T026 [US2] Implement `code/modeling/prediction.py` to generate held-out\
+    \ choice predictions and compute accuracy (target \u2265 60%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/modeling/prediction.py` to generate held-out choice predictions\
+    \ and compute accuracy (target \u2265 60%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:07:08Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: verification of claim c_02979941 associated with arXiv 2607.02000
+  claim_id: c_4895ef35
+  context: T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py`
+    (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:08:38Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: exclusion of participants with more than 10% volumes exceeding 3mm translation
+  claim_id: c_18732384
+  context: T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants
+    with >10% volumes exceeding 3mm translation (SC-001) and log reasons
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_of_participants_with_more_than_10%25_volumes_exceedi
+  kind: magnitude
+  raw_text: exclude participants with >10% volumes exceeding 3mm translation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:08:55Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: QC threshold of 3mm translation for volume exclusion
+  claim_id: c_baf6c09a
+  context: T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants
+    with >10% volumes exceeding 3mm translation (SC-001) and log reasons
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude participants with >10% volumes exceeding 3mm translation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:08:55Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: 6-hour runtime limit enforcement
+  claim_id: c_4c9997b5
+  context: T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour
+    runtime limit and N=30 sample size target; provides dynamic sample reduction logic
+    if constraints are violated.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:09:17Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: N=30 sample size target
+  claim_id: c_5cab714c
+  context: T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour
+    runtime limit and N=30 sample size target; provides dynamic sample reduction logic
+    if constraints are violated.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 sample size target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:09:53Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: sweep of belief-updating threshold values 0.01, 0.05, and 0.1
+  claim_id: c_6c3d8dfe
+  context: T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re-run
+    correlation logic for a sweep of **belief-updating threshold/cutoff** values ({0.01,
+    0.05, 0.1}) on the alpha parameter to verify stability of headline correlation
+    rates (FR-006); depends on filtered alpha set from T028/T027.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: re-run correlation logic for a sweep of **belief-updating threshold/cutoff**
+    values ({0.01, 0.05, 0.1})
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:15Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: sweep of belief-updating threshold values 0.05
+  claim_id: c_2a41c986
+  context: T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re-run
+    correlation logic for a sweep of **belief-updating threshold/cutoff** values ({0.01,
+    0.05, 0.1}) on the alpha parameter to verify stability of headline correlation
+    rates (FR-006); depends on filtered alpha set from T028/T027.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: re-run correlation logic for a sweep of **belief-updating threshold/cutoff**
+    values ({0.01, 0.05, 0.1})
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:15Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: sweep of belief-updating threshold values 0.1
+  claim_id: c_98e91b21
+  context: T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re-run
+    correlation logic for a sweep of **belief-updating threshold/cutoff** values ({0.01,
+    0.05, 0.1}) on the alpha parameter to verify stability of headline correlation
+    rates (FR-006); depends on filtered alpha set from T028/T027.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: re-run correlation logic for a sweep of **belief-updating threshold/cutoff**
+    values ({0.01, 0.05, 0.1})
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:15Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: stability metrics change threshold of 0.05
+  claim_id: c_aa6e757b
+  context: T036b [US3] Implement `code/analysis/sensitivity_reporter.py` to aggregate
+    sweep results and generate `data/analysis/sensitivity_stability_report.csv` containing
+    stability metrics (change < 0.05) as required by FR-006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate `data/analysis/sensitivity_stability_report.csv` containing stability
+    metrics (change < 0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:16Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: permutation testing performance target of 6 hours on 2 CPU cores
+  claim_id: c_0eb53e7e
+  context: T041 Performance optimization for P4 (permutation testing) to fit within
+    6h on 2 CPU cores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance optimization for P4 (permutation testing) to fit within 6h
+    on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:43Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: permutation testing performance target on 2 CPU cores
+  claim_id: c_9b146cdf
+  context: T041 Performance optimization for P4 (permutation testing) to fit within
+    6h on 2 CPU cores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance optimization for P4 (permutation testing) to fit within 6h
+    on 2 CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:10:43Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: data acquisition from OpenNeuro dataset ds003694
+  claim_id: c_0f844e9e
+  context: T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro
+    ds003694 using `openneuro-py` or direct URL; include logic to exclude participants
+    with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_acquisition_from_OpenNeuro_dataset_ds003694
+  kind: entity_fact
+  raw_text: fetch OpenNeuro ds003694
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:11:02Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: extraction of BOLD signals from dlPFC, ventral striatum, and ACC masks
+  claim_id: c_59f0b8ca
+  context: T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract
+    BOLD signals from dlPFC, ventral striatum, and ACC masks
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extraction_of_BOLD_signals_from_dlPFC,_ventral_striatum,_and
+  kind: entity_fact
+  raw_text: extract BOLD signals from dlPFC, ventral striatum, and ACC masks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:11:54Z'
+- artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  attempts: 1
+  canonical: spatial normalization to MNI space
+  claim_id: c_6171922c
+  context: T015 [US1] Implement `code/preprocessing/normalization.py` for spatial
+    normalization to MNI space (using `nilearn` templates)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_normalization_to_MNI_space
+  kind: entity_fact
+  raw_text: spatial normalization to MNI space
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T07:13:01Z'

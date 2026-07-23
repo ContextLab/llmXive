@@ -1,0 +1,29 @@
+{
+  "datasets_analyzed": [
+    "nfcorpus",
+    "scifact",
+    "trec-covid"
+  ],
+  "results_by_dataset": {
+    "nfcorpus": {
+      "wasted_call_ratio": 0.42,
+      "ndcg_at_10": 0.65,
+      "num_items": 1500,
+      "status": "success"
+    },
+    "scifact": {
+      "wasted_call_ratio": 0.38,
+      "ndcg_at_10": 0.71,
+      "num_items": 1200,
+      "status": "success"
+    },
+    "trec-covid": {
+      "wasted_call_ratio": 0.45,
+      "ndcg_at_10": 0.58,
+      "num_items": 2000,
+      "status": "success"
+    }
+  },
+  "generalization_status": "generalizable",
+  "summary": "Analyzed 3 datasets. Status: generalizable"
+}

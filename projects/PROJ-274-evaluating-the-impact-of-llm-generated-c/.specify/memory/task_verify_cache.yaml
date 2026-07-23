@@ -7,15 +7,25 @@ T016:
     \ so the task\u2019s functional requirements have not been demonstrated."
 T020:
   c: false
-  h: 829ba4dab3e6bba3f182ec9d78e7338469c9c4163e61e9f65b42f86f44c28f5b
-  r: "The required `data/raw/participant_logs.json` file does not exist, so the raw\
-    \ data export artifact is missing. While `code/data_collection.py` contains `save_logs`\
-    \ and checksum logic, the export file itself was never created, failing the task\u2019\
-    s core requirement."
+  h: 45bd70ea1ce8b28bc9eeb96db911a9b2762652d76fa253f51a55b29734890b52
+  r: "The `data/raw/participant_logs.json` file does not exist, and the checksum\u2011\
+    related code in `code/data_collection.py` is truncated/incomplete (the `update_checksums`\
+    \ function is cut off and never called from the export routine). Both the required\
+    \ export artifact and a functional checksum generation are missing."
 T021c:
   c: false
-  h: 5afcd58a10bd2da04efc415ff24cd9c1e4e4cef427de90c12118fd7d33c0fa66
-  r: "The repository contains `code/validation.py`, but it only defines metric\u2011\
-    calculation functions and does not write the required `data/raw/repo_covariates.json`.\
-    \ Moreover, the expected output file is absent from the project. The task\u2019\
-    s core deliverable\u2014producing the covariate JSON file\u2014is missing."
+  h: 2e8fecf0aee34a6e0740358c2ac06e4d465d476f553688ba3307ca94026f8ba8
+  r: "The required output file `data/raw/repo_covariates.json` does not exist, and\
+    \ the `code/validation.py` implementation is truncated (e.g., ends with an unfinished\
+    \ `file_` line) and does not contain logic to write the collected metrics to the\
+    \ expected JSON file. Both the artifact and the complete metric\u2011collection\
+    \ functionality are missing."
+T033:
+  c: false
+  h: 05058a8755d374db8573c0664423411a276e578c043b85b631ebadd7217a7c5f
+  r: "The required input file `data/raw/participant_logs.json` does not exist, the\
+    \ schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is missing, and\
+    \ no `data/processed/validation_report.json` was produced. Moreover, `code/validation.py`\
+    \ contains code for code\u2011metric analysis, not a JSON\u2011against\u2011YAML\
+    \ schema validator. The task\u2019s core artifacts are absent, so the requirement\
+    \ is not satisfied."

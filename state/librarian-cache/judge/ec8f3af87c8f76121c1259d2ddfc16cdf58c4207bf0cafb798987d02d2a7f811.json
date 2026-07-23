@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.19565",
+  "judged_at": "2026-07-23T07:34:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dopd: dual on-policy distillation\" computer science",
+  "rationale": "This paper addresses the user's question by providing a canonical example of \"corpus distillation\" (a core component of the user's \"DOPD\" topic) applied to LLM training, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the independent variable (distillation) on the relevant domain (LLMs). Although the specific \"Dual On-policy\" mechanism and biomedical domain differ from the user's likely general CS focus, the paper is essential prior work for any literature review on LLM",
+  "relevant": true
+}
