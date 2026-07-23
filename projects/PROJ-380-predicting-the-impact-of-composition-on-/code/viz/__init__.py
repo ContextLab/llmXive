@@ -1,3 +1,3 @@
 """
-Visualization modules for generating plots and reports.
+Visualization and plotting modules.
 """

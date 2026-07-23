@@ -1,1 +1,12 @@
-[]
+- artifact_hash: bd99fcd0b6a042fa2769cea2150634293456c06dcd0cd071b3db1938acab395d
+  artifact_path: projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e/code/specs/001-evaluating-the-effectiveness-of-prompt-e/transpiler_selection.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - TranscryptOrg/Transcrypt: Python 3.9 to JavaScript compiler\
+    \ - Lean, fast, open! \xB7 GitHub"
+  kind: url
+  value: https://github.com/QQuick/Transcrypt
+  verification_status: pending
+  verified_against_url: https://github.com/TranscryptOrg/Transcrypt
+  verified_at: '2026-07-23T19:08:05.196027Z'

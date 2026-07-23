@@ -1,3 +1,3 @@
 """
-Test suite for the research pipeline.
+Test package for the research pipeline.
 """

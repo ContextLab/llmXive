@@ -1,7 +1,3 @@
-"""
-API Client for HuggingFace Inference API (CodeLlama-7B).
-Implements exponential backoff, timeout enforcement, and error handling.
-"""
 import os
 import time
 import logging
@@ -9,88 +5,60 @@ import requests
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 
-from src.utils.timeout_utils import run_with_api_timeout, TimeoutError as ProjectTimeoutError
+from src.utils.timeout_utils import enforce_api_timeout, TimeoutError
 from src.utils.logging import get_logger
 
-# Configuration
-API_URL = os.getenv(
-    "HF_INFERENCE_URL",
-    "https://api-inference.huggingface.co/models/codellama/CodeLlama-7b-Instruct-hf"
-)
-API_TOKEN = os.getenv("HF_API_TOKEN")
-MAX_RETRIES = int(os.getenv("HF_MAX_RETRIES", "5"))
-BASE_DELAY = float(os.getenv("HF_BASE_DELAY", "2.0"))
-MAX_DELAY = float(os.getenv("HF_MAX_DELAY", "60.0"))
-TIMEOUT_SECONDS = 120
-
+# Configure logging for this module
 logger = get_logger(__name__)
 
-
 class InferenceError(Exception):
-    """Custom exception for inference failures."""
+    """Custom exception for API inference failures."""
     pass
 
-
-class MalformedResponseError(InferenceError):
-    """Raised when the API response structure is unexpected."""
+class MalformedResponseError(Exception):
+    """Custom exception for malformed API responses."""
     pass
 
+# Configuration constants
+API_ENDPOINT = os.getenv("INFERENCE_API_ENDPOINT", "https://api-inference.huggingface.co/models/codellama/CodeLlama-7b-Instruct-hf")
+API_TOKEN = os.getenv("HF_API_TOKEN")
+MAX_RETRIES = 5
+INITIAL_BACKOFF = 1.0  # seconds
+MAX_BACKOFF = 60.0     # seconds
+TIMEOUT_SECONDS = 120
 
 def _calculate_backoff(attempt: int) -> float:
-    """Calculate exponential backoff delay with jitter."""
-    delay = min(BASE_DELAY * (2 ** attempt), MAX_DELAY)
+    """Calculate exponential backoff with jitter."""
+    backoff = min(INITIAL_BACKOFF * (2 ** attempt), MAX_BACKOFF)
     # Add small jitter to prevent thundering herd
-    jitter = delay * 0.1 * (time.time() % 1)
-    return delay + jitter
-
-
-def _handle_error_response(response: requests.Response, attempt: int) -> None:
-    """Parse and log error from HTTP response."""
-    try:
-        error_data = response.json()
-        error_msg = error_data.get("error", "Unknown error")
-        detail = error_data.get("details", "")
-    except ValueError:
-        error_msg = response.text or "Unknown error"
-        detail = ""
-
-    logger.warning(
-        f"API Error on attempt {attempt + 1}: {response.status_code} - {error_msg}. Details: {detail}"
-    )
-
-    if response.status_code == 429:
-        raise InferenceError(f"Rate limited. Retry after {error_data.get('estimated_time', 60)}s")
-    elif response.status_code >= 500:
-        raise InferenceError(f"Server error ({response.status_code}): {error_msg}")
-    else:
-        raise InferenceError(f"Client error ({response.status_code}): {error_msg}")
-
+    jitter = backoff * 0.1 * (os.urandom(1)[0] / 255.0)
+    return backoff + jitter
 
 def call_inference_api(
     prompt: str,
-    model: str = "codellama/CodeLlama-7b-Instruct-hf",
+    model_id: str = "codellama/CodeLlama-7b-Instruct-hf",
     max_new_tokens: int = 512,
     temperature: float = 0.2,
-    seed: Optional[int] = None,
+    do_sample: bool = True,
     retry_attempts: int = MAX_RETRIES
 ) -> str:
     """
-    Call the HuggingFace Inference API with exponential backoff and timeout.
+    Call the HuggingFace Inference API with exponential backoff and timeout enforcement.
 
     Args:
-        prompt: The text prompt to send to the model.
-        model: Model identifier on HuggingFace.
-        max_new_tokens: Maximum tokens to generate.
+        prompt: The input prompt text.
+        model_id: HuggingFace model identifier.
+        max_new_tokens: Maximum number of tokens to generate.
         temperature: Sampling temperature.
-        seed: Random seed for determinism.
-        retry_attempts: Number of retry attempts on failure.
+        do_sample: Whether to use sampling.
+        retry_attempts: Maximum number of retry attempts.
 
     Returns:
-        The generated text string.
+        Generated text content.
 
     Raises:
-        InferenceError: If all retries fail or a non-recoverable error occurs.
-        MalformedResponseError: If the response JSON structure is invalid.
+        InferenceError: If all retries fail or API returns a fatal error.
+        MalformedResponseError: If the response structure is invalid.
         TimeoutError: If the request exceeds the timeout limit.
     """
     if not API_TOKEN:
@@ -106,110 +74,99 @@ def call_inference_api(
         "parameters": {
             "max_new_tokens": max_new_tokens,
             "temperature": temperature,
+            "do_sample": do_sample,
             "return_full_text": False,
-            "do_sample": temperature > 0.0
+            "stop": ["</s>", "# End of translation"]
         }
     }
 
-    if seed is not None:
-        payload["parameters"]["seed"] = seed
-
-    last_error: Optional[Exception] = None
+    last_exception = None
 
     for attempt in range(retry_attempts):
         try:
-            logger.debug(f"Sending request to {API_URL} (attempt {attempt + 1}/{retry_attempts})")
+            logger.debug(f"API request attempt {attempt + 1}/{retry_attempts} for model {model_id}")
 
-            def _make_request():
-                resp = requests.post(API_URL, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
-                resp.raise_for_status()
-                return resp
+            # Enforce timeout using the utility
+            response = enforce_api_timeout(
+                requests.post,
+                (API_ENDPOINT,),
+                {
+                    "headers": headers,
+                    "json": payload,
+                    "timeout": TIMEOUT_SECONDS
+                },
+                timeout_duration=TIMEOUT_SECONDS
+            )
 
-            # Enforce timeout using the project utility
-            response = run_with_api_timeout(_make_request, timeout_seconds=TIMEOUT_SECONDS)
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    if not isinstance(data, list) or len(data) == 0:
+                        raise MalformedResponseError("Response is not a non-empty list.")
+                    if "generated_text" not in data[0]:
+                        raise MalformedResponseError(f"Missing 'generated_text' in response: {data}")
+                    return data[0]["generated_text"].strip()
+                except ValueError as e:
+                    raise MalformedResponseError(f"Failed to parse JSON response: {e}")
 
-            try:
-                result_json = response.json()
-            except ValueError as e:
-                raise MalformedResponseError(f"Failed to parse JSON response: {e}")
-
-            # Handle HuggingFace specific response formats
-            if isinstance(result_json, list) and len(result_json) > 0:
-                generated_text = result_json[0].get("generated_text", "")
-            elif isinstance(result_json, dict) and "generated_text" in result_json:
-                generated_text = result_json["generated_text"]
-            elif isinstance(result_json, dict) and "error" in result_json:
-                # Model might be loading
-                error_msg = result_json.get("error", "Model loading error")
-                logger.warning(f"Model loading or error: {error_msg}. Retrying...")
-                time.sleep(_calculate_backoff(attempt))
+            elif response.status_code == 503:
+                # Model loading or service unavailable - retry with backoff
+                wait_time = _calculate_backoff(attempt)
+                logger.warning(f"Model loading (503). Retrying in {wait_time:.2f}s...")
+                time.sleep(wait_time)
                 continue
+
+            elif response.status_code == 429:
+                # Rate limited - retry with backoff
+                wait_time = _calculate_backoff(attempt)
+                logger.warning(f"Rate limited (429). Retrying in {wait_time:.2f}s...")
+                time.sleep(wait_time)
+                continue
+
             else:
-                raise MalformedResponseError(f"Unexpected response structure: {result_json}")
+                # Fatal error
+                error_detail = response.text
+                raise InferenceError(f"API request failed with status {response.status_code}: {error_detail}")
 
-            if not generated_text:
-                logger.warning("Received empty generated_text from API.")
-                return ""
-
-            logger.info(f"Successfully generated {len(generated_text)} chars.")
-            return generated_text
-
-        except ProjectTimeoutError as e:
-            last_error = e
-            logger.warning(f"Timeout on attempt {attempt + 1}: {e}")
+        except TimeoutError as e:
+            logger.warning(f"Request timed out on attempt {attempt + 1}: {e}")
             if attempt == retry_attempts - 1:
-                raise InferenceError(f"API request timed out after {retry_attempts} attempts.")
+                raise
             time.sleep(_calculate_backoff(attempt))
+            continue
 
         except requests.exceptions.RequestException as e:
-            last_error = e
-            logger.warning(f"Request failed on attempt {attempt + 1}: {e}")
+            logger.warning(f"Network error on attempt {attempt + 1}: {e}")
+            last_exception = e
             if attempt == retry_attempts - 1:
-                raise InferenceError(f"Network error after {retry_attempts} attempts: {e}")
+                raise InferenceError(f"Network failure after {retry_attempts} attempts: {e}")
             time.sleep(_calculate_backoff(attempt))
-
-        except (InferenceError, MalformedResponseError) as e:
-            # Non-retryable errors or handled logic
-            if isinstance(e, MalformedResponseError):
-                # Malformed responses are usually not fixed by retrying unless transient
-                logger.error(f"Malformed response: {e}")
-                raise
-            # For InferenceError (e.g., 429, 500), we might retry if it was wrapped
-            if "Rate limited" in str(e) or "Server error" in str(e):
-                if attempt == retry_attempts - 1:
-                    raise
-                time.sleep(_calculate_backoff(attempt))
-            else:
-                raise
+            continue
 
         except Exception as e:
-            last_error = e
-            logger.exception(f"Unexpected error on attempt {attempt + 1}: {e}")
+            # Unexpected error - log and re-raise immediately if it's not a retryable network issue
+            logger.error(f"Unexpected error: {e}")
             if attempt == retry_attempts - 1:
-                raise InferenceError(f"Unexpected error after retries: {e}")
+                raise InferenceError(f"Unexpected error after {retry_attempts} attempts: {e}")
             time.sleep(_calculate_backoff(attempt))
+            continue
 
-    raise InferenceError(f"Failed to get response after {retry_attempts} attempts. Last error: {last_error}")
-
+    raise InferenceError(f"Failed to get response after {retry_attempts} attempts.")
 
 def main():
-    """Test script for the API client."""
-    test_prompt = "Translate this Python function to JavaScript:\n\ndef add(a, b):\n    return a + b"
+    """
+    Main entry point for testing the API client.
+    Runs a simple test call to verify connectivity and configuration.
+    """
+    test_prompt = "Translate the following Python code to JavaScript:\n\nprint('Hello World')"
+    logger.info("Testing API client with a sample prompt...")
     try:
-        logger.info("Testing API client with a sample prompt...")
-        result = call_inference_api(
-            prompt=test_prompt,
-            max_new_tokens=100,
-            temperature=0.1,
-            seed=42
-        )
-        logger.info(f"Result:\n{result}")
+        result = call_inference_api(test_prompt)
+        logger.info(f"Success! Generated output:\n{result}")
     except Exception as e:
-        logger.error(f"Test failed: {e}")
-        return 1
-    return 0
-
+        logger.error(f"API test failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    logging.basicConfig(level=logging.INFO)
+    main()

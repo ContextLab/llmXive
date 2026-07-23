@@ -1,72 +1,60 @@
-"""
-Project structure initialization script.
-Creates the required directory hierarchy for the llmXive research pipeline.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_structure():
     """
-    Creates the core project directories: code, data, tests, state, contracts.
-    Also creates subdirectories for data organization.
-    """
-    root = Path(__file__).parent.parent
+    Creates the core project directory structure:
+    code/, data/, tests/, state/, contracts/
     
-    # Core directories
-    dirs = [
-        root / "code",
-        root / "data",
-        root / "tests",
-        root / "state",
-        root / "contracts",
-        root / "docs",
-        root / "figures",
-        
-        # Data subdirectories
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "results",
-        
-        # Test subdirectories
-        root / "tests" / "unit",
-        root / "tests" / "integration",
-        root / "tests" / "contract",
-        
-        # Code subdirectories
-        root / "code" / "generators",
-        root / "code" / "engines",
-        root / "code" / "analysis",
-        root / "code" / "utils",
-        
-        # State subdirectories
-        root / "state" / "projects",
+    Also creates subdirectories for data organization:
+    data/raw/, data/processed/, data/results/
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define the directories to create
+    directories = [
+        "code",
+        "code/generators",
+        "code/engines",
+        "code/utils",
+        "code/analysis",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "state",
+        "state/projects",
+        "contracts",
+        "figures"
     ]
     
-    created = []
-    for dir_path in dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path.relative_to(root)))
-        
-        # Ensure __init__.py exists in Python packages
-        if dir_path.name == "code" or "code" in str(dir_path):
-            init_file = dir_path / "__init__.py"
-            if not init_file.exists():
-                init_file.touch()
-                created.append(f"{dir_path.relative_to(root)}/__init__.py")
+    created_count = 0
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
     
-    print(f"Created {len(created)} directories/files:")
-    for item in sorted(created):
-        print(f"  - {item}")
-    
-    return created
+    print(f"\nProject structure verification complete. {created_count} new directories created.")
+    return True
 
 def main():
     """Entry point for script execution."""
-    print("Initializing llmXive project structure...")
-    create_structure()
-    print("Project structure initialization complete.")
+    try:
+        create_structure()
+        print("Success: Project structure initialized.")
+        return 0
+    except Exception as e:
+        print(f"Error: Failed to create project structure: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

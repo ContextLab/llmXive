@@ -1,29 +1,26 @@
+"""
+Script to initialize the project directory structure.
+"""
 import os
 from pathlib import Path
 
+from utils.config import get_paths, ensure_directories
+
 def main():
-    """Create the required directory structure."""
-    base = Path(__file__).parent.parent
-    dirs = [
-        base / "code",
-        base / "code" / "data",
-        base / "code" / "models",
-        base / "code" / "viz",
-        base / "code" / "utils",
-        base / "data",
-        base / "data" / "raw",
-        base / "data" / "processed",
-        base / "data" / "artifacts",
-        base / "tests",
-        base / "tests" / "unit",
-        base / "tests" / "integration",
-        base / "docs",
-        base / "state",
-        base / "state" / "projects"
+    """Create all necessary directories for the project."""
+    paths = get_paths()
+    dirs_to_create = [
+        paths["data_raw"],
+        paths["data_processed"],
+        paths["data_artifacts"],
+        paths["state_projects"],
+        paths["figures"],
+        paths["contracts"],
+        paths["specs"]
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    print("Directories created successfully.")
+    ensure_directories(dirs_to_create)
+    print(f"Created {len(dirs_to_create)} directories.")
+    print(f"Project root: {paths['root']}")
 
 if __name__ == "__main__":
     main()

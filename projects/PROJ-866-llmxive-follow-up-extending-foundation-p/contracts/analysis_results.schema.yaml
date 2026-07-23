@@ -1,27 +1,163 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results"
-type: "object"
+title: "Analysis Results Schema"
+description: >
+  Schema for the final analysis results of the llmXive policy compression trade-off study.
+  This document contains the statistical findings, the identified safe operating threshold,
+  and the regression curve data points.
+type: object
 required:
-  - safe_threshold
+  - project_id
+  - analysis_timestamp
+  - threshold_summary
+  - regression_parameters
   - confidence_interval
-  - curve_data
+  - data_summary
+  - tradeoff_curve_file
 properties:
-  safe_threshold:
-    type: "number"
-    description: "Maximum context reduction percentage where error <= 1%"
-  confidence_interval:
-    type: "object"
+  project_id:
+    type: string
+    description: "The unique identifier for the project (e.g., PROJ-866-...)"
+    pattern: "^PROJ-\\d+-[a-z0-9-]+$"
+
+  analysis_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when the analysis was completed."
+
+  threshold_summary:
+    type: object
+    description: "The primary finding: the maximum context reduction percentage where error <= 1%."
+    required:
+      - max_safe_reduction_pct
+      - error_rate_at_threshold
+      - method
     properties:
-      lower:
-        type: "number"
-      upper:
-        type: "number"
-  curve_data:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        reduction_pct:
-          type: "number"
-        error_rate:
-          type: "number"
+      max_safe_reduction_pct:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 100
+        description: "The maximum percentage of context reduction (token reduction) that maintains an error rate <= 1%."
+        # Per FR-006: Rounded to 2 decimal places
+      error_rate_at_threshold:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 1
+        description: "The actual observed error rate at the calculated threshold."
+      method:
+        type: string
+        enum:
+          - "logistic_regression_with_bootstrapping"
+        description: "The statistical method used to derive the threshold."
+
+  regression_parameters:
+    type: object
+    description: "Parameters from the logistic regression model fitted to the trade-off data."
+    required:
+      - coefficients
+      - p_values
+      - model_fit_metrics
+    properties:
+      coefficients:
+        type: object
+        description: "Model coefficients. Keys correspond to features."
+        properties:
+          intercept:
+            type: number
+          token_reduction_pct:
+            type: number
+          graph_depth:
+            type: number
+          graph_complexity:
+            type: number
+        additionalProperties: true
+      p_values:
+        type: object
+        description: "P-values for the coefficients, adjusted for multiple comparisons (Bonferroni/BH)."
+        properties:
+          intercept:
+            type: number
+          token_reduction_pct:
+            type: number
+          graph_depth:
+            type: number
+          graph_complexity:
+            type: number
+        additionalProperties: true
+      model_fit_metrics:
+        type: object
+        description: "Goodness-of-fit statistics."
+        properties:
+          pseudo_r_squared:
+            type: number
+          aic:
+            type: number
+          bic:
+            type: number
+          log_likelihood:
+            type: number
+
+  confidence_interval:
+    type: object
+    description: "95% Confidence Interval for the threshold, derived via bootstrapping (1000 resamples)."
+    required:
+      - lower_bound
+      - upper_bound
+      - resamples
+    properties:
+      lower_bound:
+        type: number
+        description: "Lower bound of the 95% CI for max_safe_reduction_pct."
+      upper_bound:
+        type: number
+        description: "Upper bound of the 95% CI for max_safe_reduction_pct."
+      resamples:
+        type: integer
+        minimum: 1000
+        description: "Number of bootstrap resamples used."
+
+  data_summary:
+    type: object
+    description: "Summary statistics of the input data used for the analysis."
+    required:
+      - total_workflows_analyzed
+      - valid_workflows
+      - invalid_workflows
+      - compression_levels_tested
+      - total_execution_logs
+    properties:
+      total_workflows_analyzed:
+        type: integer
+      valid_workflows:
+        type: integer
+      invalid_workflows:
+        type: integer
+        description: "Count of workflows marked as 'invalid' (impossible even with full context)."
+      compression_levels_tested:
+        type: integer
+      total_execution_logs:
+        type: integer
+      mean_token_reduction:
+        type: number
+      mean_error_rate:
+        type: number
+
+  tradeoff_curve_file:
+    type: string
+    description: "Relative path to the CSV file containing the raw regression data points."
+    pattern: "^data/results/tradeoff_curve.csv$"
+
+  metadata:
+    type: object
+    description: "Optional metadata about the analysis run."
+    properties:
+      analysis_script_version:
+        type: string
+      python_version:
+        type: string
+      dependencies:
+        type: object
+        additionalProperties: true
+
+additionalProperties: false

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (networkx, tiktoken, numpy, pandas, scipy, statsmodels, pytest)
+- [X] T002 Initialize Python project with `requirements.txt` (networkx, tiktoken, numpy, pandas, scipy, statsmodels, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,9 +58,9 @@
 - [ ] T004 Create `contracts/` directory and define `workflow.schema.yaml`
 - [ ] T005 Create `contracts/` directory and define `execution_log.schema.yaml`
 - [ ] T006 Create `contracts/` directory and define `analysis_results.schema.yaml`
-- [ ] T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base` (FR-009)
+- [X] T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base` (FR-009)
 - [X] T008 Initialize `state/` directory and create initial `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`
-- [~] T009 Create `data/raw/`, `data/processed/`, and `data/results/` directories
+- [ ] T009 Create `data/raw/`, `data/processed/`, and `data/results/` directories
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,7 +76,7 @@
 
 > **NOTE: Write these tests AFTER defining the interface in T012/T013, ensuring they FAIL before implementation**
 
-- [~] T010 [US1] Unit test for graph variance in `tests/unit/test_generator.py`
+- [ ] T010 [US1] Unit test for graph variance in `tests/unit/test_generator.py`
  - **Assertion**: Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.
 - [X] T011 [US1] Contract test for workflow JSON output in `tests/contract/test_workflow_schema.py`
 
@@ -92,8 +92,8 @@
  - Executes workflows with full policy graphs.
  - **MUST invoke oracle_policy.py to validate each step and record specific 'policy-violation' flags in the log** (SC-001).
  - Produces ground-truth execution logs against Oracle.
-- [~] T015 [US1] Create `main.py` orchestrator skeleton to generate and save raw workflows to `data/raw/`
-- [~] T016 [US1] Implement edge case handling in `full_context.py` for single-node graphs and depth=0. **Set `context_reduction_pct` to the string marker '[deferred]' and `status` to 'edge_case' in the execution log** for these instances.
+- [ ] T015 [US1] Create `main.py` orchestrator skeleton to generate and save raw workflows to `data/raw/`
+- [ ] T016 [US1] Implement edge case handling in `full_context.py` for single-node graphs and depth=0. **Set `context_reduction_pct` to the string marker '[deferred]' and `status` to 'edge_case' in the execution log** for these instances.
 - [~] T017 [US1] Implement filter for "invalid workflows" (impossible even with full context) to exclude from error calculations
  - **Mechanism**: Add an `is_valid` boolean field to the ExecutionLog schema; set to `false` for invalid workflows and filter based on this flag during analysis.
 - [~] T018 [US1] **Update state registry** (`state/projects/PROJ-866-...yaml`) with checksums of generated workflows in `data/raw/` immediately after generation (Constitution Principle V). <!-- ATOMIZE: requested -->
@@ -110,21 +110,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Integration test: Compare Full vs. Compressed logs for 10 workflows in `tests/integration/test_compression.py`
-- [~] T020 [P] [US2] Contract test for execution log JSON in `tests/contract/test_execution_log_schema.py`
+- [X] T019 [P] [US2] Integration test: Compare Full vs. Compressed logs for 10 workflows in `tests/integration/test_compression.py`
+- [X] T020 [P] [US2] Contract test for execution log JSON in `tests/contract/test_execution_log_schema.py`
 
 ### Implementation for User Story 2
 
-- [~] T021 [P] [US2] Implement `code/engines/compressed_context.py` (FR-003)
+- [X] T021 [P] [US2] Implement `code/engines/compressed_context.py` (FR-003)
  - Uses constrained BFS/DFS to extract minimal policy subgraphs.
  - Configurable traversal depth parameter.
-- [~] T022 [US2] Integrate `code/utils/token_counter.py` into `compressed_context.py` to count actual tokens (FR-004, FR-009)
+- [X] T022 [US2] Integrate `code/utils/token_counter.py` into `compressed_context.py` to count actual tokens (FR-004, FR-009)
  - Do NOT use node count as a proxy.
 - [~] T023 [US2] Implement batch execution logic in `main.py` to run a substantial number of workflows across multiple compression levels
  - **Dependency**: Requires updated orchestrator logic from T015 and completed Compressed Engine from T021.
-- [ ] T024 [US2] Log policy violations specifically when truncation cuts off required nodes (e.g., data sovereignty rules)
-- [ ] T025 [US2] Save processed execution logs to `data/processed/` with compression level, token count, and violation flags
-- [ ] T026 [US2] Implement logic to handle compression depth=0 (no context passed) gracefully
+- [~] T024 [US2] Log policy violations specifically when truncation cuts off required nodes (e.g., data sovereignty rules)
+- [~] T025 [US2] Save processed execution logs to `data/processed/` with compression level, token count, and violation flags
+- [~] T026 [US2] Implement logic to handle compression depth=0 (no context passed) gracefully
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,26 +138,26 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for regression calculation with known synthetic data in `tests/unit/test_tradeoff_model.py`
-- [ ] T028 [P] [US3] Contract test for analysis results JSON in `tests/contract/test_analysis_results_schema.py`
+- [X] T027 [P] [US3] Unit test for regression calculation with known synthetic data in `tests/unit/test_tradeoff_model.py`
+- [X] T028 [P] [US3] Contract test for analysis results JSON in `tests/contract/test_analysis_results_schema.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis/tradeoff_model.py` (FR-005)
+- [X] T029 [P] [US3] Implement `code/analysis/tradeoff_model.py` (FR-005)
  - Performs Logistic Regression on individual workflow observations.
  - Uses token reduction % as predictor; includes graph depth/complexity as covariates.
  - **Must handle non-monotonic regions** by modeling the full curve to correctly identify the "safe operating zone".
-- [ ] T030 [US3] Implement Bonferroni or Benjamini-Hoch correction for multiple comparisons (FR-005)
-- [ ] T031 [US3] Implement threshold detection logic to find max context reduction where error ≤ 1% (FR-006)
+- [~] T030 [US3] Implement Bonferroni or Benjamini-Hoch correction for multiple comparisons (FR-005)
+- [~] T031 [US3] Implement threshold detection logic to find max context reduction where error ≤ 1% (FR-006)
  - **Execute AFTER T030**: Ensure the threshold is derived from p-values corrected by the multiple-comparison correction.
  - **Implement bootstrapping (1000 resamples) to calculate the 95% confidence interval for the threshold**.
  - **Round threshold to exactly 2 decimal places** as required by FR-006 and SC-004.
  - **Write confidence interval bounds to `data/results/threshold_ci.json`**.
 - [ ] T032 [US3] Generate raw regression data for the paper in `data/results/tradeoff_curve.csv`
  - **Deliverable**: Save `data/results/tradeoff_curve.csv` containing the regression curve data points. (Replaces visualization task to adhere to scope).
-- [ ] T033 [US3] Update `main.py` to orchestrate the full pipeline: Generate → Full Exec → Compressed Exec → Analyze
+- [~] T033 [US3] Update `main.py` to orchestrate the full pipeline: Generate → Full Exec → Compressed Exec → Analyze
  - **Integration**: Wire the completed Analysis module (T029-T031) into the existing partial orchestrator logic.
-- [ ] T034 [US3] Finalize `state/projects/...yaml` with artifact hashes and `updated_at` timestamp
+- [~] T034 [US3] Finalize `state/projects/...yaml` with artifact hashes and `updated_at` timestamp
 
 **Checkpoint**: All user stories should now be independently functional
 

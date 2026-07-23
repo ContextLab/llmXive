@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `tests/`, and `docs/` directories; create `code/__init__.py` and `.gitkeep` files in data directories.
+- [X] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `tests/`, and `docs/` directories; create `code/__init__.py` and `.gitkeep` files in data directories.
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `antropy`, `scikit-learn`, `nibabel`, `nilearn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `openneuro-py`, `pyyaml`.
-- [ ] T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`). <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`). <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -60,7 +60,7 @@
 - [ ] T005 [P] Implement `code/data_loader.py` to fetch ADHD dataset `ds000305` from OpenNeuro; verify checksums using SHA256 and write `data/raw/checksums.sha256`; implement logic to filter subjects with < 100 time points (post-scrubbing simulation) and log exclusions to `data/raw/exclusions.log` with headers: subject_id, reason, fd_mean; **MUST write the filtered list of valid subjects to `data/derived/valid_subjects.csv` to satisfy Constitution Principle III (Data Hygiene)**.
 - [X] T006 [P] Implement `code/utils.py` for logging, exclusion handling, and basic plotting utilities
 - [ ] T007 Create base data structures: `Subject` (NIfTI path, phenotypic data), `Parcel` (index, mask), `EntropyFeature`
-- [~] T008 Configure environment configuration management for CPU-only execution (no CUDA flags)
+- [ ] T008 Configure environment configuration management for CPU-only execution (no CUDA flags)
 - [X] T009 Setup `code/preprocessing.py` skeleton for motion scrubbing and time-series standardization
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,15 +77,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for motion scrubbing logic in `tests/unit/test_preprocessing.py` (verify FD > 0.2mm removal)
+- [ ] T010 [P] [US1] Unit test for motion scrubbing logic in `tests/unit/test_preprocessing.py` (verify FD > 0.2mm removal)
 - [X] T011 [P] [US1] Unit test for entropy calculation in `tests/unit/test_entropy.py` (verify m=2, r=0.2*SD on synthetic data)
-- [~] T012 [P] [US1] Integration test for full US1 pipeline on 2 subjects in `tests/integration/test_us1_pipeline.py`
+- [ ] T012 [P] [US1] Integration test for full US1 pipeline on 2 subjects in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [~] T013 [P] [US1] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD), scrub volumes > 0.2mm, log exclusions to `data/raw/exclusions.log`. <!-- ATOMIZE: requested -->
 - [X] T014 [US1] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011).
-- [ ] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
+- [X] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
 - [ ] T016 [US1] Implement `code/entropy_engine.py`: Handle zero-variance parcels by imputing with cohort median (FR-009).
 - [~] T018a [US1] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `exclusions.log`, to generate `data/processed/subject_entropy_features.csv`.
 - [ ] T018b [US1] Verify output file `data/processed/subject_entropy_features.csv` exists with shape (N, 201) and no NaN values.

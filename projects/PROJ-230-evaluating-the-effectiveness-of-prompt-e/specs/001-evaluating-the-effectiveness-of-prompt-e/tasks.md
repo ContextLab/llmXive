@@ -59,7 +59,7 @@
 - [X] T007 Implement `src/utils/update_state.py` to track artifact hashes and update `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml` (Constitution Principle V)
 - [X] T008 Implement `src/utils/logging.py` with structured JSON logging for all prompts, seeds, and raw outputs
 - [ ] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts
-- [~] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`
+- [ ] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,17 +75,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for dataset fetch in `tests/contract/test_dataset_fetch.py`
+- [ ] T011 [P] [US1] Contract test for dataset fetch in `tests/contract/test_dataset_fetch.py`
 - [X] T012 [P] [US1] Integration test for memory-constrained preprocessing in `tests/integration/test_preprocess_memory.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns
-- [~] T013b [US1] Implement validation logic to exclude corrupted entries (missing code, non-string types) from the cached dataset
+- [ ] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns <!-- FAILED: unspecified -->
+- [ ] T013b [US1] Implement validation logic to exclude corrupted entries (missing code, non-string types) from the cached dataset
 - [ ] T013c [US1] Implement sampling/chunking logic to ensure the processed dataset footprint remains ≤7GB RAM, outputting to `data/processed/corpus.csv`
 - [ ] T014 [US1] Add validation logic to ensure the final `data/processed/corpus.csv` contains ≥200 valid entries
-- [~] T015 [US1] Integrate `src/utils/checksum_artifacts.py` to hash `data/raw/` files before preprocessing (DEPENDS ON T006)
-- [~] T016 [US1] Add logging for excluded entries and memory usage statistics, specifically logging peak memory usage against SC-004 constraint
+- [ ] T015 [US1] Integrate `src/utils/checksum_artifacts.py` to hash `data/raw/` files before preprocessing (DEPENDS ON T006)
+- [ ] T016 [US1] Add logging for excluded entries and memory usage statistics, specifically logging peak memory usage against SC-004 constraint
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test for API client in `tests/contract/test_api_client.py`
+- [ ] T018 [P] [US2] Contract test for API client in `tests/contract/test_api_client.py`
 - [X] T019 [P] [US2] Integration test for timeout/retry logic in `tests/integration/test_inference_retry.py`
 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `src/execution/api_client.py` with exponential backoff (limited retry attempts), 120s timeout, error handling for malformed responses, using endpoint ` No address associated with hostname)"))]
 - [ ] T021 [US2] Implement `src/execution/run_inference.py` to iterate through the corpus and apply the four prompt conditions from `data/prompts/`
-- [ ] T022 [US2] Ensure deterministic execution by pinning seeds and logging exact prompt text, model version, and seed for every request
-- [ ] T023 [US2] Implement output storage to `data/evaluation/raw_translations/` organized by condition directory
-- [ ] T024 [US2] Add logic to log "failed translation" for non-code outputs (e.g., "I cannot do that")
+- [~] T022 [US2] Ensure deterministic execution by pinning seeds and logging exact prompt text, model version, and seed for every request
+- [~] T023 [US2] Implement output storage to `data/evaluation/raw_translations/` organized by condition directory
+- [~] T024 [US2] Add logic to log "failed translation" for non-code outputs (e.g., "I cannot do that")
 - [ ] T025b [US2] Implement `src/evaluation/generate_translations_log.py` to aggregate all prompts, seeds, and raw outputs into a **version-controlled CSV** (`data/evaluation/raw_translations_log.csv`) with columns: `prompt_condition`, `seed`, `raw_output`, `timestamp`, and commit this artifact to git (FR-006)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,12 +123,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for test translation in `tests/contract/test_test_translation.py`
-- [ ] T026 [P] [US3] Integration test for Node.js test runner in `tests/integration/test_node_runner.py`
+- [~] T025 [P] [US3] Contract test for test translation in `tests/contract/test_test_translation.py`
+- [X] T026 [P] [US3] Integration test for Node.js test runner in `tests/integration/test_node_runner.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027a [US3] Select and document a deterministic transpiler (e.g., `transcrypt` or custom AST converter) for converting Python unit tests to JavaScript
+- [~] T027a [US3] Select and document a deterministic transpiler (e.g., `transcrypt` or custom AST converter) for converting Python unit tests to JavaScript
 - [ ] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript using the selected deterministic transpiler, strictly forbidding LLM-based test generation (FR-003)
 - [ ] T028 [US3] Implement `src/evaluation/run_node_tests.py` to execute translated tests against generated JS in a Node.js environment, enforcing 10s timeout per test (DEPENDS ON T027 output)
 - [ ] T029 [US3] Implement `src/evaluation/compute_quality.py` using ESLint `complexity` rule (config: `--rule complexity: [, 10]`) to calculate cyclomatic complexity and LOC for each translation

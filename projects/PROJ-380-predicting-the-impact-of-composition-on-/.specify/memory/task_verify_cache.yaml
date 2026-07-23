@@ -1,0 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`code/`, `data/`, `tests/`,
+    `docs/`) is provided; the claim lacks any artifact showing that the structure
+    was created. The implementer must add the missing folder hierarchy (and optionally
+    placeholder files) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or integration scripts are present; therefore the
+    required artifact for configuring ruff/flake8 and Black does not exist.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/config.py` file or its contents were presented, so there is no evidence
+    that random seeds and path constants have been defined as required. The implementer
+    must add the file with appropriate seed initializations and path constant definitions.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/provenance.py` file is present, nor any code showing checksum generation
+    or recording to the required `state/projects/PROJ-380-...yaml` file. The evidence
+    provided consists only of a project description, so the required implementation
+    is missing.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/` directory (with subfolders `raw/`, `processed/`,
+    and `artifacts/`) actually exists in the repository; the claim is unsupported
+    by any listed files or screenshots. The required directory structure must be created
+    and shown (e.g., via a directory tree listing).
+T012a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/provenance.py` file or any code implementing checksum recording logic\
+    \ is present in the provided artifacts; the only evidence relates to a shear\u2011\
+    modulus prediction pipeline, which does not address the required provenance checksum\
+    \ feature. The missing implementation must be added to `utils/provenance.py`."

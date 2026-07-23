@@ -1,19 +1,16 @@
-# PROJ-380: Predicting the Impact of Composition on Shear Modulus
+# Project Documentation
 
 ## Overview
-This project implements a machine learning pipeline to predict the shear modulus of Bulk Metallic Glasses (BMGs) based on their chemical composition.
+This project predicts the impact of composition on the shear modulus of Bulk Metallic Glasses (BMGs).
 
 ## Structure
-- `code/`: Source code for data ingestion, feature engineering, and modeling.
-- `data/`: Raw, processed, and artifact data.
-- `tests/`: Unit and integration tests.
+- `code/`: Source code for the pipeline.
+- `data/`: Raw and processed data artifacts.
+- `tests/`: Test suite.
 - `docs/`: Documentation.
+- `specs/`: Feature specifications and user stories.
 - `state/`: Provenance and state tracking.
+- `artifacts/`: Final model reports and visualizations.
 
-## Usage
-Run the setup script to initialize directories:
-```bash
-python code/setup_data_dirs.py
-```
-
-Run the full pipeline via Make (see Makefile).
+## Setup
+Ensure Python 3.11+ is installed. Install dependencies via `pip install -r requirements.txt`.

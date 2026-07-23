@@ -1,3 +1,3 @@
 """
-Integration tests.
+Integration tests for the research pipeline.
 """

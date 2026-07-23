@@ -1,14 +1,30 @@
-# Core
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.11.0
-scikit-learn>=1.3.0
+# Project: Predicting the Impact of Composition on the Shear Modulus of Bulk Metallic Glasses
+# Python 3.11+
+# Generated for T037: Visualization (PDPs, Heatmaps)
+
+# Core Data & Math
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0,<3.0.0
+
+# ML & Modeling (Required for PDPs and loading models)
+scikit-learn>=1.3.0,<2.0.0
+joblib>=1.3.0,<2.0.0
+
+# Visualization
+matplotlib>=3.7.0,<4.0.0
+seaborn>=0.12.0,<1.0.0
 
 # Utilities
-pyyaml>=6.0
-ruff>=0.1.0
-black>=23.0.0
+pyyaml>=6.0,<7.0.0
+requests>=2.31.0,<3.0.0
 
-# Data
-mendeleev>=0.13.0
-requests>=2.31.0
+# Data Fetching (if needed for fallbacks)
+mendeleev>=0.16.0,<1.0.0
+huggingface_hub>=0.16.0,<1.0.0
+
+# Linting/Formatting (Dev)
+ruff>=0.1.0,<1.0.0
+black>=23.0.0,<24.0.0
+
+# Testing
+pytest>=7.4.0,<8.0.0

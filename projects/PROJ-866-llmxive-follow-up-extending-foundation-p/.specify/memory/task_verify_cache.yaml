@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `tests/`, `state/`)
+    is provided; the response contains only a feature specification and no actual
+    project structure artifacts.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml` entries) were provided, nor any evidence
+    that Ruff and Black have been set up and integrated into the project. The required
+    artifacts to demonstrate the configuration are missing.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the three required directories (`data/raw/`, `data/processed/`,\
+    \ `data/results/`) actually exist in the repository; the response contains only\
+    \ the task description and no file\u2011system listing or screenshots confirming\
+    \ their creation. The implementer must add the directories (or show proof they\
+    \ are present) to satisfy the task."
+T010:
+  c: false
+  h: 38464c114ffeabd89bb900edcdce88ebb719d2b174dca0f2052bbf03bebdeee2
+  r: "The required file `tests/unit/test_generator.py` is missing from the repository,\
+    \ so no unit test for graph variance exists. Without this artifact, the task\u2019\
+    s requirement is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or any code skeleton is present in the provided evidence, and
+    there is no indication that a script generating and saving raw workflows to `data/raw/`
+    exists. The required orchestrator artifact is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact (e.g., a modified `full_context.py` file) or execution\u2011\
+    log example was provided showing the new handling for single\u2011node graphs\
+    \ with `depth=0`, nor evidence that `context_reduction_pct` is set to the string\
+    \ `'[deferred]'` and `status` to `'edge_case'`. The required implementation and\
+    \ its verification are missing."

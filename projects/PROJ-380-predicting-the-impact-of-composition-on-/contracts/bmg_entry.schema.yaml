@@ -2,8 +2,9 @@ $schema: http://json-schema.org/draft-07/schema#
 title: BMGEntry
 description: |
   Schema for a single Bulk Metallic Glass (BMG) entry.
-  Defines the structure for raw and processed data regarding composition,
-  source, and shear modulus measurements.
+  Defines the structure for raw and processed data including
+  source metadata, elemental composition (atomic percent),
+  and shear modulus measurements.
 type: object
 required:
   - source
@@ -12,92 +13,113 @@ required:
 properties:
   source:
     type: object
-    description: Metadata regarding the origin of the data point.
+    description: Metadata regarding the origin of this data point.
     required:
       - database
-      - reference_id
+      - material_id
+      - reference
     properties:
       database:
         type: string
         description: Name of the source database (e.g., 'Materials Project', 'Synthetic').
-        minLength: 1
-      reference_id:
+        enum:
+          - Materials Project
+          - Synthetic
+      material_id:
         type: string
-        description: Unique identifier for the entry within the source database.
-        minLength: 1
-      retrieval_date:
+        description: Unique identifier in the source database (e.g., 'mp-12345').
+      reference:
+        type: string
+        description: Citation or DOI for the data source.
+      fetch_date:
         type: string
         format: date-time
         description: ISO 8601 timestamp of when the data was retrieved.
-      license:
+      provenance_checksum:
         type: string
-        description: License governing the data usage.
+        description: SHA-256 checksum of the raw source record.
 
   composition:
     type: object
-    description: Chemical composition of the alloy.
+    description: Elemental composition of the alloy.
     required:
       - elements
-      - units
+      - atomic_fractions
     properties:
-      units:
-        type: string
-        enum:
-          - at%
-          - wt%
-        description: Unit of measurement for the composition values.
       elements:
         type: array
-        description: List of element entries.
-        minItems: 1
         items:
-          type: object
-          required:
-            - symbol
-            - value
-          properties:
-            symbol:
-              type: string
-              pattern: '^[A-Z][a-z]?$'
-              description: Chemical symbol (e.g., 'Zr', 'Cu').
-            value:
-              type: number
-              minimum: 0
-              maximum: 100
-              description: Composition value in the specified units.
+          type: string
+        description: List of chemical symbols (e.g., ['Zr', 'Ti', 'Cu']).
+      atomic_fractions:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: Atomic fractions corresponding to the elements list. Sum must be ~1.0.
+      weight_fractions:
+        type: array
+        items:
+          type: number
+          minimum: 0
+        description: Optional weight fractions if original data was in wt%.
 
   modulus:
     type: object
-    description: Mechanical property data.
+    description: Shear modulus measurement.
     required:
-      - shear_modulus
+      - value
       - unit
     properties:
-      shear_modulus:
+      value:
         type: number
-        minimum: 0
-        description: Shear modulus value.
+        description: Shear modulus value (GPa).
       unit:
         type: string
         enum:
           - GPa
           - MPa
-        description: Unit of the shear modulus.
+        default: GPa
       method:
         type: string
-        description: Experimental or computational method used (e.g., 'DFT', 'Nanoindentation').
+        description: Measurement or calculation method (e.g., 'DFT', 'Ultrasound').
       uncertainty:
         type: number
-        minimum: 0
-        description: Measurement uncertainty if available.
+        description: Estimated uncertainty of the measurement.
+
+  descriptors:
+    type: object
+    description: Optional pre-calculated compositional descriptors.
+    properties:
+      delta:
+        type: number
+        description: Atomic size difference (delta).
+      delta_hmix:
+        type: number
+        description: Enthalpy of mixing (kJ/mol).
+      vec:
+        type: number
+        description: Valence electron concentration.
+      delta_chi:
+        type: number
+        description: Electronegativity difference.
+      vif:
+        type: number
+        description: Variance Inflation Factor for this sample's feature set.
 
   metadata:
     type: object
-    description: Optional additional metadata.
+    description: Internal processing metadata.
     properties:
-      phase_verification:
+      cleaned:
+        type: boolean
+        default: false
+      filtered:
+        type: boolean
+        default: false
+      alloy_family:
         type: string
-        description: Confirmation that the material is a Bulk Metallic Glass.
-      notes:
-        type: string
-        description: Free-form notes about the data point.
+        description: Classified alloy family (e.g., 'Zr-based', 'Pd-based').
+
+additionalProperties: false

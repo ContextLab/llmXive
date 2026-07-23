@@ -1,75 +1,80 @@
-# Makefile for PROJ-380: Predicting the Impact of Composition on Shear Modulus
-# Orchestration entry point for the full pipeline (FR-010)
+# Makefile for llmXive Automated Science Pipeline
+# Project: PROJ-380-predicting-the-impact-of-composition-on-
 
-.PHONY: all setup data features split validate train evaluate importance clean help
+.PHONY: all clean test lint format setup run-ingest run-train run-eval help
 
-# Default target: Run the full pipeline
-all: setup data features split validate train evaluate importance
-	@echo "Pipeline execution completed successfully."
-	@echo "Check 'artifacts/' for reports and 'data/' for processed datasets."
+# Default target
+all: setup run-ingest run-train run-eval
 
-# Setup: Ensure directories and configuration exist
+# Initialize project structure and dependencies
 setup:
-	@echo ">>> Step 1/9: Setting up directories and configuration..."
-	@python code/setup_data_dirs.py
+    @echo "Setting up project structure..."
+    python code/setup_data_dirs.py
+    @echo "Setup complete."
 
-# Data Ingestion: Fetch raw data (Materials Project or Synthetic fallback)
-data:
-	@echo ">>> Step 2/9: Ingesting raw data..."
-	@python code/data/ingest.py
-
-# Cleaning: Filter for BMG phase and standardize units
+# Clean generated data and artifacts
 clean:
-	@echo ">>> Step 3/9: Cleaning and filtering data..."
-	@python code/data/clean.py
+    @echo "Cleaning data and artifacts..."
+    rm -rf data/raw/*
+    rm -rf data/processed/*
+    rm -rf data/artifacts/*
+    rm -rf figures/*
+    rm -rf state/projects/*.yaml
+    @echo "Clean complete."
 
-# Feature Engineering: Calculate descriptors and handle collinearity
-features:
-	@echo ">>> Step 4/9: Calculating features and handling collinearity..."
-	@python code/data/features.py
+# Run linting
+lint:
+    @echo "Running linter..."
+    ruff check code/
+    @echo "Linting complete."
 
-# Splitting: Stratified split by alloy family
-split:
-	@echo ">>> Step 5/9: Splitting dataset..."
-	@python code/data/split.py
+# Run formatter
+format:
+    @echo "Running formatter..."
+    black code/
+    @echo "Formatting complete."
 
-# Validation: Ensure no missing target values
-validate:
-	@echo ">>> Step 6/9: Validating target variable..."
-	@python code/data/validate_target.py
+# Run tests
+test:
+    @echo "Running tests..."
+    pytest tests/ -v
 
-# Training: Train models with grid search
-train:
-	@echo ">>> Step 7/9: Training models..."
-	@python code/models/train.py
+# Run data ingestion pipeline
+run-ingest:
+    @echo "Running data ingestion..."
+    python code/data/ingest.py
+    python code/data/clean.py
+    python code/data/features.py
+    python code/data/split.py
+    @echo "Ingestion pipeline complete."
 
-# Evaluation: Statistical comparison and hybrid validation
-evaluate:
-	@echo ">>> Step 8/9: Evaluating models..."
-	@python code/models/evaluate.py
+# Run model training
+run-train:
+    @echo "Running model training..."
+    python code/models/train.py
+    @echo "Training complete."
 
-# Importance: Feature importance and visualization
-importance:
-	@echo ">>> Step 9/9: Analyzing feature importance..."
-	@python code/models/importance.py
+# Run model evaluation
+run-eval:
+    @echo "Running model evaluation..."
+    python code/models/evaluate.py
+    @echo "Evaluation complete."
 
-# Clean: Remove generated data and artifacts
-clean:
-	@echo ">>> Cleaning generated artifacts..."
-	@rm -rf data/processed/* data/artifacts/* artifacts/*
-	@echo "Clean complete."
+# Generate report
+run-report:
+    @echo "Generating model report..."
+    python code/models/generate_report.py
 
-# Help: Display available targets
 help:
-	@echo "Available targets:"
-	@echo "  all        - Run the full pipeline (default)"
-	@echo "  setup      - Initialize directories"
-	@echo "  data       - Ingest raw data"
-	@echo "  clean      - Clean and filter data"
-	@echo "  features   - Engineer features"
-	@echo "  split      - Split dataset"
-	@echo "  validate   - Validate target"
-	@echo "  train      - Train models"
-	@echo "  evaluate   - Evaluate models"
-	@echo "  importance - Analyze feature importance"
-	@echo "  clean      - Remove generated files"
+    @echo "Available targets:"
+    @echo "  all         - Run full pipeline (setup, ingest, train, eval)"
+    @echo "  setup       - Initialize project structure"
+    @echo "  clean       - Remove generated files"
+    @echo "  lint        - Run linter"
+    @echo "  format      - Run formatter"
+    @echo "  test        - Run tests"
+    @echo "  run-ingest  - Run data ingestion pipeline"
+    @echo "  run-train   - Run model training"
+    @echo "  run-eval    - Run model evaluation"
+    @echo "  run-report  - Generate model report"
+    @echo "  help        - Show this help message"

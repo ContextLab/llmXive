@@ -1,0 +1,44 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence only contains a feature specification for fMRI entropy
+    analysis and does not include any linting or formatting configuration files (e.g.,
+    `pyproject.toml`, `.ruff.toml`, `.flake8`, or Black settings) or instructions
+    showing that ruff and black have been set up. Consequently, the requirement to
+    configure linting (ruff) and formatting (black) tools is not satisfied.
+T005:
+  c: false
+  h: f1fec9681ebab24e1de2021e61f5e06b1105e9f34b7c4b512ed18624e06f0ea0
+  r: "The repository contains a partially\u2011implemented `code/data_loader.py` (the\
+    \ file is truncated and does not show logic for writing `checksums.sha256`, filtering\
+    \ subjects, logging exclusions, or populating `valid_subjects.csv`). Moreover,\
+    \ the required output files `data/raw/checksums.sha256` and `data/raw/exclusions.log`\
+    \ are absent, and `data/derived/valid_subjects.csv` only contains placeholder\
+    \ comments with no actual subject list. The task\u2019s core requirements are\
+    \ therefore not satisfied."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code or data defining the required classes (`Subject`, `Parcel`, `EntropyFeature`)\
+    \ was provided; there is no artifact on disk showing these base data structures,\
+    \ so the task\u2019s deliverable is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No environment configuration files, scripts, or documentation (e.g., conda `environment.yml`,\
+    \ Dockerfile, or README instructions) were provided to demonstrate that the project\
+    \ has been set up for CPU\u2011only execution without CUDA flags. Consequently,\
+    \ the required artifact is missing."
+T010:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required artifact `tests/unit/test_preprocessing.py` does not exist, so\
+    \ no unit test verifying that frames with FD\u202F>\u202F0.2\u202Fmm are removed\
+    \ is present. The task\u2019s core deliverable is missing."
+T012:
+  c: false
+  h: 8db95ea53013ec21d8b82b985d4887edb6d1c835e5960825df0b8a6ca2c6ade4
+  r: "The required integration test file `tests/integration/test_us1_pipeline.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ The implementer must add the test file implementing the full US1 pipeline on\
+    \ 2 subjects."

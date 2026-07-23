@@ -1,7 +1,3 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination
 
 **Input**: Design documents from `/specs/001-investigating-the-correlation-between-gu/`
@@ -50,8 +46,27 @@ description: "Task list template for feature implementation"
 - [ ] T001 Create project directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format, sra-tools, qiime2, dada2)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T001a [P] Create the `contracts/` directory and generate `dataset.schema.yaml`.
- - *Logic*: Use a YAML template to define the schema for the dataset, including data types and required fields.
+- [X] T001a [P] Create the `contracts/` directory and generate `dataset.schema.yaml`.
+ - *Logic*: Write the following YAML content to `contracts/dataset.schema.yaml`:
+   ```yaml
+   type: object
+   required:
+     - subject_id
+     - taxa_abundances
+     - titer_baseline
+     - titer_post
+   properties:
+     subject_id:
+       type: string
+     taxa_abundances:
+       type: object
+       additionalProperties:
+         type: number
+     titer_baseline:
+       type: number
+     titer_post:
+       type: number
+   ```
  - *Output*: `contracts/dataset.schema.yaml`
 
 ---
@@ -81,7 +96,7 @@ description: "Task list template for feature implementation"
 ### Strategy A: Primary Data Fetch (NCBI SRA / Zenodo Mirror)
 
 - [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for SRP053178 from the verified public mirror.
- - *Method*: Download directly from the Zenodo DOI: ` (or the specific DOI listed in `plan.md` for the SRP053178 processed dataset).
+ - *Method*: Download directly from the Zenodo DOI: `10.5281/zenodo.XXXXXXX` (verify exact DOI in `plan.md` or `research.md`).
  - *Constraint*: If the primary fetch fails (404 or timeout), raise `DataUnavailableError` and trigger Strategy B. Do NOT fall back to synthetic data.
  - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.
 
@@ -90,8 +105,9 @@ description: "Task list template for feature implementation"
 - [ ] T011b [US1] Implement Strategy B: Download raw FASTQ files from NCBI SRA for the target study accession.
  - *Trigger*: ONLY if Strategy A (T011a) fails to retrieve pre-processed data.
  - *Method*: Use `esearch` to fetch run IDs associated with SRP053178.
- - *Command*: `esearch -db sra -query "SRP053178" | efetch -format runinfo | cut -d, -f1` to get the list of run IDs (e.g., SRX123456, SRX123457).
- - *Explicit IDs*: If the dynamic fetch fails, use the known run IDs for SRP053178: `SRX123456, SRX123457, SRX123458` (verify against `plan.md` if different).
+ - *Command*: `esearch -db sra -query "SRP053178" | efetch -format runinfo | cut -d, -f1` to get the list of run IDs.
+ - *Logic*: Iterate over ALL returned run IDs and download each associated FASTQ file. Do NOT use hardcoded IDs.
+ - *Error Handling*: If the `esearch` returns no run IDs, raise `DataUnavailableError`.
  - *Depends on*: T011a failure.
  - *Output*: `data/raw/fastq_files/` (list of downloaded.fastq.gz).
 - [ ] T011c [US1] Implement Strategy B: Run 16S processing pipeline on raw FASTQ to generate the OTU table.
@@ -105,22 +121,31 @@ description: "Task list template for feature implementation"
 ### Strategy C: Dynamic Sampling & Filtering
 
 - [X] T012 [US1] Implement filtering logic in `code/01_ingest.py` to exclude subjects missing baseline or post-vaccination titers.
-- [ ] T013 [US1] Handle antibody titers below the limit of detection (LOD).
- - *Logic*: Check `config.py` for `LOD_HANDLING_STRATEGY`. If missing or undefined, **DEFAULT TO EXCLUDE** subjects with LOD values. If defined, use the configured strategy (exclude or impute).
- - *Output*: Log the count of excluded subjects.
-- [ ] T013a [US1] Define strategy for handling titers below the limit of detection (LOD) – default to exclusion.
- - *Logic*: Set a flag that determines if missing titers are excluded or imputed with half the LOD.
- - *Output*: `config.py` updated with LOD handling setting.
+- [ ] T013a [US1] Define LOD handling configuration keys in `code/utils/config.py`.
+ - *Logic*: Add keys `LOD_EXCLUDE_THRESHOLD` (float) and `LOD_HANDLING_METHODS` (list: ["exclude", "impute"]).
+ - *Output*: `code/utils/config.py` updated.
+- [ ] T013b [US1] Implement LOD Handling Sensitivity Analysis.
+ - *Logic*: Run the full correlation analysis pipeline (T020-T024) twice:
+   1. **Branch A (Exclude)**: Drop subjects with titers < LOD.
+   2. **Branch B (Impute)**: Impute titers < LOD as `0.5 * LOD`.
+ - *Output*: Generate a comparison report `data/results/lod_sensitivity.json` containing:
+   - The count of subjects in each branch.
+   - The Jaccard Index of the *sets of significant taxa* (adj-p < 0.05) between Branch A and Branch B.
+   - A boolean flag `robust` if Jaccard > 0.5.
 - [X] T014a [US1] **Validation Gate**: Implement sample size validation in `code/01_ingest.py`. Check N >= 50 BEFORE any sampling logic; if N < 50, raise ValueError immediately. Log N to `data/results/N_count.json`.
-- [ ] T014b [US1] **Dynamic Sampling**: Implement stratified random sampling in `code/01_ingest.py` ONLY IF the dataset exceeds available RAM AND N >= 50.
+- [ ] T014b [US1] **Dynamic Sampling**: Implement simple random sampling in `code/01_ingest.py` ONLY IF the dataset exceeds available RAM.
  - *Trigger*: Execute ONLY after T014a confirms N >= 50.
- - *Logic*: If `psutil.virtual_memory().available < 6GB`, perform stratified sampling.
- - *Stratification*: Stratify by `responder_status` (derived from T030d logic) if available in the dataset; otherwise, bin `age` into 10-year intervals (`age_group`) and stratify by that. Use `sklearn.model_selection.StratifiedShuffleSplit` with `n_splits=1`, `test_size` adjusted to fit memory, and a fixed `random_state` (e.g., 42) to ensure reproducibility.
- - *Documentation*: Log the specific stratification variable used (`responder_status` or `age_group`), the binning strategy if applicable, and the final sample size retained.
- - *Output*: `data/processed/filtered_data.csv` with logged sampling method and final N.
+ - *Logic*:
+   1. Import `psutil`.
+   2. Check `if psutil.virtual_memory().available < 6 * 1024 * 1024 * 1024:`.
+   3. If True: Perform simple random sampling.
+      - *Method*: Use `pandas.DataFrame.sample` with `random_state=42` and `frac` adjusted to fit memory.
+      - *Documentation*: Log the final sample size retained and the fact that sampling was performed due to memory constraints.
+   4. If False: Proceed with full dataset.
+ - *Output*: `data/processed/filtered_data.csv` with logged sampling method (if applied) and final N.
 - [ ] T016 [US1] Write filtered dataset to `data/processed/filtered_data.csv` and log exclusion counts.
 - [ ] T017 [US1] **Validation Gate**: Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
- - *Pre-check*: Verify `contracts/dataset.schema.yaml` exists. If missing, raise `SchemaMissingError` referencing T001a.
+ - *Pre-check*: Verify `contracts/dataset.schema.yaml` exists (generated by T001a). If missing, raise `SchemaMissingError`.
  - *Logic*: Load schema and validate `data/processed/filtered_data.csv`.
  - *Output*: Log validation status.
 
@@ -142,20 +167,23 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement zero-variance taxa exclusion in `code/02_preprocess.py`: Filter out taxa with negligible variance across all subjects BEFORE transformation to avoid division-by-zero.
-  - *Input*: `data/processed/final_validated_data.csv`.
+  - *Input*: `data/processed/filtered_data.csv`.
   - *Output*: `data/processed/filtered_no_zero_var.csv`.
 - [ ] T020 [US2] Implement Centered Log-Ratio (CLR) transformation in `code/02_preprocess.py` (handle zeros with pseudocount = 1e-6).
 - [ ] T020a [US2] Run CLR transformation with default pseudocount. Output to `data/processed/cleared_default.csv`.
-- [ ] T020b [US2] Calculate Jaccard Index for pseudocount sensitivity analysis. Input: Results from multiple CLR runs with varying pseudocounts. Output: `data/results/pseudocount_sensitivity.json`.
-- [ ] T020c [US2] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/cleared_default.csv`.
+- [ ] T020b [US2] Run CLR transformation with varying pseudocounts (e.g., 1e-4, 1e-6, 1e-8) and calculate Jaccard Index for pseudocount sensitivity analysis.
+ - *Logic*: For each pseudocount, run correlation (T022-T024). Identify the set of significant taxa (adj-p < 0.05). Calculate Jaccard Index between the *sets of significant taxa* from different pseudocount runs.
+ - *Output*: `data/results/pseudocount_sensitivity.json`.
+- [ ] T020c [US2] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/filtered_no_zero_var.csv`.
+ - *Input*: `data/processed/filtered_no_zero_var.csv` (Normalized relative abundance, BEFORE CLR).
+ - *Output*: `data/processed/cleared_with_diversity.csv` (Append Shannon index column).
 - [ ] T021 [US2] Implement log-transformation of antibody titers in `code/02_preprocess.py`.
 - [ ] T022 [US2] Implement Spearman rank correlation test in `code/03_correlation.py` (exclude zero-variance taxa).
 - [ ] T023 [US2] Implement Benjamini-Hochberg FDR correction in `code/03_correlation.py`.
 - [ ] T024 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`.
 - [ ] T025 [US2] Count taxa with adj-p < 0.05 and compare against the expected range.
- - *Logic*: Count significant taxa. Compare against range **[1, 9]** (Source: Spec Assumption SC-004).
- - *Flag Logic*: If count < 1 or count > 9, flag as `OUT_OF_EXPECTED_RANGE` in `data/results/significant_taxa_count.json`.
- - *Output*: `data/results/significant_taxa_count.json`.
+ - *Logic*: Count significant taxa. Log the count and the *expected range description* from the spec ("low single-digit to high single-digit"). Do NOT enforce a pass/fail threshold in code.
+ - *Output*: `data/results/significant_taxa_count.json` with `count` and `expected_range_description`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -184,10 +212,15 @@ description: "Task list template for feature implementation"
 - [ ] T032 [US3] Implement an inner cross-validation loop for feature selection and hyperparameter tuning in `code/04_modeling.py`. Feature selection MUST occur within each training fold.
 - [ ] T033 [US3] Implement Random Forest classifier training in `code/04_modeling.py` (CPU-only, default precision).
 - [ ] T034a [US3] Implement permutation baseline testing: Generate null distribution of accuracy scores by permuting microbiome rows relative to serology labels with `random_seed=42`. Output `data/results/null_distribution.csv`.
- - *Blocking*: This task is a **BLOCKING** prerequisite for T034b and T035. If T034a fails to generate the null distribution, the pipeline must halt with `Null Baseline Missing` error.
-- [ ] T034b [US3] Implement Threshold Sweep and Robustness Check. Define threshold sweep parameters, loop execution logic, aggregation, and output writing.
- - *Dependency*: Requires `data/results/null_distribution.csv` from **T034a**. If T034a is missing/fail, halt.
-- [ ] T035 [US3] Implement Statistical Comparison. Calculate p-value comparing Random Forest accuracy against the null distribution.
+ - *Blocking*: This task is a **BLOCKING** prerequisite for T035. If T034a fails to generate the null distribution, the pipeline must halt with `Null Baseline Missing` error.
+- [ ] T034b [US3] Implement Threshold Sweep and Robustness Check.
+ - *Logic*: Loop through responder thresholds (e.g., HAI titers in the low-to-moderate range). For EACH threshold:
+   1. Generate a NEW null distribution by permuting microbiome rows (internal to this loop).
+   2. Train RF model on permuted data.
+   3. Compare model accuracy against this specific null distribution.
+ - *Output*: `data/results/sensitivity_analysis.csv` with threshold, accuracy, and p-value per step.
+ - *Dependency*: Independent of T034a. Generates its own nulls.
+- [ ] T035 [US3] Implement Statistical Comparison. Calculate p-value comparing Random Forest accuracy (from T034a main run) against the null distribution (from T034a).
  - *Dependency*: Requires `data/results/null_distribution.csv` from **T034a**. If T034a is missing/fail, halt.
 - [ ] T036 [US3] Calculate and log confusion matrix, precision, recall, F1-score for high/low responders.
 - [ ] T037 [US3] Write model metrics to `data/results/model_metrics.json`.
@@ -230,7 +263,7 @@ description: "Task list template for feature implementation"
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/processed/final_validated_data.csv`)
+- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/processed/filtered_data.csv`)
 - **User Story 3 (P3)**: Depends on User Story 2 (requires `data/results/correlation_results.csv` for feature selection validation, though feature selection itself is local to the loop)
 
 ### Within Each User Story
