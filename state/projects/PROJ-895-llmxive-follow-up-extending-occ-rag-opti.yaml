@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T20:29:29.799583Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-895-llmxive-follow-up-extending-occ-rag-opti
-last_run_id: baab813c-84b0-4d06-bb8f-d4c5432bed15
+last_run_id: 69906960-b33a-4c39-98d3-5da1ceb5bcb4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-895-llmxive-follow-up-extending-occ-rag-opti/specs/001-llmxive-follow-up-extending-occ-rag-opti
 title: 'llmXive follow-up: extending "OCC-RAG: Optimal Cognitive Core for Faithful
   Question Answering"'
-updated_at: '2026-07-22T05:08:56.872585Z'
+updated_at: '2026-07-23T04:15:23.945353Z'
