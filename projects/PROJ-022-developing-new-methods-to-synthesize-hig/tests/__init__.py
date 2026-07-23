@@ -1,3 +1,1 @@
-"""
-Tests package for the membrane synthesis project.
-"""
+# Tests package initialization

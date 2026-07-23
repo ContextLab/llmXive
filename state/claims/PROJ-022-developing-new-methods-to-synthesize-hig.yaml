@@ -1,0 +1,316 @@
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: pinning rdkit==2023.9.5, scikit-learn==1.3.2, pandas==2.1.4, numpy==1.26.2,
+    pyyaml==6.0.1, datasets==2.14.6
+  claim_id: c_ca3c85f2
+  context: Create requirements.txt pinning rdkit==2023.9.5, scikit-learn==1.3.2, pandas==2.1.4,
+    numpy==1.26.2, pyyaml==6.0.1, datasets==2.14.6
+  evidence:
+    asserted: '2023.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pinning rdkit==2023.9.5, scikit-learn==1.3.2, pandas==2.1.4, numpy==1.26.2,
+    pyyaml==6.0.1, datasets==2.14.6
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T16:50:54Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: fetch real data from arXiv query 'membrane OR polymer', OpenPolymer HuggingFace
+    dataset 'openpolymer/v1', and manual extraction
+  claim_id: c_06532bf7
+  context: 'Implement code/ingestion/automated_fetch.py to fetch real data from three
+    distinct sources: arXiv (query: ''membrane OR polymer''), OpenPolymer (HuggingFace
+    dataset ID: ''openpolymer/v1''), and manual extraction (FR-001 requirement).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_data_from_arXiv_query_%27membrane_OR_polymer%27,_Open
+  kind: entity_fact
+  raw_text: 'fetch real data from three distinct sources: arXiv (query: ''membrane
+    OR polymer''), OpenPolymer (HuggingFace dataset ID: ''openpolymer/v1''), and manual
+    extraction'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:51:19Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: halt execution if missing data exceeds 20%
+  claim_id: c_737a71cc
+  context: 'Implement code/ingestion/handle_missing_data.py with logic: 1. Calculate
+    missing percentage for critical variables. 2. If missing > 20%: Generate data/reports/missing_data_report.json,
+    emit error code ERR_DATA_INSUFFICIENT, and halt execution immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing > 20%: Generate data/reports/missing_data_report.json, emit
+    error code ERR_DATA_INSUFFICIENT, and halt execution immediately'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:51:19Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: proceed without flag if missing data is less than 5%
+  claim_id: c_42dad188
+  context: '3. If [deferred] <= missing <= 20%: Generate data/reports/clarification_flag.json,
+    trigger imputation using polymer-class averages. 4. If missing < 5%: Proceed without
+    flag.'
+  evidence:
+    entailment_evidence: Proceed without flag if missing data is less than 5%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Proceed_without_flag_if_missing_data_is_less_than_5%25
+  kind: magnitude
+  raw_text: 'If missing < 5%: Proceed without flag'
+  resolved_value: proceed without flag if missing data is less than 5%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T16:51:20Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: count valid records must be at least 30
+  claim_id: c_bb79443f
+  context: "Implement validation step in code/ingestion/validate_dataset.py to: 1)\
+    \ count valid records (must be \u226530), 2) Verify >= 10 known high-performance\
+    \ bio-membranes exist..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Count_valid_records_must_be_at_least_30
+  kind: magnitude
+  raw_text: "count valid records (must be \u226530)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:51:48Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: verify at least 10 known high-performance bio-membranes exist
+  claim_id: c_6f50606e
+  context: 2) Verify >= 10 known high-performance bio-membranes exist by checking
+    the data/raw/known_high_performance.csv file generated in T014b (based on literature-reported
+    metrics)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_10_known_high-performance_bio-membranes_exis
+  kind: magnitude
+  raw_text: Verify >= 10 known high-performance bio-membranes exist
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:52:05Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: exclude entries with coefficient of variation greater than 0.5
+  claim_id: c_2c407f1c
+  context: Add logic to handle 'high variance' entries (coefficient of variation >
+    0.5 for same polymer metrics) by excluding them from the primary training set...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_entries_with_coefficient_of_variation_greater_than_0
+  kind: magnitude
+  raw_text: exclude entries with coefficient of variation > 0.5 for same polymer metrics
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:52:21Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: model outputs cross-validated R squared score at least 0.1
+  claim_id: c_6dc23f3b
+  context: "The training module can be tested by running on the standardized dataset\
+    \ from US-1 and verifying the model outputs a feature importance ranking and a\
+    \ cross-validated R\xB2 score \u2265 0.1."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_cross-validated_R_squared_score_at_least_0.1
+  kind: magnitude
+  raw_text: "model outputs a feature importance ranking and a cross-validated R\xB2\
+    \ score \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:53:06Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: Random Forest with max depth 10 and 100 estimators
+  claim_id: c_360ebd56
+  context: Implement code/modeling/train_model.py with Random Forest (max_depth=10,
+    n_estimators=100).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest (max_depth=10, n_estimators=100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:53:22Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: raise runtime exceeded error if per-attempt elapsed time exceeds 3600
+    seconds
+  claim_id: c_b129c3b7
+  context: Wrap training in a time context manager. If per-attempt elapsed time >
+    3600s (60-minute target), raise RuntimeExceededError with new_depth=6 to trigger
+    the outer retry loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If per-attempt elapsed time > 3600s (60-minute target), raise RuntimeExceededError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:53:22Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: raise runtime exceeded error with new depth 4 if second attempt exceeds
+    3600 seconds
+  claim_id: c_6c621f90
+  context: If the second attempt (depth=6) exceeds 3600s, raise RuntimeExceededError
+    with new_depth=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the second attempt (depth=6) exceeds 3600s, raise RuntimeExceededError
+    with new_depth=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:53:30Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: generate target of at least 50 unique sustainable candidate SMILES
+  claim_id: c_fdef615b
+  context: Implement code/screening/generate_bio_candidates.py to generate a substantial
+    number (target >= 50) unique sustainable candidate SMILES from cellulose, chitosan,
+    and lignin templates.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_target_of_at_least_50_unique_sustainable_candidate
+  kind: magnitude
+  raw_text: generate a substantial number (target >= 50) unique sustainable candidate
+    SMILES
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:54:21Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: deterministically with seed 42
+  claim_id: c_0e4aec25
+  context: Use code/screening/templates.py (created in T029e) to expand R-groups deterministically
+    (seed=42) by enumerating R-groups from a defined set of substituents...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: deterministically (seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:54:37Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: calculate detectable effect size for N 30 with power 0.8 and alpha 0.05
+  claim_id: c_7cf60be4
+  context: Implement code/screening/power_analysis.py to calculate detectable effect
+    size for N=30 (power=0.8, alpha=0.05) and generate data/reports/power_analysis_report.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate detectable effect size for N=30 (power=0.8, alpha=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:54:52Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: datasets fit within 7 GB RAM
+  claim_id: c_bcd1bc88
+  context: Per project assumptions (spec.md/plan.md), datasets fit within 7GB RAM;
+    streaming loaders are NOT required.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:55:12Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: log power analysis assumptions with N 30
+  claim_id: c_982386a1
+  context: Update code/modeling/cross_validate.py to explicitly log the power analysis
+    assumptions (N=30) and the detectable effect size before training...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly log the power analysis assumptions (N=30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:55:59Z'
+- artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
+  attempts: 1
+  canonical: ensure generated virtual library contains at least 50 unique chemically
+    valid SMILES strings
+  claim_id: c_9eb3be7b
+  context: Implement code/screening/validate_candidate_library.py to ensure the generated
+    virtual library (T029a) contains at least 50 unique, chemically valid SMILES strings
+    and logs a warning if the diversity metric falls below a threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_generated_virtual_library_contains_at_least_50_unique
+  kind: magnitude
+  raw_text: ensure the generated virtual library (T029a) contains at least 50 unique,
+    chemically valid SMILES strings
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T16:56:23Z'

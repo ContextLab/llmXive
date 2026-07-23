@@ -1,18 +1,24 @@
-# Data directories - large files
+# Data directories - ignore all contents
 data/raw/*
+!data/raw/.gitkeep
 data/processed/*
+!data/processed/.gitkeep
 data/reports/*
+!data/reports/.gitkeep
 
-# Python artifacts
+# Model artifacts
 *.pkl
-*.pyc
-__pycache__
-*.pyo
-*.pyd
-.Python
-*.egg-info/
-dist/
-build/
+*.joblib
+*.pth
+*.onnx
+
+# Python cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Logs
 *.log
@@ -29,10 +35,16 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Environment
-.env
+# Virtual environments
 venv/
 .venv/
+env/
+.env/
 
-# Note: .gitkeep files in data directories should be committed
-# to preserve directory structure in git
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

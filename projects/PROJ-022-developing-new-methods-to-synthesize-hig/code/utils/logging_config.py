@@ -1,22 +1,32 @@
-"""
-Logging configuration for the llmXive membrane synthesis pipeline.
-Provides structured JSON logging and standardized logger setup across all stages.
-"""
 import logging
 import json
 import sys
 import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, Union
+import os
 
-# Custom JSON formatter for structured logging
+# Ensure the utils directory is in the path when run as script or module
+# This is a safeguard; the runner usually handles path setup.
+if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Constants for log levels and formats
+DEFAULT_LOG_LEVEL = logging.INFO
+LOG_FORMAT_STRING = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+JSON_LOG_FORMAT_STRING = "%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(extra_json)s"
+
 class StructuredFormatter(logging.Formatter):
     """
-    Formats log records as JSON lines for structured logging.
-    Includes timestamp, level, logger name, message, and optional extra context.
+    Custom formatter that outputs log records as JSON lines.
+    Includes stack traces for exceptions and structured metadata.
     """
+    def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None):
+        super().__init__(fmt, datefmt)
+
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
+        log_data: Dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
@@ -28,120 +38,110 @@ class StructuredFormatter(logging.Formatter):
 
         # Add exception info if present
         if record.exc_info:
-            log_entry["exception"] = {
+            log_data["exception"] = {
                 "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
                 "message": str(record.exc_info[1]) if record.exc_info[1] else None,
-                "traceback": traceback.format_exception(*record.exc_info)
+                "traceback": "".join(traceback.format_exception(*record.exc_info))
             }
 
-        # Add extra context if present
-        if hasattr(record, "extra_data"):
-            log_entry["extra"] = record.extra_data
+        # Add extra fields passed via extra={}
+        if hasattr(record, 'extra_json'):
+            log_data["data"] = record.extra_json
 
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
-def get_logger(
-    name: str,
-    level: int = logging.INFO,
-    log_to_file: bool = False,
-    log_file_path: Optional[str] = None
-) -> logging.Logger:
+class TextFormatter(logging.Formatter):
     """
-    Get or create a logger with structured JSON formatting.
+    Standard text formatter for human-readable logs.
+    """
+    def __init__(self, fmt: Optional[str] = None, datefmt: Optional[str] = None):
+        super().__init__(fmt or LOG_FORMAT_STRING, datefmt)
 
+def get_logger(name: str, log_level: int = DEFAULT_LOG_LEVEL, 
+               output_file: Optional[str] = None, 
+               use_json: bool = False) -> logging.Logger:
+    """
+    Creates and configures a logger with the specified name.
+    
     Args:
-        name: Logger name (typically __name__)
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        log_to_file: Whether to also log to a file
-        log_file_path: Path to the log file (required if log_to_file is True)
-
+        name: Name of the logger (usually __name__ of the module).
+        log_level: Logging level (e.g., logging.INFO).
+        output_file: Optional file path to write logs to.
+        use_json: If True, uses StructuredFormatter; otherwise TextFormatter.
+    
     Returns:
-        Configured logger instance
+        Configured Logger instance.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(log_level)
 
-    # Avoid adding handlers multiple times if called repeatedly
+    # Prevent duplicate handlers if called multiple times
     if logger.handlers:
         return logger
 
-    # Console handler with structured formatting
+    # Determine formatter
+    if use_json:
+        formatter = StructuredFormatter()
+    else:
+        formatter = TextFormatter()
+
+    # Console handler (always added)
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(StructuredFormatter())
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # Optional file handler
-    if log_to_file:
-        if not log_file_path:
-            raise ValueError("log_file_path must be provided when log_to_file is True")
-
-        file_handler = logging.FileHandler(log_file_path)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(StructuredFormatter())
+    # File handler (optional)
+    if output_file:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(output_file) if os.path.dirname(output_file) else '.', exist_ok=True)
+        file_handler = logging.FileHandler(output_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
     return logger
 
-def log_event(
-    logger: logging.Logger,
-    event_type: str,
-    message: str,
-    level: int = logging.INFO,
-    **kwargs: Any
-) -> None:
+def log_event(logger: logging.Logger, event_type: str, message: str, 
+              data: Optional[Dict[str, Any]] = None, level: int = logging.INFO):
     """
-    Log a structured event with additional context.
-
+    Helper function to log structured events.
+    
     Args:
-        logger: The logger to use
-        event_type: Type of event (e.g., 'START', 'COMPLETE', 'ERROR')
-        message: Human-readable message
-        level: Log level
-        **kwargs: Additional context to include in the log
+        logger: The logger instance to use.
+        event_type: A string identifier for the type of event (e.g., "PIPELINE_START").
+        message: The main log message.
+        data: Optional dictionary of additional data to include in the log.
+        level: The logging level.
     """
-    extra_data = {
-        "event_type": event_type,
-        **kwargs
-    }
-    logger.log(level, message, extra={"extra_data": extra_data})
+    extra_data = {"event_type": event_type}
+    if data:
+        extra_data.update(data)
+    
+    # Pass extra data via the 'extra' dict, mapping to 'extra_json' for the formatter
+    logger.log(level, message, extra={"extra_json": extra_data})
 
-def setup_pipeline_logger(
-    name: str = "pipeline",
-    log_level: str = "INFO",
-    log_dir: Optional[str] = None
-) -> logging.Logger:
+def setup_pipeline_logger(name: str = "pipeline", 
+                          log_level: int = DEFAULT_LOG_LEVEL,
+                          log_dir: str = "data/reports",
+                          log_filename: str = "pipeline.log",
+                          use_json: bool = True) -> logging.Logger:
     """
-    Set up the main pipeline logger with appropriate level and optional file logging.
-
+    Sets up the main logger for the pipeline stages.
+    Ensures the log directory exists and configures both console and file handlers.
+    
     Args:
-        name: Logger name
-        log_level: Log level as string ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
-        log_dir: Directory to store log files (if None, only console logging is used)
-
+        name: Logger name.
+        log_level: Logging level.
+        log_dir: Directory to store log files.
+        log_filename: Name of the log file.
+        use_json: Whether to use JSON formatting.
+    
     Returns:
-        Configured pipeline logger
+        Configured Logger instance.
     """
-    level_map = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL
-    }
-
-    level = level_map.get(log_level.upper(), logging.INFO)
-
-    log_file_path = None
-    if log_dir:
-        import os
-        os.makedirs(log_dir, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file_path = os.path.join(log_dir, f"{name}_{timestamp}.log")
-
-    return get_logger(
-        name=name,
-        level=level,
-        log_to_file=log_file_path is not None,
-        log_file_path=log_file_path
-    )
+    # Ensure log directory exists
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, log_filename)
+    
+    return get_logger(name, log_level=log_level, output_file=log_path, use_json=use_json)

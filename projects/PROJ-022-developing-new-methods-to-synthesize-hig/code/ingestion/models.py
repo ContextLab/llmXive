@@ -1,6 +1,3 @@
-"""
-Data models for the ingestion pipeline.
-"""
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -8,19 +5,32 @@ from datetime import datetime
 @dataclass
 class PolymerRecord:
     """
-    Represents a single polymer record from literature.
+    Data model for a single polymer record from literature.
+    Implements T007.
     """
     polymer_name: str
-    smiles: Optional[str]
-    permeability: Optional[float]
-    permeability_unit: Optional[str]
-    selectivity: Optional[float]
-    selectivity_gas_pair: Optional[str]
-    synthesis_method: Optional[str]
-    source: str
-    reference: Optional[str]
-    class_name: Optional[str] = None
-    is_high_variance: bool = False
-    imputed: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    smiles: str
+    permeability: Optional[float] = None
+    selectivity: Optional[float] = None
+    unit_permeability: str = "Barrer"
+    unit_selectivity: str = "Dimensionless"
+    synthesis_method: Optional[str] = None
+    source: str = "unknown"
+    reference: Optional[str] = None
+    notes: Optional[str] = None
     created_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "polymer_name": self.polymer_name,
+            "smiles": self.smiles,
+            "permeability": self.permeability,
+            "selectivity": self.selectivity,
+            "unit_permeability": self.unit_permeability,
+            "unit_selectivity": self.unit_selectivity,
+            "synthesis_method": self.synthesis_method,
+            "source": self.source,
+            "reference": self.reference,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat()
+        }

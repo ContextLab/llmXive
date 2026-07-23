@@ -32,7 +32,7 @@ This project addresses the research question: "Which structural features and mat
 | **III. Data Hygiene** | PASS | Raw data preserved in `data/raw` with checksums. Transformations produce new files in `data/processed`. No in-place modification. |
 | **IV. Single Source of Truth** | PASS | All figures/stats trace to specific rows in `data/processed` and blocks in `code/`. No hand-typed numbers in reports. |
 | **V. Versioning Discipline** | PASS | Artifact hashes tracked in state YAML. Content hashes used to invalidate stale review records. |
-| **VI. Computational Chemistry Integrity** | PASS | RDKit version pinned. Descriptors (VdW, H-bond) generated deterministically. RAM/CPU limits enforced in training scripts (max depth 10). |
+| **VI. Computational Chemistry Integrity** | PASS | RDKit version pinned. Descriptors (VdW, H-bond) generated deterministically. RAM/CPU limits enforced in training scripts (max depth bounded). |
 | **VII. Statistical Validation Rigor** | PASS | Mann-Whitney U test used for *model discrimination* comparison. **Validation**: Phase 1 includes a check to ensure ≥10 known high-performance bio-membranes exist before reserving them for the test set. If <10 exist, the pipeline halts. |
 
 ## Project Structure

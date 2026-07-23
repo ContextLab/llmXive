@@ -1,12 +1,11 @@
-"""
-Custom exception classes for the pipeline.
-"""
 from typing import Optional, Dict, Any
 
 class PipelineError(Exception):
     """Base exception for pipeline errors."""
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, code: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
         super().__init__(message)
+        self.message = message
+        self.code = code
         self.details = details or {}
 
 class ConfigurationError(PipelineError):
@@ -18,5 +17,5 @@ class ValidationError(PipelineError):
     pass
 
 class DataInsufficientError(PipelineError):
-    """Error raised when data is missing beyond the acceptable threshold."""
+    """Error raised when data is missing or insufficient for processing."""
     pass

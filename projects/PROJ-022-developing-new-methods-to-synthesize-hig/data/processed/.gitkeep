@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git.
-# Do not commit large data files here; they are excluded by .gitignore.
+This file ensures the directory is tracked by git.
+Do not remove this file; it prevents the directory from being deleted.
