@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a paired analysis pipeline to evaluate the impact of code generation models (specifically `Salesforce/codegen-350M-mono` and `CodeLlama` variants) on code testability compared to human reference solutions from the HumanEval benchmark. The technical approach involves downloading a matched subset of HumanEval tasks (selected via stratified sampling), generating code via CPU-trainable models, executing static analysis (`radon`) and dynamic coverage (`pytest --cov`), and performing rigorous statistical hypothesis testing (Wilcoxon Signed-Rank, McNemar, and Permutation Tests for bounded data) with a priori and post-hoc power analysis. The entire pipeline is designed to run on GitHub Actions free-tier runners (CPU-only, constrained memory resources). and produces an automated Markdown report with visualizations and sensitivity analysis.
+This project implements a paired analysis pipeline to evaluate the impact of code generation models (specifically `Salesforce/codegenM-mono` and `CodeLlama` variants) on code testability compared to human reference solutions from the HumanEval benchmark. The technical approach involves downloading a matched subset of HumanEval tasks (selected via stratified sampling), generating code via CPU-trainable models, executing static analysis (`radon`) and dynamic coverage (`pytest --cov`), and performing rigorous statistical hypothesis testing (Wilcoxon Signed-Rank, McNemar, and Permutation Tests for bounded data) with a priori and post-hoc power analysis. The entire pipeline is designed to run on GitHub Actions free-tier runners (CPU-only, constrained memory resources). and produces an automated Markdown report with visualizations and sensitivity analysis.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a paired analysis pipeline to evaluate the impact of cod
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: Research CLI / Data Pipeline  
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 7GB; no GPU dependency.  
-**Constraints**: Must use CPU-only inference; Low-bit quantization for CodeLlamaB only if it fits in available RAM (fallback to CodeLlama-3B); exact dataset pinning via SHA256.  
+**Constraints**: Must use CPU-only inference; Low-bit quantization for CodeLlamaB only if it fits in available RAM (fallback to CodeLlamaB); exact dataset pinning via SHA.  
 **Scale/Scope**: HumanEval tasks; ~ valid paired samples required for statistical power.
 
 ### Sampling Strategy
@@ -87,11 +87,11 @@ projects/PROJ-294-evaluating-the-impact-of-code-generation/
 | **Dual Model Strategy (CodeGen + CodeLlama)** | Required by FR-009 for sensitivity analysis to evaluate robustness across model scales. | Using only one model would fail to address the sensitivity analysis requirement and limit the study's generalizability. |
 | **Low-bit Quantization Fallback
 
-When the target precision is insufficient, the system will employ a fallback mechanism using reduced-precision quantization to maintain model stability and inference capability, as discussed in related work on model compression (Author et al., 2023; DOI:10.xxxx/xxxx). This approach ensures robustness across varying hardware constraints without compromising the core research question regarding model efficiency under resource limitations.** | Required to fit CodeLlamaB in constrained RAM on CPU
+When the target precision is insufficient, the system will employ a fallback mechanism using reduced-precision quantization to maintain model stability and inference capability, as discussed in related work on model compression (Author et al.,; DOI:.xxxx/xxxx). This approach ensures robustness across varying hardware constraints without compromising the core research question regarding model efficiency under resource limitations.** | Required to fit CodeLlamaB in constrained RAM on CPU
 
 Research question: Can CodeLlamaB be executed within limited memory resources on standard CPU hardware?
 Method: Model quantization and memory-efficient inference techniques.
-References: [Preserve existing citations as per original document] (if API fails). | Running full precision CodeLlama-7B would exceed memory limits on the GitHub Actions free tier, causing job failure. |
+References: [Preserve existing citations as per original document] (if API fails). | Running full precision CodeLlama models would exceed memory limits on the GitHub Actions free tier., causing job failure. |
 | **Paired Statistical Design** | Required to control for task difficulty variance between human and LLM solutions. | Unpaired tests would introduce high variance due to task difficulty differences, reducing statistical power. |
 | **Stratified Sampling** | Required to ensure the task subset is representative of the full HumanEval difficulty distribution. | Random sampling might over-represent easy or hard tasks, biasing the results if failure rates correlate with difficulty. |
 | **Permutation Test for Coverage** | Required for bounded, skewed data (Branch Coverage %). | Wilcoxon Signed-Rank assumes symmetric differences, which is invalid for coverage data with floor/ceiling effects. |
@@ -102,7 +102,7 @@ References: [Preserve existing citations as per original document] (if API fails
 2.  **Data Download**: Download HumanEval, verify SHA256, store in `data/raw/`.
 3.  **Sampling**: Select a representative subset of tasks via stratified sampling (by human pass-rate quartiles).
 4.  **Generation (Primary)**: Generate code for a set of tasks using `Salesforce/codegen-350M-mono`.
-5.  **Generation (Sensitivity)**: Select a set of disjoint tasks. Generate code using `CodeLlama-7B` (via API) or `CodeLlama-3B` (fallback).
+5.  **Generation (Sensitivity)**: Select a set of disjoint tasks. Generate code using `CodeLlamaB` (via API) or `CodeLlamaB` (fallback).
 6.  **Analysis**: Run `radon` and `pytest --cov` on all samples. Log errors.
 7.  **Testing**: Run Wilcoxon (complexity/Halstead), Permutation (coverage), McNemar (pass-rate).
 8.  **Reporting**: Generate `results_report.md` from `data/analysis/metrics.json`.

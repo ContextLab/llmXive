@@ -1,7 +1,21 @@
 T017:
   c: false
-  h: 66a8179c5c2177a9bbdaac4968f38824bbedc180e11401164ae5107c738578b4
-  r: The repository contains `code/analyze_metrics.py`, but it does not include a
-    complete aggregation routine that writes a JSON file with all required fields,
-    and the expected output file `data/analysis/metrics.json` is missing. Consequently
-    the task of producing the metrics JSON with the specified fields is not satisfied.
+  h: 1930662b335a43ddfdad701365619ca81ef2c6ce5227d7cc8fea7a17f07ccda2
+  r: "The repository contains `code/analyze_metrics.py`, but the required output file\
+    \ `data/analysis/metrics.json` is missing, so the aggregation step has not been\
+    \ produced. Consequently the task\u2019s core deliverable and its validation constraints\
+    \ are not satisfied."
+T028c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/model_availability.json` file or its contents were provided; without
+    the actual JSON artifact the requirement to initialize that state file is not
+    satisfied. The implementer must create the file with appropriate initial data.
+T042a:
+  c: false
+  h: 1930662b335a43ddfdad701365619ca81ef2c6ce5227d7cc8fea7a17f07ccda2
+  r: "The provided `code/analyze_metrics.py` does not contain any logic that checks\
+    \ for or filters out samples with `branch_coverage_pct` equal to `null`, nor does\
+    \ it generate or write a `data/analysis/metrics.json` file. Additionally, the\
+    \ required `data/analysis/metrics.json` file is missing entirely. The task\u2019\
+    s core requirement is therefore not satisfied."

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-294-evaluating-the-impact-of-code-generation
-last_run_id: e3cdbaa5-19ea-45a3-bfc2-9ecd51f90633
+last_run_id: 743bb633-c2f3-46e9-960a-23c0c74f0521
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Code Testability
-updated_at: '2026-07-22T04:01:01.776421Z'
+updated_at: '2026-07-23T00:31:00.399044Z'

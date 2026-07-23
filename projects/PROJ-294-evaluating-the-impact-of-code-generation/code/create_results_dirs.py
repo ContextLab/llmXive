@@ -1,72 +1,80 @@
 """
-create_results_dirs.py
+T009: Create results directory structure for figures and reports.
 
-Implements the creation of the results directory structure required for the project.
-Specifically creates 'results/figures/' as per task T009.
+Implements FR-006 and Plan: Project Structure by creating:
+- results/figures/
+- results/reports/
+
+This task ensures the output directories exist before any visualization
+or report generation logic runs.
 """
 import os
 import sys
 import logging
 
-# Import utilities from the existing code base
 from utils import get_logger, set_task_id, get_task_id
-
 
 def ensure_results_directories():
     """
-    Creates the required results directory structure.
-    Specifically ensures 'results/figures/' exists.
-
+    Create the results directory structure if it does not exist.
+    
+    Creates:
+    - results/figures/
+    - results/reports/
+    
     Returns:
-        bool: True if successful, False otherwise.
+        bool: True if directories were created or already existed, False on error.
     """
-    logger = get_logger()
     task_id = get_task_id()
-    set_task_id(task_id)  # Ensure context is set
-
-    # Define the base results directory
+    logger = get_logger()
+    
     base_dir = "results"
-    figures_dir = os.path.join(base_dir, "figures")
-
-    directories_to_create = [base_dir, figures_dir]
-
-    success = True
-    for dir_path in directories_to_create:
-        if not os.path.exists(dir_path):
+    sub_dirs = ["figures", "reports"]
+    
+    created_any = False
+    
+    for sub_dir in sub_dirs:
+        full_path = os.path.join(base_dir, sub_dir)
+        
+        if not os.path.exists(full_path):
             try:
-                os.makedirs(dir_path, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
+                os.makedirs(full_path, exist_ok=True)
+                logger.info(f"[{task_id}] Created directory: {full_path}")
+                created_any = True
             except OSError as e:
-                logger.error(f"Failed to create directory {dir_path}: {e}")
-                success = False
+                logger.error(f"[{task_id}] Failed to create directory {full_path}: {e}")
+                return False
         else:
-            logger.debug(f"Directory already exists: {dir_path}")
-
-    return success
-
+            logger.debug(f"[{task_id}] Directory already exists: {full_path}")
+    
+    if created_any:
+        logger.info(f"[{task_id}] Results directory structure ensured.")
+    else:
+        logger.info(f"[{task_id}] Results directory structure already present.")
+        
+    return True
 
 def main():
     """
-    Main entry point for the script.
-    Sets up logging, executes directory creation, and returns appropriate exit code.
+    Entry point for T009 execution.
+    
+    Sets up logging, initializes the task ID, and ensures the results
+    directory structure exists.
     """
-    # Initialize task ID for logging if not already set
-    task_id = get_task_id()
-    if not task_id:
-        set_task_id("T009")
-
-    logger = setup_logging()
-    logger.info(f"Starting task {get_task_id()}: Creating results directory structure")
-
+    set_task_id("T009")
+    setup_logging()
+    logger = get_logger()
+    
+    logger.info("Starting T009: Create results directory structure")
+    
     success = ensure_results_directories()
-
+    
     if success:
-        logger.info(f"Task {get_task_id()} completed successfully. 'results/figures/' is ready.")
+        logger.info("T009 completed successfully")
         sys.exit(0)
     else:
-        logger.error(f"Task {get_task_id()} failed. Some directories could not be created.")
+        logger.error("T009 failed to create directory structure")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

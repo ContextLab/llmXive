@@ -1,0 +1,25 @@
+{
+  "initialized_at": "2023-10-27T12:00:00.000000Z",
+  "task_id": "T028c",
+  "models": {
+    "Salesforce/codegen-mono": {
+      "status": "uninitialized",
+      "last_checked": null,
+      "availability": null
+    },
+    "CodeLlama-7B": {
+      "status": "uninitialized",
+      "last_checked": null,
+      "availability": null
+    },
+    "CodeLlama-3B": {
+      "status": "uninitialized",
+      "last_checked": null,
+      "availability": null
+    }
+  },
+  "api_status": {
+    "hf_inference_api": "unknown",
+    "last_check": null
+  }
+}
