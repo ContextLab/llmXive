@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the merged analysis-ready dataset."
+type: "object"
+properties:
+  isolate_id:
+    type: "string"
+    description: "Unique identifier for the isolate."
+  species:
+    type: "string"
+    description: "Species name."
+  genome_accession:
+    type: "string"
+    description: "NCBI Genome Accession."
+  phenotype_score:
+    type: ["number", "null"]
+    description: "Disease severity score (0.0-1.0) or null if missing."
+  genomic_features:
+    type: "object"
+    description: "Map of feature_id to value (binary or count)."
+    additionalProperties:
+      type: "integer"
+      minimum: 0
+  source_url:
+    type: "string"
+    description: "URL to the source record."
+required:
+  - isolate_id
+  - species
+  - genome_accession
+  - phenotype_score
+  - genomic_features
+  - source_url
+additionalProperties: false

@@ -1,0 +1,46 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is presented in the provided evidence; there are no listed
+    files or folder listings showing `src/`, `tests/`, `data/raw`, `data/processed`,
+    `output`, and the subfolders under `src/`. The required folders must be created
+    and visible in the repository for the task to be considered complete.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) or documentation of their integration into the
+    project are present. Consequently, the required artifact to demonstrate that ruff/flake8
+    and black have been configured is missing.
+T006:
+  c: false
+  h: d4305494fe8f8132d4df6e015e287cea7b0112d0958ad3cd79d99681a6d18c33
+  r: "The required file `src/models/isolate.py` does not exist, so the class definition\
+    \ with the specified fields is missing. No artifact fulfills the task\u2019s requirement."
+T007:
+  c: false
+  h: a150385be15d99f27fa7654b5e1a5dbc29af5495d6830818d9cf9e55e98ae297
+  r: The required file `src/models/genomic_feature.py` does not exist, so the class
+    definition with the specified fields is missing. The implementer must create this
+    file and implement the `GenomicFeature` class accordingly.
+T008:
+  c: false
+  h: 38fa27c4bdd9e7eb11de7de5144a8e5fee84a243be7d27b6db68bd7c843febb1
+  r: "The required file `src/models/species_aggregate.py` does not exist, so the class\
+    \ `SpeciesAggregate` with the specified fields is missing entirely. The task\u2019\
+    s core artifact is absent, making the implementation incomplete."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only asserted that the required directories were created, but\
+    \ no file\u2011system listing, screenshots, or other concrete evidence of the\
+    \ `data/raw`, `data/processed`, `output`, `src/data`, `src/analysis`, and `src/viz`\
+    \ folders is provided. Without actual artifacts confirming the directory structure\
+    \ exists, the task requirement is not satisfied."
+T019:
+  c: false
+  h: 17dd23007b091644baee32e8217c43a1b8c437941dc3194612f5004a656f7cab
+  r: "The required artifact `src/data/merge.py` does not exist in the repository,\
+    \ so the implementation cannot be verified and the task\u2019s functional requirements\
+    \ are unmet. The missing file must be added with the described merging logic and\
+    \ logging."
