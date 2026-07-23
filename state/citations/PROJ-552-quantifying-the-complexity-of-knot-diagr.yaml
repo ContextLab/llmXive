@@ -886,7 +886,7 @@
   verification_status: verified
   verified_against_url: https://oeis.org/
   verified_at: '2026-06-30T17:05:39.658752Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
+- artifact_hash: 403970b4b4ff969c16111fdc9b74a5557a2d871aa31bb95688016242664f7a5e
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
   cite_id: c-001
   cited_authors: []
@@ -896,21 +896,10 @@
   value: https://katlas.org
   verification_status: pending
   verified_against_url: https://katlas.org/wiki/Main_Page
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
+  verified_at: '2026-07-23T14:37:00.864792Z'
+- artifact_hash: 403970b4b4ff969c16111fdc9b74a5557a2d871aa31bb95688016242664f7a5e
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://oeis.org/A002863
-  verification_status: pending
-  verified_against_url: https://oeis.org/A002863
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: KnotInfo
@@ -918,15 +907,4 @@
   value: https://knotinfo.org
   verification_status: pending
   verified_against_url: https://knotinfo.org
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: KnotInfo
-  kind: url
-  value: https://knotinfo.org`
-  verification_status: pending
-  verified_against_url: https://knotinfo.org
-  verified_at: '2026-07-16T01:13:28.535922Z'
+  verified_at: '2026-07-23T14:37:00.864792Z'

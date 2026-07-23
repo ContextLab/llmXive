@@ -1,11 +1,11 @@
 status: none
-intent: download Knot Atlas prime knots dataset with KnotInfo reference python package
-  dataset
+intent: "KnotInfo knot invariants dataset Python package prime knots \u226413 OEIS\
+  \ A002863 python package dataset"
 required_fields:
-- crossing_number (integer)
-- knot_name (string)
-- hyperbolic_volume (float)
-- is_alternating (boolean)
-cache_key: cc39aebd708b2fd6ae254a5068004d44c4ad36d0a6585b24c015ddc942be17c4
-searched_at: '2026-07-16T01:01:13.782665+00:00'
+- knot_id
+- crossing_number
+- hyperbolic_volume
+- signature
+cache_key: 40ddf5ac0ee84fe8e786fd81e1de721cb8bcba86f5e583bbff493f640ece52dc
+searched_at: '2026-07-23T14:32:46.456557+00:00'
 retry_count: 1

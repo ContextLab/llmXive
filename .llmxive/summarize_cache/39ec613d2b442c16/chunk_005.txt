@@ -1,0 +1,13 @@
+ - **Cross‑Validation Removal**: The original idea specified cross‑validated R‑squared for model selection. For complete census data, cross‑validation is not applicable; goodness‑of‑fit metrics (R², AUC/BIC, MAE) are used for model selection.
+ - **Rationale**: These adjustments preserve scientific rigor while acknowledging that the dataset is a complete enumeration, not a sample from a larger population. All adjustments are documented in FR‑005, SC‑002, and Assumptions for transparency.
+- **Phase 2+ Scope Boundary**: Additional invariants (arc index, Seifert circle count, bridge number) are explicitly excluded from Phase 1 implementation and reserved for exploratory extension only after primary results are established. **Algorithm Validation**: System MUST validate algorithm implementation correctness for additional invariants against available reference values from KnotInfo with ≥ 90% match (tolerance sufficiently low to ensure convergence). If KnotInfo reference coverage is < 90%, validation is skipped and limitation documented. **Representation Availability**: Invariant computation requires available diagram representations per FR‑003 definition: (1) minimal crossing diagram with non‑empty DT code field, (2) braid word representation with non‑empty braid word field, (3) any combination of the above where at least one field is non‑null and non‑empty. When no representations are available, the record is flagged and excluded from invariant computation but retained in dataset for documentation purposes. **Mathematical Constraint Acknowledgment**: Additional invariants have known mathematical constraints with crossing number and braid index (e.g., bridge number ≤ crossing number). Validation is exploratory correlation analysis, not independence testing. Additional invariants cannot claim independent predictive value beyond crossing number and braid index. **Algorithm Implementation**: Arc index computed via Birman‑Menasco algorithm (source: arXiv preprint), Seifert circle count via Seifert's algorithm = s(D) (source: arXiv preprint), bridge number via Schubert's decomposition (source: Wikipedia page on bridge number).
+
+## Verified Datasets
+
+- **Knot Atlas**: (canonical source for all downloaded knot invariants)
+
+## Constitution
+
+### Principle VII (Statistical Significance)
+
+**All statistical claims MUST include explicit significance thresholds (p‑values, confidence intervals). For complete census data (complete enumeration of a finite population), p‑values are inapplicable; this is an explicit exception to this principle. For census data, effect sizes are the required metrics of interest, and all statistical claims MUST report effect sizes (Cohen's d, r, r²) as specified in FR‑006 and Assumptions.**

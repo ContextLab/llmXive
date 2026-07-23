@@ -1,75 +1,79 @@
-# Regression Model Schema (Canonical)
-#
-# This schema defines the structure of a regression model artifact produced by the
-# analysis pipeline. It captures the model type, fitted parameters, and goodness‑of‑fit
-# metrics required for reproducibility and downstream comparison.
-#
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "RegressionModel"
-description: |
-  A record describing a regression model fitted to knot invariants. Each record
-  corresponds to one model configuration (e.g., linear, polynomial degree 2,
-  logarithmic, ridge) and stores the fitted coefficients as well as evaluation metrics.
-type: object
-required:
-  - model_id
-  - model_name
-  - model_type
-  - parameters
-  - metrics
-  - created_at
+description: "Schema for a fitted regression model with orthogonalized predictors."
+type: "object"
 properties:
-  model_id:
-    type: string
-    description: |
-      Unique identifier for the model record (e.g., UUID or deterministic hash).
-  model_name:
-    type: string
-    description: |
-      Human‑readable name for the model (e.g., "Linear model: volume ~ crossing").
   model_type:
-    type: string
-    enum: [linear, polynomial, logarithmic, ridge, other]
-    description: |
-      Classification of the regression model. Use "polynomial" for any degree >1.
-  degree:
-    type: integer
-    minimum: 1
-    description: |
-      Polynomial degree; required only when `model_type` is "polynomial".
-  parameters:
-    type: object
-    description: |
-      Mapping of parameter names to their fitted numeric values.
+    type: "string"
+    description: "Type of model (e.g., 'linear', 'polynomial')."
+    enum:
+      - "linear"
+      - "polynomial"
+  coefficients:
+    type: "object"
+    description: "Model coefficients keyed by predictor name (including orthogonalized predictors)."
     additionalProperties:
-      type: number
-  metrics:
-    type: object
-    description: |
-      Goodness‑of‑fit and error metrics for the fitted model.
-    required:
-      - r_squared
-      - aic
-      - bic
-      - mae
-    properties:
-      r_squared:
-        type: number
-        description: Coefficient of determination (R²).
-      aic:
-        type: number
-        description: Akaike Information Criterion.
-      bic:
-        type: number
-        description: Bayesian Information Criterion.
-      mae:
-        type: number
-        description: Mean Absolute Error.
-  created_at:
-    type: string
-    format: date-time
-    description: ISO‑8601 timestamp when the model was trained.
-  notes:
-    type: string
-    description: |
-      Optional free‑form notes (e.g., data subset used, hyperparameters, observations).
+      type: "number"
+  intercept:
+    type: "number"
+    description: "Model intercept."
+  r_squared:
+    type: "number"
+    description: "R-squared value."
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion."
+  bic:
+    type: "number"
+    description: "Bayesian Information Criterion."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  vif:
+    type: "object"
+    description: "Variance Inflation Factor for each predictor."
+    additionalProperties:
+      type: "number"
+  residuals:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of residuals ordered by knot_id."
+  outlier_families:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        family_name:
+          type: "string"
+          description: "Name of the knot family (e.g., 'pretzel')."
+        count:
+          type: "integer"
+          description: "Number of outliers in the family."
+        example_knots:
+          type: "array"
+          items:
+            type: "string"
+          description: "Example knot IDs in the family."
+      required:
+        - family_name
+        - count
+        - example_knots
+    description: "List of outlier knot families."
+  interpretation_note:
+    type: "string"
+    description: "Descriptive note on model interpretation (census data caveat, orthogonalization)."
+    const: "Coefficients are descriptive associations within the finite census; braid_index ≤ crossing_number constraint acknowledged via orthogonalization. No independent predictive power claimed."
+required:
+  - model_type
+  - coefficients
+  - intercept
+  - r_squared
+  - aic
+  - bic
+  - mae
+  - vif
+  - residuals
+  - outlier_families
+  - interpretation_note
+additionalProperties: false

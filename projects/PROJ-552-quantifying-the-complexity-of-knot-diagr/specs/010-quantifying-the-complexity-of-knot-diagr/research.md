@@ -1,86 +1,74 @@
 # Research: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-## Executive Summary
+## Overview
 
-This research investigates the relationship between combinatorial invariants (crossing number, braid index) and geometric complexity (hyperbolic volume) across the complete census of prime knots with crossing number ≤ 13. The study leverages the Knot Atlas as the primary data source, validated against KnotInfo. Given the census nature of the data (N = 9,988 total prime knots ≤ 13, per OEIS A002863), all statistical analysis is descriptive; effect sizes are the primary metrics, and p-values are excluded per Constitution Principle VII (Census-data exception).
+This research investigates the relationship between combinatorial invariants (crossing number, braid index) and geometric complexity (hyperbolic volume) for the complete census of prime knots with crossing number ≤ 13. The study is purely descriptive, as the dataset represents a finite population (the set of hyperbolic prime knots) rather than a sample.
 
 ## Dataset Strategy
 
 ### Primary Dataset: Knot Atlas
 - **Source**: Knot Atlas (https://katlas.org)
-- **Access Method**: Programmatic download of JSON/CSV exports containing prime knots up to 13 crossings.
-- **Verification**: The dataset is verified to contain the full census of prime knots. The count of prime knots with crossing number ≤ 13 is 9,988 (source: OEIS A002863, https://oeis.org/A002863).
-- **Variables**:
- - `crossing_number`: Integer (Tabulated from Knot Atlas).
- - `braid_index`: Integer (Tabulated from Knot Atlas).
- - `hyperbolic_volume`: Float (Tabulated from Knot Atlas).
- - `alternating`: Boolean (Tabulated from Knot Atlas).
-- **Feasibility**: The dataset is publicly available and downloadable via standard HTTP requests. The file size is estimated to be < 500MB, well within the 14GB disk and 7GB RAM constraints of the CI runner.
-- **Constraints**: The dataset includes torus and satellite knots (volume = 0 or undefined). Per FR-012, these will be filtered out for volume prediction analysis, limiting conclusions to *hyperbolic* prime knots.
+- **Access Method**: Direct HTTP fetch via `requests` library with **parallelization** (concurrent fetches per crossing number 1-13) and exponential backoff.
+- **Data Format**: JSON (or CSV export if available via API).
+- **Content**: Crossing number, braid index, hyperbolic volume, alternating/non-alternating classification, diagram representations (DT codes, braid words).
+- **Scope**: All prime knots with crossing number ≤ 13 (A substantial count is observed, source: OEIS A002863).
+- **Justification**: Knot Atlas is the canonical source for tabulated knot invariants and provides the necessary fields for the analysis. It is directly accessible without authentication or data-use agreements, making it feasible for automated CI execution.
+- **Aggregation Logic**: The system will fetch data for each crossing number (1 through 13) individually to ensure the full census is captured, then aggregate into a single dataset.
 
-### Reference Dataset: KnotInfo
+### Reference Dataset: KnotInfo (for Validation)
 - **Source**: KnotInfo (https://knotinfo.org)
-- **Role**: Independent validation of core invariants (crossing number, braid index) and hyperbolic volume.
-- **Verification**: While a direct programmatic URL for the full dataset is not verified in the provided block, the site is a canonical source. The research plan will use KnotInfo's public lookup capabilities or available CSV dumps (if accessible via the verified URLs in the `Verified datasets` block, though none are explicitly listed for KnotInfo in the provided block, the plan will rely on the *name* "KnotInfo" and the *method* of cross-checking as per FR-013).
-- **Note**: The provided "Verified datasets" block lists NO verified source for KnotInfo. The plan will proceed by attempting to fetch data from the canonical URL ` Name or service not known)"))] where available, or using known static dumps if the site allows programmatic access. If no programmatic access exists, the consistency check will be performed on the subset of knots where KnotInfo provides a direct, stable URL per record.
+- **Access Method**: Programmatic lookup or manual verification for a subset of knots (due to potential lack of bulk download API).
+- **Purpose**: Validate hyperbolic volume and core invariants (crossing number, braid index) against an independent (or semi-independent) source.
+- **Limitation**: KnotInfo may share underlying data sources with Knot Atlas (e.g., Hoste-Thistlethwaite-Weeks enumeration), limiting the independence of the validation. This is explicitly documented in the reproducibility reports.
 
-### Data Availability & Feasibility Assessment
-- **Open Data**: Knot Atlas is open.
-- **Gated Data**: None required for Phase 1.
-- **Streaming**: Not required. The full dataset fits in memory.
-- **Edge Cases**:
- - **Missing Invariants**: Some knots may lack braid index or hyperbolic volume. Per FR-009, these are flagged, not dropped.
- - **Ambiguous Classification**: Alternating status may be ambiguous for some knots. Per FR-010, these are marked "unclassifiable".
- - **API Failure**: Retry logic with exponential backoff (FR-008) is implemented.
+### Data Availability & Feasibility
+- **Feasibility**: The Knot Atlas dataset is small. and can be fully downloaded and processed on a CPU-only GitHub Actions runner within the allocated time limit.
+- **Streaming**: Not required; the full dataset fits in memory.
+- **Fallback**: If Knot Atlas is unavailable, the system will cache partial results and retry with exponential backoff (FR-008). No open substitute for the *exact* same dataset exists; the analysis is specific to Knot Atlas data.
 
 ## Statistical Methodology
 
-### Census Data Assumption
-The dataset represents a **complete census** of the target population (all prime knots ≤ 13 crossings). Therefore:
-- **No Inferential Statistics**: p-values and confidence intervals are **not** reported for census claims.
-- **Effect Sizes**: Cohen's d (group differences), r/r² (correlations), and R²/AIC/BIC (model fit) are the primary metrics.
-- **Descriptive Interpretation**: All model coefficients are interpreted as descriptive associations within the finite census, not as independent predictive power (due to the mathematical constraint `braid_index ≤ crossing_number`).
-
-### Theoretical Model Selection
-Model forms (linear, polynomial, logarithmic) are selected based on prior knot theory literature (e.g., volume ~ crossing for random knots) to test specific theoretical predictions. Goodness-of-fit metrics (R², AIC, BIC) are used for validation, not for discovery, to prevent data dredging.
-
-### Regression Analysis
-- **Goal**: Assess the relationship of crossing number and braid index on hyperbolic volume, acknowledging the constraint `braid_index ≤ crossing_number`.
-- **Models**:
- 1. Linear: `Volume ~ Crossing + (Crossing - Braid)` [Using 'gap' as predictor]
- 2. Polynomial: `Volume ~ Crossing + (Crossing - Braid) + Crossing^2`
- 3. Logarithmic: `Volume ~ log(Crossing) + log(Crossing - Braid)`
- 4. Ridge Regression: To handle multicollinearity and stabilize coefficients.
-- **Selection**: Based on goodness-of-fit metrics (R², AIC, BIC, MAE).
-- **Multicollinearity Handling**: VIF will be computed and reported to demonstrate the constraint. Ridge Regression will be used to stabilize coefficients. Coefficients will NOT be interpreted as independent effects, as braid index is a bound on crossing number.
-- **Residual Analysis**: Identification of specific hyperbolic knot families (e.g., pretzel) with residuals ≥ 2 standard deviations from the trend (SC-011).
+### Census Data Acknowledgment
+The dataset represents the **complete census** of hyperbolic prime knots ≤ 13 crossings (a subset of the 9,988 total prime knots). Therefore:
+- **No Inferential Statistics**: P-values and confidence intervals are **not** reported for inferential claims (Constitution Principle VII exception).
+- **Descriptive Metrics**: Effect sizes (Cohen's d, correlation coefficients r/r²) and goodness-of-fit metrics (R², AIC/BIC, MAE) are the primary metrics of interest.
+- **Model Selection**: Based on descriptive fit metrics (R², AIC/BIC), not statistical power or cross-validation.
 
 ### Correlation Analysis
-- **Primary**: Spearman correlation (robust to discrete integer data).
-- **Supplementary**: Pearson correlation (reported for completeness, with caveats).
-- **Group Comparison**: Mean differences, variance ratios, and Cohen's d for alternating vs. non-alternating groups (SC-009).
-- **Note on Crossing vs. Braid**: The correlation between crossing number and braid index is a verification of the theorem `b ≤ c` (data consistency), not an empirical finding. This correlation is not reported as a 'result' but as a 'consistency check'.
+- **Primary Method**: Spearman correlation (robust to discrete integer-valued invariants).
+- **Supplementary Method**: Pearson correlation (reported for completeness, with caveats about discrete data).
+- **Variables**: Crossing number vs. Braid index; Crossing number vs. Hyperbolic volume; Braid index vs. Hyperbolic volume.
+- **Note on Crossing Number vs. Braid Index**: The relationship between crossing number (c) and braid index (b) is constrained by the inequality b ≤ c (and often b ≈ c/2 for alternating knots). This correlation is computed **descriptively** to validate known mathematical bounds, not to discover a new empirical relationship.
 
-## Decision Rationale
+### Regression Modeling
+- **Model Types**: **Ridge Regression** (L2 regularization) is the primary method for joint models to handle multicollinearity. Polynomial (degree 2, 3) and Logarithmic models are supplementary.
+- **Predictors**: Crossing number, Braid index (jointly and separately).
+- **Outcome**: Hyperbolic volume.
+- **Constraints**:
+  - **Mathematical Dependency**: Braid index ≤ Crossing number (definitional constraint). Coefficients are **descriptive only** and cannot be interpreted as independent effects.
+  - **Multicollinearity**: **Ridge Regression** is used to shrink coefficients and handle the extreme collinearity expected from the b ≤ c constraint. VIF will be computed as a diagnostic.
+  - **Filtering**: Only hyperbolic knots (volume > 0) are included in volume prediction models (FR-012). The analysis population is the hyperbolic subset, not the full set of knots.
 
-### Why Knot Atlas?
-It is the only comprehensive source providing the required combination of invariants (crossing number, braid index, hyperbolic volume) for the full census of knots ≤ 13.
+### Residual Analysis
+- **Goal**: Identify specific hyperbolic knot families (e.g., pretzel, non-alternating) that deviate significantly from the global trend.
+- **Method**: Compute residuals from the best-fit model; flag knots with large residuals using **Median Absolute Deviation (MAD)** (≥ 2 MAD) instead of standard deviation to ensure robustness against the skewed/truncated distribution of volumes.
+- **Grouping**: Group flagged knots by family type if metadata available.
 
-### Why Census Methodology?
-The population is finite and fully enumerated. Inferential statistics (p-values) imply sampling error, which does not exist here. Effect sizes provide the exact magnitude of relationships in the population.
+### Group Comparisons
+- **Groups**: Alternating vs. Non-alternating knots.
+- **Metrics**: Mean differences, variance ratios, Cohen's d.
+- **Note**: ANOVA is not applicable for census data; descriptive statistics suffice.
 
-### Why No GPU?
-The analysis involves classical statistical methods (regression, correlation) on a substantial dataset. These are computationally trivial on a CPU and do not require GPU acceleration.
+## Computational Feasibility
 
-### Why Filter to Hyperbolic Knots?
-Hyperbolic volume is undefined or zero for torus and satellite knots. Including them would introduce a ceiling effect and bias the regression. The research question is reframed to "hyperbolic prime knots" with this limitation explicitly documented (FR-012).
+- **CPU-First**: All methods (parsing, regression, plotting) are CPU-tractable.
+- **Memory**: A moderate amount of RAM is sufficient for the ~10k record dataset..
+- **Time**: Estimated < 1 hour for full pipeline on 2-core CPU (with parallel download).
+- **GPU**: Not required. No transformer or diffusion models are used.
 
-## Risk Assessment
+## Ethical Considerations & Limitations
 
-| Risk | Probability | Impact | Mitigation |
-|:--- |:--- |:--- |:--- |
-| **Knot Atlas Unavailable** | Low | High | Retry logic with exponential backoff; cache partial results. |
-| **Missing Invariants** | Medium | Medium | Flag records; exclude only from specific analyses where invariants are required; document count. |
-| **Mathematical Constraint Misinterpretation** | High | High | Explicitly state in all reports that coefficients are descriptive only due to `braid_index ≤ crossing_number`. Use 'gap' predictor. |
-| **KnotInfo Access Issues** | Medium | Medium | Use available static dumps; document coverage limitations if < 90% (SC-014). |
-| **Computation Time for Advanced Invariants** | Medium | High | Limit the second phase to a random sample of knots if a full census exceeds the established time budget. |
+- **Selection Bias**: Filtering to hyperbolic knots (volume > 0) excludes torus and satellite knots. Conclusions apply only to hyperbolic prime knots.
+- **Source Independence**: Validation against KnotInfo may be limited by shared underlying data sources.
+- **Mathematical Constraints**: The definitional relationship between crossing number and braid index limits the interpretability of joint regression coefficients. Ridge Regression is used to mitigate spurious variance attribution.
+- **Phase 1 Scope**: Validation benchmark focuses on crossing number ≤ 10; 11-13 data is exploratory.

@@ -1,79 +1,98 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "KnotRecord"
-description: "Schema for a single prime knot record from Knot Atlas (SINGLE SOURCE OF TRUTH)"
+description: "Schema for a single knot record with invariants and metadata."
 type: "object"
-required:
-  - "knot_id"
-  - "crossing_number"
-  - "braid_index"
-  - "hyperbolic_volume"
-  - "source"
-  - "checksum_sha256"
 properties:
   knot_id:
     type: "string"
-    description: "Unique identifier for the knot (e.g., '8_18')"
-    pattern: "^[0-9]+_[0-9]+$"
+    description: "Unique identifier for the knot (e.g., '10_123')."
   crossing_number:
     type: "integer"
-    description: "Number of crossings in the minimal diagram"
+    description: "Number of crossings in the minimal diagram."
     minimum: 1
   braid_index:
     type: "integer"
-    description: "Minimum number of strands in braid representation"
+    description: "Minimum number of strands in a braid representation."
     minimum: 1
   hyperbolic_volume:
     type: "number"
-    description: "Volume of the hyperbolic complement"
+    description: "Hyperbolic volume (≥ 0); 0 or null for non-hyperbolic knots."
     minimum: 0
   alternating:
-    type: ["boolean", "null"]
-    description: "Whether the knot is alternating. Null if ambiguous."
+    type: "boolean"
+    description: "True if alternating, False if non-alternating."
   source:
     type: "object"
-    description: "Metadata about the source record"
-    required:
-      - "database"
-      - "version"
-      - "url"
-      - "accessed_at"
+    description: "Metadata about the data source."
     properties:
       database:
         type: "string"
-        description: "Name of the database"
-        const: "Knot Atlas"
+        description: "Source database name (e.g., 'Knot Atlas')."
       version:
         type: "string"
-        description: "Version of the database"
+        description: "Version of the source database."
       url:
         type: "string"
         format: "uri"
-        description: "Canonical URL for the record"
+        description: "Canonical URL for the record."
       accessed_at:
         type: "string"
         format: "date-time"
-        description: "ISO-8601 timestamp of download"
+        description: "ISO-8601 timestamp of access."
       source_timestamp:
-        type: ["string", "null"]
+        type: "string"
         format: "date-time"
-        description: "ISO-8601 timestamp of the source record"
+        description: "ISO-8601 timestamp of the source record."
       checksum_sha256:
+        type: "string"
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA-256 hash of the raw source record."
+    required:
+      - database
+      - version
+      - url
+      - accessed_at
+  flags:
+    type: "object"
+    description: "Data quality flags."
+    properties:
+      missing_invariant_flags:
+        type: "array"
+        items:
+          type: "string"
+        description: "Specific invariants missing (Phase 2+ scope)."
+      data_quality_flags:
+        type: "array"
+        items:
+          type: "string"
+        description: "General quality issues (null, format, duplicate)."
+      unclassifiable:
+        type: "boolean"
+        description: "Alternating status ambiguous or missing."
+    required:
+      - missing_invariant_flags
+      - data_quality_flags
+      - unclassifiable
+  diagram_representations:
+    type: "object"
+    description: "Available diagram representations."
+    properties:
+      dt_code:
         type: ["string", "null"]
-        description: "SHA-256 of the raw source record"
-  data_quality_flags:
-    type: "array"
-    description: "General data quality issues"
-    items:
-      type: "string"
-    default: []
-  missing_invariant_flags:
-    type: "array"
-    description: "Specific missing invariants (Phase 2+)"
-    items:
-      type: "string"
-    default: []
-  checksum_sha256:
-    type: "string"
-    description: "SHA-256 of the processed record"
-    pattern: "^[a-f0-9]{64}$"
+        description: "Dowker-Thistlethwaite code."
+      braid_word:
+        type: ["string", "null"]
+        description: "Braid word representation."
+    required:
+      - dt_code
+      - braid_word
+required:
+  - knot_id
+  - crossing_number
+  - braid_index
+  - hyperbolic_volume
+  - alternating
+  - source
+  - flags
+  - diagram_representations
 additionalProperties: false

@@ -1,68 +1,99 @@
-# Quickstart: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
+# Quickstart: Quantifying the Complexity of Knot Diagrams
 
 ## Prerequisites
 
-- Python 3.11 or higher.
-- `pip` (Python package installer).
-- Internet connection (for downloading Knot Atlas data).
-- At least 2GB of free disk space.
+- Python 3.11+
+- `pip` or `poetry`
+- Internet access (for Knot Atlas download)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` is located at `projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/requirements.txt`.*
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd PROJ-552-quantifying-the-complexity-of-knot-diagr
+   ```
 
-## Execution
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-The pipeline is executed via the main orchestration script:
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+## Running the Pipeline
+
+### 1. Download Data
 ```bash
-cd code
-python main.py
+python code/main.py --action download
 ```
+- Downloads raw JSON from Knot Atlas.
+- Implements exponential backoff on failure.
+- Saves to `data/raw/knot_atlas_raw.json`.
+- Generates checksum in `data/raw/checksums.json`.
 
-### Execution Steps
+### 2. Parse and Validate
+```bash
+python code/main.py --action parse
+```
+- Parses JSON, extracts invariants.
+- Applies tie-breaking rules.
+- Flags missing data/quality issues.
+- Saves to `data/processed/knots_cleaned.csv`.
+- Generates `docs/reproducibility/data_quality_report.md`.
 
-1.  **Download**: Fetches data from Knot Atlas with retry logic.
-    - Output: `data/raw/knot_atlas_raw.json`
-2.  **Parse & Clean**: Extracts invariants, applies tie-breaking rules.
-    - Output: `data/processed/knots_cleaned.csv`
-    - *Note*: `knot_id` is normalized to `^[0-9]+_[0-9]+$` format.
-3.  **Validate**: Checks against KnotInfo, flags missing data.
-    - Output: `data/processed/knots_validated.csv`
-4.  **Analyze**: Fits regression models, computes correlations, generates plots.
-    - Output: `docs/reproducibility/` (reports, plots, logs).
+### 3. Filter for Hyperbolic Knots
+```bash
+python code/main.py --action filter
+```
+- Filters for `hyperbolic_volume > 0`.
+- Logs excluded knots to `docs/reproducibility/excluded_knots.md`.
+- Saves to `data/processed/knots_hyperbolic.csv`.
+
+### 4. Run Analysis
+```bash
+python code/main.py --action analyze
+```
+- Generates scatter plots (`data/plots/`).
+- Fits regression models (linear, poly, log).
+- Computes correlations and effect sizes.
+- Performs residual analysis.
+- Saves results to `data/processed/regression_results.json`.
+
+### 5. Generate Reports
+```bash
+python code/main.py --action report
+```
+- Generates all reproducibility documents in `docs/reproducibility/`.
+- Validates schema compliance.
+- Outputs final summary.
 
 ## Verification
 
-To verify the pipeline ran correctly:
+1. **Check Data Quality**:
+   ```bash
+   python code/data/quality_report.py --validate
+   ```
+   - Verifies null percentage ≤ 5%, format pass rate ≥ 99%, no duplicates.
 
-1.  **Check Data Integrity**:
-    ```bash
-    python -c "import sys; sys.path.append('data'); from reproducibility import check_checksums; check_checksums('data/raw/knot_atlas_raw.json')"
-    ```
-2.  **View Reports**:
-    - Data Quality: `docs/reproducibility/data_quality_report.md`
-    - Validation Scope: `docs/reproducibility/validation_scope.md`
-    - Core Precision Consistency: `docs/reproducibility/core_precision_consistency.md`
-    - Tie-Breaking Rules: `docs/reproducibility/tie_breaking_rules.md`
-    - Plot Validation: `docs/reproducibility/plot_validation_report.md`
-    - Residual Analysis: `docs/reproducibility/residual_analysis.md`
-3.  **Check Plots**:
-    - Navigate to `data/plots/` for PNG files (min 1200x900 px).
+2. **Validate Tie-Breaking**:
+   ```bash
+   python docs/reproducibility/tie_breaking_validator.py
+   ```
+   - Ensures consistent application of tie-breaking rules.
+
+3. **Reproducibility Check**:
+   ```bash
+   python code/reproducibility/checksums.py --verify
+   ```
+   - Verifies all data files match recorded checksums.
 
 ## Troubleshooting
 
-- **API Failure**: If Knot Atlas is unreachable, the script will retry with exponential backoff. If it fails after 3 attempts, partial results are cached. Check `docs/reproducibility/logs/` for error details.
-- **Missing Invariants**: Records with missing invariants are not dropped but flagged. Check `docs/reproducibility/data_quality_report.md` for counts.
-- **Memory Error**: The full dataset should fit in 7GB RAM. If issues arise, ensure no other heavy processes are running.
-- **Schema Validation**: Ensure `contracts/knot_record.schema.yaml` is used for validation. Deprecated files are ignored.
+- **API Rate Limiting**: The downloader automatically retries with exponential backoff. If it fails after max retries, partial results are cached.
+- **Missing Invariants**: Records are flagged in `data_quality_flags` and `missing_invariant_flags`, not excluded.
+- **Plot Resolution**: All plots are generated at 1200x900 px minimum.

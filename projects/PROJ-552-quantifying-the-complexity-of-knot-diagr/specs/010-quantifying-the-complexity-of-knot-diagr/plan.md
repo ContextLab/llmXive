@@ -1,41 +1,42 @@
 # Implementation Plan: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-07-02 | **Spec**: `specs/001-knot-complexity-analysis/spec.md`
+**Branch**: `001-knot-complexity-analysis` | **Date**: 2026-06-12 | **Spec**: `spec.md`
 **Input**: Feature specification from `specs/001-knot-complexity-analysis/spec.md`
 
 ## Summary
 
-This plan implements a computational pipeline to analyze the complete census of prime knots with crossing number ≤ 13. The primary objective is to quantify the relationship between combinatorial invariants (crossing number, braid index) and geometric complexity (hyperbolic volume). The approach involves downloading the Knot Atlas dataset, validating invariants against KnotInfo, filtering for hyperbolic knots, and performing descriptive regression and correlation analysis. The analysis explicitly acknowledges the census nature of the data (using effect sizes, not p-values) and the mathematical constraint that braid index ≤ crossing number (treating joint regression coefficients as descriptive variance partitioning only, or using the 'gap' predictor).
+This project implements a computational pipeline to quantify the relationship between combinatorial invariants (crossing number, braid index) and geometric complexity (hyperbolic volume) across the complete census of prime knots with crossing number ≤ 13. The approach involves downloading the Knot Atlas dataset (aggregating multiple separate bulk fetches), validating core invariants against KnotInfo reference values (where available), filtering for hyperbolic knots (volume > 0), and performing descriptive statistical analysis (correlations, Ridge regression models) while strictly adhering to census-data statistical principles (effect sizes over p-values). The plan explicitly addresses data quality, edge cases (API failures, missing invariants), and reproducibility requirements.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `requests`, `pyyaml`, `seaborn`.
-**Storage**: Local file system (`data/`, `docs/reproducibility/`). No external database.
-**Testing**: `pytest` (unit tests for parsers, validators, and statistical calculations).
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM).
-**Project Type**: Computational Research / Data Analysis Pipeline.
-**Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 6GB.
-**Constraints**: No local GPU; must handle external API failures gracefully; must strictly adhere to census-data statistical methodology (no inferential p-values).
-**Scale/Scope**: A significant number of prime knots (OEIS A002863). Dataset size estimated < 500MB raw JSON, < 50MB processed CSV.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `requests` (HTTP), `pandas` (data manipulation), `scikit-learn` (regression models with Ridge), `matplotlib` (plotting), `pyyaml` (schema validation), `datasets` (Hugging Face, for potential streaming if needed).  
+**Storage**: Local file system (`data/raw`, `data/processed`, `docs/reproducibility`). No external database.  
+**Testing**: `pytest` (unit tests for parsers, validators, model fitting logic).  
+**Target Platform**: Linux (GitHub Actions runner: 2 CPU, ~7 GB RAM).  
+**Project Type**: CLI / Data Analysis Pipeline.  
+**Performance Goals**: Complete pipeline execution within 6 hours on CPU runner; data download and parsing < 30 minutes; analysis < 1 hour.  
+**Constraints**: Must handle Knot Atlas API rate limits (exponential backoff + parallel fetch); must not fabricate data; must strictly adhere to census-data statistical interpretation (no p-values for inferential claims).  
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Dataset Scope & Census Definition**:
+- **Source Census**: The total count of prime knots with crossing number ≤ 13 is 9,988 (Source: OEIS A002863).
+- **Analysis Population**: The regression analysis is restricted to the subset of **hyperbolic prime knots** (volume > 0). Torus and satellite knots (non-hyperbolic) are excluded per FR-012. Therefore, the effective N for the regression models is strictly less than 9,988.
+- **Download Strategy**: To ensure the full source census is captured, the system will fetch data for each crossing number (1 through 13) individually (13 separate bulk fetches) and aggregate them. This prevents missing data if the API returns incomplete bulk files.
+- **Caching**: A local disk cache (with strict versioning and checksums) will be used. On every CI run, the system checks the cache; if the source version has changed or the cache is stale, it re-fetches. This ensures reproducibility (Principle I) while optimizing CI time.
 
-**Dependency Fallback Strategy**: If the `knot-theory` library is unavailable via PyPI, the pipeline will use a custom parser (regex-based) for DT/Braid strings to extract invariants, ensuring the pipeline is not blocked by external package availability.
+> **Note**: The dataset size (9988 knots) is the *source census*. The *analysis population* is the hyperbolic subset. All descriptive statistics refer to the analysis population.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action / Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned random seeds, checksums (SHA-256), and immutable raw data. All code in `code/` must be runnable end-to-end. |
-| **II. Verified Accuracy** | **PASS** | Plan includes explicit validation of Knot Atlas data against KnotInfo references (FR-013, SC-014) and documentation of source independence. **Action**: The 'Reference-Validator Agent' will run against all external citations (Birman & Menasco, Ohyama) before analysis. |
-| **III. Data Hygiene** | **PASS** | Plan mandates `data/raw/` (immutable), `data/processed/` (derived), and `docs/reproducibility/` (logs, checksums). No in-place modifications. |
-| **IV. Single Source of Truth** | **PASS** | All figures and stats will trace to `data/processed/knots_validated.csv` and specific code blocks. |
-| **V. Versioning Discipline** | **PASS** | Content hashes will be recorded in `state/...yaml` and `data/` checksum manifests. |
-| **VI. Mathematical Invariant Consistency** | **PASS** | Plan includes validation of core invariants (crossing number, braid index) against KnotInfo (SC-015) and explicit verification of *computed* invariants (arc index, bridge number) against primary mathematical literature definitions (not just tabulated data). |
-| **VII. Statistical Significance** | **PASS** | Plan explicitly adopts the "Census-data exception": effect sizes (Cohen's d, r) are primary; p-values are NOT reported for census claims. |
+- **Principle I (Reproducibility)**: Plan ensures random seeds are pinned in `code/utils/random.py`. **Crucially**, the download step is re-executed (or validated against a strict versioned cache) on **every** CI run to ensure the exact same source data is used, satisfying the requirement to fetch from the canonical source on every run.
+- **Principle II (Verified Accuracy)**: Plan includes a validation step against KnotInfo for hyperbolic volume and core invariants. **Crucially**, this integrates the **Reference-Validator Agent** workflow, requiring all external citations to pass a 'Title-token-overlap' check (≥ 0.7) before contributing to review points.
+- **Principle III (Data Hygiene)**: Plan mandates raw data preservation, checksumming, and derivation notes for all transformations.
+- **Principle IV (Single Source of Truth)**: Plan defines strict data flow from `data/raw` to `data/processed` to `docs/reproducibility` and final reports.
+- **Principle V (Versioning)**: Plan includes content hashing for artifacts and timestamped logs.
+- **Principle VI (Mathematical Invariant Consistency)**: Plan explicitly states that tabulated values from Knot Atlas are treated as 'computed' for the purpose of this principle, and their source is verified against primary literature via the Reference-Validator Agent.
+- **Principle VII (Statistical Significance)**: Plan explicitly acknowledges the census-data exception: no p-values for inferential claims; effect sizes (Cohen's d, r) are the primary metrics.
 
 ## Project Structure
 
@@ -44,16 +45,15 @@ This plan implements a computational pipeline to analyze the complete census of 
 ```text
 specs/001-knot-complexity-analysis/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output (Research strategy, dataset verification)
-├── data-model.md        # Phase 1 output (Schema definitions, entity relationships)
-├── quickstart.md        # Phase 1 output (Setup and execution instructions)
-├── contracts/           # Phase 1 output (YAML schemas for validation)
-│   ├── knot_record.schema.yaml      # SINGLE SOURCE OF TRUTH (SSoT) for knot records
-│   ├── regression_model.schema.yaml # SSoT for regression models
-│   ├── dataset.schema.yaml          # Aggregate schema referencing SSoT
-│   └── [Deprecated] knot-record.schema.yaml (Removed from active use)
-│   └── [Deprecated] knot_dataset.schema.yaml (Removed from active use)
-└── tasks.md             # Phase 2 output (Generated by /speckit-tasks)
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── knot_record.schema.yaml
+│   ├── regression_model.schema.yaml
+│   └── ...
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -61,88 +61,62 @@ specs/001-knot-complexity-analysis/
 ```text
 code/
 ├── download/
-│   └── knot_atlas_loader.py      # Handles HTTP, retries, caching
+│   ├── knot_atlas_loader.py      # Parallel fetch per crossing number, caching, retry logic
+│   └── __init__.py
 ├── data/
-│   ├── parser.py                 # JSON/CSV parsing, cleaning
-│   ├── validator.py              # Schema validation, invariant checks
-│   ├── tie_breaking_validator.py # (Generated) Validates tie-breaking consistency (SC-007)
-│   └── reproducibility.py        # Checksums, logging, seed management
+│   ├── parser.py                 # JSON parsing, cleaning, flagging
+│   ├── validator.py              # Schema validation, consistency checks
+│   ├── quality_report.py         # Generates data_quality_report.md
+│   └── __init__.py
 ├── analysis/
-│   ├── exploratory.py            # Scatter plots, correlation matrices
-│   ├── regression.py             # Model fitting (linear, poly, log, Ridge)
-│   └── residual_analysis.py      # Family deviation detection
-├── main.py                       # Orchestration script
-└── tests/
-    ├── test_parser.py
-    ├── test_validator.py
-    └── test_regression.py
+│   ├── exploratory.py            # Scatter plots, descriptive stats
+│   ├── regression.py             # Model fitting (Ridge, orthogonalized), VIF
+│   ├── residual_analysis.py      # Identify outlier families (MAD-based)
+│   └── __init__.py
+├── reproducibility/
+│   ├── checksums.py              # SHA-256 generation
+│   ├── logs.py                   # Timestamped logging
+│   └── __init__.py
+├── utils/
+│   ├── random.py                 # Seed pinning
+│   └── constants.py              # Thresholds, constants
+└── main.py                       # Orchestration script
 
 data/
-├── raw/
-│   └── knot_atlas_raw.json       # Immutable download
-├── processed/
-│   ├── knots_cleaned.csv         # Cleaned, filtered dataset
-│   └── knots_validated.csv       # Final analysis-ready dataset
-└── plots/
-    └── [generated PNGs]
+├── raw/                          # Raw JSON from Knot Atlas (per crossing number)
+├── processed/                    # Cleaned CSV/Parquet
+└── plots/                        # Generated PNGs
 
 docs/
-└── reproducibility/
-    ├── data_quality_report.md    # (Generated) SC-013 metrics
-    ├── validation_scope.md       # (Generated) Scope justification
-    ├── excluded_knots.md         # (Generated) Excluded knots list
-    ├── random_seeds.md           # (Generated) Seed documentation
-    ├── hyperbolic_volume_validation.md # (Generated) Volume validation
-    ├── core_precision_consistency.md   # (Generated) SC-015/FR-014 validation
-    ├── residual_analysis.md      # (Generated) Residual outliers
-    ├── tie_breaking_rules.md     # (Generated) SC-007 rules
-    ├── plot_validation_report.md # (Generated) SC-016 report
-    └── logs/
-        └── [timestamped logs]
+├── reproducibility/
+│   ├── data_quality_report.md
+│   ├── validation_scope.md
+│   ├── excluded_knots.md
+│   ├── random_seeds.md
+│   ├── tie_breaking_rules.md
+│   ├── residual_analysis.md
+│   ├── hyperbolic_volume_validation.md
+│   ├── core_precision_consistency.md
+│   ├── multicollinearity_assessment.md
+│   └── validation_status.md
+└── analysis/
+    └── (final reports)
+
+tests/
+├── unit/
+│   ├── test_parser.py
+│   ├── test_validator.py
+│   └── test_regression.py
+├── integration/
+│   └── test_pipeline.py
+└── contract/
+    └── test_schema_validation.py
 ```
 
-**Structure Decision**: Single-project structure selected. The project is a linear data pipeline (Download -> Parse -> Validate -> Analyze -> Report). Separating download, data, and analysis into distinct modules within `code/` ensures modularity while maintaining a simple execution flow suitable for the 6-hour CI limit.
-
-## Implementation Phases
-
-### Phase 0: Data Acquisition & Validation (Week 1)
-- **Task T-001**: Download Knot Atlas data (FR-001).
-- **Task T-002**: Parse and clean data (FR-002).
-- **Task T-003**: Validate core invariants against KnotInfo (FR-013, SC-014).
-- **Task T-007**: Generate `tie_breaking_validator.py` and `tie_breaking_rules.md` (SC-007).
-  - *Logic*: Script checks that tie-breaking rules (e.g., lexicographic order for ambiguous knots) are consistent across the dataset and returns exit code 0 on success.
-- **Task T-013**: Generate `data_quality_report.md` with null %, format pass rate, duplicate count (SC-013).
-- **Task T-014**: Validate crossing number and braid index against KnotInfo with e-6 tolerance (FR-014).
-  - *Output*: `docs/reproducibility/core_precision_consistency.md` (SC-015).
-- **Task T-016**: Generate `plot_validation_report.md` to verify resolution and metadata (SC-016).
-
-### Phase 1: Statistical Analysis (Week 2)
-- **Task T-020**: Compute descriptive statistics (FR-006).
-- **Task T-021**: Fit regression models (Linear, Polynomial, Logarithmic, Ridge) with theoretical model selection (SC-005).
-- **Task T-022**: Perform residual analysis (SC-011).
-- **Task T-023**: Generate plots (SC-016).
-
-### Phase 2: Advanced Invariants (Feasibility Gated)
-- **Task T-030**: Compute arc index, Seifert circle count, bridge number for a random sample of a sufficient number of knots (if full census exceeds 6-hour limit).
-  - *Feasibility*: If full census computation of Birman-Menasco algorithms exceeds a substantial duration, the plan will switch to a random sample of knots. This prevents science failure while maintaining the research goal.
-- **Task T-031**: Analyze correlation between advanced invariants and volume.
+**Structure Decision**: Single Python package structure (`code/`) is selected to simplify dependency management and ensure all modules are importable for testing. The `data/` and `docs/` directories are kept separate to maintain the "no in-place modification" principle.
 
 ## Complexity Tracking
 
-> **No violations found.** The project scope is well-defined by the census data limit (≤13 crossings). The statistical methodology (descriptive vs. inferential) is explicitly handled by the Constitution Exception. No complex architecture is required beyond standard data engineering patterns.
-
-## Data Flow
-
-1.  **Raw**: `data/raw/knot_atlas_raw.json` (Immutable, checksummed).
-2.  **Cleaned**: `data/processed/knots_cleaned.csv` (Parsed, deduplicated, basic cleaning).
-    - *Normalization*: `knot_id` is normalized to the SSoT format `^[0-9]+_[0-9]+$` (e.g., "8_18") during this step.
-3.  **Validated**: `data/processed/knots_validated.csv` (Filtered for hyperbolic, flags applied, validated against KnotInfo).
-4.  **Analysis**: `docs/reproducibility/` (Reports, plots, model outputs).
-
-## Data Quality Rules
-
-- **Uniqueness**: `knot_id` must be unique.
-- **Completeness**: Required fields (`crossing_number`, `braid_index`, `hyperbolic_volume`) must have null percentage ≤ 5% in the validated subset.
-- **Consistency**: `braid_index` ≤ `crossing_number` must hold for all records.
-- **Validation**: Hyperbolic volume must match KnotInfo within 1e-6 tolerance where reference exists.
-- **SSoT**: `contracts/knot_record.schema.yaml` is the Single Source of Truth for all knot records. `contracts/knot_dataset.schema.yaml` and `knot-record.schema.yaml` are deprecated and not used in the pipeline.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | The project scope is well-defined and fits within standard data analysis patterns. | N/A |
