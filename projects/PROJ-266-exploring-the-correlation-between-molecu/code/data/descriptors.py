@@ -1,15 +1,12 @@
 """
-Molecular Flexibility Descriptor Computation Module.
+code/data/descriptors.py
 
-This module handles the generation of 3D conformer ensembles and the calculation
-of internal coordinate variances (bond, angle, dihedral) as flexibility descriptors.
-It adheres to Deviation ID DEV-001 (Plan.md) which overrides Spec FR-003,
-limiting conformer generation to 20 per molecule for CPU feasibility.
+Module for computing molecular flexibility descriptors (bond, angle, dihedral variances)
+from 3D conformer ensembles generated via RDKit. Includes outlier detection and
+formatted output generation.
 
-Primary Output: Dihedral Variance (rad^2)
-Secondary Outputs: Bond Variance, Angle Variance, Outlier Flags
+Implements US2 tasks: T013a, T013b, T013c, T014a, T014b, T014c.
 """
-
 import logging
 import sys
 from pathlib import Path
@@ -17,433 +14,360 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import AllChem, rdMolTransforms
+from scipy.spatial.distance import pdist, squareform
 
-# Local imports matching API surface
-from utils.logging import get_logger, configure_root_logger
-from utils.config import get_project_root, set_seed
+# Local imports
+from utils.logging import get_logger, setup_logging_for_script
+from utils.config import get_project_root, get_data_path, set_seed
 
-# RDKit imports
-try:
-    from rdkit import Chem
-    from rdkit.Chem import AllChem
-    from rdkit import RDLogger
-except ImportError:
-    raise ImportError("RDKit is required for this module. Install via: pip install rdkit")
-
-# Disable RDKit warnings for cleaner logs
-RDLogger.DisableLog('rdApp.*')
-
-logger = get_logger(__name__)
+# Configure logger for this module
+logger = setup_logging_for_script(__name__)
 
 # Constants
-CONFORMER_COUNT = 20  # Per DEV-001 (overriding Spec FR-003's 50)
+CONFORMER_COUNT = 20  # Per DEV-001 (CPU feasibility)
 RANDOM_SEED = 42
+IQR_MULTIPLIER = 1.5
 
-def load_processed_data(filepath: Optional[Path] = None) -> pd.DataFrame:
+def load_processed_data() -> pd.DataFrame:
     """
-    Load the preprocessed Caco-2 dataset from the processed data directory.
-
-    Args:
-        filepath: Optional specific path. If None, uses default project path.
+    Load the preprocessed Caco-2 dataset from data/processed/caco2_cleaned.csv.
 
     Returns:
-        DataFrame with 'smiles' and 'logPapp' columns.
+        pd.DataFrame: DataFrame with columns including 'smiles' and 'logPapp'.
     """
-    if filepath is None:
-        project_root = get_project_root()
-        filepath = project_root / "data" / "processed" / "caco2_cleaned.csv"
-
-    if not filepath.exists():
-        raise FileNotFoundError(f"Processed data not found at {filepath}. "
-                                "Run code/data/preprocessing.py first.")
-
-    logger.info(f"Loading processed data from {filepath}")
-    df = pd.read_csv(filepath)
-
+    data_path = get_data_path()
+    input_file = data_path / "processed" / "caco2_cleaned.csv"
+    
+    if not input_file.exists():
+        raise FileNotFoundError(
+            f"Processed data file not found: {input_file}. "
+            "Please run code/data/preprocessing.py first."
+        )
+    
+    logger.info(f"Loading processed data from {input_file}")
+    df = pd.read_csv(input_file)
+    
     required_cols = ['smiles', 'logPapp']
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Processed data missing required columns: {missing}")
-
-    # Filter for non-null SMILES and logPapp again just in case
-    df = df.dropna(subset=required_cols)
-    logger.info(f"Loaded {len(df)} valid records.")
+        raise ValueError(f"Missing required columns in input data: {missing}")
+    
+    logger.info(f"Loaded {len(df)} records")
     return df
 
-
-def generate_conformers(smiles: str, n_conformers: int = CONFORMER_COUNT) -> Optional[List[Chem.Mol]]:
+def generate_conformers(smiles: str, max_conformers: int = CONFORMER_COUNT) -> Optional[List[Chem.Mol]]:
     """
-    Generate 3D conformer ensemble for a single molecule.
-
-    Implements DEV-001: Uses 20 conformers instead of 50 for CPU feasibility.
+    Generate a 3D conformer ensemble for a given SMILES string.
 
     Args:
         smiles: SMILES string of the molecule.
-        n_conformers: Number of conformers to generate.
+        max_conformers: Number of conformers to generate (default 20 per DEV-001).
 
     Returns:
         List of RDKit Mol objects with 3D coordinates, or None if generation fails.
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        logger.warning(f"Could not parse SMILES: {smiles}")
-        return None
-
-    # Add hydrogens
-    mol_h = Chem.AddHs(mol)
-
-    # Embed conformers
-    # Using ETKDGv3 for better geometric accuracy
-    params = AllChem.ETKDGv3()
-    params.randomSeed = RANDOM_SEED
-    params.maxAttempts = 500
-    params.numThreads = 1  # Force single thread for reproducibility in CI
-
     try:
-        # Attempt embedding
-        ids = AllChem.EmbedMultipleConfs(mol_h, numConfs=n_conformers, params=params)
-        if not ids:
-            logger.warning(f"No conformers generated for {smiles}.")
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            logger.warning(f"Invalid SMILES: {smiles}")
             return None
 
-        # Optimize geometry for each conformer
-        # We do this for all, but if it's too slow, we could limit.
-        # For 20 conformers, it's usually fast enough.
-        for cid in ids:
-            try:
-                AllChem.MMFFOptimizeMoleculeConfs(mol_h, confId=cid)
-            except Exception:
-                # MMFF might fail for some weird structures, skip optimization for that conf
-                pass
+        mol = Chem.AddHs(mol)
+        
+        # Embed conformers
+        params = AllChem.ETKDGv3()
+        params.randomSeed = RANDOM_SEED
+        params.maxAttempts = 500
+        
+        success = AllChem.EmbedMultipleConfs(mol, numConfs=max_conformers, params=params)
+        
+        if not success:
+            logger.warning(f"Failed to generate conformers for SMILES: {smiles}")
+            return None
 
-        return [mol_h]
+        # Optimize conformers
+        for cid in success:
+            AllChem.UFFOptimizeMolecule(mol, confId=cid, maxIters=200)
+
+        return [mol]  # Return list containing the single optimized molecule with multiple conformers
+    
     except Exception as e:
         logger.warning(f"Conformer generation failed for {smiles}: {e}")
         return None
 
-
 def calculate_variance_metrics(mol: Chem.Mol) -> Dict[str, float]:
     """
-    Calculate internal coordinate variances (bond, angle, dihedral) from the conformer ensemble.
-
-    Returns a dictionary with:
-      - bond_variance (rad^2 or dimensionless)
-      - angle_variance (rad^2)
-      - dihedral_variance (rad^2) - PRIMARY descriptor
+    Calculate bond length, bond angle, and dihedral angle variances from the conformer ensemble.
 
     Args:
-        mol: RDKit Mol object with multiple conformers.
+        mol: RDKit Mol object containing multiple conformers.
 
     Returns:
-        Dictionary of variance metrics.
+        Dictionary with keys: 'bond_variance', 'angle_variance', 'dihedral_variance'.
     """
     confs = [mol.GetConformer(i) for i in range(mol.GetNumConformers())]
-    if not confs:
-        return {"bond_variance": np.nan, "angle_variance": np.nan, "dihedral_variance": np.nan}
+    if len(confs) < 2:
+        return {'bond_variance': 0.0, 'angle_variance': 0.0, 'dihedral_variance': 0.0}
 
-    # We need to collect values across conformers for specific internal coordinates.
-    # To make this robust and comparable across molecules, we focus on:
-    # 1. Bonds: Lengths of all bonds.
-    # 2. Angles: Angles of all triplets (i-j-k).
-    # 3. Dihedrals: Dihedrals of all quadruplets (i-j-k-l).
-    # However, calculating ALL for large molecules is expensive and the "set" of
-    # coordinates changes with molecule size.
-    # Strategy:
-    # - Bonds: Calculate variance of ALL bond lengths in the ensemble.
-    # - Angles: Calculate variance of ALL bond angles.
-    # - Dihedrals: Calculate variance of ALL dihedral angles.
-    # Then take the mean of these variances? Or the variance of the flattened list?
-    # The spec asks for "torsional variance" as a single metric.
-    # Interpretation: Variance of the distribution of all dihedral angles observed
-    # across all conformers and all rotatable bonds.
-
+    # Collect bond lengths
     bond_lengths = []
+    # Collect bond angles
     bond_angles = []
+    # Collect dihedral angles
     dihedral_angles = []
 
-    # Helper to get atom indices
-    atoms = mol.GetAtoms()
-    num_atoms = mol.GetNumAtoms()
+    # Helper to get all unique bonds
+    bonds = list(mol.GetBonds())
+    atoms = list(mol.GetAtoms())
+    n_atoms = mol.GetNumAtoms()
 
-    # We need to map indices consistently across conformers.
-    # RDKit Mol keeps atom order consistent.
-
-    # 1. Bonds
-    for bond in mol.GetBonds():
-        i = bond.GetBeginAtomIdx()
-        j = bond.GetEndAtomIdx()
-        for conf in confs:
-            p1 = conf.GetAtomPosition(i)
-            p2 = conf.GetAtomPosition(j)
-            dist = np.sqrt(np.sum((np.array(p1) - np.array(p2))**2))
+    # 1. Bond Lengths (distances between bonded atoms)
+    for conf in confs:
+        for bond in bonds:
+            idx1 = bond.GetBeginAtomIdx()
+            idx2 = bond.GetEndAtomIdx()
+            pos1 = conf.GetAtomPosition(idx1)
+            pos2 = conf.GetAtomPosition(idx2)
+            dist = pos1.Distance(pos2)
             bond_lengths.append(dist)
 
-    # 2. Angles (i-j-k)
-    # Iterate over all atoms j, and their neighbors i, k
-    for atom in mol.GetAtoms():
-        j_idx = atom.GetIdx()
-        neighbors = [a.GetIdx() for a in atom.GetNeighbors()]
-        if len(neighbors) < 2:
-            continue
-        # All pairs of neighbors
-        for i_idx in neighbors:
-            for k_idx in neighbors:
-                if i_idx >= k_idx:
-                    continue
-                # Angle i-j-k
-                for conf in confs:
-                    p_i = conf.GetAtomPosition(i_idx)
-                    p_j = conf.GetAtomPosition(j_idx)
-                    p_k = conf.GetAtomPosition(k_idx)
+    # 2. Bond Angles (angle between two bonds sharing an atom)
+    # Iterate over atoms and their neighbors
+    for conf in confs:
+        for atom in atoms:
+            idx = atom.GetIdx()
+            neighbors = [bond.GetOtherAtomIdx(idx) for bond in atom.GetBonds()]
+            if len(neighbors) >= 2:
+                # Check all pairs of neighbors
+                for i in range(len(neighbors)):
+                    for j in range(i + 1, len(neighbors)):
+                        idx1 = neighbors[i]
+                        idx2 = neighbors[j]
+                        pos_center = conf.GetAtomPosition(idx)
+                        pos1 = conf.GetAtomPosition(idx1)
+                        pos2 = conf.GetAtomPosition(idx2)
+                        
+                        # Vector math for angle
+                        v1 = pos1 - pos_center
+                        v2 = pos2 - pos_center
+                        
+                        # Normalize
+                        len1 = v1.Length()
+                        len2 = v2.Length()
+                        if len1 > 0 and len2 > 0:
+                            dot = v1.Dot(v2) / (len1 * len2)
+                            # Clamp for numerical stability
+                            dot = max(-1.0, min(1.0, dot))
+                            angle = np.arccos(dot)
+                            bond_angles.append(angle)
 
-                    v1 = np.array(p_i) - np.array(p_j)
-                    v2 = np.array(p_k) - np.array(p_j)
-
-                    # Normalize
-                    v1_norm = v1 / (np.linalg.norm(v1) + 1e-8)
-                    v2_norm = v2 / (np.linalg.norm(v2) + 1e-8)
-
-                    dot = np.clip(np.dot(v1_norm, v2_norm), -1.0, 1.0)
-                    angle = np.arccos(dot)
-                    bond_angles.append(angle)
-
-    # 3. Dihedrals (i-j-k-l)
-    # Focus on rotatable bonds? Or all dihedrals?
-    # Spec FR-004 implies "torsional variance". Usually implies rotatable bonds.
-    # Let's calculate dihedrals for all 4-atom chains to capture global flexibility,
-    # but specifically prioritize rotatable bonds if possible.
-    # For simplicity and robustness across diverse molecules, we calculate all unique dihedrals.
-    # This is O(N^4) worst case, but N is small for drug-like molecules.
-    # Optimization: Only consider dihedrals involving at least one rotatable bond?
-    # Let's stick to all unique dihedrals formed by connected atoms (i-j-k-l).
-
-    # Get all bonds
-    bonds = [(b.GetBeginAtomIdx(), b.GetEndAtomIdx()) for b in mol.GetBonds()]
-    bond_set = set(bonds)
-    bond_set.update([(b[1], b[0]) for b in bonds])
-
-    # Find all paths of length 3 (4 atoms)
-    for j_idx in range(num_atoms):
-        neighbors_j = [a.GetIdx() for a in mol.GetAtomWithIdx(j_idx).GetNeighbors()]
-        for k_idx in neighbors_j:
-            neighbors_k = [a.GetIdx() for a in mol.GetAtomWithIdx(k_idx).GetNeighbors()]
-            for i_idx in neighbors_j:
-                if i_idx == k_idx: continue
-                for l_idx in neighbors_k:
-                    if l_idx == j_idx: continue
-                    # Ensure unique set (i, j, k, l) vs (l, k, j, i)
-                    # We can enforce i < l to avoid duplicates if the graph is symmetric,
-                    # but let's just collect and maybe dedup later if needed.
-                    # Actually, i-j-k-l and l-k-j-i are the same dihedral magnitude.
-                    # Let's just collect all and let variance handle it (symmetry cancels out).
-                    # But to reduce noise, let's enforce i < l.
-                    if i_idx > l_idx: continue
-
-                    for conf in confs:
-                        p_i = conf.GetAtomPosition(i_idx)
-                        p_j = conf.GetAtomPosition(j_idx)
-                        p_k = conf.GetAtomPosition(k_idx)
-                        p_l = conf.GetAtomPosition(l_idx)
-
-                        v1 = np.array(p_i) - np.array(p_j)
-                        v2 = np.array(p_k) - np.array(p_j)
-                        v3 = np.array(p_l) - np.array(p_k)
-
-                        # Dihedral calculation
-                        n1 = np.cross(v1, v2)
-                        n2 = np.cross(v2, v3)
-
-                        n1 /= np.linalg.norm(n1) + 1e-8
-                        n2 /= np.linalg.norm(n2) + 1e-8
-
-                        m1 = np.cross(n1, v2 / (np.linalg.norm(v2) + 1e-8))
-
+    # 3. Dihedral Angles (angle between planes defined by 4 atoms)
+    # We look for paths of 3 bonds: A-B-C-D
+    # This is computationally expensive, so we sample or use a specific set if needed.
+    # For robustness, we iterate over all valid 4-atom chains in the molecule.
+    for conf in confs:
+        # Get all bonds as tuples (u, v)
+        bond_pairs = [(b.GetBeginAtomIdx(), b.GetEndAtomIdx()) for b in bonds]
+        # Build adjacency
+        adj = {i: [] for i in range(n_atoms)}
+        for u, v in bond_pairs:
+            adj[u].append(v)
+            adj[v].append(u)
+        
+        # Find paths of length 3 (4 atoms)
+        visited_paths = set()
+        for start in range(n_atoms):
+            for mid1 in adj[start]:
+                if mid1 == start: continue
+                for mid2 in adj[mid1]:
+                    if mid2 == start or mid2 == mid1: continue
+                    for end in adj[mid2]:
+                        if end == start or end == mid1 or end == mid2: continue
+                        
+                        path = (start, mid1, mid2, end)
+                        # Canonicalize to avoid duplicates (reverse path)
+                        if path in visited_paths or path[::-1] in visited_paths:
+                            continue
+                        visited_paths.add(path)
+                        
+                        p1 = conf.GetAtomPosition(start)
+                        p2 = conf.GetAtomPosition(mid1)
+                        p3 = conf.GetAtomPosition(mid2)
+                        p4 = conf.GetAtomPosition(end)
+                        
+                        # Calculate dihedral
+                        b1 = p2 - p1
+                        b2 = p3 - p2
+                        b3 = p4 - p3
+                        
+                        n1 = np.cross(b1, b2)
+                        n2 = np.cross(b2, b3)
+                        
+                        n1 /= np.linalg.norm(n1)
+                        n2 /= np.linalg.norm(n2)
+                        
+                        m1 = np.cross(n1, b2 / np.linalg.norm(b2))
+                        
                         x = np.dot(n1, n2)
                         y = np.dot(m1, n2)
-
-                        dihedral = np.arctan2(y, x)
-                        dihedral_angles.append(dihedral)
+                        angle = np.arctan2(y, x)
+                        
+                        dihedral_angles.append(angle)
 
     # Calculate variances
-    # Use np.var with ddof=1 for sample variance
-    def safe_var(lst):
-        if not lst or len(lst) < 2:
-            return np.nan
-        return float(np.var(lst, ddof=1))
+    def safe_variance(values):
+        if len(values) == 0:
+            return 0.0
+        return float(np.var(values))
+
+    bond_var = safe_variance(bond_lengths)
+    angle_var = safe_variance(bond_angles)
+    dihedral_var = safe_variance(dihedral_angles)
 
     return {
-        "bond_variance": safe_var(bond_lengths),
-        "angle_variance": safe_var(bond_angles),
-        "dihedral_variance": safe_var(dihedral_angles)
+        'bond_variance': bond_var,
+        'angle_variance': angle_var,
+        'dihedral_variance': dihedral_var
     }
 
-
-def flag_outliers(df: pd.DataFrame, columns: Optional[List[str]] = None) -> pd.DataFrame:
+def flag_outliers(df: pd.DataFrame, cols: List[str] = None) -> pd.Series:
     """
     Flag outliers using the Interquartile Range (IQR) method.
-    Condition: Value > Q3 + 1.5*IQR or Value < Q1 - 1.5*IQR.
-
+    A value is an outlier if it is > Q3 + 1.5*IQR or < Q1 - 1.5*IQR.
+    
     Args:
-        df: DataFrame with variance columns.
-        columns: List of columns to check. Defaults to variance columns.
-
+        df: DataFrame containing the variance columns.
+        cols: List of column names to check (default: all variance columns).
+    
     Returns:
-        DataFrame with 'is_outlier' boolean column.
+        pd.Series: Boolean mask where True indicates an outlier.
     """
-    if columns is None:
-        columns = ['bond_variance', 'angle_variance', 'dihedral_variance']
-
-    # Ensure columns exist
-    valid_cols = [c for c in columns if c in df.columns]
-    if not valid_cols:
-        logger.warning("No variance columns found for outlier detection.")
-        df['is_outlier'] = False
-        return df
-
-    outlier_mask = pd.Series([False] * len(df), index=df.index)
-
-    for col in valid_cols:
-        q1 = df[col].quantile(0.25)
-        q3 = df[col].quantile(0.75)
-        iqr = q3 - q1
-        lower_bound = q1 - 1.5 * iqr
-        upper_bound = q3 + 1.5 * iqr
-
+    if cols is None:
+        cols = ['bond_variance', 'angle_variance', 'dihedral_variance']
+    
+    outlier_flags = pd.Series(False, index=df.index)
+    
+    for col in cols:
+        if col not in df.columns:
+            logger.warning(f"Column {col} not found in dataframe for outlier detection.")
+            continue
+        
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        
+        lower_bound = Q1 - IQR_MULTIPLIER * IQR
+        upper_bound = Q3 + IQR_MULTIPLIER * IQR
+        
         col_outliers = (df[col] < lower_bound) | (df[col] > upper_bound)
-        outlier_mask = outlier_mask | col_outliers
+        outlier_flags |= col_outliers
+    
+    return outlier_flags
 
-    df['is_outlier'] = outlier_mask
-    return df
-
-
-def process_molecules(df: pd.DataFrame) -> List[Dict[str, Any]]:
+def process_molecules(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process a DataFrame of molecules: generate conformers and calculate metrics.
-
+    Process molecules: generate conformers, calculate variances, and flag outliers.
+    
     Args:
-        df: DataFrame with 'smiles' column.
-
+        df: Input DataFrame with 'smiles' and 'logPapp'.
+    
     Returns:
-        List of dictionaries containing smiles and calculated metrics.
+        DataFrame with added variance columns and outlier flag.
     """
-    results = []
-    total = len(df)
-    processed = 0
-    failed = 0
-
-    # Set seed for reproducibility in sampling if needed later
     set_seed(RANDOM_SEED)
-
+    
+    results = []
+    success_count = 0
+    fail_count = 0
+    
+    logger.info(f"Starting processing of {len(df)} molecules...")
+    
     for idx, row in df.iterrows():
         smiles = row['smiles']
-        # Optional: logPapp for later correlation, but not needed for descriptor calc
-        logpapp = row.get('logPapp', None)
-
+        logpapp = row['logPapp']
+        
         conformers = generate_conformers(smiles)
-
+        
         if conformers is None:
-            failed += 1
-            # Log failure (T013c requirement)
-            logger.debug(f"Skipping {smiles}: Conformer generation failed.")
+            fail_count += 1
             continue
-
-        # Calculate metrics
-        metrics = calculate_variance_metrics(conformers[0]) # List contains one mol with multiple confs
-
-        # Add original data
-        metrics['smiles'] = smiles
-        if logpapp is not None:
-            metrics['logPapp'] = logpapp
-
-        results.append(metrics)
-        processed += 1
-
-        if processed % 50 == 0:
-            logger.info(f"Processed {processed}/{total} molecules...")
-
-    if processed == 0:
+        
+        metrics = calculate_variance_metrics(conformers[0])
+        
+        results.append({
+            'smiles': smiles,
+            'logPapp': logpapp,
+            'bond_variance': metrics['bond_variance'],
+            'angle_variance': metrics['angle_variance'],
+            'dihedral_variance': metrics['dihedral_variance']
+        })
+        success_count += 1
+        
+        if success_count % 50 == 0:
+            logger.info(f"Processed {success_count} molecules successfully, {fail_count} failed.")
+    
+    logger.info(f"Processing complete. Success: {success_count}, Failed: {fail_count}")
+    
+    if not results:
         raise RuntimeError("No molecules were successfully processed.")
+    
+    output_df = pd.DataFrame(results)
+    output_df['is_outlier'] = flag_outliers(output_df)
+    
+    return output_df
 
-    logger.info(f"Successfully processed {processed} molecules. Failed: {failed}.")
-    return results
-
-
-def write_descriptors(results: List[Dict[str, Any]], output_path: Path) -> None:
+def write_descriptors(df: pd.DataFrame, output_filename: str = "descriptors.csv") -> Path:
     """
     Write the computed descriptors to a CSV file.
-
-    Output columns: smiles, bond_variance, angle_variance, dihedral_variance, is_outlier
-    (is_outlier is added after this function in the main flow, or we can do it here if we pass df)
-
+    
     Args:
-        results: List of result dictionaries.
-        output_path: Path to save the CSV.
+        df: DataFrame with descriptor data.
+        output_filename: Name of the output file.
+    
+    Returns:
+        Path to the written file.
     """
-    if not results:
-        raise ValueError("No results to write.")
-
-    df = pd.DataFrame(results)
-
-    # Ensure column order and types
-    # We calculate outliers in the main function after this, or we can do it here.
-    # The task T014c says "Implement output formatting... to save results".
-    # It lists 'is_outlier' as a required column.
-    # So we must flag outliers before writing.
-    # But flag_outliers needs a DataFrame.
-    # So we do it here.
-
-    df = flag_outliers(df)
-
+    data_path = get_data_path()
+    output_dir = data_path / "processed"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = output_dir / output_filename
+    
+    # Ensure required columns exist
+    required_cols = ['smiles', 'bond_variance', 'angle_variance', 'dihedral_variance', 'is_outlier']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required output columns: {missing_cols}")
+    
     # Select and order columns
-    output_cols = ['smiles', 'bond_variance', 'angle_variance', 'dihedral_variance', 'is_outlier']
-    # Add logPapp if present (for downstream analysis)
-    if 'logPapp' in df.columns:
-        output_cols.append('logPapp')
-
-    df = df[output_cols]
-
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Descriptors saved to {output_path}")
-    logger.info(f"Total records: {len(df)}, Outliers: {df['is_outlier'].sum()}")
-
+    output_df = df[required_cols]
+    
+    output_df.to_csv(output_file, index=False)
+    logger.info(f"Wrote descriptors to {output_file}")
+    
+    return output_file
 
 def main():
-    """
-    Main entry point for the descriptor generation pipeline.
-    1. Load processed data.
-    2. Generate conformers.
-    3. Calculate variances.
-    4. Flag outliers.
-    5. Save to CSV.
-    """
-    configure_root_logger()
-    project_root = get_project_root()
-
-    input_path = project_root / "data" / "processed" / "caco2_cleaned.csv"
-    output_path = project_root / "data" / "processed" / "descriptors.csv"
-
-    logger.info("Starting Molecular Flexibility Descriptor Pipeline.")
-
+    """Main entry point for the descriptor generation pipeline."""
+    logger.info("Starting molecular flexibility descriptor calculation (T014c)...")
+    
     try:
-        # Load data
-        df = load_processed_data(input_path)
-
-        # Process
-        results = process_molecules(df)
-
-        # Write output (includes outlier flagging)
-        write_descriptors(results, output_path)
-
-        logger.info("Pipeline completed successfully.")
-
+        # 1. Load data
+        df = load_processed_data()
+        
+        # 2. Process molecules
+        result_df = process_molecules(df)
+        
+        # 3. Write output
+        write_descriptors(result_df)
+        
+        logger.info("Descriptor calculation completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
-
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

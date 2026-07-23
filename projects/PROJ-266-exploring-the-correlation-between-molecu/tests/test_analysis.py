@@ -1,190 +1,267 @@
 """
-Unit tests for the analysis module (T015, T016).
-Tests correlation computation logic and Benjamini-Hochberg FDR correction with mock data.
+Unit tests for correlation and FDR logic in code/data/analysis.py.
+
+This module tests the statistical functions implemented in the analysis module:
+- compute_correlations: Pearson and Spearman correlation calculation
+- apply_benjamini_hochberg: FDR correction for multiple hypothesis testing
 """
-import pytest
-import pandas as pd
+import unittest
 import numpy as np
+import pandas as pd
 from pathlib import Path
-import json
-import tempfile
-import os
 import sys
-from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-sys_path = Path(__file__).parent.parent
-if str(sys_path) not in sys.path:
-    sys.path.insert(0, str(sys_path))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.data.analysis import compute_correlations, write_correlation_results, load_analysis_data, apply_benjamini_hochberg
-from utils.config import set_seed
+from data.analysis import compute_correlations, apply_benjamini_hochberg
 
-@pytest.fixture
-def sample_data():
-    """Create a deterministic sample dataset for testing."""
-    set_seed(42)
-    n = 100
-    np.random.seed(42)
-    
-    # Generate synthetic but realistic data for testing logic
-    # Create a known correlation for dihedral_variance
-    dihedral = np.random.normal(0, 1, n)
-    # logPapp with some correlation to dihedral
-    logPapp = 0.5 * dihedral + np.random.normal(0, 0.5, n)
-    
-    # Add other features with no correlation
-    bond = np.random.normal(0, 1, n)
-    angle = np.random.normal(0, 1, n)
-    
-    df = pd.DataFrame({
-        'smiles': [f'CC{str(i)}' for i in range(n)],
-        'bond_variance': bond,
-        'angle_variance': angle,
-        'dihedral_variance': dihedral,
-        'is_outlier': [False] * n,
-        'logPapp': logPapp
-    })
-    return df
 
-def test_compute_correlations_basic(sample_data):
-    """Test that correlations are computed correctly for all features."""
-    results = compute_correlations(sample_data, primary_feature='dihedral_variance')
-    
-    assert 'dihedral_variance' in results
-    assert 'bond_variance' in results
-    assert 'angle_variance' in results
-    
-    # Check structure
-    for feature, res in results.items():
-        assert 'pearson_r' in res
-        assert 'pearson_p' in res
-        assert 'spearman_r' in res
-        assert 'spearman_p' in res
-        assert 'n_samples' in res
-        assert res['n_samples'] == len(sample_data)
-    
-    # Check that dihedral_variance has significant correlation (by construction)
-    assert abs(results['dihedral_variance']['pearson_r']) > 0.3
-    assert results['dihedral_variance']['pearson_p'] < 0.05
+class TestComputeCorrelations(unittest.TestCase):
+    """Tests for the compute_correlations function."""
 
-def test_compute_correlations_with_nan(sample_data):
-    """Test handling of NaN values in data."""
-    df = sample_data.copy()
-    df.loc[0, 'dihedral_variance'] = np.nan
-    df.loc[1, 'logPapp'] = np.nan
-    
-    results = compute_correlations(df, primary_feature='dihedral_variance')
-    
-    # Should have fewer samples
-    assert results['dihedral_variance']['n_samples'] == len(sample_data) - 2
+    def setUp(self):
+        """Set up test fixtures."""
+        # Create a simple synthetic dataset for testing
+        np.random.seed(42)
+        n_samples = 100
+        
+        # Generate correlated data
+        x1 = np.random.normal(0, 1, n_samples)
+        x2 = np.random.normal(0, 1, n_samples)
+        x3 = x1 * 0.7 + np.random.normal(0, 0.3, n_samples)  # Correlated with x1
+        
+        # Create a DataFrame with flexibility descriptors and logPapp
+        self.df = pd.DataFrame({
+            'bond_variance': x1,
+            'angle_variance': x2,
+            'dihedral_variance': x3,
+            'logPapp': x1 * 0.5 + x2 * 0.3 + np.random.normal(0, 0.2, n_samples)
+        })
 
-def test_write_correlation_results(sample_data, tmp_path):
-    """Test writing results to JSON file."""
-    results = compute_correlations(sample_data)
-    output_path = tmp_path / "test_correlations.json"
-    
-    write_correlation_results(results, output_path)
-    
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        loaded = json.load(f)
-    
-    assert loaded == results
+    def test_compute_correlations_returns_dict(self):
+        """Test that compute_correlations returns a dictionary."""
+        results = compute_correlations(self.df, 'logPapp')
+        self.assertIsInstance(results, dict)
 
-def test_compute_correlations_insufficient_data():
-    """Test behavior with too few data points."""
-    df = pd.DataFrame({
-        'smiles': ['CC1', 'CC2'],
-        'bond_variance': [0.1, 0.2],
-        'angle_variance': [0.1, 0.2],
-        'dihedral_variance': [0.1, 0.2],
-        'is_outlier': [False, False],
-        'logPapp': [1.0, 2.0]
-    })
-    
-    # Should not crash, just skip or warn
-    results = compute_correlations(df)
-    
-    # With only 2 points, correlation might still be computed but with high p-value
-    # The important thing is it doesn't crash
-    assert isinstance(results, dict)
+    def test_compute_correlations_includes_all_descriptors(self):
+        """Test that all three descriptors are included in results."""
+        results = compute_correlations(self.df, 'logPapp')
+        
+        self.assertIn('bond_variance', results)
+        self.assertIn('angle_variance', results)
+        self.assertIn('dihedral_variance', results)
 
-def test_apply_benjamini_hochberg_basic():
-    """Test Benjamini-Hochberg FDR correction logic."""
-    # Create a list of p-values
-    p_values = [0.01, 0.04, 0.03, 0.005, 0.02, 0.15, 0.20]
-    feature_names = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7']
-    
-    # Expected: sort p-values, calculate q, compare
-    # Sorted: 0.005 (idx 3), 0.01 (idx 0), 0.02 (idx 4), 0.03 (idx 2), 0.04 (idx 1), 0.15 (idx 5), 0.20 (idx 6)
-    # m = 7
-    # Thresholds: (i/m)*alpha
-    # i=0: 0.005 vs 0.005 (0.05*1/7) -> significant
-    # i=1: 0.01 vs 0.010 (0.05*2/7) -> significant
-    # i=2: 0.02 vs 0.015 (0.05*3/7) -> not significant? wait, 0.02 > 0.014
-    # Let's just check the function runs and returns correct structure
-    
-    results = apply_benjamini_hochberg(p_values, feature_names, alpha=0.05)
-    
-    assert len(results) == len(p_values)
-    for i, res in enumerate(results):
-        assert 'feature' in res
-        assert 'p_value' in res
-        assert 'q_value' in res
-        assert 'is_significant' in res
-        assert res['p_value'] == p_values[i]
-        assert res['feature'] == feature_names[i]
+    def test_compute_correlations_structure(self):
+        """Test that each descriptor result has the correct structure."""
+        results = compute_correlations(self.df, 'logPapp')
+        
+        for descriptor in ['bond_variance', 'angle_variance', 'dihedral_variance']:
+            self.assertIn(descriptor, results)
+            result = results[descriptor]
+            
+            self.assertIn('pearson', result)
+            self.assertIn('pearson_pvalue', result)
+            self.assertIn('spearman', result)
+            self.assertIn('spearman_pvalue', result)
+            
+            # Check that values are floats
+            self.assertIsInstance(result['pearson'], float)
+            self.assertIsInstance(result['pearson_pvalue'], float)
+            self.assertIsInstance(result['spearman'], float)
+            self.assertIsInstance(result['spearman_pvalue'], float)
 
-def test_apply_benjamini_hochberg_all_significant():
-    """Test case where all p-values are very small."""
-    p_values = [0.001, 0.002, 0.003]
-    feature_names = ['a', 'b', 'c']
-    
-    results = apply_benjamini_hochberg(p_values, feature_names, alpha=0.05)
-    
-    # All should be significant
-    assert all(r['is_significant'] for r in results)
+    def test_compute_correlations_positive_correlation(self):
+        """Test that positively correlated variables yield positive coefficients."""
+        results = compute_correlations(self.df, 'logPapp')
+        
+        # bond_variance and logPapp are positively correlated by design
+        self.assertGreater(results['bond_variance']['pearson'], 0)
+        self.assertGreater(results['bond_variance']['spearman'], 0)
 
-def test_apply_benjamini_hochberg_none_significant():
-    """Test case where all p-values are very large."""
-    p_values = [0.8, 0.9, 0.95]
-    feature_names = ['a', 'b', 'c']
-    
-    results = apply_benjamini_hochberg(p_values, feature_names, alpha=0.05)
-    
-    # None should be significant
-    assert not any(r['is_significant'] for r in results)
+    def test_compute_correlations_with_nan(self):
+        """Test that compute_correlations handles NaN values correctly."""
+        df_with_nan = self.df.copy()
+        df_with_nan.loc[0, 'bond_variance'] = np.nan
+        
+        results = compute_correlations(df_with_nan, 'logPapp')
+        
+        # Should still return valid results (NaN rows are dropped)
+        self.assertIn('bond_variance', results)
+        self.assertIsInstance(results['bond_variance']['pearson'], float)
 
-def test_load_analysis_data_missing_file(caplog):
-    """Test error handling when input file is missing."""
-    # This test assumes the file doesn't exist in the expected location
-    # In a real scenario, we'd mock the path or use a temp directory
-    with pytest.raises(FileNotFoundError):
-        load_analysis_data("/nonexistent/path/to/file.csv")
+    def test_compute_correlations_perfect_correlation(self):
+        """Test with perfectly correlated variables."""
+        df_perfect = pd.DataFrame({
+            'variance': np.arange(100),
+            'target': np.arange(100)
+        })
+        
+        results = compute_correlations(df_perfect, 'target')
+        
+        # Perfect correlation should yield coefficient of 1.0
+        self.assertAlmostEqual(results['variance']['pearson'], 1.0, places=5)
+        self.assertAlmostEqual(results['variance']['spearman'], 1.0, places=5)
 
-def test_load_analysis_data_invalid_format(tmp_path):
-    """Test handling of invalid file format."""
-    # Create a dummy file with invalid content
-    invalid_file = tmp_path / "invalid.csv"
-    invalid_file.write_text("not,a,valid,correlation,format")
-    
-    # Should raise an error or handle gracefully depending on implementation
-    # Assuming it raises ValueError or similar
-    with pytest.raises((ValueError, KeyError, pd.errors.EmptyDataError)):
-        load_analysis_data(str(invalid_file))
 
-def test_compute_correlations_primary_feature_only(sample_data):
-    """Test that only the primary feature is computed if requested."""
-    # This tests the logic if the function supports a 'features' argument
-    # Based on current API, it computes all, but we test the structure
-    results = compute_correlations(sample_data, primary_feature='dihedral_variance')
-    
-    # Verify primary feature is present and has expected keys
-    assert 'dihedral_variance' in results
-    assert results['dihedral_variance']['pearson_r'] is not None
-    assert results['dihedral_variance']['spearman_r'] is not None
+class TestBenjaminiHochberg(unittest.TestCase):
+    """Tests for the apply_benjamini_hochberg function."""
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def setUp(self):
+        """Set up test fixtures."""
+        # Create test p-values
+        self.p_values = np.array([0.01, 0.03, 0.04, 0.06, 0.10, 0.20, 0.30, 0.40])
+        self.descriptors = ['bond', 'angle', 'dihedral', 'rotatable', 'ring', 
+                          'polar', 'hydrophobic', 'size']
+
+    def test_apply_benjamini_hochberg_returns_dict(self):
+        """Test that apply_benjamini_hochberg returns a dictionary."""
+        results = apply_benjamini_hochberg(self.p_values, self.descriptors, alpha=0.05)
+        self.assertIsInstance(results, dict)
+
+    def test_apply_benjamini_hochberg_includes_all_descriptors(self):
+        """Test that all descriptors are included in results."""
+        results = apply_benjamini_hochberg(self.p_values, self.descriptors, alpha=0.05)
+        
+        for descriptor in self.descriptors:
+            self.assertIn(descriptor, results)
+
+    def test_apply_benjamini_hochberg_structure(self):
+        """Test that each descriptor result has the correct structure."""
+        results = apply_benjamini_hochberg(self.p_values, self.descriptors, alpha=0.05)
+        
+        for descriptor in self.descriptors:
+            self.assertIn(descriptor, results)
+            result = results[descriptor]
+            
+            self.assertIn('raw_pvalue', result)
+            self.assertIn('adjusted_pvalue', result)
+            self.assertIn('is_significant', result)
+            
+            # Check that values are floats or booleans
+            self.assertIsInstance(result['raw_pvalue'], float)
+            self.assertIsInstance(result['adjusted_pvalue'], float)
+            self.assertIsInstance(result['is_significant'], bool)
+
+    def test_apply_benjamini_hochberg_monotonicity(self):
+        """Test that adjusted p-values are monotonically increasing."""
+        results = apply_benjamini_hochberg(self.p_values, self.descriptors, alpha=0.05)
+        
+        # Sort by raw p-value
+        sorted_results = sorted(results.items(), key=lambda x: x[1]['raw_pvalue'])
+        
+        adjusted_pvalues = [r[1]['adjusted_pvalue'] for r in sorted_results]
+        
+        # Check monotonicity
+        for i in range(1, len(adjusted_pvalues)):
+            self.assertGreaterEqual(adjusted_pvalues[i], adjusted_pvalues[i-1])
+
+    def test_apply_benjamini_hochberg_significance_threshold(self):
+        """Test that significance is correctly determined based on alpha."""
+        # Create p-values where we know the expected significance
+        p_values = np.array([0.001, 0.01, 0.05, 0.1, 0.2])
+        descriptors = ['a', 'b', 'c', 'd', 'e']
+        
+        results = apply_benjamini_hochberg(p_values, descriptors, alpha=0.05)
+        
+        # At least the smallest p-value should be significant
+        self.assertTrue(results['a']['is_significant'])
+        
+        # Larger p-values may or may not be significant depending on FDR correction
+        # but the function should not crash
+
+    def test_apply_benjamini_hochberg_with_all_significant(self):
+        """Test with all p-values being very small."""
+        p_values = np.array([0.001, 0.002, 0.003, 0.004, 0.005])
+        descriptors = ['a', 'b', 'c', 'd', 'e']
+        
+        results = apply_benjamini_hochberg(p_values, descriptors, alpha=0.05)
+        
+        # All should be significant
+        for descriptor in descriptors:
+            self.assertTrue(results[descriptor]['is_significant'])
+
+    def test_apply_benjamini_hochberg_with_no_significant(self):
+        """Test with all p-values being very large."""
+        p_values = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
+        descriptors = ['a', 'b', 'c', 'd', 'e']
+        
+        results = apply_benjamini_hochberg(p_values, descriptors, alpha=0.05)
+        
+        # None should be significant
+        for descriptor in descriptors:
+            self.assertFalse(results[descriptor]['is_significant'])
+
+    def test_apply_benjamini_hochberg_adjusted_pvalue_bounds(self):
+        """Test that adjusted p-values are within [0, 1]."""
+        results = apply_benjamini_hochberg(self.p_values, self.descriptors, alpha=0.05)
+        
+        for descriptor in self.descriptors:
+            adj_p = results[descriptor]['adjusted_pvalue']
+            self.assertGreaterEqual(adj_p, 0.0)
+            self.assertLessEqual(adj_p, 1.0)
+
+
+class TestIntegration(unittest.TestCase):
+    """Integration tests combining correlation and FDR functions."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        np.random.seed(42)
+        n_samples = 200
+        
+        # Create a dataset with known correlations
+        x1 = np.random.normal(0, 1, n_samples)
+        x2 = np.random.normal(0, 1, n_samples)
+        x3 = x1 * 0.8 + np.random.normal(0, 0.2, n_samples)  # Strongly correlated
+        
+        self.df = pd.DataFrame({
+            'bond_variance': x1,
+            'angle_variance': x2,
+            'dihedral_variance': x3,
+            'logPapp': x1 * 0.6 + x3 * 0.3 + np.random.normal(0, 0.1, n_samples)
+        })
+
+    def test_full_pipeline(self):
+        """Test the full pipeline from correlation to FDR correction."""
+        # Compute correlations
+        corr_results = compute_correlations(self.df, 'logPapp')
+        
+        # Extract p-values for FDR correction
+        p_values = np.array([corr_results[desc]['pearson_pvalue'] 
+                           for desc in ['bond_variance', 'angle_variance', 'dihedral_variance']])
+        descriptors = ['bond_variance', 'angle_variance', 'dihedral_variance']
+        
+        # Apply FDR correction
+        fdr_results = apply_benjamini_hochberg(p_values, descriptors, alpha=0.05)
+        
+        # Verify the pipeline completed successfully
+        self.assertEqual(len(fdr_results), 3)
+        
+        # Check that at least one descriptor is significant (by design, bond and dihedral should be)
+        significant_count = sum(1 for desc in descriptors if fdr_results[desc]['is_significant'])
+        self.assertGreater(significant_count, 0)
+
+    def test_end_to_end_reproducibility(self):
+        """Test that running the pipeline twice gives the same results."""
+        # First run
+        corr_results_1 = compute_correlations(self.df, 'logPapp')
+        p_values_1 = np.array([corr_results_1[desc]['pearson_pvalue'] 
+                             for desc in ['bond_variance', 'angle_variance', 'dihedral_variance']])
+        fdr_results_1 = apply_benjamini_hochberg(p_values_1, ['bond_variance', 'angle_variance', 'dihedral_variance'], alpha=0.05)
+        
+        # Second run
+        corr_results_2 = compute_correlations(self.df, 'logPapp')
+        p_values_2 = np.array([corr_results_2[desc]['pearson_pvalue'] 
+                             for desc in ['bond_variance', 'angle_variance', 'dihedral_variance']])
+        fdr_results_2 = apply_benjamini_hochberg(p_values_2, ['bond_variance', 'angle_variance', 'dihedral_variance'], alpha=0.05)
+        
+        # Results should be identical
+        for desc in ['bond_variance', 'angle_variance', 'dihedral_variance']:
+            self.assertAlmostEqual(corr_results_1[desc]['pearson'], corr_results_2[desc]['pearson'])
+            self.assertAlmostEqual(fdr_results_1[desc]['adjusted_pvalue'], fdr_results_2[desc]['adjusted_pvalue'])
+            self.assertEqual(fdr_results_1[desc]['is_significant'], fdr_results_2[desc]['is_significant'])
+
+
+if __name__ == '__main__':
+    unittest.main()

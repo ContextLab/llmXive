@@ -1,52 +1,49 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Caco-2 Permeability Dataset Schema
-description: Schema for the preprocessed Caco-2 permeability dataset used in molecular flexibility analysis.
+description: >
+  Schema for the processed Caco-2 permeability dataset derived from ChEMBL.
+  This schema enforces data integrity for downstream flexibility and correlation analysis.
+  Matches the output of code/data/preprocessing.py.
 type: object
 required:
   - smiles
   - logPapp
-  - assay_id
-  - molecular_weight
-  - logP
-  - psa
-  - is_outlier
+  - assay_chembl_id
+  - target_chembl_id
+  - standard_value
+  - standard_units
+  - standard_type
 properties:
   smiles:
     type: string
-    description: Canonical SMILES string of the molecule.
+    description: Canonical SMILES string of the compound.
     minLength: 1
-  assay_id:
-    type: integer
-    description: Unique ChEMBL assay identifier.
+    pattern: "^[A-Za-z0-9@\\+\\-\\[\\]\\(\\)\\\\/=#%~]+$"
   logPapp:
     type: number
-    description: Log10 of the apparent permeability coefficient (cm/s).
-    minimum: -10.0
-    maximum: 10.0
-  molecular_weight:
+    description: >
+      Log10 of the apparent permeability coefficient (Papp in cm/s).
+      Derived from standard_value and standard_units.
+      Must be a valid float.
+  assay_chembl_id:
+    type: string
+    description: ChEMBL ID for the assay (e.g., CHEMBL1000000).
+    pattern: "^CHEMBL\\d+$"
+  target_chembl_id:
+    type: string
+    description: ChEMBL ID for the target (e.g., CHEMBL25).
+    pattern: "^CHEMBL\\d+$"
+  standard_value:
     type: number
-    description: Molecular weight in g/mol.
-    minimum: 0.0
-  logP:
-    type: number
-    description: Octanol-water partition coefficient (calculated).
-  psa:
-    type: number
-    description: Polar Surface Area (Å²).
-    minimum: 0.0
-  is_outlier:
-    type: boolean
-    description: Flag indicating if the record is an outlier based on IQR method.
-  bond_variance:
-    type: number
-    description: Variance of bond lengths across conformers (Å²).
-    nullable: true
-  angle_variance:
-    type: number
-    description: Variance of bond angles across conformers (rad²).
-    nullable: true
-  dihedral_variance:
-    type: number
-    description: Variance of dihedral angles across conformers (rad²). Primary flexibility metric.
-    nullable: true
+    description: The raw numerical value of the measurement.
+  standard_units:
+    type: string
+    description: Units of the measurement (e.g., "cm/s", "10^-6 cm/s").
+  standard_type:
+    type: string
+    description: Type of standard (e.g., "MEASUREMENT", "CALCULATED").
+    enum:
+      - MEASUREMENT
+      - CALCULATED
+      - ESTIMATE
 additionalProperties: false

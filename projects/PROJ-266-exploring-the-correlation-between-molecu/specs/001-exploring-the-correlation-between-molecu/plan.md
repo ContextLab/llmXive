@@ -12,7 +12,7 @@ This project investigates the associational relationship between molecular flexi
 **Primary Dependencies**: `rdkit` (2023.9.5+), `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `requests`, `pyyaml`, `prody` (optional for NMA reference)  
 **Storage**: Local CSV/Parquet files in `data/` (raw and derived)  
 **Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM, no GPU)  
 **Project Type**: Computational chemistry research pipeline  
 **Performance Goals**: Total runtime ≤ 6 hours on CPU-only runner; memory ≤ 7 GB  
 **Constraints**: No GPU/CUDA; conformer ensemble size capped at a computationally feasible limit for CPU resources; dataset sampled to ≤1000 molecules if needed  

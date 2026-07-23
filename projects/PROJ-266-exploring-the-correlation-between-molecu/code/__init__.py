@@ -1,3 +1,3 @@
 """
-llmXive Project Source Code Package
+llmXive Research Pipeline - Code Module
 """

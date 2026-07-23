@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "molecular-flexibility-permeability"
 version = "0.1.0"
 description = "Exploring the correlation between molecular flexibility and drug transport across cell membranes"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "rdkit",
     "pandas",
@@ -19,41 +20,23 @@ dependencies = [
     "pyyaml",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "flake8>=7.0.0",
-    "black>=24.0.0",
-    "isort>=5.13.0",
-    "pytest>=8.0.0",
-    "pytest-cov>=5.0.0",
-]
-
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip_gitignore = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+known_first_party = ["utils", "data", "setup_linting", "setup_project_structure"]
+skip = [".git", ".venv", "venv", "__pycache__", "build", "dist"]

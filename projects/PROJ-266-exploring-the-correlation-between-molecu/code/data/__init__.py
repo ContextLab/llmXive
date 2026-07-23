@@ -1,3 +1,3 @@
 """
-Data module for llmXive project
+Data retrieval, preprocessing, and analysis modules.
 """

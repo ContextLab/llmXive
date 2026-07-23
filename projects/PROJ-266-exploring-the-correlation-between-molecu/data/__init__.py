@@ -1,3 +1,4 @@
 """
-Data directory initialization.
+Data directory placeholder.
+Raw and processed data will be stored here.
 """

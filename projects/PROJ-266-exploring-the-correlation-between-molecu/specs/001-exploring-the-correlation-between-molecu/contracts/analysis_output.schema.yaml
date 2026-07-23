@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Analysis Output Schema
+title: Molecular Flexibility Analysis Output Schema
 description: |
-  Schema for the output of the flexibility and correlation analysis.
-  Used by T014 (descriptors), T015 (analysis), and T025 (contract tests).
-  This schema defines the structure for `data/processed/analysis_results.csv` and model metrics.
+  Schema for the output of the molecular flexibility descriptor calculation
+  and correlation analysis. Includes variance metrics, outlier flags,
+  and correlation results.
 type: object
 required:
   - smiles
@@ -11,57 +11,47 @@ required:
   - angle_variance
   - dihedral_variance
   - is_outlier
-  - correlation_pearson
-  - correlation_spearman
-  - p_value_pearson
-  - p_value_spearman
-  - model_r2
-  - model_adj_r2
-  - model_rmse
-  - model_p_value
 properties:
   smiles:
     type: string
-    description: Canonical SMILES string.
+    description: Canonical SMILES string of the molecule.
   bond_variance:
     type: number
-    description: Variance of bond lengths across the conformer ensemble (Å²).
+    description: Variance of bond lengths across conformer ensemble (Å²).
+    minimum: 0
   angle_variance:
     type: number
-    description: Variance of bond angles across the conformer ensemble (rad²).
+    description: Variance of bond angles across conformer ensemble (rad²).
+    minimum: 0
   dihedral_variance:
     type: number
-    description: |
-      Variance of dihedral angles across the conformer ensemble (rad²).
-      This is the primary flexibility descriptor (FR-004, T014a).
+    description: Variance of dihedral angles across conformer ensemble (rad²).
+    minimum: 0
   is_outlier:
     type: boolean
-    description: Flag for outliers in flexibility metrics (T014b).
-  correlation_pearson:
-    type: number
-    description: Pearson correlation coefficient between dihedral_variance and logPapp.
-  correlation_spearman:
-    type: number
-    description: Spearman rank correlation coefficient between dihedral_variance and logPapp.
-  p_value_pearson:
-    type: number
-    description: P-value for the Pearson correlation.
-  p_value_spearman:
-    type: number
-    description: P-value for the Spearman correlation.
-  model_r2:
-    type: number
-    description: R-squared value of the multivariate linear regression model.
-  model_adj_r2:
-    type: number
-    description: Adjusted R-squared value.
-  model_rmse:
-    type: number
-    description: Root Mean Squared Error of the model.
-  model_p_value:
-    type: number
-    description: P-value for the overall model significance (F-test).
-  fdr_q_value:
-    type: number
-    description: Benjamini-Hochberg adjusted q-value for the correlation (T016).
+    description: Flag indicating if the molecule is an outlier based on IQR method.
+  logPapp:
+    type: ["number", "null"]
+    description: Permeability coefficient linked from the source dataset.
+  molecule_chembl_id:
+    type: ["string", "null"]
+    description: ChEMBL Molecule ID linked from the source dataset.
+  conformer_count:
+    type: integer
+    description: Number of conformers generated for this molecule.
+    minimum: 1
+  processing_status:
+    type: string
+    enum: [success, failed]
+    description: Status of the conformer generation and variance calculation.
 additionalProperties: false
+# Note: Correlation results (Pearson/Spearman coefficients, p-values)
+# are typically stored in a separate analysis_results.yaml or CSV,
+# but if included here as a nested object:
+# correlation_results:
+#   type: object
+#   properties:
+#     pearson_bond: { type: number }
+#     p_value_bond: { type: number }
+#     ...
+#   required: [pearson_bond, p_value_bond, ...]

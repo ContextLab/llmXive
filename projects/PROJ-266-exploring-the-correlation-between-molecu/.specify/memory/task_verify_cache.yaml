@@ -1,9 +1,32 @@
 T006:
   c: false
-  h: b211da3f453aa734e9613ec18d12904d547bf4eb8352095f33eaa7a9eb2c1d96
-  r: "The provided `generate_transparency_report.py` file is truncated (ends mid\u2011\
-    function) and never writes the required transparency artifacts or populates `data/`/`code/`.\
-    \ Additionally, the referenced deviation record `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ does not exist, so the script cannot fulfill its core requirement. The task\
-    \ needs a complete, runnable script that reads the YAML record, processes logs,\
-    \ and outputs the mandated artifacts."
+  h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
+  r: "The provided `generate_transparency_report.py` script is present, but it does\
+    \ not contain any logic that actually writes the \u201CComputational Method Transparency\u201D\
+    \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
+    \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
+    \ script does not fully meet the task\u2019s functional requirement."
+T008a:
+  c: false
+  h: 3a4afd74061cd7c37d923a5b863c2969f2b4f76a211a869a9adb9a5da9cc9f65
+  r: "The `checksum.py` file is present but its implementation is truncated (e.g.,\
+    \ `save_state_file` is incomplete) and it does not contain any logic that scans\
+    \ `data/` and writes SHA\u2011256 hashes into `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`.\
+    \ Moreover, the required state YAML file is missing from the repository. The task\u2019\
+    s core requirement\u2014computing checksums and updating that state file\u2014\
+    is therefore not satisfied."
+T009:
+  c: false
+  h: 4392adad10389c9747709b186cc0d84d9a71d95da01dcd1ed660c51334ebf87e
+  r: "The `code/data/retrieval.py` file contains only placeholder functions that raise\
+    \ `NotImplementedError` and never fetch data, write a CSV, or call the checksum\
+    \ utility. No raw CSV file is present, and the required state file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
+    \ is missing, so the checksum cannot be registered. The task\u2019s core requirements\
+    \ are therefore unmet."
+T012:
+  c: false
+  h: fcfb0198818356359e63228645aca012910c13c8a27f8453a15cacef23d120b8
+  r: The provided `tests/contract/test_dataset.py` is incomplete (truncated) and references
+    a schema file that does not exist on disk (`dataset.schema.yaml` is missing),
+    so the contract tests cannot be executed as required. The task therefore is not
+    fully satisfied.
