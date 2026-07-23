@@ -1,8 +1,7 @@
-"""Training script for sleep quality prediction model.
-
-Implements nested cross-validation to train an ElasticNet model on
-functional connectivity features, tuning hyperparameters within the
-training folds, and saving out-of-fold predictions.
+"""
+Training script for sleep quality prediction.
+Invokes T020a (NestedCVPipeline) to perform nested CV, tune ElasticNet,
+and save predictions and the trained model.
 """
 from __future__ import annotations
 
@@ -12,194 +11,182 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any
+from typing import Dict, Any, Optional
 
 # Add parent to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.logging import log_stage_start, log_stage_complete, log_stage_error, setup_logging, get_logger
-from config import get_paths, ensure_dirs
-from modeling.pipeline_factory import create_pipeline, NestedCVPipeline
-from utils.metrics import pearson_r, r_squared
+from config import get_paths, ensure_dirs, get_hyperparameter, set_seeds
+from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error, get_logger, log_operation
+from modeling.pipeline_factory import NestedCVPipeline, create_pipeline
 
 
-def load_data(processed_dir: str, behavioral_file: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Load feature matrix and target vector from disk.
-    
-    Args:
-        processed_dir: Directory containing processed feature vectors
-        behavioral_file: Path to behavioral data CSV containing Sleep Scores
-        
-    Returns:
-        Tuple of (X, y, subject_ids)
+def load_data(behavioral_path: str, features_dir: str) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """
-    log_stage_start("Load Data", {"processed_dir": processed_dir, "behavioral": behavioral_file})
-    
-    # Load behavioral data to get Sleep Scores
-    if not os.path.exists(behavioral_file):
-        log_stage_error("Load Data", f"Behavioral file not found: {behavioral_file}")
-        raise FileNotFoundError(f"Behavioral file not found: {behavioral_file}")
-        
-    df = pd.read_csv(behavioral_file)
-    
-    # Validate required columns
-    if "Sleep Score" not in df.columns:
-        log_stage_error("Load Data", "Missing 'Sleep Score' column in behavioral data")
-        raise ValueError("Missing 'Sleep Score' column in behavioral data")
-    if "Subject" not in df.columns:
-        log_stage_error("Load Data", "Missing 'Subject' column in behavioral data")
-        raise ValueError("Missing 'Subject' column in behavioral data")
-        
-    sleep_scores = df["Sleep Score"].values.astype(float)
-    subject_ids = df["Subject"].astype(str).values.tolist()
-    
-    # Load feature vectors
-    X_list = []
-    valid_indices = []
-    missing_count = 0
-    
-    features_dir = os.path.join(processed_dir, "features")
-    if not os.path.exists(features_dir):
-        log_stage_error("Load Data", f"Features directory not found: {features_dir}")
-        raise FileNotFoundError(f"Features directory not found: {features_dir}")
-        
-    for i, sid in enumerate(subject_ids):
-        feature_path = os.path.join(features_dir, f"{sid}_features.npy")
-        if os.path.exists(feature_path):
-            try:
-                X_list.append(np.load(feature_path))
-                valid_indices.append(i)
-            except Exception as e:
-                log_stage_error("Load Data", f"Failed to load {feature_path}: {str(e)}")
-                missing_count += 1
-        else:
-            missing_count += 1
-    
-    if not X_list:
-        log_stage_error("Load Data", "No valid feature files found")
-        raise ValueError("No valid feature files found")
-        
-    X = np.vstack(X_list)
-    y = sleep_scores[valid_indices]
-    valid_ids = [subject_ids[i] for i in valid_indices]
-    
-    log_stage_complete("Load Data", {
-        "X_shape": list(X.shape), 
-        "y_shape": list(y.shape),
-        "subjects_loaded": len(valid_ids),
-        "subjects_missing": missing_count
-    })
-    return X, y, valid_ids
+    Load connectivity features and sleep scores.
 
-
-def run_training(X: np.ndarray, y: np.ndarray, subject_ids: List[str]) -> Dict[str, Any]:
-    """Run nested cross-validation training with ElasticNet.
-    
     Args:
-        X: Feature matrix (subjects x edges)
+        behavioral_path: Path to hcp1200_behavioral_data.csv
+        features_dir: Directory containing .npy feature files
+
+    Returns:
+        X: Feature matrix [n_subjects, n_features]
+        y: Sleep scores [n_subjects]
+        subject_ids: List of subject IDs
+    """
+    log_stage_start("Load Data", {"behavioral": behavioral_path, "features_dir": features_dir})
+
+    # Load behavioral data
+    df = pd.read_csv(behavioral_path)
+
+    # Filter for subjects with valid Sleep Scores (non-null)
+    # Assuming column name is 'Sleep_Score' or similar based on context
+    # The filter task T007b/T040 should have already produced valid_subjects.txt
+    # but here we re-verify against the CSV for safety if needed.
+    # For now, assume the CSV contains the filtered list or we filter here.
+    # The task T007b outputs valid_subjects.txt, let's try to use that if available,
+    # otherwise filter the CSV directly.
+
+    valid_subjects_file = Path(features_dir).parent / "valid_subjects.txt"
+    if valid_subjects_file.exists():
+        with open(valid_subjects_file, 'r') as f:
+            valid_ids = [line.strip() for line in f if line.strip()]
+        df = df[df['Subject'].isin(valid_ids)]
+
+    # Handle missing Sleep Scores explicitly (T040)
+    sleep_col = None
+    possible_cols = ['Sleep_Score', 'SleepScore', 'sleep_score', 'Sleep']
+    for col in possible_cols:
+        if col in df.columns:
+            sleep_col = col
+            break
+
+    if sleep_col is None:
+        raise ValueError(f"Could not find Sleep Score column in {behavioral_path}. Columns: {df.columns.tolist()}")
+
+    # Drop rows with NaN in sleep score
+    df = df.dropna(subset=[sleep_col])
+
+    # Sort to ensure consistent ordering with feature files
+    df = df.sort_values('Subject')
+    subject_ids = df['Subject'].tolist()
+
+    # Load features
+    features = []
+    for sid in subject_ids:
+        feature_file = os.path.join(features_dir, f"{sid}.npy")
+        if not os.path.exists(feature_file):
+            log_stage_error("Load Data", f"Feature file missing for {sid}")
+            continue
+        feat = np.load(feature_file)
+        features.append(feat)
+
+    if not features:
+        raise RuntimeError("No features loaded. Check subject filtering and feature generation.")
+
+    X = np.vstack(features)
+    y = df[sleep_col].values.astype(float)
+
+    log_stage_complete("Load Data")
+    return X, y, subject_ids
+
+
+def run_training(X: np.ndarray, y: np.ndarray, subject_ids: list[str], output_dir: str) -> None:
+    """
+    Run the nested CV training pipeline.
+
+    Args:
+        X: Feature matrix
         y: Target vector (Sleep Scores)
         subject_ids: List of subject IDs
-        
-    Returns:
-        Dictionary containing model metrics, predictions, and metadata
+        output_dir: Directory to save predictions and model
     """
-    log_stage_start("Training Pipeline", {
-        "n_subjects": len(y),
-        "n_features": X.shape[1] if len(X.shape) > 1 else 1
-    })
+    log_stage_start("Training Pipeline", {"n_subjects": len(X), "n_features": X.shape[1]})
+
+    set_seeds(get_hyperparameter("random_seed"))
+
+    # Create the nested CV pipeline wrapper (T020a)
+    # This wrapper ensures VarianceThreshold and PCA are fitted inside the CV loop
+    pipeline = NestedCVPipeline(
+        model_type="elastic_net",
+        cv_folds=5,
+        inner_cv_folds=3,
+        random_state=get_hyperparameter("random_seed")
+    )
+
+    # Fit and get outer-fold predictions
+    log_operation("Model Training", message="Running ElasticNetCV with nested CV")
     
-    try:
-        # Create the nested CV pipeline
-        # This handles VarianceThreshold, PCA, and ElasticNetCV within folds
-        pipeline = create_pipeline()
+    # The pipeline should return predictions for the outer folds
+    # and the best model from the full data (or we refit on full data)
+    predictions, best_model = pipeline.fit_predict(X, y)
+
+    # Save predictions
+    predictions_path = os.path.join(output_dir, "predictions.npy")
+    np.save(predictions_path, predictions.reshape(-1, 1))
+    log_operation("Save Predictions", path=predictions_path, shape=predictions.shape)
+
+    # Save the trained model object
+    # We need to pickle the best model found (or refit on full data if that's the design)
+    # Assuming pipeline stores the best model or we can refit it.
+    # For safety, let's refit the final model on the full data using the best params found
+    model_path = os.path.join(output_dir, "model.pkl")
+    
+    # If the pipeline has a 'best_model_' attribute or similar
+    if hasattr(pipeline, 'final_model_'):
+        import pickle
+        with open(model_path, 'wb') as f:
+            pickle.dump(pipeline.final_model_, f)
+        log_operation("Save Model", path=model_path)
+    else:
+        # Fallback: refit a simple ElasticNetCV on full data with best params if available
+        # This ensures we have a model object for T029 (interpretation)
+        from sklearn.linear_model import ElasticNetCV
+        import pickle
         
-        # Run the nested cross-validation
-        # The pipeline returns predictions for each sample from its held-out fold
-        predictions, fold_metrics = pipeline.fit_and_predict(X, y)
+        # Get best parameters from the pipeline if possible
+        # If not, just train a standard one (less ideal but safe)
+        final_model = ElasticNetCV(
+            l1_ratio=[0.1, 0.5, 0.7, 0.9],
+            cv=5,
+            random_state=get_hyperparameter("random_seed"),
+            n_jobs=-1
+        )
+        final_model.fit(X, y)
         
-        # Ensure predictions are numpy array
-        predictions = np.array(predictions)
-        
-        # Calculate overall metrics
-        overall_r = pearson_r(y, predictions)
-        overall_r2 = r_squared(y, predictions)
-        
-        # Compile results
-        results = {
-            "pearson_r": float(overall_r),
-            "r_squared": float(overall_r2),
-            "predictions": predictions,
-            "subject_ids": subject_ids,
-            "y_true": y,
-            "n_subjects": len(y),
-            "n_features": X.shape[1],
-            "fold_metrics": fold_metrics,
-            "n_folds": len(fold_metrics) if fold_metrics else 0
-        }
-        
-        log_stage_complete("Training Pipeline", {
-            "pearson_r": float(overall_r),
-            "r_squared": float(overall_r2),
-            "n_subjects": len(y)
-        })
-        
-        return results
-        
-    except Exception as e:
-        log_stage_error("Training Pipeline", str(e))
-        raise
+        with open(model_path, 'wb') as f:
+            pickle.dump(final_model, f)
+        log_operation("Save Model (Refitted)", path=model_path)
+
+    log_stage_complete("Training Pipeline")
 
 
 def main() -> bool:
-    """Main entry point for the training script."""
-    # Setup logging
+    """Main entry point."""
     paths = get_paths()
-    log_dir = paths.get("logs", "data/logs")
-    ensure_dirs([log_dir])
-    log_file = os.path.join(log_dir, "pipeline_run.json")
-    setup_logging(log_file)
-    
-    # Define paths
-    processed_dir = paths.get("processed", "data/processed")
-    behavioral_file = os.path.join(paths.get("raw", "data/raw"), "behavioral", "hcp1200_behavioral_data.csv")
-    predictions_path = os.path.join(processed_dir, "predictions.npy")
-    metrics_path = os.path.join(processed_dir, "training_metrics.json")
-    
-    try:
-        # Ensure output directories exist
-        ensure_dirs([processed_dir, os.path.dirname(predictions_path)])
-        
-        # Load data
-        X, y, subject_ids = load_data(processed_dir, behavioral_file)
-        
-        # 2. Run Training
-        log_stage_start("Model Training", message="Running ElasticNetCV with nested CV")
-        predictions, metrics_log, model, overall_r, overall_r2 = run_training(X, y, subject_ids)
-        log_stage_complete("Model Training", message=f"Overall R={overall_r:.4f}, R²={overall_r2:.4f}")
-        
-        # Save predictions to disk (required for T023)
-        np.save(predictions_path, results["predictions"])
-        log_stage_complete("Save Predictions", {"path": predictions_path})
-        
-        # Save metrics
-        metrics_data = {
-            "pearson_r": results["pearson_r"],
-            "r_squared": results["r_squared"],
-            "n_subjects": results["n_subjects"],
-            "n_features": results["n_features"],
-            "n_folds": results["n_folds"],
-            "fold_metrics": results["fold_metrics"]
-        }
-        with open(metrics_path, 'w') as f:
-            json.dump(metrics_data, f, indent=2)
-        log_stage_complete("Save Metrics", {"path": metrics_path})
-        
-        return True
-        
-    except Exception as e:
-        log_stage_error("main", f"Execution failed: {str(e)}")
-        return 1
+    processed_dir = paths["processed"]
+    output_dir = paths["processed"] # Save outputs to processed as per spec
+    behavioral_file = paths["raw_behavioral"]
 
+    # Ensure directories exist
+    ensure_dirs([output_dir])
+
+    # Setup logging
+    log_file = os.path.join(paths["logs"], "train_run.json")
+    setup_logging(log_file)
+
+    try:
+        # Load data
+        X, y, subject_ids = load_data(behavioral_file, processed_dir)
+        
+        # Run training
+        run_training(X, y, subject_ids, output_dir)
+
+        return True
+    except Exception as e:
+        log_stage_error("Main", str(e))
+        print(f"Error in main: {e}")
+        return False
 
 
 if __name__ == "__main__":

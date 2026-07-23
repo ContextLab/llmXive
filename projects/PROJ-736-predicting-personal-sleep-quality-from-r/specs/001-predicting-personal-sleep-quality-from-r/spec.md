@@ -1,95 +1,149 @@
-# Feature Specification: Predicting Personal Sleep Quality from Resting‑State fMRI Connectivity
+# Feature Specification: Predicting Personal Sleep Quality from Resting-State fMRI Connectivity
 
-**Feature Branch**: `[001-predict-sleep-quality]`  
-**Created**: 2026-06-25  
-**Status**: Draft  
-**Input**: User description: "Predicting Personal Sleep Quality from Resting‑State fMRI Connectivity"
+## Overview
+This project implements a machine learning pipeline to predict individual sleep quality scores from resting-state functional connectivity (rs-fMRI) data. The analysis uses data from the Human Connectome Project (HCP) 1200 Subjects Release.
 
-## User Scenarios & Testing *(mandatory)*
+## User Stories
 
-### User Story 1 – End‑to‑end Data Pipeline (Priority: P1)
+### US1: End-to-End Data Pipeline
+As a researcher, I want to obtain preprocessed whole-brain functional connectivity vectors for every HCP participant with Sleep questionnaire data, so that I can use them as features for predictive modeling.
 
-A researcher wants to obtain preprocessed whole‑brain functional connectivity vectors for every HCP participant who completed the Sleep questionnaire.
+**Acceptance Criteria:**
+1. Download raw HCP minimally preprocessed CIFTI files and behavioral data.
+2. Filter subjects to those with valid Sleep Scores and exclude those with >0.3mm framewise displacement.
+3. Preprocess time series (Schaefer parcellation, nuisance regression, band-pass filtering).
+4. Compute pairwise Pearson correlations, apply Fisher-z transformation, and extract upper-triangular vectors.
+5. Save connectivity vectors as `.npy` files.
 
-**Why this priority**: Without reliable input data the rest of the workflow cannot be executed; this is the foundational slice of value.
+### US2: Predictive Modeling & Statistical Validation
+As a researcher, I want to train an elastic-net regression model on connectivity features, evaluate out-of-sample performance, and assess statistical significance, so that I can determine if sleep quality is predictable from brain connectivity.
 
-**Independent Test**: Run the data‑pipeline script on the HCP 1200‑subject release (restricted to subjects with Sleep questionnaire data) and verify that the expected `.npy` files are produced.
+**Acceptance Criteria:**
+1. Implement nested cross-validation with inner-loop hyperparameter tuning.
+2. Ensure VarianceThreshold and PCA are fitted strictly within the training fold (no data leakage).
+3. Run 1,000 label permutations on a stratified subset of 100 subjects to generate a null distribution.
+4. Compute empirical p-value from the null distribution.
+5. Perform bootstrap resampling of aggregated out-of-sample predictions to compute a 95% confidence interval for R².
+6. Enforce resource limits (CPU-only, ≤6 GB RAM, 5-hour wall-clock timeout).
 
-**Acceptance Scenarios**:
+### US3: Interpretation & Visualization
+As a researcher, I want to identify which brain connections drive the prediction and visualize them on a cortical surface, so that I can interpret the biological meaning of the model.
 
-1. **Given** the raw minimally preprocessed HCP rs‑fMRI files and a list of subject IDs with valid Sleep questionnaire responses, **When** the pipeline is executed, **Then** it outputs (a) nuisance‑regressed, band‑pass‑filtered time series for the Schaefer cortical atlas + subcortical ROIs, and (b) Fisher‑z‑transformed upper‑triangular connectivity vectors for each subject.  
-2. **Given** a subject whose rs‑fMRI contains > 0.3 mm framewise displacement, **When** the pipeline runs, **Then** that subject is excluded and logged, while all other eligible subjects are processed.
+**Acceptance Criteria:**
+1. Extract non-zero elastic-net coefficients from the trained model.
+2. Map coefficients back to brain edges using the Schaefer atlas.
+3. Generate a brain-surface plot highlighting top predictive connections.
+4. Handle edge cases (e.g., zero coefficients, failed mappings) gracefully.
 
-### User Story 2 – Predictive Modeling & Statistical Validation (Priority: P2)
+## Functional Requirements
 
-A researcher wants to train an elastic‑net regression model on the connectivity features, evaluate its out‑of‑sample predictive performance for Sleep Score, and assess statistical significance.
+### FR-001: Data Preprocessing
+The system shall preprocess rs-fMRI time series using:
+- Schaefer 400-region parcellation
+- Nuisance regression (5 motion parameters, WM, CSF)
+- Band-pass filtering (0.01–0.1 Hz)
 
-**Why this priority**: The core scientific claim rests on whether rs‑fMRI can predict sleep quality; this story delivers that evidence.
+### FR-002: Feature Engineering
+The system shall compute pairwise Pearson correlations between all region pairs, apply Fisher-z transformation, and extract the upper-triangular vector (excluding diagonal) as the feature vector.
 
-**Independent Test**: Execute the modeling script on the feature matrix produced by US‑1 and confirm that the script returns performance metrics, permutation‑test p‑value, and bootstrap confidence intervals.
+### FR-003: Nested Cross-Validation
+The system shall implement nested cross-validation with:
+- Outer loop: 5-fold stratified split for evaluation
+- Inner loop: 3-fold stratified split for hyperparameter tuning
+- All feature selection (VarianceThreshold, PCA) must be fitted ONLY on the training fold of each iteration.
 
-**Acceptance Scenarios**:
+### FR-004: Model Training
+The system shall train an ElasticNetCV model with:
+- L1 ratio grid: [0.1, 0.5, 0.9]
+- Alpha grid: log-spaced from 1e-4 to 1e2
+- Max iterations: 1000
 
-1. **Given** the feature matrix (≤ 5 k dimensions) and corresponding Sleep Scores, **When** nested 5‑fold outer/inner cross‑validation with elastic‑net hyper‑parameter tuning is run, **Then** the script outputs (a) Pearson r, (b) out‑of‑sample R², (c) an empirical p‑value from 1 000 label‑permutations, and (d) a Bootstrap confidence interval for R².  
-2. **Given** the same data, **When** the variance‑threshold is varied across {0.005, 0.01, 0.02} and the PCA variance‑retention across {0.95, 0.90, 0.85}, **Then** the resulting R² values are recorded for a sensitivity analysis.
+### FR-005: Out-of-Sample Predictions
+The system shall output predictions for all subjects in the outer fold, saved as `data/processed/predictions.npy` (shape: [n_subjects, 1]).
 
-### User Story 3 – Interpretation & Visualization (Priority: P3)
+### FR-006: Permutation Test (AMENDED)
+The system shall perform a permutation test to assess statistical significance:
+- **AMENDMENT**: Due to compute constraints (5-hour wall-clock limit), the permutation test will run on a **stratified random subset of 100 subjects** (instead of the full dataset).
+- **Number of permutations**: 1,000
+- **Procedure**: For each permutation, randomly shuffle labels, re-run the entire nested CV pipeline (including inner-loop tuning and variance-thresholding), and record the R² score.
+- **Output**: Null distribution saved as `data/results/null_distribution.npy`.
+- **Validation**: The subset size (N=100) is validated by the power analysis in T037a, which confirms that with expected effect size R²=0.05, alpha=0.05, the power exceeds 0.8.
+- **Reference**: See Task T022a for spec amendment details and T037a for power analysis validation.
 
-A researcher wants to identify which brain connections drive the prediction and visualise them on a cortical surface.
+### FR-007: Bootstrap Confidence Interval
+The system shall perform bootstrap resampling of aggregated out-of-sample predictions (loaded from `data/processed/predictions.npy`) to compute a 95% confidence interval for R².
 
-**Why this priority**: Interpretability is essential for neuroscientific insight and for communicating results to the community.
+### FR-008: Feature Interpretation
+The system shall extract non-zero elastic-net coefficients from the trained model and map them back to brain edges using the Schaefer atlas.
 
-**Independent Test**: Run the feature‑importance script on the trained model from US‑2 and verify that a brain‑surface plot is generated without errors.
+### FR-009: Resource Limits
+The system shall:
+- Enforce CPU-only execution (no GPU)
+- Monitor RAM usage and abort if >6 GB
+- Enforce a 5-hour wall-clock timeout using signal handlers
+- Gracefully flush partial results on abort
 
-**Acceptance Scenarios**:
+### FR-010: Structured Logging
+The system shall log all operations in structured JSON format, including seeds, hyperparameters, and data hashes, to `data/logs/pipeline_run.json`.
 
-1. **Given** the fitted elastic‑net model with non‑zero coefficients, **When** the importance‑extraction script is executed, **Then** it maps each non‑zero coefficient back to its corresponding edge and graph‑theoretic metric, and produces a brain‑surface image highlighting the top N most predictive connections (where N is a configurable parameter).
-2. **Given** a failed mapping (e.g., coefficient refers to a dropped edge), **When** the script runs, **Then** it logs a warning and continues, producing a plot for the remaining valid edges.
+## Data Model
 
-### Edge Cases
+### Inputs
+- HCP 1200 Subjects Release (minimally preprocessed CIFTI files)
+- HCP behavioral data (Sleep Score, framewise displacement, etc.)
 
-- What happens when a subject’s Sleep Score is missing or marked as “N/A”?  
-- How does the system handle a scenario where variance‑thresholding removes **all** edges (e.g., because variance < 0.01 across subjects)?  
-- How does the workflow behave if total runtime exceeds the maximum allowed duration for GitHub‑Actions. (e.g., due to an unusually large subset of subjects)? 
+### Intermediate Artifacts
+- `data/processed/valid_subjects.txt`: List of subject IDs with valid Sleep Scores and FD < 0.3mm
+- `data/processed/connectivity_vectors/*.npy`: Connectivity vectors for each subject
+- `data/processed/predictions.npy`: Out-of-sample predictions from nested CV
+- `data/processed/model.pkl`: Trained ElasticNetCV model
 
-## Requirements *(mandatory)*
+### Outputs
+- `data/results/null_distribution.npy`: Null distribution from permutation test
+- `data/results/bootstrap_ci.json`: Bootstrap confidence interval for R²
+- `data/results/sensitivity_analysis.json`: Sensitivity analysis results (if completed)
+- `data/results/plot_top_edges.png`: Brain-surface visualization of top predictive edges
+- `data/results/ResultReport.json`: Comprehensive report with all metrics, p-values, CIs, and artifact paths
 
-### Functional Requirements
+## Non-Functional Requirements
 
-- **FR-001**: System MUST ingest raw minimally preprocessed HCP rs‑fMRI files and output nuisance‑regressed, band‑pass‑filtered (low‑frequency to 0.1 Hz) time series for the Schaefer‑200 cortical atlas plus subcortical ROIs. *(See US‑1)*
-- **FR-002**: System MUST compute pairwise Pearson correlation matrices for each subject, apply Fisher‑z transformation, and store the upper‑triangular elements as a flat feature vector. *(See US‑1)*
-- **FR-003**: System MUST perform variance‑thresholding, retaining only edges whose across‑subject variance exceeds a configurable threshold parameter (default 0.01) (justified by the need to reduce dimensionality in high-dimensional neuroimaging data prior to regularization) and subsequently apply PCA retaining a configurable percentage of variance (implementation-time selection), guaranteeing a final feature dimensionality **< 5 000**. *(See US‑1)*
-- **FR-004**: System MUST implement a nested k‑fold outer / k‑fold inner cross‑validation loop that tunes elastic‑net mixing (α) and regularisation (λ) using scikit‑learn’s `ElasticNetCV`. *(See US‑2)*
-- **FR-005**: System MUST compute out‑of‑sample Pearson r and coefficient of determination (R²) for each outer fold and aggregate them across folds. *(See US‑2)*
-- **FR-006**: System MUST generate an empirical null distribution for Pearson r by performing **1 000** label‑permutations (shuffling Sleep Scores) and compute a family‑wise‑error‑corrected p‑value, including the entire nested CV pipeline (inner-loop tuning and variance-thresholding) re-run for each permutation. *(See US-2; addresses multiplicity)*
-- **FR-007**: System MUST conduct **1 000** bootstrap resamples of the outer‑fold predictions to obtain a 95 % confidence interval for the aggregated R². *(See US‑2)*
-- **FR-008**: System MUST extract all non‑zero elastic‑net coefficients, map them back to their corresponding brain edges and graph‑theoretic metrics, and produce a brain‑surface visualization (e.g., using Nilearn’s `plot_connectome`). *(See US‑3)*
-- **FR-009**: System MUST enforce CPU‑only execution, limit peak RAM consumption to **≤ 6 GB**, and abort with a clear error if total wall‑clock time exceeds **5 hours** on an ubuntu-latest runner on GitHub Actions (justified by GitHub Actions free-tier limits). *(See US-1, US-2)*
-- **FR-010**: System MUST log each processing stage (data ingestion, preprocessing, feature engineering, modeling, validation, visualization) to a structured JSON file to guarantee reproducibility. *(See US-1, US-2, US-3)*
+### SC-001: Data Integrity
+All downloaded files must be verified via SHA256 checksums. Checksums must be recorded in `data/raw/manifest.json`.
 
-### Key Entities
+### SC-002: Reproducibility
+All random seeds must be set and logged. All hyperparameters must be logged.
 
-- **Subject**: Represents a single HCP participant; key attributes – `subject_id`, `sleep_score`, `connectivity_vector`.  
-- **FeatureMatrix**: The matrix of all subjects’ retained connectivity features after variance‑thresholding and PCA.  
-- **Model**: Elastic‑net regression object with trained coefficients and hyper‑parameters.  
-- **ResultReport**: JSON document containing performance metrics, permutation p‑value, bootstrap CI, and paths to visualisation files.
+### SC-003: Partial State Reporting
+If the sensitivity analysis is incomplete (due to time limits), the output must explicitly flag `status: 'partial'` and list `missing_combinations`.
 
-## Success Criteria *(mandatory)*
+### SC-004: Edge Case Handling
+The system shall handle edge cases gracefully:
+- If the model has zero non-zero coefficients, generate a placeholder visualization.
+- If <50 edges are found, plot all available and log a warning.
+- If edge mapping fails, log a warning and continue.
 
-### Measurable Outcomes
+### SC-005: CI Compatibility
+All scripts must run on CPU-only CI with limited vCPU and GB RAM without GPU dependencies.
 
-- **SC-001**: ≥ 80 % of subjects with a valid Sleep Score are successfully processed through the pipeline, producing a connectivity vector. *(See US‑1)*
-- **SC-002**: The aggregated out‑of‑sample Pearson r is correctly computed and reported, and the permutation‑test p‑value is statistically significant (p < 0.05, family‑wise‑error corrected) if the null hypothesis is rejected, indicating a statistically significant associational relationship. *(See US‑2)*
-- **SC-003**: Sensitivity analysis across variance‑threshold values {0.005, 0.01, 0.02} and PCA variance‑retention levels {0.95, 0.90, 0.85} is performed and reports the R² values for each threshold combination to enable robustness assessment. *(See US‑2)*
-- **SC-004**: The visualization step produces a brain‑surface plot file (`.png` or `.svg`) without errors for **≥ 95 %** of runs, and the plot includes at least the top 50 most predictive connections (or all if fewer than 50). *(See US‑3)*
-- **SC-005**: The entire end‑to‑end workflow completes within **5 hours** and uses **≤ 6 GB** RAM on an ubuntu-latest runner on GitHub Actions (justified by GitHub Actions free-tier limits). *(See US-1, US-2)*
-- **SC-006**: All logs and the final `ResultReport.json` are reproducibly generated and can be re‑run to obtain identical numerical results (modulo stochastic seeds). *(FR‑010)*
+### SC-006: Audit Trail
+All operations must be logged to `data/logs/pipeline_run.json` with timestamps, parameters, and data hashes.
 
-## Assumptions
+## Dependencies
+- Python 3.9+
+- nilearn
+- scikit-learn
+- pandas
+- numpy
+- nibabel
+- networkx
+- scipy
+- psutil
+- seaborn
+- matplotlib
+- hcp_data (for real data fetching)
 
-- The Human Connectome Project 1200‑subject release **contains** Sleep questionnaire items (specifically within the `hcp_1200/behavioral` directory, file `sleep.csv`), which are used to derive a composite Sleep Score for the selected subset of participants. The HCP Subjects Release does not contain the Pittsburgh Sleep Quality Index (PSQI); the Sleep Score is derived from available sleep duration and quality items as a proxy. See HCP Data Dictionary and Behavioral Data Release Notes.
-- The variance‑threshold of **0.01** is a community‑standard heuristic for discarding near‑constant functional connections; the chosen PCA retention is configurable and balances dimensionality reduction with information preservation.
-- A permutation count of **1 000** provides adequate power for estimating an empirical null distribution while staying within the CPU‑only compute budget.  
-- The sample size (≈ 200–300 subjects with Sleep Score) is assumed to yield enough statistical power to detect an R² of at least 0.05; a formal power analysis will be performed later (deferred).  
-- All software dependencies (Python 3.11, `nibabel`, `nilearn`, `scikit‑learn`, `networkx`, `pandas`, `numpy`) run efficiently on a single‑CPU runner without GPU acceleration.  
-- Docker containerisation will be used to guarantee environment reproducibility; the container image size will stay < 2 GB to satisfy GitHub Actions storage limits.  
+## Implementation Notes
+- VarianceThreshold and PCA MUST be fitted within the training fold of every CV iteration (Critical Methodological Correction).
+- Permutation test runs on a stratified subset of 100 subjects (Amendment to FR-006) to meet compute constraints. This is validated by T037a (power analysis) and documented in T022a.
+- All scripts must write their declared output files to disk; in-memory results are insufficient.
+- Graceful shutdown logic is integrated into T022 and T024 to ensure partial results are saved if time limits are hit.

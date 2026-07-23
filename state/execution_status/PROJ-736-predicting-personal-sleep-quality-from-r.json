@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-736-predicting-personal-sleep-quality-from-r",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/config.py: self-declared fabricated metric \u2014 \u201c\u2026rn env_val          # Default hardcoded values for the pipeline     default\u2026\u201d; 2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1)",
+  "reason": "2 command(s) failed: python code/data/download_hcp.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/predictions.npy; data/results/ResultReport.json",
   "artifacts": [
-    "data/logs/pipeline_run.json"
+    "code/data/logs/pipeline_run.json"
   ],
   "failures": [
-    "python code/data/download_hcp.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 223, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/download_hcp.py\", line 212, in main\n    success = download_hcp_data()\n              ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/data/d",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 77, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 72, in main\n    success = run_pipeline()\n              ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 32, in run_pipeline\n    if not download_hc"
+    "python code/data/download_hcp.py -> rc=1\n    ",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 81, in <module>\n    success = main()\n              ^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 75, in main\n    success = run_pipeline()\n              ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-736-predicting-personal-sleep-quality-from-r/code/main.py\", line 25, in run_pipeline\n    setup_logging(log_"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "updated_at": "2026-07-14T00:21:19Z",
-  "total_attempts": 7,
+  "total_attempts": 8,
   "replan_rounds": 1,
-  "failure_class": "fabrication",
-  "evidence": []
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-23T06:36:48Z"
 }

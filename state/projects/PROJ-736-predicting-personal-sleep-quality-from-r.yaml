@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T08:10:53.195720Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-736-predicting-personal-sleep-quality-from-r
-last_run_id: 49b46444-8aff-4ea5-a278-4d84aa4f1dc3
+last_run_id: 9df9a6de-4877-40a1-9108-3dde05c1bb29
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r
 title: Predicting Personal Sleep Quality from Resting-State fMRI Connectivity
-updated_at: '2026-07-19T10:03:30.915390Z'
+updated_at: '2026-07-23T06:36:23.726445Z'

@@ -8,6 +8,15 @@ from typing import Dict, Any, Union
 RANDOM_SEED = 42
 np_seed = 42  # Will be set when numpy is imported
 
+# --- Task T002: Permutation & Power Analysis Constants ---
+PERMUTATION_COUNT = 1000
+PERMUTATION_SUBSET_SIZE = 100
+SENSITIVITY_TIMEOUT_HOURS = 3
+GLOBAL_TIMEOUT_HOURS = 5
+EXPECTED_R2_EFFECT_SIZE = 0.05
+POWER_THRESHOLD = 0.8
+ALPHA_LEVEL = 0.05
+
 def get_paths() -> Dict[str, str]:
     """Get all project paths.
     

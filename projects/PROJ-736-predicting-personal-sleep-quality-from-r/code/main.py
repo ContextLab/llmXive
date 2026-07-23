@@ -11,7 +11,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data.download_hcp import download_hcp_data, main as download_main
 from data.preprocess import main as preprocess_main
 from data.feature_engineering import main as feature_main
-from utils.logging import log_stage_start, log_stage_complete, log_stage_error, setup_logging
+from utils.logging import (
+    log_stage_start, 
+    log_stage_complete, 
+    log_stage_error, 
+    setup_logging,
+    compute_sha256
+)
 
 
 def run_pipeline() -> bool:
@@ -40,7 +46,6 @@ def run_pipeline() -> bool:
         return False
     
     # Step 2: Preprocess data
-    # T014b: Import and invoke the preprocessing function from code/data/preprocess.py
     log_stage_start("Preprocessing")
     if not preprocess_main():
         log_stage_error("Preprocessing", "Failed to preprocess data")
@@ -53,8 +58,6 @@ def run_pipeline() -> bool:
         return False
     
     # Step 3: Feature engineering (T014c)
-    # Import and invoke the feature engineering function from code/data/feature_engineering.py
-    # This processes the filtered subjects identified in T007b and produces the final connectivity vectors.
     log_stage_start("Feature Engineering")
     if not feature_main():
         log_stage_error("Feature Engineering", "Failed to compute features")
@@ -62,11 +65,38 @@ def run_pipeline() -> bool:
     else:
         log_stage_complete("Feature Engineering")
     
+    # T043: Add checksum verification for intermediate .npy files
+    # Compute and log SHA256 hashes for all generated connectivity vectors
+    if success:
+        processed_dir = paths["processed"]
+        npy_files = [f for f in os.listdir(processed_dir) if f.endswith('.npy')]
+        
+        checksums = {}
+        for npy_file in npy_files:
+            file_path = os.path.join(processed_dir, npy_file)
+            try:
+                file_hash = compute_sha256(file_path)
+                checksums[npy_file] = file_hash
+                log_stage_start("Checksum Verification", {
+                    "file": npy_file, 
+                    "sha256": file_hash
+                })
+            except Exception as e:
+                log_stage_error("Checksum Verification", f"Failed to hash {npy_file}: {str(e)}")
+                success = False
+        
+        # Log summary of checksums
+        log_stage_complete("Checksum Verification", {
+            "total_files": len(npy_files),
+            "verified": len(checksums),
+            "checksums": checksums
+        })
+
     if success:
         log_stage_complete("full_pipeline", {"status": "success"})
     else:
         log_stage_complete("full_pipeline", {"status": "failed", "stage": "feature_engineering"})
-        
+            
     return success
 
 

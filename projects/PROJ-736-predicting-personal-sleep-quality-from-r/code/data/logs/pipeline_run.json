@@ -1,0 +1,2 @@
+{"operation": "Start Download HCP Data", "parameters": {"stage": "Download HCP Data"}, "timestamp": "2026-07-23T06:36:45.453140"}
+{"operation": "Error Download HCP Data", "parameters": {"stage": "Download HCP Data", "error": "unsupported operand type(s) for /: 'str' and 'str'"}, "timestamp": "2026-07-23T06:36:45.453447"}
