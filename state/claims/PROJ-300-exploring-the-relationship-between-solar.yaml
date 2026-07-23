@@ -8896,3 +8896,152 @@
   source_type: external
   status: verified
   updated_at: '2026-07-16T13:02:51Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Physics-based lag calculation formula uses 60 Re distance converted to
+    km divided by Vsw_mean then converted to minutes
+  claim_id: c_97b67b55
+  context: T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py`
+    to calculate physics-based lag `L_phys` and apply lag shifts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST explicitly calculate the distance in km (`Distance_km
+    = 60 * 6371`), divide by the mean solar wind speed (`Vsw_mean` in km/s) to get
+    seconds, and then divide by 60 to convert to minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:51:38Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Physics-based lag formula L_phys_minutes equals (60 * 6371) divided by
+    Vsw_mean divided by 60
+  claim_id: c_6160de9c
+  context: T006 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py`
+    to calculate physics-based lag `L_phys` and apply lag shifts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The code must use the exact formula logic: `L_phys_minutes = (60 * 6371)
+    / Vsw_mean / 60`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:54:59Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Project dependencies include pandas 2.0.3, numpy 1.24.3, scipy 1.11.4,
+    matplotlib 3.8.0, requests 2.31.0, tqdm 4.66.1, pyyaml 6.0.1, cdaweb 0.2.0, pytest
+    7.4.3
+  claim_id: c_7a91a669
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-300-exploring-the-relationship-between-solar/requirements.txt`
+    containing the following exact pinned versions:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `requirements.txt` file must contain pandas==2.0.3, numpy==1.24.3,
+    scipy==1.11.4, matplotlib==3.8.0, requests==2.31.0, tqdm==4.66.1, pyyaml==6.0.1,
+    cdaweb==0.2.0, and pytest==7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:56:18Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Circular block permutation test uses 10000 iterations for empirical p-values
+  claim_id: c_cd97cd6e
+  context: T008 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py`
+    function `circular_block_permutation` with 10,000 iterations for empirical p-values
+    (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `circular_block_permutation` function must use 10,000 iterations for
+    empirical p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:56:27Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Moving block bootstrap uses 1000 iterations for confidence intervals
+  claim_id: c_58cd9dea
+  context: T009 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py`
+    function `moving_block_bootstrap` with 1,000 iterations for % confidence intervals
+    (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `moving_block_bootstrap` function must use 1,000 iterations for %
+    confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:56:37Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds at 400, 500, and 600 km/s
+  claim_id: c_34c0c832
+  context: "T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py`\
+    \ function `analyze_thresholds` to sweep thresholds `T \u2208 {, 500, 600} km\
+    \ s\u207B\xB9` and recompute correlations (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis must sweep thresholds T \u2208 {400, 500, 600}\
+    \ km s\u207B\xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:56:48Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Lag search window ranges from 30 to 90 minutes with step size 5
+  claim_id: c_a88aef76
+  context: 'T003 [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py`
+    defining constants: `LAG_WINDOW_MIN=30`, `LAG_WINDOW_MAX=90`, `LAG_STEP=5`, `PERMUTATION_ITERATIONS=10000`,
+    `TAIL_DISTANCE_RE=60`, `BOOTSTRAP_ITERATIONS=1000`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lag_search_window_ranges_from_30_to_90_minutes_with_step_siz
+  kind: entity_fact
+  raw_text: The lag window for the optimal lag search is defined as LAG_WINDOW_MIN=30
+    to LAG_WINDOW_MAX=90 with LAG_STEP=5.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:57:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: Pipeline reports optimal lag of 45 minutes plus or minus 1 minute on
+    synthetic dataset with true lag
+  claim_id: c_d99fe84d
+  context: "T026 [US2] Execute the lag-search on a synthetic dataset (true lag min)\
+    \ and verify the pipeline reports 45 min (\xB11 min) (US-2 Independent Test)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must report an optimal lag of 45 min (\xB11 min) when executed\
+    \ on a synthetic dataset where the true lag is min."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T13:57:06Z'
