@@ -9,12 +9,15 @@ OR failure), and fails closed (skip, never abort) when it cannot safely reserve.
 from __future__ import annotations
 
 import subprocess
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 from llmxive.backends.base import ChatMessage, ChatResponse, ModelDownError
+from llmxive.model_selection.attempt_hooks import DispatchStarted, RouteReplayError
 from llmxive.model_selection.execute import ChainExhausted, execute
 from llmxive.model_selection.ledger_transport import LedgerConfig, read_events
 from llmxive.model_selection.reservations import (
@@ -31,7 +34,11 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
-from tests.unit.test_model_selection_attempt_hooks import _Budget, _FailingRecorder, _Recorder
+from tests.unit.test_model_selection_attempt_hooks import (
+    _Budget,
+    _ClaimingRecorder,
+    _FailingRecorder,
+)
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 EPOCH = "2026-07-17T03:45:00Z"
@@ -468,6 +475,36 @@ def _ok_factory():
     return lambda name: _OK()
 
 
+class _CallCounter:
+    """A REAL, thread-safe call counter (no mock) — proves a replayed route_id
+    does NOT re-invoke the backend (spec-025 maintainer review fix #5): the
+    dispatch-claim crux is the backend-call COUNT, not merely event shape or
+    reservation count."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.count = 0
+
+    def increment(self) -> None:
+        with self._lock:
+            self.count += 1
+
+
+class _CountingBackend:
+    """A REAL backend whose ``.chat()`` increments a SHARED ``_CallCounter``."""
+
+    def __init__(self, counter: _CallCounter):
+        self._counter = counter
+
+    def chat(self, messages, *, model=None, max_tokens=None, temperature=None, deadline_s=None):
+        self._counter.increment()
+        return ChatResponse(text=f"ok:{model}", model=model or "m", backend="counting")
+
+
+def _counting_factory(counter: _CallCounter):
+    return lambda name: _CountingBackend(counter)
+
+
 def test_reservation_authority_denial_skips_paid_candidate(repo, monkeypatch):
     # NOTE: every paid-path test in this file sets LLMXIVE_PAID_OPT_IN (directly or
     # via _exec) — without it, paid_call_allowed refuses before ever reaching the
@@ -728,32 +765,37 @@ def test_route_audit_predispatch_failure_release_error_does_not_suppress_settle(
 
 
 def test_paid_replay_same_route_id_reuses_reservation_not_a_second_one(repo, monkeypatch):
+    # Slice-0 audit fix #1 (retry-stable call_id) + fix #5 (atomic dispatch
+    # claim): replaying execute() for the SAME route_id must (a) reuse the SAME
+    # 026 reservation (fix #1) AND (b) NOT re-invoke the backend a second time
+    # (fix #5 — round 4 only made the audit EVENTS idempotent, never the
+    # backend-dispatch SIDE EFFECT). A SHARED _ClaimingRecorder + shared backend
+    # counter across both execute() calls is what makes the replay detectable;
+    # the second call now raises RouteReplayError instead of returning a second
+    # ExecutionResult.
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
     budget = _Budget(10_000.0)
-    rec1, rec2 = _Recorder(), _Recorder()
+    rec = _ClaimingRecorder()
+    counter = _CallCounter()
     fixed_route_id = "retry-route-fixed"
 
-    def _run(rec):
+    def _run():
         return execute(
             _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
-            backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+            backend_factory=_counting_factory(counter), ledger_repo=repo, ledger_config=LOCAL_CFG,
             credit_observer=_observer(), balance_fetch=_balance(), now=NOW,
             reservation_authority=budget, route_audit=rec, route_id=fixed_route_id,
         )
 
-    result1 = _run(rec1)
-    result2 = _run(rec2)
+    result1 = _run()
+    with pytest.raises(RouteReplayError):
+        _run()
 
-    def _opened(rec):
-        return next(e for e in rec.events if type(e).__name__ == "ReservationOpened")
-
-    opened1, opened2 = _opened(rec1), _opened(rec2)
-    # Same logical route → identical audit event_id, identical reservation_id,
-    # identical reserved_credits — the retry replayed the SAME reservation.
-    assert opened1.event_id == opened2.event_id
-    assert opened1.reservation_id == opened2.reservation_id
-    assert opened1.reserved_credits == opened2.reserved_credits
-    assert result1.reservation_id == result2.reservation_id == opened1.reservation_id
+    # The crux of fix #5: the backend was invoked exactly ONCE across both
+    # execute() calls — the replay did NOT re-dispatch. (On the pre-fix code —
+    # an unconditional emit_audit(DispatchStarted) + dispatch, no claim gate —
+    # this would be 2; see the report for the RED-code demonstration.)
+    assert counter.count == 1
 
     # The 026 ledger holds exactly ONE reservation for that id — the second
     # reserve() call was an idempotent no-op, NOT a second (double-charge) hold.
@@ -762,16 +804,17 @@ def test_paid_replay_same_route_id_reuses_reservation_not_a_second_one(repo, mon
     assert len(matching) == 1
     assert reservations[result1.reservation_id].state == STATE_SETTLING
 
-    # Non-vacuity (required by the audit): under the OLD code
-    # (`call_id = call_id or uuid.uuid4().hex[:12]`, a FRESH random token per
-    # call, ignoring route_id), the two `_run` calls above would each mint a
-    # DIFFERENT call_id → a DIFFERENT reservation_id → this test would fail on
-    # the `opened1.reservation_id == opened2.reservation_id` assertion (and the
-    # ledger would hold TWO reservations instead of one). Demonstrate directly
-    # that the deterministic derivation is what makes the ids match: the SAME
-    # route_id always derives the SAME call_id, while two DIFFERENT route_ids
-    # (the pre-fix behavior's equivalent of "fresh token per call") derive
-    # DIFFERENT call_ids/reservation_ids.
+    # The reservation is RETAINED (never released) — the ORIGINAL dispatch
+    # legitimately owns it; the replay path only ever retains, never releases.
+    assert result1.reservation_id in budget.retained
+
+    # Non-vacuity for fix #1 (required by the audit): under the OLD call_id
+    # derivation (`call_id = call_id or uuid.uuid4().hex[:12]`, a FRESH random
+    # token per call, ignoring route_id), the reservation_id below would NOT
+    # match a hash derived from `fixed_route_id`. Demonstrate directly that the
+    # deterministic derivation is what makes the SAME route_id always derive the
+    # SAME call_id/reservation_id, while a DIFFERENT route_id derives a
+    # DIFFERENT one.
     import hashlib
 
     from llmxive.model_selection.execute import _sanitize_reservation_id
@@ -781,3 +824,75 @@ def test_paid_replay_same_route_id_reuses_reservation_not_a_second_one(repo, mon
     assert same_call_id != other_call_id
     assert _sanitize_reservation_id(CLAUDE, same_call_id) == result1.reservation_id
     assert _sanitize_reservation_id(CLAUDE, other_call_id) != result1.reservation_id
+
+
+def test_paid_replay_before_dispatch_completed_never_dispatches_reservation_retained(repo, monkeypatch):
+    # Replay after DispatchStarted, before DispatchCompleted, never re-dispatches:
+    # pre-claim the recorder for the candidate's DispatchStarted event_id BEFORE
+    # calling execute() at all — this simulates a crash/retry landing strictly
+    # between the ORIGINAL dispatch's claim and its DispatchCompleted. execute()
+    # must see claimed=False immediately: zero backend calls THIS execute() call,
+    # and the (paid) reservation it opens is RETAINED, never released.
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)
+    rec = _ClaimingRecorder()
+    counter = _CallCounter()
+    route_id = "pre-claimed-paid-route"
+
+    pre_started = DispatchStarted(route_id=route_id, candidate_index=0, candidate=_paid_ref(), reservation_id=None)
+    assert rec.claim_dispatch(pre_started) is True  # simulates the ORIGINAL dispatch's own claim
+
+    with pytest.raises(RouteReplayError):
+        execute(
+            _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_counting_factory(counter), ledger_repo=repo, ledger_config=LOCAL_CFG,
+            credit_observer=_observer(), balance_fetch=_balance(), now=NOW,
+            reservation_authority=budget, route_audit=rec, route_id=route_id,
+        )
+
+    assert counter.count == 0  # never dispatched for THIS execute() call
+    assert budget.retained, "the reservation opened by this call must be RETAINED, not released"
+    (r,) = project(read_events(repo)).values()
+    assert r.state == STATE_SETTLING  # settle() ran on the replay path — hold reached settling
+
+
+def test_concurrent_same_route_id_dispatches_backend_exactly_once(repo, monkeypatch):
+    # Concurrent same-route: backend called exactly once. Two threads race
+    # execute() for the SAME route_id, sharing ONE _ClaimingRecorder + ONE
+    # backend counter — the ATOMIC claim_dispatch() must let exactly one thread
+    # cross the dispatch boundary; the other raises RouteReplayError. Proves the
+    # claim is a genuine compare-and-swap, not a read-then-write race.
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)
+    rec = _ClaimingRecorder()
+    counter = _CallCounter()
+    route_id = "concurrent-route"
+
+    def _run():
+        return execute(
+            _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_counting_factory(counter), ledger_repo=repo, ledger_config=LOCAL_CFG,
+            credit_observer=_observer(), balance_fetch=_balance(), now=NOW,
+            reservation_authority=budget, route_audit=rec, route_id=route_id,
+        )
+
+    outcomes: list[tuple[str, object]] = []
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(_run) for _ in range(2)]
+        for fut in futures:
+            try:
+                outcomes.append(("ok", fut.result()))
+            except RouteReplayError as exc:
+                outcomes.append(("replay", exc))
+
+    oks = [r for kind, r in outcomes if kind == "ok"]
+    replays = [r for kind, r in outcomes if kind == "replay"]
+    assert len(oks) == 1, f"expected exactly one success, got {outcomes}"
+    assert len(replays) == 1, f"expected exactly one replay, got {outcomes}"
+    # The crux: even racing two threads, the backend was invoked exactly once.
+    assert counter.count == 1
+
+    reservations = project(read_events(repo))
+    matching = [rid for rid in reservations if rid == oks[0].reservation_id]
+    assert len(matching) == 1
+    assert reservations[oks[0].reservation_id].state == STATE_SETTLING

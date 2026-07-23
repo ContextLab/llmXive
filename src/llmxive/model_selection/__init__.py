@@ -28,6 +28,7 @@ from llmxive.model_selection.attempt_hooks import (
     ReservationOpened,
     RouteAudit,
     RouteAuditError,
+    RouteReplayError,
     SelectionFailure,
     emit_audit,
 )
@@ -88,6 +89,7 @@ __all__ = [
     "ReservationOpened",
     "RouteAudit",
     "RouteAuditError",
+    "RouteReplayError",
     "RuntimeSnapshot",
     "SelectionFailure",
     "SnapshotProvenance",

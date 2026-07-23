@@ -58,6 +58,7 @@ from llmxive.model_selection.attempt_hooks import (
     ReservationOpened,
     RouteAudit,
     RouteAuditError,
+    RouteReplayError,
     emit_audit,
 )
 from llmxive.model_selection.ledger_transport import (
@@ -275,20 +276,29 @@ def execute(
     candidate's Attempt reservation is marked retained (never released) alongside the
     026 settle. Default ``None`` is a no-op — behavior is unchanged from today.
 
-    **Outbox audit (FR-033a).** An optional ``route_audit`` receives the per-candidate
-    outbox lifecycle: a paid candidate's opened reservation emits ``ReservationOpened``,
-    then every candidate emits ``DispatchStarted`` immediately before the backend call —
-    both durable and pre-dispatch, so a sink failure there is ROUTE-FATAL (raises
-    ``RouteAuditError``; if a reservation had opened it is released + settled first, and
-    the chain does NOT advance). A successful call emits ``DispatchCompleted`` then
-    ``CandidateOutcome("success", ...)``; a sink failure on either fails the call CLOSED
-    (raises ``RouteAuditError``) with the reservation left RETAINED — the existing
-    ``finally`` still settles + marks it. Skip/advance/abort dispositions each emit their
-    own ``CandidateOutcome``. Default ``None`` is a no-op — zero audit calls, behavior
-    byte-for-byte unchanged. ``route_id`` identifies the logical call for
-    correlation (spec-025 maintainer review F1): ``route_chat`` generates one and
-    threads it through; a direct caller of ``execute`` gets a fresh
-    ``uuid.uuid4().hex`` when omitted. ``call_id`` (the reservation-id token) is
+    **Outbox audit (FR-033a) + atomic dispatch claim (maintainer review fix #5).**
+    An optional ``route_audit`` receives the per-candidate outbox lifecycle: a paid
+    candidate's opened reservation emits ``ReservationOpened``, then every candidate's
+    ``DispatchStarted`` is submitted through ``route_audit.claim_dispatch`` immediately
+    before the backend call — both durable and pre-dispatch, so a sink failure there is
+    ROUTE-FATAL (raises ``RouteAuditError``; if a reservation had opened it is released
+    + settled first, and the chain does NOT advance). ``claim_dispatch`` ATOMICALLY
+    claims the dispatch boundary for that ``(route_id, candidate_index)``: the FIRST
+    claim (``True``) dispatches as usual; a REPLAY (``False`` — this candidate already
+    crossed the boundary, e.g. a retried logical call with the same ``route_id``) does
+    NOT invoke the backend a second time — the reservation is RETAINED (never released;
+    the original dispatch owns it) and ``RouteReplayError`` is raised, never a
+    ``CandidateOutcome`` (the original run already emitted one for this event_id). A
+    successful dispatch emits ``DispatchCompleted`` then ``CandidateOutcome("success",
+    ...)``; a sink failure on either fails the call CLOSED (raises ``RouteAuditError``)
+    with the reservation left RETAINED — the existing ``finally`` still settles + marks
+    it. Skip/advance/abort dispositions each emit their own ``CandidateOutcome``.
+    Default ``None`` is a no-op — zero audit calls, ``claimed`` is always ``True``, and
+    behavior is byte-for-byte unchanged (no idempotency without a sink). ``route_id``
+    identifies the logical call for correlation (spec-025 maintainer review F1):
+    ``route_chat`` generates one and threads it through; a direct caller of ``execute``
+    gets a fresh ``uuid.uuid4().hex`` when omitted. ``call_id`` (the reservation-id
+    token) is
     DISTINCT from ``route_id`` (maintainer review finding #3) — it preserves the
     prior 12-hex-char ``_sanitize_reservation_id`` suffix format, but (slice-0
     audit fix, HIGH finding #1) is now DERIVED from ``route_id`` via a truncated
@@ -389,18 +399,32 @@ def execute(
                 emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", skip))
                 continue
 
-        # Pre-dispatch audits (FR-033a outbox), durable BEFORE the backend call.
-        # A failure of EITHER ReservationOpened OR DispatchStarted is ROUTE-FATAL:
-        # do NOT advance. If a reservation opened, release it (definitively did not
-        # dispatch) and settle the 026 hold, then re-raise. Both are inside ONE try
-        # so a ReservationOpened failure cannot leak the reservation.
+        # Pre-dispatch: emit ReservationOpened, then ATOMICALLY claim the dispatch
+        # boundary (spec-025 maintainer review fix #5 — making the audit EVENTS
+        # idempotent, round 4, did not make the backend-dispatch SIDE EFFECT
+        # idempotent; a replayed execute() call for the same route_id would still
+        # invoke the backend a second time). A failure of EITHER ReservationOpened
+        # OR the claim itself is ROUTE-FATAL: do NOT advance. If a reservation
+        # opened, release it (definitively did not dispatch) and settle the 026
+        # hold, then re-raise. All of this is inside ONE try so neither failure can
+        # leak the reservation.
         try:
             if reservation_id is not None:
                 emit_audit(
                     route_audit,
                     ReservationOpened(route_id, candidate_index, ref, reservation_id, reserved_credits),
                 )
-            emit_audit(route_audit, DispatchStarted(route_id, candidate_index, ref, reservation_id))
+            if route_audit is not None:
+                try:
+                    claimed = route_audit.claim_dispatch(
+                        DispatchStarted(route_id, candidate_index, ref, reservation_id)
+                    )
+                except RouteAuditError:
+                    raise
+                except Exception as exc:  # sink infra failure → route-fatal, distinct from a replay
+                    raise RouteAuditError(f"claim_dispatch({ref.model_id!r}) failed: {exc}") from exc
+            else:
+                claimed = True  # no audit sink → no idempotency (compat path, unchanged behavior)
         except RouteAuditError:
             if reservation_id is not None:
                 # F3: run BOTH cleanups independently — a failing release() must not
@@ -415,6 +439,30 @@ def execute(
                 except Exception as exc:  # best-effort; the sweeper backstops a lost settle
                     logger.warning("execute: settle(%s) after audit-abort failed: %s", reservation_id, exc)
             raise
+
+        if not claimed:
+            # REPLAY (fix #5): a DispatchStarted with this event_id was ALREADY
+            # durably recorded — the ORIGINAL dispatch owns any reservation. Do NOT
+            # invoke the backend a second time; RETAIN (never release) the
+            # reservation, and let the caller/lane reconcile from durable events
+            # (e.g. a DispatchStarted with no DispatchCompleted → DispatchUnknown).
+            # No CandidateOutcome is emitted here — the original run already
+            # emitted the outcome for this event_id; a differing outcome would
+            # collide under F2's collision semantics.
+            if reservation_id is not None:
+                try:
+                    settle(ledger_repo, reservation_id, now=now, config=ledger_config)  # type: ignore[arg-type]
+                except Exception as exc:
+                    logger.warning("execute: settle(%s) on replay failed: %s", reservation_id, exc)
+                if reservation_authority is not None:
+                    try:
+                        reservation_authority.mark_retained(reservation_id)
+                    except Exception as exc:
+                        logger.warning("execute: mark_retained(%s) on replay failed: %s", reservation_id, exc)
+            raise RouteReplayError(
+                f"route {route_id!r} candidate {candidate_index} ({ref.model_id!r}) already dispatched "
+                "— not re-dispatching (replay); reservation retained, reconcile from durable events"
+            )
 
         lease = (
             ReservationLease(

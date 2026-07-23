@@ -45,6 +45,16 @@ class RouteAuditError(RuntimeError):
     (the chain ran, none succeeded), so it does not trigger the proposal reroute."""
 
 
+class RouteReplayError(RuntimeError):
+    """Raised by ``execute`` when ``RouteAudit.claim_dispatch`` reports that this
+    (route_id, candidate) already crossed the dispatch boundary — a REPLAY. The
+    backend is NOT re-invoked; any paid reservation is RETAINED (the original
+    dispatch owns it), and the caller/lane reconciles from durable events (e.g. a
+    ``DispatchStarted`` with no ``DispatchCompleted`` → ``DispatchUnknown`` → fail
+    the Attempt closed). Distinct from ``RouteAuditError`` (the sink itself failed)
+    and ``ModelUnavailable``/``ChainExhausted``."""
+
+
 def _candidate_event_id(route_id: str, candidate_index: int, kind: str) -> str:
     return f"{route_id}:candidate:{candidate_index}:{kind}"
 
@@ -58,7 +68,25 @@ class ReservationAuthority(Protocol):
         """Atomically reserve ``credits`` (the worst-case x retries envelope)
         against the Attempt budget. Return ``True`` if admitted, ``False`` if it
         would exceed the budget (the candidate is skipped/advanced). MUST NOT raise
-        for an ordinary budget denial."""
+        for an ordinary budget denial.
+
+        **Collision semantics (spec-025 maintainer review fix #5), mirroring the
+        026 ledger's own ``reserve`` (``reservations.py`` ``prepare()``,
+        ~lines 236-255):**
+
+        - a repeated ``reservation_id`` with the SAME ``(credits, call_id)``
+          identity (e.g. a replayed/retried candidate re-deriving the identical
+          reservation) is an IDEMPOTENT SUCCESS — return the same admit result
+          WITHOUT opening a second hold or double-counting the budget;
+        - the same ``reservation_id`` with a DIFFERENT ``credits``/identity is an
+          INTEGRITY VIOLATION — raise, never silently overwrite the existing hold
+          (a bigger call must never run under an older, smaller reservation);
+        - concurrent duplicate reservations for one id must settle on exactly ONE
+          durable reservation (a compare-and-swap / unique-insert, not a
+          read-then-write).
+
+        A real slice-1 ``AttemptCreditLedger`` MUST enforce all three; so must any
+        in-memory test double used in place of it."""
 
     def release(self, reservation_id: str) -> None:
         """Release a reservation that definitively did NOT dispatch (``open →
@@ -222,16 +250,40 @@ class RouteAudit(Protocol):
       ``RouteAuditError`` (route-fatal), so conflicting payloads under the same
       ``event_id`` are NEVER silently accepted as a duplicate.
 
-    A genuinely reproducible retry therefore needs one of: the caller re-injects
-    the ORIGINAL ``snapshot=`` (``route_chat`` already supports this seam) so
+    A genuinely reproducible retry therefore needs the caller to re-inject the
+    ORIGINAL ``snapshot=`` (``route_chat`` already supports this seam) so
     re-``select``ion yields the identical chain/candidates and every event's
-    payload matches byte-for-byte; or the durable sink, on noticing the
-    ``event_id`` is already recorded, exposes the PREVIOUSLY-recorded event so
-    the caller's orchestration RESUMES from it rather than re-selecting and
-    re-emitting a conflicting one.
+    payload matches byte-for-byte. Side-effect idempotency (never re-invoking the
+    backend for an already-dispatched candidate) is provided ONLY by
+    ``claim_dispatch`` below — a plain, idempotent ``record`` is NOT sufficient
+    for that: the caller cannot tell a newly-persisted start from an
+    already-persisted one from ``record``'s return value (``None`` either way), so
+    it cannot gate a side effect. A durable resume-from-cached-result path (return
+    the PREVIOUSLY-recorded event/response so orchestration resumes rather than
+    merely refuses to re-dispatch) would need a future lookup method and is out of
+    scope for slice 0 — slice 0's guarantee is "never re-dispatch", NOT "resume
+    the prior result".
     """
 
     def record(self, event: RouteAuditEvent) -> None: ...
+
+    def claim_dispatch(self, event: DispatchStarted) -> bool:
+        """ATOMICALLY claim the dispatch boundary for ``event.event_id`` AND
+        durably record the ``DispatchStarted``. Returns:
+
+        - ``True``  — FIRST claim: this caller now OWNS the dispatch (invoke the
+          backend);
+        - ``False`` — a ``DispatchStarted`` with this ``event_id`` was ALREADY
+          durably recorded (a replay): the caller MUST NOT invoke the backend.
+
+        MUST be atomic under CONCURRENT workers sharing a ``route_id`` — exactly
+        one claimant gets ``True`` (a compare-and-swap / unique-insert, not a
+        read-then-write). An idempotent ``record`` append is NOT sufficient: the
+        caller cannot tell a newly-persisted start from an existing one, so a
+        plain ``record`` cannot gate a side effect. A sink infrastructure failure
+        here should RAISE (→ route-fatal ``RouteAuditError`` via the caller),
+        distinct from a ``False`` replay result."""
+        ...
 
 
 def emit_audit(route_audit: RouteAudit | None, event: RouteAuditEvent) -> None:

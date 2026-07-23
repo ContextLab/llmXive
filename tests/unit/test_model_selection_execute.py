@@ -19,7 +19,7 @@ from llmxive.backends.base import (
     PaidGuardDenied,
     PermanentBackendError,
 )
-from llmxive.model_selection.attempt_hooks import RouteAuditError
+from llmxive.model_selection.attempt_hooks import RouteAuditError, RouteReplayError
 from llmxive.model_selection.execute import ChainExhausted, ExecutionResult, execute
 from llmxive.model_selection.types import (
     CallBudget,
@@ -30,7 +30,11 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
-from tests.unit.test_model_selection_attempt_hooks import _FailingRecorder, _Recorder
+from tests.unit.test_model_selection_attempt_hooks import (
+    _ClaimingRecorder,
+    _FailingRecorder,
+    _Recorder,
+)
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 EP = "https://chat.dartmouth.edu"
@@ -292,7 +296,14 @@ class _CollisionDetectingRecorder:
     BYTE-IDENTICAL canonical payload is an idempotent no-op (no duplicate, no
     error); a second ``record()`` of the SAME event_id with a DIFFERENT payload
     raises a plain ``ValueError`` — exactly the "sink integrity error" case
-    ``emit_audit`` must normalize to ``RouteAuditError``."""
+    ``emit_audit`` must normalize to ``RouteAuditError``.
+
+    ``claim_dispatch`` here is deliberately NAIVE (delegates to ``record`` and
+    always returns ``True``) — this double exists to exercise F2's EVENT-payload
+    collision semantics specifically, not fix #5's dispatch-boundary atomicity
+    (``_ClaimingRecorder`` in ``test_model_selection_attempt_hooks.py`` is the one
+    that implements that); its two tests below are unaffected by fix #5 because
+    they never assert a backend-call count."""
 
     def __init__(self):
         self._by_id: dict[str, tuple] = {}
@@ -314,6 +325,10 @@ class _CollisionDetectingRecorder:
             raise ValueError(f"event_id payload mismatch for {event.event_id!r}")
         self._by_id[event.event_id] = payload
         self.events.append(event)
+
+    def claim_dispatch(self, event) -> bool:
+        self.record(event)
+        return True
 
 
 def test_route_audit_replayed_identical_event_is_idempotent_no_error():
@@ -353,3 +368,79 @@ def test_route_audit_conflicting_payload_same_event_id_raises_route_fatal_not_ra
     kinds = [type(e).__name__ for e in rec.events]
     assert kinds.count("DispatchStarted") == 1  # chain_a's; chain_b's raised before storing
     assert "DispatchCompleted" in kinds and kinds.count("DispatchCompleted") == 1  # only chain_a's
+
+
+# --------------------------------------------------------------------------- #
+# Spec-025 maintainer review fix #5: an ATOMIC dispatch-claim boundary so a
+# replayed logical route (same route_id) does NOT re-invoke the backend. Round
+# 4 made the audit EVENTS idempotent but left the SIDE EFFECT (backend dispatch)
+# un-deduplicated — these tests assert the backend-call COUNT, not just event
+# shape. The PAID sequential/concurrent/replay-before-complete cases (which need
+# the real ledger + a reservation) live in
+# tests/integration/test_model_selection_execute.py.
+# --------------------------------------------------------------------------- #
+
+
+def test_free_replay_same_route_id_does_not_redispatch_backend():
+    # Sequential same-route (FREE): backend called exactly once. The first
+    # execute() call dispatches and succeeds; a second call for the SAME
+    # route_id, sharing the SAME _ClaimingRecorder, must NOT invoke the backend
+    # again — it raises RouteReplayError instead.
+    be = ScriptedBackend({})
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    rec = _ClaimingRecorder()
+    route_id = "free-replay-route"
+
+    result1 = execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                      backend_factory=_factory(be), route_audit=rec, route_id=route_id)
+    assert result1.response is not None
+
+    with pytest.raises(RouteReplayError):
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_factory(be), route_audit=rec, route_id=route_id)
+
+    assert len(be.calls) == 1  # the replay did NOT re-invoke the backend
+
+
+def test_replay_before_dispatch_completed_never_dispatches_free():
+    # Replay after DispatchStarted, before DispatchCompleted, never re-dispatches:
+    # pre-claim the recorder for the candidate's DispatchStarted event_id BEFORE
+    # calling execute() at all (simulating a crash/retry between DispatchStarted
+    # and DispatchCompleted) — execute() must see claimed=False immediately and
+    # never touch the backend for THIS call.
+    be = ScriptedBackend({})
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    rec = _ClaimingRecorder()
+    route_id = "pre-claimed-route"
+
+    from llmxive.model_selection.attempt_hooks import DispatchStarted
+
+    pre_started = DispatchStarted(
+        route_id=route_id, candidate_index=0, candidate=_ref("qwen.qwen3.5-122b"), reservation_id=None,
+    )
+    assert rec.claim_dispatch(pre_started) is True  # simulates the ORIGINAL dispatch's claim
+
+    with pytest.raises(RouteReplayError):
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_factory(be), route_audit=rec, route_id=route_id)
+
+    assert be.calls == []  # never dispatched for this execute() call
+
+
+def test_route_audit_none_replay_still_redispatches_every_time():
+    # No-hook path unchanged: with route_audit=None, no claim occurs at all
+    # (claimed=True unconditionally) — dispatch proceeds normally EVERY call, so
+    # a caller retrying the SAME route_id without a sink dispatches the backend
+    # every time, exactly as before this fix (a None sink means NO idempotency —
+    # the compat path stays byte-for-byte unchanged).
+    be = ScriptedBackend({})
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    route_id = "no-hook-route"
+
+    result1 = execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                      backend_factory=_factory(be), route_id=route_id)
+    result2 = execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                      backend_factory=_factory(be), route_id=route_id)
+
+    assert result1.response is not None and result2.response is not None
+    assert len(be.calls) == 2  # BOTH calls dispatched — no idempotency without a sink
