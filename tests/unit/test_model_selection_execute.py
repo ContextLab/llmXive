@@ -274,3 +274,82 @@ def test_concurrent_same_model_calls_are_distinguishable_by_route_id():
     assert started1.route_id != started2.route_id
     assert started1.event_id != started2.event_id
     assert completed1.event_id != completed2.event_id
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #2 (MEDIUM): RouteAudit event_id collision semantics — a
+# durable sink must treat a REPLAYED event_id with a byte-identical payload as
+# an idempotent success, and a CONFLICTING payload under the same event_id as
+# an integrity violation that MUST raise (never a silently-accepted duplicate).
+# emit_audit normalizes that raise to RouteAuditError (route-fatal).
+# --------------------------------------------------------------------------- #
+
+
+class _CollisionDetectingRecorder:
+    """A REAL stateful ``RouteAudit`` sink (no mock) implementing the F2 contract
+    from ``attempt_hooks.RouteAudit.record``'s docstring: events are stored by
+    ``event_id``; a second ``record()`` of an event_id already stored with a
+    BYTE-IDENTICAL canonical payload is an idempotent no-op (no duplicate, no
+    error); a second ``record()`` of the SAME event_id with a DIFFERENT payload
+    raises a plain ``ValueError`` — exactly the "sink integrity error" case
+    ``emit_audit`` must normalize to ``RouteAuditError``."""
+
+    def __init__(self):
+        self._by_id: dict[str, tuple] = {}
+        self.events: list = []
+
+    @staticmethod
+    def _canonical_payload(event) -> tuple:
+        # Dataclass events → their field dict, projected to a stable, orderable
+        # tuple of (field_name, value) pairs (field names are unique, so sorting
+        # never needs to compare two values against each other).
+        return tuple(sorted(vars(event).items()))
+
+    def record(self, event) -> None:
+        payload = self._canonical_payload(event)
+        existing = self._by_id.get(event.event_id)
+        if existing is not None:
+            if existing == payload:
+                return  # idempotent replay of the SAME event — no duplicate, no error
+            raise ValueError(f"event_id payload mismatch for {event.event_id!r}")
+        self._by_id[event.event_id] = payload
+        self.events.append(event)
+
+
+def test_route_audit_replayed_identical_event_is_idempotent_no_error():
+    # Same route_id + same chain → every emitted event_id/payload pair is
+    # byte-identical across the two calls; the sink must accept the replay
+    # silently (no duplicate stored, no exception).
+    rec = _CollisionDetectingRecorder()
+    chain = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    for _ in range(2):
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_factory(ScriptedBackend({})), route_audit=rec, route_id="replay-route")
+    # Recorded ONCE per event_id, not twice — the replay was a no-op.
+    kinds = [type(e).__name__ for e in rec.events]
+    assert kinds == ["DispatchStarted", "DispatchCompleted", "CandidateOutcome"]
+
+
+def test_route_audit_conflicting_payload_same_event_id_raises_route_fatal_not_raw_error():
+    # F2: DispatchStarted's event_id is derived from (route_id, candidate_index,
+    # kind) ONLY — not from the candidate identity. So a SECOND execute() call
+    # reusing the same route_id but a DIFFERENT chain (different candidate at
+    # index 0) produces a DispatchStarted with the SAME event_id but a DIFFERENT
+    # payload — a genuine conflict. The sink raises a plain ValueError;
+    # execute()/emit_audit MUST surface RouteAuditError (route-fatal), never let
+    # the raw ValueError leak. Non-vacuous: RouteAuditError is NOT a ValueError
+    # subclass (see test_route_audit_error_is_runtime_error), so this only
+    # passes if emit_audit actually normalizes the sink's exception.
+    rec = _CollisionDetectingRecorder()
+    chain_a = _chain(_free_candidate("qwen.qwen3.5-122b"))
+    chain_b = _chain(_free_candidate("google.gemma-4-31B-it"))  # DIFFERENT candidate, same index
+    execute(chain_a, MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_factory(ScriptedBackend({})), route_audit=rec, route_id="conflict-route")
+    with pytest.raises(RouteAuditError):
+        execute(chain_b, MSG, options=ExecutionOptions(max_tokens=64),
+                backend_factory=_factory(ScriptedBackend({})), route_audit=rec, route_id="conflict-route")
+    # The second call's DispatchCompleted/CandidateOutcome never happened — the
+    # conflict was caught pre-dispatch (the first event emitted), route-fatal.
+    kinds = [type(e).__name__ for e in rec.events]
+    assert kinds.count("DispatchStarted") == 1  # chain_a's; chain_b's raised before storing
+    assert "DispatchCompleted" in kinds and kinds.count("DispatchCompleted") == 1  # only chain_a's

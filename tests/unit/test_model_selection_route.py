@@ -725,3 +725,25 @@ def test_route_chat_no_supplied_route_id_gets_a_fresh_one_each_call():
     (resolved2,) = (e for e in rec2.events if isinstance(e, ChainResolved))
     assert resolved1.route_id and resolved2.route_id
     assert resolved1.route_id != resolved2.route_id  # compatibility: no collision
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #3 (LOW): an unhandled ``ContentPart`` type must fail fast
+# (TypeError) in ``_content_digest_value``, not be silently dropped — a silent
+# drop would let two DIFFERENT prompts share the same digest.
+# --------------------------------------------------------------------------- #
+
+
+def test_content_digest_value_unhandled_part_type_raises_type_error():
+    from llmxive.model_selection.route import _content_digest_value
+
+    @dataclass(frozen=True)
+    class _FutureContentPart:
+        """A stand-in for a not-yet-supported ``ContentPart`` variant (e.g. a
+        future audio/video part) — deliberately neither ``TextPart`` nor
+        ``ImagePart``."""
+
+        payload: str
+
+    with pytest.raises(TypeError, match="unhandled ContentPart type"):
+        _content_digest_value((_FutureContentPart(payload="x"),))

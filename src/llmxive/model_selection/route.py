@@ -185,7 +185,10 @@ def _content_digest_value(content: str | tuple[TextPart | ImagePart, ...]) -> di
     tuple of ``ContentPart``s (``TextPart`` / ``ImagePart``, both dataclasses that
     ``json.dumps`` cannot serialize directly). An ``ImagePart``'s raw bytes are
     NEVER embedded in the digest payload — only their SHA-256, so the digest stays
-    small and stable regardless of image size."""
+    small and stable regardless of image size. A future ``ContentPart`` variant
+    that is neither (maintainer review finding #3, LOW) raises ``TypeError``
+    instead of being silently dropped — an unhandled part silently vanishing from
+    the digest would let two DIFFERENT prompts share the same digest."""
     if isinstance(content, str):
         return {"type": "text", "text": content}
     parts = []
@@ -197,6 +200,11 @@ def _content_digest_value(content: str | tuple[TextPart | ImagePart, ...]) -> di
                 "type": "image", "mime": part.mime, "width": part.width,
                 "height": part.height, "data_sha256": hashlib.sha256(part.data).hexdigest(),
             })
+        else:
+            raise TypeError(
+                f"_content_digest_value: unhandled ContentPart type {type(part).__name__} — "
+                "extend the canonical projection when a new content type is added"
+            )
     return {"type": "multipart", "parts": parts}
 
 

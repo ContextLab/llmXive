@@ -204,7 +204,32 @@ RouteAuditEvent = (
 class RouteAudit(Protocol):
     """A mandatory, synchronous, durable audit sink (FR-033a). ``record`` MUST make
     the event durable before returning; raising is never swallowed (see
-    ``RouteAuditError``)."""
+    ``RouteAuditError``).
+
+    **Collision semantics (spec-025 maintainer review F2).** Every event's
+    ``event_id`` is derived from ``route_id`` alone (plus, for candidate events,
+    ``candidate_index`` + kind) — NOT from the event's other fields. So a retried
+    ``route_chat(route_id="fixed")`` that re-selects could, in principle, produce a
+    DIFFERENT chain/candidate under the SAME ``event_id``. ``record`` MUST
+    therefore implement:
+
+    - a ``record(event)`` call for an ``event_id`` that is ALREADY durably
+      recorded with a BYTE-IDENTICAL canonical payload (all fields equal) is an
+      IDEMPOTENT SUCCESS — no duplicate is stored and no error is raised;
+    - a ``record(event)`` call for an ``event_id`` that is already durably
+      recorded with a DIFFERENT payload is an INTEGRITY VIOLATION — the sink
+      MUST raise. ``emit_audit`` normalizes ANY such exception to
+      ``RouteAuditError`` (route-fatal), so conflicting payloads under the same
+      ``event_id`` are NEVER silently accepted as a duplicate.
+
+    A genuinely reproducible retry therefore needs one of: the caller re-injects
+    the ORIGINAL ``snapshot=`` (``route_chat`` already supports this seam) so
+    re-``select``ion yields the identical chain/candidates and every event's
+    payload matches byte-for-byte; or the durable sink, on noticing the
+    ``event_id`` is already recorded, exposes the PREVIOUSLY-recorded event so
+    the caller's orchestration RESUMES from it rather than re-selecting and
+    re-emitting a conflicting one.
+    """
 
     def record(self, event: RouteAuditEvent) -> None: ...
 

@@ -31,7 +31,7 @@ from llmxive.model_selection.types import (
     ModelRef,
     SnapshotProvenance,
 )
-from tests.unit.test_model_selection_attempt_hooks import _Budget, _FailingRecorder
+from tests.unit.test_model_selection_attempt_hooks import _Budget, _FailingRecorder, _Recorder
 
 NOW = datetime(2026, 7, 16, 12, 0, 0, tzinfo=UTC)
 EPOCH = "2026-07-17T03:45:00Z"
@@ -713,3 +713,71 @@ def test_route_audit_predispatch_failure_release_error_does_not_suppress_settle(
     # settling, proving release()'s failure did not suppress settle().
     (r,) = project(read_events(repo)).values()
     assert r.state == STATE_SETTLING
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #1 (HIGH, maintainer review): a retry-stable route_id must
+# produce a retry-stable paid reservation_id. ``call_id`` now derives
+# deterministically from ``route_id`` (a truncated SHA-256, execute.py:~333)
+# instead of a fresh random token, so retrying the SAME logical route (same
+# injected route_id) reuses the SAME reservation_id — the 026 ledger's
+# reserve() is already idempotent on a matching (model, worst_case, epoch)
+# identity under one reservation_id (reservations.py:239-255), so the retry's
+# reserve() is a no-op rather than a second reservation (a double charge risk).
+# --------------------------------------------------------------------------- #
+
+
+def test_paid_replay_same_route_id_reuses_reservation_not_a_second_one(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)
+    rec1, rec2 = _Recorder(), _Recorder()
+    fixed_route_id = "retry-route-fixed"
+
+    def _run(rec):
+        return execute(
+            _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_ok_factory(), ledger_repo=repo, ledger_config=LOCAL_CFG,
+            credit_observer=_observer(), balance_fetch=_balance(), now=NOW,
+            reservation_authority=budget, route_audit=rec, route_id=fixed_route_id,
+        )
+
+    result1 = _run(rec1)
+    result2 = _run(rec2)
+
+    def _opened(rec):
+        return next(e for e in rec.events if type(e).__name__ == "ReservationOpened")
+
+    opened1, opened2 = _opened(rec1), _opened(rec2)
+    # Same logical route → identical audit event_id, identical reservation_id,
+    # identical reserved_credits — the retry replayed the SAME reservation.
+    assert opened1.event_id == opened2.event_id
+    assert opened1.reservation_id == opened2.reservation_id
+    assert opened1.reserved_credits == opened2.reserved_credits
+    assert result1.reservation_id == result2.reservation_id == opened1.reservation_id
+
+    # The 026 ledger holds exactly ONE reservation for that id — the second
+    # reserve() call was an idempotent no-op, NOT a second (double-charge) hold.
+    reservations = project(read_events(repo))
+    matching = [rid for rid in reservations if rid == result1.reservation_id]
+    assert len(matching) == 1
+    assert reservations[result1.reservation_id].state == STATE_SETTLING
+
+    # Non-vacuity (required by the audit): under the OLD code
+    # (`call_id = call_id or uuid.uuid4().hex[:12]`, a FRESH random token per
+    # call, ignoring route_id), the two `_run` calls above would each mint a
+    # DIFFERENT call_id → a DIFFERENT reservation_id → this test would fail on
+    # the `opened1.reservation_id == opened2.reservation_id` assertion (and the
+    # ledger would hold TWO reservations instead of one). Demonstrate directly
+    # that the deterministic derivation is what makes the ids match: the SAME
+    # route_id always derives the SAME call_id, while two DIFFERENT route_ids
+    # (the pre-fix behavior's equivalent of "fresh token per call") derive
+    # DIFFERENT call_ids/reservation_ids.
+    import hashlib
+
+    from llmxive.model_selection.execute import _sanitize_reservation_id
+
+    same_call_id = hashlib.sha256(fixed_route_id.encode()).hexdigest()[:12]
+    other_call_id = hashlib.sha256(b"a-different-route-id").hexdigest()[:12]
+    assert same_call_id != other_call_id
+    assert _sanitize_reservation_id(CLAUDE, same_call_id) == result1.reservation_id
+    assert _sanitize_reservation_id(CLAUDE, other_call_id) != result1.reservation_id
