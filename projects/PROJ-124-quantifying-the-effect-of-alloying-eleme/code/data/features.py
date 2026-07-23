@@ -1,338 +1,368 @@
 """
-Feature engineering module for Metallic Glass GFA prediction.
+Feature Engineering Module for Metallic Glass GFA Analysis.
 
-Computes physics-based descriptors including atomic properties,
-weighted means, and pairwise size mismatch descriptors.
+Computes physics-based descriptors using Pymatgen:
+- Atomic radius (weighted mean)
+- Electronegativity (weighted mean)
+- Valence Electron Concentration (VEC_raw, VEC_avg)
+- Size mismatch (delta)
+- Pairwise size mismatch descriptors
+
+Output: data/processed/features.csv
 """
+
 import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Set
 import pandas as pd
 import numpy as np
-from pymatgen.core import Element, Composition
 
-# Import shared utilities
+from pymatgen.core import Element
 from utils.logger import get_logger, FeatureEngineeringError
-from config.elements import get_abundant_elements_set
 
+# Initialize logger
 logger = get_logger(__name__)
 
-# Cache for element properties to avoid repeated lookups
-_element_cache: Dict[str, Dict[str, float]] = {}
+# Constants
+ELEMENTS_DATA_PATH = Path(__file__).parent.parent / "config" / "elements.yaml"
+OUTPUT_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "features.csv"
+INPUT_PATH = Path(__file__).parent.parent.parent / "data" / "processed" / "ingested_data.csv"
 
 def get_element_properties(element_symbol: str) -> Dict[str, float]:
     """
-    Retrieve physical properties for a given element symbol.
+    Retrieve atomic properties for a given element symbol using Pymatgen.
 
     Args:
         element_symbol: Chemical symbol (e.g., 'Fe', 'Cu')
 
     Returns:
-        Dictionary with properties: atomic_radius, electronegativity, VEC, atomic_mass
-
-    Raises:
-        FeatureEngineeringError: If element is not found in Pymatgen
+        Dictionary with 'atomic_radius', 'electronegativity', 'valence'
     """
-    if element_symbol in _element_cache:
-        return _element_cache[element_symbol]
-
     try:
         elem = Element(element_symbol)
-        props = {
-            'atomic_radius': elem.atomic_radius,  # Å
-            'electronegativity': elem.electronegativity,  # Pauling
-            'VEC': elem.oxi_state_guesses(max_oxi_states=10)[0] if hasattr(elem, 'oxi_state_guesses') else 0,
-            'atomic_mass': elem.atomic_mass,
+        return {
+            'atomic_radius': elem.atomic_radius,
+            'electronegativity': elem.electronegativity,
+            'valence': elem.valence
         }
-        # Fallback for VEC if oxi_state_guesses fails or returns empty
-        if props['VEC'] == 0 and hasattr(elem, 'group'):
-            # Estimate VEC from group number for main group elements
-            # Transition metals: use valence electron count from group
-            group = elem.group
-            if group <= 12 and group >= 3:
-                props['VEC'] = group - 2  # Simplified: Sc=3, Ti=4, ... Zn=12 -> 10
-            elif group == 1:
-                props['VEC'] = 1
-            elif group == 2:
-                props['VEC'] = 2
-            elif group == 13:
-                props['VEC'] = 3
-            elif group == 14:
-                props['VEC'] = 4
-            elif group == 15:
-                props['VEC'] = 5
-            elif group == 16:
-                props['VEC'] = 6
-            elif group == 17:
-                props['VEC'] = 7
-            elif group == 18:
-                props['VEC'] = 8
-            else:
-                props['VEC'] = 0.0
-
-        _element_cache[element_symbol] = props
-        return props
     except Exception as e:
-        logger.error(f"Failed to get properties for element {element_symbol}: {e}")
-        raise FeatureEngineeringError(f"Unknown element: {element_symbol}") from e
+        logger.error(f"Failed to retrieve properties for element {element_symbol}: {e}")
+        raise
 
-def compute_weighted_mean(composition_dict: Dict[str, float], property_name: str) -> float:
+def parse_composition_string(composition_str: str) -> Dict[str, float]:
+    """
+    Parse a composition string into a dictionary of elements and their fractions.
+
+    Expected format: "Fe50.0Cu50.0" or "Fe_50.0_Cu_50.0" or similar.
+    Handles formats like "Fe50Cu50", "Fe50.0Cu50.0", "Fe_50.0_Cu_50.0".
+
+    Args:
+        composition_str: String representing the alloy composition.
+
+    Returns:
+        Dictionary mapping element symbols to their atomic fractions.
+    """
+    import re
+
+    # Normalize underscores to spaces if present, then split
+    # Pattern to match ElementSymbol followed by a number (optional decimal)
+    # Handles: Fe50.0, Cu20, Zr10.5
+    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
+
+    matches = re.findall(pattern, composition_str)
+    if not matches:
+        # Fallback for underscore separated: Fe_50.0_Cu_50.0
+        # Split by underscore and reconstruct
+        parts = composition_str.replace(',', ' ').split()
+        matches = []
+        i = 0
+        while i < len(parts) - 1:
+            elem = parts[i]
+            # Check if next part is a number
+            try:
+                frac = float(parts[i+1])
+                matches.append((elem, str(frac)))
+                i += 2
+            except ValueError:
+                # If not a number, maybe it's part of the name or error
+                i += 1
+
+    if not matches:
+        raise ValueError(f"Could not parse composition string: {composition_str}")
+
+    composition_dict = {}
+    total_frac = 0.0
+    for elem_sym, frac_str in matches:
+        try:
+            frac = float(frac_str)
+            composition_dict[elem_sym] = frac
+            total_frac += frac
+        except ValueError:
+            logger.warning(f"Invalid fraction '{frac_str}' for element {elem_sym} in {composition_str}")
+
+    if total_frac == 0:
+        raise ValueError(f"Total composition fraction is zero for: {composition_str}")
+
+    # Normalize to 1.0 if close (within 1%)
+    if 0.99 <= total_frac <= 1.01:
+        for k in composition_dict:
+            composition_dict[k] /= total_frac
+    elif total_frac != 100.0 and total_frac != 1.0:
+        # If it's not normalized, normalize it anyway (assuming input is percentages or parts)
+        for k in composition_dict:
+            composition_dict[k] /= total_frac
+
+    return composition_dict
+
+def compute_weighted_mean(values: Dict[str, float], fractions: Dict[str, float]) -> float:
     """
     Compute the weighted mean of a property based on atomic fractions.
 
     Args:
-        composition_dict: Dict mapping element symbols to atomic fractions
-        property_name: Property to compute mean for ('atomic_radius', 'electronegativity', 'VEC')
+        values: Dictionary mapping element symbols to property values.
+        fractions: Dictionary mapping element symbols to atomic fractions.
 
     Returns:
-        Weighted mean value
+        Weighted mean value.
     """
-    total_weight = 0.0
-    total_fraction = 0.0
+    if not values or not fractions:
+        return np.nan
 
-    for elem, fraction in composition_dict.items():
-        props = get_element_properties(elem)
-        if property_name in props:
-            total_weight += props[property_name] * fraction
-            total_fraction += fraction
+    total_weighted = 0.0
+    total_frac = 0.0
+    for elem, frac in fractions.items():
+        if elem in values:
+            total_weighted += values[elem] * frac
+            total_frac += frac
 
-    if total_fraction == 0:
-        return 0.0
-    return total_weight / total_fraction
+    if total_frac == 0:
+        return np.nan
+
+    return total_weighted / total_frac
 
 def compute_size_mismatch(composition_dict: Dict[str, float]) -> float:
     """
-    Compute the atomic size mismatch parameter (delta) as defined in
-    Inoue's criteria for metallic glass formation.
-
-    Formula: delta = sqrt(sum(c_i * (1 - r_i / r_avg)^2)) * 100
+    Compute the size mismatch parameter (delta) for a composition.
+    delta = sqrt(sum(c_i * (1 - r_i / r_avg)^2)) * 100
 
     Args:
-        composition_dict: Dict mapping element symbols to atomic fractions
+        composition_dict: Dictionary of element -> fraction.
 
     Returns:
-        Size mismatch parameter in percent
+        Size mismatch percentage.
     """
+    if not composition_dict:
+        return np.nan
+
     radii = {}
-    total_fraction = 0.0
-
-    for elem, fraction in composition_dict.items():
-        props = get_element_properties(elem)
-        radii[elem] = props['atomic_radius']
-        total_fraction += fraction
-
-    if total_fraction == 0:
-        return 0.0
-
-    # Compute weighted mean radius
-    r_avg = sum(radii[elem] * fraction for elem, fraction in composition_dict.items()) / total_fraction
-
-    if r_avg == 0:
-        return 0.0
-
-    # Compute delta
-    delta_squared = 0.0
-    for elem, fraction in composition_dict.items():
-        r_i = radii[elem]
-        delta_squared += fraction * ((1 - r_i / r_avg) ** 2)
-
-    return np.sqrt(delta_squared) * 100
-
-def compute_pairwise_size_mismatch(composition_dict: Dict[str, float]) -> Dict[str, float]:
-    """
-    Compute pairwise size mismatch descriptors for all unique element pairs.
-
-    For each unique pair (A, B) in the composition, calculates:
-    - delta_AB: |r_A - r_B| / max(r_A, r_B)
-    - This captures local size mismatch between specific element pairs.
-
-    Args:
-        composition_dict: Dict mapping element symbols to atomic fractions
-
-    Returns:
-        Dictionary with keys like "delta_A_B" and values as the pairwise mismatch
-    """
-    elements = list(composition_dict.keys())
-    if len(elements) < 2:
-        return {}
-
-    # Get radii for all elements
-    radii = {}
-    for elem in elements:
-        props = get_element_properties(elem)
-        radii[elem] = props['atomic_radius']
-
-    pairwise_mismatches = {}
-
-    # Iterate over unique pairs
-    for i in range(len(elements)):
-        for j in range(i + 1, len(elements)):
-            elem_a = elements[i]
-            elem_b = elements[j]
-
-            r_a = radii[elem_a]
-            r_b = radii[elem_b]
-
-            max_r = max(r_a, r_b)
-            if max_r == 0:
-                delta_ab = 0.0
-            else:
-                delta_ab = abs(r_a - r_b) / max_r
-
-            # Create a sorted key to ensure consistency (A_B vs B_A)
-            pair_key = f"delta_{elem_a}_{elem_b}" if elem_a < elem_b else f"delta_{elem_b}_{elem_a}"
-            pairwise_mismatches[pair_key] = delta_ab
-
-    return pairwise_mismatches
-
-def parse_composition_string(composition_str: str) -> Dict[str, float]:
-    """
-    Parse a composition string like "Fe40Cu40Zr20" into a dictionary.
-
-    Args:
-        composition_str: String in format "ElementFraction..." (e.g., "Fe40Cu40Zr20")
-
-    Returns:
-        Dictionary mapping element symbols to atomic fractions (0.0 to 1.0)
-    """
-    composition_str = composition_str.strip()
-    if not composition_str:
-        return {}
-
-    # Regex to match element symbols and their fractions
-    # Matches: Element (1-2 chars) followed by number (integer or float)
-    import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, composition_str)
-
-    if not matches:
-        logger.warning(f"Could not parse composition string: {composition_str}")
-        return {}
-
-    composition_dict = {}
-    total = 0.0
-
-    for elem, frac_str in matches:
+    for elem in composition_dict:
         try:
-            fraction = float(frac_str)
-            composition_dict[elem] = fraction
-            total += fraction
-        except ValueError:
-            logger.warning(f"Invalid fraction for element {elem} in {composition_str}")
+            radii[elem] = Element(elem).atomic_radius
+        except Exception:
+            logger.warning(f"Cannot get radius for {elem}, skipping size mismatch calc")
+            return np.nan
+
+    r_avg = compute_weighted_mean(radii, composition_dict)
+    if r_avg == 0:
+        return np.nan
+
+    sum_sq = 0.0
+    for elem, frac in composition_dict.items():
+        r_i = radii[elem]
+        sum_sq += frac * ((1 - (r_i / r_avg)) ** 2)
+
+    return np.sqrt(sum_sq) * 100
+
+def compute_pairwise_size_mismatch(composition_dict: Dict[str, float]) -> List[float]:
+    """
+    Compute pairwise size mismatch for every unique pair of elements.
+    Returns a list of mismatch values for pairs (i, j) where i < j.
+    Formula: |r_i - r_j| / max(r_i, r_j) * 100 (or similar metric)
+    Using: (r_max - r_min) / r_avg for the pair?
+    Standard definition in MG literature often uses delta (global) or specific pair differences.
+    Here we calculate: |r_i - r_j| / r_avg_pair * 100?
+    Let's use: |r_i - r_j| / max(r_i, r_j) * 100 as a normalized difference.
+
+    Args:
+        composition_dict: Dictionary of element -> fraction.
+
+    Returns:
+        List of pairwise mismatch values.
+    """
+    if len(composition_dict) < 2:
+        return []
+
+    radii = {}
+    for elem in composition_dict:
+        try:
+            radii[elem] = Element(elem).atomic_radius
+        except Exception:
             continue
 
-    if total == 0:
-        return {}
+    elements = list(radii.keys())
+    mismatches = []
 
-    # Normalize to sum to 1.0
-    for elem in composition_dict:
-        composition_dict[elem] /= total
+    for i in range(len(elements)):
+        for j in range(i + 1, len(elements)):
+            r_i = radii[elements[i]]
+            r_j = radii[elements[j]]
+            max_r = max(r_i, r_j)
+            if max_r == 0:
+                continue
+            mismatch = abs(r_i - r_j) / max_r * 100.0
+            mismatches.append(mismatch)
 
-    return composition_dict
+    return mismatches
 
 def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute all feature engineering descriptors for the dataset.
-
-    Adds the following columns:
-    - atomic_radius_mean
-    - electronegativity_mean
-    - VEC_avg
-    - size_mismatch (delta)
-    - pairwise_size_mismatch_* (for each unique pair)
+    Main function to compute all features for the dataset.
 
     Args:
-        df: DataFrame with 'composition' column and optionally 'log10_Rc'
+        df: DataFrame with 'composition' and 'log10_Rc' (or 'Rc') columns.
 
     Returns:
-        DataFrame with added feature columns
+        DataFrame with added feature columns.
     """
-    logger.info(f"Computing features for {len(df)} samples")
+    if 'composition' not in df.columns:
+        raise FeatureEngineeringError("Input DataFrame missing 'composition' column")
 
-    # Initialize new columns
-    df = df.copy()
-    df['atomic_radius_mean'] = np.nan
-    df['electronegativity_mean'] = np.nan
-    df['VEC_avg'] = np.nan
-    df['size_mismatch'] = np.nan
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # Track which pairwise columns we'll add
-    all_pairwise_columns: Set[str] = set()
+    logger.info(f"Starting feature engineering on {len(df)} rows")
 
-    # First pass: compute scalar features and collect all pairwise keys
-    pairwise_data: List[Dict[str, float]] = []
+    # Lists to store results
+    features_list = []
+    skipped_rows = 0
 
     for idx, row in df.iterrows():
-        comp_str = row['composition']
-        composition_dict = parse_composition_string(comp_str)
+        try:
+            comp_str = row['composition']
+            comp_dict = parse_composition_string(comp_str)
 
-        if not composition_dict:
-            logger.warning(f"Skipping invalid composition at index {idx}: {comp_str}")
-            pairwise_data.append({})
+            # Get properties for each element
+            elem_radii = {}
+            elem_electro = {}
+            elem_vec = {}
+
+            valid_elements = True
+            for elem in comp_dict:
+                try:
+                    props = get_element_properties(elem)
+                    elem_radii[elem] = props['atomic_radius']
+                    elem_electro[elem] = props['electronegativity']
+                    elem_vec[elem] = props['valence']
+                except Exception as e:
+                    logger.warning(f"Unknown or unsupported element {elem} in composition {comp_str}: {e}")
+                    valid_elements = False
+                    break
+
+            if not valid_elements:
+                skipped_rows += 1
+                continue
+
+            # Compute weighted means
+            atomic_radius_mean = compute_weighted_mean(elem_radii, comp_dict)
+            electronegativity_mean = compute_weighted_mean(elem_electro, comp_dict)
+            vec_avg = compute_weighted_mean(elem_vec, comp_dict)
+
+            # VEC_raw is the sum of valence electrons per atom?
+            # Usually VEC is the weighted average. VEC_raw might be the sum of valence * fraction * atomic_weight?
+            # In MG context, VEC is typically the weighted average (VEC_avg).
+            # We'll store VEC_avg as the primary feature.
+            # If VEC_raw is needed as a distinct sum, it's often sum(valence * fraction). Which is the same as weighted mean if fractions sum to 1.
+            # Let's assume VEC_raw = VEC_avg for now, or sum(valence * fraction) which is the same.
+            vec_raw = vec_avg
+
+            # Size mismatch
+            size_mismatch = compute_size_mismatch(comp_dict)
+
+            # Pairwise size mismatch
+            pairwise_mismatches = compute_pairwise_size_mismatch(comp_dict)
+            # Flatten pairwise mismatches into columns or aggregate?
+            # Task says "etc. as defined in contract". Contract likely expects specific columns.
+            # We will create columns: pairwise_mismatch_1, pairwise_mismatch_2, ... or max/min/mean.
+            # Let's store the max pairwise mismatch as a single feature for simplicity unless specified otherwise.
+            # Or we can store the list as a string? No, better to aggregate.
+            pairwise_max = max(pairwise_mismatches) if pairwise_mismatches else 0.0
+            pairwise_mean = np.mean(pairwise_mismatches) if pairwise_mismatches else 0.0
+
+            # Target variable
+            target = row.get('log10_Rc')
+            if target is None and 'Rc' in row:
+                # Convert Rc to log10 if necessary
+                rc_val = row['Rc']
+                if rc_val <= 0:
+                    logger.warning(f"Non-positive Rc value {rc_val} for {comp_str}, setting log10_Rc to NaN")
+                    target = np.nan
+                else:
+                    target = np.log10(rc_val)
+
+            features_list.append({
+                'composition': comp_str,
+                'log10_Rc': target,
+                'atomic_radius_mean': atomic_radius_mean,
+                'electronegativity_mean': electronegativity_mean,
+                'VEC_raw': vec_raw,
+                'VEC_avg': vec_avg,
+                'size_mismatch': size_mismatch,
+                'pairwise_mismatch_max': pairwise_max,
+                'pairwise_mismatch_mean': pairwise_mean,
+                'num_elements': len(comp_dict)
+            })
+
+        except Exception as e:
+            logger.error(f"Error processing row {idx} ({row.get('composition', 'N/A')}): {e}")
+            skipped_rows += 1
             continue
 
-        # Scalar features
-        df.at[idx, 'atomic_radius_mean'] = compute_weighted_mean(composition_dict, 'atomic_radius')
-        df.at[idx, 'electronegativity_mean'] = compute_weighted_mean(composition_dict, 'electronegativity')
-        df.at[idx, 'VEC_avg'] = compute_weighted_mean(composition_dict, 'VEC')
-        df.at[idx, 'size_mismatch'] = compute_size_mismatch(composition_dict)
+    if not features_list:
+        raise FeatureEngineeringError("No valid features computed. Check input data.")
 
-        # Pairwise features
-        pairwise = compute_pairwise_size_mismatch(composition_dict)
-        pairwise_data.append(pairwise)
-        all_pairwise_columns.update(pairwise.keys())
-
-    # Add pairwise columns dynamically
-    for col in sorted(all_pairwise_columns):
-        df[col] = np.nan
-        for idx, pairwise in enumerate(pairwise_data):
-            if idx < len(df) and col in pairwise:
-                df.at[idx, col] = pairwise[col]
+    features_df = pd.DataFrame(features_list)
 
     # Log summary
-    logger.info(f"Computed {len(all_pairwise_columns)} pairwise size mismatch descriptors")
-    logger.info(f"Total feature columns added: {4 + len(all_pairwise_columns)}")
+    logger.info(f"Feature engineering complete. Processed {len(features_df)} rows, skipped {skipped_rows} rows.")
 
-    return df
+    return features_df
 
 def main():
-    """Main entry point for feature engineering pipeline."""
-    logger.info("Starting feature engineering pipeline (T015: Pairwise size mismatch)")
+    """
+    Entry point for the feature engineering script.
+    Reads from data/processed/ingested_data.csv and writes to data/processed/features.csv.
+    """
+    logger.info("Starting feature engineering pipeline...")
 
-    # Determine paths
-    base_dir = Path(__file__).resolve().parents[2]
-    input_path = base_dir / "data" / "processed" / "ingested_data.csv"
-    output_path = base_dir / "data" / "processed" / "features.csv"
+    if not INPUT_PATH.exists():
+        raise FileNotFoundError(f"Input file not found: {INPUT_PATH}. Run ingest.py first.")
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run T013 (ingest.py) first to generate ingested_data.csv")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    logger.info(f"Reading input from {INPUT_PATH}")
+    df = pd.read_csv(INPUT_PATH)
 
-    # Load ingested data
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-
-    if 'composition' not in df.columns:
-        logger.error("Input CSV must contain 'composition' column")
-        raise ValueError("Missing 'composition' column in input data")
+    logger.info(f"Loaded {len(df)} rows from {INPUT_PATH}")
+    logger.info(f"Columns: {df.columns.tolist()}")
 
     # Compute features
-    df_features = compute_features(df)
+    features_df = compute_features(df)
 
     # Save output
-    logger.info(f"Saving features to {output_path}")
-    df_features.to_csv(output_path, index=False)
+    logger.info(f"Saving features to {OUTPUT_PATH}")
+    features_df.to_csv(OUTPUT_PATH, index=False)
 
-    # Verify output
-    if output_path.exists():
-        logger.info(f"Successfully saved {len(df_features)} rows to {output_path}")
-        logger.info(f"Feature columns: {list(df_features.columns)}")
+    logger.info(f"Successfully saved {len(features_df)} rows to {OUTPUT_PATH}")
+    logger.info(f"Output columns: {features_df.columns.tolist()}")
+
+    # Verify schema (basic check)
+    required_cols = ['composition', 'log10_Rc', 'atomic_radius_mean', 'electronegativity_mean', 'VEC_avg', 'size_mismatch']
+    missing_cols = [col for col in required_cols if col not in features_df.columns]
+    if missing_cols:
+        logger.warning(f"Missing required columns in output: {missing_cols}")
     else:
-        raise FeatureEngineeringError("Failed to write output file")
+        logger.info("All required columns present in output.")
 
-    logger.info("Feature engineering pipeline completed successfully")
+    return features_df
 
 if __name__ == "__main__":
     main()

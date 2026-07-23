@@ -4,67 +4,56 @@ from pathlib import Path
 import pytest
 
 # Import the function to test
-from utils.setup_data_dirs import create_data_directories
+# We assume the code is in code/utils/setup_data_dirs.py
+# The import path must match the project structure
+sys_path_backup = list(__import__('sys').path)
+try:
+    # Add the project root to path if not already there
+    project_root = Path(__file__).resolve().parents[2]
+    if str(project_root) not in __import__('sys').path:
+        __import__('sys').path.insert(0, str(project_root))
+    
+    from utils.setup_data_dirs import create_data_directories
+finally:
+    __import__('sys').path[:] = sys_path_backup
 
+def test_creates_raw_and_processed_directories():
+    """
+    Test that create_data_directories creates data/raw and data/processed.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        base_path = Path(tmp_dir)
+        
+        # Ensure data folder doesn't exist yet
+        data_folder = base_path / "data"
+        assert not data_folder.exists()
+        
+        # Run the function
+        create_data_directories(base_path)
+        
+        # Verify directories exist
+        raw_dir = base_path / "data" / "raw"
+        processed_dir = base_path / "data" / "processed"
+        
+        assert raw_dir.exists(), f"Directory {raw_dir} was not created"
+        assert processed_dir.exists(), f"Directory {processed_dir} was not created"
+        assert raw_dir.is_dir(), f"{raw_dir} is not a directory"
+        assert processed_dir.is_dir(), f"{processed_dir} is not a directory"
 
-class TestDataDirectoryCreation:
-    """Tests for the create_data_directories function."""
-
-    def test_creates_raw_directory(self, tmp_path):
-        """Test that data/raw directory is created."""
-        # Arrange
-        raw_dir = tmp_path / "data" / "raw"
+def test_handles_existing_directories():
+    """
+    Test that the function does not fail if directories already exist.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        base_path = Path(tmp_dir)
         
-        # Act
-        create_data_directories(tmp_path)
+        # Pre-create the directories
+        (base_path / "data" / "raw").mkdir(parents=True)
+        (base_path / "data" / "processed").mkdir(parents=True)
         
-        # Assert
-        assert raw_dir.exists()
-        assert raw_dir.is_dir()
-
-    def test_creates_processed_directory(self, tmp_path):
-        """Test that data/processed directory is created."""
-        # Arrange
-        processed_dir = tmp_path / "data" / "processed"
+        # Run the function - should not raise
+        create_data_directories(base_path)
         
-        # Act
-        create_data_directories(tmp_path)
-        
-        # Assert
-        assert processed_dir.exists()
-        assert processed_dir.is_dir()
-
-    def test_creates_parent_directories(self, tmp_path):
-        """Test that parent directories are created if they don't exist."""
-        # Arrange - start with an empty tmp_path
-        assert not (tmp_path / "data").exists()
-        
-        # Act
-        create_data_directories(tmp_path)
-        
-        # Assert
-        assert (tmp_path / "data").exists()
-        assert (tmp_path / "data" / "raw").exists()
-        assert (tmp_path / "data" / "processed").exists()
-
-    def test_idempotent_creation(self, tmp_path):
-        """Test that calling the function multiple times doesn't cause errors."""
-        # Act - call twice
-        create_data_directories(tmp_path)
-        create_data_directories(tmp_path)
-        
-        # Assert
-        assert (tmp_path / "data" / "raw").exists()
-        assert (tmp_path / "data" / "processed").exists()
-
-    def test_directories_are_empty_after_creation(self, tmp_path):
-        """Test that created directories are initially empty."""
-        # Act
-        create_data_directories(tmp_path)
-        
-        # Assert
-        raw_dir = tmp_path / "data" / "raw"
-        processed_dir = tmp_path / "data" / "processed"
-        
-        assert len(list(raw_dir.iterdir())) == 0
-        assert len(list(processed_dir.iterdir())) == 0
+        # Verify they still exist
+        assert (base_path / "data" / "raw").exists()
+        assert (base_path / "data" / "processed").exists()

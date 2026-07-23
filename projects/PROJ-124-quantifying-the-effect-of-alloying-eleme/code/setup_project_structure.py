@@ -1,102 +1,70 @@
-"""
-Project Structure Setup Script for PROJ-124.
-
-This script creates the required directory structure for the
-Quantifying the Effect of Alloying Elements on the Glass-Forming Ability
-of Metallic Glasses project.
-
-It ensures all necessary folders for code, data, state, output, tests,
-and documentation exist before any other tasks are executed.
-"""
 import os
 from pathlib import Path
 
-
 def create_project_structure():
     """
-    Create the full project directory structure as defined in the implementation plan.
-
-    Creates directories for:
-    - code/: Source modules (data, models, utils, config)
-    - data/: Raw and processed data storage
-    - state/: Pipeline state and artifact hashes
-    - output/: Final results and candidates
-    - tests/: Unit, integration, and contract tests
-    - docs/: Paper drafts and reports
+    Creates the project directory structure as defined in the implementation plan.
+    This script ensures all required directories exist for the llmXive pipeline.
     """
-    base_path = Path(".")
+    # Define the root directory (current working directory or specified project root)
+    # Assuming the script is run from the project root
+    root = Path.cwd()
 
-    # Define all required directories relative to the project root
+    # Define the directory structure relative to root
     directories = [
-        # Code modules
+        # Code structure
         "code/data",
         "code/models",
         "code/utils",
         "code/config",
-
-        # Data storage
+        
+        # Data structure
         "data/raw",
         "data/processed",
-
+        
         # State and output
         "state",
         "output",
-
-        # Testing
+        
+        # Tests
         "tests/contract",
         "tests/integration",
         "tests/unit",
-
+        
         # Documentation
         "docs/paper",
         "docs/reports",
     ]
 
     created_count = 0
-    existing_count = 0
+    skipped_count = 0
 
+    print(f"Creating project structure in: {root}")
+    
     for dir_path in directories:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            existing_count += 1
+        full_path = root / dir_path
+        try:
+            if full_path.exists():
+                print(f"  [SKIP] {dir_path} (already exists)")
+                skipped_count += 1
+            else:
+                full_path.mkdir(parents=True, exist_ok=True)
+                print(f"  [CREATED] {dir_path}")
+                created_count += 1
+        except Exception as e:
+            print(f"  [ERROR] Failed to create {dir_path}: {e}")
 
-    print(f"\nProject structure setup complete.")
-    print(f"  New directories created: {created_count}")
-    print(f"  Directories already existing: {existing_count}")
-    print(f"  Total directories managed: {len(directories)}")
-
-    # Verify critical directories exist
-    critical_dirs = [
-        "code/data", "code/models", "code/utils", "code/config",
-        "data/raw", "data/processed", "state", "output",
-        "tests/contract", "tests/integration", "docs/paper"
-    ]
-
-    missing = []
-    for dir_name in critical_dirs:
-        if not (base_path / dir_name).exists():
-            missing.append(dir_name)
-
-    if missing:
-        raise RuntimeError(f"Critical directories missing after setup: {missing}")
-
-    return True
-
+    print(f"\nSummary: {created_count} directories created, {skipped_count} already existed.")
+    return created_count == len(directories) or skipped_count > 0
 
 def main():
-    """Entry point for the script."""
-    print("Initializing project structure for PROJ-124...")
-    try:
-        create_project_structure()
-        print("SUCCESS: Project structure is ready for implementation.")
-    except Exception as e:
-        print(f"FAILURE: {e}")
-        raise
-
+    success = create_project_structure()
+    if success:
+        print("Project structure setup completed successfully.")
+        exit(0)
+    else:
+        print("Project structure setup encountered errors.")
+        exit(1)
 
 if __name__ == "__main__":
     main()

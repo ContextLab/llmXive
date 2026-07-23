@@ -1,146 +1,139 @@
 """
 Data download module for fetching the GFA dataset from HuggingFace.
 
-This module implements the fetch logic for the 'Recent Experimental GFA' dataset.
-It includes retry logic, error handling, and SHA-256 verification as per FR-001.
+This module handles the retrieval of the Recent Experimental GFA dataset,
+verifies its schema, and generates checksums for data integrity.
 """
 import os
 import logging
 import time
+import requests
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
+import pandas as pd
+from huggingface_hub import hf_hub_download
+from huggingface_hub.utils import RepositoryNotFoundError, RevisionNotFoundError, LocalEntryNotFoundError
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError("The 'datasets' package is required. Install it via: pip install datasets")
-
-from config.environment import get_environment_config
-from data.checksums import generate_checksum, save_checksum
+# Local imports based on project API surface
+from data.checksums import save_checksum
 from utils.logger import get_logger, DataDownloadError
 
-logger = get_logger("data.download")
+logger = get_logger(__name__)
 
-# Constants for retry logic
-MAX_RETRIES = 5
-RETRY_BASE_DELAY = 5  # seconds
+# Constants
+DATASET_REPO_ID = "GFA-D2/pilot_flags"
+DATASET_FILENAME = "pilot_flags.csv"  # Assuming the file is named this on HF
+OUTPUT_PATH = "data/raw/gfa_dataset.csv"
+CHECKSUM_PATH = "data/raw/gfa_dataset.csv.sha256"
+REQUIRED_COLUMNS = {"composition", "log10_Rc"}  # Or "Rc" as fallback
 
-def verify_schema(df: 'pd.DataFrame') -> bool:
+def verify_schema(df: pd.DataFrame, required_cols: set) -> bool:
     """
     Verifies that the DataFrame contains the required columns.
-    Raises an exception if the schema is invalid.
+    
+    Args:
+        df: The DataFrame to verify.
+        required_cols: Set of required column names.
+        
+    Returns:
+        True if schema is valid.
+        
+    Raises:
+        ValueError: If required columns are missing.
     """
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("pandas is required for schema verification")
-
-    required_cols = {'composition'}
-    optional_cols = {'log10_Rc', 'Rc'}
+    available_cols = set(df.columns)
+    missing = required_cols - available_cols
     
-    # We need at least one of the target columns
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Missing required columns: {missing}")
-    
-    if not (optional_cols & set(df.columns)):
-        raise ValueError(
-            f"Dataset must contain either 'log10_Rc' or 'Rc' column. "
-            f"Found columns: {list(df.columns)}"
-        )
+    # Check if "Rc" is present as an alternative to "log10_Rc"
+    if "log10_Rc" in missing and "Rc" in available_cols:
+        logger.info("Column 'log10_Rc' not found, but 'Rc' found. Schema is acceptable.")
+        return True
+        
+    if missing:
+        raise ValueError(f"Schema verification failed. Missing required columns: {missing}")
     
     logger.info("Schema verification passed.")
     return True
 
-def download_gfa_dataset(output_dir: str) -> str:
+def download_gfa_dataset() -> str:
     """
-    Fetches the 'Recent Experimental GFA' dataset from HuggingFace and saves it to the specified directory.
+    Downloads the GFA dataset from HuggingFace with retry logic.
     
-    Args:
-        output_dir: Path to the directory where the CSV should be saved.
-        
     Returns:
-        Path to the downloaded CSV file.
+        Path to the downloaded file.
         
     Raises:
-        DataDownloadError: If the dataset cannot be fetched, saved, or verified after retries.
+        DataDownloadError: If download fails after retries or schema verification fails.
     """
-    config = get_environment_config()
-    # Use the verified dataset ID from config or fallback to the known source
-    dataset_name = config.dataset_name or "ml4matscience/gfa-experimental"
+    output_file = Path(OUTPUT_PATH)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    output_path = Path(output_dir) / "gfa_dataset.csv"
-    checksum_path = Path(output_dir) / "gfa_dataset.csv.sha256"
+    max_retries = 3
+    base_delay = 5.0  # seconds
     
-    # Ensure output directory exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    if output_path.exists():
-        logger.info(f"Dataset already exists at {output_path}. Skipping download.")
-        # Verify existing checksum if available
-        if checksum_path.exists():
-            logger.info("Existing checksum file found.")
-        else:
-            logger.warning("Existing dataset found but no checksum file. Regenerating checksum.")
-            save_checksum(str(output_path), str(checksum_path))
-        return str(output_path)
-
-    logger.info(f"Attempting to download dataset: {dataset_name}")
-    
-    last_exception = None
-    for attempt in range(1, MAX_RETRIES + 1):
+    for attempt in range(1, max_retries + 1):
         try:
-            logger.info(f"Download attempt {attempt}/{MAX_RETRIES}")
+            logger.info(f"Attempting to download dataset (Attempt {attempt}/{max_retries})...")
             
-            # Load the dataset
-            # Note: We use streaming=False to ensure we get the full dataset for processing
-            dataset = load_dataset(dataset_name, split="train", trust_remote_code=True)
+            # Use hf_hub_download for robust downloading
+            # We assume the file is at the root of the dataset repo
+            downloaded_path = hf_hub_download(
+                repo_id=DATASET_REPO_ID,
+                filename=DATASET_FILENAME,
+                repo_type="dataset"
+            )
             
-            # Convert to pandas and save to CSV
-            df = dataset.to_pandas()
+            # Move/copy to our expected output path if needed, 
+            # or just use the downloaded path if it matches expectations.
+            # hf_hub_download returns the path in the HF cache. 
+            # We need to copy it to data/raw/ as per task requirement.
+            import shutil
+            shutil.copy(downloaded_path, output_file)
             
-            if df.empty:
-                raise ValueError("Downloaded dataset is empty.")
+            logger.info(f"Dataset downloaded successfully to {output_file}")
             
-            # Schema Verification: Must happen BEFORE saving checksum
-            verify_schema(df)
+            # Schema Verification
+            logger.info("Verifying dataset schema...")
+            df = pd.read_csv(output_file)
+            verify_schema(df, REQUIRED_COLUMNS)
             
-            df.to_csv(output_path, index=False)
+            # Generate Checksum ONLY after schema verification passes
+            logger.info("Generating checksum...")
+            save_checksum(str(output_file), CHECKSUM_PATH)
+            logger.info(f"Checksum saved to {CHECKSUM_PATH}")
             
-            logger.info(f"Dataset downloaded and saved to {output_path} ({len(df)} rows).")
+            return str(output_file)
             
-            # Generate and save checksum ONLY after schema verification passes
-            save_checksum(str(output_path), str(checksum_path))
-            logger.info(f"Checksum saved to {checksum_path}")
-            
-            return str(output_path)
-            
+        except (RepositoryNotFoundError, RevisionNotFoundError) as e:
+            logger.error(f"Repository or revision not found: {e}")
+            raise DataDownloadError(f"Failed to access dataset repository: {e}") from e
+        except LocalEntryNotFoundError as e:
+            logger.error(f"Local entry not found (network issue or file missing): {e}")
+            if attempt == max_retries:
+                raise DataDownloadError("Download failed after all retries due to network or file issues.") from e
         except Exception as e:
-            last_exception = e
-            error_msg = str(e)
-            logger.error(f"Attempt {attempt} failed: {e}")
-            
-            # Explicit handling for 401/403 errors
-            if "401" in error_msg or "403" in error_msg or "Authentication" in error_msg or "Permission" in error_msg:
-                logger.critical(f"Authentication/Permission error detected: {e}. Halting immediately.")
-                raise DataDownloadError(f"Dataset access denied (401/403). Check dataset visibility or credentials: {e}")
-            
-            if attempt < MAX_RETRIES:
-                delay = RETRY_BASE_DELAY * (2 ** (attempt - 1))  # Exponential backoff
-                logger.info(f"Retrying in {delay} seconds (exponential backoff)...")
-                time.sleep(delay)
-            else:
-                logger.error("Max retries reached. Download failed.")
+            logger.error(f"Error during download attempt {attempt}: {e}")
+            if attempt == max_retries:
+                raise DataDownloadError(f"Download failed after {max_retries} attempts.") from e
+        
+        # Exponential backoff
+        delay = base_delay * (2 ** (attempt - 1))
+        logger.warning(f"Download failed. Retrying in {delay:.1f} seconds...")
+        time.sleep(delay)
     
-    raise DataDownloadError(f"Dataset download failed after {MAX_RETRIES} attempts: {last_exception}")
+    raise DataDownloadError("Download failed after all retries.")
 
 def main():
     """Main entry point for standalone execution."""
-    config = get_environment_config()
-    output_dir = config.raw_data_dir
-    logger.info(f"Starting dataset download to {output_dir}")
-    result_path = download_gfa_dataset(output_dir)
-    logger.info(f"Download completed successfully: {result_path}")
+    try:
+        path = download_gfa_dataset()
+        logger.info(f"Task completed. Data available at: {path}")
+    except DataDownloadError as e:
+        logger.critical(f"Task failed: {e}")
+        exit(1)
+    except Exception as e:
+        logger.critical(f"Unexpected error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

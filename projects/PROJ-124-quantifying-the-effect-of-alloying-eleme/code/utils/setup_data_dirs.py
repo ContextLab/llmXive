@@ -1,91 +1,70 @@
 """
-Module to create the required data directory structure for the project.
-
-This task (T004a) ensures that the `data/raw` and `data/processed` directories
-exist, along with other necessary subdirectories defined in the project plan.
+Utility to create the required data directory structure for the project.
+Ensures `data/raw/` and `data/processed/` exist before data operations begin.
 """
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 import logging
 
-# Configure logging for the module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add the project root to the path to allow imports from sibling modules if needed
+# (Though this script only uses stdlib)
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-def create_data_directories(base_path: Optional[Path] = None) -> bool:
+# Import logger if available, otherwise use standard logging
+try:
+    from utils.logger import get_logger, log_info, log_warning, log_error
+    logger = get_logger(__name__)
+except ImportError:
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+def create_data_directories(base_path: Optional[Path] = None) -> None:
     """
-    Create the required directory structure for the project.
+    Create the required directory structure for data storage.
     
     Args:
-        base_path: The root path of the project. Defaults to the current working directory.
-        
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+        base_path: Optional base path. Defaults to the project root.
     """
     if base_path is None:
-        base_path = Path.cwd()
+        base_path = project_root
     
-    # Define the required directory structure relative to the base path
-    # Based on T001 requirements and project conventions
-    directories = [
-        "data/raw",
-        "data/processed",
-        "state",
-        "output",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        "docs/paper",
-        "docs/reports",
-        # Ensure parent data directories exist (though usually created by subdirs)
-        "data",
+    # Define required directories
+    required_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        # Also ensure other critical data dirs exist for the pipeline
+        base_path / "state",
+        base_path / "output",
+        base_path / "data" / "config",
     ]
     
-    success = True
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-            else:
-                logger.debug(f"Directory already exists: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            success = False
-        
-        # Verify creation
-        if not full_path.exists():
-            logger.error(f"Verification failed: Directory {full_path} does not exist after creation attempt.")
-            success = False
+    created_count = 0
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
     
-    return success
+    if created_count > 0:
+        logger.info(f"Successfully created {created_count} directory(ies).")
+    else:
+        logger.info("All required directories already exist.")
 
 def main():
-    """Main entry point for creating data directories."""
-    logger.info("Starting directory creation task (T004a)...")
-    
-    # Determine project root (assuming this script is in code/utils/)
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
-    
-    logger.info(f"Project root detected at: {project_root}")
-    
-    success = create_data_directories(project_root)
-    
-    if success:
-        logger.info("All required directories created successfully.")
-        # List the created structure for verification
-        data_raw = project_root / "data" / "raw"
-        data_processed = project_root / "data" / "processed"
-        logger.info(f"Verification: data/raw exists: {data_raw.exists()}")
-        logger.info(f"Verification: data/processed exists: {data_processed.exists()}")
-    else:
-        logger.error("Failed to create one or more directories.")
+    """Entry point for the script."""
+    logger.info("Starting directory creation...")
+    try:
+        create_data_directories()
+        logger.info("Directory creation completed successfully.")
+    except Exception as e:
+        logger.error(f"Failed to create directories: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
