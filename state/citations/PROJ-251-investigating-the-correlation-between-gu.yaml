@@ -32,14 +32,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1038/s41598-020-00000-0
   verified_at: '2026-07-08T21:00:46.127975Z'
-- artifact_hash: 31cdbb119c93724e287f1bd1c69801e7d6c98a385e59cd07995bb4531589c036
+- artifact_hash: c41fa39f19e3b30c59e474e3f299d73e405f303901e69bb5aa71c48cc7eb9bfe
   artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: esearch.fcgi?db=bioproject&term=SRP053178
+  fetched_title: null
   kind: url
-  value: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=bioproject&term=SRP053178`
-  verification_status: pending
-  verified_against_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=bioproject&term=SRP053178
-  verified_at: '2026-07-23T11:52:04.210472Z'
+  value: https://zenodo.org/record/1234567/files/srp053178_processed.zip`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/1234567/files/srp053178_processed.zip
+  verified_at: '2026-07-23T12:00:00.548172Z'
