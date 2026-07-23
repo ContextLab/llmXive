@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `projects/PROJ-496-the-influence-of-simulated-social-valida/code/` directory structure
+- [ ] T001a [P] Create `projects/PROJ-496-the-influence-of-simulated-social-valida/code/` directory structure <!-- FAILED: unspecified -->
 - [ ] T001b [P] Create `projects/PROJ-496-the-influence-of-simulated-social-valida/data/` directory structure
 - [ ] T001c [P] Create `projects/PROJ-496-the-influence-of-simulated-social-valida/tests/` directory structure
 - [ ] T001d [P] Create `projects/PROJ-496-the-influence-of-simulated-social-valida/docs/` directory structure

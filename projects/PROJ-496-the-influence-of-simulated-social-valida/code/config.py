@@ -1,67 +1,49 @@
-"""
-Configuration module for the Simulated Social Validation project.
-Handles path management, environment variables, and reproducibility seeds.
-"""
 import os
 import random
 from pathlib import Path
 from typing import Optional
 
-# Project Root
-# Assumes code/ is at projects/PROJ-496-.../code/
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project root directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# --- Paths ---
-DATA_RAW_DIR = _PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = _PROJECT_ROOT / "data" / "processed"
-DATA_RESULTS_DIR = _PROJECT_ROOT / "data" / "results"
-FIGURES_DIR = _PROJECT_ROOT / "data" / "figures"
-SPECS_DIR = _PROJECT_ROOT / "specs" / "main-feature-sim-social-validation"
-CONTRACTS_DIR = SPECS_DIR / "contracts"
-
-# --- Reproducibility (Constitution Principle I) ---
-# Fixed seed for reproducibility across all random operations
+# Random seed for reproducibility (Constitution Principle I)
 RANDOM_SEED = 42
 
-def set_seeds(seed: Optional[int] = None) -> None:
+def set_seeds(seed: int = RANDOM_SEED):
     """
-    Pin random seeds for reproducibility.
-    Must be called BEFORE any data loading or model fitting.
+    Set random seeds for reproducibility.
     
     Args:
-        seed: Optional seed override. Defaults to RANDOM_SEED (42).
+        seed: Integer seed value.
     """
-    if seed is None:
-        seed = RANDOM_SEED
-    
-    # Set Python random
     random.seed(seed)
-    
-    # Set NumPy (if available)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # If numpy is available, set its seed too
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
-        pass  # numpy not installed yet, will be caught when needed
-    
-    # Set PyTorch (if available)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
         pass
 
-# --- Environment ---
-def get_env_var(key: str, default: Optional[str] = None) -> Optional[str]:
-    """Get an environment variable with an optional default."""
-    return os.getenv(key, default)
+def get_env_var(var_name: str, default: Optional[str] = None) -> Optional[str]:
+    """
+    Get an environment variable.
+    
+    Args:
+        var_name: Name of the environment variable.
+        default: Default value if not found.
+        
+    Returns:
+        The value of the environment variable or default.
+    """
+    return os.getenv(var_name, default)
 
-def ensure_dirs() -> None:
-    """Ensure all required data directories exist."""
-    for dir_path in [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_RESULTS_DIR, FIGURES_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
+def ensure_dirs(*dirs: Path):
+    """
+    Ensure that the given directories exist.
+    
+    Args:
+        dirs: Paths to directories to create.
+    """
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

@@ -1,67 +1,88 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Sensitivity Report
-description: Schema for sensitivity analysis report across different confidence thresholds.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report"
+description: "Schema for the sensitivity analysis report on network confidence thresholds."
 type: object
 required:
   - organism
-  - centrality_metric
-  - threshold_results
-  - stability_flag
-  - max_delta_rho
+  - analysis_type
+  - thresholds_tested
+  - results
+  - stability_assessment
+  - timestamp
 properties:
   organism:
     type: string
-    description: Organism identifier.
-  centrality_metric:
+    description: "Scientific name of the organism analyzed."
+  analysis_type:
     type: string
-    enum:
-      - degree
-      - betweenness
-      - eigenvector
-    description: Centrality metric analyzed.
-  threshold_results:
+    const: "confidence_threshold_sensitivity"
+  thresholds_tested:
     type: array
     items:
+      type: integer
+    description: "List of STRING confidence thresholds tested (e.g., [500, 700, 900])."
+  centrality_metric:
+    type: string
+    description: "The centrality metric being evaluated for sensitivity."
+  results:
+    type: object
+    description: "Results keyed by threshold value (as string)."
+    additionalProperties:
       type: object
       required:
-        - threshold
-        - spearman_rho
+        - correlation_coefficient
         - p_value
         - sample_size
+        - network_edges
+        - network_nodes
       properties:
-        threshold:
-          type: integer
-          description: STRING confidence threshold.
-        spearman_rho:
+        correlation_coefficient:
           type: number
-          description: Correlation coefficient at this threshold.
         p_value:
           type: number
-          description: P-value at this threshold.
         sample_size:
           type: integer
-          description: Number of genes analyzed.
-        delta_rho:
-          type: number
-          nullable: true
-          description: Difference in rho compared to the previous threshold.
-  stability_flag:
-    type: boolean
-    description: True if max |Δρ| ≤ 0.1 (SC-002 pass), False otherwise.
-  max_delta_rho:
-    type: number
-    description: Maximum absolute difference in correlation coefficients across thresholds.
-  summary:
-    type: string
-    description: Human-readable summary of stability.
-  metadata:
-    type: object
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      thresholds_tested:
-        type: array
-        items:
+        network_edges:
           type: integer
-additionalProperties: false
+        network_nodes:
+          type: integer
+        sparsity_warning:
+          type: boolean
+          description: "True if edges < 500."
+  stability_assessment:
+    type: object
+    description: "Summary of stability across thresholds."
+    required:
+      - max_delta_rho
+      - pass_sc_002
+      - delta_matrix
+    properties:
+      max_delta_rho:
+        type: number
+        description: "Maximum absolute difference in correlation coefficients between any two thresholds."
+      pass_sc_002:
+        type: boolean
+        description: "True if max_delta_rho <= 0.1 (stability requirement)."
+      delta_matrix:
+        type: array
+        description: "Matrix of |Δρ| values between threshold pairs."
+        items:
+          type: object
+          required:
+            - threshold_1
+            - threshold_2
+            - delta_rho
+          properties:
+            threshold_1:
+              type: integer
+            threshold_2:
+              type: integer
+            delta_rho:
+              type: number
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the analysis was completed."
+  summary_markdown:
+    type: string
+    description: "Optional pre-formatted markdown summary string."

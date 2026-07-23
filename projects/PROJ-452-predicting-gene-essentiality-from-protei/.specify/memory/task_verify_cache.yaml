@@ -21,12 +21,35 @@ T003:
     \ Consequently, the required artifacts for configuring ruff and black are missing."
 T017:
   c: false
-  h: 03f43f0f840870ba24d3b54a6ea2146974c6269483311cf42ed04739ae91ee1a
-  r: "The `code/main.py` file stops before writing any output (the snippet ends after\
-    \ defining `output_file` and no `json.dump` or similar is present), and the expected\
-    \ `results/correlations.json` file does not exist on disk. Consequently the orchestration\
-    \ loop does not complete the download\u2011map\u2011centrality\u2011correlation\u2011\
-    save sequence required by the task."
+  h: e696434fcfb0bae9b36a9ef30bc487c3fac25667551debce532b7ecd14f6f5c8
+  r: "The provided `code/main.py` is truncated and does not contain a complete orchestration\
+    \ loop (e.g., it ends mid\u2011statement, lacks the download step, and never writes\
+    \ results to `results/correlations.json`). Moreover, the required output file\
+    \ `results/correlations.json` is missing from the repository. The task\u2019s\
+    \ core requirement\u2014to run the full pipeline and save the correlation results\u2014\
+    is therefore not satisfied."
+T018a:
+  c: false
+  h: af8c23a9c49841c58a1d18fbfdba991464992e5ec5342e6291e71d3c31bb666c
+  r: The provided `statistics.py` contains only basic correlation utilities and does
+    not include a loop that permutes essentiality labels, recomputes Spearman correlations,
+    and writes the results. Moreover, the required output file `results/null_distribution/label_permutation.csv`
+    is absent. Both the implementation and the expected artifact are missing.
+T018b:
+  c: false
+  h: 81d79dd3f4ff2989edab5bc5a759339ec7ac5276a90794acf6558dc2fca7b4e6
+  r: "The provided `code/statistics.py` does not contain any implementation for computing\
+    \ an empirical p\u2011value or for updating a results file, and the required `results/correlations.json`\
+    \ file is absent. Consequently, the task\u2019s deliverables are missing."
+T019c:
+  c: false
+  h: 7d980830059d4713249c68b9735a0fad6faba50938acddb4bbff823746126747
+  r: "The repository contains a generic `calculate_spearman_correlation` function,\
+    \ but there is no implementation that iterates over rewired graphs, computes correlations,\
+    \ writes them to `results/null_distribution/rewired_correlations.csv`, or compares\
+    \ the observed correlation to this null distribution. Moreover, the required CSV\
+    \ file is absent from the `results/null_distribution` directory. The task\u2019\
+    s core requirements are therefore not met."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,3 +57,9 @@ T020:
     \ assigns a centrality of\u202F0 for disconnected network components or that it\
     \ logs a warning and skips organisms with no gene overlap. Without such artifacts,\
     \ we cannot confirm the required error\u2011handling behavior was implemented."
+T022:
+  c: false
+  h: e5a919aa617190f01963910fb0a75b915d128cd0536081789b891396dc1a3de0
+  r: "The required integration test file `tests/integration/test_cross_species.py`\
+    \ does not exist in the repository, so the artifact is missing and the task\u2019\
+    s deliverable is not provided."

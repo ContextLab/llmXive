@@ -5,29 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit"
 
-## Summary of the prior work
-The paper introduces ResearchStudio-Idea, a skill suite that extracts 15 reusable "ideation patterns" from 1,947 ML conference papers to guide LLMs in generating grounded, novel research proposals. By analyzing accepted, rejected, and high-citation outcomes, the system operationalizes these patterns into structured cards that help identify bottlenecks, differentiate from prior art, and audit failure modes before implementation. The core finding is that outcome-grounded pattern induction significantly improves the quality of LLM-generated research ideas compared to generic baselines while maintaining competitive novelty.
+**Field**: computer science
 
-## Proposed extension
-Can the "ideation patterns" derived from top-tier ML conferences (ICLR/ICML/NeurIPS) be successfully transferred to generate high-quality research proposals in resource-constrained, non-ML domains (e.g., public health policy or climate adaptation) without re-training or re-inducing patterns? This question matters because if these patterns are truly universal heuristics of scientific problem-solving, they should enable rapid, CPU-tractable ideation in fields where large-scale LLM fine-tuning is impractical or data is scarce, whereas a failure would suggest the patterns are domain-specific artifacts of ML culture.
+## Research question
+
+Do the 15 "ideation patterns" derived from top-tier machine learning conferences generalize to improve the quality of research proposals in resource-constrained, non-ML domains (e.g., public health policy, climate adaptation), or are these patterns specific artifacts of ML research culture?
+
+## Motivation
+
+Current LLM-based ideation tools often lack grounding in the specific epistemic constraints of non-technical domains. If ML-derived heuristics are universal, they could democratize high-quality research design for fields where large-scale model fine-tuning is infeasible. Conversely, demonstrating their domain-specificity would identify critical boundaries for cross-disciplinary AI transfer, preventing the misapplication of technical heuristics to complex socio-scientific problems.
+
+## Related work
+
+- [ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suite from ML Conference Outcomes (2026)](https://arxiv.org/abs/2607.04439) — Establishes the baseline methodology of extracting 15 reusable ideation patterns from ML conference outcomes to guide LLM proposal generation.
+- [IRIS: Interactive Research Ideation System for Accelerating Scientific Discovery (2025)](https://arxiv.org/abs/2504.16728) — Provides context on the broader landscape of LLM systems designed to accelerate the initial stages of scientific discovery across disciplines.
+- [Acceleron: A Tool to Accelerate Research Ideation (2024)](https://arxiv.org/abs/2403.04382) — Highlights existing limitations in current ideation tools, which often focus on retrieval and recommendation rather than structural pattern induction.
+- [A longitudinal case study on the effects of an evidence-based software engineering training (2022)](https://arxiv.org/abs/2202.03367) — Offers a methodological precedent for evaluating how evidence-based training (analogous to pattern induction) bridges gaps between rigorous standards and practical application, though in a software engineering context.
+
+## Expected results
+
+We expect to observe a significant divergence in expert ratings: if patterns are universal, pattern-guided proposals will score higher on feasibility and bottleneck identification than generic baselines; if they are ML-specific, proposals will be rated as contextually misaligned or technically fluent but irrelevant. A null result (no difference) would suggest the patterns are too abstract to be actionable outside their native domain.
 
 ## Methodology sketch
-**Data:** Collect 200 accepted and 200 rejected abstracts from top-tier non-ML venues (e.g., Nature Climate Change, Health Affairs) and 200 ML paper abstracts from the original corpus to serve as the source of the 15 patterns.
-**Procedure:** Implement a CPU-only, rule-based retrieval system that maps non-ML problem statements to the existing 15 ML-derived pattern cards using semantic similarity on abstract embeddings (using a small, quantized model like BERT-base) and then generates 50 new research proposals for non-ML problems using the original IdeaSpark prompts without any parameter updates.
-**Expected result:** If the patterns are universal, blind expert evaluation in the non-ML domain will show that pattern-guided proposals score significantly higher on "feasibility" and "bottleneck identification" than generic LLM baselines; if they are ML-specific, the proposals will likely be rated as "technically fluent but contextually misaligned" or "novelty-mismatched," revealing the boundaries of cross-domain transferability.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download 200 accepted and 200 rejected abstracts from non-ML venues (e.g., *Nature Climate Change*, *Health Affairs*) and 200 ML abstracts from the original ResearchStudio-Idea corpus using `wget` or `curl` from their respective public repositories.
+- **Pattern Mapping**: Implement a CPU-only retrieval system using a quantized BERT-base model (loaded via `sentence-transformers` on CPU) to compute semantic similarity between non-ML problem statements and the 15 existing ML-derived pattern cards.
+- **Proposal Generation**: Prompt a standard LLM (via API or local quantized model) with the original "IdeaSpark" prompts, injecting the top-matching ML patterns as structural constraints for 50 new research proposals in the non-ML domain.
+- **Baseline Construction**: Generate 50 control proposals for the same non-ML problems using the same LLM but with generic "be creative" prompts, ensuring no pattern injection.
+- **Evaluation Design**: Recruit 3-5 domain experts (public health/climate) via a crowdsourcing platform or academic network to blind-evaluate proposals on a 5-point Likert scale for "feasibility," "bottleneck identification," and "contextual alignment."
+- **Statistical Analysis**: Perform a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) comparing the mean scores of pattern-guided vs. baseline proposals; ensure the evaluation metrics are derived from human judgment (independent of the model's internal generation process) to avoid circularity.
+- **Scope Verification**: Ensure all steps (embedding, generation, evaluation aggregation) run within 6 hours on a 2-core, 7GB RAM GitHub Actions runner by batching generation and using small batch sizes for embeddings.
 
-- **ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suite from ML Conference Outcomes** — Qihao Zhao, Yangyu Huang, Yalun Dai, Lingao Xiao, Jianjun Gao, Xin Zhang, Wenshan Wu, Scarlett Li, Yang He, Yan Lu, Yap Kim Hui. https://arxiv.org/abs/2607.04439.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_04439,
-  title = {ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suite from ML Conference Outcomes},
-  author = {Qihao Zhao and Yangyu Huang and Yalun Dai and Lingao Xiao and Jianjun Gao and Xin Zhang and Wenshan Wu and Scarlett Li and Yang He and Yan Lu and Yap Kim Hui},
-  year = {2026},
-  eprint = {2607.04439},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.04439},
-  url = {https://arxiv.org/abs/2607.04439}
-}
-```
+- Reviewed existing ideas: None found in the immediate context.
+- Closest match: None (This is a specific extension of the llmXive preprint follow-up).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-23T04:13:42Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit" computer science | 0 |
+| 1 | evidence-based research ideation frameworks | 4 |
+| 2 | AI-assisted research question generation | 0 |
+| 3 | structured research proposal development tools | 0 |
+| 4 | literature-driven hypothesis formulation systems | 0 |
+| 5 | automated systematic review for research ideas | 0 |
+| 6 | computational support for scientific creativity | 0 |
+| 7 | NLP methods for research topic discovery | 0 |
+| 8 | knowledge graph-based research ideation | 0 |
+| 9 | evidence-grounded academic writing assistants | 0 |
+| 10 | machine learning for literature gap analysis | 0 |
+| 11 | generative AI in research methodology design | 0 |
+| 12 | semantic search for research problem identification | 0 |
+| 13 | cognitive support tools for academic researchers | 0 |
+| 14 | automated synthesis of research trends and ideas | 0 |
+| 15 | intelligent systems for grant proposal ideation | 0 |
+| 16 | data-driven research direction exploration | 0 |
+| 17 | large language models for academic brainstorming | 0 |
+| 18 | evidence retrieval systems for scientific inquiry | 0 |
+| 19 | algorithmic assistance in research design | 0 |
+| 20 | intelligent tutoring systems for research skills | 0 |
+
+### Verified citations
+
+1. **ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suite from ML Conference Outcomes** (2026). Qihao Zhao, Yangyu Huang, Yalun Dai, Lingao Xiao, Jianjun Gao, et al.. arXiv. [2607.04439](https://arxiv.org/abs/2607.04439). PDF-sampled: No.
+2. **IRIS: Interactive Research Ideation System for Accelerating Scientific Discovery** (2025). Aniketh Garikaparthi, Manasi Patwardhan, Lovekesh Vig, Arman Cohan. arXiv. [2504.16728](https://arxiv.org/abs/2504.16728). PDF-sampled: No.
+3. **Acceleron: A Tool to Accelerate Research Ideation** (2024). Harshit Nigam, Manasi Patwardhan, Lovekesh Vig, Gautam Shroff. arXiv. [2403.04382](https://arxiv.org/abs/2403.04382). PDF-sampled: No.
+4. **A longitudinal case study on the effects of an evidence-based software engineering training** (2022). Sebastián Pizard, Diego Vallespir, Barbara Kitchenham. arXiv. [2202.03367](https://arxiv.org/abs/2202.03367). PDF-sampled: No.

@@ -1,102 +1,56 @@
-"""
-Logging infrastructure for the llmXive Research Pipeline.
-
-Provides a centralized logging configuration to ensure consistent
-log formatting, levels, and file output across all pipeline stages.
-"""
-
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
-# Project root relative to this file (code/ is in projects/PROJ-496/...)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOGS_DIR = PROJECT_ROOT / "data" / "logs"
-
-# Ensure logs directory exists
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Global logger instance to avoid re-configuration
-_logger_instance: Optional[logging.Logger] = None
-
-
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    console: bool = True
-) -> None:
+# Configure logging once
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger for the pipeline.
-
-    Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Relative path to log file from project root.
-                  Defaults to 'data/logs/pipeline.log'.
-        console: If True, logs are also printed to stdout/stderr.
-    """
-    global _logger_instance
-
-    if _logger_instance is not None:
-        # Logger already configured
-        return
-
-    # Determine log file path
-    if log_file is None:
-        log_file = "data/logs/pipeline.log"
+    Setup the root logger with console and optional file handlers.
     
-    full_log_path = PROJECT_ROOT / log_file
-    full_log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Create formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    # Root logger configuration
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-
-    # Console Handler
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-    # File Handler
-    file_handler = logging.FileHandler(str(full_log_path), mode='a')
-    file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
-
-    # Set _logger_instance to root logger for convenience
-    _logger_instance = root_logger
-
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Retrieve a logger instance.
-
-    If setup_logging() has not been called, it initializes with defaults.
-
     Args:
-        name: Logger name (e.g., 'code.search', 'code.preprocess').
-              If None, returns the root logger.
-
+        log_level: Logging level (e.g., "INFO", "DEBUG").
+        log_file: Optional path to a log file.
+        
     Returns:
-        Configured logging.Logger instance.
+        The root logger instance.
     """
-    if _logger_instance is None:
-        # Initialize with defaults if not explicitly set up
-        setup_logging()
-
-    if name is None:
-        return logging.getLogger()
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     
+    # Clear existing handlers to avoid duplicates
+    if root_logger.handlers:
+        root_logger.handlers.clear()
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
+    
+    # File handler (optional)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+        root_logger.addHandler(file_handler)
+    
+    return root_logger
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger instance with the specified name.
+    
+    Args:
+        name: Name of the logger (usually __name__).
+        
+    Returns:
+        A logger instance.
+    """
     return logging.getLogger(name)
+
+# Initialize logging on module import if needed, or let main.py do it
+# For now, we provide the setup function for main.py to call.

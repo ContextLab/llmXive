@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-gene-essentiality"
 version = "0.1.0"
-description = "Predicting gene essentiality from protein interaction network topology"
+description = "Predicting Gene Essentiality from Protein Interaction Network Topology"
 requires-python = ">=3.11"
 dependencies = [
     "networkx",
@@ -16,55 +16,66 @@ dependencies = [
     "pyyaml",
     "numpy",
     "biopython",
-    "dendropy",
+    "dendropy"
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "pytest",
-    "pytest-cov",
+    "pre-commit>=3.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
 ]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in data classes)
+]
+extend-exclude = [
+    "data",
+    "results",
+    "state",
+    "__pycache__"
+]
+
+[tool.ruff.isort]
+known-first-party = ["config", "data_loader", "fetch_phylogeny", "hash_checker", "main", "network_analysis", "statistics", "utils"]
+force-sort-within-sections = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --cov=code --cov-report=term-missing"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"

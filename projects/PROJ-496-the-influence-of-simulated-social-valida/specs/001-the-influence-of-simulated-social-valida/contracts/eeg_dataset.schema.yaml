@@ -1,123 +1,146 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EEG Dataset Metadata Schema
-description: >
-  Schema defining the metadata structure for EEG datasets used in the
-  "Influence of Simulated Social Validation on Neural Responses" study.
-  This schema ensures consistent tracking of dataset provenance,
-  experimental design, and data quality metrics.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Dataset Metadata Schema"
+description: "Schema defining the metadata structure for EEG datasets used in the social validation study."
 type: object
 required:
   - dataset_id
   - title
   - source
   - url
-  - subjects_count
-  - recording_details
-  - task_details
-  - feedback_classification
+  - modalities
+  - participants
+  - tasks
 properties:
   dataset_id:
     type: string
-    description: Unique identifier for the dataset (e.g., OpenNeuro ID 'ds00XXXX')
-    pattern: ^[a-zA-Z0-9_-]+$
+    description: "Unique identifier for the dataset (e.g., ds000001 or a local project ID)."
+    pattern: "^ds\\d{6}$|^[A-Z0-9_-]+$"
+  
   title:
     type: string
-    description: Human-readable title of the dataset
+    description: "Human-readable title of the dataset."
+    minLength: 1
+  
   source:
     type: string
-    description: Repository or database where the dataset is hosted (e.g., OpenNeuro, PhysioNet)
     enum:
-      - OpenNeuro
-      - PhysioNet
-      - Zenodo
-      - Other
+      - "OpenNeuro"
+      - "PhysioNet"
+      - "Local"
+      - "Other"
+    description: "Origin of the dataset."
+  
   url:
     type: string
     format: uri
-    description: Direct link to the dataset page
-  version:
-    type: string
-    description: Dataset version string (e.g., '1.0.0')
-    default: "1.0.0"
-  license:
-    type: string
-    description: License under which the data is shared
-  subjects_count:
-    type: integer
-    minimum: 1
-    description: Total number of participants in the study
-  recording_details:
+    description: "Direct link to the dataset repository."
+  
+  modalities:
+    type: array
+    items:
+      type: string
+      enum:
+        - "EEG"
+        - "MEG"
+        - "fMRI"
+        - "NIRS"
+        - "Behavioral"
+    description: "List of data modalities present in the dataset."
+    minItems: 1
+  
+  participants:
     type: object
     required:
-      - sampling_frequency
-      - channels
-      - montage
+      - count
     properties:
-      sampling_frequency:
-        type: number
+      count:
+        type: integer
         minimum: 1
-        description: Sampling frequency in Hz
+        description: "Total number of participants."
+      age_range:
+        type: object
+        properties:
+          min:
+            type: number
+          max:
+            type: number
+      gender_distribution:
+        type: object
+        properties:
+          male:
+            type: integer
+          female:
+            type: integer
+          other:
+            type: integer
+          unspecified:
+            type: integer
+  
+  tasks:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: "Name of the task (e.g., 'social_feedback', 'oddball')."
+        description:
+          type: string
+        conditions:
+          type: array
+          items:
+            type: string
+          description: "List of experimental conditions (e.g., 'positive_feedback', 'negative_feedback')."
+  
+  feedback_type:
+    type: string
+    enum:
+      - "simulated"
+      - "real"
+      - "mixed"
+      - "unknown"
+    description: "Type of social feedback manipulation used in the study."
+  
+  anxiety_measure:
+    type: string
+    enum:
+      - "LSAS"
+      - "SPIN"
+      - "SIAS"
+      - "BDI"
+      - "BAI"
+      - "GAD-7"
+      - "None"
+      - "Unknown"
+    description: "Primary anxiety or social anxiety measure administered."
+  
+  eeg_specs:
+    type: object
+    description: "Technical specifications of the EEG recording."
+    properties:
+      sampling_rate:
+        type: number
+        description: "Sampling rate in Hz."
       channels:
         type: array
         items:
           type: string
-        description: List of channel names used in the recording
-      montage:
-        type: string
-        description: Standard montage used (e.g., '10-20', '10-10')
+        description: "List of channel names."
       reference:
         type: string
-        description: Reference scheme used (e.g., 'Cz', 'Average', 'Linked Masts')
-  task_details:
-    type: object
-    required:
-      - task_name
-      - event_codes
-    properties:
-      task_name:
+        description: "Referencing scheme used (e.g., 'Cz', 'Average')."
+      impedance:
         type: string
-        description: Name of the experimental task
-      event_codes:
-        type: object
-        description: Mapping of event codes to their semantic meaning
-        additionalProperties:
-          type: string
-  feedback_classification:
-    type: object
-    required:
-      - feedback_type
-      - social_anxiety_measure
-    properties:
-      feedback_type:
-        type: string
-        description: Classification of the social feedback manipulation
-        enum:
-          - simulated
-          - real
-          - mixed
-          - none
-        x-search: "Used to filter datasets for eligibility"
-      social_anxiety_measure:
-        type: string
-        description: Specific scale used to measure social anxiety (e.g., LSAS, SPIN, SIAS)
-        enum:
-          - LSAS
-          - SPIN
-          - SIAS
-          - FNE
-          - None
-          - Unknown
-        x-search: "Used to filter datasets for eligibility"
-  quality_metrics:
-    type: object
-    description: Pre-computed quality metrics if available
-    properties:
-      average_epochs_per_subject:
-        type: number
-      rejection_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      snr_estimate:
-        type: number
-additionalProperties: false
+        description: "Impedance threshold or range."
+  
+  metadata_version:
+    type: string
+    default: "1.0.0"
+    description: "Version of this schema."
+  
+  last_updated:
+    type: string
+    format: date-time
+    description: "Timestamp of the last metadata update."

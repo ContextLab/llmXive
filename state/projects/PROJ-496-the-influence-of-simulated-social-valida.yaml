@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T15:26:30.697068Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-496-the-influence-of-simulated-social-valida
-last_run_id: ed8748fe-0c11-4365-ae15-f9f8745e4477
+last_run_id: e7b9090b-7f2e-44eb-9afd-da5661e3da3e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-496-the-influence-of-simulated-social-valida/specs/001-the-influence-of-simulated-social-valida
 title: The Influence of Simulated Social Validation on Neural Responses to Novel Information
-updated_at: '2026-07-16T02:28:09.190241Z'
+updated_at: '2026-07-23T04:36:00.809631Z'

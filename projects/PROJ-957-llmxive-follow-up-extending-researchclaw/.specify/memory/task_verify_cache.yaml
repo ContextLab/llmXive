@@ -6,3 +6,10 @@ T007:
     \ (writing the SHA\u2011256 checksum in plain text) is not satisfied. The implementer\
     \ must add code that writes the checksum to `data/raw/checksum.txt` in the exact\
     \ `sha256: <hex>` format and ensure the file is created."
+T007b:
+  c: false
+  h: 1368dfd21f04fdc62f536c81b021d41ed6593c85bd68bee380344aaaf95c79d1
+  r: "The required `data/raw/checksum.txt` file does not exist, and `src/config.py`\
+    \ contains no expected SHA\u2011256 value for verification. Consequently the gate\
+    \ cannot read, compare, or produce the required log (`results/verified_accuracy_gate.log`)\
+    \ and status files (`.failed` / `.done`). The implementation is missing."

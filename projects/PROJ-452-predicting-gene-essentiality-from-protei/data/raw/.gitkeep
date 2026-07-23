@@ -1,3 +1,2 @@
-# This directory is for raw data downloads.
-# Files will be populated by data_loader.py and fetch_phylogeny.py.
-.gitkeep
+# Subdirectory for raw data downloads (e.g., STRING networks, DEG labels).
+pass

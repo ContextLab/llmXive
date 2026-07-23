@@ -1,11 +1,3 @@
-"""
-Fetches the Newick phylogenetic tree from OpenTree of Life API.
-
-This module handles the retrieval of the supertree for a list of target organisms
-based on their taxonomic IDs. It saves the resulting Newick tree to the data/phylogeny/
-directory. If the fetch fails, it logs a warning and does not crash the build,
-allowing downstream tasks (like PGLS) to skip gracefully.
-"""
 import os
 import logging
 from pathlib import Path
@@ -14,193 +6,173 @@ from typing import List, Dict, Any, Optional
 
 from config import load_config, get_organisms, get_path, ensure_dirs
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-OPEN_TREE_API_BASE = "https://api.opentree.org/v3"
-TAxONOMY_LOOKUP_ENDPOINT = f"{OPEN_TREE_API_BASE}/taxonomy/ott_id_for_taxon_name"
-SUPERTREE_ENDPOINT = f"{OPEN_TREE_API_BASE}/supertree/study_tree"
+OPENTREE_API_BASE = "https://api.opentree.org"
+OTOL_TAXONOMY_ENDPOINT = f"{OPENTREE_API_BASE}/v4/taxonomy"
+OTOL_SUPERTREE_ENDPOINT = f"{OPENTREE_API_BASE}/v4/supertree"
 
-# Note: The OpenTree API for supertrees usually requires a study ID or a specific
-# method to generate a tree for a set of OTT IDs. The standard endpoint for
-# generating a tree for a set of OTT IDs is:
-# POST /v3/supertree/otx_to_newick
-# However, the most robust way to get a tree for specific taxa is often:
-# POST /v3/supertree/study_tree (requires study_id)
-# OR using the "synthesis" endpoint if available, but the standard "synthesis"
-# endpoint often requires a list of OTT IDs to include.
-#
-# Based on common usage patterns for OpenTree:
-# 1. Get OTT IDs for taxon names.
-# 2. Use the 'synthesis' or 'otx_to_newick' endpoint to get the tree.
-#
-# The endpoint 'https://api.opentree.org/v3/supertree/otx_to_newick' takes a JSON body:
-# { "ott_ids": [123, 456], "color_by_taxon": false }
-# This returns the Newick string directly.
+class PhylogenyFetchError(Exception):
+    """Custom exception for phylogeny fetching errors."""
+    pass
 
-def get_taxonomic_ids_for_organisms(taxon_names: List[str]) -> Dict[str, int]:
+def get_taxonomic_ids_for_organisms(organism_names: List[str], config: Dict[str, Any]) -> Dict[str, int]:
     """
-    Resolves a list of taxon names to OpenTree Taxonomy (OTT) IDs.
+    Maps organism names from config to their taxonomic IDs.
     
     Args:
-        taxon_names: List of organism common names or scientific names.
-        
-    Returns:
-        Dictionary mapping taxon name to OTT ID.
-    """
-    ott_ids = {}
-    session = requests.Session()
-    
-    for name in taxon_names:
-        try:
-            # OpenTree API v3: GET /taxonomy/ott_id_for_taxon_name
-            # Note: The actual endpoint might be /v3/taxonomy/ott_id_for_taxon_name
-            # Let's use the direct lookup if available, or search.
-            # The standard endpoint for name -> ID is:
-            # POST /v3/taxonomy/ott_id_for_taxon_name (with name in body)
-            # OR GET /v3/taxonomy/ott_id_for_taxon_name?name=...
-            
-            # Using the search endpoint which is more robust for names
-            url = f"{OPEN_TREE_API_BASE}/taxonomy/ott_id_for_taxon_name"
-            params = {"name": name}
-            
-            # Some versions of the API require POST with JSON body
-            # Let's try GET first as it's simpler for simple lookups
-            resp = session.get(url, params=params, timeout=10)
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                # The response structure for ott_id_for_taxon_name is typically:
-                # { "ott_id": 12345, "source_id": "ott", "source_taxon_name": "..." }
-                if "ott_id" in data:
-                    ott_ids[name] = int(data["ott_id"])
-                    logger.info(f"Resolved {name} to OTT ID: {data['ott_id']}")
-                else:
-                    logger.warning(f"Could not resolve OTT ID for {name}. Response: {data}")
-            else:
-                logger.warning(f"Failed to resolve {name}: HTTP {resp.status_code}")
+        organism_names: List of organism names (e.g., "Saccharomyces cerevisiae")
+        config: Configuration dictionary containing taxonomic mappings if defined,
+                or fallback logic.
                 
-        except requests.RequestException as e:
-            logger.warning(f"Network error resolving {name}: {e}")
-            continue
-        
-    return ott_ids
-
-def fetch_supertree(ott_ids: List[int]) -> Optional[str]:
+    Returns:
+        Dict mapping organism name to taxonomic ID (int).
     """
-    Fetches the Newick tree for a list of OTT IDs from OpenTree.
+    tax_ids = {}
+    # Check if config has explicit mappings (preferred)
+    explicit_map = config.get('taxonomic_mappings', {})
+    
+    for name in organism_names:
+        if name in explicit_map:
+            tax_ids[name] = explicit_map[name]
+            logger.info(f"Found explicit taxonomic ID for {name}: {explicit_map[name]}")
+        else:
+            # Fallback: attempt to query OpenTree taxonomy API if name is not in explicit map
+            # This handles cases where config might be minimal
+            query_url = f"{OTOL_TAXONOMY_ENDPOINT}/name_to_id"
+            params = {'name': name}
+            try:
+                resp = requests.get(query_url, params=params, timeout=10)
+                resp.raise_for_status()
+                data = resp.json()
+                if 'ot:ott_id' in data and data['ot:ott_id']:
+                    tax_ids[name] = data['ot:ott_id']
+                    logger.info(f"Retrieved taxonomic ID for {name} via API: {data['ot:ott_id']}")
+                else:
+                    logger.warning(f"Could not find taxonomic ID for {name} (API returned empty).")
+            except requests.RequestException as e:
+                logger.warning(f"Failed to fetch taxonomic ID for {name} from OpenTree: {e}")
+    
+    return tax_ids
+
+def fetch_supertree(tax_ids: List[int]) -> Optional[Dict[str, Any]]:
+    """
+    Fetches the supertree containing the given taxonomic IDs from OpenTree.
     
     Args:
-        ott_ids: List of OpenTree Taxonomy IDs.
-        
+        tax_ids: List of taxonomic IDs (OTT IDs) to include in the tree.
+                
     Returns:
-        Newick string if successful, None otherwise.
+        The JSON response containing the tree data, or None if fetch fails.
     """
-    if not ott_ids:
-        logger.warning("No OTT IDs provided for tree fetch.")
+    if not tax_ids:
+        logger.warning("No taxonomic IDs provided for supertree fetch.")
         return None
 
-    url = f"{OPEN_TREE_API_BASE}/supertree/otx_to_newick"
+    url = f"{OPENTREE_API_BASE}/v3/supertree"
     payload = {
-        "ott_ids": ott_ids,
-        "color_by_taxon": False
+        "ott_taxa": tax_ids,
+        "output_format": "newick"
     }
     
     try:
-        logger.info(f"Fetching tree for OTT IDs: {ott_ids}")
-        resp = requests.post(url, json=payload, timeout=60)
-        
-        if resp.status_code == 200:
-            # The response is the raw Newick string
-            newick = resp.text.strip()
-            if newick:
-                logger.info(f"Successfully fetched tree ({len(newick)} chars)")
-                return newick
-            else:
-                logger.error("Received empty tree from API.")
-        else:
-            logger.error(f"API Error fetching tree: {resp.status_code} - {resp.text}")
-            
+        logger.info(f"Fetching supertree for {len(tax_ids)} taxa from OpenTree...")
+        resp = requests.post(url, json=payload, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
     except requests.RequestException as e:
-        logger.error(f"Network error while fetching tree: {e}")
-        
-    return None
+        logger.error(f"Failed to fetch supertree from OpenTree: {e}")
+        return None
+    except ValueError as e:
+        logger.error(f"Invalid JSON response from OpenTree: {e}")
+        return None
 
-def extract_newick(newick: str) -> str:
+def extract_newick(tree_data: Dict[str, Any]) -> Optional[str]:
     """
-    Validates and returns the Newick string.
-    This is a placeholder for any potential parsing/cleaning if needed.
-    """
-    return newick
-
-def save_newick_tree(newick: str, output_path: Path) -> None:
-    """
-    Saves the Newick string to the specified file path.
+    Extracts the Newick string from the API response.
     
     Args:
-        newick: The Newick formatted string.
-        output_path: Path to save the file.
+        tree_data: JSON response from OpenTree supertree endpoint.
+                
+    Returns:
+        The Newick string, or None if extraction fails.
+    """
+    if not tree_data:
+        return None
+        
+    # OpenTree API v3 usually returns the tree in 'tree' key as a Newick string
+    # or sometimes wrapped in 'ott_ids' -> 'tree'.
+    # Standard v3 response structure for 'output_format': 'newick' puts the string in 'tree'.
+    newick_str = tree_data.get('tree')
+    
+    if not newick_str:
+        # Fallback check for nested structures if API changes
+        if 'ott_ids' in tree_data and 'tree' in tree_data['ott_ids']:
+            newick_str = tree_data['ott_ids']['tree']
+    
+    if newick_str:
+        logger.info("Successfully extracted Newick string from API response.")
+        return newick_str
+    else:
+        logger.error("Could not locate 'tree' field in OpenTree response.")
+        return None
+
+def save_newick_tree(newick_str: str, output_path: Path) -> None:
+    """
+    Saves the Newick string to a file.
+    
+    Args:
+        newick_str: The Newick string content.
+        output_path: Path to the output file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        f.write(newick)
+        f.write(newick_str)
     logger.info(f"Saved phylogenetic tree to {output_path}")
 
-def main() -> None:
+def main():
     """
-    Main entry point for the phylogeny fetch task.
-    Loads configuration, fetches tree, and saves to data/phylogeny/tree.newick.
+    Main entry point for fetching the phylogenetic tree.
+    Fetches the tree for organisms defined in config and saves it to data/phylogeny/tree.newick.
+    If fetch fails, logs a warning and returns without crashing the build.
     """
-    # Load configuration
-    try:
-        config = load_config()
-        organisms = get_organisms()
-    except Exception as e:
-        logger.error(f"Failed to load config or get organisms: {e}")
-        # If config is missing, we can't proceed.
-        return
-
+    config = load_config()
+    organisms = get_organisms(config)
+    
     if not organisms:
         logger.warning("No organisms defined in config. Skipping phylogeny fetch.")
         return
 
-    taxon_names = [org.get("name") or org.get("taxon_name") for org in organisms if org]
-    if not taxon_names:
-        logger.warning("Could not extract taxon names from organism config.")
-        return
-
-    # 1. Resolve names to OTT IDs
-    ott_mapping = get_taxonomic_ids_for_organisms(taxon_names)
-    if not ott_mapping:
-        logger.warning("Could not resolve any OTT IDs. Skipping tree fetch.")
-        return
-
-    ott_ids = list(ott_mapping.values())
-
-    # 2. Fetch the tree
-    newick = fetch_supertree(ott_ids)
-
-    if newick is None:
-        logger.warning("Failed to fetch phylogenetic tree from OpenTree. "
-                     "Downstream comparative tests (PGLS) will be skipped.")
-        # Do not raise an exception to allow the build to continue as per task requirements
-        return
-
-    # 3. Save the tree
-    output_dir = get_path("data", "phylogeny")
-    output_file = Path(output_dir) / "tree.newick"
+    # 1. Get Taxonomic IDs
+    tax_id_map = get_taxonomic_ids_for_organisms(organisms, config)
+    tax_ids = list(tax_id_map.values())
     
-    try:
-        save_newick_tree(newick, output_file)
-    except IOError as e:
-        logger.error(f"Failed to save tree to {output_file}: {e}")
+    if not tax_ids:
+        logger.warning("Could not determine taxonomic IDs for any organism. Skipping tree fetch.")
+        return
+
+    # 2. Fetch Supertree
+    tree_data = fetch_supertree(tax_ids)
+    
+    if tree_data is None:
+        logger.warning("Phylogenetic tree fetch failed. The comparative test (PGLS) will be skipped gracefully.")
+        return
+
+    # 3. Extract Newick
+    newick_str = extract_newick(tree_data)
+    
+    if not newick_str:
+        logger.warning("Phylogenetic tree extraction failed. The comparative test (PGLS) will be skipped gracefully.")
+        return
+
+    # 4. Save to file
+    output_path = get_path(config, "data/phylogeny/tree.newick")
+    ensure_dirs(config, "data/phylogeny")
+    save_newick_tree(newick_str, output_path)
+    
+    logger.info("Phylogeny fetch task completed successfully.")
 
 if __name__ == "__main__":
-    setup_logging = None # Avoid conflict if utils not imported, but we assume utils is available or use basicConfig
-    # Ensure logging is set up
-    import logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
     main()

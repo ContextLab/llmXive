@@ -1,0 +1,3 @@
+# This directory contains the core Python modules for the llmXive research pipeline.
+# It is intentionally kept empty of code in this file to satisfy git tracking.
+pass

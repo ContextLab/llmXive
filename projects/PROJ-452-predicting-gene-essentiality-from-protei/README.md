@@ -1,32 +1,50 @@
-# Gene Essentiality Prediction Pipeline
+# llmXive: Predicting Gene Essentiality from Protein Interaction Network Topology
 
-Predicting gene essentiality from protein interaction network topology.
+## Setup
 
-## Prerequisites
+### Prerequisites
+- Python 3.11+
+- pip
 
-- Python 3.11 or higher
-
-## Installation
-
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
+### Installation
+1. Clone the repository
 2. Install dependencies:
  ```bash
- pip install -r requirements.txt
+ pip install -e ".[dev]"
+ ```
+3. Install pre-commit hooks:
+ ```bash
+ pre-commit install
  ```
 
-## Project Structure
+### Linting and Formatting
+This project uses:
+- **Black** for code formatting
+- **Ruff** for linting
 
-- `code/` - Source code modules
-- `data/` - Raw and processed data
-- `results/` - Analysis outputs
-- `tests/` - Test suites
+To run manually:
+```bash
+# Format code
+black.
+
+# Lint code
+ruff check.
+
+# Fix linting issues automatically
+ruff check --fix.
+```
+
+To run pre-commit hooks on all files:
+```bash
+pre-commit run --all-files
+```
+
+## Project Structure
+- `code/` - Source code
+- `data/` - Data files
+- `results/` - Analysis results
+- `tests/` - Test suite
 - `specs/` - Feature specifications
 
-## Running the Pipeline
-
-Refer to `quickstart.md` for detailed execution instructions.
+## Configuration
+See `code/config.py` and `config.yaml` (if present) for configuration options.

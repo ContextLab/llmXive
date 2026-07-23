@@ -1,2 +1,4 @@
-# llmXive project: Predicting Gene Essentiality from Protein Interaction Network Topology
-# This package contains the core analysis modules.
+"""
+Code package for the Gene Essentiality Prediction Pipeline.
+"""
+__version__ = "0.1.0"

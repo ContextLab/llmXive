@@ -86,7 +86,7 @@
 - [X] T014 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`
 - [X] T015 [US1] Implement `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks
 - [X] T016 [US1] Implement `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels
-- [ ] T017 [US1] Implement `code/main.py` orchestration loop: download → map → centrality → correlation → save to `results/correlations.json`
+- [ ] T017 [US1] Implement `code/main.py` orchestration loop: download → map → centrality → correlation → save to `results/correlations.json` <!-- FAILED: unspecified -->
 - [ ] T020 [US1] Add error handling for disconnected networks (assign 0 centrality) and missing gene overlaps (skip with warning)
 
 ### Null Model A: Label Permutation (SC-001)
@@ -96,8 +96,8 @@
 
 ### Null Model B: Graph Rewiring (FR-010)
 
-- [ ] T019a [US1] [P] Implement graph rewiring in `code/network_analysis.py` to generate a set of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs to `results/null_distribution/rewired_graphs/`
-- [ ] T019b [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph
+- [X] T019a [US1] [P] Implement graph rewiring in `code/network_analysis.py` to generate a set of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs to `results/null_distribution/rewired_graphs/`
+- [X] T019b [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph
 - [ ] T019c [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/rewired_correlations.csv`; compare observed correlation against this null distribution to validate FR-010
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -112,12 +112,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`
+- [X] T021 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`
 - [ ] T022 [P] [US2] Integration test for cross-species comparison in `tests/integration/test_cross_species.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement Fisher's z-transformation in `code/statistics.py` to normalize correlation coefficients for comparison
+- [X] T023 [US2] Implement Fisher's z-transformation in `code/statistics.py` to normalize correlation coefficients for comparison
 - [ ] T024 [US2] Implement PGLS model in `code/statistics.py` using `statsmodels` and the loaded phylogenetic tree (from T009) to test for differences in correlation strength
 - [ ] T025 [P] [US2] Implement Benjamini-Hochberg correction in `code/statistics.py` for multiple-comparison adjustment of PGLS p-values (FR-008) and apply in output generation
 - [ ] T026 [US2] Add logic in `code/main.py` to skip PGLS if effective sample size n < 10 and log "Power insufficient" warning (FR-009)

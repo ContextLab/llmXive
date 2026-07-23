@@ -1,65 +1,83 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: PGLS Result
-description: Schema for Phylogenetic Generalized Least Squares comparison results across organisms.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PGLS Result"
+description: "Schema for Phylogenetic Generalized Least Squares results comparing correlation coefficients across organisms."
 type: object
 required:
-  - organisms
-  - metric
-  - pgls_statistic
+  - analysis_type
+  - method
+  - phylogenetic_tree_source
+  - organisms_compared
+  - statistic
   - p_value
   - adjusted_p_value
-  - phylogeny_source
-  - sample_size
+  - effective_sample_size
+  - timestamp
 properties:
-  organisms:
+  analysis_type:
+    type: string
+    const: "cross_species_correlation_comparison"
+  method:
+    type: string
+    description: "Statistical method used (e.g., 'Fisher_z_transform_PGLS')."
+  phylogenetic_tree_source:
+    type: string
+    description: "Source of the phylogenetic tree (e.g., 'OpenTree of Life', 'local_file')."
+  phylogenetic_tree_file:
+    type: string
+    description: "Path to the Newick tree file used."
+  organisms_compared:
     type: array
     items:
       type: string
-    description: List of organisms compared.
-  metric:
-    type: string
-    enum:
-      - degree
-      - betweenness
-      - eigenvector
-    description: Centrality metric being compared.
-  pgls_statistic:
+    description: "List of organisms included in the comparison."
+  correlations:
+    type: array
+    description: "List of correlation objects for each organism used in the model."
+    items:
+      type: object
+      required:
+        - organism
+        - taxonomic_id
+        - centrality_metric
+        - correlation_coefficient
+      properties:
+        organism:
+          type: string
+        taxonomic_id:
+          type: integer
+        centrality_metric:
+          type: string
+        correlation_coefficient:
+          type: number
+  statistic:
     type: number
-    description: PGLS test statistic (e.g., t-statistic or F-statistic).
+    description: "Test statistic from the PGLS model (e.g., t-value or F-value)."
   p_value:
     type: number
-    description: Raw p-value from the PGLS model.
+    description: "Raw p-value from the PGLS test."
   adjusted_p_value:
     type: number
-    description: Benjamini-Hochberg adjusted p-value.
-  phylogeny_source:
-    type: string
-    description: Source of the phylogenetic tree (e.g., 'OpenTree').
-  sample_size:
+    description: "Benjamini-Hochberg adjusted p-value for multiple comparisons."
+  effective_sample_size:
     type: integer
-    minimum: 0
-    description: Effective number of taxa in the analysis.
-  lambda_estimate:
-    type: number
-    nullable: true
-    description: Estimated Pagel's lambda parameter.
-  correlation_coefficients:
+    description: "Number of organisms effectively used in the analysis (n)."
+  power_warning:
+    type: boolean
+    description: "True if n < 10 and power was deemed insufficient."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the analysis was completed."
+  model_details:
     type: object
-    description: Map of organism -> correlation coefficient used in PGLS.
-    additionalProperties:
-      type: number
-  warnings:
-    type: array
-    items:
-      type: string
-    description: List of warnings (e.g., 'Power insufficient').
-  metadata:
-    type: object
+    description: "Optional details about the fitted model."
     properties:
-      timestamp:
-        type: string
-        format: date-time
-      tree_file:
-        type: string
-        description: Filename of the Newick tree used.
-additionalProperties: false
+      lambda:
+        type: number
+        description: "Pagel's lambda parameter estimated by the model."
+      kappa:
+        type: number
+        description: "Pagel's kappa parameter estimated by the model."
+      delta:
+        type: number
+        description: "Pagel's delta parameter estimated by the model."

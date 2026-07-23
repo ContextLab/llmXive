@@ -5,174 +5,145 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from config import get_env_var, ensure_dirs
+from config import get_env_var
 from logger import get_logger
 
-# Ensure project paths are configured
-PROJECT_ROOT = Path(get_env_var("PROJECT_ROOT", default="."))
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-ensure_dirs([DATA_RESULTS_DIR])
-
-logger = get_logger(__name__)
-
-# Keywords for search
-SEARCH_KEYWORDS = [
-    "social", "feedback", "validation", "anxiety", "simulated", "real"
-]
-
-def search_openneuro() -> List[Dict[str, Any]]:
+def search_openneuro(keywords: List[str]) -> List[Dict[str, Any]]:
     """
-    Simulates querying OpenNeuro/PhysioNet for datasets.
-    In a real implementation, this would use the OpenNeuro API.
-    For this research pipeline, we mock the API response structure
-    to demonstrate the logic flow required by T017 (handling missing anxiety measures).
+    Mock function to simulate querying OpenNeuro/PhysioNet.
+    In a real implementation, this would make API calls.
     
-    Returns a list of dataset metadata dictionaries.
+    For T016b, we need to ensure that the search returns some "None" status datasets
+    to trigger the report generation.
+    
+    Args:
+        keywords: List of search keywords.
+        
+    Returns:
+        List of dataset dictionaries.
     """
-    # Mock data representing a search result set where some datasets
-    # have feedback but lack specific anxiety measures (LSAS, SPIN, etc.)
+    logger = get_logger(__name__)
+    logger.info(f"Simulating search with keywords: {keywords}")
+    
+    # Mock data to simulate search results
+    # This is a placeholder. In a real scenario, this would fetch from OpenNeuro.
+    # We include some "None" status datasets to test T016b.
     mock_datasets = [
         {
-            "id": "ds001234",
-            "title": "Social Feedback and EEG Response",
-            "description": "Study on social validation using simulated feedback.",
+            "dataset_id": "ds001",
+            "title": "Social Feedback and Anxiety Study",
             "feedback_type": "simulated",
-            "anxiety_measure": None,  # Missing anxiety measure - triggers T017 logic
-            "url": "https://openneuro.org/datasets/ds001234"
+            "anxiety_measure": "LSAS",
+            "status": "Eligible",
+            "url": "https://openneuro.org/datasets/ds001"
         },
         {
-            "id": "ds005678",
-            "title": "Real Social Interaction EEG Study",
-            "description": "EEG during real social interactions.",
+            "dataset_id": "ds002",
+            "title": "Anxiety Measures Only",
+            "feedback_type": "None",
+            "anxiety_measure": "SPIN",
+            "status": "None",
+            "url": "https://openneuro.org/datasets/ds002"
+        },
+        {
+            "dataset_id": "ds003",
+            "title": "Social Feedback Only",
             "feedback_type": "real",
-            "anxiety_measure": "LSAS",  # Valid
-            "url": "https://openneuro.org/datasets/ds005678"
+            "anxiety_measure": "None",
+            "status": "None",
+            "url": "https://openneuro.org/datasets/ds003"
         },
         {
-            "id": "ds009999",
-            "title": "General EEG Task",
-            "description": "Visual oddball task without social context.",
-            "feedback_type": None,
-            "anxiety_measure": None,
-            "url": "https://openneuro.org/datasets/ds009999"
-        },
-        {
-            "id": "ds002222",
-            "title": "Anxiety and Feedback",
-            "description": "Study with both simulated feedback and anxiety scores.",
-            "feedback_type": "simulated",
-            "anxiety_measure": "SPIN",  # Valid
-            "url": "https://openneuro.org/datasets/ds002222"
+            "dataset_id": "ds004",
+            "title": "General Cognitive Study",
+            "feedback_type": "None",
+            "anxiety_measure": "None",
+            "status": "None",
+            "url": "https://openneuro.org/datasets/ds004"
         }
     ]
+    
     return mock_datasets
 
 def categorize_dataset(dataset: Dict[str, Any]) -> str:
     """
-    Categorizes a dataset based on feedback_type and anxiety_measure.
-    Categories:
-      - "Eligible": Both feedback_type (simulated/real) AND anxiety_measure present.
-      - "Sim-Only": Simulated feedback present, no anxiety measure.
-      - "Real-Only": Real feedback present, no anxiety measure.
-      - "Partial-EEG": Has feedback but missing EEG specific markers (simplified here).
-      - "Partial-Anxiety": Has anxiety but missing feedback (simplified).
-      - "None": Neither present.
+    Categorize a dataset based on its feedback_type and anxiety_measure.
+    
+    Args:
+        dataset: Dictionary containing dataset metadata.
+        
+    Returns:
+        Category string: "Eligible", "Sim-Only", "Real-Only", "Partial-EEG", "Partial-Anxiety", or "None".
     """
-    feedback = dataset.get("feedback_type")
-    anxiety = dataset.get("anxiety_measure")
-
-    if feedback and anxiety:
+    feedback = dataset.get("feedback_type", "None")
+    anxiety = dataset.get("anxiety_measure", "None")
+    
+    # Normalize to handle case sensitivity or variations
+    feedback = feedback.lower() if feedback else "none"
+    anxiety = anxiety.lower() if anxiety else "none"
+    
+    if feedback != "none" and anxiety != "none":
         return "Eligible"
-    elif feedback == "simulated" and not anxiety:
-        return "Sim-Only"
-    elif feedback == "real" and not anxiety:
-        return "Real-Only"
-    elif feedback and not anxiety:
-        # Fallback for other feedback types if any
-        return "Sim-Only" if "simulated" in str(feedback).lower() else "Real-Only"
-    elif not feedback and anxiety:
+    elif feedback != "none" and anxiety == "none":
+        if feedback == "simulated":
+            return "Sim-Only"
+        else:
+            return "Real-Only"
+    elif feedback == "none" and anxiety != "none":
         return "Partial-Anxiety"
+    elif feedback != "none" and anxiety == "none":
+        # This case is covered above, but for completeness
+        return "Partial-EEG" # Assuming EEG is implied by feedback type presence
     else:
         return "None"
 
-def run_search_phase() -> bool:
+def run_search_phase():
     """
-    Executes the search phase, categorizes datasets, and handles errors
-    related to missing anxiety measures as per T017.
+    Execute the search phase: query OpenNeuro, categorize datasets, and save results.
     
-    Returns True if an eligible dataset was found (proceed to next phase).
-    Returns False if the search resulted in a Negative Finding (abort).
+    This function:
+    1. Searches for datasets.
+    2. Categorizes each dataset.
+    3. Saves results to data/results/dataset_search_results.csv.
+    4. Checks for "None" status and triggers report generation if needed.
     """
-    logger.info("Starting dataset search phase...")
-    datasets = search_openneuro()
+    logger = get_logger(__name__)
     
-    categories = {
-        "Eligible": [],
-        "Sim-Only": [],
-        "Real-Only": [],
-        "Partial-EEG": [],
-        "Partial-Anxiety": [],
-        "None": []
-    }
-
-    results = []
-    has_missing_anxiety = False
-    missing_anxiety_ids = []
-
+    # Define keywords
+    keywords = ["social", "feedback", "validation", "anxiety"]
+    
+    # Search
+    datasets = search_openneuro(keywords)
+    
+    # Categorize and update status
     for ds in datasets:
-        status = categorize_dataset(ds)
-        categories[status].append(ds)
-        
-        # T017 Logic: Log specific dataset IDs with missing anxiety measures
-        if status in ["Sim-Only", "Real-Only", "Partial-Anxiety", "None"]:
-            if not ds.get("anxiety_measure"):
-                has_missing_anxiety = True
-                missing_anxiety_ids.append(ds["id"])
-                logger.warning(f"Dataset {ds['id']} ({ds['title']}) missing anxiety measure. Categorized as {status}.")
-
-        results.append({
-            "dataset_id": ds["id"],
-            "title": ds["title"],
-            "feedback_type": ds.get("feedback_type"),
-            "anxiety_measure": ds.get("anxiety_measure"),
-            "status": status,
-            "url": ds.get("url")
-        })
-
-    # Output CSV (T016a)
-    csv_path = DATA_RESULTS_DIR / "dataset_search_results.csv"
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["dataset_id", "title", "feedback_type", "anxiety_measure", "status", "url"])
-        writer.writeheader()
-        writer.writerows(results)
-    logger.info(f"Search results written to {csv_path}")
-
-    # T017/T015 Logic: Trigger abort if no "Eligible" dataset found
-    if not categories["Eligible"]:
-        logger.error("No eligible datasets found. Triggering abort logic.")
-        # Log the specific missing anxiety IDs as required by T017
-        if missing_anxiety_ids:
-            logger.error(f"Specific datasets with missing anxiety measures: {', '.join(missing_anxiety_ids)}")
-        
-        # Determine which report to generate based on T015 logic
-        if categories["Sim-Only"] or categories["Real-Only"]:
-            logger.info("Separate datasets found. Generating Separate Negative Finding Report.")
-            # Import and run the separate report generator
-            from generate_negative_finding_report_separate import main as main_separate
-            main_separate(categories, DATA_RESULTS_DIR)
-        else:
-            logger.info("No datasets found at all. Generating None Negative Finding Report.")
-            from generate_negative_finding_report import main as main_none
-            main_none(categories, DATA_RESULTS_DIR)
-        
-        return False
+        ds["status"] = categorize_dataset(ds)
     
-    logger.info("Eligible dataset found. Proceeding to preprocessing phase.")
-    return True
+    # Save results
+    output_path = Path("data/results/dataset_search_results.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ["dataset_id", "title", "feedback_type", "anxiety_measure", "status", "url"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(datasets)
+    
+    logger.info(f"Search results saved to {output_path}")
+    
+    # Check for "None" status
+    none_datasets = [ds for ds in datasets if ds["status"] == "None"]
+    if none_datasets:
+        logger.warning(f"Found {len(none_datasets)} datasets with 'None' status. Triggering negative finding report.")
+        # Import and run the report generator
+        from generate_negative_finding_report import main as generate_report_main
+        generate_report_main()
+    else:
+        logger.info("No 'None' status datasets found. Proceeding to next phase.")
 
 def main():
-    success = run_search_phase()
-    sys.exit(0 if success else 0) # Exit 0 as per T015 (Project Complete: Negative Finding is a valid exit)
+    """Entry point for the search phase."""
+    run_search_phase()
 
 if __name__ == "__main__":
     main()
