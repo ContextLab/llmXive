@@ -300,13 +300,26 @@ def execute(
     gets a fresh ``uuid.uuid4().hex`` when omitted. ``call_id`` (the reservation-id
     token) is
     DISTINCT from ``route_id`` (maintainer review finding #3) — it preserves the
-    prior 12-hex-char ``_sanitize_reservation_id`` suffix format, but (slice-0
-    audit fix, HIGH finding #1) is now DERIVED from ``route_id`` via a truncated
-    SHA-256 when omitted, rather than a fresh random token — so a retried logical
-    route (same injected ``route_id``) reuses the SAME ``call_id`` → the SAME
-    paid ``reservation_id``, and the 026 ledger's already-idempotent ``reserve()``
-    no-ops the retry instead of opening a second reservation. Still independently
-    overridable by passing an explicit ``call_id``.
+    prior 12-hex-char ``_sanitize_reservation_id`` suffix format. When omitted its
+    derivation is CONDITIONAL on whether the dispatch-idempotency gate is active
+    (slice-0 audit fix #6, HIGH finding #1):
+
+    - with a ``route_audit`` sink, the atomic ``claim_dispatch`` boundary gates the
+      real backend dispatch, so ``call_id`` is DERIVED from ``route_id`` via a
+      truncated SHA-256 — a retried logical route (same injected ``route_id``)
+      reuses the SAME ``call_id`` → the SAME paid ``reservation_id``, the 026
+      ledger's idempotent ``reserve()`` no-ops the retry, and the claim rejects the
+      second dispatch;
+    - WITHOUT a ``route_audit`` sink there is NO dispatch-idempotency gate
+      (``claimed`` is unconditionally ``True``), so a stable ``reservation_id``
+      would be actively unsafe — two same-route calls would share one reserved
+      envelope yet BOTH invoke the backend (a double charge). ``call_id`` is minted
+      FRESH per call so each no-audit call opens its OWN conservative envelope and
+      is independently budgeted.
+
+    A caller MAY still override with an explicit ``call_id``; supplying one WITHOUT
+    a ``route_audit`` sink is advanced/unsafe use — it pins the ``reservation_id``
+    but does NOT confer dispatch idempotency (the caller owns dedup).
 
     **Ledger config resolution (R5-1 / finding-3).** ``ledger_config`` defaults to
     ``None`` = the PRODUCTION config, resolved via
@@ -329,22 +342,32 @@ def execute(
     # suffix format that `_sanitize_reservation_id` bakes into every persisted
     # reservation id.
     #
-    # Slice-0 audit fix (HIGH finding #1): a retried logical route re-injects the
-    # SAME route_id, so call_id must be DERIVED from route_id rather than minted
-    # fresh — a fresh `uuid.uuid4().hex[:12]` per call would produce a DIFFERENT
-    # reservation_id on every retry of the identical route, opening a SECOND paid
-    # Attempt/026 reservation (worse than a duplicate audit event: a potential
-    # double charge). Hashing route_id keeps the 12-hex-char suffix format (a naive
-    # `route_id[:12]` would instead widen it to the 32-char route_id and could
-    # collide on a common prefix) while making it retry-stable: the SAME route_id
-    # always derives the SAME call_id → the SAME reservation_id. The 026 ledger's
-    # `reserve()` is already idempotent on a matching (model, worst_case_credits,
-    # budget_epoch) identity under a given reservation_id (reservations.py
-    # `prepare()`, ~lines 239-255) — a same-route retry's reserve() call re-opens
-    # the identical id and is a no-op, never a second reservation. An explicitly
-    # passed `call_id` still overrides this unconditionally (e.g. a caller with its
-    # own idempotency scheme).
-    call_id = call_id or hashlib.sha256(route_id.encode()).hexdigest()[:12]
+    # Slice-0 audit fix #6 (HIGH finding #1): the call_id derivation is CONDITIONAL
+    # on whether the dispatch-idempotency gate (the atomic claim_dispatch below) is
+    # active — i.e. on whether a route_audit sink was injected.
+    if call_id is None:
+        if route_audit is not None:
+            # AUDITED path: claim_dispatch() gates the real backend dispatch, so a
+            # retried logical route (same injected route_id) is SAFE to — and MUST
+            # — derive the SAME reservation_id: the 026 reserve() no-ops the retry
+            # (idempotent on a matching (model, worst_case_credits, budget_epoch)
+            # identity under a given reservation_id, reservations.py ~239-255) AND
+            # the claim rejects the second dispatch. Hashing route_id keeps the
+            # 12-hex-char suffix format (a naive `route_id[:12]` would widen it to
+            # the 32-char route_id and could collide on a common prefix) while
+            # making it retry-stable.
+            call_id = hashlib.sha256(route_id.encode()).hexdigest()[:12]
+        else:
+            # COMPAT path (no audit sink → NO dispatch-idempotency gate; `claimed`
+            # is unconditionally True below). A stable route_id-derived call_id is
+            # ACTIVELY UNSAFE here: two same-route calls would derive the SAME
+            # reservation_id, the 026 ledger would no-op the second reserve() as
+            # idempotent, yet the backend would STILL be invoked a second time — up
+            # to 2x retries paid attempts charged under ONE reserved envelope. Mint a
+            # FRESH random call_id so each no-audit call opens its OWN conservative
+            # envelope and is independently budgeted (without a sink there is no
+            # replay detection, so each call is a fully independent logical call).
+            call_id = uuid.uuid4().hex[:12]
     msg_list = list(messages)
 
     if not chain.candidates:

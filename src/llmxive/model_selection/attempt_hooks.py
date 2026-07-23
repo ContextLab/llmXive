@@ -274,15 +274,23 @@ class RouteAudit(Protocol):
         - ``True``  — FIRST claim: this caller now OWNS the dispatch (invoke the
           backend);
         - ``False`` — a ``DispatchStarted`` with this ``event_id`` was ALREADY
-          durably recorded (a replay): the caller MUST NOT invoke the backend.
+          durably recorded with a BYTE-IDENTICAL payload (a legitimate replay): the
+          caller MUST NOT invoke the backend.
 
         MUST be atomic under CONCURRENT workers sharing a ``route_id`` — exactly
         one claimant gets ``True`` (a compare-and-swap / unique-insert, not a
         read-then-write). An idempotent ``record`` append is NOT sufficient: the
         caller cannot tell a newly-persisted start from an existing one, so a
-        plain ``record`` cannot gate a side effect. A sink infrastructure failure
-        here should RAISE (→ route-fatal ``RouteAuditError`` via the caller),
-        distinct from a ``False`` replay result."""
+        plain ``record`` cannot gate a side effect.
+
+        **Collision semantics (finding #2), mirroring ``record`` above.** ``False``
+        is returned ONLY when the already-recorded ``DispatchStarted`` payload is
+        byte-identical. A claim for an ``event_id`` already recorded with a
+        DIFFERENT payload (e.g. a different ``reservation_id`` — a conflicting
+        dispatch masquerading as a replay) is an INTEGRITY VIOLATION and MUST RAISE
+        (→ route-fatal ``RouteAuditError`` via the caller); it MUST NEVER be
+        silently swallowed as a ``False`` replay. A sink infrastructure failure
+        likewise RAISES — distinct from a ``False`` replay result."""
         ...
 
 

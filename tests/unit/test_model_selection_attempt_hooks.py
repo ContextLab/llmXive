@@ -113,16 +113,19 @@ class _FailingRecorder:
 class _ClaimingRecorder:
     """A REAL in-memory RouteAudit sink implementing the ATOMIC dispatch-claim
     boundary (spec-025 maintainer review fix #5): a ``threading.Lock``-guarded
-    set of claimed ``DispatchStarted`` event_ids ensures exactly one claimant
-    wins per event_id, even under concurrent callers (a compare-and-swap /
-    unique-insert, not a read-then-write). ``record`` follows the round-4 (F2)
-    collision semantics: idempotent on an identical payload, integrity-raise
-    (``ValueError``, normalized by ``emit_audit``/the claim-exception handler to
-    ``RouteAuditError``) on a conflicting one."""
+    dict of recorded ``DispatchStarted`` payloads keyed by event_id ensures
+    exactly one claimant wins per event_id, even under concurrent callers (a
+    compare-and-swap / unique-insert, not a read-then-write). BOTH ``record`` and
+    ``claim_dispatch`` follow the round-4 (F2) collision semantics: idempotent on an
+    identical payload, integrity-raise (``ValueError``, normalized by
+    ``emit_audit``/the claim-exception handler to ``RouteAuditError``) on a
+    conflicting one — a ``claim_dispatch`` for an event_id already recorded with a
+    DIFFERENT payload is a conflicting dispatch masquerading as a replay, and MUST
+    raise rather than be silently swallowed as ``False`` (slice-0 audit fix #6,
+    finding #2)."""
 
     def __init__(self):
         self._lock = threading.Lock()
-        self._claimed: set[str] = set()
         self._by_id: dict[str, tuple] = {}
         self.events: list = []
 
@@ -147,11 +150,47 @@ class _ClaimingRecorder:
     def claim_dispatch(self, event) -> bool:
         payload = self._canonical_payload(event)
         with self._lock:
-            if event.event_id in self._claimed:
+            existing = self._by_id.get(event.event_id)
+            if existing is not None:
+                # Already claimed/recorded under this event_id. Honor the SAME
+                # collision semantics as record(): a BYTE-IDENTICAL payload is a
+                # legitimate replay → False (caller MUST NOT re-dispatch); a
+                # DIFFERENT payload under the same event_id is an INTEGRITY
+                # VIOLATION (a conflicting dispatch, e.g. a different reservation_id)
+                # → raise (normalized to RouteAuditError by the caller), NEVER
+                # silently returned as False (finding #2).
+                if existing != payload:
+                    raise ValueError(f"claim_dispatch payload mismatch for {event.event_id!r}")
                 return False
-            self._claimed.add(event.event_id)
-            self._record_locked(event, payload)
+            self._by_id[event.event_id] = payload
+            self.events.append(event)
             return True
+
+
+def test_claiming_recorder_claim_dispatch_collision_semantics():
+    # Slice-0 audit fix #6 finding #2: claim_dispatch MUST validate payload
+    # identity on the already-claimed path, not blindly return False on any known
+    # event_id (which would mislabel a conflicting dispatch as a legitimate replay).
+    rec = _ClaimingRecorder()
+    started = DispatchStarted(route_id="R", candidate_index=0, candidate=_ref(), reservation_id="res-a")
+
+    # First claim wins the dispatch.
+    assert rec.claim_dispatch(started) is True
+
+    # A BYTE-IDENTICAL replay (same event_id AND same payload) is a legitimate
+    # replay → False (the caller must not re-dispatch).
+    replay = DispatchStarted(route_id="R", candidate_index=0, candidate=_ref(), reservation_id="res-a")
+    assert replay.event_id == started.event_id
+    assert rec.claim_dispatch(replay) is False
+
+    # A DIFFERENT payload under the SAME event_id (a conflicting reservation_id —
+    # e.g. a second, distinct dispatch masquerading as a replay) is an INTEGRITY
+    # VIOLATION → raise, NEVER a silent False. emit_audit / execute normalize this
+    # ValueError to a route-fatal RouteAuditError.
+    conflicting = DispatchStarted(route_id="R", candidate_index=0, candidate=_ref(), reservation_id="res-DIFFERENT")
+    assert conflicting.event_id == started.event_id
+    with pytest.raises(ValueError, match="payload mismatch"):
+        rec.claim_dispatch(conflicting)
 
 
 def test_reservation_authority_is_structural():

@@ -839,7 +839,21 @@ def test_paid_replay_before_dispatch_completed_never_dispatches_reservation_reta
     counter = _CallCounter()
     route_id = "pre-claimed-paid-route"
 
-    pre_started = DispatchStarted(route_id=route_id, candidate_index=0, candidate=_paid_ref(), reservation_id=None)
+    # The ORIGINAL dispatch this replay simulates opened its reservation with the
+    # SAME deterministic id execute() will derive (audited path: call_id =
+    # sha256(route_id)[:12]). Pre-claim with that EXACT reservation_id — a paid
+    # candidate's real DispatchStarted carries a non-None reservation_id, so
+    # pre-claiming with None would now (finding #2) be a payload CONFLICT and raise
+    # an integrity error, not a legitimate replay.
+    import hashlib
+
+    from llmxive.model_selection.execute import _sanitize_reservation_id
+
+    derived_call_id = hashlib.sha256(route_id.encode()).hexdigest()[:12]
+    derived_rid = _sanitize_reservation_id(_paid_ref().model_id, derived_call_id)
+    pre_started = DispatchStarted(
+        route_id=route_id, candidate_index=0, candidate=_paid_ref(), reservation_id=derived_rid,
+    )
     assert rec.claim_dispatch(pre_started) is True  # simulates the ORIGINAL dispatch's own claim
 
     with pytest.raises(RouteReplayError):
@@ -896,3 +910,54 @@ def test_concurrent_same_route_id_dispatches_backend_exactly_once(repo, monkeypa
     matching = [rid for rid in reservations if rid == oks[0].reservation_id]
     assert len(matching) == 1
     assert reservations[oks[0].reservation_id].state == STATE_SETTLING
+
+
+# --------------------------------------------------------------------------- #
+# Slice-0 audit fix #6 (HIGH finding #1): a stable route_id WITHOUT a route_audit
+# sink must NOT collapse two same-route paid calls onto one reserved envelope.
+# Without a sink there is no atomic claim_dispatch gate (claimed=True always), so
+# a route_id-DERIVED call_id would give both calls the SAME reservation_id — the
+# 026 ledger idempotently no-ops the second reserve(), yet the backend is STILL
+# invoked twice → up to 2x retries paid attempts charged under ONE envelope. The
+# fix mints a FRESH call_id per no-audit call so each opens its OWN envelope.
+# --------------------------------------------------------------------------- #
+
+
+def test_paid_no_audit_same_route_id_opens_separate_reservations(repo, monkeypatch):
+    monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
+    budget = _Budget(10_000.0)
+    counter = _CallCounter()
+    fixed_route_id = "no-audit-retry-route"
+
+    def _run():
+        return execute(
+            _paid_chain(), MSG, options=ExecutionOptions(max_tokens=64),
+            backend_factory=_counting_factory(counter), ledger_repo=repo, ledger_config=LOCAL_CFG,
+            credit_observer=_observer(), balance_fetch=_balance(), now=NOW,
+            reservation_authority=budget, route_audit=None, route_id=fixed_route_id,
+        )
+
+    result1 = _run()
+    result2 = _run()
+
+    # Without a sink there is NO dispatch idempotency: both calls dispatched.
+    assert counter.count == 2
+
+    # The crux of fix #6: each no-audit call opened its OWN reservation — the two
+    # reservation_ids DIFFER (fresh per-call call_id), NOT one shared envelope.
+    assert result1.reservation_id is not None
+    assert result2.reservation_id is not None
+    assert result1.reservation_id != result2.reservation_id
+
+    # The 026 ledger holds TWO distinct reservations, each independently budgeted —
+    # under the pre-fix stable-call_id derivation this would be ONE (the second
+    # reserve() no-op'd), i.e. a double dispatch under a single envelope.
+    reservations = project(read_events(repo))
+    assert result1.reservation_id in reservations
+    assert result2.reservation_id in reservations
+    assert reservations[result1.reservation_id].state == STATE_SETTLING
+    assert reservations[result2.reservation_id].state == STATE_SETTLING
+
+    # Both envelopes are retained by the Attempt authority (both dispatched
+    # successfully), accounted separately — never collapsed to one.
+    assert {result1.reservation_id, result2.reservation_id} <= budget.retained
