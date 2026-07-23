@@ -1,12 +1,28 @@
-scikit-learn
-transformers
-torch
-librosa
-pandas
-numpy
-datasets
-sentence-transformers
-jiwer
-pytest
-black
-ruff
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0
+pyyaml>=6.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+
+# ASR and Embeddings (CPU-optimized)
+transformers>=4.30.0
+torch>=2.0.0
+sentence-transformers>=2.2.0
+whisper-openai>=1.0.0 # Or specific whisper version
+
+# Metrics
+jiwer>=3.0.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Utilities
+tqdm>=4.65.0
+datasets>=2.14.0
+soundfile>=0.12.0
+librosa>=0.10.0
+matplotlib>=3.7.0
+seaborn>=0.12.0

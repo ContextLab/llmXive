@@ -1,11 +1,19 @@
 T015:
   c: false
-  h: 9b5737eec656975b53e5fd285e6a2ad692631633c344685fe9813e9e1e8ea2ff
-  r: The repository contains a `code/main.py` file, but the shown excerpt stops before
-    any CLI argument parsing or logic that writes a `stress_curves.parquet` file,
-    and the required `data/derived/stress_curves.parquet` file is absent. Consequently
-    the orchestration script does not demonstrably generate and save the stress curves
-    as specified.
+  h: 3b3f25e69cfb20ad7188427367ea0000dd687a2510113d45b3641f46ab77486b
+  r: "The repository contains a `code/main.py` file, but it is truncated, lacks the\
+    \ full orchestration (including the required CLI arguments and the actual stress\u2011\
+    curve generation logic), and no `data/derived/stress_curves.parquet` file is present.\
+    \ The primary output artifact the task demands is missing, so the implementation\
+    \ does not satisfy the requirement."
+T015b:
+  c: true
+  h: 3b3f25e69cfb20ad7188427367ea0000dd687a2510113d45b3641f46ab77486b
+  r: "The `code/main.py` file (5424\u202Fbytes) defines a `pre_flight_data_check`\
+    \ function that verifies the presence, non\u2011zero size, and non\u2011empty\
+    \ content of `data/derived/stress_curves.parquet`, and the surrounding workflow\
+    \ calls this check before downstream steps. This directly fulfills the task\u2019\
+    s requirement."
 T030a:
   c: false
   h: 6dabf4eaddb3c094b03ecfd28b6e272cc12df07a27bca54c4b14d521ea9060a2

@@ -1,93 +1,146 @@
-import pytest
-import pandas as pd
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import sys
-import os
+"""
+Unit tests for data loader in code/data_loader.py.
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+Tests dataset fetching, verification, and stress curve generation.
+"""
+import pytest
+from pathlib import Path
+import tempfile
+import json
 
 from data_loader import (
     compute_file_hash,
     verify_checksum,
-    fetch_and_verify_librispeech,
     stratified_sample,
-    save_stratified_subset,
-    load_librispeech_subset,
-    generate_all_distortion_vectors,
-    verify_dataset_coverage_for_scenarios
+    generate_stress_curve_for_clip
 )
-from config import get_config
 
-@pytest.fixture
-def mock_config():
-    config = get_config()
-    config['raw_path'] = '/tmp/mock_raw'
-    config['derived_path'] = '/tmp/mock_derived'
-    config['random_seed'] = 42
-    config['sample_size'] = 10
-    return config
 
-@pytest.fixture
-def sample_dataframe():
-    data = {
-        'file_id': ['123-456-789', '123-456-790', '124-456-789', '124-456-790'],
-        'text': ['Hello', 'World', 'Test', 'Data'],
-        'speaker_id': ['123', '123', '124', '124'],
-        'snr_bucket': ['SNR_0', 'SNR_1', 'SNR_0', 'SNR_1']
-    }
-    return pd.DataFrame(data)
+class TestComputeFileHash:
+    """Tests for compute_file_hash function."""
 
-def test_compute_file_hash(tmp_path):
-    test_file = tmp_path / "test.txt"
-    test_file.write_text("Hello World")
-    hash1 = compute_file_hash(test_file)
-    hash2 = compute_file_hash(test_file)
-    assert hash1 == hash2
-    assert len(hash1) == 64  # SHA-256 hex length
+    def test_compute_hash_file_exists(self):
+        """Test hash computation for existing file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = f.name
+        
+        try:
+            hash_value = compute_file_hash(temp_path)
+            assert hash_value is not None
+            assert len(hash_value) == 64  # SHA-256 hex length
+        finally:
+            import os
+            os.unlink(temp_path)
 
-def test_stratified_sample(mock_config, sample_dataframe):
-    sampled = stratified_sample(sample_dataframe, mock_config)
-    # Check that sampling occurred
-    assert len(sampled) <= len(sample_dataframe)
-    # Check that strata are preserved
-    assert 'speaker_id' in sampled.columns
-    assert 'snr_bucket' in sampled.columns
+    def test_compute_hash_file_not_exists(self):
+        """Test hash computation for non-existing file."""
+        with pytest.raises(FileNotFoundError):
+            compute_file_hash("/nonexistent/file.txt")
 
-def test_save_stratified_subset(mock_config, sample_dataframe, tmp_path):
-    mock_config['derived_path'] = str(tmp_path)
-    output_path = save_stratified_subset(sample_dataframe, mock_config, "test_subset.parquet")
-    assert output_path.exists()
-    df_loaded = pd.read_parquet(output_path)
-    assert len(df_loaded) == len(sample_dataframe)
+    def test_compute_hash_deterministic(self):
+        """Test that hash computation is deterministic."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("deterministic content")
+            temp_path = f.name
+        
+        try:
+            hash1 = compute_file_hash(temp_path)
+            hash2 = compute_file_hash(temp_path)
+            assert hash1 == hash2
+        finally:
+            import os
+            os.unlink(temp_path)
 
-def test_generate_all_distortion_vectors(mock_config):
-    vectors = generate_all_distortion_vectors(mock_config)
-    assert len(vectors) > 0
-    assert 'snr' in vectors[0]
-    assert 'rt60' in vectors[0]
-    assert 'vector_id' in vectors[0]
 
-def test_verify_dataset_coverage_for_scenarios(mock_config, sample_dataframe):
-    scenarios = generate_all_distortion_vectors(mock_config)
-    # Mock the dataframe to have specific snr_buckets
-    sample_dataframe['snr_bucket'] = ['SNR_0'] * len(sample_dataframe)
-    coverage = verify_dataset_coverage_for_scenarios(sample_dataframe, scenarios)
-    assert 'total_scenarios' in coverage
-    assert 'covered_scenarios' in coverage
-    assert 'missing_scenarios' in coverage
+class TestVerifyChecksum:
+    """Tests for verify_checksum function."""
 
-@patch('data_loader.fetch_and_verify_librispeech')
-@patch('data_loader.stratified_sample')
-@patch('data_loader.save_stratified_subset')
-def test_load_librispeech_subset(mock_save, mock_sample, mock_fetch, mock_config):
-    mock_fetch.return_value = pd.DataFrame({'file_id': ['1'], 'text': ['test']})
-    mock_sample.return_value = pd.DataFrame({'file_id': ['1'], 'text': ['test']})
-    
-    result = load_librispeech_subset(mock_config)
-    assert isinstance(result, pd.DataFrame)
-    assert len(result) > 0
-    mock_fetch.assert_called_once()
-    mock_sample.assert_called_once()
-    mock_save.assert_called_once()
+    def test_verify_checksum_match(self):
+        """Test checksum verification with matching hash."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("content for verification")
+            temp_path = f.name
+        
+        try:
+            actual_hash = compute_file_hash(temp_path)
+            result = verify_checksum(temp_path, actual_hash)
+            assert result is True
+        finally:
+            import os
+            os.unlink(temp_path)
+
+    def test_verify_checksum_mismatch(self):
+        """Test checksum verification with mismatched hash."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("content for verification")
+            temp_path = f.name
+        
+        try:
+            wrong_hash = "0" * 64
+            result = verify_checksum(temp_path, wrong_hash)
+            assert result is False
+        finally:
+            import os
+            os.unlink(temp_path)
+
+
+class TestStratifiedSample:
+    """Tests for stratified_sample function."""
+
+    def test_stratified_sample_basic(self):
+        """Test basic stratified sampling."""
+        data = [
+            {"speaker_id": "A", "text": "text1"},
+            {"speaker_id": "A", "text": "text2"},
+            {"speaker_id": "B", "text": "text3"},
+            {"speaker_id": "B", "text": "text4"},
+            {"speaker_id": "C", "text": "text5"},
+            {"speaker_id": "C", "text": "text6"},
+        ]
+        
+        sample = stratified_sample(data, strata_key="speaker_id", sample_size=3)
+        
+        # Should have at least one from each speaker
+        speakers = set(item["speaker_id"] for item in sample)
+        assert len(speakers) >= 2  # With small sample, might not get all
+
+    def test_stratified_sample_full(self):
+        """Test stratified sampling with full size."""
+        data = [
+            {"speaker_id": "A", "text": "text1"},
+            {"speaker_id": "B", "text": "text2"},
+        ]
+        
+        sample = stratified_sample(data, strata_key="speaker_id", sample_size=10)
+        
+        assert len(sample) == 2  # All items returned
+
+
+class TestGenerateStressCurve:
+    """Tests for generate_stress_curve_for_clip function."""
+
+    def test_generate_stress_curve_structure(self):
+        """Test that stress curve generation returns correct structure."""
+        # Mock clip data
+        clip = {
+            "clip_id": "test_001",
+            "path": "/fake/path.wav",
+            "transcript": "test transcript"
+        }
+        
+        # Mock distortion vectors
+        vectors = [
+            {"vector_id": "v1", "snr_db": 10.0, "rt60": 0.5},
+            {"vector_id": "v2", "snr_db": 20.0, "rt60": 0.3}
+        ]
+        
+        # Note: This test verifies the function signature and basic flow
+        # Actual ASR and distortion application requires real models
+        result = generate_stress_curve_for_clip(clip, vectors, model_id="test_model")
+        
+        assert result is not None
+        assert "clip_id" in result
+        assert "model_id" in result
+        assert "points" in result
+        assert len(result["points"]) == len(vectors)

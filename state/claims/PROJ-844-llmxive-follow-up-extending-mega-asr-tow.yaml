@@ -1037,3 +1037,411 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T11:15:24Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: hysteresis requires 3 consecutive steps below threshold for oscillating
+    SSS
+  claim_id: c_0b9809e8
+  context: 'Implement validation logic in code/metrics.py to handle edge cases: hysteresis
+    requires K=3 consecutive steps below threshold for oscillating SSS, empty ASR
+    output maps to lowest intensity vector with warning, and missing distortion scenarios
+    (FR-001 edge cases)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hysteresis requires K=3 consecutive steps below threshold for oscillating
+    SSS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:22:30Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: HVCM calculation uses linear interpolation between 2 and 3 on 0-5 Likert
+    scale
+  claim_id: c_d17aec29
+  context: 'Implement Human-Validated Collapse Margin (HVCM) calculation in code/metrics.py
+    to derive the primary regression target from data/validation/human_annotations.csv
+    and data/derived/stress_curves.parquet, breaking circularity per plan.md. Logic:
+    HVCM = SSS-based collapse point - human-annotated collapse point (derived from
+    0-5 Likert scores using linear interpolation between scores 2 and 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HVCM = SSS-based collapse point - human-annotated collapse point (derived
+    from 0-5 Likert scores using linear interpolation between scores 2 and 3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:14Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: interaction terms SNR times RT60 SNR squared and RT60 squared passed
+    as features
+  claim_id: c_36d2dbab
+  context: "Implement code/models.py to train CPU-tractable regression (Linear/Polynomial\
+    \ degree\u22643 or DT max_depth\u22645) using features from T025a and target HVCM\
+    \ from T030b per FR-005; Explicitly verify that generated interaction terms are\
+    \ passed as features to the model (Merged T025b into T026) (Depends on T030b,\
+    \ T025a)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interaction_terms_SNR_times_RT60_SNR_squared_and_RT60_square
+  kind: entity_fact
+  raw_text: verify that generated interaction terms are passed as features to the
+    model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:43Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: threshold stability verification raises error if variance exceeds 10
+    percent between 0.40 and 0.60
+  claim_id: c_6bf8a48e
+  context: 'Threshold Stability Verification (FR-006 Sensitivity Analysis): Implement
+    code/analysis.py function verify_threshold_stability that runs the regression
+    model multiple times with thresholds ranging from 0.40 to 0.60, extracts the critical
+    interaction vector for each, calculates the sign/magnitude variance, and raises
+    a RuntimeError if variance > 10% (Resolves FR-006 and SC-002; Depends on T026)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate the sign/magnitude variance, and raises a RuntimeError if variance
+    > 10% when thresholds range from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:43Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: assert runtime less than 6 hours and RSS less than 7GB
+  claim_id: c_6fdc5527
+  context: 'Constraint Verification: Add a check in code/monitor_resources.py to explicitly
+    assert that runtime < 6 hours and RSS < 7GB, raising an error if violated (Resolves
+    SC-004 incompleteness)'
+  evidence:
+    candidates:
+    - - RSS less than
+      - 7.0
+    - - Assert runtime less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Assert_runtime_less_than_6_hours_and_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: assert that runtime < 6 hours and RSS < 7GB, raising an error if violated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T09:24:05Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: verify critical interaction vector change less than 10 percent between
+    thresholds 0.40 and 0.60
+  claim_id: c_d787f837
+  context: Implement a Threshold Stability check in code/analysis.py that verifies
+    the critical interaction vector does not change sign or magnitude by >10% when
+    the collapse threshold is swept from 0.40 to 0.60 (Validates FR-006 and SC-002;
+    Replaced by T053)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_critical_interaction_vector_change_less_than_10_perce
+  kind: magnitude
+  raw_text: Verify the critical interaction vector does not change sign or magnitude
+    by >10% when the collapse threshold is swept from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:24:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: raise warning if statistical power less than 0.8
+  claim_id: c_4c44b939
+  context: 'Implement Power Analysis for Sample Size: Add a unit test in tests/unit/test_statistics.py
+    that calculates the statistical power of the regression model given the final
+    sample size and expected effect size. Raise a warning if power < 0.8. (Resolves
+    statistical rigor requirement; Depends on T024, T059)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_warning_if_statistical_power_less_than_0.8
+  kind: magnitude
+  raw_text: Raise a warning if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:07Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: use real data from LibriSpeech and CORAA-MUPE-ASR without synthetic data
+    fabrication
+  claim_id: c_f23d46cc
+  context: 'Data Integrity: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic
+    data fabrication.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_real_data_from_LibriSpeech_and_CORAA-MUPE-ASR_without_sy
+  kind: entity_fact
+  raw_text: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:32Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: use whisper-tiny and all-MiniLM-L-v2 models
+  claim_id: c_94e9f03d
+  context: 'Critical Constraint: All ASR and embedding models MUST run on CPU (no
+    CUDA/GPU). Use whisper-tiny and all-MiniLM-L-v2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_whisper-tiny_and_all-MiniLM-L-v2_models
+  kind: entity_fact
+  raw_text: Use whisper-tiny and all-MiniLM-L-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: define 0-5 Likert scale criteria with 0 as unintelligible 3 as moderate
+    distortion and 5 as perfect
+  claim_id: c_5c8f819f
+  context: 'Human Annotation Protocol Finalization: Draft a detailed docs/annotation_protocol.md
+    defining the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate
+    distortion, 5=Perfect) and generate a code/annotation_tool.py script that presents
+    distorted clips to a human annotator via a simple CLI or web interface.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate
+    distortion, 5=Perfect)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:27:21Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: schema includes clip_id distortion_vector_id and human_intelligibility_score_0_5
+  claim_id: c_9df104e0
+  context: 'Annotation Tool Implementation: Implement code/annotation_tool.py to load
+    a stratified sample of clips from data/derived/stress_curves.parquet and present
+    them to a human annotator via a CLI interface, collecting data/validation/human_annotations.csv.
+    Schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5. (Depends
+    on T050)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_includes_clip_id_distortion_vector_id_and_human_intel
+  kind: entity_fact
+  raw_text: 'schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:27:48Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Prevent out of memory errors with over 7GB RAM usage via streaming and
+    chunked iteration
+  claim_id: c_8e79c191
+  context: Fetch and verify checksums for LibriSpeech subset in code/data_loader.py;
+    implement streaming=True and chunked iteration to prevent OOM (>7GB RAM) as per
+    FR-001
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prevent_out_of_memory_errors_with_over_7GB_RAM_usage_via_str
+  kind: entity_fact
+  raw_text: Implement streaming=True and chunked iteration to prevent OOM (>7GB RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:33:34Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Hysteresis logic requires 3 consecutive steps below threshold for oscillating
+    semantic similarity score
+  claim_id: c_1e78550c
+  context: 'Implement validation logic in code/metrics.py to handle edge cases: hysteresis
+    requires K=3 consecutive steps below threshold for oscillating SSS'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hysteresis requires K=3 consecutive steps below threshold for oscillating
+    SSS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:33:34Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Identify collapse intensity where word error rate is greater than 2 times
+    the baseline
+  claim_id: c_57c04395
+  context: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x
+    baseline per FR-004, FR-009
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_collapse_intensity_where_word_error_rate_is_greater
+  kind: magnitude
+  raw_text: WER > 2x baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:13Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Human annotation uses a 0 to 5 Likert scale for intelligibility
+  claim_id: c_c0512dba
+  context: 'Schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: human_intelligibility_score_0_5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:30Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Derive human-annotated collapse point using linear interpolation between
+    scores 2 and 3
+  claim_id: c_f91cd822
+  context: 'Logic: HVCM = SSS-based collapse point - human-annotated collapse point
+    (derived from 0-5 Likert scores using linear interpolation between scores 2 and
+    3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: linear interpolation between scores 2 and 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Verify interaction terms SNR times RT60, SNR squared, and RT60 squared
+    are passed as features
+  claim_id: c_d98b8b34
+  context: Implement code/models.py to train CPU-tractable regression... Explicitly
+    verify that generated interaction terms are passed as features to the model
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_interaction_terms_SNR_times_RT60,_SNR_squared,_and_RT
+  kind: entity_fact
+  raw_text: verify that generated interaction terms are passed as features to the
+    model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if sign or magnitude variance of critical interaction
+    vector exceeds 10 percent
+  claim_id: c_64e7a308
+  context: calculates the sign/magnitude variance, and raises a RuntimeError if variance
+    > 10%
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance > 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Run regression model with thresholds ranging from 0.40 to 0.60 for stability
+    verification
+  claim_id: c_dff4e845
+  context: runs the regression model multiple times with thresholds ranging from 0.40
+    to 0.60
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thresholds ranging from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:35:21Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Assert runtime is less than 6 hours and peak RSS is less than 7GB
+  claim_id: c_56a3a69f
+  context: Add a check in code/monitor_resources.py to explicitly assert that runtime
+    < 6 hours and RSS < 7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_runtime_is_less_than_6_hours_and_peak_RSS_is_less_tha
+  kind: magnitude
+  raw_text: runtime < 6 hours and RSS < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:36:04Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Raise a warning if statistical power is less than 0.8
+  claim_id: c_ca60d04c
+  context: calculates the statistical power of the regression model given the final
+    sample size and expected effect size. Raise a warning if power < 0.8
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_a_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:36:35Z'

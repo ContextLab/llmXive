@@ -1,24 +1,23 @@
 {
   "project_id": "PROJ-844-llmxive-follow-up-extending-mega-asr-tow",
   "ok": false,
-  "reason": "every produced artifact is gitignored (data/derived/resource_monitoring_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/data_loader.py --download (rc=1); python code/data_loader.py --verify (rc=1); python code/main.py --config code/config.yaml (rc=1); 3 declared deliverable(s) absent: data/derived/regression_results.json; data/derived/sensitivity_analysis.csv; data/validation/human_annotations.csv",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/human_validation.py: self-declared fabricated metric \u2014 \u201c\u2026generate a template     with placeholder scores (or simulate a real run if t\u2026\u201d; code/human_validation.py: metric `score` assigned from an RNG draw (line 88); every produced artifact is gitignored (data/derived/resource_monitoring_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/data_loader.py --download (rc=1); python code/data_loader.py --verify (rc=1); python code/main.py --config code/config.yaml (rc=-11); 3 declared deliverable(s) absent: data/derived/collapse_points.parquet; data/derived/stress_curves.parquet; data/validation/human_annotations.csv",
   "artifacts": [
     "data/derived/resource_monitoring_report.json"
   ],
   "failures": [
-    "python code/data_loader.py --download -> rc=1\n    download the dataset.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 202, in main\n    librispeech_data = load_librispeech_subset(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extendin",
-    "python code/data_loader.py --verify -> rc=1\n    download the dataset.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 223, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 202, in main\n    librispeech_data = load_librispeech_subset(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-",
-    "python code/main.py --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/main.py\", line 20, in <module>\n    from distortion_engine import DistortionEngine, generate_all_distortion_vectors\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/distortion_engine.py\", line 4, in <module>\n    from typing import List, DistortionConfig, Dict, Tuple, Optional, Any\nImportError: cannot import name 'DistortionConfig' from 'typing",
-    "python code/analysis.py --validate-sss -> rc=1\n    INFO:__main__:Loading sensitivity analysis data...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/analysis.py\", line 275, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/analysis.py\", line 239, in main\n    sensitivity_data = load_sensitivity_analysis(config)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-84"
+    "python code/data_loader.py --download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 353, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 333, in main\n    config = get_config(args.config)\n             ^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: get_config() takes 0 positional arguments but 1 was given",
+    "python code/data_loader.py --verify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 353, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/code/data_loader.py\", line 333, in main\n    config = get_config(args.config)\n             ^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: get_config() takes 0 positional arguments but 1 was given",
+    "python code/main.py --config code/config.yaml -> rc=-11\n    WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1784797119.766212    2545 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1784797122.559787    2545 cudart_stub.cc:31] Could not find",
+    "python code/analysis.py --validate-sss -> rc=1\n    2026-07-23 08:59:00,295 - INFO - Running sensitivity analysis...\n2026-07-23 08:59:00,295 - INFO - Starting sensitivity analysis for thresholds: [0.4, 0.45, 0.5, 0.55, 0.6]\n2026-07-23 08:59:00,295 - ERROR - Data files missing: Required data files missing. Need /home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/data/derived/collapse_points.parquet and /home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/data/derived/stress_curves.parquet. Run main.py and US2 tasks "
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-844-llmxive-follow-up-extending-mega",
-    "submitted_at": "2026-07-23T07:26:43Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-07-23T07:26:46Z"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/main.py --config code/config.yaml"
+  ],
+  "updated_at": "2026-07-23T08:59:06Z"
 }

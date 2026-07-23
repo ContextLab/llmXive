@@ -53,7 +53,7 @@
 - [X] T004 [P] Implement `code/monitor_resources.py` to track peak RSS and wall-clock time (SC-004)
 - [X] T005 [P] Implement `code/hash_updater.py` to compute content hashes for `data/derived/` and update state YAML (Principle V)
 - [X] T006 [P] Create base entity classes (`AudioClip`, `DistortionVector`, `StressCurve`) in `code/models.py` (or dataclasses)
-- [X] T008 [P] Initialize `tests/unit/` directory with `__init__.py` and a basic pytest configuration file
+- [ ] T008 [P] Initialize `tests/unit/` directory with `__init__.py` and a basic pytest configuration file
 
 ---
 
@@ -86,7 +86,7 @@
 - [X] T013 [US1] Implement `code/metrics.py` to compute SSS using `all-MiniLM-L6-v2` (CPU-only) per FR-003
 - [X] T014 [US1] Implement `code/metrics.py` to compute WER using `jiwer` for baseline and distorted hypotheses per FR-009
 - [X] T016 [US1] Implement validation logic in `code/metrics.py` to handle edge cases: **hysteresis requires K=3 consecutive steps below threshold** for oscillating SSS, **empty ASR output maps to lowest intensity vector with warning**, and missing distortion scenarios (FR-001 edge cases)
-- [X] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`; **Implement missing generation logic for stress curves**; CLI arguments: `--input-path`, `--output-path`, `--models-list` (Depends on T016 for edge case safety)
+- [ ] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`; **Implement missing generation logic for stress curves**; CLI arguments: `--input-path`, `--output-path`, `--models-list` (Depends on T016 for edge case safety)
 - [X] T015b [US1] Pre-flight validation: Add a check in `code/main.py` to verify `data/derived/stress_curves.parquet` is generated and non-empty before proceeding to downstream tasks (Resolves T015 rejection status)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,7 +107,7 @@
 - [X] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009 (Depends on T015, T020b, T020c)
 - [X] T018 [P] [US2] Integration test verifying WER spike confirmation logic in `code/metrics.py` (Depends on T019 implementation)
 - [X] T021 [US2] Implement handling for "No Collapse" scenarios (record as "Max Tested") per US-2 Acceptance 2
-- [X] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario
+- [ ] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,10 +122,10 @@
 ### Implementation for Human Annotation
 
 - [X] T050 [US1/US2] **Human Annotation Protocol Finalization**: Draft a detailed `docs/annotation_protocol.md` defining the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate distortion, 5=Perfect) and generate a `code/annotation_tool.py` script that presents distorted clips to a human annotator via a simple CLI or web interface. (Resolves T030a "FAILED: unspecified" by defining the missing protocol and tool). **Note: This task defines the protocol and tool, but does not execute the annotation.** (Mandatory per FR-011; Depends on T015)
-- [X] T050a [US1/US2] **Annotation Tool Implementation**: Implement `code/annotation_tool.py` to load a stratified sample of clips from `data/derived/stress_curves.parquet` and present them to a human annotator via a CLI interface, collecting `data/validation/human_annotations.csv`. Schema: `clip_id`, `distortion_vector_id`, `human_intelligibility_score_0_5`. (Depends on T050)
-- [X] T050b [US1/US2] **Execute Real Annotation Workflow (MANUAL)**: **HARD BLOCK**: This task requires manual human execution. Run `code/annotation_tool.py` on a verified subset of clips from LibriSpeech/CORAA to populate `data/validation/human_annotations.csv` with REAL human labels. **This task MUST NOT use simulated or template data.** The pipeline is blocked until this file exists and is non-empty. (Resolves T030a "simulated data" concern; Depends on T050a, T015)
+- [ ] T050a [US1/US2] **Annotation Tool Implementation**: Implement `code/annotation_tool.py` to load a stratified sample of clips from `data/derived/stress_curves.parquet` and present them to a human annotator via a CLI interface, collecting `data/validation/human_annotations.csv`. Schema: `clip_id`, `distortion_vector_id`, `human_intelligibility_score_0_5 `. (Depends on T050)
+- [ ] T050b [US1/US2] **Execute Real Annotation Workflow (MANUAL)**: **HARD BLOCK**: This task requires manual human execution. Run `code/annotation_tool.py` on a verified subset of clips from LibriSpeech/CORAA to populate `data/validation/human_annotations.csv` with REAL human labels. **This task MUST NOT use simulated or template data.** The pipeline is blocked until this file exists and is non-empty. (Resolves T030a "simulated data" concern; Depends on T050a, T015)
 - [X] T050d [US1/US2] **Manual Execution Protocol**: Document the exact steps to run the annotation tool and upload the resulting CSV to the repository in `docs/manual_annotation_steps.md`. (Depends on T050b)
-- [X] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the primary regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. **Logic**: HVCM = SSS-based collapse point - human-annotated collapse point (derived from 0-5 Likert scores using **linear interpolation between scores 2 and 3**). **(Depends on T050b, T022)**
+- [ ] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the primary regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. **Logic**: HVCM = SSS-based collapse point - human-annotated collapse point (derived from 0-5 Likert scores using **linear interpolation between scores 2 and 3 **). **(Depends on T050b, T022)**
 - [X] T030a [US1/US2] **DEPRECATED**: Replaced by T050, T050a, T050b.
 
 **Checkpoint**: HVCM target is now available for US3
@@ -142,15 +142,15 @@
 
 - [X] T023 [P] [US3] Unit test for interaction term generation (SNR×RT60, SNR², RT60²)
 - [X] T025a [US3] Implement `code/models.py` function `generate_interaction_terms` to explicitly create engineered interaction terms (SNR×RT60, SNR², RT60²) for feature input (Depends on T023)
-- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a and target HVCM from T030b per FR-005; **Explicitly verify that generated interaction terms are passed as features to the model** (Merged T025b into T026) (Depends on T030b, T025a)
+- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a and target HVCM from T030b per FR-005; **Explicitly verify that generated interaction terms are passed as features to the model ** (Merged T025b into T026) (Depends on T030b, T025a)
 - [X] T025b [US3] **DEPRECATED**: Functionality merged into T026.
 - [X] T024 [US3] Implement `code/statistics.py` for multiple-comparison correction (Bonferroni/FDR) on interaction effects per FR-008
 - [X] T025 [US3] Generate `data/derived/corrected_pvalues.json` with corrected p-values and report statistical significance per SC-003
-- [X] T053 [US3] **Threshold Stability Verification (FR-006 Sensitivity Analysis)**: Implement `code/analysis.py` function `verify_threshold_stability` that runs the regression model multiple times with thresholds ranging from 0.40 to 0.60, extracts the critical interaction vector for each, calculates the sign/magnitude variance, and raises a `RuntimeError` if variance > 10% (Resolves FR-006 and SC-002; Depends on T026)
+- [ ] T053 [US3] **Threshold Stability Verification (FR-006 Sensitivity Analysis)**: Implement `code/analysis.py` function `verify_threshold_stability` that runs the regression model multiple times with thresholds ranging from 0.40 to 0.60, extracts the critical interaction vector for each, calculates the sign/magnitude variance, and raises a `RuntimeError` if variance > 10% (Resolves FR-006 and SC-002; Depends on T026)
 - [X] T027 [US3] **DEPRECATED**: Functionality merged into T053.
 - [X] T028 [US3] Implement cross-model comparison logic to calculate cosine similarity of critical vectors across a set of small ASR models selected based on SC-004 (CPU-tractability) constraints; Output: `data/derived/cross_model_similarity.csv` with columns: `model_a`, `model_b`, `cosine_similarity`. (Depends on T026)
-- [X] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-011 (Depends on T026, T030b, T050b)
-- [X] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` (Depends on T026, T053, T029)
+- [ ] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-011 (Depends on T026, T030b, T050b)
+- [ ] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` (Depends on T026, T053, T029)
 - [X] T036 [US3] Generate final report section and code comments in `research.md` and `code/models.py` explicitly framing all predictive findings as ASSOCIATIONAL, avoiding causal claims per FR-007 (Depends on T030 for data availability)
 - [X] T032 [US3] **Resource Monitoring**: Generate `data/derived/resource_monitoring_report.json` and Verify peak RSS < 7GB as a gate before proceeding (SC-004) (Depends on T015, T026)
 - [X] T032b [US3] **Constraint Verification**: Add a check in `code/monitor_resources.py` to explicitly assert that runtime < 6 hours and RSS < 7GB, raising an error if violated (Resolves SC-004 incompleteness)
@@ -175,12 +175,12 @@
 **Purpose**: Address execution feedback regarding CPU feasibility, data integrity, and statistical rigor. These tasks ensure the pipeline runs successfully on the free tier without fabrication.
 
 - [X] T037 [P] [US1/US2/US3] Implement **Defensive CPU Enforcement** in `code/metrics.py` and `code/models.py` to **raise `RuntimeError` immediately** if any CUDA device is detected or if GPU libraries are inadvertently imported (Ensures "Fail Loudly" principle; prevents silent GPU fallback)
-- [X] T038 [P] [US1] Add a pre-flight check in `code/main.py` that validates the real dataset (LibriSpeech/CORAA) is fully downloadable and accessible before initiating the distortion loop; if download fails, raise an exception rather than falling back to synthetic data (Enforces "Fail Loudly" rule)
-- [X] T039 [US3] Implement a memory-streaming wrapper in `code/data_loader.py` that processes the stress curve data in chunks (e.g., a fixed batch size) to ensure peak RSS remains within acceptable memory limits during the regression training phase (Addresses SC-004 memory constraint)
+- [ ] T038 [P] [US1] Add a pre-flight check in `code/main.py` that validates the real dataset (LibriSpeech/CORAA) is fully downloadable and accessible before initiating the distortion loop; if download fails, raise an exception rather than falling back to synthetic data (Enforces "Fail Loudly" rule)
+- [ ] T039 [US3] Implement a memory-streaming wrapper in `code/data_loader.py` that processes the stress curve data in chunks (e.g., a fixed batch size) to ensure peak RSS remains within acceptable memory limits during the regression training phase (Addresses SC-004 memory constraint)
 - [X] T040 [P] [US3] Add a unit test in `tests/unit/test_statistics.py` that verifies the Bonferroni correction factor is correctly applied based on the exact number of interaction terms tested, ensuring p-values are not artificially inflated
 - [X] T041 [US3] Add a "Causality Warning" check in `code/models.py` that asserts the regression target (HVCM) is derived from human annotations and not from the SSS metric itself, raising an error if `human_intelligibility_score` is missing from the training data (Enforces FR-011 and breaks circularity)
 - [X] T042 [P] [US1/US2] Implement a "Distortion Coverage" validator in `code/distortion_engine.py` that logs a detailed report of which **applied distortion scenarios** were successfully applied to the sample and which were skipped, ensuring the "missing scenarios" edge case is handled transparently (FR-001)
-- [X] T043 [US3] Implement a "Threshold Stability" check in `code/analysis.py` that verifies the critical interaction vector does not change sign or magnitude by >10% when the collapse threshold is swept from 0.40 to 0.60 (Validates FR-006 and SC-002; Replaced by T053)
+- [ ] T043 [US3] Implement a "Threshold Stability" check in `code/analysis.py` that verifies the critical interaction vector does not change sign or magnitude by >10% when the collapse threshold is swept from 0.40 to 0.60 (Validates FR-006 and SC-002; Replaced by T053)
 
 ---
 
@@ -188,7 +188,7 @@
 
 **Purpose**: Address specific "FAILED: unspecified" markers from previous analysis by defining concrete, executable steps for human-annotated data generation and validation logic that cannot be fully automated without external input.
 
-- [X] T052 [US3] **Final Report Generation Template**: Create `code/report_generator.py` to assemble `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` into a final `docs/final_report.md` that explicitly states the R² score, the critical interaction vector coefficients, and the stability variance, ensuring all claims are framed as associational. (Resolves T030 "FAILED: unspecified" by defining the output structure; Depends on T030, T053)
+- [ ] T052 [US3] **Final Report Generation Template**: Create `code/report_generator.py` to assemble `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` into a final `docs/final_report.md` that explicitly states the R² score, the critical interaction vector coefficients, and the stability variance, ensuring all claims are framed as associational. (Resolves T030 "FAILED: unspecified" by defining the output structure; Depends on T030, T053)
 - [X] T051 [US3] **DEPRECATED**: HVCM Calculation Logic merged into T030b.
 - [X] T054 [US3] **Human Annotation Execution Log**: Generate a log file `data/validation/annotation_log.txt` documenting the exact time, annotator ID (if applicable), and sample size of the human annotation session to satisfy FR-011 traceability. (Depends on T050b)
 
@@ -202,7 +202,7 @@
 - [X] T056 [US1] **DEPRECATED**: Chunked Distortion Application functionality integrated into T012.
 - [X] T057 [US2] **DEPRECATED**: Hysteresis Logic for Oscillating SSS integrated into T016 (K=3 steps).
 - [X] T058 [US2] **DEPRECATED**: Empty ASR Output Handler integrated into T016 (lowest intensity mapping).
-- [X] T059 [US3] **Implement Sample Size Reporting**: Add logic in `code/main.py` to explicitly report the final sample size (number of clips, number of distortion scenarios) used in the analysis, including any clips/scenarios that were skipped due to missing data or memory constraints. (Resolves transparency requirement for sample size; Depends on T015, T007a)
+- [ ] T059 [US3] **Implement Sample Size Reporting**: Add logic in `code/main.py` to explicitly report the final sample size (number of clips, number of distortion scenarios) used in the analysis, including any clips/scenarios that were skipped due to missing data or memory constraints. (Resolves transparency requirement for sample size; Depends on T015, T007a)
 - [X] T060 [US3] **Implement Power Analysis for Sample Size**: Add a unit test in `tests/unit/test_statistics.py` that calculates the statistical power of the regression model given the final sample size and expected effect size. Raise a warning if power < 0.8. (Resolves statistical rigor requirement; Depends on T024, T059)
 
 ---

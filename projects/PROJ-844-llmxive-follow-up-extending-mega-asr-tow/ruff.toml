@@ -1,0 +1,81 @@
+# Ruff configuration for llmXive project
+# Enforces strict linting rules consistent with scientific computing best practices
+
+# Target Python version (matching environment)
+target-version = "py310"
+
+# Line length for formatting (compatible with Black default)
+line-length = 100
+
+# Exclude generated files and virtual environments
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data",
+    "docs"
+]
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "ANN",# type annotations (basic)
+    "RUF" # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for this project
+ignore = [
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN204", # Missing return type annotation for special method
+    "E501",   # Line too long (handled by Black/formatting)
+    "B008",   # Do not perform function call in argument defaults (common in config)
+    "C901"    # Function is too complex (allow for complex scientific logic)
+]
+
+# Per-file ignores for specific files
+per-file-ignores = { "code/models.py" = ["E741"] } # Allow single-letter variable names in dataclasses
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["code"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.flake8-bugbear]
+# Extend immutability checks
+extend-immutable-calls = ["code.config.get_config"]
+
+[lint.pydocstyle]
+# Enforce numpy-style docstrings
+convention = "numpy"
+
+[lint.flake8-annotations]
+# Allow missing return type for __init__ and __new__
+allow-star-arg-any = true
+ignore-fully-untyped = false
+
+[lint.pylint]
+# Maximum number of arguments for functions (scientific functions often need many params)
+max-args = 12
+# Maximum number of local variables
+max-locals = 15
+# Maximum number of branches
+max-branches = 15
+# Maximum number of return statements
+max-returns = 10
+# Maximum number of public methods per class
+max-public-methods = 20
+# Maximum line length for docstrings
+max-doc-length = 120
