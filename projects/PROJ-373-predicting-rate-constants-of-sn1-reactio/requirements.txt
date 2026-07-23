@@ -5,6 +5,6 @@ shap
 pandas
 pyyaml
 datasets
+scipy
 numpy
-pytest
 matplotlib

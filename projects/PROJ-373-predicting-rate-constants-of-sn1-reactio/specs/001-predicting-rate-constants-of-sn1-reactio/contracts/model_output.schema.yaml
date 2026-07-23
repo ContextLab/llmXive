@@ -1,6 +1,29 @@
-model_id: string
-hyperparameters: object
-metrics:
-  r2: number
-  mae: number
-weights_path: string
+description: "Schema for model output metrics and metadata"
+type: object
+required:
+  - model_id
+  - hyperparameters
+  - metrics
+  - weights_path
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run"
+  hyperparameters:
+    type: object
+    description: "Dictionary of hyperparameters used for training"
+  metrics:
+    type: object
+    required:
+      - r2
+      - mae
+    properties:
+      r2:
+        type: number
+        description: "Coefficient of determination"
+      mae:
+        type: number
+        description: "Mean Absolute Error"
+  weights_path:
+    type: string
+    description: "Relative path to the saved model weights file"

@@ -2,9 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T015** — declared artifact(s) missing/empty/invalid: data/processed/exclusion_report.csv, schema.yaml
-- **T016** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_sn1.csv
-- **T022** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T023** — No `artifacts/hyperparameter_search.csv` file was presented, and no content showing the required columns (`config_id`, `learning_rate`, `hidden_dim`, `dropout`, `r2_val`, `mae_val`) or the top‑10 configurations based on validation R² was provided. The implementer must supply the CSV file with the correct data.
-- **T030** — No artifacts were presented; the response contains only the task description and project excerpt, with no `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, or `artifacts/perturbation_results.csv` files (or their contents) to verify. The required files and their specified column structures are therefore missing.
-- **T033** — No `artifacts/integration_test_report.md` file or its contents were provided; thus there is no evidence that a 50‑row integration test was run or that all pipeline phases completed without error. The required deliverable is missing.
+- **T035#1** — No code, data files, processed CSV, training scripts, model artifacts, or evaluation results were supplied. Without these concrete artifacts, we cannot confirm that the ingestion pipeline, dataset preprocessing, MPNN training, or performance evaluation were actually performed as required. The implementer must provide the relevant scripts, output files, and metric reports.
+- **T034** — The implementer provided no artifact (e.g., validation report, execution logs, or diff) showing that `quickstart.md` was checked against the actual execution evidence from T033C or the fallback from T031B. Consequently, there is no concrete evidence that the quickstart guide was validated as required.
