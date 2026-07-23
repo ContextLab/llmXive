@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-678-comparative-analysis-of-molecular-finger",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/download.py (rc=1); python code/fingerprints.py (rc=1); python code/split.py (rc=1); 1 declared deliverable(s) absent: data/processed/organophosphates_filtered.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/download.py\", line 150, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/download.py\", line 138, in main\n    setup_logging()\n    ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined",
+    "python code/fingerprints.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/fingerprints.py\", line 240, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/fingerprints.py\", line 185, in main\n    setup_logging()\n    ^^^^^^^^^^^^^\nNameError: name 'setup_logging' is not defined",
+    "python code/split.py -> rc=1\n    2026-07-23 00:51:47,506 - __main__ - INFO - Starting Greedy Maximal Dissimilarity Split\n2026-07-23 00:51:47,506 - __main__ - ERROR - Input file not found: data/processed/organophosphates_filtered.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py\", line 292, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/split.py\", line 253, in main\n    raise FileNotFoundError(f\"Input file not fo",
+    "python code/train.py -> rc=1\n    Data file missing: Split file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/splits/split_fold_0.pkl\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/train.py\", line 327, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/train.py\", line 310, in main\n    splits = load_split_indices(split_dir)\n             ^^^^^^^^^^^^^^^^^^",
+    "python code/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/evaluate.py\", line 16, in <module>\n    from report_generator import load_metrics_from_disk, load_statistical_results, load_sc003_results, generate_markdown_table, generate_final_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/code/report_generator.py\", line 26, in <module>\n    from evaluate import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-678-co"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-23T00:51:51Z"
+}

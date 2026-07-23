@@ -1,22 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file system evidence was provided showing that `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`
+    and its required subdirectories (`data/raw/`, `data/processed/`, `code/`, `tests/`)
+    actually exist. The claim lacks concrete artifacts, so the required structure
+    is missing.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided showing a `tests/` directory with the required `unit/`
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
-T012:
+T008:
   c: false
-  h: c1bff1e826187eab3eb1a1cece811e5a57a99cac56e089f06922747cdf8bdb89
-  r: The required output file `data/processed/organophosphates_filtered.csv` does
-    not exist, and the provided `code/filter.py` is incomplete (truncated, no main
-    routine that actually loads data, applies the exact SMARTS `[P](=O)([O,SC])[O,SC]`,
-    and writes to the specified path). The implementation therefore does not fulfill
-    the task.
-T013:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`
+    file is provided, nor any content defining the Compound, Fingerprint, Model, and
+    PerformanceMetric entities with their schemas. The implementer must create and
+    supply this markdown file with the specified entity definitions.
+T018:
   c: false
-  h: a87cfaa168a7ecff44c63fbcb49a44ee69647a55c2c3f220c00f63536672d2fe
-  r: "The provided `code/filter.py` does not contain logic to check for endpoint sample\
-    \ sizes <\u202F50, issue a \u201CLow Sample Size\u201D warning, or skip statistical\
-    \ tests, nor does it write any such limitation to `data/processed/filter_log.txt`\
-    \ (the log file is missing). Consequently the task\u2019s validation and logging\
-    \ requirements are not satisfied."
+  h: 6d3d6922291edf0845a84c495bf2eec180d7e3bcaee9af3e53e9035645c000ea
+  r: "The provided `code/split.py` is truncated and does not show the full greedy\u2011\
+    maximal\u2011dissimilarity algorithm, nor any logic that logs the required error,\
+    \ writes `invalid_split_report.md` and `split_status.json`, or exits with code\u202F\
+    1 on failure. Moreover, the two required output files are absent from the repository.\
+    \ The implementation must be completed to meet all specified behaviors."
+T025c:
+  c: false
+  h: 2224d38aae0a026606913c3cd1e927861ec9259476e54354a30bf36d04adc3a7
+  r: "The provided `code/evaluate.py` is truncated and lacks any implementation of\
+    \ the SC\u2011003 analysis (no RDKit usage, no Gini importance calculations, no\
+    \ comparison logic). Moreover, the required output file `data/processed/sc003_analysis.json`\
+    \ does not exist. The task is therefore not fulfilled."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the file `specs/001-comparative-analysis-of-molecular-fingerprints/research.md`
+    was actually modified, nor any excerpt showing the required documentation about
+    measurement uncertainty and calibration with the cited references. The implementer
+    must supply the updated markdown file containing the explicit statements and citations.

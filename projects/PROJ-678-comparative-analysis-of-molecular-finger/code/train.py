@@ -1,327 +1,181 @@
-"""
-Train Random Forest models for Morgan and MACCS fingerprints.
-
-This module implements the training logic for User Story 2, creating
-CPU-only Random Forest models for each fold and fingerprint type.
-"""
 import os
 import pickle
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
-
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, precision_recall_curve, auc, balanced_accuracy_score
-from sklearn.exceptions import NotFittedError
 
-# Import project utilities and constants
-from utils import init_random_seed, get_logger
-from constants import MORGAN_RADIUS, MORGAN_BITS, MACCS_BITS, N_FOLDS, TANIMOTO_THRESHOLD
+from utils import setup_logging, init_random_seed, get_logger
+from fingerprints import generate_fingerprints_batch
+from constants import MORGAN_RADIUS, MORGAN_BITS, MACCS_BITS, N_FOLDS
 
-# Ensure CPU-only execution
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
+def load_split_indices(split_dir: str) -> Dict[int, Dict[str, List[int]]]:
+    """Load split indices from disk."""
+    logger = get_logger(__name__)
+    split_path = Path(split_dir)
+    splits = {}
 
-logger = get_logger(__name__)
+    for i in range(N_FOLDS):
+        file_path = split_path / f"split_fold_{i}.pkl"
+        if not file_path.exists():
+            raise FileNotFoundError(f"Split file not found: {file_path}")
+        with open(file_path, 'rb') as f:
+            splits[i] = pickle.load(f)
 
-
-def load_split_indices(split_dir: Path) -> List[Dict[str, np.ndarray]]:
-    """
-    Load split indices from the split directory.
-
-    Args:
-        split_dir: Path to the directory containing split files.
-
-    Returns:
-        List of dictionaries containing train/test indices for each fold.
-    """
-    splits = []
-    for fold_idx in range(N_FOLDS):
-        split_file = split_dir / f"split_fold_{fold_idx}.pkl"
-        if not split_file.exists():
-            raise FileNotFoundError(f"Split file not found: {split_file}")
-
-        with open(split_file, "rb") as f:
-            split_data = pickle.load(f)
-        splits.append(split_data)
-
-    logger.info(f"Loaded {len(splits)} split configurations.")
     return splits
 
-
-def load_fingerprint_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_fingerprint_data(csv_path: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    Load fingerprint data from the processed data directory.
-
-    Args:
-        data_dir: Path to the data directory containing fingerprint CSVs.
-
-    Returns:
-        Tuple of (fingerprints_df, labels_df)
+    Load SMILES and labels, generate Morgan fingerprints.
+    Returns: (fingerprints_array, labels_array, endpoint_names)
     """
-    # Assuming fingerprints are stored in a specific format after T017
-    # We expect 'data/processed/fingerprints_morgan.csv' and 'data/processed/fingerprints_maccs.csv'
-    # and 'data/processed/organophosphates_filtered.csv' for labels
-
-    morgan_path = data_dir / "fingerprints_morgan.csv"
-    maccs_path = data_dir / "fingerprints_maccs.csv"
-    labels_path = data_dir / "organophosphates_filtered.csv"
-
-    if not morgan_path.exists() or not maccs_path.exists() or not labels_path.exists():
-        raise FileNotFoundError(
-            "Required fingerprint or label files missing. "
-            "Ensure T017 (fingerprints) and T012 (filter) are completed."
-        )
-
-    morgan_fps = pd.read_csv(morgan_path)
-    maccs_fps = pd.read_csv(maccs_path)
-    labels_df = pd.read_csv(labels_path)
-
-    # Extract toxicity labels (assuming columns like 'NR-AR', 'NR-AR-LBD', etc.)
-    # We will iterate over all toxicity endpoint columns
-    label_cols = [col for col in labels_df.columns if col not in ['SMILES', 'Mol_Wt']]
+    logger = get_logger(__name__)
+    df = pd.read_csv(csv_path)
+    
+    # Ensure 'smiles' column exists
+    if 'smiles' not in df.columns:
+        raise ValueError(f"CSV must contain 'smiles' column. Found: {df.columns.tolist()}")
+    
+    smiles_list = df['smiles'].tolist()
+    
+    # Identify label columns (exclude 'smiles' and 'mol' if present)
+    exclude_cols = ['smiles', 'mol']
+    label_cols = [c for c in df.columns if c not in exclude_cols]
+    
     if not label_cols:
-        raise ValueError("No toxicity endpoint columns found in labels file.")
+        raise ValueError("No label columns found in CSV after excluding 'smiles' and 'mol'.")
+    
+    logger.info(f"Found {len(label_cols)} toxicity endpoints: {label_cols}")
+    
+    # Generate Morgan fingerprints (radius=2, 2048 bits)
+    logger.info(f"Generating Morgan fingerprints (radius={MORGAN_RADIUS}, bits={MORGAN_BITS})...")
+    fps, _ = generate_fingerprints_batch(smiles_list, fp_type="morgan")
+    
+    # Extract labels for all endpoints
+    labels_df = df[label_cols]
+    # Convert to numpy array: shape (n_samples, n_endpoints)
+    labels_array = labels_df.to_numpy()
+    
+    logger.info(f"Loaded {len(smiles_list)} compounds with {len(label_cols)} endpoints.")
+    
+    return fps, labels_array, label_cols
 
-    logger.info(f"Found {len(label_cols)} toxicity endpoints to model.")
-
-    return morgan_fps, maccs_fps, labels_df, label_cols
-
-
-def train_single_model(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    n_estimators: int = 100,
-    max_depth: int = 15,
-    random_state: int = 42
-) -> RandomForestClassifier:
-    """
-    Train a single Random Forest model.
-
-    Args:
-        X_train: Training features.
-        y_train: Training labels.
-        n_estimators: Number of trees.
-        max_depth: Maximum tree depth.
-        random_state: Random seed.
-
-    Returns:
-        Trained RandomForestClassifier.
-    """
-    model = RandomForestClassifier(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        n_jobs=1,  # Force single thread per model to avoid oversubscription
-        verbose=0
-    )
+def train_single_model(X_train, y_train, random_state=42):
+    """Train a Random Forest model."""
+    from sklearn.ensemble import RandomForestClassifier
+    model = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=random_state, n_jobs=1)
     model.fit(X_train, y_train)
     return model
 
-
-def evaluate_model(
-    model: RandomForestClassifier,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    fold_idx: int,
-    endpoint_name: str,
-    fingerprint_type: str
-) -> Dict[str, float]:
-    """
-    Evaluate a trained model and return metrics.
-
-    Args:
-        model: Trained model.
-        X_test: Test features.
-        y_test: Test labels.
-        fold_idx: Fold index.
-        endpoint_name: Name of the toxicity endpoint.
-        fingerprint_type: 'Morgan' or 'MACCS'.
-
-    Returns:
-        Dictionary of metrics (ROC-AUC, PR-AUC, Balanced Accuracy).
-    """
-    try:
-        y_pred_proba = model.predict_proba(X_test)[:, 1]
-        y_pred = model.predict(X_test)
-    except NotFittedError:
-        logger.error(f"Model not fitted for fold {fold_idx}, endpoint {endpoint_name}")
-        return {}
-
-    # Handle case where only one class is present (common in toxicology)
+def evaluate_model(model, X_test, y_test):
+    """Evaluate model and return metrics."""
+    from sklearn.metrics import roc_auc_score, precision_recall_curve, auc, balanced_accuracy_score
+    
+    y_pred_proba = model.predict_proba(X_test)[:, 1]
+    
+    # Ensure y_test is binary and has both classes
     if len(np.unique(y_test)) < 2:
-        logger.warning(f"Only one class present in test set for {endpoint_name}. Skipping AUC metrics.")
-        return {
-            "fold": fold_idx,
-            "endpoint": endpoint_name,
-            "fingerprint": fingerprint_type,
-            "roc_auc": np.nan,
-            "pr_auc": np.nan,
-            "balanced_accuracy": balanced_accuracy_score(y_test, y_pred)
-        }
+        return None, None, None
 
-    roc_auc = roc_auc_score(y_test, y_pred_proba)
-    precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
-    pr_auc = auc(recall, precision)
-    bal_acc = balanced_accuracy_score(y_test, y_pred)
+    try:
+        roc_auc = roc_auc_score(y_test, y_pred_proba)
+        precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+        pr_auc = auc(recall, precision)
+        bal_acc = balanced_accuracy_score(y_test, model.predict(X_test))
+        return roc_auc, pr_auc, bal_acc
+    except Exception as e:
+        logging.warning(f"Error evaluating model: {e}")
+        return None, None, None
 
-    logger.info(
-        f"Fold {fold_idx} | {endpoint_name} | {fingerprint_type} | "
-        f"ROC-AUC: {roc_auc:.4f} | PR-AUC: {pr_auc:.4f} | BalAcc: {bal_acc:.4f}"
-    )
+def train_all_models(fps: np.ndarray, labels: np.ndarray, labels_names: List[str], splits: Dict[int, Dict[str, List[int]]], output_dir: str):
+    """Train models for all folds and both fingerprint types."""
+    logger = get_logger(__name__)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    return {
-        "fold": fold_idx,
-        "endpoint": endpoint_name,
-        "fingerprint": fingerprint_type,
-        "roc_auc": roc_auc,
-        "pr_auc": pr_auc,
-        "balanced_accuracy": bal_acc
-    }
+    # We need to generate MACCS fingerprints as well for the second model
+    logger.info("Generating MACCS fingerprints for all compounds...")
+    smiles_list = pd.read_csv("data/processed/organophosphates_filtered.csv")['smiles'].tolist()
+    maccs_fps, _ = generate_fingerprints_batch(smiles_list, fp_type="maccs")
 
+    n_endpoints = len(labels_names)
 
-def train_all_models(
-    morgan_fps: pd.DataFrame,
-    maccs_fps: pd.DataFrame,
-    labels_df: pd.DataFrame,
-    splits: List[Dict[str, np.ndarray]],
-    output_dir: Path
-) -> List[Dict[str, Any]]:
-    """
-    Train models for all folds, endpoints, and fingerprint types.
+    for fold_idx in range(N_FOLDS):
+        logger.info(f"Processing fold {fold_idx}...")
+        if fold_idx not in splits:
+            logger.error(f"Fold {fold_idx} missing from splits.")
+            continue
+        
+        indices = splits[fold_idx]
+        train_idx = indices['train']
+        test_idx = indices['test']
 
-    Args:
-        morgan_fps: Morgan fingerprint dataframe.
-        maccs_fps: MACCS fingerprint dataframe.
-        labels_df: Labels dataframe.
-        splits: List of split configurations.
-        output_dir: Directory to save models and metrics.
+        # Morgan Model
+        logger.info(f"Fold {fold_idx}: Training Morgan Random Forest...")
+        X_train_morgan = fps[train_idx]
+        X_test_morgan = fps[test_idx]
+        
+        morgan_models = {}
+        for ep_idx, ep_name in enumerate(labels_names):
+            y_train = labels[train_idx, ep_idx]
+            model = train_single_model(X_train_morgan, y_train)
+            morgan_models[ep_name] = model
+        
+        # Save Morgan models
+        morgan_save_path = output_path / f"morgan_fold_{fold_idx}.pkl"
+        with open(morgan_save_path, 'wb') as f:
+            pickle.dump(morgan_models, f)
+        logger.info(f"Saved Morgan models to {morgan_save_path}")
 
-    Returns:
-        List of evaluation results.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    model_dir = output_dir / "models"
-    model_dir.mkdir(exist_ok=True)
+        # MACCS Model
+        logger.info(f"Fold {fold_idx}: Training MACCS Random Forest...")
+        X_train_maccs = maccs_fps[train_idx]
+        X_test_maccs = maccs_fps[test_idx]
+        
+        maccs_models = {}
+        for ep_idx, ep_name in enumerate(labels_names):
+            y_train = labels[train_idx, ep_idx]
+            model = train_single_model(X_train_maccs, y_train)
+            maccs_models[ep_name] = model
+        
+        # Save MACCS models
+        maccs_save_path = output_path / f"maccs_fold_{fold_idx}.pkl"
+        with open(maccs_save_path, 'wb') as f:
+            pickle.dump(maccs_models, f)
+        logger.info(f"Saved MACCS models to {maccs_save_path}")
 
-    results = []
-    label_cols = [col for col in labels_df.columns if col not in ['SMILES', 'Mol_Wt']]
-
-    logger.info(f"Starting training for {len(splits)} folds and {len(label_cols)} endpoints.")
-
-    for fold_idx, split_data in enumerate(splits):
-        train_idx = split_data["train_indices"]
-        test_idx = split_data["test_indices"]
-
-        logger.info(f"Processing Fold {fold_idx}: Train={len(train_idx)}, Test={len(test_idx)}")
-
-        # Prepare data for this fold
-        X_morgan_train = morgan_fps.iloc[train_idx].values
-        X_morgan_test = morgan_fps.iloc[test_idx].values
-        X_maccs_train = maccs_fps.iloc[train_idx].values
-        X_maccs_test = maccs_fps.iloc[test_idx].values
-
-        for endpoint in label_cols:
-            y_train = labels_df.iloc[train_idx][endpoint].values
-            y_test = labels_df.iloc[test_idx][endpoint].values
-
-            # Handle missing values in labels
-            valid_train_mask = ~np.isnan(y_train)
-            valid_test_mask = ~np.isnan(y_test)
-            
-            if not np.any(valid_train_mask) or not np.any(valid_test_mask):
-                logger.warning(f"Skipping {endpoint} in Fold {fold_idx} due to missing labels.")
-                continue
-
-            # Align indices for valid data
-            valid_train_indices = np.where(valid_train_mask)[0]
-            valid_test_indices = np.where(valid_test_mask)[0]
-
-            # Map back to original indices if necessary, but here we just slice the arrays
-            # Note: train_idx/test_idx are indices into the full dataframe.
-            # We need to map valid_train_indices (0..len-1 relative to train set) back to train_idx
-            actual_train_idx = train_idx[valid_train_mask]
-            actual_test_idx = test_idx[valid_test_mask]
-
-            y_train_clean = y_train[valid_train_mask]
-            y_test_clean = y_test[valid_test_mask]
-
-            X_morgan_train_clean = morgan_fps.iloc[actual_train_idx].values
-            X_morgan_test_clean = morgan_fps.iloc[actual_test_idx].values
-            X_maccs_train_clean = maccs_fps.iloc[actual_train_idx].values
-            X_maccs_test_clean = maccs_fps.iloc[actual_test_idx].values
-
-            # Train Morgan Model
-            logger.info(f"  Training Morgan model for {endpoint}...")
-            morgan_model = train_single_model(X_morgan_train_clean, y_train_clean)
-            
-            # Save Morgan Model
-            morgan_model_path = model_dir / f"morgan_fold_{fold_idx}_{endpoint}.pkl"
-            with open(morgan_model_path, "wb") as f:
-                pickle.dump(morgan_model, f)
-            
-            # Evaluate Morgan Model
-            morgan_metrics = evaluate_model(
-                morgan_model, X_morgan_test_clean, y_test_clean,
-                fold_idx, endpoint, "Morgan"
-            )
-            results.append(morgan_metrics)
-
-            # Train MACCS Model
-            logger.info(f"  Training MACCS model for {endpoint}...")
-            maccs_model = train_single_model(X_maccs_train_clean, y_train_clean)
-
-            # Save MACCS Model
-            maccs_model_path = model_dir / f"maccs_fold_{fold_idx}_{endpoint}.pkl"
-            with open(maccs_model_path, "wb") as f:
-                pickle.dump(maccs_model, f)
-
-            # Evaluate MACCS Model
-            maccs_metrics = evaluate_model(
-                maccs_model, X_maccs_test_clean, y_test_clean,
-                fold_idx, endpoint, "MACCS"
-            )
-            results.append(maccs_metrics)
-
-    # Save results to CSV
-    results_df = pd.DataFrame(results)
-    results_path = output_dir / "training_metrics.csv"
-    results_df.to_csv(results_path, index=False)
-    logger.info(f"Saved training metrics to {results_path}")
-
-    return results
-
+    logger.info("All models trained and saved.")
 
 def main():
     """Main entry point for training."""
-    init_random_seed(42)
-    
-    # Paths
-    base_dir = Path(__file__).parent.parent
-    data_dir = base_dir / "data" / "processed"
-    output_dir = base_dir / "data" / "processed"
-    split_dir = base_dir / "data" / "processed" / "splits"
+    setup_logging()
+    init_random_seed()
+    logger = get_logger(__name__)
 
-    logger.info("Starting model training pipeline.")
+    split_dir = Path("data/processed/splits")
+    data_file = Path("data/processed/organophosphates_filtered.csv")
+    model_dir = Path("data/processed/models")
 
-    try:
-        # Load data
-        splits = load_split_indices(split_dir)
-        morgan_fps, maccs_fps, labels_df, _ = load_fingerprint_data(data_dir)
+    # Check dependencies
+    if not split_dir.exists():
+        logger.error(f"Split directory not found: {split_dir}")
+        raise FileNotFoundError(f"Split directory not found: {split_dir}")
 
-        # Train all models
-        train_all_models(morgan_fps, maccs_fps, labels_df, splits, output_dir)
+    if not data_file.exists():
+        logger.error(f"Data file not found: {data_file}")
+        raise FileNotFoundError(f"Data file not found: {data_file}")
 
-        logger.info("Training pipeline completed successfully.")
+    logger.info("Loading splits...")
+    splits = load_split_indices(str(split_dir))
 
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Training failed: {e}")
-        raise
+    logger.info("Loading fingerprint data...")
+    fps, labels, labels_names = load_fingerprint_data(str(data_file))
 
+    logger.info("Training models...")
+    train_all_models(fps, labels, labels_names, splits, str(model_dir))
+
+    logger.info("Training complete.")
 
 if __name__ == "__main__":
     main()

@@ -1,292 +1,340 @@
-"""
-Greedy Maximal Dissimilarity Split Implementation.
-
-This module implements the Greedy Maximal Dissimilarity Split algorithm
-for generating 5 folds with Tanimoto similarity < 0.85.
-"""
-
 import numpy as np
 import pandas as pd
 import logging
 import os
+import json
 from pathlib import Path
 from typing import List, Tuple, Dict, Optional
-
 from rdkit import DataStructs
+from rdkit.Chem import AllChem, MACCSkeys
 from rdkit import Chem
 
-# Import from project utilities and constants
-from utils import init_random_seed, get_logger
-from constants import TANIMOTO_THRESHOLD, N_FOLDS, MORGAN_RADIUS, MORGAN_BITS
-from fingerprints import generate_morgan_fingerprint, calculate_tanimoto_similarity
+# Import constants from project constants
+try:
+    from constants import TANIMOTO_THRESHOLD, MORGAN_RADIUS, MORGAN_BITS, MACCS_BITS, N_FOLDS
+except ImportError:
+    # Fallback if constants not imported (should be handled by task T006)
+    TANIMOTO_THRESHOLD = 0.85
+    MORGAN_RADIUS = 2
+    MORGAN_BITS = 2048
+    MACCS_BITS = 166
+    N_FOLDS = 5
 
-# Setup logging
-logger = get_logger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/processed/split_log.txt'),
-        logging.StreamHandler()
-    ]
-)
+# Import utils for logging
+try:
+    from utils import setup_logging, get_logger, init_random_seed
+except ImportError:
+    # Fallback if utils not available
+    def setup_logging():
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    def get_logger(name):
+        return logging.getLogger(name)
 
-def load_fingerprints(csv_path: str) -> Tuple[pd.DataFrame, List]:
+    def init_random_seed(seed=42):
+        import random
+        random.seed(seed)
+        np.random.seed(seed)
+
+def load_fingerprints(input_path: str, fingerprint_type: str = 'morgan') -> Tuple[pd.DataFrame, List]:
     """
-    Load compounds and generate Morgan fingerprints.
-
-    Args:
-        csv_path: Path to the filtered compounds CSV.
-
-    Returns:
-        Tuple of (DataFrame with compounds, list of RDKit fingerprints).
+    Load fingerprints from a processed CSV file.
+    Expects columns: 'smiles', 'morgan_fp' (or 'maccs_fp'), and toxicity labels.
+    Returns DataFrame and list of RDKit fingerprint objects.
     """
-    logger.info(f"Loading compounds from {csv_path}")
-    df = pd.read_csv(csv_path)
-
-    if 'smiles' not in df.columns:
-        raise ValueError("CSV must contain a 'smiles' column")
-
-    fingerprints = []
-    valid_indices = []
-
-    for idx, row in df.iterrows():
-        mol = Chem.MolFromSmiles(row['smiles'])
-        if mol is None:
-            logger.warning(f"Invalid SMILES at index {idx}, skipping")
-            continue
-
-        fp = generate_morgan_fingerprint(mol, radius=MORGAN_RADIUS, n_bits=MORGAN_BITS)
-        fingerprints.append(fp)
-        valid_indices.append(idx)
-
-    logger.info(f"Generated {len(fingerprints)} valid fingerprints from {len(df)} rows")
-    return df.iloc[valid_indices].reset_index(drop=True), fingerprints
+    logger = get_logger(__name__)
+    df = pd.read_csv(input_path)
+    
+    fp_col = 'morgan_fp' if fingerprint_type == 'morgan' else 'maccs_fp'
+    
+    if fp_col not in df.columns:
+        raise ValueError(f"Column '{fp_col}' not found in {input_path}. Available: {df.columns.tolist()}")
+    
+    fps = []
+    for i, row in df.iterrows():
+        # Assuming fingerprints are stored as numpy arrays or lists in the CSV
+        # If stored as strings, we need to convert them back
+        fp_data = row[fp_col]
+        if isinstance(fp_data, str):
+            # Convert string representation back to numpy array
+            fp_arr = np.fromstring(fp_data.strip('[]'), sep=',')
+        else:
+            fp_arr = np.array(fp_data)
+        
+        # Reconstruct RDKit fingerprint
+        if fingerprint_type == 'morgan':
+            fp = DataStructs.ExplicitBitVect(MORGAN_BITS)
+            for bit in np.where(fp_arr > 0)[0]:
+                fp.SetBit(int(bit))
+        else:
+            fp = DataStructs.ExplicitBitVect(MACCS_BITS)
+            for bit in np.where(fp_arr > 0)[0]:
+                fp.SetBit(int(bit))
+        
+        fps.append(fp)
+    
+    logger.info(f"Loaded {len(fps)} fingerprints from {input_path}")
+    return df, fps
 
 def greedy_maximal_dissimilarity_split(
-    fingerprints: List,
-    n_folds: int = 5,
+    fingerprints: List, 
+    n_folds: int = 5, 
     threshold: float = TANIMOTO_THRESHOLD,
     min_test_size: int = 20
-) -> Tuple[List[Dict], bool]:
+) -> Dict[int, Dict[str, List[int]]]:
     """
-    Execute Greedy Maximal Dissimilarity Split for multiple folds.
-
+    Execute Greedy Maximal Dissimilarity Split for each of n_folds.
+    
     Algorithm:
     1. Initialize test set with the compound furthest from the mean.
-    2. Iterate through remaining compounds, selecting the one with max min-distance
+    2. Iterate through remaining compounds, selecting the one with max min-distance 
        to current test set.
-    3. Add to test set if distance > threshold (similarity < threshold).
-    4. Verify test set size >= min_test_size.
-    5. Halt if split cannot achieve min_test_size with valid similarity.
-
-    Args:
-        fingerprints: List of RDKit fingerprints.
-        n_folds: Number of folds to generate.
-        threshold: Maximum Tanimoto similarity allowed (default 0.85).
-        min_test_size: Minimum required size for test set (default 20).
-
-    Returns:
-        Tuple of (list of split dicts, success boolean).
+    3. Add to test set if distance > threshold (Tanimoto < 1 - threshold).
+       Note: Tanimoto similarity < threshold implies distance > 1 - threshold.
+       However, the task specifies "Add to test set if distance > threshold".
+       In Tanimoto terms, distance = 1 - similarity. So we want 1 - sim > threshold?
+       Actually, the task says "Tanimoto < 0.85". So we select points where 
+       Tanimoto similarity to ALL current test set members is < 0.85.
+       This is equivalent to min_similarity < threshold.
+    
+    Returns: Dict mapping fold_id -> {'train': [...], 'test': [...]}
     """
-    n_compounds = len(fingerprints)
-    logger.info(f"Starting greedy split for {n_folds} folds on {n_compounds} compounds")
-
-    if n_compounds < min_test_size:
-        logger.error(f"Insufficient compounds: {n_compounds} < {min_test_size}")
-        return [], False
-
-    # Convert fingerprints to bit vectors for efficient calculation
-    bit_vectors = []
-    for fp in fingerprints:
-        bv = np.zeros(MORGAN_BITS, dtype=np.int8)
-        fp.ToBitString()  # Ensure internal representation is ready
-        DataStructs.ConvertToBitVector(fp, bv)
-        bit_vectors.append(bv)
-
-    all_splits = []
-    remaining_indices = list(range(n_compounds))
-
+    logger = get_logger(__name__)
+    n_samples = len(fingerprints)
+    all_indices = list(range(n_samples))
+    
+    # Precompute Tanimoto similarities for efficiency (symmetric matrix)
+    # Since N might be large, we compute on demand or in chunks if needed.
+    # For now, assuming N is manageable.
+    logger.info(f"Precomputing similarity matrix for {n_samples} compounds...")
+    sim_matrix = np.zeros((n_samples, n_samples))
+    for i in range(n_samples):
+        for j in range(i, n_samples):
+            if i == j:
+                sim_matrix[i, j] = 1.0
+            else:
+                sim = DataStructs.TanimotoSimilarity(fingerprints[i], fingerprints[j])
+                sim_matrix[i, j] = sim
+                sim_matrix[j, i] = sim
+    
+    splits = {}
+    
     for fold in range(n_folds):
         logger.info(f"Processing fold {fold + 1}/{n_folds}")
-        test_set_indices = []
-        train_set_indices = remaining_indices.copy()
-
-        if len(train_set_indices) < min_test_size:
-            logger.error(f"Fold {fold + 1}: Insufficient compounds remaining ({len(train_set_indices)})")
-            return [], False
-
-        # Step 1: Initialize test set with compound furthest from the mean
-        logger.info("Initializing test set with furthest compound from mean")
-
-        # Calculate mean fingerprint (approximate by averaging bit vectors)
-        mean_fp = np.mean(bit_vectors, axis=0)
-
-        # Find compound furthest from mean (lowest similarity to mean)
-        max_distance = -1.0
-        furthest_idx = -1
-
-        for idx in train_set_indices:
-            # Calculate similarity to mean (using Tanimoto)
-            # Note: We use a simplified distance metric here as exact Tanimoto to mean is complex
-            # We'll use the bit count difference as a proxy for distance
-            distance = 1.0 - (np.sum(np.bitwise_and(bit_vectors[idx], mean_fp.astype(int))) /
-                             (np.sum(bit_vectors[idx]) + np.sum(mean_fp.astype(int)) -
-                              np.sum(np.bitwise_and(bit_vectors[idx], mean_fp.astype(int))) + 1e-10))
-
-            if distance > max_distance:
-                max_distance = distance
-                furthest_idx = idx
-
-        if furthest_idx == -1:
-            logger.error("Could not find furthest compound")
-            return [], False
-
-        # Remove from train, add to test
-        train_set_indices.remove(furthest_idx)
-        test_set_indices.append(furthest_idx)
-        logger.info(f"Initial test set member: index {furthest_idx}")
-
-        # Step 2 & 3: Iterate and select compounds with max min-distance
-        logger.info("Selecting additional test set members via greedy max min-distance")
-
-        while len(test_set_indices) < min_test_size and len(train_set_indices) > 0:
-            best_idx = -1
-            best_min_distance = -1.0
-
-            # Find compound with max min-distance to current test set
-            for idx in train_set_indices:
-                min_dist = 1.0  # Start with max possible distance
-                for test_idx in test_set_indices:
-                    # Calculate Tanimoto similarity
-                    sim = DataStructs.TanimotoSimilarity(fingerprints[idx], fingerprints[test_idx])
-                    dist = 1.0 - sim
-                    if dist < min_dist:
-                        min_dist = dist
-
-                if min_dist > best_min_distance:
-                    best_min_distance = min_dist
-                    best_idx = idx
-
-            if best_idx == -1 or best_min_distance <= 1.0 - threshold:
-                # No compound meets the threshold
-                logger.warning(f"Cannot find compound with min-distance > {1.0 - threshold}")
+        
+        # For each fold, we need to create a new split.
+        # To ensure diversity across folds, we might shuffle or rotate.
+        # However, the task implies a standard 5-fold split where each fold has a test set.
+        # We will simulate a 5-fold split by selecting a test set for each fold
+        # from the remaining data, ensuring the test set meets the criteria.
+        
+        # For simplicity in this implementation, we will create 5 independent splits
+        # by randomly shuffling the indices at the start of each fold (with a seed).
+        # But the "Greedy" part implies a specific selection order.
+        # Let's assume we are splitting the WHOLE dataset into 5 folds.
+        # We need to partition the data into 5 test sets (one per fold) and 5 train sets.
+        # A common approach is to select a test set, then the rest is train.
+        # Then for the next fold, we select a DIFFERENT test set from the remaining?
+        # Or we just do 5 independent greedy selections on the whole dataset?
+        # The task says "for each of 5 folds". This usually means 5-fold CV.
+        # In 5-fold CV, we partition data into 5 disjoint sets.
+        # Let's implement a sequential selection:
+        # Fold 0: Select test set T0 from all. Train = All - T0.
+        # Fold 1: Select test set T1 from All - T0. Train = All - T0 - T1.
+        # ... This reduces data for later folds.
+        # Alternatively, we just do 5 independent splits on the full data for simplicity
+        # if the task doesn't specify disjoint folds. But "5-fold" implies disjoint.
+        # Let's try disjoint:
+        
+        remaining_indices = all_indices.copy()
+        # Shuffle remaining_indices to introduce randomness in selection order if needed
+        # But the greedy algorithm is deterministic given the start.
+        # We need to vary the start for each fold.
+        # Let's use a seed based on fold index.
+        np.random.seed(42 + fold)
+        np.random.shuffle(remaining_indices)
+        
+        test_set = []
+        train_set = []
+        
+        # Step 1: Initialize test set with the compound furthest from the mean.
+        # "Furthest from the mean" in fingerprint space.
+        # Mean fingerprint = average of all fingerprints (as vectors).
+        # Since we have bit vectors, we can convert to numpy arrays.
+        fps_arr = np.array([np.array(fp) for fp in fingerprints]) # This might be slow for large N
+        # Optimization: use the precomputed sim matrix? No, we need the vector.
+        # Let's compute mean vector.
+        mean_vec = np.mean(fps_arr, axis=0)
+        
+        # Calculate distance of each point from mean
+        # Distance = 1 - Tanimoto(similarity to mean)? 
+        # Or Euclidean? The task says "furthest from the mean".
+        # In fingerprint space, Tanimoto distance to mean is a good metric.
+        # But mean might not be a valid fingerprint.
+        # Let's use Euclidean distance to mean vector as a proxy for "furthest".
+        dists_from_mean = np.linalg.norm(fps_arr - mean_vec, axis=1)
+        
+        # Pick the index with max distance
+        # But we must pick from remaining_indices
+        candidate_indices = remaining_indices
+        dists = dists_from_mean[candidate_indices]
+        max_idx_local = np.argmax(dists)
+        initial_idx = candidate_indices[max_idx_local]
+        
+        test_set.append(initial_idx)
+        remaining_indices.remove(initial_idx)
+        
+        # Step 2 & 3: Iterate and select
+        while remaining_indices:
+            best_candidate = None
+            max_min_sim = -1.0
+            
+            for candidate in remaining_indices:
+                # Calculate min similarity to current test set
+                sims = [DataStructs.TanimotoSimilarity(fingerprints[candidate], fingerprints[t]) for t in test_set]
+                min_sim = min(sims)
+                
+                # We want the candidate that is MOST dissimilar to the current test set
+                # i.e., max(min_sim)
+                if min_sim > max_min_sim:
+                    max_min_sim = min_sim
+                    best_candidate = candidate
+            
+            # Step 3: Add to test set if distance > threshold
+            # "Distance > threshold" -> 1 - sim > threshold -> sim < 1 - threshold
+            # BUT the task says "Tanimoto < 0.85".
+            # So we require max_min_sim < threshold (0.85).
+            # If max_min_sim >= threshold, then this candidate is too similar to the test set.
+            # We stop adding if we cannot find any candidate with sim < threshold?
+            # The task says: "Add to test set if distance > threshold".
+            # Let's interpret: If the best candidate (max min_sim) has sim < threshold, we add it.
+            # If even the best candidate has sim >= threshold, we stop?
+            # Or we just don't add it and continue?
+            # Usually, in maximal dissimilarity, we stop when no more points satisfy the criterion.
+            
+            if max_min_sim < threshold:
+                test_set.append(best_candidate)
+                remaining_indices.remove(best_candidate)
+            else:
+                # No more points satisfy the dissimilarity criterion
                 break
-
-            # Add to test set
-            train_set_indices.remove(best_idx)
-            test_set_indices.append(best_idx)
-            logger.debug(f"Added index {best_idx} to test set (min-distance: {best_min_distance:.4f})")
-
-        # Step 4: Verify test set size
-        if len(test_set_indices) < min_test_size:
-            logger.error(f"Fold {fold + 1}: Test set size {len(test_set_indices)} < {min_test_size}")
-            logger.error("Insufficient Structural Diversity: Cannot achieve valid split")
-            return [], False
-
-        # Verify all test set pairs have Tanimoto < threshold
-        logger.info(f"Verifying test set diversity for fold {fold + 1}")
-        valid = True
-        for i in range(len(test_set_indices)):
-            for j in range(i + 1, len(test_set_indices)):
-                sim = DataStructs.TanimotoSimilarity(
-                    fingerprints[test_set_indices[i]],
-                    fingerprints[test_set_indices[j]]
-                )
+        
+        # Step 4: Verify test set size >= 20
+        if len(test_set) < min_test_size:
+            logger.error(f"Fold {fold}: Insufficient test set size ({len(test_set)} < {min_test_size})")
+            return None, "SIZE"
+        
+        # Verify Tanimoto threshold for all pairs in test set?
+        # The greedy algorithm ensures min_sim < threshold for each new addition.
+        # But we should double check.
+        for i in range(len(test_set)):
+            for j in range(i + 1, len(test_set)):
+                sim = DataStructs.TanimotoSimilarity(fingerprints[test_set[i]], fingerprints[test_set[j]])
                 if sim >= threshold:
-                    logger.warning(f"Fold {fold + 1}: Pair ({test_set_indices[i]}, {test_set_indices[j]}) has similarity {sim:.4f} >= {threshold}")
-                    valid = False
+                    logger.error(f"Fold {fold}: Tanimoto threshold violated ({sim} >= {threshold})")
+                    return None, "THRESHOLD"
+        
+        train_set = [idx for idx in all_indices if idx not in test_set]
+        splits[fold] = {'train': train_set, 'test': test_set}
+        logger.info(f"Fold {fold}: Train={len(train_set)}, Test={len(test_set)}")
+        
+    return splits, "SUCCESS"
 
-        if not valid:
-            logger.error(f"Fold {fold + 1}: Validation failed - some pairs exceed threshold")
-            return [], False
-
-        all_splits.append({
-            'fold': fold + 1,
-            'test_indices': test_set_indices,
-            'train_indices': train_set_indices,
-            'test_size': len(test_set_indices),
-            'train_size': len(train_set_indices)
-        })
-
-        # Update remaining indices for next fold (remove test set)
-        remaining_indices = train_set_indices
-
-        logger.info(f"Fold {fold + 1}: Test set size = {len(test_set_indices)}, Train set size = {len(train_set_indices)}")
-
-    return all_splits, True
-
-def save_splits(splits: List[Dict], output_dir: str) -> None:
+def save_splits(splits: Dict, output_dir: str):
     """
-    Save split indices to CSV files.
-
-    Args:
-        splits: List of split dictionaries.
-        output_dir: Directory to save split files.
+    Save split indices to pickle files.
     """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    for split in splits:
-        fold = split['fold']
-        output_path = Path(output_dir) / f"split_fold_{fold}.csv"
-
-        df = pd.DataFrame({
-            'index': split['train_indices'] + split['test_indices'],
-            'set': ['train'] * len(split['train_indices']) + ['test'] * len(split['test_indices']),
-            'fold': [fold] * len(split['train_indices'] + split['test_indices'])
-        })
-
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved split {fold} to {output_path}")
+    logger = get_logger(__name__)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    for fold, indices in splits.items():
+        filename = f"split_fold_{fold}.pkl"
+        filepath = output_path / filename
+        with open(filepath, 'wb') as f:
+            pickle.dump(indices, f)
+        logger.info(f"Saved split for fold {fold} to {filepath}")
 
 def main():
-    """Main entry point for split generation."""
-    logger.info("Starting Greedy Maximal Dissimilarity Split")
-
-    # Initialize random seed
+    logger = setup_logging()
     init_random_seed(42)
-
-    # Load data
-    input_path = 'data/processed/organophosphates_filtered.csv'
+    
+    input_path = "data/processed/organophosphates_filtered.csv"
+    output_dir = "data/processed/splits"
+    
     if not os.path.exists(input_path):
         logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df, fingerprints = load_fingerprints(input_path)
-
-    if len(fingerprints) < 20:
-        logger.error(f"Insufficient data: only {len(fingerprints)} compounds available")
-        return
-
-    # Execute split
-    splits, success = greedy_maximal_dissimilarity_split(
-        fingerprints=fingerprints,
-        n_folds=N_FOLDS,
-        threshold=TANIMOTO_THRESHOLD,
-        min_test_size=20
-    )
-
-    if not success:
-        logger.error("Split generation failed: Insufficient Structural Diversity")
-        # Generate invalid split report
-        report_path = 'data/processed/invalid_split_report.md'
-        with open(report_path, 'w') as f:
+        # CRITICAL: Write invalid status and halt
+        status_file = Path("data/processed/split_status.json")
+        status_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(status_file, 'w') as f:
+            json.dump({"status": "INVALID", "reason": "Input file not found"}, f)
+        
+        report_file = Path("data/processed/invalid_split_report.md")
+        with open(report_file, 'w') as f:
             f.write("# Invalid Split Report\n\n")
-            f.write("## Error: Insufficient Structural Diversity\n\n")
-            f.write("Cannot achieve valid split with Tanimoto < 0.85 and minimum 20 test samples.\n\n")
-            f.write(f"## Details\n\n")
-            f.write(f"- Total compounds: {len(df)}\n")
-            f.write(f"- Required test size: 20\n")
-            f.write(f"- Tanimoto threshold: {TANIMOTO_THRESHOLD}\n")
-            f.write(f"- Number of folds: {N_FOLDS}\n")
-        logger.info(f"Generated invalid split report at {report_path}")
-        return
-
-    # Save splits
-    save_splits(splits, 'data/processed/splits')
-
-    logger.info("Split generation completed successfully")
-    logger.info(f"Generated {len(splits)} valid splits")
+            f.write("## Status: INVALID\n\n")
+            f.write(f"The input file `{input_path}` was not found.\n\n")
+            f.write("Statistical comparison is invalid.\n")
+        exit(1)
+    
+    try:
+        logger.info("Starting Greedy Maximal Dissimilarity Split")
+        df, fps = load_fingerprints(input_path)
+        
+        splits, status = greedy_maximal_dissimilarity_split(fps, n_folds=N_FOLDS, threshold=TANIMOTO_THRESHOLD)
+        
+        if status != "SUCCESS":
+            reason = "Insufficient Structural Diversity: Cannot achieve valid split"
+            if status == "SIZE":
+                reason = "Test set size < 20"
+            elif status == "THRESHOLD":
+                reason = "Tanimoto threshold not met"
+            
+            logger.error(reason)
+            
+            # Write invalid status
+            status_file = Path("data/processed/split_status.json")
+            status_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(status_file, 'w') as f:
+                json.dump({"status": "INVALID", "reason": reason}, f)
+            
+            # Write invalid report
+            report_file = Path("data/processed/invalid_split_report.md")
+            with open(report_file, 'w') as f:
+                f.write("# Invalid Split Report\n\n")
+                f.write("## Status: INVALID\n\n")
+                f.write(f"{reason}\n\n")
+                f.write("Statistical comparison is invalid. See `data/processed/split_status.json` for details.\n")
+            
+            exit(1)
+        
+        # Save splits
+        save_splits(splits, output_dir)
+        
+        # Write valid status
+        status_file = Path("data/processed/split_status.json")
+        status_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(status_file, 'w') as f:
+            json.dump({"status": "VALID", "folds": N_FOLDS}, f)
+        
+        logger.info("Split completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Split failed with exception: {e}")
+        # Write invalid status
+        status_file = Path("data/processed/split_status.json")
+        status_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(status_file, 'w') as f:
+            json.dump({"status": "INVALID", "reason": str(e)}, f)
+        
+        report_file = Path("data/processed/invalid_split_report.md")
+        with open(report_file, 'w') as f:
+            f.write("# Invalid Split Report\n\n")
+            f.write("## Status: INVALID\n\n")
+            f.write(f"An exception occurred: {e}\n\n")
+            f.write("Statistical comparison is invalid.\n")
+        exit(1)
 
 if __name__ == "__main__":
     main()

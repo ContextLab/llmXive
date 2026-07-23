@@ -340,3 +340,259 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T01:14:29Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Use exactly 1000 bootstrap resamples for ROC-AUC and PR-AUC confidence
+    intervals
+  claim_id: c_52d058b7
+  context: T025b [US3] Implementation task for generating confidence intervals via
+    bootstrap resampling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/evaluate.py to generate confidence intervals via bootstrap
+    resampling of the performance difference for BOTH ROC-AUC and Precision-Recall
+    AUC using the collected test set predictions. MUST use exactly 1,000 bootstrap
+    resamples to match Spec precision requirements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:12:29Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Train Random Forest models with 100 trees and max depth 15
+  claim_id: c_e943d3db
+  context: T019 [US2] Implementation task for training Random Forest models on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/train.py` to train two Random Forest models (100 trees,
+    max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:15:07Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Train Random Forest models with max depth 15
+  claim_id: c_08bec952
+  context: T019 [US2] Implementation task for training Random Forest models on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/train.py` to train two Random Forest models (100 trees,
+    max_depth=15) per fold (Morgan vs MACCS) using CPU-only constraints (no CUDA).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:15:07Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Generate Morgan fingerprints with radius 2 and 2048 bits
+  claim_id: c_19b5f778
+  context: T017 [US2] Implementation task for generating molecular fingerprints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits)
+    and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement
+    chunked processing (batch=500) if memory > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:17:21Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Generate Morgan fingerprints with 2048 bits
+  claim_id: c_3ab0f2ef
+  context: T017 [US2] Implementation task for generating molecular fingerprints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits)
+    and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement
+    chunked processing (batch=500) if memory > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:17:21Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Generate MACCS fingerprints with 166 bits
+  claim_id: c_23371e83
+  context: T017 [US2] Implementation task for generating molecular fingerprints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits)
+    and MACCS (166 bits) fingerprints for all compounds in filtered CSV; implement
+    chunked processing (batch=500) if memory > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:17:21Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Execute Greedy Maximal Dissimilarity Split for 5 folds
+  claim_id: c_b3b41f88
+  context: T018 [US2] Implementation task for data splitting.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split
+    (Tanimoto < 0.85) for each of 5 folds... Verify test set size >= 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:19:59Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Verify test set size is at least 20
+  claim_id: c_994b2c50
+  context: T018 [US2] Implementation task for data splitting.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_test_set_size_is_at_least_20
+  kind: magnitude
+  raw_text: Implement `code/split.py` to execute Greedy Maximal Dissimilarity Split
+    (Tanimoto < 0.85) for each of 5 folds... Verify test set size >= 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:01Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Fetch Tox21 dataset from HuggingFace deepchem repository
+  claim_id: c_9f9a71d6
+  context: T011 [US1] Implementation task for data acquisition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_Tox21_dataset_from_HuggingFace_deepchem_repository
+  kind: entity_fact
+  raw_text: Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox21")`,
+    including checksum verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:21Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Filter compounds using SMARTS pattern [P](=O)([O,SC])[O,SC]
+  claim_id: c_8053dd5e
+  context: T012 [US1] Implementation task for organophosphate filtering.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_compounds_using_SMARTS_pattern_%5BP%5D(=O)(%5BO,SC%5D)%5BO,SC%5D
+  kind: entity_fact
+  raw_text: Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]`
+    to filter compounds and save to `data/processed/organophosphates_filtered.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:46Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Complete training within 60 minutes on 2-core CPU
+  claim_id: c_3ec400e8
+  context: Independent Test for User Story 2 performance requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute training script on a sample subset to verify memory safety, artifact
+    generation, and completion within 60 minutes on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:53Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Complete training on 2-core CPU
+  claim_id: c_a81bcf37
+  context: Independent Test for User Story 2 performance requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute training script on a sample subset to verify memory safety, artifact
+    generation, and completion within 60 minutes on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:53Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution within 60 minutes on CI
+  claim_id: c_3170cf9f
+  context: T034 Phase 5 task for pipeline validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `quickstart.md` validation to ensure full pipeline execution within
+    60 minutes on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:20:56Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Configure flake8 and black linting tools
+  claim_id: c_4c370b2e
+  context: T003 Phase 1 task for project setup.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_flake8_and_black_linting_tools
+  kind: entity_fact
+  raw_text: Configure linting (flake8/black) and formatting tools in `pyproject.toml`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:23:32Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Pin rdkit scikit-learn pandas numpy requests and pytest in requirements
+  claim_id: c_ce5dbbdd
+  context: T002 Phase 1 task for project initialization.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pin_rdkit_scikit-learn_pandas_numpy_requests_and_pytest_in_r
+  kind: entity_fact
+  raw_text: 'Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn,
+    pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T01:23:41Z'

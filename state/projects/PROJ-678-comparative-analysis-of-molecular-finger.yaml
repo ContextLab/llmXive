@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-678-comparative-analysis-of-molecular-finger
-last_run_id: 618580f1-fe84-4312-b43d-851310e56ac4
+last_run_id: 0031e297-3369-4550-be74-b3fca3877165
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger
 title: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
-updated_at: '2026-07-19T01:14:49.589581Z'
+updated_at: '2026-07-23T01:24:03.215976Z'

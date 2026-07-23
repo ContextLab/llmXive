@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "data/processed/organophosphates_filtered.csv",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-678-comparative-analysis-of-molecular-finger/data/processed/splits/split_fold_0.pkl",
+    "required": []
+  }
+]

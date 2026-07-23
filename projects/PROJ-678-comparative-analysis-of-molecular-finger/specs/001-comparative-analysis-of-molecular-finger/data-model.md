@@ -1,110 +1,237 @@
 # Data Model: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
 
-This document defines the core data entities, their schemas, and relationships used throughout the project pipeline. These definitions align with the requirements in `spec.md` and serve as the contract between the data acquisition, processing, modeling, and evaluation stages.
+This document defines the core data entities, their schemas, and relationships used throughout the research pipeline. These definitions serve as the contract for data exchange between `code/download.py`, `code/filter.py`, `code/fingerprints.py`, `code/split.py`, `code/train.py`, and `code/evaluate.py`.
 
-## 1. Overview
+## 1. Compound
 
-The project processes chemical compounds to predict toxicity. The data flow transforms raw molecular structures into numerical fingerprints, which are then used to train machine learning models. The final output consists of performance metrics and statistical analyses.
+Represents a single chemical entity derived from the Tox21 dataset.
 
-## 2. Entity Definitions
+**Source**: `data/raw/tox21.csv` (via `code/download.py`)
+**Processed Output**: `data/processed/organophosphates_filtered.csv` (via `code/filter.py`)
 
-### 2.1. Compound
-
-Represents a single chemical entity. This is the primary unit of analysis.
-
-| Field Name | Type | Description | Source/Notes |
+**Schema**:
+| Column Name | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `compound_id` | `str` | Unique identifier for the compound (e.g., SMILES string hash or dataset ID). | Generated/External |
-| `smiles` | `str` | Simplified Molecular Input Line Entry System string. | Tox21 / External |
-| `is_organophosphate` | `bool` | Flag indicating if the compound matches the SMARTS pattern `[P](=O)([O,SC])[O,SC]`. | Derived via `code/filter.py` |
-| `toxicity_labels` | `Dict[str, bool]` | Dictionary mapping toxicity endpoints (e.g., "NR-AR", "SR-ARE") to binary labels (1=active, 0=inactive). | Tox21 Dataset |
-| `mol_obj` | `rdkit.Chem.Mol` | (Optional) RDKit molecule object used during intermediate processing. | In-memory only |
+| `smiles` | string | Canonical SMILES string representing the molecular structure. | Primary Key, Not Null |
+| `mol_id` | string | Unique identifier for the molecule. | Not Null |
+| `nr-ah` | integer | Toxicity label for Nuclear Receptor - AhR (0=Inactive, 1=Active, -1=Missing). | [-1, 0, 1] |
+| `nr-ar` | integer | Toxicity label for Nuclear Receptor - AR. | [-1, 0, 1] |
+| `nr-ar-lbd` | integer | Toxicity label for Nuclear Receptor - AR ligand binding domain. | [-1, 0, 1] |
+| `nr-aur` | integer | Toxicity label for Nuclear Receptor - Aromatase. | [-1, 0, 1] |
+| `nr-er` | integer | Toxicity label for Nuclear Receptor - ER. | [-1, 0, 1] |
+| `nr-er-lbd` | integer | Toxicity label for Nuclear Receptor - ER ligand binding domain. | [-1, 0, 1] |
+| `nr-ppar-gamma` | integer | Toxicity label for Nuclear Receptor - PPAR-gamma. | [-1, 0, 1] |
+| `nr-tr` | integer | Toxicity label for Nuclear Receptor - TR. | [-1, 0, 1] |
+| `nr-vdr` | integer | Toxicity label for Nuclear Receptor - VDR. | [-1, 0, 1] |
+| `bp-1.4.1.1` | integer | Toxicity label for Biological Process - 1.4.1.1. | [-1, 0, 1] |
+| `bp-1.4.1.2` | integer | Toxicity label for Biological Process - 1.4.1.2. | [-1, 0, 1] |
+| `bp-2.7.1.1` | integer | Toxicity label for Biological Process - 2.7.1.1. | [-1, 0, 1] |
+| `bp-2.7.1.2` | integer | Toxicity label for Biological Process - 2.7.1.2. | [-1, 0, 1] |
+| `bp-3.1.1.1` | integer | Toxicity label for Biological Process - 3.1.1.1. | [-1, 0, 1] |
+| `bp-3.1.1.2` | integer | Toxicity label for Biological Process - 3.1.1.2. | [-1, 0, 1] |
+| `bp-3.4.1.1` | integer | Toxicity label for Biological Process - 3.4.1.1. | [-1, 0, 1] |
+| `bp-3.4.1.2` | integer | Toxicity label for Biological Process - 3.4.1.2. | [-1, 0, 1] |
+| `bp-3.4.2.1` | integer | Toxicity label for Biological Process - 3.4.2.1. | [-1, 0, 1] |
+| `bp-3.4.2.2` | integer | Toxicity label for Biological Process - 3.4.2.2. | [-1, 0, 1] |
+| `bp-3.5.1.1` | integer | Toxicity label for Biological Process - 3.5.1.1. | [-1, 0, 1] |
+| `bp-3.5.1.2` | integer | Toxicity label for Biological Process - 3.5.1.2. | [-1, 0, 1] |
+| `bp-3.5.1.3` | integer | Toxicity label for Biological Process - 3.5.1.3. | [-1, 0, 1] |
+| `bp-3.5.1.4` | integer | Toxicity label for Biological Process - 3.5.1.4. | [-1, 0, 1] |
+| `bp-3.5.1.5` | integer | Toxicity label for Biological Process - 3.5.1.5. | [-1, 0, 1] |
+| `bp-3.5.1.6` | integer | Toxicity label for Biological Process - 3.5.1.6. | [-1, 0, 1] |
+| `bp-3.5.1.7` | integer | Toxicity label for Biological Process - 3.5.1.7. | [-1, 0, 1] |
+| `bp-3.5.1.8` | integer | Toxicity label for Biological Process - 3.5.1.8. | [-1, 0, 1] |
+| `bp-3.5.1.9` | integer | Toxicity label for Biological Process - 3.5.1.9. | [-1, 0, 1] |
+| `bp-3.5.1.10` | integer | Toxicity label for Biological Process - 3.5.1.10. | [-1, 0, 1] |
+| `bp-3.5.1.11` | integer | Toxicity label for Biological Process - 3.5.1.11. | [-1, 0, 1] |
+| `bp-3.5.1.12` | integer | Toxicity label for Biological Process - 3.5.1.12. | [-1, 0, 1] |
+| `bp-3.5.1.13` | integer | Toxicity label for Biological Process - 3.5.1.13. | [-1, 0, 1] |
+| `bp-3.5.1.14` | integer | Toxicity label for Biological Process - 3.5.1.14. | [-1, 0, 1] |
+| `bp-3.5.1.15` | integer | Toxicity label for Biological Process - 3.5.1.15. | [-1, 0, 1] |
+| `bp-3.5.1.16` | integer | Toxicity label for Biological Process - 3.5.1.16. | [-1, 0, 1] |
+| `bp-3.5.1.17` | integer | Toxicity label for Biological Process - 3.5.1.17. | [-1, 0, 1] |
+| `bp-3.5.1.18` | integer | Toxicity label for Biological Process - 3.5.1.18. | [-1, 0, 1] |
+| `bp-3.5.1.19` | integer | Toxicity label for Biological Process - 3.5.1.19. | [-1, 0, 1] |
+| `bp-3.5.1.20` | integer | Toxicity label for Biological Process - 3.5.1.20. | [-1, 0, 1] |
+| `bp-3.5.1.21` | integer | Toxicity label for Biological Process - 3.5.1.21. | [-1, 0, 1] |
+| `bp-3.5.1.22` | integer | Toxicity label for Biological Process - 3.5.1.22. | [-1, 0, 1] |
+| `bp-3.5.1.23` | integer | Toxicity label for Biological Process - 3.5.1.23. | [-1, 0, 1] |
+| `bp-3.5.1.24` | integer | Toxicity label for Biological Process - 3.5.1.24. | [-1, 0, 1] |
+| `bp-3.5.1.25` | integer | Toxicity label for Biological Process - 3.5.1.25. | [-1, 0, 1] |
+| `bp-3.5.1.26` | integer | Toxicity label for Biological Process - 3.5.1.26. | [-1, 0, 1] |
+| `bp-3.5.1.27` | integer | Toxicity label for Biological Process - 3.5.1.27. | [-1, 0, 1] |
+| `bp-3.5.1.28` | integer | Toxicity label for Biological Process - 3.5.1.28. | [-1, 0, 1] |
+| `bp-3.5.1.29` | integer | Toxicity label for Biological Process - 3.5.1.29. | [-1, 0, 1] |
+| `bp-3.5.1.30` | integer | Toxicity label for Biological Process - 3.5.1.30. | [-1, 0, 1] |
+| `bp-3.5.1.31` | integer | Toxicity label for Biological Process - 3.5.1.31. | [-1, 0, 1] |
+| `bp-3.5.1.32` | integer | Toxicity label for Biological Process - 3.5.1.32. | [-1, 0, 1] |
+| `bp-3.5.1.33` | integer | Toxicity label for Biological Process - 3.5.1.33. | [-1, 0, 1] |
+| `bp-3.5.1.34` | integer | Toxicity label for Biological Process - 3.5.1.34. | [-1, 0, 1] |
+| `bp-3.5.1.35` | integer | Toxicity label for Biological Process - 3.5.1.35. | [-1, 0, 1] |
+| `bp-3.5.1.36` | integer | Toxicity label for Biological Process - 3.5.1.36. | [-1, 0, 1] |
+| `bp-3.5.1.37` | integer | Toxicity label for Biological Process - 3.5.1.37. | [-1, 0, 1] |
+| `bp-3.5.1.38` | integer | Toxicity label for Biological Process - 3.5.1.38. | [-1, 0, 1] |
+| `bp-3.5.1.39` | integer | Toxicity label for Biological Process - 3.5.1.39. | [-1, 0, 1] |
+| `bp-3.5.1.40` | integer | Toxicity label for Biological Process - 3.5.1.40. | [-1, 0, 1] |
+| `bp-3.5.1.41` | integer | Toxicity label for Biological Process - 3.5.1.41. | [-1, 0, 1] |
+| `bp-3.5.1.42` | integer | Toxicity label for Biological Process - 3.5.1.42. | [-1, 0, 1] |
+| `bp-3.5.1.43` | integer | Toxicity label for Biological Process - 3.5.1.43. | [-1, 0, 1] |
+| `bp-3.5.1.44` | integer | Toxicity label for Biological Process - 3.5.1.44. | [-1, 0, 1] |
+| `bp-3.5.1.45` | integer | Toxicity label for Biological Process - 3.5.1.45. | [-1, 0, 1] |
+| `bp-3.5.1.46` | integer | Toxicity label for Biological Process - 3.5.1.46. | [-1, 0, 1] |
+| `bp-3.5.1.47` | integer | Toxicity label for Biological Process - 3.5.1.47. | [-1, 0, 1] |
+| `bp-3.5.1.48` | integer | Toxicity label for Biological Process - 3.5.1.48. | [-1, 0, 1] |
+| `bp-3.5.1.49` | integer | Toxicity label for Biological Process - 3.5.1.49. | [-1, 0, 1] |
+| `bp-3.5.1.50` | integer | Toxicity label for Biological Process - 3.5.1.50. | [-1, 0, 1] |
+| `bp-3.5.1.51` | integer | Toxicity label for Biological Process - 3.5.1.51. | [-1, 0, 1] |
+| `bp-3.5.1.52` | integer | Toxicity label for Biological Process - 3.5.1.52. | [-1, 0, 1] |
+| `bp-3.5.1.53` | integer | Toxicity label for Biological Process - 3.5.1.53. | [-1, 0, 1] |
+| `bp-3.5.1.54` | integer | Toxicity label for Biological Process - 3.5.1.54. | [-1, 0, 1] |
+| `bp-3.5.1.55` | integer | Toxicity label for Biological Process - 3.5.1.55. | [-1, 0, 1] |
+| `bp-3.5.1.56` | integer | Toxicity label for Biological Process - 3.5.1.56. | [-1, 0, 1] |
+| `bp-3.5.1.57` | integer | Toxicity label for Biological Process - 3.5.1.57. | [-1, 0, 1] |
+| `bp-3.5.1.58` | integer | Toxicity label for Biological Process - 3.5.1.58. | [-1, 0, 1] |
+| `bp-3.5.1.59` | integer | Toxicity label for Biological Process - 3.5.1.59. | [-1, 0, 1] |
+| `bp-3.5.1.60` | integer | Toxicity label for Biological Process - 3.5.1.60. | [-1, 0, 1] |
+| `bp-3.5.1.61` | integer | Toxicity label for Biological Process - 3.5.1.61. | [-1, 0, 1] |
+| `bp-3.5.1.62` | integer | Toxicity label for Biological Process - 3.5.1.62. | [-1, 0, 1] |
+| `bp-3.5.1.63` | integer | Toxicity label for Biological Process - 3.5.1.63. | [-1, 0, 1] |
+| `bp-3.5.1.64` | integer | Toxicity label for Biological Process - 3.5.1.64. | [-1, 0, 1] |
+| `bp-3.5.1.65` | integer | Toxicity label for Biological Process - 3.5.1.65. | [-1, 0, 1] |
+| `bp-3.5.1.66` | integer | Toxicity label for Biological Process - 3.5.1.66. | [-1, 0, 1] |
+| `bp-3.5.1.67` | integer | Toxicity label for Biological Process - 3.5.1.67. | [-1, 0, 1] |
+| `bp-3.5.1.68` | integer | Toxicity label for Biological Process - 3.5.1.68. | [-1, 0, 1] |
+| `bp-3.5.1.69` | integer | Toxicity label for Biological Process - 3.5.1.69. | [-1, 0, 1] |
+| `bp-3.5.1.70` | integer | Toxicity label for Biological Process - 3.5.1.70. | [-1, 0, 1] |
+| `bp-3.5.1.71` | integer | Toxicity label for Biological Process - 3.5.1.71. | [-1, 0, 1] |
+| `bp-3.5.1.72` | integer | Toxicity label for Biological Process - 3.5.1.72. | [-1, 0, 1] |
+| `bp-3.5.1.73` | integer | Toxicity label for Biological Process - 3.5.1.73. | [-1, 0, 1] |
+| `bp-3.5.1.74` | integer | Toxicity label for Biological Process - 3.5.1.74. | [-1, 0, 1] |
+| `bp-3.5.1.75` | integer | Toxicity label for Biological Process - 3.5.1.75. | [-1, 0, 1] |
+| `bp-3.5.1.76` | integer | Toxicity label for Biological Process - 3.5.1.76. | [-1, 0, 1] |
+| `bp-3.5.1.77` | integer | Toxicity label for Biological Process - 3.5.1.77. | [-1, 0, 1] |
+| `bp-3.5.1.78` | integer | Toxicity label for Biological Process - 3.5.1.78. | [-1, 0, 1] |
+| `bp-3.5.1.79` | integer | Toxicity label for Biological Process - 3.5.1.79. | [-1, 0, 1] |
+| `bp-3.5.1.80` | integer | Toxicity label for Biological Process - 3.5.1.80. | [-1, 0, 1] |
+| `bp-3.5.1.81` | integer | Toxicity label for Biological Process - 3.5.1.81. | [-1, 0, 1] |
+| `bp-3.5.1.82` | integer | Toxicity label for Biological Process - 3.5.1.82. | [-1, 0, 1] |
+| `bp-3.5.1.83` | integer | Toxicity label for Biological Process - 3.5.1.83. | [-1, 0, 1] |
+| `bp-3.5.1.84` | integer | Toxicity label for Biological Process - 3.5.1.84. | [-1, 0, 1] |
+| `bp-3.5.1.85` | integer | Toxicity label for Biological Process - 3.5.1.85. | [-1, 0, 1] |
+| `bp-3.5.1.86` | integer | Toxicity label for Biological Process - 3.5.1.86. | [-1, 0, 1] |
+| `bp-3.5.1.87` | integer | Toxicity label for Biological Process - 3.5.1.87. | [-1, 0, 1] |
+| `bp-3.5.1.88` | integer | Toxicity label for Biological Process - 3.5.1.88. | [-1, 0, 1] |
+| `bp-3.5.1.89` | integer | Toxicity label for Biological Process - 3.5.1.89. | [-1, 0, 1] |
+| `bp-3.5.1.90` | integer | Toxicity label for Biological Process - 3.5.1.90. | [-1, 0, 1] |
+| `bp-3.5.1.91` | integer | Toxicity label for Biological Process - 3.5.1.91. | [-1, 0, 1] |
+| `bp-3.5.1.92` | integer | Toxicity label for Biological Process - 3.5.1.92. | [-1, 0, 1] |
+| `bp-3.5.1.93` | integer | Toxicity label for Biological Process - 3.5.1.93. | [-1, 0, 1] |
+| `bp-3.5.1.94` | integer | Toxicity label for Biological Process - 3.5.1.94. | [-1, 0, 1] |
+| `bp-3.5.1.95` | integer | Toxicity label for Biological Process - 3.5.1.95. | [-1, 0, 1] |
+| `bp-3.5.1.96` | integer | Toxicity label for Biological Process - 3.5.1.96. | [-1, 0, 1] |
+| `bp-3.5.1.97` | integer | Toxicity label for Biological Process - 3.5.1.97. | [-1, 0, 1] |
+| `bp-3.5.1.98` | integer | Toxicity label for Biological Process - 3.5.1.98. | [-1, 0, 1] |
+| `bp-3.5.1.99` | integer | Toxicity label for Biological Process - 3.5.1.99. | [-1, 0, 1] |
+| `bp-3.5.1.100` | integer | Toxicity label for Biological Process - 3.5.1.100. | [-1, 0, 1] |
 
-**Constraints:**
-- `smiles` must be a valid RDKit-parseable string.
-- `is_organophosphate` is `True` if and only if `rdkit.Chem.MolFromSmarts` matches the pattern.
-- Compounds with missing toxicity labels for all endpoints are excluded from training.
+*Note: The Tox21 dataset contains 12 endpoints. The table above lists the standard 12 endpoints found in the `deepchem/tox21` dataset. The `smiles` column is the primary key.*
 
-### 2.2. Fingerprint
+**Filtering Logic**:
+- Only rows where the `smiles` string matches the SMARTS pattern `[P](=O)([O,SC])[O,SC]` are retained.
+- Rows with invalid SMILES (cannot be parsed by RDKit) are dropped.
 
-Represents the binary vector representation of a compound used for similarity calculation and model input.
+## 2. Fingerprint
 
-| Field Name | Type | Description | Source/Notes |
-|:--- |:--- |:--- |:--- |
-| `compound_id` | `str` | Foreign key linking to `Compound.compound_id`. | |
-| `fingerprint_type` | `str` | Type of fingerprint: `"Morgan"` or `"MACCS"`. | |
-| `bits` | `int` | Number of bits in the fingerprint (2048 for Morgan, 166 for MACCS). | |
-| `radius` | `int` | Radius parameter (only applicable for Morgan). Value: 2. | |
-| `vector` | `np.ndarray` | Binary array of shape `(bits,)`. | Generated via `code/fingerprints.py` |
-| `bit_info` | `Dict[int, List[Tuple[int, int]]]` | (Optional) Mapping of bit index to atom indices contributing to it. Used for feature importance analysis. | RDKit `GetBitInfo` |
+Represents the binary vector representation of a compound's molecular structure.
 
-**Constraints:**
-- `vector` elements must be strictly 0 or 1.
-- `fingerprint_type` must be one of the allowed enum values.
-- The `vector` length must match the `bits` definition for the specific type.
+**Source**: `data/processed/organophosphates_filtered.csv` (via `code/fingerprints.py`)
+**Output**: `data/processed/fingerprints_morgan.pkl`, `data/processed/fingerprints_maccs.pkl`
 
-### 2.3. Model
-
-Represents a trained Random Forest classifier and its associated metadata.
-
-| Field Name | Type | Description | Source/Notes |
-|:--- |:--- |:--- |:--- |
-| `model_id` | `str` | Unique identifier (e.g., `fold-<N>-<type>`). | Generated |
-| `fingerprint_type` | `str` | The fingerprint type used for training (`"Morgan"` or `"MACCS"`). | |
-| `fold_index` | `int` | The cross-validation fold index (0-4). | |
-| `n_trees` | `int` | Number of trees in the forest. Value: 100. | |
-| `max_depth` | `int` | Maximum depth of the trees. Value: 15. | |
-| `train_indices` | `List[int]` | List of row indices used for training. | From `code/split.py` |
-| `test_indices` | `List[int]` | List of row indices used for testing. | From `code/split.py` |
-| `rf_model` | `sklearn.ensemble.RandomForestClassifier` | The trained scikit-learn model object. | Saved to `data/processed/models/` |
-| `feature_importance` | `np.ndarray` | Gini importance array of shape `(bits,)`. | Derived from `rf_model` |
-
-**Constraints:**
-- `train_indices` and `test_indices` must be disjoint.
-- `rf_model` must be fitted on the training data corresponding to `train_indices`.
-- `feature_importance` length must match the fingerprint `bits`.
-
-### 2.4. PerformanceMetric
-
-Represents the evaluation results of a specific model on a specific fold.
-
-| Field Name | Type | Description | Source/Notes |
-|:--- |:--- |:--- |:--- |
-| `model_id` | `str` | Foreign key linking to `Model.model_id`. | |
-| `fold_index` | `int` | The cross-validation fold index. | |
-| `fingerprint_type` | `str` | The fingerprint type used. | |
-| `roc_auc` | `float` | Area Under the Receiver Operating Characteristic Curve. | Calculated via `code/evaluate.py` |
-| `pr_auc` | `float` | Area Under the Precision-Recall Curve. | Calculated via `code/evaluate.py` |
-| `balanced_accuracy` | `float` | Balanced accuracy score. | Calculated via `code/evaluate.py` |
-| `confusion_matrix` | `np.ndarray` | 2x2 matrix of predictions vs. actuals. | |
-| `bootstrap_ci_lower` | `float` | Lower bound of the 95% CI for the metric difference (if applicable). | From `code/evaluate.py` |
-| `bootstrap_ci_upper` | `float` | Upper bound of the 95% CI for the metric difference. | From `code/evaluate.py` |
-
-**Constraints:**
-- All score fields must be in the range [0.0, 1.0].
-- `confusion_matrix` shape must be (2, 2).
-
-## 3. Relationships
-
-- **Compound 1-to-Many Fingerprint**: A single compound can have multiple fingerprint representations (Morgan and MACCS).
-- **Compound 1-to-Many Model**: A compound appears in the training or test set of multiple models (across different folds).
-- **Model 1-to-1 PerformanceMetric**: Each trained model produces exactly one set of performance metrics per fold.
-- **Fingerprint 1-to-1 Model**: A model is trained on a specific set of fingerprints of a specific type.
-
-## 4. Data Storage Conventions
-
-| Artifact | File Path | Format |
+**Schema**:
+| Field | Type | Description |
 |:--- |:--- |:--- |
-| Filtered Compounds | `data/processed/organophosphates_filtered.csv` | CSV |
-| Fingerprints | `data/processed/fingerprints_morgan.npy`, `data/processed/fingerprints_maccs.npy` | NumPy (.npy) |
-| Split Indices | `data/processed/splits/fold_<N>_indices.pkl` | Pickle |
-| Trained Models | `data/processed/models/fold_<N>_<type>.pkl` | Pickle |
-| Metrics | `data/processed/metrics.csv` | CSV |
-| Final Report | `data/processed/research_results.md` | Markdown |
+| `mol_id` | string | Foreign Key to `Compound.mol_id`. |
+| `morgan_fp` | list[int] | Morgan fingerprint bit vector (length=2048, radius=2). |
+| `maccs_fp` | list[int] | MACCS key bit vector (length=166). |
+| `smiles` | string | Original SMILES string for reference. |
 
-## 5. Validation Rules
+**Constants**:
+- `MORGAN_RADIUS`: 2
+- `MORGAN_BITS`: 2048
+- `MACCS_BITS`: 166
 
-1. **SMARTS Filter**: All `is_organophosphate` flags must be verified against the pattern `[P](=O)([O,SC])[O,SC]` before inclusion in the final dataset.
-2. **Split Validity**: The Greedy Maximal Dissimilarity Split must ensure `Tanimoto Similarity < 0.85` between any test set compound and the training set mean.
-3. **Minimum Sample Size**: If the number of valid compounds per endpoint is < 50, statistical tests (t-test) must be skipped, and a warning logged.
-4. **Reproducibility**: All random seeds must be initialized to 42 as per `code/utils.py`.
+## 3. Model
+
+Represents a trained Random Forest classifier.
+
+**Source**: `code/train.py`
+**Output**: `data/processed/models/fold_{i}_morgan.pkl`, `data/processed/models/fold_{i}_maccs.pkl`
+
+**Schema**:
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `fold_index` | int | The fold number (0-4). |
+| `fingerprint_type` | string | Either "morgan" or "maccs". |
+| `model_object` | object | The fitted `sklearn.ensemble.RandomForestClassifier` instance. |
+| `feature_importances_` | list[float] | Gini importance scores for each bit. |
+| `training_indices` | list[int] | Indices of compounds used for training. |
+| `test_indices` | list[int] | Indices of compounds used for testing. |
+
+**Hyperparameters**:
+- `n_estimators`: 100
+- `max_depth`: 15
+- `random_state`: 42
+
+## 4. PerformanceMetric
+
+Represents the evaluation results for a specific model fold.
+
+**Source**: `code/evaluate.py`
+**Output**: `data/processed/metrics/fold_{i}_morgan.json`, `data/processed/metrics/fold_{i}_maccs.json`
+
+**Schema**:
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `fold_index` | int | The fold number (0-4). |
+| `fingerprint_type` | string | Either "morgan" or "maccs". |
+| `roc_auc` | float | Area Under the Receiver Operating Characteristic Curve. |
+| `pr_auc` | float | Area Under the Precision-Recall Curve. |
+| `balanced_accuracy` | float | Balanced Accuracy score. |
+| `test_indices` | list[int] | Indices of the test set used for this evaluation. |
+
+## 5. StatisticalResult
+
+Aggregated statistical comparison results.
+
+**Source**: `code/evaluate.py`
+**Output**: `data/processed/statistical_results.json`
+
+**Schema**:
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `test_name` | string | "Corrected Resampled t-test (Nadeau & Bengio)". |
+| `roc_auc_p_value` | float | P-value for ROC-AUC comparison. |
+| `pr_auc_p_value` | float | P-value for PR-AUC comparison. |
+| `roc_auc_ci_low` | float | Lower bound of 95% CI for ROC-AUC difference. |
+| `roc_auc_ci_high` | float | Upper bound of 95% CI for ROC-AUC difference. |
+| `pr_auc_ci_low` | float | Lower bound of 95% CI for PR-AUC difference. |
+| `pr_auc_ci_high` | float | Upper bound of 95% CI for PR-AUC difference. |
+| `bootstrap_resamples` | int | Number of bootstrap resamples (1000). |
+
+## 6. SC003Analysis
+
+Specific analysis of phosphorus center feature importance.
+
+**Source**: `code/evaluate.py`
+**Output**: `data/processed/sc003_analysis.json`
+
+**Schema**:
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `morgan_p_sum` | float | Sum of Gini importance for Morgan bits within radius 2 of P atom. |
+| `maccs_p_sum` | float | Sum of Gini importance for MACCS bits associated with P atom. |
+| `morgan_total_importance` | float | Total Gini importance of the Morgan model. |
+| `maccs_total_importance` | float | Total Gini importance of the MACCS model. |
+| `improvement_ratio` | float | `morgan_p_sum / maccs_p_sum`. |
+| `threshold_met` | boolean | True if `morgan_p_sum` > `maccs_p_sum` * 1.15. |
+| `conclusion` | string | Human-readable summary of the SC-003 verification. |

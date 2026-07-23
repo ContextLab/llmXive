@@ -1,0 +1,19 @@
+status: none
+intent: download Tox21 dataset python package with SMILES and toxicity endpoints python
+  package dataset
+required_fields:
+- compound_id
+- smiles
+- NR-AR
+- NR-AR-LBD
+- NR-AhR
+- NR-Aromatase
+- NR-ER
+- NR-ER-LBD
+- SR-ARE
+- SR-ATAD5
+- SR-HSE
+- SR-MMP
+cache_key: aedfb0c118c1c06d381e2b01fffc92910016909d9ffd650b5e95fe1fbad65433
+searched_at: '2026-07-23T00:53:02.221441+00:00'
+retry_count: 1
