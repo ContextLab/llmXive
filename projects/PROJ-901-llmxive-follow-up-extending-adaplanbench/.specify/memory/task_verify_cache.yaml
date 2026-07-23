@@ -1,11 +1,10 @@
-T008a:
+T013:
   c: false
-  h: 1d70dfd8e81cdd7320019ea0b0275ecd71d617ed38cfb604971da0b86ce659a3
-  r: "The provided `code/main.py` defines a `ResourceMonitor` but the `monitor_task`\
-    \ context manager is truncated and does not record CPU usage or write logs, and\
-    \ no code actually wraps task execution with it. Moreover, the required `data/processed/resource_logs.json`\
-    \ file is absent. The implementation therefore does not fulfill the logging and\
-    \ fail\u2011fast requirements of FR\u2011006."
+  h: dccb9fbc191f46a0c5a1af68c2c02c637c9bb3a4edb7cf049175985f6618c860
+  r: "The `code/dataset/loader.py` script contains the filtering logic, but the required\
+    \ output file `data/processed/filtered_tasks.csv` is absent, so the task\u2019\
+    s deliverable (a CSV with the specified columns) was not produced. The missing\
+    \ CSV means the requirement is not satisfied."
 T026a:
   c: false
   h: 72ca844abc23706d3c16113f50ffe2ac72cdab14226d324257e1d207dbb31f13
@@ -31,6 +30,14 @@ T026f:
     \ only loads and merges logs into a list and does not create/write `data/processed/execution_traces.csv`.\
     \ Moreover, the required CSV file is absent, so the task\u2019s output artifact\
     \ is missing. The implementation must generate the CSV with the specified columns."
+T030:
+  c: false
+  h: 564806055fd0b540c0ea9fa5367fc8697ce7e18de864631691319b917988b571
+  r: The provided `code/analysis/power.py` is truncated and contains a typo (`FTestPowe`),
+    so it cannot run the power calculation. The required input file `data/processed/filtered_tasks.csv`
+    does not exist, and the expected output `data/processed/power_report.json` was
+    never generated. The task therefore lacks both the necessary data and a functional
+    implementation.
 T033:
   c: false
   h: a46cafaccdcc3c3fa997b61c3d83272054b25aea5c963f1f2db1bb8d115d99b4

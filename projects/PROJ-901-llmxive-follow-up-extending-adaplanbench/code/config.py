@@ -1,198 +1,264 @@
-"""
-Configuration module for the llmXive project.
-Defines paths, resource limits, model configurations, and dataset settings.
-"""
 import os
 import random
 import subprocess
 import sys
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional, Union
+
+# ============================================================================
+# Paths Configuration
+# ============================================================================
 
 @dataclass
 class Paths:
     """
-    Container for project directory paths.
-    Provides a tolerant interface for directory access.
+    Centralized path management for the project.
+    Implements a tolerant attribute access pattern to support various
+    calling conventions across the codebase.
     """
     project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
-    code_dir: Path = field(default_factory=lambda: Path(__file__).parent)
-    data_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data")
+    data_root: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data")
+    code_root: Path = field(default_factory=lambda: Path(__file__).parent)
+    tests_root: Path = field(default_factory=lambda: Path(__file__).parent.parent / "tests")
+    specs_root: Path = field(default_factory=lambda: Path(__file__).parent.parent / "specs")
+
+    # Data Subdirectories
     data_raw: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "raw")
     data_processed: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "processed")
-    tests_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "tests")
-    specs_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "specs")
-    figures_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "figures")
+    data_figures: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "figures")
 
-    # Explicit attributes for common access patterns
-    DATA_RAW: Path = field(init=False)
-    DATA_PROCESSED: Path = field(init=False)
+    # Specific file paths
+    config_file: Path = field(default_factory=lambda: Path(__file__).parent / "config.yaml")
+    state_file: Path = field(default_factory=lambda: Path(__file__).parent.parent / "state.yaml")
+
+    # Legacy/Alternative attribute names for compatibility
+    # These are added explicitly to satisfy various callers that might look for these names
+    DATA_RAW: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "raw")
+    DATA_PROCESSED: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "processed")
+    DATA_FIGURES: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "figures")
+    CODE_ROOT: Path = field(default_factory=lambda: Path(__file__).parent)
+    TESTS_ROOT: Path = field(default_factory=lambda: Path(__file__).parent.parent / "tests")
+    SPECS_ROOT: Path = field(default_factory=lambda: Path(__file__).parent.parent / "specs")
+
+    # Local path for dataset (used by loader)
+    LOCAL_PATH: Optional[Path] = None
 
     def __post_init__(self):
-        self.DATA_RAW = self.data_raw
-        self.DATA_PROCESSED = self.data_processed
+        # Ensure LOCAL_PATH is initialized if not set
+        if self.LOCAL_PATH is None:
+            self.LOCAL_PATH = self.data_raw
 
-    # Tolerant fallback for any unknown attribute access
     def __getattr__(self, name: str) -> Any:
-        # If an attribute is requested that doesn't exist (e.g., DATA_RAW if not initialized yet),
-        # or if a method is called that doesn't exist, return a no-op callable or a computed path.
-        # This prevents AttributeError in scripts that might call .info() or similar on a Paths instance.
-        if name.startswith('DATA_'):
-            # Attempt to construct a path based on the name
-            # e.g., DATA_FOO -> data/foo
-            path_name = name.replace('DATA_', '').lower()
-            candidate = self.data_dir / path_name
-            # Return a Path object that can be used for .mkdir() etc.
-            return candidate
+        """
+        Tolerant attribute access.
+        If an attribute is not found, return a no-op callable for logger-like usage
+        or raise AttributeError for actual missing attributes (to catch bugs).
+        """
+        # Common logger-like methods that should be no-ops if missing
+        logger_methods = ['info', 'debug', 'warning', 'error', 'critical', 'log', 'exception', 'trace']
+        if name in logger_methods:
+            def _noop(*args, **kwargs):
+                return None
+            return _noop
         
-        # For method-like calls (e.g., .info(), .debug()), return a no-op
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+        # For other attributes, raise the standard error
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+    def ensure_directories(self):
+        """Create all required directories if they don't exist."""
+        for path in [
+            self.data_raw, self.data_processed, self.data_figures,
+            self.code_root, self.tests_root, self.specs_root
+        ]:
+            path.mkdir(parents=True, exist_ok=True)
+
+# ============================================================================
+# Resource Limits Configuration
+# ============================================================================
 
 @dataclass
 class ResourceLimits:
-    """Resource limits for execution."""
-    max_cpu_percent: float = 80.0
-    max_memory_mb: int = 8192
-    timeout_seconds: int = 3600
+    """Resource limits for the execution environment."""
+    max_cpu_percent: float = 90.0
+    max_ram_gb: float = 6.5
+    timeout_seconds: int = 3600  # 1 hour default timeout
+    max_threads: int = 4
+
+# ============================================================================
+# Model Configuration
+# ============================================================================
 
 @dataclass
 class ModelConfig:
-    """Configuration for AI models."""
+    """Configuration for ML models."""
     model_name: str = "phi-3-mini"
     device: str = "cpu"
     dtype: str = "float32"
-    max_tokens: int = 2048
-    temperature: float = 0.0
+    max_length: int = 2048
+    temperature: float = 0.7
+    top_p: float = 0.9
     seed: int = 42
+
+# ============================================================================
+# Dataset Configuration
+# ============================================================================
 
 @dataclass
 class DatasetConfig:
     """Configuration for datasets."""
-    dataset_id: str = "adaplanbench"
-    # Official URL fallbacks
-    official_url: str = "https://huggingface.co/datasets/adaplanbench"
-    local_path: Optional[str] = None
-    split: str = "train"
-    verify_only: bool = False
+    # AdaPlanBench Configuration
+    dataset_name: str = "AdaPlanBench"
+    dataset_id: str = "llmXive/AdaPlanBench"  # HuggingFace dataset ID
+    dataset_url: str = "https://huggingface.co/datasets/llmXive/AdaPlanBench"
+    dataset_local_path: Optional[Path] = None
+    
+    # Fallback URLs for official sources
+    official_url_fallbacks: List[str] = field(default_factory=lambda: [
+        "https://huggingface.co/datasets/llmXive/AdaPlanBench",
+        "https://raw.githubusercontent.com/llmXive/AdaPlanBench/main/data.json"
+    ])
+    
+    # Filter configuration
+    min_progressive_constraints: int = 5
+    max_samples: Optional[int] = None  # None means all samples
+    
+    # Data loading options
+    streaming: bool = False
+    trust_remote_code: bool = False
+
+# ============================================================================
+# Analysis Configuration
+# ============================================================================
 
 @dataclass
 class AnalysisConfig:
-    """Configuration for analysis tasks."""
-    alpha: float = 0.05
-    effect_size: float = 0.15
-    target_power: float = 0.80
-    seed: int = 42
+    """Configuration for statistical analysis."""
+    # GLMM Configuration
+    glmm_alpha: float = 0.05
+    glmm_max_iter: int = 100
+    glmm_tol: float = 1e-6
+    
+    # Power Analysis Configuration
+    power_effect_size: float = 0.15
+    power_alpha: float = 0.05
+    power_groups: int = 2
+    
+    # Annotation Configuration
+    annotation_seed: int = 42
+    annotation_sample_size: Optional[int] = None
+    annotation_bins: List[int] = field(default_factory=lambda: [5, 6, 7])  # [5, 6, 7+]
+    
+    # Adherence Threshold
+    adherence_threshold: float = 0.85
 
-# Global instances
-_paths_instance: Optional[Paths] = None
-_resource_limits_instance: Optional[ResourceLimits] = None
-_model_config_instance: Optional[ModelConfig] = None
-_dataset_config_instance: Optional[DatasetConfig] = None
-_analysis_config_instance: Optional[AnalysisConfig] = None
+# ============================================================================
+# Global Configuration Management
+# ============================================================================
+
+_paths: Optional[Paths] = None
+_resource_limits: Optional[ResourceLimits] = None
+_model_config: Optional[ModelConfig] = None
+_dataset_config: Optional[DatasetConfig] = None
+_analysis_config: Optional[AnalysisConfig] = None
+_logger: Optional[logging.Logger] = None
 
 def get_paths() -> Paths:
-    """Get the global Paths instance."""
-    global _paths_instance
-    if _paths_instance is None:
-        _paths_instance = Paths()
-    return _paths_instance
+    """Get or create the global Paths instance."""
+    global _paths
+    if _paths is None:
+        _paths = Paths()
+    return _paths
 
 def get_resource_limits() -> ResourceLimits:
-    """Get the global ResourceLimits instance."""
-    global _resource_limits_instance
-    if _resource_limits_instance is None:
-        _resource_limits_instance = ResourceLimits()
-    return _resource_limits_instance
+    """Get or create the global ResourceLimits instance."""
+    global _resource_limits
+    if _resource_limits is None:
+        _resource_limits = ResourceLimits()
+    return _resource_limits
 
 def get_model_config() -> ModelConfig:
-    """Get the global ModelConfig instance."""
-    global _model_config_instance
-    if _model_config_instance is None:
-        _model_config_instance = ModelConfig()
-    return _model_config_instance
+    """Get or create the global ModelConfig instance."""
+    global _model_config
+    if _model_config is None:
+        _model_config = ModelConfig()
+    return _model_config
 
 def get_dataset_config() -> DatasetConfig:
-    """Get the global DatasetConfig instance."""
-    global _dataset_config_instance
-    if _dataset_config_instance is None:
-        _dataset_config_instance = DatasetConfig()
-    return _dataset_config_instance
+    """Get or create the global DatasetConfig instance."""
+    global _dataset_config
+    if _dataset_config is None:
+        _dataset_config = DatasetConfig()
+    return _dataset_config
 
 def get_analysis_config() -> AnalysisConfig:
-    """Get the global AnalysisConfig instance."""
-    global _analysis_config_instance
-    if _analysis_config_instance is None:
-        _analysis_config_instance = AnalysisConfig()
-    return _analysis_config_instance
+    """Get or create the global AnalysisConfig instance."""
+    global _analysis_config
+    if _analysis_config is None:
+        _analysis_config = AnalysisConfig()
+    return _analysis_config
 
 def set_all_seeds(seed: int = 42):
     """Set random seeds for reproducibility."""
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
+    # Note: torch and numpy seeds would be set in modules that import them
+    # to avoid circular imports here.
 
-def ensure_directories(paths: Optional[Paths] = None):
-    """Ensure all necessary directories exist."""
-    if paths is None:
-        paths = get_paths()
-    
-    dirs_to_create = [
-        paths.data_raw,
-        paths.data_processed,
-        paths.figures_dir,
-        paths.tests_dir,
-        paths.specs_dir
-    ]
-    
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
+def ensure_directories():
+    """Ensure all required directories exist."""
+    paths = get_paths()
+    paths.ensure_directories()
 
-def get_env_var(key: str, default: Optional[str] = None) -> Optional[str]:
+def get_env_var(name: str, default: Optional[str] = None) -> Optional[str]:
     """Get an environment variable with an optional default."""
-    return os.environ.get(key, default)
+    return os.environ.get(name, default)
 
-def parse_bool(value: Any) -> bool:
-    """Parse a boolean value from various types."""
+def parse_bool(value: Union[str, bool]) -> bool:
+    """Parse a boolean value from string or bool."""
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
         return value.lower() in ('true', '1', 'yes', 'on')
-    if isinstance(value, (int, float)):
-        return bool(value)
-    return False
+    return bool(value)
 
-# Utility for logging (tolerant of missing methods)
+# ============================================================================
+# Project Logger
+# ============================================================================
+
 class ProjectLogger:
-    """A tolerant logger that works with the Paths interface."""
-    def __init__(self, name: str):
-        self.name = name
+    """A simple project logger that can be used across modules."""
+    
+    def __init__(self, name: str = "llmXive"):
+        self.logger = logging.getLogger(name)
+        if not self.logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
+    
+    def info(self, msg: str, *args, **kwargs):
+        self.logger.info(msg, *args, **kwargs)
+    
+    def debug(self, msg: str, *args, **kwargs):
+        self.logger.debug(msg, *args, **kwargs)
+    
+    def warning(self, msg: str, *args, **kwargs):
+        self.logger.warning(msg, *args, **kwargs)
+    
+    def error(self, msg: str, *args, **kwargs):
+        self.logger.error(msg, *args, **kwargs)
+    
+    def critical(self, msg: str, *args, **kwargs):
+        self.logger.critical(msg, *args, **kwargs)
 
-    def info(self, *args, **kwargs):
-        print(f"[INFO {self.name}] {args[0] if args else ''}")
-    
-    def debug(self, *args, **kwargs):
-        print(f"[DEBUG {self.name}] {args[0] if args else ''}")
-    
-    def warning(self, *args, **kwargs):
-        print(f"[WARNING {self.name}] {args[0] if args else ''}")
-    
-    def error(self, *args, **kwargs):
-        print(f"[ERROR {self.name}] {args[0] if args else ''}")
-
-def get_logger(name: str = "project") -> ProjectLogger:
-    """Get a logger instance."""
-    return ProjectLogger(name)
+def get_logger(name: str = "llmXive") -> ProjectLogger:
+    """Get or create a project logger."""
+    global _logger
+    if _logger is None:
+        _logger = ProjectLogger(name)
+    return _logger

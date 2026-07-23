@@ -1,12 +1,12 @@
 status: none
-intent: AdaPlanBench household planning dataset download pip install python package
-  dataset
+intent: download AdaPlanBench dataset python package or direct zip from repository
+  python package dataset
 required_fields:
 - task_id
 - task_description
-- constraint_list
+- constraints
 - constraint_count
-- progressive_constraint_reveal_order
-cache_key: cb28836f096ce0f1865caaf19ee946233f4f36d698a4da7e50b0cdcfd90e3c05
-searched_at: '2026-07-22T11:42:13.666918+00:00'
+- metadata
+cache_key: edffe1935f099f3d7d5d946277d4df4664355b70acb4f71fcbba033f9489be39
+searched_at: '2026-07-23T08:59:33.896408+00:00'
 retry_count: 1

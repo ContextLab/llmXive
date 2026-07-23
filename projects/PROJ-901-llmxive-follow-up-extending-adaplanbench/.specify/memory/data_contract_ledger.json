@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "data/processed/execution_logs.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/filtered_tasks.csv",
+    "required": []
+  }
+]

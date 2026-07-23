@@ -1,12 +1,17 @@
 """
-Agreement Rate Analysis Script (Task T034)
+Agreement Rate Analysis Script.
 
-This script computes the agreement rate between rule-based violation flags
-(from execution_traces.csv) and human annotations (from annotation_sample.csv).
-It calculates the agreement rate with a 95% confidence interval.
+Compares rule-based violation flags from execution traces against human-annotated
+ground truth to compute agreement rates and confidence intervals.
 
-Output: data/processed/agreement_rate_report.json
+Dependencies:
+  - T027: data/processed/execution_traces.csv
+  - T033: data/processed/annotation_sample.csv
+
+Output:
+  - data/processed/agreement_rate_report.json
 """
+
 import argparse
 import json
 import math
@@ -16,217 +21,140 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports if run as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from config import get_paths
 
 def load_execution_traces(input_path: str) -> List[Dict[str, Any]]:
-    """Load execution traces from CSV."""
+    """
+    Load execution traces from CSV.
+    Returns a list of dictionaries.
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Execution traces file not found: {input_path}")
+
     traces = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Parse boolean and float fields
+            row['violation_boolean'] = row['violation_boolean'].lower() == 'true'
+            row['final_score'] = float(row['final_score'])
+            row['constraint_count'] = int(row['constraint_count'])
             traces.append(row)
     return traces
 
 def load_human_annotations(input_path: str) -> List[Dict[str, Any]]:
-    """Load human annotations from CSV."""
+    """
+    Load human-annotated ground truth from CSV.
+    Expected columns: task_id, raw_prompt, constraint_list (or similar).
+    We need to infer the 'ground truth violation' status.
+    For this specific task, we assume the annotation sample contains a column
+    or logic to determine if a violation occurred that the rule-based system should have caught.
+
+    Since T033 produces `data/processed/annotation_sample.csv` with columns:
+    `task_id`, `raw_prompt`, `constraint_list`, we must interpret the human annotation.
+    In the absence of a specific 'human_violation_flag' column in T033's schema,
+    we assume the 'constraint_list' implies that if the list is non-empty and the
+    plan (from execution_traces) violated it, that's a ground truth violation.
+    
+    However, T034 description says: "Compare rule-based violation flags against human annotations."
+    This implies the human annotation file *must* contain the ground truth label.
+    If T033 only produced the sample for *future* annotation, this script would fail.
+    Given the task requirement to *compute* agreement now, we assume `annotation_sample.csv`
+    has been populated with a `human_violation_flag` or similar column by the time this runs,
+    or we derive it if the schema allows.
+    
+    Re-reading T033: "Output `data/processed/annotation_sample.csv`. Output Schema: Columns must be `task_id`, `raw_prompt`, `constraint_list`."
+    This suggests T033 is just sampling. The "human-annotated ground truth" implies a step where humans *actually* annotated it.
+    If the file only has `constraint_list`, we cannot compute agreement against a "human annotation" unless we assume
+    the presence of a `human_violation_flag` column that T033 might have been extended to include, or the task implies
+    a mock annotation step for the sake of the pipeline.
+    
+    CRITICAL FIX: The task description says "reads ... human-annotated ground truth".
+    If the file from T033 lacks the annotation, we cannot compute agreement.
+    We will assume the file *does* contain a `human_violation_flag` column (added by a human or a simulated human step)
+    as per the requirement of T034. If not, we raise an error.
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Human annotation file not found: {input_path}")
+
     annotations = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        if not fieldnames:
+            raise ValueError("Annotation file is empty or has no headers.")
+        
+        # Check for expected ground truth column
+        if 'human_violation_flag' not in fieldnames:
+            # Fallback: if the task implies we must simulate or if the column is named differently
+            # But per strict requirements, we must read real data.
+            # We will assume the column exists. If not, we fail loudly.
+            raise ValueError(f"Annotation file missing required column 'human_violation_flag'. Found: {fieldnames}")
+
         for row in reader:
+            row['human_violation_flag'] = row['human_violation_flag'].lower() == 'true'
             annotations.append(row)
     return annotations
 
-def compute_agreement(
-    traces: List[Dict[str, Any]],
-    annotations: List[Dict[str, Any]]
-) -> Tuple[int, int, List[str]]:
+def compute_agreement(traces: List[Dict], annotations: List[Dict]) -> Tuple[int, int, int]:
     """
     Compute agreement between rule-based flags and human annotations.
-
-    Returns:
-        Tuple of (agreed_count, total_count, mismatched_task_ids)
+    Returns (total_compared, agreements, disagreements).
     """
-    # Create a map from task_id to human annotation for quick lookup
-    # Human annotations are expected to have a 'violation_flag' or similar boolean indicator.
-    # Based on T033 output schema: task_id, raw_prompt, constraint_list.
-    # We need to infer the human judgment.
-    # Assumption: If 'constraint_list' is present and non-empty, or if a specific column exists.
-    # However, T033 description says: "Compare rule-based violation flags against human annotations."
-    # The annotation_sample.csv from T033 has columns: task_id, raw_prompt, constraint_list.
-    # To make this robust, we assume the human annotation process (simulated or real)
-    # would result in a 'human_violation' boolean or we derive it.
-    #
-    # Since T033 is a sampling task and T034 is the comparison, the 'annotation_sample.csv'
-    # might need to be populated with human judgments. In a real scenario, humans label it.
-    # For this implementation, we assume the 'annotation_sample.csv' generated by T033
-    # (or a subsequent process) contains a 'human_violation' column (boolean) or 'is_violation'.
-    #
-    # If the column is missing, we must fail loudly as per constraints, or derive it if logic exists.
-    # Given the task description "Compare rule-based violation flags against human annotations",
-    # the annotation file MUST contain the human label.
-    #
-    # Let's assume the column name is 'human_violation' (boolean) or 'violation_flag'.
-    # If not present, we check for 'constraint_list' and assume presence implies a violation
-    # IF the task is about constraint adherence. But T033 says "constraint_list" is the output.
-    #
-    # Refinement: The task T034 says "Compare rule-based violation flags against human annotations".
-    # The human annotation sample is generated by T033. T033 output: task_id, raw_prompt, constraint_list.
-    # This implies the human annotation is the *presence* or *content* of constraints.
-    # However, to compare with a binary violation flag, we need a binary human label.
-    #
-    # Strategy: We will look for a column named 'human_violation', 'violation_flag', or 'is_violation'.
-    # If none exist, we will assume that if 'constraint_list' is non-empty and the task had constraints,
-    # it might be a positive signal, but this is ambiguous.
-    #
-    # CRITICAL: The prompt says "human-annotated ground truth". The ground truth MUST be explicit.
-    # We will assume the annotation file has a 'human_violation' boolean column.
-    # If the file lacks this, we will raise an error to force the user to provide the ground truth.
-    #
-    # Wait, T033 generates the sample. T034 compares. The sample must be annotated.
-    # If T033 only generates the raw sample, then T034 expects the sample to be pre-annotated
-    # or we simulate the annotation for the sake of the pipeline?
-    # NO: "Real data only — NEVER fabricate results". We cannot simulate human labels.
-    # Therefore, the file `data/processed/annotation_sample.csv` MUST contain the human labels.
-    # If it doesn't, the task cannot be completed with real data.
-    #
-    # Assumption for this implementation: The file contains a 'human_violation' (bool) or 'violation' (str 'True'/'False').
-    # If the file is just the T033 output (task_id, raw_prompt, constraint_list), we cannot compute agreement
-    # without a human label.
-    #
-    # However, looking at the task T033 description: "Output: data/processed/annotation_sample.csv. Output Schema: Columns must be task_id, raw_prompt, constraint_list."
-    # It does NOT mention a human label column.
-    # This suggests the "human annotation" might be the *process* of checking if the constraint_list is valid?
-    # Or perhaps the "human annotation" is a separate file?
-    #
-    # Re-reading T034: "reads ... and the human‑annotated ground truth from `data/processed/annotation_sample.csv`".
-    # This implies `annotation_sample.csv` IS the ground truth.
-    # If T033 only outputs task_id, raw_prompt, constraint_list, then the "ground truth" is the constraint_list itself?
-    # But we are comparing "rule-based violation flags" (binary) against "human annotations".
-    #
-    # Hypothesis: The "human annotation" in this context is a binary judgment on whether the plan violated constraints.
-    # If the T033 script is meant to be run by humans to fill in a column, then the file should have that column.
-    # Since I cannot wait for humans to run it, and I cannot fabricate, I must assume the file structure
-    # expected by T034 includes the label.
-    #
-    # Let's look at the "Independent Test" for T034: "Compare rule-based violation flags against human annotations."
-    # If the file doesn't have the label, the test fails.
-    #
-    # Decision: I will implement the loader to expect a column named 'human_violation' (bool) or 'violation_flag'.
-    # If it's missing, I will check if the file has 'constraint_list' and try to infer? No, that's fabrication.
-    # I will raise a clear error if the human label column is missing.
-    #
-    # WAIT: Perhaps the "human annotation" is that the human *verified* the constraints.
-    # If the task is about "constraint adherence", maybe the human label is "adherent" vs "violation".
-    #
-    # Let's assume the column is 'human_violation' (0/1 or True/False).
-    # If the file only has 'task_id', 'raw_prompt', 'constraint_list', then this task is impossible without
-    # a human-in-the-loop step that adds the label.
-    #
-    # However, in many automated pipelines, "human annotation" might be a placeholder for a specific
-    # ground truth dataset.
-    #
-    # Let's assume the file has been annotated and contains a 'human_violation' column.
-    # If the column is not present, we will raise an error.
+    # Create a map of task_id -> human annotation
+    human_map = {ann['task_id']: ann for ann in annotations}
     
-    human_map = {}
-    for row in annotations:
-        task_id = row.get('task_id')
-        if not task_id:
-            continue
-        
-        # Try to find the human label
-        human_violation = None
-        for col in ['human_violation', 'violation_flag', 'is_violation', 'violation']:
-            if col in row:
-                val = row[col]
-                if isinstance(val, bool):
-                    human_violation = val
-                elif isinstance(val, str):
-                    human_violation = val.lower() in ('true', '1', 'yes')
-                elif isinstance(val, int):
-                    human_violation = val == 1
-                if human_violation is not None:
-                    break
-        
-        if human_violation is None:
-            # If no label found, we cannot compute agreement.
-            # This might happen if the file is just the T033 output without annotation.
-            # In a real scenario, this file should be annotated.
-            # For the purpose of this script to run without crashing on a valid file that just lacks the column,
-            # we will skip tasks without labels, but ideally, this should be an error.
-            # However, the task says "human-annotated ground truth". If it's not annotated, it's not ground truth.
-            # We will skip and log a warning, but if all are skipped, we fail.
-            continue
-        
-        human_map[task_id] = human_violation
-
-    agreed = 0
     total = 0
-    mismatches = []
+    agreements = 0
+    disagreements = 0
 
     for trace in traces:
-        task_id = trace.get('task_id')
+        task_id = trace['task_id']
         if task_id not in human_map:
-            continue
-        
+            continue  # Skip if no human annotation for this task
+
+        human_flag = human_map[task_id]['human_violation_flag']
+        model_flag = trace['violation_boolean']
+
         total += 1
-        
-        # Get rule-based violation flag from trace
-        # Trace columns: task_id, architecture, constraint_count, violation_boolean, violation_reason, final_score
-        rule_violation_str = trace.get('violation_boolean', 'False')
-        if isinstance(rule_violation_str, str):
-            rule_violation = rule_violation_str.lower() in ('true', '1', 'yes')
-        elif isinstance(rule_violation_str, bool):
-            rule_violation = rule_violation_str
-        elif isinstance(rule_violation_str, int):
-            rule_violation = rule_violation_str == 1
+        if human_flag == model_flag:
+            agreements += 1
         else:
-            rule_violation = False
+            disagreements += 1
 
-        human_violation = human_map[task_id]
+    return total, agreements, disagreements
 
-        if rule_violation == human_violation:
-            agreed += 1
-        else:
-            mismatches.append(task_id)
-
-    return agreed, total, mismatches
-
-def compute_confidence_interval(
-    agreed: int,
-    total: int,
-    confidence_level: float = 0.95
-) -> Tuple[float, float]:
+def compute_confidence_interval(agreements: int, total: int, confidence: float = 0.95) -> Tuple[float, float]:
     """
-    Compute the 95% confidence interval for the agreement rate using the Wilson score interval.
+    Compute the confidence interval for the agreement rate using the Wilson score interval.
     """
     if total == 0:
         return 0.0, 0.0
 
-    p = agreed / total
-    z = 1.96  # Z-score for 95% confidence
-    
-    denominator = 1 + z**2 / total
-    center = (p + z**2 / (2 * total)) / denominator
-    margin = z * math.sqrt((p * (1 - p) + z**2 / (4 * total)) / total) / denominator
-    
+    p = agreements / total
+    z = 1.96  # For 95% confidence, z is approximately 1.96
+    if confidence == 0.90:
+        z = 1.645
+    elif confidence == 0.99:
+        z = 2.576
+
+    denominator = 1 + (z ** 2) / total
+    center = (p + (z ** 2) / (2 * total)) / denominator
+    margin = (z / denominator) * math.sqrt((p * (1 - p) / total) + ((z ** 2) / (4 * total ** 2)))
+
     lower = max(0.0, center - margin)
     upper = min(1.0, center + margin)
-    
+
     return lower, upper
 
-def run_agreement_analysis(
-    traces_path: str,
-    annotations_path: str,
-    output_path: str
-) -> Dict[str, Any]:
+def run_agreement_analysis(traces_path: str, annotations_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Run the full agreement analysis and save results.
+    Main analysis function.
     """
     print(f"Loading execution traces from {traces_path}...")
     traces = load_execution_traces(traces_path)
@@ -236,58 +164,51 @@ def run_agreement_analysis(
     annotations = load_human_annotations(annotations_path)
     print(f"Loaded {len(annotations)} annotations.")
 
-    agreed, total, mismatches = compute_agreement(traces, annotations)
-    
+    print("Computing agreement...")
+    total, agreements, disagreements = compute_agreement(traces, annotations)
+
     if total == 0:
-        print("Warning: No matching task_ids found between traces and annotations.")
-        report = {
-            "agreement_rate": 0.0,
-            "confidence_interval_lower": 0.0,
-            "confidence_interval_upper": 0.0,
-            "sample_size": 0,
-            "mismatched_task_ids": [],
-            "error": "No matching tasks found."
-        }
-    else:
-        agreement_rate = agreed / total
-        ci_lower, ci_upper = compute_confidence_interval(agreed, total)
-        
-        report = {
-            "agreement_rate": round(agreement_rate, 4),
-            "confidence_interval_lower": round(ci_lower, 4),
-            "confidence_interval_upper": round(ci_upper, 4),
-            "sample_size": total,
-            "mismatched_task_ids": mismatches[:20]  # Limit to first 20 for brevity
-        }
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
+        raise ValueError("No overlapping tasks found between traces and annotations.")
+
+    agreement_rate = agreements / total
+    lower_ci, upper_ci = compute_confidence_interval(agreements, total)
+
+    report = {
+        "agreement_rate": round(agreement_rate, 4),
+        "confidence_interval_lower": round(lower_ci, 4),
+        "confidence_interval_upper": round(upper_ci, 4),
+        "sample_size": total,
+        "agreements": agreements,
+        "disagreements": disagreements
+    }
+
     print(f"Writing report to {output_path}...")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    
-    print(f"Agreement rate: {agreement_rate:.2%} ({agreed}/{total})")
-    print(f"95% CI: [{ci_lower:.2%}, {ci_upper:.2%}]")
-    
+
+    print(f"Agreement Rate: {agreement_rate:.2%} (95% CI: [{lower_ci:.2%}, {upper_ci:.2%}])")
     return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute agreement rate between rule-based and human annotations.")
+    parser = argparse.ArgumentParser(description="Compute agreement rate between model and human annotations.")
     parser.add_argument("--traces", type=str, required=True, help="Path to execution_traces.csv")
     parser.add_argument("--annotations", type=str, required=True, help="Path to annotation_sample.csv")
-    parser.add_argument("--output", type=str, required=True, help="Path to output JSON report")
+    parser.add_argument("--output", type=str, default="data/processed/agreement_rate_report.json", help="Output JSON path")
     
     args = parser.parse_args()
-    
+
     try:
         run_agreement_analysis(args.traces, args.annotations, args.output)
-        sys.exit(0)
+        print("Agreement analysis completed successfully.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Error during agreement analysis: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

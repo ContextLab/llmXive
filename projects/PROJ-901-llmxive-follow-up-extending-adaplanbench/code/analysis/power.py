@@ -1,8 +1,14 @@
 """
-Power analysis for the AdaPlanBench extension study.
+Power analysis for the GLMM on the filtered AdaPlanBench subset.
 
-This module calculates the achieved power for the GLMM given the sample size
-from the execution traces.
+Calculates the achieved power for the GLMM given:
+- groups=2 (monolithic vs dual-track)
+- alpha=0.05
+- effect_size=0.15 (Cohen's f² target)
+- n_observations derived from the actual sample size in data/processed/filtered_tasks.csv
+
+Output: data/processed/power_report.json
+Schema: {calculated_power, effect_size, sample_size, groups}
 """
 import os
 import sys
@@ -10,220 +16,180 @@ import json
 import argparse
 import math
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
-import statsmodels.stats.power as smp
+from statsmodels.stats.power import FTestPower
 
-# Import project configuration
-from config import get_paths, get_analysis_config
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "filtered_tasks.csv"
+DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "power_report.json"
 
-# Constants
-DEFAULT_ALPHA = 0.05
-DEFAULT_EFFECT_SIZE = 0.15  # Cohen's f² target
-DEFAULT_GROUPS = 2  # Monolithic vs Dual-track
-
-def load_execution_traces(input_path: str) -> pd.DataFrame:
-    """Load the execution traces CSV file."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Execution traces file not found: {input_path}")
+def load_filtered_tasks(input_path: Path) -> pd.DataFrame:
+    """
+    Load the filtered tasks CSV.
+    Validates that the file exists and has the expected columns.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Filtered tasks file not found: {input_path}")
     
     df = pd.read_csv(input_path)
     
-    # Validate required columns
-    required_cols = ['task_id', 'architecture', 'constraint_count', 'violation_boolean', 'final_score']
+    required_cols = ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns in execution traces: {missing_cols}")
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
     
     return df
 
-def calculate_effect_size_for_logistic(df: pd.DataFrame) -> float:
+def calculate_achieved_power(
+    sample_size: int,
+    effect_size: float,
+    alpha: float = 0.05,
+    groups: int = 2
+) -> float:
     """
-    Calculate effect size for logistic regression (violation_boolean as outcome).
+    Calculate the achieved power for a GLMM-like test.
     
-    Uses the proportion of violations in each group to estimate effect size.
-    This is a simplified approach; for GLMM, we'd typically use simulation-based power.
-    Here we use a proxy based on group proportions.
-    """
-    # Group by architecture and calculate violation rate
-    violation_rates = df.groupby('architecture')['violation_boolean'].mean()
+    We approximate the power calculation using FTestPower from statsmodels,
+    treating the interaction effect (constraints x architecture) as the target.
     
-    if len(violation_rates) < 2:
-        # If only one group, we can't calculate effect size
-        return DEFAULT_EFFECT_SIZE
-    
-    # Calculate Cohen's h for proportions
-    p1 = violation_rates.iloc[0]
-    p2 = violation_rates.iloc[1]
-    
-    # Avoid division by zero or log of zero
-    p1 = max(0.001, min(0.999, p1))
-    p2 = max(0.001, min(0.999, p2))
-    
-    # Cohen's h = 2 * arcsin(sqrt(p1)) - 2 * arcsin(sqrt(p2))
-    h = 2 * math.asin(math.sqrt(p1)) - 2 * math.asin(math.sqrt(p2))
-    
-    # Convert to a rough f² equivalent (approximate)
-    # This is a heuristic; exact conversion depends on model specifics
-    f_squared = (h ** 2) / 4
-    
-    return f_squared if f_squared > 0 else DEFAULT_EFFECT_SIZE
-
-def estimate_required_sample_size(effect_size: float, alpha: float = DEFAULT_ALPHA, 
-                                 power: float = 0.80, groups: int = DEFAULT_GROUPS) -> int:
-    """
-    Estimate the required sample size for detecting the given effect size.
-    
-    Uses statsmodels' FTestAnovaPower for a rough approximation.
-    For GLMM with binary outcomes, this is an approximation.
-    """
-    # Use F-test power analysis as an approximation
-    # For logistic regression with binary outcome, we can use G*Power-like approximations
-    # Here we use a simplified approach based on the number of groups and effect size
-    
-    # Approximate formula for two-group comparison with binary outcome
-    # n per group = 2 * (Z_alpha/2 + Z_beta)^2 * p * (1-p) / (p1 - p2)^2
-    # We'll use statsmodels for a more robust calculation
-    
-    try:
-        # Use FTestPower for a rough approximation
-        from statsmodels.stats.power import FTestAnovaPower
-        analysis = FTestAnovaPower()
-        
-        # Effect size f for ANOVA (approximate conversion from f²)
-        f = math.sqrt(effect_size)
-        
-        # Calculate required sample size
-        n_per_group = analysis.solve_power(effect_size=f, alpha=alpha, power=power, 
-                                         k_groups=groups, axis=0)
-        
-        if n_per_group is None or n_per_group < 0:
-            return int(100 / groups)  # Default fallback
-        
-        return int(n_per_group * groups)  # Total sample size
-    except Exception:
-        # Fallback to a simple rule of thumb
-        # For binary outcomes, typically need ~10-20 observations per predictor
-        # With 2 groups and interaction, we need at least 40-60 observations
-        return 60
-
-def perform_power_analysis(df: pd.DataFrame, effect_size: float = DEFAULT_EFFECT_SIZE,
-                          alpha: float = DEFAULT_ALPHA, 
-                          groups: int = DEFAULT_GROUPS) -> Dict[str, Any]:
-    """
-    Perform power analysis on the execution traces.
-    
-    Calculates the achieved power given the sample size and effect size.
-    """
-    n_observations = len(df)
-    
-    if n_observations == 0:
-        raise ValueError("No observations found in execution traces")
-    
-    # If effect_size is not provided, estimate it from the data
-    if effect_size == DEFAULT_EFFECT_SIZE:
-        effect_size = calculate_effect_size_for_logistic(df)
-    
-    # Estimate required sample size for 80% power
-    required_n = estimate_required_sample_size(effect_size, alpha, power=0.80, groups=groups)
-    
-    # Calculate achieved power
-    # Using F-test power analysis as an approximation
-    try:
-        from statsmodels.stats.power import FTestAnovaPower
-        analysis = FTestAnovaPower()
-        
-        f = math.sqrt(effect_size)
-        
-        # Calculate power for the actual sample size
-        achieved_power = analysis.power(effect_size=f, nobs1=n_observations/groups, 
-                                      alpha=alpha, k_groups=groups)
-        
-        if achieved_power is None or math.isnan(achieved_power):
-            achieved_power = 0.0
-    except Exception:
-        # Fallback: if we can't calculate, estimate based on sample size
-        # Rough rule: power increases with sqrt(n)
-        if required_n > 0:
-            achieved_power = min(0.99, 0.80 * math.sqrt(n_observations / required_n))
-        else:
-            achieved_power = 0.5  # Default guess
-    
-    return {
-        'calculated_power': float(achieved_power),
-        'effect_size': float(effect_size),
-        'sample_size': int(n_observations),
-        'groups': int(groups),
-        'required_sample_size_for_80_power': int(required_n),
-        'alpha': float(alpha)
-    }
-
-def run_power_analysis(input_path: str, output_path: str) -> Dict[str, Any]:
-    """
-    Main function to run power analysis and save results.
-    
-    Args:
-        input_path: Path to execution_traces.csv
-        output_path: Path to save power_report.json
+    Parameters:
+    - sample_size: Total number of observations (tasks)
+    - effect_size: Cohen's f² (target effect size)
+    - alpha: Significance level
+    - groups: Number of groups (architectures)
     
     Returns:
-        Dictionary with power analysis results
+    - calculated_power: float between 0 and 1
     """
-    # Load execution traces
-    df = load_execution_traces(input_path)
+    # For a GLMM with 2 groups and a continuous predictor (constraint_count),
+    # we approximate the degrees of freedom for the numerator (effect) as:
+    # df1 = number of predictors involved in the interaction = 1 (for the interaction term)
+    # df2 = total sample size - number of parameters estimated
+    #       For a simple interaction model: intercept + group + constraint + interaction
+    #       Parameters = 4, so df2 = sample_size - 4
     
-    # Perform power analysis
-    results = perform_power_analysis(df)
+    df1 = 1  # Interaction term
+    df2 = max(1, sample_size - 4)  # Avoid division by zero or negative df2
+    
+    # Use FTestPower to calculate power
+    # Note: FTestPower is typically used for ANOVA, but it provides a reasonable
+    # approximation for the power of detecting an interaction effect in a GLMM
+    # when we have a continuous predictor and a categorical grouping factor.
+    power_analysis = FTestPower()
+    
+    try:
+        power = power_analysis.power(effect_size, df1, df2, alpha=alpha)
+    except Exception:
+        # Fallback: if statsmodels fails, use a simple approximation
+        # Power = 1 - Beta, where Beta is the Type II error rate
+        # For small effect sizes and moderate sample sizes, this is a rough estimate
+        power = 1.0 - (1.0 / (1.0 + effect_size * sample_size / (groups * 2)))
+    
+    return float(power)
+
+def run_power_analysis(
+    input_path: Path = DEFAULT_INPUT_PATH,
+    output_path: Path = DEFAULT_OUTPUT_PATH,
+    effect_size: float = 0.15,
+    alpha: float = 0.05,
+    groups: int = 2
+) -> Dict[str, Any]:
+    """
+    Perform the power analysis and write the results to a JSON file.
+    
+    Steps:
+    1. Load the filtered tasks CSV to get the sample size.
+    2. Calculate the achieved power using the sample size and target effect size.
+    3. Write the results to the output JSON file.
+    """
+    print(f"Loading filtered tasks from {input_path}...")
+    df = load_filtered_tasks(input_path)
+    
+    sample_size = len(df)
+    print(f"Sample size (n_observations): {sample_size}")
+    
+    if sample_size == 0:
+        raise ValueError("Sample size is 0. Cannot perform power analysis.")
+    
+    print(f"Calculating achieved power for effect_size={effect_size}, alpha={alpha}, groups={groups}...")
+    calculated_power = calculate_achieved_power(sample_size, effect_size, alpha, groups)
+    
+    result = {
+        "calculated_power": calculated_power,
+        "effect_size": effect_size,
+        "sample_size": sample_size,
+        "groups": groups,
+        "alpha": alpha,
+        "input_file": str(input_path),
+        "output_file": str(output_path)
+    }
     
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save results
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(result, f, indent=2)
     
-    return results
+    print(f"Power analysis complete. Results written to {output_path}")
+    print(f"  Calculated Power: {calculated_power:.4f}")
+    print(f"  Effect Size: {effect_size}")
+    print(f"  Sample Size: {sample_size}")
+    print(f"  Groups: {groups}")
+    
+    return result
 
 def main():
-    """Command-line interface for power analysis."""
-    parser = argparse.ArgumentParser(description='Perform power analysis on execution traces')
-    parser.add_argument('--input', type=str, 
-                      default='data/processed/execution_traces.csv',
-                      help='Path to execution_traces.csv')
-    parser.add_argument('--output', type=str,
-                      default='data/processed/power_report.json',
-                      help='Path to save power_report.json')
-    parser.add_argument('--effect-size', type=float, default=DEFAULT_EFFECT_SIZE,
-                      help='Effect size (Cohen\'s f²)')
-    parser.add_argument('--alpha', type=float, default=DEFAULT_ALPHA,
-                      help='Significance level')
-    parser.add_argument('--groups', type=int, default=DEFAULT_GROUPS,
-                      help='Number of groups')
+    parser = argparse.ArgumentParser(description="Perform power analysis on the filtered AdaPlanBench subset.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(DEFAULT_INPUT_PATH),
+        help=f"Path to the filtered tasks CSV (default: {DEFAULT_INPUT_PATH})"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(DEFAULT_OUTPUT_PATH),
+        help=f"Path to the output JSON file (default: {DEFAULT_OUTPUT_PATH})"
+    )
+    parser.add_argument(
+        "--effect-size",
+        type=float,
+        default=0.15,
+        help="Target Cohen's f² effect size (default: 0.15)"
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance level (default: 0.05)"
+    )
+    parser.add_argument(
+        "--groups",
+        type=int,
+        default=2,
+        help="Number of groups (default: 2)"
+    )
     
     args = parser.parse_args()
     
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
     try:
-        results = run_power_analysis(args.input, args.output)
-        
-        # Log results
-        print(f"Power analysis completed:")
-        print(f"  Sample size: {results['sample_size']}")
-        print(f"  Effect size: {results['effect_size']:.4f}")
-        print(f"  Calculated power: {results['calculated_power']:.4f}")
-        print(f"  Required sample size for 80% power: {results['required_sample_size_for_80_power']}")
-        print(f"  Results saved to: {args.output}")
-        
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        run_power_analysis(
+            input_path=input_path,
+            output_path=output_path,
+            effect_size=args.effect_size,
+            alpha=args.alpha,
+            groups=args.groups
+        )
     except Exception as e:
-        print(f"Unexpected error during power analysis: {e}", file=sys.stderr)
+        print(f"Error during power analysis: {e}", file=sys.stderr)
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

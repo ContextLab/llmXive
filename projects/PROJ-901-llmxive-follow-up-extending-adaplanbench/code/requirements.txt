@@ -9,3 +9,5 @@ black>=23.0.0
 torch>=2.0.0
 numpy  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+patsy  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv

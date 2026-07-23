@@ -601,3 +601,174 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T16:10:16Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Resource limit failure threshold: CPU > 90% or RAM > 6.5GB'
+  claim_id: c_8ebe3bdc
+  context: 'T008a: Fail-fast mechanism: Raise a custom ResourceLimitExceeded exception
+    immediately if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resource monitor wrapper fails the run immediately if CPU usage exceeds
+    90% or RAM usage exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:16:30Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect_size 0.15, alpha 0.05'
+  claim_id: c_c78ede4e
+  context: "T030: Calculate the achieved power for the GLMM given: groups=2, alpha=0.05,\
+    \ effect_size=0.15 (Cohen's f\xB2 target)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis uses an effect size of 0.15 (Cohen's f\xB2) and an\
+    \ alpha of 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:16:59Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Adherence verification threshold: > 85%'
+  claim_id: c_e06c3a5d
+  context: 'T035: Compare against the SC-004 threshold of >85%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adherence verification compares the dual-track agent's adherence rate
+    against a threshold of 85%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:16:59Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Annotation sample random seed: 42'
+  claim_id: c_b201c027
+  context: 'T033: Use random.seed(42) and stratified sampling by constraint_count...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The annotation sample uses random seed 42 for stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:17:17Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Stratified sampling bins: 5, 6, 7+ (>= 7)'
+  claim_id: c_4c73dd7a
+  context: 'T033: ...with bins: [5, 6, 7+] where 7+ includes ALL tasks with constraint_count
+    >= 7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified sampling bins for constraint count are [5, 6, 7+], where
+    7+ includes all tasks with constraint_count >= 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:17:51Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Dataset filter threshold: >= 5 progressive constraints'
+  claim_id: c_ed4f7b6a
+  context: "Phase 3 Goal: Isolate the specific subset of AdaPlanBench where constraints\
+    \ are revealed progressively (\u22655)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_filter_threshold:_%3E=_5_progressive_constraints
+  kind: magnitude
+  raw_text: The project requires the dataset to have at least 5 progressive constraint
+    reveals to be included in the filtered subset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:18:34Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Resource limit exception triggered at CPU > 90% or RAM > 6.5GB
+  claim_id: c_05b275e3
+  context: 'Fail-fast mechanism: Raise a custom ResourceLimitExceeded exception immediately
+    if CPU > 90% or RAM > 6.5GB, aborting the run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a custom ResourceLimitExceeded exception immediately if CPU > 90%
+    or RAM > 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:58Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'GLMM power analysis parameters: 2 groups, alpha 0.05, effect size 0.15'
+  claim_id: c_5f738b98
+  context: "Method: Calculate the achieved power for the GLMM given: groups=2 (monolithic\
+    \ vs dual-track), alpha=0.05, effect_size=0.15 (Cohen's f\xB2 target), and n_observations\
+    \ derived from the actual sample size in data/processed/filtered_tasks.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the achieved power for the GLMM given: groups=2, alpha=0.05,\
+    \ effect_size=0.15 (Cohen's f\xB2 target)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:24:19Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: 'Sampling configuration: seed 42, bins [5, 6, 7+]'
+  claim_id: c_bd1ce29b
+  context: 'Use random.seed(42) and stratified sampling by constraint_count (from
+    T013) with bins: [5, 6, 7+] where 7+ includes ALL tasks with constraint_count
+    >= 7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use random.seed(42) and stratified sampling by constraint_count with
+    bins: [5, 6, 7+]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:24:34Z'
+- artifact_path: projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/specs/001-llmxive-follow-up-extending-adaplanbench/tasks.md
+  attempts: 1
+  canonical: Quickstart validation completes within 6 hours on CI
+  claim_id: c_de87404a
+  context: Run quickstart.md validation and ensure all steps complete within 6 hours
+    on CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation and ensure all steps complete within 6 hours
+    on CI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:24:53Z'
