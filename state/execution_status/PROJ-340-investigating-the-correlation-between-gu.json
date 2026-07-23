@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-340-investigating-the-correlation-between-gu",
+  "ok": false,
+  "reason": "28 fabricated/simulated-result signal(s) \u2014 results are not real measurements: data/results/harmonized_vs_synthetic_comparison.json: self-declared fabricated metric \u2014 \u201c\u2026ts detected. (Note: This is a placeholder result until the full pipeline is ex\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic metagenomic count data.\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic sleep architecture metri\u2026\u201d; 2 command(s) failed: python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv (rc=1); python code/main.py --input data/raw/synthetic_data.csv --output data/results/ (rc=1); 7 declared deliverable(s) absent: data/metadata/synthetic_data_manifest.json; data/processed/filtered_data.parquet; data/raw/large_proxy.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --input data/raw/synthetic_data.csv --output data/results/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/main.py\", line 14, in <module>\n    from ingest import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-23T10:00:28Z"
+}

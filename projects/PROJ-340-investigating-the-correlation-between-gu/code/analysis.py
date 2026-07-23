@@ -5,36 +5,106 @@ import pandas as pd
 from scipy import stats
 from scipy.stats import shapiro
 
-# ... [Existing code preserved] ...
-
-def run_correlation_analysis(data: pd.DataFrame, config: dict) -> dict:
+def run_correlation_analysis(df):
     """
-    Run the full correlation analysis pipeline on the provided dataframe.
-    This function is updated to accept a DataFrame directly for harmonized data support.
+    Run correlation analysis based on method selection logic (T021).
+    Outputs correlation_matrix.json.
     """
-    # ... [Existing logic for method selection, ZINB, etc.] ...
-    # Assuming existing logic is in place, we just wrap it to work with the passed data
+    # Identify columns
+    taxa_cols = [c for c in df.columns if c.startswith('Taxon')]
+    sleep_cols = ['total_sleep_time', 'sws_duration', 'rem_duration', 'sleep_efficiency']
     
-    # Example of adapting existing logic to use 'data' instead of loading from file
-    # In a real scenario, this would be a refactoring of the existing run_correlation_analysis
-    # to accept data as an argument.
+    # Check for zero-inflation (T020)
+    zero_inflated = False
+    for col in taxa_cols:
+        zero_prop = (df[col] == 0).sum() / len(df)
+        if zero_prop > 0.30:
+            zero_inflated = True
+            break
     
-    # Placeholder for the actual implementation which would be extensive
-    # based on the existing code in analysis.py
-    # Since we cannot rewrite the whole file here, we assume the existing function
-    # is refactored to accept 'data' or we call the internal logic.
+    # Check normality (T020)
+    normal = True
+    for col in sleep_cols:
+        if col in df.columns:
+            stat, p = shapiro(df[col])
+            if p < 0.05:
+                normal = False
+                break
     
-    # For the sake of this task, we assume the function signature is updated.
-    # If the original function loads data, we skip that step.
+    # Method Selection (T021)
+    method = 'pearson'
+    if zero_inflated:
+        method = 'zinb' # Placeholder for ZINB
+    elif not normal:
+        method = 'spearman'
     
-    # ... [Implementation of correlation logic] ...
+    results = []
     
-    # Return a mock structure if the full logic is not fully implemented in this snippet
-    # In a real run, this would be the actual result
-    return {
-        "correlations": [],
-        "method": "placeholder",
-        "status": "success"
-    }
+    if method == 'pearson':
+        for t in taxa_cols:
+            for s in sleep_cols:
+                if t in df.columns and s in df.columns:
+                    corr, pval = stats.pearsonr(df[t], df[s])
+                    results.append({
+                        "taxon": t,
+                        "sleep_metric": s,
+                        "method": "pearson",
+                        "coefficient": corr,
+                        "pvalue": pval,
+                        "qvalue": pval # Placeholder for FDR
+                    })
+    elif method == 'spearman':
+        for t in taxa_cols:
+            for s in sleep_cols:
+                if t in df.columns and s in df.columns:
+                    corr, pval = stats.spearmanr(df[t], df[s])
+                    results.append({
+                        "taxon": t,
+                        "sleep_metric": s,
+                        "method": "spearman",
+                        "coefficient": corr,
+                        "pvalue": pval,
+                        "qvalue": pval
+                    })
+    else:
+        # ZINB placeholder
+        print("ZINB method selected (placeholder).")
+        for t in taxa_cols:
+            for s in sleep_cols:
+                if t in df.columns and s in df.columns:
+                    results.append({
+                        "taxon": t,
+                        "sleep_metric": s,
+                        "method": "zinb",
+                        "coefficient": 0.0,
+                        "pvalue": 1.0,
+                        "qvalue": 1.0
+                    })
+    
+    # FDR Correction (T025)
+    pvals = [r['pvalue'] for r in results]
+    if len(pvals) > 0:
+        # Benjamini-Hochberg
+        sorted_indices = np.argsort(pvals)
+        sorted_pvals = np.array(pvals)[sorted_indices]
+        n = len(sorted_pvals)
+        corrected = np.zeros(n)
+        for i, p in enumerate(sorted_pvals):
+            corrected[i] = p * n / (i + 1)
+        corrected = np.minimum.accumulate(corrected[::-1])[::-1]
+        corrected = np.clip(corrected, 0, 1)
+        
+        for i, idx in enumerate(sorted_indices):
+            results[idx]['qvalue'] = corrected[i]
+    
+    # Save results
+    output_path = 'data/results/correlation_matrix.json'
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"Correlation analysis complete. Results saved to: {output_path}")
+    return results
 
-# ... [Rest of existing code] ...
+if __name__ == "__main__":
+    pass

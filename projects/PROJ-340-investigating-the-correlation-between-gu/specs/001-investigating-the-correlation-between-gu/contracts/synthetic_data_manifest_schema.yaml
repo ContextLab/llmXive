@@ -1,0 +1,154 @@
+# Synthetic Data Manifest Schema
+# Satisfies Constitution Principle I (Reproducibility) for synthetic data pipelines.
+# Defines two versions:
+#   schema_v1_synthetic: For pipeline validation studies (chain_of_custody_log is nullable).
+#   schema_v2_real: For real biological data (chain_of_custody_log is REQUIRED).
+#
+# Usage:
+#   - If generating synthetic data for validation, use schema_v1_synthetic.
+#   - If ingesting real data, the system MUST enforce schema_v2_real and validate
+#     the presence of a non-null chain_of_custody_log.
+#   - The checksum of the generation script (e.g., code/data_generator.py) MUST
+#     be recorded in the project state file (state/projects/...yaml) under
+#     artifact_hashes.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Synthetic Data Manifest Schema
+description: >
+  Schema for the synthetic data manifest log. This file serves as a reproducible
+  record of synthetic data generation parameters, random seeds, and script checksums.
+  It explicitly differentiates between synthetic validation data (no biological chain of custody)
+  and real data (requires chain of custody).
+
+definitions:
+  schema_v1_synthetic:
+    type: object
+    description: "Schema for synthetic data generation (Pipeline Validation Study)."
+    required:
+      - schema_version
+      - schema_type
+      - generation_parameters
+      - script_checksum
+    properties:
+      schema_version:
+        type: string
+        const: "1.0"
+      schema_type:
+        type: string
+        const: "synthetic"
+      generation_parameters:
+        type: object
+        description: "Parameters used to generate the synthetic dataset."
+        required:
+          - random_seed
+          - n_subjects
+          - taxa_count
+          - zero_inflation_rate
+          - compositionality_factor
+        properties:
+          random_seed:
+            type: integer
+            description: "The deterministic random seed used for generation."
+          n_subjects:
+            type: integer
+            description: "Number of synthetic subjects generated."
+          taxa_count:
+            type: integer
+            description: "Number of taxa included in the metagenomic counts."
+          zero_inflation_rate:
+            type: number
+            description: "Target proportion of zeros in the count data."
+          compositionality_factor:
+            type: number
+            description: "Factor applied to simulate compositional constraints."
+      script_checksum:
+        type: string
+        description: "SHA-256 checksum of the generation script (e.g., code/data_generator.py)."
+        pattern: "^[a-f0-9]{64}$"
+      chain_of_custody_log:
+        type: ["null", "object"]
+        description: "NULL for synthetic data. If not null, indicates a violation of synthetic scope."
+        default: null
+        properties:
+          # Defined only if not null (should not happen in v1)
+          source_dataset_id:
+            type: string
+          acquisition_date:
+            type: string
+            format: date
+          processing_steps:
+            type: array
+            items:
+              type: string
+      notes:
+        type: string
+        description: "Optional notes regarding the synthetic generation process."
+
+  schema_v2_real:
+    type: object
+    description: "Schema for real biological data ingestion (requires Chain of Custody)."
+    required:
+      - schema_version
+      - schema_type
+      - chain_of_custody_log
+      - script_checksum
+    properties:
+      schema_version:
+        type: string
+        const: "2.0"
+      schema_type:
+        type: string
+        const: "real"
+      chain_of_custody_log:
+        type: object
+        description: "Mandatory log for real biological data to ensure provenance."
+        required:
+          - source_dataset_id
+          - acquisition_date
+          - processing_steps
+        properties:
+          source_dataset_id:
+            type: string
+            description: "Unique identifier of the source dataset (e.g., GEO accession)."
+          source_url:
+            type: string
+            format: uri
+            description: "URL to the source dataset."
+          acquisition_date:
+            type: string
+            format: date
+            description: "Date the data was acquired."
+          processing_steps:
+            type: array
+            description: "List of processing steps applied to the raw data."
+            items:
+              type: string
+          privacy_constraints:
+            type: string
+            description: "Privacy status (e.g., 'Public', 'Restricted', 'IRB Approved')."
+      script_checksum:
+        type: string
+        description: "SHA-256 checksum of the ingestion/processing script."
+        pattern: "^[a-f0-9]{64}$"
+      generation_parameters:
+        type: ["null", "object"]
+        description: "NULL for real data. If present, indicates a hybrid or synthetic fallback (violation)."
+        default: null
+      notes:
+        type: string
+        description: "Optional notes regarding the real data ingestion."
+
+oneOf:
+  - $ref: "#/definitions/schema_v1_synthetic"
+  - $ref: "#/definitions/schema_v2_real"
+
+# Enforcement Rules (to be implemented in code/reference_validator.py or code/constitution_checker.py):
+# 1. If schema_type == "synthetic":
+#    - chain_of_custody_log MUST be null.
+#    - generation_parameters MUST be present.
+# 2. If schema_type == "real":
+#    - chain_of_custody_log MUST be present and non-null.
+#    - generation_parameters MUST be null (or absent).
+# 3. The script_checksum MUST match the hash stored in state/projects/...yaml for the corresponding script.
+# 4. If a "real" manifest is detected but the project is in "Synthetic Only" mode (per plan.md),
+#    the system MUST halt with a violation of the current scope unless explicitly overridden.

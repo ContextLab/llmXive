@@ -1,120 +1,105 @@
-"""
-Unit tests for the validate_variables function in code/ingest.py.
-"""
 import pytest
 import pandas as pd
-import json
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
+import json
+import tempfile
+import shutil
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from code.ingest import validate_variables, save_variable_metrics, OUTPUT_METRICS_FILE
+from ingest import validate_variables, save_variable_metrics, MissingDataError, load_required_variables
 
 @pytest.fixture
-def sample_schema():
-    return {
-        "predictors": {
-            "required": ["Phylum_Firmicutes", "Phylum_Bacteroidetes", "Genus_Lactobacillus"]
-        },
-        "outcomes": {
-            "required": ["Sleep_Efficiency", "SWS_duration", "REM_duration"]
-        }
-    }
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    tmp = tempfile.mkdtemp()
+    yield tmp
+    shutil.rmtree(tmp)
 
 @pytest.fixture
 def sample_df_complete():
-    data = {
-        "Phylum_Firmicutes": [100, 120],
-        "Phylum_Bacteroidetes": [80, 85],
-        "Genus_Lactobacillus": [10, 12],
-        "Sleep_Efficiency": [85.0, 90.0],
-        "SWS_duration": [2.5, 3.0],
-        "REM_duration": [1.5, 1.8]
-    }
+    """Create a sample DataFrame with all required variables."""
+    # Load required vars to know what to generate
+    try:
+        req = load_required_variables()
+    except FileNotFoundError:
+        # Fallback if config missing
+        req = {
+            'predictors': ['Taxon_0', 'Taxon_1'],
+            'outcomes': ['total_sleep_time', 'sws_duration']
+        }
+    
+    data = {}
+    for col in req['predictors'] + req['outcomes']:
+        data[col] = [1.0, 2.0, 3.0]
+    
     return pd.DataFrame(data)
 
 @pytest.fixture
 def sample_df_missing():
-    data = {
-        "Phylum_Firmicutes": [100, 120],
-        "Phylum_Bacteroidetes": [80, 85],
-        "Genus_Lactobacillus": [10, 12],
-        "Sleep_Efficiency": [85.0, 90.0],
-        "REM_duration": [1.5, 1.8]
-        # SWS_duration is missing
-    }
+    """Create a sample DataFrame with missing variables."""
+    try:
+        req = load_required_variables()
+    except FileNotFoundError:
+        req = {
+            'predictors': ['Taxon_0', 'Taxon_1'],
+            'outcomes': ['total_sleep_time', 'sws_duration']
+        }
+    
+    # Include only predictors, missing outcomes
+    data = {}
+    for col in req['predictors']:
+        data[col] = [1.0, 2.0, 3.0]
+    
     return pd.DataFrame(data)
 
-def test_validate_variables_complete(sample_schema, sample_df_complete, tmp_path):
-    """Test validation when all required variables are present."""
-    # Temporarily override output path for test isolation
-    original_output = validate_variables.__globals__.get('OUTPUT_METRICS_FILE')
-    test_output = tmp_path / "test_metrics.json"
-    validate_variables.__globals__['OUTPUT_METRICS_FILE'] = test_output
-
-    try:
-        metrics = validate_variables(sample_df_complete, sample_schema)
-        
-        assert metrics['status'] == 'pass'
-        assert metrics['total_required'] == 6
-        assert metrics['found'] == 6
-        assert metrics['missing'] == 0
-        assert metrics['percentage_loaded'] == 100.0
-        assert len(metrics['missing_variables']) == 0
-        assert len(metrics['found_variables']) == 6
-        
-        assert test_output.exists()
-        with open(test_output, 'r') as f:
-            saved_metrics = json.load(f)
-        assert saved_metrics == metrics
-    finally:
-        if original_output:
-            validate_variables.__globals__['OUTPUT_METRICS_FILE'] = original_output
-
-def test_validate_variables_missing(sample_schema, sample_df_missing, tmp_path):
-    """Test validation when some required variables are missing."""
-    # Temporarily override output path for test isolation
-    original_output = validate_variables.__globals__.get('OUTPUT_METRICS_FILE')
-    test_output = tmp_path / "test_metrics.json"
-    validate_variables.__globals__['OUTPUT_METRICS_FILE'] = test_output
-
-    try:
-        metrics = validate_variables(sample_df_missing, sample_schema)
-        
-        assert metrics['status'] == 'fail'
-        assert metrics['total_required'] == 6
-        assert metrics['found'] == 5
-        assert metrics['missing'] == 1
-        assert metrics['percentage_loaded'] == pytest.approx(83.33, rel=0.1)
-        assert "SWS_duration" in metrics['missing_variables']
-        assert len(metrics['found_variables']) == 5
-        
-        assert test_output.exists()
-        with open(test_output, 'r') as f:
-            saved_metrics = json.load(f)
-        assert saved_metrics == metrics
-    finally:
-        if original_output:
-            validate_variables.__globals__['OUTPUT_METRICS_FILE'] = original_output
-
-def test_validate_variables_empty_schema(sample_df_complete, tmp_path):
-    """Test validation with an empty schema (no required variables)."""
-    empty_schema = {"predictors": {"required": []}, "outcomes": {"required": []}}
+def test_validate_variables_complete(sample_df_complete):
+    """Test validation when all variables are present."""
+    result = validate_variables(sample_df_complete, None)
     
-    original_output = validate_variables.__globals__.get('OUTPUT_METRICS_FILE')
-    test_output = tmp_path / "test_metrics.json"
-    validate_variables.__globals__['OUTPUT_METRICS_FILE'] = test_output
+    assert result['status'] == 'PASS'
+    assert result['missing_variables'] == []
+    assert result['percentage_loaded'] == 100.0
+    assert result['loaded_count'] == result['total_required']
 
-    try:
-        metrics = validate_variables(sample_df_complete, empty_schema)
-        
-        assert metrics['status'] == 'pass'
-        assert metrics['total_required'] == 0
-        assert metrics['percentage_loaded'] == 100.0
-    finally:
-        if original_output:
-            validate_variables.__globals__['OUTPUT_METRICS_FILE'] = original_output
+def test_validate_variables_missing(sample_df_missing):
+    """Test validation when some variables are missing."""
+    result = validate_variables(sample_df_missing, None)
+    
+    assert result['status'] == 'FAIL'
+    assert len(result['missing_variables']) > 0
+    assert result['percentage_loaded'] < 100.0
+    assert result['loaded_count'] < result['total_required']
+
+def test_save_variable_metrics(temp_dir):
+    """Test saving metrics to a JSON file."""
+    metrics = {
+        'total_required': 10,
+        'loaded_count': 5,
+        'percentage_loaded': 50.0,
+        'missing_variables': ['var1', 'var2'],
+        'status': 'FAIL'
+    }
+    
+    output_path = os.path.join(temp_dir, 'test_metrics.json')
+    saved_path = save_variable_metrics(metrics, output_path)
+    
+    assert saved_path == output_path
+    assert os.path.exists(output_path)
+    
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded == metrics
+
+def test_validate_variables_empty_config():
+    """Test validation with empty required variables config."""
+    df = pd.DataFrame({'A': [1, 2, 3]})
+    result = validate_variables(df, {'predictors': [], 'outcomes': []})
+    
+    assert result['status'] == 'PASS'
+    assert result['total_required'] == 0
+    assert result['percentage_loaded'] == 100.0

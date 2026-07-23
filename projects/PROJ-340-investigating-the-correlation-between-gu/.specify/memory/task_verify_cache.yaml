@@ -1,19 +1,24 @@
-T012:
+T006d:
   c: false
-  h: 82b585bf9cf2eb979bd68e0df1e89ff74253b0afd8e143e8a2fd87eb7ca4ae30
-  r: "The `validate_variables` function in `code/ingest.py` is truncated and never\
-    \ writes the computed metrics to `data/results/variable_load_metrics.json`. The\
-    \ JSON file present is a placeholder with zero counts and mismatched field names,\
-    \ and the required `dataset.schema.yaml` (or `schema.yaml`) is missing, so the\
-    \ function cannot even read the variable definitions. The task\u2019s core requirements\
-    \ are therefore not satisfied."
+  h: ebc106c0223209dfd71ee3ea7f493a30dc0227e513d7ba19b2a76e8c4af6baf0
+  r: "The required `synthetic_data_manifest_schema.yaml` file does not exist, and\
+    \ there is no evidence that the checksum of `code/data_generator.py` was recorded\
+    \ in any `state/projects/...yaml` file\u2019s `artifact_hashes` map. Consequently\
+    \ the task\u2019s specifications are not met."
+T013:
+  c: false
+  h: b0d79e79c5acacb7c8a7c73874a88f3bfbcb7f6dd72031609ad446805925a40e
+  r: "The `load_data()` function in `code/ingest.py` is truncated and does not contain\
+    \ logic to read `data/results/variable_load_metrics.json` or exit on a percentage\u202F\
+    <\u202F100\u202F%. Additionally, the required `data/results/variable_load_metrics.json`\
+    \ file is absent. Both the implementation and the dependent artifact are missing."
 T014b:
   c: false
-  h: c08812b49f79b1fa81fd7b348e3d4602502207aba5143325d1dd20bd3ab1d71d
-  r: "The repository lacks the required `data/processed/filtered_data.parquet` file\
-    \ and the `state.yaml` file, and the shown portion of `code/ingest.py` does not\
-    \ contain any logic for filtering outliers, writing a Parquet file, or recording\
-    \ a checksum. Consequently, the task\u2019s core requirements are not met."
+  h: d9eda7a76e54b7953b604401586b34f359aa1ee32a991c04b3727416a6d6bbbc
+  r: "The `code/ingest.py` file is truncated and does not show any implementation\
+    \ that removes flagged outliers or writes a Parquet file, and the required output\
+    \ file `data/processed/filtered_data.parquet` is absent. The task\u2019s core\
+    \ deliverable\u2014filtering logic and the resulting Parquet dataset\u2014is missing."
 T016:
   c: false
   h: 050430f364afa15675f30ff0783d60445548733d953d750f6d4a2a22ef6c6977
@@ -31,19 +36,3 @@ T063a:
     \ artifact is missing. The implementer must provide a complete script that runs\
     \ the simulation, evaluates the runtime against the 6\u2011hour limit, and creates\
     \ the pass/fail JSON report at the specified path."
-T068:
-  c: false
-  h: 6938674462fdbd567710a7eafd8712fa88a3c926355942e1688b78b209f06b32
-  r: "The repository contains `code/harmonize_data.py`, but it only contains placeholder\
-    \ comments and never produces the required output files; both `data/processed/harmonized_data.parquet`\
-    \ and `data/metadata/harmonization_metadata.json` are missing. Consequently the\
-    \ task\u2019s core deliverables (the harmonized dataset and its metadata) are\
-    \ not present."
-T068#1:
-  c: false
-  h: 6938674462fdbd567710a7eafd8712fa88a3c926355942e1688b78b209f06b32
-  r: "The repository contains `code/harmonize_data.py`, but it only has placeholder\
-    \ fetch functions and a simple merge; it does not implement a synthetic linkage\
-    \ strategy or detailed matching logic. Moreover, the required output files `data/processed/harmonized_data.parquet`\
-    \ and `data/metadata/harmonization_metadata.json` are absent. The task\u2019s\
-    \ deliverables are therefore not satisfied."

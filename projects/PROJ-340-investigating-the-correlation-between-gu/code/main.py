@@ -1,290 +1,250 @@
-"""
-Pipeline Orchestration (T015, T016, T058-T060, T069).
-Implements RAM estimation, compute strategy determination, and orchestration of US1-US3.
-"""
 import sys
 import os
 import json
 import time
 import argparse
 from pathlib import Path
-from typing import Dict, Any, Optional
+from datetime import datetime
 
-# Import from other modules
 from ingest import (
-    load_harmonized_data, 
-    validate_variables, 
-    save_variable_metrics, 
-    detect_outliers_iqr, 
-    filter_outliers,
-    register_checksum_in_state,
-    MissingDataError,
-    HarmonizedDataNotFoundError
-)
-from analysis import (
-    run_correlation_analysis, 
-    set_analysis_seed,
-    check_zero_inflation,
-    check_normality,
-    select_correlation_method
-)
-from diagnostics import (
-    run_sensitivity_analysis,
-    calculate_power,
-    run_collinearity_diagnostics,
-    generate_diagnostics_report
-)
-from report import generate_report, load_correlation_results, load_diagnostics_report
-from config import get_config, load_config
-from ingest import (
-    MissingDataError,
-    load_schema,
-    validate_variables,
-    save_variable_metrics,
-    load_data,
-    detect_outliers_iqr,
-    filter_outliers,
-    load_streamed_dataset,
-    compute_online_statistics
+    load_data, validate_variables, save_variable_metrics, 
+    detect_outliers_iqr, filter_outliers, load_required_variables,
+    MissingDataError
 )
 from analysis import run_correlation_analysis
-from diagnostics import (
-    run_collinearity_diagnostics,
-    generate_diagnostics_report
-)
+from diagnostics import run_collinearity_diagnostics, run_sensitivity_analysis, calculate_power
+from config import get_config, load_config
 from report import generate_report
 
-# Constants
-RAM_LIMIT_GB = 7.0
-STREAM_THRESHOLD_GB = 6.0
-BYTE_SIZE_PER_FLOAT = 8  # 64-bit float
+def setup_paths():
+    """Ensure all necessary directories exist."""
+    dirs = [
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/results"),
+        Path("data/metadata"),
+        Path("state/projects"),
+        Path("code"),
+        Path("tests")
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-def setup_paths(config: Dict[str, Any]) -> Path:
-    """Ensure all required directories exist."""
-    root = Path(config.get("project_root", "."))
-    for dir_name in ["data/raw", "data/processed", "data/results", "data/metadata", "code"]:
-        (root / dir_name).mkdir(parents=True, exist_ok=True)
-    return root
+def estimate_ram_usage(df_shape: tuple) -> float:
+    """
+    Estimate RAM usage in GB based on dataset shape.
+    Formula: Estimate (GB) = (N_subjects * N_taxa * 8 bytes) / (1024^3 * 0.83)
+    """
+    n_subjects, n_cols = df_shape
+    # Assume ~8 bytes per float64 value
+    bytes_needed = n_subjects * n_cols * 8
+    gb_needed = bytes_needed / (1024**3)
+    # Add 20% overhead buffer
+    return gb_needed * 1.2
 
-def estimate_ram_usage(dataset_path: Path) -> float:
+def determine_compute_strategy(ram_estimate_gb: float) -> str:
     """
-    T058: Estimate RAM usage based on dataset size.
-    Formula: Estimate (GB) = (N_subjects * N_taxa * byte_size_per_taxon) / 1e9
-    """
-    if not dataset_path.exists():
-        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
-    
-    # Quick head check to estimate dimensions
-    # Assuming CSV/TSV format
-    with open(dataset_path, 'r') as f:
-        header = f.readline().strip().split(',')
-        n_taxa = len(header) - 1  # Assuming first column is ID
-        
-        # Count rows (approximate for large files, but accurate for proxy)
-        # For very large files, we might need a streaming count, but for estimation:
-        # We'll do a quick read if file is small enough, otherwise estimate by size
-        file_size_bytes = dataset_path.stat().st_size
-        # Rough estimate: average line length ~ 50 bytes per subject
-        estimated_rows = file_size_bytes // 50
-        
-        # Calculate estimate
-        estimated_gb = (estimated_rows * n_taxa * BYTE_SIZE_PER_FLOAT) / 1e9
-        return estimated_gb
-
-def determine_compute_strategy(estimated_gb: float) -> str:
-    """
-    T058: Determine strategy based on RAM estimate.
+    Determine compute strategy based on RAM estimate.
     Returns 'OK', 'STREAM', or 'FAIL'.
     """
-    if estimated_gb <= STREAM_THRESHOLD_GB:
-        return "OK"
-    elif estimated_gb <= RAM_LIMIT_GB:
-        return "STREAM"
+    if ram_estimate_gb <= 6.0:
+        return 'OK'
+    elif ram_estimate_gb <= 7.0:
+        return 'STREAM'
     else:
-        return "FAIL"
+        return 'FAIL'
 
-def save_compute_strategy(strategy: str, estimated_gb: float, output_path: Path):
-    """
-    T058: Write compute strategy to JSON artifact.
-    """
-    artifact = {
-        "estimated_ram_gb": estimated_gb,
-        "strategy": strategy,
-        "limit_gb": RAM_LIMIT_GB,
-        "stream_threshold_gb": STREAM_THRESHOLD_GB
+def save_compute_strategy(strategy: str, output_path: Path):
+    """Save compute strategy decision to JSON."""
+    data = {
+        "ram_estimate_gb": strategy.get('ram', 0),
+        "strategy": strategy.get('status', 'UNKNOWN'),
+        "timestamp": datetime.now().isoformat()
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(artifact, f, indent=2)
-    return artifact
+        json.dump(data, f, indent=2)
 
-def run_compute_feasibility_check() -> Dict[str, Any]:
-    """
-    T058-T060: Orchestrate RAM check and strategy determination.
-    """
-    config = get_config()
-    root = Path(config.get("project_root", "."))
+def run_compute_feasibility_check(df):
+    """Run RAM check and determine compute strategy."""
+    ram_estimate = estimate_ram_usage(df.shape)
+    strategy = determine_compute_strategy(ram_estimate)
+    strategy_path = Path("data/metadata/compute_strategy.json")
+    save_compute_strategy({"status": strategy, "ram": ram_estimate}, strategy_path)
     
-    # Determine input dataset
-    # Check for harmonized data first (T069), then proxy, then real
-    harmonized_path = root / "data/processed/harmonized_data.parquet"
-    proxy_path = root / "data/raw/large_proxy.csv"
-    real_path = root / "data/raw/real_data.csv" # Assumed generic real path
-
-    input_path = None
-    if harmonized_path.exists():
-        input_path = harmonized_path
-        print("[Feasibility] Using harmonized data.")
-    elif proxy_path.exists():
-        input_path = proxy_path
-        print("[Feasibility] Using large proxy data.")
-    elif real_path.exists():
-        input_path = real_path
-        print("[Feasibility] Using real data.")
-    else:
-        # Fallback to synthetic if no real data found (for pipeline validation only)
-        # But T055/T056 logic should ideally catch this earlier if --real-data is set.
-        # For T071 stress test, we expect proxy.
-        raise FileNotFoundError("No input dataset found (harmonized, proxy, or real).")
-
-    estimated_gb = estimate_ram_usage(input_path)
-    strategy = determine_compute_strategy(estimated_gb)
-    output_path = root / "data/metadata/compute_strategy.json"
+    if strategy == 'FAIL':
+        print(f"CRITICAL: Estimated RAM usage ({ram_estimate:.2f} GB) exceeds 7GB limit.")
+        print("Please downsample the dataset or use a smaller dataset.")
+        sys.exit(1)
     
-    result = save_compute_strategy(strategy, estimated_gb, output_path)
-    print(f"[Feasibility] Estimated RAM: {estimated_gb:.2f} GB -> Strategy: {strategy}")
+    print(f"Compute strategy: {strategy} (Est. RAM: {ram_estimate:.2f} GB)")
+    return strategy
 
-    if strategy == "FAIL":
-        # T060: Hard Halt
-        raise SystemExit(
-            f"CRITICAL: Dataset too large for standard runner ({estimated_gb:.2f} GB > {RAM_LIMIT_GB} GB). "
-            "Please downsample or use a smaller dataset."
-        )
+def run_ingestion_and_validation(input_path: str, output_path: str):
+    """Run ingestion, validation, outlier detection, and filtering."""
+    print("=== Starting Ingestion and Validation ===")
     
-    return result
-
-def run_ingestion_and_validation() -> Dict[str, Any]:
-    """
-    T015: Execute US1 (Ingestion, Validation, Filtering).
-    """
-    config = get_config()
-    root = Path(config.get("project_root", "."))
+    # Load data
+    df = load_data(input_path)
+    print(f"Loaded {len(df)} rows from {input_path}")
     
-    # Load schema
-    schema_path = root / "specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml"
-    schema = load_schema(schema_path)
-
+    # Get required variables
+    predictors, outcomes = load_required_variables()
+    
     # Validate variables
-    # Assuming data is already loaded or loaded here. 
-    # T012 logic: validate_variables reads from raw/processed data.
-    # We assume the data source is identified in config or passed via environment.
-    data_path = root / "data/processed/harmonized_data.parquet"
-    if not data_path.exists():
-        data_path = root / "data/raw/large_proxy.csv"
+    metrics = validate_variables(df, predictors, outcomes)
+    metrics_path = Path("data/results/variable_load_metrics.json")
+    save_variable_metrics(metrics, metrics_path)
     
-    if not data_path.exists():
-        raise FileNotFoundError("Data file not found for ingestion.")
-
-    # T012: Validate variables
-    validation_result = validate_variables(data_path, schema)
-    save_variable_metrics(validation_result, root / "data/results/variable_load_metrics.json")
-
-    if validation_result.get("percentage_loaded", 0) < 100:
-        # T013: Halt if < 100%
-        missing = validation_result.get("missing_variables", [])
-        raise MissingDataError(f"Missing required variables: {missing}. Halting execution.")
-
-    # T014: Detect outliers
-    df = load_data(data_path) # Loads into memory (or streamed if strategy=STREAM, simplified here)
-    outliers = detect_outliers_iqr(df)
+    if metrics['status'] == 'FAIL':
+        print(f"Validation FAILED. Missing variables: {metrics['missing_variables']}")
+        sys.exit(1)
     
-    # T014b: Filter outliers
-    df_filtered = filter_outliers(df, outliers)
-    filtered_path = root / "data/processed/filtered_data.parquet"
-    df_filtered.to_parquet(filtered_path, index=False)
+    # Detect outliers
+    print("Detecting outliers using IQR method...")
+    df_with_flags = detect_outliers_iqr(df)
     
-    # T014c: Register checksum
-    # (Implementation assumed in ingest.py register_checksum_in_state)
+    # Filter outliers
+    print("Filtering outliers...")
+    filtered_df = filter_outliers(df_with_flags, output_path)
     
-    return {"status": "success", "rows": len(df_filtered)}
+    print(f"=== Ingestion Complete. Filtered rows: {len(filtered_df)} ===")
+    return filtered_df
 
-def run_analysis() -> Dict[str, Any]:
-    """
-    T015: Execute US2 (Correlation Analysis).
-    """
-    config = get_config()
-    root = Path(config.get("project_root", "."))
-    data_path = root / "data/processed/filtered_data.parquet"
+def run_analysis(input_path: str):
+    """Run correlation analysis on filtered data."""
+    print("=== Starting Analysis ===")
+    df = load_data(input_path)
     
-    if not data_path.exists():
-        raise FileNotFoundError("Filtered data not found. Run ingestion first.")
-
-    result = run_correlation_analysis(data_path)
-    # Result is saved to data/results/correlation_matrix.json inside run_correlation_analysis
-    return {"status": "success", "method": result.get("method", "unknown")}
-
-def run_diagnostics() -> Dict[str, Any]:
-    """
-    T015: Execute US3 (Diagnostics).
-    """
-    config = get_config()
-    root = Path(config.get("project_root", "."))
-    data_path = root / "data/processed/filtered_data.parquet"
+    # Run correlation analysis
+    results = run_correlation_analysis(df)
     
-    if not data_path.exists():
-        raise FileNotFoundError("Filtered data not found. Run ingestion first.")
+    # Save results
+    output_path = Path("data/results/correlation_matrix.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"Analysis complete. Results saved to {output_path}")
+    return results
 
-    # T030, T031, T033, T034, T035
-    diagnostics_result = generate_diagnostics_report(data_path)
-    return {"status": "success", "diagnostics": diagnostics_result}
+def run_diagnostics(input_path: str):
+    """Run diagnostics (collinearity, sensitivity, power)."""
+    print("=== Starting Diagnostics ===")
+    df = load_data(input_path)
+    
+    # Run collinearity diagnostics
+    collinearity_report = run_collinearity_diagnostics(df)
+    collinearity_path = Path("data/results/collinearity_report.json")
+    with open(collinearity_path, 'w') as f:
+        json.dump(collinearity_report, f, indent=2)
+    
+    # Run sensitivity analysis
+    sensitivity_results = run_sensitivity_analysis()
+    sensitivity_path = Path("data/results/sensitivity_analysis.json")
+    with open(sensitivity_path, 'w') as f:
+        json.dump(sensitivity_results, f, indent=2)
+    
+    # Run power analysis
+    power_results = calculate_power()
+    power_path = Path("data/results/power_analysis.json")
+    with open(power_path, 'w') as f:
+        json.dump(power_results, f, indent=2)
+    
+    print("=== Diagnostics Complete ===")
+    return {
+        "collinearity": collinearity_report,
+        "sensitivity": sensitivity_results,
+        "power": power_results
+    }
 
-def generate_harmonization_report() -> Dict[str, Any]:
-    """T069: Placeholder for harmonization report generation."""
-    return {"status": "skipped", "reason": "Not invoked in standard flow"}
+def generate_harmonization_report():
+    """Generate a report comparing harmonized vs synthetic results."""
+    # Placeholder for harmonization logic
+    report = {
+        "status": "Pipeline Validation Study",
+        "note": "Real data harmonization not yet implemented."
+    }
+    output_path = Path("data/results/harmonized_vs_synthetic_comparison.json")
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    return report
 
-def generate_real_data_analysis_report() -> Dict[str, Any]:
-    """T069: Placeholder for real data analysis report."""
-    return {"status": "skipped", "reason": "Not invoked in standard flow"}
+def generate_real_data_analysis_report():
+    """Generate report for real data analysis."""
+    # Placeholder for real data analysis report
+    report = {
+        "status": "Real Data Analysis Pending",
+        "note": "Waiting for real data source."
+    }
+    output_path = Path("data/results/real_data_analysis_report.json")
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Main Pipeline Orchestration")
-    parser.add_argument("--real-data", action="store_true", help="Force real data mode")
-    parser.add_argument("--synthetic", action="store_true", help="Force synthetic mode")
+    """Main entry point for the pipeline."""
+    parser = argparse.ArgumentParser(description="Gut Microbiome and Sleep Architecture Analysis Pipeline")
+    parser.add_argument('--input', type=str, help='Path to input data file')
+    parser.add_argument('--output', type=str, default="data/results/", help='Output directory for results')
+    parser.add_argument('--mode', type=str, choices=['real', 'synthetic'], default='synthetic', help='Data mode')
+    
     args = parser.parse_args()
-
-    config = get_config()
-    setup_paths(config)
-
-    try:
-        # T055: Real Data Gate (simplified logic here, assumed enforced by ingest.py)
-        if args.real_data:
-            print("[Main] Real Data mode requested.")
-            # Ingest.py will fail loudly if real data missing
-
-        # T058-T060: Compute Feasibility
-        print("[Main] Running Compute Feasibility Check...")
-        run_compute_feasibility_check()
-
-        # T015: Run Pipeline Stages
-        print("[Main] Running Ingestion & Validation...")
-        run_ingestion_and_validation()
-
-        print("[Main] Running Analysis...")
-        run_analysis()
-
-        print("[Main] Running Diagnostics...")
-        run_diagnostics()
-
-        print("[Main] Pipeline completed successfully.")
-
-    except SystemExit as e:
-        print(f"[Main] Pipeline halted: {e}")
+    
+    start_time = time.time()
+    setup_paths()
+    
+    # Determine input path
+    if args.mode == 'synthetic' and not args.input:
+        args.input = "data/raw/synthetic_data.csv"
+        if not Path(args.input).exists():
+            # Generate synthetic data first
+            from data_generator import generate_synthetic_dataset
+            print("Generating synthetic data...")
+            generate_synthetic_dataset(output_path=args.input)
+    
+    if not args.input or not Path(args.input).exists():
+        print("Error: Input file not found. Use --input to specify a file or --mode synthetic to generate data.")
         sys.exit(1)
-    except Exception as e:
-        print(f"[Main] Pipeline failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+    
+    # Run ingestion and validation
+    output_path = Path(args.output) / "filtered_data.parquet"
+    filtered_df = run_ingestion_and_validation(args.input, str(output_path))
+    
+    # Run compute feasibility check
+    run_compute_feasibility_check(filtered_df)
+    
+    # Run analysis
+    analysis_results = run_analysis(str(output_path))
+    
+    # Run diagnostics
+    diagnostics_results = run_diagnostics(str(output_path))
+    
+    # Generate timing evidence
+    end_time = time.time()
+    duration = end_time - start_time
+    timing_evidence = {
+        "start_time": datetime.fromtimestamp(start_time).isoformat(),
+        "end_time": datetime.fromtimestamp(end_time).isoformat(),
+        "duration_seconds": duration,
+        "duration_hours": duration / 3600
+    }
+    timing_path = Path(args.output) / "timing_evidence.json"
+    with open(timing_path, 'w') as f:
+        json.dump(timing_evidence, f, indent=2)
+    
+    print(f"Pipeline completed in {duration:.2f} seconds ({duration/3600:.2f} hours)")
+    
+    # Check 6-hour constraint
+    if duration > 6 * 3600:
+        print("WARNING: Pipeline execution exceeded 6 hours.")
+    else:
+        print("SUCCESS: Pipeline execution within 6-hour constraint.")
+    
+    # Generate final report
+    generate_report(args.output)
+    
+    print("Pipeline execution complete.")
 
 if __name__ == "__main__":
     main()
