@@ -1,13 +1,18 @@
-rdkit
-torch
-torch-geometric
-scikit-learn
-pandas
-numpy
-pyyaml
-requests
-pytest
-ruff
-black
-matplotlib
-seaborn
+# Core dependencies
+rdkit>=2023.9.1
+torch>=2.0.0
+torch-geometric>=2.3.0
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0
+pyyaml>=6.0
+requests>=2.31.0
+statsmodels>=0.14.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Utilities
+black>=23.0.0
+ruff>=0.0.290

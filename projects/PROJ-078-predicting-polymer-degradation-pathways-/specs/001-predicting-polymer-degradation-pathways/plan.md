@@ -22,7 +22,7 @@ This project implements a computational chemistry pipeline to predict polymer de
 **Project Type**: Data science / Computational chemistry research pipeline  
 **Performance Goals**: Complete full pipeline (ingest → train → evaluate → report) within 6 hours on 2 CPU cores, ≤7GB RAM.  
 **Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; dataset must be sampled if >150 instances to fit memory; records with missing environmental data are EXCLUDED to prevent confounding.  
-**Scale/Scope**: Target ~150 polymer degradation instances (if available); if <50, switch to leave-one-out validation.
+**Scale/Scope**: Target a sufficient number of polymer degradation instances (if available) to ensure statistical power for the research question.; if <50, switch to leave-one-out validation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

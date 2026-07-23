@@ -1,14 +1,8 @@
 [lint]
 select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = []
-target-version = "py311"
+ignore = ["E501", "F401"]
 
 [format]
 quote-style = "double"
 indent-style = "space"
-line-ending = "auto"
-
-[lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"code/data_models.py" = ["E501"]
-"code/utils.py" = ["E501"]
+line-ending = "lf"

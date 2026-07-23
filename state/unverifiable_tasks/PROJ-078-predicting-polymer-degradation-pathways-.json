@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+  "tasks": [
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "No `ingest.py` script or any code, logs, or output files were presented. Without an actual artifact showing the download logic, rate\u2011limit backoff, and handling of NIST/Materials Project records, the requirement cannot be confirmed as met. The implementer must supply the `ingest.py` file (non\u2011empty) that implements the specified functionality.",
+      "first_seen": "2026-07-23T23:21:11.810185+00:00",
+      "last_seen": "2026-07-23T23:21:11.810185+00:00"
+    },
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "No `preprocess.py` script or any code, data files, or logs were presented. Consequently there is no evidence that SMILES strings were converted to molecular graphs with RDKit, nor that records lacking temperature/pH/UV were excluded as required. The task\u2019s deliverable is missing.",
+      "first_seen": "2026-07-23T23:21:11.811601+00:00",
+      "last_seen": "2026-07-23T23:21:11.811601+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "No `preprocess.py` script or any files under `data/raw/` or `data/processed/` with accompanying checksum files were provided. The required implementation that saves raw and processed datasets and generates checksums is missing.",
+      "first_seen": "2026-07-23T23:21:13.502994+00:00",
+      "last_seen": "2026-07-23T23:21:13.502994+00:00"
+    }
+  ],
+  "updated_at": "2026-07-23T23:21:13.502994+00:00"
+}

@@ -1,1 +1,3 @@
-"""Integration test package for polymer degradation prediction."""
+"""
+Integration tests for system components.
+"""

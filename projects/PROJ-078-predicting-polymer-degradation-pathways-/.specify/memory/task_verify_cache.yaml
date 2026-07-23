@@ -1,11 +1,33 @@
-T012:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `ingest.py` script or any code, logs, or output files were presented. Without\
-    \ an actual artifact showing the download logic, rate\u2011limit backoff, and\
-    \ handling of NIST/Materials Project records, the requirement cannot be confirmed\
-    \ as met. The implementer must supply the `ingest.py` file (non\u2011empty) that\
-    \ implements the specified functionality."
+  r: "No directory listings, screenshots, or file\u2011system output were provided\
+    \ to demonstrate that the required folders (`code/`, `data/raw/`, `data/processed/`,\
+    \ `data/reports/`, `tests/`, `state/`) actually exist; without such evidence the\
+    \ claim cannot be verified. The implementer must supply concrete proof (e.g.,\
+    \ a tree view, `ls` output, or a zip of the project root) showing the full directory\
+    \ structure."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `setup.sh` script was provided; the response contains only a feature specification\
+    \ and user stories, with no file content, path, or evidence that a directory\u2011\
+    creation automation script exists or verifies its creation. The required artifact\
+    \ is missing."
+T003:
+  c: false
+  h: 4d84dd185300b7871d56caec9103663f2586cd54e244aa75f6f203cd729e979c
+  r: "The repository contains a non\u2011empty `code/.ruff.toml` that configures ruff\
+    \ linting, but it does not include any configuration for the Black formatter (e.g.,\
+    \ a `[tool.black]` section or a separate Black config file). Since the task explicitly\
+    \ requires configuring both linting **and** formatting with Black, the required\
+    \ Black configuration is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory, nor any `tests/unit` or `tests/integration`
+    subfolders, nor any pytest configuration or test files is provided. The implementer
+    did not supply the required directory structure or framework setup.
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,13 +35,13 @@ T013:
     the task description and project specifications, with no actual implementation
     that validates and excludes records lacking explicit degradation pathway labels.
     The required artifact is missing, so the task is not satisfied.
-T014:
+T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` script or any code, data files, or logs were presented. Consequently\
-    \ there is no evidence that SMILES strings were converted to molecular graphs\
-    \ with RDKit, nor that records lacking temperature/pH/UV were excluded as required.\
-    \ The task\u2019s deliverable is missing."
+  r: No `preprocess.py` file or any code, logs, or documentation were presented that
+    shows records with missing temperature, pH, or UV are excluded from the training
+    set and that the exclusion count and reasons are logged. The required artifact
+    is missing, so the task is not satisfied.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,12 +49,6 @@ T015:
     \ detection was provided, nor any example input/output showing that non\u2011\
     polyester records are filtered out. Without the actual artifact, the requirement\
     \ cannot be verified."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` script or any files under `data/raw/` or `data/processed/`
-    with accompanying checksum files were provided. The required implementation that
-    saves raw and processed datasets and generates checksums is missing.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -69,7 +69,7 @@
 - **FR-004**: System MUST apply data augmentation via bond rotation and atom masking to expand the training set by a significant factor within 30 minutes, verifying stability of validation scores (See US-2).
 - **FR-005**: System MUST compute feature importance scores using Integrated Gradients to identify structural motifs correlating with degradation pathways (See US-2).
 - **FR-006**: System MUST perform a permutation test on input features (shuffling motifs multiple times) to validate the significance of identified structure-mechanism relationships and report the resulting p-value (See US-3).
-- **FR-007**: System MUST generate a final report listing the top 3-5 structural motifs and their correlation with specific degradation mechanisms (hydrolysis, photolysis, oxidation) (See US-3).
+- **FR-007**: System MUST generate a final report listing the top structural motifs and their correlation with specific degradation mechanisms (hydrolysis, photolysis, oxidation) (See US-3).
 - **FR-008**: System MUST validate the presence of explicit 'degradation pathway' labels in source data; if missing, it MUST flag the record for manual curation or exclusion (See US-1).
 
 ### Key Entities
@@ -94,8 +94,8 @@
 ## Assumptions
 
 - **Assumption about data availability**: The NIST Chemistry WebBook and Materials Project APIs contain sufficient polyester records with documented degradation products to construct a dataset of at least 150 instances; if not, the project scope is limited to available data, and power analysis is triggered for <150 instances.
-- **Assumption about environmental variables**: The public records contain explicit or derivable values for temperature, pH, and UV exposure; if a record lacks a specific variable, a community-standard default (e.g., ambient pH 7, 25°C, no UV) will be applied with a flag in the metadata.
-- **Assumption about computational resources**: The lightweight GNN (≤3 layers, hidden dim ≤128) and the augmented dataset will fit within the ~7 GB RAM limit of the free-tier GitHub Actions runner; if memory usage exceeds a practical threshold, the dataset will be further subsampled.
+- **Assumption about environmental variables**: The public records contain explicit or derivable values for temperature, pH, and UV exposure; if a record lacks a specific variable, a community-standard default (e.g., neutral ambient pH, standard laboratory temperature, no UV) will be applied with a flag in the metadata.
+- **Assumption about computational resources**: The lightweight GNN (≤3 layers, hidden dim ≤128) and the augmented dataset will fit within the RAM limit of the free-tier GitHub Actions runner; if memory usage exceeds a practical threshold, the dataset will be further subsampled.
 - **Assumption about methodological framing**: Since the data is observational (no random assignment), all findings regarding structure-mechanism relationships are framed as associational rather than causal, consistent with the observational nature of the dataset.
 - **Assumption about threshold justification**: The [deferred] macro-F1 target and the permutation test methodology are adopted as community-standard defaults for initial exploratory ML studies in chemistry; no sensitivity analysis on these specific thresholds is required for this phase, but the model's performance will be reported across the full validation curve.
 - **Assumption about measurement validity**: The degradation pathways labeled in the source datasets are considered ground truth for the purpose of supervised learning, assuming the original experimental methods were valid.
