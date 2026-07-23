@@ -49,7 +49,7 @@
 
 - [ ] T002a Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/` <!-- FAILED: unspecified -->
 
-- [ ] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`. **Constraint**: If `research.md` exists, read version constraints from it; otherwise, default to versions listed in `plan.md` to ensure determinism.
+- [X] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`. **Constraint**: If `research.md` exists, read version constraints from it; otherwise, default to versions listed in `plan.md` to ensure determinism.
 
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -63,7 +63,7 @@
 
 - [ ] T004 Setup data directory structure: `data/raw/` for immutable puzzles, `data/processed/` for logs/results
 
-- [~] T005 [P] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log` with fields: `timestamp`, `wall_clock`, `resource_usage`
+- [X] T005 [P] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log` with fields: `timestamp`, `wall_clock`, `resource_usage`
 
 - [X] T006 [P] Setup random seed management utility in `code/utils/seed.py` for reproducibility
 

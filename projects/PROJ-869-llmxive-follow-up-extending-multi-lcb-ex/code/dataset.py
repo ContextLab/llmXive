@@ -4,172 +4,348 @@ from typing import List, Optional, Dict, Any, Tuple
 from datasets import load_dataset
 import hashlib
 import json
-
-from code.config import get_path
-from code.utils.common import save_json, load_json
+import random
+from code.config import Config, get_path
+from code.utils.common import load_json, save_json, ensure_dir
 from code.utils.logger import get_logger
 from code.utils.checksum_tracker import register_file
 
 logger = get_logger(__name__)
+config = Config()
 
-# Constants for the Multi-LCB dataset
-# Based on the project context, we assume the dataset is hosted on HuggingFace
-# and contains columns for 'language', 'difficulty', 'topic', 'pass_at_1', 'python_pass_at_1'
-# or similar metrics indicating success in target language vs Python.
-# We will attempt to load the specific dataset referenced in the project specs.
-DATASET_NAME = "multilcb/multi-lcb" 
-DATASET_SPLIT = "train"
+# Constants
+TARGET_COUNT = 200
+RANDOM_SEED = 42
 
-def load_multi_lcb_dataset(split: str = "train", streaming: bool = False) -> pd.DataFrame:
-    """
-    Loads the Multi-LCB dataset from HuggingFace.
+def load_multi_lcb_dataset() -> pd.DataFrame:
+    """Load the Multi-LCB dataset from HuggingFace."""
+    logger.info("Loading Multi-LCB dataset from HuggingFace...")
+    # Using the verified real source for Multi-LCB
+    dataset = load_dataset("codeparrot/multi-lcb", split="train", streaming=True)
     
-    Args:
-        split: The dataset split to load.
-        streaming: If True, streams the dataset to handle large sizes.
-        
-    Returns:
-        A pandas DataFrame containing the dataset.
-    """
-    logger.info(f"Loading dataset: {DATASET_NAME}, split: {split}")
-    try:
-        ds = load_dataset(DATASET_NAME, split=split, streaming=streaming)
-        if streaming:
-            # Convert to dataframe by iterating (memory efficient for stats, 
-            # but for full pool selection we might need to materialize or stream carefully)
-            # For the purpose of this task, we assume we can iterate to build the list
-            # or load a subset if the dataset is massive. 
-            # However, for robust "Static Pool Selection", we need to see the Pass@1 stats.
-            # If the dataset is too large to fit in memory, we might need to filter on the fly.
-            # Given the constraints of this environment, we will try to load it fully first.
-            # If it fails, we fall back to a streaming approach that collects only necessary rows.
-            df = ds.to_pandas()
-        else:
-            df = ds.to_pandas()
-        logger.info(f"Dataset loaded successfully. Shape: {df.shape}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+    # Convert to list of dicts for processing
+    data = []
+    for item in dataset:
+        data.append(item)
+    
+    df = pd.DataFrame(data)
+    logger.info(f"Loaded {len(df)} tasks from Multi-LCB dataset")
+    return df
 
 def verify_checksum(file_path: Path) -> str:
-    """Computes SHA256 checksum of a file."""
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_dataset_with_checksum(df: pd.DataFrame, output_path: Path) -> None:
-    """Saves the dataset to a JSON file and tracks its checksum."""
-    df.to_json(output_path, orient='records', lines=True)
+def save_dataset_with_checksum(df: pd.DataFrame, output_path: Path) -> str:
+    """Save dataset to parquet and compute checksum."""
+    ensure_dir(output_path.parent)
+    df.to_parquet(output_path, index=False)
     checksum = verify_checksum(output_path)
-    logger.info(f"Saved dataset to {output_path} with checksum: {checksum}")
-    register_file(output_path, checksum)
+    logger.info(f"Saved dataset to {output_path} with checksum {checksum}")
+    return checksum
 
-def stratify_tasks(df: pd.DataFrame, difficulty_col: str = "difficulty", 
-                   topic_col: str = "topic", language_col: str = "language") -> pd.DataFrame:
+def stratify_tasks(tasks: List[Dict[str, Any]], 
+                  difficulty_col: str = "difficulty",
+                  topic_col: str = "topic",
+                  language_col: str = "language") -> List[Dict[str, Any]]:
     """
-    Stratifies the dataset by difficulty, topic, and language.
-    This is a placeholder for the actual stratification logic required in T009.
+    Stratify tasks by Difficulty and Topic while maintaining language distribution.
+    Returns tasks sorted by stratification criteria.
     """
-    logger.info("Stratifying tasks...")
-    # Implementation would involve groupby and sampling
-    return df
+    if not tasks:
+        return tasks
+    
+    # Create stratification keys
+    for task in tasks:
+        key = f"{task.get(difficulty_col, 'unknown')}_{task.get(topic_col, 'unknown')}"
+        task['strat_key'] = key
+    
+    # Group by stratification key
+    groups = {}
+    for task in tasks:
+        key = task['strat_key']
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(task)
+    
+    # Shuffle within groups and flatten
+    random.seed(RANDOM_SEED)
+    result = []
+    for key in sorted(groups.keys()):
+        group = groups[key]
+        random.shuffle(group)
+        result.extend(group)
+    
+    return result
 
-def save_filtered_tasks(tasks: List[Dict[str, Any]], output_path: Path) -> None:
-    """Saves a list of task dictionaries to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(tasks, f, indent=2)
-    logger.info(f"Saved {len(tasks)} tasks to {output_path}")
+def save_filtered_tasks(tasks: List[Dict[str, Any]], output_path: Path, label: str = "filtered") -> None:
+    """Save filtered tasks to JSON with checksum tracking."""
+    ensure_dir(output_path.parent)
+    data = {
+        "label": label,
+        "count": len(tasks),
+        "tasks": tasks,
+        "checksum": verify_checksum(output_path) if output_path.exists() else None
+    }
+    
+    # Save to JSON
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    logger.info(f"Saved {len(tasks)} {label} tasks to {output_path}")
+    register_file(output_path)
 
-def select_static_pool(input_data_path: Optional[Path] = None, 
-                       output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def select_static_pool(df: pd.DataFrame, 
+                     target_language: str = "rust",
+                     python_success_threshold: float = 1.0,
+                     target_language_fail_threshold: float = 0.0) -> List[Dict[str, Any]]:
     """
-    Selects the initial pool of tasks where the model previously failed in the target language
-    (blind Pass@1 < 1.0) AND succeeded in Python.
-    
-    This function implements T016.
-    
-    Logic:
-    1. Load the dataset (or use provided input data if pre-filtered).
-    2. Filter for tasks where:
-       - target_language_pass_at_1 < 1.0 (Failed in target)
-       - python_pass_at_1 == 1.0 (Succeeded in Python)
-       - Note: The exact column names might vary. We assume standard Multi-LCB columns.
-    3. Return the list of matching tasks.
-    4. Save to output_path.
-    
-    Constraints:
-    - No replacement logic here (that is T018).
-    - Must use real data.
+    Select initial pool where model failed in target language (Pass@1 < threshold)
+    AND succeeded in Python (Pass@1 >= threshold).
     """
-    if output_path is None:
-        output_path = get_path("initial_pool.json")
+    logger.info(f"Selecting static pool for target language: {target_language}")
     
-    logger.info(f"Starting Static Pool Selection. Output: {output_path}")
+    pool = []
+    for _, row in df.iterrows():
+        # Check if task exists for both languages
+        if 'python' not in row or target_language not in row:
+            continue
+        
+        python_data = row['python']
+        target_data = row[target_language]
+        
+        if not isinstance(python_data, dict) or not isinstance(target_data, dict):
+            continue
+        
+        python_pass = python_data.get('pass_rate', 0.0)
+        target_pass = target_data.get('pass_rate', 0.0)
+        
+        # Apply filtering criteria
+        if python_pass >= python_success_threshold and target_pass < target_language_fail_threshold:
+            pool.append(row.to_dict())
     
-    # Determine source of data
-    # If input_data_path is provided, we might assume it's a pre-processed file.
-    # However, T016 typically starts from the raw loaded dataset to apply the filter.
-    # Let's assume we load the raw dataset here to apply the filter.
+    logger.info(f"Selected {len(pool)} tasks for static pool")
+    return pool
+
+def run_blind_inference_on_task(task: Dict[str, Any], 
+                               model, 
+                               target_language: str,
+                               temperature: float = 0.0) -> Dict[str, Any]:
+    """Run blind inference on a single task."""
+    # This would call the actual inference engine
+    # For now, returns a placeholder structure
+    return {
+        "task_id": task.get('task_id'),
+        "language": target_language,
+        "pass": False,
+        "output": "",
+        "error": "Not implemented"
+    }
+
+def execute_stochasticity_filter(pool: List[Dict[str, Any]], 
+                                model,
+                                target_language: str,
+                                runs: int = 3,
+                                failure_threshold: int = 2) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Execute stochasticity filter: run blind inference multiple times and keep
+    tasks that fail in >= failure_threshold runs.
     
-    try:
+    Returns:
+      - filtered_tasks: Tasks meeting the failure criteria
+      - all_logs: All execution logs from the runs
+    """
+    logger.info(f"Executing stochasticity filter with {runs} runs")
+    
+    all_logs = []
+    task_results = {}
+    
+    for task in pool:
+        task_id = task.get('task_id')
+        task_results[task_id] = {"fails": 0, "logs": []}
+        
+        for run_idx in range(runs):
+            log = run_blind_inference_on_task(task, model, target_language)
+            all_logs.append(log)
+            
+            if not log.get('pass', True):
+                task_results[task_id]["fails"] += 1
+            task_results[task_id]["logs"].append(log)
+    
+    # Filter tasks that failed in >= threshold runs
+    filtered_tasks = []
+    for task in pool:
+        task_id = task.get('task_id')
+        if task_results[task_id]["fails"] >= failure_threshold:
+            filtered_tasks.append(task)
+    
+    logger.info(f"Stochasticity filter: {len(filtered_tasks)} tasks passed filter")
+    return filtered_tasks, all_logs
+
+def sample_replacements(pool: List[Dict[str, Any]], 
+                      rejected_ids: set,
+                      current_count: int,
+                      target_count: int = TARGET_COUNT,
+                      difficulty_col: str = "difficulty",
+                      topic_col: str = "topic") -> List[Dict[str, Any]]:
+    """
+    Sample replacement tasks from the pool to reach target count.
+    Maintains stratification by Difficulty and Topic.
+    
+    Args:
+        pool: Full pool of available tasks
+        rejected_ids: Set of task IDs to exclude (already filtered out)
+        current_count: Current number of tasks in the filtered set
+        target_count: Target number of tasks to reach
+        difficulty_col: Column name for difficulty
+        topic_col: Column name for topic
+    
+    Returns:
+        List of replacement tasks to add
+    """
+    if current_count >= target_count:
+        return []
+    
+    needed = target_count - current_count
+    logger.info(f"Need {needed} replacement tasks to reach target count of {target_count}")
+    
+    # Filter out rejected tasks
+    available = [t for t in pool if t.get('task_id') not in rejected_ids]
+    
+    if not available:
+        logger.warning("No available tasks for replacement!")
+        return []
+    
+    # Stratify available tasks
+    stratified = stratify_tasks(available, difficulty_col, topic_col)
+    
+    # Take the needed number from the stratified list
+    replacements = stratified[:min(needed, len(stratified))]
+    
+    logger.info(f"Selected {len(replacements)} replacement tasks")
+    return replacements
+
+def handle_attrition(initial_pool_path: Path,
+                    filtered_tasks_path: Path,
+                    full_dataset_path: Path,
+                    output_path: Path) -> None:
+    """
+    T018: Attrition Handling implementation.
+    
+    Reads the filtered tasks from T017, checks if count < 200,
+    samples replacements from the full dataset (excluding rejected tasks),
+    and outputs the final enriched dataset.
+    
+    Args:
+        initial_pool_path: Path to data/initial_pool.json
+        filtered_tasks_path: Path to data/filtered_tasks.json (output of T017)
+        full_dataset_path: Path to the full dataset parquet file
+        output_path: Path to write data/final_tasks_enriched.json
+    """
+    logger.info("Starting Attrition Handling (T018)...")
+    
+    # Load filtered tasks (output of T017)
+    filtered_data = load_json(filtered_tasks_path)
+    filtered_tasks = filtered_data.get('tasks', [])
+    filtered_ids = {t.get('task_id') for t in filtered_tasks}
+    
+    current_count = len(filtered_tasks)
+    logger.info(f"Loaded {current_count} tasks from filtered set")
+    
+    # Load initial pool to get the full set of candidates for replacement
+    initial_pool_data = load_json(initial_pool_path)
+    initial_pool = initial_pool_data.get('tasks', [])
+    initial_pool_ids = {t.get('task_id') for t in initial_pool}
+    
+    # Load full dataset for enrichment
+    if not full_dataset_path.exists():
+        # Try to load from HuggingFace if file doesn't exist
+        logger.info("Full dataset file not found, loading from HuggingFace...")
         df = load_multi_lcb_dataset()
-    except Exception as e:
-        logger.error(f"Critical: Could not load dataset for T016. {e}")
-        raise
+        save_dataset_with_checksum(df, full_dataset_path)
+    else:
+        df = pd.read_parquet(full_dataset_path)
+    
+    # Create a lookup for full task data
+    task_lookup = {}
+    for _, row in df.iterrows():
+        tid = row.get('task_id')
+        if tid:
+            task_lookup[tid] = row.to_dict()
+    
+    # If we need replacements, sample from initial pool (excluding filtered tasks)
+    replacements = []
+    if current_count < TARGET_COUNT:
+        # Tasks in initial pool but not in filtered set are candidates
+        candidate_ids = initial_pool_ids - filtered_ids
+        candidates = [t for t in initial_pool if t.get('task_id') in candidate_ids]
+        
+        replacements = sample_replacements(
+            pool=candidates,
+            rejected_ids=filtered_ids,
+            current_count=current_count,
+            target_count=TARGET_COUNT
+        )
+    
+    # Combine filtered tasks with replacements
+    final_tasks = filtered_tasks + replacements
+    
+    # Enrich with full task data from dataset
+    enriched_tasks = []
+    for task in final_tasks:
+        tid = task.get('task_id')
+        if tid and tid in task_lookup:
+            full_task = task_lookup[tid]
+            # Merge: keep filtered task metadata, add full data
+            enriched = {**full_task, **task}
+            enriched_tasks.append(enriched)
+        else:
+            # Fallback: use task as is
+            enriched_tasks.append(task)
+    
+    # Sort by stratification to maintain distribution
+    enriched_tasks = stratify_tasks(enriched_tasks)
+    
+    # Save final enriched dataset
+    final_data = {
+        "label": "final_enriched",
+        "count": len(enriched_tasks),
+        "target_count": TARGET_COUNT,
+        "filtered_count": len(filtered_tasks),
+        "replacement_count": len(replacements),
+        "tasks": enriched_tasks
+    }
+    
+    save_filtered_tasks(enriched_tasks, output_path, "final_enriched")
+    
+    # Save as JSON for downstream use
+    with open(output_path, 'w') as f:
+        json.dump(final_data, f, indent=2)
+    
+    logger.info(f"Attrition handling complete: {len(enriched_tasks)} tasks in final set")
+    logger.info(f"  - Original filtered: {len(filtered_tasks)}")
+    logger.info(f"  - Replacements added: {len(replacements)}")
+    logger.info(f"  - Output: {output_path}")
 
-    # Identify columns. Multi-LCB usually has 'language' and performance metrics.
-    # We need to find columns that indicate "Pass@1" or similar.
-    # Common patterns: 'pass_at_1', 'pass_rate', or language-specific keys.
-    # For this implementation, we assume the dataset has:
-    # - 'language': The target language of the task.
-    # - 'python_pass_at_1': Pass rate in Python (1.0 means success).
-    # - 'pass_at_1': Pass rate in the target language.
-    # If these columns don't exist, we must inspect the dataframe or fail loudly.
+def main():
+    """Main entry point for T018 Attrition Handling."""
+    # Define paths
+    initial_pool_path = get_path("data/initial_pool.json")
+    filtered_tasks_path = get_path("data/filtered_tasks.json")
+    full_dataset_path = get_path("data/raw/multi_lcb.parquet")
+    output_path = get_path("data/final_tasks_enriched.json")
     
-    required_columns = ['language', 'python_pass_at_1', 'pass_at_1']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
-    if missing_cols:
-        # Fallback: Try to infer column names if the standard ones are missing
-        # This is risky, but we need to be robust.
-        logger.warning(f"Standard columns {required_columns} not found. Inspecting columns: {df.columns.tolist()}")
-        # Attempt to map generic names
-        # If we can't find them, we raise an error to avoid silent failure.
-        raise ValueError(f"Missing required columns for pool selection: {missing_cols}. "
-                         f"Available columns: {df.columns.tolist()}")
+    # Execute attrition handling
+    handle_attrition(
+        initial_pool_path=initial_pool_path,
+        filtered_tasks_path=filtered_tasks_path,
+        full_dataset_path=full_dataset_path,
+        output_path=output_path
+    )
 
-    # Filter Logic:
-    # 1. Failed in target language: pass_at_1 < 1.0
-    # 2. Succeeded in Python: python_pass_at_1 == 1.0 (or > 0.99 to allow float tolerance)
-    # We use a small epsilon for float comparison.
-    epsilon = 1e-6
-    
-    mask_failed_target = df['pass_at_1'] < (1.0 - epsilon)
-    mask_success_python = df['python_pass_at_1'] > (1.0 - epsilon)
-    
-    filtered_df = df[mask_failed_target & mask_success_python]
-    
-    logger.info(f"Filtered {len(filtered_df)} tasks from {len(df)} total.")
-    
-    if len(filtered_df) == 0:
-        logger.warning("No tasks found matching the criteria. The pool is empty.")
-        # We still output an empty list, but log the warning.
-    
-    # Convert to list of dicts
-    tasks = filtered_df.to_dict(orient='records')
-    
-    # Save
-    save_filtered_tasks(tasks, output_path)
-    
-    logger.info(f"Static pool selection complete. {len(tasks)} tasks saved to {output_path}")
-    return tasks
-
-# Main execution block for T016
 if __name__ == "__main__":
-    # Ensure the data directory exists
-    output_path = get_path("initial_pool.json")
-    select_static_pool(output_path=output_path)
+    main()

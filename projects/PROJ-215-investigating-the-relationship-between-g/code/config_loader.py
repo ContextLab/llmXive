@@ -2,75 +2,51 @@ import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Try to import dotenv, but make it optional so the module loads even if not installed
+# Try to import dotenv; if not present, the functions will raise ImportError
+# when called, forcing the user to install python-dotenv if .env support is needed.
 try:
     from dotenv import load_dotenv
-    HAS_DOTENV = True
+    DOTENV_AVAILABLE = True
 except ImportError:
-    HAS_DOTENV = False
-    load_dotenv = None  # type: ignore
+    DOTENV_AVAILABLE = False
 
 from code.config import ensure_directories, get_output_path
 
-# Project root is assumed to be the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_FILE_PATH = PROJECT_ROOT / ".env"
 
-
-def load_environment_variables(env_path: Optional[Path] = None) -> bool:
+def load_environment_variables(env_path: Optional[str] = None) -> bool:
     """
-    Load environment variables from a .env file if it exists.
+    Load environment variables from a .env file into os.environ.
 
     Args:
-        env_path: Path to the .env file. Defaults to PROJECT_ROOT/.env
+        env_path: Path to the .env file. If None, looks for .env in the
+                  project root (parent of 'code' directory).
 
     Returns:
-        bool: True if variables were loaded successfully, False otherwise.
+        True if loading was successful (or dotenv not available and no path
+        was specified), False if the file was not found or dotenv is missing.
+
+    Raises:
+        ImportError: If a .env file path is provided but python-dotenv is not installed.
+        FileNotFoundError: If the specified .env file does not exist.
     """
-    target_path = env_path or ENV_FILE_PATH
-
-    if not target_path.exists():
-        # No .env file found; this is not an error, just a no-op
-        return False
-
-    if not HAS_DOTENV:
-        # dotenv is not installed; try to manually parse the file
-        _manual_load_env(target_path)
+    if env_path:
+        if not DOTENV_AVAILABLE:
+            raise ImportError(
+                "python-dotenv is required to load a specific .env file. "
+                "Install it via 'pip install python-dotenv'."
+            )
+        env_file = Path(env_path)
+        if not env_file.exists():
+            raise FileNotFoundError(f"Environment file not found: {env_file}")
+        return load_dotenv(str(env_file))
+    else:
+        # Default behavior: look for .env in project root
+        if DOTENV_AVAILABLE:
+            project_root = Path(__file__).resolve().parent.parent
+            env_file = project_root / ".env"
+            if env_file.exists():
+                return load_dotenv(str(env_file))
         return True
-
-    return bool(load_dotenv(dotenv_path=target_path, override=False))
-
-
-def _manual_load_env(env_path: Path) -> None:
-    """
-    Manually parse a .env file and set environment variables.
-    This is a fallback when python-dotenv is not installed.
-
-    Supports lines like: KEY=value, KEY="value", KEY='value'
-    Ignores comments (lines starting with #) and empty lines.
-    """
-    if not env_path.exists():
-        return
-
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-
-            if "=" not in line:
-                continue
-
-            key, _, value = line.partition("=")
-            key = key.strip()
-            value = value.strip()
-
-            # Remove surrounding quotes if present
-            if (value.startswith('"') and value.endswith('"')) or \
-               (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-
-            os.environ[key] = value
 
 
 def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
@@ -82,7 +58,7 @@ def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
         default: Default value if the key is not found.
 
     Returns:
-        The value of the environment variable or the default.
+        The value as a string, or the default if not found.
     """
     return os.getenv(key, default)
 
@@ -96,13 +72,13 @@ def get_int_config(key: str, default: Optional[int] = None) -> Optional[int]:
         default: Default value if the key is not found or cannot be parsed.
 
     Returns:
-        The integer value or the default.
+        The value as an integer, or the default.
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    val = os.getenv(key)
+    if val is None:
         return default
     try:
-        return int(val_str)
+        return int(val)
     except ValueError:
         return default
 
@@ -116,13 +92,13 @@ def get_float_config(key: str, default: Optional[float] = None) -> Optional[floa
         default: Default value if the key is not found or cannot be parsed.
 
     Returns:
-        The float value or the default.
+        The value as a float, or the default.
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    val = os.getenv(key)
+    if val is None:
         return default
     try:
-        return float(val_str)
+        return float(val)
     except ValueError:
         return default
 
@@ -131,20 +107,18 @@ def get_bool_config(key: str, default: bool = False) -> bool:
     """
     Retrieve a boolean configuration value from environment variables.
 
-    Accepts: 'true', '1', 'yes', 'on' (case-insensitive) as True.
-    Everything else is False.
-
     Args:
         key: The environment variable name.
         default: Default value if the key is not found.
 
     Returns:
-        The boolean value or the default.
+        True if the value is 'true', '1', 'yes', 'on' (case-insensitive).
+        False otherwise.
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    val = os.getenv(key)
+    if val is None:
         return default
-    return val_str.lower() in ("true", "1", "yes", "on")
+    return val.lower() in ('true', '1', 'yes', 'on')
 
 
 def initialize_config() -> Dict[str, Any]:
@@ -152,14 +126,13 @@ def initialize_config() -> Dict[str, Any]:
     Initialize the configuration by loading .env and ensuring directories exist.
 
     Returns:
-        A dictionary containing the loaded configuration state.
+        A dictionary containing configuration status and paths.
     """
-    loaded = load_environment_variables()
+    load_environment_variables()
     ensure_directories()
-
+    
     return {
-        "env_loaded": loaded,
-        "env_file_path": str(ENV_FILE_PATH),
-        "project_root": str(PROJECT_ROOT),
-        "dotenv_available": HAS_DOTENV,
+        "dotenv_available": DOTENV_AVAILABLE,
+        "project_root": str(Path(__file__).resolve().parent.parent),
+        "output_path": str(get_output_path()),
     }

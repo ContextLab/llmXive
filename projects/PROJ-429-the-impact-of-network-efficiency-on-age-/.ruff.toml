@@ -9,21 +9,9 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in data pipelines)
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-function-calls-in-argument-defaults (mne sometimes does this)
 ]
-exclude = [
-    ".git",
-    "__pycache__",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "state",
-    ".venv",
-    "venv",
-]
-per-file-ignores = {}
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [format]
 quote-style = "double"

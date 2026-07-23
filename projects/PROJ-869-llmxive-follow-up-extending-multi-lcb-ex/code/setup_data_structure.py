@@ -1,45 +1,49 @@
-"""
-Script to initialize the data directory structure and checksum tracking system.
-This corresponds to Task T006.
-"""
 import sys
 from pathlib import Path
-
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from code.utils.checksum_tracker import initialize_directories, track_directory
 from code.utils.logger import setup_logging, get_logger
 from code.config import get_path
 
 def main():
+    """
+    Task T006: Create data/raw/ and data/processed/ directory structure with checksum tracking.
+    
+    This script initializes the required data directories and sets up the checksum
+    registry to track file integrity for all data artifacts produced by the pipeline.
+    """
     logger = setup_logging()
     logger.info("Starting data directory structure setup (Task T006)...")
 
-    # 1. Initialize directory structure and registry
-    initialize_directories()
+    # Define the root data directory
+    data_root = Path(get_path("data_root"))
+    
+    # Define required subdirectories
+    raw_dir = data_root / "raw"
+    processed_dir = data_root / "processed"
+    figures_dir = data_root / "figures"
+    intermediates_dir = data_root / "intermediates"
 
-    # 2. Define paths
-    raw_dir = get_path("data", "raw")
-    processed_dir = get_path("data", "processed")
-    registry_dir = get_path("data", "registry")
+    # Initialize directories and checksum tracking
+    # This creates the directories if they don't exist and initializes the registry
+    initialize_directories([raw_dir, processed_dir, figures_dir, intermediates_dir])
+    
+    logger.info(f"Created directory structure under: {data_root}")
+    logger.info(f"  - raw: {raw_dir}")
+    logger.info(f"  - processed: {processed_dir}")
+    logger.info(f"  - figures: {figures_dir}")
+    logger.info(f"  - intermediates: {intermediates_dir}")
 
-    logger.info(f"Ensured existence of: {raw_dir}")
-    logger.info(f"Ensured existence of: {processed_dir}")
-    logger.info(f"Ensured existence of: {registry_dir}")
+    # Initialize the checksum registry for the raw and processed directories
+    # This ensures that any files added later will be tracked
+    try:
+        track_directory(raw_dir)
+        track_directory(processed_dir)
+        logger.info("Checksum tracking initialized for raw and processed directories.")
+    except Exception as e:
+        logger.error(f"Failed to initialize checksum tracking: {e}")
+        sys.exit(1)
 
-    # 3. Verify registry file exists
-    registry_file = get_path("data", "registry", "checksums.json")
-    if registry_file.exists():
-        logger.info(f"Checksum registry initialized at: {registry_file}")
-    else:
-        logger.error(f"Failed to initialize checksum registry at: {registry_file}")
-        return 1
-
-    logger.info("Data directory structure setup complete.")
-    return 0
+    logger.info("Data directory structure setup completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

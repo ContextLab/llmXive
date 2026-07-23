@@ -1,1 +1,2 @@
-# This directory stores configuration files (registries, parameters)
+# Configuration data directory
+# Stores static configuration files like instrument registries.

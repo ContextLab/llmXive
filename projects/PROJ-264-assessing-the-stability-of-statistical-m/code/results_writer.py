@@ -1,111 +1,164 @@
-"""
-Module to write raw evaluation results to CSV.
-Implements T014: Write raw evaluation results to results/raw_evaluations.csv.
-"""
 import logging
 import os
 from pathlib import Path
-from typing import List, Dict, Any
-
+from typing import List, Dict, Any, Optional
 import pandas as pd
+
+from .utils import safe_execute, log_and_reraise
 
 logger = logging.getLogger(__name__)
 
-# Ensure the results directory exists
-RESULTS_DIR = Path("results")
-RESULTS_DIR.mkdir(exist_ok=True)
-
-RAW_EVAL_FILE = RESULTS_DIR / "raw_evaluations.csv"
-
-# Expected columns as per task specification
-EXPECTED_COLUMNS = [
-    "dataset_id",
-    "model_name",
-    "fold_id",
-    "repeat_id",
-    "accuracy",
-    "f1_score"
-]
-
-
-def write_raw_evaluations(results: List[Dict[str, Any]]) -> None:
+def write_stability_metrics(metrics_df: pd.DataFrame, output_path: Path) -> None:
     """
-    Write a list of evaluation result dictionaries to results/raw_evaluations.csv.
-
-    The output file must have the exact columns:
-    dataset_id, model_name, fold_id, repeat_id, accuracy, f1_score
-
-    Args:
-        results: List of dicts containing evaluation metrics from the CV loop.
-                 Each dict should have keys matching EXPECTED_COLUMNS.
-    """
-    if not results:
-        logger.warning("No results to write. Creating an empty CSV with headers.")
-        df = pd.DataFrame(columns=EXPECTED_COLUMNS)
-        df.to_csv(RAW_EVAL_FILE, index=False)
-        logger.info(f"Created empty results file at {RAW_EVAL_FILE}")
-        return
-
-    # Validate that all expected columns are present in at least one row
-    # (We assume consistent structure across all results)
-    first_row_keys = set(results[0].keys())
-    missing_cols = set(EXPECTED_COLUMNS) - first_row_keys
-    if missing_cols:
-        raise ValueError(
-            f"Missing expected columns in results data: {missing_cols}. "
-            f"Found keys: {first_row_keys}"
-        )
-
-    df = pd.DataFrame(results)
-
-    # Ensure column order matches specification
-    df = df[EXPECTED_COLUMNS]
-
-    # Ensure numeric columns are correctly typed
-    numeric_cols = ["accuracy", "f1_score", "fold_id", "repeat_id", "dataset_id"]
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    df.to_csv(RAW_EVAL_FILE, index=False)
-    logger.info(
-        f"Wrote {len(df)} evaluation records to {RAW_EVAL_FILE}. "
-        f"Columns: {list(df.columns)}"
-    )
-
-
-def append_raw_evaluations(results: List[Dict[str, Any]]) -> None:
-    """
-    Append evaluation results to the existing results/raw_evaluations.csv file.
-    If the file does not exist, it will be created with headers.
-
-    Args:
-        results: List of dicts containing evaluation metrics.
-    """
-    if not results:
-        return
-
-    df_new = pd.DataFrame(results)
+    Write the aggregated stability metrics to a CSV file.
     
-    # Ensure column order
-    if not all(col in df_new.columns for col in EXPECTED_COLUMNS):
-       raise ValueError("New results missing required columns.")
-    df_new = df_new[EXPECTED_COLUMNS]
+    Expected columns in metrics_df:
+    - dataset_id
+    - model_name
+    - mean_accuracy
+    - cv_accuracy
+    - mean_f1
+    - cv_f1
+    - n_samples (optional, for context)
+    - n_features (optional, for context)
+    
+    Args:
+        metrics_df: DataFrame containing aggregated metrics.
+        output_path: Path to the output CSV file.
+    """
+    if not isinstance(metrics_df, pd.DataFrame):
+        raise TypeError("metrics_df must be a pandas DataFrame")
+    
+    required_columns = {'dataset_id', 'model_name', 'mean_accuracy', 'cv_accuracy', 'mean_f1', 'cv_f1'}
+    if not required_columns.issubset(metrics_df.columns):
+        missing = required_columns - set(metrics_df.columns)
+        raise ValueError(f"metrics_df is missing required columns: {missing}")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        metrics_df.to_csv(output_path, index=False)
+        logger.info(f"Wrote stability metrics to {output_path} ({len(metrics_df)} rows)")
+    except Exception as e:
+        log_and_reraise(e, "Failed to write stability metrics")
 
-    if RAW_EVAL_FILE.exists():
-        df_existing = pd.read_csv(RAW_EVAL_FILE)
-        # Verify schema match before appending
-        if list(df_existing.columns) != EXPECTED_COLUMNS:
-            raise ValueError(
-                f"Existing file schema mismatch. Expected {EXPECTED_COLUMNS}, "
-                f"found {list(df_existing.columns)}"
-            )
-        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
-        df_combined.to_csv(RAW_EVAL_FILE, index=False)
-        logger.info(
-            f"Appended {len(df_new)} records to {RAW_EVAL_FILE}. "
-            f"Total records: {len(df_combined)}"
-        )
+def write_correlation_results(correlation_df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Write the correlation analysis results to a CSV file.
+    
+    Expected columns in correlation_df:
+    - property_name (e.g., 'n_samples', 'n_features')
+    - metric_type (e.g., 'cv_accuracy', 'cv_f1')
+    - pearson_r
+    - pearson_pvalue
+    - spearman_rho (optional)
+    - spearman_pvalue (optional)
+    - residual_mean (optional, from regression analysis)
+    
+    Args:
+        correlation_df: DataFrame containing correlation results.
+        output_path: Path to the output CSV file.
+    """
+    if not isinstance(correlation_df, pd.DataFrame):
+        raise TypeError("correlation_df must be a pandas DataFrame")
+    
+    required_columns = {'property_name', 'metric_type', 'pearson_r', 'pearson_pvalue'}
+    if not required_columns.issubset(correlation_df.columns):
+        missing = required_columns - set(correlation_df.columns)
+        raise ValueError(f"correlation_df is missing required columns: {missing}")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        correlation_df.to_csv(output_path, index=False)
+        logger.info(f"Wrote correlation results to {output_path} ({len(correlation_df)} rows)")
+    except Exception as e:
+        log_and_reraise(e, "Failed to write correlation results")
+
+def write_regression_residuals(residuals_df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Write regression residuals to a CSV file.
+    
+    Expected columns:
+    - dataset_id
+    - model_name
+    - property_name (e.g., 'log_n_samples')
+    - residual
+    
+    Args:
+        residuals_df: DataFrame containing residuals.
+        output_path: Path to the output CSV file.
+    """
+    if not isinstance(residuals_df, pd.DataFrame):
+        raise TypeError("residuals_df must be a pandas DataFrame")
+    
+    required_columns = {'dataset_id', 'model_name', 'property_name', 'residual'}
+    if not required_columns.issubset(residuals_df.columns):
+        missing = required_columns - set(residuals_df.columns)
+        raise ValueError(f"residuals_df is missing required columns: {missing}")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        residuals_df.to_csv(output_path, index=False)
+        logger.info(f"Wrote regression residuals to {output_path} ({len(residuals_df)} rows)")
+    except Exception as e:
+        log_and_reraise(e, "Failed to write regression residuals")
+
+def append_raw_evaluations(new_rows: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Append new evaluation rows to the raw evaluations CSV.
+    
+    Args:
+        new_rows: List of dictionaries containing row data.
+        output_path: Path to the raw evaluations CSV file.
+    """
+    if not new_rows:
+        logger.debug("No rows to append to raw evaluations")
+        return
+    
+    df = pd.DataFrame(new_rows)
+    
+    if output_path.exists():
+        existing_df = pd.read_csv(output_path)
+        combined_df = pd.concat([existing_df, df], ignore_index=True)
+        combined_df.to_csv(output_path, index=False)
+        logger.info(f"Appended {len(df)} rows to {output_path} (total: {len(combined_df)})")
     else:
-        df_new.to_csv(RAW_EVAL_FILE, index=False)
-        logger.info(f"Created and wrote {len(df_new)} records to {RAW_EVAL_FILE}")
+        df.to_csv(output_path, index=False)
+        logger.info(f"Created {output_path} with {len(df)} rows")
+
+def write_raw_evaluations(rows: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Write raw evaluation results to a CSV file.
+    
+    Expected columns:
+    - dataset_id
+    - model_name
+    - fold_id
+    - repeat_id
+    - accuracy
+    - f1_score
+    
+    Args:
+        rows: List of dictionaries containing row data.
+        output_path: Path to the output CSV file.
+    """
+    if not rows:
+        logger.warning("No raw evaluation rows to write")
+        return
+    
+    df = pd.DataFrame(rows)
+    
+    required_columns = {'dataset_id', 'model_name', 'fold_id', 'repeat_id', 'accuracy', 'f1_score'}
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        raise ValueError(f"Raw evaluation data is missing required columns: {missing}")
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        df.to_csv(output_path, index=False)
+        logger.info(f"Wrote {len(df)} raw evaluation rows to {output_path}")
+    except Exception as e:
+        log_and_reraise(e, "Failed to write raw evaluations")

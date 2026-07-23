@@ -8,56 +8,40 @@ from typing import Optional, List, Dict, Any
 @dataclass
 class Config:
     """Project configuration management."""
-    root_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent)
-    data_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data")
-    code_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "code")
+    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
+    data_root: Path = field(init=False)
+    code_root: Path = field(init=False)
+    tests_root: Path = field(init=False)
+    specs_root: Path = field(init=False)
     
-    # Dataset paths
-    raw_data_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "raw")
-    processed_data_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "processed")
+    # Paths
+    RAW_DATA_DIR: Path = field(init=False)
+    PROCESSED_DATA_DIR: Path = field(init=False)
+    ANCHORS_PATH: str = "data/anchors.json"
+    FEASIBILITY_LOG_PATH: str = "data/feasibility_log.json"
+    POWER_CHECK_PATH: str = "data/power_check.yaml"
+    PIPELINE_STATE_PATH: str = "data/pipeline_state.json"
     
-    # Output paths for specific tasks
-    initial_pool_path: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "initial_pool.json")
-    filtered_tasks_path: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "filtered_tasks.json")
-    final_tasks_path: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "final_tasks_enriched.json")
-    blind_baseline_logs_path: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "data" / "blind_baseline_logs.json")
-    
-    # Model paths
-    model_path: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "models" / "model.gguf")
-    
-    # Random seed
-    seed: int = 42
+    # Seeds
+    RANDOM_SEED: int = 42
 
     def __post_init__(self):
-        # Ensure directories exist
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
-        self.processed_data_dir.mkdir(parents=True, exist_ok=True)
+        self.data_root = self.project_root / "data"
+        self.code_root = self.project_root / "code"
+        self.tests_root = self.project_root / "tests"
+        self.specs_root = self.project_root / "specs"
+        
+        self.RAW_DATA_DIR = self.data_root / "raw"
+        self.PROCESSED_DATA_DIR = self.data_root / "processed"
 
 config = Config()
 
-def get_path(relative_path: str) -> Path:
-    """
-    Resolves a relative path to an absolute path within the project structure.
-    Handles common output paths for tasks.
-    """
-    # Map common task output names to config paths
-    path_mapping = {
-        "initial_pool.json": config.initial_pool_path,
-        "filtered_tasks.json": config.filtered_tasks_path,
-        "final_tasks_enriched.json": config.final_tasks_path,
-        "blind_baseline_logs.json": config.blind_baseline_logs_path,
-        "data/initial_pool.json": config.initial_pool_path,
-        "data/filtered_tasks.json": config.filtered_tasks_path,
-        "data/final_tasks_enriched.json": config.final_tasks_path,
-        "data/blind_baseline_logs.json": config.blind_baseline_logs_path,
-    }
-    
-    if relative_path in path_mapping:
-        return path_mapping[relative_path]
-    
-    # Default to data directory if not explicitly mapped
-    if relative_path.startswith("data/"):
-        return config.data_dir / relative_path
-    
-    return config.root_dir / relative_path
+def get_path(path_str: str) -> Path:
+    """Resolve a path relative to project root."""
+    return config.project_root / path_str
+
+# Expose specific paths for convenience
+ANCHORS_PATH = config.ANCHORS_PATH
+FEASIBILITY_LOG_PATH = config.FEASIBILITY_LOG_PATH
+POWER_CHECK_PATH = config.POWER_CHECK_PATH
+PIPELINE_STATE_PATH = config.PIPELINE_STATE_PATH

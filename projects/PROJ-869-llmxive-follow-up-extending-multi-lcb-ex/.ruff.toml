@@ -1,0 +1,5 @@
+# This file is intentionally left empty or minimal if pyproject.toml is used.
+# However, providing a dedicated config file ensures ruff picks it up
+# even if pyproject.toml is not in the root or for specific CI configurations.
+# The primary configuration is in pyproject.toml [tool.ruff].
+extend = "pyproject.toml"

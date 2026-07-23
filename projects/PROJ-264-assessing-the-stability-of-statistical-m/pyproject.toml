@@ -2,9 +2,9 @@
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.eggs
+    \.eggs
   | \.git
   | \.hg
   | \.mypy_cache

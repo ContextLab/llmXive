@@ -1,3 +1,3 @@
 """
-llmXive automated science pipeline - code package.
+llmXive project package.
 """

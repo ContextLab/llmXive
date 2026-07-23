@@ -1,0 +1,37 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no code, configuration file, or documentation showing that\
+    \ a `.env` loader or environment\u2011configuration management has been added\
+    \ to the project. No `.env` file, loading logic (e.g., using python\u2011dotenv\
+    \ or similar), or instructions are present, so the required artifact is missing."
+T016b:
+  c: false
+  h: 22a9d8c4967440b1bb4905be1cbfdd78a1e1fe510d474929bdf8fde007ec671d
+  r: "The required output file `data/processed/beta_distance_matrices.npz` does not\
+    \ exist, and the provided `code/preprocessing.py` excerpt shows no clear implementation\
+    \ that computes and saves the three beta\u2011diversity matrices (Bray\u2011Curtis,\
+    \ weighted UniFrac, unweighted UniFrac) to such a file. The missing artifact means\
+    \ the task\u2019s core requirement is not satisfied."
+T020:
+  c: false
+  h: cf17dc61555b305f1237c82c6042c9971db4466e4c21ee3797972ffa90020fe5
+  r: "The provided `code/analysis.py` contains functions for computing partial Spearman\
+    \ correlations, but it does not include any logic that writes the resulting unadjusted\
+    \ p\u2011values to `data/interim/unadjusted_alpha_pvals.csv`, and that CSV file\
+    \ is missing from the repository. Consequently the required output artifact is\
+    \ not produced."
+T020a:
+  c: false
+  h: a64e26a84bd86096e2ca8edb61d10dd6e93a64ac565fc584d74ed52e0318ac87
+  r: "The provided `code/analysis.py` contains functions for partial Spearman calculation\
+    \ but the script is truncated and does not include code that iterates over all\
+    \ taxa, collects p\u2011values, and writes them to `data/interim/unadjusted_taxa_pvals.csv`.\
+    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
+    s core output (the unadjusted p\u2011value table) is therefore missing."
+T023:
+  c: false
+  h: 10e86cd03a9023295cd503113b9b35548208b68a744430fdb91a395d2a744721
+  r: The required output file `results/temp_covariate_check.txt` does not exist, so
+    the calculation and reporting of the maximum delta were not provided. The task
+    therefore remains unfinished.

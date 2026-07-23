@@ -3,130 +3,137 @@ import json
 import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-
 from code.config import get_path
-from code.utils.logger import get_logger
 from code.utils.common import ensure_dir, load_json, save_json
+from code.utils.logger import get_logger
 
-logger = get_logger(__name__)
-
-CHECKSUM_REGISTRY_PATH = get_path("data", "registry", "checksums.json")
+REGISTRY_PATH = "data/.checksum_registry.json"
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Computes the SHA-256 checksum of a file.
-    Reads the file in chunks to handle large files efficiently.
+    Compute SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file to checksum.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found for checksum: {file_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
-        raise
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
 
 def load_registry() -> Dict[str, Any]:
-    """Loads the checksum registry from disk or initializes a new one."""
-    if not CHECKSUM_REGISTRY_PATH.exists():
-        ensure_dir(CHECKSUM_REGISTRY_PATH.parent)
-        return {"files": {}}
-    return load_json(CHECKSUM_REGISTRY_PATH)
+    """
+    Load the checksum registry from disk.
+    
+    Returns:
+        Dictionary containing the checksum registry, or an empty dict if not found.
+    """
+    registry_path = Path(get_path(REGISTRY_PATH))
+    if registry_path.exists():
+        return load_json(registry_path)
+    return {"files": {}, "directories": []}
 
 def save_registry(registry: Dict[str, Any]) -> None:
-    """Saves the checksum registry to disk."""
-    ensure_dir(CHECKSUM_REGISTRY_PATH.parent)
-    save_json(CHECKSUM_REGISTRY_PATH, registry)
-
-def register_file(file_path: Path, description: str = "Unknown") -> bool:
     """
-    Computes checksum for a file and registers it in the tracking system.
-    Returns True if successful, False if the file does not exist.
+    Save the checksum registry to disk.
+    
+    Args:
+        registry: The registry dictionary to save.
+    """
+    registry_path = Path(get_path(REGISTRY_PATH))
+    ensure_dir(registry_path.parent)
+    save_json(registry_path, registry)
+
+def register_file(file_path: Path, registry: Dict[str, Any]) -> None:
+    """
+    Register a file in the checksum registry.
+    
+    Args:
+        file_path: Path to the file to register.
+        registry: The registry dictionary to update.
+    """
+    if file_path.exists():
+        checksum = compute_file_checksum(file_path)
+        relative_path = str(file_path.relative_to(Path(get_path("data_root"))))
+        registry["files"][relative_path] = {
+            "checksum": checksum,
+            "size": file_path.stat().st_size,
+            "registered_at": str(file_path.stat().st_mtime)
+        }
+
+def verify_file(file_path: Path, registry: Dict[str, Any]) -> bool:
+    """
+    Verify a file's checksum against the registry.
+    
+    Args:
+        file_path: Path to the file to verify.
+        registry: The registry dictionary to check against.
+        
+    Returns:
+        True if the file exists and checksum matches, False otherwise.
     """
     if not file_path.exists():
-        logger.warning(f"Cannot register non-existent file: {file_path}")
         return False
-
-    checksum = compute_file_checksum(file_path)
-    registry = load_registry()
-    
-    rel_path = str(file_path.relative_to(get_path("data")))
-    
-    registry["files"][rel_path] = {
-        "checksum": checksum,
-        "description": description,
-        "registered_at": None # Timestamp could be added if needed
-    }
-    
-    save_registry(registry)
-    logger.info(f"Registered file: {rel_path} (SHA256: {checksum[:16]}...)")
-    return True
-
-def verify_file(file_path: Path) -> bool:
-    """
-    Verifies a file's checksum against the registry.
-    Returns True if valid or if not yet registered (and registers it).
-    Returns False if checksum mismatch.
-    """
-    if not file_path.exists():
-        logger.error(f"File to verify does not exist: {file_path}")
+        
+    relative_path = str(file_path.relative_to(Path(get_path("data_root"))))
+    if relative_path not in registry["files"]:
         return False
-
-    registry = load_registry()
-    rel_path = str(file_path.relative_to(get_path("data")))
-
-    if rel_path not in registry["files"]:
-        logger.info(f"File not in registry. Registering: {rel_path}")
-        register_file(file_path)
-        return True
-
-    stored_checksum = registry["files"][rel_path]["checksum"]
+        
+    stored_checksum = registry["files"][relative_path]["checksum"]
     current_checksum = compute_file_checksum(file_path)
-
-    if stored_checksum != current_checksum:
-        logger.error(f"Checksum mismatch for {rel_path}!")
-        logger.error(f"  Expected: {stored_checksum}")
-        logger.error(f"  Found:    {current_checksum}")
-        return False
-
-    logger.debug(f"Checksum verified for {rel_path}")
-    return True
-
-def initialize_directories() -> None:
-    """
-    Creates the data/raw and data/processed directory structures
-    and initializes the checksum registry if it doesn't exist.
-    """
-    raw_dir = get_path("data", "raw")
-    processed_dir = get_path("data", "processed")
     
-    ensure_dir(raw_dir)
-    ensure_dir(processed_dir)
-    ensure_dir(CHECKSUM_REGISTRY_PATH.parent)
-    
-    if not CHECKSUM_REGISTRY_PATH.exists():
-        registry = {"files": {}}
-        save_registry(registry)
-        logger.info("Initialized checksum registry.")
-    else:
-        logger.info("Checksum registry already exists.")
+    return stored_checksum == current_checksum
 
-def track_directory(directory: Path, description_prefix: str = "") -> List[str]:
+def initialize_directories(dir_paths: List[Path]) -> None:
     """
-    Scans a directory for files and registers them in the checksum tracker.
-    Returns a list of registered relative paths.
-    """
-    if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
-        return []
+    Create directories if they don't exist and initialize the registry.
     
-    registered = []
-    for file_path in directory.rglob("*"):
+    Args:
+        dir_paths: List of directory paths to create.
+    """
+    for dir_path in dir_paths:
+        ensure_dir(dir_path)
+        
+    # Initialize registry if it doesn't exist
+    registry = load_registry()
+    if "directories" not in registry:
+        registry["directories"] = []
+        
+    for dir_path in dir_paths:
+        dir_str = str(dir_path.relative_to(Path(get_path("data_root"))))
+        if dir_str not in registry["directories"]:
+            registry["directories"].append(dir_str)
+            
+    save_registry(registry)
+
+def track_directory(dir_path: Path) -> None:
+    """
+    Scan a directory and register all files in the checksum registry.
+    
+    Args:
+        dir_path: Path to the directory to scan.
+    """
+    registry = load_registry()
+    
+    if not dir_path.exists():
+        return
+        
+    for file_path in dir_path.rglob("*"):
         if file_path.is_file():
-            if register_file(file_path, f"{description_prefix}{file_path.name}"):
-                registered.append(str(file_path.relative_to(get_path("data"))))
-    return registered
+            # Skip the registry file itself
+            if str(file_path) == get_path(REGISTRY_PATH):
+                continue
+            register_file(file_path, registry)
+            
+    save_registry(registry)

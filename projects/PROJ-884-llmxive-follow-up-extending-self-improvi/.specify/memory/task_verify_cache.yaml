@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/...`
+    directory tree is provided; without a listing or screenshot confirming the folders
+    were created, we cannot confirm the task was actually performed. The implementer
+    must supply proof (e.g., a directory tree dump) that the specified structure exists.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No repository initialization or `.gitignore` file is presented in the provided\
+    \ evidence; the claim lacks any tangible artifact confirming that a git repo was\
+    \ created and a basic Python\u2011oriented `.gitignore` was added."
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv/` folder\
+    \ with activation scripts, `pyproject.toml`, or `requirements.txt`) exists in\
+    \ the specified `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`\
+    \ path. The task\u2019s core deliverable is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a high\u2011level feature specification for dataset\
+    \ verification and evolutionary search; there is no evidence of any linting or\
+    \ formatting configuration (e.g., a `pyproject.toml`, `.flake8`, or `black` settings\
+    \ file) nor any scripts invoking flake8/black. Consequently, the required artifact\
+    \ for task T003 is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories is
+    provided; the claim lacks any tangible artifact showing the directory structure
+    was created. The task remains undone.
+T005:
+  c: true
+  h: c0a342b830cefc5b1fe70b28d49521e3ec6a3892eb2aecec8974d66aebe97e59
+  r: The provided `code/__init__.py` defines a logging setup that writes JSON lines
+    containing the required `timestamp`, `wall_clock`, and `resource_usage` fields
+    to `data/processed/experiment.log`. The implementation correctly creates the directory
+    and file when invoked, satisfying the task specification.

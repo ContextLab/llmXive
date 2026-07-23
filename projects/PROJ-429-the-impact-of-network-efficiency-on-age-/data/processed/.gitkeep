@@ -1,2 +1,2 @@
-# This directory stores preprocessed EEG data (epochs, ICA components)
-# Do not commit large files here.
+# Processed data directory
+# Stores cleaned epochs, connectivity matrices, and intermediate results.

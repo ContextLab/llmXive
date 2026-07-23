@@ -695,3 +695,127 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T05:44:45Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data pipeline output must contain at least 100 valid rows with microbiome
+    diversity and mental health scores
+  claim_id: c_773399f4
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_must_contain_at_least_100_valid_rows_wi
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:51:03Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Rarefaction fallback triggers if median sequencing depth is less than
+    1000 or sample loss exceeds 20 percent
+  claim_id: c_3cb21d29
+  context: 'Step 3: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing
+    Transformation (VST) and log fallback; otherwise, apply rarefaction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rarefaction_fallback_triggers_if_median_sequencing_depth_is
+  kind: magnitude
+  raw_text: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation
+    (VST) and log fallback; otherwise, apply rarefaction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:51:54Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data cleaning must retain at least 80 percent of samples and result in
+    at least 100 valid rows
+  claim_id: c_0d53fd12
+  context: "T017 [US1] Output data/processed/cleaned_dataset.csv (with alpha metrics)\
+    \ and verify \u2265 80% retention AND \u2265 100 valid rows with no missing key\
+    \ columns."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Data_cleaning_must_retain_at_least_80_percent_of_samples_and
+  kind: causal
+  raw_text: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:17Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PERMANOVA analysis compares high depression (PHQ-9 >= 10) and high anxiety
+    (GAD-7 >= 10) groups
+  claim_id: c_195f72d0
+  context: "T021 [US2] Implement code/analysis.py: Perform PERMANOVA on beta diversity\
+    \ (Bray-Curtis) between high-depression (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973))\
+    \ and low-depression groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety\
+    \ groups."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test is performed on p-value distribution if no taxa
+    have adjusted p-values below 0.05
+  claim_id: c_0084bbb9
+  context: 'T024 [US2] SC-002 Check: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov
+    test on p-value distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on
+    p-value distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Summary report lists associations with adjusted p-values less than 0.05
+  claim_id: c_e3152a37
+  context: 'T029 [US3] Implement code/report.py: Generate summary report listing all
+    significant associations (q < 0.05) with direction and magnitude.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Summary_report_lists_associations_with_adjusted_p-values_les
+  kind: magnitude
+  raw_text: Generate summary report listing all significant associations (q < 0.05)
+    with direction and magnitude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:54:29Z'

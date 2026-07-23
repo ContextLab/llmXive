@@ -35,21 +35,6 @@
   updated_at: '2026-07-07T21:30:55Z'
 - artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
   attempts: 1
-  canonical: run RepeatedStratifiedKFold with 10 splits and 10 repeats
-  claim_id: c_829c4913
-  context: If valid, run RepeatedStratifiedKFold(n_splits=10, n_repeats=10).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run RepeatedStratifiedKFold(n_splits=10, n_repeats=10)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T21:31:10Z'
-- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
-  attempts: 1
   canonical: train Random Forest with 100 estimators
   claim_id: c_a38c7eab
   context: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
@@ -64,40 +49,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T21:31:28Z'
-- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
-  attempts: 1
-  canonical: ensure memory usage stays under 7GB
-  claim_id: c_020d8662
-  context: 'Performance optimization: Ensure memory usage stays <7GB by processing
-    datasets sequentially and clearing caches'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_stays_under_7GB
-  kind: entity_fact
-  raw_text: Ensure memory usage stays <7GB by processing datasets sequentially
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T21:31:52Z'
-- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
-  attempts: 1
-  canonical: verify total runtime under 6 hours
-  claim_id: c_1909436e
-  context: Run end-to-end validation on a small subset of datasets to verify total
-    runtime < 6h
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify total runtime < 6h on a small subset of datasets
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T21:31:52Z'
 - artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
   attempts: 1
   canonical: set CI timeout to 360 minutes for evaluation job
@@ -471,23 +422,6 @@
   updated_at: '2026-07-07T21:39:17Z'
 - artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
   attempts: 1
-  canonical: Total runtime under 6 hours
-  claim_id: c_a6df4d9a
-  context: Run end-to-end validation on a small subset of datasets to verify total
-    runtime < 6h
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run end-to-end validation on a small subset of datasets to verify total
-    runtime < 6h
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T21:39:17Z'
-- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
-  attempts: 1
   canonical: CI timeout set to 360 minutes
   claim_id: c_ece630e8
   context: Refactor ci.yml to include a specific timeout-minutes directive (e.g.,
@@ -539,3 +473,274 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T21:40:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: 15 binary classification datasets selected from OpenML
+  claim_id: c_3acc694c
+  context: MUST explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py (Constitution Principle VII).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:01:23Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample size less than 100 or greater than 100000
+  claim_id: c_7001e758
+  context: 'Validate each dataset: if n_samples < 100 or n_samples > 100000, log a
+    warning and skip only that specific dataset (do not fail the whole run).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_sample_size_less_than_100_or_greater_than
+  kind: magnitude
+  raw_text: Skip datasets with n_samples < 100 or n_samples > 100000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:01:41Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: RepeatedStratifiedKFold with 10 splits and 10 repeats
+  claim_id: c_e3d43811
+  context: If valid, run RepeatedStratifiedKFold(n_splits=10, n_repeats=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run RepeatedStratifiedKFold with n_splits=10 and n_repeats=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:01:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Random Forest with 100 estimators
+  claim_id: c_0ed36ff8
+  context: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
+    and Linear SVM in code/evaluator.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest configured with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:02:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Memory usage under 7 gigabytes
+  claim_id: c_f429c828
+  context: 'Performance optimization: Ensure memory usage stays <7GB by processing
+    datasets sequentially and clearing caches'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage stays < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:02:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: Total runtime under 6 hours
+  claim_id: c_a6df4d9a
+  context: Run end-to-end validation on a small subset of datasets to verify total
+    runtime < 6h
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run end-to-end validation on a small subset of datasets to verify total
+    runtime < 6h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:02:16Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: CI timeout of 360 minutes
+  claim_id: c_e7dc15b5
+  context: Refactor ci.yml to include a specific timeout-minutes directive (e.g.,
+    360) for the evaluation job
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI timeout configured to 360 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:02:32Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: Datasets with adjusted p-value less than 0.05
+  claim_id: c_75f62d56
+  context: Significant Variance Differences (list datasets where adj_p < 0.05).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_adjusted_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: Identify datasets where adjusted p-value is less than 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:02:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: select 15 binary classification datasets from OpenML
+  claim_id: c_4d98d1fa
+  context: MUST explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py (Constitution Principle VII).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly select 15 binary classification datasets (OpenML IDs) defined
+    in code/config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:05:26Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project with specific pinned library versions
+  claim_id: c_79dfab95
+  context: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, openml>=0.13.0'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, scipy>=1.11.0, openml>=0.13.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T10:05:26Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: run RepeatedStratifiedKFold with 10 splits and 10 repeats
+  claim_id: c_829c4913
+  context: If valid, run RepeatedStratifiedKFold(n_splits=10, n_repeats=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run RepeatedStratifiedKFold(n_splits=10, n_repeats=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:05:41Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: use Random Forest with 100 estimators
+  claim_id: c_2697f265
+  context: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
+    and Linear SVM in code/evaluator.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Random Forest with n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:05:57Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: skip datasets with fewer than 100 or more than 100000 samples
+  claim_id: c_faedb4e8
+  context: 'Validate each dataset: if n_samples < 100 or n_samples > 100000, log a
+    warning and skip only that specific dataset'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_fewer_than_100_or_more_than_100000_sample
+  kind: magnitude
+  raw_text: Skip datasets with n_samples < 100 or n_samples > 100000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:05:59Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: ensure memory usage stays under 7GB
+  claim_id: c_020d8662
+  context: 'Performance optimization: Ensure memory usage stays <7GB by processing
+    datasets sequentially and clearing caches'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_stays_under_7GB
+  kind: entity_fact
+  raw_text: Ensure memory usage stays <7GB by processing datasets sequentially
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:06:22Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: verify total runtime under 6 hours
+  claim_id: c_1909436e
+  context: Run end-to-end validation on a small subset of datasets to verify total
+    runtime < 6h
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total runtime < 6h on a small subset of datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:06:22Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: set CI timeout to 360 minutes
+  claim_id: c_88c08296
+  context: Refactor ci.yml to include a specific timeout-minutes directive (e.g.,
+    360) for the evaluation job
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor ci.yml to include a timeout-minutes directive of 360
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:06:37Z'

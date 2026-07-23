@@ -1,171 +1,86 @@
-import json
 import os
+import json
 import tempfile
 from pathlib import Path
-from unittest import mock
-
 import pytest
 
-# Mock config to avoid dependency on full project setup for unit tests
-# We will test the logic functions directly by patching paths if necessary,
-# but for T006 we are mostly testing the helper logic which is path-agnostic
-# if we pass Path objects directly.
-
-# However, since the functions use get_path, we need to ensure the test
-# environment has a valid config or mock get_path.
-# For this specific task, we will test the core hashing and registry logic
-# by creating a temporary directory structure and mocking the registry path.
-
+# Mock the config to use a temporary directory for testing
 import sys
-from pathlib import Path
-
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
-from code.utils.checksum_tracker import (
-    compute_file_checksum,
-    load_registry,
-    save_registry,
-    register_file,
-    verify_file,
-    initialize_directories,
-)
-from code.utils.common import save_json, load_json
+from unittest.mock import patch
 
 @pytest.fixture
-def temp_data_dir(tmp_path):
-    """Create a temporary directory structure mimicking data/raw and data/processed."""
-    raw_dir = tmp_path / "data" / "raw"
-    processed_dir = tmp_path / "data" / "processed"
-    registry_dir = tmp_path / "data" / "registry"
-    
-    raw_dir.mkdir(parents=True)
-    processed_dir.mkdir(parents=True)
-    registry_dir.mkdir(parents=True)
-    
-    # Create a test file
-    test_file = raw_dir / "test.txt"
-    test_file.write_text("Hello, World!")
-    
-    # Create a registry file
-    registry_file = registry_dir / "checksums.json"
-    registry_file.write_text('{"files": {}}')
-    
-    return {
-        "root": tmp_path,
-        "raw": raw_dir,
-        "processed": processed_dir,
-        "registry": registry_dir,
-        "registry_file": registry_file,
-        "test_file": test_file
-    }
+def temp_data_dir():
+    """Create a temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        data_root = Path(tmpdir) / "data"
+        data_root.mkdir()
+        (data_root / "raw").mkdir()
+        (data_root / "processed").mkdir()
+        
+        # Patch get_path to return our temp directory
+        with patch('code.config.get_path') as mock_get_path:
+            def side_effect(key):
+                if key == "data_root":
+                    return str(data_root)
+                elif key == "data/.checksum_registry.json":
+                    return str(data_root / ".checksum_registry.json")
+                return str(data_root / key)
+            
+            mock_get_path.side_effect = side_effect
+            yield data_root
 
 def test_compute_file_checksum(temp_data_dir):
-    """Test SHA-256 checksum computation."""
-    file_path = temp_data_dir["test_file"]
-    checksum = compute_file_checksum(file_path)
+    """Test that compute_file_checksum returns a valid SHA-256 hash."""
+    from code.utils.checksum_tracker import compute_file_checksum
     
-    assert isinstance(checksum, str)
-    assert len(checksum) == 64  # SHA-256 hex length
+    test_file = temp_data_dir / "raw" / "test.txt"
+    test_file.write_text("Hello, World!")
     
-    # Verify consistency
-    checksum2 = compute_file_checksum(file_path)
-    assert checksum == checksum2
+    checksum = compute_file_checksum(test_file)
+    assert len(checksum) == 64  # SHA-256 hex string length
+    assert all(c in '0123456789abcdef' for c in checksum)
 
-def test_compute_file_checksum_nonexistent():
-    """Test checksum computation on non-existent file raises error."""
-    with pytest.raises(FileNotFoundError):
-        compute_file_checksum(Path("/nonexistent/file.txt"))
+def test_register_and_verify_file(temp_data_dir):
+    """Test registering and verifying a file."""
+    from code.utils.checksum_tracker import load_registry, save_registry, register_file, verify_file
+    
+    test_file = temp_data_dir / "raw" / "test.txt"
+    test_file.write_text("Test content")
+    
+    registry = load_registry()
+    register_file(test_file, registry)
+    save_registry(registry)
+    
+    # Verify should return True
+    assert verify_file(test_file, registry)
+    
+    # Modify the file and verify should return False
+    test_file.write_text("Modified content")
+    assert not verify_file(test_file, registry)
 
-def test_register_file(temp_data_dir, monkeypatch):
-    """Test file registration."""
-    # Monkeypatch get_path to use temp directory
-    from code import utils
-    from code.utils import checksum_tracker
+def test_initialize_directories(temp_data_dir):
+    """Test that initialize_directories creates directories and registry."""
+    from code.utils.checksum_tracker import initialize_directories, load_registry
     
-    original_get_path = checksum_tracker.get_path
+    new_dir = temp_data_dir / "new_dir"
+    initialize_directories([new_dir])
     
-    def mock_get_path(*args):
-        if args[0] == "data":
-            return temp_data_dir["root"] / "data" / args[1]
-        return original_get_path(*args)
+    assert new_dir.exists()
     
-    monkeypatch.setattr(checksum_tracker, "get_path", mock_get_path)
-    
-    file_path = temp_data_dir["test_file"]
-    result = register_file(file_path, "Test Description")
-    
-    assert result is True
-    
-    # Verify registry was updated
-    registry = load_json(temp_data_dir["registry_file"])
-    rel_path = str(file_path.relative_to(temp_data_dir["root"] / "data"))
-    
-    assert rel_path in registry["files"]
-    assert registry["files"][rel_path]["checksum"] == compute_file_checksum(file_path)
-    assert registry["files"][rel_path]["description"] == "Test Description"
+    registry = load_registry()
+    assert "new_dir" in registry["directories"]
 
-def test_verify_file_valid(temp_data_dir, monkeypatch):
-    """Test verification of a valid file."""
-    from code import utils
-    from code.utils import checksum_tracker
+def test_track_directory(temp_data_dir):
+    """Test that track_directory registers all files in a directory."""
+    from code.utils.checksum_tracker import load_registry, track_directory
     
-    original_get_path = checksum_tracker.get_path
-    def mock_get_path(*args):
-        if args[0] == "data":
-            return temp_data_dir["root"] / "data" / args[1]
-        return original_get_path(*args)
-    monkeypatch.setattr(checksum_tracker, "get_path", mock_get_path)
+    # Create some files
+    (temp_data_dir / "raw" / "file1.txt").write_text("Content 1")
+    (temp_data_dir / "raw" / "subdir").mkdir()
+    (temp_data_dir / "raw" / "subdir" / "file2.txt").write_text("Content 2")
     
-    file_path = temp_data_dir["test_file"]
+    track_directory(temp_data_dir / "raw")
     
-    # First register it
-    register_file(file_path)
-    
-    # Then verify
-    assert verify_file(file_path) is True
-
-def test_verify_file_mismatch(temp_data_dir, monkeypatch):
-    """Test verification fails on content change."""
-    from code import utils
-    from code.utils import checksum_tracker
-    
-    original_get_path = checksum_tracker.get_path
-    def mock_get_path(*args):
-        if args[0] == "data":
-            return temp_data_dir["root"] / "data" / args[1]
-        return original_get_path(*args)
-    monkeypatch.setattr(checksum_tracker, "get_path", mock_get_path)
-    
-    file_path = temp_data_dir["test_file"]
-    
-    # Register
-    register_file(file_path)
-    
-    # Modify content
-    file_path.write_text("Modified Content")
-    
-    # Verify should fail
-    assert verify_file(file_path) is False
-
-def test_initialize_directories(temp_data_dir, monkeypatch):
-    """Test directory initialization."""
-    from code import utils
-    from code.utils import checksum_tracker
-    
-    original_get_path = checksum_tracker.get_path
-    def mock_get_path(*args):
-        if args[0] == "data":
-            return temp_data_dir["root"] / "data" / args[1]
-        return original_get_path(*args)
-    monkeypatch.setattr(checksum_tracker, "get_path", mock_get_path)
-    
-    # Remove registry to simulate fresh start
-    temp_data_dir["registry_file"].unlink()
-    
-    initialize_directories()
-    
-    assert temp_data_dir["registry_file"].exists()
-    
-    registry = load_json(temp_data_dir["registry_file"])
-    assert "files" in registry
+    registry = load_registry()
+    assert "raw/file1.txt" in registry["files"]
+    assert "raw/subdir/file2.txt" in registry["files"]

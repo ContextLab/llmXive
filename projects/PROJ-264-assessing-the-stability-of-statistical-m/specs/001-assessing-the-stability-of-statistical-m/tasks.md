@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` by creating files: `code/__init__.py`, `code/main.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `tests/__init__.py`, `tests/contract/.gitkeep`, `tests/unit/.gitkeep`, `tests/integration/.gitkeep`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `openml>=0.13.0`
+- [X] T001 Create project structure per `plan.md` by creating files: `code/__init__.py`, `code/main.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `tests/__init__.py`, `tests/contract/.gitkeep`, `tests/unit/.gitkeep`, `tests/integration/.gitkeep`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `openml>=0.13.0`
 - [ ] T003a [P] Configure linting tool by creating `.ruff.toml` with default rules
-- [ ] T003b [P] Configure formatting tool by creating `pyproject.toml` with Black settings (e.g., `line-length = 88`, `target-version = ['py311']`)
+- [X] T003b [P] Configure formatting tool by creating `pyproject.toml` with Black settings (e.g., `line-length = 88`, `target-version = ['py311']`)
 
 ---
 
@@ -38,10 +38,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/utils.py` for seed pinning, logging setup, and error handling wrappers
-- [ ] T005 [P] Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation, and SHA-256 checksum caching to `data/raw/`. **MUST** support direct URL fetch for UCI datasets if not available on OpenML. **MUST** explicitly select 15 binary classification datasets (OpenML IDs) defined in `code/config.py` (Constitution Principle VII). **Logic**:
+- [X] T005 [P] Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation, and SHA-256 checksum caching to `data/raw/`. **MUST** support direct URL fetch for UCI datasets if not available on OpenML. **MUST** explicitly select 15 binary classification datasets (OpenML IDs) defined in `code/config.py` (Constitution Principle VII). **Logic**:
  1. Validate each dataset: if `n_samples < 100` or `n_samples > 100000`, log a warning and **skip only that specific dataset** (do not fail the whole run).
  2. Perform **programmatic spectrum validation**: verify the remaining valid datasets collectively span the 100-100k sample size range.
- 3. If the count of valid datasets is insufficient (e.g., < 15), raise a critical error [UNRESOLVED-CLAIM: c_6c91f9b3 — status=not_enough_info].
+ 3. If the count of valid datasets is insufficient (e.g., < 15), raise a critical error.
  4. Implement **robust network error handling**: if a download fails, log the error, skip that dataset, and continue with the rest.
 - [X] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
 - [X] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
@@ -72,8 +72,8 @@
 - [X] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.
  - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.
  - **Constraint**: It MUST NOT reduce the fold count or alter the dataset for valid cases.
-- [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM [UNRESOLVED-CLAIM: c_3063dfde — status=not_enough_info] in `code/evaluator.py` (Depends on T011 structure)
-- [~] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
+- [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
+- [ ] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
 - [ ] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,7 +102,7 @@
  - **Primary Output**: Pearson r.
  - **Secondary**: Compute Spearman rho for robustness check.
  - **Verification**: Ensure `correlation_results.csv` contains non-null Pearson r values for all rows.
-- [~] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
+- [ ] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
 - [ ] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv` including Pearson r, p-values, and regression residuals <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -117,12 +117,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for permutation test logic in `tests/unit/test_analyser.py`
-- [ ] T024 [P] [US3] Unit test for Bonferroni correction implementation in `tests/unit/test_analyser.py`
+- [X] T023 [P] [US3] Unit test for permutation test logic in `tests/unit/test_analyser.py`
+- [X] T024 [P] [US3] Unit test for Bonferroni correction implementation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement Permutation Test in `code/analyser.py` to compare variance distributions across LR, RF, and SVM.
+- [X] T025 [US3] Implement Permutation Test in `code/analyser.py` to compare variance distributions across LR, RF, and SVM.
  - **Test Statistic**: Calculate the absolute difference of the variances (|Var_A - Var_B|) derived from the squared deviations of accuracy scores for each model pair.
  - **Input**: Must consume variance values from T018 output.
 - [ ] T026 [US3] Implement **Bonferroni correction** globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets to control the **family-wise error rate (FWER)** per FR-007.
@@ -144,8 +144,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029 [P] Documentation updates in `README.md` and `specs/001-assess-model-stability/quickstart.md`
-- [ ] T031 Performance optimization: Ensure memory usage stays <7GB by processing datasets sequentially and clearing caches [UNRESOLVED-CLAIM: c_bd2e780f — status=not_enough_info]
-- [ ] T032 [P] Run end-to-end validation on a small subset of datasets to verify total runtime < 6h [UNRESOLVED-CLAIM: c_a6df4d9a — status=not_enough_info]
+- [ ] T031 Performance optimization: Ensure memory usage stays <7GB by processing datasets sequentially and clearing caches
+- [ ] T032 [P] Run end-to-end validation on a small subset of datasets to verify total runtime < 6h
 - [ ] T033 Run `quickstart.md` validation to ensure reproducibility
 
 ---
@@ -236,7 +236,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All models must run on CPU-only GitHub Actions runners [UNRESOLVED-CLAIM: c_eed811a6 — status=not_enough_info]; no GPU or deep learning models allowed.
+- **Constraint**: All models must run on CPU-only GitHub Actions runners; no GPU or deep learning models allowed.
 - **Constraint**: Datasets <100 samples must be skipped, not downsampled or altered.
 - **Constraint**: No fabricated data; all results must come from real OpenML/UCI datasets.
 - **Dataset IDs**: The specific 15 OpenML/UCI IDs must be defined in `code/config.py` before execution.

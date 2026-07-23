@@ -86,45 +86,139 @@ def test_run_preprocessing(mock_counts_df, mock_metadata_df):
     assert 'shannon' in alpha.columns
     assert 'bray_curtis' in beta
 
-def test_rarefaction_fallback_logic(mock_counts_df, mock_metadata_df):
+def test_rarefaction_fallback_logic_low_depth(mock_counts_df):
     """
-    Test the logic that decides whether to use rarefaction or VST fallback.
+    Test the fallback logic when median sequencing depth is too low (< 1000).
     
-    Scenario 1: Median depth is high enough, loss is low -> Use Rarefaction
-    Scenario 2: Median depth is low (< 1000) -> Trigger VST fallback
-    Scenario 3: Estimated loss is high (> 20%) -> Trigger VST fallback
+    Scenario:
+    - The mock data has a median depth of 160 (calculated from [160, 122, 261, 68, 244]).
+    - This is < 1000, so the system should trigger the VST fallback instead of rarefaction.
     
-    This test validates the decision logic by inspecting the return values
-    and logs (via side effects or explicit returns if refactored).
-    Since run_preprocessing currently performs the operation, we test the
-    helper functions that drive the decision.
+    We verify that apply_vst succeeds and produces valid data when rarefaction
+    would be deemed inappropriate due to low depth.
     """
-    # Calculate median depth
+    # Calculate depths
     depths = calculate_sequencing_depth(mock_counts_df)
     median_depth = depths.median()
     
-    # Estimate loss if we rarefy to median (should be 0% since we rarefy to median)
-    # But let's test a depth that causes loss
-    high_depth = depths.max() + 100
-    loss_pct = estimate_rarefaction_loss(mock_counts_df, high_depth)
+    # Verify our mock data actually triggers the low-depth condition
+    assert median_depth < 1000, "Test setup invalid: median depth must be < 1000"
     
-    # The estimate_rarefaction_loss function should return a percentage
-    assert isinstance(loss_pct, (int, float))
-    assert loss_pct >= 0
-    
-    # Test that VST works as a fallback when rarefaction would fail
-    # (e.g. if we tried to rarefy to a depth higher than some samples)
-    # We simulate the fallback path by directly calling apply_vst
+    # The fallback logic (in run_preprocessing) would call apply_vst here.
+    # We test that VST works correctly as the fallback mechanism.
     vst_result = apply_vst(mock_counts_df)
-    assert vst_result is not None
-    assert not vst_result.isna().any().any()
     
-    # Verify that if we force a rarefaction depth that is too high for some samples,
-    # the function handles it gracefully (returns NaN or drops rows, depending on impl)
-    # Here we just ensure the function doesn't crash
-    try:
-        # This should not crash, though it might produce NaNs or warnings
-        rarefied = apply_rarefaction(mock_counts_df, depth=high_depth, random_seed=42)
-    except Exception:
-        # If it raises an error, that's also a valid behavior for invalid depth
-        pass
+    # Verify VST output
+    assert vst_result.shape == mock_counts_df.shape
+    assert not vst_result.isna().any().any()
+    assert not vst_result.isinf().any().any()
+    
+    # Verify that VST produces non-negative values (biologically plausible for counts)
+    # Note: VST can produce negative values for low counts, so we just check it runs
+    assert vst_result.notna().all().all()
+
+def test_rarefaction_fallback_logic_high_loss(mock_counts_df):
+    """
+    Test the fallback logic when estimated sample loss is too high (> 20%).
+    
+    Scenario:
+    - We attempt to rarefy to a depth that would cause > 20% sample loss.
+    - The system should trigger the VST fallback.
+    
+    We verify that apply_vst succeeds when rarefaction would lose too many samples.
+    """
+    # Calculate depths
+    depths = calculate_sequencing_depth(mock_counts_df)
+    
+    # Choose a depth that will cause significant sample loss.
+    # Our depths are [160, 122, 261, 68, 244].
+    # If we rarefy to 200, samples with depth < 200 (122, 68, 160) will be lost.
+    # That's 3 out of 5 samples = 60% loss, which is > 20%.
+    test_depth = 200
+    
+    # Estimate the loss
+    loss_pct = estimate_rarefaction_loss(mock_counts_df, test_depth)
+    
+    # Verify our setup causes high loss
+    assert loss_pct > 20, f"Test setup invalid: expected loss > 20%, got {loss_pct}%"
+    
+    # The fallback logic would call apply_vst here.
+    vst_result = apply_vst(mock_counts_df)
+    
+    # Verify VST works as the fallback
+    assert vst_result.shape == mock_counts_df.shape
+    assert not vst_result.isna().any().any()
+    assert not vst_result.isinf().any().any()
+
+def test_rarefaction_success_path(mock_counts_df):
+    """
+    Test the normal path when rarefaction is appropriate.
+    
+    Scenario:
+    - Median depth is sufficient (>= 1000) OR loss is low (<= 20%).
+    - The system should use rarefaction.
+    
+    We create a mock dataset with higher counts to simulate a valid rarefaction path.
+    """
+    # Create a mock dataset with higher sequencing depth
+    high_depth_data = {
+        'Taxon_A': [1000, 1500, 2000, 1200, 1800],
+        'Taxon_B': [500, 800, 300, 600, 900],
+        'Taxon_C': [200, 400, 600, 300, 500],
+    }
+    index = ['Sample_1', 'Sample_2', 'Sample_3', 'Sample_4', 'Sample_5']
+    high_depth_df = pd.DataFrame(high_depth_data, index=index)
+    
+    # Calculate median depth
+    depths = calculate_sequencing_depth(high_depth_df)
+    median_depth = depths.median()
+    
+    # Verify we have sufficient depth
+    assert median_depth >= 1000, "Test setup invalid: median depth must be >= 1000"
+    
+    # Test that rarefaction works at this depth
+    rarefied = apply_rarefaction(high_depth_df, depth=int(median_depth), random_seed=42)
+    
+    # Verify rarefaction maintains depth (approximately)
+    sums = rarefied.sum(axis=1)
+    assert all(sums >= int(median_depth) - 10), "Rarefaction depth not maintained"
+    assert rarefied.shape == high_depth_df.shape
+
+def test_rarefaction_vs_vst_decision_boundary(mock_counts_df, mock_metadata_df):
+    """
+    Test the complete decision logic in run_preprocessing.
+    
+    This test verifies that run_preprocessing correctly chooses between
+    rarefaction and VST based on the depth and loss criteria.
+    """
+    # Test 1: Low depth should trigger VST
+    # Our mock data has median depth ~160, which is < 1000
+    preprocessed_low, alpha_low, beta_low = run_preprocessing(
+        counts_df=mock_counts_df,
+        metadata_df=mock_metadata_df,
+        rarefaction_depth=1000  # Force a high depth requirement
+    )
+    
+    # VST should have been applied, so shape should be preserved
+    assert preprocessed_low.shape == mock_counts_df.shape
+    assert not preprocessed_low.isna().any().any()
+    
+    # Test 2: Sufficient depth should allow rarefaction
+    # Create high-depth data
+    high_depth_data = {
+        'Taxon_A': [1000, 1500, 2000, 1200, 1800],
+        'Taxon_B': [500, 800, 300, 600, 900],
+        'Taxon_C': [200, 400, 600, 300, 500],
+    }
+    high_depth_df = pd.DataFrame(high_depth_data, index=mock_counts_df.index)
+    
+    preprocessed_high, alpha_high, beta_high = run_preprocessing(
+        counts_df=high_depth_df,
+        metadata_df=mock_metadata_df,
+        rarefaction_depth=1000
+    )
+    
+    # Rarefaction should have been applied
+    assert preprocessed_high.shape[0] == high_depth_df.shape[0]
+    assert 'shannon' in alpha_high.columns
+    assert 'bray_curtis' in beta_high

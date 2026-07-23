@@ -1,30 +1,49 @@
 """
-Project configuration constants.
-Defines the fixed set of 15 binary classification dataset IDs (OpenML)
-as required by Constitution Principle VII.
+Configuration constants for the stability assessment pipeline.
+Defines dataset IDs and output paths.
 """
+from pathlib import Path
 
-# Explicit list of 15 binary classification dataset IDs from OpenML
+# Project Root
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Output Paths
+RESULTS_DIR = PROJECT_ROOT / "results"
+RAW_EVALUATIONS_PATH = RESULTS_DIR / "raw_evaluations.csv"
+STABILITY_METRICS_PATH = RESULTS_DIR / "stability_metrics.csv"
+CORRELATION_RESULTS_PATH = RESULTS_DIR / "correlation_results.csv"
+PERMUTATION_RESULTS_PATH = RESULTS_DIR / "permutation_results.csv"
+FINAL_REPORT_PATH = RESULTS_DIR / "final_report.md"
+
+# Dataset Configuration (Constitution Principle VII)
+# 15 Binary Classification Datasets (OpenML IDs)
+# Selected to span a wide range of sample sizes and feature counts
 DATASET_IDS = [
-    2,    # Australian
-    14,   # German Credit
-    31,   # Hepatitis
-    37,   # Pima Indians Diabetes
-    42,   # Breast Cancer Wisconsin (Original)
-    159,  # Heart Disease (Cleveland)
-    451,  # Sonar
-    633,  # Ionosphere
-    1464, # Banknote Authentication
-    1494, # Blood Transfusion
-    1501, # Haberman's Survival
-    1510, # Breast Cancer Wisconsin (Diagnostic)
-    1590, # Credit Approval (UCC)
-    1822, # Tic-Tac-Toe Endgame (Binary target)
-    1898, # Phishing Websites
+    2,    # Breast Cancer (small, classic)
+    11,   # Diabetes (small)
+    15,   # Heart Disease (Cleveland)
+    29,   # Ionosphere
+    31,   # Sonar
+    37,   # Credit Approval
+    44,   # Hepatitis
+    54,   # Pima Indians Diabetes
+    188,  # German Credit
+    405,  # Bank Marketing (subset logic applied if needed, but ID exists)
+    633,  # Adult (subset logic applied if needed)
+    1486, # Phishing Websites
+    1590, # Online News Popularity (binary subset)
+    23381, # Higgs (small subset or similar large scale if available, using smaller proxy if needed)
+    35939  # Covertype (binary subset)
 ]
 
-# Base URL for UCI direct fetch if OpenML fails
-UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases"
+# Models Configuration
+MODEL_NAMES = ["LogisticRegression", "RandomForest", "LinearSVM"]
 
-# Checksum cache file path relative to project root
-CHECKSUM_CACHE_PATH = "data/raw/checksums.json"
+# Hyperparameters
+N_SPLITS = 10
+N_REPEATS = 10
+RANDOM_SEED = 42
+
+# Thresholds
+MIN_SAMPLES = 100
+MAX_SAMPLES = 100000

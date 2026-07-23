@@ -8,12 +8,12 @@ T001:
     \ `data/`, `scripts/`, `README.md`, etc.) to satisfy the task."
 T003:
   c: false
-  h: e85cc7f7dec009ccccf4274deb07490e779e4c224ef130893ac3048ddd6b1fef
-  r: "The repository contains a partially shown `code/feasibility_gate.py` that stops\
-    \ mid\u2011function and does not include any logic for handling OOM, triggering\
-    \ a Kaggle GPU rerun, or adjusting the target task count\u202FN. Moreover, the\
-    \ required output file `data/feasibility_log.json` is absent. Consequently the\
-    \ task\u2019s specifications are not met."
+  h: 90d68c513a058e3f98997373d813ee14797052fd12e36e14de3cd54ff18b5b0b
+  r: "The provided `feasibility_gate.py` contains only simulated placeholder logic\
+    \ and does not actually measure a GGUF model\u2019s throughput, nor does it implement\
+    \ the GPU escape hatch or dynamic N adjustment. Moreover, the required output\
+    \ file `data/feasibility_log.json` is missing. The task\u2019s specifications\
+    \ are therefore not satisfied."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,6 +28,12 @@ T006:
     any checksum tracking implementation (e.g., manifest files, scripts, or logs)
     was provided. The claim lacks the actual artifacts needed to confirm the directory
     structure and checksum functionality.
+T011:
+  c: false
+  h: 241317511ae58f3d52fe96c516a028f3b5062596169eac46efc00a259b52d180
+  r: "The required artifact `tests/unit/test_logic_anchor.py` does not exist in the\
+    \ repository, so no unit test for the AST parsing logic is present. The task\u2019\
+    s core deliverable is missing."
 T016:
   c: false
   h: a5d0d4ec4a37a3fd2dc914367401644432400591ed8a70f39de5f69aaa37c640
@@ -36,3 +42,29 @@ T016:
     \ and Pass@1\u202F=\u202F1.0 in Python, nor does it write `data/initial_pool.json`.\
     \ Moreover, the expected output file `data/initial_pool.json` is absent. The task\
     \ therefore remains unfinished."
+T017:
+  c: false
+  h: c72e66b45dfff5fe06cafe525a17d647e3f76d40d6f4d75b50ae7d7fff933438
+  r: '`data/blind_filter_runs.json` is missing entirely, and `code/dataset.py` does
+    not contain any logic to run three blind executions on `data/initial_pool.json`
+    or to generate raw execution logs. Moreover, `data/filtered_tasks.json` lists
+    tasks (e.g., task_006, task_007) that are not present in the input pool, indicating
+    the output was not derived from the required runs. The required artifacts and
+    behavior are therefore not satisfied.'
+T039:
+  c: false
+  h: 9067398fc4e83f40292ddfe4113619883d63e021f9f3678fb7315570db228a1a
+  r: "The repository lacks the required output artifacts `data/blind_baseline_logs.json`\
+    \ and `data/blind_baseline.yaml`. Moreover, the provided `code/inference_runner.py`\
+    \ snippet does not show any code that reads `data/final_tasks_enriched.json` directly\
+    \ or writes the specified log files, so the core functionality is missing. The\
+    \ next implementer must add the data loading, blind\u2011mode inference loop,\
+    \ and generation of the JSON/YAML logs conforming to the schema."
+T040:
+  c: false
+  h: e01ed353f3905207390c9059ab88e9b5b974ce10a3b1ba1266f1742632804118
+  r: The required `data/blind_baseline_logs.json` file is absent, and `code/stats.py`
+    never reads it nor computes power from real data; it uses a simple heuristic and
+    writes to a different path (`config.POWER_CHECK_PATH`, likely `data/power_check.yaml`)
+    instead of the specified `data/power_metric.yaml`. The implementation is therefore
+    incomplete and does not satisfy the task.

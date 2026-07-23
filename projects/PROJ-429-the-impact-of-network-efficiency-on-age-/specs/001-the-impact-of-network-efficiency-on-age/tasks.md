@@ -65,11 +65,11 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T011 [P] [US1] Unit test for `code/network/metrics.py` graph calculations in `tests/unit/test_metrics.py`
-- [ ] T012 [P] [US1] Integration test for end-to-end preprocessing and metric generation in `tests/integration/test_pipeline.py`
+- [X] T012 [P] [US1] Integration test for end-to-end preprocessing and metric generation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] [Dep: T005_run] **Validate** `download.py` output: Ensure `data/raw/` contains TUH corpus with metadata flags; verify `data/quality/download_report.json` exists and matches schema. **Do not generate**; only validate.
+- [X] T013 [US1] [Dep: T005_run] **Validate** `download.py` output: Ensure `data/raw/` contains TUH corpus with metadata flags; verify `data/quality/download_report.json` exists and matches schema. **Do not generate**; only validate.
 - [X] T014 [US1] [Dep: T004] **Create** `docs/decisions/epoch_length.md`. **Content**:
  - `# Epoch Length Decision`
  - `## Rationale`: "10-second epochs provide sufficient spectral resolution for coherence estimation in the 1-40Hz band, reducing variance compared to 2-second epochs. This deviates from initial FR-002 (2s) which has been formally noted as a ratified assumption in the plan."
@@ -94,17 +94,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for `code/stats/correlation.py` Spearman logic in `tests/unit/test_stats.py`
-- [ ] T022 [P] [US2] Unit test for `code/stats/correction.py` FDR/Bonferroni logic in `tests/unit/test_stats.py`
+- [X] T021 [P] [US2] Unit test for `code/stats/correlation.py` Spearman logic in `tests/unit/test_stats.py`
+- [X] T022 [P] [US2] Unit test for `code/stats/correction.py` FDR/Bonferroni logic in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023a [US2] [Dep: T005_run] **Cognitive Data Gate**: Check `data/quality/download_report.json`.
+- [X] T023a [US2] [Dep: T005_run] **Cognitive Data Gate**: Check `data/quality/download_report.json`.
  - If `missing_cognitive_count == total_count` (no cognitive data found): Generate `data/results/cognitive_status.json` with `{"status": "BLOCKED", "reason": "No linked cognitive data found in TUH Corpus"}`. Mark all subsequent tasks in Phase 4 (T025a-T029) as **SKIPPED**. Log status and proceed to Phase 5 (Viz) with EEG-only data.
  - If data exists: Proceed to T025a.
  - **Deliverable**: `data/results/cognitive_status.json`.
-- [ ] T025a [US2] [Dep: T023a (proceed)] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007.
-- [ ] T025b [US2] [Dep: T025a] Implement validation logic in `code/stats/correlation.py` to check instruments against registry and flag invalid measures.
+- [X] T025a [US2] [Dep: T023a (proceed)] Create `data/config/cognitive_instrument_registry.yaml` with hardcoded list of valid instruments (MMSE, MoCA) and references as per FR-007.
+- [X] T025b [US2] [Dep: T025a] Implement validation logic in `code/stats/correlation.py` to check instruments against registry and flag invalid measures.
 - [ ] T023 [US2] [Dep: T023a (proceed), T025a, T008_run] Implement `code/stats/correlation.py` to perform Spearman rank correlation between metrics and (Age, Cognitive Score). **Logic**: Use registry validation from T025b. **Critical**: Explicitly account for the family of tests (multiple metrics vs. multiple outcomes) when calculating power and error rates (FR-004).
 - [ ] T023_run [US2] [Dep: T023] **Execute** `code/stats/correlation.py` to generate `data/results/correlation_results.csv` (filtered to exclude null cognitive scores).
 - [ ] T026 [US2] [Dep: T023_run, T009] Apply Bonferroni/FDR correction to the family of tests (multiple metrics vs. multiple outcomes).

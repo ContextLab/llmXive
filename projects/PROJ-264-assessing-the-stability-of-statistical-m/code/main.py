@@ -6,79 +6,71 @@ import logging
 import sys
 from pathlib import Path
 
-# Add project root to path if not already present
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from code.utils import setup_logging, set_seed
 from code.data_loader import load_datasets
 from code.preprocessor import preprocess_data
-from code.evaluator import run_repeated_stratified_cv
+from code.config import DATASET_IDS, MODEL_NAMES, N_SPLITS, N_REPEATS, RANDOM_SEED, RAW_EVALUATIONS_PATH
 from code.results_writer import write_raw_evaluations
-
-logger = logging.getLogger(__name__)
+from code.evaluator import run_repeated_stratified_cv_corrected
 
 def main():
-    """
-    Execute the full pipeline:
-    1. Load datasets
-    2. Preprocess
-    3. Run repeated stratified CV
-    4. Write raw results to results/raw_evaluations.csv
-    """
     setup_logging()
-    set_seed(42)
-    
-    logger.info("Starting the stability assessment pipeline.")
-    
-    # 1. Load datasets
-    # This returns a list of (dataset_id, X, y) tuples
-    # We assume T005 has populated data/raw/ and this function loads them
-    try:
-        datasets = load_datasets()
-        if not datasets:
-            logger.error("No datasets loaded. Exiting.")
-            return
-        logger.info(f"Loaded {len(datasets)} datasets.")
-    except Exception as e:
-        logger.error(f"Failed to load datasets: {e}")
-        return
+    logger = logging.getLogger(__name__)
+    set_seed(RANDOM_SEED)
+
+    logger.info("Starting Stability Assessment Pipeline")
+
+    # Load datasets
+    logger.info(f"Loading {len(DATASET_IDS)} datasets...")
+    datasets = load_datasets(DATASET_IDS)
+
+    if not datasets:
+        logger.error("No datasets loaded. Exiting.")
+        sys.exit(1)
 
     all_results = []
 
-    # 2. Process and Evaluate each dataset
-    for dataset_id, X, y in datasets:
-        logger.info(f"Processing dataset ID: {dataset_id}")
-        
+    # Define models
+    models = [
+        ("LogisticRegression", None, {}),
+        ("RandomForest", None, {}),
+        ("LinearSVM", None, {})
+    ]
+
+    # Process each dataset
+    for dataset_info in datasets:
+        dataset_id = dataset_info["id"]
+        X = dataset_info["X"]
+        y = dataset_info["y"]
+        name = dataset_info["name"]
+
+        logger.info(f"Processing dataset {dataset_id} ({name}) with shape {X.shape}")
+
         try:
-            # Preprocess
-            X_processed, y_processed, feature_names = preprocess_data(X, y)
-            
-            # Run Evaluation
-            # run_repeated_stratified_cv returns a list of result dicts
-            results = run_repeated_stratified_cv(
+            # Run evaluation
+            results = run_repeated_stratified_cv_corrected(
                 dataset_id=dataset_id,
-                X=X_processed,
-                y=y_processed,
-                models=["LogisticRegression", "RandomForest", "LinearSVM"]
+                X=X,
+                y=y,
+                models=models,
+                n_splits=N_SPLITS,
+                n_repeats=N_REPEATS,
+                random_seed=RANDOM_SEED
             )
-            
             all_results.extend(results)
-            logger.info(f"Completed evaluation for dataset {dataset_id}. "
-                        f"Generated {len(results)} records.")
-            
+            logger.info(f"Completed dataset {dataset_id}. Generated {len(results)} records.")
         except Exception as e:
-            logger.error(f"Error processing dataset {dataset_id}: {e}", exc_info=True)
+            logger.error(f"Failed to process dataset {dataset_id}: {e}", exc_info=True)
             continue
 
-    # 3. Write raw results
-    if all_results:
-        write_raw_evaluations(all_results)
-        logger.info("Pipeline completed successfully. Results written to results/raw_evaluations.csv")
-    else:
-        logger.warning("No results generated. Writing empty CSV.")
-        write_raw_evaluations([])
+    if not all_results:
+        logger.error("No evaluation results generated. Exiting.")
+        sys.exit(1)
+
+    # Write results
+    logger.info(f"Writing {len(all_results)} results to {RAW_EVALUATIONS_PATH}...")
+    write_raw_evaluations(all_results, str(RAW_EVALUATIONS_PATH))
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

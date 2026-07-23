@@ -1,1 +1,2 @@
-# This directory stores version maps and execution state
+# State directory
+# Stores version maps, trace IDs, and execution state files.

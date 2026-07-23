@@ -1,1 +1,2 @@
-# This directory stores quality control reports and validation logs
+# Quality control directory
+# Stores reports on data validity, SNR flags, and artifact rejection logs.

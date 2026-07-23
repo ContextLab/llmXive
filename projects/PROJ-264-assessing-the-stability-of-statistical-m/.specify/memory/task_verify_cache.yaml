@@ -1,0 +1,14 @@
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., the cross\u2011validation loop,\
+    \ metric logs, or summary tables) were presented. Without any tangible implementation\
+    \ or results, we cannot confirm that accuracy and F1 are calculated inside the\
+    \ CV loop or that leakage is prevented. The required artifacts are missing."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (code, notebook, data file, or result output) was provided that\
+    \ shows the log\u2011log linear regression of log(CV) on log(n_samples) and log(n_features),\
+    \ nor any computed residuals or confirmation that Pearson\u202Fr remains the primary\
+    \ output. The claim lacks any concrete evidence of the required computation."

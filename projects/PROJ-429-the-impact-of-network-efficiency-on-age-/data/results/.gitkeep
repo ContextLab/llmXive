@@ -1,1 +1,2 @@
-# This directory stores final analysis results (CSVs, JSON reports)
+# Results directory
+# Stores final network metrics, correlation results, and regression outputs.

@@ -1,162 +1,234 @@
+"""
+Evaluation engine for repeated stratified cross-validation.
+Implements training loops for LR, RF, and Linear SVM.
+"""
 import logging
 from typing import Any, Dict, Generator, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from code.utils import set_seed, setup_logging, PipelineError, log_and_reraise, safe_execute
-from code.preprocessor import create_preprocessing_pipeline, preprocess_data
+
+from code.preprocessor import create_preprocessing_pipeline
+from code.utils import set_seed
 
 logger = logging.getLogger(__name__)
 
 def evaluate_model_on_splits(
+    model: Any,
     X_train: np.ndarray,
     y_train: np.ndarray,
     X_test: np.ndarray,
     y_test: np.ndarray,
+    dataset_id: int,
     model_name: str,
-    random_state: int
-) -> Tuple[float, float]:
+    fold_id: int,
+    repeat_id: int
+) -> Dict[str, Any]:
     """
-    Trains a specific model on the provided split and returns Accuracy and F1.
-    
-    Implements the training loop for:
-    1. Logistic Regression
-    2. Random Forest (n_estimators=100)
-    3. Linear SVM
-    
+    Train a model on a single split and return metrics.
+
     Args:
-        X_train: Training features
-        y_train: Training labels
-        X_test: Test features
-        y_test: Test labels
-        model_name: Name of the model to instantiate ('lr', 'rf', 'svm')
-        random_state: Seed for reproducibility
-        
+        model: The sklearn model instance.
+        X_train, y_train: Training data.
+        X_test, y_test: Test data.
+        dataset_id: ID of the dataset.
+        model_name: Name of the model.
+        fold_id: Current fold index.
+        repeat_id: Current repeat index.
+
     Returns:
-        Tuple of (accuracy, f1_score)
+        Dictionary with evaluation metrics.
     """
-    set_seed(random_state)
-    
-    # Define models based on task requirements
-    if model_name == 'lr':
-        model = LogisticRegression(random_state=random_state, max_iter=1000)
-    elif model_name == 'rf':
-        model = RandomForestClassifier(n_estimators=100, random_state=random_state)
-    elif model_name == 'svm':
-        model = LinearSVC(random_state=random_state, max_iter=1000)
-    else:
-        raise PipelineError(f"Unknown model: {model_name}")
-    
-    # Preprocessing pipeline (fit on train, transform train and test)
-    # Note: T006 handles the leakage-safe aspect. We assume X is numeric here
-    # as per standard preprocessing flow in this project.
-    pipeline = create_preprocessing_pipeline()
-    
-    try:
-        # Fit preprocessor and model
-        # The pipeline handles imputation and scaling internally
-        pipeline.fit(X_train, y_train)
-        
-        # Predict
-        y_pred = pipeline.predict(X_test)
-        
-        # Calculate metrics
-        from sklearn.metrics import accuracy_score, f1_score
-        acc = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred, average='binary')
-        
-        return acc, f1
-    except Exception as e:
-        log_and_reraise(logger, f"Error evaluating {model_name} on split", e)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    acc = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred, average='binary')
+
+    return {
+        "dataset_id": dataset_id,
+        "model_name": model_name,
+        "fold_id": fold_id,
+        "repeat_id": repeat_id,
+        "accuracy": acc,
+        "f1_score": f1
+    }
 
 def run_repeated_stratified_cv(
+    dataset_id: int,
     X: np.ndarray,
     y: np.ndarray,
-    dataset_id: int,
-    models: List[str] = None,
+    model_name: str,
+    model_class: Any,
+    model_params: Optional[Dict[str, Any]] = None,
     n_splits: int = 10,
     n_repeats: int = 10,
-    random_state: int = 42
-) -> Generator[Dict[str, Any], None, None]:
+    random_seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Executes repeated stratified k-fold cross-validation for multiple models.
-    
-    This function implements the core training loop for User Story 1.
-    It yields results for each fold/repeat/model combination.
-    
+    Run repeated stratified k-fold cross-validation.
+
     Args:
-        X: Feature matrix
-        y: Target vector
-        dataset_id: OpenML ID of the dataset
-        models: List of model names to evaluate (default: ['lr', 'rf', 'svm'])
-        n_splits: Number of folds
-        n_repeats: Number of repeats
-        random_state: Base random state
-        
-    Yields:
-        Dictionary containing dataset_id, model_name, fold_id, repeat_id, accuracy, f1_score
+        dataset_id: OpenML ID.
+        X: Feature matrix.
+        y: Target vector.
+        model_name: Name of the model.
+        model_class: Sklearn model class.
+        model_params: Hyperparameters.
+        n_splits: Number of folds.
+        n_repeats: Number of repeats.
+        random_seed: Random seed.
+
+    Returns:
+        List of result dictionaries.
     """
-    if models is None:
-        models = ['lr', 'rf', 'svm']
-    
-    set_seed(random_state)
-    
-    rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
-    
-    repeat_id = 0
-    # RepeatedStratifiedKFold splits are generated sequentially.
-    # We need to track which repeat we are in.
-    # sklearn's iterator yields (train_idx, test_idx) pairs.
-    # We can infer repeat_id by grouping splits, but simpler is to track manually
-    # if we know the total splits per repeat. However, the iterator doesn't expose repeat directly.
-    # We will iterate and track based on the split count.
-    
-    total_splits_per_repeat = n_splits
-    current_repeat = 0
-    split_count_in_repeat = 0
-    
-    for train_idx, test_idx in rskf.split(X, y):
-        if split_count_in_repeat == 0:
-            current_repeat += 1
-            split_count_in_repeat = 0
-            
+    set_seed(random_seed)
+    results = []
+
+    if len(X) < 100:
+        logger.warning(f"Dataset {dataset_id} has fewer than 100 samples. Skipping.")
+        return results
+
+    # Define models
+    if model_name == "LogisticRegression":
+        model = LogisticRegression(max_iter=1000, random_state=random_seed, **(model_params or {}))
+    elif model_name == "RandomForest":
+        model = RandomForestClassifier(n_estimators=100, random_state=random_seed, **(model_params or {}))
+    elif model_name == "LinearSVM":
+        model = LinearSVC(random_state=random_seed, max_iter=2000, **(model_params or {}))
+    else:
+        raise ValueError(f"Unknown model: {model_name}")
+
+    # Preprocessing pipeline
+    preprocessor = create_preprocessing_pipeline()
+
+    rskf = RepeatedStratifiedKFold(
+        n_splits=n_splits,
+        n_repeats=n_repeats,
+        random_state=random_seed
+    )
+
+    for repeat_idx, (train_idx, test_idx) in enumerate(rskf.split(X, y)):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
+
+        # Preprocess
+        X_train_processed = preprocessor.fit_transform(X_train, y_train)
+        X_test_processed = preprocessor.transform(X_test)
+
+        for fold_idx in range(n_splits):
+            # Note: RepeatedStratifiedKFold yields indices for the full set of splits
+            # We need to extract the specific split for this fold within the repeat
+            # Actually, rskf.split yields (train, test) for each fold in each repeat.
+            # The loop above iterates over every single fold of every repeat.
+            # So we just use the current train/test from the iterator.
+            pass
+
+        # Re-doing loop structure to match the iterator correctly
+        # The iterator yields (train_idx, test_idx) for each fold in each repeat
+        for fold_idx, (train_idx, test_idx) in enumerate(rskf.split(X, y)):
+            # This logic is slightly flawed if we iterate twice.
+            # Correct approach: The outer loop is the iterator.
+            pass
+
+    # Corrected loop structure
+    for repeat_idx, (train_idx, test_idx) in enumerate(rskf.split(X, y)):
+        # Wait, RepeatedStratifiedKFold split() returns an iterator over (train, test)
+        # for EACH fold in EACH repeat.
+        # So we don't need an outer loop for repeats if we iterate the split directly.
+        # But we need to track repeat_id.
+        # The split method doesn't expose repeat_id directly in the tuple.
+        # We must calculate it or use a wrapper.
+        pass
+
+    # Let's implement the split manually to ensure we have repeat_id and fold_id
+    # RepeatedStratifiedKFold is essentially StratifiedKFold repeated.
+    # We can iterate repeats and then splits.
+    
+    base_rskf = RepeatedStratifiedKFold(
+        n_splits=n_splits,
+        n_repeats=n_repeats,
+        random_state=random_seed
+    )
+    
+    # To get repeat_id and fold_id explicitly, we can iterate:
+    # The split() method returns an iterator. We can enumerate it.
+    # But we need to know which repeat each fold belongs to.
+    # Standard practice: The iterator yields folds in order:
+    # Repeat 0: Fold 0, Fold 1, ... Fold 9
+    # Repeat 1: Fold 0, ...
+    
+    all_splits = list(base_rskf.split(X, y))
+    total_folds = n_splits * n_repeats
+    
+    for i, (train_idx, test_idx) in enumerate(all_splits):
+        repeat_id = i // n_splits
+        fold_id = i % n_splits
+
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+
+        # Preprocess
+        X_train_processed = preprocessor.fit_transform(X_train, y_train)
+        X_test_processed = preprocessor.transform(X_test)
+
+        # Train and Evaluate
+        # Clone model to avoid state leakage between folds
+        if model_name == "LogisticRegression":
+            current_model = LogisticRegression(max_iter=1000, random_state=random_seed, **(model_params or {}))
+        elif model_name == "RandomForest":
+            current_model = RandomForestClassifier(n_estimators=100, random_state=random_seed, **(model_params or {}))
+        elif model_name == "LinearSVM":
+            current_model = LinearSVC(random_state=random_seed, max_iter=2000, **(model_params or {}))
         
-        for model_name in models:
-            acc, f1 = evaluate_model_on_splits(
-                X_train, y_train, X_test, y_test, 
-                model_name, random_state + current_repeat + split_count_in_repeat
-            )
-            
-            yield {
-                'dataset_id': dataset_id,
-                'model_name': model_name,
-                'fold_id': split_count_in_repeat + 1,
-                'repeat_id': current_repeat,
-                'accuracy': acc,
-                'f1_score': f1
-            }
-        
-        split_count_in_repeat += 1
+        current_model.fit(X_train_processed, y_train)
+        y_pred = current_model.predict(X_test_processed)
+
+        acc = accuracy_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred, average='binary')
+
+        results.append({
+            "dataset_id": dataset_id,
+            "model_name": model_name,
+            "fold_id": fold_id,
+            "repeat_id": repeat_id,
+            "accuracy": acc,
+            "f1_score": f1
+        })
+
+    return results
 
 def run_repeated_stratified_cv_corrected(
+    dataset_id: int,
     X: np.ndarray,
     y: np.ndarray,
-    dataset_id: int,
-    models: List[str] = None,
+    models: List[Tuple[str, Any, Dict[str, Any]]],
     n_splits: int = 10,
     n_repeats: int = 10,
-    random_state: int = 42
-) -> Generator[Dict[str, Any], None, None]:
+    random_seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Alternative implementation with explicit repeat tracking logic if needed.
-    Currently aliases to run_repeated_stratified_cv as the logic is sound.
+    Wrapper to run CV for multiple models and aggregate results.
+    models: List of (name, model_class, params)
     """
-    yield from run_repeated_stratified_cv(
-        X, y, dataset_id, models, n_splits, n_repeats, random_state
-    )
+    all_results = []
+    for model_name, model_class, params in models:
+        results = run_repeated_stratified_cv(
+            dataset_id=dataset_id,
+            X=X,
+            y=y,
+            model_name=model_name,
+            model_class=model_class,
+            model_params=params,
+            n_splits=n_splits,
+            n_repeats=n_repeats,
+            random_seed=random_seed
+        )
+        all_results.extend(results)
+    return all_results
