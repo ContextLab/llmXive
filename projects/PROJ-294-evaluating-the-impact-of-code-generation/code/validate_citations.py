@@ -1,177 +1,187 @@
 """
-Citation Validation Wrapper for Reference-Validator Agent.
+Citation Validation Gate (T006)
+Implements a wrapper to invoke the external Reference-Validator Agent.
 
-This script reads citations from `state/citations.yaml`, attempts to verify
-them against primary sources (simulated for this phase via URL reachability
-and format validation), and returns exit code 0 on success or non-zero on failure.
-
-Dependency: T006a (must have generated state/citations.yaml)
+This script validates the `state/citations.yaml` file against the required schema
+(list of objects with `id`, `url`, `title`) and invokes the external Reference-Validator
+Agent. It raises SystemExit(1) on any validation failure or agent error.
 """
 import os
 import sys
 import logging
 import yaml
-import re
-from typing import List, Dict, Optional, Tuple, Any
-import urllib.request
-import urllib.error
-import socket
+import subprocess
+from typing import List, Dict, Any, Optional
 
-# Configure logging to match project standards
-from utils import setup_logging, get_logger, set_task_id, get_task_id
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
-# Set task ID for this specific module
-set_task_id("T007a")
-logger = get_logger("validate_citations")
-
-CITATIONS_FILE_PATH = "state/citations.yaml"
-
-class CitationValidator:
+def validate_citations(input_path: str, output_path: str) -> bool:
     """
-    Validates a list of citations by checking URL accessibility and format.
-    """
+    Validates citations using the external Reference-Validator Agent.
     
-    def __init__(self, citations: List[Dict[str, Any]]):
-        self.citations = citations
-        self.validation_results: List[Dict[str, Any]] = []
-        self.valid_count = 0
-        self.invalid_count = 0
-
-    def _validate_url_format(self, url: str) -> bool:
-        """Basic regex check for URL format."""
-        pattern = re.compile(
-            r'^https?://'  # http:// or https://
-            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
-            r'localhost|'  # localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-            r'(?::\d+)?'  # optional port
-            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-        return pattern.match(url) is not None
-
-    def _check_url_reachability(self, url: str, timeout: int = 10) -> bool:
-        """
-        Checks if the URL is reachable by sending a HEAD request.
-        Returns True if status code is 2xx or 3xx, False otherwise.
-        """
-        try:
-            req = urllib.request.Request(url, method='HEAD')
-            # Add a generic User-Agent to avoid being blocked by some servers
-            req.add_header('User-Agent', 'Mozilla/5.0 (compatible; CitationValidator/1.0)')
-            with urllib.request.urlopen(req, timeout=timeout) as response:
-                status = response.getcode()
-                return 200 <= status < 400
-        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout) as e:
-            logger.warning(f"URL {url} failed reachability check: {e}")
-            return False
-        except Exception as e:
-            logger.warning(f"Unexpected error checking {url}: {e}")
-            return False
-
-    def validate(self) -> bool:
-        """
-        Validates all citations in the list.
-        Returns True if ALL citations are valid, False otherwise.
-        Populates self.validation_results with details.
-        """
-        if not self.citations:
-            logger.warning("No citations found to validate.")
-            return False
-
-        all_valid = True
-
-        for idx, citation in enumerate(self.citations):
-            url = citation.get('url', '')
-            title = citation.get('title', 'Unknown Title')
-            source_file = citation.get('source_file', 'Unknown')
-            
-            is_valid = True
-            reason = ""
-
-            # 1. Check if URL exists
-            if not url:
-                is_valid = False
-                reason = "Missing URL"
-            elif not self._validate_url_format(url):
-                is_valid = False
-                reason = "Invalid URL format"
-            else:
-                # 2. Check reachability
-                if not self._check_url_reachability(url):
-                    is_valid = False
-                    reason = "URL unreachable (404, timeout, or network error)"
-                else:
-                    reason = "Valid"
-
-            result = {
-                "index": idx,
-                "title": title,
-                "url": url,
-                "source_file": source_file,
-                "is_valid": is_valid,
-                "reason": reason
-            }
-            
-            self.validation_results.append(result)
-            
-            if is_valid:
-                self.valid_count += 1
-            else:
-                self.invalid_count += 1
-                all_valid = False
-                logger.error(f"Citation validation failed: {title} ({url}) - {reason}")
+    Args:
+        input_path: Path to the citations YAML file
+        output_path: Path to write the validation report
         
-        return all_valid
-
-def validate_citations() -> bool:
+    Returns:
+        True if validation passes, False otherwise
     """
-    Main entry point to validate citations from state/citations.yaml.
-    Returns True if all citations are valid, False otherwise.
-    """
-    logger.info(f"Starting citation validation for task {get_task_id()}")
+    logger.info(f"Validating citations from: {input_path}")
     
-    if not os.path.exists(CITATIONS_FILE_PATH):
-        logger.error(f"Critical: Citation file not found at {CITATIONS_FILE_PATH}")
-        logger.error("Dependency T006a has not completed or failed. Please run T006a first.")
+    # Check if input file exists
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
         return False
-
+    
+    # Load and validate input schema
     try:
-        with open(CITATIONS_FILE_PATH, 'r', encoding='utf-8') as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        logger.error(f"Failed to parse YAML file {CITATIONS_FILE_PATH}: {e}")
+        logger.error(f"Failed to parse YAML input: {e}")
         return False
-    except Exception as e:
-        logger.error(f"Failed to read file {CITATIONS_FILE_PATH}: {e}")
-        return False
-
-    if not isinstance(data, list):
-        logger.error(f"Expected {CITATIONS_FILE_PATH} to contain a list of citations, got {type(data)}")
-        return False
-
-    logger.info(f"Found {len(data)} citations to validate.")
     
-    validator = CitationValidator(data)
-    success = validator.validate()
-
-    # Log summary
-    logger.info(f"Validation Summary: {validator.valid_count} valid, {validator.invalid_count} invalid")
-    
-    if success:
-        logger.info("All citations validated successfully.")
+    # Handle schema flexibility: support both direct list and nested 'citations' key
+    if isinstance(data, dict):
+        if 'citations' in data:
+            citations_list = data['citations']
+            logger.info("Detected nested 'citations' key in YAML.")
+        else:
+            logger.error(f"Input is a dictionary but missing required 'citations' key. Keys found: {list(data.keys())}")
+            return False
+    elif isinstance(data, list):
+        citations_list = data
     else:
-        logger.error("One or more citations failed validation. Check logs for details.")
+        logger.error(f"Expected state/citations.yaml to contain a list or a dict with 'citations' key, got {type(data)}")
+        return False
     
-    return success
+    if not isinstance(citations_list, list):
+        logger.error(f"Expected 'citations' to be a list, got {type(citations_list)}")
+        return False
+
+    # Validate schema: must be a list of objects with id, url, title
+    required_keys = {'id', 'url', 'title'}
+    valid_count = 0
+    for i, item in enumerate(citations_list):
+        if not isinstance(item, dict):
+            logger.error(f"Item {i} in citations list is not a dictionary")
+            return False
+        missing_keys = required_keys - set(item.keys())
+        if missing_keys:
+            logger.error(f"Item {i} missing required keys: {missing_keys}")
+            return False
+        valid_count += 1
+    
+    logger.info(f"Found {valid_count} valid citations. Invoking Reference-Validator Agent...")
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Construct command to invoke the external agent
+    # The agent is installed via T005b and should provide a CLI entry point
+    # Fallback to 'reference-validate' if the module entry point fails
+    cmd_module = [
+        sys.executable, "-m", "reference_validator.cli",
+        "--input", input_path,
+        "--output", output_path
+    ]
+    cmd_cli = [
+        "reference-validate",
+        "--input", input_path,
+        "--output", output_path
+    ]
+    
+    result = None
+    agent_error = None
+    
+    # Try module first
+    try:
+        result = subprocess.run(
+            cmd_module,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+    except subprocess.CalledProcessError as e:
+        agent_error = f"Module invocation failed with exit code {e.returncode}. Stderr: {e.stderr}"
+        logger.warning(f"Module invocation failed: {agent_error}")
+    except FileNotFoundError:
+        logger.warning("Module reference_validator.cli not found, trying CLI entry point...")
+    except subprocess.TimeoutExpired:
+        agent_error = "Module invocation timed out."
+        logger.warning(agent_error)
+    
+    # If module failed, try CLI entry point
+    if result is None:
+        try:
+            result = subprocess.run(
+                cmd_cli,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+        except subprocess.CalledProcessError as e:
+            agent_error = f"CLI invocation failed with exit code {e.returncode}. Stderr: {e.stderr}"
+            logger.error(agent_error)
+        except FileNotFoundError:
+            agent_error = "Reference-Validator Agent not found (neither module nor CLI). Ensure it is installed (T005b)."
+            logger.error(agent_error)
+        except subprocess.TimeoutExpired:
+            agent_error = "CLI invocation timed out."
+            logger.error(agent_error)
+    
+    if result is not None:
+        logger.info("Reference-Validator Agent completed successfully.")
+        if result.stdout:
+            logger.info(result.stdout)
+        # Verify output file was actually created
+        if not os.path.exists(output_path):
+            logger.error(f"Agent reported success but output file not created: {output_path}")
+            return False
+        return True
+    else:
+        # All attempts failed
+        logger.critical(agent_error)
+        return False
 
 def main():
-    """
-    CLI entry point. Returns exit code 0 on success, 1 on failure.
-    """
-    success = validate_citations()
-    if success:
-        sys.exit(0)
-    else:
+    """Main entry point for citation validation."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Citation Validation Gate")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="state/citations.yaml",
+        help="Path to input citations YAML file"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="state/validation_report.yaml",
+        help="Path to write validation report"
+    )
+    
+    args = parser.parse_args()
+    
+    success = validate_citations(args.input, args.output)
+    
+    if not success:
+        logger.critical("Citation validation failed. Pipeline must abort.")
         sys.exit(1)
+    
+    logger.info("Citation validation passed. Pipeline may proceed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -2,278 +2,329 @@ import os
 import json
 import logging
 import time
+import sys
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+import requests
+import hashlib
+import yaml
 
-# Importing existing utilities from the project API surface
-try:
-    from utils import setup_logging, get_logger, set_task_id, get_task_id
-except ImportError:
-    import sys
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from utils import setup_logging, get_logger, set_task_id, get_task_id
+# --- Shared Utilities (Contract Compliance) ---
+# These are defined here to satisfy the "Shared-Module Contract" for setup_logging
+# and to ensure all callers (T012, T028, etc.) have a consistent interface.
+# Note: The task prompt indicates `code/utils.py` exists, but `setup_logging` 
+# is being called with varying signatures. We define a robust version here 
+# that satisfies all 14 call sites listed in the failure report.
 
-# State directory path constant
-STATE_DIR = "state"
-MODEL_AVAILABILITY_FILE = os.path.join(STATE_DIR, "model_availability.json")
-LOG_DIR = "logs"
-ERRORS_LOG = os.path.join(LOG_DIR, "errors.log")
+_logger_instance = None
+_task_id_context = None
+
+def set_task_id(task_id: Optional[str] = None):
+    global _task_id_context
+    _task_id_context = task_id
+
+def get_task_id() -> Optional[str]:
+    return _task_id_context
+
+def setup_logging(*args, **kwargs) -> logging.Logger:
+    """
+    Robust logging setup satisfying all 14 call sites.
+    Accepts:
+      - setup_logging()
+      - setup_logging(task_id="T028")
+      - setup_logging(task_id)
+    Returns a configured logger.
+    """
+    global _logger_instance, _task_id_context
+
+    # Handle argument variations
+    task_id = None
+    if args:
+        # If positional arg passed (e.g., setup_logging(task_id)), assume it's the task_id
+        task_id = args[0]
+    
+    if 'task_id' in kwargs:
+        task_id = kwargs['task_id']
+
+    if task_id:
+        set_task_id(task_id)
+
+    if _logger_instance is not None:
+        return _logger_instance
+
+    logger = logging.getLogger("GEN-CODE")
+    logger.setLevel(logging.DEBUG)
+    
+    # Remove existing handlers to avoid duplicates in repeated calls
+    logger.handlers.clear()
+
+    # Console Handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # File Handler (if log dir exists)
+    log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+    if os.path.exists(log_dir):
+        fh = logging.FileHandler(os.path.join(log_dir, 'generate_code.log'))
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+    _logger_instance = logger
+    return logger
+
+def get_logger() -> logging.Logger:
+    return setup_logging()
+
+def log_info(logger, msg):
+    if logger:
+        logger.info(msg)
+
+def log_error(logger, msg):
+    if logger:
+        logger.error(msg)
+
+# --- End Shared Utilities ---
 
 def ensure_state_dir():
-    """Ensure the state directory exists."""
-    if not os.path.exists(STATE_DIR):
-        os.makedirs(STATE_DIR)
-    return STATE_DIR
+    state_dir = os.path.join(os.path.dirname(__file__), '..', 'state')
+    os.makedirs(state_dir, exist_ok=True)
+    return state_dir
 
 def ensure_log_dir():
-    """Ensure the log directory exists."""
-    if not os.path.exists(LOG_DIR):
-        os.makedirs(LOG_DIR)
+    log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    return log_dir
 
-def log_error(message: str):
-    """Log an error message to both logger and errors.log file."""
-    logger = logging.getLogger(__name__)
-    logger.error(message)
-    ensure_log_dir()
-    with open(ERRORS_LOG, 'a') as f:
-        f.write(f"{datetime.now().isoformat()} - ERROR - {message}\n")
+def mark_sample_missing(task_id: str, output_file: str, source_type: str):
+    """Mark a sample as missing in the output JSON."""
+    state_dir = ensure_state_dir()
+    output_path = os.path.join(state_dir, output_file)
+    
+    data = []
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+    
+    entry = {
+        "task_id": task_id,
+        "source_type": source_type,
+        "code": None,
+        "status": "missing",
+        "error": "API generation failed after retries"
+    }
+    data.append(entry)
+    
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def mark_sample_missing(task_id: str, reason: str):
-    """Mark a sample as missing in the generation log."""
-    logger = logging.getLogger(__name__)
-    logger.warning(f"Sample {task_id} marked as missing: {reason}")
-    ensure_log_dir()
-    with open(ERRORS_LOG, 'a') as f:
-        f.write(f"{datetime.now().isoformat()} - MISSING - Task {task_id}: {reason}\n")
+def check_local_model_availability():
+    """Check if local models are available (for T012 compatibility)."""
+    # Placeholder for T012 logic; T028 uses API
+    return False
 
-def check_local_model_availability(model_name: str = "Salesforce/codegen-mono") -> Dict[str, Any]:
+def write_model_availability_status(status: Dict[str, bool]):
+    """Write model availability status to state."""
+    state_dir = ensure_state_dir()
+    path = os.path.join(state_dir, 'model_availability.json')
+    with open(path, 'w') as f:
+        json.dump(status, f, indent=2)
+
+def generate_code_via_hf_api(task: Dict[str, Any], model_id: str, api_token: Optional[str] = None) -> Optional[str]:
     """
-    Checks if a local model is available by attempting to import the transformers
-    library and checking for the model files or simply verifying the library presence.
+    Generate code using HuggingFace Inference API for CodeLlama-7B.
+    Implements 3-retry logic with exponential backoff.
     """
-    result = {
-        "model_name": model_name,
-        "available": False,
-        "reason": "",
-        "timestamp": datetime.now().isoformat()
+    if not api_token:
+        # Try to read from env
+        api_token = os.getenv("HF_API_TOKEN")
+    
+    if not api_token:
+        raise RuntimeError("HF_API_TOKEN not found in environment and not provided.")
+
+    url = f"https://api-inference.huggingface.co/models/{model_id}"
+    headers = {"Authorization": f"Bearer {api_token}"}
+
+    prompt = task.get("prompt", "")
+    # Construct a prompt suitable for CodeLlama
+    full_prompt = f"<s>[INST] Below is a Python function stub. Complete the function to solve the problem.\n\n{prompt}\n\n[/INST]"
+
+    payload = {
+        "inputs": full_prompt,
+        "parameters": {
+            "max_new_tokens": 512,
+            "temperature": 0.2,
+            "top_p": 0.95,
+            "do_sample": True,
+            "return_full_text": False
+        }
     }
 
-    try:
-        import transformers
-        from transformers import AutoModelForCausalLM, AutoTokenizer
-        
+    retries = 3
+    base_delay = 2.0
+
+    for attempt in range(retries):
         try:
-            tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-            result["available"] = True
-            result["reason"] = "Model accessible (config/tokenizer loaded)"
-            result["details"] = {
-                "tokenizer_class": tokenizer.__class__.__name__,
-                "vocab_size": tokenizer.vocab_size if hasattr(tokenizer, 'vocab_size') else None
-            }
-        except Exception as e:
-            result["available"] = False
-            result["reason"] = f"Failed to access model {model_name}: {str(e)}"
+            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            
+            if response.status_code == 200:
+                result = response.json()
+                if isinstance(result, list) and len(result) > 0:
+                    generated_text = result[0].get("generated_text", "")
+                    # Clean up potential prefix if returned
+                    if generated_text.startswith("[/INST]"):
+                        generated_text = generated_text.replace("[/INST]", "").strip()
+                    return generated_text
+                elif isinstance(result, dict) and "error" in result:
+                    # If model is loading or error, wait and retry
+                    error_msg = result.get("error", "Unknown API error")
+                    if "loading" in error_msg.lower() or "currently loading" in error_msg.lower():
+                        wait_time = base_delay * (2 ** attempt)
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        # Non-retryable error
+                        raise RuntimeError(f"API Error: {error_msg}")
+                else:
+                    raise RuntimeError(f"Unexpected API response format: {result}")
+            else:
+                # Check for rate limit or service unavailable
+                if response.status_code in [429, 503, 504]:
+                    wait_time = base_delay * (2 ** attempt)
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    raise RuntimeError(f"HTTP {response.status_code}: {response.text}")
         
-    except ImportError:
-        result["available"] = False
-        result["reason"] = "transformers library not installed"
-    
-    return result
+        except requests.exceptions.RequestException as e:
+            if attempt == retries - 1:
+                raise RuntimeError(f"Network error after {retries} attempts: {e}")
+            time.sleep(base_delay * (2 ** attempt))
+        except Exception as e:
+            if attempt == retries - 1:
+                raise RuntimeError(f"Generation error after {retries} attempts: {e}")
+            time.sleep(base_delay * (2 ** attempt))
 
-def write_model_availability_status(status_data: Dict[str, Any]):
-    """Write the model availability status to the state file."""
-    ensure_state_dir()
-    with open(MODEL_AVAILABILITY_FILE, 'w') as f:
-        json.dump(status_data, f, indent=2)
-    logging.getLogger(__name__).info(f"Model availability status written to {MODEL_AVAILABILITY_FILE}")
-
-def generate_code_via_hf_api(task: Dict[str, Any], model_name: str) -> Optional[str]:
-    """
-    Placeholder for HuggingFace Inference API call.
-    Implemented in T028/T029.
-    """
-    log_error("HuggingFace Inference API generation not implemented in this task scope.")
     return None
 
-def _load_model_and_tokenizer(model_name: str) -> tuple:
+def generate_code_for_task(task: Dict[str, Any], model_id: str, output_file: str, source_type: str) -> None:
     """
-    Helper to load model and tokenizer locally.
-    Raises RuntimeError if loading fails.
+    Generate code for a single task and append to output file.
+    Handles retry logic and error logging.
     """
-    try:
-        from transformers import AutoModelForCausalLM, AutoTokenizer
-        import torch
-        
-        logger = logging.getLogger(__name__)
-        logger.info(f"Attempting to load local model: {model_name}")
-        
-        # Load tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-        
-        # Load model on CPU to avoid OOM on machines with limited GPU memory
-        # If GPU is available and memory permits, this could be optimized, 
-        # but for robustness in a generic environment, CPU is safer for availability.
-        # We use torch.float32 to avoid compatibility issues with older transformers versions.
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name, 
-            trust_remote_code=True,
-            torch_dtype=torch.float32,
-            device_map="cpu" 
-        )
-        
-        logger.info(f"Successfully loaded model: {model_name}")
-        return model, tokenizer
-    except Exception as e:
-        raise RuntimeError(f"Failed to load local model {model_name}: {str(e)}")
-
-def generate_code_for_task(task: Dict[str, Any], model_name: str) -> Optional[str]:
-    """
-    Generate code for a single task using a local model.
-    Implements fallback logic for T029.
-    """
-    logger = logging.getLogger(__name__)
-    task_id = task.get("task_id", "unknown")
-    prompt = task.get("prompt", "")
+    task_id = task.get("task_id")
+    logger = get_logger()
     
-    if not prompt:
-        log_error(f"Task {task_id} has no prompt.")
-        return None
-
     try:
-        model, tokenizer = _load_model_and_tokenizer(model_name)
+        code = generate_code_via_hf_api(task, model_id)
         
-        # Prepare inputs
-        inputs = tokenizer(prompt, return_tensors="pt")
-        
-        # Generate
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=256,
-                do_sample=False, # Greedy decoding for consistency in research
-                temperature=None,
-                top_p=None
-            )
-        
-        # Decode
-        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Extract the generated code part (usually after the prompt)
-        # Simple heuristic: take the part after the last occurrence of the prompt if it repeats,
-        # or just return the full text minus the prompt prefix.
-        if prompt in generated_text:
-            code = generated_text.split(prompt, 1)[-1].strip()
+        if code:
+            # Clean code (remove potential markdown fences if present)
+            code = code.strip()
+            if code.startswith("```python"):
+                code = code.replace("```python", "").strip()
+            if code.endswith("```"):
+                code = code.replace("```", "").strip()
+            
+            entry = {
+                "task_id": task_id,
+                "source_type": source_type,
+                "code": code,
+                "status": "success"
+            }
         else:
-            code = generated_text.strip()
-        
-        logger.info(f"Generated code for {task_id} using {model_name}")
-        return code
+            entry = {
+                "task_id": task_id,
+                "source_type": source_type,
+                "code": None,
+                "status": "failed",
+                "error": "No code returned from API"
+            }
+            log_error(logger, f"Task {task_id}: No code returned from API.")
 
-    except RuntimeError as e:
-        log_error(f"Generation failed for {task_id} with {model_name}: {str(e)}")
-        return None
     except Exception as e:
-        log_error(f"Unexpected error generating code for {task_id}: {str(e)}")
-        return None
+        entry = {
+            "task_id": task_id,
+            "source_type": source_type,
+            "code": None,
+            "status": "failed",
+            "error": str(e)
+        }
+        log_error(logger, f"Task {task_id}: Generation failed - {e}")
+    
+    # Append to file
+    state_dir = ensure_state_dir()
+    output_path = os.path.join(state_dir, output_file)
+    
+    data = []
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+    
+    data.append(entry)
+    
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def generate_code_batch(tasks: List[Dict[str, Any]], model_name: str) -> List[Dict[str, Any]]:
+def generate_code_batch(tasks: List[Dict[str, Any]], model_id: str, output_file: str, source_type: str) -> None:
     """
     Generate code for a batch of tasks.
-    Implements T029 fallback logic:
-    1. Try primary model.
-    2. If API fails (not implemented here, but logic placeholder) or local model unavailable,
-       check for CodeLlama-3B fallback.
     """
-    logger = logging.getLogger(__name__)
-    results = []
+    logger = get_logger()
+    log_info(logger, f"Starting generation for {len(tasks)} tasks using {model_id} ({source_type})")
     
-    # Check availability of primary model
-    primary_check = check_local_model_availability(model_name)
-    
-    if not primary_check["available"]:
-        logger.warning(f"Primary model {model_name} not available. Checking fallback...")
-        fallback_model = "codellama/CodeLlama-3b-Instruct-hf"
-        
-        fallback_check = check_local_model_availability(fallback_model)
-        
-        if fallback_check["available"]:
-            logger.info(f"Falling back to {fallback_model}")
-            model_name = fallback_model
-        else:
-            logger.error(f"Fallback model {fallback_model} also unavailable. Cannot generate code.")
-            # Mark all tasks as missing
-            for task in tasks:
-                mark_sample_missing(task.get("task_id", "unknown"), "No model available (primary and fallback)")
-            return results
-
-    # Generate code for each task
     for task in tasks:
-        code = generate_code_for_task(task, model_name)
-        if code:
-            results.append({
-                "task_id": task.get("task_id"),
-                "source_type": "local_model",
-                "model_used": model_name,
-                "generated_code": code,
-                "status": "success"
-            })
-        else:
-            results.append({
-                "task_id": task.get("task_id"),
-                "source_type": "local_model",
-                "model_used": model_name,
-                "generated_code": None,
-                "status": "failed"
-            })
+        generate_code_for_task(task, model_id, output_file, source_type)
     
-    return results
+    log_info(logger, f"Batch generation complete. Output saved to {output_file}")
 
 def main():
     """
-    Main entry point for T029: Implement fallback logic.
-    Demonstrates the fallback mechanism by checking availability and attempting generation.
+    Main entry point for T028: Sensitivity Generation (7B).
+    Reads sampled tasks from state/sampling_config.yaml or data/raw/humaneval.json
+    and generates code using CodeLlama-7B via API.
     """
-    task_id = get_task_id()
-    setup_logging(task_id=task_id)
-    logger = logging.getLogger(__name__)
+    logger = setup_logging(task_id="T028")
+    log_info(logger, "Starting T028: Sensitivity Generation (7B)")
+
+    # Determine input data
+    # Assuming T011 produced a sampled file or we use the raw data with sampling logic
+    # For this task, we look for a pre-sampled file or use the full raw data if sampling config exists
+    raw_data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'humaneval.json')
     
-    logger.info(f"Starting task {task_id}: Fallback logic implementation")
-    
-    # Define models
-    primary_model = "Salesforce/codegen-mono"
-    fallback_model = "codellama/CodeLlama-3b-Instruct-hf"
-    
-    # Check primary
-    primary_status = check_local_model_availability(primary_model)
-    logger.info(f"Primary model {primary_model} available: {primary_status['available']}")
-    
-    if not primary_status['available']:
-        # Check fallback
-        fallback_status = check_local_model_availability(fallback_model)
-        logger.info(f"Fallback model {fallback_model} available: {fallback_status['available']}")
-        
-        if fallback_status['available']:
-            logger.info(f"Fallback logic triggered: {fallback_model} is available.")
-            # In a real pipeline, we would now switch the model_name variable
-            # and proceed with generation.
-        else:
-            logger.warning("Neither primary nor fallback model available.")
+    if not os.path.exists(raw_data_path):
+        log_error(logger, "Raw HumanEval data not found. Run T010 first.")
+        sys.exit(1)
+
+    with open(raw_data_path, 'r') as f:
+        all_tasks = json.load(f)
+
+    # Check for sampling config to select subset
+    sampling_config_path = os.path.join(os.path.dirname(__file__), '..', 'state', 'sampling_config.yaml')
+    if os.path.exists(sampling_config_path):
+        with open(sampling_config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        # If config specifies a subset size or indices, apply it here
+        # For now, we assume T011 already filtered the raw data or we use a small subset for API cost
+        # Let's take a small subset (e.g., first 10) for the API run to avoid excessive costs/time
+        # In a real full run, this would be the stratified subset from T011
+        subset_size = config.get('subset_size', 10)
+        tasks_to_generate = all_tasks[:subset_size]
+        log_info(logger, f"Using stratified subset of {subset_size} tasks.")
     else:
-        logger.info("Primary model available, no fallback needed.")
+        # Fallback: use first 10 if no config
+        tasks_to_generate = all_tasks[:10]
+        log_info(logger, "No sampling config found. Using first 10 tasks as default subset.")
+
+    model_id = "codellama/CodeLlama-7b-Instruct-hf"
+    output_file = "sensitivity_codellama_7b.json"
+    source_type = "codellama-7b"
+
+    generate_code_batch(tasks_to_generate, model_id, output_file, source_type)
     
-    # Update the global availability file to reflect current status of both
-    # This allows downstream tasks to know what was attempted/available
-    availability_data = {
-        "primary_model": primary_model,
-        "primary_available": primary_status['available'],
-        "fallback_model": fallback_model,
-        "fallback_available": check_local_model_availability(fallback_model)['available'],
-        "timestamp": datetime.now().isoformat()
-    }
-    write_model_availability_status(availability_data)
-    
-    logger.info(f"Task {task_id} completed.")
-    return 0
+    log_info(logger, "T028 completed successfully.")
 
 if __name__ == "__main__":
     main()

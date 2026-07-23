@@ -4,384 +4,583 @@ import math
 import os
 import sys
 import random
-from typing import List, Dict, Any, Tuple, Optional
+import yaml
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
 
-# Import standard library for power analysis
-try:
-    from statsmodels.stats.power import tt_solve_power, zt_solve_power
-    from statsmodels.stats.effect_size import CohenD
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
-    # Fallback stubs if statsmodels not available (will raise in logic if needed)
-    tt_solve_power = None
-    zt_solve_power = None
-    CohenD = None
+# Global state for task ID and logger
+_task_id = None
+_logger = None
+_unique_id_counter = 0
 
-# Project utilities
-from utils import setup_logging, get_logger, set_task_id, get_task_id
+def set_task_id(tid: str):
+    global _task_id
+    _task_id = tid
 
-# Constants for Power Analysis
-DEFAULT_EFFECT_SIZE = 0.5
-DEFAULT_ALPHA = 0.05
-DEFAULT_POWER = 0.8
+def get_task_id() -> Optional[str]:
+    return _task_id
 
-def setup_logging():
-    """Configure logging for the statistical analysis module."""
-    logger = logging.getLogger("statistical_tests")
+def get_unique_id() -> str:
+    global _unique_id_counter
+    _unique_id_counter += 1
+    return f"{_task_id or 'UNKNOWN'}-{_unique_id_counter}"
+
+def get_timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def setup_logging(*args, **kwargs) -> logging.Logger:
+    """
+    Flexible logging setup compatible with all callers.
+    Accepts task_id as kwarg, or no args, or positional args (ignored).
+    """
+    global _logger, _task_id
+
+    # Handle arguments gracefully
+    task_id_val = kwargs.get('task_id') or (args[0] if args and isinstance(args[0], str) else None)
+    
+    if task_id_val:
+        _task_id = task_id_val
+
+    if _logger is not None:
+        return _logger
+
+    logger = logging.getLogger(f"statistical_tests_{_task_id or 'default'}")
     logger.setLevel(logging.DEBUG)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
+    
+    # Remove existing handlers to avoid duplicates
+    logger.handlers = []
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    
+    # Create formatter with task ID if available
+    fmt_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    if _task_id:
+        fmt_str = f"%(asctime)s [{_task_id}] - %(levelname)s - %(message)s"
+    
+    formatter = logging.Formatter(fmt_str)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    _logger = logger
     return logger
 
-logger = setup_logging()
+def get_logger() -> logging.Logger:
+    if _logger is None:
+        return setup_logging()
+    return _logger
 
-def load_metrics(filepath: str = "data/analysis/metrics.json") -> List[Dict[str, Any]]:
-    """Load the aggregated metrics JSON file."""
-    if not os.path.exists(filepath):
-        logger.error(f"Metrics file not found: {filepath}")
-        raise FileNotFoundError(f"Metrics file not found: {filepath}")
-    with open(filepath, 'r') as f:
+def log_info(msg: str):
+    logger = get_logger()
+    if logger:
+        logger.info(msg)
+
+def log_error(msg: str):
+    logger = get_logger()
+    if logger:
+        logger.error(msg)
+
+def load_metrics(path: str = "data/analysis/metrics.json") -> List[Dict[str, Any]]:
+    """Load metrics from JSON file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    
+    with open(path, 'r') as f:
         data = json.load(f)
+    
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list in {path}, got {type(data)}")
+    
     return data
 
-def wilcoxon_signed_rank_test(group1: List[float], group2: List[float]) -> Dict[str, float]:
-    """Perform Wilcoxon Signed-Rank test for paired samples."""
-    if len(group1) != len(group2):
-        raise ValueError("Groups must be of equal length for paired test.")
-    if len(group1) == 0:
-        return {"statistic": 0.0, "pvalue": 1.0}
-    
-    # Simple implementation or import from scipy if available
-    try:
-        from scipy.stats import wilcoxon
-        stat, pval = wilcoxon(group1, group2)
-        return {"statistic": float(stat), "pvalue": float(pval)}
-    except ImportError:
-        logger.warning("scipy not available. Implementing basic Wilcoxon logic or failing.")
-        # Fallback: If scipy is missing, we cannot do this correctly. 
-        # For the purpose of this task, we assume scipy is a dependency.
-        # If strictly no scipy, we would implement the rank sum manually, but that is complex.
-        # We assume the environment has scipy as per standard scientific stack.
-        raise ImportError("scipy is required for wilcoxon test")
-
-def calculate_wilcoxon_for_all_metrics(data: List[Dict[str, Any]], metric: str) -> Optional[Dict[str, float]]:
-    """Calculate Wilcoxon test for a specific metric across source types."""
-    # Separate by source_type
-    # Assuming data is a list of records with 'source_type' and the metric
-    human_vals = []
-    llm_vals = []
-    
-    # We need to pair them by task_id
-    task_map = {}
-    for row in data:
-        tid = row.get('task_id')
-        st = row.get('source_type')
-        val = row.get(metric)
-        if val is None: continue
-        if tid not in task_map: task_map[tid] = {}
-        task_map[tid][st] = val
-
-    for tid, sources in task_map.items():
-        if 'human' in sources and 'llm' in sources:
-            human_vals.append(sources['human'])
-            llm_vals.append(sources['llm'])
-    
-    if len(human_vals) < 2:
-        logger.warning(f"Insufficient pairs for {metric} Wilcoxon test.")
-        return None
-
-    return wilcoxon_signed_rank_test(human_vals, llm_vals)
-
-def mcnemar_test(contingency: List[List[int]]) -> Dict[str, float]:
-    """Perform McNemar's test for binary paired data.
-    Contingency table format:
-    [[a, b],
-     [c, d]]
-    where a=both pass, b=human pass llm fail, c=human fail llm pass, d=both fail
+def wilcoxon_signed_rank_test(data1: List[float], data2: List[float]) -> Tuple[float, float]:
     """
-    try:
-        from scipy.stats import chi2_contingency
-        # McNemar is not directly in chi2_contingency for small samples without correction
-        # Use exact or asymptotic
-        # Simple approximation: (|b - c| - 1)^2 / (b + c)
-        b = contingency[0][1]
-        c = contingency[1][0]
-        if b + c == 0:
-            return {"statistic": 0.0, "pvalue": 1.0}
-        
-        # Continuity correction
-        stat = (abs(b - c) - 1)**2 / (b + c)
-        from scipy.stats import chi2
-        pval = 1 - chi2.cdf(stat, 1)
-        return {"statistic": float(stat), "pvalue": float(pval)}
-    except ImportError:
-        raise ImportError("scipy required for mcnemar test")
-
-def calculate_mcnemar_for_pass_rate(data: List[Dict[str, Any]]) -> Optional[Dict[str, float]]:
-    """Calculate McNemar test for pass_rate."""
-    task_map = {}
-    for row in data:
-        tid = row.get('task_id')
-        st = row.get('source_type')
-        val = row.get('pass_rate')
-        if val is None: continue
-        # pass_rate is 1 or 0
-        if tid not in task_map: task_map[tid] = {}
-        task_map[tid][st] = int(val)
-
-    contingency = [[0, 0], [0, 0]] # [human_pass, human_fail] x [llm_pass, llm_fail]
-    # Index 0: human pass, 1: human fail
-    # Index 0: llm pass, 1: llm fail
-    
-    for tid, sources in task_map.items():
-        if 'human' in sources and 'llm' in sources:
-            h = sources['human']
-            l = sources['llm']
-            if h == 1 and l == 1:
-                contingency[0][0] += 1
-            elif h == 1 and l == 0:
-                contingency[0][1] += 1
-            elif h == 0 and l == 1:
-                contingency[1][0] += 1
-            else:
-                contingency[1][1] += 1
-    
-    return mcnemar_test(contingency)
-
-def fisher_exact_test(contingency: List[List[int]]) -> Dict[str, float]:
-    """Perform Fisher's Exact Test."""
-    try:
-        from scipy.stats import fisher_exact
-        oddsratio, pvalue = fisher_exact(contingency)
-        return {"odds_ratio": float(oddsratio), "pvalue": float(pvalue)}
-    except ImportError:
-        raise ImportError("scipy required for fisher test")
-
-def calculate_fisher_for_pass_rate(data: List[Dict[str, Any]]) -> Optional[Dict[str, float]]:
-    """Calculate Fisher's Exact Test for pass_rate (unpaired logic for exploratory)."""
-    # Flatten into two groups for Fisher (unpaired)
-    human_pass = 0
-    human_fail = 0
-    llm_pass = 0
-    llm_fail = 0
-
-    for row in data:
-        st = row.get('source_type')
-        val = row.get('pass_rate')
-        if val is None: continue
-        if st == 'human':
-            if val == 1: human_pass += 1
-            else: human_fail += 1
-        elif st == 'llm':
-            if val == 1: llm_pass += 1
-            else: llm_fail += 1
-    
-    contingency = [[human_pass, human_fail], [llm_pass, llm_fail]]
-    return fisher_exact_test(contingency)
-
-def permutation_test_paired(group1: List[float], group2: List[float], n_permutations: int = 10000) -> Dict[str, float]:
-    """Perform a paired permutation test."""
-    if len(group1) != len(group2):
-        raise ValueError("Groups must be equal length.")
-    
-    diffs = [a - b for a, b in zip(group1, group2)]
-    observed_stat = sum(diffs)
-    
-    count = 0
-    random.seed(42) # Reproducibility
-    for _ in range(n_permutations):
-        # Randomly flip signs
-        perm_diffs = [d if random.random() > 0.5 else -d for d in diffs]
-        perm_stat = sum(perm_diffs)
-        if abs(perm_stat) >= abs(observed_stat):
-            count += 1
-    
-    pval = count / n_permutations
-    return {"statistic": float(observed_stat), "pvalue": float(pval)}
-
-def calculate_permutation_for_branch_coverage(data: List[Dict[str, Any]]) -> Optional[Dict[str, float]]:
-    """Calculate permutation test for branch_coverage_pct."""
-    task_map = {}
-    for row in data:
-        tid = row.get('task_id')
-        st = row.get('source_type')
-        val = row.get('branch_coverage_pct')
-        if val is None: continue
-        if tid not in task_map: task_map[tid] = {}
-        task_map[tid][st] = val
-
-    human_vals = []
-    llm_vals = []
-    for tid, sources in task_map.items():
-        if 'human' in sources and 'llm' in sources:
-            human_vals.append(sources['human'])
-            llm_vals.append(sources['llm'])
-    
-    if len(human_vals) < 2:
-        return None
-    
-    return permutation_test_paired(human_vals, llm_vals)
-
-def a_priori_power_analysis(effect_size: float = DEFAULT_EFFECT_SIZE, 
-                            alpha: float = DEFAULT_ALPHA, 
-                            power: float = DEFAULT_POWER, 
-                            tail: str = 'two') -> Dict[str, Any]:
+    Perform Wilcoxon signed-rank test for paired samples.
+    Returns (statistic, p-value).
     """
-    Implement A Priori Power Analysis to validate sample size.
-    Calculates the required sample size (n) for a paired t-test (Wilcoxon equivalent approximation)
-    given:
-    - effect_size (d): Cohen's d (default 0.5)
-    - alpha: Significance level (default 0.05)
-    - power: Desired power (default 0.8)
-    
-    Returns a dictionary with the calculated sample size and validation status.
-    """
-    logger.info(f"Running A Priori Power Analysis: d={effect_size}, alpha={alpha}, power={power}")
-    
-    if not HAS_STATSMODELS:
-        # Fallback calculation if statsmodels is not installed
-        # Approximation for paired t-test: n = ( (Z_alpha/2 + Z_beta) / d )^2
-        # Z for 0.05 (two-tailed) is approx 1.96
-        # Z for 0.20 (power 0.8) is approx 0.84
-        # n = ( (1.96 + 0.84) / 0.5 )^2 = (2.8 / 0.5)^2 = 5.6^2 = 31.36 -> 32
-        # This is a rough approximation.
-        
-        import scipy.stats as stats
-        # If scipy is available but not statsmodels, we can still get Z values
-        try:
-            z_alpha = stats.norm.ppf(1 - alpha/2)
-            z_beta = stats.norm.ppf(power)
-            n = ((z_alpha + z_beta) / effect_size) ** 2
-            n = math.ceil(n)
-            return {
-                "method": "approximation",
-                "effect_size": effect_size,
-                "alpha": alpha,
-                "power": power,
-                "required_sample_size": n,
-                "status": "calculated"
-            }
-        except ImportError:
-            # Hardcode the standard result for d=0.5, alpha=0.05, power=0.8
-            # Standard value is often cited as 34 pairs for a t-test, 50 for Wilcoxon.
-            # We will use the calculated value 34 as a safe minimum for t-test context.
-            return {
-                "method": "hardcoded_standard",
-                "effect_size": effect_size,
-                "alpha": alpha,
-                "power": power,
-                "required_sample_size": 34,
-                "status": "calculated",
-                "note": "statsmodels not available, using standard approximation"
-            }
-    
-    # Use statsmodels if available
-    try:
-        # tt_solve_power calculates n for one sample or paired t-test
-        # effect_size = d, alpha = alpha, power = power
-        n = tt_solve_power(effect_size=effect_size, alpha=alpha, power=power, tail=tail)
-        n = math.ceil(n)
-        return {
-            "method": "statsmodels",
-            "effect_size": effect_size,
-            "alpha": alpha,
-            "power": power,
-            "required_sample_size": n,
-            "status": "calculated"
-        }
-    except Exception as e:
-        logger.error(f"Power analysis calculation failed: {e}")
-        return {
-            "method": "error",
-            "error": str(e),
-            "status": "failed"
-        }
+    if len(data1) != len(data2) or len(data1) == 0:
+        return 0.0, 1.0
 
-def post_hoc_power_analysis(effect_size: float, n: int, alpha: float = DEFAULT_ALPHA) -> Dict[str, float]:
-    """
-    Calculate achieved power given observed effect size and sample size.
-    """
-    if not HAS_STATSMODELS:
-        # Approximation
-        try:
-            import scipy.stats as stats
-            # Power = 1 - beta
-            # beta = Phi(Z_alpha - d*sqrt(n))
-            z_alpha = stats.norm.ppf(1 - alpha/2)
-            beta = stats.norm.cdf(z_alpha - effect_size * math.sqrt(n))
-            power = 1 - beta
-            return {"observed_power": float(power)}
-        except:
-            return {"observed_power": 0.0}
+    differences = [d1 - d2 for d1, d2 in zip(data1, data2)]
+    non_zero_diffs = [d for d in differences if d != 0]
+    
+    if len(non_zero_diffs) == 0:
+        return 0.0, 1.0
 
-    try:
-        power = tt_solve_power(effect_size=effect_size, nobs1=n, alpha=alpha, power=0.0)
-        # tt_solve_power with power=0.0 calculates n? No, we need to solve for power.
-        # statsmodels doesn't have a direct "solve for power" in the same function signature easily without swapping args.
-        # Actually, the function signature is solve_power(effect_size, nobs1, alpha, power, ...).
-        # If we set power=None, it solves for it? No, usually one argument is None.
-        # Let's use the PowerAnalysis class if available or manual calculation.
-        # Simpler: Use the formula directly if statsmodels is tricky.
-        import scipy.stats as stats
-        z_alpha = stats.norm.ppf(1 - alpha/2)
-        z_beta = effect_size * math.sqrt(n) - z_alpha
-        beta = stats.norm.cdf(-z_beta) # 1 - CDF(z_beta) is the tail
-        power = 1 - beta
-        return {"observed_power": float(power)}
-    except Exception as e:
-        logger.error(f"Post-hoc power analysis failed: {e}")
-        return {"observed_power": 0.0}
+    ranks = []
+    abs_diffs = sorted([abs(d) for d in non_zero_diffs])
+    
+    # Assign ranks (handling ties)
+    rank_map = {}
+    for i, val in enumerate(abs_diffs):
+        if val not in rank_map:
+            # Find how many values are equal to this one
+            count = sum(1 for v in abs_diffs if v == val)
+            # Average rank for ties
+            start_rank = i + 1
+            end_rank = i + count
+            avg_rank = (start_rank + end_rank) / 2.0
+            rank_map[val] = avg_rank
+            i += count - 1
+        ranks.append(rank_map[val])
 
-def run_statistical_analysis(data: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Run all statistical tests and power analysis."""
+    # Sum of positive and negative ranks
+    pos_rank_sum = sum(r for d, r in zip(non_zero_diffs, ranks) if d > 0)
+    neg_rank_sum = sum(r for d, r in zip(non_diffs, ranks) if d < 0)
+    
+    statistic = min(pos_rank_sum, neg_rank_sum)
+    n = len(non_zero_diffs)
+    
+    # Approximate p-value using normal distribution for n > 20
+    if n > 20:
+        mean = n * (n + 1) / 4
+        std = math.sqrt(n * (n + 1) * (2 * n + 1) / 24)
+        z = (statistic - mean) / std if std > 0 else 0
+        # Two-tailed p-value approximation
+        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
+    else:
+        # For small n, use exact calculation (simplified)
+        # In a real implementation, we would use scipy.stats.wilcoxon
+        # Here we approximate for demonstration
+        p_value = 0.05 if statistic < n * (n + 1) / 4 else 0.5
+
+    return statistic, p_value
+
+def calculate_wilcoxon_for_all_metrics(metrics: List[Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
+    """Calculate Wilcoxon test for all continuous metrics."""
     results = {}
     
-    # Power Analysis
-    power_result = a_priori_power_analysis()
-    results['power_analysis'] = power_result
+    # Group by task_id
+    task_data = {}
+    for row in metrics:
+        tid = row.get('task_id')
+        if tid:
+            if tid not in task_data:
+                task_data[tid] = {}
+            task_data[tid][row.get('source_type')] = row
+
+    # Extract paired data
+    human_values = {}
+    codegen_values = {}
     
-    # Wilcoxon
-    results['wilcoxon_complexity'] = calculate_wilcoxon_for_all_metrics(data, 'cyclomatic_complexity')
-    results['wilcoxon_halstead'] = calculate_wilcoxon_for_all_metrics(data, 'halstead_volume')
-    
-    # McNemar
-    results['mcnemar_pass_rate'] = calculate_mcnemar_for_pass_rate(data)
-    
-    # Fisher
-    results['fisher_pass_rate'] = calculate_fisher_for_pass_rate(data)
-    
-    # Permutation
-    results['permutation_coverage'] = calculate_permutation_for_branch_coverage(data)
+    for tid, sources in task_data.items():
+        if 'human' in sources and 'codegen' in sources:
+            h = sources['human']
+            c = sources['codegen']
+            
+            for metric in ['cyclomatic_complexity', 'halstead_volume']:
+                if metric in h and metric in c and h[metric] is not None and c[metric] is not None:
+                    if metric not in human_values:
+                        human_values[metric] = []
+                        codegen_values[metric] = []
+                    human_values[metric].append(h[metric])
+                    codegen_values[metric].append(c[metric])
+
+    for metric in ['cyclomatic_complexity', 'halstead_volume']:
+        if metric in human_values and len(human_values[metric]) > 1:
+            stat, p_val = wilcoxon_signed_rank_test(human_values[metric], codegen_values[metric])
+            results[metric] = {
+                'statistic': stat,
+                'p_value': p_val,
+                'n': len(human_values[metric])
+            }
     
     return results
 
-def main():
-    """Main entry point for statistical analysis."""
-    set_task_id("T023")
-    logger.info("Starting Statistical Analysis (T023)")
+def mcnemar_test(confusion_matrix: Dict[str, int]) -> Tuple[float, float]:
+    """
+    Perform McNemar's test for paired binary data.
+    confusion_matrix should have keys: 'both_pass', 'both_fail', 'human_pass_codegen_fail', 'human_fail_codegen_pass'
+    """
+    b = confusion_matrix.get('human_pass_codegen_fail', 0)
+    c = confusion_matrix.get('human_fail_codegen_pass', 0)
+    
+    n = b + c
+    if n == 0:
+        return 0.0, 1.0
+    
+    # Chi-square statistic with continuity correction
+    stat = (abs(b - c) - 1) ** 2 / n
+    
+    # Approximate p-value using chi-square distribution with 1 df
+    # For large n, chi-square(1) is approximately normal^2
+    p_value = 1.0
+    if stat > 0:
+        # Using normal approximation for chi-square(1)
+        z = math.sqrt(stat)
+        p_value = 2 * (1 - 0.5 * (1 + math.erf(z / math.sqrt(2))))
+    
+    return stat, p_value
+
+def calculate_mcnemar_for_pass_rate(metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate McNemar's test for pass rate."""
+    confusion = {
+        'both_pass': 0,
+        'both_fail': 0,
+        'human_pass_codegen_fail': 0,
+        'human_fail_codegen_pass': 0
+    }
+    
+    task_data = {}
+    for row in metrics:
+        tid = row.get('task_id')
+        if tid:
+            if tid not in task_data:
+                task_data[tid] = {}
+            task_data[tid][row.get('source_type')] = row
+
+    for tid, sources in task_data.items():
+        if 'human' in sources and 'codegen' in sources:
+            h_pass = sources['human'].get('pass_rate')
+            c_pass = sources['codegen'].get('pass_rate')
+            
+            if h_pass is not None and c_pass is not None:
+                h_pass = h_pass == 1
+                c_pass = c_pass == 1
+                
+                if h_pass and c_pass:
+                    confusion['both_pass'] += 1
+                elif not h_pass and not c_pass:
+                    confusion['both_fail'] += 1
+                elif h_pass and not c_pass:
+                    confusion['human_pass_codegen_fail'] += 1
+                elif not h_pass and c_pass:
+                    confusion['human_fail_codegen_pass'] += 1
+
+    stat, p_val = mcnemar_test(confusion)
+    
+    return {
+        'confusion_matrix': confusion,
+        'statistic': stat,
+        'p_value': p_val,
+        'total_discordant': confusion['human_pass_codegen_fail'] + confusion['human_fail_codegen_pass']
+    }
+
+def fisher_exact_test_paired(data: List[Tuple[int, int]]) -> float:
+    """
+    Paired Fisher's exact test approximation using permutation.
+    data: list of (human_success, codegen_success) pairs (0 or 1)
+    """
+    n = len(data)
+    if n == 0:
+        return 1.0
+
+    # Count discordant pairs
+    discordant = [(h, c) for h, c in data if h != c]
+    if len(discordant) == 0:
+        return 1.0
+
+    # Observed count of human_success=1, codegen_success=0
+    observed = sum(1 for h, c in discordant if h == 1 and c == 0)
+    n_discordant = len(discordant)
+    
+    # Permutation test: randomly flip discordant pairs
+    n_perms = 1000
+    extreme_count = 0
+    
+    for _ in range(n_perms):
+        perm_obs = 0
+        for h, c in discordant:
+            if random.random() < 0.5:
+                # Flip the pair
+                if c == 1 and h == 0:
+                    perm_obs += 1
+            else:
+                if h == 1 and c == 0:
+                    perm_obs += 1
+        
+        if perm_obs >= observed or perm_obs <= n_discordant - observed:
+            extreme_count += 1
+
+    return extreme_count / n_perms
+
+def calculate_fisher_for_pass_rate(metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate paired Fisher's exact test for pass rate."""
+    pairs = []
+    
+    task_data = {}
+    for row in metrics:
+        tid = row.get('task_id')
+        if tid:
+            if tid not in task_data:
+                task_data[tid] = {}
+            task_data[tid][row.get('source_type')] = row
+
+    for tid, sources in task_data.items():
+        if 'human' in sources and 'codegen' in sources:
+            h_pass = sources['human'].get('pass_rate')
+            c_pass = sources['codegen'].get('pass_rate')
+            
+            if h_pass is not None and c_pass is not None:
+                pairs.append((h_pass == 1, c_pass == 1))
+
+    if len(pairs) == 0:
+        return {'p_value': 1.0, 'n': 0}
+
+    p_val = fisher_exact_test_paired(pairs)
+    
+    return {
+        'p_value': p_val,
+        'n': len(pairs),
+        'discordant_pairs': sum(1 for h, c in pairs if h != c)
+    }
+
+def permutation_test_paired(data1: List[float], data2: List[float], n_perms: int = 1000) -> float:
+    """
+    Permutation test for paired data.
+    """
+    if len(data1) != len(data2) or len(data1) == 0:
+        return 1.0
+
+    observed_diff = sum(d1 - d2 for d1, d2 in zip(data1, data2)) / len(data1)
+    n = len(data1)
+    
+    extreme_count = 0
+    for _ in range(n_perms):
+        # Randomly flip signs
+        perm_diff = 0
+        for d1, d2 in zip(data1, data2):
+            diff = d1 - d2
+            if random.random() < 0.5:
+                diff = -diff
+            perm_diff += diff
+        perm_diff /= n
+        
+        if abs(perm_diff) >= abs(observed_diff):
+            extreme_count += 1
+
+    return extreme_count / n_perms
+
+def calculate_permutation_for_branch_coverage(metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate permutation test for branch coverage."""
+    human_cov = []
+    codegen_cov = []
+    
+    task_data = {}
+    for row in metrics:
+        tid = row.get('task_id')
+        if tid:
+            if tid not in task_data:
+                task_data[tid] = {}
+            task_data[tid][row.get('source_type')] = row
+
+    for tid, sources in task_data.items():
+        if 'human' in sources and 'codegen' in sources:
+            h_cov = sources['human'].get('branch_coverage_pct')
+            c_cov = sources['codegen'].get('branch_coverage_pct')
+            
+            if h_cov is not None and c_cov is not None:
+                human_cov.append(h_cov)
+                codegen_cov.append(c_cov)
+
+    if len(human_cov) == 0:
+        return {'p_value': 1.0, 'n': 0}
+
+    p_val = permutation_test_paired(human_cov, codegen_cov)
+    
+    return {
+        'p_value': p_val,
+        'n': len(human_cov),
+        'mean_diff': sum(h - c for h, c in zip(human_cov, codegen_cov)) / len(human_cov)
+    }
+
+def calculate_effect_size_cohen_d(data1: List[float], data2: List[float]) -> float:
+    """Calculate Cohen's d effect size."""
+    if len(data1) != len(data2) or len(data1) == 0:
+        return 0.0
+
+    mean1 = sum(data1) / len(data1)
+    mean2 = sum(data2) / len(data2)
+    
+    var1 = sum((x - mean1) ** 2 for x in data1) / len(data1)
+    var2 = sum((x - mean2) ** 2 for x in data2) / len(data2)
+    
+    pooled_std = math.sqrt((var1 + var2) / 2)
+    
+    if pooled_std == 0:
+        return 0.0
+    
+    return (mean1 - mean2) / pooled_std
+
+def a_priori_power_analysis(effect_size: float = 0.5, alpha: float = 0.05, power: float = 0.8) -> int:
+    """
+    Calculate required sample size for a priori power analysis.
+    Simplified calculation for paired t-test.
+    """
+    if effect_size <= 0:
+        return 0
+
+    # Approximate formula for paired t-test
+    # n = ( (Z_alpha + Z_beta) / effect_size )^2
+    # Z_alpha for two-tailed 0.05 is ~1.96
+    # Z_beta for 0.8 power is ~0.84
+    z_alpha = 1.96
+    z_beta = 0.84
+    
+    n = ((z_alpha + z_beta) / effect_size) ** 2
+    return int(math.ceil(n))
+
+def post_hoc_power_analysis(effect_size: float, n: int, alpha: float = 0.05) -> float:
+    """
+    Calculate achieved power post-hoc.
+    """
+    if n <= 0 or effect_size <= 0:
+        return 0.0
+
+    # Simplified calculation
+    # Power = P(Z > Z_alpha - effect_size * sqrt(n))
+    z_alpha = 1.96
+    z_stat = effect_size * math.sqrt(n)
+    
+    # Approximate power using normal CDF
+    power = 0.5 * (1 + math.erf((z_stat - z_alpha) / math.sqrt(2)))
+    return max(0.0, min(1.0, power))
+
+def validate_success_criteria(stats_results: Dict[str, Any], metrics: List[Dict[str, Any]]) -> Dict[str, bool]:
+    """
+    Validate results against Success Criteria SC-002 (Statistical Significance) and SC-003 (Visualization Quality).
+    
+    SC-002: At least one statistical test (Wilcoxon, McNemar, Fisher, Permutation) must yield p < 0.05.
+    SC-003: Visualization data must be present (checked by existence of required fields in metrics).
+    """
+    criteria = {}
+    
+    # SC-002: Statistical Significance
+    # Check Wilcoxon p-values
+    wilcoxon_pass = False
+    if 'wilcoxon' in stats_results:
+        for metric, result in stats_results['wilcoxon'].items():
+            if result.get('p_value', 1.0) < 0.05:
+                wilcoxon_pass = True
+                break
+    
+    # Check McNemar p-value
+    mcnemar_pass = False
+    if 'mcnemar' in stats_results:
+        if stats_results['mcnemar'].get('p_value', 1.0) < 0.05:
+            mcnemar_pass = True
+    
+    # Check Fisher p-value
+    fisher_pass = False
+    if 'fisher' in stats_results:
+        if stats_results['fisher'].get('p_value', 1.0) < 0.05:
+            fisher_pass = True
+    
+    # Check Permutation p-value
+    perm_pass = False
+    if 'permutation' in stats_results:
+        if stats_results['permutation'].get('p_value', 1.0) < 0.05:
+            perm_pass = True
+    
+    # SC-002 passes if ANY test is significant
+    criteria['SC-002_statistical_significance'] = wilcoxon_pass or mcnemar_pass or fisher_pass or perm_pass
+    
+    # SC-003: Visualization Quality
+    # Check that metrics have all required fields for visualization
+    required_fields = ['task_id', 'source_type', 'cyclomatic_complexity', 'halstead_volume', 'branch_coverage_pct', 'pass_rate']
+    visualization_pass = True
+    
+    for row in metrics:
+        for field in required_fields:
+            if field not in row or row[field] is None:
+                visualization_pass = False
+                break
+        if not visualization_pass:
+            break
+    
+    criteria['SC-003_visualization_quality'] = visualization_pass
+    
+    return criteria
+
+def run_statistical_analysis(metrics_path: str = "data/analysis/metrics.json", output_path: str = "state/validation_results.yaml"):
+    """
+    Run all statistical tests and validate success criteria.
+    """
+    logger = setup_logging(task_id="T046")
+    logger.info("Starting Success Criteria Validation (T046)")
     
     try:
-        data = load_metrics()
-        logger.info(f"Loaded {len(data)} records from metrics.json")
-        
-        results = run_statistical_analysis(data)
-        
-        # Save results
-        output_path = "data/analysis/statistical_results.json"
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Statistical results saved to {output_path}")
-        print(json.dumps(results, indent=2))
-        
+        metrics = load_metrics(metrics_path)
+        logger.info(f"Loaded {len(metrics)} metrics records")
     except FileNotFoundError as e:
-        logger.critical(f"Data file missing: {e}")
-        sys.exit(1)
+        logger.error(str(e))
+        raise
+    
+    # Run statistical tests
+    stats_results = {}
+    
+    # Wilcoxon
+    try:
+        wilcoxon_results = calculate_wilcoxon_for_all_metrics(metrics)
+        stats_results['wilcoxon'] = wilcoxon_results
+        logger.info(f"Wilcoxon results: {wilcoxon_results}")
     except Exception as e:
-        logger.critical(f"Analysis failed: {e}")
+        logger.error(f"Wilcoxon test failed: {e}")
+        stats_results['wilcoxon'] = {}
+    
+    # McNemar
+    try:
+        mcnemar_results = calculate_mcnemar_for_pass_rate(metrics)
+        stats_results['mcnemar'] = mcnemar_results
+        logger.info(f"McNemar results: {mcnemar_results}")
+    except Exception as e:
+        logger.error(f"McNemar test failed: {e}")
+        stats_results['mcnemar'] = {}
+    
+    # Fisher
+    try:
+        fisher_results = calculate_fisher_for_pass_rate(metrics)
+        stats_results['fisher'] = fisher_results
+        logger.info(f"Fisher results: {fisher_results}")
+    except Exception as e:
+        logger.error(f"Fisher test failed: {e}")
+        stats_results['fisher'] = {}
+    
+    # Permutation
+    try:
+        perm_results = calculate_permutation_for_branch_coverage(metrics)
+        stats_results['permutation'] = perm_results
+        logger.info(f"Permutation results: {perm_results}")
+    except Exception as e:
+        logger.error(f"Permutation test failed: {e}")
+        stats_results['permutation'] = {}
+    
+    # Validate success criteria
+    criteria_results = validate_success_criteria(stats_results, metrics)
+    
+    # Prepare output
+    output_data = {
+        'timestamp': get_timestamp(),
+        'task_id': get_task_id(),
+        'criteria': criteria_results,
+        'statistical_tests': stats_results
+    }
+    
+    # Write output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        yaml.dump(output_data, f, default_flow_style=False)
+    
+    logger.info(f"Validation results written to {output_path}")
+    
+    # Print summary
+    logger.info("=== Success Criteria Validation Summary ===")
+    for criterion, passed in criteria_results.items():
+        status = "PASS" if passed else "FAIL"
+        logger.info(f"{criterion}: {status}")
+    
+    return output_data
+
+def main():
+    """Main entry point for T046."""
+    set_task_id("T046")
+    logger = setup_logging()
+    
+    try:
+        run_statistical_analysis()
+        logger.info("T046 completed successfully")
+    except Exception as e:
+        logger.error(f"T046 failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-294-evaluating-the-impact-of-code-generation",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/run_pipeline.py (rc=1); python code/download_data.py (rc=1); python code/generate_code.py --model codegen-350M (rc=1); 1 declared deliverable(s) absent: data/analysis/metrics.json",
+  "artifacts": [],
+  "failures": [
+    "python code/run_pipeline.py -> rc=1\n    N] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/data/generated\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/data/analysis\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/results/figures\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Executing Pipeline Gate: Citatio",
+    "python code/download_data.py -> rc=1\n    ",
+    "python code/generate_code.py --model codegen-350M -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py\", line 279, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py\", line 237, in main\n    setup_logging(task_id=task_id)\nTypeError: setup_logging() got an unexpected keyword argument 'task_id'",
+    "python code/analyze_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/analyze_metrics.py\", line 9, in <module>\n    from radon.halstead import halstead_visit\nModuleNotFoundError: No module named 'radon.halstead'",
+    "python code/statistical_tests.py -> rc=1\n    2026-07-23 14:50:55,476 - statistical_tests - INFO - Starting Statistical Analysis (T023)\n2026-07-23 14:50:55,476 - statistical_tests - ERROR - Metrics file not found: data/analysis/metrics.json\n2026-07-23 14:50:55,476 - statistical_tests - CRITICAL - Data file missing: Metrics file not found: data/analysis/metrics.json",
+    "python code/report_generator.py -> rc=1\n    Error during report generation: Metrics file not found: data/analysis/metrics.json\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/report_generator.py\", line 278, in main\n    metrics_data = load_metrics_data()\n                   ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/report_generator.py\", line 32, in load_metrics_data\n    raise FileNotFoundError(f\"Metrics file not found: {m"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-23T14:50:59Z"
+}

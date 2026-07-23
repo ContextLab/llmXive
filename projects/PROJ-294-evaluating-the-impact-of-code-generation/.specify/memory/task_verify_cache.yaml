@@ -1,21 +1,15 @@
 T017:
   c: false
-  h: 1930662b335a43ddfdad701365619ca81ef2c6ce5227d7cc8fea7a17f07ccda2
-  r: "The repository contains `code/analyze_metrics.py`, but the required output file\
-    \ `data/analysis/metrics.json` is missing, so the aggregation step has not been\
-    \ produced. Consequently the task\u2019s core deliverable and its validation constraints\
-    \ are not satisfied."
-T028c:
+  h: f358d1fe8d912ac4a3887c34949be0a60351738dcbe551103dc6388fe5ca4dcc
+  r: "The required output file `data/analysis/metrics.json` does not exist, and the\
+    \ provided `code/analyze_metrics.py` is incomplete (truncated) with no evidence\
+    \ that it writes the JSON or enforces the non\u2011null constraints. The task\u2019\
+    s core deliverable is missing."
+T046:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/model_availability.json` file or its contents were provided; without
-    the actual JSON artifact the requirement to initialize that state file is not
-    satisfied. The implementer must create the file with appropriate initial data.
-T042a:
-  c: false
-  h: 1930662b335a43ddfdad701365619ca81ef2c6ce5227d7cc8fea7a17f07ccda2
-  r: "The provided `code/analyze_metrics.py` does not contain any logic that checks\
-    \ for or filters out samples with `branch_coverage_pct` equal to `null`, nor does\
-    \ it generate or write a `data/analysis/metrics.json` file. Additionally, the\
-    \ required `data/analysis/metrics.json` file is missing entirely. The task\u2019\
-    s core requirement is therefore not satisfied."
+  h: 77d3d316ac0b5f1c1dc853a7adcfa99192e475df4b2ff4b1dfd6c5f25bc973d2
+  r: "The repository contains a large `code/statistical_tests.py` file, but the visible\
+    \ portion shows only utility and statistical test functions; there is no implementation\
+    \ that evaluates SC\u2011002 or SC\u2011003 nor writes a `state/validation_results.yaml`.\
+    \ Moreover, the required `state/validation_results.yaml` file is missing entirely.\
+    \ The task\u2019s core requirement is therefore not satisfied."

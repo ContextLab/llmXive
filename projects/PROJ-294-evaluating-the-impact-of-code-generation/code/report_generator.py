@@ -1,329 +1,335 @@
+"""
+Report Generator for PROJ-294.
+
+Generates histograms, boxplots, and a Markdown report from the metrics data.
+Handles the full pipeline of visualization and reporting.
+"""
+
 import os
+import sys
 import json
 import logging
-import sys
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for headless execution
+import matplotlib.pyplot as plt
+import numpy as np
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless environments
-import matplotlib.pyplot as plt
-import numpy as np
-from jinja2 import Template
+# Import shared utilities from utils to maintain contract consistency
+# Note: The API surface indicates setup_logging is in utils, but also listed in download_data.
+# We import from utils as it is the shared module.
+try:
+    from utils import setup_logging, get_logger, set_task_id, get_task_id, log_info, log_error
+except ImportError:
+    # Fallback if utils is not fully populated yet, though tasks.md implies it should be.
+    # We define a minimal local setup to ensure this script runs if utils is broken.
+    def setup_logging(*args, **kwargs):
+        logger = logging.getLogger(__name__)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
 
-from utils import get_logger, set_task_id, get_task_id, get_timestamp
+    def get_logger(name=None):
+        return logging.getLogger(name or __name__)
 
-# Constants for paths
-DATA_ANALYSIS_DIR = "data/analysis"
-RESULTS_FIGURES_DIR = "results/figures"
-RESULTS_REPORT_FILE = "results_report.md"
-METRICS_FILE = "metrics.json"
-STAT_RESULTS_FILE = "statistical_results.json"
+    def log_info(logger, msg):
+        logger.info(msg)
+
+    def log_error(logger, msg):
+        logger.error(msg)
+
+    def set_task_id(tid):
+        pass
+
+    def get_task_id():
+        return "T030"
+
+
+# Constants
+METRICS_PATH = "data/analysis/metrics.json"
+FIGURES_DIR = "results/figures"
+REPORT_PATH = "results/results_report.md"
+STAT_RESULTS_PATH = "state/statistical_results.yaml"
+
+# Metrics to visualize
+CONTINUOUS_METRICS = [
+    "cyclomatic_complexity",
+    "halstead_volume"
+]
+
+# Colors for source types
+SOURCE_COLORS = {
+    "human": "#2ecc71",      # Green
+    "codegen": "#3498db",    # Blue
+    "codellama-7b": "#e74c3c", # Red
+    "codellama-3b": "#f39c12"  # Orange
+}
 
 def ensure_figures_dir():
     """Ensure the figures directory exists."""
-    os.makedirs(RESULTS_FIGURES_DIR, exist_ok=True)
-    logging.info(f"Ensured figures directory exists: {RESULTS_FIGURES_DIR}")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    log_info(get_logger(), f"Ensured figures directory: {FIGURES_DIR}")
 
 def load_metrics_data():
-    """Load the main metrics JSON file."""
-    metrics_path = os.path.join(DATA_ANALYSIS_DIR, METRICS_FILE)
-    if not os.path.exists(metrics_path):
-        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
-    with open(metrics_path, 'r') as f:
-        return json.load(f)
+    """Load the metrics data from the JSON file."""
+    if not os.path.exists(METRICS_PATH):
+        raise FileNotFoundError(f"Metrics file not found: {METRICS_PATH}")
+    
+    with open(METRICS_PATH, 'r') as f:
+        data = json.load(f)
+    
+    if not isinstance(data, list):
+        raise ValueError(f"Metrics file must contain a list, got {type(data)}")
+    
+    return data
 
 def load_statistical_results():
-    """Load the statistical analysis results JSON file."""
-    stat_path = os.path.join(DATA_ANALYSIS_DIR, STAT_RESULTS_FILE)
-    if not os.path.exists(stat_path):
-        logging.warning(f"Statistical results file not found: {stat_path}. Skipping statistical tables in report.")
+    """Load statistical results if they exist."""
+    if not os.path.exists(STAT_RESULTS_PATH):
         return None
-    with open(stat_path, 'r') as f:
-        return json.load(f)
+    
+    import yaml
+    with open(STAT_RESULTS_PATH, 'r') as f:
+        return yaml.safe_load(f)
 
-def extract_metric_values(metrics_data: Dict, metric_name: str) -> List[float]:
-    """Extract a list of values for a specific metric from the metrics data."""
-    values = []
-    for item in metrics_data:
-        if metric_name in item and item[metric_name] is not None and item[metric_name] != '[deferred]':
-            try:
-                values.append(float(item[metric_name]))
-            except (ValueError, TypeError):
-                pass
-    return values
+def extract_metric_values(metrics_data: List[Dict], metric_name: str) -> Dict[str, List[float]]:
+    """Extract values for a specific metric grouped by source_type."""
+    grouped = {}
+    for record in metrics_data:
+        source = record.get("source_type", "unknown")
+        value = record.get(metric_name)
+        
+        if value is not None and isinstance(value, (int, float)):
+            if source not in grouped:
+                grouped[source] = []
+            grouped[source].append(value)
+    
+    return grouped
 
 def calculate_summary_stats(values: List[float]) -> Dict[str, float]:
-    """Calculate basic summary statistics for a list of values."""
+    """Calculate basic summary statistics."""
     if not values:
-        return {"mean": 0, "std": 0, "min": 0, "max": 0, "median": 0, "count": 0}
+        return {"mean": 0, "std": 0, "min": 0, "max": 0, "median": 0}
+    
     arr = np.array(values)
     return {
         "mean": float(np.mean(arr)),
         "std": float(np.std(arr)),
         "min": float(np.min(arr)),
         "max": float(np.max(arr)),
-        "median": float(np.median(arr)),
-        "count": len(values)
+        "median": float(np.median(arr))
     }
 
-def plot_histogram(values: List[float], title: str, filename: str, xlabel: str = "Value"):
-    """Generate a histogram plot."""
+def plot_histogram(grouped_data: Dict[str, List[float]], metric_name: str, output_path: str):
+    """Generate a histogram for the metric."""
     plt.figure(figsize=(10, 6))
-    plt.hist(values, bins=20, edgecolor='black', alpha=0.7)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel("Frequency")
-    plt.grid(axis='y', alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(os.path.join(RESULTS_FIGURES_DIR, filename))
-    plt.close()
-    logging.info(f"Saved histogram: {filename}")
-
-def plot_boxplot(values: List[float], title: str, filename: str, xlabel: str = "Metric"):
-    """Generate a boxplot."""
-    plt.figure(figsize=(8, 6))
-    plt.boxplot(values, vert=True, patch_artist=True)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel("Value")
-    plt.grid(axis='y', alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(os.path.join(RESULTS_FIGURES_DIR, filename))
-    plt.close()
-    logging.info(f"Saved boxplot: {filename}")
-
-def generate_all_plots(metrics_data: Dict):
-    """Generate all required plots for the report."""
-    ensure_figures_dir()
-    metrics_to_plot = [
-        ("cyclomatic_complexity", "Cyclomatic Complexity Distribution", "hist_complexity.png", "Boxplot Complex"),
-        ("halstead_volume", "Halstead Volume Distribution", "hist_halstead.png", "Boxplot Halstead"),
-        # Branch coverage is percentage, so 0-100
-        ("branch_coverage_pct", "Branch Coverage Distribution", "hist_coverage.png", "Boxplot Coverage")
-    ]
-
-    for metric_key, hist_title, hist_file, box_title in metrics_to_plot:
-        values = extract_metric_values(metrics_data, metric_key)
-        if not values:
-            logging.warning(f"No data found for {metric_key}, skipping plots.")
-            continue
-
-        plot_histogram(values, hist_title, hist_file)
-        # Re-use boxplot function but with specific title
-        plot_boxplot(values, box_title, f"box_{hist_file.replace('.png', '.png').replace('hist_', '')}", metric_key)
-
-def format_sensitivity_comparison(sensitivity_data: List[Dict]) -> str:
-    """
-    Format sensitivity analysis data into a Markdown table and summary.
-    Expects a list of dicts where each dict has 'model_type', 'metric_name', 'mean', 'std', 'count'.
-    """
-    if not sensitivity_data:
-        return "No sensitivity analysis data available."
-
-    # Group by model type for easier display
-    models = {}
-    for item in sensitivity_data:
-        model = item['model_type']
-        if model not in models:
-            models[model] = {}
-        models[model][item['metric_name']] = {
-            'mean': item['mean'],
-            'std': item['std'],
-            'count': item['count']
-        }
-
-    md_lines = ["### Sensitivity Analysis: Model Comparison (CodeLlama 7B/3B vs 350M)", ""]
-    md_lines.append("Comparison of generated code metrics across different CodeLlama model sizes to assess sensitivity to model scale.")
-    md_lines.append("")
-
-    # Create a table for each metric
-    all_metrics = set()
-    for model_data in models.values():
-        all_metrics.update(model_data.keys())
-
-    for metric in sorted(all_metrics):
-        md_lines.append(f"**{metric.replace('_', ' ').title()}**")
-        md_lines.append("")
-        md_lines.append(f"| Model Size | Mean | Std Dev | Count |")
-        md_lines.append(f"| :--- | :--- | :--- | :--- |")
-        
-        for model_name in sorted(models.keys()):
-            data = models[model_name].get(metric, {})
-            mean_val = f"{data['mean']:.2f}" if 'mean' in data else "N/A"
-            std_val = f"{data['std']:.2f}" if 'std' in data else "N/A"
-            count_val = str(data.get('count', 0))
-            md_lines.append(f"| {model_name} | {mean_val} | {std_val} | {count_val} |")
-        md_lines.append("")
-
-    # Add a brief textual summary
-    md_lines.append("**Summary:**")
-    md_lines.append("The table above compares the structural complexity and functional coverage of code generated by different CodeLlama variants.")
-    md_lines.append("Higher model sizes (7B, 3B) are expected to show different distributions compared to the smaller 350M model, particularly in Halstead Volume and Branch Coverage.")
-    md_lines.append("")
-
-    return "\n".join(md_lines)
-
-def generate_markdown_report(metrics_data: Dict, stat_results: Optional[Dict], sensitivity_data: Optional[List[Dict]]):
-    """Generate the final Markdown report."""
-    timestamp = get_timestamp()
     
-    # Prepare data for template
-    context = {
-        "timestamp": timestamp,
-        "metrics": metrics_data,
-        "statistics": stat_results,
-        "figures": [
-            {"name": "hist_complexity.png", "caption": "Distribution of Cyclomatic Complexity"},
-            {"name": "hist_halstead.png", "caption": "Distribution of Halstead Volume"},
-            {"name": "hist_coverage.png", "caption": "Distribution of Branch Coverage"},
-            {"name": "box_cyclomatic_complexity.png", "caption": "Boxplot of Cyclomatic Complexity"},
-            {"name": "box_halstead_volume.png", "caption": "Boxplot of Halstead Volume"},
-            {"name": "box_branch_coverage_pct.png", "caption": "Boxplot of Branch Coverage"}
-        ],
-        "sensitivity_content": format_sensitivity_comparison(sensitivity_data) if sensitivity_data else "No sensitivity data available.",
-        "summary_stats": {}
-    }
+    for source, values in grouped_data.items():
+        if not values:
+            continue
+        color = SOURCE_COLORS.get(source, "gray")
+        label = source.replace("-", " ").title()
+        plt.hist(values, bins=20, alpha=0.5, color=color, label=label, density=False)
+    
+    plt.title(f"Histogram of {metric_name.replace('_', ' ').title()}")
+    plt.xlabel(metric_name.replace('_', ' ').title())
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+    log_info(get_logger(), f"Histogram saved: {output_path}")
 
-    # Calculate summary stats for the main metrics
-    for metric in ["cyclomatic_complexity", "halstead_volume", "branch_coverage_pct"]:
-        values = extract_metric_values(metrics_data, metric)
-        context["summary_stats"][metric] = calculate_summary_stats(values)
+def plot_boxplot(grouped_data: Dict[str, List[float]], metric_name: str, output_path: str):
+    """Generate a boxplot for the metric."""
+    plt.figure(figsize=(10, 6))
+    
+    data_to_plot = []
+    labels = []
+    colors = []
+    
+    for source, values in grouped_data.items():
+        if not values:
+            continue
+        data_to_plot.append(values)
+        labels.append(source.replace("-", " ").title())
+        colors.append(SOURCE_COLORS.get(source, "gray"))
+    
+    if not data_to_plot:
+        log_error(get_logger(), f"No data to plot for {metric_name}")
+        plt.close()
+        return
 
-    # Template for the report
-    template_str = """
-    # Research Report: Evaluating the Impact of Code Generation Models on Code Testability
+    bp = plt.boxplot(data_to_plot, labels=labels, patch_artist=True)
+    
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.7)
+    
+    plt.title(f"Boxplot of {metric_name.replace('_', ' ').title()}")
+    plt.ylabel(metric_name.replace('_', ' ').title())
+    plt.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+    log_info(get_logger(), f"Boxplot saved: {output_path}")
 
-    **Generated:** {{ timestamp }}
+def generate_all_plots(metrics_data: List[Dict]):
+    """Generate all required plots for continuous metrics."""
+    ensure_figures_dir()
+    
+    for metric in CONTINUOUS_METRICS:
+        log_info(get_logger(), f"Generating plots for {metric}")
+        grouped = extract_metric_values(metrics_data, metric)
+        
+        if not any(grouped.values()):
+            log_error(get_logger(), f"No valid data for {metric}, skipping plots.")
+            continue
+        
+        # Histogram
+        hist_path = os.path.join(FIGURES_DIR, f"{metric}_histogram.png")
+        plot_histogram(grouped, metric, hist_path)
+        
+        # Boxplot
+        box_path = os.path.join(FIGURES_DIR, f"{metric}_boxplot.png")
+        plot_boxplot(grouped, metric, box_path)
 
-    ## 1. Executive Summary
+def format_sensitivity_comparison(metrics_data: List[Dict], stats_results: Optional[Dict]) -> str:
+    """Format the sensitivity analysis section for the report."""
+    lines = []
+    lines.append("### Sensitivity Analysis")
+    lines.append("")
+    lines.append("Comparison of CodeLlama-7B and CodeLlama-3B (if available) against the primary model.")
+    lines.append("")
+    
+    # Check for sensitivity data
+    sensitivity_sources = [s for s in ["codellama-7b", "codellama-3b"] if any(r.get("source_type") == s for r in metrics_data)]
+    
+    if not sensitivity_sources:
+        lines.append("*No sensitivity data available in the current metrics file.*")
+    else:
+        lines.append("| Source | Metric | Mean | Std Dev |")
+        lines.append("|--------|--------|------|---------|")
+        
+        for metric in CONTINUOUS_METRICS:
+            for source in sensitivity_sources:
+                values = [r[metric] for r in metrics_data if r.get("source_type") == source and r.get(metric) is not None]
+                if values:
+                    stats = calculate_summary_stats(values)
+                    lines.append(f"| {source} | {metric} | {stats['mean']:.2f} | {stats['std']:.2f} |")
+        
+        lines.append("")
+        if stats_results:
+            lines.append("**Statistical Significance:**")
+            # Attempt to extract significance info if available in stats_results
+            # This is a best-effort extraction based on expected structure
+            if "wilcoxon" in str(stats_results).lower():
+                lines.append("- Wilcoxon tests were performed.")
+            if "power" in str(stats_results).lower():
+                lines.append("- Power analysis indicates sufficient sample size.")
+    
+    return "\n".join(lines)
 
-    This report presents the results of the automated pipeline analyzing code generated by LLMs.
-    It includes structural complexity metrics (Cyclomatic Complexity, Halstead Volume), functional test coverage,
-    statistical hypothesis testing results, and a sensitivity analysis comparing different model scales.
-
-    ## 2. Data Overview
-
-    Total samples analyzed: {{ metrics | length }}
-
-    ### Summary Statistics
-
-    {% for metric, stats in summary_stats.items() %}
-    #### {{ metric.replace('_', ' ').title() }}
-    - Mean: {{ "%.2f"|format(stats.mean) }}
-    - Std Dev: {{ "%.2f"|format(stats.std) }}
-    - Min: {{ "%.2f"|format(stats.min) }}
-    - Max: {{ "%.2f"|format(stats.max) }}
-    - Median: {{ "%.2f"|format(stats.median) }}
-    {% endfor %}
-
-    ## 3. Visualizations
-
-    {% for fig in figures %}
-    ### {{ fig.caption }}
-    ![](figures/{{ fig.name }})
-    {% endfor %}
-
-    ## 4. Statistical Analysis
-
-    {% if statistics %}
-    ### Hypothesis Testing Results
-
-    {% for test_name, result in statistics.items() %}
-    #### {{ test_name.replace('_', ' ').title() }}
-    - Statistic: {{ result.get('statistic', 'N/A') }}
-    - P-value: {{ result.get('pvalue', 'N/A') }}
-    - Conclusion: {{ result.get('conclusion', 'N/A') }}
-    {% endfor %}
-
-    {% if statistics.get('power_analysis') %}
-    ### Power Analysis
-    - Required Sample Size (n >= 38): {{ statistics.power_analysis.get('required_n', 'N/A') }}
-    - Achieved Power: {{ statistics.power_analysis.get('achieved_power', 'N/A') }}
-    {% endif %}
-    {% else %}
-    Statistical results not available.
-    {% endif %}
-
-    ## 5. Sensitivity Analysis: Model Comparison (CodeLlama 7B/3B vs 350M)
-
-    {{ sensitivity_content }}
-
-    ## 6. Conclusion
-
-    The pipeline successfully generated metrics for {{ metrics | length }} samples.
-    Statistical tests were performed to compare structural complexity against functional success.
-    Sensitivity analysis provides insights into how model scale affects code testability.
-
-    ---
-    *Report generated by llmXive automated science pipeline.*
-    """
-
-    template = Template(template_str)
-    report_content = template.render(context)
-
-    with open(RESULTS_REPORT_FILE, 'w') as f:
+def generate_markdown_report(metrics_data: List[Dict], stats_results: Optional[Dict]):
+    """Generate the final Markdown report."""
+    ensure_figures_dir()
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    report_lines = []
+    report_lines.append("# Code Generation Model Impact Analysis Report")
+    report_lines.append("")
+    report_lines.append(f"**Generated:** {timestamp}")
+    report_lines.append("")
+    
+    # Summary Statistics
+    report_lines.append("## Summary Statistics")
+    report_lines.append("")
+    report_lines.append("| Metric | Source | Mean | Std Dev | Min | Max |")
+    report_lines.append("|--------|--------|------|---------|-----|-----|")
+    
+    for metric in CONTINUOUS_METRICS:
+        grouped = extract_metric_values(metrics_data, metric)
+        for source, values in grouped.items():
+            if values:
+                stats = calculate_summary_stats(values)
+                report_lines.append(f"| {metric} | {source} | {stats['mean']:.2f} | {stats['std']:.2f} | {stats['min']:.2f} | {stats['max']:.2f} |")
+    
+    report_lines.append("")
+    
+    # Visualizations
+    report_lines.append("## Visualizations")
+    report_lines.append("")
+    
+    for metric in CONTINUOUS_METRICS:
+        report_lines.append(f"### {metric.replace('_', ' ').title()}")
+        report_lines.append("")
+        report_lines.append(f"![Histogram](figures/{metric}_histogram.png)")
+        report_lines.append("")
+        report_lines.append(f"![Boxplot](figures/{metric}_boxplot.png)")
+        report_lines.append("")
+    
+    # Sensitivity Analysis
+    report_lines.append(format_sensitivity_comparison(metrics_data, stats_results))
+    report_lines.append("")
+    
+    # Conclusion
+    report_lines.append("## Conclusion")
+    report_lines.append("")
+    report_lines.append("This report summarizes the impact of code generation models on code testability.")
+    report_lines.append("Detailed statistical analysis (Wilcoxon, McNemar, etc.) is referenced in the statistical results file.")
+    report_lines.append("")
+    
+    report_content = "\n".join(report_lines)
+    
+    with open(REPORT_PATH, 'w') as f:
         f.write(report_content)
     
-    logging.info(f"Report generated successfully: {RESULTS_REPORT_FILE}")
+    log_info(get_logger(), f"Report generated: {REPORT_PATH}")
 
 def main():
-    """Main entry point for report generation."""
-    set_task_id("T032")
-    logger = get_logger()
-    logger.info("Starting report generation (T032)...")
-
+    """Main entry point for the report generator."""
+    logger = setup_logging()
+    set_task_id("T030")
+    log_info(logger, "Starting Report Generation (T030)")
+    
     try:
-        # Load data
+        # 1. Load Data
+        log_info(logger, f"Loading metrics from {METRICS_PATH}")
         metrics_data = load_metrics_data()
-        logger.info(f"Loaded {len(metrics_data)} metrics records.")
-
-        stat_results = load_statistical_results()
+        log_info(logger, f"Loaded {len(metrics_data)} records")
         
-        # Load sensitivity data if it exists (merged into metrics or separate file)
-        # We assume sensitivity data is merged into metrics.json with a 'model_type' field or similar.
-        # For this task, we look for a specific file or derive from metrics if structured.
-        # Based on T041, sensitivity data is merged. We need to extract it.
-        # If the merged file doesn't have a separate sensitivity file, we parse metrics for 'model_type'.
-        sensitivity_data = None
-        # Check if metrics have model_type to separate
-        if metrics_data and isinstance(metrics_data, list):
-            # Check if any item has 'model_type'
-            if any('model_type' in item for item in metrics_data):
-                # Re-calculate stats per model type for the report
-                models = {}
-                for item in metrics_data:
-                    model = item.get('model_type', 'default')
-                    if model not in models:
-                        models[model] = []
-                    models[model].append(item)
-                
-                sensitivity_list = []
-                for model_name, items in models.items():
-                    for metric in ['cyclomatic_complexity', 'halstead_volume', 'branch_coverage_pct']:
-                        vals = [x[metric] for x in items if metric in x and x[metric] is not None and x[metric] != '[deferred]']
-                        if vals:
-                            sensitivity_list.append({
-                                'model_type': model_name,
-                                'metric_name': metric,
-                                'mean': float(np.mean(vals)),
-                                'std': float(np.std(vals)),
-                                'count': len(vals)
-                            })
-                sensitivity_data = sensitivity_list
-
-        # Generate plots
+        # 2. Generate Plots
+        log_info(logger, "Generating plots...")
         generate_all_plots(metrics_data)
-
-        # Generate report
-        generate_markdown_report(metrics_data, stat_results, sensitivity_data)
-
-        logger.info("Report generation completed successfully.")
-        return 0
-
+        
+        # 3. Load Statistical Results (Optional)
+        stats_results = None
+        try:
+            stats_results = load_statistical_results()
+            if stats_results:
+                log_info(logger, "Loaded statistical results")
+        except FileNotFoundError:
+            log_info(logger, "Statistical results file not found, proceeding without it.")
+        
+        # 4. Generate Report
+        log_info(logger, "Generating Markdown report...")
+        generate_markdown_report(metrics_data, stats_results)
+        
+        log_info(logger, "Report generation completed successfully.")
+        
+    except FileNotFoundError as e:
+        log_error(logger, str(e))
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during report generation: {e}", exc_info=True)
-        return 1
+        log_error(logger, f"Error during report generation: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

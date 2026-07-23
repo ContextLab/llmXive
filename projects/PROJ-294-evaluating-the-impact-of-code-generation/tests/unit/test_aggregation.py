@@ -1,42 +1,95 @@
-import os
 import json
+import os
 import tempfile
 import pytest
-from unittest.mock import patch, MagicMock
+from code.analyze_metrics import aggregate_metrics_to_json, apply_pairwise_exclusion_gate
 
-# Import the function to test
-# We need to import from the module, assuming it's in code/
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-from analyze_metrics import aggregate_metrics_to_json
-
-def test_aggregate_metrics_to_json():
-    """Test that aggregate_metrics_to_json writes a valid JSON file."""
-    test_data = [
-        {"task_id": "1", "cyclomatic_complexity": 5, "halstead_volume": 10.0, "pass_rate": 1.0, "branch_coverage_pct": 50.0},
-        {"task_id": "2", "cyclomatic_complexity": 3, "halstead_volume": 8.0, "pass_rate": 0.0, "branch_coverage_pct": 20.0}
+def test_aggregation_schema():
+    """Test that aggregated metrics have the correct schema."""
+    input_data = [
+        {
+            "task_id": "0",
+            "source_type": "human",
+            "cyclomatic_complexity": 5,
+            "halstead_volume": 100.5,
+            "halstead_components": {"N": 10, "n": 5, "L": 20, "D": 2, "E": 50},
+            "pass_rate": 1,
+            "branch_coverage_pct": 85.0
+        },
+        {
+            "task_id": "0",
+            "source_type": "codegen-350M",
+            "cyclomatic_complexity": 6,
+            "halstead_volume": 110.2,
+            "halstead_components": {"N": 12, "n": 6, "L": 22, "D": 3, "E": 55},
+            "pass_rate": 0,
+            "branch_coverage_pct": 70.0
+        }
     ]
     
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test_metrics.json")
+        input_path = os.path.join(tmpdir, "input.json")
+        output_path = os.path.join(tmpdir, "output.json")
         
-        aggregate_metrics_to_json(test_data, output_path)
+        with open(input_path, 'w') as f:
+            json.dump(input_data, f)
+        
+        aggregate_metrics_to_json(input_path, output_path)
         
         assert os.path.exists(output_path)
-        
         with open(output_path, 'r') as f:
-            loaded_data = json.load(f)
+            result = json.load(f)
         
-        assert loaded_data == test_data
-        assert len(loaded_data) == 2
+        assert len(result) == 2
+        for record in result:
+            assert 'task_id' in record
+            assert 'source_type' in record
+            assert 'cyclomatic_complexity' in record
+            assert 'halstead_volume' in record
+            assert 'branch_coverage_pct' in record
+            assert 'pass_rate' in record
+            assert record['cyclomatic_complexity'] is not None
+            assert record['halstead_volume'] is not None
 
-def test_aggregate_metrics_empty():
-    """Test aggregation with empty list."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "empty_metrics.json")
-        aggregate_metrics_to_json([], output_path)
-        
-        with open(output_path, 'r') as f:
-            loaded_data = json.load(f)
-        
-        assert loaded_data == []
+def test_exclusion_gate_null_coverage():
+    """Test that pairs with null coverage are excluded."""
+    input_data = [
+        {
+            "task_id": "0",
+            "source_type": "human",
+            "branch_coverage_pct": 85.0,
+            "cyclomatic_complexity": 5,
+            "halstead_volume": 100.0
+        },
+        {
+            "task_id": "0",
+            "source_type": "codegen-350M",
+            "branch_coverage_pct": None,  # Null coverage
+            "cyclomatic_complexity": 6,
+            "halstead_volume": 110.0
+        },
+        {
+            "task_id": "1",
+            "source_type": "human",
+            "branch_coverage_pct": 90.0,
+            "cyclomatic_complexity": 4,
+            "halstead_volume": 90.0
+        },
+        {
+            "task_id": "1",
+            "source_type": "codegen-350M",
+            "branch_coverage_pct": 80.0,
+            "cyclomatic_complexity": 5,
+            "halstead_volume": 95.0
+        }
+    ]
+    
+    filtered, excluded = apply_pairwise_exclusion_gate(input_data)
+    
+    # Task 0 should be excluded
+    assert "0" in excluded
+    # Task 1 should be included
+    assert "1" not in excluded
+    # Filtered should only contain task 1 records
+    assert len(filtered) == 2
+    assert all(r['task_id'] == "1" for r in filtered)

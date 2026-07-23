@@ -101,7 +101,7 @@ References: [Preserve existing citations as per original document] (if API fails
 1.  **Pre-Check**: Run Reference-Validator Agent on all citations (FR-010). Abort if any fail.
 2.  **Data Download**: Download HumanEval, verify SHA256, store in `data/raw/`.
 3.  **Sampling**: Select a representative subset of tasks via stratified sampling (by human pass-rate quartiles).
-4.  **Generation (Primary)**: Generate code for a set of tasks using `Salesforce/codegen-350M-mono`.
+4.  **Generation (Primary)**: Generate code for a set of tasks using `Salesforce/codegen-mono`.
 5.  **Generation (Sensitivity)**: Select a set of disjoint tasks. Generate code using `CodeLlamaB` (via API) or `CodeLlamaB` (fallback).
 6.  **Analysis**: Run `radon` and `pytest --cov` on all samples. Log errors.
 7.  **Testing**: Run Wilcoxon (complexity/Halstead), Permutation (coverage), McNemar (pass-rate).

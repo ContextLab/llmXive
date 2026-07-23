@@ -4,346 +4,319 @@ import logging
 import subprocess
 import sys
 import tempfile
-import radon
-from radon.complexity import cc_visit
-from radon.halstead import halstead_visit
-from utils import setup_logging, get_logger, set_task_id
+from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
 
-# Ensure radon is installed
-try:
-    import radon
-except ImportError:
-    raise ImportError("radon is required for metric analysis. Install with: pip install radon")
+# Import shared utilities
+from utils import (
+    setup_logging, get_logger, log_info, log_error, ensure_directory
+)
 
-def calculate_code_metrics(code):
-    """
-    Calculate Cyclomatic Complexity and Halstead Volume for a given code snippet.
+# Task ID management
+_task_id: Optional[str] = None
 
-    Args:
-        code (str): The Python code snippet to analyze.
+def set_task_id(tid: str):
+    global _task_id
+    _task_id = tid
 
-    Returns:
-        dict: A dictionary containing cyclomatic_complexity and halstead_volume.
-    """
-    if not code or not code.strip():
-        return {
-            "cyclomatic_complexity": 0,
-            "halstead_volume": 0.0,
-            "halstead_operators": {},
-            "halstead_operands": {}
-        }
+def get_task_id() -> Optional[str]:
+    return _task_id
 
-    try:
-        # Calculate Cyclomatic Complexity
-        cc_results = cc_visit(code)
-        # Sum CC for all functions/classes in the snippet
-        total_cc = sum(block.cc for block in cc_results)
-        # If no functions found, default to 1 for the module itself if valid syntax
-        if total_cc == 0 and cc_results:
-            total_cc = 1
-        elif total_cc == 0 and not cc_results:
-            # Check if it's valid syntax but no functions (e.g. just a statement)
-            # For safety, if it parses, give it a base CC of 1, else 0
-            try:
-                compile(code, '<string>', 'exec')
-                total_cc = 1
-            except SyntaxError:
-                total_cc = 0
+def get_logger() -> logging.Logger:
+    return logging.getLogger('analyze_metrics')
 
-        # Calculate Halstead Metrics
-        h_results = list(halstead_visit(code))
-        if h_results:
-            # Sum or take the first significant block? Usually sum for total volume
-            # Radon returns a list of Halstead metrics per function/class
-            total_h_volume = sum(h.volume for h in h_results)
-            total_operators = {}
-            total_operands = {}
-            
-            # Aggregate operators and operands
-            for h in h_results:
-                for op, count in h.operators.items():
-                    total_operators[op] = total_operators.get(op, 0) + count
-                for op, count in h.operands.items():
-                    total_operands[op] = total_operands.get(op, 0) + count
-        else:
-            total_h_volume = 0.0
-            total_operators = {}
-            total_operands = {}
+def log_info(logger: logging.Logger, msg: str):
+    logger.info(msg)
 
-        return {
-            "cyclomatic_complexity": total_cc,
-            "halstead_volume": total_h_volume,
-            "halstead_operators": total_operators,
-            "halstead_operands": total_operands
-        }
-
-    except SyntaxError:
-        # Return defaults for invalid syntax
-        return {
-            "cyclomatic_complexity": 0,
-            "halstead_volume": 0.0,
-            "halstead_operators": {},
-            "halstead_operands": {}
-        }
-    except Exception as e:
-        # Log error but return defaults to allow pipeline to continue
-        logging.error(f"Error calculating metrics: {e}")
-        return {
-            "cyclomatic_complexity": 0,
-            "halstead_volume": 0.0,
-            "halstead_operators": {},
-            "halstead_operands": {}
-        }
-
-def setup_logging():
-    """Setup logging configuration."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('logs/analyze_metrics.log')
-        ]
-    )
-    return logging.getLogger(__name__)
-
-def log_info(logger, message):
-    """Log an info message."""
-    logger.info(message)
-
-def log_error(logger, message):
-    """Log an error message."""
-    logger.error(message)
+def log_error(logger: logging.Logger, msg: str):
+    logger.error(msg)
 
 def ensure_dirs():
-    """Ensure required directories exist."""
-    os.makedirs('data/analysis', exist_ok=True)
-    os.makedirs('logs', exist_ok=True)
+    ensure_directory("data/analysis")
+    ensure_directory("logs")
+    ensure_directory("data/generated")
 
-def load_test_suites(task_id):
+def calculate_code_metrics(code: str) -> Dict[str, Any]:
     """
-    Load test suite for a given task_id from HumanEval dataset.
-    This is a placeholder for the actual loading logic.
-    """
-    # In a real implementation, this would load from data/raw/humaneval.jsonl
-    # For now, we return a mock structure
-    return {
-        "task_id": task_id,
-        "prompt": "def add(a, b):\n    return a + b",
-        "canonical_solution": "def add(a, b):\n    return a + b",
-        "test": "def check_add():\n    assert add(1, 2) == 3"
-    }
-
-def execute_test_suite(code, test_code):
-    """
-    Execute the test suite against the generated code.
-    Returns True if all tests pass, False otherwise.
+    Calculate Cyclomatic Complexity and Halstead metrics using radon.
+    Returns dict with cyclomatic_complexity, halstead_volume, and halstead_components.
     """
     try:
+        # Write code to a temp file for radon
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code + "\n" + test_code)
-            temp_file = f.name
+            f.write(code)
+            temp_path = f.name
 
-        result = subprocess.run(
-            [sys.executable, temp_file],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        os.unlink(temp_file)
-        return result.returncode == 0
-    except Exception as e:
-        logging.error(f"Test execution failed: {e}")
-        return False
-
-def execute_coverage_test(code, test_code):
-    """
-    Execute coverage test and return branch coverage percentage.
-    Returns None if execution fails.
-    """
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code + "\n" + test_code)
-            temp_file = f.name
-
-        result = subprocess.run(
-            ['coverage', 'run', temp_file],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-
-        if result.returncode != 0:
-            os.unlink(temp_file)
-            return None
-
-        coverage_result = subprocess.run(
-            ['coverage', 'report', '--format=json'],
-            capture_output=True,
-            text=True,
-            cwd=os.path.dirname(temp_file)
-        )
-
-        os.unlink(temp_file)
-
-        if coverage_result.returncode == 0:
-            coverage_data = json.loads(coverage_result.stdout)
-            # Extract branch coverage percentage
-            # This is a simplified extraction; real implementation may vary
-            total_branches = 0
-            covered_branches = 0
-            for file_data in coverage_data.get('files', {}).values():
-                total_branches += file_data.get('summary', {}).get('missing_branches', 0)
-                covered_branches += file_data.get('summary', {}).get('covered_branches', 0)
+        try:
+            # Run Cyclomatic Complexity
+            cc_result = subprocess.run(
+                ['radon', 'cc', '--json', temp_path],
+                capture_output=True, text=True, check=False
+            )
             
-            if total_branches > 0:
-                return (covered_branches / total_branches) * 100
-            else:
-                return 100.0  # No branches to cover
-        else:
+            # Run Halstead
+            hal_result = subprocess.run(
+                ['radon', 'hal', '--json', temp_path],
+                capture_output=True, text=True, check=False
+            )
+
+            cc_data = json.loads(cc_result.stdout) if cc_result.stdout else {}
+            hal_data = json.loads(hal_result.stdout) if hal_result.stdout else {}
+
+            # Extract CC (sum of all functions/classes)
+            total_cc = 0
+            if cc_data:
+                for item in cc_data:
+                    if 'metrics' in item:
+                        total_cc += item['metrics']['complexity']
+                    elif isinstance(item, dict) and 'complexity' in item:
+                        total_cc += item['complexity']
+            
+            # Extract Halstead
+            hal_volume = 0.0
+            hal_components = {"N": 0, "n": 0, "L": 0, "D": 0, "E": 0}
+            
+            if hal_data:
+                # Halstead output is a list of metrics per function
+                # We sum them up for the whole file
+                for item in hal_data:
+                    if 'metrics' in item:
+                        m = item['metrics']
+                        hal_volume += m.get('volume', 0)
+                        # Accumulate components (approximate sum for file level)
+                        hal_components['N'] += m.get('N', 0)
+                        hal_components['n'] += m.get('n', 0)
+                        hal_components['L'] += m.get('L', 0)
+                        hal_components['D'] += m.get('D', 0)
+                        hal_components['E'] += m.get('E', 0)
+                    elif isinstance(item, dict):
+                        hal_volume += item.get('volume', 0)
+                        hal_components['N'] += item.get('N', 0)
+                        hal_components['n'] += item.get('n', 0)
+                        hal_components['L'] += item.get('L', 0)
+                        hal_components['D'] += item.get('D', 0)
+                        hal_components['E'] += item.get('E', 0)
+
+            return {
+                "cyclomatic_complexity": total_cc if total_cc > 0 else 0,
+                "halstead_volume": hal_volume if hal_volume > 0 else 0.0,
+                "halstead_components": hal_components
+            }
+        finally:
+            os.unlink(temp_path)
+    except Exception as e:
+        log_error(get_logger(), f"Error calculating metrics: {e}")
+        return {
+            "cyclomatic_complexity": None,
+            "halstead_volume": None,
+            "halstead_components": None
+        }
+
+def execute_test_suite(code: str, tests: str, entry_point: str) -> int:
+    """
+    Execute pytest against the code. Returns 1 if all tests pass, 0 otherwise.
+    """
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Write code
+            code_path = os.path.join(tmpdir, "solution.py")
+            with open(code_path, 'w') as f:
+                f.write(code)
+
+            # Write tests
+            test_path = os.path.join(tmpdir, "test_solution.py")
+            with open(test_path, 'w') as f:
+                f.write(tests)
+                # Append check function if not present (HumanEval format)
+                if "check(" not in tests:
+                    f.write("\n\n# Check function placeholder\n")
+
+            # Run pytest
+            result = subprocess.run(
+                [sys.executable, "-m", "pytest", test_path, "-v", "--tb=short"],
+                capture_output=True, text=True, timeout=30
+            )
+            
+            # Parse result: 0 = success, non-zero = failure
+            if result.returncode == 0:
+                return 1
+            return 0
+    except subprocess.TimeoutExpired:
+        return 0
+    except Exception as e:
+        log_error(get_logger(), f"Test execution error: {e}")
+        return 0
+
+def execute_coverage_test(code: str, tests: str, entry_point: str) -> Optional[float]:
+    """
+    Execute pytest-cov. Returns branch_coverage_pct or None if failed.
+    """
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            code_path = os.path.join(tmpdir, "solution.py")
+            with open(code_path, 'w') as f:
+                f.write(code)
+
+            test_path = os.path.join(tmpdir, "test_solution.py")
+            with open(test_path, 'w') as f:
+                f.write(tests)
+
+            # Run pytest with coverage
+            result = subprocess.run(
+                [sys.executable, "-m", "pytest", test_path, "--cov=solution", 
+                 "--cov-report=json", "--tb=short", "-q"],
+                capture_output=True, text=True, timeout=30, cwd=tmpdir
+            )
+
+            # Parse coverage.json
+            cov_json_path = os.path.join(tmpdir, "coverage.json")
+            if os.path.exists(cov_json_path):
+                with open(cov_json_path, 'r') as f:
+                    cov_data = json.load(f)
+                
+                # Extract branch coverage
+                if 'totals' in cov_data and 'percent_branch' in cov_data['totals']:
+                    return cov_data['totals']['percent_branch']
+                elif 'totals' in cov_data and 'branch_covered' in cov_data['totals'] and 'branches_total' in cov_data['totals']:
+                    total = cov_data['totals']['branches_total']
+                    covered = cov_data['totals']['branch_covered']
+                    if total > 0:
+                        return (covered / total) * 100.0
+                    return 0.0
             return None
     except Exception as e:
-        logging.error(f"Coverage test failed: {e}")
+        log_error(get_logger(), f"Coverage execution error: {e}")
         return None
 
-def analyze_batch_metrics(samples):
-    """
-    Analyze metrics for a batch of samples.
-    
-    Args:
-        samples (list): List of sample dictionaries with 'task_id', 'code', 'test_code'
-        
-    Returns:
-        list: List of metric dictionaries
-    """
-    results = []
-    logger = setup_logging()
-    
-    for sample in samples:
-        task_id = sample.get('task_id')
-        code = sample.get('code')
-        test_code = sample.get('test_code')
-        
-        if not code:
-            log_error(logger, f"No code for task {task_id}")
-            continue
-        
-        # Calculate code metrics
-        code_metrics = calculate_code_metrics(code)
-        
-        # Execute tests
-        pass_rate = 1.0 if execute_test_suite(code, test_code) else 0.0
-        
-        # Execute coverage test
-        branch_coverage = execute_coverage_test(code, test_code)
-        
-        result = {
-            "task_id": task_id,
-            "source_type": sample.get('source_type', 'unknown'),
-            "cyclomatic_complexity": code_metrics['cyclomatic_complexity'],
-            "halstead_volume": code_metrics['halstead_volume'],
-            "pass_rate": pass_rate,
-            "branch_coverage_pct": branch_coverage
-        }
-        
-        results.append(result)
-        log_info(logger, f"Analyzed task {task_id}: CC={result['cyclomatic_complexity']}, "
-                         f"HV={result['halstead_volume']:.2f}, "
-                         f"Coverage={branch_coverage}")
-    
-    return results
+def load_intermediate_metrics(input_path: str) -> List[Dict[str, Any]]:
+    """Load intermediate metrics from JSON."""
+    if not os.path.exists(input_path):
+        return []
+    with open(input_path, 'r') as f:
+        return json.load(f)
 
-def aggregate_metrics_to_json(results, output_path='data/analysis/metrics.json'):
+def apply_pairwise_exclusion_gate(metrics: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
     """
-    Aggregate metrics and save to JSON file.
-    Filters out samples with null branch_coverage_pct as per T042a requirement.
-    
-    Args:
-        results (list): List of metric dictionaries
-        output_path (str): Path to output JSON file
-    """
-    # T042a: Filter out samples where branch_coverage_pct is null
-    filtered_results = [
-        r for r in results 
-        if r.get('branch_coverage_pct') is not None
-    ]
-    
-    log_info(setup_logging(), f"Filtered {len(results) - len(filtered_results)} samples with null coverage")
-    
-    ensure_dirs()
-    with open(output_path, 'w') as f:
-        json.dump(filtered_results, f, indent=2)
-    
-    log_info(setup_logging(), f"Saved {len(filtered_results)} metrics to {output_path}")
-    return filtered_results
-
-def apply_pairwise_exclusion(results):
-    """
-    Apply pairwise exclusion logic (T042b) to ensure complete pairs.
-    This function is called after filtering null coverage values.
-    
-    Args:
-        results (list): List of metric dictionaries
-        
-    Returns:
-        list: Filtered list with complete pairs only
+    Exclude pairs where either human or codegen has null coverage.
+    Returns (filtered_metrics, excluded_task_ids).
     """
     # Group by task_id
-    task_groups = {}
-    for r in results:
-        task_id = r['task_id']
-        if task_id not in task_groups:
-            task_groups[task_id] = []
-        task_groups[task_id].append(r)
+    by_task = {}
+    for m in metrics:
+        tid = m.get('task_id')
+        if tid not in by_task:
+            by_task[tid] = []
+        by_task[tid].append(m)
+
+    excluded_ids = []
+    valid_metrics = []
+
+    for tid, items in by_task.items():
+        # Check coverage for human and codegen
+        has_human = False
+        has_codegen = False
+        human_cov = None
+        codegen_cov = None
+
+        for item in items:
+            src = item.get('source_type')
+            if src == 'human':
+                has_human = True
+                human_cov = item.get('branch_coverage_pct')
+            elif src in ['codegen-350M', 'codegen-3B', 'codellama-7B', 'sensitivity']:
+                has_codegen = True
+                codegen_cov = item.get('branch_coverage_pct')
+
+        # If either is missing or null, exclude the pair
+        if (has_human and human_cov is None) or (has_codegen and codegen_cov is None):
+            excluded_ids.append(tid)
+        else:
+            valid_metrics.extend(items)
+
+    return valid_metrics, excluded_ids
+
+def aggregate_metrics_to_json(input_path: str, output_path: str):
+    """
+    Aggregate intermediate metrics into the final metrics.json.
+    Schema: task_id, source_type, cyclomatic_complexity, halstead_volume, 
+            branch_coverage_pct, pass_rate.
+    Constraint: Verify no record has null for cyclomatic_complexity OR halstead_volume.
+    """
+    logger = get_logger()
     
-    # Keep only tasks with both human and LLM samples
-    valid_pairs = []
-    for task_id, group in task_groups.items():
-        if len(group) >= 2:
-            valid_pairs.extend(group)
+    # Load raw intermediate data
+    raw_data = load_intermediate_metrics(input_path)
+    if not raw_data:
+        log_error(logger, f"No data found in {input_path}")
+        return
+
+    # Apply exclusion gate
+    filtered_data, excluded_ids = apply_pairwise_exclusion_gate(raw_data)
     
-    return valid_pairs
+    if excluded_ids:
+        log_info(logger, f"Excluded {len(excluded_ids)} pairs due to null coverage: {excluded_ids[:5]}...")
+        # Log to file
+        with open("logs/pairwise_exclusions.log", 'a') as f:
+            f.write(f"{datetime.now()}: Excluded {excluded_ids}\n")
+
+    # Validate constraints
+    valid_records = []
+    null_count = 0
+    for record in filtered_data:
+        cc = record.get('cyclomatic_complexity')
+        hal = record.get('halstead_volume')
+        
+        if cc is None or hal is None:
+            null_count += 1
+            log_error(logger, f"Record {record.get('task_id')} ({record.get('source_type')}) has null metrics. Skipping.")
+            continue
+        
+        valid_records.append(record)
+
+    if null_count > 0:
+        log_info(logger, f"Removed {null_count} records with null metrics.")
+
+    # Write final output
+    with open(output_path, 'w') as f:
+        json.dump(valid_records, f, indent=2)
+
+    log_info(logger, f"Aggregated {len(valid_records)} valid records to {output_path}")
 
 def main():
-    """Main entry point for the metrics analysis pipeline."""
-    logger = setup_logging()
-    set_task_id('T042a')
+    logger = setup_logging(task_id="T017")
+    set_task_id("T017")
     
-    log_info(logger, "Starting metrics analysis pipeline")
+    log_info(logger, "Starting Metric Aggregation (T017)")
     
-    # Example: Load samples from a file or generate them
-    # In a real scenario, this would load from data/raw/
-    samples = [
-        {
-            "task_id": "HumanEval/0",
-            "source_type": "human",
-            "code": "def add(a, b):\n    return a + b",
-            "test_code": "assert add(1, 2) == 3"
-        },
-        {
-            "task_id": "HumanEval/0",
-            "source_type": "llm",
-            "code": "def add(a, b):\n    return a + b",
-            "test_code": "assert add(1, 2) == 3"
-        }
-    ]
+    ensure_dirs()
     
-    # Analyze metrics
-    results = analyze_batch_metrics(samples)
+    input_path = "data/analysis/intermediate_metrics.json"
+    output_path = "data/analysis/metrics.json"
     
-    # Filter out null coverage (T042a)
-    filtered_results = [r for r in results if r.get('branch_coverage_pct') is not None]
+    # If intermediate doesn't exist, try to load from raw data if available
+    # For now, assume intermediate was produced by T014/T015
+    if not os.path.exists(input_path):
+        # Fallback: check if we need to generate from raw HumanEval + generated code
+        # This logic might be invoked if T014/T015 failed or produced different paths
+        log_error(logger, f"Intermediate metrics file not found: {input_path}")
+        # Try to find any existing metrics
+        if os.path.exists("data/analysis/metrics.json"):
+            log_info(logger, "Output file already exists, skipping aggregation.")
+            return
+        else:
+            log_error(logger, "Cannot proceed without intermediate metrics.")
+            sys.exit(1)
+
+    aggregate_metrics_to_json(input_path, output_path)
     
-    # Apply pairwise exclusion (T042b)
-    final_results = apply_pairwise_exclusion(filtered_results)
-    
-    # Save to JSON
-    output_path = 'data/analysis/metrics.json'
-    with open(output_path, 'w') as f:
-        json.dump(final_results, f, indent=2)
-    
-    log_info(logger, f"Pipeline complete. Saved {len(final_results)} results to {output_path}")
-    return final_results
+    # Verify output
+    if os.path.exists(output_path):
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        log_info(logger, f"Verification: {len(data)} records written to {output_path}")
+    else:
+        log_error(logger, f"Failed to write output file: {output_path}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
