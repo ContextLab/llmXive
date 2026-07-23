@@ -9,7 +9,7 @@ properties:
       - "Within-Subjects"
       - "Between-Subjects"
       - "Unavailable"
-    description: "The statistical design used based on ID matching and dataset structure."
+    description: "The statistical design used based on data structure."
   main_test:
     type: "object"
     description: "Primary ANOVA results."
@@ -27,11 +27,6 @@ properties:
         description: "Benjamini-Hochberg corrected p-value."
       effect_size:
         type: "number"
-      power_estimate:
-        type: "number"
-        minimum: 0
-        maximum: 1
-        description: "Estimated power for the effect."
       confidence_interval:
         type: "array"
         items:
@@ -42,7 +37,7 @@ properties:
       - f_statistic
       - p_raw
       - p_fdr
-      - power_estimate
+      - effect_size
   sensitivity_analysis:
     type: "array"
     description: "Results for alpha sweep {0.01, 0.05, 0.1}."
@@ -72,7 +67,7 @@ properties:
         description: "Flag indicating the phrase 'associational' is present in the text."
       modulation_claim_valid:
         type: "boolean"
-        description: "False if the design is Between-Subjects, indicating the modulation hypothesis is untestable."
+        description: "False if the design is Within-Subjects (modulation by reward untestable)."
     required:
       - contains_associational
       - modulation_claim_valid
@@ -81,4 +76,3 @@ required:
   - main_test
   - sensitivity_analysis
   - limitations
-

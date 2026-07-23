@@ -1,54 +1,55 @@
-# Data Model: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
+# Data Model: 001-social-rejection-reward
 
 ## Overview
 
-This document defines the data structures used throughout the analysis pipeline. It ensures that data ingestion, preprocessing, and analysis adhere to the schema constraints required for valid statistical testing.
+This document defines the data structures used throughout the pipeline: raw ingestion, preprocessing, and analysis output. All data is stored in local files (`data/raw/`, `data/processed/`) and validated against schemas defined in `contracts/`.
 
 ## Entities
 
-### 1. RawDatasetRecord
-Represents a single row from the ingested raw dataset.
-*   **participant_id**: `string` (Unique identifier for the participant).
-*   **condition**: `string` (e.g., "Rejection", "Control", "Reward").
-*   **reaction_time_ms**: `float` (Reaction time in milliseconds).
-*   **mood_rating**: `float` (Self-reported mood, e.g., 1-7 scale).
-*   **source_file**: `string` (Origin filename).
-*   **timestamp_ingested**: `datetime`.
-*   **is_single_cohort**: `boolean` (True if the dataset contains both tasks for the same participant).
+### 1. Raw Dataset Record
+Represents the raw data loaded from the source (Parquet/CSV).
+*   **Source**: OpenNeuro (HuggingFace) ds000208.
+*   **Format**: Parquet.
+*   **Key Fields**:
+    *   `participant_id`: Unique identifier (string).
+    *   `task`: Task name (e.g., "cyberball").
+    *   `condition`: Experimental condition (e.g., "rejection", "control").
+    *   `reaction_time`: Response time in ms (float).
+    *   `mood_rating`: Self-reported mood score (float).
+    *   `timestamp`: Event timestamp (optional).
 
-### 2. PreprocessedRecord
+### 2. Preprocessed Record
 Cleaned and normalized data ready for analysis.
-*   **participant_id**: `string`.
-*   **rejection_group**: `boolean` (True if condition == "Rejection").
-*   **mean_rt**: `float` (Mean RT per participant per condition, normalized).
-*   **mean_mood**: `float` (Mean mood per participant per condition).
-*   **outlier_flag**: `boolean` (True if RT > Q3 + 1.5*IQR within condition group).
-*   **design_type**: `string` ("Within-Subjects", "Between-Subjects", or "Unavailable").
-    *   *Note*: This field is the explicit trigger for the adaptive ANOVA logic in `analysis.py`.
+*   **Transformation**: Outlier removal (IQR per condition), normalization.
+*   **Key Fields**:
+    *   `participant_id`: (Inherited).
+    *   `condition`: (Inherited).
+    *   `rt_normalized`: Normalized reaction time.
+    *   `is_outlier`: Boolean flag.
+    *   `mood_avg`: Mean mood rating per condition.
 
-### 3. AnalysisResult
-Output of the statistical tests.
-*   **test_type**: `string` (e.g., "Mixed_ANOVA", "OneWay_ANOVA").
-*   **f_statistic**: `float`.
-*   **p_raw**: `float`.
-*   **p_fdr**: `float` (Benjamini-Hochberg corrected).
-*   **effect_size**: `float` (e.g., eta-squared).
-*   **power_estimate**: `float` (Estimated power for the effect).
-*   **alpha_threshold**: `float`.
-*   **significant**: `boolean`.
-*   **modulation_claim_valid**: `boolean` (False if design is Between-Subjects).
+### 3. Analysis Result
+Output of the statistical model.
+*   **Format**: JSON/CSV.
+*   **Key Fields**:
+    *   `test_type`: "One_Way_ANOVA".
+    *   `design_type`: "Within-Subjects".
+    *   `f_value`: F-statistic.
+    *   `p_raw`: Raw p-value.
+    *   `p_fdr`: FDR-corrected p-value.
+    *   `effect_size`: Eta-squared or Cohen's d.
+    *   `alpha_sensitivity`: Dict of {0.01: bool, 0.05: bool, 0.1: bool}.
 
 ## Data Flow
 
-1.  **Ingestion**: `RawDatasetRecord` created. Validation checks for required columns and `is_single_cohort` flag.
-2.  **Preprocessing**: `RawDatasetRecord` → `PreprocessedRecord`. Outliers flagged/removed. `design_type` is set based on `is_single_cohort`.
-3.  **Analysis**: `PreprocessedRecord` → `AnalysisResult`. FDR correction applied. Power analysis performed.
-4.  **Reporting**: `AnalysisResult` → Final Report (JSON/Markdown).
+1.  **Ingestion**: Raw Parquet -> `data/raw/` (Checksummed).
+2.  **Validation**: Check for required columns (`participant_id`, `condition`, `reaction_time`, `mood_rating`).
+3.  **Preprocessing**: Raw -> `data/processed/analysis_ready.csv` (Cleaned, outliers flagged).
+4.  **Analysis**: `analysis_ready.csv` -> `results/analysis_output.json`.
+5.  **Reporting**: `analysis_output.json` -> `paper/report.md`.
 
 ## Constraints
 
-*   **Memory**: Total dataset size must not exceed a manageable threshold suitable for the experimental setup. If `len(RawDatasetRecord) > 500000`, sampling is applied.
-*   **Integrity**: No in-place modification of raw data. All transformations create new files.
-*   **Missing Data**: If `reaction_time_ms` is missing, the record is dropped with a log entry.
-*   **Design Validity**: If `design_type` is "Between-Subjects", `modulation_claim_valid` must be set to `False`.
-
+*   **Memory**: All intermediate files must fit in GB RAM.
+*   **PII**: No personally identifiable information allowed. `participant_id` must be anonymized.
+*   **Immutability**: Raw data in `data/raw/` is never modified.

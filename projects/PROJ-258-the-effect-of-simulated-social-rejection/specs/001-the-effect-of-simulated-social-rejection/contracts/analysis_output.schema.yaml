@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed."
+    enum:
+      - "One_Way_ANOVA"
+      - "Paired_T_Test"
+  design_type:
+    type: "string"
+    description: "Design type based on data structure."
+    enum:
+      - "Within-Subjects"
+      - "Between-Subjects"
+  f_value:
+    type: "number"
+    description: "F-statistic value."
+  p_raw:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0
+    maximum: 1
+  p_fdr:
+    type: "number"
+    description: "Benjamini-Hochberg FDR corrected p-value."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Eta-squared)."
+  alpha_sensitivity:
+    type: "object"
+    description: "Sensitivity analysis results for different alpha levels."
+    properties:
+      "0.01":
+        type: "boolean"
+        description: "Significant at alpha 0.01?"
+      "0.05":
+        type: "boolean"
+        description: "Significant at alpha 0.05?"
+      "0.1":
+        type: "boolean"
+        description: "Significant at alpha 0.1?"
+    required:
+      - "0.01"
+      - "0.05"
+      - "0.1"
+required:
+  - "test_type"
+  - "design_type"
+  - "p_raw"
+  - "p_fdr"
+  - "alpha_sensitivity"
+additionalProperties: false

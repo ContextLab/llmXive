@@ -41,10 +41,12 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, basic structure, and documentation. **CRITICAL**: T035a-Install and T035a-Usage MUST be completed before US-1 Independent Tests can be executed, as the tests require the system to be runnable and documented.
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`)
 - [X] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `requests` in `code/requirements.txt`
+- [ ] T035a-Install [P] **Documentation**: Update `README.md` with installation steps. **Specifics**: Add "Installation" section with `pip install -r requirements.txt` and environment setup instructions. **Dependency**: Prerequisite for US-1 Independent Test execution.
+- [ ] T035a-Usage [P] **Documentation**: Update `README.md` with usage instructions. **Specifics**: Add "Usage" section with a concrete example command `python code/main.py` and expected output paths. **Dependency**: Prerequisite for US-1 Independent Test execution.
 
 ---
 
@@ -64,9 +66,9 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Design Determination (Priority: P1) 🎯 MVP
 
-**Goal**: Download and validate datasets. The system MUST first attempt to find a **Single-Cohort** dataset (both tasks in one file). If found, proceed with Mixed ANOVA. If NOT found (e.g., ds000208 lacks reward task), the system MUST proceed to a **Separate-Streams** strategy (validate ds000208 and ds003392 independently) to enable a Between-Subjects ANOVA. **Merging distinct studies is strictly forbidden.**
+**Goal**: Download and validate datasets. The system MUST first attempt to find a **Single-Cohort** dataset (both tasks in one file). If found, proceed with Mixed ANOVA. If NOT found (e.g., ds000208 lacks reward task), the system MUST proceed to a **Separate-Streams** strategy (validate ds000208 and ds003392 independently) to enable a Between-Subjects ANOVA. **Merging distinct studies is strictly forbidden for Within-Subjects, but allowed for Between-Subjects if IDs are validated.**
 
-**Independent Test**: Execute ingestion script against a mock single-cohort file (pass) and a mock separate-set (pass with design_type=Between-Subjects). Verify script halts with exit code 1 only if NO valid data source exists.
+**Independent Test**: Execute ingestion script against a mock single-cohort file (pass) and a mock separate-set (pass with design_type=Between-Subjects). Verify script halts with exit code 1 only if NO valid data source exists. **Note**: This test requires T035a-Install and T035a-Usage to be complete.
 
 ### Tests for User Story 1 (REQUIRED) ⚠️
 
@@ -75,26 +77,31 @@
 
 ### Implementation for User Story 1
 
-- [X] T015a [US1] **Pre-Load Size Estimation**: Implement `estimate_dataset_size_from_api(urls)` in `code/ingest.py`. **Fetches metadata (size, file count) directly from the OpenNeuro API or manifest URLs for BOTH candidate datasets (ds000208, ds003392) BEFORE any download.** **Halt execution with exit code 1 if the estimated combined size > 7 GB** (referencing `config.MAX_RAM_GB=7`). **MUST run BEFORE T012.**
+- [X] T015a [US1] **Pre-Load Size Estimation**: Implement `estimate_dataset_size_from_api(url)` in `code/ingest.py`. **Fetches metadata (size, file count) directly from the OpenNeuro API for the PRIMARY candidate dataset (ds000208) BEFORE download.** **If the API is unreachable, proceed to local file check (T015c) without halting.** **Halt execution with exit code 1 only if the estimated size > 7 GB** (referencing `config.MAX_RAM_GB=7`). **MUST run BEFORE T012.**
 - [X] T012 [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST verify the dataset contains the Cyberball task.** Use verified URLs: `https://openneuro.org/datasets/ds000208` (Cyberball) and `https://openneuro.org/datasets/ds003392` (Reward). **Logic**:
  1. Download the **Single-Cohort candidate** (ds000208) first.
  2. Generate `data/raw/dataset_manifest.json` with schema {url, status, checksum, source_file_count, openneuro_id} for the downloaded file.
  3. **Do NOT set `design_type` here.** Defer to T013b.
- **Output Artifact**: Generate `data/raw/dataset_manifest.json` and verify it exists. **Dependency**: Must run after T015a.
+ 4. **Integrated Memory Guard**: Monitor RAM usage during download (T015b logic) and check file size on disk (T015c logic) **integrated into this task**. **Dependency**: Must run after T015a (if API available).
+ **Output Artifact**: Generate `data/raw/dataset_manifest.json` and verify it exists.
+- [X] T015c [US1] **Post-Download Size Enforcement**: Implement `check_file_size_on_disk(file_path)` in `code/ingest.py`. **MUST verify the downloaded file size does not exceed 7 GB**. **Halt with exit code 1 if exceeded.** **Dependency**: Must run after T012 download completes.
 - [X] T013 [US1] Implement `validate_schema(df)` in `code/ingest.py` to check for `Condition` (Cyberball), `Condition` (Reward), `Reaction Time`, `Mood`. **Exit code 1 if required variables are missing AND no fallback dataset is available.** **Output Artifact**: Generate `data/interim/validation_report.json` with schema {passed, missing_columns} and verify it exists. **Dependency**: Must run after T012.
 - [X] T014 [US1] Implement `verify_single_cohort(df)` in `code/ingest.py` to ensure Participant IDs are consistent within the SINGLE dataset. If consistent, set `design_type="Within-Subjects"`. If inconsistent or missing, proceed to T013b.
-- [X] T014b [US1] **Explicit ID Matching Logic (Single-Cohort Only)**: Implement `match_ids_set_intersection(df)` in `code/ingest.py`. **Performs a set intersection of Participant IDs** from the SINGLE dataset to confirm validity for Within-Subjects. **CRITICAL**: This function is ONLY called if `design_type` is tentatively "Within-Subjects" (Single-Cohort) to confirm validity. **If the design is Separate-Streams, this task is skipped.** **Output Artifact**: Generate `data/interim/id_match_report.json` with schema {intersection_count, design_type} for both match and no-match cases. **If no match, explicitly set `design_type='Between-Subjects'` in the report.** **Dependency**: Must run after T012 (for Single-Cohort path) ONLY.
-- [X] T015b [US1] **Runtime Memory Guard**: Add memory guard in `code/ingest.py` to monitor **runtime RAM usage** using `psutil`. **Halt execution with a non-zero exit code if the process memory footprint exceeds `config.MAX_RAM_GB` (7 GB).** This check occurs **AFTER** T015c (Post-Download Size Enforcement) to ensure the file size is valid before loading. **Dependency**: Must run after T015c.
-- [X] T015c [US1] **Post-Download Size Enforcement**: Implement `check_actual_file_size(file_path)` in `code/ingest.py`. **MUST verify the actual downloaded file size (on disk) does not exceed a substantial threshold.** **Halt execution with exit code 1 if the file size > 7 GB.** **Dependency**: Must run after T012, before T015b.
-- [X] T015d [US1] **Ingestion Memory Monitor**: Implement `monitor_ingestion_memory(stream)` in `code/ingest.py`. **MUST monitor memory usage DURING the actual data loading/streaming phase.** **Halt execution if memory exceeds a predefined threshold..** **Dependency**: Must run during T012 ingestion.
-- [X] T017d [US1] **Single-Cohort Constraint Check (Gatekeeper)**: Implement `check_single_cohort_constraint(manifest)` in `code/ingest.py`. **MUST verify if the current data source is a Single-Cohort dataset** by checking `source_file_count` in `data/raw/dataset_manifest.json`. **If `source_file_count > 1` (distinct studies), FORCE `design_type="Between-Subjects"` regardless of ID matching.** This task runs **IMMEDIATELY AFTER T016b** and determines the flow branch. **Dependency**: Must run after T016b.
-- [X] T013b [US1] **Design Branch Decision (Central Gate)**: Implement `decide_design_branch(validation_report, id_match_report, constraint_check)` in `code/ingest.py`. **Aggregates signals from T013, T014b, and T017d to explicitly set the `branch` signal (single_cohort vs separate_streams).** **Priority Order**: 1. Single-Cohort Validity (T014b), 2. Single-Cohort Constraint (T017d), 3. Variable Availability (T013). **Output Artifact**: Generate `data/interim/design_branch.json` with schema {branch: 'single_cohort' | 'separate_streams', reason: string}. **Dependency**: Must run after T013, T014b, T017d.
+- [X] T014b [US1] **ID Matching Attempt (Unconditional)**: Implement `attempt_id_matching(df_rejection, df_reward)` in `code/ingest.py`. **Runs unconditionally after T012 and T013.** **MUST check if Participant IDs exist in BOTH datasets** to enable the fallback logic. **Output Artifact**: Generate `data/processed/id_match_report.json` with schema {match_status: 'match' | 'no_match' | 'incomplete', count_match: int}. **Dependency**: Must run after T012 (for both datasets).
+- [X] T017b [US1] **ID Validation for Separate-Streams**: Implement `validate_separate_id_availability(df_rejection, df_reward)` in `code/ingest.py`. **MUST check if Participant IDs exist in BOTH datasets** to ensure the Between-Subjects comparison is valid. **CRITICAL**: If datasets are distinct (per T017d), **MUST NOT** set `design_type="Within-Subjects"` even if IDs match, but **MUST** record `id_match_status` to enable the fallback logic. **Output Artifact**: Generate `data/processed/design_decision.json` with schema {branch: 'separate_streams', design_type: 'Between-Subjects', id_match_status: 'match' | 'no_match', reason: string}. **Dependency**: Must run after T012 (for both datasets) and T014b.
+- [X] T017d [US1] **Single-Cohort Constraint Check (Gatekeeper)**: Implement `check_single_cohort_constraint(manifest)` in `code/ingest.py`. **MUST verify if the current data source is a Single-Cohort dataset** by checking `source_file_count` in `data/raw/dataset_manifest.json`. **If `source_file_count > 1` (distinct studies), FORCE `design_type="Between-Subjects"` regardless of ID matching.** This task runs **AFTER T017b** to ensure ID validation has occurred. **Dependency**: Must run after T017b.
+- [X] T013b [US1] **Design Branch Decision (Central Gate)**: Implement `decide_design_branch(validation_report, id_match_report, constraint_check)` in `code/ingest.py`. **Aggregates signals from T013, T014, T014b, T017b, and T017d to explicitly set the `branch` signal (single_cohort vs separate_streams).** **Logic**:
+ 1. If Single-Cohort Valid (T014) -> `design_type="Within-Subjects"`.
+ 2. If Single-Cohort Invalid:
+    a. If T017b (ID Match) is true AND T017d (Distinct) is true -> `design_type="Between-Subjects"` (Fallback).
+    b. If T017b (ID Match) is false -> `design_type="Between-Subjects"` (Fallback).
+    c. If T017d (Distinct) is false -> `design_type="Between-Subjects"` (Fallback).
+ **Output Artifact**: Generate `data/interim/design_branch.json` with schema {branch: 'single_cohort' | 'separate_streams', design_type: 'Within-Subjects' | 'Between-Subjects', reason: string}. **Dependency**: Must run after T013, T014b, T017b, T017d. **Linear Order**: T013 -> T014b -> T017b -> T017d -> T013b.
 - [X] T017a [US1] **Separate-Streams Validation**: Implement `validate_separate_datasets(df_rejection, df_reward)` in `code/ingest.py`. **MUST validate ds000208 and ds003392 independently WITHOUT merging.** If both are valid, proceed to T017b. If either is missing/invalid, proceed to T017c. **Output Artifact**: Generate `data/interim/separate_validation_report.json` with schema {status: 'valid' | 'invalid', reason: string} for all paths. **Dependency**: Must run after T015a AND T013b (ONLY if T013b sets branch=separate_streams).
-- [X] T017b [US1] **ID Validation for Separate-Streams**: Implement `validate_separate_id_availability(df_rejection, df_reward)` in `code/ingest.py`. **MUST check if Participant IDs exist in BOTH datasets** to ensure the Between-Subjects comparison is valid. **CRITICAL**: If datasets are distinct (per T017d), **MUST NOT** set `design_type="Within-Subjects"` even if IDs match. **SCIENTIFIC CONSTRAINT**: ID comparison is FORBIDDEN for Within-Subjects logic when datasets are distinct. **Output Artifact**: Generate `data/processed/design_decision.json` with schema {branch: 'separate_streams', design_type: 'Between-Subjects'} for all paths. **Dependency**: Must run after T013b (ONLY if T013b sets branch=separate_streams).
 - [X] T017c [US1] Implement `handle_data_unavailable()` in `code/ingest.py`. **Halt execution with exit code 1 and log "Data Unavailable" if no valid dataset or valid separate datasets are found.**
 - [X] T018 [US1] Implement `log_design_switch()` in `code/ingest.py` to explicitly record the transition from "Single-Cohort attempt" to "Separate-Streams Fallback" in `data/processed/metadata.json`. **Schema**: Append entry {event: 'design_switch', from: 'Single-Cohort', to: 'Separate-Streams', timestamp:...}. **Dependency**: Must run after T013b.
 - [X] T019 [US1] Implement `write_metadata(design_type, used_datasets)` in `code/ingest.py` to write the final `design_type` (Within-Subjects or Between-Subjects) AND the list of `used_datasets` (OpenNeuro IDs) to `data/processed/metadata.json` for downstream consumption.
-- [X] T016 [US1] **Checksum & State Update**: Implement checksum generation (SHA-256) for downloaded files in `code/ingest.py`. **Write checksums directly to `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml`** in the `artifact_hashes` map per Constitution Principle V. **Key Format**: `artifact_hashes.{openneuro_id}` (e.g., `artifact_hashes.ds000208`). **Structure**: `artifact_hashes.<openneuro_id>: {sha256: '<hash>', size_bytes: <int>}`. **Dependency**: Must run after T013b and T019.
+- [X] T016 [US1] **Checksum & State Update**: Implement checksum generation (SHA-256) for downloaded files in `code/ingest.py`. **Write checksums directly to `state/projects/PROJ-258-the-effect-of-simulated-social-rejection.yaml`** in the `artifact_hashes` map per Constitution Principle V. **Structure**: `artifact_hashes: { <openneuro_id>: { sha256: '<hash>', size_bytes: <int> } }`. **CRITICAL**: Must also update the `updated_at` timestamp in the state file. **Dependency**: Must run after T013b and T019.
 - [X] T016b [US1] **Verify Checksum Integrity**: Implement `verify_checksum(file_path, expected_hash)` in `code/ingest.py`. **MUST explicitly verify** the computed hash matches the file content **BEFORE** T016 writes it to the state file. **If verification fails, raise an exception and halt.** **Dependency**: Must run after T012 download, before T016.
 - [X] T040 [US1] **Explicit Data Source Citation**: Implement `write_data_citation(metadata)` in `code/ingest.py` to generate `data/raw/CITATION.md`. **Logic**: Read `data/processed/metadata.json` to determine `design_type` and `used_datasets`. **Dynamically cite ONLY the datasets listed in `used_datasets`** (one dataset for Within-Subjects, two for Between-Subjects). Include DOIs, access dates, and licenses for each. **This file MUST be referenced in the final report's Methods section.** **Dependency**: Must run after T019.
 - [X] T041 [US1] **Fail-Loudly Guard**: Review `code/ingest.py` to ensure **NO** `try/except` blocks catch `requests.exceptions.RequestException` or `FileNotFoundError` to fallback to synthetic data. **If a download fails, the script MUST raise an unhandled exception and exit with code 1.** **Dependency**: Must run after T012.
@@ -144,12 +151,11 @@
 - [X] T028 [US3] Implement `apply_fdr(p_values)` in `code/analysis.py` using Benjamini-Hochberg method (FR-004)
 - [X] T035 [US3] Implement `sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1})` in `code/analysis.py` (FR-006) to sweep α and report result consistency.
 - [X] T035b [US3] **Sensitivity Report Verification**: Implement `test_sensitivity_coverage()` in `tests/test_analysis.py`. **Assert that `reports/final_report.md` includes a Markdown table with header 'alpha' and contains valid result rows for EACH of the alpha values: '', '0.05', '0.1'.** **Output Artifact**: Generate `tests/results/sensitivity_verification.json` with schema {passed: bool, missing_alphas: list}. **Failure Condition**: If verification fails, exit code 1. **Dependency**: Must run after T035.
-- [X] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **Depends on T017/T019 (reads data/processed/metadata.json) and T035/T035b.** **If design_type is Between-Subjects, explicitly inject the phrase "associational" into the Limitations section.** **Output Artifact**: Generate `reports/final_report.md`. **Verification**: Assert report contains "associational", excludes "causal", and includes sensitivity table for α ∈ {0.01, 0.05, 0.1}.
+- [X] T030 [US3] Implement `generate_report_logic(results, design_type)` in `code/report.py`. **Depends on T017/T019 (reads data/processed/metadata.json) and T035/T035b.** **If design_type is Between-Subjects, explicitly inject the phrase "associational" into the Limitations section.** **Output Artifact**: Generate `reports/final_report.md`. **Verification**: Assert report contains "associational", excludes "causal", and includes sensitivity table for α ∈ {, 0.05, 0.1}.
 - [X] T031 [US3] Implement `handle_convergence_warnings()` in `code/analysis.py`: **Add try/except block to catch convergence errors when N < 30 and output effect size confidence intervals.** **Output Format**: Append {convergence_warning: true, ci_95: [lower, upper]} to `data/processed/final_results.json`.
 - [X] T033 [US3] Implement `save_final_results(results, design_type)` in `code/report.py` to write `data/processed/final_results.json` ensuring the `p_fdr` column is present (SC-003) and `design_type` is recorded (FR-008).
 - [X] T034 [US3] Implement `verify_report_constraints()` in `tests/test_report.py` to assert that `reports/final_report.md` contains the exact phrase "associational" in Limitations and excludes "causal" in Results (FR-003).
 - [X] T032 [US3] Save final results to `data/processed/final_results.json` and `reports/final_report.md`
-- [X] T043 [US3] **Power Analysis Report**: Implement `run_power_analysis(df, design_type)` in `code/analysis.py` to calculate post-hoc power for the observed effect size. **If power < 0.8, append a specific warning to `reports/final_report.md` under a "Statistical Power" subsection.** **Dependency**: Must run after T027.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -159,11 +165,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a-Install [P] **Documentation**: Update `README.md` with installation steps. **Specifics**: Add "Installation" section with `pip install -r requirements.txt` and environment setup instructions.
-- [ ] T035a-Usage [P] **Documentation**: Update `README.md` with usage instructions. **Specifics**: Add "Usage" section with a concrete example command `python code/main.py` and expected output paths.
 - [X] T035b [P] **Documentation**: Generate `docs/api.md` from code docstrings.
 - [X] T036 Code cleanup and refactoring in `code/`
-- [X] T037a [P] **Performance CI**: Add timeout assertion to GitHub Actions workflow (`.github/workflows/ci.yml`) to enforce -hour limit (SC-002).
+- [X] T037a [P] **Performance CI**: Add timeout assertion to GitHub Actions workflow (`.github/workflows/ci.yml`) to enforce 6-hour limit (SC-002).
 - [X] T037b [P] **Benchmarking**: Implement `code/benchmark.py` to generate `data/processed/performance_log.json` with runtime metrics for N=500.
 - [X] T037c [US3] **Local Runtime Verification**: Implement `verify_local_runtime()` in `code/benchmark.py`. **Runs the full pipeline locally (or on a representative subset) and asserts that total execution time is < 6 hours.** **Output**: `data/processed/local_runtime_verification.json` with `passed: true/false`. **Dependency**: Must run after T033 and T035, before T037a CI gate.
 - [X] T038 [P] Additional unit tests in `tests/unit/`
@@ -262,15 +266,17 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: The pipeline must support both Single-Cohort (Within-Subjects) and Separate-Streams (Between-Subjects) paths. **Merging distinct studies is strictly forbidden.**
+- **CRITICAL**: The pipeline must support both Single-Cohort (Within-Subjects) and Separate-Streams (Between-Subjects) paths. **Merging distinct studies is strictly forbidden for Within-Subjects, but allowed for Between-Subjects if IDs are validated.**
 - **CRITICAL**: Data loading must fail loudly if the real source is unavailable; no synthetic fallbacks are permitted.
 - **CRITICAL**: For large datasets, the system halts with exit code 1; no streaming logic is required for N ≤ 500.
 - **CRITICAL**: All data sources must be real, verified, and explicitly cited. Synthetic data is forbidden for research results.
 - **CRITICAL**: Memory guard (T015a) MUST run before data loading (T012) to prevent RAM overflow by fetching remote metadata.
-- **CRITICAL**: Single-Cohort check (T017d) MUST run after checksum verification (T016b) to prevent invalid Within-Subjects claims.
-- **CRITICAL**: New tasks T040, T041, T042, T043, T014b, T016b, T037c, T035a-Install, T035a-Usage, T035b address reviewer concerns regarding data citation, fail-loudly guards, outlier audit trails, power analysis, ID matching logic, checksum verification, local runtime verification, and specific README content.
-- **CRITICAL**: T013b (Design Branch Decision) is the central gate for all design logic, resolving fragmented signals from T013, T014b, and T017d.
-- **CRITICAL**: T015c (Post-Download Size Enforcement) and T015d (Ingestion Memory Monitor) ensure memory constraints are enforced before and during ingestion.
+- **CRITICAL**: Single-Cohort check (T017d) MUST run after ID validation (T017b) to prevent invalid Within-Subjects claims.
+- **CRITICAL**: New tasks T040, T041, T042, T014b, T016b, T037c, T035a-Install, T035a-Usage, T035b address reviewer concerns regarding data citation, fail-loudly guards, outlier audit trails, ID matching logic, checksum verification, local runtime verification, and specific README content.
+- **CRITICAL**: T013b (Design Branch Decision) is the central gate for all design logic, resolving fragmented signals from T013, T017b, and T017d.
+- **CRITICAL**: T015-MemorySafety (Consolidated) ensures memory constraints are enforced before, during, and after ingestion in a single logical flow.
 - **CRITICAL**: T035b (Sensitivity Report Verification) mandates generating `tests/results/sensitivity_verification.json` to ensure SC-004 is met.
 - **CRITICAL**: T037c (Local Runtime Verification) runs before T037a CI gate to verify SC-002.
 - **CRITICAL**: T017a and T017b explicitly forbid ID comparison for Within-Subjects in distinct datasets.
+- **CRITICAL**: T035a-Install and T035a-Usage are now in Phase 1 to ensure MVP executability.
+- **CRITICAL**: Linear Order for Phase 3: T013 -> T014b -> T017b -> T017d -> T013b.

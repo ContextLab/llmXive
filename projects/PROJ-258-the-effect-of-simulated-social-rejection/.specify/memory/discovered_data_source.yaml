@@ -1,0 +1,11 @@
+status: none
+intent: OpenNeuro ds000208 ds003392 social rejection reward condition reaction time
+  mood python package dataset
+required_fields:
+- ParticipantID
+- Condition
+- ReactionTime
+- Mood
+cache_key: be4a7bf9b667e33847356889c9b6c38e606baa2ce39b005bc213cc4539c55808
+searched_at: '2026-07-23T04:39:47.860601+00:00'
+retry_count: 1

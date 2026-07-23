@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Ingested Dataset Schema"
-description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball/Reward analysis and validates single-cohort structure."
+description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball analysis and validates single-cohort structure."
 type: "object"
 properties:
   required_columns:
@@ -51,18 +51,17 @@ properties:
     properties:
       is_single_cohort:
         type: "boolean"
-        description: "True if the dataset contains both tasks for the same participants."
-      tasks_present:
+        description: "True if the dataset contains both conditions for the same participants."
+      conditions_present:
         type: "array"
         items:
           type: "string"
-        description: "List of tasks present in the dataset (e.g., ['Cyberball', 'Reward'])."
+        description: "List of conditions present in the dataset (e.g., ['Rejection', 'Control'])."
     required:
       - is_single_cohort
-      - tasks_present
+      - conditions_present
 required:
   - required_columns
   - data_types
   - constraints
   - single_cohort_validation
-

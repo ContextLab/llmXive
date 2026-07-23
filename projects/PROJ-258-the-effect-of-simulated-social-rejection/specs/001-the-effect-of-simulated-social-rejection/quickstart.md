@@ -1,66 +1,70 @@
-# Quickstart: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
+# Quickstart: 001-social-rejection-reward
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   GitHub Actions runner (or local environment for testing)
+* Python 3.11+
+* Git
+* Access to GitHub Actions (or local runner with 7 GB RAM).
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-258-the-effect-of-simulated-social-rejection
-    ```
+1. **Clone the Repository**:
+ ```bash
+ git clone
+ cd projects/PROJ-258-the-effect-of-simulated-social-rejection
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create Virtual Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install Dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-## Running the Pipeline
+## Usage
 
-### Option A: Full Run (with Mock Data for CI)
-Since no verified behavioral dataset is available in the provided list, run the pipeline with mock data to validate the logic and CPU feasibility.
-**Note**: The mock data is configured to generate a **Between-Subjects** design only. The "modulation" hypothesis cannot be tested with this mock data.
-
+### Step 1: Ingest Data
+Download and validate the dataset (ds000208).
 ```bash
-python code/main.py --mode mock
+python code/ingest.py --dataset-url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" --output-dir data/raw
 ```
+* **Expected Output**: `data/raw/cyberball.parquet` and `state/projects/PROJ-258...yaml` (updated with checksum).
+* **Failure**: Exits with code 1 if variables are missing, size > 7 GB, or conditions (Rejection/Control) are missing.
 
-### Option B: Run with Real Data (If available)
-If you have a local dataset that matches the schema (Single-Cohort with both tasks):
+### Step 2: Preprocess
+Clean data and extract features.
+```bash
+python code/preprocess.py --input data/raw --output data/processed/analysis_ready.csv
+```
+* **Expected Output**: `data/processed/analysis_ready.csv` (cleaned, outliers flagged).
 
-1.  Place your CSV/TSV files in `data/raw/`.
-2.  Run:
-    ```bash
-    python code/main.py --mode real --input data/raw/your_data.csv
-    ```
-    *Note: If the dataset is not a single-cohort (i.e., IDs do not match across tasks), the script will flag the design as "Between-Subjects" and drop the "modulation" claim. If required variables are missing, the script will exit with code 1.*
+### Step 3: Analyze
+Run statistical tests.
+```bash
+python code/analyze.py --input data/processed/analysis_ready.csv --output results/analysis_output.json
+```
+* **Expected Output**: `results/analysis_output.json` (ANOVA results, FDR, sensitivity).
 
-## Expected Outputs
-
-*   `data/processed/analysis_results.json`: Contains F-values, p-values, FDR-corrected p-values, and `modulation_claim_valid` flag.
-*   `data/processed/sensitivity_report.md`: Table of results across α = {0.01, 0.05, 0.1} including power estimates.
-*   `output/report.md`: Final research report with "associational" limitations and explicit statements about design validity.
+### Step 4: Generate Report
+Create the final report.
+```bash
+python code/report.py --input results/analysis_output.json --output paper/report.md
+```
+* **Expected Output**: `paper/report.md` (contains "associational" in Limitations, no "causal" in Results).
 
 ## Testing
 
-Run the test suite to verify data validation and statistical logic:
-
+Run the test suite to verify the pipeline:
 ```bash
-pytest tests/ -v
+pytest tests/
 ```
 
 ## Troubleshooting
 
-*   **Exit Code 1**: Indicates missing variables (e.g., `Reaction_Time` not found) or memory overflow. Check logs in `logs/ingest.log`.
-*   **Low Power Warning**: If N < 30 per group, the report will flag this. No action needed; the analysis proceeds with confidence intervals.
-*   **Modulation Claim Invalid**: If the design is Between-Subjects, the report will state that the "modulation" hypothesis is untestable.
+* **Error: Missing Variables**: Ensure the dataset contains `participant_id`, `condition`, `reaction_time`, and `mood_rating`.
+* **Error: Memory Overflow**: Check dataset size. If > 7 GB, the pipeline should have halted at ingestion.
+* **Error: Missing Conditions**: If the dataset lacks 'Rejection' or 'Control' conditions, the pipeline halts as per FR-001. This is expected behavior.

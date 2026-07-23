@@ -42,3 +42,36 @@
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds003392
   verified_at: '2026-07-19T06:17:46.142426Z'
+- artifact_hash: de064156dae978524e45939494b788a6916906c351e6e7768bedac9c8d81c7a3
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1784786099&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODQ3ODYwOTl9fX1dfQ__&Signature=MEQCIE7a48xAoz89wkYKy4VkwEMkW2dUZNmYUrGK7CAo8lucAiA7TIyzqgXUGpE3iR2WtVBXa7oZTLGWTXGjUM1TuFaXPw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-23T04:54:59.751124Z'
+- artifact_hash: abcfdac346cc603c648d9527eeab2587c6975a7b04180202262fcb35858c5cc5
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-projects.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-projects
+  verified_at: '2026-07-23T04:55:32.200178Z'
+- artifact_hash: abcfdac346cc603c648d9527eeab2587c6975a7b04180202262fcb35858c5cc5
+  artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&Expires=1784786132&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODQ3ODYxMzJ9fX1dfQ__&Signature=MEUCIBDLKwYANdesVILMZp81o8QA0VkO%7EJmBE0qCL91snA%7EPAiEA%7E2XXDJE8PjU%7EiwLJ-RA3RTmZ4QSb0qgUM6y2DpY8cz8_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-23T04:55:32.200178Z'

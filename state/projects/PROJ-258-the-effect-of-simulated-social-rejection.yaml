@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-258-the-effect-of-simulated-social-rejection
-last_run_id: e4d44535-3ea0-44d9-98eb-d20d63ad505c
+last_run_id: 3530220c-723c-46f2-bbf6-1f7c002b42a4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection
 title: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
-updated_at: '2026-07-19T06:17:47.806016Z'
+updated_at: '2026-07-23T04:55:55.058328Z'

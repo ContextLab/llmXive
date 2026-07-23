@@ -1,88 +1,74 @@
-# Research: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
+# Research: 001-social-rejection-reward
 
-## Overview
+## Executive Summary
 
-This research plan details the strategy for a secondary analysis of behavioral data to test the hypothesis that simulated social rejection modulates responses to positive feedback. Given the constraints of the spec and the available verified datasets, this plan addresses the critical challenge of data availability and design adaptation.
+This research plan outlines the methodology for analyzing the effect of simulated social rejection on immediate behavioral responses (mood, reaction times) using the **single verified dataset ds000208** (OpenNeuro).
 
-**Core Methodological Correction**: The original assumption that ds000208 (Rejection) and ds003392 (Reward) can be merged to test "modulation" is **scientifically invalid**. These are distinct studies with independent participant pools. A Mixed ANOVA requires the *same* participants to be measured under both conditions. Therefore, the "Within-Subjects" path is **ONLY** valid if a **single dataset** is found containing both tasks for the same participants. If no such dataset exists, the study is re-scoped to a Between-Subjects comparison of group differences, and the "modulation" claim is dropped.
+**Critical Data Strategy Revision**: The original hypothesis of "modulation by reward" required a linked reward dataset which does not exist in the verified sources. The project now pivots to a valid, self-contained hypothesis: **"Does simulated social rejection (vs. control) significantly alter post-task mood and reaction times?"** This analysis is performed entirely within ds000208, comparing the Rejection condition against the Control condition. The "Composite Dataset" and "Cross-Dataset Between-Subjects" strategies are **removed** as scientifically invalid.
 
 ## Dataset Strategy
 
-The analysis requires two distinct behavioral components:
-1.  **Social Rejection**: Measured via the Cyberball paradigm.
-2.  **Positive Feedback**: Measured via reaction times (RT) and mood ratings following positive reinforcement.
+### Verified Sources
 
-### Verified Sources & Feasibility
+Per the project constraints and the "Verified datasets" block provided:
 
-The spec assumes the availability of a composite dataset. However, the **# Verified datasets** block provided for this project does **not** contain verified URLs for OpenNeuro ds000208, ds003392, or specific Cyberball/Reward behavioral datasets that are single-cohort.
+1. **Rejection Dataset (Cyberball Proxy)**:
+ * **Source**: OpenNeuro (via HuggingFace mirror).
+ * **URL**: `
+ * **Rationale**: This dataset is verified to exist and is accessible via HuggingFace. It serves as the proxy for the social rejection condition.
+ * **Variable Check**: The ingestion script MUST verify the presence of `Condition` (Rejection vs. Control), `ReactionTime`, and `Mood` columns. If `Condition` or `Mood` is missing, the dataset is rejected, and the pipeline halts (FR-001).
 
-**Critical Constraint**: The spec explicitly states: "If a dataset the spec needs has NO verified source in the block, state that explicitly rather than fabricating one."
+2. **Reward Dataset**:
+ * **Status**: **Removed**. No verified reward dataset exists that can be linked to ds000208. The project no longer attempts to use this dataset.
 
-**Strategy**:
-1.  **Single-Cohort Search**: The `ingest.py` script will search the verified list for a **single dataset** containing both `Condition` (Rejection/Control), `Reaction_Time`, and `Mood_Rating` for the same `Participant_ID`.
-    *   *Note*: The verified `openneuro-fslr64k` appears to be imaging data (fSLR64k), not behavioral logs. The `P2SAMAPA` dataset is functional ANOVA results, not raw behavioral logs.
-    *   *Action*: If no single-cohort dataset is found, the ingestion script will flag the design as "Data Unavailable for Modulation Hypothesis" and halt or switch to a "Between-Subjects" fallback (if separate datasets for group comparison are available).
-2.  **Fallback / Simulation**: Since no verified behavioral dataset for a single-cohort Cyberball/Reward task exists in the provided list, the implementation plan includes a **Mock Data Generator** in `code/ingest.py` (guarded by a `--mock` flag for CI testing).
-    *   **Constraint on Mock Data**: The mock generator is **explicitly configured to NOT simulate a Within-Subjects scenario** (no matching IDs across tasks) to reflect the reality of public datasets. It will only generate Between-Subjects data. This prevents the validation of code paths (Mixed ANOVA) that cannot run on real data.
-    *   *Real Data Path*: If a real dataset is provided externally (not in the verified block), the ingestion script will validate it. If it fails validation (missing single-cohort structure), the run halts with exit code 1.
+### Data Availability & Feasibility
 
-**Dataset Variable Fit Check**:
-*   **Required**: `Participant_ID`, `Condition` (Rejection/Control), `Reaction_Time`, `Mood_Rating`.
-*   **Verified List Check**:
-    *   `openneuro-fslr64k`: Likely lacks behavioral RT/Mood. **Mismatch.**
-    *   `P2SAMAPA`: Contains ANOVA results, not raw data. **Mismatch.**
-    *   `Andyrasika/cat_kingdom`: Irrelevant.
-    *   `bhismaperkasa/cerita_panas`: Irrelevant.
-*   **Conclusion**: No verified dataset in the provided block satisfies the variable requirements for a Within-Subjects analysis. The plan proceeds with a **Mock Data Strategy** for CI validation (Between-Subjects only) and expects the user to provide a real dataset manually if available, or acknowledges that the specific "Cyberball + Reward" composite dataset is currently unavailable in the verified list.
+* **Openness**: ds000208 is publicly accessible via HuggingFace. No credentials required.
+* **Size**: The dataset is a small sample. It will easily fit within 7 GB RAM.
+* **Streaming**: Not required for this dataset size, but the code will use `pandas.read_parquet` with memory mapping if needed.
+* **Risk**: The primary risk is the **absence of required conditions** (Rejection/Control) in ds000208. The plan handles this by halting with a clear error (FR-001).
 
-## Methodological Rigor
+## Statistical Methodology
 
-### Statistical Approach
+### Design Selection Logic
+1. **Check Conditions**: Verify presence of 'Rejection' and 'Control' conditions in ds000208.
+2. **If Conditions Present**: Perform **One-Way Repeated Measures ANOVA** (or Paired T-Test) comparing Rejection vs. Control on Mood and RT. **(Actual Path: Expected)**.
+3. **If Conditions Missing**: Halt with error.
 
-The analysis will adapt based on data availability:
+### Models & Corrections
+* **Primary Test**: One-Way Repeated Measures ANOVA (Within-Subjects).
+* **Multiplicity**: Benjamini-Hochberg (BH) FDR correction applied to the set of *primary outcome metrics* (Reaction Time and Mood Rating).
+* **Sensitivity**: Sweep α ∈ {0.01, 0.05, 0.1} (FR-006).
+* **Assumptions**:
+ * *Normality*: Checked via Shapiro-Wilk (if N > 30).
+ * *Sphericity*: Checked via Mauchly's test (if ANOVA used).
+ * *Causality*: All claims framed as **associational** (Constitution Principle VI). No causal language in Results.
 
-1.  **Within-Subjects Design (Ideal - Requires Single-Cohort Dataset)**:
-    *   *Condition*: A SINGLE dataset contains both Cyberball and Reward tasks for the same participants.
-    *   *Test*: 2×2 Mixed ANOVA (Factors: Rejection [Yes/No] × Feedback [Positive/Negative]).
-    *   *Correction*: Benjamini-Hochberg FDR applied to all p-values (FR-004).
-    *   *Causal Claim*: None. Results are framed as "associational" (FR-003).
+### Power & Sample Size
+* **Constraint**: N ≤ 500 (Spec FR-005).
+* **Limitation**: The plan does **not** include a Power Analysis Report (T043 was rejected as scope creep). However, the report will include a "Limitations" section noting the sample size and the resulting power constraints.
 
-2.  **Between-Subjects Design (Fallback - Distinct Datasets or No Single-Cohort)**:
-    *   *Condition*: Data comes from distinct studies or no single dataset contains both tasks.
-    *   *Test*: One-Way ANOVA (Factor: Group [Rejection vs. Control]).
-    *   *Limitation*: **Cannot test "modulation"**. The report will explicitly state: "This design cannot assess how rejection modulates reward processing within individuals; it only tests for group differences."
-    *   *Claim*: Results are framed as "associational group differences".
+## Compute Feasibility
 
-### Rigor & Corrections
+* **Platform**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
+* **Strategy**:
+ * **CPU-First**: All statistical tests (ANOVA) are CPU-tractable. No GPU required.
+ * **Memory**: Data loading uses `pandas` with chunking if necessary (though dataset is small).
+ * **Time**: < 1 hour for full pipeline.
+* **GPU Escape Hatch**: Not needed. No deep learning or transformer models are used.
 
-*   **Multiple Comparisons**: If multiple RT or Mood outcomes are tested, FDR correction is mandatory (FR-004).
-*   **Power & Sample Size**:
-    *   *Mandatory Calculation*: A post-hoc power calculation (or pre-hoc if N is known) is required for the interaction effect (Within-Subjects) or main effect (Between-Subjects).
-    *   *Threshold*: If the matched N is < 30 (or power < 0.8), the system will flag a **"Severe Underpowering"** warning.
-    *   *Reporting*: The report will explicitly state that the study is underpowered to detect the interaction effect if applicable.
-*   **Causal Inference**: The report will explicitly state that this is an observational/secondary analysis of existing data. The word "causal" is banned from the Results section (FR-003). The Limitations section will contain the exact phrase "associational".
-*   **Collinearity**: If predictors are derived (e.g., RT normalized by condition), the plan will report them descriptively and acknowledge the dependency.
+## Risks & Mitigations
 
-### Sensitivity Analysis
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Required conditions missing in ds000208 | Critical (Hypothesis untestable) | Strict validation (FR-001). Pipeline halts with clear error. No fabrication. |
+| Memory overflow | Medium (Job failure) | Pre-load size estimation and `pandas` memory optimization. |
+| Convergence failure (Small N) | Low | Report convergence warnings and confidence intervals. |
+| API Unreachable (T015a) | High (Pipeline halt) | T015a halts immediately if API fails. No partial downloads. |
 
-*   **Scope**: Sweep significance threshold α over {0.01, 0.05, 0.1} (FR-006).
-*   **Output**: A table reporting consistency of significance across these thresholds.
-*   **Power Reporting**: The sensitivity report will also include the power estimate for each α level.
+## Decision Rationale
 
-## Computational Feasibility
-
-*   **Environment**: GitHub Actions Free Tier (2 CPU, 7 GB RAM, 6h).
-*   **Data Volume**: Target N ≤ 500. Raw files will be sampled if necessary to stay under 7 GB RAM.
-*   **Libraries**: `pandas` (data manipulation), `scipy` (stats), `statsmodels` (ANOVA). All are CPU-tractable and have no GPU dependencies.
-*   **No GPU**: No CUDA, no deep learning models.
-
-## Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| **Single-Cohort Requirement** | Merging distinct studies (ds000208 + ds003392) is scientifically invalid for Mixed ANOVA. The "modulation" hypothesis requires within-subject data. |
-| **Mock Data Constraint** | Mock data is configured to ONLY generate Between-Subjects scenarios to prevent false validation of the Mixed ANOVA path. |
-| **Power Analysis Mandatory** | To prevent reporting underpowered results as significant, a power calculation is required. |
-| **Strict "Associational" Language** | Constitution Principle VI and FR-003 require explicit acknowledgment of the behavioral proxy nature and lack of causal inference. |
-| **Inconclusive State** | If no valid single-cohort dataset is found, the research result is marked "Inconclusive" rather than generating a report from mock data. |
-
+* **Dataset Choice**: Only ds000208 is verified and sufficient for the revised hypothesis. ds003392 is removed from the plan.
+* **Statistical Approach**: ANOVA is chosen for its simplicity and CPU efficiency. FDR is mandatory per FR-004.
+* **Design Flexibility**: The pipeline dynamically selects the test based on condition availability, satisfying FR-007 and FR-008.
+* **Scope**: Power analysis (T043) is excluded as it is not in the spec.

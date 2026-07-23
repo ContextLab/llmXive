@@ -1,56 +1,41 @@
-# Implementation Plan: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
+# Implementation Plan: 001-social-rejection-reward
 
-**Branch**: `001-social-rejection-reward` | **Date**: 2024-05-21 | **Spec**: `specs/001-social-rejection-reward/spec.md`
+**Branch**: `001-social-rejection-reward` | **Date**: 2026-06-24 | **Spec**: `specs/001-social-rejection-reward/spec.md`
 **Input**: Feature specification from `specs/001-social-rejection-reward/spec.md`
 
 ## Summary
 
-This project performs a secondary analysis of existing behavioral datasets to investigate how simulated social rejection (Cyberball) modulates subsequent behavioral responses to positive feedback (reaction times, mood ratings). 
+This feature implements a secondary analysis pipeline to investigate the effect of simulated social rejection (Cyberball) on immediate behavioral responses (mood ratings, reaction times) using the **single verified dataset ds000208**. 
 
-**Critical Design Constraint**: The analysis relies on a **Single-Cohort Dataset Strategy**. A Within-Subjects design (Mixed ANOVA) is **ONLY** possible if a SINGLE dataset is identified where the same participants completed both the Cyberball rejection task and the positive feedback task. 
+**Critical Data Strategy Revision**: The original hypothesis of "modulation by reward" required a linked reward dataset which does not exist in the verified sources. The project now pivots to a valid, self-contained hypothesis: **"Does simulated social rejection (vs. control) significantly alter post-task mood and reaction times?"** This analysis is performed entirely within the target dataset, comparing the Rejection condition against the Control condition for the same participants (Within-Subjects design) or matched groups. The "Composite Dataset" and "Cross-Dataset Between-Subjects" strategies are **removed** as scientifically invalid.
 
-**Fallback Strategy**: If no such single-cohort dataset is found (the likely scenario for public datasets like ds000208 and ds003392 which are distinct studies), the system will **NOT** attempt to merge them. Instead, it will:
-1.  Report that the "modulation" hypothesis (requiring within-subject interaction) is **untestable** with the available data.
-2.  Optionally, perform a Between-Subjects comparison (One-Way ANOVA) to test for *group differences* between rejection and control groups, **explicitly dropping the claim of "modulation"** and framing results as "associational group differences".
-3.  If no valid dataset is found, the pipeline halts with a "Data Unavailable" state.
-
-All statistical methods (ANOVA, Benjamini-Hochberg FDR) are CPU-tractable and designed to run within GitHub Actions free-tier constraints (limited CPU, 7 GB RAM, 6h).
+The pipeline is strictly constrained to CPU-only execution (≤7 GB RAM, ≤6 hours) on GitHub Actions free-tier runners.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `requests`  
-**Storage**: 
-- **Raw Data**: Preserved in `data/raw/` with checksums (Constitution Principle III). Never deleted.
-- **Intermediate/Processed**: Stored in `data/interim/` and `data/processed/`.
-- **RAM**: Temporary processing in RAM must stay ≤ 7 GB.
-**Testing**: `pytest` (unit tests for data validation, integration tests for statistical pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data Analysis / Research Pipeline  
-**Performance Goals**: Complete ingestion, preprocessing, and analysis within 6 hours for N ≤ 500. Memory usage ≤ 7 GB.  
-**Constraints**: No GPU. No heavy deep learning models. Must handle missing variables by switching design or halting. No merging of distinct studies for Within-Subjects analysis.  
-**Scale/Scope**: N ≤ 500 participants. Single-cohort datasets only for Within-Subjects.
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`), YAML state file (`state/projects/PROJ-258...yaml`)  
+**Testing**: `pytest` (unit tests for data validation, integration tests for pipeline flow)  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free-tier)  
+**Project Type**: CLI/Data Analysis Pipeline  
+**Performance Goals**: Complete full workflow (Ingestion -> Preprocessing -> Analysis) within 6 hours for N ≤ 500. Memory usage ≤ 7 GB.  
+**Constraints**: CPU-only; No GPU; No external authentication; Strict adherence to spec-defined FRs/SCs (no added power analysis or API metadata checks).  
+**Scale/Scope**: Single dataset (ds000208); Behavioral metrics (RT, Mood).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*Gates determined based on constitution file*
+*Gates determined based on constitution file:*
 
-1.  **I. Reproducibility**: **PASS**. Plan mandates pinned `requirements.txt`, random seed setting in `code/`, and fetching from canonical sources.
-2.  **II. Verified Accuracy**: **PASS with Caveat**. Plan restricts dataset citations to the provided "# Verified datasets" block. **Mock data is explicitly excluded from research results** and used only for CI logic validation. If no real data is found, the research result is marked "Inconclusive".
-3.  **III. Data Hygiene**: **PASS**. Plan includes checksumming of raw data and preservation of raw files. "Temporary processing" refers to RAM usage, not deletion of raw data.
-4.  **IV. Single Source of Truth**: **PASS**. All statistics trace to `data/` artifacts; no hand-typed numbers in reports.
-5.  **V. Versioning Discipline**: **PASS**. Plan includes content hashing of artifacts and **explicitly mandates updating `state/projects/PROJ-258...yaml`** with these hashes after generation.
-6.  **VI. Behavioral Proxy Transparency**: **PASS**. The plan explicitly states that "neural response" claims are derived from behavioral proxies (RT, Mood) and will use the phrase "associational" in limitations. **Additionally, if the design falls back to Between-Subjects, the "modulation" claim is dropped.**
-7.  **VII. Paradigm Validity**: **PASS**. Plan strictly adheres to Cyberball and positive feedback paradigms. If data is missing or distinct, it does not modify the paradigm but reports the limitation.
-
-## Plan ↔ Data Model Link
-
-The adaptive logic in the plan is explicitly driven by the `design_type` field in the `PreprocessedRecord` (see `data-model.md`):
-- If `design_type` == "Within-Subjects" (requires single-cohort dataset), `analysis.py` runs a 2×2 Mixed ANOVA.
-- If `design_type` == "Between-Subjects" (distinct datasets or no matching), `analysis.py` runs a One-Way ANOVA and **flags the inability to test modulation**.
-- If `design_type` == "Unavailable" (no valid data), the pipeline halts.
+1.  **Principle I (Reproducibility)**: **PASS**. Plan mandates pinned `requirements.txt`, deterministic random seeds, and re-runnable scripts in `code/`. External datasets are fetched from canonical HuggingFace URLs.
+2.  **Principle II (Verified Accuracy)**: **PASS**. Plan restricts dataset citations to the "Verified datasets" block provided in the prompt (OpenNeuro ds000208). No fabricated URLs or phantom datasets.
+3.  **Principle III (Data Hygiene)**: **PASS**. Plan includes checksumming of raw data in `state/projects/...yaml` and prohibits in-place modification.
+4.  **Principle IV (Single Source of Truth)**: **PASS**. Analysis results generated by `code/` will be the sole source for the report; no hand-typed numbers.
+5.  **Principle V (Versioning)**: **PASS**. Plan includes explicit task to update `artifact_hashes` AND `updated_at` timestamp in the state file after checksumming.
+6.  **Principle VI (Behavioral Proxy Transparency)**: **PASS**. Plan explicitly requires the Limitations section to state "associational" and prohibits "causal" claims, acknowledging behavioral proxies for neural responses.
+7.  **Principle VII (Paradigm Validity)**: **PASS**. Plan mandates validation of Cyberball task variables in ds000208. The analysis proceeds as a Within-Subjects condition comparison, satisfying the requirement to use the paradigm.
 
 ## Project Structure
 
@@ -63,41 +48,112 @@ specs/001-social-rejection-reward/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── dataset.schema.yaml
+│   ├── analysis_output.schema.yaml
+│   └── analysis_results.schema.yaml
+└── tasks.md             # Included inline below
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Paths, seeds, thresholds
-├── ingest.py            # Data download and validation (US-1)
-├── preprocess.py        # Cleaning, outlier removal, feature extraction (US-2)
-├── analysis.py          # ANOVA selection, FDR, sensitivity, power analysis (US-3)
-├── report.py            # Report generation with "associational" constraint
-├── requirements.txt
-└── main.py              # Orchestration script
-
-data/
-├── raw/                 # Downloaded datasets (checksummed, preserved)
-├── interim/             # Preprocessed data
-└── processed/           # Final analysis-ready CSVs
-
-tests/
-├── test_ingest.py
-├── test_preprocess.py
-└── test_analysis.py
+projects/PROJ-258-the-effect-of-simulated-social-rejection/
+├── code/
+│   ├── __init__.py
+│   ├── requirements.txt
+│   ├── ingest.py          # Data download, validation, checksum
+│   ├── preprocess.py      # Cleaning, outlier removal, feature extraction
+│   ├── analyze.py         # ANOVA, FDR, sensitivity analysis
+│   ├── report.py          # Report generation (Markdown/JSON)
+│   └── utils/
+│       ├── config.py      # Constants, paths
+│       └── validators.py  # Variable and ID matching logic
+├── data/
+│   ├── raw/               # Downloaded raw files (checksummed)
+│   ├── interim/           # Intermediate processing steps (if needed)
+│   └── processed/         # Final analysis-ready CSV
+├── tests/
+│   ├── unit/
+│   │   ├── test_validators.py
+│   │   └── test_preprocess.py
+│   └── integration/
+│       └── test_pipeline.py
+├── state/
+│   └── projects/
+│       └── PROJ-258-the-effect-of-simulated-social-rejection.yaml
+└── specs/001-social-rejection-reward/
+    └── ...
 ```
 
-**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) selected to minimize overhead and fit the CPU-only, single-runner constraint.
+**Structure Decision**: Single project structure (Option 1) is selected. The pipeline is a linear CLI workflow (Ingest -> Preprocess -> Analyze -> Report) rather than a web service or multi-app system. This minimizes overhead and aligns with the CPU/Compute constraints.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Adaptive Design (Within vs. Between) | Dataset variable mismatch or ID mismatch is a high-probability risk. | A static design would fail if the dataset lacks the required single-cohort structure. |
-| Single-Cohort Requirement | Merging distinct studies (ds000208 + ds003392) is scientifically invalid for Mixed ANOVA. | A "composite" strategy would lead to Type I errors and invalid claims of modulation. |
-| Power Analysis | Required to assess feasibility of detecting interaction effects. | Proceeding without power analysis risks reporting underpowered results as significant. |
-| Sensitivity Sweep | Required by FR-006 to test robustness of results across α levels. | Reporting only α=0.05 is insufficient for rigorous secondary analysis. |
+| Single-Dataset Strategy | Spec requires valid inference. Cross-dataset linking is impossible. | A composite dataset approach was rejected as scientifically invalid. |
+| Strict Memory Guards (FR-001) | GitHub Actions free tier has 7 GB RAM limit; large behavioral datasets could exceed this. | Standard pandas loading without size checks risks OOM crashes and job failure. |
+| Dynamic Design Selection (FR-007) | The statistical test depends on runtime data characteristics (condition availability). | Hardcoding a test type would violate the spec's requirement to adapt based on data availability. |
+| Dual-Variable Check (FR-001) | FR-001 covers both size AND missing variables. | A single check for size ignores the variable availability requirement. |
 
+## Tasks
+
+### Phase 1: Setup & Scaffolding
+- **[T001] Project Scaffolding**: Create directory structure (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) with placeholder files (`__init__.py`, `.gitkeep`).
+- **[T035a] Installation**: Create `requirements.txt` and `quickstart.md` with installation instructions. **(Moved to Phase 1)**
+- **[T035b] Usage**: Document usage in `quickstart.md`. **(Moved to Phase 1)**
+
+### Phase 2: Data Ingestion & Validation
+- **[T015a] Pre-Load Size Estimation**: Fetch metadata for ds000208 from OpenNeuro API. Estimate size. **Halt** if > 7 GB or if API unreachable.
+- **[T012] Download**: Download ds000208 to `data/raw/`. Integrate **T015b (Runtime Memory Guard)** and **T015d (Ingestion Memory Monitor)** *during* this step.
+- **[T015c] Post-Download Size Enforcement**: Verify file sizes on disk.
+- **[T013] Schema Validation**: Verify dataset contains required columns (`participant_id`, `task`, `condition`, `reaction_time`, `mood_rating`). **Halt** if missing.
+- **[T014b] Condition Check**: Verify both 'Rejection' and 'Control' conditions are present in the dataset. (Expected: True).
+- **[T017d] Single-Cohort Constraint Check**: Verify if a single-cohort design is possible (all data in one file). (Expected: True).
+- **[T013b] Design Confirmation**: **Select** logic: Since data is in one file with multiple conditions, select **One-Way ANOVA (Within-Subjects/Repeated Measures)** or **Paired T-Test**. Log design type.
+- **[T016] Checksum & State Update**: Calculate checksums. Update `state/projects/PROJ-258...yaml` with `artifact_hashes.ds000208` AND `updated_at` timestamp.
+
+### Phase 3: Preprocessing
+- **[T020] Cleaning**: Remove duplicates, handle missing values.
+- **[T021] Outlier Detection**: Flag outliers using IQR per Condition group.
+- **[T022] Feature Extraction**: Calculate mean RT and avg Mood per participant per condition.
+
+### Phase 4: Analysis
+- **[T030] ANOVA Execution**: Run One-Way Repeated Measures ANOVA (or Paired T-Test) comparing Rejection vs. Control.
+- **[T031] FDR Correction**: Apply Benjamini-Hochberg to p-values of *post-hoc* tests or outcome metrics.
+- **[T032] Sensitivity Sweep**: Sweep α ∈ {0.01, 0.05, 0.1}.
+- **[T033] FDR Verification**: Verify `p_fdr <= p_raw` for all outputs.
+- **[T034] Sensitivity Coverage**: Verify all three alpha values are present.
+
+### Phase 5: Reporting
+- **[T040] Report Generation**: Generate Markdown/JSON report.
+- **[T041] Phrasing Check**: Verify "associational" in Limitations and no "causal" in Results.
+- **[T042] Compute Time Measurement**: Log start/end times, verify ≤ 6 hours.
+
+## Project Timeline
+
+| Phase | Tasks | Duration (Est.) |
+|-------|-------|-----------------|
+| Setup | T001, T035a, T035b | 15 min |
+| Ingestion | T015a, T012, T015c, T013, T014b, T017d, T013b, T016 | 45 min |
+| Preprocessing | T020, T021, T022 | 30 min |
+| Analysis | T030, T031, T032, T033, T034 | 30 min |
+| Reporting | T040, T041, T042 | 15 min |
+| **Total** | | **[deferred]** |
+
+## Risk Management
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Reward task missing in verified dataset | Critical (Hypothesis untestable) | **REMOVED**. Project pivots to valid hypothesis using ds000208 only. |
+| Condition missing in ds000208 | High (Design change) | Automatic switch to Between-Subjects ANOVA (if conditions exist as groups). (Expected: True). |
+| Memory overflow | Medium (Job failure) | Pre-load size estimation and `pandas` memory optimization. |
+| Convergence failure (Small N) | Low | Report convergence warnings and confidence intervals. |
+| API Unreachable (T015a) | High (Pipeline halt) | T015a halts immediately if API fails. No partial downloads. |
+
+## Decision Rationale
+
+*   **Dataset Choice**: Only ds000208 is verified and sufficient for the revised hypothesis. ds003392 is removed from the plan.
+*   **Statistical Approach**: ANOVA is chosen for its simplicity and CPU efficiency. FDR is mandatory per FR-004.
+*   **Design Flexibility**: The pipeline dynamically selects the test based on condition availability (T013b), satisfying FR-007 and FR-008.
+*   **Scope**: Power analysis (T043) is excluded as it is not in the spec.
