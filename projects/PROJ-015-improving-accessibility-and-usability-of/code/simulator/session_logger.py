@@ -1,176 +1,185 @@
 """
-Session Logging Module.
+Session Logger Module
 
-Handles logging of session data to JSON files, including interface variant tracking
-and dropout handling.
+Handles the logging of raw session data to JSON files with schema validation.
 """
-
 import json
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional
 import hashlib
+import uuid
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+# Import the validator from the sibling module
+try:
+    from simulator.validator import load_schema, validate_session
+except ImportError:
+    # Fallback for direct execution or different import context
+    from code.simulator.validator import load_schema, validate_session
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Project root relative to this file
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_SCHEMA_PATH = _PROJECT_ROOT / "contracts" / "session.schema.yaml"
+_RAW_DATA_DIR = _PROJECT_ROOT / "data" / "raw"
+
 class SessionLogger:
     """
-    Logs session data to disk, ensuring all required fields including interface_variant are recorded.
+    Class to handle session logging with schema validation.
     """
+    def __init__(self, schema_path: Optional[Path] = None, data_dir: Optional[Path] = None):
+        self.schema_path = schema_path or _SCHEMA_PATH
+        self.data_dir = data_dir or _RAW_DATA_DIR
+        self._schema = None
 
-    def __init__(self, output_dir: Optional[Path] = None):
-        if output_dir is None:
-            output_dir = Path(__file__).parent.parent.parent / "data" / "raw"
-        self.output_dir = output_dir
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Ensure data directory exists
+        self.data_dir.mkdir(parents=True, exist_ok=True)
 
-    def log_session(self, session_data: Dict[str, Any]) -> Path:
+        # Load schema at initialization
+        if not self.schema_path.exists():
+            raise FileNotFoundError(
+                f"Schema file not found at {self.schema_path}. "
+                "Ensure T019b (contracts/session.schema.yaml) is completed."
+            )
+        
+        self._schema = load_schema(self.schema_path)
+        logger.info(f"SessionLogger initialized with schema: {self.schema_path}")
+
+    def log_session(self, data: Dict[str, Any], session_id: Optional[str] = None) -> str:
         """
         Log a session to a JSON file.
 
         Args:
-            session_data: Dictionary containing session information.
-                Must include 'interface_variant' (str) for the current interface used.
+            data: Dictionary containing session data.
+            session_id: Optional session ID. If None, a UUID is generated.
 
         Returns:
-            Path to the created file.
-        """
-        session_id = session_data.get("session_id", str(datetime.now().timestamp()))
-        filename = f"session_{session_id}.json"
-        filepath = self.output_dir / filename
+            The path to the created JSON file.
 
-        # Validate required fields
-        required_fields = ["participant_id", "interface_variant", "start_time", "end_time"]
-        missing_fields = [f for f in required_fields if f not in session_data]
-        if missing_fields:
-            raise ValueError(f"Missing required fields for session logging: {missing_fields}")
+        Raises:
+            ValueError: If data fails schema validation.
+            FileNotFoundError: If schema is missing.
+        """
+        # Generate session ID if not provided
+        if session_id is None:
+            session_id = str(uuid.uuid4())
+
+        # Validate data against schema
+        is_valid, errors = validate_session(data, self._schema)
+        
+        if not is_valid:
+            error_msg = f"Session data validation failed for {session_id}: {errors}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Ensure required fields are present (double check)
+        required_fields = [
+            "participant_id", "disability_type", "interface_type", "sequence",
+            "start_time", "end_time", "error_count", "explanation_engagement_time_seconds",
+            "sus_score", "status", "dropout_reason"
+        ]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field '{field}' in session data for {session_id}")
 
         # Add metadata
-        session_data["logged_at"] = datetime.now().isoformat()
-        session_data["log_version"] = "1.0"
+        data["logged_at"] = datetime.utcnow().isoformat()
+        data["schema_version"] = "1.0.0"
         
-        # Ensure interface_variant is recorded correctly
-        if "interface_variant" in session_data:
-            logger.info(f"Recording interface_variant: {session_data['interface_variant']}")
+        # Construct file path
+        file_path = self.data_dir / f"session_{session_id}.json"
         
         # Write to file
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(session_data, f, indent=2, default=str)
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, default=str)
+            logger.info(f"Session logged successfully: {file_path}")
+            return str(file_path)
+        except IOError as e:
+            logger.error(f"Failed to write session file {file_path}: {e}")
+            raise
 
-        logger.info(f"Session logged to {filepath}")
-        return filepath
+def log_session(data: Dict[str, Any], session_id: Optional[str] = None) -> str:
+    """
+    Top-level function to log a session.
+    
+    This function acts as a convenience wrapper around SessionLogger.
+    It enforces the requirement to abort if the schema is missing or validation fails.
 
-    def log_session_with_metrics(self, participant_id: str, interface_variant: str, 
-                                 metrics: Dict[str, Any], session_id: Optional[str] = None) -> Path:
-        """
-        Convenience method to log a complete session with metrics.
+    Args:
+        data: Dictionary containing session data.
+        session_id: Optional session ID.
 
-        Args:
-            participant_id: Unique identifier for the participant.
-            interface_variant: The interface used ('traditional' or 'explainable').
-            metrics: Dictionary of collected metrics (completion_time, errors, sus_score, etc.).
-            session_id: Optional custom session ID.
+    Returns:
+        Path to the created JSON file.
 
-        Returns:
-            Path to the created file.
-        """
-        if session_id is None:
-            session_id = f"sess_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{hashlib.md5(participant_id.encode()).hexdigest()[:8]}"
+    Raises:
+        FileNotFoundError: If schema is missing.
+        ValueError: If data fails validation.
+    """
+    logger = get_logger(__name__)
+    
+    # Check for schema existence before initializing logger
+    schema_path = _PROJECT_ROOT / "contracts" / "session.schema.yaml"
+    if not schema_path.exists():
+        logger.error(f"Schema file missing at {schema_path}. Aborting log_session.")
+        raise FileNotFoundError(
+            f"Schema file missing at {schema_path}. "
+            "Task T019b must be completed before logging sessions."
+        )
 
-        session_data = {
-            "session_id": session_id,
-            "participant_id": participant_id,
-            "interface_variant": interface_variant,
-            "start_time": metrics.get("start_time", datetime.now().isoformat()),
-            "end_time": metrics.get("end_time", datetime.now().isoformat()),
-            "metrics": metrics,
-            "status": metrics.get("status", "complete")
-        }
-
-        return self.log_session(session_data)
-
-    def log_dropout(self, participant_id: str, interface_variant: str, 
-                    dropout_reason: str, session_id: Optional[str] = None) -> Path:
-        """
-        Log a partial session (dropout) to a JSON file.
-        
-        This method sets the status to 'incomplete', records the reason for dropout,
-        and ensures the session is properly marked for exclusion from statistical analysis
-        (as per T021-exclude).
-
-        Args:
-            participant_id: Unique identifier for the participant.
-            interface_variant: The interface used at the time of dropout.
-            dropout_reason: A string explaining why the session was not completed
-                            (e.g., "User requested to stop", "System error", "Time limit exceeded").
-            session_id: Optional custom session ID.
-
-        Returns:
-            Path to the created file.
-        """
-        if session_id is None:
-            session_id = f"sess_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{hashlib.md5(participant_id.encode()).hexdigest()[:8]}"
-
-        session_data = {
-            "session_id": session_id,
-            "participant_id": participant_id,
-            "interface_variant": interface_variant,
-            "start_time": datetime.now().isoformat(),
-            "end_time": datetime.now().isoformat(),
-            "status": "incomplete",
-            "dropout_reason": dropout_reason,
-            "metrics": {}
-        }
-
-        logger.warning(f"Logging dropout for participant {participant_id}: {dropout_reason}")
-        return self.log_session(session_data)
+    # Initialize logger (which loads schema)
+    try:
+        session_logger = SessionLogger(schema_path=schema_path)
+        return session_logger.log_session(data, session_id)
+    except ValueError as e:
+        # Re-raise validation errors to ensure the pipeline fails loudly
+        raise e
+    except Exception as e:
+        logger.error(f"Unexpected error in log_session: {e}")
+        raise
 
 def main():
-    """Test the session logger with interface variant tracking and dropout handling."""
-    logger_instance = SessionLogger()
+    """
+    CLI entry point for testing the session logger.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Test session logger.")
+    parser.add_argument("--participant-id", type=str, required=True, help="Participant ID")
+    parser.add_argument("--disability", type=str, choices=["visual", "motor", "cognitive", "hearing", "none"], default="none")
+    parser.add_argument("--interface", type=str, choices=["traditional", "explainable"], default="traditional")
+    parser.add_argument("--sequence", type=str, choices=["Traditional->Explainable", "Explainable->Traditional"], default="Traditional->Explainable")
     
-    # Test 1: Test data simulating a completed session
-    test_metrics = {
-        "completion_time_seconds": 120.5,
-        "error_count": 2,
-        "sus_score": 85,
-        "explanation_engagement_time_seconds": 15.3,
-        "start_time": datetime.now().isoformat(),
-        "end_time": datetime.now().isoformat(),
-        "status": "complete"
+    args = parser.parse_args()
+
+    # Construct sample data
+    now = datetime.utcnow()
+    sample_data = {
+        "participant_id": args.participant_id,
+        "disability_type": args.disability,
+        "interface_type": args.interface,
+        "sequence": args.sequence,
+        "start_time": now.isoformat(),
+        "end_time": now.isoformat(),
+        "error_count": 0,
+        "explanation_engagement_time_seconds": 0.0 if args.interface == "traditional" else 5.0,
+        "sus_score": 80,
+        "status": "complete",
+        "dropout_reason": None
     }
 
-    path = logger_instance.log_session_with_metrics(
-        participant_id="P001",
-        interface_variant="explainable",
-        metrics=test_metrics
-    )
-    print(f"Logged completed session to: {path}")
-    
-    # Verify file contents
-    with open(path, "r") as f:
-        data = json.load(f)
-        assert "interface_variant" in data, "interface_variant missing from logged session"
-        assert data["interface_variant"] == "explainable", "Incorrect interface_variant recorded"
-        assert data["status"] == "complete", "Status should be complete"
-        print("Verification passed: Completed session correctly recorded.")
-
-    # Test 2: Test dropout handling
-    dropout_path = logger_instance.log_dropout(
-        participant_id="P002",
-        interface_variant="traditional",
-        dropout_reason="User requested to stop after 2 minutes"
-    )
-    print(f"Logged dropout session to: {dropout_path}")
-
-    # Verify dropout file contents
-    with open(dropout_path, "r") as f:
-        data = json.load(f)
-        assert data["status"] == "incomplete", "Status should be incomplete for dropout"
-        assert "dropout_reason" in data, "dropout_reason missing from logged session"
-        assert data["dropout_reason"] == "User requested to stop after 2 minutes", "Incorrect dropout reason"
-        print("Verification passed: Dropout session correctly recorded with status='incomplete'.")
+    try:
+        path = log_session(sample_data)
+        print(f"Session logged to: {path}")
+    except Exception as e:
+        print(f"Failed to log session: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

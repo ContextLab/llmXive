@@ -1,0 +1,18 @@
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Flag study as underpowered if subgroup N is less than 30
+  claim_id: c_15b90df9
+  context: Task T036 defines the PowerCalculator logic which computes statistical
+    power and flags underpowered subgroups.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_study_as_underpowered_if_subgroup_N_is_less_than_30
+  kind: magnitude
+  raw_text: If N < 30 for any subgroup, flag as 'UNDERPOWERED'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T20:40:27Z'

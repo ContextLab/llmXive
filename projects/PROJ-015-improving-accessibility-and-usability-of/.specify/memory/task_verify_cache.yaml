@@ -1,10 +1,17 @@
-T019c:
+T019b:
   c: false
-  h: 7fc27de9830fb9340002b72d6856e3a20d48b4b1fe3bd2c7b4c2e2698a6a44cb
-  r: The `validator.py` file is present but the `validate_session` function is truncated
-    and does not contain a complete implementation, and the required schema file `contracts/session.schema.yaml`
-    is missing entirely. Both the runtime validation logic and the schema it must
-    load are absent, so the task is not genuinely fulfilled.
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `contracts/session.schema.yaml` does not exist (the only referenced\
+    \ `schema.yaml` is missing), so no schema defining the listed fields is present.\
+    \ The task\u2019s deliverable is absent, thus the requirement is not satisfied."
+T021c:
+  c: false
+  h: 1b6e58d09a5bf9b6121188675f5a219fd910f44554a49970da66b5520a31cc19
+  r: "The provided `clean_data.py` is truncated and does not show a command\u2011\
+    line interface, the sequential calls to `filter_incomplete()` and `impute_sus()`,\
+    \ SHA\u2011256 checksum generation, or recording the checksum in the project state\
+    \ file. Moreover, the required output file `data/processed/cleaned_sessions.csv`\
+    \ is missing. The task therefore remains unfinished."
 T023a:
   c: false
   h: eedc55ae90ef10539b663979c6589a845af673641d511b0b7b51d255c8b4e00f
@@ -19,29 +26,23 @@ T023b:
     \ there is no evidence that `explanation_engagement_time` was excluded from the\
     \ ANOVA input and logged as required. Without this artifact, the task\u2019s core\
     \ requirement is unmet."
-T027a:
+T025b:
   c: false
-  h: 67c0e2e52065fc023f1206689a95469b264d1ac1cf1dd924a924a1c718aeeeea
-  r: "The repository lacks the required `figures/completion_time.png` file, and the\
-    \ provided `visualizer.py` is truncated and does not show a concrete function\
-    \ that generates a completion\u2011time box plot (only a generic private method).\
-    \ Consequently the task\u2019s specified output and dedicated implementation are\
-    \ missing."
-T027b:
+  h: 7b2b253b5c9fe31a05d3038c89fbf2c7d37ff4299bc4e5f74b14f51b7b0ec03d
+  r: The `load_and_validate_data` function is present but does not enforce all required
+    column constraints (e.g., enum check for `interface_type`, range check for `sus_score`,
+    type check for `participant_id`, and validation of `explanation_engagement_time_seconds`).
+    Moreover, the required data file `data/processed/cleaned_sessions.csv` is missing,
+    so the loader cannot actually operate on real data.
+T025c:
   c: false
-  h: ee5cdaa912a6bbdba8273307de67dbeaa03bc833e534ec247fb637544d8b32be
-  r: "The repository contains a partially\u2011implemented `visualizer.py` with a\
-    \ generic `_create_boxplot_with_ci` method, but no concrete function that creates\
-    \ the Error Count plot and saves it as `figures/error_count.png`. Moreover, the\
-    \ expected output file `figures/error_count.png` is absent. The task\u2019s required\
-    \ artifact is therefore missing."
-T027c:
-  c: false
-  h: 869af154f07bc824894853a8cfa1c1e0166deb179f05913c6f5bbe424d3d5db7
-  r: "The required output file `figures/sus_score.png` does not exist, and the provided\
-    \ `visualizer.py` only contains a generic `_create_boxplot_with_ci` method (truncated)\
-    \ with no concrete SUS\u2011specific function that saves to the required filename.\
-    \ Consequently the task\u2019s deliverable is missing."
+  h: 0e6411352582c301acc6e22c53bb7a5656aad676f67ce4d537edb61d421fa80f
+  r: "The `execute_pipeline` function exists but calls wrappers (`log_normality_test`,\
+    \ `run_anova_pipeline`, etc.) instead of the exact required functions `shapiro_wilk()`,\
+    \ `anova_rm()`, `holm_bonferroni()`, and `descriptive_stats()`. Moreover, the\
+    \ script never writes import\u2011error information to `data/processed/error_log.txt`\
+    \ and that file is absent. The task\u2019s specification is therefore not fully\
+    \ satisfied."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

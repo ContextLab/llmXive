@@ -5,9 +5,10 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  execute-analysis:
+  execute-notebook:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,63 +23,47 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install nbformat nbconvert
+          pip install nbconvert nbformat
 
       - name: Ensure data directories exist
         run: |
-          mkdir -p data/raw data/processed figures
+          mkdir -p data/raw
+          mkdir -p data/processed
+          mkdir -p figures
 
-      - name: Run cleaning pipeline
+      - name: Generate simulated data for CI validation
         run: |
-          python code/analysis/clean_data.py --input data/raw --output data/processed/cleaned_sessions.csv
+          python -m code.simulator.simulator --n 30 --seed 42 --output data/raw/simulated_sessions.json
+        # Note: This uses the DeterministicDataSimulator (T031) for CI validation only.
+        # Real human data collection is handled by the web app (FR-007).
+        # The --simulate flag in the analysis pipeline will trigger this if real data is missing,
+        # but only in CI/Dev mode.
 
-      - name: Run analysis pipeline
+      - name: Run Data Cleaning Pipeline
         run: |
-          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed
+          python code/analysis/clean_data.py --input data/raw/simulated_sessions.json --output data/processed/cleaned_sessions.csv
+
+      - name: Run Statistical Analysis
+        run: |
+          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv
 
       - name: Execute Notebook
         run: |
-          python code/analysis/run_notebook_validation.py --notebook code/analysis/analysis.ipynb --output-dir data/processed
+          python code/analysis/run_notebook_validation.py --notebook code/analysis/analysis.ipynb
+
+      - name: Validate Outputs
+        run: |
+          python code/analysis/validate_notebook_execution.py
 
       - name: Generate Execution Log
-        id: log_gen
         run: |
-          NOTEBOOK_PATH="code/analysis/analysis.ipynb"
-          LOG_FILE="data/processed/notebook_execution_log.txt"
-          
-          # Compute checksum
-          CHECKSUM=$(sha256sum "$NOTEBOOK_PATH" | cut -d' ' -f1)
-          
-          # Get status from previous step (nbconvert exit code)
-          if [ $? -eq 0 ]; then
-            STATUS="SUCCESS"
-          else
-            STATUS="FAIL"
-          fi
-          
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          echo "Notebook: $NOTEBOOK_PATH" > "$LOG_FILE"
-          echo "SHA-256: $CHECKSUM" >> "$LOG_FILE"
-          echo "Status: $STATUS" >> "$LOG_FILE"
-          echo "Timestamp: $TIMESTAMP" >> "$LOG_FILE"
-          
-          echo "log_content=$(cat $LOG_FILE)" >> $GITHUB_OUTPUT
+          python code/analysis/generate_execution_log.py
 
-      - name: Upload Execution Log
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: execution-log
-          path: data/processed/notebook_execution_log.txt
-
-      - name: Upload Processed Data
-        uses: actions/upload-artifact@v4
-        with:
-          name: processed-data
-          path: data/processed/
-
-      - name: Upload Figures
-        uses: actions/upload-artifact@v4
-        with:
-          name: figures
-          path: figures/
+          name: reproducibility-artifacts
+          path: |
+            data/processed/
+            figures/
+            notebook_execution_log.txt

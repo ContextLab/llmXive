@@ -1,9 +1,7 @@
-scipy
-matplotlib
-pandas
-jupyter
-streamlit
-nbformat
-nbconvert
-jsonschema
-pyyaml
+scipy==1.11.0
+matplotlib==3.7.1
+pandas==2.0.2
+jupyter==1.0.0
+streamlit==1.24.0
+jsonschema==4.17.3
+pyyaml==6.0

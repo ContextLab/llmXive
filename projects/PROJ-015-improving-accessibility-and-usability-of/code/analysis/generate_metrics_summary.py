@@ -1,6 +1,15 @@
 """
-Module to generate metrics_summary.csv using Repeated Measures ANOVA and Holm-Bonferroni correction.
-This module implements the statistical analysis engine mandated by Spec FR-002 (Amended by T035a).
+Task T026: Generate data/processed/metrics_summary.csv with ANOVA results.
+
+This script loads cleaned session data, performs Repeated Measures ANOVA
+on the metrics (Completion Time, Error Count, SUS), applies Holm-Bonferroni
+correction, calculates effect sizes (eta-squared), and writes the results
+to data/processed/metrics_summary.csv.
+
+Per Spec FR-002 (Amended by T035a) and Constitution Principle VII:
+- Repeated Measures ANOVA is the mandated primary method.
+- Shapiro-Wilk is logged for audit only; it does not alter the test choice.
+- Levene's test is omitted as inappropriate for paired designs.
 """
 import os
 import sys
@@ -9,12 +18,11 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from scipy import stats
+import argparse
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from utils.logger import get_logger
 
@@ -23,230 +31,289 @@ logger = get_logger(__name__)
 def load_cleaned_data(input_path: str) -> pd.DataFrame:
     """
     Load the cleaned sessions CSV.
-    Validates that required columns exist.
+    
+    Args:
+        input_path: Path to data/processed/cleaned_sessions.csv
+        
+    Returns:
+        DataFrame with cleaned session data.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    path = Path(input_path)
-    if not path.exists():
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Cleaned data file not found: {input_path}")
+        
+    df = pd.read_csv(input_path)
     
-    df = pd.read_csv(path)
-    
-    required_columns = [
-        'participant_id', 
-        'interface_type', 
-        'completion_time_seconds', 
-        'error_count', 
-        'sus_score',
-        'explanation_engagement_time_seconds'
+    required_cols = [
+        'participant_id', 'interface_type', 
+        'completion_time_seconds', 'error_count', 
+        'sus_score', 'explanation_engagement_time_seconds'
     ]
     
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns in cleaned data: {missing_cols}")
-    
-    # Filter out incomplete sessions just in case (should be done in T021a)
-    if 'status' in df.columns:
-        df = df[df['status'] == 'complete'].copy()
-    
-    logger.info(f"Loaded {len(df)} completed sessions from {input_path}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
+        
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def run_repeated_measures_anova(df: pd.DataFrame, metric_col: str) -> Dict[str, Any]:
+def run_repeated_measures_anova(df: pd.DataFrame, metric: str, subject_col: str = 'participant_id', condition_col: str = 'interface_type') -> Dict[str, Any]:
     """
-    Perform Repeated Measures ANOVA for a specific metric across interface types.
-    Returns F-statistic, p-value, and effect size (eta-squared).
-    """
-    # Group by participant and interface
-    # We expect a wide format for rm_anova or need to reshape
-    # Reshape to wide: columns are interfaces, rows are participants
-    pivot_df = df.pivot_table(index='participant_id', columns='interface_type', values=metric_col)
+    Perform Repeated Measures ANOVA for a specific metric.
     
-    # Drop participants with missing data in either condition
+    Args:
+        df: DataFrame containing the data.
+        metric: Name of the metric column to analyze.
+        subject_col: Column name for participant IDs.
+        condition_col: Column name for interface types.
+        
+    Returns:
+        Dictionary with F_statistic, p_value, and effect_size (eta-squared).
+    """
+    # Ensure we have unique subjects
+    subjects = df[subject_col].unique()
+    conditions = df[condition_col].unique()
+    
+    if len(conditions) < 2:
+        logger.warning(f"Not enough conditions ({len(conditions)}) for ANOVA on {metric}")
+        return {
+            "F_statistic": np.nan,
+            "p_value": np.nan,
+            "effect_size": np.nan,
+            "n_subjects": len(subjects),
+            "n_conditions": len(conditions)
+        }
+    
+    # Pivot data to wide format for RM-ANOVA: index=subject, columns=condition, values=metric
+    try:
+        pivot_df = df.pivot_table(index=subject_col, columns=condition_col, values=metric)
+    except ValueError as e:
+        logger.error(f"Error pivoting data for {metric}: {e}")
+        return {
+            "F_statistic": np.nan,
+            "p_value": np.nan,
+            "effect_size": np.nan,
+            "n_subjects": len(subjects),
+            "n_conditions": len(conditions)
+        }
+    
+    # Remove rows with missing values (participants who didn't complete both conditions)
     pivot_df = pivot_df.dropna()
     
-    if len(pivot_df) < 2:
-        logger.warning(f"Not enough participants with complete data for {metric_col} to run ANOVA.")
+    if pivot_df.shape[0] < 2:
+        logger.warning(f"Not enough complete subjects ({pivot_df.shape[0]}) for ANOVA on {metric}")
         return {
-            'metric_name': metric_col,
-            'F_statistic': np.nan,
-            'p_value': np.nan,
-            'effect_size': np.nan,
-            'n_participants': len(pivot_df)
+            "F_statistic": np.nan,
+            "p_value": np.nan,
+            "effect_size": np.nan,
+            "n_subjects": len(subjects),
+            "n_conditions": len(conditions)
         }
     
-    # Extract arrays for each interface
-    # Assuming columns are 'traditional' and 'explainable'
-    cols = list(pivot_df.columns)
-    if len(cols) != 2:
-        logger.warning(f"Expected 2 interface types, found {len(cols)}. Skipping ANOVA.")
-        return {
-            'metric_name': metric_col,
-            'F_statistic': np.nan,
-            'p_value': np.nan,
-            'effect_size': np.nan,
-            'n_participants': len(pivot_df)
-        }
+    # Perform One-Way Repeated Measures ANOVA using scipy
+    # scipy.stats.f_oneway is for independent samples, so we use the manual calculation
+    # or the rm_anova if available. Since scipy < 1.9 doesn't have rm_anova, we calculate manually.
     
-    group1 = pivot_df[cols[0]].values
-    group2 = pivot_df[cols[1]].values
+    # Manual calculation for One-Way RM ANOVA
+    # Source: https://stats.idre.ucla.edu/other/mult-pkg/whatstat/what-is-the-difference-between-repeated-measures-anova-and-mixed-models/
+    # Or use pingouin if available, but sticking to scipy/numpy as per constraints.
     
-    # Repeated measures ANOVA using scipy
-    # Since scipy doesn't have a direct rm_anova function for 2 groups (equivalent to paired t-test squared),
-    # we use f_oneway on the differences? No, that's not right.
-    # For 2 conditions, RM ANOVA F = t^2 from paired t-test.
-    # However, to be general and use the standard library as requested:
-    # We can use pingouin if available, but sticking to scipy:
-    # We perform a one-way repeated measures ANOVA manually or use f_oneway on the residuals?
-    # Actually, for 2 groups, a paired t-test is the standard.
-    # But the spec says ANOVA. F-statistic for paired t-test is t^2.
+    # Let's use the standard approach:
+    # SS_total, SS_subject, SS_condition, SS_error
+    # F = (SS_condition / df_condition) / (SS_error / df_error)
     
-    # Let's use the standard approach for 2 groups: Paired T-Test, then square t to get F.
-    # Or use stats.f_oneway if we treat it as independent (wrong) -> No.
-    # Correct approach for 2 groups in RM:
-    t_stat, p_val = stats.ttest_rel(group1, group2)
-    f_stat = t_stat ** 2
+    # Convert to numpy for easier calculation
+    data_matrix = pivot_df.values
+    n_subjects, n_conditions = data_matrix.shape
     
-    # Effect size: Eta-squared (partial eta squared for RM)
-    # Eta^2 = SS_effect / (SS_effect + SS_error)
-    # For paired t-test, eta^2 = t^2 / (t^2 + df)
-    df_error = len(group1) - 1
-    eta_squared = (t_stat ** 2) / (t_stat ** 2 + df_error)
+    # Grand mean
+    grand_mean = np.mean(data_matrix)
     
+    # Sum of Squares Total
+    ss_total = np.sum((data_matrix - grand_mean) ** 2)
+    
+    # Sum of Squares Subjects
+    subject_means = np.mean(data_matrix, axis=1, keepdims=True)
+    ss_subject = n_conditions * np.sum((subject_means - grand_mean) ** 2)
+    
+    # Sum of Squares Condition
+    condition_means = np.mean(data_matrix, axis=0, keepdims=True)
+    ss_condition = n_subjects * np.sum((condition_means - grand_mean) ** 2)
+    
+    # Sum of Squares Error (Residual)
+    ss_error = ss_total - ss_subject - ss_condition
+    
+    # Degrees of freedom
+    df_condition = n_conditions - 1
+    df_error = (n_subjects - 1) * (n_conditions - 1)
+    
+    # Mean Squares
+    ms_condition = ss_condition / df_condition
+    ms_error = ss_error / df_error if df_error > 0 else 0
+    
+    # F-statistic
+    f_stat = ms_condition / ms_error if ms_error > 0 else np.nan
+    
+    # P-value
+    if f_stat is not np.nan and df_error > 0:
+        p_val = 1 - stats.f.cdf(f_stat, df_condition, df_error)
+    else:
+        p_val = np.nan
+    
+    # Effect Size: Partial Eta Squared
+    # eta^2 = SS_condition / (SS_condition + SS_error)
+    if (ss_condition + ss_error) > 0:
+        eta_sq = ss_condition / (ss_condition + ss_error)
+    else:
+        eta_sq = np.nan
+        
     return {
-        'metric_name': metric_col,
-        'F_statistic': f_stat,
-        'p_value': p_val,
-        'effect_size': eta_squared,
-        'n_participants': len(pivot_df)
+        "F_statistic": f_stat,
+        "p_value": p_val,
+        "effect_size": eta_sq,
+        "n_subjects": n_subjects,
+        "n_conditions": n_conditions
     }
 
 def holm_bonferroni_correction(p_values: List[float]) -> List[float]:
     """
     Apply Holm-Bonferroni correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values.
+        
+    Returns:
+        List of adjusted p-values.
     """
     n = len(p_values)
     if n == 0:
         return []
-    
+        
     # Sort p-values and keep track of original indices
     sorted_indices = sorted(range(n), key=lambda k: p_values[k])
-    sorted_p = [p_values[i] for i in sorted_indices]
+    sorted_pvals = [p_values[i] for i in sorted_indices]
     
-    corrected_p = []
+    adjusted_pvals = [0.0] * n
     alpha = 0.05
     
     # Holm-Bonferroni step-down procedure
-    # Compare p_(i) with alpha / (n - i + 1)
-    # If p_(i) > alpha / (n - i + 1), stop and set all remaining to 1? 
-    # Actually, the correction produces adjusted p-values.
-    # Adjusted p_i = max( (n - j + 1) * p_(j) for j <= i )
+    # p_(i) >= max(p_(i-1) * (n - i + 1), p_(i-1)) ... actually simpler:
+    # For sorted p-values p(1) <= p(2) <= ... <= p(n):
+    # p_adj(i) = max( (n - i + 1) * p(i), p_adj(i-1) )
     
-    adj_p = [0.0] * n
+    # Implementation:
+    # Calculate adjusted p-values for sorted list
     current_max = 0.0
-    
-    for i in range(n):
-        # Calculate raw adjusted p-value for this rank
-        raw_adj = sorted_p[i] * (n - i)
-        if raw_adj > 1.0:
-            raw_adj = 1.0
-        if raw_adj > current_max:
-            current_max = raw_adj
-        else:
-            raw_adj = current_max # Enforce monotonicity
+    for i, p in enumerate(sorted_pvals):
+        # Rank i goes from 1 to n
+        rank = i + 1
+        adjusted = p * (n - rank + 1)
+        adjusted = max(adjusted, current_max)
+        adjusted = min(adjusted, 1.0) # Cap at 1.0
+        current_max = adjusted
+        adjusted_pvals[sorted_indices[i]] = adjusted
         
-        adj_p[sorted_indices[i]] = raw_adj
-    
-    return adj_p
+    return adjusted_pvals
 
-def generate_metrics_summary(df: pd.DataFrame, output_path: str) -> None:
+def generate_metrics_summary(df: pd.DataFrame, output_path: str) -> pd.DataFrame:
     """
-    Main function to orchestrate ANOVA and write the summary CSV.
+    Generate the metrics summary CSV with ANOVA results.
+    
+    Args:
+        df: Cleaned data DataFrame.
+        output_path: Path to write the output CSV.
+        
+    Returns:
+        The summary DataFrame.
     """
-    metrics = ['completion_time_seconds', 'error_count', 'sus_score']
+    metrics = [
+        ("completion_time_seconds", "Completion Time"),
+        ("error_count", "Error Count"),
+        ("sus_score", "SUS Score")
+    ]
     
     results = []
     p_values = []
     
-    logger.info("Starting Repeated Measures ANOVA for all metrics...")
+    logger.info("Running Repeated Measures ANOVA for each metric...")
     
-    for metric in metrics:
-        logger.info(f"Running ANOVA for {metric}...")
-        try:
-            res = run_repeated_measures_anova(df, metric)
-            results.append(res)
-            if not np.isnan(res['p_value']):
-                p_values.append(res['p_value'])
-            logger.info(f"  F={res['F_statistic']:.4f}, p={res['p_value']:.4f}, eta2={res['effect_size']:.4f}")
-        except Exception as e:
-            logger.error(f"Error running ANOVA for {metric}: {e}")
-            results.append({
-                'metric_name': metric,
-                'F_statistic': np.nan,
-                'p_value': np.nan,
-                'effect_size': np.nan,
-                'n_participants': 0
-            })
+    for metric_col, metric_name in metrics:
+        logger.info(f"Analyzing {metric_name}...")
+        anova_result = run_repeated_measures_anova(df, metric_col)
+        
+        results.append({
+            "metric_name": metric_name,
+            "metric_column": metric_col,
+            "interface_type": "Traditional vs Explainable",
+            "F_statistic": anova_result["F_statistic"],
+            "p_value": anova_result["p_value"],
+            "effect_size": anova_result["effect_size"],
+            "n_subjects": anova_result["n_subjects"],
+            "n_conditions": anova_result["n_conditions"]
+        })
+        
+        if not np.isnan(anova_result["p_value"]):
+            p_values.append(anova_result["p_value"])
     
     # Apply Holm-Bonferroni correction
     if p_values:
-        corrected_p = holm_bonferroni_correction(p_values)
-        # Map corrected p-values back to results
-        # Note: p_values list order matches results list order for valid p-values
-        # We need to be careful with NaNs. Let's reconstruct.
-        
-        valid_indices = [i for i, r in enumerate(results) if not np.isnan(r['p_value'])]
-        for idx, adj_p_val in zip(valid_indices, corrected_p):
-            results[idx]['adjusted_p_value'] = adj_p_val
-            logger.info(f"  Adjusted p-value for {results[idx]['metric_name']}: {adj_p_val:.4f}")
+        adjusted_p_values = holm_bonferroni_correction(p_values)
+        for i, row in enumerate(results):
+            if i < len(adjusted_p_values):
+                row["adjusted_p_value"] = adjusted_p_values[i]
+            else:
+                row["adjusted_p_value"] = np.nan
     else:
-        for r in results:
-            r['adjusted_p_value'] = np.nan
-    
-    # Create DataFrame and write to CSV
-    # Ensure columns are in specific order
-    output_cols = ['metric_name', 'interface_type', 'F_statistic', 'p_value', 'adjusted_p_value', 'effect_size']
-    # interface_type is not per-row in this summary, it's the comparison. We can set it to 'Traditional vs Explainable'
-    for r in results:
-        r['interface_type'] = 'Traditional vs Explainable'
-    
-    # Fill missing adjusted_p_value with NaN if not set
-    for r in results:
-        if 'adjusted_p_value' not in r:
-            r['adjusted_p_value'] = np.nan
-    
-    df_results = pd.DataFrame(results)
-    df_results = df_results[output_cols]
+        for row in results:
+            row["adjusted_p_value"] = np.nan
+            
+    summary_df = pd.DataFrame(results)
     
     # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    df_results.to_csv(output_path, index=False)
+    # Write to CSV
+    summary_df.to_csv(output_path, index=False)
     logger.info(f"Metrics summary written to {output_path}")
+    
+    return summary_df
 
 def main():
-    """
-    CLI entry point for generating metrics summary.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate metrics summary CSV with ANOVA results.")
+    """Main entry point for the script."""
+    parser = argparse.ArgumentParser(description="Generate metrics summary with ANOVA results.")
     parser.add_argument("--input", type=str, default="data/processed/cleaned_sessions.csv",
-                        help="Path to cleaned sessions CSV.")
+                        help="Path to the cleaned sessions CSV.")
     parser.add_argument("--output", type=str, default="data/processed/metrics_summary.csv",
-                        help="Path to output metrics summary CSV.")
+                        help="Path to write the metrics summary CSV.")
     
     args = parser.parse_args()
     
     try:
+        # Load data
         df = load_cleaned_data(args.input)
-        generate_metrics_summary(df, args.output)
-        logger.info("Analysis completed successfully.")
+        
+        # Generate summary
+        summary_df = generate_metrics_summary(df, args.output)
+        
+        # Log a brief summary
+        logger.info("ANOVA Results Summary:")
+        for _, row in summary_df.iterrows():
+            logger.info(f"  {row['metric_name']}: F={row['F_statistic']:.4f}, p={row['p_value']:.4f}, p_adj={row['adjusted_p_value']:.4f}, eta2={row['effect_size']:.4f}")
+            
     except FileNotFoundError as e:
-        logger.error(str(e))
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
+        logger.error(f"Unexpected error during analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

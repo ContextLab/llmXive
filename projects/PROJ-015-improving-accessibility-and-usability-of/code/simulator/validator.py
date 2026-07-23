@@ -69,7 +69,7 @@ def load_schema() -> Dict[str, Any]:
     
     if not isinstance(schema, dict):
         raise ValueError(f"Schema file {schema_path} did not load as a dictionary.")
-        
+            
     return schema
 
 def validate_session(data: Dict[str, Any]) -> bool:

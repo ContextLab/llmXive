@@ -1,5 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SessionData
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Session Data Schema"
+description: "Schema for raw session data collected from the usability simulator."
 type: object
 required:
   - participant_id
@@ -12,42 +13,61 @@ required:
   - explanation_engagement_time_seconds
   - sus_score
   - status
+  - dropout_reason
 properties:
   participant_id:
     type: string
+    description: "Unique identifier for the participant."
   disability_type:
     type: string
+    description: "Type of disability selected by the participant."
+    enum:
+      - visual
+      - motor
+      - cognitive
+      - hearing
+      - none
   interface_type:
     type: string
+    description: "Type of interface used in this session."
     enum:
       - traditional
       - explainable
   sequence:
     type: string
+    description: "Order of interface presentation (Traditional->Explainable or Explainable->Traditional)."
     enum:
-      - traditional_explainable
-      - explainable_traditional
+      - Traditional->Explainable
+      - Explainable->Traditional
   start_time:
     type: string
     format: date-time
+    description: "ISO 8601 timestamp when the session started."
   end_time:
     type: string
     format: date-time
+    description: "ISO 8601 timestamp when the session ended."
   error_count:
     type: integer
     minimum: 0
+    description: "Number of errors committed during the task."
   explanation_engagement_time_seconds:
     type: number
     minimum: 0
+    description: "Time spent engaging with XAI explanations (0 for traditional interface)."
   sus_score:
     type: integer
     minimum: 0
     maximum: 100
+    description: "System Usability Scale score."
   status:
     type: string
+    description: "Completion status of the session."
     enum:
       - complete
       - incomplete
   dropout_reason:
     type: string
     nullable: true
+    description: "Reason for dropout if status is incomplete. Null if complete."
+additionalProperties: false

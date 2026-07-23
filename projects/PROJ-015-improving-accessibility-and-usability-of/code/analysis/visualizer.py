@@ -1,235 +1,176 @@
-"""
-Visualization module for generating publication-quality plots.
-Implements box plots with 95% CI error bars for key metrics.
-"""
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from utils.logger import get_logger
 import os
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
+from scipy import stats
+
+# Ensure we can import from utils
+try:
+    from utils.logger import get_logger
+except ImportError:
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
+def plot_sus_score(data: pd.DataFrame, output_path: Optional[str] = None) -> plt.Figure:
+    """
+    Generates a box plot for SUS scores comparing Traditional vs Explainable interfaces.
+    Includes 95% Confidence Interval error bars on the mean.
 
-class Visualizer:
-    """Generates visualization plots for usability metrics."""
+    Args:
+        data: DataFrame containing 'interface_type' and 'sus_score' columns.
+        output_path: Optional path to save the figure. If None, figure is returned but not saved.
 
-    def __init__(self, output_dir: str = "figures"):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Visualization output directory set to: {self.output_dir}")
+    Returns:
+        matplotlib Figure object.
+    """
+    if data is None or data.empty:
+        logger.error("Input data is empty. Cannot generate SUS score plot.")
+        raise ValueError("Input data cannot be empty.")
 
-    def _create_boxplot_with_ci(
-        self,
-        data: pd.DataFrame,
-        x_col: str,
-        y_col: str,
-        title: str,
-        xlabel: str,
-        ylabel: str,
-        output_filename: str,
-        ci_level: float = 0.95
-    ) -> str:
-        """
-        Create a box plot with 95% confidence interval error bars.
+    # Validate columns
+    required_cols = ['interface_type', 'sus_score']
+    missing_cols = [col for col in required_cols if col not in data.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in data: {missing_cols}")
 
-        Args:
-            data: DataFrame containing the data
-            x_col: Column name for x-axis categories
-            y_col: Column name for y-axis values
-            title: Plot title
-            xlabel: X-axis label
-            ylabel: Y-axis label
-            output_filename: Name of the output file
-            ci_level: Confidence level for error bars (default 0.95)
-
-        Returns:
-            Path to the saved figure
-        """
-        plt.figure(figsize=(10, 6))
-        ax = plt.gca()
-
-        # Group by x_col and compute statistics
-        groups = data.groupby(x_col)[y_col]
-
-        # Calculate means and standard errors for error bars
-        means = groups.mean()
-        stds = groups.std()
-        n = groups.count()
-        se = stds / np.sqrt(n)
-
-        # Calculate 95% CI using t-distribution
-        from scipy import stats
-        t_crit = stats.t.ppf((1 + ci_level) / 2, n - 1)
-        ci = t_crit * se
-
-        # Plot boxplot
-        bp = ax.boxplot(
-            [data[data[x_col] == cat][y_col] for cat in data[x_col].unique()],
-            labels=data[x_col].unique(),
-            patch_artist=True,
-            showfliers=False
+    # Ensure interface_type is categorical for consistent ordering
+    if 'interface_type' in data.columns:
+        data['interface_type'] = pd.Categorical(
+            data['interface_type'],
+            categories=['Traditional', 'Explainable'],
+            ordered=True
         )
 
-        # Color the boxes
-        colors = ['#4C72B0', '#DD8452']
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(0.7)
+    # Filter valid scores (SUS is 0-100)
+    valid_data = data[(data['sus_score'] >= 0) & (data['sus_score'] <= 100)]
+    
+    if valid_data.empty:
+        logger.warning("No valid SUS scores found after filtering (0-100 range).")
+        # Create an empty plot to indicate failure state but allow execution to continue
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, "No Valid Data", transform=ax.transAxes, ha='center', va='center')
+        ax.set_title("SUS Score Distribution (No Data)")
+        if output_path:
+            fig.savefig(output_path, dpi=300, bbox_inches='tight')
+        return fig
 
-        # Add error bars representing 95% CI
-        for i, (mean, err) in enumerate(zip(means.values, ci.values)):
-            ax.errorbar(
-                i + 1, mean, yerr=[[err], [err]],
-                fmt='o', color='black', capsize=5,
-                markersize=8, markeredgewidth=1.5
-            )
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-        plt.title(title, fontsize=14, fontweight='bold')
-        plt.xlabel(xlabel, fontsize=12)
-        plt.ylabel(ylabel, fontsize=12)
-        plt.grid(axis='y', linestyle='--', alpha=0.3)
-        plt.tight_layout()
+    # Group by interface type
+    groups = valid_data.groupby('interface_type')['sus_score']
+    
+    # Calculate statistics for plotting
+    means = []
+    ci_errors = []
+    labels = []
+    
+    for name, group in groups:
+        if len(group) > 0:
+            mean_val = group.mean()
+            # Calculate 95% CI for the mean: mean +/- t * (std / sqrt(n))
+            n = len(group)
+            std_val = group.std()
+            if n > 1:
+                # Use t-distribution for small samples
+                t_val = stats.t.ppf(0.975, df=n-1)
+                se = std_val / np.sqrt(n)
+                ci = t_val * se
+            else:
+                ci = 0.0 # Cannot compute CI for n=1
+            
+            means.append(mean_val)
+            ci_errors.append(ci)
+            labels.append(name)
 
-        output_path = self.output_dir / output_filename
+    # Plot boxplot
+    bp = ax.boxplot(
+        [valid_data[valid_data['interface_type'] == label]['sus_score'].values for label in labels],
+        labels=labels,
+        patch_artist=True,
+        showmeans=True,
+        meanprops={"marker":"D", "markerfacecolor":"red", "markersize":8},
+        whis=1.5
+    )
+
+    # Color the boxes
+    colors = ['#ff9999', '#66b3ff']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.6)
+
+    # Add mean with error bars (95% CI)
+    x_positions = [1, 2]
+    ax.errorbar(
+        x_positions,
+        means,
+        yerr=ci_errors,
+        fmt='o',
+        color='black',
+        capsize=5,
+        markersize=8,
+        linewidth=2,
+        label='Mean (95% CI)'
+    )
+
+    ax.set_title('System Usability Scale (SUS) Scores by Interface Type', fontsize=14, fontweight='bold')
+    ax.set_ylabel('SUS Score (0-100)', fontsize=12)
+    ax.set_xlabel('Interface Type', fontsize=12)
+    ax.set_ylim(0, 100)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    ax.legend(loc='upper right')
+
+    plt.tight_layout()
+
+    if output_path:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
-
-        logger.info(f"Saved visualization to: {output_path}")
-        return str(output_path)
-
-    def plot_completion_time(self, data: pd.DataFrame) -> str:
-        """
-        Generate box plot for completion time.
-
-        Args:
-            data: DataFrame with columns ['interface_type', 'completion_time_seconds']
-
-        Returns:
-            Path to saved figure
-        """
-        return self._create_boxplot_with_ci(
-            data=data,
-            x_col='interface_type',
-            y_col='completion_time_seconds',
-            title='Completion Time by Interface Type',
-            xlabel='Interface Type',
-            ylabel='Completion Time (seconds)',
-            output_filename='completion_time.png'
-        )
-
-    def plot_error_count(self, data: pd.DataFrame) -> str:
-        """
-        Generate box plot for error count.
-
-        Args:
-            data: DataFrame with columns ['interface_type', 'error_count']
-
-        Returns:
-            Path to saved figure
-        """
-        return self._create_boxplot_with_ci(
-            data=data,
-            x_col='interface_type',
-            y_col='error_count',
-            title='Error Count by Interface Type',
-            xlabel='Interface Type',
-            ylabel='Number of Errors',
-            output_filename='error_count.png'
-        )
-
-    def plot_sus_score(self, data: pd.DataFrame) -> str:
-        """
-        Generate box plot for SUS (System Usability Scale) scores.
-
-        Args:
-            data: DataFrame with columns ['interface_type', 'sus_score']
-
-        Returns:
-            Path to saved figure
-        """
-        return self._create_boxplot_with_ci(
-            data=data,
-            x_col='interface_type',
-            y_col='sus_score',
-            title='System Usability Scale (SUS) Score by Interface Type',
-            xlabel='Interface Type',
-            ylabel='SUS Score (0-100)',
-            output_filename='sus_score.png'
-        )
-
-    def plot_explanation_engagement(self, data: pd.DataFrame) -> str:
-        """
-        Generate box plot for explanation engagement time.
-
-        Args:
-            data: DataFrame with columns ['interface_type', 'explanation_engagement_time_seconds']
-
-        Returns:
-            Path to saved figure
-        """
-        return self._create_boxplot_with_ci(
-            data=data,
-            x_col='interface_type',
-            y_col='explanation_engagement_time_seconds',
-            title='Explanation Engagement Time by Interface Type',
-            xlabel='Interface Type',
-            ylabel='Engagement Time (seconds)',
-            output_filename='explanation_engagement.png'
-        )
-
+        logger.info(f"SUS score plot saved to {output_path}")
+    
+    return fig
 
 def main():
     """
-    Main entry point for generating visualizations.
-    Loads cleaned data and generates all required plots.
+    Main entry point for generating the SUS score visualization.
+    Expects cleaned data at data/processed/cleaned_sessions.csv.
     """
-    import argparse
+    # Determine paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_path = project_root / 'data' / 'processed' / 'cleaned_sessions.csv'
+    output_path = project_root / 'figures' / 'sus_score.png'
 
-    parser = argparse.ArgumentParser(description='Generate visualization plots')
-    parser.add_argument('--input', type=str, default='data/processed/cleaned_sessions.csv',
-                      help='Path to cleaned data CSV')
-    parser.add_argument('--output_dir', type=str, default='figures',
-                      help='Output directory for figures')
-    args = parser.parse_args()
-
-    # Load data
-    if not os.path.exists(args.input):
-        logger.error(f"Input file not found: {args.input}")
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. Cannot generate plot.")
+        logger.info("Ensure the data cleaning pipeline (T021c) has been run successfully.")
         sys.exit(1)
 
-    logger.info(f"Loading data from: {args.input}")
-    data = pd.read_csv(args.input)
+    try:
+        logger.info(f"Loading data from {input_path}...")
+        df = pd.read_csv(input_path)
+        
+        logger.info(f"Generating SUS score plot...")
+        fig = plot_sus_score(df, output_path=str(output_path))
+        
+        logger.info(f"Success: SUS score plot generated at {output_path}")
+        
+        # Verify file was written
+        if output_path.exists():
+            logger.info(f"Verification: File exists and size is {output_path.stat().st_size} bytes.")
+        else:
+            logger.error("Verification failed: File was not written.")
+            sys.exit(1)
 
-    # Validate required columns
-    required_cols = ['interface_type', 'completion_time_seconds', 'error_count', 'sus_score']
-    missing_cols = [col for col in required_cols if col not in data.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
+    except Exception as e:
+        logger.error(f"Error generating SUS score plot: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
-    # Initialize visualizer
-    visualizer = Visualizer(output_dir=args.output_dir)
-
-    # Generate plots
-    logger.info("Generating completion time plot...")
-    visualizer.plot_completion_time(data)
-
-    logger.info("Generating error count plot...")
-    visualizer.plot_error_count(data)
-
-    logger.info("Generating SUS score plot...")
-    visualizer.plot_sus_score(data)
-
-    # Only plot if explanation engagement time exists
-    if 'explanation_engagement_time_seconds' in data.columns:
-        logger.info("Generating explanation engagement plot...")
-        visualizer.plot_explanation_engagement(data)
-
-    logger.info("All visualizations generated successfully.")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import sys
     main()

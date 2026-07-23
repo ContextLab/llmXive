@@ -1,206 +1,193 @@
 """
-Main orchestration script for the statistical analysis pipeline.
-Executes data cleaning, normality checks, ANOVA, and report generation.
-
-Supports a --simulate flag for CI/local validation ONLY.
-In production (CI_SIMULATE=false or no flag), it fails loudly if data is missing.
+Main analysis pipeline orchestration script.
+Implements the statistical engine wrapper as per Task T025c.
 """
 import sys
 import argparse
 import json
 import os
 import traceback
+import logging
 from pathlib import Path
+from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from utils.logger import get_logger
+# Import statistical functions from stat_utils (T022, T023a, T024)
+# Note: shapiro_wilk is logged via log_normality_test in stat_utils
+# anova_rm is run via run_anova_pipeline in stat_utils
+# holm_bonferroni is run via run_holm_bonferroni in stat_utils
+# descriptive_stats is run via run_descriptive_stats (separate module)
+from analysis.stat_utils import (
+    log_normality_test,
+    run_anova_pipeline,
+    run_holm_bonferroni,
+    calculate_effect_size,
+    verify_primary_anova_pvalue,
+    generate_metrics_summary
+)
+from analysis.run_descriptive_stats import main as run_descriptive_stats_main
 from analysis.data_cleaner import DataCleaner
-from analysis.stat_utils import run_anova_pipeline, run_holm_bonferroni, log_normality_test, generate_metrics_summary
-from analysis.power_analysis import PowerCalculator
-from analysis.report_generator import ReportGenerator
-from simulator.simulator import DeterministicDataSimulator
+from analysis.run_analysis import load_and_validate_data, validate_columns
+from utils.logger import get_logger
 
-logger = get_logger(__name__)
+# Ensure we can import from the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-def validate_columns(df):
-    """
-    Validate that the cleaned dataframe has the required columns.
-    """
-    required = ['participant_id', 'interface_type', 'completion_time_seconds', 
-                'error_count', 'sus_score', 'explanation_engagement_time_seconds']
-    missing = [c for c in required if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns: {missing}")
-    return True
+logger = get_logger("run_analysis")
 
-def execute_pipeline(input_path: str, output_dir: str, simulate: bool = False):
+def execute_pipeline(input_path: str, output_dir: str) -> bool:
     """
-    Execute the full analysis pipeline.
+    Implements the statistical engine wrapper for Task T025c.
+    
+    Logic:
+    1. Load and validate data (T025b).
+    2. Run Shapiro-Wilk normality test (T022).
+    3. Run Repeated Measures ANOVA (T023a).
+    4. Run Holm-Bonferroni correction (T024).
+    5. Compute descriptive statistics (T023b).
+    6. Log any import or runtime errors to error_log.txt.
     
     Args:
-        input_path: Path to input data (raw or cleaned).
-        output_dir: Output directory for results.
-        simulate: If True, generate deterministic synthetic data if input is missing/empty.
-                 ONLY for CI/local validation.
+        input_path: Path to cleaned_sessions.csv
+        output_dir: Directory to write outputs (metrics_summary.csv, etc.)
+        
+    Returns:
+        bool: True if pipeline completed successfully, False otherwise.
     """
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    cleaned_csv = output_dir / "cleaned_sessions.csv"
-    metrics_csv = output_dir / "metrics_summary.csv"
-    normality_log = output_dir / "normality_log.txt"
-    power_flags = output_dir / "power_flags.json"
-    report_txt = output_dir / "report_summary.txt"
-    methodology_txt = output_dir / "methodology_notes.txt"
+    error_log_path = output_path / "error_log.txt"
+    error_log = []
     
-    logger.info(f"Starting analysis pipeline. Input: {input_path}")
-    logger.info(f"Simulate mode: {simulate}")
-
-    # Check CI environment variable for production enforcement
-    ci_simulate_env = os.getenv('CI_SIMULATE', 'false').lower()
-    if simulate and ci_simulate_env == 'false':
-        logger.error("Production mode: simulation disabled. Set CI_SIMULATE=true in CI to allow simulation.")
-        sys.exit(1)
-
-    # 0. Handle Data Loading / Simulation
-    # If input_path doesn't exist or is empty, and simulate is True, generate data.
-    # If simulate is False and data is missing, fail loudly.
-    
-    import pandas as pd
-    df = None
-    
-    if not Path(input_path).exists():
-        if simulate:
-            logger.warning(f"Input file {input_path} not found. Generating deterministic simulated data.")
-            # Generate simulated data to the expected location or a temp location
-            # The simulator writes to a specific output path. We'll generate to a temp file and read it.
-            temp_raw_path = output_dir / "simulated_raw.json"
-            try:
-                simulator = DeterministicDataSimulator()
-                # Generate a small dataset for validation (e.g., 20 participants)
-                simulator.run(n_participants=20, output_path=str(temp_raw_path))
-                
-                # Now we need to run the cleaning pipeline on this simulated raw data
-                # T021c logic: load_raw_sessions -> filter_incomplete -> impute_sus
-                from analysis.clean_data import load_raw_sessions, filter_incomplete, impute_sus
-                
-                # Load raw sessions
-                raw_sessions = load_raw_sessions(str(temp_raw_path))
-                
-                # Filter incomplete
-                complete_sessions = filter_incomplete(raw_sessions)
-                
-                # Impute SUS
-                imputed_sessions = impute_sus(complete_sessions)
-                
-                # Write cleaned CSV
-                cleaned_df = pd.DataFrame(imputed_sessions)
-                cleaned_df.to_csv(cleaned_csv, index=False)
-                logger.info(f"Simulated data cleaned and saved to {cleaned_csv}")
-                
-                # Use the cleaned CSV as input for the rest of the pipeline
-                input_path = str(cleaned_csv)
-            except Exception as e:
-                logger.error(f"Failed to generate or process simulated data: {e}")
-                traceback.print_exc()
-                sys.exit(1)
-        else:
-            logger.error(f"Input file {input_path} not found.")
-            logger.error("Production mode: simulation disabled. Please provide real data.")
-            sys.exit(1)
-    else:
-        # File exists, load it
+    try:
+        logger.info(f"Starting analysis pipeline on {input_path}")
+        
+        # 1. Load and Validate Data (T025b)
+        logger.info("Step 1: Loading and validating data...")
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+        df = load_and_validate_data(input_path)
+        if df is None:
+            raise ValueError("Data validation failed. Check logs.")
+        
+        # 2. Shapiro-Wilk Normality Test (T022)
+        # This logs to data/processed/normality_log.txt
+        logger.info("Step 2: Running Shapiro-Wilk normality test...")
+        log_normality_test(df, output_dir)
+        
+        # 3. Repeated Measures ANOVA (T023a)
+        # This computes F-stat, p-value, effect size
+        logger.info("Step 3: Running Repeated Measures ANOVA...")
+        anova_results = run_anova_pipeline(df, output_dir)
+        
+        # 4. Holm-Bonferroni Correction (T024)
+        logger.info("Step 4: Applying Holm-Bonferroni correction...")
+        corrected_results = run_holm_bonferroni(anova_results, output_dir)
+        
+        # 5. Descriptive Statistics (T023b)
+        # This writes descriptive_stats.csv
+        logger.info("Step 5: Computing descriptive statistics...")
+        # We call the main function of the descriptive stats module
+        # It expects args, so we simulate them
+        desc_args = argparse.Namespace(
+            input=input_path,
+            output=str(output_path / "descriptive_stats.csv"),
+            log=str(output_path / "exclusion_log.txt")
+        )
+        run_descriptive_stats_main(desc_args)
+        
+        # 6. Generate Final Summary (T025d preparation)
+        logger.info("Step 6: Generating metrics summary...")
+        generate_metrics_summary(df, output_dir)
+        
+        logger.info("Pipeline completed successfully.")
+        return True
+        
+    except Exception as e:
+        error_msg = f"Pipeline failed at {datetime.now()}: {str(e)}\n{traceback.format_exc()}"
+        error_log.append(error_msg)
+        logger.error(error_msg)
+        
+        # Write error log immediately
         try:
-            df = pd.read_csv(input_path)
-            validate_columns(df)
-            logger.info(f"Loaded data: {len(df)} rows.")
-        except FileNotFoundError:
-            logger.error(f"Data file not found: {input_path}")
-            sys.exit(1)
-        except Exception as e:
-            logger.error(f"Failed to load data: {e}")
-            sys.exit(1)
+            with open(error_log_path, 'w') as f:
+                f.write("\n".join(error_log))
+        except Exception as write_err:
+            logger.error(f"Failed to write error log: {write_err}")
+        
+        return False
 
-    # If we loaded from input_path directly (not simulated), df is already set.
-    # If we simulated, we need to load the cleaned CSV we just wrote.
-    if df is None:
-        try:
-            df = pd.read_csv(input_path)
-            validate_columns(df)
-            logger.info(f"Loaded data: {len(df)} rows.")
-        except Exception as e:
-            logger.error(f"Failed to load data after simulation: {e}")
-            sys.exit(1)
-
-    # 2. Normality Check (Audit only)
+def write_report(output_dir: str) -> bool:
+    """
+    Writes the final report and verifies outputs.
+    """
+    output_path = Path(output_dir)
+    summary_file = output_path / "metrics_summary.csv"
+    report_file = output_path / "report_summary.txt"
+    
+    if not summary_file.exists():
+        logger.error("metrics_summary.csv not found. Cannot write report.")
+        return False
+        
     try:
-        log_normality_test(df, str(normality_log))
+        import pandas as pd
+        df = pd.read_csv(summary_file)
+        
+        required_cols = ['metric_name', 'interface_type', 'F_statistic', 'p_value', 'adjusted_p_value', 'effect_size']
+        if not all(col in df.columns for col in required_cols):
+            logger.error(f"metrics_summary.csv missing required columns. Found: {df.columns.tolist()}")
+            return False
+            
+        with open(report_file, 'w') as f:
+            f.write("Statistical Analysis Report\n")
+            f.write("=" * 40 + "\n")
+            f.write(f"Generated: {datetime.now()}\n")
+            f.write("\n")
+            f.write("Methodology Notes:\n")
+            f.write("- Repeated Measures ANOVA used for all metrics.\n")
+            f.write("- Holm-Bonferroni correction applied for multiple comparisons.\n")
+            f.write("- Per Spec FR-002 (Amended by T035a) and Constitution Principle VII.\n")
+            f.write("- Shapiro-Wilk logged for audit; Levene's test omitted (inappropriate for paired design).\n")
+            f.write("\n")
+            f.write("Results Summary:\n")
+            f.write(df.to_string(index=False))
+            
+        logger.info(f"Report written to {report_file}")
+        return True
+        
     except Exception as e:
-        logger.warning(f"Normality test failed: {e}")
-
-    # 3. Run ANOVA and Generate Metrics Summary
-    # This calls T023a and T024 logic
-    try:
-        # We need to call the function that writes metrics_summary.csv
-        from analysis.generate_metrics_summary import generate_metrics_summary as gen_summary
-        gen_summary(df, str(metrics_csv))
-        logger.info("ANOVA and metrics summary completed.")
-    except Exception as e:
-        logger.error(f"ANOVA pipeline failed: {e}")
-        traceback.print_exc()
-        sys.exit(1)
-
-    # 4. Power Analysis
-    try:
-        calculator = PowerCalculator()
-        calculator.compute_power(df, str(power_flags))
-        logger.info("Power analysis completed.")
-    except Exception as e:
-        logger.warning(f"Power analysis failed: {e}")
-
-    # 5. Generate Report
-    try:
-        generator = ReportGenerator()
-        generator.generate_report(metrics_csv, str(report_txt))
-        logger.info("Report generation completed.")
-    except Exception as e:
-        logger.warning(f"Report generation failed: {e}")
-
-    # 6. Write Methodology Notes
-    try:
-        with open(methodology_txt, 'w') as f:
-            f.write("Methodology Notes\n")
-            f.write("=" * 20 + "\n\n")
-            f.write("Statistical Tests Used:\n")
-            f.write("- Repeated Measures ANOVA (per Spec FR-002 Amended by T035a)\n")
-            f.write("- Holm-Bonferroni Correction for multiple comparisons\n")
-            f.write("- Shapiro-Wilk Normality Test (Audit only)\n\n")
-            f.write("Spec Reference:\n")
-            f.write("FR-002 (Amended): System MUST implement Repeated Measures ANOVA.\n")
-            f.write("Constitution Principle VII: Scientific rigor supersedes original spec text.\n")
-        logger.info("Methodology notes written.")
-    except Exception as e:
-        logger.error(f"Failed to write methodology notes: {e}")
-
-    logger.info("Pipeline execution finished.")
+        logger.error(f"Failed to write report: {e}")
+        return False
 
 def main():
     parser = argparse.ArgumentParser(description="Run the full statistical analysis pipeline.")
-    parser.add_argument("--input", type=str, default="data/processed/cleaned_sessions.csv",
-                        help="Path to cleaned sessions CSV.")
-    parser.add_argument("--output", type=str, default="data/processed",
-                        help="Output directory for results.")
-    parser.add_argument("--simulate", action="store_true",
-                        help="Generate deterministic simulated data if input is missing. "
-                             "ONLY for CI/local validation. Production runs will fail if data is missing.")
+    parser.add_argument("--input", type=str, required=True, help="Path to cleaned_sessions.csv")
+    parser.add_argument("--output", type=str, required=True, help="Output directory for results")
+    parser.add_argument("--simulate", action="store_true", help="Run in simulation mode (for CI only)")
     
     args = parser.parse_args()
     
-    execute_pipeline(args.input, args.output, simulate=args.simulate)
+    # Check simulation flag enforcement (T033)
+    if args.simulate:
+        ci_env = os.getenv('CI_SIMULATE', 'false')
+        if ci_env.lower() != 'true':
+            logger.error("Production mode: simulation disabled. Set CI_SIMULATE=true for CI runs.")
+            sys.exit(1)
+    
+    success = execute_pipeline(args.input, args.output)
+    
+    if success:
+        report_success = write_report(args.output)
+        if not report_success:
+            sys.exit(1)
+        logger.info("Analysis pipeline completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("Analysis pipeline failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
