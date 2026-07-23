@@ -1,24 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Dataset Schema
+description: Schema for the cleaned dataset used in training and evaluation.
 type: object
 properties:
   composition:
     type: string
+    description: Chemical composition string.
   structure:
     type: string
     const: "BCC"
+    description: Crystal structure, must be BCC.
   log_D:
     type: number
+    description: Log10 of the diffusion coefficient.
   atomic_radius_variance:
     type: number
+    description: Variance of atomic radii in the composition.
   VEC:
     type: number
+    description: Valence Electron Concentration.
   electronegativity_spread:
     type: number
+    description: Spread of electronegativity values.
   mixing_entropy:
     type: number
+    description: Mixing entropy calculated as -R * sum(xi * ln(xi)).
   inv_temperature:
     type: number
+    description: Inverse temperature (1.0 / T).
   microstructure_controlled:
     type: boolean
+    description: Flag indicating if microstructure was controlled.
+  single_crystal:
+    type: boolean
+    description: Flag indicating if the sample was a single crystal.
 required:
   - composition
   - structure
@@ -29,3 +44,4 @@ required:
   - mixing_entropy
   - inv_temperature
   - microstructure_controlled
+  - single_crystal

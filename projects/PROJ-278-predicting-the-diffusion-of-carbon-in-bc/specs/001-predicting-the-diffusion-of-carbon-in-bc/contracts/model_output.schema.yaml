@@ -1,35 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Model Output Schema
+description: Schema for model_results.json, feature_importance.json, and variance_partition.csv outputs.
 type: object
 properties:
-  best_model:
-    type: string
-  baseline_model:
-    type: string
-  r2:
-    type: number
-  rmse:
-    type: number
-  mae:
-    type: number
-  p_value:
-    type: number
-  ranked_features:
-    type: array
-    items:
-      type: string
-  top_two:
-    type: array
-    items:
-      type: string
-  adjusted_r2:
-    type: number
-  microstructural_gap:
-    type: number
-  residual_variance_label:
-    type: string
+  model_results:
+    type: object
+    properties:
+      best_model:
+        type: string
+        description: Name of the best performing model.
+      baseline_model:
+        type: string
+        description: Name of the baseline model.
+      r2:
+        type: number
+        description: R-squared score on the test set.
+      rmse:
+        type: number
+        description: Root Mean Squared Error on the test set.
+      mae:
+        type: number
+        description: Mean Absolute Error on the test set.
+      p_value:
+        type: number
+        description: P-value from the permutation test.
+    required:
+      - best_model
+      - baseline_model
+      - r2
+      - rmse
+      - mae
+      - p_value
+  feature_importance:
+    type: object
+    properties:
+      ranked_features:
+        type: array
+        items:
+          type: string
+        description: List of feature names ranked by importance.
+      top_two:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        maxItems: 2
+        description: The top two most important features.
+    required:
+      - ranked_features
+      - top_two
+  variance_partition:
+    type: object
+    properties:
+      adjusted_r2:
+        type: number
+        description: Adjusted R-squared value.
+      microstructural_gap:
+        type: number
+        description: Fraction of variance not explained by composition (1 - adjusted_r2).
+      residual_variance_label:
+        type: string
+        enum:
+          - "noise, measurement error, and missing compositional descriptors"
+        description: Label for the residual variance component.
+    required:
+      - adjusted_r2
+      - microstructural_gap
+      - residual_variance_label
 required:
-  - best_model
-  - baseline_model
-  - r2
-  - rmse
-  - mae
-  - p_value
+  - model_results
+  - feature_importance
+  - variance_partition

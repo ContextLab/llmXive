@@ -472,3 +472,112 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T15:24:36Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Linear regression baseline trained on same split as best model
+  claim_id: c_39bf0d73
+  context: Task T015 specifies training a linear baseline and comparing it via permutation
+    test.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_baseline_trained_on_same_split_as_best_mod
+  kind: magnitude
+  raw_text: Train a Linear Regression model (unregularized OLS) explicitly as the
+    'linear baseline' on the exact same train/test split as the best ML model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:56:18Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Permutation test with 10000 iterations
+  claim_id: c_b47481aa
+  context: Task T015 and T026 define the permutation test parameters.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_10000_iterations
+  kind: magnitude
+  raw_text: Perform a permutation test with 10,000 iterations comparing best ML model
+    vs. the Linear Regression baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:57:15Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Adjusted R-squared of best model as variance explainable upper bound
+  claim_id: c_a78bf5fb
+  context: Task T019 describes the calculation of variance partitioning metrics.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Adjusted_R-squared_of_best_model_as_variance_explainable_upp
+  kind: magnitude
+  raw_text: Calculate adjusted R^2 from the best model as the upper bound of variance
+    explainable by composition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:57:48Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Microstructural gap defined as 1 minus adjusted R-squared
+  claim_id: c_fc0e0ff9
+  context: Task T019 defines the calculation for the microstructural gap.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microstructural_gap_defined_as_1_minus_adjusted_R-squared
+  kind: magnitude
+  raw_text: Calculate microstructural gap as 1 - adjusted R^2 using the best model's
+    R^2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:58:13Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Linear baseline is OLS on same split
+  claim_id: c_fcdba210
+  context: Notes section clarifies baseline model definition per FR-005.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_baseline_is_OLS_on_same_split
+  kind: magnitude
+  raw_text: The linear baseline for permutation tests is a Linear Regression (OLS)
+    model trained on the same split as the best model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:58:35Z'
+- artifact_path: projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/specs/001-predicting-the-diffusion-of-carbon-in-bc/tasks.md
+  attempts: 1
+  canonical: Microstructural gap uses best model R-squared not baseline
+  claim_id: c_3e46e92c
+  context: Notes section clarifies the calculation source for the variance gap.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microstructural_gap_uses_best_model_R-squared_not_baseline
+  kind: magnitude
+  raw_text: The microstructural gap is calculated as 1 - adjusted R^2 using the best
+    model's adjusted R^2, not the baseline's.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T19:58:59Z'

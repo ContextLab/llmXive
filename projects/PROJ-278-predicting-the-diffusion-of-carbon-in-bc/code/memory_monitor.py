@@ -7,35 +7,33 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+_peak_memory = 0.0
 _process = psutil.Process(os.getpid())
-_peak_memory_mb = 0.0
 
 def update_peak_memory():
-    """Update peak memory usage."""
-    global _peak_memory_mb
-    current = _process.memory_info().rss / 1024 / 1024
-    if current > _peak_memory_mb:
-        _peak_memory_mb = current
+    """Update the peak memory tracking."""
+    global _peak_memory
+    current = _process.memory_info().rss / (1024 * 1024)
+    if current > _peak_memory:
+        _peak_memory = current
 
 def get_peak_memory_mb() -> float:
-    """Get peak memory usage in MB."""
-    return _peak_memory_mb
+    """Get the current peak memory usage in MB."""
+    update_peak_memory()
+    return _peak_memory
 
 def reset_peak_memory():
     """Reset peak memory tracking."""
-    global _peak_memory_mb
-    _peak_memory_mb = 0.0
+    global _peak_memory
+    _peak_memory = 0.0
 
 def log_peak_memory(stage: str):
-    """Log peak memory at a specific stage."""
-    update_peak_memory()
-    logger.info(f"Peak memory at {stage}: {_peak_memory_mb:.2f} MB")
+    """Log the peak memory usage for a stage."""
+    mem = get_peak_memory_mb()
+    logger.info(f"[{stage}] Peak memory usage: {mem:.2f} MB")
 
 def final_log():
-    """Final log of peak memory."""
-    update_peak_memory()
-    logger.info(f"Final peak memory: {_peak_memory_mb:.2f} MB")
+    """Final memory log on exit."""
+    log_peak_memory("Final")
 
 atexit.register(final_log)
-
-monitor_memory_interval = 1.0

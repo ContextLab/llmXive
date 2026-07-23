@@ -1,13 +1,12 @@
-"""Custom exceptions for the carbon diffusion prediction pipeline."""
-
+"""Custom exceptions for the project."""
 class DataInsufficientError(Exception):
-    """Raised when data is missing, invalid, or insufficient for processing."""
+    """Raised when data is missing, insufficient, or invalid."""
     pass
 
-class PowerWarning(Warning):
-    """Warning raised when statistical power is low (e.g., sample size < 30)."""
+class PowerWarning(Exception):
+    """Raised when sample size is too low for robust statistical power."""
     pass
 
 class SHAPError(Exception):
-    """Raised when SHAP value computation fails."""
+    """Raised when SHAP computation fails."""
     pass

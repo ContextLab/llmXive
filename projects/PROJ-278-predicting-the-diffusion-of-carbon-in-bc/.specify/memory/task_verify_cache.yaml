@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no evidence of the required directory tree under `projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/`\
-    \ nor the empty `__init__.py` files in `code/` and `tests/`. The implementer\u2019\
-    s claim cannot be confirmed because the necessary folders and files are missing."
 T003:
   c: true
   h: 67e384d6220243e2111c7a2d56c636170efb7943b23afed3ad88aa67df9573cd
@@ -11,6 +5,26 @@ T003:
     \ E4, E7, E9, F, I, N, UP, W, and `code/.black.toml` specifies `line-length =\
     \ 88` and `target-version = ['py311']`. Both files exist and are non\u2011empty,\
     \ fulfilling the task\u2019s specifications."
+T004a:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`
+    is missing, so no schema defining the listed fields is present. The implementer
+    must create this YAML file with the specified field definitions.
+T004c:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml`
+    does not exist, so none of the specified fields (`strategy`, `n_samples`, `warning_emitted`)
+    are defined. The task cannot be considered done until the schema file is created
+    with the correct field definitions.
+T005a:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`
+    file does not exist (the only listed file is a missing `schema.yaml`). Consequently,
+    no schema defining the specified keys and constraints is present. The implementer
+    must create the requested schema file with the exact fields and enum constraint.
 T012:
   c: false
   h: 72405138f7b27e83cb6ff3ce96d97acbb7742a1acbcd80773369f514d12638d4
@@ -46,10 +60,3 @@ T023:
     verification script, or log confirming all contracts and checksums have been validated)
     is present; the implementer provided only the feature specification without any
     concrete validation output.
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` validation artifact (e.g., a log, report, or script output)\
-    \ is present; the implementer provided no evidence that the quickstart guide was\
-    \ executed and verified end\u2011to\u2011end reproducibility. The required validation\
-    \ output is missing."

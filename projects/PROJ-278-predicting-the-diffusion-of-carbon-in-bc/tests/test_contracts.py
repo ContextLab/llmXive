@@ -5,12 +5,14 @@ import jsonschema
 import yaml
 
 def load_schema(schema_path):
+    """Load a YAML schema file."""
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
 def test_model_output_schema_validation():
     """
-    T014: Verify model_results.json matches the schema defined in T005.
+    T014: Verify model_results.json matches the schema defined in T005b.
+    Depends on T005b (schema) and T015 (model_results.json generation).
     """
     model_output_path = Path("data/outputs/model_results.json")
     schema_path = Path("specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml")
@@ -38,7 +40,6 @@ def test_model_output_schema_validation():
 def test_feature_importance_schema_validation():
     """
     T018: Verify feature_importance.json matches its schema.
-    Assuming a similar schema structure or inline validation.
     """
     feature_importance_path = Path("data/outputs/feature_importance.json")
     

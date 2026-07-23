@@ -24,17 +24,17 @@
 
 **Purpose**: Project initialization, contract definition, and basic structure
 
-- [ ] T001 [P] Create project structure per implementation plan: Execute `mkdir -p projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/{code,data/raw,data/processed,tests,docs,specs/001-predict-carbon-diffusion-bcc/contracts}` and create empty `__init__.py` in `code/` and `tests/`.
+- [X] T001 [P] Create project structure per implementation plan: Execute `mkdir -p projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/{code,data/raw,data/processed,tests,docs,specs/001-predict-carbon-diffusion-bcc/contracts}` and create empty `__init__.py` in `code/` and `tests/`.
 - [X] T002 [P] Initialize Python 3.11 project with pinned `code/requirements.txt` (pandas, numpy, scikit-learn, xgboost, shap, pymatgen, requests, pyarrow, pytest, psutil)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `code/.ruff.toml` with `[lint]` rules for E4, E7, E9, F, I, N, UP, W and `code/.black.toml` with `line-length = 88` and `target-version = py311`.
-- [ ] T004a [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Specify fields `composition` (str), `structure` (str, const "BCC"), `log_D` (float), `atomic_radius_variance` (float), `VEC` (float), `electronegativity_spread` (float), `mixing_entropy` (float, derived per Plan Phase 1 Step 4), `inv_temperature` (float, derived per Plan Phase 1 Step 4), `microstructure_controlled` (bool), and `single_crystal` (bool). Note: FR-002 mandates the core descriptors; `mixing_entropy` and `inv_temperature` are valid extensions per the plan's feature engineering step.
-- [ ] T004b [P] [US1] Write `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Create the YAML file defined in T004a, including all provenance flags.
+- [X] T004a [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Specify fields `composition` (str), `structure` (str, const "BCC"), `log_D` (float), `atomic_radius_variance` (float), `VEC` (float), `electronegativity_spread` (float), `mixing_entropy` (float, derived per Plan Phase 1 Step 4: `mixing_entropy = -R * sum(xi * ln(xi))`), `inv_temperature` (float, derived per Plan Phase 1 Step 4: `inv_temperature = 1.0 / T`), `microstructure_controlled` (bool), and `single_crystal` (bool). Note: FR-002 mandates the core descriptors; `mixing_entropy` and `inv_temperature` are valid extensions per the plan's feature engineering step.
+- [X] T004b [P] [US1] Write `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Create the YAML file defined in T004a, including all provenance flags.
 - [ ] T004c [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml`: Specify fields `strategy` (str, enum ["80/20", "LOOCV"]), `n_samples` (int), and `warning_emitted` (bool).
-- [ ] T005a [P] [US2] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Specify keys for `model_results.json` (`best_model`, `baseline_model`, `r2`, `rmse`, `mae`, `p_value`), `feature_importance.json` (`ranked_features`, `top_two`), and `variance_partition.csv` (`adjusted_r2`, `microstructural_gap`, `residual_variance_label` constrained to enum ["noise, measurement error, and missing compositional descriptors"]).
-- [ ] T005b [P] [US2] Write `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Create the YAML file defined in T005a.
+- [X] T005a [P] [US2] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Specify keys for `model_results.json` (`best_model`, `baseline_model`, `r2`, `rmse`, `mae`, `p_value`), `feature_importance.json` (`ranked_features`, `top_two`), and `variance_partition.csv` (`adjusted_r2`, `microstructural_gap`, `residual_variance_label` constrained to enum ["noise, measurement error, and missing compositional descriptors"]).
+- [X] T005b [P] [US2] Write `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Create the YAML file defined in T005a.
 - [X] T006 [P] [US1] Implement `code/utils.py` helper functions for periodic table property retrieval (atomic radius, VEC, electronegativity) using `pymatgen` or `matminer`.
-- [X] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`.
-- [X] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
+- [ ] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`.
+- [ ] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -46,12 +46,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T004b/T005b/T004c (Schemas) MUST be completed before T010/T012/T014.
 
-- [X] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL (as defined in `research.md`), generate SHA256 checksum, and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns (`structure`, `composition`, `diffusion_coefficient`, `temperature`, `microstructure_controlled`) are missing from the raw file.
-- [X] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
+- [ ] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL `https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`, generate SHA256 checksum, and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns (`structure`, `composition`, `diffusion_coefficient`, `temperature`, `microstructure_controlled`) are missing from the raw file.
+- [ ] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
  - Filter for `structure == "BCC"` and `solute == "C"`
  - Enforce provenance check (exclude entries missing `microstructure_controlled`/`single_crystal` flags) and log excluded entries
  - Normalize atomic fractions to sum to 1.0
- - Compute descriptors: `atomic_radius_variance`, `VEC`, `electronegativity_spread` (per FR-002), `mixing_entropy`, `inv_temperature`
+ - Compute descriptors: `atomic_radius_variance`, `VEC`, `electronegativity_spread` (per FR-002), `mixing_entropy` (formula: `-R * sum(xi * ln(xi))`), `inv_temperature` (formula: `1.0 / T`)
  - Apply `log10` transformation to `diffusion_coefficient` (FR-003)
  - Count total samples: if N < 30, emit `PowerWarning` AND set `split_strategy=LOOCV`; if N >= 30, set `split_strategy=80/20`.
  - **Explicitly write the chosen strategy to `data/processed/split_config.json`** and validate it against `split_config.schema.yaml` (T004c).
@@ -64,7 +64,7 @@
  - **Depends on T010**: Verify `split_config.json` exists, is valid JSON, and matches the schema defined in T004c.
 - [ ] T012 [US1] Implement `tests/test_preprocess.py` function `test_dataset_schema_validation` using `jsonschema.validate(data, schema)` to ensure `dataset_cleaned.csv` matches the schema defined in T004b. **Depends on T004b and T010**.
 - [X] T013 [US1] [P] Validation test ensuring no non-BCC or missing-composition entries remain: Implement `tests/test_preprocess.py` function `test_bcc_filter_and_completeness` asserting `len(df[df['structure'] != 'BCC']) == 0` and `df['composition'].isnull().sum() == 0`.
-- [X] T013b [US1] [P] Implement `tests/test_provenance.py` to explicitly validate the provenance exclusion logic (FR-008, SC-006): verify that entries missing `microstructure_controlled` or `single_crystal` flags are correctly excluded and logged in `code/02_preprocess.py`.
+- [ ] T013b [US1] [P] Implement `tests/test_provenance.py` to explicitly validate the provenance exclusion logic (FR-008, SC-006): verify that entries missing `microstructure_controlled` or `single_crystal` flags are correctly excluded and logged in `code/02_preprocess.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently **provided T004b, T004c and T010 are complete**.
 
@@ -78,15 +78,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [US2] Implement `tests/test_contracts.py` function `test_model_output_schema_validation` using `jsonschema.validate(data, schema)` to ensure `model_results.json` matches the schema defined in T005b. **Depends on T005b and T015**.
-- [X] T015 [US2] Implement `code/03_train.py` to:
+- [X] T014 [US2] Implement `tests/test_contracts.py` function `test_model_output_schema_validation` using `jsonschema.validate(data, schema)` to ensure `model_results.json` matches the schema defined in T005b. **Depends on T005b and T015 (must run after T015 implementation)**.
+- [ ] T015 [US2] Implement `code/03_train.py` to: <!-- FAILED: unspecified -->
  - Read `split_config.json` from T010 to determine split strategy (80/20 or LOOCV).
  - Split data: 80/20 if N >= 30, else LOOCV (emit `PowerWarning` if N < 30).
- - Train Random Forest, XGBoost, and Elastic Net with constrained grid search (a limited set of combinations).
- - Train an **Elastic Net** model explicitly as the "linear baseline" **on the exact same train/test split** as the best ML model (per FR-005).
+ - Train Random Forest, XGBoost, and Elastic Net with constrained grid search:
+ - **Random Forest**: `n_estimators` in [100, 200], `max_depth` in [5, 10]
+ - **XGBoost**: `n_estimators` in [100], `max_depth` in [3, 5]
+ - **Elastic Net**: `alpha` in [0.1, 1.0]
+ - Train a **Linear Regression** model (unregularized OLS) explicitly as the "linear baseline" **on the exact same train/test split** as the best ML model (per FR-005).
  - Select best ML model based on cross-validated $R^2$.
  - Calculate $R^2$, RMSE, MAE on test set.
- - Perform a permutation test with **10,000 iterations** comparing best ML model vs. the Elastic Net baseline (same split).
+ - Perform a permutation test with **10,000 iterations** comparing best ML model vs. the Linear Regression baseline (same split).
  - Save trained best model object to `data/outputs/best_model.pkl`.
  - Save baseline model object to `data/outputs/baseline_model.pkl`.
  - Output `data/outputs/model_results.json`.
@@ -94,10 +97,10 @@
 - [X] T017 [US2] [P] Add pytest fixture in `tests/test_memory.py` that wraps training execution and asserts peak memory < 6 GB.
 - [X] T025 [US2] [P] Implement `tests/test_train.py` to verify:
  - If N < 30, `PowerWarning` is emitted and LOOCV is used; if N >= 30, 80/20 split is used.
- - The Elastic Net baseline is trained on the **same split** as the best model.
+ - The Linear Regression baseline is trained on the **same split** as the best model.
  - Permutation test logic (10,000 iterations) and p-value calculation are correct.
  - **Depends on T015**: Verify `best_model.pkl` and `baseline_model.pkl` exist.
-- [ ] T026 [US2] [P] Implement `tests/test_permutation.py` to specifically verify the statistical validity of the permutation test: correct null distribution generation, **[deferred] iterations** (hardcoded constant), and p-value calculation logic against FR-005. **Depends on T015**.
+- [X] T026 [US2] [P] Implement `tests/test_permutation.py` to specifically verify the statistical validity of the permutation test: correct null distribution generation, **10000 iterations** (hardcoded constant per FR-005), and p-value calculation logic against FR-005. **Depends on T015**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,20 +123,22 @@
 
 ### Implementation for User Story 3
 
-- [X] T019 [US3] Implement `code/04_evaluate.py` to:
+- [ ] T019 [US3] Implement `code/04_evaluate.py` to: <!-- FAILED: unspecified -->
  - Load `best_model.pkl` (produced by T015) and `baseline_model.pkl` (produced by T015).
  - Compute SHAP values for the best model on the test set.
  - Rank descriptors by SHAP magnitude and identify top two.
  - Generate partial dependence plots for top descriptors and **save them to `data/outputs/`**.
- - Calculate **total variance** of the target variable.
+ - Calculate **total variance** of the target variable using `np.var(y_test, ddof=1)`.
  - Calculate **adjusted R^2** from the **best model** (not baseline) as the upper bound of variance explainable by composition.
+ - **Explicitly output the 'fraction of variance explained' (adjusted R^2) as a distinct column in `variance_partition.csv`** to satisfy SC-001.
  - Calculate **microstructural gap** as `1 - adjusted R^2` (using best model's R^2) and output it explicitly.
  - **Explicitly label** the residual variance components as "noise, measurement error, and missing compositional descriptors" in the output (per FR-007). **Ensure this label appears as a specific row value or column header in `data/outputs/variance_partition.csv` and matches the schema constraint in T005a**.
  - **Verify** that the baseline model's R^2 is NOT used in the gap calculation.
  - Use the baseline results (from T015) only for the permutation test comparison, not for the variance gap calculation.
  - If SHAP computation fails, raise `SHAPError` (do not fallback to other methods).
  - Output `data/outputs/feature_importance.json` and `data/outputs/variance_partition.csv`.
-- [X] T020 [US3] [P] Add logic to `code/04_evaluate.py` to handle `SHAPError` by logging the error and halting execution gracefully.
+- [ ] T020 [US3] [P] Add logic to `code/04_evaluate.py` to handle `SHAPError` by logging the error and halting execution gracefully. <!-- FAILED: unspecified -->
+- [X] T028 [US3] [P] **Data Scarcity Reporting**: If T010 detected N < 30, generate `docs/data_scarcity_report.md` explicitly stating the sample size, the LOOCV fallback strategy, and the limitation on statistical power as required by the Spec Assumptions. If N >= 30, this task is a no-op but must exist to ensure the artifact is generated conditionally.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -244,10 +249,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence.
 - **Constraint Reminder**: All models MUST run on CPU-only CI (no CUDA, no 8-bit quantization). Dataset size is assumed < 10k rows to fit in available RAM.
 - **Memory Constraint**: Peak memory usage must stay within acceptable system limits. as verified by `code/memory_monitor.py` and `tests/test_memory.py`.
-- **Baseline Clarity**: The "linear baseline" for permutation tests is explicitly an **Elastic Net** model trained on the **same split** as the best model, as defined in FR-005 and the Plan.
+- **Baseline Clarity**: The "linear baseline" for permutation tests is explicitly a **Linear Regression (OLS)** model trained on the **same split** as the best model, as defined in FR-005 and the Plan.
 - **Data Integrity**: The `code/01_download.py` script MUST raise `DataInsufficientError` if the verified HuggingFace source returns zero entries or fails checksum validation; it MUST NOT fallback to synthetic data or mock generators.
 - **Streaming Rule**: If the initial download exceeds available disk space, `code/01_download.py` must be updated to stream the parquet file in chunks rather than loading it entirely into memory, ensuring the process fits within the disk constraint of the CI runner.
 - **Variance Gap**: The "microstructural gap" is calculated as `1 - adjusted R^2` using the **best model's** adjusted R^2, not the baseline's.
 - **Plot Output**: Partial dependence plots MUST be saved to `data/outputs/` and validated by T027.
 - **Split Logic**: The split strategy (LOOCV vs 80/20) is determined in T010 and logged in `split_config.json` to ensure T015 consumes the correct strategy. **T010 validates this file against T004c**.
-- **Permutation Iterations**: The permutation test MUST execute **[deferred] iterations** as specified in FR-005; this constant must be explicitly defined in the code and tested in T026.
+- **Permutation Iterations**: The permutation test MUST execute **10000 iterations** as specified in FR-005; this constant must be explicitly defined in the code and tested in T026.
+- **Data Scarcity**: If N < 30, T028 MUST generate `docs/data_scarcity_report.md` to satisfy the Spec Assumptions requirement.

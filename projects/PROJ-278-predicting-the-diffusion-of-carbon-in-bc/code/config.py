@@ -1,15 +1,10 @@
-"""Configuration management for the project."""
+"""Configuration management."""
 import os
 import json
 import random
 import numpy as np
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
-import yaml
-
-from .exceptions import DataInsufficientError
-
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
 
 class Config:
     def __init__(self, config_dict: Dict[str, Any]):
@@ -18,41 +13,40 @@ class Config:
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key, default)
 
-    def __getitem__(self, key: str) -> Any:
-        if key not in self._config:
-            raise KeyError(f"Configuration key '{key}' not found")
-        return self._config[key]
-
-_global_config: Optional[Config] = None
-
-def load_config(config_path: Optional[Path] = None) -> Config:
-    """Load configuration from YAML file."""
-    non_local_path = config_path or CONFIG_PATH
-    if not non_local_path.exists():
-        raise FileNotFoundError(f"Config file not found: {non_local_path}")
+def load_config(config_path: Optional[str] = None) -> Config:
+    """Load configuration from YAML or JSON file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / "config.yaml"
     
-    with open(non_local_path, 'r') as f:
-        data = yaml.safe_load(f)
+    path = Path(config_path)
+    if not path.exists():
+        # Default config
+        return Config({
+            "random_seed": 42,
+            "data_path": "data/raw",
+            "output_path": "data/outputs"
+        })
     
-    return Config(data)
+    with open(path, 'r') as f:
+        if path.suffix == '.yaml' or path.suffix == '.yml':
+            import yaml
+            config_dict = yaml.safe_load(f)
+        else:
+            config_dict = json.load(f)
+    
+    return Config(config_dict)
 
-def set_global_seed(seed: Optional[int] = None) -> None:
+def set_global_seed(seed: int):
     """Set random seeds for reproducibility."""
-    if seed is None:
-        seed = _global_config.get('random_seed', 42) if _global_config else 42
-    
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_config() -> Config:
-    """Get the global configuration instance."""
-    if _global_config is None:
-        raise RuntimeError("Configuration not loaded. Call load_config() first.")
-    return _global_config
+    """Get the global configuration."""
+    return load_config()
 
 def get_path(key: str) -> Path:
-    """Get a path from configuration and resolve it relative to project root."""
-    val = get_config()[key]
-    base = Path(__file__).parent.parent
-    return (base / val).resolve()
+    """Get a path from configuration."""
+    config = get_config()
+    path_str = config.get(key, "")
+    return Path(path_str)

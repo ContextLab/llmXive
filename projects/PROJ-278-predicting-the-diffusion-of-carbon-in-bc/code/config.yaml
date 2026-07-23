@@ -1,4 +1,4 @@
 random_seed: 42
-data_path: data
-specs_path: specs/001-predict-carbon-diffusion-bcc/contracts
+data_path: data/raw
 output_path: data/outputs
+processed_path: data/processed

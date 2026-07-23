@@ -1,4 +1,4 @@
-"""Logging configuration and error handling infrastructure."""
+"""Logging configuration and custom exception handlers."""
 import logging
 import sys
 import os
@@ -6,39 +6,59 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from .exceptions import DataInsufficientError, PowerWarning, SHAPError
+# Custom exceptions
+class DataInsufficientError(Exception):
+    """Raised when data is missing, insufficient, or invalid."""
+    pass
 
-def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+class PowerWarning(Exception):
+    """Raised when sample size is too low for robust statistical power."""
+    pass
+
+class SHAPError(Exception):
+    """Raised when SHAP computation fails."""
+    pass
+
+def setup_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
     """Set up a logger with console and optional file output."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
-
+    logger.setLevel(logging.INFO)
+    
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
+    
     # Formatter
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    # Console Handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File Handler
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler (optional)
     if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    
     return logger
 
 def handle_data_insufficient(error: DataInsufficientError):
-    """Handle DataInsufficientError by logging and re-raising."""
-    logging.error(f"Data Insufficient Error: {error}")
+    """Handle DataInsufficientError by logging and raising."""
+    logger = logging.getLogger(__name__)
+    logger.error(f"DataInsufficientError: {error}")
     raise error
 
-def handle_power_warning(warning: PowerWarning):
-    """Handle PowerWarning by logging."""
-    logging.warning(f"Power Warning: {warning}")
+def handle_power_warning(error: PowerWarning):
+    """Handle PowerWarning by logging and raising."""
+    logger = logging.getLogger(__name__)
+    logger.warning(f"PowerWarning: {error}")
+    raise error
 
 def handle_shap_error(error: SHAPError):
-    """Handle SHAPError by logging and halting."""
-    logging.error(f"SHAP Error: {error}")
+    """Handle SHAPError by logging and raising."""
+    logger = logging.getLogger(__name__)
+    logger.error(f"SHAPError: {error}")
     raise error

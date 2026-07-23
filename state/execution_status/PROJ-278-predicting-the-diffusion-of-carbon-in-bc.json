@@ -1,0 +1,23 @@
+{
+  "project_id": "PROJ-278-predicting-the-diffusion-of-carbon-in-bc",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/01_download.py (rc=1); python code/02_preprocess.py (rc=1); python code/03_train.py (rc=1); 2 declared deliverable(s) absent: data/processed/dataset_cleaned.csv; data/processed/split_config.json",
+  "artifacts": [],
+  "failures": [
+    "python code/01_download.py -> rc=1\n    rk/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/.venv/lib/python3.11/site-packages/requests/models.py\", line 1167, in raise_for_status\n    raise HTTPError(http_error_msg, response=self)\nrequests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carb",
+    "python code/02_preprocess.py -> rc=1\n    ataInsufficientError: Raw dataset not found at data/raw/dataset.parquet. Run 01_download.py first.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/02_preprocess.py\", line 371, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/02_preprocess.py\", line 361, in main\n    handle_data_insufficient(e)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carb",
+    "python code/03_train.py -> rc=1\n    2026-07-23 20:02:48,283 - INFO - Starting training pipeline (T015)...\n2026-07-23 20:02:48,295 - ERROR - Unexpected error: get_path() takes 1 positional argument but 3 were given\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/03_train.py\", line 292, in main\n    df = load_cleaned_data()\n         ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/03_train.py\", line 32, in load_cleaned_data\n    d",
+    "python code/04_evaluate.py -> rc=1\n    2026-07-23 20:02:50,228 - INFO - Starting evaluation phase (T019/T020)\n2026-07-23 20:02:50,229 - ERROR - Data loading failed: Data file not found: ./dataset_cleaned.csv",
+    "python code/05_validate.py -> rc=1\n    6, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/01_download.py\", line 84, in main\n    download_file(DATASET_URL, output_file)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/code/01_download.py\", line 56, in download_file\n    raise DataInsufficientError(f\"Failed to download dataset: {e}\")\nexceptions.DataInsufficientError: Failed to download dataset: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/01_download.py",
+    "python code/05_validate.py"
+  ],
+  "updated_at": "2026-07-23T20:02:53Z"
+}

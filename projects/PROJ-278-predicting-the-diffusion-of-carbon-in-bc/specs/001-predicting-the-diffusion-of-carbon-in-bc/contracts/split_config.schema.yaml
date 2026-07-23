@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Split Config Schema
+description: Schema for the split configuration generated during preprocessing.
+type: object
+properties:
+  strategy:
+    type: string
+    enum:
+      - "80/20"
+      - "LOOCV"
+    description: The split strategy used.
+  n_samples:
+    type: integer
+    description: Total number of samples used for the split.
+  warning_emitted:
+    type: boolean
+    description: Whether a PowerWarning was emitted due to low sample count.
+required:
+  - strategy
+  - n_samples
+  - warning_emitted
