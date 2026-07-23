@@ -20,42 +20,42 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase -1: Setup (Blocking Prerequisites)
-
-**Purpose**: Project initialization, directory structure, and linting. **These tasks MUST be complete before any code implementation.**
-
-- [ ] T002 [P] Create project directory structure. **Deliverable**: Create the following directories: `src/`, `src/extraction/`, `src/analysis/`, `src/utils/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `data/raw/`, `data/processed/`, `data/results/`, `contracts/`. Create empty `__init__.py` files in all `src/` and `tests/` subfolders. **Note**: This task is a blocking prerequisite for all code tasks.
-- [ ] T004 [P] Configure linting and formatting. **Deliverable**: Create `.flake8` config file and `pyproject.toml` (or `setup.cfg`) with `black` configuration. **Note**: This task is a blocking prerequisite for all code tasks.
-
 ## Phase -2: Power Analysis (Prerequisite Gate)
 
 **Purpose**: Determine required sample size (N) for the regression model to achieve power ≥ 0.8 (FR-011) before any annotation or analysis begins.
 
-- [X] T000 [Phase-2] Implement and run power analysis script. **Deliverable**: Create `data/results/power_analysis_results.yaml` containing the required sample size N based on assumed effect size (f²) from literature. **Gate**: If required N > annotation budget, flag project as underpowered. **Dependency**: Must complete before Phase 0.
+- [X] T000a [Phase-2] Locate and document the assumed effect size (f²) from literature. **Deliverable**: Create `data/results/effect_size_citation.md` containing the specific effect size value (f²), the source citation (paper/title/DOI), and a brief justification for its selection. **Constitution Requirement**: This task satisfies Constitution Principle II (Verified Accuracy) by ensuring the power analysis input is not arbitrary. **Dependency**: Must complete before T000.
+- [X] T000 [Phase-2] Implement and run power analysis script. **Deliverable**: Create `data/results/power_analysis_results.yaml` containing the required sample size N based on the effect size documented in T000a. **Gate**: If required N > annotation budget, flag project as underpowered. **Dependency**: Must complete after T000a and before T000b.
+- [X] T000b [Phase-2] **Decision Gate**: Determine final annotation sample size. **Deliverable**: Create `data/results/annotation_decision.md` stating the final N to be used, confirming it meets power requirements (≥0.8) and is within budget. **Logic**: If T000 output N > budget, halt project and flag for human input. If N <= budget, record N and proceed. **Dependency**: Must complete after T000. **Gate**: Project cannot proceed to Phase 0 until this decision is recorded.
 
 ---
 
 ## Phase 0: Data Acquisition & Annotation (Blocking Prerequisites)
 
-**Purpose**: Secure human authenticity ratings and validate the hedge lexicon required by FR-001, FR-010, FR-011. This phase MUST complete before Phase 1 or Phase 2 tasks can execute valid data loaders.
+**Purpose**: Secure human authenticity ratings, validate the hedge lexicon, and acquire the raw dataset required by FR-001, FR-010, FR-011. This phase MUST complete before Phase 1 or Phase 2 tasks can execute valid data loaders.
 
 **⚠️ CRITICAL**: No downstream analysis (US2, US3) can proceed without verified `data/processed/ratings.csv` and passed lexicon validation.
 
 - [X] T001a [Phase0] Verify availability of public dataset with human authenticity ratings. **Deliverable**: Create `data/raw/dataset_verification_report.md` containing: (1) Decision (Found/Not Found), (2) Source URL if found, (3) Sample size estimate, (4) If not found, confirmation of proceeding to annotation protocol. **Note**: If no dataset is found, document the decision to proceed to T001b.
 - [X] T001b [Phase0] Define and document the manual annotation protocol. **Deliverable**: Create `data/raw/annotation_instructions.md` containing: (1) Likert scale definitions (1-5 Authenticity), (2) Instruction script for raters, (3) Sample items demonstrating the rating criteria. **Note**: Instructions must focus strictly on "Perceived Authenticity" as defined in spec.md.
-- [ ] T001c [Phase0] [US1] Generate a "Gold Standard" subset of 50 annotated turns. **Deliverable**: Create `data/processed/gold_standard_50.csv` with columns `conversation_id`, `text_content`, `authenticity_score`, `rater_id`, and `timestamp`. **Execution**: If a public dataset is not found, use a simple CSV-based manual entry script (to be created in `src/utils/annotation_tool.py` in T002) to annotate 50 randomly selected turns from the raw corpus. **Constitution Requirement**: Store the full rater metadata (scale, instructions, inter-rater reliability) in `data/raw/rater_metadata.json` as per Constitution Principle VII. **Failure Path**: If inter-rater reliability (Cohen's Kappa) < 0.6, flag the dataset and halt.
-- [ ] T001d [Phase0] [US1] [FR-010] Execute pragmatic validation of the hedge lexicon on the Gold Standard. **Deliverable**: Run the extraction logic on `data/processed/gold_standard_50.csv`. Calculate precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches. **Input**: 'Human Matches' are derived from the `gold_labels` column (manually annotated) in the 50-turn subset. **Gate**: If precision < 0.8, flag dataset for manual review in `data/results/lexicon_validation_results.yaml`. **Dependency**: Must complete after T001c (Gold Standard generation). <!-- FAILED: unspecified -->
-- [X] T001e [Removed] **Note**: Task T001e ("Noise Measurement") was removed as it is not authorized by spec.md.
+- [ ] T002 [Phase0] Implement `src/utils/annotation_tool.py`. **Deliverable**: Create a CLI tool that reads `data/raw/annotation_instructions.md` and allows raters to input scores for a list of turns. **Input**: `data/raw/annotation_instructions.md`. **Output**: Intermediate rater logs. **Dependency**: Must complete after T001b (Protocol Definition) to ensure the tool implements the correct instructions.
+- [ ] T001f [Phase0] Acquire and format the raw conversation dataset. **Deliverable**: Create `data/raw/conversations.jsonl` containing the raw text data. **Execution**: Fetch the 'convai2' or 'cornell-movie-dialogs' dataset from HuggingFace (using `datasets.load_dataset`), extract the `text` or `dialogue` fields, and save as JSONL. **Constraint**: Do NOT use synthetic data. If a dataset with human authenticity ratings is not found (T001a), use the raw text from the largest available public dataset for feature extraction. **Dependency**: Must complete before T001g.
+- [ ] T001g [Phase0] **Validate Data & Trigger Annotation Protocol**. **Deliverable**: Check `data/raw/conversations.jsonl` for the presence of `authenticity_score`. **Logic**:
+ 1. If `authenticity_score` exists: Proceed to T001c (Gold Standard) and T001e (Hedge Gold Standard) using the existing data.
+ 2. If `authenticity_score` is MISSING: **MUST trigger execution** of T001b (Protocol) -> T002 (Tool) -> T001c (Auth Gold Standard) -> T001e (Hedge Gold Standard). **Deliverable**: Create `data/processed/annotation_trigger_log.md` confirming the protocol was initiated and completed. **Dependency**: Must complete after T001f. **Gate**: Blocks T001d and T009 until annotation data (if needed) is generated.
+- [ ] T001c [Phase0] [US1] Generate "Gold Standard" subset of 50 annotated turns. **Deliverable**: Create `data/processed/gold_standard_50.csv` with columns `conversation_id`, `text_content`, `authenticity_score`, `rater_id`, `timestamp`. **AND** create `data/processed/gold_standard_hedges.csv` with columns `conversation_id`, `text_content`, `hedge_flags` (list of indices where raters marked a hedge). **Execution**: Use `src/utils/annotation_tool.py` (T002) to annotate 50 randomly selected turns from the raw corpus (T001f). **Constitution Requirement**: Store the full rater metadata (scale, instructions, inter-rater reliability) in `data/raw/rater_metadata.json` as per Constitution Principle VII. **Failure Path**: If inter-rater reliability (Cohen's Kappa) < 0.6, flag the dataset and halt. **Dependency**: Must complete after T001b, T002, and T001g (if protocol triggered).
+- [ ] T001e [Phase0] [US1] [FR-010] Generate Human Hedge Labels. **Deliverable**: Create `data/processed/gold_standard_hedges.csv` containing `hedge_flags` (a list of word indices for each turn where raters manually identified a hedge). **Execution**: Use `src/utils/annotation_tool.py` (T002) to annotate the same 50 turns from T001c, specifically asking raters to mark "uncertainty markers" as defined in the lexicon. **Dependency**: Must complete after T001b, T002, and T001g (if protocol triggered).
+- [ ] T001d [Phase0] [US1] [FR-010] Execute pragmatic validation of the hedge lexicon. **Deliverable**: Run the extraction logic on `data/processed/gold_standard_50.csv`. Calculate precision = (Lexicon Matches ∩ Human Matches) / Lexicon Matches. **Input**: 'Human Matches' are derived from the `hedge_flags` column in `data/processed/gold_standard_hedges.csv` (output of T001e). **Aggregation Logic**: For each turn, compare the indices of words matched by the lexicon against the indices in `hedge_flags`. A 'match' requires exact index alignment. **Gate**: If precision < 0.8, flag dataset for manual review in `data/results/lexicon_validation_results.yaml`. **Dependency**: Must complete after T001c and T001e.
 
 ---
 
 ## Phase 1: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Dependencies**: Phase 0 (T001c) must complete first.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Dependencies**: Phase 0 (T001c, T001e) must complete first.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete AND Phase 0 has produced `data/processed/gold_standard_50.csv` and `data/processed/ratings.csv`.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete AND Phase 0 has produced `data/processed/gold_standard_50.csv`, `data/processed/gold_standard_hedges.csv`, and `data/processed/ratings.csv`.
 
-- [ ] T005 [P] [US1] Implement `src/utils/io.py`. **Deliverable**: Implement functions `fetch_text()` (returns DataFrame), `load_ratings()` (returns DataFrame), and `validate_schemas()` (raises exception if schema mismatched). **Specifics**: `validate_schemas()` MUST load `contracts/extracted_features.schema.yaml` and perform strict validation (no missing columns, correct types). **Note**: This task strictly depends on Phase 0 completion (T001c) and must halt if `ratings.csv` is missing.
+- [ ] T005 [P] [US1] Implement `src/utils/io.py`. **Deliverable**: Implement functions `fetch_text()` (returns DataFrame), `load_ratings()` (returns DataFrame), and `validate_schemas()` (raises exception if schema mismatched). **Specifics**: `validate_schemas()` MUST load `contracts/extracted_features.schema.yaml` and perform strict validation (no missing columns, correct types). **Note**: This task strictly depends on Phase 0 completion (T001c, T001e) and must halt if `ratings.csv` or `gold_standard_hedges.csv` is missing.
 - [ ] T005a [P] [US1] Implement Input Validation Logic (FR-006). **Deliverable**: Create `src/utils/validation.py` containing `validate_input_columns(df, required_cols)` which checks for 'text_content' and 'authenticity_score' columns. **Logic**: Raise a clear `ValueError` if columns are missing or mismatched, as mandated by FR-006.
 - [ ] T006 [P] [US1] Create `src/config.py` to manage random seeds (default value) and runtime limits (CPU-only, bounded timeout).
 - [ ] T007 [P] [US1] Implement `src/utils/edge_case_handler.py` to detect empty/short texts (<5 words) and missing ratings. **Deliverable**: If missing ratings are detected, the handler MUST perform **listwise deletion** (drop rows with NaN authenticity_score), log the count of dropped rows, and report the final sample size. **Note**: This task aligns with FR-007 and Edge Cases; it MUST NOT trigger a pipeline HALT.
@@ -70,9 +70,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `src/extraction/pronoun_extractor.py` using `nltk` (POS tagging) to calculate `first_person_count`. **Specifics**: Use NLTK POS tags 'PRP' (personal pronoun) and 'PRP$' (possessive pronoun). Count occurrences of: I, me, my, mine, we, us, our, ours. **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data. <!-- FAILED: unspecified -->
-- [ ] T010 [P] [US1] Implement `src/extraction/hedge_extractor.py` using `NLTK` and the predefined 15-word hedge lexicon to calculate `hedge_count` and `hedge_ratio`. **Specifics**: The lexicon is: ["maybe", "perhaps", "possibly", "probably", "likely", "unlikely", "seem", "seems", "appear", "appears", "believe", "think", "guess", "suppose", "assume"]. **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate count data.
-- [ ] T011 [P] [US1] Implement `src/extraction/sentiment_analyzer.py` using `vaderSentiment` (v3.3.2) to calculate `sentiment_score` (composite score -1.0 to 1.0). **Input**: `data/raw/conversations.jsonl`. **Output**: Intermediate score data.
+- [ ] T009 [P] [US1] Implement `src/extraction/pronoun_extractor.py` using `nltk` (POS tagging) to calculate `first_person_count`. **Specifics**: Use NLTK POS tags 'PRP' (personal pronoun) and 'PRP$' (possessive pronoun). **Ambiguity Handling**: In multi-turn dialogues where speaker ID is unavailable, count ALL occurrences of first-person pronouns regardless of speaker role. **Deliverable**: The final report MUST explicitly state this limitation and treat the metric as 'Bot+User First-Person Presence' rather than strictly 'Bot Speaker Authenticity'. **Input**: `data/raw/conversations.jsonl` (from T001f). **Output**: Intermediate count data. **Note**: The extraction must be exhaustive for all pronouns matching the POS tags, not limited to a hardcoded subset.
+- [ ] T010 [P] [US1] Implement `src/extraction/hedge_extractor.py` using `NLTK` and the predefined 15-word hedge lexicon to calculate `hedge_count` and `hedge_ratio`. **Specifics**: The lexicon is: ["maybe", "perhaps", "possibly", "probably", "likely", "unlikely", "seem", "seems", "appear", "appears", "believe", "think", "guess", "suppose", "assume"]. **Input**: `data/raw/conversations.jsonl` (from T001f). **Output**: Intermediate count data.
+- [ ] T011 [P] [US1] Implement `src/extraction/sentiment_analyzer.py` using `vaderSentiment` (version 3.x) to calculate `sentiment_score` (composite score representing a normalized sentiment polarity). **Input**: `data/raw/conversations.jsonl` (from T001f). **Output**: Intermediate score data.
 - [ ] T012 [US1] Implement `src/main.py` (extraction mode). **Deliverable**: Add `--mode extraction` CLI argument, orchestrate T009-T011, handle edge cases (T007), and output `data/processed/features.csv` with columns `conversation_id`, `first_person_count`, `hedge_count`, `hedge_ratio`, `sentiment_score`. **Explicit Requirement**: The final CSV MUST include the `hedge_ratio` column as mandated by FR-008. **Dependency Note**: This task must wait for the completion of T005 (io.py implementation) and T009-T011 (modules). It does NOT depend on T001c (ratings) as extraction only requires raw text.
 - [ ] T014 [US1] Write unit tests in `tests/unit/test_extraction.py` verifying metric calculations against manual spot-checks (US-1 Acceptance 1-3).
 
@@ -93,7 +93,7 @@
 - [ ] T019 [US2] Write unit tests in `tests/unit/test_correlation.py` verifying p-values and effect sizes against known synthetic datasets.
 - [ ] T020 [US2] Write integration test in `tests/integration/test_correlation_pipeline.py` ensuring the "association only" disclaimer is present in all outputs (FR-004).
 - [X] T020a [US2] [Removed] **Note**: Task T020a ("Noise Measurement") was removed as it is not authorized by spec.md.
-- [X] T020b [US2] [Removed] **Note**: Task T020b ("Dual-Outcome Correlation") was removed as it contradicts spec.md FR-001/FR-003.
+- [X] T020b [US2] [Removed] **Note**: Task T020b ("Dual-Self") was removed as it contradicts spec.md FR-001/FR-003.
 
 ---
 
@@ -110,10 +110,10 @@
 - [ ] T023 [US3] Generate diagnostic plots (residuals, VIF bar chart) for the regression model. **Note**: This task is for diagnostic plots (residuals/VIF) only, not the feature importance bar chart required by FR-005.
 - [ ] T024 [US3] Write unit tests in `tests/unit/test_regression.py` verifying VIF calculation, exclusion logic, and adjusted R² logic.
 - [ ] T025 [US3] Write integration test in `tests/integration/test_regression_pipeline.py` ensuring model constraints (VIF < 5, p < 0.05) are met.
-- [ ] T026 [US3] Implement `src/analysis/sensitivity.py` to perform the **leave-one-out sensitivity analysis** (SC-003). **Logic**: Iterate through the 15-word hedge lexicon; for each iteration, remove one word, re-run the regression model (T021), and record the change in Adjusted R² and the significance (p < 0.05) of the remaining hedge count. **Deliverable**: Output `data/results/sensitivity_analysis.csv` and a `data/results/sensitivity_stability_report.md` summarizing the robustness of the findings. **Intermediate**: Save intermediate results to `data/results/sensitivity_iteration_*.csv` for each iteration.
+- [ ] T026 [US3] Implement `src/analysis/sensitivity.py` to perform the **leave-one-out sensitivity analysis** (SC-003). **Logic**: Iterate through the 15-word hedge lexicon; for each iteration, remove one word, re-run the regression model (T021), and record the change in Adjusted R² and the significance (p < 0.05) of the remaining hedge count. **Versioning Discipline**: **After EACH iteration**, run `src/checksum.py` to update `state.yaml` with the intermediate result hash. **Append** the iteration hash to `state.yaml` under `sensitivity_sweep` to preserve history. Do not overwrite the main artifact hash until the sweep completes. **Deliverable**: Output `data/results/sensitivity_analysis.csv` and a `data/results/sensitivity_stability_report.md` summarizing the robustness of the findings. **Intermediate**: Save intermediate results to `data/results/sensitivity_iteration_*.csv` for each iteration.
 - [X] T027 [Removed] **Note**: Task T027 (replacing 'authenticity' with 'trust') was removed as it contradicts spec.md FR-001.
-- [X] T028 [US3] [Removed] **Note**: Task T028 ("Dual-Outcome Regression") was removed as it contradicts spec.md FR-001/FR-003.
-- [X] T028b [US3] [Removed] **Note**: Task T028b ("Dual-Outcome Regression") was removed as it contradicts spec.md FR-001/FR-003.
+- [X] T028 [US3] [Removed] **Note**: Task T028 ("Dual-Self") was removed as it contradicts spec.md FR-001/FR-003.
+- [X] T028b [US3] [Removed] **Note**: Task T028b ("Dual-Self") was removed as it contradicts spec.md FR-001/FR-003.
 
 ---
 
@@ -136,7 +136,7 @@
 
 - [ ] T029 [P] Documentation updates in `docs/` (including operational definitions). **Note**: T028 previously covered report generation; that responsibility is now in T034.
 - [ ] T030 Code cleanup and refactoring to ensure modularity
-- [ ] T031 [P] Run full pipeline validation on a sample of conversations (as per SC-005) to verify runtime constraint. **Deliverable**: Record execution time in `data/derived/performance_metrics.json`.
+- [ ] T031 [P] Run full pipeline validation on a sample of conversations (as per SC-005) to verify runtime constraint. **Deliverable**: Record execution time in `data/derived/performance_metrics.json`. **Input**: `data/raw/conversations.jsonl` (from T001f).
 - [ ] T032 [P] Final verification that all outputs include the mandatory disclaimer: "These results indicate association, not causation." (FR-004)
 - [X] T033 [Removed] **Note**: Task T032 (Noise Report) was removed as it is not required by spec.md.
 
@@ -149,7 +149,7 @@
 - **Phase -2 (Power Analysis)**: No dependencies - can start immediately. **MUST complete before Phase 0.**
 - **Phase 0 (Data Acquisition)**: Depends on Phase -2. **MUST complete before Phase 1.**
 - **Phase -1 (Setup)**: No dependencies - can start immediately.
-- **Phase 1 (Foundational)**: Depends on Setup (Phase -1) AND Phase 0 completion (requires `data/processed/gold_standard_50.csv`). BLOCKS all user stories.
+- **Phase 1 (Foundational)**: Depends on Setup (Phase -1) AND Phase 0 completion (requires `data/processed/gold_standard_50.csv`, `data/processed/gold_standard_hedges.csv`). BLOCKS all user stories.
 - **User Stories (Phase 2-4)**: All depend on Foundational phase completion.
  - **Phase 2 (US1)**: Must complete before Phase 3 and 4 (data generation).
  - **Phase 3 (US2)**: Depends on Phase 2 (features) and Phase 0 (ratings).
@@ -173,6 +173,8 @@
 - T009, T010, T011 (Extraction modules) can run in parallel.
 - T015, T016 (Correlation logic) can run in parallel with T021 (Regression logic) if data is available, provided T021 includes VIF/non-linearity checks.
 - T001a, T001b (Data acquisition) can run in parallel with Phase -1 (Setup).
+- **New**: T001f (Dataset Acquisition) can run in parallel with T001b (Protocol) and T002 (Tool).
+- **New**: T001f and T001g can run in parallel with T001c/T001e if the annotation protocol is not triggered (i.e., if data already has authenticity_score).
 
 ---
 
@@ -180,9 +182,9 @@
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase -2: Power Analysis.
+1. Complete Phase -2: Power Analysis (T000a, T000, T000b).
 2. Complete Phase -1: Setup.
-3. Complete Phase 0: Data Acquisition (secure ratings, validate lexicon).
+3. Complete Phase 0: Data Acquisition (T001a, T001b, T002, T001f, T001g, T001c, T001e, T001d).
 4. Complete Phase 1: Foundational (loaders).
 5. Complete Phase 2: User Story 1 (Extraction).
 6. **STOP and VALIDATE**: Test extraction on dummy data (T014).
@@ -218,11 +220,9 @@ With multiple developers:
 - **Critical Constraint**: No statistical analysis (US2/US3) proceeds without verified human authenticity ratings (FR-009) and passed lexicon validation (FR-010). If `ratings.csv` is missing or lexicon validation fails, the pipeline must halt gracefully.
 - **Data Integrity**: All tasks must use real data from verified sources (HuggingFace) or explicitly defined annotation protocols. No synthetic/fake data generation for input.
 - **Verification**: Verify tests fail before implementing. Commit after each task or logical group.
-- **Review Resolution**: Tasks have been updated to strictly align with spec.md FR-001, FR-003, FR-009, FR-010, FR-011, and SC-003. Scope creep (Dual-Self, Noise Measurement, Trust Metrics) has been removed.
+- **Review Resolution**: Tasks have been updated to strictly align with spec.md FR-001, FR-003, FR-009, FR-010, FR-011, and SC-003. Scope creep (Dual-Self, Noise Measurement, Trust Metrics) has been removed from the core spec.
 - **Spec Alignment**: All tasks now strictly use 'authenticity_score' as the outcome variable.
-- **New Reviewer Concerns Addressed**:
- - **Circular Dependency**: Resolved by splitting T001c (Gold Set) and T001d (Validation).
- - **Scope Creep**: Removed all 'Experiencing/Remembering' and 'Noise' tasks.
- - **Edge Cases**: Updated T007 to implement listwise deletion.
- - **Executability**: Added specific lexicon, POS tags, and schema paths to tasks.
- - **Stability Report**: Added to T026 to satisfy SC-003.
+- **Ambiguity Resolution**: T009 explicitly handles multi-turn dialogue ambiguity by counting all occurrences and mandating a limitation report.
+- **Versioning Discipline**: T026 explicitly mandates per-iteration `state.yaml` updates for the sensitivity sweep.
+- **Fallback Logic**: T001g explicitly triggers the annotation protocol if `authenticity_score` is missing.
+- **Lexicon Validation**: T001d and T001e now correctly use human hedge flags, not authenticity scores, for validation.

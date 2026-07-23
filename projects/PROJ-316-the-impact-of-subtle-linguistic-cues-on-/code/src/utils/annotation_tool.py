@@ -1,291 +1,281 @@
 """
-Annotation tool for generating a Gold Standard subset of annotated turns.
+Annotation Tool CLI for Perceived Authenticity and Hedge Identification.
 
-This module implements T001c: Generate a "Gold Standard" subset of 50 annotated turns.
-It loads raw conversations, samples 50 turns, and assigns authenticity scores
-based on a deterministic but realistic simulation of human rating behavior.
+This tool reads raw conversation data and annotation instructions,
+presents turns to a rater, and saves the results to a log file.
 """
+
+import argparse
 import csv
 import json
-import random
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import pandas as pd
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-# Hedge lexicon for scoring simulation (matches T010)
-HEDGE_LEXICON = [
-    "maybe", "perhaps", "possibly", "probably", "likely", "unlikely", 
-    "seem", "seems", "appear", "appears", "believe", "think", 
-    "guess", "suppose", "assume"
-]
+from src.config import get_seed, set_seed
 
-def load_raw_conversations(input_path: Path) -> List[Dict[str, Any]]:
+def load_raw_conversations(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load raw conversations from a JSONL file.
-    
+    Loads conversation turns from a JSONL file.
+
     Args:
-        input_path: Path to the JSONL file containing conversations.
-        
+        input_path: Path to the JSONL file containing raw conversations.
+
     Returns:
-        List of conversation dictionaries.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or malformed.
+        List of dictionaries, each representing a conversation turn.
     """
-    if not input_path.exists():
+    turns = []
+    path = Path(input_path)
+    if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    conversations = []
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
+
+    with open(path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+                # Ensure required fields exist
+                if 'text' not in data and 'text_content' not in data:
+                    print(f"Warning: Skipping line {line_num} missing 'text' or 'text_content'.")
                     continue
-                try:
-                    data = json.loads(line)
-                    # Ensure required fields exist
-                    if 'conversation_id' not in data or 'text_content' not in data:
-                        logger.warning(f"Skipping line {line_num}: missing required fields")
-                        continue
-                    conversations.append(data)
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping malformed JSON on line {line_num}: {e}")
-                    
-        if not conversations:
-            raise ValueError("No valid conversations found in input file")
-            
-        logger.info(f"Loaded {len(conversations)} conversations from {input_path}")
-        return conversations
-        
-    except Exception as e:
-        logger.error(f"Error reading file {input_path}: {e}")
-        raise
+                turns.append(data)
+            except json.JSONDecodeError as e:
+                print(f"Error parsing JSON on line {line_num}: {e}")
+                continue
 
-def calculate_mock_authenticity(text: str, seed: Optional[int] = None) -> float:
-    """
-    Simulate a human authenticity rating based on text content.
-    
-    This function implements a deterministic but realistic simulation of
-    human rating behavior for the purpose of generating the Gold Standard.
-    In a real implementation, this would be replaced by actual human ratings.
-    
-    The simulation uses the presence of hedging language as a proxy for
-    perceived authenticity, based on the hypothesis that moderate hedging
-    increases perceived authenticity.
-    
-    Args:
-        text: The conversation text to rate.
-        seed: Optional random seed for reproducibility.
-        
-    Returns:
-        A float between 1.0 and 5.0 representing the authenticity score.
-    """
-    if seed is not None:
-        random.seed(seed)
-        
-    if not text or not isinstance(text, str):
-        return 3.0  # Default neutral score for empty/invalid text
-        
-    text_lower = text.lower()
-    words = text_lower.split()
-    
-    # Count hedges
-    hedge_count = sum(1 for word in words if word.strip('.,!?;:"\'()[]') in HEDGE_LEXICON)
-    
-    # Calculate hedge ratio
-    total_words = len(words)
-    hedge_ratio = hedge_count / total_words if total_words > 0 else 0.0
-    
-    # Base score: moderate hedging increases authenticity
-    # Peak authenticity around 5-10% hedge ratio
-    if hedge_ratio < 0.02:
-        base_score = 2.5 + (hedge_ratio * 50)  # Increasing from 2.5 to 3.5
-    elif hedge_ratio <= 0.10:
-        base_score = 3.5 + (hedge_ratio * 10)  # Peak around 4.5
-    else:
-        base_score = 4.5 - ((hedge_ratio - 0.10) * 10)  # Decreasing after peak
-        
-    # Add noise to simulate human variability
-    noise = random.gauss(0, 0.3)
-    score = base_score + noise
-    
-    # Clamp to 1-5 range
-    score = max(1.0, min(5.0, score))
-    
-    # Round to 1 decimal place (typical for Likert scales)
-    return round(score, 1)
+    if not turns:
+        raise ValueError("No valid conversation turns found in the input file.")
 
-def generate_gold_standard(
-    conversations: List[Dict[str, Any]],
-    output_path: Path,
-    metadata_path: Path,
-    n_samples: int = 50,
-    seed: int = 42
-) -> pd.DataFrame:
+    return turns
+
+def parse_instructions(instructions_path: str) -> str:
     """
-    Generate a Gold Standard dataset of annotated turns.
-    
-    This function samples N turns from the input conversations, assigns
-    authenticity scores, and writes the results to a CSV file. It also
-    generates a metadata file documenting the rater information.
-    
+    Reads and returns the content of the annotation instructions file.
+
     Args:
-        conversations: List of conversation dictionaries.
-        output_path: Path for the output CSV file.
-        metadata_path: Path for the rater metadata JSON file.
-        n_samples: Number of samples to generate (default 50).
-        seed: Random seed for reproducibility.
-        
+        instructions_path: Path to the markdown instructions file.
+
     Returns:
-        DataFrame containing the gold standard data.
-        
-    Raises:
-        ValueError: If n_samples > number of available conversations.
+        The full text of the instructions.
     """
-    random.seed(seed)
-    
-    if n_samples > len(conversations):
-        raise ValueError(
-            f"Cannot sample {n_samples} turns from {len(conversations)} available conversations"
-        )
-    
-    # Sample turns
-    sampled = random.sample(conversations, n_samples)
-    
-    # Generate ratings
-    gold_data = []
-    for i, conv in enumerate(sampled):
-        text = conv.get('text_content', '')
-        conv_id = conv.get('conversation_id', f'conv_{i}')
-        
-        # Calculate authenticity score
-        authenticity_score = calculate_mock_authenticity(text, seed=seed + i)
-        
-        # Create record
-        record = {
-            'conversation_id': conv_id,
-            'text_content': text,
-            'authenticity_score': authenticity_score,
-            'rater_id': 'rater_gold_001',
-            'timestamp': datetime.now().isoformat()
-        }
-        gold_data.append(record)
-    
-    # Create DataFrame
-    df = pd.DataFrame(gold_data)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Written gold standard to {output_path}")
-    
-    # Generate metadata
-    metadata = {
-        'rater_id': 'rater_gold_001',
-        'rater_type': 'simulated_human',
-        'scale': {
-            'type': 'Likert',
-            'min': 1,
-            'max': 5,
-            'labels': {
-                '1': 'Very Inauthentic',
-                '2': 'Somewhat Inauthentic',
-                '3': 'Neutral',
-                '4': 'Somewhat Authentic',
-                '5': 'Very Authentic'
+    path = Path(instructions_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Instructions file not found: {instructions_path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+def get_rater_input_authenticity(turn_index: int, total: int) -> int:
+    """
+    Prompts the user for an authenticity rating (1-5).
+
+    Args:
+        turn_index: Current turn number (0-based).
+        total: Total number of turns.
+
+    Returns:
+        Integer rating from 1 to 5.
+    """
+    while True:
+        try:
+            user_input = input(
+                f"Turn {turn_index + 1}/{total}\n"
+                f"Rate Authenticity (1-5): "
+            ).strip()
+            rating = int(user_input)
+            if 1 <= rating <= 5:
+                return rating
+            else:
+                print("Error: Please enter a number between 1 and 5.")
+        except ValueError:
+            print("Error: Invalid input. Please enter an integer.")
+
+def get_rater_input_hedges(turn_index: int, text: str) -> List[int]:
+    """
+    Prompts the user for hedge indices.
+
+    Args:
+        turn_index: Current turn number.
+        text: The text of the turn (for reference).
+
+    Returns:
+        List of integer indices representing hedge positions.
+    """
+    # Display text for reference
+    print(f"\nText: {text}\n")
+    print("Enter hedge word indices (0-based, comma-separated).")
+    print("Example: 'I think it is' -> 'think' is index 1. Enter: 1")
+    print("If no hedges, enter 0 or leave blank.\n")
+
+    while True:
+        try:
+            user_input = input("Hedge indices: ").strip()
+            if not user_input or user_input == '0':
+                return []
+
+            indices = [int(x.strip()) for x in user_input.split(',')]
+            # Basic validation: indices should be non-negative
+            if any(i < 0 for i in indices):
+                print("Error: Indices must be non-negative.")
+                continue
+
+            # Optional: check against text length?
+            # We trust the rater's count for now, but we could warn if out of bounds.
+            words = text.split()
+            max_idx = len(words) - 1
+            invalid = [i for i in indices if i > max_idx]
+            if invalid:
+                print(f"Warning: Indices {invalid} exceed text length ({len(words)} words). Proceeding anyway.")
+
+            return indices
+        except ValueError:
+            print("Error: Invalid input. Please enter comma-separated integers.")
+
+def save_rater_log(log_path: str, rater_id: str, results: List[Dict[str, Any]]) -> None:
+    """
+    Saves the annotation results to a CSV log file.
+
+    Args:
+        log_path: Path to the output CSV file.
+        rater_id: Unique identifier for the rater.
+        results: List of dictionaries containing turn data and ratings.
+    """
+    path = Path(log_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = [
+        'timestamp', 'rater_id', 'conversation_id', 'text_content',
+        'authenticity_score', 'hedge_indices'
+    ]
+
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            row = {
+                'timestamp': result['timestamp'],
+                'rater_id': rater_id,
+                'conversation_id': result['conversation_id'],
+                'text_content': result['text_content'],
+                'authenticity_score': result['authenticity_score'],
+                'hedge_indices': json.dumps(result['hedge_indices'])
             }
-        },
-        'instructions': 'Rate the perceived authenticity of the AI response on a 1-5 scale.',
-        'sample_size': n_samples,
-        'seed': seed,
-        'generation_method': 'deterministic_simulation',
-        'timestamp': datetime.now().isoformat(),
-        'inter_rater_reliability': {
-            'note': 'Single rater; inter-rater reliability will be calculated when multiple raters are added.',
-            'status': 'pending'
-        }
-    }
-    
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metadata_path, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2)
-    logger.info(f"Written metadata to {metadata_path}")
-    
-    return df
+            writer.writerow(row)
+
+    print(f"\nAnnotation session complete. Saved {len(results)} entries to {log_path}")
+
+def generate_gold_standard(input_path: str, output_path: str, sample_size: int = 50) -> List[Dict[str, Any]]:
+    """
+    (Placeholder logic for T001c integration)
+    Selects a random sample of turns from the input file for annotation.
+    In a real workflow, this would be driven by the task scheduler.
+    """
+    turns = load_raw_conversations(input_path)
+    # Simple random sample without replacement
+    import random
+    if len(turns) < sample_size:
+        sample = turns
+    else:
+        sample = random.sample(turns, sample_size)
+    return sample
 
 def main():
-    """Main entry point for the annotation tool."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Generate Gold Standard annotations')
-    parser.add_argument(
-        '--input', 
-        type=str, 
-        default='data/raw/conversations.jsonl',
-        help='Path to input JSONL file'
+    parser = argparse.ArgumentParser(
+        description="CLI tool for annotating conversation turns for authenticity and hedges."
     )
     parser.add_argument(
-        '--output', 
-        type=str, 
-        default='data/processed/gold_standard_50.csv',
-        help='Path for output CSV file'
+        "--input", "-i",
+        type=str,
+        required=True,
+        help="Path to the input JSONL file (raw conversations)."
     )
     parser.add_argument(
-        '--metadata', 
-        type=str, 
-        default='data/raw/rater_metadata.json',
-        help='Path for metadata JSON file'
+        "--instructions", "-ins",
+        type=str,
+        required=True,
+        help="Path to the annotation instructions markdown file."
     )
     parser.add_argument(
-        '--n-samples', 
-        type=int, 
-        default=50,
-        help='Number of samples to generate'
+        "--output", "-o",
+        type=str,
+        required=True,
+        help="Path to the output CSV log file."
     )
     parser.add_argument(
-        '--seed', 
-        type=int, 
-        default=42,
-        help='Random seed for reproducibility'
+        "--rater-id",
+        type=str,
+        default="rater_001",
+        help="Unique identifier for the current rater."
     )
-    
-    args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    metadata_path = Path(args.metadata)
-    
-    try:
-        # Load conversations
-        conversations = load_raw_conversations(input_path)
-        
-        # Generate gold standard
-        df = generate_gold_standard(
-            conversations,
-            output_path,
-            metadata_path,
-            n_samples=args.n_samples,
-            seed=args.seed
-        )
-        
-        print(f"Successfully generated {len(df)} annotated turns")
-        print(f"Output: {output_path}")
-        print(f"Metadata: {metadata_path}")
-        
-    except Exception as e:
-        logger.error(f"Failed to generate gold standard: {e}")
-        raise
+    parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=None,
+        help="If provided, only annotate this many randomly sampled turns."
+    )
 
-if __name__ == '__main__':
+    args = parser.parse_args()
+
+    # 1. Load Instructions
+    try:
+        instructions = parse_instructions(args.instructions)
+        print("--- Annotation Instructions ---")
+        print(instructions)
+        print("\n--- Press Enter to begin ---")
+        input()
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    # 2. Load Data
+    try:
+        all_turns = load_raw_conversations(args.input)
+    except (FileNotFoundError, ValueError) as e:
+        print(f"Error loading data: {e}")
+        sys.exit(1)
+
+    # 3. Determine turns to annotate
+    if args.sample_size:
+        print(f"Sampling {args.sample_size} turns from {len(all_turns)} total.")
+        import random
+        random.seed(get_seed())
+        turns_to_annotate = random.sample(all_turns, min(args.sample_size, len(all_turns)))
+    else:
+        turns_to_annotate = all_turns
+
+    print(f"Starting annotation for {len(turns_to_annotate)} turns.")
+
+    # 4. Interactive Loop
+    results = []
+    for idx, turn in enumerate(turns_to_annotate):
+        # Extract text
+        text = turn.get('text', turn.get('text_content', ''))
+        conv_id = turn.get('conversation_id', f"turn_{idx}")
+
+        # Get Ratings
+        auth_score = get_rater_input_authenticity(idx, len(turns_to_annotate))
+        hedge_indices = get_rater_input_hedges(idx, text)
+
+        # Record
+        results.append({
+            'timestamp': datetime.now().isoformat(),
+            'conversation_id': conv_id,
+            'text_content': text,
+            'authenticity_score': auth_score,
+            'hedge_indices': hedge_indices
+        })
+
+        print("-" * 20)
+
+    # 5. Save Results
+    save_rater_log(args.output, args.rater_id, results)
+
+if __name__ == "__main__":
     main()

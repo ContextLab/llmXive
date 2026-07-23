@@ -17,7 +17,7 @@ The implementation is strictly constrained to CPU-only execution on standard CI 
 **Primary Dependencies**: `nltk` (VADER, tokenization), `pandas`, `numpy`, `scikit-learn` (regression, VIF, power analysis), `statsmodels` (detailed regression stats), `matplotlib`/`seaborn` (visualization), `pyyaml`, `pytest`.  
 **Storage**: Local CSV/Parquet files in `data/` (raw, extracted features, results).  
 **Testing**: `pytest` (unit tests for extraction logic, integration tests for pipeline, contract tests for schemas).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM).  
 **Project Type**: Research/Analysis Pipeline (CLI scripts).  
 **Performance Goals**: Full pipeline (extraction + analysis + viz) on ~500k tokens within 6 hours; memory usage < 7 GB.  
 **Constraints**: No GPU; no deep learning models for feature extraction (lexicon-based only); strict adherence to Benjamini-Hochberg correction (FR-004) and VIF checks (FR-003).  
