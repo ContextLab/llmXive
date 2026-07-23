@@ -1,119 +1,90 @@
 """
-utils/checksum.py
-
-Generates SHA-256 checksums for all files in the `data/processed/` directory.
-Implements Constitution Principle III: Data Integrity via Cryptographic Hashing.
-
-This script must be run to generate `results/checksums.json` which serves as
-the manifest for data verification.
+Utility to generate SHA-256 checksums for data artifacts.
+Implements Constitution Principle III.
 """
 import os
 import sys
 import hashlib
-import json
+import yaml
 import argparse
+import logging
 from pathlib import Path
 from typing import Dict, List, Any
 
-# Project root resolution (assumed to be run from project root or via python -m)
-# We look for 'data/processed' relative to the current working directory
-DEFAULT_INPUT_DIR = "data/processed"
-DEFAULT_OUTPUT_FILE = "results/checksums.json"
+from logger import setup_logger, configure_global_logging, get_logger
 
-def calculate_sha256(file_path: Path) -> str:
-    """
-    Calculates the SHA-256 hash of a file.
-    Reads in chunks to handle large files efficiently.
-    """
+def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha256_hash.update(chunk)
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except IOError as e:
-        raise RuntimeError(f"Failed to read file {file_path}: {e}")
+    except Exception as e:
+        raise IOError(f"Failed to read file {file_path}: {e}")
 
-def generate_checksums(input_dir: str, output_file: str) -> Dict[str, Any]:
+def generate_checksums(directory: str, recursive: bool = True) -> Dict[str, str]:
     """
-    Walks the input directory, calculates SHA-256 for every file,
-    and writes the manifest to the output file.
+    Generate SHA-256 checksums for all files in a directory.
+    Returns a dictionary mapping relative paths to hashes.
     """
-    input_path = Path(input_dir)
-    output_path = Path(output_file)
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+    checksums = {}
+    base_path = Path(directory)
     
-    if not input_path.is_dir():
-        raise NotADirectoryError(f"Input path is not a directory: {input_dir}")
+    if not base_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if recursive:
+        files = list(base_path.rglob("*"))
+    else:
+        files = list(base_path.glob("*"))
 
-    checksums: Dict[str, str] = {}
-    processed_count = 0
-
-    # Walk recursively to catch all files
-    for root, _, files in os.walk(input_path):
-        for filename in files:
-            # Skip hidden files or temp files if necessary, but generally hash everything
-            file_path = Path(root) / filename
-            
-            # Calculate relative path from the input directory for the manifest
-            relative_path = file_path.relative_to(input_path)
-            
+    for file_path in files:
+        if file_path.is_file():
             try:
-                file_hash = calculate_sha256(file_path)
-                checksums[str(relative_path)] = file_hash
-                processed_count += 1
-                print(f"  Hashed: {relative_path}")
-            except RuntimeError as e:
-                print(f"  Warning: Skipping {relative_path} due to error: {e}", file=sys.stderr)
+                rel_path = str(file_path.relative_to(base_path))
+                checksum = calculate_sha256(str(file_path))
+                checksums[rel_path] = checksum
+            except Exception as e:
+                logging.getLogger("checksum").warning(f"Skipping {file_path}: {e}")
 
-    manifest = {
-        "algorithm": "SHA-256",
-        "base_directory": str(input_path.absolute()),
-        "file_count": processed_count,
-        "checksums": checksums
-    }
+    return checksums
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
+def save_checksums(checksums: Dict[str, str], output_path: str):
+    """Save checksums to a YAML file."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-    print(f"\nChecksum generation complete.")
-    print(f"Processed {processed_count} files.")
-    print(f"Manifest written to: {output_path}")
-
-    return manifest
+    with open(output_path, 'w', encoding='utf-8') as f:
+        yaml.dump(checksums, f, default_flow_style=False, sort_keys=False)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate SHA-256 checksums for data/processed/ directory."
-    )
-    parser.add_argument(
-        "--input-dir",
-        type=str,
-        default=DEFAULT_INPUT_DIR,
-        help=f"Directory to scan for files (default: {DEFAULT_INPUT_DIR})"
-    )
-    parser.add_argument(
-        "--output-file",
-        type=str,
-        default=DEFAULT_OUTPUT_FILE,
-        help=f"Output JSON manifest file (default: {DEFAULT_OUTPUT_FILE})"
-    )
+    parser = argparse.ArgumentParser(description="Generate SHA-256 checksums for data artifacts.")
+    parser.add_argument("--input", type=str, required=True, help="Input directory to scan.")
+    parser.add_argument("--output", type=str, required=True, help="Output YAML file path.")
+    parser.add_argument("--recursive", action="store_true", default=True, help="Scan recursively (default: True).")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level.")
 
     args = parser.parse_args()
 
+    configure_global_logging(level=args.log_level)
+    logger = get_logger("checksum")
+
     try:
-        generate_checksums(args.input_dir, args.output_file)
-        sys.exit(0)
-    except (FileNotFoundError, NotADirectoryError) as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.info(f"Generating checksums for directory: {args.input}")
+        checksums = generate_checksums(args.input, recursive=args.recursive)
+        
+        if not checksums:
+            logger.warning("No files found to checksum.")
+        else:
+            logger.info(f"Generated {len(checksums)} checksums.")
+            save_checksums(checksums, args.output)
+            logger.info(f"Checksums saved to {args.output}")
+
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        logger.error(f"Failed to generate checksums: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -3,91 +3,28 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
+# Environment variables
 .env
-.venv
-env/
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Logs
-*.log
-logs/
-
-# Data (raw and processed, unless explicitly tracked)
-data/raw/
-data/processed/
-data/external/
-data/intros/
-
-# Results and reports
-results/
-docs/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# mypy
-.mypy_cache/
-
-# ruff
-.ruff_cache/
+# Project specific
+results/*.log
+results/*.csv
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+state/
+docs/build/

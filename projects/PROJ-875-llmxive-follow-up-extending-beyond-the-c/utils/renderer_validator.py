@@ -1,41 +1,72 @@
 """
-Validator for ASCII vs Visual ground truth consistency (SC-005).
-
-This module verifies that the rendered ASCII grid matches the expected visual
-ground truth by calculating the Levenshtein distance. A distance of 0 indicates
-perfect consistency.
-
-Usage:
-    python utils/renderer_validator.py --ascii-path <path> --visual-path <path> --output <report_path>
+Utility to verify ASCII vs Visual ground truth consistency.
+Implements SC-005 (Constitution Principle).
 """
-
-import argparse
-import json
 import os
 import sys
-from typing import Dict, Any, List, Tuple, Optional
+import json
+import argparse
+import logging
+import difflib
+from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
 
-# Local imports from project structure
-# Note: We assume this script is run from the project root or the path is adjusted
-try:
-    from code.renderer import validate_ascii_grid, render_visual_to_ascii
-except ImportError:
-    # Fallback for direct execution if path not set
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from code.renderer import validate_ascii_grid, render_visual_to_ascii
+from logger import setup_logger, configure_global_logging, get_logger
 
+# Placeholder for image processing if needed, but SC-005 focuses on text consistency
+# If visual frames are images, we assume a pre-processing step converts them to ASCII
+# or we compare the generated ASCII against the expected ASCII from the visual source.
+# For this implementation, we assume the visual input is also represented as ASCII 
+# or we have a mapping function. Since the task mentions "ASCII vs Visual", 
+# we will assume the visual frames are converted to ASCII by the renderer itself 
+# or we are comparing the generated ASCII against a reference ASCII derived from visual.
+
+# However, the task T022 says: "Execute utils/renderer_validator.py on generated 
+# data/processed/seeds_*.ascii and data/processed/seeds_*.png files".
+# This implies we need to compare the .ascii file against the .png file.
+# To do this, we need a way to convert .png to ASCII or compare them structurally.
+# Since the renderer generates ASCII from a state, and the visual is a rendering of that state,
+# the validator should check if the ASCII representation matches the visual representation.
+# Without an image-to-ASCII library dependency in requirements, we will assume a simple 
+# structural check or that the visual input is also available as ASCII for comparison.
+
+# Given the constraints, we will implement a check that assumes the visual frames 
+# have been converted to ASCII (perhaps by the renderer in a different mode) 
+# or we compare the generated ASCII against a known good reference if available.
+# For the purpose of this task, we will simulate the comparison by checking 
+# if the ASCII file exists and is non-empty, and if the visual file exists.
+# A real implementation would use PIL/Pillow to render the image to ASCII and compare.
+
+# Let's assume we have a helper to convert image to ASCII for comparison.
+# We will add a basic implementation using PIL if available, otherwise skip.
+
+def convert_image_to_ascii(image_path: str, width: int = 80) -> str:
+    """Convert an image to ASCII string."""
+    try:
+        from PIL import Image
+        img = Image.open(image_path)
+        img = img.convert('L') # Grayscale
+        img = img.resize((width, int(img.height * width / img.width)))
+        
+        ascii_str = ""
+        for y in range(img.height):
+            for x in range(img.width):
+                pixel = img.getpixel((x, y))
+                # Map 0-255 to characters
+                chars = "@%#*+=-:. "
+                idx = int(pixel / 255 * (len(chars) - 1))
+                ascii_str += chars[idx]
+            ascii_str += "\n"
+        return ascii_str
+    except ImportError:
+        logging.getLogger("renderer_validator").warning("PIL not available, skipping image conversion.")
+        return ""
+    except Exception as e:
+        logging.getLogger("renderer_validator").error(f"Failed to convert image {image_path}: {e}")
+        return ""
 
 def levenshtein_distance(s1: str, s2: str) -> int:
-    """
-    Calculate the Levenshtein distance between two strings.
-    
-    Args:
-        s1: First string
-        s2: Second string
-        
-    Returns:
-        Integer distance representing the minimum number of single-character edits
-    """
+    """Calculate Levenshtein distance between two strings."""
     if len(s1) < len(s2):
         return levenshtein_distance(s2, s1)
 
@@ -46,7 +77,6 @@ def levenshtein_distance(s1: str, s2: str) -> int:
     for i, c1 in enumerate(s1):
         current_row = [i + 1]
         for j, c2 in enumerate(s2):
-            # j+1 instead of j since previous_row and current_row are one character longer
             insertions = previous_row[j + 1] + 1
             deletions = current_row[j] + 1
             substitutions = previous_row[j] + (c1 != c2)
@@ -55,333 +85,128 @@ def levenshtein_distance(s1: str, s2: str) -> int:
 
     return previous_row[-1]
 
-
-def load_file_content(path: str) -> str:
-    """
-    Load the content of a file, stripping trailing newlines for comparison.
-    
-    Args:
-        path: Path to the file
-        
-    Returns:
-        String content
-        
-    Raises:
-        FileNotFoundError: If the file does not exist
-        ValueError: If the file is empty
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    if not content.strip():
-        raise ValueError(f"File is empty: {path}")
-        
-    return content.strip()
-
-
-def validate_consistency(
-    ascii_path: str, 
-    visual_path: str, 
-    allow_render: bool = True
-) -> Tuple[bool, Dict[str, Any]]:
-    """
-    Verify ASCII vs Visual ground truth consistency.
-    
-    This function compares an existing ASCII file against a visual ground truth.
-    If the visual file is an image or raw visual data, it attempts to render it
-    to ASCII for comparison. If it is already text-based ground truth, it compares
-    directly.
-    
-    Args:
-        ascii_path: Path to the generated ASCII grid file
-        visual_path: Path to the visual ground truth (or reference ASCII)
-        allow_render: If True, attempt to render visual_path if it's not plain text
-        
-    Returns:
-        Tuple of (is_valid, details_dict)
-        is_valid: True if Levenshtein distance is 0
-        details_dict: Contains metrics and status
-    """
+def validate_pair(ascii_path: str, visual_path: str) -> Dict[str, Any]:
+    """Validate a single pair of ASCII and Visual files."""
     result = {
-        "ascii_path": ascii_path,
-        "visual_path": visual_path,
-        "status": "unknown",
-        "levenshtein_distance": None,
-        "ascii_length": None,
-        "visual_length": None,
+        "ascii_file": ascii_path,
+        "visual_file": visual_path,
+        "status": "FAIL",
+        "levenshtein_distance": -1,
         "error": None
     }
 
     try:
-        # Load ASCII file
-        ascii_content = load_file_content(ascii_path)
-        result["ascii_length"] = len(ascii_content)
-        
-        # Load visual/reference content
-        # We assume visual_path in this context refers to the "ground truth" text
-        # representation (e.g., from a deterministic generator or a reference file).
-        # If the visual_path is a binary image, the renderer would need to handle it,
-        # but based on the task description "verify ASCII vs Visual ground truth consistency",
-        # and the existing `render_visual_to_ascii` function, we assume we are comparing
-        # two text representations or rendering one to match the other.
-        
-        # Strategy:
-        # 1. Try to load visual_path as text (reference ground truth).
-        # 2. If that fails or if it's a binary format, we might need to render.
-        #    However, the task implies we are validating the *renderer's output* against
-        #    a known good visual state.
-        #    Since we don't have a binary image loader here, we assume the "visual ground truth"
-        #    provided to this validator is either:
-        #    a) A reference ASCII file (generated by a trusted source).
-        #    b) A file that `render_visual_to_ascii` can process if we had the raw data.
-        #    
-        #    Given the context of `data/processed/` containing `.ascii` and `.json`,
-        #    and the task SC-005, we assume the "Visual Ground Truth" is a reference
-        #    ASCII string generated from the same RNG state or a canonical definition.
-        
-        visual_content = load_file_content(visual_path)
-        result["visual_length"] = len(visual_content)
-        
-        # Calculate Levenshtein distance
-        distance = levenshtein_distance(ascii_content, visual_content)
+        # Read ASCII file
+        with open(ascii_path, 'r', encoding='utf-8') as f:
+            ascii_content = f.read().strip()
+
+        # Convert visual to ASCII
+        visual_ascii = convert_image_to_ascii(visual_path)
+        if not visual_ascii:
+            result["error"] = "Could not convert visual to ASCII (PIL missing or error)"
+            return result
+
+        visual_ascii = visual_ascii.strip()
+
+        # Compare
+        distance = levenshtein_distance(ascii_content, visual_ascii)
         result["levenshtein_distance"] = distance
-        
+
         if distance == 0:
             result["status"] = "PASS"
-            result["message"] = "Perfect consistency (Levenshtein distance = 0)"
-            return True, result
         else:
             result["status"] = "FAIL"
-            result["message"] = f"Inconsistency detected (Levenshtein distance = {distance})"
-            return False, result
+            result["error"] = f"Levenshtein distance is {distance}, expected 0"
 
     except Exception as e:
-        result["status"] = "ERROR"
         result["error"] = str(e)
-        return False, result
 
+    return result
 
-def run_validation_batch(
-    ascii_pattern: str, 
-    reference_pattern: str,
-    output_path: str
-) -> Dict[str, Any]:
-    """
-    Run validation on a batch of files matching patterns.
-    
-    Args:
-        ascii_pattern: Glob pattern for ASCII files (e.g., 'data/processed/seeds_*.ascii')
-        reference_pattern: Glob pattern for reference files
-        output_path: Path to save the JSON report
-        
-    Returns:
-        Summary report dictionary
-    """
-    import glob
-    
-    ascii_files = sorted(glob.glob(ascii_pattern))
-    # Assuming reference files have the same base name but different extension or suffix
-    # If the reference is a single file, this logic might differ, but usually
-    # we compare seed_1.ascii vs seed_1_gt.ascii
-    
-    # Heuristic: If reference_pattern has a wildcard, use it.
-    # If not, assume it's a directory or a specific file.
-    # For this implementation, we assume paired files:
-    # ascii: data/processed/seeds_1234.ascii
-    # ref:   data/processed/seeds_1234_gt.ascii (or similar)
-    # But the task says "verify ASCII vs Visual ground truth".
-    # Let's assume the reference files are in the same directory with a '_gt' suffix
-    # or we are comparing against a generated reference.
-    
-    # Simplified approach for the task:
-    # We expect the user to provide the specific pair or a directory.
-    # If patterns are provided, we try to match them.
-    
-    if not ascii_files:
-        return {
-            "status": "error",
-            "message": f"No ASCII files found matching pattern: {ascii_pattern}",
-            "results": []
-        }
-
+def run_validation(ascii_pattern: str, visual_pattern: str, output_path: str):
+    """Run validation on matching pairs of files."""
+    logger = get_logger("renderer_validator")
     results = []
     passed_count = 0
-    failed_count = 0
-    error_count = 0
 
-    # If reference_pattern is a single file, we compare all ASCII to it (unlikely)
-    # If it's a pattern, we try to match.
-    # Let's assume the reference files are named similarly but with a specific suffix
-    # or we are using a specific reference file if only one is provided.
-    
-    # For robustness, if reference_pattern is a single file (no wildcard), 
-    # we might need to iterate differently. 
-    # However, standard practice: seeds_X.ascii vs seeds_X_ref.ascii
-    
-    if '*' not in reference_pattern:
-        # Single reference file? Or directory?
-        if os.path.isdir(reference_pattern):
-            # Scan directory for matches
-            ref_files = [os.path.join(reference_pattern, os.path.basename(f)) for f in ascii_files]
-        else:
-            # Assume single reference for all? Or error?
-            # Let's assume the user passed a single file that matches the first one?
-            # No, that's dangerous.
-            # Let's assume the reference is a directory of ground truths.
-            # If the user passed a file, we treat it as an error unless it's a specific case.
-            # For now, let's assume the reference_pattern is a directory or a glob.
-            # If it's a file without glob, we try to find a match by name.
-            base_ref = reference_pattern
-            ref_files = []
-            for f in ascii_files:
-                base_name = os.path.splitext(os.path.basename(f))[0]
-                # Try to find a corresponding file in the ref list or directory
-                # This is getting complex. Let's stick to the glob interpretation.
-                pass 
-    
-    # Re-evaluating based on typical CLI usage for this task:
-    # The task says "Execute ... on generated ... files ... to generate results/validation_report.json"
-    # It implies comparing the generated ASCII against the *Visual Ground Truth*.
-    # In the data generation phase (T014-T016), the renderer generates ASCII from a state.
-    # The "Visual Ground Truth" is the state itself or a canonical rendering.
-    # If we have `data/processed/seeds_*.ascii`, we likely have `data/processed/seeds_*.json` (event log)
-    # and the ground truth state is in the JSON or we need to regenerate it.
-    # BUT, the task specifically says "verify ASCII vs Visual ground truth consistency".
-    # If we have a reference ASCII file (e.g., generated by a trusted C++ implementation or
-    # a deterministic reference), we compare against that.
-    #
-    # Assumption: The "Visual Ground Truth" files are stored alongside the ASCII files
-    # with a specific naming convention, e.g., `_gt.ascii` or in a separate `ground_truth/` folder.
-    #
-    # To make this script robust and runnable as per the task:
-    # We will assume the reference files are in the same directory with the suffix `_gt.ascii`
-    # OR the user provides a specific mapping.
-    #
-    # Let's implement a flexible matcher:
-    # If reference_pattern is a directory, we look for files with the same base name.
-    # If reference_pattern is a glob, we use it.
-    
-    if os.path.isdir(reference_pattern):
-        ref_files = []
-        for ascii_f in ascii_files:
-            base = os.path.splitext(os.path.basename(ascii_f))[0]
-            # Look for base_gt.ascii or base.ascii in the dir
-            candidate = os.path.join(reference_pattern, f"{base}_gt.ascii")
-            if not os.path.exists(candidate):
-                candidate = os.path.join(reference_pattern, f"{base}.ascii")
-            if os.path.exists(candidate):
-                ref_files.append(candidate)
-            else:
-                ref_files.append(None)
-    else:
-        # Assume reference_pattern is a glob
-        ref_files = sorted(glob.glob(reference_pattern))
-        if len(ref_files) != len(ascii_files):
-            # Fallback: try to match by index if counts match
-            pass
+    # Find files
+    ascii_files = list(Path(".").glob(ascii_pattern))
+    visual_files = list(Path(".").glob(visual_pattern))
 
-    for i, ascii_f in enumerate(ascii_files):
-        ref_f = ref_files[i] if i < len(ref_files) else None
-        
-        if ref_f is None or not os.path.exists(ref_f):
-            results.append({
-                "file": ascii_f,
-                "status": "ERROR",
-                "message": "Reference file not found",
-                "levenshtein_distance": None
-            })
-            error_count += 1
+    if not ascii_files:
+        logger.error(f"No ASCII files found matching {ascii_pattern}")
+        return
+
+    if not visual_files:
+        logger.error(f"No visual files found matching {visual_pattern}")
+        return
+
+    # Match files (assuming same naming convention)
+    # This is a simple heuristic; in production, use a more robust matching
+    for ascii_file in ascii_files:
+        # Extract seed/name from filename
+        name = ascii_file.stem
+        # Find corresponding visual file
+        matching_visual = None
+        for vf in visual_files:
+            if vf.stem.startswith(name):
+                matching_visual = vf
+                break
+
+        if not matching_visual:
+            logger.warning(f"No matching visual file for {ascii_file}")
             continue
 
-        is_valid, details = validate_consistency(ascii_f, ref_f)
-        results.append(details)
-        if is_valid:
+        logger.info(f"Validating pair: {ascii_file} vs {matching_visual}")
+        res = validate_pair(str(ascii_file), str(matching_visual))
+        results.append(res)
+        if res["status"] == "PASS":
             passed_count += 1
-        else:
-            failed_count += 1
 
+    # Summary
+    total = len(results)
     summary = {
-        "total_files": len(ascii_files),
+        "total_pairs": total,
         "passed": passed_count,
-        "failed": failed_count,
-        "errors": error_count,
-        "overall_status": "PASS" if failed_count == 0 and error_count == 0 else "FAIL",
+        "failed": total - passed_count,
+        "status": "PASS" if passed_count == total and total > 0 else "FAIL",
         "details": results
     }
 
-    # Write report
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    # Save report
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(summary, f, indent=2)
 
+    logger.info(f"Validation complete. Results saved to {output_path}")
     return summary
 
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate ASCII grid consistency against visual ground truth (SC-005)."
-    )
-    parser.add_argument(
-        "--ascii-path",
-        type=str,
-        required=False,
-        help="Path to the ASCII file to validate (or glob pattern)"
-    )
-    parser.add_argument(
-        "--visual-path",
-        type=str,
-        required=False,
-        help="Path to the visual ground truth file (or directory/glob)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="results/validation_report.json",
-        help="Path to save the validation report"
-    )
-    parser.add_argument(
-        "--batch",
-        action="store_true",
-        help="Run in batch mode (expects patterns/directories)"
-    )
+    parser = argparse.ArgumentParser(description="Validate ASCII vs Visual consistency.")
+    parser.add_argument("--input", type=str, required=True, help="Glob pattern for ASCII files.")
+    parser.add_argument("--visual-input", type=str, required=True, help="Glob pattern for visual files.")
+    parser.add_argument("--output", type=str, required=True, help="Output JSON report path.")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level.")
 
     args = parser.parse_args()
 
-    # If no arguments, show help
-    if not args.ascii_path and not args.visual_path:
-        parser.print_help()
-        sys.exit(1)
+    configure_global_logging(level=args.log_level)
+    logger = get_logger("renderer_validator")
 
-    # Handle single file validation
-    if not args.batch:
-        if not args.ascii_path or not args.visual_path:
-            print("Error: --ascii-path and --visual-path are required for single file validation.")
+    try:
+        summary = run_validation(args.input, args.visual_input, args.output)
+        if summary["status"] == "PASS":
+            logger.info("VALIDATION PASSED")
+            sys.exit(0)
+        else:
+            logger.error("VALIDATION FAILED")
             sys.exit(1)
-        
-        is_valid, details = validate_consistency(args.ascii_path, args.visual_path)
-        print(json.dumps(details, indent=2))
-        sys.exit(0 if is_valid else 1)
-
-    # Handle batch mode
-    # Default patterns if not specified
-    if not args.ascii_path:
-        args.ascii_path = "data/processed/seeds_*.ascii"
-    if not args.visual_path:
-        # Assume reference files are in the same dir with _gt suffix
-        # Or a specific directory. Let's default to the same dir with _gt
-        args.visual_path = "data/processed/seeds_*_gt.ascii"
-
-    summary = run_validation_batch(args.ascii_path, args.visual_path, args.output)
-    print(f"Validation complete. Report saved to: {args.output}")
-    print(f"Status: {summary['overall_status']}")
-    print(f"Passed: {summary['passed']}, Failed: {summary['failed']}, Errors: {summary['errors']}")
-    
-    if summary['overall_status'] != "PASS":
+    except Exception as e:
+        logger.error(f"Validation failed with error: {e}", exc_info=True)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

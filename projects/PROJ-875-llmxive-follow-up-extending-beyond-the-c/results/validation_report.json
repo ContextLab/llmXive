@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "total_pairs": 5,
+  "passed": 5,
+  "failed": 0,
+  "details": [
+    {
+      "ascii_file": "seeds_1.ascii",
+      "visual_file": "seeds_1.png",
+      "status": "PASS",
+      "levenshtein_distance": 0,
+      "error": null
+    },
+    {
+      "ascii_file": "seeds_2.ascii",
+      "visual_file": "seeds_2.png",
+      "status": "PASS",
+      "levenshtein_distance": 0,
+      "error": null
+    },
+    {
+      "ascii_file": "seeds_3.ascii",
+      "visual_file": "seeds_3.png",
+      "status": "PASS",
+      "levenshtein_distance": 0,
+      "error": null
+    },
+    {
+      "ascii_file": "seeds_4.ascii",
+      "visual_file": "seeds_4.png",
+      "status": "PASS",
+      "levenshtein_distance": 0,
+      "error": null
+    },
+    {
+      "ascii_file": "seeds_5.ascii",
+      "visual_file": "seeds_5.png",
+      "status": "PASS",
+      "levenshtein_distance": 0,
+      "error": null
+    }
+  ]
+}

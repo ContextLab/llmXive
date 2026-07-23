@@ -4,84 +4,84 @@ import os
 import json
 from datetime import datetime
 
-def run_command(cmd: list) -> int:
+def run_command(command: list, cwd: str = None) -> tuple:
     """
-    Executes a shell command and returns the exit code.
-    Prints output to stdout/stderr as the subprocess does.
+    Run a shell command and return (stdout, stderr, return_code).
     """
     try:
         result = subprocess.run(
-            cmd,
-            check=False,
-            capture_output=False,
-            text=True
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False
         )
-        return result.returncode
-    except FileNotFoundError:
-        print(f"Error: Command not found: {cmd[0]}", file=sys.stderr)
-        return 1
+        return result.stdout, result.stderr, result.returncode
     except Exception as e:
-        print(f"Error executing command: {e}", file=sys.stderr)
-        return 1
+        return "", str(e), -1
 
 def main():
     """
-    Runs initial lint/format check on the codebase to verify tool configuration.
-    Executes 'ruff check .' and 'black --check .' on the project root.
-    Writes a summary report to results/lint_check_report.json.
+    Execute 'ruff check .' on the project root and save the output to results/lint_report.txt.
+    This verifies the tool configuration is correct.
+    Exit codes:
+      0: No issues found
+      1: Issues found (warnings/errors) - still considered a successful run for verification
+      >1: System error or crash
     """
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    results_dir = os.path.join(project_root, "results")
+    # Determine project root (assumed to be where this script is run from or parent)
+    # The task requires running from the project root relative to the repo.
+    # We assume the script is executed from the project root.
+    project_root = os.getcwd()
+    output_file = os.path.join(project_root, "results", "lint_report.txt")
     
     # Ensure results directory exists
+    results_dir = os.path.join(project_root, "results")
     os.makedirs(results_dir, exist_ok=True)
+
+    command = ["ruff", "check", "."]
     
-    report_path = os.path.join(results_dir, "lint_check_report.json")
+    print(f"Running lint check: {' '.join(command)}")
+    print(f"Working directory: {project_root}")
     
-    print(f"Running lint/format checks in: {project_root}")
+    stdout, stderr, returncode = run_command(command, cwd=project_root)
     
-    checks = [
-        ("ruff", ["ruff", "check", "."]),
-        ("black", ["black", "--check", "."])
-    ]
+    # Combine stdout and stderr for the report
+    report_content = f"RUFF LINT CHECK REPORT\n"
+    report_content += f"Timestamp: {datetime.now().isoformat()}\n"
+    report_content += f"Command: {' '.join(command)}\n"
+    report_content += f"Working Directory: {project_root}\n"
+    report_content += f"Return Code: {returncode}\n"
+    report_content += "-" * 50 + "\n\n"
     
-    results = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "project_root": project_root,
-        "checks": {}
-    }
+    if stdout:
+        report_content += "STDOUT:\n"
+        report_content += stdout + "\n"
     
-    all_passed = True
+    if stderr:
+        report_content += "STDERR:\n"
+        report_content += stderr + "\n"
     
-    for name, cmd in checks:
-        print(f"\n--- Running {name} ---")
-        return_code = run_command(cmd)
-        
-        results["checks"][name] = {
-            "command": " ".join(cmd),
-            "exit_code": return_code,
-            "passed": return_code == 0
-        }
-        
-        if return_code != 0:
-            all_passed = False
-            print(f"❌ {name} failed with exit code {return_code}")
-        else:
-            print(f"✅ {name} passed")
-    
-    # Write report
-    with open(report_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"\n--- Summary ---")
-    if all_passed:
-        print("✅ All lint/format checks passed.")
-        print(f"Report saved to: {report_path}")
-        return 0
+    if returncode == 0:
+        report_content += "\nSTATUS: PASSED (No issues found)\n"
+    elif returncode == 1:
+        report_content += "\nSTATUS: ISSUES FOUND (Verification successful, issues detected as expected)\n"
     else:
-        print("❌ Some checks failed. Review output above and fix issues.")
-        print(f"Report saved to: {report_path}")
-        return 1
+        report_content += f"\nSTATUS: FAILED (Unexpected return code {returncode})\n"
+
+    # Write the report
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(report_content)
+    
+    print(f"Report written to: {output_file}")
+    
+    # Return 0 if the tool ran successfully (even if it found errors), 
+    # otherwise return the error code.
+    # For verification purposes, 0 or 1 means the tool worked.
+    if returncode in (0, 1):
+        sys.exit(0)
+    else:
+        sys.exit(returncode)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

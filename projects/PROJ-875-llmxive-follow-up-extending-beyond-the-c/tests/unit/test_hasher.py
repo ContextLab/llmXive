@@ -1,143 +1,222 @@
 """
-Unit tests for the hasher utility.
+Unit tests for utils/hasher.py
+Tests Constitution Principle V: Versioning and Traceability.
 """
 import os
-import json
-import yaml
 import tempfile
-import pytest
+import hashlib
 from pathlib import Path
+import pytest
+import yaml
+
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from utils.hasher import generate_version_hash, generate_batch_hash, create_version_manifest
+from utils.hasher import compute_file_hash, hash_directory, generate_artifact_manifest
 
 
-class TestGenerateVersionHash:
-    """Tests for the generate_version_hash function."""
-
-    def test_generate_version_hash_basic(self, tmp_path):
-        """Test basic version hash generation."""
+class TestComputeFileHash:
+    """Tests for the compute_file_hash function."""
+    
+    def test_compute_hash_simple_file(self, tmp_path):
+        """Test hashing a simple text file."""
         test_file = tmp_path / "test.txt"
-        test_file.write_text("Test content")
-
-        hash_value = generate_version_hash(str(test_file))
-
-        # Should be a short hex string
-        assert len(hash_value) == 8
-        assert all(c in '0123456789abcdef' for c in hash_value)
-
-    def test_generate_version_hash_consistency(self, tmp_path):
-        """Test that the same file produces the same hash."""
-        test_file = tmp_path / "consistent.txt"
-        test_file.write_text("Consistent content")
-
-        hash1 = generate_version_hash(str(test_file))
-        hash2 = generate_version_hash(str(test_file))
-
-        assert hash1 == hash2
-
-    def test_generate_version_hash_different_content(self, tmp_path):
-        """Test that different content produces different hashes."""
-        file1 = tmp_path / "file1.txt"
-        file2 = tmp_path / "file2.txt"
-
-        file1.write_text("Content 1")
-        file2.write_text("Content 2")
-
-        hash1 = generate_version_hash(str(file1))
-        hash2 = generate_version_hash(str(file2))
-
-        assert hash1 != hash2
-
-
-class TestGenerateBatchHash:
-    """Tests for the generate_batch_hash function."""
-
-    def test_generate_batch_hash_basic(self, tmp_path):
-        """Test basic batch hash generation."""
-        file1 = tmp_path / "file1.txt"
-        file2 = tmp_path / "file2.txt"
-        file1.write_text("Content 1")
-        file2.write_text("Content 2")
-
-        batch_hash = generate_batch_hash([str(file1), str(file2)])
-
-        # Should be a longer hex string
-        assert len(batch_hash) == 16
-        assert all(c in '0123456789abcdef' for c in batch_hash)
-
-    def test_generate_batch_hash_order_independence(self, tmp_path):
-        """Test that batch hash is independent of file order."""
-        file1 = tmp_path / "file1.txt"
-        file2 = tmp_path / "file2.txt"
-        file1.write_text("Content 1")
-        file2.write_text("Content 2")
-
-        hash1 = generate_batch_hash([str(file1), str(file2)])
-        hash2 = generate_batch_hash([str(file2), str(file1)])
-
-        assert hash1 == hash2
-
-    def test_generate_batch_hash_single_file(self, tmp_path):
-        """Test batch hash with a single file."""
-        file1 = tmp_path / "file1.txt"
-        file1.write_text("Content 1")
-
-        batch_hash = generate_batch_hash([str(file1)])
-
-        assert len(batch_hash) == 16
+        content = "Hello, World!"
+        test_file.write_text(content)
+        
+        expected_hash = hashlib.sha256(content.encode()).hexdigest()
+        actual_hash = compute_file_hash(test_file)
+        
+        assert actual_hash == expected_hash
+        assert len(actual_hash) == 64  # SHA-256 hex length
+        
+    def test_compute_hash_binary_file(self, tmp_path):
+        """Test hashing a binary file."""
+        test_file = tmp_path / "binary.bin"
+        content = b"\x00\x01\x02\x03\xff\xfe\xfd"
+        test_file.write_bytes(content)
+        
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_file_hash(test_file)
+        
+        assert actual_hash == expected_hash
+        
+    def test_compute_hash_empty_file(self, tmp_path):
+        """Test hashing an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.touch()
+        
+        expected_hash = hashlib.sha256(b"").hexdigest()
+        actual_hash = compute_file_hash(test_file)
+        
+        assert actual_hash == expected_hash
+        
+    def test_compute_hash_nonexistent_file(self, tmp_path):
+        """Test that hashing a non-existent file raises FileNotFoundError."""
+        nonexistent = tmp_path / "does_not_exist.txt"
+        
+        with pytest.raises(FileNotFoundError):
+            compute_file_hash(nonexistent)
+        
+    def test_compute_hash_large_file(self, tmp_path):
+        """Test hashing a larger file to ensure chunked reading works."""
+        test_file = tmp_path / "large.txt"
+        content = "x" * (1024 * 1024)  # 1 MB
+        test_file.write_text(content)
+        
+        expected_hash = hashlib.sha256(content.encode()).hexdigest()
+        actual_hash = compute_file_hash(test_file)
+        
+        assert actual_hash == expected_hash
 
 
-class TestCreateVersionManifest:
-    """Tests for the create_version_manifest function."""
+class TestHashDirectory:
+    """Tests for the hash_directory function."""
+    
+    def test_hash_directory_single_file(self, tmp_path):
+        """Test hashing a directory with a single file."""
+        test_file = tmp_path / "file.txt"
+        test_file.write_text("content")
+        
+        hashes = hash_directory(tmp_path)
+        
+        assert len(hashes) == 1
+        assert "file.txt" in hashes
+        assert len(hashes["file.txt"]) == 64
+        
+    def test_hash_directory_multiple_files(self, tmp_path):
+        """Test hashing a directory with multiple files."""
+        (tmp_path / "a.txt").write_text("content_a")
+        (tmp_path / "b.txt").write_text("content_b")
+        (tmp_path / "c.txt").write_text("content_c")
+        
+        hashes = hash_directory(tmp_path)
+        
+        assert len(hashes) == 3
+        assert "a.txt" in hashes
+        assert "b.txt" in hashes
+        assert "c.txt" in hashes
+        
+    def test_hash_directory_empty(self, tmp_path):
+        """Test hashing an empty directory."""
+        hashes = hash_directory(tmp_path)
+        
+        assert len(hashes) == 0
+        
+    def test_hash_directory_ignores_subdirs(self, tmp_path):
+        """Test that subdirectories are ignored (non-recursive)."""
+        subdir = tmp_path / "subdir"
+        subdir.mkdir()
+        (subdir / "nested.txt").write_text("nested")
+        (tmp_path / "root.txt").write_text("root")
+        
+        hashes = hash_directory(tmp_path)
+        
+        assert len(hashes) == 1
+        assert "root.txt" in hashes
+        assert "subdir" not in hashes
+        assert "subdir/nested.txt" not in hashes
+        
+    def test_hash_directory_nonexistent(self):
+        """Test that hashing a non-existent directory raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            hash_directory(Path("/nonexistent/path"))
+        
+    def test_hash_directory_not_a_dir(self, tmp_path):
+        """Test that hashing a file (not directory) raises NotADirectoryError."""
+        test_file = tmp_path / "file.txt"
+        test_file.write_text("content")
+        
+        with pytest.raises(NotADirectoryError):
+            hash_directory(test_file)
 
-    def test_create_version_manifest_basic(self, tmp_path):
-        """Test basic manifest creation."""
-        file1 = tmp_path / "file1.txt"
-        file1.write_text("Content 1")
 
-        artifacts = {
-            "test_file": str(file1)
-        }
-        output_file = tmp_path / "manifest.yaml"
-
-        manifest = create_version_manifest(artifacts, str(output_file))
-
-        assert output_file.exists()
+class TestGenerateArtifactManifest:
+    """Tests for the generate_artifact_manifest function."""
+    
+    def test_generate_manifest_creates_file(self, tmp_path):
+        """Test that manifest file is created."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path)
+        
+        assert output_path.exists()
+        assert manifest["file_count"] == 1
+        
+    def test_generate_manifest_structure(self, tmp_path):
+        """Test manifest has correct structure."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path)
+        
+        assert "version" in manifest
+        assert "generated_at" in manifest
+        assert "input_directory" in manifest
+        assert "file_count" in manifest
         assert "artifacts" in manifest
-        assert "test_file" in manifest["artifacts"]
-        assert manifest["artifacts"]["test_file"]["hash"] is not None
-
-    def test_create_version_manifest_with_metadata(self, tmp_path):
-        """Test manifest creation with metadata."""
-        file1 = tmp_path / "file1.txt"
-        file1.write_text("Content 1")
-
-        artifacts = {
-            "test_file": str(file1)
-        }
-        output_file = tmp_path / "manifest.yaml"
-        metadata = {
-            "project": "test_project",
-            "version": "1.0"
-        }
-
-        manifest = create_version_manifest(artifacts, str(output_file), metadata)
-
-        assert manifest["metadata"]["project"] == "test_project"
-        assert manifest["metadata"]["version"] == "1.0"
-
-    def test_create_version_manifest_missing_file(self, tmp_path):
-        """Test manifest creation with a missing file."""
-        artifacts = {
-            "missing_file": str(tmp_path / "nonexistent.txt")
-        }
-        output_file = tmp_path / "manifest.yaml"
-
-        manifest = create_version_manifest(artifacts, str(output_file))
-
-        assert manifest["artifacts"]["missing_file"]["hash"] is None
-        assert manifest["artifacts"]["missing_file"]["status"] == "missing"
+        
+    def test_generate_manifest_content(self, tmp_path):
+        """Test manifest contains correct file information."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path)
+        
+        assert "test.txt" in manifest["artifacts"]
+        assert "hash" in manifest["artifacts"]["test.txt"]
+        assert len(manifest["artifacts"]["test.txt"]["hash"]) == 64
+        
+    def test_generate_manifest_with_metadata(self, tmp_path):
+        """Test manifest includes metadata when requested."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path, include_metadata=True)
+        
+        artifact = manifest["artifacts"]["test.txt"]
+        assert "size_bytes" in artifact
+        assert "modified_at" in artifact
+        
+    def test_generate_manifest_without_metadata(self, tmp_path):
+        """Test manifest excludes metadata when requested."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path, include_metadata=False)
+        
+        artifact = manifest["artifacts"]["test.txt"]
+        assert "size_bytes" not in artifact
+        assert "modified_at" not in artifact
+        
+    def test_generate_manifest_output_valid_yaml(self, tmp_path):
+        """Test that output file is valid YAML."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "manifest.yaml"
+        
+        generate_artifact_manifest(tmp_path, output_path)
+        
+        # Should not raise
+        with open(output_path, "r") as f:
+            loaded = yaml.safe_load(f)
+        
+        assert loaded is not None
+        assert "artifacts" in loaded
+        
+    def test_generate_manifest_creates_parent_dirs(self, tmp_path):
+        """Test that parent directories are created for output."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("content")
+        output_path = tmp_path / "subdir" / "manifest.yaml"
+        
+        manifest = generate_artifact_manifest(tmp_path, output_path)
+        
+        assert output_path.exists()
+        assert manifest["file_count"] == 1
