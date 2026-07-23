@@ -35,7 +35,7 @@ The plan explicitly addresses the "Critical Interaction Vector" hypothesis, ensu
 - **IV. Single Source of Truth**: All figures and statistics in the final report will be generated programmatically from the `data/derived/` artifacts, preventing manual transcription errors.
 - **V. Versioning Discipline**: **Explicit Step**: A `hash-updater.py` script is included in the pipeline. Post-pipeline, it computes content hashes for all `data/derived/` artifacts and updates `state/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow.yaml` with these hashes.
 - **VI. Non-Linear Interaction Characterization**: The plan explicitly includes engineered interaction terms (SNR × RT60, etc.) in the regression model (FR-05) AND mandates a **Sensitivity Analysis** (FR-06) to verify the "critical interaction vector" is not an artifact of the threshold choice.
-- **VII. CPU-Tractability**: The plan restricts ASR models to small variants (e.g., `whisper-tiny`) and the embedding model to `all-MiniLM-L6-v2`. It explicitly forbids GPU-only libraries and mandates memory-efficient data loading strategies (chunking, sampling) to fit the 7GB RAM constraint.
+- **VII. CPU-Tractability**: The plan restricts ASR models to small variants (e.g., `whisper-tiny`) and the embedding model to `all-MiniLM-L-v2`. It explicitly forbids GPU-only libraries and mandates memory-efficient data loading strategies (chunking, sampling) to fit the 7GB RAM constraint.
 
 ## Project Structure
 

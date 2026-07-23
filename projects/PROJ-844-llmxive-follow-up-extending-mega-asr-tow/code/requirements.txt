@@ -19,3 +19,4 @@ jiwer>=3.0.0
 jax  # auto-added: imported by run-book but missing from venv
 tensorflow  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+pyarrow  # auto-added: imported by run-book but missing from venv

@@ -13,9 +13,12 @@
   ],
   "fix_rounds": 1,
   "model_tier": 0,
-  "total_attempts": 1,
-  "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-07-19T09:55:16Z"
+  "offload": {
+    "status": "running",
+    "kernel_ref": "jeremy9/llmxive-proj-844-llmxive-follow-up-extending-mega",
+    "submitted_at": "2026-07-23T07:26:43Z",
+    "reason": "",
+    "evidence": []
+  },
+  "updated_at": "2026-07-23T07:26:46Z"
 }
