@@ -1,53 +1,69 @@
 import os
 import sys
 from pathlib import Path
+import logging
+from utils.logging_config import setup_pipeline_logger
 
-def ensure_directory(path: str) -> None:
-    """Ensure a directory exists, creating it if necessary."""
-    dir_path = Path(path)
-    if not dir_path.exists():
-        dir_path.mkdir(parents=True, exist_ok=True)
-        # Create a .gitkeep file to ensure the directory is tracked by git
-        gitkeep_path = dir_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.write_text("# This file ensures the directory is tracked by git\n")
-        print(f"Created directory: {dir_path}")
-    else:
-        print(f"Directory already exists: {dir_path}")
+def ensure_directory(path_str: str) -> bool:
+    """
+    Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        path_str: Relative or absolute path string to the directory.
+        
+    Returns:
+        True if directory exists or was created successfully, False otherwise.
+    """
+    try:
+        path = Path(path_str)
+        path.mkdir(parents=True, exist_ok=True)
+        return True
+    except Exception as e:
+        logging.error(f"Failed to create directory {path_str}: {e}")
+        return False
 
 def setup_project_structure() -> None:
-    """Create the standard project directory structure."""
-    project_root = Path(".")
+    """
+    Create the required directory structure for the project.
     
-    # Define directories to create
-    directories = [
+    Creates the following directories relative to the project root:
+    - code/
+    - data/raw
+    - data/processed
+    - data/reports
+    - tests/
+    - artifacts/
+    - figures/
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    
+    required_dirs = [
         "code",
-        "code/ingestion",
-        "code/features",
-        "code/modeling",
-        "code/screening",
-        "code/reporting",
-        "code/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "data",
         "data/raw",
         "data/processed",
         "data/reports",
+        "tests",
         "artifacts",
         "figures"
     ]
     
-    for dir_path in directories:
-        ensure_directory(dir_path)
+    logger = setup_pipeline_logger("setup_dirs")
+    logger.info("Starting directory structure setup")
     
-    print("Project directory structure setup complete.")
+    for dir_name in required_dirs:
+        full_path = project_root / dir_name
+        if ensure_directory(str(full_path)):
+            logger.info(f"Created/verified directory: {full_path}")
+        else:
+            logger.error(f"Failed to create directory: {full_path}")
+            raise RuntimeError(f"Directory creation failed for {full_path}")
+    
+    logger.info("Directory structure setup completed successfully")
 
 def main():
-    """Main entry point for directory setup."""
+    """Entry point for running directory setup as a script."""
     setup_project_structure()
+    print("Project directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

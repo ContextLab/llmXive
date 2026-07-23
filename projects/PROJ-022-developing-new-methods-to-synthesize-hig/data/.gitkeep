@@ -1,2 +1,2 @@
 # This file ensures the data directory is tracked by git
-# Actual data files are ignored via .gitignore
+# even when it is empty.

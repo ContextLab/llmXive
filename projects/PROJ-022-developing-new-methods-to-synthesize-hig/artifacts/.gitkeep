@@ -1,3 +1,1 @@
-# This file ensures the artifacts directory is tracked by git
-# but allows the directory to remain empty in version control.
-# Model artifacts and other outputs should be generated at runtime.
+# This file ensures the directory is tracked by git
