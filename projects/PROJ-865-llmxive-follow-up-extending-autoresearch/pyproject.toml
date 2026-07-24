@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-followup"
 version = "0.1.0"
-description = "Automated science pipeline for failure mode analysis and rule distillation"
-requires-python = ">=3.10"
+description = "AutoResearchClaw follow-up: Failure Mode Annotation & Rule Distillation"
+requires-python = ">=3.8"
 dependencies = [
     "pandas",
     "numpy",
@@ -19,16 +19,17 @@ dependencies = [
     "psutil",
     "scipy",
     "pyyaml",
-    "jinja2",
+    "jinja2"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -42,13 +43,23 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501"]
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+python_classes = ["Test*"]
+python_functions = ["test_*"]

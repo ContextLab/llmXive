@@ -1,3 +1,1 @@
-"""
-Utils package initialization.
-"""
+"""Utility modules for the llmXive pipeline."""

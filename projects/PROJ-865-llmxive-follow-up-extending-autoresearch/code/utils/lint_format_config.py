@@ -1,99 +1,62 @@
 """
-Utility module to run linting and formatting checks on the project codebase.
-Ensures consistency across the llmXive pipeline code.
+Configuration for linting (Ruff) and formatting (Black) tools.
+This file is referenced by T003 to ensure configuration exists.
 """
-import subprocess
-import sys
+import os
 from pathlib import Path
-from typing import Tuple, Optional
 
-def run_linter(check: bool = True) -> Tuple[bool, str]:
+def ensure_ruff_config(project_root: Path) -> Path:
     """
-    Run Ruff linter on the code directory.
-
-    Args:
-        check: If True, only check (exit code 0 if clean). If False, fix issues.
-
-    Returns:
-        Tuple of (success: bool, message: str)
+    Creates or updates .ruff.toml in the project root if it doesn't exist.
     """
-    code_root = Path(__file__).parent.parent
-    command = [
-        sys.executable, "-m", "ruff",
-        "check" if check else "check --fix",
-        str(code_root)
-    ]
+    config_path = project_root / ".ruff.toml"
+    if config_path.exists():
+        return config_path
 
-    try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            cwd=code_root
-        )
-        if result.returncode == 0:
-            return True, "Linting passed successfully."
-        else:
-            return False, f"Linting failed:\n{result.stdout}\n{result.stderr}"
-    except FileNotFoundError:
-        return False, "Ruff not found. Please install it: pip install ruff"
-    except Exception as e:
-        return False, f"Error running linter: {str(e)}"
+    config_content = """
+    [lint]
+    select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "PIE", "RET", "SIM"]
+    ignore = []
 
-def run_formatter(check: bool = True) -> Tuple[bool, str]:
+    [lint.per-file-ignores]
+    "tests/*" = ["S101"]  # Allow asserts in tests
+
+    [format]
+    quote-style = "double"
+    indent-style = "space"
+    skip-magic-trailing-comma = false
+    line-ending = "auto"
     """
-    Run Black formatter on the code directory.
+    config_path.write_text(config_content.strip())
+    return config_path
 
-    Args:
-        check: If True, only check (exit code 0 if clean). If False, format files.
-
-    Returns:
-        Tuple of (success: bool, message: str)
+def ensure_black_config(project_root: Path) -> Path:
     """
-    code_root = Path(__file__).parent.parent
-    command = [
-        sys.executable, "-m", "black",
-        "--check" if check else "",
-        str(code_root)
-    ]
-    # Remove empty string if check is False
-    command = [c for c in command if c]
+    Creates or updates pyproject.toml with Black configuration if missing.
+    """
+    config_path = project_root / "pyproject.toml"
+    
+    # Check if [tool.black] section exists
+    if config_path.exists():
+        content = config_path.read_text()
+        if "[tool.black]" in content:
+            return config_path
+    
+    # Read existing or create new
+    if config_path.exists():
+        content = config_path.read_text()
+    else:
+        content = ""
 
-    try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            cwd=code_root
-        )
-        if result.returncode == 0:
-            return True, "Formatting check passed successfully."
-        else:
-            return False, f"Formatting check failed:\n{result.stdout}\n{result.stderr}"
-    except FileNotFoundError:
-        return False, "Black not found. Please install it: pip install black"
-    except Exception as e:
-        return False, f"Error running formatter: {str(e)}"
+    black_section = """
 
-def main():
-    """Main entry point for linting and formatting."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run linting and formatting checks")
-    parser.add_argument("--fix", action="store_true", help="Fix issues instead of just checking")
-    args = parser.parse_args()
-
-    lint_success, lint_msg = run_linter(check=not args.fix)
-    format_success, format_msg = run_formatter(check=not args.fix)
-
-    print(lint_msg)
-    print(format_msg)
-
-    if not (lint_success and format_success):
-        sys.exit(1)
-
-    print("All checks passed.")
-    sys.exit(0)
-
-if __name__ == "__main__":
-    main()
+    [tool.black]
+    line-length = 88
+    target-version = ['py39']
+    """
+    
+    if "[tool.black]" not in content:
+        content += black_section
+        config_path.write_text(content)
+    
+    return config_path

@@ -1,0 +1,34 @@
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/quickstart.md
+  attempts: 1
+  canonical: System triggers fallback to regex-based distillation when memory usage
+    exceeds 7GB
+  claim_id: c_a29bff3f
+  context: Resources section listing max memory constraints and fallback behavior.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_triggers_fallback_to_regex-based_distillation_when_me
+  kind: entity_fact
+  raw_text: If memory usage exceeds 7GB, the system will trigger fallback to regex-based
+    distillation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T04:24:10Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/quickstart.md
+  attempts: 1
+  canonical: System uses a maximum of 2 CPU cores
+  claim_id: c_852b0eb6
+  context: Resources section listing system constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Max CPU cores: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T04:24:41Z'

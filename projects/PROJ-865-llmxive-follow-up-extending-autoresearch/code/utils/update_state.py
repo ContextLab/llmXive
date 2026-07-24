@@ -1,9 +1,11 @@
+import json
 import hashlib
 import os
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from datetime import datetime, timezone
+from typing import Dict, Any, List
+
 import yaml
 
 def calculate_sha256(file_path: Path) -> str:
@@ -14,111 +16,84 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def scan_artifacts(base_dir: Path) -> Dict[str, str]:
+def scan_directory(directory: Path, extensions: List[str]) -> List[Dict[str, Any]]:
     """
-    Recursively scan a directory for files and calculate their SHA-256 hashes.
-    Returns a dictionary mapping relative path to hash.
+    Recursively scan a directory for files with specific extensions.
+    Returns a list of dicts with 'relative_path' and 'hash'.
+    The relative_path is relative to the project root (parent of the scan directory's parent context).
     """
-    artifacts = {}
-    if not base_dir.exists():
+    artifacts = []
+    if not directory.exists():
         return artifacts
+
+    project_root = directory.parent.parent  # Assuming directory is data/derived or results/ at root level
     
-    for root, _, files in os.walk(base_dir):
+    for root, _, files in os.walk(directory):
         for file in files:
-            # Skip hidden files
-            if file.startswith('.'):
-                continue
-            
-            file_path = Path(root) / file
-            try:
-                rel_path = str(file_path.relative_to(base_dir))
-                hash_val = calculate_sha256(file_path)
-                artifacts[rel_path] = hash_val
-            except Exception as e:
-                print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
-    
+            if any(file.endswith(ext) for ext in extensions):
+                file_path = Path(root) / file
+                # Calculate relative path from project root
+                relative_path = file_path.relative_to(project_root)
+                file_hash = calculate_sha256(file_path)
+                artifacts.append({
+                    "relative_path": str(relative_path),
+                    "hash": file_hash
+                })
     return artifacts
 
-def load_current_state(state_path: Path) -> Dict[str, Any]:
-    """Load the current state file if it exists."""
-    if not state_path.exists():
-        return {
-            "project_id": "PROJ-865-llmxive-follow-up-extending-autoresearch",
-            "artifact_hashes": {},
-            "updated_at": None,
-            "tasks_completed": []
-        }
-    
-    with open(state_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+def load_existing_state(state_path: Path) -> Dict[str, Any]:
+    """Load existing state.yaml if it exists."""
+    if state_path.exists():
+        with open(state_path, "r") as f:
+            return yaml.safe_load(f) or {}
+    return {}
 
-def update_state_file(state_path: Path, artifact_hashes: Dict[str, str], tasks_completed: List[str]) -> None:
-    """
-    Update the state file with new artifact hashes and timestamp.
-    Specifically updates:
-    - artifact_hashes: map of file paths to hashes
-    - updated_at: ISO8601 timestamp
-    """
-    current_state = load_current_state(state_path)
-    
-    # Update specific keys as required by T007 and T034
-    current_state["artifact_hashes"] = artifact_hashes
-    current_state["updated_at"] = datetime.now(timezone.utc).isoformat()
-    
-    # Merge tasks completed if provided (append unique)
-    if tasks_completed:
-        existing = set(current_state.get("tasks_completed", []))
-        for t in tasks_completed:
-            existing.add(t)
-        current_state["tasks_completed"] = sorted(list(existing))
-    
-    # Ensure project_id is set correctly
-    current_state["project_id"] = "PROJ-865-llmxive-follow-up-extending-autoresearch"
-    
-    # Write back
+def save_state(state_path: Path, state: Dict[str, Any]) -> None:
+    """Save state to YAML file."""
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_path, 'w', encoding='utf-8') as f:
-        yaml.dump(current_state, f, default_flow_style=False, sort_keys=False)
+    with open(state_path, "w") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
 def main():
-    """
-    Main entry point for T034: Finalize state.yaml with all artifact hashes.
-    Scans data/derived/, data/artifacts/, and results/ (if exists) and updates state.yaml.
-    This task runs after all pipeline stages are complete to capture the final state.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    state_path = project_root / "state" / "projects" / "PROJ-865-llmxive-follow-up-extending-autoresearch.yaml"
+    project_root = Path(__file__).resolve().parent.parent.parent
+    state_file_path = project_root / "state" / "projects" / "PROJ-865-llmxive-followup-extending-autoresearch.yaml"
     
-    # Directories to scan: data/derived, data/artifacts, and results (if it exists)
-    dirs_to_scan = [
+    # Define directories to scan
+    scan_dirs = [
         project_root / "data" / "derived",
-        project_root / "data" / "artifacts"
+        project_root / "results"
     ]
     
-    # Check for a 'results' directory at project root as mentioned in task description
-    results_dir = project_root / "results"
-    if results_dir.exists():
-        dirs_to_scan.append(results_dir)
+    # Define file extensions to include
+    extensions = [".json", ".csv", ".yaml", ".yml"]
     
-    all_hashes = {}
-    for d in dirs_to_scan:
-        if d.exists():
-            hashes = scan_artifacts(d)
-            # Prefix with directory name to avoid collisions across roots
-            for k, v in hashes.items():
-                prefixed_key = f"{d.name}/{k}"
-                all_hashes[prefixed_key] = v
-        else:
-            print(f"Warning: Directory does not exist, skipping: {d}", file=sys.stderr)
+    # Scan for artifacts
+    all_artifacts = []
+    for scan_dir in scan_dirs:
+        artifacts = scan_directory(scan_dir, extensions)
+        all_artifacts.extend(artifacts)
     
-    # Determine tasks to add (T034 is the finalization step)
-    tasks_completed = ["T034"]
+    # Sort artifacts by relative path for reproducibility
+    all_artifacts.sort(key=lambda x: x["relative_path"])
     
-    update_state_file(state_path, all_hashes, tasks_completed)
-    print(f"State updated: {state_path}")
-    print(f"Total artifacts scanned: {len(all_hashes)}")
-    if len(all_hashes) == 0:
-        print("Note: No artifacts found in scanned directories. Ensure pipeline has produced output files.")
+    # Load existing state to preserve metadata if needed
+    existing_state = load_existing_state(state_file_path)
+    
+    # Build new state
+    current_time = datetime.now(timezone.utc).isoformat()
+    new_state = {
+        "project_id": "PROJ-865-llmxive-followup-extending-autoresearch",
+        "updated_at": current_time,
+        "artifacts": all_artifacts,
+        "total_artifacts": len(all_artifacts)
+    }
+    
+    # Save state
+    save_state(state_file_path, new_state)
+    
+    print(f"State updated successfully at {state_file_path}")
+    print(f"Total artifacts scanned: {len(all_artifacts)}")
+    print(f"Timestamp: {current_time}")
 
 if __name__ == "__main__":
     main()

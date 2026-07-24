@@ -1,1 +1,1 @@
-# Code package initialization
+"""Root code package for llmXive."""

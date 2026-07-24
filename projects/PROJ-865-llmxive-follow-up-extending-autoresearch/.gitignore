@@ -1,12 +1,7 @@
-# Data directories
-data/raw/
-data/derived/
-data/artifacts/
-
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
+$py.class
 *.so
 .Python
 build/
@@ -19,23 +14,33 @@ lib/
 lib64/
 parts/
 sdist/
-var/
-wheels/
+venv/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
-venv/
-ENV/
-env/
+# Data artifacts (Raw, Derived, Artifacts) - Do not commit generated data
+data/raw/
+data/derived/
+data/artifacts/
+results/
 
-# IDE
+# State (auto-generated hashes)
+state/
+
+# IDE and OS
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
-Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
