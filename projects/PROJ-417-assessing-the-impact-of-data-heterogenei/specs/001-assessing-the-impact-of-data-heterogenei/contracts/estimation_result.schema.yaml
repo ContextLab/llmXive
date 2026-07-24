@@ -1,61 +1,68 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
-description: >
-  Schema for the results of applying an estimator to a simulated dataset.
-  Includes pooled estimates, confidence intervals, and heterogeneity metrics.
+description: Schema for the output of the estimation pipeline (T021).
 type: object
 required:
-  - replicate_id
-  - estimator_name
-  - pooled_effect
-  - se_pooled
-  - ci_lower
-  - ci_upper
-  - coverage_flag
-  - tau2_estimate
-  - i_squared
-  - k_studies_included
-  - convergence_status
+  - results
 properties:
-  replicate_id:
-    type: string
-    description: Reference to the input simulated dataset replicate.
-  estimator_name:
-    type: string
-    description: Name of the estimator used (e.g., "FixedEffects", "DL", "REML").
-  pooled_effect:
-    type: number
-    description: The estimated pooled effect size.
-  se_pooled:
-    type: number
-    description: Standard error of the pooled effect.
-  ci_lower:
-    type: number
-    description: Lower bound of the 95% confidence interval.
-  ci_upper:
-    type: number
-    description: Upper bound of the 95% confidence interval.
-  coverage_flag:
-    type: boolean
-    description: True if the true effect size falls within [ci_lower, ci_upper].
-  tau2_estimate:
-    type: number
-    description: Estimated between-study variance.
-  i_squared:
-    type: number
-    description: >
-      The I^2 statistic representing the percentage of total variation across studies
-      due to heterogeneity rather than chance. Required field per specification.
-  k_studies_included:
-    type: integer
-    description: Number of studies actually used in this estimation.
-  convergence_status:
-    type: string
-    description: Status of the estimation algorithm (e.g., "success", "failed", "boundary").
-  bias:
-    type: number
-    description: Calculated bias (pooled_effect - true_effect_size).
-  computation_time_ms:
-    type: number
-    description: Time taken for estimation in milliseconds.
-additionalProperties: false
+  results:
+    type: array
+    description: List of estimation results for each replicate and estimator.
+    items:
+      type: object
+      required:
+        - replicate_id
+        - tau2_level
+        - true_effect
+        - estimator_name
+        - pooled_estimate
+        - se_pooled
+        - ci_lower
+        - ci_upper
+        - i_squared
+        - coverage_flag
+        - reliability_flag
+      properties:
+        replicate_id:
+          type: string
+          description: Reference to the simulated replicate.
+        tau2_level:
+          type: number
+          description: The injected tau^2 value.
+        true_effect:
+          type: number
+          description: The injected true effect size.
+        estimator_name:
+          type: string
+          enum:
+            - FixedEffects
+            - DerSimonianLaird
+            - REML
+          description: Name of the estimator used.
+        pooled_estimate:
+          type: number
+          description: The calculated pooled effect size.
+        se_pooled:
+          type: number
+          description: Standard error of the pooled estimate.
+        ci_lower:
+          type: number
+          description: Lower bound of the 95% confidence interval.
+        ci_upper:
+          type: number
+          description: Upper bound of the 95% confidence interval.
+        i_squared:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: The calculated I^2 statistic (percentage).
+          # CRITICAL REQUIREMENT: Must include I^2 as a required field.
+        coverage_flag:
+          type: boolean
+          description: True if the true_effect falls within [ci_lower, ci_upper].
+        reliability_flag:
+          type: boolean
+          description: True if the replicate is considered reliable (e.g., N >= 5).
+        bias:
+          type: number
+          description: Calculated bias (pooled_estimate - true_effect).

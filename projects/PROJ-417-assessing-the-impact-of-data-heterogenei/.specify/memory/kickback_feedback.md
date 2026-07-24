@@ -4,9 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: code/main.py
-- `T040` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/cochrane_base.csv
+- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: data/results/test_variance_check.json
 
 ## Required change
 

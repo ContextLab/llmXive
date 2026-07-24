@@ -1,66 +1,73 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: SimulatedDataset
-description: >
-  Schema for a single simulated meta-analysis dataset replicate.
-  Contains the ground truth parameters and the generated study-level data.
+description: Schema for the raw output of the simulation engine (T010).
 type: object
 required:
-  - replicate_id
-  - true_effect_size
-  - true_heterogeneity_tau2
-  - heterogeneity_level
-  - k_studies
-  - studies
   - metadata
+  - replicates
 properties:
-  replicate_id:
-    type: string
-    description: Unique identifier for this simulation replicate (e.g., "tau2_0.1_rep_001").
-  true_effect_size:
-    type: number
-    description: The ground truth pooled effect size (mu) used for generation.
-  true_heterogeneity_tau2:
-    type: number
-    description: The ground truth between-study variance (tau^2) used for generation.
-  heterogeneity_level:
-    type: number
-    description: The nominal tau^2 level category (0, 0.1, 0.5, 1.0, 2.0).
-  k_studies:
-    type: integer
-    description: Number of studies in this replicate.
-  studies:
+  metadata:
+    type: object
+    required:
+      - generated_at
+      - tau2_levels
+      - replicates_per_level
+      - base_data_source
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation.
+      tau2_levels:
+        type: array
+        items:
+          type: number
+        description: List of injected tau^2 values used in simulation.
+      replicates_per_level:
+        type: integer
+        minimum: 1
+        description: Number of replicates generated per tau^2 level.
+      base_data_source:
+        type: string
+        description: Citation or path to the base data used (e.g., 'Cochrane Jackson 2010').
+  replicates:
     type: array
-    description: List of study-level data points.
+    description: List of simulated meta-analysis replicates.
     items:
       type: object
       required:
-        - study_id
-        - effect_size
-        - standard_error
-        - sample_size
-        - included
+        - replicate_id
+        - tau2_level
+        - true_effect
+        - studies
       properties:
-        study_id:
+        replicate_id:
           type: string
-        effect_size:
+          description: Unique identifier for this replicate.
+        tau2_level:
           type: number
-        standard_error:
+          description: The injected between-study variance (tau^2) for this replicate.
+        true_effect:
           type: number
-        sample_size:
-          type: integer
-        included:
-          type: boolean
-          description: Whether this study was included in the analysis (True if k >= 5, etc).
-  metadata:
-    type: object
-    description: Additional simulation parameters.
-    properties:
-      seed:
-        type: integer
-      generation_method:
-        type: string
-        enum: [random_effects, fixed_effects]
-      timestamp:
-        type: string
-        format: date-time
-additionalProperties: false
+          description: The injected true effect size (mu) for this replicate.
+        studies:
+          type: array
+          description: List of study results within this replicate.
+          items:
+            type: object
+            required:
+              - study_id
+              - effect_size
+              - variance
+              - n_studies
+            properties:
+              study_id:
+                type: string
+              effect_size:
+                type: number
+              variance:
+                type: number
+              n_studies:
+                type: integer
+                description: Number of primary studies in this meta-analysis replicate.
+                minimum: 1

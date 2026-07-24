@@ -9,11 +9,11 @@
 
 ### User Story 1 - Simulation Engine Execution (Priority: P1)
 
-**Journey**: A researcher needs to generate synthetic meta-analysis datasets with controlled levels of between-study variance ($\tau^2$) to test statistical methods under known ground truths. The system must accept a base dataset (e.g., from Cochrane Reviews) and perturb it to varying heterogeneity levels (including baseline and elevated magnitudes) for a sufficient number of replicates per level, ensuring the process completes within the 6-hour CI limit.
+**Journey**: A researcher needs to generate synthetic meta-analysis datasets with controlled levels of between-study variance ($\tau^2$) to test statistical methods under known ground truths. The system must accept a base dataset (e.g., from Cochrane Reviews) and perturb it to varying heterogeneity levels (including baseline and elevated magnitudes) for a sufficient number of replicates per level, ensuring the process completes within the CI time limit.
 
 **Why this priority**: Without the ability to generate controlled, reproducible data with known heterogeneity parameters, the core research question (relationship between heterogeneity and estimator performance) cannot be answered. This is the foundational capability.
 
-**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau^2 \in \{0, 0.1\}$) and 10 replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
+**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau^ \in \{, 0.1\}$) and 10 replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
 
 **Acceptance Scenarios**:
 
@@ -35,7 +35,7 @@
 
 1. **Given** a set of 500 simulated datasets with a known true effect size of 0.5, **When** the Random-Effects (DerSimonian-Laird) estimator is applied, **Then** the system calculates the pooled estimate and 95% CI for each, and correctly flags the proportion of CIs containing 0.5 (coverage).
 2. **Given** the same 500 datasets, **When** the Fixed-Effects estimator is applied, **Then** the system calculates the pooled estimate and CI, and the resulting bias (pooled estimate - 0.5) is recorded for each replicate.
-3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from 95% (within Monte Carlo error defined as $\pm 1.5\%$ at 95% confidence, calculated as $1.96 \times \sqrt{0.95 \times 0.05 / 500}$), confirming the baseline validity of the implementation. (See US-2)
+3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from % (within Monte Carlo error defined as $\pm 1.5\%$ at 95% confidence, calculated as $1.96 \times \sqrt{0.95 \times 0.05 / 500}$), confirming the baseline validity of the implementation. (See US-2)
 
 ---
 
@@ -97,6 +97,6 @@
 - **Dataset Availability**: Publicly available Cochrane Review meta-analyses with sufficient study-level data (effect sizes, standard errors, sample sizes) exist and can be programmatically accessed or manually extracted for an initial set of meta-analyses.
 - **Methodological Framing**: The study design is observational (simulation based on existing data structures); therefore, all findings regarding estimator performance are framed as associational relationships between heterogeneity magnitude and estimator reliability, not causal effects of heterogeneity on truth.
 - **Computational Tractability**: The simulation of 500+ replicates across 5 heterogeneity levels using standard R/Python statistical libraries (e.g., `metafor`, `statsmodels`) will complete within 6 hours on a 2-core CPU without requiring GPU acceleration or 8-bit quantization.
-- **Threshold Justification**: The selected heterogeneity levels ($\tau^2 \in \{0, 0.1, 0.5, 1.0, 2.0\}$) are based on community standards for low, moderate, and high heterogeneity in medical meta-analysis. To ensure scale independence, the simulation will normalize heterogeneity using the $I^2$ statistic alongside $\tau^2$ and will explicitly specify the effect size metric (e.g., Log Odds Ratio) used for the base data, ensuring results are generalizable. A sensitivity analysis will sweep these values to ensure results are not artifacts of specific cutoff choices.
+- **Threshold Justification**: The selected heterogeneity levels ($\tau^ \in \{0, 0.1, 0.5, 1.0, 2.0\}$) are based on community standards for low, moderate, and high heterogeneity in medical meta-analysis. To ensure scale independence, the simulation will normalize heterogeneity using the $I^2$ statistic alongside $\tau^2$ and will explicitly specify the effect size metric (e.g., Log Odds Ratio) used for the base data, ensuring results are generalizable. A sensitivity analysis will sweep these values to ensure results are not artifacts of specific cutoff choices.
 - **Measurement Validity**: The Cochrane data used as the base for simulation represents valid, peer-reviewed effect size estimates, ensuring the "ground truth" for the simulation is grounded in real-world statistical properties.
 - **Multiplicity Control**: Since multiple hypothesis tests (coverage at 5 levels, bias at 5 levels) are performed, a Bonferroni correction is applied to the significance thresholds to control family-wise error rate, as mandated by FR-007.

@@ -3013,3 +3013,369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T22:07:36Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Viechtbauer 2010 metafor package publication in Journal of Statistical
+    Software volume 36 issue 3 pages 1-48
+  claim_id: c_87f159b5
+  context: 'Original Citation: Viechtbauer, W. (2010). Conducting Meta-Analyses in
+    R with the metafor Package. Journal of Statistical Software, 36(3), 1-48.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Viechtbauer, W. (2010). Conducting Meta-Analyses in R with the metafor
+    Package. Journal of Statistical Software, 36(3), 1-48.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:34:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: dat.bang2009 dataset originally from Bang et al. 2009
+  claim_id: c_f3e29169
+  context: 'Original Citation: ... Data originally from: Bang, H., et al. (2009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Data originally from: Bang, H., et al. (2009).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:35:10Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic dataset contains 25 studies
+  claim_id: c_e6af081c
+  context: 'Parameters Used: Number of Studies: 25'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of Studies: 25'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:35:30Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic dataset true between-study variance is 0.04
+  claim_id: c_f72290a6
+  context: 'Parameters Used: True Between-Study Variance ($\tau^2$): 0.04'
+  evidence:
+    asserted: '2.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: 'True Between-Study Variance ($\tau^2$): 0.04'
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T10:35:30Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic dataset true mean effect is 0.0
+  claim_id: c_c68d0fa6
+  context: 'Parameters Used: True Mean Effect: 0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'True Mean Effect: 0.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:35:59Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic dataset within-study variance distribution is LogNormal with
+    mean 0.03 and sigma 0.5
+  claim_id: c_eda4b13c
+  context: 'Parameters Used: Within-Study Variance Distribution: LogNormal (mean ~
+    0.03, sigma 0.5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Within-Study Variance Distribution: LogNormal (mean ~ 0.03, sigma 0.5)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:36:28Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic dataset generation used random seed 42
+  claim_id: c_a4b152a2
+  context: 'Parameters Used: Random Seed: 42'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Random Seed: 42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:37:02Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: Jackson et al. 2010 paper on extending DerSimonian and Laird method published
+    in Statistics in Medicine volume 29 issue 24 pages 2547-2562
+  claim_id: c_8802e631
+  context: 'Citation: Jackson, D., White, I. R., & Thompson, S. G. (2010). Extending
+    the DerSimonian and Laird''s method to meta-analysis of multiple outcomes: a comparison
+    of methods. Statistics in Medicine, 29(24), 2547-2562.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Statistics in Medicine volume 29 issue 24 pages 2547-2562
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Jackson_et_al._2010_paper_on_extending_DerSimonian_and_Laird
+    source_value: https://en.wikipedia.org/wiki/Jackson_et_al._2010_paper_on_extending_DerSimonian_and_Laird
+    subject: Jackson et al. 2010 paper on extending DerSimonian and Laird method
+  kind: relational
+  raw_text: 'Jackson, D., White, I. R., & Thompson, S. G. (2010). Extending the DerSimonian
+    and Laird''s method to meta-analysis of multiple outcomes: a comparison of methods.
+    Statistics in Medicine, 29(24), 2547-2562.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:37:26Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: cochrane_base.csv sourced from Jackson et al. 2010
+  claim_id: c_cdae6c03
+  context: Raw Data Directory section describing cochrane_base.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source: Jackson et al. (2010) ''Meta-Analysis with Fixed and Random Effects''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:44:20Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: 2500 total replicates across 5 levels and 500 replicates per level
+  claim_id: c_7e10cad6
+  context: "T014 Full Scale Performance Test: Run generator.py for the full set (5\
+    \ levels \xD7 500 replicates = 2,500 total)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full set of 5 levels \xD7 500 replicates equals 2,500 total."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:44:54Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Full scale performance test completion within 360 minutes and 7GB RAM
+  claim_id: c_d34fc1bc
+  context: 'T014 Full Scale Performance Test: Verify the process completes within
+    360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The process must complete within 360 minutes (6 hours) and RAM usage <
+    7GB on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:45:14Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Generate at least 500 replicates per heterogeneity level
+  claim_id: c_cf76588b
+  context: "T010 [US1] Implement code/simulation/generator.py to load base Cochrane\
+    \ data and implement a loop generating \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_500_replicates_per_heterogeneity_level
+  kind: magnitude
+  raw_text: "The generator must generate \u2265500 replicates per level for heterogeneity\
+    \ levels {0, 0.1, 0.5, 1.0, 2.0}."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:45:36Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Nominal confidence level hardcoded as 0.95
+  claim_id: c_0f4e32b3
+  context: "T020 [US2] Implement logic in metrics.py to verify coverage at \u03C4\
+    2=0 is statistically indistinguishable from the nominal level hardcoded as 0.95\
+    \ (95% confidence level) (within \xB1 1.5%, alpha=0.05, CI=95%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal confidence level is hardcoded as 0.95 (95% confidence level).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:45:53Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha calculation 0.05 divided by 5
+  claim_id: c_e8f6223a
+  context: "T023 [P] [US3] Unit test test_stats.py verifying Bonferroni correction\
+    \ application (\u03B1 = 0.05/5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Bonferroni correction applies \u03B1 = 0.05/5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:47:19Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Cochrane meta-analysis dataset sourced from cochrane-sample-data package
+  claim_id: c_1fa72601
+  context: 'T040 [P] Fetch Real Data: Execute a script to download a verified Cochrane
+    meta-analysis dataset into data/raw/cochrane_base.csv. Source: Use the cochrane-sample-data
+    Python package (if available) or fetch from .'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cochrane_meta-analysis_dataset_sourced_from_cochrane-sample-
+  kind: entity_fact
+  raw_text: The base dataset source is the cochrane-sample-data Python package or
+    fetched from a verified URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:47:31Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  attempts: 1
+  canonical: Synthetic base dataset parameters cited from Jackson et al 2010
+  claim_id: c_e8eab624
+  context: 'T040b [P] Generate Verified Synthetic Base: Execute this script to generate
+    a synthetic base dataset using parameters explicitly cited from literature (e.g.,
+    Jackson et al., 2010) ONLY IF T040 fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic base dataset parameters are cited from Jackson et al., 2010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:47:43Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: cochrane_base.csv contains effect sizes and standard errors
+  claim_id: c_eec9032b
+  context: "Description: This dataset contains effect sizes (yi) and standard errors\
+    \ (sei) for a series of studies, used as the structural basis for generating synthetic\
+    \ meta-analysis replicates with controlled heterogeneity levels (\u03C4^2)."
+  evidence:
+    entailment_evidence: csv contains effect sizes and standard errors
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Cochrane_base.csv_contains_effect_sizes_and_standard_errors
+  kind: entity_fact
+  raw_text: This dataset contains effect sizes (yi) and standard errors (sei) for
+    a series of studies.
+  resolved_value: cochrane_base.csv contains effect sizes and standard errors
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T10:48:50Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic base dataset study count ranges from 20 to 30 with seed 42
+  claim_id: c_a3b2bec2
+  context: 'Generation Parameters: - Number of Studies: Randomly selected between
+    20 and 30 per run (fixed seed 42 for reproducibility). - Effect Size Distribution:
+    Normal(0.0, 0.8) representing typical standardized mean differences.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of Studies: Randomly selected between 20 and 30 per run (fixed
+    seed 42 for reproducibility).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T10:49:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic base dataset effect size distribution is Normal(0.0, 0.8)
+  claim_id: c_f79ef923
+  context: 'Generation Parameters: - Number of Studies: Randomly selected between
+    20 and 30 per run (fixed seed 42 for reproducibility). - Effect Size Distribution:
+    Normal(0.0, 0.8) representing typical standardized mean differences.'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Effect Size Distribution: Normal(0.0, 0.8) representing typical standardized
+    mean differences.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T10:49:09Z'
+- artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/raw/README.md
+  attempts: 1
+  canonical: synthetic base dataset standard error range is Uniform(0.1, 0.5)
+  claim_id: c_f67209ef
+  context: 'Generation Parameters: - Effect Size Distribution: Normal(0.0, 0.8) representing
+    typical standardized mean differences. - Standard Error Range: Uniform(0.1, 0.5)
+    representing typical study precision.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Standard Error Range: Uniform(0.1, 0.5) representing typical study precision.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T10:49:10Z'

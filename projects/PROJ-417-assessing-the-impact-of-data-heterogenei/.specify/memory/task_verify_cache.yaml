@@ -1,0 +1,33 @@
+T010:
+  c: false
+  h: 621bc64f788fb6f4ba15ff7b93163f043983275242770487023a036ba5d05615
+  r: "The repository contains a partially implemented `generator.py`, but it lacks\
+    \ a complete replication loop for the five \u03C4\xB2 levels and does not produce\
+    \ any output files. Moreover, the required schema file `contracts/simulated_dataset.schema.yaml`\
+    \ is missing, so the output cannot be validated against the contract. The next\
+    \ implementer must add the full simulation loop (\u2265500 replicates per level),\
+    \ ensure the generated datasets include the `injected_true_effect` and `injected_tau2`\
+    \ columns, and provide the missing schema file."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact (e.g., modified `generator.py`) was provided to show the required\
+    \ logic for handling cases where the number of studies\u202FN\u202Fis\u202F<\u202F\
+    5. Without the actual implementation or a description of the changes, we cannot\
+    \ confirm that the edge\u2011case handling (flagging/excluding replicates) has\
+    \ been added. The task remains unfinished."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `generator.py` file or code snippet was provided, and there is no evidence\
+    \ that any logic handling the \u03C4\xB2\u202F=\u202F0 edge case was added. Without\
+    \ the actual implementation (or a description of the changes) we cannot confirm\
+    \ the required functionality exists. The next implementer must supply the updated\
+    \ `generator.py` showing the zero\u2011variance handling logic."
+T040b:
+  c: false
+  h: a7d141eabeccb02ddaa8565d04c592426df24f79c6bbb3f0cbe2f3d4b4bfa893
+  r: "The required `data/raw/cochrane_base_synthetic.csv` file does not exist, and\
+    \ there is no evidence that the script was run or that `research.md` was updated\
+    \ to document the synthetic fallback source. Consequently the task\u2019s core\
+    \ deliverable is missing."

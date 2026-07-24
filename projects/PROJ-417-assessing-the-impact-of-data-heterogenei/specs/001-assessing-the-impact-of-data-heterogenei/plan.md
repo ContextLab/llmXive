@@ -3,7 +3,7 @@
 **Branch**: `001-assess-heterogeneity-impact` | **Date**: 2026-06-26 | **Spec**: `specs/001-assessing-the-impact-of-data-heterogenei/spec.md`
 
 ## Summary
-This feature implements a simulation engine to assess how data heterogeneity (between-study variance $\tau^2$) impacts the performance of meta-analysis estimators (Fixed-Effects, DerSimonian-Laird, REML). The system generates synthetic datasets based on Cochrane Review structures, perturbs them to specific heterogeneity levels, applies estimation methods, and calculates bias and coverage metrics. The implementation is strictly constrained to CPU-only execution on GitHub Actions free-tier runners (2 CPU, 7GB RAM) and includes rigorous statistical testing (Bonferroni correction, exact binomial tests, magnitude estimation) to ensure methodological validity.
+This feature implements a simulation engine to assess how data heterogeneity (between-study variance $\tau^2$) impacts the performance of meta-analysis estimators (Fixed-Effects, DerSimonian-Laird, REML). The system generates synthetic datasets based on Cochrane Review structures, perturbs them to specific heterogeneity levels, applies estimation methods, and calculates bias and coverage metrics. The implementation is strictly constrained to CPU-only execution on GitHub Actions free-tier runners with limited CPU and memory resources. and includes rigorous statistical testing (Bonferroni correction, exact binomial tests, magnitude estimation) to ensure methodological validity.
 
 ## Technical Context
 
@@ -96,7 +96,7 @@ projects/PROJ-417-assessing-the-impact-of-data-heterogenei/
 | :--- | :--- | :--- |
 | **Bonferroni Correction** | Required by FR-007 to control family-wise error rate across heterogeneity levels. | Ignoring multiplicity would inflate Type I error rates, invalidating the statistical conclusions of the study. |
 | **REML Fallback Logic** | Required by FR-006 to handle convergence failures in high heterogeneity/low N scenarios. | Crashing on convergence failure would prevent completion of the full A large number of replicate simulations, violating SC-003. |
-| **Exact Binomial Test** | Required by FR-004 for coverage accuracy with finite samples (500 replicates). | Asymptotic normal approximations are less accurate for coverage proportions near boundaries (0 or 1) or small N. |
+| **Exact Binomial Test** | Required by FR-004 for coverage accuracy with finite samples (a set of replicates). | Asymptotic normal approximations are less accurate for coverage proportions near boundaries (0 or 1) or small N. |
 | **Sensitivity Sweep** | Required by SC-004 to ensure results are not artifacts of specific cutoff choices. | Relying solely on the primary sweep risks missing non-linearities or threshold effects in estimator performance. |
 | **Magnitude Estimation** | Required to address scientific soundness concerns (not just binary rejection). | Binary p-values do not convey the *degree* of under-coverage, which is the primary scientific metric. |
 
